@@ -717,4 +717,29 @@ describe("a wrong answer may be tricky and may not be true", () => {
       expect(item.options).not.toContain("mother");
     }
   });
+
+  /*
+    Real rows. `mina` is stored with the genitive plural `meie`, which is the
+    entry `meie` in its own right, so the spelling played by the word-alone
+    question belongs to two entries and both meanings are true of it. Found by
+    `npm run audit:questions`, which reported `check items heard meie` showing
+    "meie" and offering "I, me".
+  */
+  const PRONOUNS: WordRow[] = [
+    { id: "meie", lemma: "meie", translation: "we, us", pos: "PRONOUN", cefr: "A1", government: null,
+      forms: [{ formType: "NOM_SG", value: "meie" }, { formType: "GEN_SG", value: "meie" }, { formType: "PART_SG", value: "meid" }], examples: [] },
+    { id: "mina", lemma: "mina", translation: "I, me", pos: "PRONOUN", cefr: "A1", government: null,
+      forms: [{ formType: "NOM_SG", value: "mina" }, { formType: "GEN_SG", value: "minu" }, { formType: "PART_SG", value: "mind" }, { formType: "GEN_PL", value: "meie" }], examples: [] },
+  ];
+
+  it("never offers the meaning of another entry the played spelling belongs to", () => {
+    const pool = [...PRONOUNS, ...FAMILY, ...NEIGHBOURS];
+    for (let seed = 1; seed < 40; seed++) {
+      const item = listeningItems(pool, mulberry32(seed)).find((i): i is ChoiceItem => i.id === "l-word-meie");
+      expect(item, `seed ${seed} asked nothing about meie`).toBeDefined();
+      expect(item!.et).toBe("meie");
+      expect(item!.options).toContain("we, us");
+      expect(item!.options).not.toContain("I, me");
+    }
+  });
 });

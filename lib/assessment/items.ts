@@ -683,9 +683,21 @@ export function listeningItems(
   const inPool = heardIndex(pool);
 
   for (const word of shuffle(pool, rng)) {
+    /*
+      A SPELLING PLAYED ALONE IS STILL A SPELLING TWO ENTRIES CAN CLAIM, WHICH
+      THE SENTENCE QUESTION BELOW LEARNED FIRST AND THIS ONE DID NOT. What
+      `meaningTest` reasons about on its own is a second entry under the same
+      *lemma*, and what is played here is a *form*: the genitive plural of
+      `mina` is `meie`, which is an entry in its own right, so "what does this
+      mean" was asked of that spelling with "I, me" standing among the wrong
+      answers and a learner who heard the plural of `mina` was marked wrong for
+      hearing it. Nothing is guessed about which entry the spelling is: both
+      meanings are ruled out, which costs a distractor and never a mark.
+    */
     const set = pickOptions({
       answer: glossFor(word), candidates: glosses, rng,
-      distinct: meaningTest(word, pool), nearness: glossNearness,
+      distinct: meaningTest(word, pool, meaningsHeard(word.lemma, inPool, heard)),
+      nearness: glossNearness,
     });
     if (!set) continue;
     out.push({
