@@ -42,25 +42,26 @@ const SIZES: Record<Size, string> = {
     most laptops, most of the time — gets the smaller, calmer button; a wide
     one gets the size the hero card was designed at.
 
-    `min-h-12` (48px) is not part of that step: a `ButtonLink` renders an
-    `<a>`, which the coarse-pointer tap-target floor in globals.css does not
-    reach (that selector list is `button`, `[role="button"]`, `a.pill`,
-    an icon-only `a[aria-label]`), so nothing else was holding this control to
-    the 44px floor at the compact size. Stated once here rather than left to
-    whichever screen's padding happened to clear it.
+    THE FLOOR IS NOT A `min-h-*` UTILITY HERE, AND THAT WAS TRIED TWICE
+    BEFORE THIS COMMENT EXISTED. `app/globals.css` already carries a
+    coarse-pointer rule, `button:not(.inline-edit) { min-height: 2.75rem }`,
+    and that selector (a type selector plus a `:not()` class) outranks a
+    bare `.min-h-*` utility class in CSS specificity. So a `min-h-11`
+    (44px) and then a `min-h-12` (48px) added here each measured *exactly*
+    the same real height in `scripts/test-signin.mjs` as a plain browser —
+    the global rule was silently winning and clamping this button straight
+    back to 44px both times, landing a hair under it in real sub-pixel
+    layout (which `Math.round` was displaying as a clean, misleading "44"
+    in the failure log) rather than at whatever this component asked for.
 
-    IT IS 48PX RATHER THAN AN EXACT 44, AND THAT MARGIN IS THE FIX FOR A REAL
-    FAILURE RATHER THAN A ROUND NUMBER. `min-h-11` (44px exactly) shipped
-    first and `scripts/test-signin.mjs` — the suite `SignInForm.tsx`'s own
-    comment says exists because an earlier version of this exact button once
-    failed it at 41px — measured "Continue with Google" at a raw height just
-    under 44 on a 360px phone, which `Math.round` had been displaying as a
-    clean "44" in the failure log. Sitting a control exactly on a floor
-    measured in real, sub-pixel browser layout is the floor, with nothing
-    held back for it; 48px is comfortably clear of it and still visibly
-    shorter than the original ~56px.
+    So the floor here is padding, not a competing min-height: `py-3.5` is
+    the same vertical padding the original 56px button used, kept exactly
+    as it was rather than shrunk, with only the horizontal padding and text
+    size stepping down at the compact size. That is comfortably clear of
+    44px on its own, with no min-height utility in the running to lose a
+    specificity fight it cannot win.
   */
-  lg: "min-h-12 px-5 py-3 text-sm 2xl:px-6 2xl:py-3.5 2xl:text-base",
+  lg: "px-5 py-3.5 text-sm 2xl:px-6 2xl:text-base",
 };
 
 const base =
