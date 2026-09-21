@@ -211,7 +211,40 @@ for (const url of ["/welcome"]) {
 }
 
 // Floor: 13, measured in the state CI seeds. A thinner database reads as short.
-const { check, done } = suite("Design system", { floor: 15 });
+const { check, absent, done } = suite("Design system", { floor: 15 });
+
+/**
+ * WHETHER THE CLIENT EVER STARTED, WHICH IS A DIFFERENT QUESTION FROM THE ONE
+ * THIS SUITE ASKS.
+ *
+ * Two of the things measured here exist only once an effect has run: the panes
+ * behind the navigation are placed by `useNavMarker` off the cells' own layout
+ * boxes, and the four letters on the landing page are placed by `LetterTile`.
+ * On a page that never hydrated both are absent, and read as a fault they are
+ * reported as the app drawing no hover state and scattering its ornaments,
+ * which sends whoever reads it into two files that are working perfectly. A
+ * failure may not misname its cause, and this one had three ways to.
+ *
+ * React attaches its own keys to the nodes it owns, so their absence on a page
+ * with fourteen navigation cells in it is the honest signal: the server's HTML
+ * arrived and nothing took it over. Asked of the document rather than of one
+ * element, because a component that failed to mount is a fault and a document
+ * nothing mounted into is something else entirely.
+ *
+ * IT IS A FAILURE RATHER THAN A WAIVER, and that is the decision in this. A
+ * waiver would be right about this machine, where a dev server is serving
+ * chunks that never boot, and it would be a hole exactly the shape of the
+ * worst bug this app could ship: a build whose client never starts renders
+ * every screen, answers nothing, and would wave the whole ornament and hover
+ * half of this suite through in silence. So it is asked once, loudly, and the
+ * checks that rest on it say which failure they are behind rather than each
+ * reporting the app as broken in a different way.
+ */
+const hydrated = (page) => page.evaluate(() => {
+  const owned = (el) => !!el && Object.keys(el).some((k) => k.startsWith("__react"));
+  return owned(document.documentElement) || owned(document.body)
+    || [...document.body.children].some(owned);
+});
 
 /*
   THE SCALE IS READ OFF THE PAGE, BECAUSE IT WAS TYPED HERE AND WENT STALE.
@@ -290,13 +323,37 @@ check("no gradient wraps the wrong color round its own edge", wrapped.size === 0
   here, in both themes, and measured against the pane actually behind the
   words rather than against the page.
 */
+/*
+  Asked first, and once: everything below that needs an effect to have run is
+  behind this one answer rather than each reporting it as a fault of its own.
+*/
+await p.goto(`${B}/grammar`, { waitUntil: "networkidle" });
+await p.waitForTimeout(400);
+const live = await hydrated(p);
+check("the page hydrates, so everything drawn by an effect can be measured",
+  live,
+  "no React took the server's HTML over: the panes, the ornaments and every "
+  + "other effect are absent, and the checks below them cannot look");
+
 const hovered = [];
 for (const theme of ["light", "dark"]) {
   await p.goto(`${B}/grammar`, { waitUntil: "networkidle" });
   await p.evaluate((t) => { document.documentElement.dataset.theme = t; }, theme);
   await p.waitForTimeout(300);
   const row = p.locator('nav[aria-label="Main"] a[href="/progress"]').first();
-  if ((await row.count()) === 0) continue;
+  /*
+    Nothing to hover is not a pass. It used to `continue`, so a run that could
+    not find the rail at all reported that its hover state was fine, which is
+    the shape this repository's own rules call a check nobody can fail.
+  */
+  if ((await row.count()) === 0) {
+    absent(1, `a navigation rail on ${theme}, which this width does not draw`);
+    continue;
+  }
+  if (!live) {
+    absent(1, "a page that hydrates, which the check above reports on");
+    continue;
+  }
   /*
     Park the pointer somewhere else first.
 
@@ -372,7 +429,10 @@ check("a hovered row is drawn, and its words clear AA on the pill behind them",
   and two columns above it.
 */
 const adrift = [], onInk = [], clipped = [], sides = [];
-for (const width of [640, 768, 1280]) {
+/* Placed by an effect, so on a page nothing mounted into they are all four
+   stacked wherever the server left them. Behind the hydration check rather
+   than reported as four ornaments coming loose. */
+for (const width of live ? [640, 768, 1280] : []) {
   await p.setViewportSize({ width, height: 1000 });
   await p.goto(`${B}/welcome`, { waitUntil: "load", timeout: 60000 });
   await p.waitForTimeout(200);
@@ -452,15 +512,16 @@ for (const width of [640, 768, 1280]) {
 }
 await p.setViewportSize({ width: 1280, height: 1000 });
 
-check("every landing letter is tucked over an edge of the card", adrift.length === 0,
+if (!live) absent(4, "a page that hydrates, which the check above reports on");
+if (live) check("every landing letter is tucked over an edge of the card", adrift.length === 0,
   adrift.slice(0, 4).join(" | "));
 /* One to a side is the placement rule, not a description of where they sit.
    Three on one edge and one adrift is what this looked like before it was a
    rule, and every letter overlapping the card cannot tell the difference. */
-check("the four letters take one side each", sides.length === 0, sides.join(" | "));
-check("no landing letter is drawn on anything the card says", onInk.length === 0,
+if (live) check("the four letters take one side each", sides.length === 0, sides.join(" | "));
+if (live) check("no landing letter is drawn on anything the card says", onInk.length === 0,
   onInk.slice(0, 4).join(" | "));
-check("no landing letter is clipped by the edge of the page", clipped.length === 0,
+if (live) check("no landing letter is clipped by the edge of the page", clipped.length === 0,
   clipped.slice(0, 4).join(" | "));
 /*
   THE SLANT SURVIVES THE ANIMATION BEING TAKEN AWAY, which is the only form of

@@ -3,6 +3,7 @@ import { readSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 import { wakeForLevel } from "@/lib/progress/deferrals";
 import { LEVELS, type Level } from "@/lib/collections/syllabus";
 import { BANDS, PRE_A1, type Level as AssessedLevel } from "@/lib/assessment/types";
+import type { LadderStanding } from "@/lib/course/milestones";
 
 /**
  * The level the course opens at.
@@ -90,11 +91,26 @@ export async function currentLevelAnswer(ownerId: string): Promise<LevelAnswer |
   return declared ? { kind: "declared", level: declared } : null;
 }
 
-export async function courseLevelFor(ownerId: string): Promise<Level> {
+/**
+ * The same answer with its kind kept, for the one reader that needs both.
+ *
+ * The climb on Today credits the levels behind where somebody stands and says
+ * on screen whether that standing was measured or stated, so it cannot use
+ * `courseLevelFor`, which deliberately throws the kind away. Out here rather
+ * than at that caller so the `pre-A1` rule below is written once: a result
+ * under A1 is a real result and not a level the course has units for, so it
+ * opens at A1, and a climb reading the raw answer would look for a stop the
+ * ladder does not have.
+ */
+export async function courseStandingFor(ownerId: string): Promise<LadderStanding | null> {
   const answer = await currentLevelAnswer(ownerId);
-  if (!answer) return "A1";
-  if (answer.kind === "declared") return answer.level;
-  return answer.level === PRE_A1 ? "A1" : answer.level;
+  if (!answer) return null;
+  if (answer.kind === "declared") return { level: answer.level, kind: "declared" };
+  return { level: answer.level === PRE_A1 ? "A1" : answer.level, kind: "measured" };
+}
+
+export async function courseLevelFor(ownerId: string): Promise<Level> {
+  return (await courseStandingFor(ownerId))?.level ?? "A1";
 }
 
 const isLevel = (value: string | null | undefined): value is Level =>

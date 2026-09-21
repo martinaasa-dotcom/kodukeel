@@ -5091,6 +5091,76 @@ confidence the hand-off warning exists to catch, drawn as a picture. The band is
 own, so a word learned outside the course counts toward the level it belongs to, and each level is
 clamped to what the ladder asks for rather than summed raw.
 
+**And a level behind the one somebody stands at is counted without being checked, because the rule
+above on its own described the review log rather than the learner.** A B1 speaker opened Today on
+their first morning and read "6% through A1", over a course that had correctly started them at
+B1.1, and reported the card as disconnected from reality. It was: every figure on it was true about
+this app's scheduler, none of it was true about somebody who has been speaking Estonian for a year,
+and the app was holding two answers to where they are and drawing the less informed one. So
+`ladderProgress` takes a `standing` and the levels below it are **credited**: `assumed` is its own
+stop state, the bar is two bands, and the split is printed rather than smoothed over, 46 checked
+beside 688 assumed. Nothing is stored for it (ADR-014), since the standing is one read and the
+arithmetic is pure.
+
+**An assumption may never pass for a measurement, and three things hold that.** `assumed` is not
+`passed`, which matters one module over: `lib/email/letters/milestone.ts` fires on a level the
+scheduler graduated and carries a high-water mark, so folding the two together would post a
+congratulation for a band somebody ticked in a dropdown and burn the real one on the way past.
+`arrived` stays verified only, because the sentence it turns says the learner knows every word the
+level asks for and an assumption cannot say that about anybody, so a learner standing above their
+own target has a full bar and has not arrived. And every screen drawing the credited figure draws
+the checked one beside it, asserted, since `pct` is the credited share now and a card reading it
+alone would publish an estimate in a measurement's clothes. **The credit converts rather than
+sitting there**: each assumed stop carries its own checked count, `30 of 493 checked so far`, which
+is nought on the first morning and climbs on its own, and at full it becomes `passed` like any
+other. `here` is the first stop that is neither passed nor credited rather than the first with a
+hole in it, or the weekly letter would name A1 as the next stop to somebody working through B1.
+`courseStandingFor` is the one reader, beside `courseLevelFor` and sharing its `pre-A1` rule, so
+the bar and the evening under it cannot disagree about which band somebody is on. And **the letter
+about a level the scheduler graduated prints the scheduler's own figure**, `verifiedPct` rather
+than `pct`: that letter draws the percentage as a meter under a sentence saying the number is what
+a card earned by coming back days later, so the credited share there would be an estimate in a
+measurement's clothes in the one place this app speaks to somebody who is not looking at the screen
+that explains it.
+
+**And the levels are blocks rather than dots, because five unlabelled circles on a rail were
+reported in one word: vague.** Nothing on the strip said which level any of them was, so it was a
+picture of the list underneath without the list's own words, and the question somebody glances at
+this to answer, how far along am I, was the one thing it could not say, since a dot at the end of
+A1 looks exactly like a dot anywhere else. Each level is a block as wide as its own share of the
+climb now (`Milestone.share`, which replaced the point the stop sat at), with its name under it,
+and the row reads from the start of A1 to the target: **the widths are the argument**, since A1
+really is a third of the way to C1 and half the way to B1, and five equal fifths would say
+something false about the shape of the course. **What fills a block is its own words**, so a level
+is a progress bar in its own right and the evening spent on one A2 word moves the A2 block, which
+is what a single fill across the whole climb hides. **And the two kinds of fill are two materials
+rather than two hues**: solid is graduated and hatched is credited, because the first version drew
+that second band in `--accent-soft` on a `--raised` track, which in the light theme is two percent
+of lightness apart, so the half of the bar the whole feature is about was invisible. That is the
+fault `components/Choice.tsx` has a paragraph about, one component over. **There is no hover and
+that is not an omission**: a tooltip is a hover, this app is measured on a phone, and everything
+the strip could say on one is either printed under it or in the list below, which is what a screen
+reader gets, since the strip is `aria-hidden`.
+
+**And what has already been congratulated is a set rather than a high-water mark.** The milestone
+letter fires on a level the scheduler graduated, which is the one figure in this app about
+somebody's memory rather than their attendance, and there is no second chance at a level somebody
+passes once, so it remembers what it has said. It remembered one level, with a later one read as
+covering everything under it, which is true only while levels are finished in order and is exactly
+what crediting stops being: a B1 learner fills A1 and A2 in behind them at whatever rate the
+evenings take, so A2 first is ordinary rather than freakish, and under a mark A2's letter spent
+A1's. `milestoneOwed` takes the **lowest** passed level nobody has been told about, so a morning
+that finishes two sends one and leaves the other for tomorrow; `milestoneMark` writes the union and
+**always carries the separator**, because a list naming one level and the old mark are the same
+string otherwise and the first version of this lost A1 exactly as before. A stored value with no
+separator in it is a row written before any of this and keeps the meaning it had. **And a level the
+ladder teaches no words for is not a level anybody passed**: `stopState` is out where a test can
+drive it for that reason, since no data reaches the branch, it fails in the flattering direction,
+and what it would do is post a congratulation for a band nobody has touched and spend the one mark
+that level will ever have. `assumed` is carried on `LadderProgress` rather than subtracted by each
+of the two callers, and `ladderPosition` is memoised, because the nightly run asks for it twice per
+learner, once to decide whether a letter is owed and once to build it.
+
 **And first run ends on the evening rather than on a dashboard.** A stranger who has just answered
 four questions does not want a home page, they want to be told what to do tonight. The last screen
 names the part they open on, how long an evening takes and what tonight holds, shows the whole
@@ -9408,7 +9478,23 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   up saying "you can still open it" at 2.63:1, on every locked row of a 73-unit course; the badge
   shelf that has since been withdrawn and the grammar reference had the same shape. A state that means "not yet" has a border, an
   icon and a sentence to say so with. Where a fade genuinely helps, it goes on the icon.
-- **And the sweep is axe, not a hand-rolled one.** `scripts/a11y-check.mjs` spent its life saying it
+- **And a page that never started is one failure rather than three, and the design suite used to
+report it as the app.** `scripts/test-design.mjs` measures two things that exist only once an
+effect has run, the panes behind the navigation and the four letters tucked over the landing
+card's edges, and against a server whose client never boots both are simply absent: it reported
+that the rail drew no hover state in either theme and that all four ornaments had come loose at
+768, which sends whoever reads it into two files that are working perfectly. A failure may not
+misname its cause, and that one had three ways to. Hydration is asked once now, off React's own
+keys on the document, and the checks that rest on it are waived naming that answer rather than
+each reporting a fault of its own. **It fails rather than waiving**, because a waiver would be
+right about a broken dev server and would be a hole exactly the shape of the worst thing this app
+could ship: a build whose client never starts renders every screen, answers nothing, and would
+wave half this suite through in silence. Measured both ways on one commit: against `next dev` in
+a sandbox where nothing hydrated, one failure naming it and six checks behind it; against `next
+start` on the same code, sixteen checks, none waived. And the hover check no longer passes when
+it cannot find the rail, which was the `A || !A` shape one check over.
+
+**And the sweep is axe, not a hand-rolled one.** `scripts/a11y-check.mjs` spent its life saying it
   was "not a substitute for axe", which was true and was also why five real failures sat unseen. The
   contrast pass it replaced scoped to `main`, so the navigation rail on every signed-in screen was
   outside it, and it read a colour's own alpha but not an `opacity` inherited from a parent. axe

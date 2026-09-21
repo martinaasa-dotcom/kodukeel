@@ -1883,6 +1883,120 @@ check("a lesson at A1 asks only about words the course has taught", () => {
 });
 
 /*
+  A CREDITED LEVEL IS NEVER A PASSED ONE, AND BOTH NUMBERS ARE ALWAYS DRAWN.
+
+  The climb on Today credits the levels behind where a learner stands, because
+  a bar built from this app's review log alone told a B1 speaker they were six
+  percent through A1 on the morning they arrived, beside a course that had
+  correctly opened them at B1.1. What makes that honest rather than flattering
+  is one distinction held in three places, and each of the three is a way it
+  would quietly stop being held.
+
+  The letter is the one that costs most. `lib/email/letters/milestone.ts` fires
+  on a level the scheduler graduated, which is the one figure in this app about
+  somebody's memory rather than their attendance, and it carries a high-water
+  mark so there is no second chance at a level somebody passes once. Read on
+  `assumed` it would post a congratulation for a band ticked in a dropdown, and
+  burn the real one on the way past.
+*/
+check("a level counted from where somebody stands is never counted as passed", () => {
+  const mailout = code("lib/progress/mailout.ts");
+  /* The letter fires on a level the scheduler graduated, which is decided in
+     `milestoneOwed` rather than at the call site: the rule moved out when the
+     mark became a set, and a check reading only the caller would pass on a
+     rule that had quietly started answering about `assumed` instead. */
+  assert.match(
+    between(code("lib/course/milestones.ts"), "export function milestoneOwed"),
+    /m\.state === "passed"/,
+    "the milestone letter stopped firing on a level the scheduler graduated",
+  );
+  assert.doesNotMatch(
+    mailout,
+    /milestoneReached[\s\S]{0,400}"assumed"/,
+    "the milestone letter would congratulate somebody for a level they declared",
+  );
+
+  /*
+    AND THE SCREEN DRAWING THE CREDITED FIGURE DRAWS THE CHECKED ONE BESIDE IT.
+
+    `pct` is the credited share now, so a card reading it and nothing else
+    publishes an estimate in a measurement's clothes, which is the fault this
+    replaced pointed the other way. Anchored on both fields being read rather
+    than on today's markup: what has to survive is that the two numbers arrive
+    on screen together, however the card is laid out.
+  */
+  const bar = code("components/course/LadderBar.tsx");
+  for (const field of ["credited", "verified", "standing"]) {
+    assert.match(
+      bar,
+      new RegExp(`\\b${field}\\b`),
+      `the climb stopped reading ${field}, so it draws one number for two facts`,
+    );
+  }
+  assert.match(bar, /\bassumed\b/, "the climb stopped naming the words it takes on trust");
+
+  /*
+    AND THE LETTER ABOUT A LEVEL THE SCHEDULER GRADUATED PRINTS THE SCHEDULER'S
+    OWN FIGURE.
+
+    `lib/email/letters/milestone.ts` draws that percentage as a meter under a
+    sentence saying the number is what a card earned by coming back days later
+    and being right. `pct` is the credited share, so handed that the letter
+    would put an estimate in a measurement's clothes, in the one place this app
+    speaks to somebody who is not looking at the screen that explains it.
+  */
+  assert.match(
+    between(mailout, 'if (kind === "milestone")'),
+    /pct: ladder\.verifiedPct/,
+    "the milestone letter draws the credited share, which counts a band nobody checked",
+  );
+
+  /*
+    AND WHERE SOMEBODY STANDS IS RESOLVED ONCE, BY THE READER.
+
+    `ladderPosition` has three callers and the one that forgot to hand a
+    standing in would draw a B1 speaker at the bottom of A1, which looks
+    exactly like a learner who has done nothing. `courseStandingFor` is the
+    same answer the course opens at, so the bar and the evening under it
+    cannot disagree about which band somebody is on.
+  */
+  assert.match(
+    code("lib/progress/course.ts"),
+    /courseStandingFor\(ownerId\)/,
+    "the climb stopped asking where the learner stands",
+  );
+  assert.match(
+    code("lib/course/milestones.ts"),
+    /standing: LadderStanding \| null,/,
+    "the standing became optional, so a caller can forget it and draw a beginner",
+  );
+
+  /*
+    AND WHAT HAS BEEN ANNOUNCED IS A SET RATHER THAN A HIGH-WATER MARK.
+
+    There is no second chance at a level somebody passes once, and a mark
+    naming one level can only say "this and everything under it", which is true
+    while levels are finished in order and is exactly what crediting stops
+    being: a B1 learner fills A1 and A2 in behind them at whatever rate the
+    evenings take, so A2 first is ordinary, and under a mark its letter spent
+    A1's. Both sites read one rule, and `milestoneOwed` takes the lowest passed
+    level nobody has been told about, so a morning finishing two sends one and
+    leaves the other for tomorrow rather than swallowing it.
+  */
+  for (const call of ["milestoneOwed(", "milestoneMark(", "everyMilestoneTold("]) {
+    assert.ok(
+      mailout.includes(call),
+      `the milestone letter stopped reading ${call.slice(0, -1)}, so a level passed out of order is lost`,
+    );
+  }
+  assert.doesNotMatch(
+    mailout,
+    /milestoneToldFor\][\s\S]{0,80}>=/,
+    "the milestone mark is compared as a high-water mark again",
+  );
+});
+
+/*
   AND THE FACT BEHIND BOTH COMES FROM THE INSTITUTE.
 
   Nothing in a word's spelling says it is an animal, so this is data rather
@@ -10173,7 +10287,17 @@ check("a plan is built on a standing that says how the level was arrived at", ()
   );
   const level = code("lib/progress/level.ts");
   assert.match(level, /export async function currentLevelAnswer/, "the one level rule has lost its name");
-  assert.match(between(level, "export async function courseLevelFor"), /currentLevelAnswer\(/,
+  /*
+    `courseLevelFor` reads the shared rule, directly or through the one hop
+    that keeps the kind. The hop exists because the climb on Today credits the
+    levels behind where somebody stands and says on screen whether that
+    standing was measured or stated, which `courseLevelFor` deliberately
+    throws away; what may not happen is a second reading of the placement
+    arriving beside it, which is what the two lines below hold.
+  */
+  assert.match(between(level, "export async function courseStandingFor"), /currentLevelAnswer\(/,
+    "courseStandingFor no longer reads the shared rule, so the course and the plan hold two answers");
+  assert.match(between(level, "export async function courseLevelFor"), /courseStandingFor\(|currentLevelAnswer\(/,
     "courseLevelFor no longer reads the shared rule, so the course and the plan hold two answers");
   const elsewhere = ALL.filter((f) =>
     f !== "lib/progress/level.ts"
@@ -18726,8 +18850,16 @@ check("the ladder warns about the next part and never blocks it", () => {
 */
 check("the milestone bar is filled by the scheduler rather than by attendance", () => {
   const half = code("lib/progress/course.ts");
-  const position = half.slice(half.indexOf("export async function ladderPosition"));
-  assert.ok(position.length > 0, "ladderPosition is gone");
+  /* Anchored on the name rather than on `export async function`, which is how
+     this went blind once: the read is memoised now, so the declaration is a
+     `const` and the slice came back empty while every assertion under it
+     passed on nothing. */
+  const at = half.indexOf("export const ladderPosition");
+  /* `slice(-1)` on a miss is one character, which is truthy: the floor under
+     this check has to be the anchor being found rather than the slice being
+     non-empty, or a rename leaves every assertion below reading nothing. */
+  assert.ok(at >= 0, "ladderPosition is gone");
+  const position = half.slice(at);
   assert.match(
     position.slice(0, 1400), /state: 2/,
     "the bar stopped counting graduated cards. Anything else is attendance drawn as attainment",

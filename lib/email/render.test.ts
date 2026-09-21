@@ -110,7 +110,7 @@ const EVERY: Letter[] = [
     reviews: 91,
     held: 212,
     conversations: 2,
-    ladder: { target: "B1", pct: 41, next: { level: "A2", wordsAway: 120 } },
+    ladder: { target: "B1", pct: 41, assumed: 318, next: { level: "A2", wordsAway: 120 } },
     part: { title: NASTY, eveningsLeft: 3 },
   }),
   deadlineLetter({

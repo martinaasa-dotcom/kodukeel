@@ -60,6 +60,12 @@ export interface WeeklyInput {
   readonly ladder: {
     readonly target: string;
     readonly pct: number;
+    /**
+     * Words of that percentage credited from the level they stand at rather
+     * than graduated by the scheduler. Nought where nothing is credited, and
+     * the letter says which it is either way (`lib/course/milestones.ts`).
+     */
+    readonly assumed: number;
     /** The next stop, and how far it is. Null at the top. */
     readonly next: { readonly level: string; readonly wordsAway: number } | null;
   } | null;
@@ -145,9 +151,21 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     }
     blocks.push({
       t: "quiet",
-      text:
-        "That bar moves on words the scheduler has decided you keep, days after you met them. " +
-        "Opening the app does not move it.",
+      /*
+        WHAT THE BAR IS MADE OF, AND THE SPLIT SAID RATHER THAN SMOOTHED OVER.
+
+        It is the climb the screen draws, which since the levels below somebody
+        stands at are credited is two things at once. A letter printing the
+        figure without the split would be the estimate leaving the app dressed
+        as a measurement, which is the one thing the card on Today is careful
+        not to do, and a letter is read further from its own explanation than a
+        screen is.
+      */
+      text: input.ladder.assumed > 0
+        ? `About ${input.ladder.assumed} of those words are counted from the level you are at ` +
+          "rather than checked. The rest the scheduler has decided you keep, days after you met them."
+        : "That bar moves on words the scheduler has decided you keep, days after you met them. " +
+          "Opening the app does not move it.",
     });
   }
 
