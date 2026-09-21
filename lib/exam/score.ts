@@ -272,8 +272,11 @@ export function markItem(
     case "dictation": {
       const typed = response.kind === "typed" ? response.value : "";
       const result = checkDictation(typed, item.answer);
+      // A missing diacritic and a stray space are both a mistake that does
+      // not stop the answer being understood, which is the spec's own test
+      // for a slip that is not counted: `kuuekuup` is not a wrong sentence.
       const correct = acceptsSlips("dictation")
-        ? result.verdict === "correct" || result.verdict === "diacritics"
+        ? result.verdict === "correct" || result.verdict === "diacritics" || result.verdict === "spacing"
         : result.verdict === "correct";
       return scale({
         itemId: item.id, scored: correct ? 1 : 0, available: 1, correct,

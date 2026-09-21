@@ -30,6 +30,13 @@ export type WordStatus =
   | "diacritics"
   /** One keystroke out. */
   | "typo"
+  /**
+   * The right words, run together or split apart — `kuuekuup` for `kuue
+   * kuup`, or the reverse. Estonian runs no words together on its own, so
+   * this is never a wrong word: it is the right ones with the space in the
+   * wrong place, which is a spelling slip rather than a different sentence.
+   */
+  | "spacing"
   /** A different word in the same slot. */
   | "wrong"
   /** In the sentence, not in the answer. */
@@ -53,7 +60,7 @@ export interface DictationResult {
   total: number;
   /** Percentage of the sentence typed exactly right, 0–100. */
   accuracy: number;
-  verdict: "correct" | "diacritics" | "close" | "wrong";
+  verdict: "correct" | "diacritics" | "spacing" | "close" | "wrong";
   /** What to grade the card, unless the learner overrides it. */
   suggestedRating: 1 | 2 | 3;
   /** A one-line summary, ready to display. */
@@ -87,7 +94,8 @@ export function dictationWords(text: string): string[] {
   return text.split(/\s+/).map((w) => w.trim()).filter((w) => normalise(w).length > 0);
 }
 
-type Pairing = Exclude<WordStatus, "missing" | "extra">;
+/** What one typed word can be, against one expected word. */
+type Pairing = Exclude<WordStatus, "missing" | "extra" | "spacing">;
 
 /**
  * A slipped keystroke, as opposed to a different form of the word.
@@ -119,6 +127,59 @@ function compare(expected: string, typed: string): Pairing {
 const COST: Record<Pairing, number> = { right: 0, diacritics: 0.4, typo: 0.6, wrong: 1.6 };
 /** Leaving a word out, or inventing one, costs about as much as getting it wrong. */
 const GAP = 1;
+/**
+ * Two expected words typed as one, or one typed as two — cheaper than a wrong
+ * word and a missing one (1.6 + 1 = 2.6), because the content was heard
+ * exactly right and only the space moved. Dearer than a typo, because a
+ * dropped keystroke is a smaller slip than a whole word boundary.
+ */
+const SPACE_COST = 0.5;
+/**
+ * What a merge or split costs extra when it only lines up once the
+ * diacritics are folded away too — a learner can drop both in one breath,
+ * and `kuueoue` for `kuue õue` is still every word heard, just twice slipped
+ * rather than once. The same weight `diacritics` carries on an ordinary pair.
+ */
+const DIACRITICS_IN_SPACE_COST = 0.4;
+/**
+ * How many expected words may run together, or one word may be typed as, in
+ * one slip. Two covers the case this was built for; three catches a learner
+ * who drops two spaces in a row without letting a run of five words vanish
+ * into "extra" and "missing" for no gain — sentences here are a dozen words
+ * at most, so the extra checks per cell cost nothing.
+ */
+const MAX_SPACE_WORDS = 3;
+
+/** Every word in the span, normalised on its own and run together with nothing between. */
+function joinSpan(words: readonly string[]): string {
+  return words.map(normalise).join("");
+}
+
+/**
+ * Whether a run of expected words reads as a run of typed words with the
+ * spaces taken out: exactly, only once the diacritics are folded away too,
+ * or not at all. The one guard between a stray space and a genuinely
+ * different word, so this only ever forgives a space that was actually
+ * dropped or added.
+ */
+function spaceMatch(wantSpan: readonly string[], gotSpan: readonly string[]): "exact" | "diacritics" | null {
+  const want = joinSpan(wantSpan);
+  const got = joinSpan(gotSpan);
+  if (want === got) return "exact";
+  if (fold(want) === fold(got)) return "diacritics";
+  return null;
+}
+
+/**
+ * The span itself carries no extra cost: two different spans can never both
+ * match the same single word exactly (they would need different lengths of
+ * letters), so there is nothing to break a tie between and nothing to prefer
+ * a smaller reading over. What can vary is only whether the diacritics had
+ * to be folded away to make the match.
+ */
+function spaceCost(match: "exact" | "diacritics"): number {
+  return SPACE_COST + (match === "diacritics" ? DIACRITICS_IN_SPACE_COST : 0);
+}
 
 export function checkDictation(typed: string, expected: string): DictationResult {
   const want = dictationWords(expected);
@@ -150,20 +211,51 @@ function align(want: string[], got: string[]): DictationWord[] {
       const pair = table[i - 1]![j - 1]! + COST[compare(want[i - 1]!, got[j - 1]!)];
       const skipExpected = table[i - 1]![j]! + GAP;
       const skipTyped = table[i]![j - 1]! + GAP;
-      table[i]![j] = Math.min(pair, skipExpected, skipTyped);
+      let best = Math.min(pair, skipExpected, skipTyped);
+      // A run of expected words typed as one: `kuue kuup` typed `kuuekuup`.
+      for (let span = 2; span <= Math.min(MAX_SPACE_WORDS, i); span++) {
+        const match = spaceMatch(want.slice(i - span, i), [got[j - 1]!]);
+        if (match) best = Math.min(best, table[i - span]![j - 1]! + spaceCost(match));
+      }
+      // One expected word typed as a run: a space (or two) landed inside it.
+      for (let span = 2; span <= Math.min(MAX_SPACE_WORDS, j); span++) {
+        const match = spaceMatch([want[i - 1]!], got.slice(j - span, j));
+        if (match) best = Math.min(best, table[i - 1]![j - span]! + spaceCost(match));
+      }
+      table[i]![j] = best;
     }
   }
 
   const out: DictationWord[] = [];
   let i = rows;
   let j = cols;
-  while (i > 0 || j > 0) {
+  outer: while (i > 0 || j > 0) {
     if (i > 0 && j > 0) {
       const status = compare(want[i - 1]!, got[j - 1]!);
       if (table[i]![j] === table[i - 1]![j - 1]! + COST[status]) {
         out.push({ expected: want[i - 1]!, typed: got[j - 1]!, status });
         i--; j--;
         continue;
+      }
+    }
+    if (j >= 1) {
+      for (let span = 2; span <= Math.min(MAX_SPACE_WORDS, i); span++) {
+        const match = spaceMatch(want.slice(i - span, i), [got[j - 1]!]);
+        if (match && table[i]![j] === table[i - span]![j - 1]! + spaceCost(match)) {
+          out.push({ expected: want.slice(i - span, i).join(" "), typed: got[j - 1]!, status: "spacing" });
+          i -= span; j--;
+          continue outer;
+        }
+      }
+    }
+    if (i >= 1) {
+      for (let span = 2; span <= Math.min(MAX_SPACE_WORDS, j); span++) {
+        const match = spaceMatch([want[i - 1]!], got.slice(j - span, j));
+        if (match && table[i]![j] === table[i - 1]![j - span]! + spaceCost(match)) {
+          out.push({ expected: want[i - 1]!, typed: got.slice(j - span, j).join(" "), status: "spacing" });
+          i--; j -= span;
+          continue outer;
+        }
       }
     }
     if (i > 0 && table[i]![j] === table[i - 1]![j]! + GAP) {
@@ -175,6 +267,17 @@ function align(want: string[], got: string[]): DictationWord[] {
     j--;
   }
   return out.reverse();
+}
+
+/**
+ * Whether a merged or split entry only lined up once the diacritics were
+ * folded away too, i.e. `kuueoue` read as `kuue õue` rather than an exact
+ * concatenation of it. The one place this is decided, so `wordNote` and
+ * `judge` cannot count it two different ways.
+ */
+function spacingHasDiacriticsSlip(word: DictationWord): boolean {
+  if (word.status !== "spacing" || !word.expected || !word.typed) return false;
+  return joinSpan(word.expected.split(" ")) !== joinSpan(word.typed.split(" "));
 }
 
 function judge(
@@ -191,17 +294,47 @@ function judge(
     return { verdict: "correct", suggestedRating: 3, note: "Word for word." };
   }
 
-  // Only the letters that Estonian writes and English does not. Worth its own
-  // verdict: the learner heard every word, which is the hard half.
-  const onlyDiacritics = words.every((w) => w.status === "right" || w.status === "diacritics");
-  if (onlyDiacritics) {
-    const slipped = words.filter((w) => w.status === "diacritics").length;
+  /*
+    THE LEARNER HEARD EVERY WORD, WHICH IS THE HARD HALF.
+    Dropping the Estonian letters and running two words together are both
+    "the right sentence, marked down for spelling" rather than "the wrong
+    sentence" — `kuuekuup` for `kuue kuup` is every letter the sentence has,
+    in order, with nothing between two of them that should have been there.
+    Grading that like an unheard sentence teaches the wrong lesson. A single
+    gate here, rather than two `.every()` calls that could drift apart on
+    which statuses they let through; the verdict below is still the more
+    specific `diacritics` where no space moved, so the two continue to read
+    as two different notes.
+  */
+  const heardEverything = words.every((w) =>
+    w.status === "right" || w.status === "diacritics" || w.status === "spacing");
+  if (heardEverything) {
+    const spaced = words.filter((w) => w.status === "spacing");
+    // A merge or split can itself have lost its diacritics, so that count is
+    // folded in here rather than only ever coming from an ordinary pair.
+    const slipped = words.filter((w) => w.status === "diacritics").length
+      + spaced.filter(spacingHasDiacriticsSlip).length;
+
+    if (spaced.length === 0) {
+      return {
+        verdict: "diacritics",
+        suggestedRating: 2,
+        note: slipped === 1
+          ? "Every word heard, one is missing its Estonian letters."
+          : `Every word heard, ${slipped} are missing their Estonian letters.`,
+      };
+    }
+
+    const spaceNote = spaced.length === 1 ? "one needs a space moved" : `${spaced.length} need a space moved`;
+    const diacriticsNote = slipped === 1
+      ? "one is missing its Estonian letters"
+      : `${slipped} are missing their Estonian letters`;
     return {
-      verdict: "diacritics",
+      verdict: "spacing",
       suggestedRating: 2,
-      note: slipped === 1
-        ? "Every word heard, one is missing its Estonian letters."
-        : `Every word heard, ${slipped} are missing their Estonian letters.`,
+      note: slipped > 0
+        ? `Every word heard, but ${spaceNote}, and ${diacriticsNote}.`
+        : `Every word heard, but ${spaceNote}.`,
     };
   }
 
@@ -232,6 +365,10 @@ function judge(
  * and told apart only by a `title` attribute, which is a hover tooltip. On a
  * phone, which is the device this app is measured on, hover does not happen,
  * so on the primary device the exercise's headline distinction was invisible.
+ * `spacing` is the third such distinction: the words were heard exactly, and
+ * only the space between two of them moved, which is not the same lesson as
+ * either of the other two — and can happen alongside a dropped diacritic in
+ * the very word the space moved out of.
  *
  * The main review flow already had this right: `checkAnswer` produces a
  * sentence and `ReviewSession` prints it. This is that, per word, and it
@@ -259,6 +396,17 @@ export function wordNote(word: DictationWord): string | null {
     // dropped diacritic is that this one is a slip and that one is a thing to
     // learn; spelling out the slip would give the two the same weight again.
     return "one letter out";
+  }
+
+  if (word.status === "spacing") {
+    // The words in `expected` outnumbering the words in `typed` is a merge
+    // (two or more words run together); the other way round is a split.
+    const spaceIssue = word.expected.split(" ").length > word.typed.split(" ").length
+      ? "missing a space"
+      : "an extra space";
+    // The same slip can lose a diacritic on the way, since folding the
+    // diacritics away is what let the merge or split match at all.
+    return spacingHasDiacriticsSlip(word) ? `${spaceIssue}, and its Estonian letters` : spaceIssue;
   }
 
   return null;

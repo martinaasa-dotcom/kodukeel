@@ -48,13 +48,14 @@ export interface DictationMark {
  * A dictation is marked word by word, and credited in between.
  *
  * Exact accuracy is the base, with a floor for an answer whose only fault is
- * missing Estonian letters: that learner heard every word, which is the half
- * this section is about.
+ * missing Estonian letters, or a space in the wrong place: that learner heard
+ * every word, which is the half this section is about, and a run-together
+ * pair like `kuuekuup` for `kuue kuup` is not a wrong sentence.
  */
 export function gradeDictation(item: DictationItem, typed: string): DictationMark {
   const result = checkDictation(typed, item.et);
   const base = result.accuracy / 100;
-  const credit = result.verdict === "diacritics" ? Math.max(base, 0.8) : base;
+  const credit = result.verdict === "diacritics" || result.verdict === "spacing" ? Math.max(base, 0.8) : base;
   return { credit: Math.min(1, Math.max(0, credit)), result };
 }
 
@@ -88,30 +89,45 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
 
   const check = checkAnswer(answer, item.targetForm, "et");
   if (check.verdict === "correct") {
-    return { credit: 1, right: true, usedAnotherForm: false, note: `${item.targetForm} is what the sentence had.` };
+    return { credit: 1, right: true, usedAnotherForm: false, note: "That is the form the sentence wanted." };
   }
   if (check.verdict === "diacritics" || check.verdict === "typo") {
     // A dropped diacritic is named by letter, because that is a thing to learn.
-    // A slipped keystroke is not: `checkAnswer` quotes the word back, and this
-    // sentence is about to say it again, so the two together read "So close,
-    // the word is Eesti. The sentence had Eesti." Dictation calls the same
-    // mistake "one letter out" and this is the same mistake.
-    const slip = check.verdict === "diacritics" ? check.note : "One letter out.";
+    // A slipped keystroke is not: `checkAnswer` quotes the word back, and the
+    // sentence under this says it again in bold with the form picked out, so
+    // the two together read "So close, the word is Eesti. The sentence had
+    // Eesti." Dictation calls the same mistake "one letter out", and this is
+    // the same mistake.
     return {
       credit: 0.8,
       right: true,
       usedAnotherForm: false,
-      note: `${slip} The sentence had ${item.targetForm}.`,
+      note: check.verdict === "diacritics" ? check.note : "One letter out.",
     };
   }
 
   const other = item.otherForms.find((form) => checkAnswer(answer, form, "et").verdict === "correct");
   if (other) {
+    /*
+      THE COMMONEST WRONG ANSWER IS THE WORD PRINTED ABOVE THE BOX, so it gets
+      a sentence of its own. The screen leads with the lemma in bold, and a
+      learner who cannot work out the ending types back what they can see, so
+      `other` is the lemma itself more often than it is anything else. Written
+      as one line for the whole branch that read "kolmkümmend is a real form of
+      kolmkümmend, but this sentence wants kolmekümne", which is a tautology in
+      front of somebody who has just been marked wrong and was reported as one.
+
+      Neither line names the wanted form: `FullSentence` draws it directly
+      under this, in the sentence, in the accent. Saying it here as well is the
+      same word twice in two inches.
+    */
     return {
       credit: 0.4,
       right: false,
       usedAnotherForm: true,
-      note: `${other} is a real form of ${item.lemma}, but this sentence wants ${item.targetForm}.`,
+      note: other.toLowerCase() === item.lemma.toLowerCase()
+        ? "That is the dictionary form. This sentence needs it in another one."
+        : `That is another form of ${item.lemma}, not the one this sentence needs.`,
     };
   }
 
@@ -119,7 +135,7 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
     credit: 0,
     right: false,
     usedAnotherForm: false,
-    note: `The sentence had ${item.targetForm}.`,
+    note: `That is not a form of ${item.lemma}.`,
   };
 }
 

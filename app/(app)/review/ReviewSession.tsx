@@ -1196,7 +1196,8 @@ export function ReviewSession({
       <Page title="Review" lead="Spaced repetition, timed to when you are about to forget.">
         {drillCase ? (
           <Empty
-            title={`No ${drillCase.toLowerCase()} cards yet`}
+            // The Estonian name, like every other screen that names a case.
+            title={`No ${caseByKey(drillCase)?.et ?? drillCase.toLowerCase()} cards yet`}
             body="Tick 'Case form' when you add a word, or start a noun unit on the path."
             action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
           />
@@ -1287,7 +1288,7 @@ export function ReviewSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {drillCase
-              ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the {drillCase.toLowerCase()} drill done. These cards still follow their normal schedule.</>
+              ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span> drill done. These cards still follow their normal schedule.</>
               : drillUnit
                 ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s this unit drilled. Its cards still follow their normal schedule.</>
                 : drillScan
@@ -1353,6 +1354,32 @@ export function ReviewSession({
         </span>
       </div>
 
+      {/*
+        WHAT NARROWED THIS SESSION, ONCE, RATHER THAN ON EVERY CARD OF IT.
+
+        These two were chips in the card header, beside the card's own type and
+        its "New word": four pills across the top of a 360px card, of which two
+        were a fact about the *session* reprinted on all thirty of its cards. A
+        session-scope fact belongs on the session, which is this row.
+      */}
+      {(drillCase || drillScan) && (
+        <p className="-mt-4 mb-7 text-sm" style={{ color: "var(--ink-3)" }}>
+          {drillCase
+            /*
+              AND THE CASE IS NAMED THE WAY A CLASS NAMES IT.
+
+              `drillCase` is the `CaseKey` off the URL, so `.toLowerCase()` on
+              it is `inessive`: the Latin name, on the daily path, which is the
+              one thing CLAUDE.md says no screen may print. It survived because
+              the sweep that enforces that rule reads string literals and
+              brace-free JSX text, and this is a value interpolated into a run
+              of text, which is the residual that rule names in writing.
+            */
+            ? <>Drilling the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span>.</>
+            : <>From {drillScan!.title}.</>}
+        </p>
+      )}
+
       {/* A look back stands in the round's place rather than over it: the card
           underneath must not be answerable while somebody is reading an older
           one, and one screen at a time is what every other step here does. */}
@@ -1364,10 +1391,10 @@ export function ReviewSession({
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+          {/* Two chips at the most, and both about this card. What narrowed the
+              session is said once, above, rather than on every card of it. */}
           <Chip tone="accent">{TYPE_LABEL[card.cardType] ?? card.cardType}</Chip>
           {card.isNew && <Chip tone="good">{card.intro?.isPhrase ? "New phrase" : "New word"}</Chip>}
-          {drillCase && <Chip tone="hard">{drillCase.toLowerCase()} drill</Chip>}
-          {drillScan && <Chip tone="sky">{drillScan.title}</Chip>}
           <div className="ml-auto flex items-center gap-1">
             {card.lemma && (
               <FullEntry lemma={card.lemma} />

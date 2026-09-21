@@ -32,38 +32,39 @@ import { Explain } from "@/components/Explain";
  * not score the speaking section, because nothing in this app may.
  */
 
+/*
+  ONE LINE A SECTION.
+
+  These were paragraphs, and each of them spent most of its length arguing
+  rather than telling: the writing card explained that a lexicographer wrote
+  the word and that no model reads the answer, the listening card explained
+  what happens to the score if the speaker stays silent. Both are true, both
+  are defended at length elsewhere, and neither is what somebody standing in
+  front of a section they are about to sit wants to know, which is what the
+  section is and how it is answered. The one claim kept is speaking's, because
+  it changes what the reader should do: there is no point trying hard to
+  impress a marker that does not exist.
+*/
 const SECTIONS: Record<Skill, { icon: typeof Compass; title: string; body: string }> = {
   reading: {
     icon: Compass,
     title: "Reading",
-    body:
-      "What a word means and which form a sentence needs. These are sentences just like the " +
-      "state exam.",
+    body: "What a word means, and which form a sentence needs.",
   },
   listening: {
     icon: Headphones,
     title: "Listening",
-    body:
-      "Estonian audio with nothing written down: single words first, then whole sentences at " +
-      "normal speed. If the audio will not play, say so, and this section is left unmeasured " +
-      "instead of marked as a failure. A silent speaker is not a fact about your listening.",
+    body: "Estonian audio with nothing written down. Say so if it will not play.",
   },
   writing: {
     icon: PenLine,
     title: "Writing",
-    body:
-      "A sentence with a word missing, and you type in the form it needs. It is checked against " +
-      "the word a lexicographer actually wrote there, so the verdict is certain and no AI ever " +
-      "reads your answer.",
+    body: "A sentence with a word missing. Type the form it needs.",
   },
   speaking: {
     icon: Mic,
     title: "Speaking",
-    body:
-      "This one cannot be scored and is not going to pretend otherwise. There is no Estonian " +
-      "speech recognition we can honestly trust, so you hear a native voice and say how " +
-      "confident you would be saying it yourself. That answer is reported as yours and never " +
-      "moves your level.",
+    body: "Nothing scores this. Hear it said, then say how confident you would be.",
   },
 };
 

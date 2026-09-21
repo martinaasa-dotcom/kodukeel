@@ -1302,8 +1302,15 @@ cost four fifths of the dictionary on the first run and looked like a clean resu
 what disagrees; `--write` applies it. **The first pass over the whole of `expanded.json`, all
 5,363 entries, came back clean on 2026-08-31**, which is worth writing down because every pass
 before it stopped at B1: A1 to B1 is 2,164 entries and the 3,199 above it had never been asked.
-`.github/workflows/drift.yml` asks weekly and had not fired yet, having landed on main the same
-day after that Monday's cron, so this was its first execution by hand. A clean result over a
+`.github/workflows/drift.yml` asks weekly, and that sentence was written the week it landed,
+before its first cron, so this was its first execution by hand. **Every firing since died in
+twenty-nine seconds** on `Cannot find module '.prisma/client/default'`: the job ran `npm ci` and
+went straight to the audit, `prisma/expanded.ts` imports `Prisma` as a value, and the client is
+generated rather than installed, so the one drift check that needs no credential had never once
+run and the page cache it carefully carries between weeks had never been written. Nothing said
+so, because a scheduled job nobody watches is red in a tab nobody opens, which is the same
+argument this file makes about a check that can fail and has never been made to. It generates
+the client now, like every job in `ci.yml`. A clean result over a
 parser this quiet is only worth the words if the check can fail, so it was made to: run the same
 comparison against a translation known to be wrong and all 5,363 flag. What remains is not parser
 drift but a page being wrong about its own word, which is what the report queue is for. The
@@ -1450,12 +1457,12 @@ guarded, since a parameter nobody passes is not a feature, it is the bug's only 
 **And a word Anu suggested is marked as a model's, which it was not.** `createLexeme` is reached
 only from her vocabulary bridge, where a learner presses a button on a word she offered, and it
 wrote the row down as `USER` with the sentence "Suggested by Anu, forms unverified" in `notes`. That
-sentence was the only record of either fact. `AI · verify` is keyed on the provenance, so the chip
-never appeared, not on the entry and not on the card whose answer had never been checked, which is
-the one place ADR-005 cares about; and `enrichFromEkilex` refuses to touch a `USER` word, "hers, not
-ours to overwrite", so the word could never be upgraded to real Ekilex forms either. Both turn round
-with the label, and the tag goes away by itself the moment Ekilex answers, which is what "verify"
-was asking for.
+sentence was the only record of either fact. Everything that refuses to vouch for such a row is
+keyed on the provenance, so none of it fired: `vouchable` cleared the word for the scanner, the
+headlines and the chat guard alike, on a card whose answer had never been checked, which is the one
+place ADR-005 cares about; and `enrichFromEkilex` refuses to touch a `USER` word, "hers, not ours to
+overwrite", so the word could never be upgraded to real Ekilex forms either. Both turn round with
+the label, and it stops applying by itself the moment Ekilex answers.
 
 **And 1,359 Estonian definitions had been fetched and thrown away.** The harvest asks Ekilex for the
 explanation of every course word and writes it into `prisma/data/harvested.ts`, and the seed wrote
@@ -2831,6 +2838,19 @@ makes a distractor true is usually outside that window, so `paperFor` hands the 
 dictionary's index from `lib/dict/facts.ts`, where it is a fact about the shared dictionary like the
 rest. `npm run audit:questions` asks the same question of every `heard` item it builds, which it
 had excluded from the "is the answer shown" question and was therefore checking with nothing.
+
+**And the sentence question learned that and the word question did not.** The rule above is about
+what else was in the *recording*, and the listening section asks three things, one of which plays a
+single word. A word played alone is still a spelling, and a spelling can belong to two entries:
+`mina` is stored with the genitive plural `meie`, which is the entry `meie` in its own right, so
+"listen, then pick what it means" was asked of that spelling with "I, me" standing among the wrong
+answers, and a learner who heard the plural of `mina` was marked wrong for hearing it. What
+`meaningTest` reasons about alone is a second entry under the same *lemma*, which is `hall` the
+frost beside `hall` the colour and cannot see a *form* shared across two lemmas. Both questions ask
+`meaningsHeard` now, of the sentence and of the lemma. It was reported by `npm run audit:questions`
+and it was there before the run that reported it: the audit builds a whole paper off one seeded
+generator, so a change anywhere above the listening section moves the draw, and a latent fault
+surfaces on the commit that shifted the stream rather than on the one that made it.
 
 **A question nobody can get wrong is worse in a measurement than on a card.** Thirty entries in the
 shipped dictionary are spelled the same in both languages, and the level check's meaning question
@@ -10036,6 +10056,38 @@ screen names no case at all: the grammar reference, the dictionary entry and eve
 from the same function, so the two shapes of one task cannot say different things, and the learn
 ladder keeps `explainForm` alone because it has already drawn the sentence and its English itself.
 
+**And two of the three things that clause could say were about a form the learner was not looking
+at.** The rule above is right and the reading under it was wrong twice, in a way no screenshot
+shows, because a wrong clause reads exactly like a right one. `plainAsk` is keyed on the case
+names for a nominal and on Ekilex's own codes for a verb, and the placement check kept a private
+table translating the seed's principal parts into the first of those and nothing at all into the
+second. So **the number was thrown away**: `NOM_PL`, `GEN_PL` and `PART_PL` were mapped onto the
+singular keys, and 828 of the 3,392 gaps the shipped dictionary builds described a plural with the
+singular's clause, `sõbrad` reading "the form you use as the plain dictionary word" about a word
+whose dictionary form is `sõber` and is printed three words earlier in the same sentence. And
+**every seeded verb fell through**, because a principal part carries no Ekilex code and
+`PRES_1SG` is not `IndPrSg1`: the clause was null on all 249 verb gaps, so the one part of speech
+where the ending is hardest to reason out was the one part of speech the screen said nothing
+about. `slotCodeOf` in `lib/estonian/morph.ts` is the one reading of which slot a row is in,
+whichever way the row spells it, and the pairs in it are checked by driving both spellings through
+`formName`: a wrong pair names two different forms, which is the only way a table like that fails
+and the only way it fails loudly. The clauses the verbs needed are the infinitive and the two
+participles, which is 210 of the 249, because a sentence a lexicographer wrote is far likelier to
+hold one of those than a first person. **The plural is said before the clause and instead of it
+once**, on the nominative, where every other clause stays true of a plural and "as the plain
+dictionary word" is a claim about that exact spelling that a plural makes false.
+
+**And every audit was reading a dictionary whose every sentence was bare.** `scripts/lib/dictionary.ts`
+is the adapter the audits assemble the shipped dictionary through, and it built each entry's
+sentences as `({ et, en: null })` under a comment that was true about the wrong thing: no *entry*
+file carries an English column, because a translation is a fact about the sentence and lives in
+`prisma/data/example-english.json` keyed on it, which the seed joins on both of its paths. So any
+measurement of what a learner reads beside a sentence was a measurement of a deployment nobody
+has, and the first run of one here reported that no gap in the level check carries an English line
+where 3,363 of 3,392 do. The closed reader list on `lib/dict/exampleEnglish.ts` swept `app/`,
+`lib/`, `components/` and `prisma/`, which is where a *screen* lives and is not where this is; it
+sweeps `scripts/` too, so the fifth answer to what a sentence means cannot appear unwatched.
+
 **Speaking is asked, not recorded.** The check played a native rendering, recorded the learner, and
 asked them to rate the comparison. Nothing scored it (ADR-018), so what the microphone bought was a
 permission prompt and a clip in exchange for a rating that was going to be the learner's own
@@ -10130,12 +10182,41 @@ elative, and the exam builder was asking about them as verbs. Two invariants, bo
 first.
 
 **A level is never decided by a model, and never built out of Estonian we wrote.** The placement
-check at `/assess` is assembled from `Lexeme`, `Form` and recorded `usages`; every question says
-which of those its Estonian came from. Marking is a stored index, a recorded sentence, or a string
+check at `/assess` is assembled from `Lexeme`, `Form` and recorded `usages`. Marking is a stored
+index, a recorded sentence, or a string
 comparison against a form the dictionary vouches for, in that order, and no provider is reachable
 from `lib/assessment/`. A learner meeting this app for the first time cannot tell when the machine
 is the one that is confused, so the machine is never the judge. The overall level is the **average**
 of the measured skills, floored (ADR-020 amendment 2).
+
+**And the claim is kept in the code rather than printed under every question.** Each item used to
+carry an `ItemSource` and each answered question ended in "A recorded sentence. No Estonian on this
+screen was written by this app or by an AI." Eighty times a paper, under a screen that had already
+said it in the briefing, which is the shape `docs/18-voice.md` calls advice nobody asked for printed
+again until it stops being read. The operator asked for it off every screen in the app and was right
+about what it costs: the guarantee is worth making once, where somebody is deciding whether to trust
+the thing, and a line repeated at the foot of every card is furniture. Nothing about the guarantee
+moved, because it was never that line holding it up: the pure builders, the absent provider import
+and the invariants above are what make it true, and they are all still here. The field went with the
+line rather than being left to reach nobody, which is the fault this file records seven `caseEn`
+fields having had.
+
+**What may not go is the refusal to vouch for output nobody has checked.** A disclaimer under
+attested Estonian is a claim about the app and is worth making once; what `createLexeme` writes
+about a word Anu suggested is a claim about *that word*, and it is the one thing standing between a
+learner and drilling a form nothing vouched for (ADR-005). Removing the first does not license
+touching the second, and the two read alike only from a distance.
+
+**And the mark that carried it is a chip this app no longer draws, so the guard is `vouchable` and
+nothing else.** `AI · verify` was taken off every screen, and four comments and this file went on
+naming it as the thing holding ADR-005 up on that path: a sentence stating a false fact about the
+module next door, which is the fault this file keeps finding in its own prose, made once more by the
+pass that took the disclaimers off. What actually holds it is `vouchable` in `lib/dict/search.ts`,
+which refuses `provenance: "AI"` outright, so such a row is never a scanned page's answer, never a
+headline's headword, never the word of the day, never lent a sentence and never what the chat guard
+clears its own Estonian against. It is behaviour rather than copy, so it cannot be removed by a copy
+pass, and it goes away by itself the moment Ekilex answers. **A claim in prose about a mark on a
+screen is checked against the screen**, or the next pass reasons from it.
 
 **And the average is the level, because the minimum was reporting a stranger three bands under
 themselves.** The rule was the weakest measured skill, on the argument that a CEFR level is a claim
@@ -10450,7 +10531,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `answerTimeReading`, `confusions`, `formatAnswerTime`, `NotAutomatic`, `scriptedFor`, `scriptable`,
 `TODAY_CARDS`, `weakestCase`, `roundCard`, `orderTodayCards`, `todayOrderFrom`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
-`conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
+`conjugationSlotFromFront`, `slotCodeOf`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
 `addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `composeNote`, `wantsFreshLine`, `gateFor`,
 `switchesRegisterAt`, `switchesRegister`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
@@ -10617,6 +10698,17 @@ a page that rendered nothing and a page that was still rendering read identicall
 And the local runner now unsets the provider keys, because this box carries three and CI carries
 none: a suite measured with `EKILEX_API_KEY` exported is a suite measured on a different app, which
 is the fault `PROVIDER_KEY_ENV` exists for one layer down.
+
+**And typing into a box is not the same as the page hearing it.** `test-flash.mjs` filled `#answer`
+and clicked "Check it" in the next statement, and that button is disabled while the box is empty. A
+controlled React input is the server's HTML until the page hydrates, so a fill that lands first
+sits in the DOM with nobody listening, hydration renders the controlled empty string over it, and
+the button is disabled for the rest of the run: one shard lost, reported as
+`locator.click: Timeout 30000ms exceeded` against a `<button disabled>` on a card that was working
+perfectly, on a commit that touches no screen in that round. `question()` one function up already
+waits for the question rather than for `main`, for its own version of this reason, and the fill did
+not. It types until the button the typing is supposed to enable is enabled, with a budget, and a
+page that genuinely never enables it reaches the click and fails saying what it found.
 
 **A suite that writes to the shared dictionary invents the word it writes.** `Lexeme` is unique on
 `[lemma, pos]` rather than on the lemma, deliberately, because `hall` is a noun meaning frost and an
@@ -10853,7 +10945,7 @@ reason it will stay green: Upside Lab kept one that nothing ran and it drifted t
 failures before anybody counted. Assert the rule, not today's markup.
 
 `scripts/test-assess.mjs` sits a whole level check in a browser, question by question, and checks
-the things a unit test cannot see: that every question says where its Estonian came from, that the
+the things a unit test cannot see: that the
 listening section abandons itself rather than dead-ending when the speech service is unavailable,
 that the result names how few questions it came from and refuses to call itself a certificate, and
 that first run reaches the plan before it asks anybody to pick a single word.

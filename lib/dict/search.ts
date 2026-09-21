@@ -638,8 +638,14 @@ export interface FormMatch {
  *
  * Inside the function rather than in its callers, for the reason the ledger's
  * meter lives inside `ask()`: the next caller inherits it by reaching for the
- * function. The tag goes away by itself the moment Ekilex answers, which is
- * what the `AI · verify` chip is asking for.
+ * function. The refusal lifts by itself the moment Ekilex answers, because
+ * `enrichFromEkilex` writes the real forms and the provenance with them.
+ *
+ * THIS IS THE WHOLE OF THE GUARD, AND IT USED NOT TO BE. An `AI · verify` chip
+ * said the same thing on the entry until it was taken off every screen, and
+ * four comments went on naming it as what holds ADR-005 up here. Copy can be
+ * removed by a copy pass and this cannot, which is the argument for the rule
+ * living in a predicate rather than in a badge.
  *
  * Pure, like `rankCandidates`, so the boundary can be tested over fixtures.
  */

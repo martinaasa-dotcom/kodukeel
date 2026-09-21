@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, History, Undo2 } from "lucide-react";
 import { Button } from "@/components/Button";
-import { Chip, KeyCap } from "@/components/ui";
+import { Chip } from "@/components/ui";
 import { Speak } from "@/components/Speak";
-import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { earlier, later, openAt, remember, forgetLast, type SeenCard } from "@/lib/ux/lookBack";
 
 /**
@@ -339,8 +339,11 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
         </Button>
       </div>
 
+      {/* The one thing the buttons cannot say. The keycap came off: the button
+          beside it is labelled with where it goes, so the shortcut was a second
+          instruction for a control already on the screen. */}
       <p className="px-6 pb-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        Nothing here is graded. <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap> to carry on.
+        Nothing here is graded.
       </p>
     </div>
   );

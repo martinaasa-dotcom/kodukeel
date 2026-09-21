@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { formLabel, formName, morphCodeFor, morphCodeOf, numberFromMorphCode } from "./morph";
+import {
+  FORM_TYPE_CODES, formLabel, formName, morphCodeFor, morphCodeOf, numberFromMorphCode,
+  slotCodeOf,
+} from "./morph";
 
 /**
  * NAMING A FORM, ON THE ROWS THE SEED ACTUALLY WROTE.
@@ -124,5 +127,39 @@ describe("the two tables that name a verb's present", () => {
       const person = name.et.split(" ")[1]!;
       expect(name.en, `${type} says ${person} in both halves`).not.toContain(person);
     }
+  });
+});
+
+/*
+  `slotCodeOf` translates a seeded principal part into the Ekilex code for the
+  same slot, so a table keyed on Ekilex's codes answers for a form the seed
+  wrote under its own name. The risk in it is a wrong pair, which is silent:
+  the caller gets an answer about a different form and it reads exactly like an
+  answer about this one. Nothing else in the app knows the pairing, so the
+  check is that the two spellings name the same form through `formName`, which
+  is the one place both key spaces already have names.
+*/
+describe("a principal part and its Ekilex code are one slot", () => {
+  it("names the same form whichever way the row spells it", () => {
+    expect(FORM_TYPE_CODES.length).toBeGreaterThanOrEqual(12);
+    for (const [formType, code] of FORM_TYPE_CODES) {
+      const stored = formName({ formType });
+      const retrieved = formName({ formType: `EKILEX:${code}` });
+      expect(stored, `${formType} has no name`).toBeTruthy();
+      expect(retrieved, `${code} has no name`).toBeTruthy();
+      expect(stored, `${formType} and ${code} name two different forms`).toEqual(retrieved);
+    }
+  });
+
+  it("reads the number off a principal part as well as off a code", () => {
+    expect(numberFromMorphCode(slotCodeOf({ formType: "PART_PL" }))).toBe("PLURAL");
+    expect(numberFromMorphCode(slotCodeOf({ formType: "PART_SG" }))).toBe("SINGULAR");
+    expect(numberFromMorphCode(slotCodeOf({ formType: "EKILEX:PlAd" }))).toBe("PLURAL");
+  });
+
+  it("hands back anything it does not translate rather than guessing", () => {
+    expect(slotCodeOf({ formType: "EKILEX:SgIn" })).toBe("SgIn");
+    expect(slotCodeOf({ formType: "SOMETHING_ELSE" })).toBe("SOMETHING_ELSE");
+    expect(slotCodeOf({})).toBeNull();
   });
 });

@@ -21,7 +21,7 @@ const B = baseUrl();
   Raised by one: first run now asks what language a meaning should be given in,
   on the screen before any Estonian is shown.
 */
-const { check, absent, done } = suite("Level check", { floor: 49 });
+const { check, absent, done } = suite("Level check", { floor: 48 });
 
 const browser = await launchChromium();
 const context = await browser.newContext({ viewport: { width: 1280, height: 1100 } });
@@ -54,7 +54,6 @@ check("it says up front that speaking is judged by the learner",
 
 await page.goto(`${B}/assess?take=1`, { waitUntil: "networkidle" });
 
-const provenance = [];
 let asked = 0;
 let sawSpeaking = false;
 let sawWriting = false;
@@ -158,8 +157,6 @@ for (let step = 0; step < 200; step++) {
     }
     await choice.first().click();
     await page.waitForTimeout(150);
-    const note = await page.getByText(/No Estonian on this screen was written/i).count();
-    provenance.push(note > 0);
     const next = page.getByRole("button", { name: /Next question/ });
     if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
     continue;
@@ -179,8 +176,6 @@ for (let step = 0; step < 200; step++) {
 }
 
 check("a paper can be sat from end to end", asked >= 4, `${asked} questions answered`);
-check("every question says where its Estonian came from",
-  provenance.length > 0 && provenance.every(Boolean), `${provenance.filter(Boolean).length}/${provenance.length}`);
 check("the paper reaches the writing section", sawWriting);
 check("the paper reaches the speaking section", sawSpeaking);
 check("speaking says out loud that it is not scored", saidNotScored);

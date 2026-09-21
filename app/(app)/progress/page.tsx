@@ -27,7 +27,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Board, BoardSkeleton } from "./Board";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lemmasByCardLexeme } from "@/lib/dict/facts";
-import { Card, Chip, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
+import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
 import { Explain } from "@/components/Explain";
@@ -226,12 +226,16 @@ export default async function ProgressPage() {
             label={`Shield${shields === 1 ? "" : "s"} banked`}
           />
           <span className="ml-auto"><ShareProgress /></span>
-          {/* What the shield figure beside it means. It used to be explained on
-              the badge shelf, which is where it was paid out and is not where
-              it is spent. */}
-          <p className="w-full text-xs" style={{ color: "var(--ink-3)" }}>
-            A shield carries your streak through one day you miss. One arrives at 7, 30 and 100 days.
-          </p>
+          {/* What the shield figure beside it means, behind a press rather than
+              standing under four figures in 13px grey. It is an explanation
+              rather than a status, which is `Explain`'s own rule: somebody who
+              wants to know what a shield is can ask, and everybody else gets
+              the four numbers they came for. */}
+          <div className="w-full">
+            <Explain label="What a shield does">
+              It carries your streak through one day you miss. One arrives at 7, 30 and 100 days.
+            </Explain>
+          </div>
         </Card>
 
         {/* The number FSRS is actually steering, and what it means. Placed
@@ -292,7 +296,17 @@ export default async function ProgressPage() {
         </section>
 
         <section>
-          <SectionTitle hint={`last ${TREND_DAYS} days`}>Reviews and recall</SectionTitle>
+          {/* The four rating counts ride in the hint rather than as a row of
+              chips under the bars: they are one fact about the period, which is
+              what a hint is for, and four coloured pills under a coloured chart
+              is two legends for one picture. */}
+          <SectionTitle
+            hint={breakdown.total === 0
+              ? `last ${TREND_DAYS} days`
+              : `${breakdown.again} again · ${breakdown.hard} hard · ${breakdown.good} good · ${breakdown.easy} easy`}
+          >
+            Reviews and recall
+          </SectionTitle>
           <Card>
             <div className="flex h-28 items-end gap-[3px]">
               {trend.map((d) => (
@@ -315,12 +329,6 @@ export default async function ProgressPage() {
                 No reviews yet. Each bar is a day, colored by how much you recalled.
               </p>
             )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Chip tone="again">{breakdown.again} again</Chip>
-              <Chip tone="hard">{breakdown.hard} hard</Chip>
-              <Chip tone="good">{breakdown.good} good</Chip>
-              <Chip tone="accent">{breakdown.easy} easy</Chip>
-            </div>
           </Card>
         </section>
 
@@ -372,9 +380,8 @@ export default async function ProgressPage() {
             <Card>
               {outside.total === 0 ? (
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  Nothing reported yet. Today asks each morning whether you spoke any Estonian to somebody
-                  yesterday, and the answers land here. This is the one number that matters more than any
-                  chart on this page.
+                  Nothing reported yet. Today asks each morning whether you spoke Estonian to
+                  anybody, and the answers land here.
                 </p>
               ) : (
                 <div className="flex flex-col gap-4">
@@ -410,8 +417,14 @@ export default async function ProgressPage() {
                       promise with nothing to fall from. Only where there is a
                       month behind this one to set it against.
                     */}
+                    {/*
+                      The Stat above already prints how many switched. What it
+                      cannot print is the month before it, which is the whole
+                      reason the figure is worth watching, so that is all this
+                      line carries now.
+                    */}
                     {outside.previous.total > 0
-                      ? `They switched in ${outside.byOutcome.SWITCHED} of ${outside.total} this month, against ${outside.previous.switched} of ${outside.previous.total} in the thirty days before. Self-reported, and that is the figure to watch: it falls as your Estonian holds.`
+                      ? `Against ${outside.previous.switched} of ${outside.previous.total} the month before. Self-reported, and the figure to watch: it falls as your Estonian holds.`
                       : "Self-reported, and the switch to English is the figure to watch: it falls as your Estonian holds."}
                   </p>
                 </div>

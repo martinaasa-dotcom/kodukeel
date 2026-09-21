@@ -19,7 +19,7 @@ import { VOICES } from "@/lib/audio/voice";
 import { checkDictation, wordNote, type DictationResult, type WordStatus } from "@/lib/estonian/dictation";
 import type { RatingValue } from "@/lib/srs/scheduler";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, VERDICT_INK, verdictOfDictation } from "@/lib/ux/verdict";
 import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -56,6 +56,7 @@ const WORD_TONE: Record<WordStatus, { className: string; label: string }> = {
   right: { className: VERDICT_CLASS.right, label: "exactly right" },
   diacritics: { className: VERDICT_CLASS.nearly, label: "the right word, without its Estonian letters" },
   typo: { className: VERDICT_CLASS.nearly, label: "one keystroke out" },
+  spacing: { className: VERDICT_CLASS.nearly, label: "the right words, with the space in the wrong place" },
   wrong: { className: VERDICT_CLASS.wrong, label: "a different word" },
   missing: { className: VERDICT_CLASS.wrong, label: "left out" },
   extra: { className: "", label: "not in the sentence" },
@@ -230,10 +231,14 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
             Dictation done
           </h1>
-          <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Writing down what you hear is the closest thing to using the language. Every sentence in
-            this round was recorded by dictionary editors, not by this app.
-          </p>
+          {/*
+            No paragraph here. The first sentence was this app telling somebody
+            who has just finished a round why the round was worth doing, and
+            the second was the provenance disclaimer, which is off every screen
+            in the app now: it is a claim worth making once, where somebody is
+            deciding whether to trust this, and not at the foot of a drill.
+            Three tiles say how it went, which is what the screen is for.
+          */}
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={done} label="Written" tone="accent" />
@@ -451,7 +456,7 @@ function Marked({ result }: { result: DictationResult }) {
         unchanged, so the hue still says which of the three it was and the
         sentence still says it in words.
       */}
-      <p className="text-center text-md font-semibold" style={{ color: VERDICT_INK[result.verdict === "correct" ? "right" : result.verdict === "wrong" ? "wrong" : "nearly"] }}>
+      <p className="text-center text-md font-semibold" style={{ color: VERDICT_INK[verdictOfDictation(result.verdict)] }}>
         {result.note}
       </p>
       <div className="pop-in flex flex-wrap justify-center gap-1.5">

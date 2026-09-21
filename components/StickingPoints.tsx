@@ -6,6 +6,8 @@ import { BookOpen, Compass, EyeOff, Undo2 } from "lucide-react";
 import { setCardSuspended } from "@/app/actions";
 import { Chip } from "@/components/ui";
 import { stickingNote, type StickingPoint } from "@/lib/stats/sticking";
+import { caseByKey } from "@/lib/estonian/cases";
+import type { CaseKey } from "@/lib/estonian/types";
 
 const TYPE_LABEL: Record<string, string> = {
   RECOGNITION: "Estonian → English",
@@ -116,7 +118,13 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                   className="pill press inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-ui hover:-translate-y-px"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
                 >
-                  <Compass size={12} aria-hidden /> The {point.targetCase.toLowerCase()}
+                  {/* The Estonian name a class uses, never the Latin one. The
+                      slug in the href above is the exception CLAUDE.md names;
+                      this run of text is not. */}
+                  <Compass size={12} aria-hidden /> The{" "}
+                  <span lang="et">
+                    {caseByKey(point.targetCase as CaseKey)?.et ?? point.targetCase.toLowerCase()}
+                  </span>
                 </Link>
               )}
               <Link

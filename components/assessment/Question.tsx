@@ -8,11 +8,11 @@ import { Speak } from "@/components/Speak";
 import { LEARNING_RATE } from "@/lib/audio/clip";
 import { Chip, KeyCap, Note } from "@/components/ui";
 import { BLANK } from "@/lib/estonian/cloze";
+import { splitOnForm } from "@/lib/dict/examples";
 import { gradeChoice, gradeDictation, gradeWrite } from "@/lib/assessment/score";
-import type { ChoiceItem, DictationItem, Item, SpeakItem, WriteItem } from "@/lib/assessment/types";
-import type { WordStatus } from "@/lib/estonian/dictation";
-import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
-import { Explain } from "@/components/Explain";
+import type { ChoiceItem, DictationItem, SpeakItem, WriteItem } from "@/lib/assessment/types";
+import { wordNote, type WordStatus } from "@/lib/estonian/dictation";
+import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCredit, verdictOfDictation } from "@/lib/ux/verdict";
 
 /**
  * One question, and its answer.
@@ -38,27 +38,10 @@ const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
   right: { className: VERDICT_CLASS.right, title: "Exactly right" },
   diacritics: { className: VERDICT_CLASS.nearly, title: "The right word, without its Estonian letters" },
   typo: { className: VERDICT_CLASS.nearly, title: "One keystroke out" },
+  spacing: { className: VERDICT_CLASS.nearly, title: "The right words, with the space in the wrong place" },
   wrong: { className: VERDICT_CLASS.wrong, title: "A different word" },
   missing: { className: VERDICT_CLASS.wrong, title: "Left out" },
   extra: { className: "", title: "Not in the sentence" },
-};
-
-/**
- * The provenance line. Every Estonian string on screen says where it is from.
- *
- * "From the dictionary" was true and told a learner nothing: whose dictionary,
- * and why should they believe it over the teacher who told them `kallis` also
- * means dear? Both sources are named, because they are the two this app is
- * built on and neither is ours. Ekilex is the Institute of the Estonian
- * Language's own database, which is the authority a class would cite, and the
- * English glosses come from Wiktionary. A source a reader can go and check is
- * the difference between a claim and a citation.
- */
-const SOURCE_LABEL: Record<Item["source"], string> = {
-  dictionary: "From Kodukeel's dictionary",
-  ekilex: "A recorded form",
-  derived: "Worked out from the omastav stem, by rule rather than by guess",
-  usage: "A recorded sentence",
 };
 
 /**
@@ -104,37 +87,32 @@ export function EstonianPrompt({ text }: { text: string }) {
  * The blank the learner typed into was drawn in the accent (`EstonianPrompt`
  * above); the word that actually filled it wears the same accent now, in the
  * same slot, so the eye lands on it without having to read the whole sentence
- * again. `answer` is the exact spelling `buildCloze` took out, so it is always
- * in `full` once, at the position it left it (ADR-005: nothing here writes or
- * changes a character of it, it only marks where one already is).
+ * again.
+ *
+ * The split is `splitOnForm`, the same word-boundary match `EstonianSentence`
+ * marks a form with, rather than a plain substring search: Estonian is
+ * agglutinative enough that a short answer (`sa`, `on`, `ta`) is routinely a
+ * substring of some other, longer word standing earlier in the same sentence
+ * (`sa` inside `vasakul`), and a bare `indexOf` would light up two letters in
+ * the middle of that word instead of the real one. Nothing here writes or
+ * changes a character of the sentence, it only marks where one already is.
  */
 function FullSentence({ full, answer }: { full: string; answer: string }) {
-  const index = full.indexOf(answer);
-  if (index === -1) {
-    return (
-      <p lang="et" className="mt-4 text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
-        {full}
-      </p>
-    );
-  }
   return (
     <p lang="et" className="mt-4 text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
-      {full.slice(0, index)}
-      <span
-        className="rounded-[var(--r-sm)] px-1.5"
-        style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-      >
-        {answer}
-      </span>
-      {full.slice(index + answer.length)}
-    </p>
-  );
-}
-
-export function Provenance({ source }: { source: Item["source"] }) {
-  return (
-    <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
-      {SOURCE_LABEL[source]}. No Estonian on this screen was written by this app or by an AI.
+      {splitOnForm(full, answer).map((run, i) =>
+        run.match ? (
+          <span
+            key={i}
+            className="rounded-[var(--r-sm)] px-1.5"
+            style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+          >
+            {run.text}
+          </span>
+        ) : (
+          <span key={i}>{run.text}</span>
+        ),
+      )}
     </p>
   );
 }
@@ -269,7 +247,6 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             phonics, which is worse than leaving the two words unmarked.
           */}
           <p className="mt-3 text-base" style={{ color: "var(--ink-2)" }}>{item.because}</p>
-          <Provenance source={item.source} />
           <Button
             variant="primary"
             size="lg"
@@ -362,27 +339,58 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
         </div>
       ) : (
         <div className="pop-in mt-6" role="status">
-          <Chip tone={mark.result.verdict === "correct" ? "good" : mark.result.verdict === "wrong" ? "again" : "hard"}>
+          {/* The panel rather than a chip, for the reason `WriteQuestion` gives
+              below: a chip uppercases, and these notes are sentences. And the
+              verdict through `verdictOfDictation` rather than the same
+              three-way ternary written out here and again in the dictation
+              round, which is the mapping `lib/ux/verdict.ts` exists to be the
+              one of: how a mark looks is one decision, wherever the reading it
+              was made from came from. */}
+          <div className={`${VERDICT_CLASS[verdictOfDictation(mark.result.verdict)]} verdict-panel`}>
             {mark.result.note}
-          </Chip>
+          </div>
+          {/*
+            What was typed stays on screen, not only in a `title` tooltip: a
+            phone has no hover, and a learner correcting a slip needs to see
+            exactly what they wrote, next to what was wanted, rather than
+            reconstruct it from memory.
+          */}
           <div className="mt-4 flex flex-wrap gap-1.5">
             {mark.result.words.map((word, i) => {
               const tone = WORD_TONE[word.status];
+              const shown = word.expected ?? word.typed ?? "";
+              const note = wordNote(word);
               return (
                 <span
-                  key={`${word.expected ?? word.typed ?? ""}-${i}`}
-                  lang="et"
-                  title={tone.title}
-                  className={`${tone.className} rounded-[var(--r-sm)] px-2 py-1 text-base`}
+                  key={`${shown}-${i}`}
+                  aria-label={`${shown}, ${tone.title}${
+                    word.typed && word.typed !== shown ? `. You typed ${word.typed}` : ""
+                  }`}
+                  className={`${tone.className} flex flex-col items-center rounded-[var(--r-sm)] px-2 py-1`}
                   style={word.status === "extra" ? { background: "var(--raised)", color: "var(--ink-3)" } : undefined}
                 >
-                  {word.expected ?? word.typed}
+                  <span
+                    lang="et"
+                    className="text-base"
+                    style={{ textDecoration: word.status === "extra" ? "line-through" : undefined }}
+                  >
+                    {shown}
+                  </span>
+                  {word.status !== "right" && word.status !== "extra" && (
+                    <span className="text-2xs" style={{ color: "var(--ink-3)" }} aria-hidden>
+                      {word.typed ? `you: ${word.typed}` : "left out"}
+                    </span>
+                  )}
+                  {note && (
+                    <span className="text-2xs" style={{ color: "var(--hard-ink)" }} aria-hidden>
+                      {note}
+                    </span>
+                  )}
                 </span>
               );
             })}
           </div>
           <p lang="et" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{item.et}</p>
-          <Provenance source={item.source} />
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit })}>
             Next question
           </Button>
@@ -428,10 +436,6 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             autoFocus
             onEnter={() => setMark(gradeWrite(item, text))}
           />
-          <Explain label="How this is marked">
-            Checked directly against the word a lexicographer put in this sentence, so no AI is
-            involved, and none is needed.
-          </Explain>
           <div className="mt-4">
             <Button variant="primary" size="lg" onClick={() => setMark(gradeWrite(item, text))}>
               Check
@@ -440,20 +444,27 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
         </div>
       ) : (
         <div className="pop-in mt-6" role="status">
-          <Chip tone={mark.credit === 1 ? "good" : mark.credit > 0 ? "hard" : "again"}>{mark.note}</Chip>
           {/*
-            The sentence put back together, and then why it wanted that word.
-            The sentence alone answers "what was it", which a learner who has
-            just been marked wrong can already see from the mark. What they
-            asked for is why `kaardilt` and not `kaart`, and that is the same
-            explanation the multiple choice version of this task prints, from
-            the same function, so the two cannot say different things.
+            THE VERDICT IS A PANEL, NOT A CHIP. A chip is `label-xs`, which
+            uppercases, so a whole sentence in one arrived as a block of
+            shouted small caps: "KOLMKÜMMEND IS A REAL FORM OF KOLMKÜMMEND,
+            BUT THIS SENTENCE WANTS KOLMEKÜMNE." That is the `.verdict-panel`
+            rule every other marking screen in the app already follows, and
+            this screen was the one that had not caught up.
+          */}
+          <div className={`${VERDICT_CLASS[verdictOfCredit(mark.credit)]} verdict-panel`}>
+            {mark.note}
+          </div>
+          {/*
+            Then the sentence with the wanted form picked out, and under it
+            only what the sentence cannot say for itself: what it means, and
+            which form it wanted. `explainWrittenGap` leaves the sentence out
+            for that reason, because `FullSentence` has just drawn it.
           */}
           <FullSentence full={item.full} answer={item.targetForm} />
-          {mark.credit < 1 && (
+          {mark.credit < 1 && item.because && (
             <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.because}</p>
           )}
-          <Provenance source={item.source} />
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit })}>
             Next question
           </Button>

@@ -293,8 +293,24 @@ const answered = await eventually(
 );
 check("the page drills through the ordinary review session", answered,
   `${await ratings.count()} ways on offered, ${await gradedNow()} graded`);
-const named = await page.getByText("Scan test page", { exact: true }).count();
-check("and the session says which page it is drilling", named > 0);
+/*
+  Anywhere in the session, rather than as a text node of its own. This read
+  `getByText(..., { exact: true })`, which is a whole text node and so was
+  really asserting that the title sat alone in a chip: it moved into a line of
+  its own above the card ("From Scan test page."), because what narrowed the
+  session is a fact about the session and was being reprinted on every one of
+  its cards. The claim worth keeping is that the session says which page it is
+  drilling, not which element says it.
+
+  THE WHOLE PHRASE RATHER THAN THE TITLE ALONE. Looking for the title anywhere
+  in `main` passes on any page that happens to name it, so with the line
+  deleted the check would have gone on passing the day something else printed
+  it: a check that cannot fail is worse than none. What is asserted is the
+  sentence the session draws, which is still a claim about the copy rather
+  than about the markup around it.
+*/
+const named = (await page.locator("main").innerText()).includes("From Scan test page.");
+check("and the session says which page it is drilling", named);
 
 check("no console errors anywhere in that", errors.length === 0, errors.slice(0, 2).join(" | "));
 

@@ -14,6 +14,9 @@
  * the failure has.
  */
 
+import { caseByKey } from "@/lib/estonian/cases";
+import type { CaseKey } from "@/lib/estonian/types";
+
 export interface LeechCandidate {
   cardId: string;
   front: string;
@@ -116,6 +119,20 @@ export function rankLeeches(candidates: LeechCandidate[], limit = 8): Leech[] {
 }
 
 /**
+ * How a case is named to Anu: the Estonian name and the question it answers.
+ *
+ * Nothing is invented — both come off `CASES`, which is the one table of what a
+ * case is called, so this file writes no Estonian of its own.
+ */
+function caseLine(key: string | null): string {
+  if (!key) return "";
+  const spec = caseByKey(key as CaseKey);
+  if (!spec) return "";
+  const asks = [spec.asksThing, spec.asksWhere].filter(Boolean).join(" ");
+  return `It asks for the ${spec.et}${asks ? ` (${asks})` : ""}.`;
+}
+
+/**
  * The question put to Anu about one leech.
  *
  * Deliberately specific. "Explain this word" produces a dictionary entry the
@@ -130,7 +147,16 @@ export function buildClinicQuestion(leech: Leech, confusable: string[]): string 
     ``,
     `Card: ${leech.front} → ${leech.back}`,
     leech.lemma ? `Word: ${leech.lemma}${leech.translation ? ` (${leech.translation})` : ""}` : "",
-    leech.targetCase ? `It asks for the ${leech.targetCase.toLowerCase()}.` : "",
+    /*
+      The name a class uses, never the Latin one. This read
+      `targetCase.toLowerCase()`, so Anu was asked about "the inessive": the
+      one name in this app that helps nobody, put to the tutor whose own brief
+      says to give the reading rather than the Latin term. She is told what a
+      class would call it and what it asks, which is the same pair every screen
+      naming a case already prints. A key the table does not hold says nothing
+      rather than falling back to the Latin name.
+    */
+    caseLine(leech.targetCase),
     `I have reviewed it ${leech.history.length} times and got it wrong ${leech.failRate}% of the time.`,
     `The pattern: it ${leech.pattern}.`,
     confusable.length

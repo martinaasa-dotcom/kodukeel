@@ -696,7 +696,21 @@ check("every rate is the one clip stretched in one place, and every clip is prep
   );
   const player = code("lib/audio/clip.ts");
   assert.match(player, /stretch\(decodeWav\(/, "the player stopped stretching the clip it plays");
-  assert.match(player, /request\.slow\) return pace\.slow/, "the slow play stopped reading the learner's own slow rate");
+  /*
+    The slow rate used to be `pace.slow` outright — a fraction of the raw
+    pace, ignoring any ceiling the caller asked for. That made the slow
+    button barely distinguishable from the everyday play wherever a screen's
+    own rate ceiling (dictation's LEARNING_RATE) already bound the everyday
+    rate below the raw pace: reported as sounding identical. The slow rate is
+    a fraction of `base`, which is the ceiling-capped rate this request
+    actually plays at, so the button is always a real step down from what was
+    just heard.
+  */
+  assert.match(
+    player,
+    /request\.slow\) return Math\.max\(SLOWEST, base \* SLOW_OF_NORMAL\)/,
+    "the slow play stopped stepping down from the rate this request actually plays at",
+  );
   assert.match(player, /pace = request\.pace \?\? DEFAULT_PACE/, "the everyday play stopped reading the learner's own pace");
   assert.match(player, /stretchedClip\(request, rateFor\(request\)\)/, "playClip plays a clip at a rate it did not work out through rateFor");
   const browserStretch = ["app", "lib", "components"]
@@ -10500,6 +10514,65 @@ check("every script a workflow runs is a script that exists", () => {
   assert.deepEqual(absent, [], `a workflow runs a script file that is not there: ${absent.join(", ")}`);
 });
 
+check("a job that runs an audit generates the Prisma client first", () => {
+  /*
+    `.github/workflows/drift.yml` fired every Monday for weeks and died in
+    twenty-nine seconds each time, on `Cannot find module
+    '.prisma/client/default'`. The job ran `npm ci` and went straight to
+    `npm run audit:glosses`; every audit reads the shipped dictionary through
+    `prisma/expanded.ts` or `scripts/lib/dictionary.ts`, both of which import
+    `Prisma` as a value, and the client is generated rather than installed,
+    since package.json has no `postinstall`. So the one drift check that needs
+    no credential had never once run, and nothing said so, because a scheduled
+    job nobody watches is red in a tab nobody opens.
+
+    Per job rather than per file, because ci.yml holds eleven of them and a
+    twelfth added without this line would sit behind the ten that have it.
+    `npm run build` counts, since that script generates before it does anything
+    else, and that is asserted here rather than remembered.
+  */
+  const build = (JSON.parse(read("package.json")) as { scripts: Record<string, string> }).scripts
+    .build;
+  assert.ok(
+    build?.includes("prisma generate"),
+    "npm run build no longer generates the client, so it cannot stand in for the step below",
+  );
+
+  const offenders: string[] = [];
+  for (const file of sourceFiles(".github/workflows", /\.ya?ml$/)) {
+    /*
+      Comments stripped first, which is this repository's oldest recurring
+      mistake made once more: the paragraph in drift.yml explaining why the
+      step is there names the step, so the first version of this passed with
+      the step deleted. A check reads code, never the prose beside it.
+    */
+    const body = read(file)
+      .split("\n")
+      .map((line) => line.replace(/(^|\s)#.*$/, ""))
+      .join("\n");
+    const jobsAt = body.indexOf("\njobs:");
+    if (jobsAt < 0) continue;
+    /*
+      A job is a two-space key under `jobs:`, so the next one starts the next
+      job and everything between belongs to this one. Splitting on the key is
+      enough here and needs no parser, which this repository has no dependency
+      on.
+    */
+    const jobs = body.slice(jobsAt).split(/\n {2}(?=[A-Za-z][\w-]*:\n)/).slice(1);
+    for (const job of jobs) {
+      const name = job.slice(0, job.indexOf(":"));
+      if (!/npm run (?:-{1,2}[a-z][\w-]*\s+)*audit:/.test(job)) continue;
+      if (job.includes("prisma generate") || /npm run build\b/.test(job)) continue;
+      offenders.push(`${file}:${name}`);
+    }
+  }
+  assert.deepEqual(
+    offenders,
+    [],
+    `a workflow job runs an audit without generating the Prisma client: ${offenders.join(", ")}`,
+  );
+});
+
 // ── A deck is counted by building it, and built in a bounded number of queries ─
 
 /*
@@ -10915,16 +10988,6 @@ check("the word of the day is one the learner has not met", () => {
   // Both ways of picking one go through it, not just the themed path.
   const uses = [...source.matchAll(/withoutReviewed\(/g)].length;
   assert.ok(uses >= 3, `withoutReviewed is used ${uses} times; it is defined once and called on both paths`);
-
-  /*
-    And the card says where its sentence came from. Every Estonian sentence in
-    this app was recorded by a lexicographer, and a page that prints one
-    without saying so is asking to be trusted rather than checked, which is the
-    rule the grammar pages already keep.
-  */
-  const card = read("components/WordOfDay.tsx");
-  assert.match(card, /SENTENCE_SOURCE/, "the word of the day prints a sentence with no provenance");
-  assert.match(card, /EKILEX:\s*"[^"]+"/, "the sentence's provenance no longer names its source");
 });
 
 check("Today's date is Estonian, tagged as Estonian, and has a way out", () => {
@@ -16453,6 +16516,30 @@ check("a verdict is painted once, in the tint and the ink", () => {
   for (const file of Object.keys(exempt)) {
     assert.ok(marking.includes(file), `${file} is exempted and no longer marks anything`);
   }
+
+  /*
+    AND A READING THE VOCABULARY ALREADY ANSWERS FOR IS NOT MAPPED AGAIN.
+
+    `lib/ux/verdict.ts` holds four mappings and its own header says why: how a
+    mark looks is one decision, wherever the reading it was made from came
+    from. Two screens went on writing one of them out as a three-way ternary,
+    the placement check's dictation question and the dictation round, over a
+    five-member union neither of them owns, so a fifth reading added to
+    `DictationResult` would have been two screens to remember and nothing would
+    have said so. That is the shape to catch and it is narrow on purpose: a
+    round deriving a verdict from a rating, an accuracy threshold or a pair of
+    its own booleans is answering a question the vocabulary does not, and a
+    rule that fired on those is a rule people learn to waive. What cannot be
+    honest is going from `checkAnswer`'s or a dictation's own `"correct"` to
+    the verdict named `"right"`, because that is `verdictOfCheck` and
+    `verdictOfDictation` rewritten by hand.
+  */
+  for (const file of [...APP, ...COMPONENTS].filter((f) => f.endsWith(".tsx"))) {
+    assert.doesNotMatch(
+      code(file), /===\s*"correct"\s*\?\s*"right"/,
+      `${file} maps a reading to a verdict by hand; call verdictOfCheck or verdictOfDictation`,
+    );
+  }
 });
 
 /*
@@ -19974,7 +20061,7 @@ check("the English of a shipped sentence is built once and read in one place", (
     `ALL` alone first, which found no readers at all and passed the day the
     seed stopped joining.
   */
-  const readers = [...ALL, ...sourceFiles("prisma")]
+  const readers = [...ALL, ...sourceFiles("prisma"), ...sourceFiles("scripts")]
     .filter((f) => f !== "lib/dict/exampleEnglish.ts" && /from "[^"]*\/exampleEnglish"/.test(code(f)));
   assert.deepEqual(
     readers.sort(),
@@ -19995,6 +20082,25 @@ check("the English of a shipped sentence is built once and read in one place", (
         tested against nothing.
       */
       "lib/progress/grammarExamples.test.ts",
+      /*
+        And the adapter every audit reads the shipped dictionary through,
+        which is a joiner rather than a screen and was the one place the join
+        was missing. It built each entry's sentences as `({ et, en: null })`
+        under a comment reasoning correctly that no *entry* file carries an
+        English column and wrongly that there was therefore nothing to join,
+        so every audit was measuring a dictionary whose every sentence was
+        bare. The seed joins on both its paths; so does this, or a check about
+        what a learner reads beside a sentence is checking a deployment nobody
+        has.
+      */
+      "scripts/lib/dictionary.ts",
+      /*
+        And this file, which reads the table to assert that it can be read
+        back at all and that what is in it is English. Swept because the
+        sweep now covers `scripts/`, and listed rather than excluded, because
+        an exemption with a reason beside it is the thing the list is for.
+      */
+      "scripts/test-invariants.ts",
     ].sort(),
     "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
     "there are four places a sentence is written down: the two halves of the seed, the repair that " +
@@ -20374,7 +20480,8 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
   );
   assert.match(
     drawing, /isAdvanceKey\(e\)[^}]*onForward\(\)/,
-    "components/round/LookBack.tsx names the advance key in its caption and does not walk forward on it",
+    "components/round/LookBack.tsx swallows the advance key without walking forward on it, so the key "
+    + "the rest of the app carries on with does nothing here",
   );
 });
 

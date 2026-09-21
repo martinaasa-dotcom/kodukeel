@@ -101,13 +101,20 @@ describe("what counts as the same answer", () => {
     expect(sentenceNearness(overlapping, answer)).toBeGreaterThan(sentenceNearness(unrelated, answer));
   });
 
-  it("never lets a question stand out among three statements, or the reverse", () => {
+  it("never lets a question stand out among three statements", () => {
     const answer = sentenceOption("Why do you always have to recite a poem to get a present?");
     // Shares no vocabulary and is a much shorter statement, and still has to
     // outrank a question that shares nothing else either, because the shape
     // of the line is read before either sentence is.
     const wrongShapeButClose = sentenceOption("You always have to sing a poem.");
     const rightShapeButFar = sentenceOption("Did the peas germinate after being soaked in water?");
+    expect(sentenceNearness(rightShapeButFar, answer)).toBeGreaterThan(sentenceNearness(wrongShapeButClose, answer));
+  });
+
+  it("never lets a statement stand out among three questions, which the score alone proves symmetric", () => {
+    const answer = sentenceOption("You always have to sing a poem to get a present.");
+    const wrongShapeButClose = sentenceOption("Did you always have to sing a poem?");
+    const rightShapeButFar = sentenceOption("Peas germinate well if they are soaked in water first.");
     expect(sentenceNearness(rightShapeButFar, answer)).toBeGreaterThan(sentenceNearness(wrongShapeButClose, answer));
   });
 
@@ -122,12 +129,33 @@ describe("what counts as the same answer", () => {
     )).toBe(true);
   });
 
-  it("does not read an ordinary sentence-initial capital as a name", () => {
+  it("does not read an ordinary capital, sentence-initial or not, as a name", () => {
     expect(sentenceNamesTheAnswer("Lapsed mängivad õues.", "Children are playing outside.")).toBe(false);
+    // Both sides carry a capitalized word of four letters or more, so this is
+    // the case the length floor exists to clear rather than one where there
+    // was nothing on the English side to compare against.
     expect(sentenceNamesTheAnswer(
-      "Auto tagumine põrkeraud oli pisut katki.",
-      "The car's rear bumper was a bit broken.",
+      "Koerad jooksevad pargis ringi.",
+      "Dogs are running around in the park.",
     )).toBe(false);
+  });
+
+  it("also catches a loanword, which is the right side to err on, and over-reaches onto a compound built on one", () => {
+    // Internet Explorer is a product name and is correctly caught, same as
+    // any other proper noun.
+    expect(sentenceNamesTheAnswer(
+      "Internet Exploreri sätted.",
+      "Internet Explorer settings.",
+    )).toBe(true);
+    // This is the measured, accepted cost: `internetikasutaja` is an
+    // ordinary compound noun rather than a name, and it shares no more with
+    // `Internet` than `Tartusse` shares with `Tartu`, a real giveaway. See
+    // sentenceNamesTheAnswer's own comment for why this is left as it is
+    // rather than chased with a rule this module cannot write safely.
+    expect(sentenceNamesTheAnswer(
+      "Internetikasutaja.",
+      "Internet user.",
+    )).toBe(true);
   });
 });
 
