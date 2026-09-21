@@ -238,7 +238,7 @@ jobs:
       # is what stops eight of them racing to write the same key and logging a
       # conflict apiece; the rest use `actions/cache/restore`.
       - name: Next's build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .next/cache
           key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
@@ -403,7 +403,7 @@ jobs:
       # job is the one that writes it, so five jobs do not race to save the
       # same key. A miss costs exactly what this always cost.
       - name: Next's build cache, from the last run
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: .next/cache
           key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
@@ -543,7 +543,7 @@ jobs:
         with: { node-version: "20", cache: npm }
       - run: npm ci
       - name: Next's build cache, from the last run
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: .next/cache
           key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
