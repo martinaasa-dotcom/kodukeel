@@ -16,6 +16,7 @@ import {
   glossNearness,
   glossOption,
   pickOptions,
+  sentenceNamesTheAnswer,
   sentenceNearness,
   sentenceOption,
   type GlossOption,
@@ -592,7 +593,11 @@ export function readingItems(words: readonly WordRow[], rng: () => number): Choi
     const opener = openerFor(w);
     return w.examples
       .filter((e) => e.en && e.en.trim() && naturalSentence(e.et, opener))
-      .map((e) => ({ word: w, et: e.et, en: e.en!.trim() }));
+      .map((e) => ({ word: w, et: e.et, en: e.en!.trim() }))
+      // A name spelled alike in both languages answers the question before
+      // it is read, whatever the distractors turn out to be. See
+      // sentenceNamesTheAnswer.
+      .filter((e) => !sentenceNamesTheAnswer(e.et, e.en));
   });
   /*
     A sentence is never offered against another sentence about the same word.

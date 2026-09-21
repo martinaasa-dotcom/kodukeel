@@ -302,22 +302,77 @@ export function sentenceOption(text: string): SentenceOption {
 }
 
 /**
+ * A name short enough that a shared stem could be coincidence rather than
+ * the same word carried across two languages.
+ */
+const MIN_NAME_LENGTH = 4;
+
+/**
+ * Whether the Estonian sentence carries a name that survives translation
+ * unchanged, which is a proper noun's whole grammar: a name is spelled the
+ * same in both languages, where every other word is translated into a
+ * different one. `Martin tahab juhatajaga rääkida` means `Martin wants to
+ * talk to the manager` with the one word neither language touched, so a
+ * reader who has never opened a grammar book can still pick the right
+ * option by matching a capital letter to a capital letter, unrelated
+ * distractors or not. That is a fact about the sentence rather than about
+ * which three distractors were drawn beside it, so it is refused before any
+ * ranking runs.
+ *
+ * A capitalized common noun at the front of the sentence does not trip this,
+ * because Estonian capitalizes a sentence's first letter exactly as English
+ * does and the translation spells that word differently: `Lapsed mängivad`
+ * becomes `Children are playing`, sharing nothing. Only a spelling that
+ * survives into the English, capital and all, is a name.
+ *
+ * A name inflects in Estonian and not in English, so `Tallinnas` (in
+ * Tallinn) is compared by its stem rather than by an exact match: either
+ * word starting with the other, both capitalized, both long enough that the
+ * overlap is the name rather than a coincidence.
+ */
+export function sentenceNamesTheAnswer(et: string, en: string): boolean {
+  const etNames = et.match(/\p{Lu}\p{Ll}*/gu) ?? [];
+  const enNames = en.match(/\p{Lu}\p{Ll}*/gu) ?? [];
+  for (const etName of etNames) {
+    if (etName.length < MIN_NAME_LENGTH) continue;
+    for (const enName of enNames) {
+      if (enName.length < MIN_NAME_LENGTH) continue;
+      if (etName.startsWith(enName) || enName.startsWith(etName)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * A question mark against three full stops is read before a word of any of
+ * them is. Every other signal in `sentenceNearness` tops out at 9 between
+ * them (4 for shared vocabulary, 3 for a similar length of thought, 2 for a
+ * similar length of line), so this has to clear that on its own to be a real
+ * elimination rather than a tie-break nobody notices losing: a sentence
+ * shaped like the answer always outranks one that is not, whatever else the
+ * two do or do not have in common. It was 1, once, which is why four
+ * declarative sentences beside one question kept reaching a paper.
+ */
+const SHAPE_WEIGHT = 10;
+
+/**
  * How hard an English sentence is to cross out without reading it.
  *
- * Shared vocabulary is worth most, and it is the signal the old rule could not
- * offer at all: it read any shared word as a shared meaning, so the only
- * sentences it would put in one question were four sentences about four
- * unrelated things, and picking between those is a vocabulary question wearing
- * a sentence. A question mark among three full stops, and one line among three
- * paragraphs, are the same free elimination that shape is for a gloss.
+ * Shared vocabulary is worth most of what is left, and it is the signal the
+ * old rule could not offer at all: it read any shared word as a shared
+ * meaning, so the only sentences it would put in one question were four
+ * sentences about four unrelated things, and picking between those is a
+ * vocabulary question wearing a sentence. A question mark among three full
+ * stops, and one line among three paragraphs, are the same free elimination
+ * that shape is for a gloss, and here they are the first thing decided.
  */
 export function sentenceNearness(candidate: SentenceOption, answer: SentenceOption): number {
   let shared = 0;
   for (const w of candidate.said) if (answer.said.has(w)) shared++;
 
-  let score = Math.min(shared, 2) * 2;
+  let score = asks(candidate.text) === asks(answer.text) ? SHAPE_WEIGHT : 0;
+  score += Math.min(shared, 2) * 2;
   score += near(candidate.said.size, answer.said.size, 3);
-  if (asks(candidate.text) === asks(answer.text)) score += 1;
   const longer = Math.max(candidate.text.length, answer.text.length);
   score += Math.abs(candidate.text.length - answer.text.length) <= longer * 0.35 ? 2 : 0;
   return score;
