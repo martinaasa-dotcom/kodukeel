@@ -48,13 +48,14 @@ export interface DictationMark {
  * A dictation is marked word by word, and credited in between.
  *
  * Exact accuracy is the base, with a floor for an answer whose only fault is
- * missing Estonian letters: that learner heard every word, which is the half
- * this section is about.
+ * missing Estonian letters, or a space in the wrong place: that learner heard
+ * every word, which is the half this section is about, and a run-together
+ * pair like `kuuekuup` for `kuue kuup` is not a wrong sentence.
  */
 export function gradeDictation(item: DictationItem, typed: string): DictationMark {
   const result = checkDictation(typed, item.et);
   const base = result.accuracy / 100;
-  const credit = result.verdict === "diacritics" ? Math.max(base, 0.8) : base;
+  const credit = result.verdict === "diacritics" || result.verdict === "spacing" ? Math.max(base, 0.8) : base;
   return { credit: Math.min(1, Math.max(0, credit)), result };
 }
 

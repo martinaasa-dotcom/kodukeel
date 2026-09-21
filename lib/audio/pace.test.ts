@@ -104,4 +104,20 @@ describe("what a request plays at", () => {
     expect(rateFor({ text: "õde", slow: true, pace })).toBe(pace.slow);
     expect(rateFor({ text: "õde", slow: true, condition: quick, rate: 1, pace })).toBe(pace.slow);
   });
+
+  /*
+    THE SLOW BUTTON HAS TO BE A STEP DOWN FROM WHAT IS ALREADY PLAYING.
+    Dictation caps the everyday play at LEARNING_RATE, and at B2 that cap binds
+    (pace.normal is 1), so the everyday play there is 0.8. The old rule read
+    slow off the uncapped pace.normal, which made it 0.72 — barely below the
+    0.8 the learner had just heard. Reported as sounding identical.
+  */
+  it("steps down from the rate a screen actually asked for, not from the raw pace", () => {
+    const b2 = paceFor("B2");
+    const everyday = rateFor({ text: "õde", rate: LEARNING_RATE, pace: b2 });
+    const slow = rateFor({ text: "õde", slow: true, rate: LEARNING_RATE, pace: b2 });
+    expect(everyday).toBe(LEARNING_RATE);
+    expect(slow).toBeLessThan(everyday * 0.9);
+    expect(slow).toBeGreaterThanOrEqual(SLOWEST);
+  });
 });

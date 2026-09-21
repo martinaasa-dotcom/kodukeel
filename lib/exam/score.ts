@@ -273,7 +273,7 @@ export function markItem(
       const typed = response.kind === "typed" ? response.value : "";
       const result = checkDictation(typed, item.answer);
       const correct = acceptsSlips("dictation")
-        ? result.verdict === "correct" || result.verdict === "diacritics"
+        ? result.verdict === "correct" || result.verdict === "diacritics" || result.verdict === "spacing"
         : result.verdict === "correct";
       return scale({
         itemId: item.id, scored: correct ? 1 : 0, available: 1, correct,

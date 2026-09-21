@@ -56,6 +56,7 @@ const WORD_TONE: Record<WordStatus, { className: string; label: string }> = {
   right: { className: VERDICT_CLASS.right, label: "exactly right" },
   diacritics: { className: VERDICT_CLASS.nearly, label: "the right word, without its Estonian letters" },
   typo: { className: VERDICT_CLASS.nearly, label: "one keystroke out" },
+  spacing: { className: VERDICT_CLASS.nearly, label: "the right words, with the space in the wrong place" },
   wrong: { className: VERDICT_CLASS.wrong, label: "a different word" },
   missing: { className: VERDICT_CLASS.wrong, label: "left out" },
   extra: { className: "", label: "not in the sentence" },

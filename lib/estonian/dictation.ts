@@ -30,6 +30,13 @@ export type WordStatus =
   | "diacritics"
   /** One keystroke out. */
   | "typo"
+  /**
+   * The right words, run together or split apart — `kuuekuup` for `kuue
+   * kuup`, or the reverse. Estonian runs no words together on its own, so
+   * this is never a wrong word: it is the right ones with the space in the
+   * wrong place, which is a spelling slip rather than a different sentence.
+   */
+  | "spacing"
   /** A different word in the same slot. */
   | "wrong"
   /** In the sentence, not in the answer. */
@@ -53,7 +60,7 @@ export interface DictationResult {
   total: number;
   /** Percentage of the sentence typed exactly right, 0–100. */
   accuracy: number;
-  verdict: "correct" | "diacritics" | "close" | "wrong";
+  verdict: "correct" | "diacritics" | "spacing" | "close" | "wrong";
   /** What to grade the card, unless the learner overrides it. */
   suggestedRating: 1 | 2 | 3;
   /** A one-line summary, ready to display. */
@@ -87,7 +94,8 @@ export function dictationWords(text: string): string[] {
   return text.split(/\s+/).map((w) => w.trim()).filter((w) => normalise(w).length > 0);
 }
 
-type Pairing = Exclude<WordStatus, "missing" | "extra">;
+/** What one typed word can be, against one expected word. */
+type Pairing = Exclude<WordStatus, "missing" | "extra" | "spacing">;
 
 /**
  * A slipped keystroke, as opposed to a different form of the word.
@@ -119,6 +127,18 @@ function compare(expected: string, typed: string): Pairing {
 const COST: Record<Pairing, number> = { right: 0, diacritics: 0.4, typo: 0.6, wrong: 1.6 };
 /** Leaving a word out, or inventing one, costs about as much as getting it wrong. */
 const GAP = 1;
+/**
+ * Two expected words typed as one, or one typed as two — cheaper than a wrong
+ * word and a missing one (1.6 + 1 = 2.6), because the content was heard
+ * exactly right and only the space moved. Dearer than a typo, because a
+ * dropped keystroke is a smaller slip than a whole word boundary.
+ */
+const SPACE_COST = 0.5;
+
+/** Two words, concatenated with nothing between them, each normalised on its own. */
+function joinTight(a: string, b: string): string {
+  return normalise(a) + normalise(b);
+}
 
 export function checkDictation(typed: string, expected: string): DictationResult {
   const want = dictationWords(expected);
@@ -150,7 +170,16 @@ function align(want: string[], got: string[]): DictationWord[] {
       const pair = table[i - 1]![j - 1]! + COST[compare(want[i - 1]!, got[j - 1]!)];
       const skipExpected = table[i - 1]![j]! + GAP;
       const skipTyped = table[i]![j - 1]! + GAP;
-      table[i]![j] = Math.min(pair, skipExpected, skipTyped);
+      let best = Math.min(pair, skipExpected, skipTyped);
+      // Two expected words typed as one: `kuue kuup` typed `kuuekuup`.
+      if (i >= 2 && joinTight(want[i - 2]!, want[i - 1]!) === normalise(got[j - 1]!)) {
+        best = Math.min(best, table[i - 2]![j - 1]! + SPACE_COST);
+      }
+      // One expected word typed as two: an extra space landed inside it.
+      if (j >= 2 && normalise(want[i - 1]!) === joinTight(got[j - 2]!, got[j - 1]!)) {
+        best = Math.min(best, table[i - 1]![j - 2]! + SPACE_COST);
+      }
+      table[i]![j] = best;
     }
   }
 
@@ -165,6 +194,24 @@ function align(want: string[], got: string[]): DictationWord[] {
         i--; j--;
         continue;
       }
+    }
+    if (
+      i >= 2 && j >= 1 &&
+      joinTight(want[i - 2]!, want[i - 1]!) === normalise(got[j - 1]!) &&
+      table[i]![j] === table[i - 2]![j - 1]! + SPACE_COST
+    ) {
+      out.push({ expected: `${want[i - 2]} ${want[i - 1]}`, typed: got[j - 1]!, status: "spacing" });
+      i -= 2; j--;
+      continue;
+    }
+    if (
+      i >= 1 && j >= 2 &&
+      normalise(want[i - 1]!) === joinTight(got[j - 2]!, got[j - 1]!) &&
+      table[i]![j] === table[i - 1]![j - 2]! + SPACE_COST
+    ) {
+      out.push({ expected: want[i - 1]!, typed: `${got[j - 2]} ${got[j - 1]}`, status: "spacing" });
+      i--; j -= 2;
+      continue;
     }
     if (i > 0 && table[i]![j] === table[i - 1]![j]! + GAP) {
       out.push({ expected: want[i - 1]!, typed: null, status: "missing" });
@@ -202,6 +249,34 @@ function judge(
       note: slipped === 1
         ? "Every word heard, one is missing its Estonian letters."
         : `Every word heard, ${slipped} are missing their Estonian letters.`,
+    };
+  }
+
+  /*
+    A MISSING SPACE IS NOT A WRONG WORD.
+    `kuuekuup` for `kuue kuup` is every letter the sentence has, in the right
+    order, with nothing between two of them that should have been there.
+    Marking that as two wrong words — one of them invented, since a plain
+    alignment has no way to say the two are related — teaches the wrong
+    lesson and grades a heard sentence like an unheard one. Where every
+    mismatch is one of these (with diacritics allowed alongside, since a
+    learner can drop both in one answer), the verdict says which.
+  */
+  const noRealMisses = words.every((w) =>
+    w.status === "right" || w.status === "diacritics" || w.status === "spacing");
+  if (noRealMisses) {
+    const spaced = words.filter((w) => w.status === "spacing").length;
+    const slipped = words.filter((w) => w.status === "diacritics").length;
+    const spaceNote = spaced === 1 ? "one needs a space moved" : `${spaced} need a space moved`;
+    const diacriticsNote = slipped === 1
+      ? "one is missing its Estonian letters"
+      : `${slipped} are missing their Estonian letters`;
+    return {
+      verdict: "spacing",
+      suggestedRating: 2,
+      note: slipped > 0
+        ? `Every word heard, but ${spaceNote}, and ${diacriticsNote}.`
+        : `Every word heard, but ${spaceNote}.`,
     };
   }
 
@@ -259,6 +334,14 @@ export function wordNote(word: DictationWord): string | null {
     // dropped diacritic is that this one is a slip and that one is a thing to
     // learn; spelling out the slip would give the two the same weight again.
     return "one letter out";
+  }
+
+  if (word.status === "spacing") {
+    // The words in `expected` outnumbering the words in `typed` is a merge
+    // (two words run together); the other way round is a split.
+    return word.expected.split(" ").length > word.typed.split(" ").length
+      ? "missing a space"
+      : "an extra space";
   }
 
   return null;

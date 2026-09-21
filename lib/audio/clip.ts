@@ -2,7 +2,7 @@ import { cachedBlob, cachedClip, rememberClip } from "./clipCache";
 import { CLEAN, type Condition } from "./conditions";
 import { needsMixer, playThrough } from "./mixer";
 import { stretch } from "./stretch";
-import { DEFAULT_PACE, type Pace } from "./pace";
+import { DEFAULT_PACE, SLOWEST, SLOW_OF_NORMAL, type Pace } from "./pace";
 import { decodeWav, encodeWav16 } from "./wav";
 
 /**
@@ -124,11 +124,22 @@ export function clipKey({ text, voice }: ClipRequest): string {
  * asking for a gentler play cannot speed anybody up. `slow` is the learner
  * pressing a button and wins outright, and `playClip` hears it in a quiet room
  * for the same reason.
+ *
+ * AND THE SLOW BUTTON IS A STEP DOWN FROM WHATEVER IS ALREADY PLAYING, NOT
+ * FROM THE LEARNER'S RAW PACE. It used to be `pace.slow` outright, which is
+ * `SLOW_OF_NORMAL` of `pace.normal` and nothing else: on the level check's
+ * dictation, which caps the everyday play at `LEARNING_RATE` (0.8), a B2
+ * learner's pace.normal is 1, so the everyday play there was already 0.8 and
+ * the slow button played at 0.72, one tenth slower. That is not a control
+ * anybody can hear working, and it was reported as sounding identical. The
+ * slow rate is a fraction of the *base this request actually plays at*
+ * (after the caller's own ceiling), so the button is always a real step down
+ * from whatever the learner just heard, floored at `SLOWEST` as before.
  */
 export function rateFor(request: ClipRequest): number {
   const pace = request.pace ?? DEFAULT_PACE;
-  if (request.slow) return pace.slow;
   const base = request.rate !== undefined ? Math.min(request.rate, pace.normal) : pace.normal;
+  if (request.slow) return Math.max(SLOWEST, base * SLOW_OF_NORMAL);
   return base * (request.condition?.speed ?? 1);
 }
 
