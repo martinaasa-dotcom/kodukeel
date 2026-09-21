@@ -5,20 +5,19 @@ import type { Band, ChoiceItem, DictationItem, Item, Response, WriteItem } from 
 const choice = (over: Partial<ChoiceItem> = {}): ChoiceItem => ({
   id: "c1", kind: "choice", skill: "reading", band: "A1", lemma: "tuba",
   question: "What does this word mean?", et: "tuba", heard: false,
-  options: ["room", "book", "window", "door"], estonianOptions: false, answer: 0,
-  source: "dictionary", because: "tuba is room.", ...over,
+  options: ["room", "book", "window", "door"], estonianOptions: false, answer: 0, because: "tuba is room.", ...over,
 });
 
 const dictation: DictationItem = {
   id: "d1", kind: "dictation", skill: "listening", band: "B1", lemma: "tuba",
-  question: "Write what you heard.", et: "Ma olen praegu toas.", source: "usage",
+  question: "Write what you heard.", et: "Ma olen praegu toas.",
 };
 
 const write: WriteItem = {
   id: "w1", kind: "write", skill: "writing", band: "A2", lemma: "tuba",
   question: "Write tuba in the form this sentence needs.", translation: "room",
   sentence: "Ma olen praegu ____.", full: "Ma olen praegu toas.",
-  targetForm: "toas", otherForms: ["toa", "tuppa", "toast"], source: "usage",
+  targetForm: "toas", otherForms: ["toa", "tuppa", "toast"],
   because:
     "Ma olen praegu toas. I am in the room right now. The gap takes toas rather than tuba. " +
     "That is the form you use when something is inside it.",
@@ -246,7 +245,7 @@ describe("placement", () => {
     choice({ id: "r2", band: "A2" }),
     { ...dictation, id: "l1", band: "A1" },
     { ...write, id: "w1", band: "A1" },
-    { id: "s1", kind: "speak", skill: "speaking", band: "A1", lemma: "tuba", question: "Say it.", et: "tuba", translation: "room", isSentence: false, source: "dictionary" },
+    { id: "s1", kind: "speak", skill: "speaking", band: "A1", lemma: "tuba", question: "Say it.", et: "tuba", translation: "room", isSentence: false },
   ];
 
   it("averages the measured skills rather than taking the weakest", () => {

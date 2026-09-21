@@ -10,10 +10,9 @@ import { Chip, KeyCap, Note } from "@/components/ui";
 import { BLANK } from "@/lib/estonian/cloze";
 import { splitOnForm } from "@/lib/dict/examples";
 import { gradeChoice, gradeDictation, gradeWrite } from "@/lib/assessment/score";
-import type { ChoiceItem, DictationItem, Item, SpeakItem, WriteItem } from "@/lib/assessment/types";
+import type { ChoiceItem, DictationItem, SpeakItem, WriteItem } from "@/lib/assessment/types";
 import { wordNote, type WordStatus } from "@/lib/estonian/dictation";
-import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
-import { Explain } from "@/components/Explain";
+import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCredit } from "@/lib/ux/verdict";
 
 /**
  * One question, and its answer.
@@ -43,24 +42,6 @@ const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
   wrong: { className: VERDICT_CLASS.wrong, title: "A different word" },
   missing: { className: VERDICT_CLASS.wrong, title: "Left out" },
   extra: { className: "", title: "Not in the sentence" },
-};
-
-/**
- * The provenance line. Every Estonian string on screen says where it is from.
- *
- * "From the dictionary" was true and told a learner nothing: whose dictionary,
- * and why should they believe it over the teacher who told them `kallis` also
- * means dear? Both sources are named, because they are the two this app is
- * built on and neither is ours. Ekilex is the Institute of the Estonian
- * Language's own database, which is the authority a class would cite, and the
- * English glosses come from Wiktionary. A source a reader can go and check is
- * the difference between a claim and a citation.
- */
-const SOURCE_LABEL: Record<Item["source"], string> = {
-  dictionary: "From Kodukeel's dictionary",
-  ekilex: "A recorded form",
-  derived: "Worked out from the omastav stem, by rule rather than by guess",
-  usage: "A recorded sentence",
 };
 
 /**
@@ -132,14 +113,6 @@ function FullSentence({ full, answer }: { full: string; answer: string }) {
           <span key={i}>{run.text}</span>
         ),
       )}
-    </p>
-  );
-}
-
-export function Provenance({ source }: { source: Item["source"] }) {
-  return (
-    <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
-      {SOURCE_LABEL[source]}. No Estonian on this screen was written by this app or by an AI.
     </p>
   );
 }
@@ -274,7 +247,6 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             phonics, which is worse than leaving the two words unmarked.
           */}
           <p className="mt-3 text-base" style={{ color: "var(--ink-2)" }}>{item.because}</p>
-          <Provenance source={item.source} />
           <Button
             variant="primary"
             size="lg"
@@ -367,9 +339,17 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
         </div>
       ) : (
         <div className="pop-in mt-6" role="status">
-          <Chip tone={mark.result.verdict === "correct" ? "good" : mark.result.verdict === "wrong" ? "again" : "hard"}>
+          {/* The panel rather than a chip, for the reason `WriteQuestion` gives
+              below: a chip uppercases, and these notes are sentences. */}
+          <div
+            className={`${
+              VERDICT_CLASS[
+                mark.result.verdict === "correct" ? "right" : mark.result.verdict === "wrong" ? "wrong" : "nearly"
+              ]
+            } verdict-panel`}
+          >
             {mark.result.note}
-          </Chip>
+          </div>
           {/*
             What was typed stays on screen, not only in a `title` tooltip: a
             phone has no hover, and a learner correcting a slip needs to see
@@ -412,7 +392,6 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
             })}
           </div>
           <p lang="et" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{item.et}</p>
-          <Provenance source={item.source} />
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit })}>
             Next question
           </Button>
@@ -458,10 +437,6 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             autoFocus
             onEnter={() => setMark(gradeWrite(item, text))}
           />
-          <Explain label="How this is marked">
-            Checked directly against the word a lexicographer put in this sentence, so no AI is
-            involved, and none is needed.
-          </Explain>
           <div className="mt-4">
             <Button variant="primary" size="lg" onClick={() => setMark(gradeWrite(item, text))}>
               Check
@@ -470,20 +445,27 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
         </div>
       ) : (
         <div className="pop-in mt-6" role="status">
-          <Chip tone={mark.credit === 1 ? "good" : mark.credit > 0 ? "hard" : "again"}>{mark.note}</Chip>
           {/*
-            The sentence put back together, and then why it wanted that word.
-            The sentence alone answers "what was it", which a learner who has
-            just been marked wrong can already see from the mark. What they
-            asked for is why `kaardilt` and not `kaart`, and that is the same
-            explanation the multiple choice version of this task prints, from
-            the same function, so the two cannot say different things.
+            THE VERDICT IS A PANEL, NOT A CHIP. A chip is `label-xs`, which
+            uppercases, so a whole sentence in one arrived as a block of
+            shouted small caps: "KOLMKÜMMEND IS A REAL FORM OF KOLMKÜMMEND,
+            BUT THIS SENTENCE WANTS KOLMEKÜMNE." That is the `.verdict-panel`
+            rule every other marking screen in the app already follows, and
+            this screen was the one that had not caught up.
+          */}
+          <div className={`${VERDICT_CLASS[verdictOfCredit(mark.credit)]} verdict-panel`}>
+            {mark.note}
+          </div>
+          {/*
+            Then the sentence with the wanted form picked out, and under it
+            only what the sentence cannot say for itself: what it means, and
+            which form it wanted. `explainWrittenGap` leaves the sentence out
+            for that reason, because `FullSentence` has just drawn it.
           */}
           <FullSentence full={item.full} answer={item.targetForm} />
-          {mark.credit < 1 && (
+          {mark.credit < 1 && item.because && (
             <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.because}</p>
           )}
-          <Provenance source={item.source} />
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit })}>
             Next question
           </Button>

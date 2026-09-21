@@ -137,14 +137,6 @@ describe("items are built out of the dictionary, never written", () => {
     }
   });
 
-  it("says which of the dictionary's sources each question came from", () => {
-    const items = readingItems(WORDS, mulberry32(3));
-    expect(items.find((i) => i.id.startsWith("r-mean-"))?.source).toBe("dictionary");
-    // A gap is a sentence somebody recorded, whichever forms the wrong
-    // answers were computed from.
-    expect(items.find((i) => i.id.startsWith("r-gap-"))?.source).toBe("usage");
-  });
-
   it("never asks about a case by name", () => {
     /*
       The whole point of the rewrite. Nobody sitting a real Estonian placement

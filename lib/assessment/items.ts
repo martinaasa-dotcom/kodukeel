@@ -423,6 +423,25 @@ export function explainGap(word: WordRow, gap: Gap): string {
   return [gap.full, gap.en, explainForm(word, gap.answer)].filter(Boolean).join(" ");
 }
 
+/**
+ * The same explanation for the typed gap, with the sentence left out of it.
+ *
+ * The two shapes of this task reveal the sentence differently. The multiple
+ * choice one is still showing the blanked line when it marks, so its
+ * explanation has to put the sentence back together; the typed one draws the
+ * whole sentence in bold, with the wanted form picked out in the accent, in
+ * `FullSentence` directly above this string. Sending `explainGap` to both put
+ * that sentence on screen twice, once in bold and once again as the opening
+ * clause of a grey paragraph, with the answer itself then appearing a third
+ * time inside `explainForm`. It was reported as a wall of text and it was one.
+ *
+ * What is left is the half the drawing above cannot say: what the sentence
+ * means, where the dictionary holds it, and which form it wanted.
+ */
+export function explainWrittenGap(word: WordRow, gap: Gap): string {
+  return [gap.en, explainForm(word, gap.answer)].filter(Boolean).join(" ");
+}
+
 // ── Reading ──────────────────────────────────────────────────────────────────
 
 /**
@@ -496,7 +515,6 @@ export function readingItems(words: readonly WordRow[], rng: () => number): Choi
       options: set.options,
       estonianOptions: false,
       answer: set.answer,
-      source: "dictionary",
       because: meansLine(word.lemma, word.translation),
     });
   }
@@ -527,10 +545,6 @@ export function readingItems(words: readonly WordRow[], rng: () => number): Choi
       options: set.options,
       estonianOptions: true,
       answer: set.answer,
-      // The sentence is what is being read, and a lexicographer wrote it. Some
-      // of the wrong answers may be computed from the genitive stem; the right
-      // one is always the word that was standing in the sentence.
-      source: "usage",
       because: explainGap(word, gap),
     });
   }
@@ -571,7 +585,6 @@ export function readingItems(words: readonly WordRow[], rng: () => number): Choi
       options: set.options,
       estonianOptions: false,
       answer: set.answer,
-      source: "usage",
       because: `${sentence.et} means ${sentence.en}`,
     });
   }
@@ -637,7 +650,6 @@ export function listeningItems(
       options: set.options,
       estonianOptions: false,
       answer: set.answer,
-      source: "dictionary",
       because: meansLine(word.lemma, word.translation),
     });
   }
@@ -671,7 +683,6 @@ export function listeningItems(
       options: set.options,
       estonianOptions: false,
       answer: set.answer,
-      source: "usage",
       because: `${sentence.et} That sentence is about ${word.lemma}, which is ${word.translation}.`,
     });
   }
@@ -686,7 +697,6 @@ export function listeningItems(
       lemma: word.lemma,
       question: "Listen as often as you like, then write down what you heard.",
       et: sentence.et,
-      source: "usage",
       kind: "dictation",
     });
   }
@@ -737,8 +747,7 @@ export function writingItems(words: readonly WordRow[], rng: () => number): Writ
       full: gap.full,
       targetForm: gap.answer,
       otherForms: gap.siblings,
-      because: explainGap(word, gap),
-      source: "usage",
+      because: explainWrittenGap(word, gap),
       kind: "write",
     });
   }
@@ -761,7 +770,6 @@ export function speakingItems(words: readonly WordRow[], rng: () => number): Spe
         et: sentence.et,
         translation: sentence.en!.trim(),
         isSentence: true,
-        source: "usage",
         kind: "speak",
       });
       continue;
@@ -775,7 +783,6 @@ export function speakingItems(words: readonly WordRow[], rng: () => number): Spe
       et: word.lemma,
       translation: word.translation,
       isSentence: false,
-      source: "dictionary",
       kind: "speak",
     });
   }
