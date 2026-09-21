@@ -140,6 +140,28 @@ describe("checkDictation", () => {
     expect(statuses("Ta istub majas", "Ta istub toas")).toEqual(["right", "right", "wrong"]);
   });
 
+  it("forgives two spaces dropped in a row, not only one", () => {
+    // "Kui", "palju", "kell" all run together; "on" stays a separate word.
+    const result = checkDictation("Kuipaljukell on", "Kui palju kell on");
+    expect(statuses("Kuipaljukell on", "Kui palju kell on")).toEqual(["spacing", "right"]);
+    expect(result.verdict).toBe("spacing");
+    expect(result.words[0]).toEqual({ expected: "Kui palju kell", typed: "Kuipaljukell", status: "spacing" });
+  });
+
+  it("does not let a two-word merge reach past the word right after it", () => {
+    // Only the first two words ran together; "kell" and "on" were typed
+    // separately and must not be swept into a three-word reading.
+    expect(statuses("Kuipalju kell on", "Kui palju kell on")).toEqual(["spacing", "right", "right"]);
+  });
+
+  it("forgives a run-together pair that also dropped a diacritic", () => {
+    // "kuue õue" merged into one word, with õ read as a plain o on the way.
+    const result = checkDictation("Ta on kuueoue", "Ta on kuue õue");
+    expect(statuses("Ta on kuueoue", "Ta on kuue õue")).toEqual(["right", "right", "spacing"]);
+    expect(result.verdict).toBe("spacing");
+    expect(result.note).toMatch(/one needs a space moved, and one is missing its Estonian letters/);
+  });
+
   it("never loses a typed word from the marked-up output", () => {
     const typed = "Ma lasen tal minna koju kohe";
     const expected = "Ma lasen tal minna koju";
