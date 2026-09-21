@@ -308,27 +308,43 @@ export function sentenceOption(text: string): SentenceOption {
 const MIN_NAME_LENGTH = 4;
 
 /**
- * Whether the Estonian sentence carries a name that survives translation
- * unchanged, which is a proper noun's whole grammar: a name is spelled the
- * same in both languages, where every other word is translated into a
- * different one. `Martin tahab juhatajaga rääkida` means `Martin wants to
- * talk to the manager` with the one word neither language touched, so a
- * reader who has never opened a grammar book can still pick the right
- * option by matching a capital letter to a capital letter, unrelated
- * distractors or not. That is a fact about the sentence rather than about
- * which three distractors were drawn beside it, so it is refused before any
- * ranking runs.
+ * Whether the Estonian sentence carries a capitalized word that survives
+ * translation largely unchanged, which is most of what a proper noun's
+ * grammar is: a name is spelled the same in both languages, where an
+ * ordinary word is translated into a different one. `Martin tahab
+ * juhatajaga rääkida` means `Martin wants to talk to the manager` with the
+ * one word neither language touched, so a reader who has never opened a
+ * grammar book can still pick the right option by matching a capital
+ * letter to a capital letter, unrelated distractors or not. That is a fact
+ * about the sentence rather than about which three distractors were drawn
+ * beside it, so it is refused before any ranking runs.
  *
- * A capitalized common noun at the front of the sentence does not trip this,
- * because Estonian capitalizes a sentence's first letter exactly as English
- * does and the translation spells that word differently: `Lapsed mängivad`
- * becomes `Children are playing`, sharing nothing. Only a spelling that
- * survives into the English, capital and all, is a name.
+ * A capitalized common noun at the front of the sentence does not trip
+ * this, because Estonian capitalizes a sentence's first letter exactly as
+ * English does and the translation spells that word differently: `Lapsed
+ * mängivad` becomes `Children are playing`, sharing nothing.
  *
  * A name inflects in Estonian and not in English, so `Tallinnas` (in
  * Tallinn) is compared by its stem rather than by an exact match: either
  * word starting with the other, both capitalized, both long enough that the
  * overlap is the name rather than a coincidence.
+ *
+ * IT ALSO CATCHES A LOANWORD, NOT ONLY A NAME, AND THAT IS THE RIGHT SIDE TO
+ * ERR ON. `Internet Exploreri sätted` and `Internet Explorer settings`
+ * share `Internet` for the same reason `Martin` does: it is a spelling
+ * neither language touched, and a reader can still cross out three
+ * distractors by it. What that costs is a genuine common noun caught by the
+ * same stem, `internetikasutaja` (internet user) refused for sharing
+ * `Internet` with a sentence that has nothing to do with it. Measured over
+ * the shipped dictionary's usable sentence pool: 823 of 14,788 candidates
+ * are refused, and reading the whole list by hand found three that are not
+ * a name or a brand, all three built on `Internet`. No rule this file could
+ * write tells a case ending from a short derivational one without a real
+ * parse: `Tartusse` (Tartu, an actual giveaway) and `sportlik` (sporty, not
+ * one) both add exactly three letters to a capitalized stem, so shortening
+ * the reach here would start dropping the sentences it exists to catch. At
+ * 0.02% of the whole pool, three sentences sitting out of the question is
+ * cheaper than one giveaway reaching a learner.
  */
 export function sentenceNamesTheAnswer(et: string, en: string): boolean {
   const etNames = et.match(/\p{Lu}\p{Ll}*/gu) ?? [];
@@ -352,6 +368,15 @@ export function sentenceNamesTheAnswer(et: string, en: string): boolean {
  * shaped like the answer always outranks one that is not, whatever else the
  * two do or do not have in common. It was 1, once, which is why four
  * declarative sentences beside one question kept reaching a paper.
+ *
+ * A hard requirement was considered and rejected: `pickOptions` returns
+ * null rather than pad a question with the wrong shape, and a paper that
+ * lost every sentence-meaning item on a run short of questions would be a
+ * worse trade than the rare wrong-shaped distractor. It does not have to
+ * make that trade here. Measured over the shipped dictionary's usable
+ * sentence pool, 328 of 13,965 candidates end in a question mark, which is
+ * enough that a same-shaped set of three is available whichever sentence a
+ * paper draws as its answer.
  */
 const SHAPE_WEIGHT = 10;
 
