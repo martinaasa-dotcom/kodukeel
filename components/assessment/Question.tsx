@@ -8,6 +8,7 @@ import { Speak } from "@/components/Speak";
 import { LEARNING_RATE } from "@/lib/audio/clip";
 import { Chip, KeyCap, Note } from "@/components/ui";
 import { BLANK } from "@/lib/estonian/cloze";
+import { splitOnForm } from "@/lib/dict/examples";
 import { gradeChoice, gradeDictation, gradeWrite } from "@/lib/assessment/score";
 import type { ChoiceItem, DictationItem, Item, SpeakItem, WriteItem } from "@/lib/assessment/types";
 import { wordNote, type WordStatus } from "@/lib/estonian/dictation";
@@ -105,29 +106,32 @@ export function EstonianPrompt({ text }: { text: string }) {
  * The blank the learner typed into was drawn in the accent (`EstonianPrompt`
  * above); the word that actually filled it wears the same accent now, in the
  * same slot, so the eye lands on it without having to read the whole sentence
- * again. `answer` is the exact spelling `buildCloze` took out, so it is always
- * in `full` once, at the position it left it (ADR-005: nothing here writes or
- * changes a character of it, it only marks where one already is).
+ * again.
+ *
+ * The split is `splitOnForm`, the same word-boundary match `EstonianSentence`
+ * marks a form with, rather than a plain substring search: Estonian is
+ * agglutinative enough that a short answer (`sa`, `on`, `ta`) is routinely a
+ * substring of some other, longer word standing earlier in the same sentence
+ * (`sa` inside `vasakul`), and a bare `indexOf` would light up two letters in
+ * the middle of that word instead of the real one. Nothing here writes or
+ * changes a character of the sentence, it only marks where one already is.
  */
 function FullSentence({ full, answer }: { full: string; answer: string }) {
-  const index = full.indexOf(answer);
-  if (index === -1) {
-    return (
-      <p lang="et" className="mt-4 text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
-        {full}
-      </p>
-    );
-  }
   return (
     <p lang="et" className="mt-4 text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
-      {full.slice(0, index)}
-      <span
-        className="rounded-[var(--r-sm)] px-1.5"
-        style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-      >
-        {answer}
-      </span>
-      {full.slice(index + answer.length)}
+      {splitOnForm(full, answer).map((run, i) =>
+        run.match ? (
+          <span
+            key={i}
+            className="rounded-[var(--r-sm)] px-1.5"
+            style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+          >
+            {run.text}
+          </span>
+        ) : (
+          <span key={i}>{run.text}</span>
+        ),
+      )}
     </p>
   );
 }
