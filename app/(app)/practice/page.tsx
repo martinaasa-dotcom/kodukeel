@@ -168,7 +168,8 @@ export default async function PracticePage() {
             iconName="GraduationCap"
             tone="accent"
             title="Review"
-            subtitle="Everything due"
+            // No subtitle: "Everything due" was a third way of saying what the
+            // meta counts and the body explains, on one card.
             body="Timed to the moment before you forget. The schedule decides what comes back, not you."
             meta={ready > 0 ? `${ready} waiting` : "Nothing due"}
             primary={ready > 0}
@@ -421,13 +422,19 @@ function CommonWordsCard() {
           >
             {mode.title}
           </Link>
-          <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{mode.subtitle}</span>
         </span>
         <span className="ml-auto"><Chip tone="neutral">{mode.note}</Chip></span>
       </div>
 
+      {/*
+        "Most common words", then "The ones you hear most", then "These are the
+        words you will hear most often": a title and two restatements of it, on
+        a card whose four buttons are directly underneath. What a reader cannot
+        work out from the title is where the ranking came from, so that is the
+        line, and the subtitle is gone.
+      */}
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        {"These are the words you will hear most often, so they are worth having."}
+        Counted over film and television subtitles, not picked by hand.
       </p>
 
       <div className="grid gap-2 sm:grid-cols-2">
@@ -527,7 +534,8 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
   iconName: string;
   tone: string;
   title: string;
-  subtitle: string;
+  /** Left out where the body and the meta already say it. */
+  subtitle?: string;
   body: string;
   meta: string;
   primary?: boolean;
@@ -552,7 +560,7 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
         </span>
         <span className="min-w-0">
           <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{title}</span>
-          <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{subtitle}</span>
+          {subtitle && <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{subtitle}</span>}
         </span>
         <span className="ml-auto"><Chip tone={primary ? "accent" : "neutral"}>{meta}</Chip></span>
       </span>

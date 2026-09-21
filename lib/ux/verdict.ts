@@ -107,3 +107,20 @@ export function verdictOfCheck(check: "correct" | "diacritics" | "typo" | "wrong
   if (check === "wrong") return "wrong";
   return "nearly";
 }
+
+/**
+ * The level check's part credit as a verdict. Full marks is a recall, nothing
+ * is a miss, and everything between is the middle the paper has on purpose: a
+ * dictation one word out and the right word in the wrong case are both a
+ * learner who nearly had it.
+ *
+ * The third mapping in this file rather than a comparison written out on each
+ * of the two screens that needs it, for the reason the other two are here: how
+ * a mark *looks* is one decision, wherever the number it is made from came
+ * from.
+ */
+export function verdictOfCredit(credit: number): Verdict {
+  if (credit >= 1) return "right";
+  if (credit > 0) return "nearly";
+  return "wrong";
+}

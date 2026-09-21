@@ -5,8 +5,7 @@ import type { Band, ChoiceItem, Item, Response, Skill } from "./types";
 const item = (id: string, skill: Skill, band: Band): ChoiceItem => ({
   id, kind: "choice", skill, band, lemma: id,
   question: "?", et: "tuba", heard: false,
-  options: ["a", "b", "c", "d"], estonianOptions: false, answer: 0,
-  source: "dictionary", because: "",
+  options: ["a", "b", "c", "d"], estonianOptions: false, answer: 0, because: "",
 });
 
 const PAPER: Item[] = [

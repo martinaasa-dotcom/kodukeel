@@ -126,9 +126,13 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
             Well spoken
           </h1>
+          {/* The assurance stays and the pitch goes. "Nothing you recorded left
+              this device" is a fact about a microphone somebody just used,
+              which is the one kind of small print that belongs on the page
+              rather than behind a press; the sentence in front of it was the
+              app explaining to somebody who has just finished why they did it. */}
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Saying a word out loud is what moves it from something you recognize to something you can
-            use. Nothing you recorded left this device.
+            Nothing you recorded left this device.
           </p>
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3">

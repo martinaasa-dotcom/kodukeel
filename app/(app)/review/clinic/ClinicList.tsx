@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowRight, MessageCircleQuestion, Pause, Stethoscope, Trash2 } from "lucide-react";
 import { deleteCard, setCardSuspended } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
-import { Card, Chip, Page, SectionTitle } from "@/components/ui";
+import { Card, Chip, Page } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { buildClinicQuestion, type Leech } from "@/lib/analysis/leeches";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -114,16 +114,16 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
         })}
       </div>
 
-      <div className="mt-8">
-        <SectionTitle>Why this exists</SectionTitle>
-        <p className="max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          Most review apps quietly bury a card like this once you have got it wrong enough times.
-          That clears your queue, but you never learn the word. Here you can see how each one is
-          going wrong: steadily, or after a good run, or back and forth. That is usually enough to
-          know what to do about it. Deleting a card never touches its history, and nothing in that
-          log is ever changed or removed.
-        </p>
-      </div>
+      {/*
+        A paragraph arguing with other review apps, at the foot of a screen
+        somebody opened to deal with cards they keep failing. Two of its five
+        sentences were about software nobody here is using. What is left is the
+        one fact that changes what a learner does on this screen, which is that
+        the button below a card is safe to press.
+      */}
+      <p className="mt-8 text-sm" style={{ color: "var(--ink-3)" }}>
+        Deleting a card never touches its history.
+      </p>
     </Page>
   );
 }

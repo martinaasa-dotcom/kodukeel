@@ -88,24 +88,36 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
       </div>
       <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{word.translation}</p>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        <Chip>{word.pos.toLowerCase()}</Chip>
-        {word.cefr && <Chip tone="sky">{word.cefr}</Chip>}
-        {word.gradationNote && <Chip tone="hard" caseSensitive>{word.gradationNote}</Chip>}
-      </div>
+      {/*
+        The band alone. Three chips sat here, and the other two were facts
+        about the word rather than about today: the part of speech and the
+        gradation pattern are both on the entry this word links to, printed
+        beside the table they are about. On a card whose job is one word and
+        why it is today's, a row of three pills is the busiest thing on the
+        screen and the least useful.
+      */}
+      {word.cefr && (
+        <div className="mt-3">
+          <Chip tone="sky">{word.cefr}</Chip>
+        </div>
+      )}
 
       {/*
         Why this word today. An icon and a line rather than a heading, because
         it is an aside about the date and the word above it is the point.
       */}
-      <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        <CalendarDays size={15} aria-hidden className="mt-0.5" style={{ color: "var(--sky-ink)" }} />
-        <span>
-          {word.occasion
-            ? word.occasion.note
-            : "Nothing special about today, so here is a word you have not met yet."}
-        </span>
-      </p>
+      {/*
+        Only where there is an occasion to name. On an ordinary day this read
+        "Nothing special about today, so here is a word you have not met yet."
+        under a hint already reading "new to you": a line whose whole content
+        was that there was nothing to say, beside a line that had said it.
+      */}
+      {word.occasion && (
+        <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          <CalendarDays size={15} aria-hidden className="mt-0.5" style={{ color: "var(--sky-ink)" }} />
+          <span>{word.occasion.note}</span>
+        </p>
+      )}
 
       {word.example && (
         <figure className="mt-4 rounded-[var(--r)] px-3.5 py-3" style={{ background: "var(--sky-soft)" }}>
@@ -126,16 +138,11 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
             en={word.example.en ?? null}
             canTranslate={canTranslate}
           />
-          {/*
-            Where the sentence came from, said out loud. Every Estonian sentence
-            in this app is one a lexicographer recorded, and a page that shows
-            them without saying so is asking to be trusted rather than checked.
-          */}
-          {/* `text-2xs` is the floor for tracked uppercase micro-labels, not for
-              lowercase running text on a pastel card read in the evening. */}
-          <figcaption className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            {SENTENCE_SOURCE[word.example.source] ?? UNSTAMPED}
-          </figcaption>
+          {/* No provenance caption. It said "Recorded sentence" under every
+              sentence this card has ever drawn, which is the disclaimer that
+              came off the level check and every round: a claim worth making
+              once, where somebody is deciding whether to trust this, and not
+              under each individual sentence. */}
         </figure>
       )}
 
@@ -163,18 +170,3 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
   );
 }
 
-/**
- * Where the sentence came from, in words.
- *
- * The fallback is the one that matters, because the built expansion writes its
- * sentences without stamping a source on them and they are the majority of what
- * this card will ever show. What every branch of this says is the same claim,
- * which is the claim ADR-005 exists to make: nobody here wrote it.
- */
-const SENTENCE_SOURCE: Record<string, string> = {
-  EKILEX: "Recorded sentence",
-  SEED: "Sentence from the built-in dictionary",
-  USER: "Sentence added by a learner here",
-};
-
-const UNSTAMPED = "Sentence from the dictionary, not written here";

@@ -10805,16 +10805,6 @@ check("the word of the day is one the learner has not met", () => {
   // Both ways of picking one go through it, not just the themed path.
   const uses = [...source.matchAll(/withoutReviewed\(/g)].length;
   assert.ok(uses >= 3, `withoutReviewed is used ${uses} times; it is defined once and called on both paths`);
-
-  /*
-    And the card says where its sentence came from. Every Estonian sentence in
-    this app was recorded by a lexicographer, and a page that prints one
-    without saying so is asking to be trusted rather than checked, which is the
-    rule the grammar pages already keep.
-  */
-  const card = read("components/WordOfDay.tsx");
-  assert.match(card, /SENTENCE_SOURCE/, "the word of the day prints a sentence with no provenance");
-  assert.match(card, /EKILEX:\s*"[^"]+"/, "the sentence's provenance no longer names its source");
 });
 
 check("Today's date is Estonian, tagged as Estonian, and has a way out", () => {
@@ -20275,7 +20265,8 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
   );
   assert.match(
     drawing, /isAdvanceKey\(e\)[^}]*onForward\(\)/,
-    "components/round/LookBack.tsx names the advance key in its caption and does not walk forward on it",
+    "components/round/LookBack.tsx swallows the advance key without walking forward on it, so the key "
+    + "the rest of the app carries on with does nothing here",
   );
 });
 

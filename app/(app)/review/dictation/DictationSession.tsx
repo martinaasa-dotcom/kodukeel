@@ -231,10 +231,14 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
             Dictation done
           </h1>
-          <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Writing down what you hear is the closest thing to using the language. Every sentence in
-            this round was recorded by dictionary editors, not by this app.
-          </p>
+          {/*
+            No paragraph here. The first sentence was this app telling somebody
+            who has just finished a round why the round was worth doing, and
+            the second was the provenance disclaimer, which is off every screen
+            in the app now: it is a claim worth making once, where somebody is
+            deciding whether to trust this, and not at the foot of a drill.
+            Three tiles say how it went, which is what the screen is for.
+          */}
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={done} label="Written" tone="accent" />

@@ -16,6 +16,11 @@ import { Card, Chip, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } f
 import { ArchiveClass, AssignHomework, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { counted } from "@/lib/copy/values";
 import { Explain } from "@/components/Explain";
+import { caseByKey } from "@/lib/estonian/cases";
+import type { CaseKey } from "@/lib/estonian/types";
+
+/** The name a class uses, never the Latin one. See CLAUDE.md on case names. */
+const caseName = (key: string) => caseByKey(key as CaseKey)?.et ?? key.toLowerCase();
 
 /*
   The class's own name, and never a fallback that names one to somebody who is
@@ -199,7 +204,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                             <>
                               {" · weakest: "}
                               <span style={{ color: "var(--hard-ink)" }}>
-                                {entry.weakestCase.grammCase.toLowerCase()} ({entry.weakestCase.accuracy}%)
+                                <span lang="et">{caseName(entry.weakestCase.grammCase)}</span> ({entry.weakestCase.accuracy}%)
                               </span>
                             </>
                           )}
@@ -233,11 +238,11 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                 {roster.weakestCases.map((c) => (
                   <li key={c.grammCase} className="flex items-center gap-3 text-sm">
                     <Target size={14} aria-hidden style={{ color: "var(--ink-3)" }} />
-                    <span className="w-28" style={{ color: "var(--ink-2)" }}>{c.grammCase.toLowerCase()}</span>
+                    <span lang="et" className="w-28" style={{ color: "var(--ink-2)" }}>{caseName(c.grammCase)}</span>
                     <span className="max-w-[240px] flex-1">
                       <Meter
                         pct={c.accuracy}
-                        label={`${c.grammCase.toLowerCase()} across the class`}
+                        label={`${caseName(c.grammCase)} across the class`}
                         tone={c.accuracy >= 85 ? "var(--good)" : c.accuracy >= 65 ? "var(--hard)" : "var(--again)"}
                         height={5}
                       />

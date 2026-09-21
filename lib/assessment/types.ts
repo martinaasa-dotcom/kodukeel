@@ -39,17 +39,6 @@ export interface HourRange {
   high: number;
 }
 
-/** Where the Estonian in an item came from, shown to the learner. */
-export type ItemSource =
-  /** A form or gloss stored in the dictionary, seeded or retrieved. */
-  | "dictionary"
-  /** A form retrieved from Ekilex. */
-  | "ekilex"
-  /** A regular case computed from the genitive stem by `lib/estonian/derive`. */
-  | "derived"
-  /** An example sentence recorded by a lexicographer. */
-  | "usage";
-
 interface ItemBase {
   /** Stable across a render, so React keys and responses line up. */
   id: string;
@@ -57,7 +46,6 @@ interface ItemBase {
   band: Band;
   /** The English question. Metalanguage only. */
   question: string;
-  source: ItemSource;
   /** The word the item is about, for the review afterwards. */
   lemma: string;
 }

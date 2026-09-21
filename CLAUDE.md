@@ -10089,12 +10089,30 @@ elative, and the exam builder was asking about them as verbs. Two invariants, bo
 first.
 
 **A level is never decided by a model, and never built out of Estonian we wrote.** The placement
-check at `/assess` is assembled from `Lexeme`, `Form` and recorded `usages`; every question says
-which of those its Estonian came from. Marking is a stored index, a recorded sentence, or a string
+check at `/assess` is assembled from `Lexeme`, `Form` and recorded `usages`. Marking is a stored
+index, a recorded sentence, or a string
 comparison against a form the dictionary vouches for, in that order, and no provider is reachable
 from `lib/assessment/`. A learner meeting this app for the first time cannot tell when the machine
 is the one that is confused, so the machine is never the judge. The overall level is the **average**
 of the measured skills, floored (ADR-020 amendment 2).
+
+**And the claim is kept in the code rather than printed under every question.** Each item used to
+carry an `ItemSource` and each answered question ended in "A recorded sentence. No Estonian on this
+screen was written by this app or by an AI." Eighty times a paper, under a screen that had already
+said it in the briefing, which is the shape `docs/18-voice.md` calls advice nobody asked for printed
+again until it stops being read. The operator asked for it off every screen in the app and was right
+about what it costs: the guarantee is worth making once, where somebody is deciding whether to trust
+the thing, and a line repeated at the foot of every card is furniture. Nothing about the guarantee
+moved, because it was never that line holding it up: the pure builders, the absent provider import
+and the invariants above are what make it true, and they are all still here. The field went with the
+line rather than being left to reach nobody, which is the fault this file records seven `caseEn`
+fields having had.
+
+**What may not go is a mark on output nobody has checked.** A disclaimer under attested Estonian is
+a claim about the app; the `AI · verify` chip on a form a model suggested is a claim about *that
+word*, and it is the one thing standing between a learner and drilling a form nothing vouched for
+(ADR-005). Removing the first does not license removing the second, and the two read alike only from
+a distance.
 
 **And the average is the level, because the minimum was reporting a stranger three bands under
 themselves.** The rule was the weakest measured skill, on the argument that a CEFR level is a claim
@@ -10823,7 +10841,7 @@ reason it will stay green: Upside Lab kept one that nothing ran and it drifted t
 failures before anybody counted. Assert the rule, not today's markup.
 
 `scripts/test-assess.mjs` sits a whole level check in a browser, question by question, and checks
-the things a unit test cannot see: that every question says where its Estonian came from, that the
+the things a unit test cannot see: that the
 listening section abandons itself rather than dead-ending when the speech service is unavailable,
 that the result names how few questions it came from and refuses to call itself a certificate, and
 that first run reaches the plan before it asks anybody to pick a single word.

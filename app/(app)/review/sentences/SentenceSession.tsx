@@ -252,10 +252,9 @@ export function SentenceSession(
           <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
             Sentences done
           </h1>
-          <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Word order is the part a flashcard cannot teach. Every sentence here was written by
-            dictionary editors, not by this app.
-          </p>
+          {/* The provenance disclaimer is off every round in the app; see the
+              level check. The sentence in front of it was this app telling
+              somebody who has just finished why the round was worth doing. */}
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={attempts} label="Built" tone="accent" />
