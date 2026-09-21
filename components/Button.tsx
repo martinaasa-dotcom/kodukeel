@@ -42,14 +42,25 @@ const SIZES: Record<Size, string> = {
     most laptops, most of the time — gets the smaller, calmer button; a wide
     one gets the size the hero card was designed at.
 
-    `min-h-11` (44px) is not part of that step: a `ButtonLink` renders an
+    `min-h-12` (48px) is not part of that step: a `ButtonLink` renders an
     `<a>`, which the coarse-pointer tap-target floor in globals.css does not
     reach (that selector list is `button`, `[role="button"]`, `a.pill`,
     an icon-only `a[aria-label]`), so nothing else was holding this control to
-    the floor at the compact size. Stated once here rather than left to
+    the 44px floor at the compact size. Stated once here rather than left to
     whichever screen's padding happened to clear it.
+
+    IT IS 48PX RATHER THAN AN EXACT 44, AND THAT MARGIN IS THE FIX FOR A REAL
+    FAILURE RATHER THAN A ROUND NUMBER. `min-h-11` (44px exactly) shipped
+    first and `scripts/test-signin.mjs` — the suite `SignInForm.tsx`'s own
+    comment says exists because an earlier version of this exact button once
+    failed it at 41px — measured "Continue with Google" at a raw height just
+    under 44 on a 360px phone, which `Math.round` had been displaying as a
+    clean "44" in the failure log. Sitting a control exactly on a floor
+    measured in real, sub-pixel browser layout is the floor, with nothing
+    held back for it; 48px is comfortably clear of it and still visibly
+    shorter than the original ~56px.
   */
-  lg: "min-h-11 px-5 py-3 text-sm 2xl:px-6 2xl:py-3.5 2xl:text-base",
+  lg: "min-h-12 px-5 py-3 text-sm 2xl:px-6 2xl:py-3.5 2xl:text-base",
 };
 
 const base =
