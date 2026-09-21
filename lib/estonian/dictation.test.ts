@@ -114,6 +114,32 @@ describe("checkDictation", () => {
     expect(result.verdict).toBe("wrong");
   });
 
+  it("forgives a missing space between two words, rather than calling both wrong", () => {
+    // "Kuue kuup" typed as one run-together word: every letter is there, in
+    // order, with the space left out.
+    const result = checkDictation("Kui palju on kuuekuup?", "Kui palju on kuue kuup?");
+    expect(statuses("Kui palju on kuuekuup?", "Kui palju on kuue kuup?")).toEqual([
+      "right", "right", "right", "spacing",
+    ]);
+    expect(result.verdict).toBe("spacing");
+    expect(result.suggestedRating).toBe(2);
+    expect(result.words.at(-1)).toEqual({ expected: "kuue kuup?", typed: "kuuekuup?", status: "spacing" });
+  });
+
+  it("forgives an extra space put in the middle of one word", () => {
+    // "toas" typed as "to as": the same letters, split by a stray space.
+    const result = checkDictation("Ta istub to as", "Ta istub toas");
+    expect(statuses("Ta istub to as", "Ta istub toas")).toEqual(["right", "right", "spacing"]);
+    expect(result.verdict).toBe("spacing");
+    expect(result.words.at(-1)).toEqual({ expected: "toas", typed: "to as", status: "spacing" });
+  });
+
+  it("still calls two genuinely different words wrong, even when run together", () => {
+    // "majakool" is not a run-together "maja kool" unless the letters actually
+    // line up; nothing here should invent a merge that was not typed.
+    expect(statuses("Ta istub majas", "Ta istub toas")).toEqual(["right", "right", "wrong"]);
+  });
+
   it("never loses a typed word from the marked-up output", () => {
     const typed = "Ma lasen tal minna koju kohe";
     const expected = "Ma lasen tal minna koju";

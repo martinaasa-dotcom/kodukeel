@@ -10,7 +10,7 @@ import { Chip, KeyCap, Note } from "@/components/ui";
 import { BLANK } from "@/lib/estonian/cloze";
 import { gradeChoice, gradeDictation, gradeWrite } from "@/lib/assessment/score";
 import type { ChoiceItem, DictationItem, Item, SpeakItem, WriteItem } from "@/lib/assessment/types";
-import type { WordStatus } from "@/lib/estonian/dictation";
+import { wordNote, type WordStatus } from "@/lib/estonian/dictation";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { Explain } from "@/components/Explain";
 
@@ -38,6 +38,7 @@ const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
   right: { className: VERDICT_CLASS.right, title: "Exactly right" },
   diacritics: { className: VERDICT_CLASS.nearly, title: "The right word, without its Estonian letters" },
   typo: { className: VERDICT_CLASS.nearly, title: "One keystroke out" },
+  spacing: { className: VERDICT_CLASS.nearly, title: "The right words, with the space in the wrong place" },
   wrong: { className: VERDICT_CLASS.wrong, title: "A different word" },
   missing: { className: VERDICT_CLASS.wrong, title: "Left out" },
   extra: { className: "", title: "Not in the sentence" },
@@ -331,18 +332,43 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           <Chip tone={mark.result.verdict === "correct" ? "good" : mark.result.verdict === "wrong" ? "again" : "hard"}>
             {mark.result.note}
           </Chip>
+          {/*
+            What was typed stays on screen, not only in a `title` tooltip: a
+            phone has no hover, and a learner correcting a slip needs to see
+            exactly what they wrote, next to what was wanted, rather than
+            reconstruct it from memory.
+          */}
           <div className="mt-4 flex flex-wrap gap-1.5">
             {mark.result.words.map((word, i) => {
               const tone = WORD_TONE[word.status];
+              const shown = word.expected ?? word.typed ?? "";
+              const note = wordNote(word);
               return (
                 <span
-                  key={`${word.expected ?? word.typed ?? ""}-${i}`}
-                  lang="et"
-                  title={tone.title}
-                  className={`${tone.className} rounded-[var(--r-sm)] px-2 py-1 text-base`}
+                  key={`${shown}-${i}`}
+                  aria-label={`${shown}, ${tone.title}${
+                    word.typed && word.typed !== shown ? `. You typed ${word.typed}` : ""
+                  }`}
+                  className={`${tone.className} flex flex-col items-center rounded-[var(--r-sm)] px-2 py-1`}
                   style={word.status === "extra" ? { background: "var(--raised)", color: "var(--ink-3)" } : undefined}
                 >
-                  {word.expected ?? word.typed}
+                  <span
+                    lang="et"
+                    className="text-base"
+                    style={{ textDecoration: word.status === "extra" ? "line-through" : undefined }}
+                  >
+                    {shown}
+                  </span>
+                  {word.status !== "right" && word.status !== "extra" && (
+                    <span className="text-2xs" style={{ color: "var(--ink-3)" }} aria-hidden>
+                      {word.typed ? `you: ${word.typed}` : "left out"}
+                    </span>
+                  )}
+                  {note && (
+                    <span className="text-2xs" style={{ color: "var(--hard-ink)" }} aria-hidden>
+                      {note}
+                    </span>
+                  )}
                 </span>
               );
             })}
