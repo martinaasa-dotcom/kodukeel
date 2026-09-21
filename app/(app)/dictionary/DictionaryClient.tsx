@@ -1025,37 +1025,54 @@ function AddToDeck({ entry }: { entry: EntryView }) {
     );
   }
 
+  /*
+    ANCHORED TO ITS OWN TRIGGER RATHER THAN LAID OUT AS A FLEX SIBLING.
+
+    This used to be an ordinary child of the header's button row, sized
+    `w-full md:w-80`. A long gloss (a word spelled two ways, several senses)
+    leaves that row too little space for the panel to sit beside Star and
+    Edit, and `flex-wrap` on the header answers by dropping the whole thing
+    onto its own line below the word, full width, which is not "beside the
+    other buttons" and reads as broken. `absolute` takes it out of that flow
+    entirely, so nothing it does can move the star, the edit button or the
+    title above it, at any width or gloss length.
+  */
   return (
-    <div className="w-full rounded-[var(--r-lg)] p-5 md:w-80" style={{ background: "var(--raised)" }}>
-      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which cards?</p>
-      <div className="flex flex-col gap-2">
-        {CARD_TYPES.filter((t) => available.includes(t.type)).map((t) => (
-          <label key={t.type} className="flex cursor-pointer items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
-            <input
-              type="checkbox"
-              checked={selected.includes(t.type)}
-              onChange={(e) =>
-                setSelected((s) => (e.target.checked ? [...s, t.type] : s.filter((x) => x !== t.type)))
-              }
-              className="mt-0.5"
-            />
-            <span>
-              <span style={{ color: "var(--ink)" }}>{t.label}</span>
-              <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t.description}</span>
-            </span>
-          </label>
-        ))}
-      </div>
-      {choice.asks && choice.decks && (
-        <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
-          <DeckChoiceList decks={choice.decks} deckIds={choice.deckIds} toggle={choice.toggle} />
+    <div className="relative">
+      <div
+        className="absolute right-0 top-full z-40 mt-2 w-[min(20rem,calc(100vw-2.5rem))] rounded-[var(--r-lg)] p-5 shadow-lg"
+        style={{ background: "var(--raised)" }}
+      >
+        <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which cards?</p>
+        <div className="flex flex-col gap-2">
+          {CARD_TYPES.filter((t) => available.includes(t.type)).map((t) => (
+            <label key={t.type} className="flex cursor-pointer items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
+              <input
+                type="checkbox"
+                checked={selected.includes(t.type)}
+                onChange={(e) =>
+                  setSelected((s) => (e.target.checked ? [...s, t.type] : s.filter((x) => x !== t.type)))
+                }
+                className="mt-0.5"
+              />
+              <span>
+                <span style={{ color: "var(--ink)" }}>{t.label}</span>
+                <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t.description}</span>
+              </span>
+            </label>
+          ))}
         </div>
-      )}
-      <div className="mt-4 flex gap-2">
-        <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-        <Button variant="primary" onClick={submit} disabled={pending || selected.length === 0} className="flex-1">
-          {pending ? "Adding…" : "Add"}
-        </Button>
+        {choice.asks && choice.decks && (
+          <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
+            <DeckChoiceList decks={choice.decks} deckIds={choice.deckIds} toggle={choice.toggle} />
+          </div>
+        )}
+        <div className="mt-4 flex gap-2">
+          <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="primary" onClick={submit} disabled={pending || selected.length === 0} className="flex-1">
+            {pending ? "Adding…" : "Add"}
+          </Button>
+        </div>
       </div>
     </div>
   );
