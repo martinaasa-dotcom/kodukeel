@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/ui";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { NO_VALUE } from "@/lib/copy/values";
+import { hasNoFields } from "@/lib/dict/pos";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { CaseQuestion } from "@/components/CaseQuestion";
@@ -96,8 +97,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
-  const fields =
-    pos === "VERB" ? VERB_FIELDS : pos === "PHRASE" || pos === "ADVERB" ? [] : NOUN_FIELDS;
+  const fields = pos === "VERB" ? VERB_FIELDS : hasNoFields(pos) ? [] : NOUN_FIELDS;
 
   const field = { borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" } as const;
 

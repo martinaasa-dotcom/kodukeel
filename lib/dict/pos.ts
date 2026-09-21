@@ -64,6 +64,26 @@ export function opensATable(pos: string | null | undefined): boolean {
   return pos === "NOUN" || pos === "VERB" || pos === "ADJECTIVE";
 }
 
+/**
+ * Whether hand-adding a word of this part of speech asks for no principal
+ * parts at all.
+ *
+ * A phrase is already the whole sentence, so asking for the genitive of
+ * `Tere hommikust!` would be asking for a form the entry does not have. An
+ * adverb does not inflect, for the reason `opensATable` gives about it: it is
+ * the language rather than a gap. Both are typed straight from the lemma with
+ * nothing else to fill in, which `AddWord.tsx` reads this for rather than
+ * carrying a second copy of the same two-word list.
+ *
+ * Narrower than `!opensATable`, and deliberately: a pronoun does not open a
+ * table either, and a hand-added one still gets the case fields, because
+ * `mina` and `kes` decline and a lexicographer would have to type their
+ * cases in exactly the way this form exists to collect.
+ */
+export function hasNoFields(pos: string | null | undefined): boolean {
+  return pos === "PHRASE" || pos === "ADVERB";
+}
+
 /** Parts of speech a built entry may carry. `Lexeme.pos` also allows PHRASE and OTHER. */
 const NOMINALS = new Set(["NOUN", "ADJECTIVE", "ADVERB"]);
 

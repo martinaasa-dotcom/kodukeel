@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolvePos } from "./pos";
+import { hasNoFields, resolvePos } from "./pos";
 
 /**
  * Each case here is a real page whose label was wrong, or was right and could
@@ -71,5 +71,28 @@ describe("resolvePos", () => {
     // `===Postposition===`, `===Numeral===`, `===Participle===`: true things
     // this app has no column for. The category is all that is left.
     expect(resolvePos(inputs({ sensePos: null, fallback: "ADVERB" }))).toBe("ADVERB");
+  });
+});
+
+describe("hasNoFields", () => {
+  it("asks for nothing on a phrase or an adverb, since neither inflects", () => {
+    expect(hasNoFields("PHRASE")).toBe(true);
+    expect(hasNoFields("ADVERB")).toBe(true);
+  });
+
+  it("still asks for fields on a pronoun, which declines despite opening no table", () => {
+    // `opensATable("PRONOUN")` is false too, and this is where the two predicates
+    // part ways: `mina` and `kes` have cases to type in even though the entry
+    // page draws no table for them.
+    expect(hasNoFields("PRONOUN")).toBe(false);
+  });
+
+  it("still asks for fields on every part of speech that inflects", () => {
+    expect(hasNoFields("NOUN")).toBe(false);
+    expect(hasNoFields("VERB")).toBe(false);
+    expect(hasNoFields("ADJECTIVE")).toBe(false);
+    expect(hasNoFields("OTHER")).toBe(false);
+    expect(hasNoFields(null)).toBe(false);
+    expect(hasNoFields(undefined)).toBe(false);
   });
 });
