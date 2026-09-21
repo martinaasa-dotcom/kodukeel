@@ -14,7 +14,9 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { sharedPrompts } from "@/lib/collections/senses";
-import { repairCaseFronts, repairCardSpelling, repairProductionBacks } from "./repair";
+import {
+  repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
+} from "./repair";
 import { generateCards, isBareCaseFront } from "@/lib/srs/cards";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { plainPhrase } from "@/lib/copy/values";
@@ -290,6 +292,64 @@ describe("repairCaseFronts", () => {
     const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
     expect(after.front).toBe(card.front);
     expect(after.back).toBe("x");
+  });
+});
+
+describe("repairGovernmentBacks", () => {
+  beforeEach(wipe);
+  afterAll(wipe);
+
+  it("takes the Latin name off the answer and leaves the schedule alone", async () => {
+    const verb = await prisma.lexeme.findFirst({
+      where: { pos: "VERB" },
+      select: { id: true, lemma: true },
+      orderBy: { id: "asc" },
+    });
+    if (!verb) return;
+
+    const due = new Date("2027-01-01T00:00:00.000Z");
+    const card = await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: verb.id, cardType: "GOVERNMENT",
+        front: `${verb.lemma} → rektsioon`,
+        back: "millega (comitative) · millest (elative)",
+        hint: "verb government · to deal with",
+        due, stability: 12.5, difficulty: 6.25, reps: 9, lapses: 3, state: 2,
+      },
+    });
+
+    expect(await repairGovernmentBacks(prisma)).toBeGreaterThan(0);
+
+    const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(after.back).toBe("millega (with what?) · millest (out of what?)");
+    // The question and the cue are not this repair's to touch, and neither is
+    // anything the scheduler wrote.
+    expect(after.front).toBe(card.front);
+    expect(after.hint).toBe(card.hint);
+    expect(after.due).toEqual(due);
+    expect(after.stability).toBe(12.5);
+    expect(after.reps).toBe(9);
+    expect(after.lapses).toBe(3);
+    expect(after.state).toBe(2);
+
+    // And a second run has nothing left to match.
+    expect(await repairGovernmentBacks(prisma)).toBe(0);
+  });
+
+  it("leaves a card of another type alone, whatever its back says", async () => {
+    const verb = await prisma.lexeme.findFirst({
+      where: { pos: "VERB" }, select: { id: true, lemma: true }, orderBy: { id: "asc" },
+    });
+    if (!verb) return;
+    const card = await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: verb.id, cardType: "RECOGNITION",
+        front: verb.lemma, back: "millega (comitative)",
+      },
+    });
+    expect(await repairGovernmentBacks(prisma)).toBe(0);
+    const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(after.back).toBe("millega (comitative)");
   });
 });
 
