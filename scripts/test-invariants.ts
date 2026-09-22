@@ -8134,17 +8134,35 @@ check("a hint a deck already holds does not name its case in Latin", () => {
 
   /*
     AND NOBODY PRINTS THE COLUMN RAW. The fault was one JSX interpolation of
-    `card.hint` on the reveal, so that is what is anchored on: a screen holding
-    a card hands it to `gapCue` or to `readableHint`, and never draws the
-    column itself. Deliberately `card.hint` rather than any `.hint`, because a
-    command in the palette and a group on the shortcut sheet each carry a hint
-    of their own that has never been near a case.
+    `card.hint` on the reveal, so that is what is anchored on everywhere: a
+    screen holding a card hands it to `gapCue` or to `readableHint`, and never
+    draws the column itself. Deliberately `card.hint` rather than any `.hint`,
+    because a command in the palette and a group on the shortcut sheet each
+    carry a hint of their own that has never been near a case.
+
+    INSIDE A CARD RUNNER IT IS ANY `.hint`, because there the name is the one
+    thing that varies: the same column reaches those files as `card.hint`,
+    `c.hint` and `word.gap.hint`, and a check reading one spelling passes on
+    the other two. The runners are the files that hand a hint to `gapCue` or
+    `gapMeaning`, which is the filesystem rather than a list, so a round added
+    later is swept by arriving.
   */
+  const runners = [...APP, ...COMPONENTS].filter((file) =>
+    /\bgap(?:Cue|Meaning)\(/.test(code(file)),
+  );
+  assert.ok(runners.length >= 6, `only ${runners.length} card runners found`);
   for (const file of [...APP, ...COMPONENTS]) {
+    const source = code(file);
     assert.doesNotMatch(
-      code(file),
+      source,
       /\{\s*card\.hint\s*\}/,
       `${file} prints a stored card hint without reading it through readableHint`,
+    );
+    if (!runners.includes(file)) continue;
+    assert.doesNotMatch(
+      source,
+      /\{\s*[A-Za-z_$][\w$.]*\.hint\s*\}/,
+      `${file} draws a card hint it has not read through readableHint or gapCue`,
     );
   }
 });
@@ -8163,6 +8181,14 @@ check("a hint a deck already holds does not name its case in Latin", () => {
  * through that function. `AddWord.tsx` is the one exemption and is not a
  * screen printing it, it is the box somebody edits the stored string in, where
  * what has to be in front of them is what is stored.
+ *
+ * THE RESIDUAL IS THE COLUMN COPIED INTO A LOCAL FIRST. The pattern is
+ * anchored on the member access inside the braces, so it sees `{l.government}`
+ * and `${lex.government}` alike and sees nothing at all where a file writes
+ * `const g = lex.government` and then prints `{g}`. Reading that would mean
+ * following a value through a file, which is a parser this check does not
+ * have; what stands under it instead is that a file naming the column at all
+ * is one of a handful, and every one of them is read here.
  */
 check("a screen that prints a stored government reads it the way a learner should", () => {
   const EDITS = "app/(app)/dictionary/AddWord.tsx";

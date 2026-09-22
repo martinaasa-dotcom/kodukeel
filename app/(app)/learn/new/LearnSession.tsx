@@ -877,6 +877,16 @@ export function LearnSession({
     ? gapMeaning({ en: word.gap.en, answer: word.gap.answer, cue: word.gap.hint, lemma: word.lemma })
     : null;
   const gapMarked = gapLine?.marked ?? false;
+  /*
+    Read once rather than at each of its two uses, which is the guard and the
+    body of one expression: `gapCue` reads a stored hint through `readableHint`
+    and splits it, so calling it twice is the same string built twice on every
+    render of the rung, and the pair can only ever drift the day one of them is
+    edited and the other is not.
+  */
+  const gapWord = word?.gap
+    ? gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked })
+    : null;
 
   const progress = total > 0 ? ((total - left) / total) * 100 : 0;
 
@@ -1070,11 +1080,11 @@ export function LearnSession({
                     not, and a hint with no headword in it leaves nothing.
                   */}
                   <div>
-                    {gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked }) ? (
+                    {gapWord ? (
                       <>
                         <p className="label-xs" style={{ color: "var(--ink-3)" }}>The word</p>
                         <p className="mt-1 text-2xl font-bold leading-tight" style={{ color: "var(--accent-deep)" }}>
-                          {gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked })}
+                          {gapWord}
                         </p>
                         <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
                           Put it in the sentence, in the form it needs.
