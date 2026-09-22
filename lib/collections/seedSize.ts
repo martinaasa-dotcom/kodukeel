@@ -122,5 +122,12 @@
  * rather than ours: `abi`, `aitama`, `appi`, `politsei`, `helistama`,
  * `sõitma`, `jalgratas`, `ootama` and `aadress` are all A1 to the Institute
  * and were A2 or B1 here.
+ *
+ * The seven after those are `npm run measure:scenes`' own ranked list: the
+ * words an attested corpus needs that no unit named, read off the count
+ * rather than guessed at. `kuigi` and `ent` join the conjunctions,
+ * `vanasti` and `taas` the time adverbs, and `vene`, `prantsuse` and
+ * `Prantsusmaa` the countries and peoples unit, which was already at its
+ * per-evening ceiling and had room for three.
  */
-export const SEED_SET_SIZE = { words: 6_153, forms: 39_725 };
+export const SEED_SET_SIZE = { words: 6_161, forms: 39_740 };

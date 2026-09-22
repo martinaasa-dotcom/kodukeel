@@ -964,6 +964,8 @@ export const A1 = [
       ["veel", "still, yet, more", "ADVERB"],
       ["jälle", "again", "ADVERB"],
       ["ammu", "long ago, for a long time", "ADVERB"],
+      ["vanasti", "in the old days, once", "ADVERB"],
+      ["taas", "again, once more", "ADVERB"],
     ],
   }),
 
@@ -1050,6 +1052,9 @@ export const A1 = [
       ["siis", "then", "ADVERB"],
       ["nii", "so, like this", "ADVERB"],
       ["mitte", "not", "ADVERB", 203249],
+      ["kuigi", "although", "ADVERB"],
+      // A literary "but", commoner in writing than aga.
+      ["ent", "but, however", "ADVERB"],
     ],
   }),
 
@@ -1235,6 +1240,22 @@ export const A1 = [
       // `Kust sa pärit oled?` is how the question is actually asked, and the
       // dictionary carries that very sentence while teaching no unit the word.
       ["pärit", "originally from", "ADVERB"],
+      /*
+        `npm run measure:scenes` found the neighbors covered and the
+        adjective a language takes not: `vene keel`, not `venelane keel`,
+        and Ekilex holds `vene` and `prantsuse` as their own headwords. The
+        unit was already at its sitting cap, so this is the room that was
+        left rather than the whole of the ranked list.
+
+        Both are the formless class rather than adjectives with a stem:
+        Ekilex records the nationality sense of each as muutumatu sõna,
+        indeclinable, and the ADJECTIVE path demands a genitive. Labeled that
+        way, `vene` first matched a regular noun that happens to be spelled
+        the same (a dugout canoe) rather than the word this unit means.
+      */
+      ["vene", "Russian", "ADVERB", 255516],
+      ["prantsuse", "French", "ADVERB"],
+      ["Prantsusmaa", "France"],
     ],
   }),
 
