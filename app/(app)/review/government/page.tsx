@@ -11,6 +11,7 @@ import { parseExamples, sentenceContaining, usableExamples } from "@/lib/dict/ex
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { GovernmentSession, type GovernmentQuestion } from "./GovernmentSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
@@ -206,9 +207,11 @@ export default async function GovernmentPage({
   const starred = await starredAmong(ownerId, questions.map((q) => q.lexemeId));
 
   return (
-    <GovernmentSession
-      questions={questions.map((q) => ({ ...q, starred: starred.has(q.lexemeId) }))}
-    />
+    <BeforeYouStart id="government" ready={questions.length > 0} count={{ n: questions.length, noun: "verb" }}>
+      <GovernmentSession
+        questions={questions.map((q) => ({ ...q, starred: starred.has(q.lexemeId) }))}
+      />
+    </BeforeYouStart>
   );
 }
 

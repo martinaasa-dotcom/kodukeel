@@ -16,6 +16,7 @@
 import { mkdirSync } from "node:fs";
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 const BASE = baseUrl();
 const SHOTS = "/tmp/shots";
@@ -91,6 +92,7 @@ for (const [route, name] of ROUTES) {
 // ── Content checks: the empty state is the failure mode that still "renders" ──
 
 await page.goto(`${BASE}/review/government`, { waitUntil: "networkidle" });
+await startRound(page);
 check("government drill has real questions",
   (await page.getByText(/Which question does it answer/i).count()) > 0);
 // Assert the rule, not three case names. The distractors are drawn from the
@@ -105,11 +107,13 @@ check("government drill offers case options",
   (await page.getByRole("button", { name: CASE_NAMES }).count()) >= 3);
 
 await page.goto(`${BASE}/review/pairs`, { waitUntil: "networkidle" });
+await startRound(page);
 const pairsBody = await page.textContent("body");
 check("minimal pairs found real contrasts in the dictionary",
   !/No length contrasts/i.test(pairsBody ?? ""));
 
 await page.goto(`${BASE}/review/write`, { waitUntil: "networkidle" });
+await startRound(page);
 check("writing exercise names a case to produce",
   (await page.getByText(/Use\s/i).count()) > 0);
 check("writing exercise has an input", (await page.locator("#sentence").count()) === 1);

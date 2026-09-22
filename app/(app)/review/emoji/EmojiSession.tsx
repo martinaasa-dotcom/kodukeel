@@ -12,6 +12,7 @@ import { gradeCard } from "@/app/actions";
 import { OPTION_CLASS } from "@/lib/ux/verdict";
 import { boardLead, type EmojiPair } from "@/lib/games/emojiBoard";
 import { WayOut } from "@/components/round/RoundExit";
+import { BriefingLines } from "@/components/round/Briefing";
 
 
 type Side = "picture" | "word";
@@ -140,6 +141,9 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
             style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
             <Grid2x2 size={34} aria-hidden />
           </span>
+          <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            <BriefingLines id="emoji" />
+          </p>
           <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             No English on the board. The picture is the meaning, so the Estonian
             side can be a case form: match <span lang="et" className="font-semibold">majas</span>{" "}

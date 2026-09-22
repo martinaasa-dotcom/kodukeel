@@ -4,6 +4,7 @@ import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { missCard } from "./lib/miss.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 /**
  * THE WAY OUT OF BEING STUCK, DRIVEN.
@@ -102,6 +103,7 @@ const thrown = [];
 page.on("pageerror", (e) => thrown.push(e.message.split("\n")[0]));
 
 await page.goto(`${B}/review`, { waitUntil: "load" });
+await startRound(page);
 await eventually(async () => (await page.locator("main").innerText()).trim().length > 0);
 
 if ((await page.locator("main input, main button").count()) === 0) {

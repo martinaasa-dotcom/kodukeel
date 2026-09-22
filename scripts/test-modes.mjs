@@ -10,6 +10,7 @@
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { retypeMiss } from "./lib/review.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 const B = baseUrl();
 const browser = await launchChromium();
@@ -165,6 +166,7 @@ check("the board is a class you joined, or the way into one",
 // there is genuinely nothing to check here. That is reported as skipped rather
 // than failed, with the fix: `npm run demo` gives the deck a history.
 await page.goto(`${B}/review`, { waitUntil: "networkidle" });
+await startRound(page);
 const everyCardIsNew = await page.evaluate(() => {
   const label = document.body.querySelector('[aria-label="Session progress"]');
   return /New (word|phrase)/.test(document.body.innerText) && label !== null;
@@ -255,6 +257,7 @@ if (rateable) {
   there is nothing behind the learner.
 */
 await page.goto(`${B}/review`, { waitUntil: "networkidle" });
+await startRound(page);
 await page.waitForTimeout(600);
 
 const lookButton = () => page.locator("main").getByRole("button", { name: /See it again/i });
@@ -392,6 +395,7 @@ if (typedCard) {
   says plainly whether the round moved.
 */
 await page.goto(`${B}/review/conjugation`, { waitUntil: "domcontentloaded" });
+await startRound(page);
 await page.waitForSelector("main", { timeout: 15000 });
 await page.waitForTimeout(1200);
 
@@ -496,6 +500,7 @@ const queuedGrades = () => page.evaluate(() => new Promise((resolve) => {
 
 // 6 — Reviewing offline: grades are kept, then sent on reconnect
 await page.goto(`${B}/review`, { waitUntil: "networkidle" });
+await startRound(page);
 await page.waitForTimeout(600);
 await ctx.setOffline(true);
 await answerCurrentCard();
@@ -529,6 +534,8 @@ check("the queue is sent once the connection is back", stillQueued === 0, `${sti
 await page.goto(`${B}/sonad`, { waitUntil: "networkidle" });
 await page.evaluate(() => { try { localStorage.clear(); } catch { /* blocked */ } });
 await page.reload({ waitUntil: "networkidle" });
+/* After the reload, not before it: a reload puts the briefing back. */
+await startRound(page);
 
 /*
   The circles and not the keys, which now share `lang="et"`: the keyboard is
@@ -612,6 +619,7 @@ await page.waitForTimeout(300);
 check("a non-word is refused", (await page.getByText(/Not a word/).count()) > 0);
 
 await page.reload({ waitUntil: "networkidle" });
+await startRound(page);
 await page.waitForTimeout(400);
 const restored = await board.evaluateAll((els) =>
   els.filter((e) => e.textContent.trim()).map((e) => e.textContent.trim()).join(""));
@@ -621,6 +629,8 @@ check("the board comes back after a reload", restored === "kastan");
 await page.goto(`${B}/crossword`, { waitUntil: "networkidle" });
 await page.evaluate(() => { try { localStorage.clear(); } catch { /* blocked */ } });
 await page.reload({ waitUntil: "networkidle" });
+/* After the reload, not before it: a reload puts the briefing back. */
+await startRound(page);
 
 const grid = page.locator('input[aria-label^="Row "]');
 const cellCount = await grid.count();
@@ -651,6 +661,8 @@ const shown = await grid.evaluateAll((els) => els.filter((e) => e.value).length)
 check("Show fills the clue that is selected", shown >= 3);
 
 await page.reload({ waitUntil: "networkidle" });
+/* After the reload, not before it: a reload puts the briefing back. */
+await startRound(page);
 await page.waitForTimeout(400);
 check("the grid comes back after a reload",
   (await grid.evaluateAll((els) => els.filter((e) => e.value).length)) === shown);
@@ -721,6 +733,7 @@ if ((await featured.count()) === 0) {
   that says nothing.
 */
 await page.goto(`${B}/review/describe`, { waitUntil: "networkidle" });
+await startRound(page);
 const box = page.locator("#sentence");
 if ((await box.count()) === 0) {
   absent(4, "no scene at this level: the dictionary has no banded noun with a picture and a stem");

@@ -6,6 +6,7 @@ import { SONAD_GUESSES, SONAD_LENGTH } from "@/lib/games/sonad";
 import { Empty, Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { SonadSession } from "./SonadSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Sõnad" };
 
@@ -37,25 +38,27 @@ export default async function SonadPage() {
   ]);
 
   return (
-    <Page
-      title="Sõnad"
-      lead={`One word a day. ${SONAD_LENGTH} letters, ${SONAD_GUESSES} guesses, at your level.`}
-    >
-      {puzzle ? (
-        <SonadSession puzzle={puzzle} day={day} guessable={guessable} />
-      ) : (
-        /*
-          A dictionary with nothing of the right length at this level, which on
-          the shipped seed cannot happen and on a deployment seeded before the
-          harvest is the ordinary state. Saying which is more use than an empty
-          board.
-        */
-        <Empty
-          title="No word for today"
-          body="The dictionary has nothing the right length at your level yet."
-          action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
-        />
-      )}
-    </Page>
+    <BeforeYouStart id="sonad" ready={puzzle !== null}>
+      <Page
+        title="Sõnad"
+        lead={`One word a day. ${SONAD_LENGTH} letters, ${SONAD_GUESSES} guesses, at your level.`}
+      >
+        {puzzle ? (
+          <SonadSession puzzle={puzzle} day={day} guessable={guessable} />
+        ) : (
+          /*
+            A dictionary with nothing of the right length at this level, which on
+            the shipped seed cannot happen and on a deployment seeded before the
+            harvest is the ordinary state. Saying which is more use than an empty
+            board.
+          */
+          <Empty
+            title="No word for today"
+            body="The dictionary has nothing the right length at your level yet."
+            action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
+          />
+        )}
+      </Page>
+    </BeforeYouStart>
   );
 }

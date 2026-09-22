@@ -1,5 +1,6 @@
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
+import { startRound } from "./lib/briefing.mjs";
 const B = baseUrl();
 // Floor: the count CI reaches in the state it seeds. A thinner database reads
 // as short, and the three about a second entry for one word waive by number.
@@ -85,6 +86,9 @@ const href = await drillLink.getAttribute("href");
 const drillName = ((await drillLink.locator('[lang="et"]').first().innerText()) ?? "").trim();
 await drillLink.click();
 await page.waitForURL(/\/review\?case=/, { timeout: 10000 });
+/* Reached by pressing a link rather than by navigating, and a round opens on
+   the screen that says what it is. */
+await startRound(page);
 await page.waitForSelector("text=Full entry", { timeout: 10000 });
 check("the drill opens and says what it is",
   (await page.getByText(/drill/i).count()) > 0, href);
@@ -199,6 +203,7 @@ if (!otherChip) {
 
 // The answer must be announced, not silently inserted.
 await page.goto(`${B}/review`, { waitUntil: "networkidle" });
+await startRound(page);
 check("the card face is a live region", (await page.locator('[aria-live="polite"]').count()) > 0);
 
 console.log(errors.length ? `\nerrors:\n  ${errors.join("\n  ")}` : "\nno console errors");

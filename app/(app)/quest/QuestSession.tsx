@@ -22,6 +22,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { WayOut } from "@/components/round/RoundExit";
+import { BriefingLines } from "@/components/round/Briefing";
 
 
 export interface AimedCase {
@@ -282,11 +283,15 @@ export function QuestSession({
                 ))}
               </ul>
             </>
-          ) : (
-            <p className="text-base" style={{ color: "var(--ink-2)" }}>
-              The cards you have got wrong most often. Answer as many as you can.
-            </p>
-          )}
+          ) : null}
+
+          {/* What is about to happen and what to do about it, off the one
+              table every round reads (`lib/copy/briefings.ts`). The chips
+              above it are this learner's own weakest endings and are the
+              reason to press; this is the round. */}
+          <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            <BriefingLines id="quest" />
+          </p>
 
           <Button variant="primary" size="lg" onClick={() => { setPhase("running"); shownAt.current = Date.now(); }}>
             Start the {roundLength(seconds)}

@@ -10,6 +10,7 @@ import { parseExamples, teachableSentences } from "@/lib/dict/examples";
 import { nominalOpener } from "@/lib/estonian/cloze";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { CheckpointSession } from "./CheckpointSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
@@ -82,12 +83,14 @@ export default async function CheckpointPage({
   const questions = buildCheckpoint(words, checkpoint.questions, Date.now() % 100_000);
 
   return (
-    <CheckpointSession
-      level={level}
-      title={uiText(placement, checkpoint.title, checkpoint.titleEn)}
-      blurb={checkpoint.blurb}
-      passMark={checkpoint.passMark}
-      initialQuestions={questions}
-    />
+    <BeforeYouStart id="checkpoint" ready={questions.length > 0}>
+      <CheckpointSession
+        level={level}
+        title={uiText(placement, checkpoint.title, checkpoint.titleEn)}
+        blurb={checkpoint.blurb}
+        passMark={checkpoint.passMark}
+        initialQuestions={questions}
+      />
+    </BeforeYouStart>
   );
 }

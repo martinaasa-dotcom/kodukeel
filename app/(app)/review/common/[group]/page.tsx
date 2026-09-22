@@ -11,6 +11,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { ReviewSession } from "../../ReviewSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { include, notOnLadder, withChoices } from "../../cards";
 import { DeepenButton } from "../DeepenButton";
 
@@ -137,11 +138,13 @@ export default async function CommonRoundPage({ params }: {
   const round = await withChoices(shuffle(picked), gloss, ownerId);
 
   return (
-    <ReviewSession
-      cards={round}
-      totalCards={round.length}
-      mode="type"
-      title={`Most common ${group.title.toLowerCase()}`}
-    />
+    <BeforeYouStart id="common" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>
+      <ReviewSession
+        cards={round}
+        totalCards={round.length}
+        mode="type"
+        title={`Most common ${group.title.toLowerCase()}`}
+      />
+    </BeforeYouStart>
   );
 }

@@ -8,6 +8,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { PairsSession, type PairQuestion } from "./PairsSession";
 import { shuffle } from "@/lib/random/shuffle";
+import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Minimal pairs" };
 
@@ -141,5 +142,9 @@ export default async function PairsPage() {
       };
     });
 
-  return <PairsSession questions={round} />;
+  return (
+    <BeforeYouStart id="pairs" ready={round.length > 0} count={{ n: round.length, noun: "pair" }}>
+      <PairsSession questions={round} />
+    </BeforeYouStart>
+  );
 }

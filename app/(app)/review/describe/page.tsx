@@ -9,6 +9,7 @@ import { describeRound } from "@/lib/progress/describe";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { DescribeSession, type ScenePrompt } from "./DescribeSession";
 import { moduleScopeFrom } from "@/lib/course/scope";
+import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Say what you see" };
 
@@ -89,5 +90,9 @@ export default async function DescribePage({
     };
   });
 
-  return <DescribeSession prompts={prompts} aiAvailable={resolveProvider() !== null} />;
+  return (
+    <BeforeYouStart id="describe" ready={prompts.length > 0} count={{ n: prompts.length, noun: "picture" }}>
+      <DescribeSession prompts={prompts} aiAvailable={resolveProvider() !== null} />
+    </BeforeYouStart>
+  );
 }

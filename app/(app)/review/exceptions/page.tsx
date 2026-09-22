@@ -15,6 +15,7 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ExceptionsSession } from "./ExceptionsSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Exceptions" };
@@ -157,7 +158,12 @@ export default async function ExceptionsRoundPage({
     };
   });
 
-  return <ExceptionsSession tasks={exceptionRound(words)} />;
+  const tasks = exceptionRound(words);
+  return (
+    <BeforeYouStart id="exceptions" ready={tasks.length > 0} count={{ n: tasks.length, noun: "word" }}>
+      <ExceptionsSession tasks={tasks} />
+    </BeforeYouStart>
+  );
 }
 
 /**

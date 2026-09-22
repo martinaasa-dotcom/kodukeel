@@ -3,6 +3,7 @@ import { launchChromium } from "./lib/browser.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 /**
  * TONIGHT'S MODULE, WALKED, AND THE FOUR THINGS ONLY A BROWSER CAN SAY.
@@ -188,6 +189,8 @@ try {
   */
   let marker = null;
   for (let step = 0; step < 12; step += 1) {
+    /* Through the briefing, so every check below is about the round. */
+    await startRound(page, { waitMs: 600 });
     const here = decodeURIComponent(new URL(page.url()).pathname);
     walked.push(here);
     check(`step ${walked.length} draws the frame  (${here})`, await page.locator(".module-step").count() === 1);
@@ -373,6 +376,13 @@ try {
     for (const screen of MODULE_SCREENS) {
       await page.goto(`${B}${screen}?module=${encodeURIComponent(marker)}`, { waitUntil: "domcontentloaded" });
       await page.waitForSelector("main h1", { timeout: 30_000 });
+      /*
+        A round opens on the screen that says what it is, and that screen has
+        no doors on it by construction: asking it whether a round leads out of
+        the module is a check that cannot fail. So it is pressed through and
+        the round itself is asked.
+      */
+      await startRound(page, { waitMs: 800 });
       const away = await waysOut();
       const framed = await page.locator(".module-step").count() === 1;
       if (away.length || !framed) wayOut.push(`${screen} ${framed ? "" : "(no frame) "}${JSON.stringify(away)}`);

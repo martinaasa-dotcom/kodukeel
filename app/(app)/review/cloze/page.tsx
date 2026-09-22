@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ClozeSession } from "./ClozeSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "From your reading" };
 
@@ -32,5 +33,9 @@ export default async function ClozePage() {
     );
   }
 
-  return <ClozeSession />;
+  return (
+    <BeforeYouStart id="cloze">
+      <ClozeSession />
+    </BeforeYouStart>
+  );
 }

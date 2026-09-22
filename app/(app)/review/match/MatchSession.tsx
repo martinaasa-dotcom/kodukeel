@@ -10,6 +10,7 @@ import { Empty, Page, Stat } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { OPTION_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
+import { BriefingLines } from "@/components/round/Briefing";
 
 export interface MatchPair {
   cardId: string;
@@ -164,8 +165,8 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
             Match
           </h1>
           <p className="mx-auto mt-2 max-w-[44ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {pairs.length} pairs. Tap an Estonian word, then its meaning, as fast as you can. Pairs you
-            get first time count as a clean review.
+            {pairs.length} pairs. <BriefingLines id="match" /> Pairs you get first time count as a
+            clean review.
           </p>
           {best > 0 && (
             <p

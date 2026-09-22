@@ -2,6 +2,7 @@ import { eventually, launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { retypeMiss } from "./lib/review.mjs";
 import { ensureLetterBar, requireLetterBar } from "./lib/prefs.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 const B = baseUrl();
 const browser = await launchChromium();
@@ -196,6 +197,7 @@ check("diacritic bar inserts õ",
 // option; asserting `Good` specifically then failed every run once the app
 // stopped asking who was right on a card it had already marked.
 await page.goto(`${B}/review`, { waitUntil: "networkidle" });
+await startRound(page);
 const before = await page.getByText(/\d+ left/).textContent();
 const graded = async () => Number(/(\d+) graded/.exec(await page.locator("main").innerText())?.[1] ?? 0);
 const gradedBefore = await graded();

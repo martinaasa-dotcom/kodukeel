@@ -28,6 +28,7 @@ import { createRequire } from "node:module";
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { gradeButtons, revealAnswer } from "./lib/review.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 /*
   Read off disk and injected, rather than imported and called in Node: axe
@@ -348,6 +349,8 @@ const { check, absent, done } = suite("Accessibility", { floor: 578 });
 async function open(page, route, settle) {
   await page.goto(`${BASE}${route}`, { waitUntil: "load" });
   await page.waitForSelector("main", { state: "attached", timeout: 5000 }).catch(() => {});
+  /* A round is behind the screen that says what it is, and axe has to reach it. */
+  await startRound(page, { waitMs: 500 });
   /*
     AND FOR THE CONTENT, NOT ONLY THE BOX IT ARRIVES IN.
 
@@ -610,6 +613,7 @@ for (const theme of ["light", "dark"]) {
   const graded = await measuring({ width: 1280, height: 1000 });
   if (theme === "dark") await chooseDark(graded);
   await graded.goto(`${BASE}/review`, { waitUntil: "networkidle" });
+  await startRound(graded);
   await graded.waitForTimeout(300);
   const shape = await revealAnswer(graded);
   const ratings = gradeButtons(graded);
@@ -696,6 +700,7 @@ for (const theme of ["light", "dark"]) {
 
 // A visible focus ring on the primary action of the review path.
 await page.goto(`${BASE}/review/write`, { waitUntil: "networkidle" });
+await startRound(page);
 await page.keyboard.press("Tab");
 const ring = await page.evaluate(() => {
   const el = document.activeElement;
@@ -709,6 +714,7 @@ check("tabbing reaches a control with a visible focus indicator",
 
 // Estonian is marked so it is not read with English phonics.
 await page.goto(`${BASE}/review/government`, { waitUntil: "networkidle" });
+await startRound(page);
 const langMarked = await page.evaluate(() =>
   document.querySelectorAll("main [lang='et']").length);
 check("Estonian text is marked lang=et", langMarked > 0, `${langMarked} elements`);

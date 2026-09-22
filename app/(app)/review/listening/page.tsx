@@ -5,6 +5,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ListeningSession, type ListeningCard } from "./ListeningSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { decoyOptions, decoysAmong } from "@/lib/dict/facts";
 import { unitIntroducing } from "@/lib/collections/syllabus";
@@ -153,7 +154,15 @@ export default async function ListeningPage({
       });
     }
 
-    return <ListeningSession cards={listeningCards} />;
+    return (
+      <BeforeYouStart
+        id="listening"
+        ready={listeningCards.length > 0}
+        count={{ n: listeningCards.length, noun: "word" }}
+      >
+        <ListeningSession cards={listeningCards} />
+      </BeforeYouStart>
+    );
   }
 
   return <ListeningSession cards={[]} />;

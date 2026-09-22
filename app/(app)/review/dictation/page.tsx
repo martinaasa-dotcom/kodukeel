@@ -7,6 +7,7 @@ import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { starredAmong } from "@/lib/progress/stars";
 import { DictationSession, type DictationTask } from "./DictationSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { lemmaFilter, moduleScopeFrom, sentenceWithin } from "@/lib/course/scope";
@@ -142,6 +143,11 @@ export default async function DictationPage({
     }
   }
 
-  return <DictationSession tasks={shuffle(tasks).slice(0, ROUND)} />;
+  const round = shuffle(tasks).slice(0, ROUND);
+  return (
+    <BeforeYouStart id="dictation" ready={round.length > 0} count={{ n: round.length, noun: "sentence" }}>
+      <DictationSession tasks={round} />
+    </BeforeYouStart>
+  );
 }
 

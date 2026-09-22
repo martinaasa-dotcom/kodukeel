@@ -9052,6 +9052,69 @@ thing and sit at the end of the bottom row, because `KnownWord` holds loanwords 
 no key is a word nobody can type. The rows live beside `SONAD_LETTERS` and the pairing is tested in
 both directions, since a keyboard missing a letter looks exactly like a keyboard.
 
+**A round says what it is before it asks anything, and the round is not behind that screen yet.**
+Every round in this app opened on its first question. That is fine for somebody who has played it
+before and is a wall for everybody else: the picture board deals six tiles and a clock, the letter
+round deals a row of scrambled tiles, the writing round deals a word and a box, and in each case a
+learner works out what is wanted by getting the first one wrong. It was reported in the learner's
+own terms, about the seam between meeting five words and being asked to put them in a sentence:
+before a task starts, say what will be on the screen and what I am supposed to do with it, and let
+me press something to say I have read it. The learn ladder already had exactly that, two screens of
+it, written for the same report and for the harder half of it, which is that the ladder's own
+question changes partway through a round. `lib/copy/briefings.ts` is that screen made general, so
+twenty-odd rounds cannot each answer "what is this" in their own words.
+
+**Two sentences, and they answer different questions.** `what` is what will be on the screen, the
+pictures, the clock, the box; `you` is what the learner does about it. Splitting them is what stops
+the screen becoming a paragraph nobody finishes, and it is the report's own distinction: "you will
+be introduced five new words" and "just look at them, nothing needs to be written" are two facts,
+and the second is the one somebody is anxious about. The count is not in the copy, because how many
+cards are due tonight is a fact about this learner's deck and the table is the same for everybody,
+so the page hands it in and it is drawn as its own quiet line. **No Estonian in it**, which is
+`lib/estonian/grammar.ts`'s standing one directory over and is asserted the same way.
+
+**The round being a child is the load-bearing half.** `BeforeYouStart` is wired at the **page**,
+where the round is a child element and so is not mounted: no clock has started, no clip has played
+and no card has been dealt behind the screen somebody is reading. A briefing drawn *inside* a
+session would be the opposite, since hooks run before the early return, so the timed rounds would
+be read with the clock going and the listening round would play its first word at a briefing. The
+page is also the half that knows whether there is a round at all, so a deck with nothing due draws
+its own empty state and no briefing: a screen saying what is about to happen in front of a screen
+saying nothing is about to happen is the app talking to itself.
+
+**Five rounds already had one, so they read the table rather than being given a second screen.**
+The three with a clock, the picture board and the daily quest each open on a card saying what they
+are with a Start under it, which is this rule arrived at earlier one round at a time. Putting a
+briefing in front of one of those is a press for nothing, so they draw `BriefingLines` and keep
+everything that is a fact about this sitting rather than about the round: how long the clock runs,
+how many cards are loaded, the personal best, and the learner's own weakest endings on the quest,
+which are the reason to press rather than the thing about to happen.
+
+**Every time, and there is no switch.** A briefing remembered across rounds is one the second
+learner on a shared laptop never sees, and this is a screen that prepares somebody for the next ten
+minutes rather than an explainer they have read once. The ladder's own two screens already made
+that call and said so. It is one press, and it answers the key that moves every other card forward
+(`lib/ux/advanceKey.ts`) rather than a key of its own.
+
+**The exceptions are screens that already open on one, never screens excused from the rule**, which
+is what keeps `lib/copy/briefingCoverage.ts` from being the way out of the work: the learn ladder,
+which has two and needs them, since no wrapper at a page can see a round's own question changing
+partway through; the module, which opens that same ladder; a conversation, whose briefing carries
+the role card and the two dials; and the mock examination, whose briefing names the official paper
+each part stands in for and may not be replaced by one that says less. A bare filename is not a
+decision, so a reason is required and is checked for staleness in both directions. The haystack is
+the filesystem rather than a list, for the reason every other sweep here is one: the rounds arrived
+one at a time, and a round left off a list opens on a question with nothing to say what the
+question is, which looks exactly like a round nobody briefed on purpose.
+
+**And a suite that navigates into a round now measures the briefing unless it presses through.**
+That is the failure this file keeps naming, so there is one `startRound` (`scripts/lib/briefing.mjs`)
+and every suite calls it: `revealAnswer` presses it before it looks for a card, the containment
+sweep and the accessibility sweep press it after every navigation so they go on measuring the round
+rather than the door to it, and the module walk presses it at the top of each step, since a
+briefing screen carries no links at all and asking *it* whether a round leads out of the module is
+a check that cannot fail.
+
 **A card leads with the thing it is asking about.** The gap rung of the ladder printed a sentence
 with a hole in it, its translation, the word, and the question, four blocks of the same weight in
 four colors, and a learner said they could not tell at a glance what it wanted. That is what the
@@ -10655,7 +10718,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `LookBackCard`, `forgetLast`, `shownAs`, `buildSlotIndex`, `readSlot`, `PointExamples`,
 `isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
-`data-point-examples`.
+`data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
+`OPENS_WITHOUT_BRIEFING`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

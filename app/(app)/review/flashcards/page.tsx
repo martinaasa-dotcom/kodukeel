@@ -13,6 +13,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { FlashSession, type FlashPrompt } from "./FlashSession";
 import { moduleScopeFrom, sentenceWithin, slotWithin, type ModuleScope } from "@/lib/course/scope";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Flash cards" };
 
@@ -174,7 +175,11 @@ export default async function FlashcardsPage({
     );
   }
 
-  return <FlashSession prompts={prompts} />;
+  return (
+    <BeforeYouStart id="flashcards" ready={prompts.length > 0} count={{ n: prompts.length, noun: "word" }}>
+      <FlashSession prompts={prompts} />
+    </BeforeYouStart>
+  );
 }
 
 /**

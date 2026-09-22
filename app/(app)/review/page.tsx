@@ -15,6 +15,7 @@ import { inTeachingOrder } from "@/lib/srs/cards";
 import { spaceSiblings } from "@/lib/srs/queue";
 import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { ReviewSession } from "./ReviewSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
 import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
 import { isAppsChoice } from "@/lib/srs/sources";
@@ -124,12 +125,14 @@ export default async function ReviewPage({
     });
     const gloss = await glossChosen();
     return (
-      <ReviewSession
-        cards={await withChoices(drill, gloss, ownerId)}
-        drillCase={targetCase}
-        totalCards={0}
-        mode={await modeChosen()}
-      />
+      <BeforeYouStart id="review" ready={drill.length > 0} count={{ n: drill.length, noun: "card" }}>
+        <ReviewSession
+          cards={await withChoices(drill, gloss, ownerId)}
+          drillCase={targetCase}
+          totalCards={0}
+          mode={await modeChosen()}
+        />
+      </BeforeYouStart>
     );
   }
 
@@ -152,12 +155,14 @@ export default async function ReviewPage({
       : [];
     const gloss = await glossChosen();
     return (
-      <ReviewSession
-        cards={await withChoices(drill, gloss, ownerId)}
-        drillUnit={unitId}
-        totalCards={0}
-        mode={await modeChosen()}
-      />
+      <BeforeYouStart id="review" ready={drill.length > 0} count={{ n: drill.length, noun: "card" }}>
+        <ReviewSession
+          cards={await withChoices(drill, gloss, ownerId)}
+          drillUnit={unitId}
+          totalCards={0}
+          mode={await modeChosen()}
+        />
+      </BeforeYouStart>
     );
   }
 
@@ -190,12 +195,14 @@ export default async function ReviewPage({
       : [];
     const gloss = await glossChosen();
     return (
-      <ReviewSession
-        cards={await withChoices(drill, gloss, ownerId)}
-        drillScan={scan ? { id: scan.id, title: scan.title } : { id: scanId, title: "A page" }}
-        totalCards={0}
-        mode={await modeChosen()}
-      />
+      <BeforeYouStart id="review" ready={drill.length > 0} count={{ n: drill.length, noun: "card" }}>
+        <ReviewSession
+          cards={await withChoices(drill, gloss, ownerId)}
+          drillScan={scan ? { id: scan.id, title: scan.title } : { id: scanId, title: "A page" }}
+          totalCards={0}
+          mode={await modeChosen()}
+        />
+      </BeforeYouStart>
     );
   }
 
@@ -366,13 +373,15 @@ export default async function ReviewPage({
     : [null, null, 0];
 
   return (
-    <ReviewSession
-      cards={cards}
-      totalCards={totalCards}
-      mode={mode}
-      nextDue={next && clock ? nextCardLine(next.due, now, clock) : null}
-      waitingOnCourse={unseenAnywhere > 0}
-    />
+    <BeforeYouStart id="review" ready={cards.length > 0} count={{ n: cards.length, noun: "card" }}>
+        <ReviewSession
+        cards={cards}
+        totalCards={totalCards}
+        mode={mode}
+        nextDue={next && clock ? nextCardLine(next.due, now, clock) : null}
+        waitingOnCourse={unseenAnywhere > 0}
+      />
+    </BeforeYouStart>
   );
 }
 

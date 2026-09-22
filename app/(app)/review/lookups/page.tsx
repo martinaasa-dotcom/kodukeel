@@ -8,6 +8,7 @@ import { YOUR_OWN_SOURCES } from "@/lib/srs/sources";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ReviewSession } from "../ReviewSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { include, notOnLadder, withChoices } from "../cards";
 
 /** Cards in one round. The same twenty Flash cards asks, for the same reason. */
@@ -123,11 +124,13 @@ export default async function LookupsRoundPage() {
   const round = await withChoices(shuffle(picked), gloss, ownerId);
 
   return (
-    <ReviewSession
-      cards={round}
-      totalCards={round.length}
-      mode="type"
-      title="Words you looked up"
-    />
+    <BeforeYouStart id="lookups" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>
+      <ReviewSession
+        cards={round}
+        totalCards={round.length}
+        mode="type"
+        title="Words you looked up"
+      />
+    </BeforeYouStart>
   );
 }

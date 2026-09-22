@@ -11,6 +11,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { ReviewSession } from "../../ReviewSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { include, notOnLadder, withChoices } from "../../cards";
 
 /** Cards in one round. The same twenty Flash cards asks, for the same reason. */
@@ -132,11 +133,13 @@ export default async function DeckRoundPage({ params }: {
   const round = await withChoices(shuffle(picked), gloss, ownerId);
 
   return (
-    <ReviewSession
-      cards={round}
-      totalCards={round.length}
-      mode="type"
-      title={name}
-    />
+    <BeforeYouStart id="deck" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>
+      <ReviewSession
+        cards={round}
+        totalCards={round.length}
+        mode="type"
+        title={name}
+      />
+    </BeforeYouStart>
   );
 }
