@@ -53,6 +53,7 @@
     "measure:speech": "tsx scripts/measure-speech.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
     "measure:typo-collisions": "tsx scripts/measure-typo-collisions.ts",
+    "measure:exam-volume": "tsx scripts/measure-exam-volume.ts",
     "play:scenes": "tsx scripts/play-scene.ts",
     "replay:scene": "tsx scripts/replay-transcript.ts",
     "probe:turns": "tsx scripts/probe-turns.ts",
