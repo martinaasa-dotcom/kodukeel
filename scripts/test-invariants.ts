@@ -18,7 +18,7 @@ import { GAP_MARKS, GAP_WITHOUT_MEANING, NEVER_SAYS_WHAT_IT_MEANS } from "../lib
  */
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { basename, dirname, join, normalize } from "node:path";
 import { ACTIVITIES } from "@/lib/course/types";
 
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
@@ -6124,6 +6124,126 @@ check("every settings panel is on the settings screen", () => {
       `none of them, so whatever it does is unreachable. Render it, or delete the file.`,
     );
   }
+});
+
+/**
+ * AND THE HAYSTACK IS THE FILESYSTEM, BECAUSE THE NEXT ORPHAN IS NOT IN THAT
+ * FOLDER.
+ *
+ * The check above is right and it is one folder wide. `DangerZone.tsx` and
+ * `UsagePanel.tsx` happened to be in `app/(app)/settings/`, which is a fact
+ * about where that fault landed rather than about what it was: a component
+ * nobody draws looks exactly like a component nobody has pressed, anywhere in
+ * the tree, and the 162 component files outside that folder had nothing asking
+ * the question at all. A list is a thing somebody has to remember to extend,
+ * which is the argument every other sweep here makes about itself.
+ *
+ * Two arms, because either alone passes on the broken shape, and they fail on
+ * different halves of what went wrong:
+ *
+ *   The file is REACHED. Walk the imports from Next's own entry points, the
+ *   route files plus `middleware.ts` and `next.config.ts`, and a component file
+ *   the walk never arrives at is one the router cannot get to. That is
+ *   `DangerZone.tsx` exactly: complete, correct, imported by nothing, so no
+ *   amount of reading it says whether a learner could reach it.
+ *
+ *   The file is DRAWN. Something else in the tree uses one of its exports as an
+ *   element. Reachability alone cannot see a module that is imported and then
+ *   never rendered, which is the same silence one line later, and the element
+ *   rather than the import is the distinction the check above already draws: an
+ *   unused import is what a lint rule catches, a rendered-nowhere component is
+ *   what nothing did.
+ *
+ * A route file is its own entry point and is exempt by construction rather than
+ * by name: Next renders `page.tsx` because of where it sits, so nothing imports
+ * it and nothing draws it. A file exporting no component is not a component
+ * file and is not asked, which is what keeps the table in `icons.tsx` and the
+ * constants beside a panel out of it. Both arms carry the floor every sweep
+ * here carries, since a detector that stopped matching would assert nothing
+ * about 162 files and say so in the same words as a tree that is entirely fine.
+ */
+check("every component is reachable from a route and drawn by something", () => {
+  const ROUTE_FILE =
+    /^(page|layout|loading|error|not-found|global-error|template|default|route|opengraph-image|icon|apple-icon|sitemap|robots|manifest)$/;
+  const isRoute = (file: string) =>
+    ROUTE_FILE.test(basename(file).replace(/\.tsx?$/, ""));
+
+  const searched = [...ALL, "middleware.ts", "next.config.ts"];
+  const known = new Set(searched);
+  const body = new Map(searched.map((f) => [f, code(f)]));
+
+  /*
+    Next's own path aliases, which is `@/` off the repository root and the
+    ordinary relative import. A bare specifier is a package and leaves the tree.
+  */
+  const resolve = (from: string, spec: string): string | null => {
+    let base: string;
+    if (spec.startsWith("@/")) base = spec.slice(2);
+    else if (spec.startsWith(".")) base = normalize(join(dirname(from), spec));
+    else return null;
+    for (const ext of ["", ".tsx", ".ts", "/index.tsx", "/index.ts"]) {
+      if (known.has(base + ext)) return base + ext;
+    }
+    return null;
+  };
+
+  const imports = new Map<string, string[]>();
+  for (const [file, source] of body) {
+    const out = new Set<string>();
+    for (const m of source.matchAll(/(?:from\s+|import\s*\(\s*)["'`]([^"'`]+)["'`]/g)) {
+      const hit = resolve(file, m[1]!);
+      if (hit) out.add(hit);
+    }
+    imports.set(file, [...out]);
+  }
+
+  const reached = new Set<string>();
+  const stack = searched.filter(
+    (f) => isRoute(f) || f === "middleware.ts" || f === "next.config.ts",
+  );
+  assert.ok(stack.length >= 80, `only found ${stack.length} entry points, so this walk stopped looking`);
+  while (stack.length) {
+    const file = stack.pop()!;
+    if (reached.has(file)) continue;
+    reached.add(file);
+    for (const next of imports.get(file) ?? []) stack.push(next);
+  }
+
+  /*
+    A component name is capitalised and is not the SCREAMING_CASE a constant
+    beside it takes, which is what tells `RUNG_CHIP` from `Rung`.
+  */
+  const isComponent = (name: string) => /^[A-Z]/.test(name) && /[a-z]/.test(name);
+  let asked = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx") || isRoute(file)) continue;
+    const source = body.get(file)!;
+    const exported = [
+      ...source.matchAll(/export\s+(?:async\s+)?(?:function|const)\s+([A-Z]\w*)/g),
+    ].map((m) => m[1]!).filter(isComponent);
+    const fallback =
+      source.match(/export\s+default\s+(?:async\s+)?function\s+([A-Z]\w*)/) ??
+      source.match(/export\s+default\s+([A-Z]\w*)\s*[;\n]/);
+    if (fallback && isComponent(fallback[1]!)) exported.push(fallback[1]!);
+    if (!exported.length) continue;
+    asked += 1;
+
+    assert.ok(
+      reached.has(file),
+      `${file} exports ${exported.join(", ")} and no route imports it, directly or through ` +
+      `anything a route imports, so the router cannot reach it. Whatever it does, nobody has. ` +
+      `Wire it to a screen, or delete the file.`,
+    );
+    assert.ok(
+      exported.some((name) =>
+        searched.some((other) => other !== file && new RegExp(`<${name}[\\s/>]`).test(body.get(other)!)),
+      ),
+      `${file} exports ${exported.join(", ")} and nothing in the tree draws any of them as an ` +
+      `element, so it is imported and rendered nowhere, which is the same silence one line later. ` +
+      `Draw it, or delete the file.`,
+    );
+  }
+  assert.ok(asked >= 140, `only found ${asked} component files, so this sweep stopped looking`);
 });
 
 /**
