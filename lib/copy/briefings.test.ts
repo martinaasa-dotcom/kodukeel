@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BRIEFINGS, briefingFor } from "./briefings";
 import { SONAD_GUESSES, SONAD_LENGTH } from "@/lib/games/sonad";
+import { pickOptions } from "@/lib/questions/distractors";
 
 describe("briefings", () => {
   it("answers for a round somebody wrote, and for nothing else", () => {
@@ -48,6 +49,25 @@ describe("briefings", () => {
     expect(SONAD_GUESSES, "the sonad briefing says seven tries").toBe(7);
     expect(BRIEFINGS.sonad.what).toContain("six-letter");
     expect(BRIEFINGS.sonad.what).toContain("seven tries");
+  });
+
+  it("says four meanings on the round that always offers four", () => {
+    /*
+      `pickOptions` drops a card it cannot give three wrong answers for
+      rather than showing it with fewer, so the listening round is always
+      four options. Driven through the real picker rather than asserted off
+      the constant, since what the copy promises is the screen rather than
+      the number in a file.
+    */
+    const options = pickOptions({
+      answer: { text: "the answer" },
+      candidates: ["one", "two", "three", "four", "five"].map((text) => ({ text })),
+      rng: () => 0.5,
+      distinct: (a, b) => a !== b,
+      nearness: () => 1,
+    });
+    expect(options?.options.length, "a listening question is four options").toBe(4);
+    expect(BRIEFINGS.listening.what).toContain("four meanings");
   });
 
   it("keeps every briefing short enough to be read before a round", () => {

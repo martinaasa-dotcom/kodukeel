@@ -46,7 +46,20 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
   children: ReactNode;
 }) {
   const brief = briefingFor(id);
-  const [started, setStarted] = useState(!brief || !ready);
+  /*
+    WHAT IS STORED IS THE PRESS, NOT THE VERDICT.
+
+    Written as `useState(!brief || !ready)` this read `ready` once, on the
+    first render, and a round is a server component that re-renders under a
+    standing client: grading revalidates the route, and a round that was
+    empty when the page opened can have cards by the time it refreshes. Read
+    once, that learner got the round with no briefing, because the initial
+    state had already decided there was nothing to brief them about. Storing
+    the press instead leaves `ready` a live prop, and the screen appears the
+    moment there is a round behind it.
+  */
+  const [pressed, setPressed] = useState(false);
+  const started = pressed || !brief || !ready;
 
   useEffect(() => {
     if (started) return;
@@ -68,7 +81,7 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
       if (e.target instanceof Element
         && e.target.closest("button, a, input, textarea, select, [role='button']")) return;
       e.preventDefault();
-      setStarted(true);
+      setPressed(true);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -106,7 +119,7 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
           variant="primary"
           size="lg"
           data-briefing-start=""
-          onClick={() => setStarted(true)}
+          onClick={() => setPressed(true)}
         >
           {brief.action} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
         </Button>

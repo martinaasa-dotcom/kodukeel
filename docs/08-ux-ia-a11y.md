@@ -78,6 +78,30 @@ Every view specifies four states. v4.0 specified none (audit C6).
 | Calendar | "Add a feed" | Skeleton grid | Per-feed error row | Cached events |
 | Imports | Paste area with format examples | Parse progress | Row-level errors, partial import allowed | Works, parsing is local |
 
+### 4a. The screen a round opens on
+
+A round is a fifth thing, and it is not a state: before any of it is drawn, a
+screen says what will be on the screen and what the learner does about it, and
+they press through it. `lib/copy/briefings.ts` is the copy and the argument;
+`components/round/Briefing.tsx` is the drawing.
+
+Two sentences, because they answer different questions. What will be there (the
+pictures, the clock, the box) and what to do with it. The count of cards is
+handed in by the page rather than written into the copy, because how many are
+due tonight is a fact about one deck.
+
+It is wired at the **page**, with the round as a child, so the round is not
+mounted while the briefing is up: no clock has started and no clip has played
+behind the screen somebody is reading. The page is also what knows whether
+there is a round at all, so a view with nothing to do reaches its own empty
+state above and draws no briefing.
+
+Five rounds opened on a start screen of their own before this existed and keep
+it, reading the same two sentences so the wording is one table's. Four screens
+are exempt in `lib/copy/briefingCoverage.ts`, every one of them a screen that
+already opens on a briefing of its own, and a sweep over the filesystem fails
+on a round that opens cold.
+
 ## 5. Accessibility (audit C8)
 
 Target **WCAG 2.2 AA**. Not aspiration. This app is used for an hour a day.

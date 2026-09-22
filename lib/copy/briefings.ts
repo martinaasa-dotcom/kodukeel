@@ -123,8 +123,8 @@ export const BRIEFINGS = {
   emoji: {
     title: "Pictures, and the ending each one wants",
     what:
-      "Six pictures on one side and six Estonian forms on the other, each form under the " +
-      "question it answers.",
+      "Pictures down one side and Estonian forms down the other, each form under the question " +
+      "it answers.",
     you: "Tap a picture, then the form that belongs to it. The clock runs until the board is clear.",
     action: "Start",
   },
@@ -155,6 +155,10 @@ export const BRIEFINGS = {
     what:
       "One word at a time, spoken, with four meanings under it. The word itself is not written " +
       "down until you have answered.",
+    /* Four is `WRONG + 1` in `lib/questions/distractors.ts`, and a card the
+       pool cannot give three wrong answers for is dropped rather than shown
+       with fewer, so the number is exact rather than a usual case. The test
+       beside this file is the tripwire. */
     you: "Pick the meaning. You can play it again as often as you like.",
     action: "Play the first one",
   },
