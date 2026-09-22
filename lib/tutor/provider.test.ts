@@ -4,7 +4,7 @@ import {
   billedOutput, completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
   SCENE_FALLBACK_MODEL, SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
-  visionProviders,
+  visionProviders, VISION_MODEL,
 } from "@/lib/tutor/provider";
 import { priceFor, UNKNOWN_MODEL } from "@/lib/usage/pricing";
 
@@ -1033,5 +1033,140 @@ describe("a reply that hit its own ceiling says so, not only what it cost", () =
     );
     await drain(open);
     expect(seen).toEqual([true]);
+  });
+});
+
+/**
+ * WHERE EACH HOP ACTUALLY GOES, DRIVEN RATHER THAN READ OFF THE CHAIN.
+ *
+ * Everything above asks what `resolveProviders` returns, which is the right
+ * question about composition and cannot see the fault this is for. The grader
+ * chose its endpoint with "OpenRouter, or else OpenAI", written when the chain
+ * held exactly those two; Groq and Gemini both fell down the else side and were
+ * posted to `api.openai.com` carrying `OPENAI_API_KEY`, so every GRADER call on
+ * the two providers a stranger can set up without a card answered 401. The
+ * chain was correct in every one of those tests. What was wrong was invisible
+ * in the arguments and visible only in the outgoing request.
+ *
+ * So each purpose is walked the whole way down with a stubbed `fetch`, every
+ * link answering 503, and what is asserted is the host, the key and the model
+ * of each hop in order. 503 rather than 429 deliberately: both are walkable and
+ * only 429 is retried, so a 429 here would spend four and a half seconds of
+ * backoff on the last link to measure nothing.
+ */
+describe("what the chain actually sends, hop by hop", () => {
+  /** Every outgoing request, in order, as the host and model it went to. */
+  function hops(): { seen: string[] } {
+    const seen: string[] = [];
+    vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
+      const headers = (init.headers ?? {}) as Record<string, string>;
+      const key = headers.authorization?.replace("Bearer ", "") ?? headers["x-api-key"] ?? "(none)";
+      const body = JSON.parse(String(init.body)) as { model?: string };
+      seen.push(`${new URL(String(url)).host} ${key} ${body.model}`);
+      return new Response("upstream having a bad minute", { status: 503 });
+    });
+    return { seen };
+  }
+
+  /** Every key set, so a purpose reaching another's provider shows up. */
+  function allKeys() {
+    for (const key of PROVIDER_KEY_ENV) vi.stubEnv(key, `${key}-val`);
+  }
+
+  async function walked(run: () => Promise<unknown>): Promise<string[]> {
+    const { seen } = hops();
+    // The whole chain refuses, which is what makes it walk the whole chain.
+    await expect(run()).rejects.toThrow();
+    return seen;
+  }
+
+  it("sends Anu to Gemini and then Groq, each with its own key", async () => {
+    allKeys();
+    expect(await walked(() => openWithFallback(
+      resolveProviders({ purpose: "tutor" }), "sys", [{ role: "user", content: "hi" }],
+    ))).toEqual([
+      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${TUTOR_MODEL}`,
+      `api.groq.com GROQ_API_KEY-val ${TUTOR_FALLBACK_MODEL}`,
+    ]);
+  });
+
+  it("sends a scene down both Gemini models, then Groq, then the bounded tail", async () => {
+    allKeys();
+    expect(await walked(() => openWithFallback(
+      sceneProviders(), "sys", [{ role: "user", content: "hi" }],
+    ))).toEqual([
+      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[0]}`,
+      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[1]}`,
+      `api.groq.com GROQ_API_KEY-val ${SCENE_FALLBACK_MODEL}`,
+      "api.anthropic.com ANTHROPIC_API_KEY-val claude-sonnet-5",
+    ]);
+  });
+
+  it("keeps Groq behind Gemini for a scene once the fallback budget is spent", async () => {
+    allKeys();
+    /*
+      `SCENE_FALLBACK_MODEL` answers on every budget, unlike the Anthropic tail:
+      it is a fixed second link rather than the bounded last resort, because it
+      spends nothing Anu runs on. A Gemini-only install falls to the bank
+      instead, which is where a keyless deployment has always played.
+    */
+    expect(await walked(() => openWithFallback(
+      sceneProviders({ allowFallback: false }), "sys", [{ role: "user", content: "hi" }],
+    ))).toEqual([
+      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[0]}`,
+      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[1]}`,
+      `api.groq.com GROQ_API_KEY-val ${SCENE_FALLBACK_MODEL}`,
+    ]);
+  });
+
+  it("posts a grader to Gemini and Groq rather than to OpenAI, which is the fault this is for", async () => {
+    allKeys();
+    const walk = await walked(() => openWithFallback(
+      resolveProviders({ purpose: "grader" }), "sys", [{ role: "user", content: "hi" }],
+    ));
+    expect(walk).toEqual([
+      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${GRADER_MODELS[0]!.model}`,
+      `api.groq.com GROQ_API_KEY-val ${GRADER_MODELS[1]!.model}`,
+      "api.anthropic.com ANTHROPIC_API_KEY-val claude-sonnet-5",
+    ]);
+    // The shape of the original bug, stated rather than implied by the list.
+    expect(walk.some((hop) => hop.startsWith("api.openai.com"))).toBe(false);
+    expect(walk.some((hop) => hop.includes("OPENAI_API_KEY"))).toBe(false);
+  });
+
+  it("gives the scanner the measured reader first and the rest of the chain behind it", async () => {
+    allKeys();
+    const walk = await walked(() => completeWithImage(
+      visionProviders(), "sys", "read this", { mediaType: "image/png", base64: "AA" },
+    ));
+    expect(walk[0]).toBe(`generativelanguage.googleapis.com GEMINI_API_KEY-val ${VISION_MODEL}`);
+    // One entry per model, never the same model asked three times over.
+    expect(new Set(walk).size).toBe(walk.length);
+    // Each hop carries its own provider's key and nobody else's.
+    for (const hop of walk) {
+      const [host, key] = hop.split(" ");
+      const expected = {
+        "api.groq.com": "GROQ_API_KEY-val",
+        "generativelanguage.googleapis.com": "GEMINI_API_KEY-val",
+        "api.anthropic.com": "ANTHROPIC_API_KEY-val",
+        "api.openai.com": "OPENAI_API_KEY-val",
+      }[host!];
+      expect(key).toBe(expected);
+    }
+  });
+
+  it("asks nobody at all for Anu when only the dear key is set", async () => {
+    /*
+      Her purpose refuses the fallback outright, so an Anthropic-only install
+      has no tutor rather than a tutor answered by the model `eval:anu`
+      measured getting her grammar wrong. Driven rather than read, because the
+      claim is that no request leaves.
+    */
+    only("anthropic");
+    const { seen } = hops();
+    await expect(openWithFallback(
+      resolveProviders({ purpose: "tutor" }), "sys", [{ role: "user", content: "hi" }],
+    )).rejects.toThrow();
+    expect(seen).toEqual([]);
   });
 });

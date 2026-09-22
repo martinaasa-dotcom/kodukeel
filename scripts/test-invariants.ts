@@ -13743,15 +13743,45 @@ check("each routed purpose asks for its own chain", () => {
  * checks in this file are.
  */
 check("a metered route asks the ledger before offering a last resort", () => {
-  const routes = [
-    "app/api/scene/route.ts",
-    "app/api/scan/route.ts",
-    "app/api/write/route.ts",
-    "app/api/describe/route.ts",
-    "app/api/exam/write/route.ts",
-  ];
-  for (const file of routes) {
-    const src = code(join(...file.split("/")));
+  /*
+    THE HAYSTACK IS THE FILESYSTEM, BECAUSE THE LIST WAS SHORT AND NOBODY COULD
+    SEE IT.
+
+    This named five routes, and the fifth grader was not one of them:
+    `lib/tutor/translate.ts` is the dictionary's translation fallback, metered
+    as a GRADER call like the other four, and it built its chain *before*
+    `authoriseCall` and never rebuilt it. So `allowFallback` took its default
+    of true and the dear tail was on the chain whatever the ledger said, on the
+    one metered path a stranger reaches from the search box. Nothing failed,
+    which is the whole shape of it: the answer arrives either way and the only
+    symptom is a day of Groq being down becoming a day of Anthropic billing.
+
+    So the rule is asked of every file that spends: one that calls
+    `authoriseCall` and builds a provider chain has to hand the ledger's own
+    verdict to the chain. A file added later is in the haystack by existing,
+    which is the thing a list cannot do.
+  */
+  const BUILDS_CHAIN = /(resolveProviders|sceneProviders|visionProviders)\s*\(/;
+  const spenders = ALL.filter((file) => {
+    const src = code(file);
+    return /\bauthoriseCall\s*\(/.test(src) && BUILDS_CHAIN.test(src);
+  });
+  // A floor, because a sweep that matches nothing passes in silence.
+  assert.ok(
+    spenders.length >= 6,
+    `only ${spenders.length} metered chain-builders found; the sweep has stopped seeing them.`,
+  );
+  for (const file of spenders) {
+    const src = code(file);
+    /*
+      Anu is the one exemption and it is a property of the file rather than its
+      name: her purpose refuses the fallback inside `resolveProviders`, so there
+      is no verdict for her route to pass on. A file that builds any other chain
+      loses the exemption by doing so.
+    */
+    const tutorOnly = [...src.matchAll(/(resolveProviders|sceneProviders|visionProviders)\s*\(([^)]*)/g)]
+      .every((m) => /purpose:\s*"tutor"/.test(m[2] ?? ""));
+    if (tutorOnly) continue;
     assert.match(
       src,
       /allowFallback:\s*decision\.fallbackAllowed/,
