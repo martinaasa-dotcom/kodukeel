@@ -44,6 +44,7 @@ import { CHECKS, governmentSuspect, runGate, type Check } from "../lib/scenes/ga
 import { retryNote } from "../lib/scenes/line";
 import { topicForms } from "../lib/scenes/retrieval";
 import { SYLLABUS } from "../lib/collections/syllabus";
+import { lemmasOfForm } from "../lib/dict/forms";
 import {
   ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneLemmas, sceneLexicon,
   wrongRegisterForms, vouchOf, type Allowlist,
@@ -262,10 +263,41 @@ async function partA() {
       if (!taught.has(entry.lemma)) continue;
       for (const form of formsOf(entry)) inCourse.add(form);
     }
+    /*
+      AND A WORD THE COURSE TEACHES IN A FORM IT CANNOT REACH IS A THIRD
+      STATE, because the two gaps want opposite work.
+
+      `inCourse` is every form the course can vouch for, which is the fix that
+      stopped `arsti` and `olen` being starred. It leaves the forms a taught
+      word has that nothing reaches: the simple past is not derivable at all
+      (CLAUDE.md, and `lugesin` goes to `luges` where `tahtsin` goes to
+      `tahtis`) and the harvest stores only its third person, so `tulite`,
+      `ostsite` and `töötasite` were starred as words the syllabus ought to
+      teach while `tulema`, `ostma` and `töötama` are all in it. They are
+      second person plural, which is the register every one of these scenes is
+      played in, so the star was wrong about exactly the forms the module needs
+      most.
+
+      The forms list tells them apart and needs no key: a spelling it maps to a
+      lemma the course teaches is a form this dictionary does not hold, which
+      is a stored form to add, and a spelling it maps nowhere near the course
+      is a word to teach. A star that means both means neither.
+    */
+    const unreachable = new Set<string>();
+    await Promise.all(ranked.map(async ([word]) => {
+      if (inCourse.has(word)) return;
+      const lemmas = await lemmasOfForm(word);
+      if (lemmas.some((lemma) => taught.has(lemma))) unreachable.add(word);
+    }));
     console.log("\n  Words the model reached for that the scene could not vouch for.");
     console.log("  A star means the course does not teach the word at all, at any level, so no");
     console.log("  scene could declare a unit for it and the gap is in the syllabus.");
-    console.log("    " + ranked.map(([w, n]) => `${inCourse.has(w) ? "" : "*"}${w} ${n}`).join("  "));
+    console.log("  A plus means the course teaches the word and this dictionary holds no such");
+    console.log("  form of it, so the gap is a stored form rather than a unit.");
+    console.log("    " + ranked.map(([w, n]) => {
+      const mark = inCourse.has(w) ? "" : unreachable.has(w) ? "+" : "*";
+      return `${mark}${w} ${n}`;
+    }).join("  "));
   }
 }
 
