@@ -2,6 +2,7 @@ import { PARTS, plainPhrase } from "@/lib/copy/values";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor, localCasesFor } from "@/lib/estonian/caseQuestion";
 import { BLANK, buildCloze, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
+import { readableGovernment } from "@/lib/estonian/government";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { numberFromMorphCode } from "@/lib/estonian/morph";
@@ -766,7 +767,18 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         out.push({
           cardType: type,
           front: `${lex.lemma} → ${term?.et ?? "rektsioon"}`,
-          back: lex.government,
+          /*
+            AND THE ANSWER IS THE STRING AS A LEARNER SHOULD READ IT. Ekilex
+            annotates each question word with the case it signals, `millega
+            (comitative)`, and this put the column on the back of a card
+            untouched: the only English on the one fact about an Estonian verb
+            nobody can reason their way to, and it was the Latin name. The
+            dictionary entry has read the same column through
+            `readableGovernment` since that was written. `Lexeme.government`
+            itself is untouched, and `repairGovernmentBacks` carries the
+            reading onto the cards built before this.
+          */
+          back: readableGovernment(lex.government),
           hint: `${term?.alsoCalled ?? "verb government"} · ${lex.translation}`,
           targetCase: null,
           slot: null,

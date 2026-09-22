@@ -10,7 +10,8 @@ import { applyGlossCorrections, applyPosCorrections, writeExpanded } from "./exp
 import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
-  repairCaseFronts, repairCardSpelling, repairProductionBacks, repairThinExamples,
+  repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
+  repairThinExamples,
 } from "./repair";
 import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
@@ -103,6 +104,17 @@ async function main() {
   const resentenced = await repairCaseFronts(prisma);
   if (resentenced > 0) {
     console.log(`Put ${resentenced} case cards into the sentence their form is used in.`);
+  }
+
+  /*
+    And the answer on a government card, which was the stored string with
+    Ekilex's own Latin case name in the bracket. Here for the reason the two
+    repairs above it are: a card built the old way only exists on a database
+    that was already seeded.
+  */
+  const governed = await repairGovernmentBacks(prisma);
+  if (governed > 0) {
+    console.log(`Took the Latin case name off ${governed} government card answers.`);
   }
 
   /*

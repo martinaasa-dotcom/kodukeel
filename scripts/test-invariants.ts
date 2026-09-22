@@ -8054,6 +8054,17 @@ check("a case's Latin name has a closed list of readers", () => {
     */
     "lib/tutor/words.ts": "the facts block Anu is handed, and the names a learner might type",
     "components/WeakestCases.tsx": "the slug the grammar page is keyed on, never printed",
+    /*
+      AND THE ONE MODULE THAT READS THE LATIN NAME IN ORDER TO TAKE IT OFF A
+      SCREEN. A `CASE_FORM` card built before the sentence rule stored its hint
+      as `kaasaütlev · the comitative`, and nothing in this app rewrites a hint
+      a card already carries, so that line is still the only English on the
+      reveal of every deck built back then. `readableHint` has to be able to
+      recognise the name to replace it with the question the case answers,
+      which is the same latitude `readableGovernment` takes over the stored
+      government string.
+    */
+    "lib/copy/caseHint.ts": "recognises the stored Latin name so a screen can print the question instead",
   };
   // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,
   // which is the anchor the check below this one already argues for.
@@ -8074,6 +8085,139 @@ check("a case's Latin name has a closed list of readers", () => {
   for (const file of Object.keys(ALLOWED)) {
     assert.ok(found.includes(file), `${file} is listed here and no longer reads a case's Latin name`);
   }
+});
+
+/**
+ * AND THE NAME A DECK ALREADY HOLDS, WHICH NO SWEEP OVER THE SOURCE CAN SEE.
+ *
+ * The two checks above are about what this app *writes*. A `Card` row carries
+ * its own hint, nothing in the app rewrites one, and a `CASE_FORM` card built
+ * before the sentence rule stored `kaasaütlev · the comitative`: the naming
+ * rule as it stood then, two names and no instruction. `lib/srs/cards.ts` has
+ * not written one of those for a long time and every deck built back then
+ * still prints it, which is where the report that started this came from.
+ *
+ * So the column is read through `readableHint` on the way to a screen, which
+ * swaps the Latin name for the question the case answers and leaves every
+ * other hint byte for byte as it was stored. `Card.hint` itself is untouched,
+ * exactly as `Lexeme.government` is untouched by `readableGovernment`.
+ *
+ * TWO READERS, because the hint reaches a screen twice: as the cue under the
+ * question, which every round takes from `gapCue`, and on the reveal of a card
+ * that is not a gap, which is the daily path. A third fails until somebody
+ * decides which side of the line it is on, and a screen printing `card.hint`
+ * raw is the fault this was written for.
+ */
+check("a hint a deck already holds does not name its case in Latin", () => {
+  const table = "lib/copy/caseHint.ts";
+  assert.ok(existsSync(table), "the reading of a stored card hint has gone");
+  // It says what the case asks rather than what an English grammar calls it,
+  // and it reads the one table rather than keeping a second list of names.
+  assert.match(
+    code(table),
+    /\bquestionEn\b/,
+    "the stored hint is no longer rewritten to the question the case answers",
+  );
+  assert.match(code(table), /\bCASES\b/, "caseHint.ts keeps a case list of its own");
+
+  const readers = ["app", "lib", "components"]
+    .flatMap((dir) => sourceFiles(dir))
+    .filter((file) => file !== table && !/\.i?test\.tsx?$/.test(file))
+    .filter((file) => /readableHint\(/.test(code(file)));
+  assert.deepEqual(
+    readers.sort(),
+    ["app/(app)/review/ReviewSession.tsx", "lib/copy/gapMeaning.ts"],
+    "a third screen reads a stored card hint, or one of the two stopped",
+  );
+
+  /*
+    AND NOBODY PRINTS THE COLUMN RAW. The fault was one JSX interpolation of
+    `card.hint` on the reveal, so that is what is anchored on: a screen holding
+    a card hands it to `gapCue` or to `readableHint`, and never draws the
+    column itself. Deliberately `card.hint` rather than any `.hint`, because a
+    command in the palette and a group on the shortcut sheet each carry a hint
+    of their own that has never been near a case.
+  */
+  for (const file of [...APP, ...COMPONENTS]) {
+    assert.doesNotMatch(
+      code(file),
+      /\{\s*card\.hint\s*\}/,
+      `${file} prints a stored card hint without reading it through readableHint`,
+    );
+  }
+});
+
+/**
+ * AND THE OTHER STORED STRING THAT NAMES A CASE IN LATIN.
+ *
+ * `Lexeme.government` is Ekilex's own, `millega (comitative)`, and the bracket
+ * is the only English on the one fact about an Estonian verb nobody can reason
+ * their way to. The dictionary entry has read it through `readableGovernment`
+ * since that was written; the unit page printed the column raw, under every
+ * governed word of every unit in the course, so the two screens disagreed
+ * about what a learner is shown and only one of them was being watched.
+ *
+ * So the rule is asked of both: a screen that prints the column reads it
+ * through that function. `AddWord.tsx` is the one exemption and is not a
+ * screen printing it, it is the box somebody edits the stored string in, where
+ * what has to be in front of them is what is stored.
+ */
+check("a screen that prints a stored government reads it the way a learner should", () => {
+  const EDITS = "app/(app)/dictionary/AddWord.tsx";
+  // `{entry.government}`, `{l.government}`: the column interpolated into JSX,
+  // which is the shape both of these took.
+  const PRINTS = /\{\s*[A-Za-z_$][\w$]*\.government\s*\}/;
+  let found = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (file === EDITS) continue;
+    const source = code(file);
+    if (!/\.government\b/.test(source)) continue;
+    assert.doesNotMatch(
+      source,
+      PRINTS,
+      `${file} prints Lexeme.government raw, which names the case in Latin. `
+        + "Read it through readableGovernment.",
+    );
+    if (/readableGovernment\(/.test(source)) found += 1;
+  }
+  assert.ok(found >= 2, `only ${found} screens read a government the way a learner should`);
+
+  /*
+    AND THE ANSWER ON A GOVERNMENT CARD, which is the same column copied onto a
+    `Card` row. The builder reads it the same way; a deck built before that
+    keeps the bracket it was built with, so the seed carries the reading onto
+    those rows, before the `--only-if-empty` early return for the reason every
+    other repair runs there. It may touch the answer and no scheduling column:
+    a repair that cost somebody their progress would cost more than the bug.
+  */
+  assert.match(
+    code("lib/srs/cards.ts"),
+    /back: readableGovernment\(lex\.government\)/,
+    "a government card's answer is the stored string again, Latin bracket and all",
+  );
+  const seedSrc = code("prisma/seed.ts");
+  const repairAt = seedSrc.indexOf("repairGovernmentBacks(prisma)");
+  const earlyReturn = seedSrc.indexOf('"--only-if-empty"');
+  assert.ok(repairAt >= 0, "the seed no longer repairs the government cards built before that");
+  assert.ok(
+    earlyReturn < 0 || repairAt < earlyReturn,
+    "the seed repairs government backs after the --only-if-empty early return, which is the one "
+      + "case where there are any to repair",
+  );
+  const repairSrc = code("prisma/repair.ts");
+  const at = repairSrc.indexOf("export async function repairGovernmentBacks");
+  assert.ok(at >= 0, "repairGovernmentBacks is gone from prisma/repair.ts");
+  // To the end of this function and no further: the repairs below it rewrite a
+  // front by design, and a slice running past the closing brace would read one
+  // of those and report it here.
+  const rest = repairSrc.slice(at + 1);
+  const next = rest.indexOf("\nexport ");
+  const fn = next < 0 ? rest : rest.slice(0, next);
+  assert.doesNotMatch(
+    fn,
+    /SET[^;]*\b(due|stability|difficulty|reps|lapses|state|front|hint)\b/,
+    "repairGovernmentBacks writes a column that is not the answer",
+  );
 });
 
 /**
