@@ -461,7 +461,8 @@ which would say the sample of one is not enough.
 
 **No certification.** Not ISO/IEC 27001, not SOC 2, not ISKE or its successor. `docs/29-controls.md`
 is a self-assessment and says so at the top in bold. *Plan and trigger:* set out in that document,
-with the cost.
+with the cost, and `docs/33-certification-readiness.md` turns every gap in it into a sized piece of
+work in the order we would actually do them.
 
 **No formal risk register or asset inventory as separate documents.** Section 3 above is the closest
 thing, and it lives in a design document rather than in a register anybody reviews on a schedule.
