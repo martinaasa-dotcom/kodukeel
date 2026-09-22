@@ -1,10 +1,20 @@
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
- * Two rounds in this app run to a clock: the Case Sprint at sixty seconds and
- * the daily quest at two minutes. Both numbers were chosen for the round they
- * are in and both were fixed, which is WCAG 2.2 success criterion 2.2.1,
- * Timing Adjustable, failed twice. A learner who reads slowly, who is hearing
+ * Two rounds in this app read this setting: the Case Sprint at sixty seconds
+ * and the daily quest at two minutes. Both numbers were chosen for the round
+ * they are in and both were fixed, which is WCAG 2.2 success criterion 2.2.1,
+ * Timing Adjustable, failed twice.
+ *
+ * TARGET IS A THIRD TIMED ROUND AND DOES NOT READ THIS YET. Its clock is three
+ * constants in `app/(app)/review/target/TargetSession.tsx`: eight seconds for
+ * the first shot, a quarter of a second off for each hit, and a floor of three
+ * and a half. None of them is the learner's to move, so 2.2.1 is still failed
+ * there, and `/accessibility` names it under what is known not to conform
+ * rather than leaving it to be found. The shape of the fix is the sprint's
+ * exactly: the page reads the setting and hands the seconds down, with the
+ * multiplier applied to the start and the floor and the step left where it is,
+ * since the step is a quarter of a second of *pressure* rather than a length. A learner who reads slowly, who is hearing
  * a card read out before answering it, or who types with one hand is not
  * playing a faster version of the same round. They are shut out of it.
  *

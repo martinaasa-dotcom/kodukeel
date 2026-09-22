@@ -43,9 +43,10 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
 
 ## What it does
 
-- **Situations.** Seven of them: a café, a bus ticket, a street corner, a health centre, a
-  landlord, a counter, and a friend on the phone. A card says who you are today and what you came
-  for, and the other side speaks first, reacts to what you say, repeats your word back, and asks
+- **Situations.** Fourteen of them: a shop, a health centre, a landlord, a counter, a café, a
+  street corner, a bus ticket, a restaurant table, a friend on the phone, a neighbour on the stairs,
+  a pharmacy, the first evening of a language course, a job interview, and taking something back.
+  A card says who you are today and what you came for, and the other side speaks first, reacts to what you say, repeats your word back, and asks
   again when you were not understood. Something goes wrong on the way at every difficulty above the
   easiest, and the debrief says whether you handled it. Every line is a phrase the course teaches
   or a line written for the scene inside its own words and checked word by word before you see it,
@@ -235,7 +236,7 @@ Everything except the two things that need a model, Anu and reading a photograph
   `toas`, `lugesin`, `tubadega`, `helistab`, and it finds the word *and* tells you which form you
   typed.
   Anything missing can be added by hand, principal parts and all.
-- **Audio**, real Estonian speech from the University of Tartu's neural voices, twelve of them to
+- **Audio**, real Estonian speech from the University of Tartu's neural voices, ten of them to
   choose from. A card reads itself aloud when a word is met and when its answer appears, and the
   next card's clip is fetched while you answer this one. No key, no setup.
 - **Flashcards**. FSRS scheduling, 7 card types, typed or flipped, keyboard-only review.
@@ -731,7 +732,7 @@ dies halfway is recoverable rather than final.
 
 ## How it is put together
 
-Next.js 15 (App Router) · TypeScript strict · Tailwind v4 · Prisma + Postgres · `ts-fsrs` ·
+Next.js 16 (App Router) · TypeScript strict · Tailwind v4 · Prisma + Postgres · `ts-fsrs` ·
 TartuNLP speech · any OpenAI-compatible or Anthropic model.
 
 ```
@@ -745,12 +746,14 @@ lib/collections/  the course: syllabus, lessons, placement and checkpoints, as r
 lib/classroom/    join codes and the roster a teacher sees, and only that.
 lib/stats/        heatmap, streak, accuracy and answer-time aggregation.
 lib/progress/     the database side of the above, shared by Today, the path and /progress.
-lib/offline/      the queue that lets a review session survive with no network.
+lib/course/       the planned module: which words on which evening, and what it deals beside them.
+lib/scenes/       the conversations: the catalogue, the marker, the gate and the banked lines.
+lib/email/        what a letter says, pure; lib/mailer/ posts it.
 lib/dict/         search.
 lib/tutor/        provider-agnostic chat; keys stay server-side.
-app/(app)/        the signed-in app: Today, the path, review, dictionary, Anu, words, tasks.
+app/(app)/        the signed-in app: Today, the course, review, dictionary, Anu, words, progress.
 app/(chromeless)/ pages that own the whole screen: the landing page, sign-in, first-run setup.
-app/api/          the three server proxies.
+app/api/          the server proxies and the routes a browser posts to.
 components/       ui primitives, the brand mark and the mascot.
 prisma/data/      the built-in dictionary.
 docs/             the full plan and the decisions behind it.
@@ -774,6 +777,12 @@ Four rules the code holds to, all explained in `docs/`:
   database of the Institute of the Estonian Language. CC BY 4.0.
 - English glosses: [English Wiktionary](https://en.wiktionary.org), by its contributors.
   CC BY-SA 4.0.
+- Word frequency counts: [FrequencyWords](https://github.com/hermitdave/FrequencyWords) over the
+  OpenSubtitles corpus. MIT for the code, CC BY-SA 4.0 for the counts.
+- Every spelling of every word, in `prisma/data/forms/`: Ekilex's own inflection tables as published
+  in [Estonian-Wordlist-Enriched-Ekilex](https://github.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex)
+  (CC BY 4.0 for the Institute's data, CC BY-SA 4.0 for the repository), and
+  [Vabamorf](https://github.com/Filosoft/vabamorf), Filosoft's analyser and synthesiser (LGPL).
 - Speech synthesis: [TartuNLP](https://tartunlp.ai), University of Tartu (MIT).
 - The plan this was built from, including the audit of the original spec, is in `docs/`.
 

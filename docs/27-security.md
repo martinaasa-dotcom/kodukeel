@@ -18,7 +18,7 @@ touches the data, `docs/28-incident-response.md` for what happens when this fail
 ## 1. What the system is
 
 Kodukeel teaches Estonian: a dictionary, a spaced repetition deck, practice rounds, a mock state
-examination, and a tutor. It is a Next.js 15 App Router application. It is also software people
+examination, and a tutor. It is a Next.js 16 App Router application. It is also software people
 install, so there are two shapes of deployment and the difference matters to everything below.
 
 **Hosted.** Supabase Auth is configured, every route is gated, and each learner sees only their own
@@ -40,10 +40,12 @@ internet under one shared id with every visitor treated as a reviewer. `halfConf
   Browser (learner's device)
     | HTTPS, HSTS preloaded, CSP set per response
     v
-  Next.js on Vercel  ------ server only ------> Anthropic / OpenAI / OpenRouter / Groq / Gemini
+  Next.js on Vercel  ------ server only ------> Groq / Gemini / Anthropic / OpenAI
     |   middleware.ts                             (whichever keys the deployment holds)
     |   Server Actions, Route Handlers   ------> TartuNLP speech (api.tartunlp.ai)
     |                                    ------> Ekilex, Wiktionary
+    |                                    ------> Resend, where letters are configured
+    |                                    ------> the news feed, where one is configured
     v
   Postgres (Supabase)          Supabase Auth          Supabase Storage (audio cache)
 ```
@@ -67,10 +69,17 @@ check against a cached key set and reaches the network not at all.
 It goes out from a Route Handler, never from the browser, and every call is metered before it is made
 (`lib/usage/ledger.ts`).
 
-**Server to Ekilex, Wiktionary and TartuNLP.** Reference data and speech. These are read only,
-carry nothing about the learner, and are proxied so their keys and their quota stay on the server.
-The Content Security Policy names no third party in `connect-src` at all, which is what makes that
-structural rather than a habit.
+**Server to Ekilex, Wiktionary, TartuNLP and the news feed.** Reference data, speech and
+headlines. These are read only, carry nothing about the learner, and are proxied so their keys and
+their quota stay on the server. The Content Security Policy names none of them in `connect-src`,
+which is what makes that structural rather than a habit: the only origins in it are this one and
+the deployment's own Supabase project, which the browser genuinely talks to for the session.
+
+**Server to Resend.** Where a deployment sends letters, this is the only place outside the sign-in
+provider that an email address leaves the app, and it is the one outbound destination carrying
+personal data rather than a word or a phrase. `lib/mailer/` posts, `lib/email/` composes and is
+pure, and every letter carries a way out of it signed with `EMAIL_TOKEN_SECRET`. It appears on the
+generated recipients list whenever `RESEND_API_KEY` is set.
 
 ## 3. What is worth taking
 
@@ -442,7 +451,7 @@ being trusted.
 | Data | Erasure has no exemptions, and removes the Supabase Auth identity too | `lib/auth/erase.ts` |
 | Data | Anonymity gate on the research export, four rules | `lib/research/corpus.ts` |
 | Dependencies | Two blocking `npm audit` gates, production and dev | `.github/workflows/ci.yml` |
-| Assurance | 279 invariants asserted in CI | `scripts/test-invariants.ts` |
+| Assurance | Every rule this document cites asserted in CI. The suite prints its own total, 421 on the day this line was written, so the figure is one command rather than a number to trust | `scripts/test-invariants.ts` |
 
 ## 6. What has not been done
 
@@ -508,7 +517,7 @@ npx prisma generate
 npm run typecheck        # strict, plus noUncheckedIndexedAccess
 npm run lint
 npm test                 # unit suite, hermetic: no database, no network, no clock
-npm run test:invariants  # 279 asserted rules, including every security one above
+npm run test:invariants  # the asserted rules, including every security one above
 npm run check:secrets    # scans a built tree for credential shapes
 npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
@@ -519,7 +528,7 @@ grep the client bundle:
 
 ```
 CI_CANARY=canary-CI_CANARY-must-not-ship \
-OPENROUTER_API_KEY=canary-OPENROUTER_API_KEY-must-not-ship \
+GROQ_API_KEY=canary-GROQ_API_KEY-must-not-ship \
 SUPABASE_SERVICE_ROLE_KEY=canary-SUPABASE_SERVICE_ROLE_KEY-must-not-ship \
 npx next build
 grep -rEho "canary-[A-Z_]+-must-not-ship" .next/static   # must print nothing
