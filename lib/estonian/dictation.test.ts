@@ -146,6 +146,11 @@ describe("checkDictation", () => {
     expect(statuses("Kuipaljukell on", "Kui palju kell on")).toEqual(["spacing", "right"]);
     expect(result.verdict).toBe("spacing");
     expect(result.words[0]).toEqual({ expected: "Kui palju kell", typed: "Kuipaljukell", status: "spacing" });
+    // Two spaces gone, said as two. This case asserted the alignment and never
+    // the sentence, so it read "one needs a space moved" to somebody looking
+    // at two of them, and nothing here said so.
+    expect(result.note).toBe("Every word heard, but 2 spaces need moving.");
+    expect(wordNote(result.words[0]!)).toBe("missing 2 spaces");
   });
 
   it("does not let a two-word merge reach past the word right after it", () => {
@@ -159,7 +164,7 @@ describe("checkDictation", () => {
     const result = checkDictation("Ta on kuueoue", "Ta on kuue õue");
     expect(statuses("Ta on kuueoue", "Ta on kuue õue")).toEqual(["right", "right", "spacing"]);
     expect(result.verdict).toBe("spacing");
-    expect(result.note).toMatch(/one needs a space moved, and one is missing its Estonian letters/);
+    expect(result.note).toMatch(/one space needs moving, and one is missing its Estonian letters/);
   });
 
   it("never loses a typed word from the marked-up output", () => {
