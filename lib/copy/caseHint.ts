@@ -25,6 +25,16 @@ import { CASES } from "@/lib/estonian/cases";
  * part that is exactly a case's Latin name, with or without its article: a
  * `GRADATION` hint's "consonant gradation" and a `GOVERNMENT` hint's "verb
  * government" name no case and are left alone.
+ *
+ * `questionEn` RATHER THAN `asksEn`, WHICH IS THE OTHER WAY ROUND FROM THE
+ * USUAL RULE. A label with no word in front of it takes the short reading, the
+ * thing question and the place adverb, because the whole name runs to three
+ * questions and is a mouthful inside a sentence. This label has a word in front
+ * of it: the card's own front is `üks → kellega? millega?`, both pronouns, and
+ * the hint sits under the answer to exactly that. `with what?` alone beside it
+ * would translate one of the two questions the learner was just asked and say
+ * nothing about the other, so the reading is the whole name and the two lines
+ * match one for one.
  */
 const BY_LATIN: ReadonlyMap<string, string> = new Map(
   CASES.map((c) => [c.en.toLowerCase(), c.questionEn]),
