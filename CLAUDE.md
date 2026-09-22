@@ -4801,6 +4801,22 @@ every truncated read in the app on the primary key is a larger change than the r
 useful, and where a screen orders by `due` and cuts, arbitrary-but-stated still beats
 arbitrary-and-silent. The stricter rule stays where a number is derived.
 
+**And where a comment claims the cut is stable, the looser rule is not what the file is promising.**
+Four reads outside `lib/progress/` end on a key that does not identify a row while their own prose
+says a learner is shown the same thing twice, which the weaker invariant cannot see and which is
+the file disagreeing with itself rather than with the rule. The leech clinic is both of them at
+once: it takes thirty cards ordered on `lapses` alone, and ties there are the normal case rather
+than the edge, since a learner with sixty cards stuck at six lapses got whichever thirty the plan
+returned, in a short list they work through over several sittings; and the read under it cuts a
+thousand cards on `createdAt` under a comment saying a deck past the cap compares the same thousand
+words every time, where `addCardsFor` writes a word's two cards in one `createMany` and they carry
+that column to the millisecond. The other two are **the lemma, which is not what identifies a
+row**: `Lexeme` is unique on `(lemma, pos)`, so the lesson's seeded distractor window and
+Practice's count of what a round could ask both had their edges fall wherever the plan left `hall`
+the noun against `hall` the adjective, the first under a paragraph arguing at length that the same
+seed gives the same lesson. Ordering is free where the index is there, and all four now end on the
+id.
+
 **A shared calculation over an unshared input is not a shared answer, and Today proved it twice.**
 `lib/progress/cases.ts` exists because "your weakest cases" was drawn from three different queries
 behind one calculation, so a learner who got the partitive wrong three hundred times last year and
@@ -9672,6 +9688,33 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   production and no more. And the scene suite's report-button check opened `spoken === 0 || ...`,
   which passes when there is nothing on screen to report. Where the subject can honestly be empty,
   say so with `absent` and name what would fill it; where it cannot, assert the claim.
+- **And the third of those was found by reading, which is why it is asserted now.** Reading every
+  `.every(` once fixes the instances somebody looked at that afternoon and nothing about the next
+  one, and there were six more. The edit suite's own header explains the fault above and two checks
+  below the fix it reads the same array the same way, so a rename that failed outright still
+  reported that scheduling had survived it; the flash round had four, where a round that logged
+  nothing failed one check about the log and passed the four behind it, two on an empty `every` and
+  two through a disjunction nobody counted; Today's column check, minimal-pairs and the sign-in
+  button had one apiece. **The pairing is what makes it a rule rather than a reading**: in every
+  case a check above already asks the length, because the suite knew the list could be empty, and
+  that check failing is exactly the run where the ones below it stop meaning anything. So the
+  haystack is a bare `.every()` on a name the same file counts somewhere else, which fires on
+  nothing honest: an array literal cannot be empty, and a name nobody counts is a name nothing has
+  raised a question about. **The count has to be in the verdict**, which is how the first version
+  missed the very line it was written for: `test-edit.mjs` carries the length in its *detail*
+  string, the "0 cards" that was the visible half of the bug, and a rule reading the whole call
+  took that label for a guard. A count beside the verdict says how many there were; only a count
+  inside it decides. Made to fail on all four of the real lines.
+- **And an exemption is granted to a control rather than to the file it is in.** The rule that a
+  control answers a pointer excused `Sidebar.tsx` and `CommandPalette.tsx` by name, on two
+  arguments that are each about one button: the scrim behind the phone sheet is a close target
+  rather than a labelled control, and the palette's rows are painted from `active`, which the arrow
+  keys move too. What it excused was every control in both files, the rail's own cells and both
+  crosses on the sheet among them, and it carried no staleness check, which is the one shape this
+  file names as a parking space. Nothing is wrong in either file today, which is the state a
+  file-wide exemption is invisible in: it costs nothing until somebody adds a control to one of
+  them. It is the `only` list `lib/ekilex/client.ts` gets from the phrase rule, and it is checked
+  both ways, since an exemption naming a control that has gone is where the next button lands.
 - **A suite that pairs two facts by walking the markup goes blind the day the markup moves, and
   waives itself while it does.** `scripts/test-scene.mjs` asks two questions only a browser can
   answer, that a composed line and a scripted line are each one short sentence saying which rung

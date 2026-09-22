@@ -166,7 +166,12 @@ for (let r = 0; r < 8 && (await hints(page).count()) > 0; r += 1) {
 }
 
 check("the ladder has more than one rung", spellings.length > 1, `${spellings.length} rungs`);
-check("every press says something", spellings.every((s, i) => s !== "" || strikes[i] > 0), spellings.join(" → "));
+// The length is part of the claim rather than the check above it: `every` on
+// nothing is true, so a round that drew no hint at all passed this while the
+// rung check beside it failed, which is one reported failure over two.
+check("every press says something",
+  spellings.length > 0 && spellings.every((s, i) => s !== "" || strikes[i] > 0),
+  spellings.join(" → "));
 
 const letters = spellings.some(Boolean);
 if (letters) {
@@ -186,7 +191,8 @@ if (letters) {
   const answer = spellings[spellings.length - 1] ?? "";
   check(
     "every rung is a covered spelling of the one answer",
-    spellings.every((s) => s.length === answer.length && [...s].every((c, i) => c === "_" || c === answer[i])),
+    spellings.length > 0
+      && spellings.every((s) => s.length === answer.length && [...s].every((c, i) => c === "_" || c === answer[i])),
     `${answer} ← ${spellings.join(" ")}`,
   );
 } else {

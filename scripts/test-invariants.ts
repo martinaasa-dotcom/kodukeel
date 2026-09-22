@@ -5116,6 +5116,109 @@ check("a check a state cannot reach is waived by number, never by a printed word
   }
 });
 
+check("a check over a list says the list was there", () => {
+  /*
+    `EVERY` ON NOTHING IS TRUE, AND THE CHECK BESIDE IT IS WHAT HIDES THAT.
+
+    Three suites had the same shape and it was found one file at a time.
+    `test-edit.mjs` asserted that a rename left an attested sentence exactly as
+    recorded, over a list of gap-fill cards that has always been empty, and
+    printed PASS with "0 gap-fill card(s)" beside it on every run there has
+    ever been. Its own header says so — and two checks below the fix the same
+    array was read the same way again, so a rename that failed outright still
+    reported that scheduling had survived it. `test-flash.mjs` had four of
+    them: a round that logged nothing failed one check about the log and
+    passed the four behind it, two vacuously and two through a disjunction.
+
+    What makes it worth a rule rather than a reading is the pairing. In every
+    case the suite already knew the list could be empty, because a check
+    somewhere above it asserts the length — and that check failing is exactly
+    the run where the ones below it stop meaning anything. One reported
+    failure, several unlooked things, which is the sentence
+    `scripts/lib/checks.mjs` opens with, arriving inside a check rather than
+    behind a gate.
+
+    So the haystack is narrow on purpose: a bare `.every()` on a name that the
+    same file elsewhere asks the length of. An `.every()` over an array
+    literal cannot be empty, and one over a name nobody counts is a name
+    nothing has raised a question about. Drawn any wider this would fire on
+    honest code, which is how a check stops being read.
+
+    AND THE COUNT HAS TO BE IN THE CONDITION, NOT ANYWHERE IN THE CALL, which
+    is how the first version of this missed the line it was written for.
+    `test-edit.mjs` printed the length in its *detail* string, the "0 cards"
+    that was the visible half of the bug, and a rule reading the whole call
+    took that label for a guard and waved the check through. A count beside
+    the verdict says how many there were; only a count inside the verdict
+    decides it.
+  */
+  const files = sourceFiles("scripts", /^test-.*\.mjs$|^e2e\.mjs$|^smoke-.*\.mjs$/);
+  assert.ok(files.length > 10, `only ${files.length} suites found, so this check stopped looking`);
+
+  let looked = 0;
+  for (const file of files) {
+    const source = code(file);
+    // Every `check(...)` call in the file, by paren depth, in order.
+    const calls: { at: number; body: string }[] = [];
+    for (const found of source.matchAll(/\bcheck\(/g)) {
+      let depth = 1;
+      let i = found.index + found[0].length;
+      for (; i < source.length && depth > 0; i += 1) {
+        if (source[i] === "(") depth += 1;
+        else if (source[i] === ")") depth -= 1;
+      }
+      calls.push({ at: found.index, body: source.slice(found.index, i) });
+    }
+
+    /*
+      The verdict, which is the second argument. Split at depth zero and
+      outside a string, since a label routinely carries a comma and a
+      condition routinely carries one inside a callback.
+    */
+    const verdict = (body: string) => {
+      const args: string[] = [];
+      let depth = 0;
+      let start = body.indexOf("(") + 1;
+      let quote = "";
+      for (let i = start; i < body.length - 1; i += 1) {
+        const c = body[i]!;
+        if (quote) {
+          if (c === "\\") i += 1;
+          else if (c === quote) quote = "";
+          continue;
+        }
+        if (c === '"' || c === "'" || c === "`") { quote = c; continue; }
+        if ("([{".includes(c)) depth += 1;
+        else if (")]}".includes(c)) depth -= 1;
+        else if (c === "," && depth === 0) { args.push(body.slice(start, i)); start = i + 1; }
+      }
+      args.push(body.slice(start, body.length - 1));
+      return args[1] ?? "";
+    };
+
+    for (const [n, call] of calls.entries()) {
+      const condition = verdict(call.body);
+      for (const use of condition.matchAll(/(?:^|[^.\w)\]])([A-Za-z_$][\w$]*)\.every\(/g)) {
+        const name = use[1]!;
+        looked += 1;
+        // Said in the same breath, in the verdict rather than beside it.
+        if (new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(condition)) continue;
+        if (new RegExp(`\\b${name}\\.some\\(`).test(condition)) continue;
+        // Counted somewhere above, which is the file saying it can be empty.
+        const counted = calls.slice(0, n)
+          .some((earlier) => new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(earlier.body));
+        if (!counted) continue;
+        assert.fail(
+          `${file}:${source.slice(0, call.at).split("\n").length} holds every ${name} to something, `
+          + `and a check above it asks how many ${name} there are. On the run where that one fails `
+          + `this passes over nothing: say \`${name}.length > 0 &&\` here, or waive it with absent().`,
+        );
+      }
+    }
+  }
+  assert.ok(looked > 8, `only ${looked} list checks found, so this check stopped looking`);
+});
+
 check("a rating key works wherever a rating button is drawn", () => {
   /*
     A CONTROL'S VISIBILITY AND ITS SHORTCUT ARE ONE CONDITION.
@@ -17898,19 +18001,45 @@ check("an option is one control, and the number that picks it is one cap", () =>
   more are exempt by name and both are a decision rather than an omission.
 */
 check("a control says what it does under a pointer", () => {
-  /* The scrim behind the phone sheet is a close target rather than a control
-     with a label, and the palette's rows are painted from `active`, which the
-     arrow keys move too: a CSS hover there would let the pointer and the
-     keyboard disagree about which row is next. */
-  const EXEMPT = new Set(["components/Sidebar.tsx", "components/CommandPalette.tsx"]);
+  /*
+    Two controls are exempt, and they are exempt as controls rather than as
+    files.
+
+    The scrim behind the phone sheet is a close target rather than a control
+    with a label, and the palette's rows are painted from `active`, which the
+    arrow keys move too: a CSS hover there would let the pointer and the
+    keyboard disagree about which row is next. Both of those are arguments
+    about one button, and this was written as a `Set` of the two filenames, so
+    what it actually excused was every control in `Sidebar.tsx` and
+    `CommandPalette.tsx` — the rail's own cells, both crosses on the sheet, and
+    the icon button at the foot of the column. Nothing is wrong in either file
+    today, which is the state a file-wide exemption is invisible in: it costs
+    nothing until somebody adds a control to one of them, and then it costs
+    that control silently. It is the `only` list `lib/ekilex/client.ts` gets
+    from the phrase rule, which excuses one key rather than a whole file.
+
+    And it is checked for staleness in both directions, because an exemption
+    naming a control that has gone is the parking space the next person puts
+    their own button in.
+  */
+  const EXEMPT = new Map([
+    ["components/Sidebar.tsx", /className="flex-1"/],
+    ["components/CommandPalette.tsx", /tabIndex=\{-1\}/],
+  ]);
   const answers = /press|tap-tint|choice-btn|hover:|nav-cell|letter-key|underline|group/;
   const button = /<button\b((?:[^>{]|\{[^{}]*\}|\{\{[^{}]*\}\})*?)>/gs;
   let drawn = 0;
+  const excused = new Map([...EXEMPT.keys()].map((f) => [f, 0]));
   for (const file of [...APP, ...COMPONENTS]) {
-    if (EXEMPT.has(file)) continue;
     const source = code(file);
+    const only = EXEMPT.get(file);
     for (const match of source.matchAll(button)) {
-      const className = /className="([^"]*)"/.exec(match[1] ?? "");
+      const attributes = match[1] ?? "";
+      if (only?.test(attributes)) {
+        excused.set(file, (excused.get(file) ?? 0) + 1);
+        continue;
+      }
+      const className = /className="([^"]*)"/.exec(attributes);
       if (!className) continue;
       drawn += 1;
       assert.match(
@@ -17920,6 +18049,14 @@ check("a control says what it does under a pointer", () => {
           + "`.tap-tint` for a bare row or an icon button, `.choice-btn` for a box.",
       );
     }
+  }
+  for (const [file, hits] of excused) {
+    assert.equal(
+      hits, 1,
+      `${file} is excused one control from the pointer rule and ${hits} match the exemption. `
+        + "One means the argument still has its subject; none means it is stale and the next "
+        + "button added there inherits a waiver nobody wrote for it.",
+    );
   }
   assert.ok(drawn >= 25, `only ${drawn} hand-drawn controls found; the sweep has stopped seeing them`);
 });
