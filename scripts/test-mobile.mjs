@@ -13,6 +13,7 @@
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { ensureLetterBar, requireAppShell } from "./lib/prefs.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 const B = baseUrl();
 
@@ -576,6 +577,14 @@ for (const width of [480, 640, 760]) {
 */
 for (const [width, height] of [[390, 664], [360, 640]]) {
   const { ctx, page } = await open(width, height, "/sonad");
+  /*
+    Through the briefing first. It is a screen of its own with the board
+    behind it, so measuring whether the keys fit above the fold without
+    pressing through measures the wrong screen and says the game cannot be
+    played, which is the fault this suite exists to catch rather than to
+    report about itself.
+  */
+  await startRound(page);
   const m = await page.evaluate(() => {
     const nav = [...document.querySelectorAll("nav")].find((n) => getComputedStyle(n).position === "fixed");
     const keys = [...document.querySelectorAll("button")].filter((b) => /^[a-zõäöüšž]$/i.test((b.getAttribute("aria-label") || "").trim()));
