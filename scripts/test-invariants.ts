@@ -15006,13 +15006,29 @@ check("a value off the card is graded, and only where which word is certain", ()
     "a value off the card writes no review row again, so a scene made of card values grades nothing",
   );
   assert.match(
-    grades, /if \(!prop \|\| prop\.lemmas\.length === 0\) return null;/,
+    grades, /if \(lemmas\.length === 0\) return null;/,
     "a slot holding a clock time or a code is graded as a word, which nobody holds a card for",
   );
   assert.match(
     grades, /return wrote\.length === 1 \? wrote\[0\]! : null;/,
-    "a slot naming two words no longer has to resolve to one, so the log can claim a recall of a "
-    + "word the learner never wrote",
+    "a candidate list naming two words no longer has to resolve to one, so the log can claim a "
+    + "recall of a word the learner never wrote",
+  );
+  /*
+    AND THE BEAT'S OWN WORDS TAKE THE SAME RULE, which for a year they did not.
+    The `lemma` branch wrote `oneOf[0]` under a comment saying the turn does
+    not say which was taken. It does, and `satisfiedBy` is where: 56 of the
+    catalogue's 85 `oneOf` lists name more than one word and the health
+    centre's names ten, so a learner who wrote `Mu selg valutab` had `pea`
+    written into the append-only log as a recall. Both branches read one
+    resolver now, anchored on the call rather than on the helper, because a
+    branch that keeps its own first-candidate line satisfies any check that
+    only greps for the function.
+  */
+  assert.match(
+    grades, /oneOfProduced\(need\.oneOf, producedFor\(index\), lexicon\)/,
+    "a beat naming several words credits the first of them again, so the review log claims a "
+    + "recall of a word the learner never wrote",
   );
   /*
     And the caller hands over both, which is where the whole fault lived: the

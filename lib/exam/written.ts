@@ -19,8 +19,8 @@
  * on are pure for the same reason, which is what lets the marker and the
  * screen agree on which spellings count without either of them reaching a database.
  */
-import { derivedVerbForms } from "@/lib/estonian/conjugate";
-import { buildCaseTable, stemsFromParts } from "@/lib/estonian/derive";
+import { gapForms } from "@/lib/estonian/gapForms";
+import { tidyForm } from "@/lib/estonian/whichCase";
 
 /** Splits a written answer the way the marking counts it. */
 export function wordsOf(text: string): string[] {
@@ -35,10 +35,6 @@ export interface RequiredWord {
   readonly forms: readonly { formType: string; value: string }[];
 }
 
-function tidy(word: string): string {
-  return word.toLocaleLowerCase("et").replace(/[^\p{L}\p{M}]/gu, "");
-}
-
 /**
  * Every spelling that counts as this word being used.
  *
@@ -48,30 +44,28 @@ function tidy(word: string): string {
  * person for a verb (ADR-005 amendment 1). Nothing is written here; every
  * character comes out of the entry or off a suffix the app already derives
  * with everywhere else.
+ *
+ * THIS IS `gapForms`, AND IT USED TO BE A SECOND ANSWER TO THE SAME QUESTION.
+ * It took the same inputs and made the same two calls, and it had already
+ * drifted twice. It read `parts.PRES_1SG` where `gapForms` asks `pres1sgFrom`,
+ * which also reads the shape a live Ekilex fetch writes (`IndPrSg1`), so a verb
+ * enriched from Ekilex with no seeded principal part derived nothing at all
+ * and a candidate who wrote `helistab` was marked as not having used
+ * `helistama`. And it took each case's shown forms where `gapForms` walks
+ * `caseAnswer(...).accepted`, so a spelling the dictionary accepts and does not
+ * lead with was refused. Both errors point the same way, at a marking path
+ * whose own header says marking generously is the one thing it exists not to
+ * do, on a mock state examination.
+ *
+ * The flattening stays this module's, because what the marker compares is a
+ * word out of somebody's prose: `tidyForm` is the same fold `whichCase` reads
+ * a spelling through, rather than a fourth copy of it.
  */
 export function acceptedUses(word: RequiredWord): Set<string> {
-  const parts: Record<string, string> = {};
-  for (const form of word.forms) parts[form.formType] = form.value;
-
   const out = new Set<string>();
-  const add = (value: string | null | undefined) => {
-    const cleaned = tidy(value ?? "");
+  for (const spelling of gapForms(word).keys()) {
+    const cleaned = tidyForm(spelling);
     if (cleaned) out.add(cleaned);
-  };
-
-  add(word.lemma);
-  for (const form of word.forms) add(form.value);
-
-  if (word.pos === "VERB") {
-    for (const derived of derivedVerbForms({ lemma: word.lemma, pres1sg: parts.PRES_1SG })) {
-      add(derived.value);
-    }
-  } else {
-    for (const derived of buildCaseTable(stemsFromParts(parts))) {
-      add(derived.singular);
-      add(derived.plural);
-      add(derived.alsoRight);
-    }
   }
   return out;
 }
@@ -101,13 +95,13 @@ export function usesRequiredWord(word: RequiredWord, text: string): boolean {
   const accepted = acceptedUses(word);
   if (accepted.size === 0) return false;
 
-  const written = wordsOf(text).map(tidy).filter(Boolean);
+  const written = wordsOf(text).map(tidyForm).filter(Boolean);
   if (written.some((one) => accepted.has(one))) return true;
 
   /*
     AND A PHRASE IS SEVERAL WORDS, WHICH THIS COULD NOT SEE.
 
-    `tidy` strips everything that is not a letter, spaces included, so a
+    `tidyForm` strips everything that is not a letter, spaces included, so a
     required word whose lemma is a phrase arrives in `accepted` as one
     spaceless string: `Kas sa räägid inglise keelt?` is stored as
     `kassaräägidinglisekeelt`. The comparison above is against single
@@ -122,7 +116,7 @@ export function usesRequiredWord(word: RequiredWord, text: string): boolean {
     itself. A mock exam that marks a right answer wrong is the fault this
     file's own header is about, pointed the other way.
 
-    Joining consecutive tokens is all it takes, because `tidy` has already
+    Joining consecutive tokens is all it takes, because `tidyForm` has already
     removed the spaces from both sides: the window `kas sa räägid inglise
     keelt` tidies and joins to exactly the string `accepted` holds. Bounded by
     the longest phrase the word actually carries, so an ordinary one-word

@@ -29,6 +29,22 @@ function word(lemma: string): RequiredWord {
 }
 
 describe("counting the words of a written answer", () => {
+  /*
+    AND A VERB ENRICHED FROM EKILEX COUNTS, which it did not while this module
+    read `PRES_1SG` off the parts itself. The seed writes the first person
+    under that name and a live lookup writes it under the morph code, so a
+    word the dictionary had only ever been asked about derived no person at
+    all and a candidate who used one was marked as not having used the word.
+  */
+  it("credits a person derived from a first person Ekilex supplied", () => {
+    const word = {
+      lemma: "helistama",
+      pos: "VERB",
+      forms: [{ formType: "EKILEX:IndPrSg1", value: "helistan" }],
+    };
+    expect(usesRequiredWord(word, "Ma helistab sulle homme.")).toBe(true);
+  });
+
   it("ignores the whitespace people actually type", () => {
     expect(wordsOf("  ma   olen\n\nsiin  ")).toEqual(["ma", "olen", "siin"]);
   });
