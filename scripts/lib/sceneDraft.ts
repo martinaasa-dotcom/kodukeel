@@ -51,6 +51,7 @@ export { answerForms };
 import { QUESTION_SHAPE, type BeatSpec, type SceneSpec } from "../../lib/scenes/types";
 import { LEVELS, SYLLABUS, unitById, type Level } from "../../lib/collections/syllabus";
 import { PITCH, pitchFor } from "../../lib/scenes/pitch";
+import { isKnownForm } from "../../lib/dict/forms";
 import { shippedDictionary } from "./dictionary";
 
 /* ------------------------------------------------------------------ *
@@ -70,6 +71,28 @@ export const POOL: DictEntry[] = shipped.map((e) => ({
 const byLemma = new Map(POOL.map((e) => [`${e.lemma}|${e.pos}`, e]));
 
 export type Allowlist = "units" | "course";
+
+/**
+ * THE APP'S OWN VOUCHING, minus the course read that needs a database: the
+ * scene's list, then the forms list (`sceneVouch`). `courseForms` is a query
+ * and every word it holds is in the forms list anyway, so what this loses is
+ * speed rather than an answer.
+ *
+ * One copy, because there were two identical ones and a third was about to be
+ * written. A harness that skips this gates against the scene's own units
+ * alone, which is the pre-split gate: every word of real Estonian the scene
+ * does not teach comes back as `vouching` rather than as `stretch`, so a model
+ * that reaches further is punished for reaching rather than for being wrong.
+ */
+export async function vouchOf(
+  lexicon: Lexicon, spellings: readonly string[],
+): Promise<ReadonlySet<string>> {
+  const out = new Set<string>();
+  await Promise.all([...new Set(spellings)].map(async (word) => {
+    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
+  }));
+  return out;
+}
 
 /**
  * THE BAND A HARNESS PLAYS AT UNLESS TOLD OTHERWISE.
@@ -464,7 +487,7 @@ export async function compose(
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
-          model: link.model, temperature: 0.8, max_tokens: SCENE_REPLY_TOKENS,
+          model: link.model, max_tokens: SCENE_REPLY_TOKENS,
           ...(link.reasoning ? { reasoning_effort: link.reasoning } : {}),
           messages: [{ role: "system", content: systemFor(level) }, { role: "user", content: user }],
         }),
@@ -532,7 +555,16 @@ export async function askLine(
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
           model: link.model,
-          temperature: 0.8,
+          /*
+            AND NO TEMPERATURE, BECAUSE THE APP NAMES THE FIELD ON NO PATH.
+            Both call sites here sent 0.8, which is not a knob anybody swept
+            and pinned: it is a number typed once and inherited by every
+            measurement since, and it fails flattering, since a cooler composer
+            reaches outside the scene's list less often than the deployment's
+            does. The branch above goes through the app's own
+            `geminiCachedReply`, which sends none, so one function was asking
+            two providers two different questions.
+          */
           // The app's own budget: a thinking model spends its first hundreds of tokens reasoning.
           max_tokens: SCENE_REPLY_TOKENS,
           // And the app's own answer to that, where the chain has one: no thinking on a scene line.

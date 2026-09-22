@@ -41,12 +41,12 @@ import type { CaseKey } from "../lib/estonian/types";
 import { SCENES } from "../lib/scenes/catalogue";
 import { formsOf, words, type Lexicon } from "../lib/scenes/lexicon";
 import { CHECKS, governmentSuspect, runGate, type Check } from "../lib/scenes/gate";
+import { retryNote } from "../lib/scenes/line";
 import { topicForms } from "../lib/scenes/retrieval";
-import { isKnownForm } from "../lib/dict/forms";
 import { SYLLABUS } from "../lib/collections/syllabus";
 import {
   ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneLemmas, sceneLexicon,
-  wrongRegisterForms, type Allowlist,
+  wrongRegisterForms, vouchOf, type Allowlist,
 } from "./lib/sceneDraft";
 
 const arg = (name: string, fallback: number) => {
@@ -55,19 +55,6 @@ const arg = (name: string, fallback: number) => {
 };
 const LINES = arg("lines", 3);
 
-/**
- * The app's own vouching, minus the course read it cannot do without a
- * database: the scene's list, then the forms list. `courseForms` is a query
- * and every word it holds is in the forms list anyway, so what this loses is
- * speed rather than an answer.
- */
-async function vouchOf(lexicon: Lexicon, spellings: readonly string[]): Promise<ReadonlySet<string>> {
-  const out = new Set<string>();
-  await Promise.all([...new Set(spellings)].map(async (word) => {
-    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
-  }));
-  return out;
-}
 const sceneArg = process.argv.indexOf("--scene");
 const onlyScene = sceneArg >= 0 ? process.argv[sceneArg + 1] : undefined;
 /*
@@ -170,11 +157,36 @@ async function partA() {
           };
         };
         const first = runGate(line, beat, await gateFor(line));
-        for (const word of first.unknown) reached.set(word, (reached.get(word) ?? 0) + 1);
+        /*
+          THE WORDS IT REACHED PAST THE SCENE FOR, WHICH IS `stretched` AND WAS
+          `unknown`. The two were one field until the vouching split, and this
+          counted the wrong one afterwards for as long as the split has existed.
+          `unknown` is now what nothing in the language could vouch for, which a
+          composer writing real Estonian almost never produces; `stretched` is
+          real Estonian the scene does not teach, which is the whole of what
+          this list is for and what the caption under it already says. Measured
+          on the run that found this: the model leaked its English deliberation
+          into `content` on one line of 276, and that one line was the entire
+          ranked list, `yes 40  wait 17  words 17  the 16`, every entry starred
+          as a word the syllabus ought to teach.
+        */
+        const unvouched = new Set(first.unknown);
+        for (const word of first.stretched) {
+          // Real Estonian the scene does not teach, which is both halves of it:
+          // `stretched` is what it reached past the list for, and anything also
+          // in `unknown` is not a word at all and belongs to no syllabus.
+          if (!unvouched.has(word)) reached.set(word, (reached.get(word) ?? 0) + 1);
+        }
         if (first.failed.length === 0) { firstPass++; continue; }
 
-        // The one retry, with the words that failed named. §6.
-        const second = (await compose(scene, beat, lemmas, first.unknown))?.text;
+        /*
+          The one retry, told what the route would tell it. §6. `retryNote` is
+          the app's own rule and the reason it is not `first.unknown` is in its
+          header: a word that is not Estonian is dropped, and a line that
+          reached too far is asked for fewer new words rather than sent hunting
+          for a synonym that is equally new.
+        */
+        const second = (await compose(scene, beat, lemmas, retryNote(first)))?.text;
         const after = second ? runGate(second, beat, await gateFor(second)) : null;
         if (after && after.failed.length === 0) { rescued++; continue; }
 

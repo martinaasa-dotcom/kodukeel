@@ -469,8 +469,15 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
  * simply too much of it at once, and telling it those words are "not allowed"
  * sends it hunting for a synonym that is equally new. The words are the same
  * shape either way, so what changes is which set is sent.
+ *
+ * Exported because the harnesses have to retry the way the route retries.
+ * `eval:scene` passed `verdict.unknown` flat and `draft:lines` retried only
+ * where it was non-empty, both written before the split gave `vouching` and
+ * `stretch` a set each: after it, a line withheld for reaching too far got no
+ * retry at all in the drafter and an empty instruction in the eval, so the
+ * rescue the route gives that line was measured on neither.
  */
-function retryNote(verdict: Verdict | null): readonly string[] {
+export function retryNote(verdict: Verdict | null): readonly string[] {
   if (!verdict) return [];
   if (verdict.unknown.length > 0) return verdict.unknown;
   return verdict.failed.includes("stretch") ? verdict.stretched : [];

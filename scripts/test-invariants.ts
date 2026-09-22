@@ -13885,6 +13885,98 @@ check("every free provider the app would ask, a measuring script can ask too", (
       "write Estonian rather than as a harness that would not let it finish.",
     );
   }
+
+});
+
+check("a measurement sends what the route sends, and reads what it reads", () => {
+  /*
+    AND NO HARNESS SENDS A TEMPERATURE, BECAUSE THE APP NAMES THE FIELD ON NO
+    PATH. `callOpenAiCompatible` and `geminiCachedReply` are every socket the
+    app opens to a model and neither names it, so every line a learner reads
+    is composed at the provider's own default. Two harnesses named it anyway:
+    `sceneDraft.ts` composed at 0.8 on both call sites, and `play-scene.ts`
+    judged at 0. Neither is a knob somebody swept and pinned.
+
+    It is the `max_tokens` fault one field over and it fails in the flattering
+    direction, which is what makes it a check rather than a comment: a cooler
+    composer reaches outside the scene's word list less often, so the gate
+    withholds less than it does live and `eval:scene` reports a rate the
+    deployment does not have. The sharpest statement of it was inside
+    `askLine`, whose own comment says "Same function, same shape": its Gemini
+    branch goes through the app's `geminiCachedReply` and sent none, and the
+    branch under it sent 0.8.
+
+    Asked of every harness that opens its own socket, rather than of the two
+    that were wrong, because `eval:composers` and `eval:thinking` are right
+    today and a rule that names only the offenders is one the next harness is
+    written outside of.
+  */
+  for (const file of [
+    "scripts/lib/sceneDraft.ts", "scripts/play-scene.ts",
+    "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
+  ]) {
+    assert.doesNotMatch(
+      code(file),
+      /temperature:/,
+      `${file} sends a temperature of its own. The app names the field on no path, so a ` +
+      "line composed or judged with one is measured at a setting no learner meets, and the " +
+      "bias is toward the flattering answer: a cooler composer reaches outside the word " +
+      "list less often and the gate withholds less than it does live.",
+    );
+  }
+
+  /*
+    AND A HARNESS RETRIES THE WAY THE ROUTE RETRIES, WHICH IS `retryNote`.
+
+    `vouching` and `stretch` had one word-set between them until the split gave
+    them one each, and the app grew `retryNote` to choose: a word nothing can
+    vouch for is dropped, and a line that reached too far is asked for fewer
+    new words rather than sent hunting for a synonym that is equally new. Both
+    harnesses kept reading the pre-split field. `eval:scene` passed `unknown`
+    flat, which after the split is empty on nearly every withheld line, so the
+    retry was told nothing; `draft:lines` retried only where `unknown` was
+    non-empty, so a line withheld for `stretch` was never retried at all and
+    the bank was drafted without the rescue the route gives it.
+  */
+  for (const file of ["scripts/eval-scene.ts", "scripts/draft-lines.ts"]) {
+    const text = code(file);
+    assert.match(
+      text,
+      /retryNote\(/,
+      `${file} no longer asks retryNote what to tell a retry, so it names a set of its own ` +
+      "and measures a retry the route does not make.",
+    );
+    assert.doesNotMatch(
+      text,
+      /compose\([^)]*\bverdict\.unknown\b|compose\([^)]*\bfirst\.unknown\b/,
+      `${file} retries on the raw unknown set. Since the vouching split that is "not ` +
+      'Estonian at all" rather than "off the list", so it is empty on nearly every ' +
+      "withheld line and the retry is told nothing.",
+    );
+  }
+
+  /*
+    AND THE RANKED LIST RANKS WHAT ITS OWN CAPTION SAYS. `eval:scene` prints
+    the words a model reached for that the scene could not vouch for, and
+    CLAUDE.md says to read that list rather than the rate: it is the
+    instrument that found the missing connectives unit. It counted `unknown`,
+    which the split turned into "not a word in the language", so real Estonian
+    the course does not teach stopped reaching it and the commonest thing that
+    did was a model leaking its English deliberation into `content`. Measured
+    on the run that found this: one line of 276 leaked, and that one line was
+    the whole list, `yes 40  wait 17  words 17  the 16`, every entry starred
+    as a word the syllabus ought to teach.
+  */
+  {
+    const evalScene = code("scripts/eval-scene.ts");
+    assert.match(
+      evalScene,
+      /for \(const word of first\.stretched\)/,
+      "scripts/eval-scene.ts no longer ranks `stretched`. `unknown` is what nothing could " +
+      "vouch for as Estonian, so a list built from it ranks hallucinations and leaked " +
+      "reasoning rather than the vocabulary gap the caption under it promises.",
+    );
+  }
 });
 
 check("the scene gate has one implementation, and a line says where it came from", () => {
