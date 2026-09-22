@@ -90,9 +90,7 @@ export const BRIEFINGS = {
   },
   cloze: {
     title: "Your own Estonian, with gaps",
-    what:
-      "You paste in a passage, and we take one word out of each sentence that uses a word you " +
-      "hold a card for.",
+    what: "You paste in a passage, and we take one word out of the sentences in it.",
     you: "Type the missing word back in, in the form the sentence needs.",
     action: "Paste something",
   },
@@ -117,7 +115,9 @@ export const BRIEFINGS = {
   dictation: {
     title: "Hear it, write it",
     what: "A sentence a lexicographer recorded, read aloud. You can play it again and slow it down.",
-    you: "Type the whole sentence, with the letters it needs. A dropped diacritic is forgiven.",
+    you:
+      "Type the whole sentence. Dropping the Estonian letters is marked down rather than counted " +
+      "wrong, so it is worth reaching for them.",
     action: "Play the first one",
   },
   emoji: {

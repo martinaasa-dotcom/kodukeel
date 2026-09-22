@@ -19,9 +19,15 @@
  * doing something else the click times out against a button that is visible,
  * enabled and perfectly pressable. The screen answers the key that moves
  * every other card forward, which no animation can get in front of, so that
- * is the fallback rather than a forced click: a forced click would also
- * "succeed" against a button covered by something, which is a fault worth
- * failing on.
+ * is the fallback.
+ *
+ * THE RESIDUAL IS STATED RATHER THAN HIDDEN: the key would also start a round
+ * whose button something was covering, exactly as a forced click would, so
+ * neither this nor `force: true` can tell "the box is still settling" from
+ * "a scrim is over it". What does tell them apart is `test-containment.mjs`,
+ * which measures whether anything is drawn on top of anything else on every
+ * route at three widths in both themes, and it is asked of the briefing
+ * screen because this driver presses through only after it has been seen.
  */
 
 /**

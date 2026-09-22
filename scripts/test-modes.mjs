@@ -40,7 +40,7 @@ page.on("console", (m) => {
 // behind the panel not answering the key the panel names, which two of the
 // fifteen rounds drawing it did: 60, and one for the round's own undo standing
 // down beside the panel the way its key already did: 61.
-const { check, absent, done } = suite("Practice modes", { floor: 61 });
+const { check, absent, done } = suite("Practice modes", { floor: 63 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -520,6 +520,38 @@ for (let i = 0; i < 20 && stillQueued !== 0; i++) {
   stillQueued = await queuedGrades();
 }
 check("the queue is sent once the connection is back", stillQueued === 0, `${stillQueued} left`);
+
+/*
+  5b — THE SCREEN THAT SAYS WHAT A ROUND IS DOES NOT SWALLOW THE WEBSITE'S KEYS.
+
+  A briefing is a screen with the rail, the dock and, inside a module, the
+  step's own bar still around it, and its "press through" answers Enter on
+  `window`. Taken bare that cancelled the browser's own activation, so a
+  keyboard user who tabbed to any rail link and pressed Enter started the
+  round instead of going anywhere: one key, two actions, and the round is the
+  one that wins. Measured in a browser because no source check can see which
+  handler got the keystroke.
+*/
+await page.goto(`${B}/review/listening`, { waitUntil: "networkidle" });
+const briefingUp = await page.locator("[data-briefing]").count();
+if (!briefingUp) {
+  absent(2, "a round with a briefing on it: nothing was due for this one");
+} else {
+  const railLink = page.locator('[data-chrome="rail"] a').first();
+  const href = await railLink.getAttribute("href");
+  await railLink.focus();
+  const wasAt = page.url();
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(1500);
+  check("Enter on a focused rail link follows the link rather than starting the round",
+    page.url() !== wasAt, `${href} -> ${page.url().replace(B, "")}`);
+  await page.goto(`${B}/review/listening`, { waitUntil: "networkidle" });
+  await page.locator("[data-briefing]").waitFor({ timeout: 10_000 }).catch(() => {});
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(1200);
+  check("and Enter with nothing focused still starts the round",
+    (await page.locator("[data-briefing]").count()) === 0);
+}
 
 // 6b — Sõnad, the one game with a board rather than a queue
 /*

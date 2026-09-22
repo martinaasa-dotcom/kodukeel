@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BRIEFINGS, briefingFor } from "./briefings";
+import { SONAD_GUESSES, SONAD_LENGTH } from "@/lib/games/sonad";
 
 describe("briefings", () => {
   it("answers for a round somebody wrote, and for nothing else", () => {
@@ -33,6 +34,20 @@ describe("briefings", () => {
       expect(["ok", "okay", "got it", "continue"], id).not.toContain(brief.action.toLowerCase());
       expect(brief.action.length, id).toBeGreaterThan(3);
     }
+  });
+
+  it("spells out the numbers Sõnad is played with, so a change to either fails here", () => {
+    /*
+      The briefing is drawn in front of the page whose lead reads these two
+      off the constants, so the numbers in its prose are the only ones a
+      learner sees before the board. Written out rather than interpolated,
+      because the table is plain strings and a table of functions is a table
+      nobody can sweep; this is the tripwire that keeps the prose honest.
+    */
+    expect(SONAD_LENGTH, "the sonad briefing says six-letter").toBe(6);
+    expect(SONAD_GUESSES, "the sonad briefing says seven tries").toBe(7);
+    expect(BRIEFINGS.sonad.what).toContain("six-letter");
+    expect(BRIEFINGS.sonad.what).toContain("seven tries");
   });
 
   it("keeps every briefing short enough to be read before a round", () => {

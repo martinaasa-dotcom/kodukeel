@@ -4,8 +4,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Button } from "@/components/Button";
 import { KeyCap } from "@/components/ui";
 import { Mascot } from "@/components/brand";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { briefingFor, type Briefing } from "@/lib/copy/briefings";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { briefingFor, type BriefingId } from "@/lib/copy/briefings";
 
 /**
  * THE SCREEN A ROUND OPENS ON, AND THE ROUND IS NOT BEHIND IT YET.
@@ -25,8 +25,13 @@ import { briefingFor, type Briefing } from "@/lib/copy/briefings";
  * is about to happen is the app talking to itself.
  */
 export function BeforeYouStart({ id, ready = true, count, children }: {
-  /** Which round, by the key `BRIEFINGS` holds it under. */
-  id: string;
+  /**
+   * Which round, by the key `BRIEFINGS` holds it under. The union rather
+   * than a string, so a key nobody wrote is a compile error: a briefing that
+   * resolves to nothing draws the round straight away, which is a round
+   * opening on its first question and looks exactly like one nobody wired.
+   */
+  id: BriefingId;
   /**
    * Whether there is a round to brief. False draws the children straight
    * away, which is how an empty deck reaches its own empty state.
@@ -46,7 +51,22 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
   useEffect(() => {
     if (started) return;
     function onKey(e: KeyboardEvent) {
+      /*
+        A KEY AIMED AT A CONTROL IS THAT CONTROL'S.
+
+        The briefing is a screen with the rail, the dock and, inside a module,
+        the step's own bar still around it, and Enter on a focused link is how
+        a keyboard follows one. Taken bare, this swallowed all of it: tabbing
+        to any of the rail's fourteen links and pressing Enter started the
+        round instead of going anywhere, because `preventDefault` cancels the
+        browser's own activation. That is the fault `lib/ux/advanceKey.ts`
+        already records twice, under `b` and under `u`, and the guard is
+        `LookBackCard`'s, which leaves anything aimed at a control alone.
+      */
       if (!isAdvanceKey(e)) return;
+      if (inEditable(e.target)) return;
+      if (e.target instanceof Element
+        && e.target.closest("button, a, input, textarea, select, [role='button']")) return;
       e.preventDefault();
       setStarted(true);
     }
@@ -56,7 +76,9 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
 
   if (started || !brief) return <>{children}</>;
 
-  const plural = count && count.n === 1 ? count.noun : count ? `${count.noun}s` : "";
+  const plural = count === null || count === undefined
+    ? ""
+    : count.n === 1 ? count.noun : `${count.noun}s`;
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-16 md:px-10" data-briefing={id}>
@@ -106,7 +128,7 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
  * round: how long the clock runs, how many cards are loaded, the personal
  * best.
  */
-export function BriefingLines({ id, className = "" }: { id: string; className?: string }) {
+export function BriefingLines({ id, className = "" }: { id: BriefingId; className?: string }) {
   const brief = briefingFor(id);
   if (!brief) return null;
   return (
@@ -115,5 +137,3 @@ export function BriefingLines({ id, className = "" }: { id: string; className?: 
     </span>
   );
 }
-
-export type { Briefing };
