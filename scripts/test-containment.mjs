@@ -62,6 +62,7 @@ import { eventually, launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { revealAnswer } from "./lib/review.mjs";
 import { ensureLetterBar } from "./lib/prefs.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 const B = baseUrl();
 
@@ -1009,6 +1010,13 @@ async function sweep(ctx, at) {
   for (const route of ALL) {
     await page.goto(`${B}${route}`, { waitUntil: "domcontentloaded", timeout: 60000 });
     await ready(page, 30000);
+    /*
+      A round opens on the screen saying what it is, and the round is not
+      behind it: measuring that screen instead of the round would be this
+      sweep quietly stopping at the door of twenty of its routes, which is
+      the fault its own waivers have twice been written about.
+    */
+    await startRound(page, { waitMs: 500 });
     await measure(page, `${route} ${at}`, SPARSE.get(route) ?? 25);
   }
   await page.close();
@@ -1105,6 +1113,7 @@ async function askedForStates(ctx, at) {
     reads the same deck.
   */
   await page.goto(`${B}/review`, { waitUntil: "networkidle", timeout: 60000 });
+  await startRound(page);
   const shape = await revealAnswer(page);
   if (shape) {
     await page.waitForTimeout(450);
@@ -1128,6 +1137,7 @@ async function askedForStates(ctx, at) {
     and not about the markup.
   */
   await page.goto(`${B}/learn/new`, { waitUntil: "networkidle", timeout: 60000 });
+  await startRound(page);
   let opened = false;
   for (let tries = 0; tries < 12 && !opened; tries += 1) {
     const words = page.locator("main p[lang=et] button");

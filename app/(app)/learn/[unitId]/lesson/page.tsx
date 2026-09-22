@@ -17,6 +17,7 @@ import { everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
@@ -262,17 +263,19 @@ export default async function LessonPage({
   }
 
   return (
-    <LessonSession
-      unitId={unit.id}
-      unitTitle={uiText(placement, unit.title, unit.subtitle)}
-      unitLevel={unit.level}
-      initialSteps={steps}
-      tokens={tokens}
-      canTranslate={resolveProvider() !== null}
-      starred={[...starred]}
-      part={index + 1}
-      parts={lessons.length}
-    />
+    <BeforeYouStart id="lesson" ready={steps.length > 0}>
+      <LessonSession
+        unitId={unit.id}
+        unitTitle={uiText(placement, unit.title, unit.subtitle)}
+        unitLevel={unit.level}
+        initialSteps={steps}
+        tokens={tokens}
+        canTranslate={resolveProvider() !== null}
+        starred={[...starred]}
+        part={index + 1}
+        parts={lessons.length}
+      />
+    </BeforeYouStart>
   );
 }
 

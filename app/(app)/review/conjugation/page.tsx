@@ -8,6 +8,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { ConjugationSession, type ConjugationQuestion, type Shape, type Tense } from "./ConjugationSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Conjugation" };
@@ -171,9 +172,15 @@ export default async function ConjugationPage({
   const starred = await starredAmong(ownerId, questions.map((q) => q.lexemeId));
 
   return (
-    <ConjugationSession
-      questions={questions.map((q) => ({ ...q, shape, starred: starred.has(q.lexemeId) }))}
-    />
+    <BeforeYouStart
+      id={shape === "match" ? "conjugation-match" : "conjugation"}
+      ready={questions.length > 0}
+      count={{ n: questions.length, noun: "verb" }}
+    >
+      <ConjugationSession
+        questions={questions.map((q) => ({ ...q, shape, starred: starred.has(q.lexemeId) }))}
+      />
+    </BeforeYouStart>
   );
 }
 

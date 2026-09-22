@@ -28,6 +28,8 @@ import { ACTION_LIMITS } from "../lib/security/actionLimits";
 import { DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS } from "../lib/usage/quota";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
 import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
+import { OPENS_WITHOUT_BRIEFING } from "../lib/copy/briefingCoverage";
+import { BRIEFINGS } from "../lib/copy/briefings";
 import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
@@ -21490,6 +21492,107 @@ check("nothing pays a model to translate a sentence nobody may be shown", () => 
     "audit:decks names a card cut from a refused sentence without printing why it was refused, so "
       + "the reason somebody wrote reaches nobody and refusalFor is a function nothing calls",
   );
+});
+
+check("every round says what is about to happen before it happens", () => {
+  /*
+    A ROUND OPENS ON A SCREEN SAYING WHAT IT IS AND WHAT YOU DO ABOUT IT.
+
+    Reported by somebody using it: before a task starts, say what will be on
+    the screen and what I am supposed to do with it, and let me press
+    something to say I have read it. `lib/copy/briefings.ts` is the copy and
+    the argument; this is the sweep, because the rounds are twenty-odd files
+    that arrived one at a time and a list of them is a list that falls behind.
+
+    TWO WAYS TO SATISFY IT, and the difference is where the round's own
+    effects are. `BeforeYouStart` is wired at the page, where the round is a
+    child element and so is not mounted: no clock has started and no clip has
+    played behind the screen somebody is reading. Five rounds already opened
+    on a start screen of their own, which is the same thing arrived at
+    earlier, and those read `BriefingLines` so the wording still comes off one
+    table rather than each round answering "what is this" in its own words.
+
+    The haystack is a page that renders a session, read through `code()` so a
+    comment naming one is not a page drawing one.
+  */
+  const opensARound = APP.filter(
+    (f) => f.endsWith("page.tsx") && f.includes("app/(app)/") && /<[A-Z][A-Za-z]*Session\b/.test(code(f)),
+  );
+  assert.ok(opensARound.length >= 25, `only ${opensARound.length} round pages found: the sweep has stopped seeing them`);
+
+  const missing: string[] = [];
+  for (const file of opensARound) {
+    const key = file.replace(/\\/g, "/");
+    if (key in OPENS_WITHOUT_BRIEFING) continue;
+    const page = code(file);
+    if (/<BeforeYouStart\b/.test(page)) continue;
+    /*
+      Or the session it renders opens on a start screen of its own that reads
+      the table. Read off the sessions this page actually names, rather than
+      every session in the tree, so a round cannot be waved through by a
+      neighbour's briefing.
+    */
+    const named = [...page.matchAll(/<([A-Z][A-Za-z]*Session)\b/g)].map((m) => m[1]);
+    const drawn = named.some((name) =>
+      COMPONENTS.concat(APP).some((f) => f.endsWith(`${name}.tsx`) && /<BriefingLines\b/.test(code(f))),
+    );
+    if (!drawn) missing.push(key);
+  }
+  assert.deepEqual(
+    missing, [],
+    `these rounds open straight on a question: ${missing.join(", ")}. Wrap the session in `
+      + "<BeforeYouStart>, or say why not in lib/copy/briefingCoverage.ts",
+  );
+
+  /* A bare filename is not a decision, and an exemption is checked for staleness both ways. */
+  for (const [file, why] of Object.entries(OPENS_WITHOUT_BRIEFING)) {
+    assert.ok(why.trim().split(/\s+/).length >= 12, `${file} is exempt with no argument behind it`);
+    assert.ok(
+      opensARound.includes(file),
+      `${file} is exempt from the briefing rule and no longer opens a round`,
+    );
+    assert.ok(
+      !/<BeforeYouStart\b/.test(code(file)),
+      `${file} has a briefing now, so its exemption is stale`,
+    );
+  }
+
+  /*
+    And the table is read rather than described: every id a screen names is
+    one somebody wrote copy for. A `BeforeYouStart` naming a key nobody wrote
+    draws nothing at all, which is a round that opens on its first question
+    and looks exactly like one nobody wired.
+  */
+  const ids = new Set(Object.keys(BRIEFINGS));
+  for (const file of ALL) {
+    for (const m of code(file).matchAll(/<(?:BeforeYouStart|BriefingLines)\b[^>]*?\bid="([^"]+)"/g)) {
+      assert.ok(ids.has(m[1]!), `${file} asks for a briefing called "${m[1]}" that lib/copy/briefings.ts does not hold`);
+    }
+  }
+
+  /* Every briefing says both halves: what will be there, and what to do. */
+  for (const [id, brief] of Object.entries(BRIEFINGS)) {
+    assert.ok(brief.what.trim().split(/\s+/).length >= 8, `the ${id} briefing does not say what will be on the screen`);
+    assert.ok(brief.you.trim().split(/\s+/).length >= 6, `the ${id} briefing does not say what the learner does`);
+    assert.ok(!/[õäöüšž]/i.test(`${brief.title} ${brief.what} ${brief.you} ${brief.action}`),
+      `the ${id} briefing writes Estonian, which the dictionary is for`);
+  }
+});
+
+check("a briefing keeps the round unmounted until it is pressed through", () => {
+  /*
+    The load-bearing half. A briefing drawn *inside* a session is a screen
+    with the round's own effects already running behind it: the sprint's
+    clock, the listening round's first clip, the picture board's timer. So
+    the round is a child of `BeforeYouStart` and the component returns it
+    rather than rendering it alongside, and nothing else in the tree may draw
+    the screen for itself.
+  */
+  const briefing = code("components/round/Briefing.tsx");
+  assert.match(briefing, /if \(started \|\| !brief\) return <>\{children\}<\/>;/,
+    "Briefing.tsx no longer withholds the round until the briefing is pressed through");
+  const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
+  assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
 console.log(

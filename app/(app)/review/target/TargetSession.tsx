@@ -11,6 +11,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
+import { BriefingLines } from "@/components/round/Briefing";
 
 /** Seconds for the first shot. */
 const START_S = 8;
@@ -109,9 +110,8 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
             <Crosshair size={34} aria-hidden />
           </span>
           <p className="max-w-[44ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            This is about endings, not meanings. Four forms of one word, and only
-            the question word tells you which to hit. Every hit takes a quarter of
-            a second off the next shot.
+            <BriefingLines id="target" /> This is about endings rather than meanings:
+            only the question word tells you which of the four to hit.
           </p>
           <Button variant="primary" size="lg"
             onClick={() => { setPhase("running"); setLeft(START_S); shownAt.current = Date.now(); }}>

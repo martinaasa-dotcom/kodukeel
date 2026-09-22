@@ -4,6 +4,7 @@ import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
 import { requireLocalDatabase } from "./lib/local-db.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 /**
  * THE FLASH ROUND, DRIVEN, AND THE LISTS IT MOVES.
@@ -201,6 +202,7 @@ async function answer(typed) {
 }
 
 await page.goto(`${B}/review/flashcards`, { waitUntil: "domcontentloaded" });
+await startRound(page);
 const opening = await question();
 
 check("the round opens with something to answer", opening.hasBox, opening.text.slice(0, 60));
@@ -254,6 +256,7 @@ const firstWord = wordOf(first.text);
 check("a wrong answer is told what the form is", Boolean(firstLabel && firstForm), first.told);
 
 await page.goto(`${B}/review/flashcards`, { waitUntil: "domcontentloaded" });
+await startRound(page);
 const again = await question();
 /*
   The word, and the form where the screen names one.
@@ -290,6 +293,7 @@ if (sameQuestion) {
 }
 
 await page.goto(`${B}/review/flashcards`, { waitUntil: "domcontentloaded" });
+await startRound(page);
 
 /*
   Then a whole round, answered wrongly, for the two things one question cannot

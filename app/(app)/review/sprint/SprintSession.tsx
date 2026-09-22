@@ -18,6 +18,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { WayOut } from "@/components/round/RoundExit";
+import { BriefingLines } from "@/components/round/Briefing";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
 export interface SprintCard {
@@ -170,8 +171,9 @@ export function SprintSession({
             Case Sprint
           </h1>
           <p className="mx-auto mt-2 max-w-[44ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {counted(cards.length, "card")} loaded. Flip and answer as fast as you can for{" "}
-            {roundLength(seconds)}. {ADVANCE_KEY_LABEL} to flip, again for correct, Backspace for missed.
+            {counted(cards.length, "card")} loaded, {roundLength(seconds)} on the clock.{" "}
+            <BriefingLines id="sprint" /> {ADVANCE_KEY_LABEL} flips the card, again for correct,
+            Backspace for missed.
           </p>
           <p
             className="mt-4 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold"

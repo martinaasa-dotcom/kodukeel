@@ -5,6 +5,7 @@ import { crosswordFor } from "@/lib/progress/crossword";
 import { Empty, Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { CrosswordSession } from "./CrosswordSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Ristsõna" };
 
@@ -36,19 +37,21 @@ export default async function CrosswordPage() {
   const puzzle = await crosswordFor(ownerId, day, level);
 
   return (
-    <Page
-      title="Ristsõna"
-      lead="A crossword. English clues, Estonian answers, and a new grid every morning."
-    >
-      {puzzle ? (
-        <CrosswordSession puzzle={puzzle} day={day} />
-      ) : (
-        <Empty
-          title="No grid for today"
-          body="The dictionary has too few words at your level to build one yet."
-          action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
-        />
-      )}
-    </Page>
+    <BeforeYouStart id="crossword" ready={puzzle !== null}>
+      <Page
+        title="Ristsõna"
+        lead="A crossword. English clues, Estonian answers, and a new grid every morning."
+      >
+        {puzzle ? (
+          <CrosswordSession puzzle={puzzle} day={day} />
+        ) : (
+          <Empty
+            title="No grid for today"
+            body="The dictionary has too few words at your level to build one yet."
+            action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
+          />
+        )}
+      </Page>
+    </BeforeYouStart>
   );
 }

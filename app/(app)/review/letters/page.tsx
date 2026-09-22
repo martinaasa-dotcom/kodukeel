@@ -5,6 +5,7 @@ import { lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 import { spellable, tilesFor } from "@/lib/games/letters";
 import { shuffle } from "@/lib/random/shuffle";
 import { LettersSession, type LettersWord } from "./LettersSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Tähed" };
 
@@ -97,5 +98,9 @@ export default async function LettersPage({
     starred: starred.has(c.lexemeId!),
   }));
 
-  return <LettersSession words={words} />;
+  return (
+    <BeforeYouStart id="letters" ready={words.length > 0} count={{ n: words.length, noun: "word" }}>
+      <LettersSession words={words} />
+    </BeforeYouStart>
+  );
 }

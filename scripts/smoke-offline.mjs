@@ -13,6 +13,7 @@
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { retypeMiss } from "./lib/review.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 
 const BASE = baseUrl();
@@ -244,6 +245,7 @@ const outboxSize = () => page.evaluate(() => new Promise((resolve) => {
 
 // ── Warm the cache while online ──────────────────────────────────────────────
 await page.goto(`${BASE}/review`, { waitUntil: "networkidle" });
+await startRound(page);
 await page.waitForTimeout(2500); // let the service worker install and claim
 
 const swReady = await page.evaluate(async () => {

@@ -6,6 +6,7 @@ import { writingTasksFor } from "@/lib/estonian/writing";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { WriteSession, type WritingPrompt } from "./WriteSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 
@@ -142,9 +143,11 @@ export default async function WritePage({
   const starred = await starredAmong(ownerId, round.map((p) => p.lexemeId));
 
   return (
-    <WriteSession
-      prompts={round.map((p) => ({ ...p, starred: starred.has(p.lexemeId) }))}
-      aiAvailable={resolveProvider() !== null}
-    />
+    <BeforeYouStart id="write" ready={round.length > 0} count={{ n: round.length, noun: "word" }}>
+      <WriteSession
+        prompts={round.map((p) => ({ ...p, starred: starred.has(p.lexemeId) }))}
+        aiAvailable={resolveProvider() !== null}
+      />
+    </BeforeYouStart>
   );
 }

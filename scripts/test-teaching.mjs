@@ -1,6 +1,7 @@
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { retypeMiss, revealAnswer } from "./lib/review.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 /**
  * The teaching layer: the grammar reference, dictation, the printable worksheet,
@@ -530,6 +531,7 @@ check("and prints the other form only because it is also right, saying which is 
   /is the short one, and .* is the long one the ending gives you/.test(entryBody));
 
 await page.goto(`${B}/review/exceptions`, { waitUntil: "networkidle" });
+await startRound(page);
 const roundBody = (await page.textContent("body")) ?? "";
 const met = await page.locator("h1.sr-only, h1").first().innerText();
 check("the round has a heading of its own", met.trim().length > 0, met.trim());
@@ -545,6 +547,7 @@ check("the round opens by showing the form rather than asking for it",
 // ─── Dictation ────────────────────────────────────────────────────────────────
 
 await page.goto(`${B}/review/dictation`, { waitUntil: "networkidle" });
+await startRound(page);
 const hasRound = (await page.getByLabel("What you heard").count()) > 0;
 
 // Dictation is built from Ekilex usages, which the seeded dictionary does not
@@ -678,6 +681,7 @@ check("it counts only the cards the scheduler thought were known",
 // explains it. A reference nobody can find from the exercise is a reference
 // nobody reads.
 await page.goto(`${B}/review?case=INESSIVE`, { waitUntil: "networkidle" });
+await startRound(page);
 /*
   Whichever shape the card came in. This knew the typed one and the flip and
   not multiple choice, and on a choice card neither branch fired: the `3` at

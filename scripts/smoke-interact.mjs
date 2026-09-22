@@ -12,6 +12,7 @@
  */
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 const BASE = baseUrl();
 const browser = await launchChromium();
@@ -54,6 +55,7 @@ async function waitForText(page, pattern, timeoutMs = 30000) {
 
 // ── Writing: the mechanical form check, with no AI in play ───────────────────
 await page.goto(`${BASE}/review/write`, { waitUntil: "networkidle" });
+await startRound(page);
 
 // Read the task off the page and look the required form up in the dictionary,
 // so the test does not hard-code Estonian morphology of its own.
@@ -96,6 +98,7 @@ check("the mechanical verdict is always shown",
   scripts/lib/checks.mjs for why `absent` exists rather than a silent skip.
 */
 await page.goto(`${BASE}/review/government`, { waitUntil: "networkidle" });
+await startRound(page);
 const CASE_OPTION = /osastav|alaleütlev|seestütlev|kaasaütlev|seesütlev|sisseütlev|alalütlev/;
 const options = app.getByRole("button", { name: CASE_OPTION });
 if ((await options.count()) === 0) {
@@ -134,6 +137,7 @@ if (await addButton.count()) {
 }
 
 await page.goto(`${BASE}/review/cloze`, { waitUntil: "networkidle" });
+await startRound(page);
 
 const passage =
   "Ma istun praegu toas ja loen huvitavat raamatut. " +

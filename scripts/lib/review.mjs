@@ -22,6 +22,7 @@
  * everything that runs after it.
  */
 import { eventually } from "./browser.mjs";
+import { startRound } from "./briefing.mjs";
 
 /**
  * Reveals the answer on whatever review card is on screen.
@@ -31,6 +32,12 @@ import { eventually } from "./browser.mjs";
  * rather than only that something happened.
  */
 export async function revealAnswer(page, { timeout = 8600 } = {}) {
+  /*
+    A round opens on the screen that says what it is (`scripts/lib/briefing.mjs`).
+    Pressing through it here rather than in every caller is what stops a driver
+    reporting "no card to answer" about a round it never started.
+  */
+  await startRound(page);
   const app = page.locator("main");
 
   /*

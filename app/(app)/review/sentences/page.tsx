@@ -5,6 +5,7 @@ import { sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { isBuildable, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { SentenceSession, type SentenceTask } from "./SentenceSession";
+import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { orderContextFor } from "@/lib/dict/wordOrder";
 import { alsoRightOrders } from "@/lib/estonian/wordOrder";
@@ -149,9 +150,11 @@ export default async function SentencesPage({
   const wordOrder = await orderContextFor(round.map((t) => t.et));
 
   return (
-    <SentenceSession
-      tasks={round.map((t) => ({ ...t, alsoRight: alsoRightOrders(t.et, wordOrder) }))}
-    />
+    <BeforeYouStart id="sentences" ready={round.length > 0} count={{ n: round.length, noun: "sentence" }}>
+      <SentenceSession
+        tasks={round.map((t) => ({ ...t, alsoRight: alsoRightOrders(t.et, wordOrder) }))}
+      />
+    </BeforeYouStart>
   );
 }
 

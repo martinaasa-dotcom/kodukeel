@@ -8,6 +8,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { SpeakingSession, type SpeakingCard } from "./SpeakingSession";
 import { lemmaFilter, moduleScopeFrom, sentenceWithin } from "@/lib/course/scope";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Speaking" };
 
@@ -104,5 +105,9 @@ export default async function SpeakingPage({
     return { cardId: card.id, et: lemma, prompt: card.back, lemma, isSentence: false, ...kept };
   });
 
-  return <SpeakingSession cards={cards} />;
+  return (
+    <BeforeYouStart id="speaking" ready={cards.length > 0} count={{ n: cards.length, noun: "word" }}>
+      <SpeakingSession cards={cards} />
+    </BeforeYouStart>
+  );
 }

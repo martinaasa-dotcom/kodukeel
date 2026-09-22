@@ -4,6 +4,7 @@ import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
 import { requireLocalDatabase } from "./lib/local-db.mjs";
+import { startRound } from "./lib/briefing.mjs";
 
 /**
  * The paper-to-deck path, driven for real.
@@ -218,6 +219,10 @@ await page.getByRole("heading", { name: "Scan test page" }).waitFor({ timeout: 2
 
 await page.getByRole("link", { name: /drill the page/i }).click();
 await page.waitForURL(/\/review\?scan=/, { timeout: 20_000 });
+/* The drill opens on the screen that says what a round is, and the round is
+   not mounted behind it (`lib/copy/briefings.ts`), so the session is not on
+   screen to be driven until this is pressed through. */
+await startRound(page);
 
 /*
   Bring the card to its ratings, whichever of the three shapes it is.
