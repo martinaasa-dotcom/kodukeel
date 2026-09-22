@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Send, Sparkles } from "lucide-react";
+import { CloudOff, Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card, Empty } from "@/components/ui";
 import { Mascot } from "@/components/brand";
+import { useOffline } from "@/components/OfflineProvider";
 import { useAnuChat, type Msg } from "@/components/anu/useAnuChat";
 import { useStickToBottom } from "@/components/anu/useStickToBottom";
 import { AnuFailure, Bubble, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
@@ -28,6 +29,7 @@ export function TutorChat({
   initialQuestion?: string;
 }) {
   const { messages, streaming, answeredBy, failure, send } = useAnuChat(history);
+  const { online } = useOffline();
   const [input, setInput] = useState(initialQuestion ?? "");
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkEt, setCheckEt] = useState("");
@@ -116,12 +118,37 @@ export function TutorChat({
 
       <Starters onPick={setInput} />
 
+      {/*
+        ANU NEEDS A CONNECTION, SAID BEFORE THE QUESTION IS TYPED RATHER THAN
+        AFTER IT FAILS.
+
+        Without this, asking offline typed the question, waited, and only
+        then read "Lost the connection to Anu mid-answer", which is the
+        review session's own fault pointed the other way: a control that
+        looks live and is not. Everything already in the conversation stays
+        readable, since that is stored on the page and needs nothing from the
+        network; what is blocked is sending another one.
+      */}
+      {!online && (
+        <Card tone="sky">
+          <div className="flex items-start gap-3">
+            <CloudOff size={18} aria-hidden style={{ color: "var(--sky-ink)" }} />
+            <div>
+              <p className="font-semibold" style={{ color: "var(--ink)" }}>Anu needs a connection.</p>
+              <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+                Everything above still works. Ask her again once you are back online.
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="flex flex-col gap-3 md:flex-row md:items-start">
         <div className="flex-1">
           <EstonianInput
             value={input}
             onChange={setInput}
-            onEnter={() => { void send(input); setInput(""); }}
+            onEnter={() => { if (online) { void send(input); setInput(""); } }}
             placeholder="Why is it raamatut and not raamatu?"
             ariaLabel="Ask Anu a question"
             autoFocus={Boolean(initialQuestion)}
@@ -131,7 +158,7 @@ export function TutorChat({
           variant="primary"
           size="lg"
           onClick={() => { void send(input); setInput(""); }}
-          disabled={streaming || !input.trim()}
+          disabled={streaming || !input.trim() || !online}
         >
           <Send size={15} aria-hidden /> {streaming ? "Thinking…" : "Ask"}
         </Button>
