@@ -593,7 +593,16 @@ function ThemeToggle({ labelled }: { labelled?: boolean }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("theme");
+    /* Where site data is blocked, reading storage throws rather than
+       returning null, and an effect that throws takes the whole rail, which
+       is on every signed-in screen, to the error page. The inline script in
+       `app/layout.tsx` already set whatever could be read before paint. */
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem("theme");
+    } catch {
+      return;
+    }
     if (stored === "light" || stored === "dark") {
       setTheme(stored);
       document.documentElement.dataset.theme = stored;
