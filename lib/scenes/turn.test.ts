@@ -300,7 +300,7 @@ describe("reading a turn", () => {
 
     /*
       The same compound against a card's value rather than a requirement. The
-      \`datum\` ladder was the \`case\` ladder with this rung missing, so one
+      `datum` ladder was the `case` ladder with this rung missing, so one
       spelling was accepted where the beat named the word and refused where
       the card did, which is a refusal the learner cannot see a reason for.
     */
@@ -714,9 +714,9 @@ describe("a no on an offer that has a counter", () => {
   });
 
   /*
-    A no and a question in one breath is owed an answer. \`declined\` wrote
-    \`asked: null\` and \`wantsEnglish: false\` over whatever the turn said, so
-    \`wantsAsideFor\`'s "counter" branch, which only a declined turn reaches,
+    A no and a question in one breath is owed an answer. `declined` wrote
+    `asked: null` and `wantsEnglish: false` over whatever the turn said, so
+    `wantsAsideFor`'s "counter" branch, which only a declined turn reaches,
     could never fire.
   */
   it("keeps the question and the ask for English that came with the no", () => {

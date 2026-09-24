@@ -395,8 +395,8 @@ describe("a turn that missed because it asked something", () => {
   });
 
   /*
-    ONE RECORD, WHICHEVER PATH WROTE IT. \`creditAhead\` and \`advanceHurdle\`
-    each spelled the turn out by hand and each had dropped fields \`advance\`
+    ONE RECORD, WHICHEVER PATH WROTE IT. `creditAhead` and `advanceHurdle`
+    each spelled the turn out by hand and each had dropped fields `advance`
     kept: during a curveball the other side never said the learner's word
     back, and a beat credited from a distance lost the fact that a model had
     conceded it, which is what keeps a model's verdict out of the log.
