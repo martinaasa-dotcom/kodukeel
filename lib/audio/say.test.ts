@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { HARVESTED } from "@/prisma/data/harvested";
 import { spokenText } from "./say";
 
 /** Every letter and digit, in order, with the punctuation and spacing taken out. */
@@ -76,5 +78,23 @@ describe("spokenText", () => {
 
   it("trims what the route would have trimmed", () => {
     expect(spokenText("  kohv  ")).toBe("kohv.");
+  });
+
+  /*
+    Over everything the app can speak, which is what CLAUDE.md says is asserted
+    and what was checked on seventeen strings typed here. Every lemma and every
+    attested sentence the seed loads, the course harvest and the expansion both:
+    a stop is punctuation, and a rule that ever moved a letter would be this app
+    rewriting a lexicographer's Estonian on its way to the speech service.
+  */
+  it("moves punctuation and never a letter, over the whole shipped dictionary", () => {
+    const built: { lemma: string; examples: { et: string }[] }[] =
+      JSON.parse(readFileSync("prisma/data/expanded.json", "utf8"));
+    const texts = new Set<string>();
+    for (const w of HARVESTED) { texts.add(w.lemma); for (const u of w.usages) texts.add(u); }
+    for (const e of built) { texts.add(e.lemma); for (const x of e.examples) texts.add(x.et); }
+    expect(texts.size).toBeGreaterThan(15_000);
+    const moved = [...texts].filter((t) => said(spokenText(t)) !== said(t));
+    expect(moved).toEqual([]);
   });
 });

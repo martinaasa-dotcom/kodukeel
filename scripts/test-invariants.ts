@@ -3243,8 +3243,11 @@ check("a cap is charged to the learner, never to their address alone", () => {
     starting together would spend the allowance in the first few seconds and
     every one of them would be told to slow down.
   */
-  const tutor = read("app/api/tutor/route.ts");
-  assert.match(tutor, /bucketForOwner/, "the tutor's cap is no longer per learner");
+  // The four CLAUDE.md names, read as code: this read one of them, raw, so the
+  // word surviving in a comment was enough.
+  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "app/api/export/route.ts"]) {
+    assert.match(code(file), /bucketForOwner\(|bucketForRequest\(/, `${file}'s cap is no longer per learner`);
+  }
 });
 
 // ── A photograph is read, never believed ─────────────────────────────────────
@@ -4129,6 +4132,16 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
     today, /orderTodayCards\([\s\S]*?\)\.slice\(0, TODAY_CARDS\)/,
     "the cap is no longer applied to what orderTodayCards returns",
   );
+  /*
+    One round a day, which CLAUDE.md says is asserted on the slot. The cap
+    above counts slots, so a quest dealt as a slot of its own beside the round
+    passes it and puts two rounds on Today; what holds the rule is that the
+    game and the quest reach the deal only through the one slot.
+  */
+  assert.match(today, /const roundCard = gameCard \?\? questCard;/, "the day's round is no longer one slot");
+  const deal = /orderTodayCards\(\{([\s\S]*?)\}/.exec(today)?.[1] ?? "";
+  assert.ok(deal.includes("roundCard"), "the round slot is not dealt");
+  assert.doesNotMatch(deal, /\b(gameCard|questCard)\b/, "a round is dealt beside the round slot, which is two rounds on Today");
 
   const panel = code("app/(app)/settings/TodayOrderPanel.tsx");
   assert.match(panel, /setTodayOrder\(/, "the Settings panel no longer writes the order");
@@ -5003,7 +5016,12 @@ check("every browser suite can be pointed at a different server", () => {
     navigation anywhere else, before check one, and printed no FAIL line. That
     is what a pass looks like to anything reading the output.
   */
-  for (const file of sourceFiles("scripts", /^test-.*\.mjs$|^e2e\.mjs$/)) {
+  // Every suite, by the same test CI uses to find one. A name pattern read
+  // `test-*.mjs` and `e2e.mjs` and missed the smoke suites and the
+  // accessibility sweep, which waive checks too.
+  const suites = sourceFiles("scripts", /\.mjs$/).filter((f) => DECLARES_SUITE.test(read(f)));
+  assert.ok(suites.length > 25, `only ${suites.length} suites found, so this check stopped looking`);
+  for (const file of suites) {
     /*
       Comments out. A suite explaining in prose why it does not use `baseUrl()`
       satisfied a check looking for that call, which is this repository's oldest
@@ -5036,7 +5054,12 @@ check("every browser suite says how many checks it reached", () => {
     nothing, and cannot show that five checks behind a failed gate were never
     looked at. Both happened here. The floor is the count CI reaches.
   */
-  for (const file of sourceFiles("scripts", /^test-.*\.mjs$|^e2e\.mjs$/)) {
+  // Every suite, by the same test CI uses to find one. A name pattern read
+  // `test-*.mjs` and `e2e.mjs` and missed the smoke suites and the
+  // accessibility sweep, which waive checks too.
+  const suites = sourceFiles("scripts", /\.mjs$/).filter((f) => DECLARES_SUITE.test(read(f)));
+  assert.ok(suites.length > 25, `only ${suites.length} suites found, so this check stopped looking`);
+  for (const file of suites) {
     /*
       Comments out. A suite explaining in prose why it does not use `baseUrl()`
       satisfied a check looking for that call, which is this repository's oldest
@@ -5094,7 +5117,12 @@ check("a check a state cannot reach is waived by number, never by a printed word
     for three checks. That prints the same word to a person and nothing at all
     to the tally, so the block reads as handled and the floor never notices.
   */
-  for (const file of sourceFiles("scripts", /^test-.*\.mjs$|^e2e\.mjs$/)) {
+  // Every suite, by the same test CI uses to find one. A name pattern read
+  // `test-*.mjs` and `e2e.mjs` and missed the smoke suites and the
+  // accessibility sweep, which waive checks too.
+  const suites = sourceFiles("scripts", /\.mjs$/).filter((f) => DECLARES_SUITE.test(read(f)));
+  assert.ok(suites.length > 25, `only ${suites.length} suites found, so this check stopped looking`);
+  for (const file of suites) {
     /*
       Comments out. A suite explaining in prose why it does not use `baseUrl()`
       satisfied a check looking for that call, which is this repository's oldest
@@ -5166,6 +5194,20 @@ check("a rating key works wherever a rating button is drawn", () => {
     /if \(ask !== "flip"\) return;/,
     "the rating keys are not gated on the shape that actually draws them",
   );
+  /*
+    And the condition is written once. The keydown handler once spelled it
+    `!revealed` while the render spelled it `revealed || ask === "intro"`, so the
+    number keys did nothing on a first meeting while the buttons were drawn.
+    CLAUDE.md says a sixth reader writing it out again fails here; until this,
+    nothing asked.
+  */
+  const session = code(join("app", "(app)", "review", "ReviewSession.tsx"));
+  const shown = [...session.matchAll(/revealed\s*\|\|\s*ask\s*===\s*"intro"|ask\s*===\s*"intro"\s*\|\|\s*revealed/g)];
+  assert.equal(
+    shown.length, 1,
+    `ReviewSession spells "the answer is on screen" ${shown.length} times; it is answerShown, defined once`,
+  );
+  assert.match(session, /const answerShown = revealed \|\| ask === "intro"/, "answerShown is no longer the one definition");
 });
 
 check("a suite that writes to the shared dictionary invents the word it writes", () => {
@@ -5193,6 +5235,7 @@ check("a suite that writes to the shared dictionary invents the word it writes",
   const lemmas = seededLemmas();
   assert.ok(lemmas.size > 100, "the built dictionary could not be read, so this check sees nothing");
 
+  let ticked = 0;
   for (const file of sourceFiles("scripts", /\.mjs$/)) {
     const source = read(file);
     /*
@@ -5202,8 +5245,14 @@ check("a suite that writes to the shared dictionary invents the word it writes",
       no canonical one.
     */
     for (const item of source.matchAll(/\{[^{}]*lexemeId:\s*null[^{}]*\}/g)) {
-      const et = /\bet:\s*"([^"]+)"/.exec(item[0])?.[1];
+      // A literal, or a constant naming one: the fixtures moved their words into
+      // named constants, and a pattern reading literals alone then found none
+      // and passed for as long as that lasted.
+      const named = /\bet:\s*([A-Z_][A-Z0-9_]*)\b/.exec(item[0])?.[1];
+      const et = /\bet:\s*"([^"]+)"/.exec(item[0])?.[1]
+        ?? (named ? new RegExp(`const ${named}\\s*=\\s*"([^"]+)"`).exec(source)?.[1] : undefined);
       if (!et) continue;
+      ticked += 1;
       assert.equal(
         lemmas.has(et.toLowerCase()),
         false,
@@ -5211,6 +5260,9 @@ check("a suite that writes to the shared dictionary invents the word it writes",
       );
     }
   }
+  // Found some, or the pattern above stopped matching the fixtures and this
+  // passes over nothing, which is the shape the rest of this file refuses.
+  assert.ok(ticked >= 2, `only ${ticked} ticked fixture words found, so this check stopped looking`);
 });
 
 check("no type size is written as a literal", () => {
@@ -7365,7 +7417,13 @@ check("a response built out of one learner's own rows is never cacheable", () =>
     const src = code(file);
     // A route that only ever writes has nothing to cache; the ones that hand
     // back a body built from the learner's rows are the ones this is about.
-    if (!/new Response\(|ImageResponse\(/.test(src)) continue;
+    // Any GET counts, however it builds its body: the first version asked only
+    // for `new Response(` and `ImageResponse(`, so a GET answering through
+    // `Response.json` or `NextResponse.json` was never asked. A POST is left
+    // out because nothing caches one without being told to.
+    const builds = /new Response\(|ImageResponse\(|(Next)?Response\.json\(/.test(src);
+    if (!builds) continue;
+    if (!/new Response\(|ImageResponse\(/.test(src) && !/export async function GET\b/.test(src)) continue;
     assert.match(
       src,
       /"cache-control":\s*"(private, )?no-store"/,
@@ -9452,7 +9510,7 @@ check("the layers that promise to be pure import no database, React or Next", ()
     "learn", "scenes", "readiness",
   ];
   const banned = [
-    [/from "@\/lib\/db"/, "the database"],
+    [/from "@\/lib\/db"|from "(?:\.\.\/)+db"/, "the database"],
     [/from "@prisma\/client"/, "Prisma"],
     [/from "react"|from "react\//, "React"],
     [/from "next\//, "Next"],
@@ -9466,11 +9524,13 @@ check("the layers that promise to be pure import no database, React or Next", ()
       existsSync(dir),
       `lib/${name} is named as a pure layer and is not there. Rename it here or put it back.`,
     );
-    for (const file of readdirSync(dir)) {
-      if (!file.endsWith(".ts") && !file.endsWith(".tsx")) continue;
+    // Every depth, not the top of each directory: `lib/collections/syllabus/`
+    // is where most of the course lives and a flat read never opened it.
+    for (const path of sourceFiles(dir)) {
+      const file = path.slice(dir.length + 1);
       if (file.includes(".test.") || file.includes(".itest.")) continue;
       looked += 1;
-      const src = code(join(dir, file));
+      const src = code(path);
       for (const [pattern, what] of banned) {
         assert.doesNotMatch(
           src,
@@ -9481,7 +9541,7 @@ check("the layers that promise to be pure import no database, React or Next", ()
       }
     }
   }
-  assert.ok(looked > 40, `only read ${looked} files in the pure layers, so this check stopped looking`);
+  assert.ok(looked > 145, `only read ${looked} files in the pure layers, so this check stopped looking`);
 });
 
 /**
@@ -10637,12 +10697,26 @@ check("every marker the merge ritual names is still somewhere in the tree", () =
     `only ${markers.length} markers parsed out of CLAUDE.md; the list or its wording moved`,
   );
 
+  /*
+    And not this file either, for the same reason one file over: it quotes most
+    of the markers in its own patterns and messages, so any of them could vanish
+    from the app and be found here. Code rather than prose, since a marker left
+    only in a comment is a marker whose code went; and whole words, since
+    `PARTS`, `SIDES` and `.range` are substrings of half the tree.
+  */
   const haystack = [
     ...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/), ...sourceFiles("prisma"),
     "middleware.ts", "next.config.ts", "app/globals.css",
-  ].filter((f) => existsSync(f)).map(read).join("\n");
+  ].filter((f) => existsSync(f) && f !== join("scripts", "test-invariants.ts"))
+    .map(code).join("\n");
 
-  const gone = markers.filter((marker) => !haystack.includes(marker));
+  const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // A marker that is itself one of this file's helpers is here by definition
+  // rather than by quotation, so a definition counts and a mention does not.
+  const own = code(join("scripts", "test-invariants.ts"));
+  const gone = markers.filter((marker) =>
+    !new RegExp(`(?<![\\w$])${escape(marker)}(?![\\w$])`).test(haystack)
+    && !new RegExp(`(?:function|const)\\s+${escape(marker)}\\b`).test(own));
   assert.deepEqual(
     gone, [],
     `named in the merge ritual and no longer anywhere in the tree: ${gone.join(", ")}`,
@@ -13009,13 +13083,14 @@ check("the research opt-out is applied in the query, and is where the page says"
 
   const label = "Anonymous statistics";
   for (const file of ["app/privacy/page.tsx", "app/(app)/settings/page.tsx"]) {
+    // Code, not the file: the label surviving in a comment is not a row.
     assert.ok(
-      read(file).includes(label),
+      code(file).includes(label),
       `${file} no longer names the "${label}" row, so the promise and the control have come apart`,
     );
   }
   assert.match(
-    read("app/(app)/settings/PreferencesPanel.tsx"),
+    code("app/(app)/settings/PreferencesPanel.tsx"),
     /setResearchParticipation\(/,
     "the Settings row for the research opt-out no longer writes anything",
   );
@@ -15135,6 +15210,24 @@ check("a learner who says they are lost is handed the word, never the question a
   assert.match(
     code("lib/progress/scene.ts"), /courseForms\(\)/,
     "the scene context no longer resolves what the course can account for",
+  );
+  /*
+    And the other half, which the comment above states and nothing asserted:
+    what a composed line may reach for and what retrieval may offer stay the
+    scene's own list. Vouching has since widened to the forms list, which is
+    ADR-021's gate; the budget of words a line may use beyond the scene's
+    units is counted against the units, or a model composing inside the whole
+    course writes lines the learner was never taught to read.
+  */
+  const retrieval = code("lib/scenes/retrieval.ts");
+  assert.doesNotMatch(
+    retrieval, /courseForms|context\.known|vouched|isKnownForm/,
+    "retrieval reads past the scene's own list",
+  );
+  assert.match(retrieval, /lexicon\.forms\.has\(/, "retrieval no longer reads the scene's list at all");
+  assert.match(
+    code("lib/scenes/gate.ts"), /const stretched = tokens\.filter\(\(word\) => !context\.lexicon\.forms\.has\(word\)\)/,
+    "the stretch budget is no longer counted against the scene's own units",
   );
   /*
     AND THE COURSE IS 1,449 WORDS, WHICH IS NOT THE LANGUAGE. Everything else
