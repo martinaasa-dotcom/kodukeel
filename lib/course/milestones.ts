@@ -234,7 +234,13 @@ export function ladderProgress(
   const milestones: Milestone[] = levels.map((level) => {
     const words = ladderWordsAt(level);
     const verified = Math.min(words, Math.max(0, verifiedAt[level] ?? 0));
-    const pct = words === 0 ? 0 : Math.round((verified / words) * 100);
+    /* Held under a hundred while a word is left, because a rounded 99.6 is a
+       hundred and `stopState` reads a hundred as passed: one unlearned word
+       in a level of several hundred would post the milestone letter and set
+       `arrived`, whose sentence says every word is known. */
+    const pct = words === 0 ? 0
+      : verified < words ? Math.min(99, Math.round((verified / words) * 100))
+      : 100;
     const behind = standing !== null && levelIndex(level) < levelIndex(standing.level);
     return {
       level,
