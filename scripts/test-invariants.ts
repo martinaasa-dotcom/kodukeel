@@ -4435,6 +4435,54 @@ check("the pure modules stay free of React, Next and Prisma", () => {
   }
 });
 
+check("the unit suite runs on a stated machine, not on whatever the shell exported", () => {
+  /*
+    The unit suite gates every commit on being hermetic: no database, no
+    network, no clock it does not control. It was not hermetic about the
+    environment. Vitest hands every test the shell it was started from, so a
+    test passed or failed on what the host happened to export, and CI, which
+    exports nothing, could never see the difference.
+
+    Measured by running the whole suite under a realistic deployment's
+    variables, with dummy values. Two tests failed on correct code:
+    `headers.test.ts` because a Google client ID opens `frame-src`, and
+    `provider.test.ts` because `ERROR_WEBHOOK_URL` made `reportError` post, which
+    the test's stubbed `fetch` counted as a provider call. The second is the
+    one that matters. With a real webhook in the shell, which is where a
+    developer's copied `.env` puts it, a unit-test run posts its errors to the
+    live channel.
+
+    So `vitest.config.mts` blanks every variable the app reads, and a test that
+    needs a value stubs it. This check holds that list to the app: a variable
+    added to the code and not to the list fails here, which is the only way a
+    list like that stays complete.
+  */
+  const config = read("vitest.config.mts");
+  const blanked = new Set([...config.matchAll(/^\s*([A-Z][A-Z0-9_]+):\s*""/gm)].map((m) => m[1]!));
+  assert.ok(blanked.size >= 20, `only ${blanked.size} variable(s) blanked in vitest.config.mts; the list moved`);
+
+  /*
+    Runtime facts rather than configuration: which build and which runtime the
+    code is in. Blanking NODE_ENV would change what every test means.
+  */
+  const RUNTIME: Record<string, string> = {
+    NODE_ENV: "which build this is; vitest sets it to test and tests stub production where they mean it",
+    NEXT_RUNTIME: "set by Next per request, never by a deployment",
+  };
+  const source = [...sourceFiles("lib"), ...sourceFiles("app"), "middleware.ts"]
+    .filter((f) => !/\.(?:i)?test\.ts$/.test(f))
+    .map((f) => code(f))
+    .join("\n");
+  const read_ = new Set(
+    [...source.matchAll(/\benv(?:\.|\[["'])([A-Z][A-Z0-9_]{2,})\b/g)].map((m) => m[1]!),
+  );
+  assert.ok(read_.size >= 30, `only ${read_.size} environment variables found in the app; the pattern moved`);
+  const missing = [...read_].filter((name) => !blanked.has(name) && !(name in RUNTIME)).sort();
+  assert.deepEqual(missing, [], `the unit suite inherits these from the shell: ${missing.join(", ")}`);
+  const stale = Object.keys(RUNTIME).filter((name) => blanked.has(name));
+  assert.deepEqual(stale, [], `a runtime variable is both exempt and blanked: ${stale.join(", ")}`);
+});
+
 check("color comes from a token, never a raw hex", () => {
   /*
     The five hues carry fixed meanings: mint is "recalled", peach is
