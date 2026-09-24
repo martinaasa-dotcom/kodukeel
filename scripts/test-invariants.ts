@@ -5211,13 +5211,19 @@ check("a check over a list says the list was there", () => {
         // Said in the same breath, in the verdict rather than beside it.
         if (new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(condition)) continue;
         if (new RegExp(`\\b${name}\\.some\\(`).test(condition)) continue;
-        // Counted somewhere above, which is the file saying it can be empty.
-        const counted = calls.slice(0, n)
-          .some((earlier) => new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(earlier.body));
+        /*
+          Counted by any other check in the file, before or after, which is the
+          file saying it can be empty. Only above was read at first, and a
+          length asked two checks further down says the same thing:
+          `strikes.every(...)` in the hint suite passed over an empty list with
+          `strikes.length` checked after it.
+        */
+        const counted = calls
+          .some((other, m) => m !== n && new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(other.body));
         if (!counted) continue;
         assert.fail(
           `${file}:${source.slice(0, call.at).split("\n").length} holds every ${name} to something, `
-          + `and a check above it asks how many ${name} there are. On the run where that one fails `
+          + `and another check asks how many ${name} there are. On the run where that one fails `
           + `this passes over nothing: say \`${name}.length > 0 &&\` here, or waive it with absent().`,
         );
       }
