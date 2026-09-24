@@ -3717,8 +3717,13 @@ check("a `take` beside a `distinct` bounds nothing, so it is scoped to one owner
       // the end of that argument object.
       const opened = src.lastIndexOf("prisma.", at);
       const call = src.slice(opened, src.indexOf("})", at) + 2);
+      /*
+        In the *where*, not anywhere in the call: the mail roster's
+        `distinct: ["ownerId"]` over every review in forty-five days passed
+        this check on `select: { ownerId: true }`, and read the lot, twice.
+      */
       assert.ok(
-        /ownerId/.test(call),
+        /where:\s*\{[^}]*\bownerId\b/.test(call),
         `${file}: a Prisma \`distinct\` with no ownerId in its where. That reads the whole `
         + `table however small the \`take\` beside it looks, because Prisma emits no LIMIT `
         + `next to a distinct. Count it in Postgres instead.`,

@@ -124,35 +124,30 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
   const since = new Date(now.getTime() - LOOK_BACK_DAYS * 86_400_000);
 
   /*
-    The sizes first, so the walk knows how far it has to reach. Two counts on
-    indexed columns, and `distinct` here is a real `COUNT(DISTINCT)` rather
-    than the client-side deduplication a `take` beside a `distinct` would get,
-    which is the rule this project states about that pairing.
+    The sizes first, so the walk knows how far it has to reach. In SQL, because
+    Prisma deduplicates a `distinct` in the client: `findMany({ distinct })`
+    read every review in the window to count its owners, and the paged read
+    below did it again with a `skip` and a `take` that are not in the query at
+    all. The comment here used to call that a real `COUNT(DISTINCT)`.
   */
-  const [reviewers, starters] = await Promise.all([
-    prisma.review
-      .findMany({ where: { reviewedAt: { gte: since } }, distinct: ["ownerId"], select: { ownerId: true } })
-      .then((rows) => rows.length),
+  const [counted, starters] = await Promise.all([
+    prisma.$queryRaw<{ n: bigint }[]>`
+      SELECT COUNT(DISTINCT "ownerId")::bigint AS n FROM "Review" WHERE "reviewedAt" >= ${since}`,
     prisma.setting.count({
       where: { key: SETTING_KEYS.onboardedAt, value: { gte: since.toISOString() } },
     }),
   ]);
+  const reviewers = Number(counted[0]?.n ?? 0);
 
   const [reviewed, settled] = await Promise.all([
-    prisma.review.findMany({
-      where: { reviewedAt: { gte: since } },
-      distinct: ["ownerId"],
-      select: { ownerId: true },
-      /*
-        Ends on the primary key, because `ownerId` is not unique in `Review`
-        and a `take` over a loose order is the plan deciding which learners a
-        run considers. Stable is what matters: the page above walks, and a walk
-        over an order that moves would skip and repeat rather than cover.
-      */
-      orderBy: [{ ownerId: "asc" }, { id: "asc" }],
-      skip: rosterPage(now, reviewers, limit),
-      take: limit,
-    }),
+    /*
+      A page of owners, deduplicated and cut in Postgres. `ownerId` is what is
+      returned and what is distinct, so ordering on it alone is total, and a
+      walk over an order that cannot move covers rather than skips.
+    */
+    prisma.$queryRaw<{ ownerId: string }[]>`
+      SELECT DISTINCT "ownerId" FROM "Review" WHERE "reviewedAt" >= ${since}
+      ORDER BY "ownerId" LIMIT ${limit} OFFSET ${rosterPage(now, reviewers, limit)}`,
     /*
       And the people who finished first run and have not answered a card yet,
       who are exactly the ones a welcome is for and who a review-log query
@@ -183,7 +178,25 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
     }),
   ]);
 
-  return [...new Set([...reviewed, ...settled].map((row) => row.ownerId))].slice(0, limit);
+  return mergeRoster(reviewed.map((r) => r.ownerId), settled.map((r) => r.ownerId), limit);
+}
+
+/**
+ * Two pages of learners, one list, neither crowding the other out.
+ *
+ * Both pages are `limit` long, so concatenating them and cutting at `limit`
+ * kept every reviewer and dropped every newcomer the moment a deployment had
+ * as many learners reviewing as the run takes: the welcome is written for
+ * exactly the people in the second page, and they would never be mailed.
+ * Taken in turn instead, one from each, deduplicated.
+ */
+export function mergeRoster(reviewed: readonly string[], settled: readonly string[], limit: number): string[] {
+  const out = new Set<string>();
+  for (let i = 0; out.size < limit && (i < reviewed.length || i < settled.length); i++) {
+    if (i < settled.length) out.add(settled[i]!);
+    if (out.size < limit && i < reviewed.length) out.add(reviewed[i]!);
+  }
+  return [...out];
 }
 
 /**

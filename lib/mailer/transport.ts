@@ -93,10 +93,14 @@ export function mailerConfig(): MailerConfig | null {
  * asymmetric: reading a temporary failure as a dead address stops mailing
  * somebody who is perfectly reachable, and reading a dead address as a blip
  * costs one more attempt. A 422 from Resend is a malformed or refused
- * recipient; a 5xx is theirs and a 429 is a rate limit.
+ * recipient; a 5xx is theirs and a 429 is a rate limit. A 400 is a request
+ * the provider could not read, which is about this deployment (a malformed
+ * sender, a subject it rejects) and was read as a dead address: one bad
+ * setting then blocked every learner the run reached until they changed
+ * address.
  */
 function addressIsTheProblem(status: number): boolean {
-  return status === 422 || status === 400;
+  return status === 422;
 }
 
 export async function send(
