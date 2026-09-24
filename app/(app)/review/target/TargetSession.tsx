@@ -12,8 +12,10 @@ import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { useModuleFocus } from "@/components/course/moduleFocus";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
 
-/** Seconds for the first shot. */
+/** Seconds for the first shot, at the standard pace. */
 const START_S = 8;
 /** The least time a shot ever gets, however far in you are. */
 const FLOOR_S = 3.5;
@@ -39,7 +41,19 @@ const STEP_S = 0.25;
  * Again too, because not producing a form inside eight seconds is not knowing
  * it yet.
  */
-export function TargetSession({ questions: initialQuestions }: { questions: TargetQuestion[] }) {
+export function TargetSession({ questions: initialQuestions, stretch }: {
+  questions: TargetQuestion[];
+  /**
+   * The learner's pace as a factor, resolved on the page (`lib/ux/roundClock.ts`).
+   * It lengthens the first shot and the floor, which are how long somebody has;
+   * the step stays a quarter of a second, because it is how fast the round
+   * tightens rather than how long anything lasts.
+   */
+  stretch: number;
+}) {
+  const start = START_S * stretch;
+  const floor = FLOOR_S * stretch;
+  const inModule = useModuleFocus() !== null;
   // Snapshotted on mount: `gradeCard` refreshes this route's Server Component,
   // and a round whose questions changed under the player is a different round.
   const [questions] = useState(initialQuestions);
@@ -49,12 +63,12 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
   const [hits, setHits] = useState(0);
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(0);
-  const [left, setLeft] = useState(START_S);
+  const [left, setLeft] = useState(start);
   const sound = useFeedbackSound();
   const shownAt = useRef(Date.now());
 
   const question = questions[index];
-  const allowed = Math.max(FLOOR_S, START_S - hits * STEP_S);
+  const allowed = Math.max(floor, start - hits * STEP_S);
 
   const answer = useCallback((choice: number | null) => {
     if (!question || picked !== null) return;
@@ -74,11 +88,11 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
     // moment in a round worth slowing down for.
     window.setTimeout(() => {
       setPicked(null);
-      setLeft(Math.max(FLOOR_S, START_S - (right ? hits + 1 : hits) * STEP_S));
+      setLeft(Math.max(floor, start - (right ? hits + 1 : hits) * STEP_S));
       shownAt.current = Date.now();
       setIndex((i) => i + 1);
     }, right ? 480 : 1500);
-  }, [question, picked, sound, hits]);
+  }, [question, picked, sound, hits, start, floor]);
 
   useEffect(() => {
     if (phase !== "running" || picked !== null) return;
@@ -114,9 +128,23 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
             only the question word tells you which of the four to hit.
           </p>
           <Button variant="primary" size="lg"
-            onClick={() => { setPhase("running"); setLeft(START_S); shownAt.current = Date.now(); }}>
+            onClick={() => { setPhase("running"); setLeft(start); shownAt.current = Date.now(); }}>
             Start
           </Button>
+          {/* The sprint's own line, for its reason: the moment somebody finds
+              the clock too fast is the moment they are looking at this, and
+              inside a module the link would be a door out of the evening. */}
+          <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+            Need longer?{" "}
+            {inModule ? (
+              <span>Settings lets you give yourself more time</span>
+            ) : (
+              <Link href="/settings#round-pace" className="underline underline-offset-2">
+                Give yourself more time
+              </Link>
+            )}
+            , up to ten times this.
+          </p>
           {/* The way back to the menu somebody chose this round from, which
               inside a module is a door out of the evening: the way on is the
               bar at the foot of the screen. */}

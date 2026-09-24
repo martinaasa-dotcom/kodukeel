@@ -4,6 +4,8 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { TargetSession } from "./TargetSession";
 import { moduleScopeFrom } from "@/lib/course/scope";
+import { SETTING_KEYS, readSetting } from "@/lib/settings/store";
+import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 
 export const metadata = { title: "Target" };
 
@@ -30,7 +32,10 @@ export default async function TargetPage({
 }) {
   const ownerId = await requireUserId();
   // Opened from the module, the targets are taught words in taught cases.
-  const questions = await targetRound(ownerId, moduleScopeFrom(await searchParams));
+  const [questions, pace] = await Promise.all([
+    targetRound(ownerId, moduleScopeFrom(await searchParams)),
+    readSetting(ownerId, SETTING_KEYS.roundPace),
+  ]);
 
   if (questions.length === 0) {
     return (
@@ -44,5 +49,11 @@ export default async function TargetPage({
     );
   }
 
-  return <TargetSession questions={questions} />;
+  /*
+    The learner's pace, resolved here and handed down as a factor on the round's
+    own clock, which is the sprint's shape (lib/ux/roundClock.ts). A factor
+    rather than a number of seconds because Target's clock is three numbers,
+    and only two of them are a length.
+  */
+  return <TargetSession questions={questions} stretch={multiplierFor(roundPaceFrom(pace))} />;
 }

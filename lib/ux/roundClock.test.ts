@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_ROUND_PACE, ROUND_PACES, roundLength, roundPaceFrom, secondsFor,
+  DEFAULT_ROUND_PACE, ROUND_PACES, multiplierFor, roundLength, roundPaceFrom, secondsFor,
 } from "./roundClock";
 
 describe("roundPaceFrom", () => {
@@ -86,5 +86,13 @@ describe("roundLength", () => {
   it("says minutes where the figure is one", () => {
     expect(roundLength(120)).toBe("2 minutes");
     expect(roundLength(600)).toBe("10 minutes");
+  });
+});
+
+describe("the pace as a factor, which Target reads", () => {
+  it("is the table's own multiplier, and a stored value it does not know is standard", () => {
+    expect(multiplierFor("standard")).toBe(1);
+    expect(multiplierFor("ten-times")).toBe(10);
+    expect(multiplierFor(roundPaceFrom("nonsense"))).toBe(1);
   });
 });

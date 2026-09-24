@@ -17682,6 +17682,38 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
   );
 });
 
+/**
+ * A ROUND THAT COUNTS DOWN READS THE LEARNER'S PACE, OR 2.2.1 IS FAILED AGAIN.
+ *
+ * WCAG 2.2.1 is met here by the limit being adjustable before the round starts
+ * (`lib/ux/roundClock.ts`). The sprint and the daily quest were brought under it
+ * and Target was not: eight seconds a shot falling to three and a half, three
+ * constants in its own file, reading nothing. Nothing said so, because the rule
+ * was two files remembering to do it rather than a sweep. So it is asked of
+ * every round whose clock runs down, found by the shape a countdown has, and its
+ * page has to read the pace setting. The examination is outside the shape on
+ * purpose rather than by exemption: it counts against a deadline, since a
+ * part's clock has to survive a reload, and `/accessibility` says why that one
+ * clock is fixed. An exemption naming it would be one that never matches.
+ */
+check("every round that counts down reads the learner's pace", () => {
+  // A timer whose callback walks a number down to zero. An undo that takes
+  // one off a counter has the same arithmetic and no timer, which is how this
+  // is told apart from the review session's tally.
+  const COUNTDOWN = /set(?:Interval|Timeout)\(\s*\(\)\s*=>\s*set\w+\(\((\w+)\)\s*=>\s*Math\.max\(0,[^;]*\b\1\s*-\s*[\d.]+/;
+  const clocked = SESSION_FILES().filter((f) => COUNTDOWN.test(code(f)));
+  assert.ok(clocked.length >= 3, `only ${clocked.length} counting-down rounds found, so this sweep stopped looking`);
+  for (const file of clocked) {
+    const page = join(dirname(file), "page.tsx");
+    assert.ok(existsSync(page), `${file} counts down and has no page beside it to hand it a length`);
+    assert.match(
+      code(page), /SETTING_KEYS\.roundPace/,
+      `${file} runs a clock the learner cannot lengthen: its page does not read the round pace. ` +
+      "That is WCAG 2.2.1 failed on a practice round, where nothing argues for the limit being fixed.",
+    );
+  }
+});
+
 /*
   ONE LOUD ACTION PER ROUND, WHICH IS `components/Button.tsx`'S OWN HEADER.
 

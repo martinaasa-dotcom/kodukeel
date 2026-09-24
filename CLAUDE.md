@@ -9949,6 +9949,17 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   keeps its clock**, and that limitation stays on the statement with its reasoning: the paper is
   imitating a timed state examination and untimed practice of a timed paper measures something
   else (`docs/16-exam.md`).
+- **And there were three, and the rule named two.** Target runs eight seconds a shot falling to
+  three and a half, three constants in its own file reading nothing, so 2.2.1 was still failed on
+  a practice round while the statement said only the examination's clock was fixed. It reads the
+  pace now, as a factor rather than a number of seconds, because its clock is three numbers and
+  only two are a length: the first shot and the floor stretch, and the quarter of a second a hit
+  takes off stays, since that is how fast the round tightens rather than how long anything lasts.
+  **The invariant finds a clocked round by its countdown rather than by a list**, a timer callback
+  walking a number down to zero, and requires its page to read the pace; that is what the sprint
+  and the quest had been remembering to do and Target had not. The examination counts against a
+  deadline instead, so it is outside the shape on purpose rather than by an exemption that would
+  never match.
 
 ## Model configuration
 
