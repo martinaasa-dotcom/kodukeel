@@ -221,11 +221,11 @@ reaches past the scene's list rather than as whether its words are Estonian; the
 number to read.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
-`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
+`MAX_COMPOSED_WORDS` is fifty-five and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
 reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
 that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
-check written for it, and the gate has twelve now rather than five, `shape`, `vouching`, `register`,
+check written for it, and the gate had twelve then rather than five, `shape`, `vouching`, `register`,
 `government`, `facts`, `agreement`, `topic`, `giveaway`, `stretch`, `clause`, `infinitive`,
 `negation`. **Not one of the twelve was relaxed**, and four of them are the reason: `vouching` is
 where ADR-005 lives on this path, `agreement` is what catches `Kuhu te soovid sõita?` on a check that
@@ -749,7 +749,8 @@ and a row written afterwards is a row that is missing exactly when the process d
 provider accepting and the write landing, which is the one case where sending twice is most
 likely. A failed send therefore spends the slot: somebody misses one evening's letter and gets
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
-is what people unsubscribe over.
+is what people unsubscribe over. The one write after it is the provider's message id, stamped on
+the row the booking made and on nothing else, and an invariant holds both orders and that stamp.
 
 **A letter says how long is left, not how many days were missed.** `daysAway` is read by the
 scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
@@ -8183,7 +8184,7 @@ is asked once more about the beat ahead (`alsoDone`), which is how `ma tahan pil
 being answered with "where to?". The composer is told the same rule in words and asked for the turn
 a person takes, two to four sentences inside `MAX_COMPOSED_WORDS`, rather than the shortest question
 that would do. Every learner-facing rule stayed where it was: the dictionary reads first, the model
-never writes a grade, and a composed line still passes the twelve checks.
+never writes a grade, and a composed line still passes every check in `CHECKS`.
 
 **Every failure in a conversation looked exactly like a success, and that is why the whole module
 was reported as unusable.** A turn that landed got a word back and then the next question. A turn
@@ -8610,7 +8611,7 @@ none refused.
 **And the leash came off, because the leash was never what was holding the line together.** A
 learner asked why the limits are that tight at all, and they were right: some of these moments need
 explaining, and what is missing from a form and what to do about it is three sentences from
-anybody. `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` is twenty-two. The middle step is the
+anybody. `MAX_SENTENCES` was three and `MAX_COMPOSED_WORDS` was twenty-two. The middle step is the
 one worth knowing: the ceiling was raised to eighteen once, `Tere! Mis needus täna aitama saan?`
 came back, and it was put down again on the argument that the only thing keeping a composed line
 honest is how little room it has to reach. That argument is wrong in a way the line itself shows,
