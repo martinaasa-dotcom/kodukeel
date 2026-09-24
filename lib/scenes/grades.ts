@@ -172,8 +172,8 @@ export function gradesFor(
           which was taken. It does: `producedFor(index)` is `satisfiedBy`,
           which is the word that met the requirement, and `oneWordFor` two
           hundred lines down has been settling exactly this ambiguity for a
-          card's own slot since ADR-025 amendment 3. 84 of the catalogue's 85
-          `oneOf` lists name more than one word, and the health centre's names
+          card's own slot since ADR-025 amendment 3. 60 of the catalogue's 61
+          `lemma` requirements name more than one word, and the health centre's names
           ten, so a learner who wrote `Mu selg valutab` had `pea` written into
           the append-only log as a recall. That is the false row the
           `substituted`, `conceded` and `chose` guards directly above exist to

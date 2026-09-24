@@ -15017,8 +15017,8 @@ check("a value off the card is graded, and only where which word is certain", ()
   /*
     AND THE BEAT'S OWN WORDS TAKE THE SAME RULE, which for a year they did not.
     The `lemma` branch wrote `oneOf[0]` under a comment saying the turn does
-    not say which was taken. It does, and `satisfiedBy` is where: 84 of the
-    catalogue's 85 `oneOf` lists name more than one word and the health
+    not say which was taken. It does, and `satisfiedBy` is where: 60 of the
+    catalogue's 61 `lemma` requirements name more than one word and the health
     centre's names ten, so a learner who wrote `Mu selg valutab` had `pea`
     written into the append-only log as a recall. Both branches read one
     resolver now, anchored on the call rather than on the helper, because a

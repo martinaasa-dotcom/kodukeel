@@ -65,8 +65,8 @@ function play(
 }
 
 /*
-  The fixture's first beat names two words, which is the ordinary shape: 84 of
-  the catalogue's 85 `oneOf` lists do. So the rating tests hand over a lexicon
+  The fixture's first beat names two words, which is the ordinary shape: 60 of
+  the catalogue's 61 `lemma` requirements do. So the rating tests hand over a lexicon
   and a real word, the way the route does, or the beat grades nothing and the
   rating is a question about a row nobody wrote.
 */

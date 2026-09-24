@@ -270,12 +270,6 @@ function align(want: string[], got: string[]): DictationWord[] {
 }
 
 /**
- * Whether a merged or split entry only lined up once the diacritics were
- * folded away too, i.e. `kuueoue` read as `kuue õue` rather than an exact
- * concatenation of it. The one place this is decided, so `wordNote` and
- * `judge` cannot count it two different ways.
- */
-/**
  * How many spaces one merge or split moved.
  *
  * A `spacing` entry always holds exactly one word on one of its two sides, so
@@ -291,6 +285,12 @@ function spacesMoved(word: DictationWord): number {
   return Math.max(expected, typed) - 1;
 }
 
+/**
+ * Whether a merged or split entry only lined up once the diacritics were
+ * folded away too, i.e. `kuueoue` read as `kuue õue` rather than an exact
+ * concatenation of it. The one place this is decided, so `wordNote` and
+ * `judge` cannot count it two different ways.
+ */
 function spacingHasDiacriticsSlip(word: DictationWord): boolean {
   if (word.status !== "spacing" || !word.expected || !word.typed) return false;
   return joinSpan(word.expected.split(" ")) !== joinSpan(word.typed.split(" "));
