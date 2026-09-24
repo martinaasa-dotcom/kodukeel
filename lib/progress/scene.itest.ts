@@ -174,6 +174,28 @@ describe("a scene against the dictionary", () => {
   });
 
   /*
+    A RUN IS FINISHED ONCE, EVEN WHEN IT IS FINISHED TWICE AT ONCE.
+
+    The guard was a read of `endedAt` and then an update, so two presses of
+    the finish that arrived together all read an open run, both wrote it, and
+    both handed `finishScene` a set of grades: every turn of the conversation
+    recorded twice, in the one table that is never repaired.
+  */
+  it("lets exactly one of several simultaneous finishes through", async () => {
+    const greeting = DOCTOR.beats[0]!;
+    const opened = await beginRun({
+      ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",
+      lines: "scripted",
+    });
+    const finish = () => finishRun({
+      ownerId: OWNER, runId: opened!.runId, walkedOut: false, asked: [],
+      turns: [{ beatId: greeting.id, said: "Tere!", helped: false }],
+    });
+    const both = await Promise.all([finish(), finish(), finish(), finish()]);
+    expect(both.filter((f) => f !== null)).toHaveLength(1);
+  });
+
+  /*
     THE TRANSCRIPT THAT PRODUCED THE RULE. Told `Minge otse edasi.`, the
     learner wrote `okei, otse, ja kuhu siis?`: `otse` met the directions beat,
     the question mark then met "ask whether it is near" on nothing but its own

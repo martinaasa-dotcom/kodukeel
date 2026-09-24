@@ -1155,8 +1155,19 @@ export async function recordSonad(day: string, guesses: unknown) {
   });
   if (!card) return { ok: true as const, graded: false };
 
-  const result = await gradeCard(card.id, rating, 0);
-  return result.ok ? { ok: true as const, graded: true } : result;
+  /*
+    Named by the day and the card, so the same round arriving twice is graded
+    once. The board marks a round sent only after this answers, which is right
+    on a train and means a lost response is sent again; a second tab sends it
+    too. `applyGradeBatch` skips an id it already holds, as it does for the
+    exam's seed (`submitExam`).
+  */
+  const applied = await applyGradeBatch(ownerId, [{
+    id: `sonad:${day}:${card.id}`, cardId: card.id, rating, durationMs: 0, reviewedAt: Date.now(),
+  }]);
+  return applied.ok
+    ? { ok: true as const, graded: true }
+    : { ok: false as const, error: applied.error ?? "That round could not be recorded." };
 }
 
 /**
@@ -1422,8 +1433,9 @@ export async function finishScene(input: {
     fails under pressure lands in the same weak-case charts as the case they
     fail on a card.
   */
-  let graded = 0;
-  for (const grade of finished.grades) {
+  const batch: ReplayItem[] = [];
+  const now = Date.now();
+  for (const [index, grade] of finished.grades.entries()) {
     const card = await prisma.card.findFirst({
       where: {
         ownerId,
@@ -1442,12 +1454,21 @@ export async function finishScene(input: {
       on a card. `writeGrade` checks both against the closed list rather than
       trusting them, which is what it does for every other caller.
     */
-    const result = await gradeCard(
-      card.id, grade.rating, 0, undefined,
-      grade.grammCase ?? undefined, grade.reachedCase ?? undefined,
-    );
-    if (result.ok) graded += 1;
+    /*
+      Named by the run and the grade's place in it. `finishRun` closes a run
+      once, so a second finish gets nothing to grade; the id is the second
+      lock on the same door, and keeps this on the one path every round the
+      server marks grades through.
+    */
+    batch.push({
+      id: `scene:${finished.runId}:${index}`, cardId: card.id, rating: grade.rating as RatingValue,
+      durationMs: 0, reviewedAt: now,
+      ...(grade.grammCase ? { slot: grade.grammCase } : {}),
+      ...(grade.reachedCase ? { reachedSlot: grade.reachedCase } : {}),
+    });
   }
+  const applied = batch.length > 0 ? await applyGradeBatch(ownerId, batch) : { ok: true, settled: [] };
+  const graded = applied.ok ? batch.length : 0;
 
   revalidatePath("/situations");
   return {
@@ -1497,17 +1518,27 @@ export async function recordCrossword(day: string, typed: unknown, helped: unkno
   });
   const byLexeme = new Map(cards.map((c) => [c.lexemeId ?? "", c.id]));
 
-  let graded = 0;
+  const batch: ReplayItem[] = [];
+  const now = Date.now();
   for (const index of solved) {
     const entry = puzzle.entries[index]!;
     const cardId = byLexeme.get(entry.lexemeId);
     if (!cardId) continue;
     // Shown is not solved. A learner who pressed the button read the answer,
     // which is worth telling the scheduler about and is not worth a Good.
-    const result = await gradeCard(cardId, shown.has(index) ? 1 : 3, 0);
-    if (result.ok) graded += 1;
+    //
+    // Named by the day and the card, for the reason `recordSonad` gives: the
+    // same grid arriving twice is graded once.
+    batch.push({
+      id: `crossword:${day}:${cardId}`, cardId,
+      rating: (shown.has(index) ? 1 : 3) as RatingValue, durationMs: 0, reviewedAt: now,
+    });
   }
-  return { ok: true as const, graded };
+  if (batch.length === 0) return { ok: true as const, graded: 0 };
+  const applied = await applyGradeBatch(ownerId, batch);
+  return applied.ok
+    ? { ok: true as const, graded: batch.length }
+    : { ok: false as const, error: applied.error ?? "That grid could not be recorded." };
 }
 
 /** A nine by nine grid is 81 cells; anything past that is not a grid. */

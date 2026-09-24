@@ -14388,7 +14388,13 @@ check("a scene is marked by the server, and its grades go to the shared log", ()
   const action = between(actions, "export async function finishScene(");
   assert.ok(action, "finishScene has gone, or changed shape past recognition");
   assert.match(action, /finishRun\(/, "finishScene no longer re-marks on the server");
-  assert.match(action, /gradeCard\(/, "a scene no longer grades through gradeCard (ADR-016)");
+  /*
+    Through `applyGradeBatch`, which is `writeGrade` behind an id: the same
+    writer `gradeCard` uses, with the round named so a scene finished twice is
+    graded once (see "no action grades a round it marked with a fresh id").
+  */
+  assert.match(action, /applyGradeBatch\(/, "a scene no longer grades into the shared log (ADR-016)");
+  assert.match(action, /id: `scene:\$\{finished\.runId\}:/, "a scene's grades are no longer named by the run");
 
   /*
     The signature rather than the body, which is the lesson `recordSonad`'s own
@@ -14680,7 +14686,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     shared log at all.
   */
   assert.match(
-    code("app/actions.ts"), /grade\.grammCase \?\? undefined, grade\.reachedCase \?\? undefined/,
+    code("app/actions.ts"), /slot: grade\.grammCase[\s\S]{0,120}reachedSlot: grade\.reachedCase/,
     "a scene's grades no longer carry the case that came back instead, so the confusion is lost",
   );
 
@@ -16499,6 +16505,46 @@ check("readiness is derived on every request and never written down", () => {
  * The rule is the one rule: no field switches the outline off. A field that
  * wants a softer ring can add to it, never take it away.
  */
+/**
+ * A ROUND THE SERVER MARKS IS GRADED ONCE, HOWEVER OFTEN IT ARRIVES.
+ *
+ * `submitExam` names each grade by the paper's seed and the card, so a paper
+ * handed in twice writes one set of reviews. Sõnad, the crossword and a
+ * finished conversation graded through `gradeCard`, which mints a fresh review
+ * id every call, so each of them wrote a second set whenever the same round
+ * arrived again: the screens mark a round sent only after the server answers,
+ * which is right on a train and means a lost response is sent again, and a
+ * second tab or a script sends it as often as it likes. Every one of those is
+ * a recall row in the table that is never repaired, and each Good pushes the
+ * card's interval further out.
+ *
+ * So `gradeCard` is the endpoint a session calls about one answer it just saw,
+ * and no other export reaches for it: a round the server rebuilds and marks
+ * grades through `applyGradeBatch`, whose ids are what makes it idempotent.
+ */
+check("no action grades a round it marked with a fresh id per call", () => {
+  const actions = [...APP, ...LIB].filter((f) => /^\s*["']use server["']/.test(read(f)));
+  assert.ok(actions.length >= 1, "found no Server Action files, so this sweep stopped looking");
+  let bodies = 0;
+  for (const file of actions) {
+    const source = code(file);
+    const starts = [...source.matchAll(/^export async function (\w+)/gm)];
+    starts.forEach((m, i) => {
+      const name = m[1]!;
+      if (name === "gradeCard") return;
+      const body = source.slice(m.index!, starts[i + 1]?.index ?? source.length);
+      bodies += 1;
+      assert.doesNotMatch(
+        body,
+        /\bgradeCard\(/,
+        `${file}: ${name} grades through gradeCard, which mints a new review id every call, so the ` +
+        `same round arriving twice is graded twice. Use applyGradeBatch with an id that names the round.`,
+      );
+    });
+  }
+  assert.ok(bodies >= 60, `only ${bodies} action bodies read, so this sweep stopped looking`);
+});
+
 check("no text field switches its focus ring off", () => {
   /*
     A tag is read to its own close, `/>`, rather than to the first `>`: an

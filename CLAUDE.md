@@ -6512,6 +6512,17 @@ they are, since they are what gates `b`, and they are no longer what makes this 
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)
 
+**And a round the server marks is graded once, however often it arrives.** `gradeCard` mints a
+review id per call, which is right for the one answer a session has just shown and wrong for a
+round the server rebuilds and marks: Sõnad, the crossword and a finished conversation each wrote a
+second set of recalls whenever the same round arrived again, and the screens send a round again by
+design, since they mark it sent only once the server has answered. So those grade through
+`applyGradeBatch` with an id naming the round (`sonad:<day>:<card>`, `crossword:<day>:<card>`,
+`scene:<run>:<n>`, and the exam's `exam:<seed>:<card>`), which is the same `writeGrade` behind an
+idempotent door, and an invariant fails on any other export reaching for `gradeCard`. And a run is
+closed once: `finishRun` closes it with a compare-and-set on `endedAt`, driven four times at once
+against a real database, so two presses of the finish grade one set rather than two.
+
 **Every mutation goes through the forged-request gate, and it is not an `/api/` rule.** Every
 mutation a learner makes here is a Server Action, which is a POST to a *page* path, so a gate
 inside an `isApi` branch would be watching the quiet door. `lib/security/sameOrigin.ts` reads
