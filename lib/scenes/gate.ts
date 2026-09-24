@@ -797,8 +797,8 @@ const MAX_SENTENCES = 5;
 export const MAX_COMPOSED_WORDS = 55;
 
 /**
- * At most two short sentences, inside the word count, punctuated, no markdown,
- * and the shape the move asked for.
+ * At most `MAX_SENTENCES` sentences, inside the word count, punctuated, no
+ * markdown, and the shape the move asked for.
  *
  * A move of `ask` that comes back without a question mark did not do what it
  * was told, and a greeting phrased as a question is not a greeting. The shape

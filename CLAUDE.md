@@ -221,7 +221,8 @@ reaches past the scene's list rather than as whether its words are Estonian; the
 number to read.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
-`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
+`MAX_COMPOSED_WORDS` is fifty-five and `NEW_WORDS` is ten, where they were three, twenty-two and two;
+the words went to forty first and to fifty-five once the prompt asked for a whole person. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
 reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
 that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
@@ -8610,7 +8611,8 @@ none refused.
 **And the leash came off, because the leash was never what was holding the line together.** A
 learner asked why the limits are that tight at all, and they were right: some of these moments need
 explaining, and what is missing from a form and what to do about it is three sentences from
-anybody. `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` is twenty-two. The middle step is the
+anybody. `MAX_SENTENCES` was three and `MAX_COMPOSED_WORDS` twenty-two, and they are five and
+fifty-five now (the leash paragraph near the top of this file). The middle step is the
 one worth knowing: the ceiling was raised to eighteen once, `Tere! Mis needus täna aitama saan?`
 came back, and it was put down again on the argument that the only thing keeping a composed line
 honest is how little room it has to reach. That argument is wrong in a way the line itself shows,

@@ -3154,6 +3154,64 @@ check("the routes the spend ledger does not price are capped where every instanc
   );
 });
 
+check("a constant CLAUDE.md says is a number is that number", () => {
+  /*
+    The composer's ceiling moved from twenty-two to forty to fifty-five, and
+    the leash paragraph went on saying forty while a later paragraph went on
+    saying twenty-two in the present tense. Both read exactly like a fresh
+    figure, and this file is what anybody touching the gate reads first.
+
+    So every sentence of the shape "`NAME` is <number>" is read out of the
+    prose and compared with the constant of that name in the source. A figure
+    that has moved is written "was", which this does not read, so history can
+    still be told; what may not happen is the present tense stating a value the
+    code no longer holds. A name defined twice with two values is skipped, since
+    the sentence could be about either.
+  */
+  const values = new Map<string, Set<number>>();
+  for (const file of ALL) {
+    for (const m of read(file).matchAll(/^(?:export )?const ([A-Z][A-Z0-9_]+)(?:: \w+)? = ([\d_]+(?:\.\d+)?);/gm)) {
+      const set = values.get(m[1]!) ?? new Set<number>();
+      set.add(Number(m[2]!.replace(/_/g, "")));
+      values.set(m[1]!, set);
+    }
+  }
+
+  const UNITS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  const TENS: Record<string, number> = {
+    twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90,
+  };
+  const numberFrom = (raw: string): number | null => {
+    const word = raw.toLowerCase().replace(/,/g, "");
+    if (/^\d+(\.\d+)?$/.test(word)) return Number(word);
+    if (UNITS.includes(word)) return UNITS.indexOf(word);
+    if (word in TENS) return TENS[word]!;
+    const [ten, unit] = word.split("-");
+    if (ten && unit && ten in TENS && UNITS.indexOf(unit) > 0 && UNITS.indexOf(unit) < 10) {
+      return TENS[ten]! + UNITS.indexOf(unit);
+    }
+    return null;
+  };
+
+  const prose = read("CLAUDE.md");
+  let compared = 0;
+  const wrong: string[] = [];
+  for (const m of prose.matchAll(/`([A-Z][A-Z0-9_]+)`\s+is\s+([\w,.-]+)/g)) {
+    const stated = numberFrom(m[2]!.replace(/[.,]+$/, ""));
+    const held = values.get(m[1]!);
+    if (stated === null || !held || held.size !== 1) continue;
+    compared += 1;
+    if (!held.has(stated)) {
+      const line = prose.slice(0, m.index).split("\n").length;
+      wrong.push(`line ${line}: ${m[1]} is ${m[2]}, and the code says ${[...held][0]}`);
+    }
+  }
+  // A pattern that stopped matching would compare nothing and pass.
+  assert.ok(compared >= 6, `only ${compared} stated constants read out of CLAUDE.md`);
+  assert.deepEqual(wrong, [], `CLAUDE.md states a constant the code no longer holds:\n${wrong.join("\n")}`);
+});
+
 check("the counts CLAUDE.md states about the harvest are the harvest's own", () => {
   /*
     A NUMBER IN PROSE IS A NUMBER THAT ROTS, AND TWO OF THESE HAD.
