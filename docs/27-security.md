@@ -69,7 +69,8 @@ It goes out from a Route Handler, never from the browser, and every call is mete
 
 **Server to Ekilex, Wiktionary and TartuNLP.** Reference data and speech. These are read only,
 carry nothing about the learner, and are proxied so their keys and their quota stay on the server.
-The Content Security Policy names no third party in `connect-src` at all, which is what makes that
+The Content Security Policy's `connect-src` names none of them, and names nothing beyond this
+origin but the one Supabase project the browser signs in through, which is what makes that
 structural rather than a habit.
 
 ## 3. What is worth taking
@@ -294,13 +295,18 @@ OpenAI and Anthropic key shapes, a Postgres URL carrying a password, a private k
 Supabase JWT whose decoded role claim is `service_role`, which is what tells it apart from the anon
 key that is public by design.
 
-Two invariants back it up: nothing may carry a `NEXT_PUBLIC_` prefix except the anon key, and no
-client component may read a server only variable. A third reads `PROVIDER_KEY_ENV` and checks each
+Two invariants back it up: no variable named like a secret (`KEY`, `SECRET`, `TOKEN`, `PASSWORD`)
+may carry a `NEXT_PUBLIC_` prefix except the anon key, and no client component may read a server only
+variable. The four public variables that do carry it (the Supabase URL, the site URL, the Google
+client ID and the service worker switch) are addresses and switches rather than credentials. A third reads `PROVIDER_KEY_ENV` and checks each
 key is marked in the CI canary, so the next provider added to the chain cannot be missed the way Groq
 and Gemini were.
 
-The CSP is the other half: `connect-src` names no third party at all, so a client that tried to call
-Ekilex or TartuNLP directly would be refused by the browser as well as by an invariant.
+The CSP is the other half: `connect-src` is the app's own origin and, where the deployment uses
+Supabase, that one project's origin and its websocket, which is how the browser signs in. Nothing else
+is on it, so a client that tried to call Ekilex or TartuNLP directly would be refused by the browser as
+well as by an invariant. `lib/security/headers.test.ts` pins the whole directive rather than listing
+what it may not contain.
 
 ### 4.10 An error message carrying a connection string
 
