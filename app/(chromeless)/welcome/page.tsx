@@ -1,3 +1,4 @@
+import { PARTS } from "@/lib/copy/values";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import type { Metadata } from "next";
 import {
@@ -1391,7 +1392,7 @@ function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | nul
       lib/estonian/caseQuestion.ts.
     */
     question: caseQuestionFor(row.spec, subject),
-    singular: shown.length > 0 ? shown.join(" / ") : null,
+    singular: shown.length > 0 ? shown.join(PARTS) : null,
     plural: row.plural ?? null,
     principal: row.spec.principal,
     stored: !row.spec.principal && shown.length > 0 && !regular,

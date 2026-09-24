@@ -20114,14 +20114,18 @@ check("a gap card's sentence is rebuilt with one form, never with every accepted
     And the separator is read off `PARTS` rather than typed, which is the rule
     this repository already states about that constant and had four more
     copies of, one of them three lines from the gap branch that needed it.
+    Joining as well as splitting: a screen printing `tuppa / toasse` and a
+    marker splitting it are one string, and thirteen joins across eight files
+    had typed it out while only the split was asked about.
   */
   const typed = [...ALL, ...sourceFiles("scripts"), ...sourceFiles("prisma")].filter(
-    (f) => f !== "lib/copy/values.ts" && /\.split\("\s\/\s"\)/.test(code(f)),
+    (f) => f !== "lib/copy/values.ts" && !/\.i?test\.ts$/.test(f) && /\.(?:split|join)\("\s\/\s"\)/.test(code(f)),
   );
   assert.deepEqual(
     typed, [],
     "somebody typed the answer separator out again rather than reading PARTS. A character apart, "
-    + "the two readings disagree about where an answer ends and nothing on screen says so",
+    + "the two readings disagree about where an answer ends and nothing on screen says so. "
+    + `Typed in: ${typed.join(", ")}`,
   );
 });
 
