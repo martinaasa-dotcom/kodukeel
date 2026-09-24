@@ -21,10 +21,19 @@ import { canonicalZone, dayClock } from "@/lib/time/day";
  *
  * The expression is the heatmap's, character for character, because a test of
  * a different expression is a test of a query the app does not run.
+ *
+ * THE INSTANTS ARE IN THE PAST, and that is load-bearing. Node carries ICU's
+ * copy of the tz database and Postgres carries its own, and the two are
+ * released on different days, so they can disagree about a rule that has not
+ * happened yet: CI's Postgres 16 and Node read Casablanca and El Aaiun an hour
+ * apart on 2026-12-31, which is a prediction one release has revised and the
+ * other has not. No code in this app can settle that, and a test that fails on
+ * it fails on the release calendar. A rule that has already happened is a
+ * settled fact both copies record the same way, so that is what is asked.
  */
 const INSTANTS = [
-  "2026-01-01T00:30:00Z", "2026-03-29T01:30:00Z", "2026-06-30T12:00:00Z",
-  "2026-06-30T22:30:00Z", "2026-10-25T03:30:00Z", "2026-12-31T23:30:00Z",
+  "2025-01-01T00:30:00Z", "2025-03-30T01:30:00Z", "2025-06-30T12:00:00Z",
+  "2025-06-30T22:30:00Z", "2025-10-26T03:30:00Z", "2025-12-31T23:30:00Z",
 ];
 
 async function postgresDays(zone: string): Promise<string[]> {
@@ -55,14 +64,22 @@ describe("a stored zone", () => {
   });
 
   it("is never a bare offset, which is the one shape the two read differently", async () => {
-    // The reason, measured: the same string, two days, on the instant before midnight UTC.
-    const before = "2026-06-30T22:30:00Z";
-    const node = new Intl.DateTimeFormat("en-CA", { timeZone: "+05:30" }).format(new Date(before));
-    const [pg] = await prisma.$queryRaw<{ day: string }[]>`
-      SELECT TO_CHAR(('2026-06-30 22:30:00'::timestamp AT TIME ZONE 'UTC') AT TIME ZONE '+05:30', 'YYYY-MM-DD') AS day`;
-    expect(node).toBe("2026-07-01");
-    expect(pg?.day).toBe("2026-06-30");
-
+    // Refused whatever this Node makes of an offset: an older ICU rejects one
+    // outright and a newer one accepts it, and the refusal holds either way.
     for (const offset of ["+05:30", "-08:00", "+00:00"]) expect(canonicalZone(offset)).toBeUndefined();
+
+    // The reason, measured, on a runtime that accepts one: the same string,
+    // two days, on the instant before midnight UTC.
+    let node: string | null = null;
+    try {
+      node = new Intl.DateTimeFormat("en-CA", { timeZone: "+05:30" }).format(new Date("2025-06-30T22:30:00Z"));
+    } catch {
+      node = null;
+    }
+    if (node === null) return;
+    const [pg] = await prisma.$queryRaw<{ day: string }[]>`
+      SELECT TO_CHAR(('2025-06-30 22:30:00'::timestamp AT TIME ZONE 'UTC') AT TIME ZONE '+05:30', 'YYYY-MM-DD') AS day`;
+    expect(node).toBe("2025-07-01");
+    expect(pg?.day).toBe("2025-06-30");
   });
 });
