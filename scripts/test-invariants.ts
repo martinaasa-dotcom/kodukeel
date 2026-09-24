@@ -10380,24 +10380,49 @@ check("the accessibility sweep runs axe, over both themes", () => {
  * shape, so it is not in the haystack to exempt.
  */
 check("every timed practice round reads the learner's pace", () => {
-  const COUNTDOWN = /set(?:Interval|Timeout)\(\s*\(\)\s*=>\s*set\w+\(\(\w+\)\s*=>\s*Math\.max\(0,/;
+  /*
+    TWO SHAPES OF CLOCK, AND THE CALL RATHER THAN THE IMPORT.
+
+    Reconciled with #360, which fixed the same round and asked two things
+    this check did not. It asked for `roundPaceFrom(` to be called on the page,
+    where this asked only that the page import from `roundClock`: a page that
+    imports the module and hands its round a fixed length passed, measured by
+    doing exactly that. And it knew the second shape a countdown takes, a
+    session holding a deadline rather than a setter stepped towards nought,
+    which is how the examination keeps time; a sweep that only knew the first
+    could never see a round written the second way. The examination is exempt
+    by name with its reason, and the exemption is checked both ways so it
+    cannot outlive the clock it is about.
+  */
+  const EXEMPT: Record<string, string> = {
+    "app/(app)/exam/[level]/ExamSession.tsx":
+      "an imitation of a timed state examination, where untimed practice of a timed paper measures "
+      + "something else; /accessibility names it as the one clock deliberately left fixed",
+  };
+  const COUNTDOWN = /set(?:Interval|Timeout)\(\s*\(\)\s*=>\s*set\w+\(\(?\w+\)?\s*=>\s*Math\.max\(0,/;
+  const DEADLINE = /\b(?:deadline|endsAt|remainingMs|msLeft)\b/;
   const timed = [...APP, ...COMPONENTS].filter(
-    (file) => file.endsWith("Session.tsx") && COUNTDOWN.test(code(file)),
+    (file) => file.endsWith("Session.tsx") && (COUNTDOWN.test(code(file)) || DEADLINE.test(code(file))),
   );
   assert.ok(
-    timed.length >= 3,
-    `only ${timed.length} timed rounds found; the countdown shape moved and this stopped looking`,
+    timed.length >= 4,
+    `only ${timed.length} timed rounds found; the countdown shapes moved and this stopped looking`,
   );
   for (const file of timed) {
+    if (file in EXEMPT) continue;
     const page = join(dirname(file), "page.tsx");
     assert.ok(existsSync(page), `${file} counts down and has no page beside it to hand it a length`);
     assert.match(
       code(page),
-      /from "@\/lib\/ux\/roundClock"/,
+      /\broundPaceFrom\(/,
       `${file} counts down to a limit its page never reads the learner's pace for. WCAG 2.2.1 `
       + "asks for the limit to be adjustable before it starts: read roundPaceFrom off the "
       + "roundPace setting on the page and hand the round its length.",
     );
+  }
+  for (const [file, why] of Object.entries(EXEMPT)) {
+    assert.ok(why.length > 40, `${file} is exempt with no reason`);
+    assert.ok(timed.includes(file), `${file} is exempt and no longer counts a clock down`);
   }
 });
 
