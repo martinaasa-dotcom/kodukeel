@@ -133,7 +133,22 @@ for (let step = 0; step < 200; step++) {
   // section abandons itself, which is the honest outcome rather than a zero.
   const play = page.getByRole("button", { name: /Play the (Estonian|sentence)/ });
   if (await play.count() && (await page.locator("main button:disabled").count()) > 0) {
-    await play.first().click();
+    /*
+      The speaker is disabled while its clip is being fetched, and a click on a
+      disabled button waits out Playwright's thirty seconds and throws, which
+      reads as the paper being broken. Wait for the fetch to finish, or for the
+      section to abandon itself and take the button with it, and go round again.
+    */
+    const ready = await play.first().isEnabled().catch(() => false);
+    if (!ready) {
+      await page.waitForFunction(() => {
+        const button = [...document.querySelectorAll("main button")]
+          .find((b) => /Play the (Estonian|sentence)/.test(b.getAttribute("aria-label") ?? ""));
+        return !button || !button.disabled;
+      }, null, { timeout: 15_000 }).catch(() => {});
+      continue;
+    }
+    await play.first().click({ timeout: 5_000 }).catch(() => {});
     await page.waitForTimeout(400);
     continue;
   }
