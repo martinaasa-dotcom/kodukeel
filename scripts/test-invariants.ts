@@ -1878,7 +1878,7 @@ check("a lesson at A1 asks only about words the course has taught", () => {
     nothing about it.
   */
   assert.match(
-    read("lib/collections/lesson.ts"),
+    code("lib/collections/lesson.ts"),
     /\n {2}taughtWords: ReadonlySet<string> \| null;/,
     "LessonInput.taughtWords stopped being required, so a lesson can be planned without asking what has been taught",
   );
@@ -2426,7 +2426,7 @@ check("a withheld note claims Estonian only when it caught Estonian", () => {
     "app/(app)/review/write/WriteSession.tsx",
     "app/(app)/exam/result/[id]/AnuReading.tsx",
   ]) {
-    assert.match(read(file), /withheldReason/, `${file} dropped the withhold reason`);
+    assert.match(code(file), /withheldReason/, `${file} dropped the withhold reason`);
   }
   for (const file of [
     "app/(app)/review/write/WriteSession.tsx",
@@ -2509,10 +2509,10 @@ check("a grade made offline keeps the time it was actually answered", () => {
     would fit its intervals to a history that never happened.
   */
   const outbox = read("lib/offline/outbox.ts");
-  assert.match(outbox, /reviewedAt/, "the queue no longer records when a grade was made");
+  assert.match(code("lib/offline/outbox.ts"), /reviewedAt/, "the queue no longer records when a grade was made");
   // Clamped in *both* directions: a device clock set ahead would schedule a card
   // into the past, and one set years back would blow up the card's stability.
-  assert.match(outbox, /clampReviewedAt/, "the queue no longer clamps a device clock");
+  assert.match(code("lib/offline/outbox.ts"), /clampReviewedAt/, "the queue no longer clamps a device clock");
 
   const replay = read("lib/srs/replay.ts");
   assert.equal(
@@ -2520,7 +2520,7 @@ check("a grade made offline keeps the time it was actually answered", () => {
     false,
     "the replay re-stamps a grade",
   );
-  assert.match(replay, /orderForReplay/, "the replay no longer applies grades in the order they happened");
+  assert.match(code("lib/srs/replay.ts"), /orderForReplay/, "the replay no longer applies grades in the order they happened");
 });
 
 // ── Progress is derived, never stored (ADR-014) ──────────────────────────────
@@ -2846,7 +2846,7 @@ check("nothing about an individual survives into the metrics", () => {
   const route = read("app/api/metrics/route.ts");
   // The route groups by owner and must, so what is checked is that it never
   // hands one onward: the grouped rows are reduced to activity before use.
-  assert.match(route, /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
+  assert.match(code("app/api/metrics/route.ts"), /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
   assert.doesNotMatch(
     route,
     /NextResponse\.json\([^)]*ownerId/s,
@@ -3264,7 +3264,7 @@ check("a word read off a photograph reaches a card only through the dictionary",
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
 
   const resolver = read("lib/dict/resolveScan.ts");
-  assert.match(resolver, /matchEstonianForm/, "the resolver stopped using the vouched matcher");
+  assert.match(code("lib/dict/resolveScan.ts"), /matchEstonianForm/, "the resolver stopped using the vouched matcher");
 
   const search = read("lib/dict/search.ts");
   assert.match(
@@ -3969,7 +3969,7 @@ check("the chat says which model actually replied", () => {
 });
 
 check("Anu's prose is cleaned on its way to the learner", () => {
-  assert.match(read("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
+  assert.match(code("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
 });
 
 check("Anu's reply is drawn as typography, shown once finished, and the marker lines have one shape", () => {
@@ -4036,12 +4036,12 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
   const route = read("app/api/tutor/route.ts");
   assert.match(route, /chatEstonianTokens\(/, "the chat route no longer extracts candidate Estonian tokens");
   assert.match(route, /matchEstonianForm\(/, "the chat route no longer checks tokens against the dictionary");
-  assert.match(route, /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
+  assert.match(code("app/api/tutor/route.ts"), /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
 
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // render the flag the same way.
   const chat = read("components/anu/AnuParts.tsx");
-  assert.match(chat, /UNVERIFIED:/, "the chat screen no longer reads the flag back");
+  assert.match(code("components/anu/AnuParts.tsx"), /UNVERIFIED:/, "the chat screen no longer reads the flag back");
 });
 
 // ── Never re-add the iframes (docs/00-audit-v4.md section A) ─────────────────
@@ -4134,7 +4134,7 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
   assert.match(panel, /setTodayOrder\(/, "the Settings panel no longer writes the order");
   assert.match(panel, /TODAY_CARDS/, "the panel stopped saying which rows fall past the cut");
 
-  assert.match(read("lib/settings/store.ts"), /todayOrder:/, "todayOrder is not declared in the settings store");
+  assert.match(code("lib/settings/store.ts"), /todayOrder:/, "todayOrder is not declared in the settings store");
   for (const file of ALL) {
     if (file === "lib/settings/store.ts") continue;
     assert.doesNotMatch(read(file), /["']todayOrder["']/, `${file} writes the todayOrder key as a literal`);
@@ -4547,7 +4547,7 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   );
 
   // The answer is stored through the settings store, like every other setting.
-  assert.match(read("lib/settings/store.ts"), /letterBar:/, "letterBar is not declared in the store");
+  assert.match(code("lib/settings/store.ts"), /letterBar:/, "letterBar is not declared in the store");
   for (const file of ALL) {
     if (file === "lib/settings/store.ts") continue;
     assert.equal(
@@ -4564,7 +4564,7 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   assert.match(layout, /SETTING_KEYS\.letterBar/, "the app shell no longer reads the answer");
   assert.match(layout, /<LetterBarScope/, "the app shell no longer publishes the answer");
   assert.match(
-    read("components/DiacriticBar.tsx"),
+    code("components/DiacriticBar.tsx"),
     /data-letters=\{value\}/,
     "the scope no longer renders the answer as an attribute",
   );
@@ -4572,12 +4572,12 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   // Asked at first run, which is the point of asking at all: a learner meets
   // Estonian fields on the very next screen of the wizard.
   assert.match(
-    read("app/(chromeless)/start/WelcomeWizard.tsx"),
+    code("app/(chromeless)/start/WelcomeWizard.tsx"),
     /letterBar:\s*letters/,
     "first run no longer asks which keyboard the learner has",
   );
   assert.match(
-    read("app/actions.ts"),
+    code("app/actions.ts"),
     /completeOnboarding[\s\S]*?SETTING_KEYS\.letterBar/,
     "first run's answer is no longer written",
   );
@@ -4585,12 +4585,12 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   // And two ways back, because the moment somebody notices they do not need
   // the row is the moment they are looking at it.
   assert.match(
-    read("components/DiacriticBar.tsx"),
+    code("components/DiacriticBar.tsx"),
     /setLetterBar\("off"\)/,
     "the bar no longer offers to remove itself",
   );
   assert.match(
-    read("app/(app)/settings/PreferencesPanel.tsx"),
+    code("app/(app)/settings/PreferencesPanel.tsx"),
     /setLetterBar/,
     "Settings can no longer turn the letters back on",
   );
@@ -5495,7 +5495,7 @@ check("the gesture that replaced the browser's pull to refresh is still mounted"
   // for the browser's own pull to refresh, and installed to a home screen
   // there is no address bar to offer a reload instead.
   assert.match(CSS, /overscroll-behavior-y:\s*none/, "the bounce is back");
-  assert.match(read("app/(app)/layout.tsx"), /<PullToRefresh \/>/, "the gesture is not mounted");
+  assert.match(code("app/(app)/layout.tsx"), /<PullToRefresh \/>/, "the gesture is not mounted");
 });
 
 
@@ -5812,7 +5812,7 @@ check("a sat check is never edited, and is deleted only on request", () => {
   const deleters = product.filter((f) => /(prisma|tx)\.assessment\.delete/.test(read(f)));
   assert.deepEqual(deleters, ["app/actions.ts"], "a level check is deleted outside account deletion");
   assert.match(
-    read("app/actions.ts"),
+    code("app/actions.ts"),
     /deleteMyAccount[\s\S]*?tx\.assessment\.deleteMany/,
     "account deletion no longer removes the level checks it promises to",
   );
@@ -7144,7 +7144,7 @@ check("nothing is stored on a device that would need asking first", () => {
     );
   }
   assert.match(
-    read("app/privacy/page.tsx"),
+    code("app/privacy/page.tsx"),
     /What is kept on your own device/,
     "the privacy page stopped saying what is kept on the device",
   );
@@ -11403,13 +11403,15 @@ check("the forms list is an accept list and never an answer", () => {
   // And the deployment carries the files, which a bundler does not do for a
   // path only ever built at runtime.
   assert.match(
-    read("next.config.ts"), /outputFileTracingIncludes[\s\S]{0,300}prisma\/data\/forms/,
+    code("next.config.ts"), /outputFileTracingIncludes[\s\S]{0,300}prisma\/data\/forms/,
     "the forms list is not traced into the deployment, so a hosted Sõnad refuses every guess",
   );
 
   // Every source is credited where the others are.
   for (const file of ["LICENSE", "app/(chromeless)/sign-in/page.tsx", "app/(chromeless)/welcome/page.tsx", "app/terms/page.tsx"]) {
-    assert.match(read(file), /Vabamorf/, `${file} does not credit Vabamorf`);
+    // Read as code where it is code: a comment saying the page credits the
+    // source is not the page crediting it.
+    assert.match(file.endsWith(".tsx") ? code(file) : read(file), /Vabamorf/, `${file} does not credit Vabamorf`);
   }
 });
 
@@ -12608,6 +12610,33 @@ check("the card types are the same seven wherever they are written down", () => 
   somebody runs once against a live key, and a rule that every script must be
   documented would be a rule to write filler.
 */
+check("a check that a source file does something reads its code, not its comments", () => {
+  /*
+    THE OLDEST RECURRING MISTAKE IN THIS SUITE, AND IT WAS STILL HERE.
+
+    `code()` exists because a comment naming a function satisfies a check
+    that searches the raw file for it. CLAUDE.md records that fault four
+    times, and eleven presence checks in this file were still reading raw
+    text: deleting the `clampReviewedAt` call from the offline outbox, the
+    `matchEstonianForm` call from the scan resolver, or the `ProseStream`
+    pass from the tutor route left every one of them green, because each
+    file has a comment explaining the call it no longer made.
+
+    So a positive `assert.match` handed a source file straight from `read`
+    is refused. A variable read and matched later is out of this check's
+    reach, and the ones that existed were converted by hand; `doesNotMatch`
+    may keep `read`, since there a comment can only make the check stricter.
+  */
+  const self = read("scripts/test-invariants.ts");
+  const offenders = [...self.matchAll(/assert\.match\(\s*read\(("[^"]+\.(?:ts|tsx|mjs)")\)/g)]
+    .map((m) => `line ${self.slice(0, m.index).split("\n").length}: ${m[1]}`);
+  assert.deepEqual(offenders, [], `presence checked against raw text, which a comment satisfies: ${offenders.join(", ")}`);
+  assert.ok(
+    [...self.matchAll(/assert\.match\(\s*code\("/g)].length >= 10,
+    "fewer than ten presence checks read code(); the pattern this guards moved",
+  );
+});
+
 check("every command the README and CLAUDE.md name is a script that exists", () => {
   const scripts = new Set(
     Object.keys(JSON.parse(read("package.json")).scripts as Record<string, string>),
@@ -13015,7 +13044,7 @@ check("the research opt-out is applied in the query, and is where the page says"
     );
   }
   assert.match(
-    read("app/(app)/settings/PreferencesPanel.tsx"),
+    code("app/(app)/settings/PreferencesPanel.tsx"),
     /setResearchParticipation\(/,
     "the Settings row for the research opt-out no longer writes anything",
   );
@@ -14056,7 +14085,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
   assert.match(code("app/api/tutor/route.ts"), /await forgetOldMessages\(ownerId\);/, "the tutor route no longer forgets yesterday's conversation when it writes today's");
   assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
   assert.match(read("docs/25-data-retention.md"), /Tutor conversation \(`Message`\) \| 24 hours/, "the retention schedule no longer says a tutor conversation lasts a day");
-  assert.match(read("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
+  assert.match(code("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
 });
 
 check("the scene prompt is served off a cache entry, by one module, on the route and in the harness", () => {
@@ -16617,7 +16646,7 @@ check("Today's report names no errand, and the research table files a conversati
   assert.doesNotMatch(tally, /errandById|"errandId"|unit/, "the encounters section files a report under a unit or an errand");
   assert.match(tally, /isConversation/, "the encounters section counts a day with no conversation in it as one");
   assert.match(
-    read("lib/research/sections.ts"), /NOTHING HERE SAYS WHAT A CONVERSATION WAS ABOUT/,
+    code("lib/research/sections.ts"), /NOTHING HERE SAYS WHAT A CONVERSATION WAS ABOUT/,
     "the encounters section no longer tells a reader that it does not know what a conversation was about",
   );
 });
