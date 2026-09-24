@@ -255,7 +255,10 @@ export async function POST(request: Request) {
         say(`\n\n\u26a0 ${message}`);
       } finally {
         controller.close();
-        void persist(ownerId, messages, full);
+        // Through `after()`, like the ledger writes above it: the stream has
+        // just closed, which is the moment the platform may suspend this
+        // function, and a bare promise then saves nothing of the turn.
+        after(() => persist(ownerId, messages, full));
       }
     },
   });

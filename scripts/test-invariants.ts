@@ -8795,6 +8795,22 @@ check("no ledger write is left to a promise the platform may drop", () => {
 });
 
 /**
+ * AND NO ROUTE HANDLER LEAVES A WRITE TO A PROMISE NOBODY HOLDS.
+ *
+ * The ledger rule above named two functions, and the tutor route saved the
+ * conversation as `void persist(...)` in the `finally` of its stream, one line
+ * after `controller.close()`, which is the moment the platform may suspend the
+ * function. The turn a learner just had was then left to luck. A route may
+ * only do work after its response is done through `after()`.
+ */
+check("no route handler leaves work to a promise the platform may drop", () => {
+  const routes = sourceFiles("app").filter((f) => /[\\/]route\.tsx?$/.test(f));
+  assert.ok(routes.length >= 10, `only ${routes.length} route handlers found, so this stopped looking`);
+  const dropped = routes.filter((f) => /\bvoid\s+[\w.]+\s*\(/.test(code(f)));
+  assert.deepEqual(dropped, [], "a route handler starts work with `void` rather than `after()`");
+});
+
+/**
  * THE RUSSIAN AND THE UKRAINIAN COME FROM EKILEX, AND FROM NOWHERE ELSE.
  *
  * `Lexeme.translationRu` and `translationUk` are the one place in this schema
