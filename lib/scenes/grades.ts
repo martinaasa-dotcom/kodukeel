@@ -214,6 +214,46 @@ export function gradesFor(
   return out;
 }
 
+/** A card that could carry a scene's grade, as `finishScene` reads it. */
+export interface GradeableCard {
+  readonly id: string;
+  readonly cardType: string;
+  readonly targetCase: string | null;
+  readonly lexeme: { readonly lemma: string } | null;
+}
+
+/**
+ * Which of the learner's cards each grade lands on, or null where they hold
+ * none: the case card for the case the beat asked, the production card
+ * otherwise, and the lowest id where two would do.
+ *
+ * `finishScene` asked this one grade at a time, a `findFirst` per grade
+ * ordered on the id, so a conversation that met ten requirements made ten
+ * round trips before its first write, on the screen that says how it went.
+ * It reads every candidate once now and this is the match, pure so the choice
+ * is tested rather than trusted to a query that no longer exists. The lowest
+ * id is what that query's `orderBy` chose, so a learner holding two cards for
+ * one word has the same one graded as before.
+ */
+export function cardsForGrades(
+  grades: readonly Pick<SceneGrade, "lemma" | "grammCase">[],
+  cards: readonly GradeableCard[],
+): (string | null)[] {
+  const key = (lemma: string, grammCase: string | null) =>
+    grammCase ? `${lemma}\u0000CASE_FORM\u0000${grammCase}` : `${lemma}\u0000PRODUCTION`;
+  const lowest = new Map<string, string>();
+  for (const card of cards) {
+    if (!card.lexeme) continue;
+    const k = card.cardType === "CASE_FORM" && card.targetCase
+      ? key(card.lexeme.lemma, card.targetCase)
+      : card.cardType === "PRODUCTION" ? key(card.lexeme.lemma, null) : null;
+    if (k === null) continue;
+    const held = lowest.get(k);
+    if (held === undefined || card.id < held) lowest.set(k, card.id);
+  }
+  return grades.map((grade) => lowest.get(key(grade.lemma, grade.grammCase)) ?? null);
+}
+
 /**
  * The words this run needed and the learner did not have.
  *
