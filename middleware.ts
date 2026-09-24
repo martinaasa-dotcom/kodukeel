@@ -153,8 +153,9 @@ export async function middleware(request: NextRequest) {
       `lib/email/unsubscribe.ts`, so it authorises exactly one thing for
       exactly one person.
 
-      The route that *sends* is deliberately not here. It is gated on a secret
-      of its own and answers 404 to everybody else.
+      The route that *sends* is not in this paragraph, since it is not a link
+      anybody follows. It is further down beside the two other routes that
+      authenticate themselves with a token rather than a session.
     */
     path.startsWith("/api/email/unsubscribe") ||
     /*
@@ -205,7 +206,18 @@ export async function middleware(request: NextRequest) {
     // learner, so neither can be reached by resolving one: a session here
     // would be a session with nothing to say about whether the caller may
     // read a deployment-wide aggregate.
-    path.startsWith("/api/research");
+    path.startsWith("/api/research") ||
+    /*
+      And the mail run, which is the scheduler calling with `CRON_SECRET` and
+      no session. It was left off this list on the argument that it is gated
+      on a secret of its own, which is true and is exactly why it has to be
+      here: behind the sign-in gate that secret was never read. Every request
+      the cron made on a hosted deployment was answered 401 before the route
+      was asked, so no letter was ever sent. Past this gate the route compares
+      the secret in constant time and answers 404 to everybody else, and with
+      no secret set it refuses rather than allowing.
+    */
+    path.startsWith("/api/email/send");
 
   /*
     What a signed-out request gets, in one place because two branches need it.

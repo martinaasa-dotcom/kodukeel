@@ -21323,6 +21323,40 @@ check("the scheduled run is the only thing that sends, and it is gated", () => {
   );
 });
 
+/**
+ * A ROUTE THAT AUTHENTICATES ITSELF HAS TO BE REACHABLE TO DO IT.
+ *
+ * The mail run checks `CRON_SECRET` in constant time and answers 404 to
+ * everybody else, and the check above holds all of that. None of it ran: the
+ * route was not on the middleware's public list, so on a hosted deployment the
+ * scheduler's request, which carries the secret and no session, was answered
+ * 401 by the sign-in gate before the route was asked. Driven against the real
+ * middleware with the Supabase keys set, `/api/metrics` and `/api/research`
+ * passed and `/api/email/send` did not, so no letter could ever be sent. The
+ * check above asks whether the cron path exists, which is the file being right;
+ * this asks whether a request can get to it.
+ *
+ * So a route that reads the authorization header is one that authenticates
+ * itself, and its path has to be past the gate.
+ */
+check("a route that checks its own bearer token is past the sign-in gate", () => {
+  const mw = code("middleware.ts");
+  const list = mw.slice(mw.indexOf("const isPublicPath"), mw.indexOf("const signedOut"));
+  assert.ok(list.length > 200, "middleware.ts no longer has a public path list to read");
+  const selfAuthenticating = APP.filter(
+    (f) => /^app\/api\/.*\/route\.ts$/.test(f) && /headers\.get\(\s*["']authorization["']\s*\)/.test(code(f)),
+  );
+  assert.ok(selfAuthenticating.length >= 3, `only ${selfAuthenticating.length} self-authenticating routes found, so this stopped looking`);
+  for (const file of selfAuthenticating) {
+    const path = "/" + file.replace(/^app\//, "").replace(/\/route\.ts$/, "");
+    assert.ok(
+      list.includes(`path.startsWith("${path}")`),
+      `${file} checks its own bearer token and ${path} is not on the middleware's public list, ` +
+      "so a caller with the token and no session is answered 401 before the route is asked.",
+    );
+  }
+});
+
 /*
   A SENTENCE SOMEBODY HAS REFUSED REACHES NO SCREEN, AND NO RUN PUTS IT BACK.
 

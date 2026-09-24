@@ -751,6 +751,18 @@ likely. A failed send therefore spends the slot: somebody misses one evening's l
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
 is what people unsubscribe over.
 
+**And no letter had ever left a hosted deployment, because the scheduler could not get in.** The
+mail run checks `CRON_SECRET` in constant time and an invariant holds all of that, and the route
+was not on the middleware's public list on the argument that it is gated on a secret of its own.
+That is true and is exactly why it has to be past the sign-in gate: the scheduler calls with the
+secret and no session, so the gate answered 401 before the route was asked, on every run. Driven
+against the real middleware with the Supabase keys set, `/api/metrics` and `/api/research`, which
+authenticate themselves the same way, passed, and `/api/email/send` did not. The invariant beside
+the mail run asked whether the cron path exists, which is the file being right; the one added asks
+whether a request can reach it, and holds **every route that reads its own bearer header** to being
+on the public list. `test-security.mjs` asks the route what it asks the other two, that it does not
+exist without the token.
+
 **A letter says how long is left, not how many days were missed.** `daysAway` is read by the
 scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
 than theirs to be handed.

@@ -37,7 +37,7 @@ const B = baseUrl();
 // Floor: 36, measured against a local-mode build, which is what the browser
 // job runs. Hosted waives the handful that need a route to answer rather than
 // refuse, and says so.
-const { check, absent, done } = suite("Security", { floor: 36 });
+const { check, absent, done } = suite("Security", { floor: 38 });
 
 /** GET with no cleverness, returning status, headers and body together. */
 async function get(path, init) {
@@ -156,7 +156,7 @@ check("a request with no browser headers at all is let through",
 
 // ── What is behind a token stays behind it ───────────────────────────────────
 
-for (const path of ["/api/metrics", "/api/research"]) {
+for (const path of ["/api/metrics", "/api/research", "/api/email/send"]) {
   check(`${path} does not exist without the token`, (await status(path)) === 404);
   check(`${path} does not exist with the wrong token`,
     (await status(path, { headers: { authorization: "Bearer not-the-token" } })) === 404);
