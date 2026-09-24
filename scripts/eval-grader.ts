@@ -21,7 +21,7 @@
   Every Estonian character in the fixtures comes out of
   prisma/data/expanded.json. Nothing is written anywhere.
 
-    TRIALS=12 npx tsx scripts/eval-grader.ts
+    TRIALS=12 npm run eval:grader
 
   runs every Groq model the chain can reach and the Gemini tier, and, with
   ANTHROPIC_API_KEY set, sonnet and haiku behind them. An org-scoped Anthropic

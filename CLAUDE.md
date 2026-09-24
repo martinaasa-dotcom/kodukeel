@@ -52,7 +52,7 @@ lemma it names is one its own declared units teach, asserted word by word, so a 
 introduce vocabulary. What the other side says comes from `sceneLine`, with its provenance: a
 recorded usage where one fits the beat, which after §32 is the courtesies and nothing else,
 otherwise a line a model composed inside the scene's closed word list with this run's own turns in
-front of it and `runGate` checked five ways, shape, vouching, register, government and facts, and
+front of it and checked by `runGate` against every entry of its `CHECKS`, and
 withheld whole when it fails, otherwise a line drafted in advance and gated then, otherwise the
 line the beat says off the card, and where every rung fails the other side says they did not catch
 that, in a phrase the course teaches and in character, never a repair line this app wrote. **The
@@ -64,7 +64,7 @@ may ask a judge on the grader's chain whether the learner did what the beat aske
 yes ends the beat through `concede`, the only other producer of `Evidence`, which can mark as met only
 what the dictionary left missing. A conceded requirement writes no row (`gradesFor` skips it), a value
 off the role card is never conceded, and a turn nobody could read is never put to the judge. The
-operator asked for this so a conversation can flow and end naturally. The fifth check exists because the other four are about words and a number is
+operator asked for this so a conversation can flow and end naturally. The `facts` check exists because the others are about words and a number is
 not one: a digit in a composed line has to be one `dealtNumbers` says the card dealt, or a model
 asked first on a beat that names a time invites the learner to agree to an appointment nobody
 offered. What the learner
@@ -221,13 +221,13 @@ reaches past the scene's list rather than as whether its words are Estonian; the
 number to read.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
-`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
+`MAX_COMPOSED_WORDS` is fifty-five and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
 reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
 that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
-check written for it, and the gate has twelve now rather than five, `shape`, `vouching`, `register`,
+check written for it, and the gate had twelve by then rather than five, `shape`, `vouching`, `register`,
 `government`, `facts`, `agreement`, `topic`, `giveaway`, `stretch`, `clause`, `infinitive`,
-`negation`. **Not one of the twelve was relaxed**, and four of them are the reason: `vouching` is
+`negation`, with `farewell` and `question` added since. **Not one of them was relaxed**, and four of them are the reason: `vouching` is
 where ADR-005 lives on this path, `agreement` is what catches `Kuhu te soovid sõita?` on a check that
 had never been handed `te`, `me` or `nad`, `infinitive` is what catches `aitama saan`, and `giveaway`
 is what stops the other side saying the form the beat is about to ask for. Measured: 13.7 percent of
@@ -262,10 +262,10 @@ chunk. And `completion_tokens` was read where `total_tokens` less the prompt is 
 `billedOutput` reads the larger of the two, which is the same number on Groq and OpenAI, whose
 totals add up. `ProviderConfig.reasoning` is the other half: the two Gemini scene links carry
 `"none"`, sent as `reasoning_effort`, because `npm run eval:thinking` put thinking on and off at
-24 of 24 beats each, one gate refusal apart, on lines nobody could tell apart. Only that value is
-allowed, so a link cannot be put on "low" and called a saving nobody measured. The tutor and
-grader chains carry nothing, since a Groq reasoning model refuses "none" and Anu was measured
-thinking. Input is now nine tenths of a scene line, 2,000 tokens a call, and the endpoint reports
+24 of 24 beats each, one gate refusal apart, on lines nobody could tell apart. Only a value an eval
+measured is allowed, so a link cannot be put on a setting and called a saving nobody measured. The grader
+chain and every Groq link carry nothing, since a Groq reasoning model refuses "none"; Anu's Gemini
+link carries `"none"`, because that is how the eval that chose it was run. Input is now nine tenths of a scene line, 2,000 tokens a call, and the endpoint reports
 no cached share on an identical 2,000-token prefix, so the next saving there is the prompt's
 length rather than its order. `npm run report:spend` is how the bill is read by kind, model and
 day off the deployment's own ledger, priced in and out apart, because a model whose output share
@@ -301,7 +301,7 @@ what a live lookup returns is a sentence the shipped table already answers for, 
 and the expansion are where those words are. Four writers, all four asserted: the two halves of the
 seed, the repair for a database seeded before the table existed, and the mapper.
 
-**Nobody has read the 16,037 lines, and a mechanical second opinion was built and thrown away.** The
+**Nobody has read the 16,036 lines, and a mechanical second opinion was built and thrown away.** The
 gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
 from, and there is no equivalent here: a translation has no upstream to be checked against. What was
 tried instead was the dictionary itself, asking whether each English line shares a content word with
@@ -887,9 +887,10 @@ beside a live `caseEt`, and not one screen, script or test read any of them: `Ca
 own comment says it is "the name the advice is written in". Four of the nine exemptions on the
 closed list were justified by a sentence that was half true, "carries caseEn on the task; the screen
 prints the reading", where the screen prints the reading and the field reaches no reader at all. They
-are gone, and with the demo row and the exam option's dead `en` the list is four readers rather than
-nine: the stored government string, the mapper that writes it, Anu's own table, and a slug. **None
-of them is a screen.**
+are gone, and with the demo row and the exam option's dead `en` the list is down to the stored
+government string, the mapper that writes it, Anu's prompt and her facts block, a slug, and
+`lib/copy/caseHint.ts`, which reads the name only to take it off a stored hint. **None of them is a
+screen.**
 
 **And two stored columns still said it, which no sweep over the source can see.** Every check above
 is about what this app *writes*, and a learner reported "the comitative" off a review card months
@@ -1161,9 +1162,9 @@ reason, so a gap is at least six words and is checked in both directions, becaus
 is somebody who stopped reading.
 
 **The screen reads `Example.en` like every other screen.** `lib/dict/exampleEnglish.ts` has a closed
-list of four readers and every one of them is a writer, the two halves of the seed, the repair and
-the live Ekilex mapper, so a page reaching past the column would be a fifth answer to what a
-sentence means and the copy nobody is watching is the one that goes stale.
+list of readers, each with its reason beside it, and the ones that write are the two halves of the
+seed, the repair and the live Ekilex mapper, so a page reaching past the column would be one more
+answer to what a sentence means and the copy nobody is watching is the one that goes stale.
 `lib/progress/grammarExamples.ts` is the read: one query per page whatever it holds, the lemmas of
 every pin on it in a single `findMany`, and a pin the live dictionary no longer holds is dropped
 rather than drawn from the text in the table. `matchPins` is that join kept pure, because the query
@@ -2406,7 +2407,7 @@ capitalised tag, since a component of ours may legitimately take a width class a
 its size in an attribute may not. It reads a few hundred icon tags and was made to fail on the real
 line.
 
-**Fourteen rounds offer it and eleven are exempt by name, in `lib/questions/hintCoverage.ts`.** The
+**The rounds that do not offer it are exempt by name, in `lib/questions/hintCoverage.ts`.** The
 ask was website wide and that is not the same as every file. The three **measurements** may not have
 one, which is the line `lib/exam/paper.ts` and `lib/assessment/items.ts` are already exempt on: a
 candidate helped through a mock paper has been measured at something other than what the screen
@@ -3559,8 +3560,8 @@ deployment nothing for a query it cannot afford. **A refusal is respected wherev
 since an entry that holds the sentence answers for it and the table is never asked, which is what
 stops a line somebody read and refused being handed back; the residual is a sentence refused on the
 entry that owns it and borrowed by another, which this cannot see, and it is written down rather
-than left to be rediscovered. `lib/dict/examples.ts` is the fifth entry on `exampleEnglish`'s closed
-reader list and the only one that is a read rather than a write, with that reason beside it.
+than left to be rediscovered. `lib/dict/examples.ts` is on `exampleEnglish`'s closed
+reader list as the one runtime read, the others being writers, checks and the audits' adapter, with that reason beside it.
 
 **And a gap card's back holds every spelling the marker takes, while its sentence holds one word.**
 `lib/srs/cards.ts` builds a case or conjugation back as `[answer, ...also].join(PARTS)`, so the
@@ -6588,8 +6589,8 @@ its own comment says why: "a suite added to `npm run test:browser` alone is a su
 It had drifted in the other direction too, with nothing counting, and five suites had nothing
 watching them at all, `test-restore.mjs` among them. The source of truth is the filesystem: every
 `scripts/*.mjs` that declares a suite is one CI runs, and anything else is named in
-`scripts/lib/suites.mjs` with a written reason. Two are, and both are facts about the route rather
-than about anybody's schedule.
+`scripts/lib/suites.mjs` with a written reason: a suite that needs a live key CI deliberately does
+not carry, or one another job runs against a fixture of its own.
 
 **A browser refusing to autoplay is a fact about the gesture, and one module knows it.** Every
 browser blocks `HTMLAudioElement.play()` on a page the reader has not touched yet and rejects it
@@ -7547,10 +7548,11 @@ third until the page it led was cut.
 The others are one question asked four ways. The deck, the level check, the mock exam and a class
 are four readings of "how am I doing", which is
 the question `/progress` exists to answer: standing them beside it as four more rows made the rail
-a list of every noun in the app rather than a set of places to go. Eight rows are left, under three
-headings rather than four, because a heading over a single row is furniture: a heading earns itself
-by telling two or three rows apart, and "where you are in the course" and "how far along it you
-are" turned out to be one question rather than two sections.
+a list of every noun in the app rather than a set of places to go. Where a heading goes, the rule is
+that a heading over a single row is furniture: a heading earns itself by telling two or three rows
+apart, and "where you are in the course" and "how far along it you are" turned out to be one
+question rather than two sections. How many rows and headings that leaves is `SECTIONS`, not this
+paragraph.
 
 This is not the "More" button coming back, and the difference is the whole point: a disclosure
 hides a link somewhere a learner has to *remember*, and each of these is on the screen they are
@@ -8183,7 +8185,7 @@ is asked once more about the beat ahead (`alsoDone`), which is how `ma tahan pil
 being answered with "where to?". The composer is told the same rule in words and asked for the turn
 a person takes, two to four sentences inside `MAX_COMPOSED_WORDS`, rather than the shortest question
 that would do. Every learner-facing rule stayed where it was: the dictionary reads first, the model
-never writes a grade, and a composed line still passes the twelve checks.
+never writes a grade, and a composed line still passes every check in the gate.
 
 **Every failure in a conversation looked exactly like a success, and that is why the whole module
 was reported as unusable.** A turn that landed got a word back and then the next question. A turn
@@ -8610,12 +8612,12 @@ none refused.
 **And the leash came off, because the leash was never what was holding the line together.** A
 learner asked why the limits are that tight at all, and they were right: some of these moments need
 explaining, and what is missing from a form and what to do about it is three sentences from
-anybody. `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` is twenty-two. The middle step is the
+anybody. The limits were then three sentences and twenty-two words. The middle step is the
 one worth knowing: the ceiling was raised to eighteen once, `Tere! Mis needus täna aitama saan?`
 came back, and it was put down again on the argument that the only thing keeping a composed line
 honest is how little room it has to reach. That argument is wrong in a way the line itself shows,
 since it is six words. Length did not produce it and length was never going to stop it. What stops
-it is the check written for it, and what pays for the room is a gate with eleven checks in it.
+it is the check written for it, and what pays for the room is the gate, which had eleven checks then.
 
 **And asking for one short sentence is what made the other side terse.** A learner read
 `Kust alustaksite tööd?` and said what the model needs is context rather than shorter questions,
@@ -8968,7 +8970,7 @@ whole sentence with one clause inside it and a reason or a consequence in a seco
 speak to any adult; at C1 how you speak to a colleague. Each row also narrows the ask, fewer
 sentences, fewer words and fewer words outside the list as the band drops, and **every figure sits
 under the gate's own ceiling**, asserted, since the gate is what keeps a composed line honest and
-none of its twelve checks was touched.
+none of its checks was touched.
 
 **A scene has no band of its own.** It did, and it decided where a tile sat on the listing and, for
 an hour, how the other side talked; the operator asked for the bands to go, and they were right
@@ -9952,9 +9954,17 @@ it cannot find the rail, which was the `A || !A` shape one check over.
 
 ## Model configuration
 
-**Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` returns every
-key in `.env` in order, free first: OpenRouter (default), Anthropic, then OpenAI. Do not re-pin a
-single provider. `openWithFallback` walks past a provider that is throttled or having a bad
+**Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` builds one
+of two kinds of chain. Asked for a purpose, it builds that purpose's own (`PURPOSE_CHAINS`, above):
+Anu on `TUTOR_MODEL` with Groq's `TUTOR_FALLBACK_MODEL` behind it, a scene on `SCENE_MODELS` with
+`SCENE_FALLBACK_MODEL` behind them, the grader on `GRADER_MODELS`, and for the scene and the grader
+Anthropic last, only while the day's fallback budget has room. Asked for nothing in particular, it
+builds the general chain, which is the scanner's tail, the dictionary's translation fallback and
+whatever else asks only "is any model configured": Groq's models, then Gemini's, then Anthropic and
+OpenAI behind the same budget gate. That order replaced "free first", and the function's own
+comment says why: a free model is throttled upstream by design, so preferring one spends the
+learner's wait to save a hundredth of a cent. Do not collapse either kind to one provider.
+`openWithFallback` walks past a provider that is throttled or having a bad
 minute, and never past a rejected key or a model that does not exist, since every provider would
 answer those the same way and trying them all turns one clear message into a slower one. A
 provider is only ever walked past **before it has said anything**: once text is reaching the
@@ -9965,17 +9975,20 @@ sitting through 4.5 seconds of backoff against a provider that has already said 
 seconds. The Anthropic path keeps a `cache_control` breakpoint on the static Estonian system
 prompt. This supersedes the original ADR-004; see `docs/13-mvp-status.md` §2.
 
-**Reading a picture uses whichever model the deployment already configured.** Not a better one
-chosen behind the operator's back: turning the camera on must not move a free-model deployment onto
-a paid one, and the free chain that is now the default is text-only. `OPENROUTER_VISION_MODEL`,
-`ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` are how that choice is made, and they affect
-scanning and nothing else. The chain is deduplicated by model first: OpenRouter contributes a link
-per free model, so an override would otherwise ask one model the same question three times and read
-the third refusal as having exhausted the chain. The image path
-falls back more readily than the chat path does, and deliberately: `openWithFallback` refuses to
-walk past a 400 because every provider would refuse a malformed request the same way, but whether a
-model can see is a fact about that one model, so `completeWithImage` walks past everything except a
-rejected key.
+**Reading a picture leads with the model measured reading one, and never adds a provider.**
+`visionProviders` puts `VISION_MODEL` first wherever a Gemini key is set, because `npm run eval:scan`
+measured it reading every diacritic on the page, and the general chain follows it, deduplicated,
+because a scan has no bank underneath it and a bad minute at one provider has to be able to reach
+another. It only ever chooses among providers the deployment already holds a key for, so turning
+the camera on cannot move a deployment onto one it did not configure. `GEMINI_VISION_MODEL`,
+`GROQ_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` swap the model on that
+provider's link, and they affect scanning and nothing else. The chain is deduplicated by model
+because Groq and Gemini each contribute a link per model, so an override would otherwise ask one
+model the same question three times and read the third refusal as having exhausted the chain. The
+image path falls back more readily than the chat path does, and deliberately: `openWithFallback`
+refuses to walk past a 400 because every provider would refuse a malformed request the same way,
+but whether a model can see is a fact about that one model, so `completeWithImage` walks past
+everything except a rejected key.
 
 **Which model answered is a fact about the answer, so it travels with it.** Never the head of the
 chain: a screen naming the wrong model is worse than one naming none. The handshake finishes
@@ -10906,7 +10919,7 @@ add checks; never lower one to make a run pass.
 
 **A floor is only honest while the count is a property of the code rather than
 of the machine.** It was not. `test-teaching.mjs` was measured on a box whose
-environment carried `EKILEX_API_KEY` and `OPENROUTER_API_KEY`, so dictation
+environment carried an Ekilex key and a model key, so dictation
 built a real round and Anu had a text box, and its floor of 38 counted both.
 CI has neither key, ran the same correct code, came in at 34, and the floor
 read that as a block having stopped running. Lowering it was not available:
