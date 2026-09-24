@@ -2447,9 +2447,13 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
-    select: { id: true, name: true },
+    select: { id: true, name: true, archived: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
+  // The screen hides this for an archived class; the action is a public
+  // endpoint and has to refuse it too, or work lands in members' lists for a
+  // class its teacher has closed.
+  if (classroom.archived) return { ok: false as const, error: "That class is archived." };
 
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "That unit does not exist." };
@@ -2497,9 +2501,13 @@ export async function assignHomework(classroomId: string, title: string, notes: 
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
-    select: { id: true, name: true },
+    select: { id: true, name: true, archived: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
+  // The screen hides this for an archived class; the action is a public
+  // endpoint and has to refuse it too, or work lands in members' lists for a
+  // class its teacher has closed.
+  if (classroom.archived) return { ok: false as const, error: "That class is archived." };
 
   const cleanTitle = capped(title, LIMITS.taskTitle);
   if (!cleanTitle) return { ok: false as const, error: "Give the homework a title." };

@@ -13625,6 +13625,30 @@ check("a case is named only when one case claims the spelling", () => {
  * nothing in it may name the table at all: a count is a `count`, and a count
  * cannot leak a sentence.
  */
+check("an archived class is refused by every action that writes to its members", () => {
+  /*
+    ARCHIVING IS A PROMISE THE SCREEN KEPT AND THE ACTIONS DID NOT.
+
+    The class page hides "assign" once a class is archived, and `assignUnit`
+    and `assignHomework` are public endpoints that read the class by id and
+    owner alone, so a teacher's stale tab, or anybody holding the id, could go
+    on writing tasks into every member's list for a class that had been
+    closed. Read off the actions rather than a list of two, so a third action
+    that fans out to a class's members has to decide about archiving too.
+  */
+  const actions = code("app/actions.ts");
+  const bodies = actions.split(/\nexport async function /).slice(1);
+  const fanOut = bodies.filter((b) => /classroomMember\.findMany/.test(b) && /\.createMany\(/.test(b));
+  assert.ok(fanOut.length >= 2, `only ${fanOut.length} actions write to a class's members, so this stopped looking`);
+  for (const body of fanOut) {
+    const name = body.slice(0, body.indexOf("("));
+    assert.match(
+      body, /\.archived\)/,
+      `${name} writes to every member of a class without refusing an archived one`,
+    );
+  }
+});
+
 check("a class cannot read a conversation", () => {
   for (const file of LIB.filter((f) => f.startsWith("lib/classroom/") && !f.includes(".test."))) {
     const src = code(file);
