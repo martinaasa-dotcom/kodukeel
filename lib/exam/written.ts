@@ -54,9 +54,9 @@ export interface RequiredWord {
  * and a candidate who wrote `helistab` was marked as not having used
  * `helistama`. And it took each case's shown forms where `gapForms` walks
  * `caseAnswer(...).accepted`, so a spelling the dictionary accepts and does not
- * lead with was refused. Both errors point the same way, at a marking path
- * whose own header says marking generously is the one thing it exists not to
- * do, on a mock state examination.
+ * lead with was refused. Both errors point the same way, at a right answer
+ * marked wrong, which is the fault this file's header is about pointed the
+ * other way, on a mock state examination.
  *
  * The flattening stays this module's, because what the marker compares is a
  * word out of somebody's prose: `tidyForm` is the same fold `whichCase` reads
