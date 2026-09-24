@@ -3336,6 +3336,14 @@ check("every path that adds cards reads and writes under one lock", () => {
       read: "card.findMany",
       write: "card.createMany",
     },
+    {
+      // The third path, which the count below did not reach while it read two
+      // files: a gap-fill added from the dictionary page.
+      what: "backfillClozeCards",
+      body: /export async function backfillClozeCards\(([\s\S]*?)\n\}/.exec(code("lib/srs/backfill.ts"))?.[1] ?? "",
+      read: "card.count",
+      write: "card.createMany",
+    },
   ];
 
   for (const { what, body, read: readCall, write } of lockedPaths) {
@@ -3365,8 +3373,17 @@ check("every path that adds cards reads and writes under one lock", () => {
     every insert is covered, and a fifth written anywhere else fails here
     whatever it is called.
   */
-  const inserts = (text: string) => [...text.matchAll(/card\.createMany/g)].length;
-  const everywhere = inserts(code("app/actions.ts")) + inserts(code("lib/srs/deck.ts"));
+  /*
+    Across the whole tree rather than the two files it started in: counted in
+    `app/actions.ts` and `lib/srs/deck.ts` alone, it could not see
+    `lib/srs/backfill.ts`, which also inserts cards. An upsert is not counted,
+    since restoring a backup writes each card under the id the file carries,
+    which is not a "have I got one yet" question.
+  */
+  const inserts = (text: string) => [...text.matchAll(/card\.(?:createMany|create)\(/g)].length;
+  const everywhere = ALL
+    .filter((f) => !/\.(test|itest)\.tsx?$/.test(f))
+    .reduce((sum, f) => sum + inserts(code(f)), 0);
   const locked = lockedPaths.reduce((sum, path) => sum + inserts(path.body), 0);
   assert.equal(
     everywhere, locked,
