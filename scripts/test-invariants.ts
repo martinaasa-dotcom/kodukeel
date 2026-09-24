@@ -16506,6 +16506,47 @@ check("readiness is derived on every request and never written down", () => {
  * wants a softer ring can add to it, never take it away.
  */
 /**
+ * WHATEVER DELETES ROWS FOR A TEST REFUSES A DATABASE THAT IS NOT LOCAL.
+ *
+ * `scripts/lib/local-db.mjs` exists because Prisma reads the environment's
+ * `DATABASE_URL` before `.env`, so a shell carrying hosted credentials points a
+ * test at production and nothing in the output says so. The browser suites
+ * that delete and the demo fixture each import it, and the control map cites
+ * that (8.33); nothing asserted it, and the integration suite, which corrects
+ * shared dictionary rows and runs the seed's repairs over every learner's
+ * deck, had no guard at all.
+ *
+ * Found by shape: a script that deletes rows has to call the guard, and the
+ * integration config has to run it before any file loads. `audit-decks.ts` is
+ * the one exemption and is the point of it: it is the production deck audit,
+ * run from a workflow against the real database, and it reports before it
+ * will remove anything.
+ */
+check("everything that deletes rows for a test refuses a remote database", () => {
+  const EXEMPT: Record<string, string> = {
+    "scripts/audit-decks.ts": "the production deck audit; reports first and removes only with --write",
+  };
+  const deleting = readdirSync("scripts")
+    .filter((f) => /\.(mjs|ts)$/.test(f) && f !== "test-invariants.ts")
+    .map((f) => `scripts/${f}`)
+    .filter((f) => /deleteMany\(|\.delete\(\{|DELETE FROM|TRUNCATE/.test(code(f)));
+  assert.ok(deleting.length >= 8, `only ${deleting.length} deleting scripts found, so this sweep stopped looking`);
+  for (const file of deleting) {
+    if (EXEMPT[file]) continue;
+    assert.match(code(file), /\brequireLocalDatabase\(/, `${file} deletes rows and never refuses a remote database`);
+  }
+  for (const file of Object.keys(EXEMPT)) {
+    assert.ok(deleting.includes(file), `${file} is exempt from the local-database guard and no longer deletes; take it off`);
+  }
+  const config = code("vitest.integration.config.mts");
+  const setup = /globalSetup:\s*\[?\s*["']([^"']+)["']/.exec(config)?.[1];
+  assert.ok(setup, "the integration suite runs no globalSetup, so nothing refuses a remote database before it deletes");
+  const guard = setup.replace(/^\.\//, "");
+  assert.ok(existsSync(guard), `the integration suite's globalSetup ${guard} does not exist`);
+  assert.match(code(guard), /\brequireLocalDatabase\(/, `${guard} runs before the integration suite and does not refuse a remote database`);
+});
+
+/**
  * A ROUND THE SERVER MARKS IS GRADED ONCE, HOWEVER OFTEN IT ARRIVES.
  *
  * `submitExam` names each grade by the paper's seed and the card, so a paper

@@ -10825,6 +10825,15 @@ no grid", which reads as the compiler being broken and sends the reader into `li
 It cost an hour of looking in the wrong file. The precondition is asked once now, against
 `SEED_SET_SIZE`, and fails in 93 milliseconds naming both the state and the command that fixes it.
 
+**And a suite that deletes rows refuses a database that is not local, the integration suite
+included.** `scripts/lib/local-db.mjs` is the refusal, because Prisma reads the environment's
+`DATABASE_URL` before `.env` and a shell carrying hosted credentials points a test at production
+with nothing in the output to say so. The browser suites that delete and the demo fixture had it;
+`npm run test:db` did not, and it writes the shared dictionary and runs the seed's repairs over
+every learner's deck. It runs the same refusal as Vitest's `globalSetup` now, and an invariant finds
+every script that deletes by shape and holds it to the guard, `audit-decks.ts` exempt by name since
+it is the production audit and reports before it removes anything.
+
 **A suite states its preconditions; it does not inherit them.** `letterBar` is a
 stored preference that decides whether a control is drawn at all, so a database
 where any earlier suite walked through first run and answered "I have them
