@@ -2491,7 +2491,9 @@ check("a review is only ever deleted by something the learner asked for", () => 
   const actions = read("app/actions.ts");
   assert.match(
     actions,
-    /confirmation\.trim\(\)\.toLowerCase\(\) !== "delete"/,
+    // Coerced first, because the argument is JSON off the wire: see "a malformed
+    // argument to a server action is refused, not thrown or stored".
+    /text\(confirmation\)\.trim\(\)\.toLowerCase\(\) !== "delete"/,
     "account deletion no longer asks the learner to confirm",
   );
   assert.match(actions, /mode === "replace"/, "the restore no longer guards on an explicit replace");
@@ -6180,6 +6182,102 @@ function ownerScopedModels(): string[] {
 }
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
+
+/**
+ * A MALFORMED ARGUMENT IS A REFUSAL, NEVER A 500 AND NEVER A STORED VALUE.
+ *
+ * `text()` in `app/actions.ts` states the rule and the file only half kept it:
+ * every export is a public endpoint whose arguments are JSON off the wire, so
+ * the types describe the callers in this tree and nothing about what arrives.
+ * `joinClassroom(42)` reached `.trim()` and threw, and `text()` was written for
+ * that one call. Twenty-four others went on reaching a string method through
+ * `capped`, which did `(value ?? "").trim()` itself, so `createLexeme({ lemma:
+ * 42 })` threw exactly the `TypeError` the helper beside it exists to prevent.
+ * A parameter typed as an object was read with no guard at all, so
+ * `finishScene(null)` threw on `input.runId`. And where a malformed value did
+ * not throw it was written down: `setDailyGoal(NaN)` stored the string "NaN",
+ * which is the fault this file's own comment records `recordSprintScore`
+ * having had, and `completeOnboarding` wrote an unvalidated level into the two
+ * settings `setCourseLevel` refuses to write one into, while the add-a-word
+ * paths wrote any string at all as a part of speech into the shared dictionary.
+ *
+ * Three arms, read off the exports rather than a list, since the next action
+ * inherits the rule by existing:
+ *
+ *   `capped` coerces through `text` before it touches a method, so every one
+ *   of its callers is safe whatever arrives.
+ *
+ *   No export calls a string or array method on a parameter, or on a property
+ *   of one, unless the same function asks `Array.isArray` or `typeof` about
+ *   that exact path first.
+ *
+ *   An export whose parameter is typed as an object parses it (`safeParse`)
+ *   or passes it through `fieldsOf` before reading a property off it.
+ */
+check("a malformed argument to a server action is refused, not thrown or stored", () => {
+  const source = code("app/actions.ts");
+
+  assert.match(
+    source, /const capped = \(value: unknown, max: number\): string =>\s*text\(value\)/,
+    "`capped` calls a string method on whatever it is handed, so every caller of it throws on a non-string",
+  );
+
+  const METHODS = "trim|toLowerCase|toUpperCase|normalize|split|startsWith|endsWith|slice|replace|map|filter|some|every|forEach|find|includes";
+  const unguarded: string[] = [];
+  const unparsed: string[] = [];
+  let asked = 0;
+  for (const m of source.matchAll(/^export async function (\w+)\(([\s\S]*?)\)\s*(?::[^{]*)?\{/gm)) {
+    const name = m[1]!;
+    let depth = 0;
+    let current = "";
+    const params: string[] = [];
+    for (const ch of m[2]!) {
+      if ("{[(<".includes(ch)) depth += 1;
+      if ("}])>".includes(ch)) depth -= 1;
+      if (ch === "," && depth === 0) { params.push(current); current = ""; } else current += ch;
+    }
+    params.push(current);
+
+    let at = m.index! + m[0].length;
+    let open = 1;
+    while (open > 0 && at < source.length) {
+      if (source[at] === "{") open += 1;
+      else if (source[at] === "}") open -= 1;
+      at += 1;
+    }
+    const body = source.slice(m.index! + m[0].length, at);
+    asked += 1;
+
+    for (const param of params) {
+      const declared = /^\s*(\w+)\??\s*:\s*([\s\S]*)$/.exec(param);
+      if (!declared) continue;
+      const [, p, type] = declared;
+      const escape = (t: string) => t.replace(/[.?]/g, (c) => `\\${c}`);
+
+      for (const hit of body.matchAll(new RegExp(`(?<![\\w.])(${p}(?:\\??\\.\\w+)*?)\\??\\.(?:${METHODS})\\(`, "g"))) {
+        const path = hit[1]!;
+        const guard = new RegExp(`Array\\.isArray\\(\\s*${escape(path)}\\s*\\)|typeof ${escape(path)}\\b`);
+        if (!guard.test(body)) unguarded.push(`${name}: ${hit[0]}`);
+      }
+
+      if (/^\s*\{/.test(type!) && new RegExp(`(?<![\\w.])${p}\\.\\w`).test(body)) {
+        const handled = new RegExp(`\\b${p} = fieldsOf\\(${p}\\)|safeParse\\(\\s*${p}\\b`).test(body);
+        if (!handled) unparsed.push(name);
+      }
+    }
+  }
+  assert.ok(asked >= 80, `only ${asked} exported actions found, so this check stopped looking`);
+  assert.deepEqual(
+    unguarded, [],
+    `these actions call a method on an argument without asking what it is, which throws on anything but the type the ` +
+    `caller in this tree sends: ${unguarded.join("; ")}. Coerce it through text(), or ask Array.isArray first.`,
+  );
+  assert.deepEqual(
+    unparsed, [],
+    `these actions read a property off an object argument that may not be an object: ${unparsed.join(", ")}. ` +
+    "Pass it through fieldsOf first, or parse it.",
+  );
+});
 
 check("the actions that do real work per call are throttled", () => {
   /*
