@@ -249,9 +249,10 @@ An unrecognised model prices at the dearest rate in the table. A cap that fails 
 
 In front of that sits `lib/security/rateLimit.ts`, and its own header is honest about what it is: a
 per instance in-memory limiter, so a burst spread across cold starts meets an empty map. It keeps an
-obvious loop from making a hundred database round trips on its way to being refused, and it caps the
-routes the ledger does not price at all. The Postgres ledger is what actually bounds cost, because it
-is the same number whichever instance answers.
+obvious loop from making a hundred database round trips on its way to being refused. The routes the
+ledger does not price at all, speech, the share card, the export and the restore, are counted again
+behind it in a row every instance can see (`lib/usage/sharedLimit.ts`, section 8). The Postgres ledger
+is what actually bounds cost, because it is the same number whichever instance answers.
 
 Buckets are keyed on the **learner**, never on the address. Twenty-five students on one school
 network are one IP, and a review session asks for audio on nearly every card.
@@ -506,9 +507,11 @@ locally, so a session revoked elsewhere survives until that token expires, an ho
 sign-in allowlist is not part of that trade: the address is a claim inside the token, so removing
 somebody from `ALLOWED_EMAILS` takes effect on their next request.
 
-**The rate limiter is per instance.** Its own header says so. On serverless a burst spread across
-cold starts meets an empty map. The routes it alone protects are speech, the share card, the export
-and the restore; the routes that cost money are bounded by the Postgres ledger instead.
+**The in-memory rate limiter is per instance.** Its own header says so. On serverless a burst
+spread across cold starts meets an empty map. No route relies on it alone: speech, the share card,
+the export and the restore are counted across instances by `lib/usage/sharedLimit.ts`, and the routes
+that cost money are bounded by the Postgres ledger. What is left is the moment the database cannot
+answer, when the shared count falls back to the per-instance map rather than failing open or closed.
 
 ## 7. How to verify any of this yourself
 
