@@ -4828,7 +4828,7 @@ whatever the `take` says, and anything deployment-wide counts in Postgres.
 **And "owner-scoped" is a fact about the `where`, which the check behind that rule could not see.**
 It asked whether the word `ownerId` appeared anywhere in the call, and the commonest
 deployment-wide `distinct` there is, `distinct: ["ownerId"]`, satisfies that on its own. So
-`mailoutRoster` read every `Review` row in a fortnight into the process twice per hourly run, once to
+`mailoutRoster` read every `Review` row in a fortnight into the process twice per run, once to
 count learners and once to page them, with the check green and a comment above it calling the count
 "a real `COUNT(DISTINCT)`". Measured on Prisma 7, both emitted `SELECT id, ownerId FROM Review WHERE
 reviewedAt >= $1` with no `DISTINCT` and no `LIMIT`; both count and page in Postgres now, and on
@@ -4837,6 +4837,18 @@ by brace depth, so a relation's own filter does not count, and it has a floor. *
 pins an owner and `notIn` does not**, which matters one table over: `Setting`'s primary key leads
 with the owner, five reads ask about one key across the whole deployment, and one of them carries
 `ownerId: { notIn }`. They are served by `@@index([key, value])` now, asserted the same way.
+
+**And the page it walks turned with the wrong clock.** `rosterPage` exists because a cap on a sorted
+list is an exclusion, and it turned the page with the hour since the epoch, under a comment
+reasoning about an hourly schedule. The schedule is daily (`vercel.json`, 16:00 UTC, since a Hobby
+plan refuses anything more often), so the key moved by exactly 24 between runs and any page count
+sharing a factor with 24 came back to the same page every day: at five thousand learners, three
+pages, four thousand people were never considered. Its test drove consecutive hours, which is the
+harness measuring a schedule the deployment does not have. The key is the day plus the hour of the
+day now, one page a day on a daily run whatever the hour and twenty-four a day on an hourly one, and
+the test drives both. It gave up one thing and says so: a hundred thousand learners on hourly runs
+are reached over days rather than inside fifty hours, since no clock-keyed walk can move a page
+every hour and also a page every day.
 
 **A cap on rows is not a cap on time, and a loop of queries is where the difference lives.** Three
 loops were measured against a real database rather than reasoned about, and they did not all need

@@ -101,16 +101,32 @@ export const LOOK_BACK_DAYS = 45;
  * whole life inside the letter A. The answer there is the answer here: a walk
  * rather than a fixed window.
  *
- * The page turns with the hour, so a deployment larger than one page is
- * covered in `ceil(total / limit)` runs, which at the hourly schedule is under
- * a day for anything up to forty-eight thousand learners. Deterministic, so it
- * needs no stored cursor and two runs in the same hour look at the same page,
- * which is what the per-learner gap in `EmailSend` is there to make harmless.
+ * AND THE WALK HAS TO TURN ON THE SCHEDULE THE DEPLOYMENT HAS, WHICH IS ONCE A
+ * DAY. This used to turn the page with the hour since the epoch, reasoned
+ * about an hourly schedule, and `vercel.json` fires at 16:00 UTC because a
+ * Hobby plan refuses anything more often. Between two daily runs that key
+ * moves by exactly 24, so any page count sharing a factor with 24 came back to
+ * the same page every day: at five thousand learners, three pages,
+ * (24d + 16) mod 3 is 1 on every day there is, and the four thousand on the
+ * other two were never considered. That is the exclusion the paragraph above
+ * is about, reached through the clock instead of the sort.
+ *
+ * So the key is the day plus the hour of the day. A daily run at any fixed
+ * hour moves one page a day and reaches everybody in `ceil(total / limit)`
+ * days. Hourly runs, which the README's way back to hourly would give, reach
+ * twenty-four pages in a day, which is everybody up to forty-eight thousand
+ * learners, and beyond that every page within as many days as there are
+ * pages. No function of the clock can move a page every hour and also a page
+ * every day, since the first moves twenty-four a day, and the daily run is
+ * the one this deployment has. Deterministic, so it needs no stored cursor and
+ * two runs in the same hour look at the same page, which is what the
+ * per-learner gap in `EmailSend` is there to make harmless.
  */
 export function rosterPage(now: Date, total: number, limit: number): number {
   if (total <= limit) return 0;
   const pages = Math.ceil(total / limit);
-  return (Math.floor(now.getTime() / 3_600_000) % pages) * limit;
+  const hours = Math.floor(now.getTime() / 3_600_000);
+  return ((Math.floor(hours / 24) + (hours % 24)) % pages) * limit;
 }
 
 /**
