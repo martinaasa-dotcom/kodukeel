@@ -739,3 +739,30 @@ describe("a farewell on a beat that is not the goodbye", () => {
   });
 });
 
+
+describe("the gate reads Estonian punctuation and counts words, not repeats", () => {
+  /*
+    An ordinal is written with a full stop, `3. korrusel`, and a date the same
+    way, and the sentence count split on every stop followed by a space: a
+    correct line of four sentences with two floors in it counted six and was
+    withheld as a paragraph.
+  */
+  it("does not end a sentence on an ordinal", () => {
+    const line = "Te elate 3. korrusel. Kas 2. korrusel on valu? Teil on valu. Kus?";
+    expect(runGate(line, beat(), context({ dealt: new Set(["2", "3"]) })).failed).not.toContain("shape");
+  });
+
+  it("takes a line ending inside an Estonian closing quote", () => {
+    expect(runGate("Kas teil on „valu?“", beat(), context()).failed).not.toContain("shape");
+  });
+
+  /*
+    `NEW_WORDS` is how many words a learner has not met, and a line that says
+    one of them twice holds one. It was charged per repeat.
+  */
+  it("charges a new word once however often the line says it", () => {
+    const ctx = context({ vouched: () => true });
+    const line = `Kas ${"peavalu ".repeat(12).trim()} on?`;
+    expect(runGate(line, beat({ move: "ask" }), ctx).failed).not.toContain("stretch");
+  });
+});
