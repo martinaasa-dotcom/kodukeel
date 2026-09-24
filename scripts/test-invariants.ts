@@ -10745,6 +10745,45 @@ check("a job that runs an audit generates the Prisma client first", () => {
   );
 });
 
+check("a cache a failing job exists to carry forward is saved when the job fails", () => {
+  /*
+    The drift job is red by design until Wiktionary has let it read the whole
+    dictionary, which takes more than one run: it reads about 1,500 pages a
+    run and caches each one, so the next run can start where this one stopped.
+    It carried the cache with `save-always: true` on actions/cache, which the
+    action deprecates as not working as intended, and it did not work: on run
+    36008085314 the audit failed after 1,500 pages and no cache post step ran
+    at all. Every Monday started at zero, so the pass could never finish and the
+    job could never be anything but red.
+
+    So no workflow may lean on `save-always`, and the drift job saves with
+    `actions/cache/save` under `if: always()`. Named rather than general,
+    because ci.yml restores Next's build cache in six jobs and saves it from
+    one on success, deliberately, and a rule that every restore needs a save
+    beside it would fire on the right shape. Comments stripped first, since the
+    paragraph explaining the fault names the input.
+  */
+  const strip = (file: string) =>
+    read(file)
+      .split("\n")
+      .map((line) => line.replace(/(^|\s)#.*$/, ""))
+      .join("\n");
+  const leaning = sourceFiles(".github/workflows", /\.ya?ml$/).filter((file) =>
+    /save-always\s*:/.test(strip(file)),
+  );
+  assert.deepEqual(leaning, [], `a workflow leans on save-always, which does not save on failure: ${leaning.join(", ")}`);
+
+  const drift = strip(".github/workflows/drift.yml");
+  assert.match(drift, /- uses: actions\/cache\/restore@/, "the drift job no longer restores last week's pages");
+  const save = /- uses: actions\/cache\/save@[^\n]*\n((?:[ \t]+[^\n]*\n?)*)/.exec(drift);
+  assert.ok(save, "the drift job no longer saves the pages it fetched");
+  assert.match(
+    save[1] ?? "",
+    /if:\s*always\(\)/,
+    "the drift job saves its pages only when the audit passed, which is the one run that did not need them",
+  );
+});
+
 // ── A deck is counted by building it, and built in a bounded number of queries ─
 
 /*
