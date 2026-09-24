@@ -1328,14 +1328,21 @@ what disagrees; `--write` applies it. **The first pass over the whole of `expand
 5,363 entries, came back clean on 2026-08-31**, which is worth writing down because every pass
 before it stopped at B1: A1 to B1 is 2,164 entries and the 3,199 above it had never been asked.
 `.github/workflows/drift.yml` asks weekly, and that sentence was written the week it landed,
-before its first cron, so this was its first execution by hand. **Every firing since died in
-twenty-nine seconds** on `Cannot find module '.prisma/client/default'`: the job ran `npm ci` and
-went straight to the audit, `prisma/expanded.ts` imports `Prisma` as a value, and the client is
-generated rather than installed, so the one drift check that needs no credential had never once
-run and the page cache it carefully carries between weeks had never been written. Nothing said
-so, because a scheduled job nobody watches is red in a tab nobody opens, which is the same
-argument this file makes about a check that can fail and has never been made to. It generates
-the client now, like every job in `ci.yml`. A clean result over a
+before its first cron, so this was its first execution by hand. **It has fired three times and
+failed three times, for two different reasons, and both were in the workflow rather than in a
+gloss.** The third died in twenty-nine seconds on `Cannot find module '.prisma/client/default'`:
+the job ran `npm ci` and went straight to the audit, `prisma/expanded.ts` imports `Prisma` as a
+value, and the client is generated rather than installed. It generates the client now, like every
+job in `ci.yml`. The first two did run, found no gloss in disagreement, and stopped where
+Wiktionary stopped answering, at 2,500 pages and then at 1,000, which is under the half the audit
+needs before a clean result counts. The page cache the job restores each week is what was meant
+to carry it past that, and **it had never been saved**: the workflow asked for `save-always`, the
+input does nothing, actions/cache saves only on success, and this job is red until the cache has
+carried it. The second run started from nothing because the first wrote nothing back. It restores
+and saves in two steps now, the save running whatever the audit said, and an invariant holds any
+per-run cache to that shape. Nothing said so, because a scheduled job nobody watches is red in a
+tab nobody opens, and the account written here first described one failure as all three, which is
+the argument for reading a run's log rather than its conclusion. A clean result over a
 parser this quiet is only worth the words if the check can fail, so it was made to: run the same
 comparison against a translation known to be wrong and all 5,363 flag. What remains is not parser
 drift but a page being wrong about its own word, which is what the report queue is for. The
