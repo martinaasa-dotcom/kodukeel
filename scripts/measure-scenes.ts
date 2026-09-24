@@ -260,8 +260,12 @@ console.log(`  ${filledCourse} fillable from the whole course to that level (${p
 console.log(`  ${filledFloor} fillable if the course also taught the ${TOP} commonest words it does not (${pct(filledFloor, beatsAll)})`);
 const perScene = beatsAll / SCENES.filter((s) => !onlyScene || s.id === onlyScene).length;
 const composed = Math.round(((beatsAll - filledFloor) / beatsAll) * perScene);
+// Rounded for reading: the average is 92 beats over 14 scenes, and printed raw
+// it came out as "one scene of 6.571428571428571 beats".
+const perSceneShown = Math.round(perScene * 10) / 10;
 console.log(
-  `  so one scene of ${perScene} beats needs about ${composed} composed lines, each one metered and past the gate`,
+  `  so one scene of ${perSceneShown} beats needs about ${composed} composed line${composed === 1 ? "" : "s"}, `
+  + "each one metered and past the gate",
 );
 console.log("\nWhat this says");
 console.log(
