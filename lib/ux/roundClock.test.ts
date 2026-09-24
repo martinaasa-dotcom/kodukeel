@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_ROUND_PACE, ROUND_PACES, roundLength, roundPaceFrom, secondsFor,
+  DEFAULT_ROUND_PACE, ROUND_PACES, roundLength, paceMultiplier, roundPaceFrom, secondsFor, TARGET_SHOT, shotSeconds,
 } from "./roundClock";
 
 describe("roundPaceFrom", () => {
@@ -86,5 +86,28 @@ describe("roundLength", () => {
   it("says minutes where the figure is one", () => {
     expect(roundLength(120)).toBe("2 minutes");
     expect(roundLength(600)).toBe("10 minutes");
+  });
+});
+
+describe("shotSeconds", () => {
+  it("is Target as written at the standard pace", () => {
+    expect(shotSeconds(0, 1)).toBe(8);
+    expect(shotSeconds(4, 1)).toBe(7);
+    expect(shotSeconds(100, 1)).toBe(3.5);
+  });
+
+  it("reaches its floor after the same number of hits at every pace", () => {
+    const hitsToFloor = (m: number) => {
+      let h = 0;
+      while (shotSeconds(h, m) > TARGET_SHOT.floor * m) h++;
+      return h;
+    };
+    const standard = hitsToFloor(1);
+    expect(standard).toBe(18);
+    for (const pace of ROUND_PACES) expect(hitsToFloor(paceMultiplier(pace.id))).toBe(standard);
+  });
+
+  it("tightens inside one thirty-question round at the slowest pace too", () => {
+    expect(shotSeconds(30, 10)).toBe(TARGET_SHOT.floor * 10);
   });
 });

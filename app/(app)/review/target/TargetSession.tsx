@@ -11,16 +11,11 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
+import { shotSeconds } from "@/lib/ux/roundClock";
 import { BriefingLines } from "@/components/round/Briefing";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
-/** Seconds for the first shot, at the standard pace. */
-const START_S = 8;
-/** The least time a shot ever gets at the standard pace, however far in you are. */
-const FLOOR_S = 3.5;
-/** How much of a second each hit takes off the clock. */
-const STEP_S = 0.25;
 
 /**
  * TARGET.
@@ -47,14 +42,13 @@ export function TargetSession({
   questions: TargetQuestion[];
   /**
    * The learner's round pace as a multiplier (`lib/ux/roundClock.ts`),
-   * resolved on the server. It stretches the first shot and the floor, which
-   * is WCAG 2.2.1 met the way the sprint meets it; the step stays a quarter of
-   * a second, because that is how much the round tightens, not how long it is.
+   * resolved on the server. It stretches the whole ladder, which is WCAG 2.2.1
+   * met the way the sprint meets it and the same round slowed down rather than
+   * one that stops tightening: see `shotSeconds`.
    */
   pace: number;
 }) {
-  const start = START_S * pace;
-  const floor = FLOOR_S * pace;
+  const start = shotSeconds(0, pace);
   const inModule = useModuleFocus() !== null;
   // Snapshotted on mount: `gradeCard` refreshes this route's Server Component,
   // and a round whose questions changed under the player is a different round.
@@ -70,7 +64,7 @@ export function TargetSession({
   const shownAt = useRef(Date.now());
 
   const question = questions[index];
-  const allowed = Math.max(floor, start - hits * STEP_S);
+  const allowed = shotSeconds(hits, pace);
 
   const answer = useCallback((choice: number | null) => {
     if (!question || picked !== null) return;
@@ -90,11 +84,11 @@ export function TargetSession({
     // moment in a round worth slowing down for.
     window.setTimeout(() => {
       setPicked(null);
-      setLeft(Math.max(floor, start - (right ? hits + 1 : hits) * STEP_S));
+      setLeft(shotSeconds(right ? hits + 1 : hits, pace));
       shownAt.current = Date.now();
       setIndex((i) => i + 1);
     }, right ? 480 : 1500);
-  }, [question, picked, sound, hits, start, floor]);
+  }, [question, picked, sound, hits, pace]);
 
   useEffect(() => {
     if (phase !== "running" || picked !== null) return;

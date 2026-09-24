@@ -6,9 +6,19 @@
  * seconds and shrinks to three and a half as the learner hits. Each number
  * was chosen for the round it is in and each was fixed, which is WCAG 2.2
  * success criterion 2.2.1, Timing Adjustable, failed three times. Target was
- * found after the other two and read this setting last: it scales its start
- * and its floor by `paceMultiplier` and leaves the step where it is, since the
- * step is a quarter of a second of *pressure* rather than a length.
+ * found after the other two and read this setting last, and it stretches its
+ * whole ladder, the start, the floor and the step alike (`shotSeconds`).
+ *
+ * The step was left alone at first, on the argument that a quarter of a second
+ * is pressure rather than a length. Measured, that argument breaks the round
+ * for exactly the learners who use this setting: a round is thirty questions
+ * (`TARGET_QUESTIONS`) and at the standard pace the shot reaches its floor
+ * after eighteen hits, but with an unscaled step it needs thirty-six at twice
+ * the length and a hundred and eighty at ten times, so from the first step up
+ * the round never tightens to its floor at all, and at ten times it goes from
+ * eighty seconds to seventy-two and a half over the whole of it. Scaling all
+ * three is the round slowed down rather than a different round: the floor is
+ * eighteen hits in at every pace, which `roundClock.test.ts` pins.
  *
  * A learner who reads slowly, who is hearing a card read out before answering
  * it, or who types with one hand is not
@@ -99,6 +109,23 @@ export function roundPaceFrom(value: string | null | undefined): RoundPace {
  */
 export function paceMultiplier(pace: RoundPace): number {
   return ROUND_PACES.find((p) => p.id === pace)?.multiplier ?? 1;
+}
+
+/**
+ * Target's shot at the standard pace: eight seconds for the first question,
+ * a quarter of a second off for every hit, never under three and a half.
+ */
+export const TARGET_SHOT = { start: 8, floor: 3.5, step: 0.25 } as const;
+
+/**
+ * How long Target's next shot is, after this many hits, at this multiplier.
+ *
+ * The whole ladder is scaled, so a slower pace is the same round slowed down:
+ * the floor arrives after the same number of hits whatever the pace.
+ */
+export function shotSeconds(hits: number, multiplier: number): number {
+  const { start, floor, step } = TARGET_SHOT;
+  return Math.max(floor, start - Math.max(0, hits) * step) * multiplier;
 }
 
 /**

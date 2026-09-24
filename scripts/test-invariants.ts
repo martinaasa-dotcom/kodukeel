@@ -13595,21 +13595,6 @@ check("a case is named only when one case claims the spelling", () => {
  * holding only the text cannot print the chip, and a composed line cannot be
  * read as a lexicographer's by a screen that forgot to ask.
  */
-/**
- * A CLASS SEES EFFORT, NEVER A TRANSCRIPT.
- *
- * ADR-019 stands unchanged and `docs/19-situations.md` §18 names the way this
- * module would break it: a roster row may say how many conversations somebody
- * finished, and the class panel may say which objective the group most often
- * misses, and a transcript belongs to one person. A `SceneRun` holds every turn
- * a learner typed, so a teacher reading one would be reading their practice
- * attempts, which is the thing the classroom boundary exists to prevent.
- *
- * Asserted as an absence, which is the only way to check a rule about what a
- * query must not select. `lib/classroom/` is where a group is rolled up, and
- * nothing in it may name the table at all: a count is a `count`, and a count
- * cannot leak a sentence.
- */
 check("every practice round that counts down reads the learner's pace", () => {
   /*
     WCAG 2.2.1 IS MET BY ADJUSTING THE LIMIT BEFORE IT IS MET, ROUND BY ROUND.
@@ -13643,10 +13628,11 @@ check("every practice round that counts down reads the learner's pace", () => {
       session ignore the prop, which reads exactly like a round that honours
       the pace: Target with its clock back on the bare constants passed the
       arm above. So the prop has to reach the clock, as the seconds the clock
-      starts from or as the multiplier on a constant.
+      starts from, as the multiplier on a constant, or handed to
+      `shotSeconds`, which is Target's whole ladder scaled at once.
     */
     assert.match(
-      code(file), /useState\(\s*(?:seconds|pace)\s*\)|[*/]\s*(?:pace|seconds)\b|\b(?:pace|seconds)\s*[*/]/,
+      code(file), /useState\(\s*(?:seconds|pace)\s*\)|[*/]\s*(?:pace|seconds)\b|\b(?:pace|seconds)\s*[*/]|\bshotSeconds\([^)]*\bpace\b/,
       `${file} is handed the learner's pace and its clock never uses it, which fails WCAG 2.2.1`,
     );
   }
@@ -13655,6 +13641,21 @@ check("every practice round that counts down reads the learner's pace", () => {
   }
 });
 
+/**
+ * A CLASS SEES EFFORT, NEVER A TRANSCRIPT.
+ *
+ * ADR-019 stands unchanged and `docs/19-situations.md` §18 names the way this
+ * module would break it: a roster row may say how many conversations somebody
+ * finished, and the class panel may say which objective the group most often
+ * misses, and a transcript belongs to one person. A `SceneRun` holds every turn
+ * a learner typed, so a teacher reading one would be reading their practice
+ * attempts, which is the thing the classroom boundary exists to prevent.
+ *
+ * Asserted as an absence, which is the only way to check a rule about what a
+ * query must not select. `lib/classroom/` is where a group is rolled up, and
+ * nothing in it may name the table at all: a count is a `count`, and a count
+ * cannot leak a sentence.
+ */
 check("a class cannot read a conversation", () => {
   for (const file of LIB.filter((f) => f.startsWith("lib/classroom/") && !f.includes(".test."))) {
     const src = code(file);
