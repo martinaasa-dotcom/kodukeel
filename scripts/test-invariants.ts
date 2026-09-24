@@ -6267,6 +6267,16 @@ check("a malformed argument to a server action is refused, not thrown or stored"
     }
   }
   assert.ok(asked >= 80, `only ${asked} exported actions found, so this check stopped looking`);
+
+  /*
+    A part of speech and a level written to the shared dictionary come off the
+    closed lists, never straight off the argument: a `cefr` of "ZZ" on a seeded
+    entry takes the word out of the exam pool and the readiness counts for
+    everybody, and a `pos` is half of the entry's unique key.
+  */
+  const raw = source.match(/\b(pos|cefr):\s*(input|row)\.(pos|cefr)\b/g) ?? [];
+  assert.deepEqual(raw, [], `app/actions.ts writes ${raw.join(", ")} unchecked; read it through posFrom or entryLevelFrom`);
+
   assert.deepEqual(
     unguarded, [],
     `these actions call a method on an argument without asking what it is, which throws on anything but the type the ` +
