@@ -21595,6 +21595,22 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a picked option is marked through choiceIsRight, never against the back as a string", () => {
+  /*
+    A back can hold two spellings (`tuppa / toasse`) and an option holds one,
+    so `choice === card.back` marked the right option wrong on every such
+    card, graded it Again and requeued it. `choiceIsRight` in
+    lib/questions/caseChoices.ts reads both through `acceptedAnswers`.
+  */
+  const sessions = ALL.filter((f) => /Session\.tsx$/.test(f));
+  assert.ok(sessions.length >= 15, `found only ${sessions.length} session files`);
+  const offenders = sessions.filter((f) =>
+    /\b(choice|chosen|picked|pick)\s*===\s*card\??\.back\b|\bcard\??\.back\s*===\s*(choice|chosen|picked|pick)\b/.test(code(f)));
+  assert.deepEqual(offenders, [], `${offenders.join(", ")} compares a picked option with the back as a string`);
+  assert.match(code("app/(app)/review/ReviewSession.tsx"), /choiceIsRight\(/,
+    "ReviewSession no longer marks its options through choiceIsRight");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
