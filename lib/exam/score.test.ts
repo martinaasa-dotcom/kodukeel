@@ -317,6 +317,26 @@ describe("which language an answer is in", () => {
   });
 });
 
+describe("what the browser sends may not move the marks", () => {
+  const paper = buildPaper("B1", pool(60), "trust-seed", WORD_ORDER);
+  const items = paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items);
+
+  it("treats \"unheard\" on anything but a recording as a blank", () => {
+    const form = items.find((i) => i.kind === "case-form")!;
+    const mark = markItem(form, { kind: "unheard" }, 1);
+    expect(mark.available).toBe(1);
+    expect(mark.scored).toBe(0);
+  });
+
+  it("counts the speaking criteria itself rather than taking the array's length", () => {
+    const speak = items.find((i) => i.kind === "speak")!;
+    const oneTick = markItem(speak, { kind: "spoken", recorded: true, criteria: [true] }, 5);
+    expect(oneTick.scored).toBeLessThan(5);
+    const allTicks = markItem(speak, { kind: "spoken", recorded: true, criteria: [true, true, true, true, true] }, 5);
+    expect(allTicks.scored).toBe(5);
+  });
+});
+
 describe("a recording that would not play", () => {
   const paper = buildPaper("B1", pool(60), "unheard-seed", WORD_ORDER);
   const listening = paper.parts.find((p) => p.spec.skill === "listening")!;

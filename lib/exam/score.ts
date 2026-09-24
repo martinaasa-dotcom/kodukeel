@@ -3,7 +3,7 @@ import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
 import { orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { checkDictation } from "@/lib/estonian/dictation";
 import { usesRequiredWord, wordsOf } from "./written";
-import { bandFor, PASS_PCT, RETAKE_WAIT_PCT, type Band, type ExamLevel } from "./spec";
+import { bandFor, PASS_PCT, RETAKE_WAIT_PCT, speakingCriteria, type Band, type ExamLevel } from "./spec";
 import type { ExamItem, ExamTask, Paper } from "./paper";
 import type { SkillKey } from "./types";
 
@@ -176,6 +176,19 @@ export function markItem(
     scored: Math.round(mark.scored * marksPerItem * 100) / 100,
     available: mark.available * marksPerItem,
   });
+
+  /*
+    ONLY A RECORDING CAN FAIL TO PLAY. "Unheard" takes an item out of the marks
+    altogether, which is right for a listening item whose clip would not load
+    and is a way to delete any question otherwise: the response arrives from
+    the browser, so answering the sure items and calling the rest unheard
+    scored a paper near a hundred percent, and a part called unheard entirely
+    became an absent part that could not fail the paper. On anything else it
+    is a blank.
+  */
+  if (response.kind === "unheard" && item.kind !== "dictation" && item.kind !== "listen-choose") {
+    return markItem(item, BLANK_RESPONSE, marksPerItem, choices);
+  }
 
   if (response.kind === "unheard") {
     return {
@@ -360,8 +373,15 @@ function markSpeak(
   marks: number,
 ): ItemMark {
   const spoken = response.kind === "spoken" ? response : null;
-  const met = spoken?.recorded ? spoken.criteria.filter(Boolean).length : 0;
-  const criteria = Math.max(1, spoken?.criteria.length ?? marks);
+  /*
+    The number of criteria is the paper's, never the browser's. It was the
+    length of the array that arrived, so `criteria: [true]` scored one of one,
+    full marks, where an honest candidate ticking four of five got eighty
+    percent. Worked out here exactly as the screen works it out, and only
+    that many ticks are read.
+  */
+  const criteria = speakingCriteria(marks).length;
+  const met = spoken?.recorded ? spoken.criteria.slice(0, criteria).filter((c) => c === true).length : 0;
   const scored = Math.round((met / criteria) * marks * 100) / 100;
   return {
     itemId: item.id,
