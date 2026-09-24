@@ -788,10 +788,10 @@ answers rather than a second name. `lib/estonian/terms.ts` is the one table of w
 called, and it is **deliberately partial**: a point is in it only where there is a term a class
 actually uses, and `grammarTerm()` returning nothing is the honest answer for `irony` rather than a
 cue to invent one. `grammar.ts` still holds no Estonian and its tripwire is unchanged, which is why
-the terms live next door rather than in the prose. The invariant is that every case and every part
-of the verb carries the name a class uses, anchored on a member access rather than on the word,
-because a file declaring `caseEt: string` in an interface and never rendering it satisfied the
-first version of it. **A verb point keeps its `alsoCalled`** and a case has none: "the conditional"
+the terms live next door rather than in the prose. The invariant is that the table is total, that every case and every part
+of the verb carries the name a class uses, and it asks the table rather than any screen: its first
+version read screens for a `caseEt` field and was satisfied by a file declaring one in an interface
+and never rendering it. Whether the name reaches a screen is the Latin-name sweeps' question, below. **A verb point keeps its `alsoCalled`** and a case has none: "the conditional"
 and "the past participle" are categories an English speaker has a concept for and can look up,
 where "the inessive" is a translation of a translation to somebody who has met neither.
 
@@ -872,8 +872,10 @@ interpolates a value into the same run is the stated residual**. Made to fail th
 string label, on a run of JSX text and on a heading array.
 
 **Two modules are exempt and the reason is a standing invariant rather than an oversight.**
-`lib/estonian/grammar.ts` and `lib/estonian/exceptions.ts` explain a case at length and are asserted
-to hold no Estonian letter, which is what stops this app inventing a form inside a sentence about
+`lib/estonian/grammar.ts` and the notes in `lib/estonian/exceptions.ts` explain a case at length
+and are asserted to hold no Estonian letter (the second only since this was found to be prose and no
+check: the module needs the letters in `VOWELS`, so the test reads `KIND_NOTES` and `FAMILY_TITLES`
+rather than the file), which is what stops this app inventing a form inside a sentence about
 forms. The tripwire is `[õäöüšž]`, so `omastav` and `osastav` would slip past it while breaking what
 it is for, and would name five cases one way and the nine `-ütlev` ones the other on one page. The
 way out is to describe the case rather than name it, "the partial object form" for `osastav`, which
@@ -6590,6 +6592,17 @@ watching them at all, `test-restore.mjs` among them. The source of truth is the 
 `scripts/*.mjs` that declares a suite is one CI runs, and anything else is named in
 `scripts/lib/suites.mjs` with a written reason. Two are, and both are facts about the route rather
 than about anybody's schedule.
+
+**And a check narrower than the sentence describing it is a claim nobody is checking.** Read against
+the checks it describes, this file named seven that asserted less than it said. The card-insert count
+summed two files while a third inserter sat in `lib/srs/backfill.ts`, locked but unseen. The
+`safeMessage` sweep knew one variable name and one file, so `catch (e)` and a second `"use server"`
+module both passed. One frequency list title was held to its table and three were not. The exam
+distance rule read a single line, and the plan panel builds its sentence over two. The errand's
+`stageOf` rule matched one field name. The course gate sliced before it looked, so its guard could
+not fire. And `exceptions.ts` was said to hold no Estonian letter while nothing asked. Each now
+reads what the prose says, and each was made to fail on a planted fault first. When you write
+"asserted" here, open the check and read what it actually asserts.
 
 **A browser refusing to autoplay is a fact about the gesture, and one module knows it.** Every
 browser blocks `HTMLAudioElement.play()` on a page the reader has not touched yet and rejects it
