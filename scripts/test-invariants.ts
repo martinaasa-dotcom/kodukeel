@@ -7104,8 +7104,13 @@ check("nothing is stored on a device that would need asking first", () => {
     advertising library reaching for storage would need consent, a banner and a
     withdrawal path, none of which exist here.
   */
-  const storage = ALL.filter((f) => /localStorage|sessionStorage|indexedDB|document\.cookie/.test(read(f)))
+  // Code rather than prose: a module explaining why a neighbor stores
+  // something is not storing anything, and reading comments is how a pure
+  // file came to be on the list below as though it touched the device.
+  const STORES = /localStorage|sessionStorage|indexedDB|document\.cookie/;
+  const storage = ALL.filter((f) => STORES.test(code(f)))
     .filter((f) => !/\.(test|itest)\.tsx?$/.test(f));
+  assert.ok(storage.length >= 8, `only ${storage.length} files store anything, so this check stopped looking`);
   const allowed = [
     "components/InstallPrompt.tsx",
     "components/Sidebar.tsx",
@@ -7133,8 +7138,8 @@ check("nothing is stored on a device that would need asking first", () => {
     // same shape of loss the exam and Sõnad resumes exist to prevent: a card
     // id and nothing else, in `sessionStorage` rather than `localStorage` so
     // it is gone the moment the tab is, and cleared as soon as the round
-    // itself finishes.
-    "lib/ux/resumePosition.ts",
+    // itself finishes. The key is built in lib/ux/resumePosition.ts, which is
+    // pure and stores nothing; the hook is what writes it.
     "components/useResumeCard.ts",
   ];
   for (const file of storage) {
@@ -7143,6 +7148,12 @@ check("nothing is stored on a device that would need asking first", () => {
       `${file} stores something on the reader's device, which /privacy does not account for`,
     );
   }
+  // And every entry still stores something, or it is a standing permission a
+  // file could start using again with nothing asked.
+  assert.deepEqual(
+    allowed.filter((f) => !storage.includes(f)), [],
+    "a file on the device-storage list no longer stores anything. Take it off the list.",
+  );
   assert.match(
     read("app/privacy/page.tsx"),
     /What is kept on your own device/,
@@ -8813,8 +8824,13 @@ check("no ledger write is left to a promise the platform may drop", () => {
  */
 check("only the harvest, the seed and the screens name a Russian or Ukrainian meaning", () => {
   const allowed = new Set([
-    // Written here, out of an Ekilex response and nothing else.
-    join("scripts", "harvest-ekilex.ts"),
+    /*
+      Written by the seed, out of the `rus` and `ukr` the harvest reads off an
+      Ekilex response and nothing else. The harvest itself is not on this list
+      because it never names the columns: it was, for as long as nothing asked
+      whether an entry still matched anything, which is the parking space the
+      staleness half below exists to close.
+    */
     join("prisma", "schema.prisma"),
     join("prisma", "seed.ts"),
     join("prisma", "columns.ts"),
@@ -8840,8 +8856,6 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     */
     join("lib", "progress", "learn.ts"),
     join("app", "(app)", "learn", "[unitId]", "lesson", "page.tsx"),
-    join("lib", "collections", "lesson.ts"),
-    join("app", "(app)", "learn", "[unitId]", "lesson", "LessonSession.tsx"),
   ]);
 
   const roots = ["app", "lib", "components", "scripts", "prisma"];
@@ -8866,6 +8880,13 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     naming.filter((f) => !allowed.has(f)), [],
     "a new file names a Russian or Ukrainian meaning. Decide what it is doing with it: " +
     "these come from Ekilex and no model may reach them (ADR-005 in a language nobody here reads).",
+  );
+  // And every entry still names them, or the list is a set of standing
+  // permissions nobody is using: three were, and a file on it could have
+  // started naming the columns again with nothing asked.
+  assert.deepEqual(
+    [...allowed].filter((f) => !naming.includes(f)), [],
+    "an allowed file no longer names a Russian or Ukrainian meaning. Take it off the list.",
   );
 });
 
@@ -11228,14 +11249,68 @@ check("there is one table of which Estonian letters fold", () => {
   const HOME = "lib/estonian/fold.ts";
   assert.ok(existsSync(HOME), "the one fold has gone from lib/estonian/fold.ts");
 
-  const excused = ["lib/estonian/sounds.ts", "lib/estonian/fold.ts"];
-  const table = /["']?õ["']?\s*:\s*["']o["']/;
-  const offenders = [...LIB, ...APP, ...COMPONENTS]
+  /*
+    AND THE HAYSTACK IS EVERY DIRECTORY THAT COULD HOLD ONE, NOT THREE OF THEM.
+
+    Written over `lib/`, `app/` and `components/` alone, this could not see
+    `prisma/indexes.ts`, which had kept a copy of the table the whole time
+    under a comment asking to be "kept identical to `fold` in
+    lib/dict/search.ts", a file that has not held it since it moved out. That
+    is the one place a drift costs something no screen would show: the indexes
+    are function indexes, so an expression that stops matching the one a query
+    computes is not a wrong answer, it is both tables scanned end to end for
+    the right one.
+
+    AND IT KNEW ONE SPELLING OF A TABLE OUT OF TWO. The three copies this was
+    written for were all records, `õ: "o"`, so that is the shape it looked for;
+    a table written as the two strings Postgres `translate()` takes went past
+    it with the sweep green. Both spellings now, which is this repository's own
+    rule about a fault found once being found again wearing different clothes.
+  */
+  const HAYSTACK = [...LIB, ...APP, ...COMPONENTS, ...sourceFiles("prisma"), ...sourceFiles("scripts")];
+  assert.ok(HAYSTACK.length > 400, `only ${HAYSTACK.length} files to sweep, so this check stopped looking`);
+
+  const excused = [
+    // Folds *sounds a learner confuses*, b against p and k against g, and says
+    // so at length. A different question with a different answer.
+    "lib/estonian/sounds.ts",
+    // The one table itself.
+    HOME,
+    /*
+      The fuzzer feeds the six letters to a scene marker as a turn nobody could
+      have typed, which is the one place in the tree where a run of them is an
+      input rather than a table. It is a corpus entry beside `"poodi poodi
+      poodi"` rather than anything the app reads.
+    */
+    "scripts/fuzz-scenes.ts",
+  ];
+  for (const file of excused) {
+    assert.ok(existsSync(file), `${file} is excused from the fold sweep and is not a file any more`);
+  }
+
+  const asRecord = /["']?õ["']?\s*:\s*["']o["']/;
+  // A quoted run made of nothing but the six, which is how Postgres takes the
+  // pair. Four or more, so a single letter quoted inside ordinary prose or a
+  // one-character test fixture is not a table.
+  const asString = /["'`][õäöüšž]{4,}["'`]/;
+  const offenders = HAYSTACK
     .filter((file) => !excused.includes(file) && !/\.(test|itest)\.tsx?$/.test(file))
-    .filter((file) => table.test(code(file)) || /replaceAll\("õ"/.test(code(file)));
+    .filter((file) => {
+      const source = code(file);
+      return asRecord.test(source) || asString.test(source) || /replaceAll\("õ"/.test(source);
+    });
   assert.deepEqual(
     offenders, [],
     "a second table of which Estonian letters fold. There is one, in lib/estonian/fold.ts.",
+  );
+
+  // And the SQL that builds the indexes reads it rather than being asked to
+  // agree with it, which is what the comment there used to ask for.
+  assert.match(
+    code("prisma/indexes.ts"), /FOLD_FROM[\s\S]{0,80}FOLD_TO/,
+    "prisma/indexes.ts builds its function indexes on a fold table of its own. "
+    + "An index whose expression stops matching the query's is an index Postgres "
+    + "silently stops using.",
   );
 
   /*
