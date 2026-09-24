@@ -980,6 +980,32 @@ describe("a word the learner negated", () => {
   });
 
   /*
+    A full stop ends a clause as surely as a comma does. Split on the comma
+    alone, a no in the sentence before cancelled the yes in this one, and a
+    learner who wrote "Ei. Mul on valu." was answered as though they had said
+    nothing.
+  */
+  it("meets it where the no is a sentence of its own before the yes", () => {
+    for (const text of ["Ei. Mul on valu.", "Ei! Mul on valu", "Ma ei tea. Mul on valu."]) {
+      expect(readTurn(text, beat({ shape: "sentence" }), ctx).reading, text).toBe("complete");
+    }
+  });
+
+  /*
+    And a refusal with a letter wrong is still a refusal. The marker reads
+    `valut` as `valu` understood anyway, and the negation was looked for under
+    the dictionary's spelling rather than the learner's, so it was never found:
+    the no met the beat and went into the log as the word produced.
+  */
+  it("does not meet it where the negated word was misspelled", () => {
+    for (const text of ["ma ei taha valut", "ma ei taha valuu"]) {
+      const seen = readTurn(text, beat(), ctx);
+      expect(seen.reading, text).not.toBe("complete");
+      expect(seen.satisfiedBy, text).toEqual([]);
+    }
+  });
+
+  /*
     And a beat that takes a no is never refused by one: "Kas te soovite piima?"
     accepts `ei` as the whole answer, and reading that as a turn which met
     nothing would be the app refusing the word it asked for.
