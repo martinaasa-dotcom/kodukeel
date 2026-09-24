@@ -11453,10 +11453,14 @@ check("the forms list is an accept list and never an answer", () => {
     "the forms list is not traced into the deployment, so a hosted Sõnad refuses every guess",
   );
 
-  // Every source is credited where the others are.
-  for (const file of ["LICENSE", "app/(chromeless)/sign-in/page.tsx", "app/(chromeless)/welcome/page.tsx", "app/terms/page.tsx"]) {
-    assert.match(read(file), /Vabamorf/, `${file} does not credit Vabamorf`);
-  }
+  /*
+    Whether every source is credited where the others are is asked by "every
+    source LICENSE asks a credit for is credited on every surface that owes
+    it", which reads the sources out of LICENSE. This used to say it asked it
+    and checked one of the three: Vabamorf was credited everywhere, and the
+    Enriched-Ekilex repository, the list's other licensed source, reached
+    LICENSE and /terms and neither of the other two, with this check green.
+  */
 });
 
 check("a crossword clue has one answer and says what kind of word it wants", () => {
