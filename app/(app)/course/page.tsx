@@ -377,8 +377,8 @@ export default async function CoursePage({
             {day.canDo}
           </p>
           {/*
-            Two columns at a phone width, three from `sm:` up, matching every
-            other three-tile StatTile row in the app (ReviewSession,
+            Two columns at a phone width, three from `sm:` up, matching the
+            three-tile StatTile rows that already do this (ReviewSession,
             LearnSession, the dictation and sentence rounds). At a bare three
             columns "New words" has about 80px to work with at 360px, and
             `overflow-wrap: anywhere` (deliberately global, see globals.css)
