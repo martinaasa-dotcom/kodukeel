@@ -104,8 +104,15 @@ if (attestedCards.length > 0) {
     attestedCards.every(c => !`${c.front}${c.back}`.includes("kohvjook")),
     `${attestedCards.length} gap-fill card(s)`);
 } else {
-  absent(1, "no gap-fill card for this word: the dictionary's own Add to deck builds recognition "
-    + "and production only, so a deck built from a unit is what would put one here");
+  /*
+    Never lifted here, and said so: `kohv` is an A1 word and A1 builds no gap
+    card, so this deck cannot hold one. The property is asserted at the source
+    instead, by the invariant "a correction rewrites only the cards that show
+    the headword", which fails the moment a card write in the rename loses its
+    card type.
+  */
+  absent(1, "no gap-fill card for this word, which is A1, and A1 builds none; the invariant "
+    + "\"a correction rewrites only the cards that show the headword\" asserts this at the source");
 }
 check("scheduling was not reset by the correction",
   renamedCards.every(c => typeof c.stability === "number"), `${renamedCards.length} cards`);

@@ -16506,6 +16506,31 @@ check("readiness is derived on every request and never written down", () => {
  * wants a softer ring can add to it, never take it away.
  */
 /**
+ * A CORRECTION REWRITES THE CARDS THAT SHOW THE HEADWORD, AND NO OTHER.
+ *
+ * Renaming an entry rewrites the learner's own cards so they stop drilling the
+ * mistake they just fixed, and a gap-fill card's front is a sentence a
+ * lexicographer recorded: rewriting it would be this app editing Estonian.
+ * `scripts/test-edit.mjs` claimed that and could never check it, since its
+ * word is an A1 word and A1 builds no gap card, so its waiver fired on every
+ * run. The property is structural, so it is asserted where it lives: every
+ * card write in the correction path names a headword card type.
+ */
+check("a correction rewrites only the cards that show the headword", () => {
+  const body = between(code("app/actions.ts"), "export async function createLexemeWithForms(");
+  assert.ok(body, "createLexemeWithForms has gone, or changed shape past recognition");
+  const writes = [...body.matchAll(/card\.(?:updateMany|update|upsert)\(\{[\s\S]*?\}\s*\)/g)].map((m) => m[0]);
+  assert.ok(writes.length >= 2, `only ${writes.length} card writes found in the correction path, so this check stopped looking`);
+  for (const write of writes) {
+    assert.match(
+      write,
+      /cardType:\s*"(?:RECOGNITION|PRODUCTION)"/,
+      `a correction writes cards without naming a headword card type, so it can rewrite an attested sentence: ${write.slice(0, 80)}`,
+    );
+  }
+});
+
+/**
  * WHATEVER DELETES ROWS FOR A TEST REFUSES A DATABASE THAT IS NOT LOCAL.
  *
  * `scripts/lib/local-db.mjs` exists because Prisma reads the environment's
