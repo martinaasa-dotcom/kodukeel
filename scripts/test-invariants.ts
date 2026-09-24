@@ -3717,8 +3717,24 @@ check("a `take` beside a `distinct` bounds nothing, so it is scoped to one owner
       // the end of that argument object.
       const opened = src.lastIndexOf("prisma.", at);
       const call = src.slice(opened, src.indexOf("})", at) + 2);
+      /*
+        In the `where`, not anywhere in the call. `mailoutRoster` deduplicated
+        on `distinct: ["ownerId"]` over every review in the deployment and
+        passed this check on the strength of the very column it was
+        deduplicating, which is the check reading its own subject.
+      */
+      const w = call.indexOf("where:");
+      let where = "";
+      if (w !== -1) {
+        const open = call.indexOf("{", w);
+        let depth = 0;
+        for (let i = open; i >= 0 && i < call.length; i++) {
+          if (call[i] === "{") depth++;
+          else if (call[i] === "}" && --depth === 0) { where = call.slice(open, i + 1); break; }
+        }
+      }
       assert.ok(
-        /ownerId/.test(call),
+        /\bownerId\b/.test(where),
         `${file}: a Prisma \`distinct\` with no ownerId in its where. That reads the whole `
         + `table however small the \`take\` beside it looks, because Prisma emits no LIMIT `
         + `next to a distinct. Count it in Postgres instead.`,

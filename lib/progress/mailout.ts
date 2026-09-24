@@ -124,32 +124,34 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
   const since = new Date(now.getTime() - LOOK_BACK_DAYS * 86_400_000);
 
   /*
-    The sizes first, so the walk knows how far it has to reach. Two counts on
-    indexed columns, and `distinct` here is a real `COUNT(DISTINCT)` rather
-    than the client-side deduplication a `take` beside a `distinct` would get,
-    which is the rule this project states about that pairing.
+    The sizes first, so the walk knows how far it has to reach.
+
+    NOT PRISMA'S `distinct`, WHICH IS NOT A COUNT(DISTINCT). Prisma
+    deduplicates in the client: it emits no DISTINCT and no LIMIT, reads every
+    matching row and throws the surplus away in JavaScript. Over `Review`
+    across the whole deployment for forty-five days that is every answer
+    anybody gave, read twice per run to produce one number and one page of
+    ids, which is the rule this project states about that pairing and what a
+    comment here used to claim this was not. The count is Postgres's and the
+    page is a `groupBy`, which is a GROUP BY with its LIMIT and OFFSET in SQL.
   */
   const [reviewers, starters] = await Promise.all([
-    prisma.review
-      .findMany({ where: { reviewedAt: { gte: since } }, distinct: ["ownerId"], select: { ownerId: true } })
-      .then((rows) => rows.length),
+    prisma.$queryRaw<{ n: number }[]>`
+      SELECT COUNT(DISTINCT "ownerId")::int AS n FROM "Review" WHERE "reviewedAt" >= ${since}
+    `.then((rows) => rows[0]?.n ?? 0),
     prisma.setting.count({
       where: { key: SETTING_KEYS.onboardedAt, value: { gte: since.toISOString() } },
     }),
   ]);
 
   const [reviewed, settled] = await Promise.all([
-    prisma.review.findMany({
+    prisma.review.groupBy({
+      by: ["ownerId"],
       where: { reviewedAt: { gte: since } },
-      distinct: ["ownerId"],
-      select: { ownerId: true },
-      /*
-        Ends on the primary key, because `ownerId` is not unique in `Review`
-        and a `take` over a loose order is the plan deciding which learners a
-        run considers. Stable is what matters: the page above walks, and a walk
-        over an order that moves would skip and repeat rather than cover.
-      */
-      orderBy: [{ ownerId: "asc" }, { id: "asc" }],
+      // One row per learner, so `ownerId` is unique among the groups and the
+      // order is total: the page above walks, and a walk over an order that
+      // moves would skip and repeat rather than cover.
+      orderBy: { ownerId: "asc" },
       skip: rosterPage(now, reviewers, limit),
       take: limit,
     }),
