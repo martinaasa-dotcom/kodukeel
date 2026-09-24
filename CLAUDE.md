@@ -221,7 +221,8 @@ reaches past the scene's list rather than as whether its words are Estonian; the
 number to read.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
-`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
+`MAX_COMPOSED_WORDS` was forty and is fifty-five since the prompt asked for a whole person, and
+`NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
 reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
 that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
@@ -8183,7 +8184,7 @@ is asked once more about the beat ahead (`alsoDone`), which is how `ma tahan pil
 being answered with "where to?". The composer is told the same rule in words and asked for the turn
 a person takes, two to four sentences inside `MAX_COMPOSED_WORDS`, rather than the shortest question
 that would do. Every learner-facing rule stayed where it was: the dictionary reads first, the model
-never writes a grade, and a composed line still passes the twelve checks.
+never writes a grade, and a composed line still passes every check in `CHECKS`.
 
 **Every failure in a conversation looked exactly like a success, and that is why the whole module
 was reported as unusable.** A turn that landed got a word back and then the next question. A turn
