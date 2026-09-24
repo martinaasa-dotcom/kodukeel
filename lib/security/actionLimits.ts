@@ -36,9 +36,8 @@ export const ACTION_LIMITS = {
    * Deepens a batch of the commonest words into every card type they support.
    *
    * Bounded to `COMMON_BATCH` words a press, so one call is about the size of a
-   * course unit. It is here rather than beside `addCommonWords`, which has no
-   * allowance, because that one writes two cheap cards a word and this one
-   * writes every case a noun has: the same press repeated is the expensive
+   * course unit, and every case a noun has rather than the two cheap cards a
+   * word `addCommonWords` writes: the same press repeated is the expensive
    * shape, not the single press.
    */
   deepenCommonWords: { perMinute: 12 },
