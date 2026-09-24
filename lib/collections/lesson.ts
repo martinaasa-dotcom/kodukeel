@@ -71,7 +71,7 @@
  */
 import { buildCloze, isBuildable, mentions, sentenceTiles } from "@/lib/estonian/cloze";
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
-import { gapFormsFromParts } from "@/lib/estonian/gapForms";
+import { gapFormsFromParts, rivalsOf } from "@/lib/estonian/gapForms";
 import { caseAnswer, stemsFromParts } from "@/lib/estonian/derive";
 import { CASES } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor } from "@/lib/estonian/caseQuestion";
@@ -213,6 +213,8 @@ export interface TypeStep extends StepBase {
   kind: "type";
   lemma: string;
   gloss: string;
+  /** Every spelling of the word, so a typed answer is marked against them. See `wordRivals`. */
+  rivals: readonly string[];
 }
 export interface ListenStep extends StepBase {
   kind: "listen";
@@ -253,6 +255,8 @@ export interface GapStep extends StepBase {
   full: string;
   /** What the whole sentence means, for the reveal. Null until one is asked for. */
   en: string | null;
+  /** Every spelling of the word, so a typed answer is marked against them. See `wordRivals`. */
+  rivals: readonly string[];
 }
 export interface BuildStep extends StepBase {
   kind: "build";
@@ -289,6 +293,8 @@ export interface CaseStep extends StepBase {
   caseName: string;
   question: string;
   answer: string;
+  /** Every spelling of the word, so a typed answer is marked against them. See `wordRivals`. */
+  rivals: readonly string[];
 }
 export interface GovernStep extends StepBase {
   kind: "govern";
@@ -679,6 +685,7 @@ function gapStep(word: LessonWord, id: string, rules: LessonRules): GapStep | nu
       id, kind: "gap", lexemeId: word.lexemeId, lemma: word.lemma, gloss: word.gloss,
       cue: gapCue(word, cloze.answer),
       text: cloze.text, answer: cloze.answer, full: cloze.full, en: sentence.en,
+      rivals: wordRivals(word),
     };
     // The full cue is the test rather than the lemma, because the meaning
     // gives an answer away as completely as the word does: `saun` is glossed
@@ -691,6 +698,23 @@ function gapStep(word: LessonWord, id: string, rules: LessonRules): GapStep | nu
 }
 
 /** See `GapCue`. A rung is taken only where it does not spell the answer. */
+/**
+ * Every spelling of a lesson word, which a typed step is marked against.
+ *
+ * `checkAnswer` reads anything one keystroke out as a typo, and every pair of
+ * Estonian cases is one keystroke out, so without these a case step asking
+ * for `toas` took `toast` as "So close" and counted it recalled. Over no
+ * accepted answer, because `checkAnswer` never treats a spelling the answer
+ * itself accepts as a rival, and one list then serves all three typed steps.
+ */
+function wordRivals(word: LessonWord): string[] {
+  return rivalsOf({
+    lemma: word.lemma,
+    pos: word.pos,
+    forms: Object.entries(word.parts).map(([formType, value]) => ({ formType, value })),
+  }, []);
+}
+
 function gapCue(word: LessonWord, answer: string): GapCue {
   if (!mentions(`${word.lemma}, ${word.gloss}`, answer)) return "word-and-meaning";
   if (!mentions(word.gloss, answer)) return "meaning";
@@ -747,6 +771,7 @@ function caseStep(
       // a `kes`, and `kus?` names two cases at once. See `caseQuestionFor`.
       caseKey: key, caseName: spec.et, question: caseQuestionFor(spec, subject),
       answer: found.accepted.join(" / "),
+      rivals: wordRivals(word),
     };
   }
   return null;
@@ -1004,6 +1029,7 @@ export function planLesson(input: LessonInput): LessonStep[] {
 
   const typeLane = (block: readonly LessonWord[]) => block.map((word): LessonStep => ({
     id: nextId("type"), kind: "type", lemma: word.lemma, gloss: word.gloss,
+    rivals: wordRivals(word),
   }));
 
   // One round per block, plus the rounds the lag needs to drain: the last block

@@ -411,9 +411,10 @@ function StepCard({
     onAnswer(lemma, kind, i === answer);
   };
 
-  const checkTyped = (expected: string, lemma: string, kind: string) => {
+  const checkTyped = (expected: string, lemma: string, kind: string, rivals: readonly string[]) => {
     if (checked) return;
-    const result = checkAnswer(typed, expected, "et");
+    // Another form of the same word is wrong, never a slip: see `rivalsOf`.
+    const result = checkAnswer(typed, expected, "et", rivals);
     const ok = countsAsRecalled(result.verdict);
     setChecked({ ok, note: result.note || (ok ? "Correct." : `It is “${result.expected}”.`) });
     // A hint is paid for: see the block above and `lib/questions/hints.ts`.
@@ -566,11 +567,11 @@ function StepCard({
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="Your answer in Estonian"
-            onEnter={() => checkTyped(step.lemma, step.lemma, step.kind)}
+            onEnter={() => checkTyped(step.lemma, step.lemma, step.kind, step.rivals)}
           />
           {hint}
           {!checked && (
-            <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind, step.rivals)} className="self-start">
               Check
             </Button>
           )}
@@ -655,11 +656,11 @@ function StepCard({
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="The missing form"
             placeholder={sizedBlank(BLANK, step.answer)}
-            onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
+            onEnter={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)}
           />
           {hint}
           {!checked && (
-            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)} className="self-start">
               Check
             </Button>
           )}
@@ -716,11 +717,11 @@ function StepCard({
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel={`${step.lemma}, ${plainAskLine(step.caseKey) ?? step.caseName}`}
-            onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
+            onEnter={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)}
           />
           {hint}
           {!checked && (
-            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)} className="self-start">
               Check
             </Button>
           )}

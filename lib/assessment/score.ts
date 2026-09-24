@@ -87,7 +87,14 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
     return { credit: 0, right: false, usedAnotherForm: false, note: "Nothing typed yet." };
   }
 
-  const check = checkAnswer(answer, item.targetForm, "et");
+  /*
+    Marked against the word's other forms, so another case is not a slip.
+    `checkAnswer` reads anything one keystroke out as a typo, and every pair of
+    Estonian cases is one keystroke out: `toast` for `toas` came back as "One
+    letter out." with 0.8 credit on a placement check, which is the wrong
+    ending scored as the right one. It falls through to the near miss below.
+  */
+  const check = checkAnswer(answer, item.targetForm, "et", item.otherForms);
   if (check.verdict === "correct") {
     return { credit: 1, right: true, usedAnotherForm: false, note: "That is the form the sentence wanted." };
   }

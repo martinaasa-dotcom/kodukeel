@@ -119,6 +119,23 @@ export function gapForms(word: GapWord): Map<string, CaseKey | null> {
 }
 
 /**
+ * Every other spelling of the word, which is what a marker holds an answer
+ * against so that another form of it is not read as a slip of the hand.
+ *
+ * `checkAnswer` calls anything one keystroke out a typo and marks it as
+ * produced, and every pair of Estonian cases is one keystroke out: `toast` and
+ * `toas`, `majast` and `majas`, `loe` and `loen`. Handed only the rows a word
+ * stores, a marker misses exactly those, because a seeded word stores its
+ * principal parts and every other case is worked out; so this is `gapForms`,
+ * which already knows every spelling the app can vouch for, less the ones the
+ * answer accepts (compared as `checkAnswer` compares, lowercased and trimmed).
+ */
+export function rivalsOf(word: GapWord, accepted: readonly string[]): string[] {
+  const right = new Set(accepted.map((a) => a.trim().toLowerCase()));
+  return [...gapForms(word).keys()].filter((spelling) => !right.has(spelling));
+}
+
+/**
  * The same, for a caller holding principal parts rather than form rows.
  *
  * The course's own word shapes carry `parts` because that is what the syllabus

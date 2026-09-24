@@ -16,6 +16,7 @@ import {
 import { caseFormChoices, verbFormChoices } from "@/lib/questions/caseChoices";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { stemsFrom } from "@/lib/estonian/derive";
+import { rivalsOf } from "@/lib/estonian/gapForms";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
@@ -346,13 +347,32 @@ function wantsFormChoices(card: ReviewCard): boolean {
 }
 
 /**
- * The forms of every word a case card in this session is about.
+ * The cards a learner can type an Estonian form into, which are the cards a
+ * sibling form can be mistaken for a slip on.
+ *
+ * `ReviewSession`'s `TYPEABLE`, written out rather than imported because that
+ * file is a client module and a value exported from one does not cross to the
+ * server. The invariant holds the two lists equal. Wider than the cards that
+ * get choices: a gap cut for `toas`, a production card for `maja` and a
+ * gradation card for `hamba` each take `toast`, `majas` and `hambad` as a
+ * keystroke out, which is a different form rather than a slip.
+ */
+const MARKED_AGAINST_FORMS = new Set(["PRODUCTION", "CASE_FORM", "GRADATION", "CLOZE", "CONJUGATION"]);
+
+function wantsRivals(card: ReviewCard): boolean {
+  return MARKED_AGAINST_FORMS.has(card.cardType);
+}
+
+/**
+ * The forms of every word a typed card in this session is about.
  *
  * A second query rather than a join on `include`, for the reason
  * `decoyOptions` is read the way it is: the review queue is the hottest read
- * in the app and most sessions hold no case card at all, so the round trip is
- * paid by the sessions that need it and by nobody else. There are 996 case
- * cards in the whole shipped dictionary now, so that is most sessions.
+ * in the app, and a join would carry every form of every card, flip and
+ * recognition included, where this reads only the words a learner can type.
+ * It was the case cards alone once, on the argument that most sessions hold
+ * none and should not pay the round trip. Every typed card is marked against
+ * these (`wantsRivals`), and a session with no typed card still pays nothing.
  *
  * Ordered rather than left to the planner. Estonian has genuine parallel forms
  * and `Form`'s unique key includes the value for that reason, so a word can
@@ -364,7 +384,7 @@ type HeldForms = { formType: string; value: string; morphCode: string | null }[]
 
 async function formsForCases(rows: CardRow[]): Promise<Map<string, HeldForms>> {
   const ids = [...new Set(
-    rows.filter((r) => wantsFormChoices(toReviewCard(r, "en")) && r.lexemeId).map((r) => r.lexemeId!),
+    rows.filter((r) => wantsRivals(toReviewCard(r, "en")) && r.lexemeId).map((r) => r.lexemeId!),
   )];
   if (ids.length === 0) return new Map();
 
@@ -490,7 +510,7 @@ export async function withChoices(
   const held = await formsForCases(rows);
   const withForms = cards.map((card, i) => {
     const lexemeId = rows[i]?.lexemeId;
-    if (!wantsFormChoices(card) || !lexemeId) return card;
+    if (!wantsRivals(card) || !lexemeId) return card;
     const forms = held.get(lexemeId);
     const lemma = rows[i]?.lexeme?.lemma;
     if (!forms || !lemma) return card;
@@ -500,14 +520,21 @@ export async function withChoices(
       EVERY OTHER FORM OF THIS WORD, SO ANOTHER ENDING IS NOT READ AS A SLIP.
 
       `checkAnswer` calls anything within one edit a typo and marks it as
-      produced, and every pair of Estonian cases is one letter apart. Read off
-      the forms already in hand for the choices, so this costs no query: it is
-      the same list, kept whether or not the card is shown as choices, because
-      a typed card is exactly the one that needs it.
+      produced, and every pair of Estonian cases is one letter apart. Built off
+      the forms already in hand for the choices, so this costs no query, and
+      kept whether or not the card is shown as choices, because a typed card is
+      exactly the one that needs it.
+
+      Every spelling rather than the stored rows, which is what this read
+      first: a seeded word stores its principal parts and every other case is
+      worked out, so on a deployment with no Ekilex key `toast` was no rival of
+      `toas` and a case card took the wrong ending as "So close", graded it
+      Hard and wrote it into the log as a recall. `rivalsOf` is `gapForms`,
+      the one answer to what spellings a word has.
     */
-    const spellings = new Set(forms.map((f) => f.value.trim()).filter(Boolean));
-    for (const right of accepted) spellings.delete(right.trim());
-    const rivals = [...spellings];
+    const lexPos = rows[i]?.lexeme?.pos ?? "";
+    const rivals = rivalsOf({ lemma, pos: lexPos, forms }, accepted);
+    if (!wantsFormChoices(card)) return { ...card, rivals };
     const options = card.cardType === "CONJUGATION"
       ? verbFormChoices({ lex: { lemma, forms }, accepted, answer, rng: Math.random })
       : caseFormChoices({ stems: stemsFrom(forms), accepted, answer, rng: Math.random });

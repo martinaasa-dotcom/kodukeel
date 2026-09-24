@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildCheckpoint, checkpointPassed, type CheckpointWord } from "./checkpoint";
+import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 
 const word = (lemma: string, extra: Partial<CheckpointWord> = {}): CheckpointWord => ({
   lemma,
@@ -102,6 +103,18 @@ describe("buildCheckpoint", () => {
     });
     const gaps = buildCheckpoint([friend], 1, 1).filter((q) => q.kind === "gap");
     for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
+  });
+
+  it("marks another case of the word as wrong, not as a slip that passes", () => {
+    const room = WORDS.find((w) => w.lemma === "tuba")!;
+    // Two words, so the builder sets one gap and only `tuba` has a sentence.
+    const gap = buildCheckpoint([room, word("aken")], 2, 1).find((q) => q.kind === "gap")!;
+    expect(gap.answer.toLowerCase()).toBe("toas");
+    // `toast` is one keystroke away and is the seestütlev: a checkpoint that
+    // read it as a typo would count it toward passing the level.
+    const typed = checkAnswer("toast", gap.answer, "et", gap.rivals);
+    expect(countsAsRecalled(typed.verdict)).toBe(false);
+    expect(gap.rivals).not.toContain("toas");
   });
 
   it("falls back to production for a word with no sentence", () => {

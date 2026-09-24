@@ -69,6 +69,21 @@ describe("marking", () => {
     expect(near.note).not.toContain("toas");
   });
 
+  it("calls another case one letter away a near miss, not a slip of the hand", () => {
+    /*
+      `toast` is one keystroke from `toas` and is the seestütlev, a different
+      case. Marked against the answer alone it came back as a typo: 0.8 credit,
+      "right", and "One letter out." on a placement check, which is a learner
+      who chose the wrong ending told they had it and slipped. It is the
+      mistake this task exists to find, so it is the near miss above.
+    */
+    const near = gradeWrite(write, "toast");
+    expect(near.right).toBe(false);
+    expect(near.usedAnotherForm).toBe(true);
+    expect(near.credit).toBeLessThan(0.8);
+    expect(near.note).not.toBe("One letter out.");
+  });
+
   it("does not tell somebody the dictionary form is a form of itself", () => {
     /*
       The commonest wrong answer on this task is the lemma, because the screen

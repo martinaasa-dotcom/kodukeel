@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { gapForms, gapFormsFromParts } from "./gapForms";
+import { gapForms, gapFormsFromParts, rivalsOf } from "./gapForms";
 
 const TUBA = {
   lemma: "tuba",
@@ -112,5 +112,32 @@ describe("gapForms", () => {
       forms: [...TUBA.forms, { formType: "EKILEX:SgIn", value: "toas", morphCode: "SgIn" }],
     });
     expect(forms.get("toas")).toBe("INESSIVE");
+  });
+});
+
+/*
+  The forms a marker must not read as a slip of the hand. `checkAnswer` calls
+  anything one keystroke out a typo, and every pair of Estonian cases is one
+  keystroke out, so the list has to hold the derived cases a seeded word never
+  stores: `toast` is not a row for `tuba` on a deployment with no Ekilex key,
+  and it is the answer somebody types for `toas`.
+*/
+describe("rivalsOf", () => {
+  it("holds the derived cases, not only the stored rows", () => {
+    const rivals = rivalsOf(TUBA, ["toas"]);
+    for (const other of ["toast", "toale", "toasse", "tuppa", "toa"]) expect(rivals).toContain(other);
+  });
+
+  it("never lists a spelling the answer itself accepts", () => {
+    const rivals = rivalsOf(TUBA, ["tuppa", "toasse"]);
+    expect(rivals).not.toContain("tuppa");
+    expect(rivals).not.toContain("toasse");
+    expect(rivals).toContain("toas");
+  });
+
+  it("holds a verb's other persons, so the imperative is not a typo of the first person", () => {
+    const rivals = rivalsOf(ALGAMA, ["algan"]);
+    for (const other of ["alga", "algad", "algab"]) expect(rivals).toContain(other);
+    expect(rivals).not.toContain("algan");
   });
 });

@@ -39,6 +39,12 @@ export interface CheckpointQuestion {
   /** The full sentence, revealed afterwards. */
   full: string;
   answer: string;
+  /**
+   * Every other spelling of the word, so a different form one keystroke away
+   * is marked as the wrong form rather than as a slip and counted as passed.
+   * This is a measurement that moves the learner up a level. See `rivalsOf`.
+   */
+  rivals: string[];
 }
 
 /**
@@ -76,6 +82,11 @@ function knownForms(word: CheckpointWord): string[] {
   return [...gapFormsFromParts(word).keys()].filter((form) => !untaught.has(form));
 }
 
+function rivalsFor(word: CheckpointWord, answer: string): string[] {
+  const right = answer.trim().toLowerCase();
+  return [...gapFormsFromParts(word).keys()].filter((spelling) => spelling !== right);
+}
+
 /**
  * Builds a checkpoint.
  *
@@ -104,6 +115,7 @@ export function buildCheckpoint(
         questions.push({
           id: `q${i}`, kind: "gap", lemma: word.lemma, gloss: word.gloss,
           sentence: cloze.text, full: cloze.full, answer: cloze.answer,
+          rivals: rivalsFor(word, cloze.answer),
         });
         continue;
       }
@@ -111,6 +123,7 @@ export function buildCheckpoint(
     questions.push({
       id: `q${i}`, kind: "type", lemma: word.lemma, gloss: word.gloss,
       sentence: "", full: "", answer: word.lemma,
+      rivals: rivalsFor(word, word.lemma),
     });
   }
 

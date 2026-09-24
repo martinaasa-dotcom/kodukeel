@@ -107,8 +107,11 @@ function acceptsSlips(kind: ExamItem["kind"]): boolean {
   return kind === "dictation";
 }
 
-function markTyped(item: ExamItem, expected: string, typed: string, lenient: boolean): ItemMark {
-  const check = checkAnswer(typed, expected, "et");
+function markTyped(
+  item: ExamItem, expected: string, typed: string, lenient: boolean, rivals: readonly string[],
+): ItemMark {
+  // A form of the same word is wrong, never "one letter out": see `rivalsOf`.
+  const check = checkAnswer(typed, expected, "et", rivals);
   const correct = lenient ? countsAsRecalled(check.verdict) : check.verdict === "correct";
   return {
     itemId: item.id,
@@ -240,7 +243,7 @@ export function markItem(
 
     case "case-form":
       return scale(markTyped(
-        item, item.answer, response.kind === "typed" ? response.value : "", false,
+        item, item.answer, response.kind === "typed" ? response.value : "", false, item.rivals,
       ));
 
     case "order": {

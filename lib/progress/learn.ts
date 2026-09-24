@@ -19,7 +19,7 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { buildCloze, mentions, nominalOpener } from "@/lib/estonian/cloze";
 import { readableFor, type SentenceReader } from "@/lib/collections/levels";
 import { APP_CHOSE } from "@/lib/srs/sources";
-import { gapForms } from "@/lib/estonian/gapForms";
+import { gapForms, rivalsOf } from "@/lib/estonian/gapForms";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { explainForm, type WordRow } from "@/lib/assessment/items";
 import {
@@ -204,6 +204,16 @@ export interface LearnWord {
   } | null;
   /** Four glosses, one of them right, ranked rather than shuffled. */
   choices: string[] | null;
+  /**
+   * Every spelling of the word, so a typed answer is marked against them.
+   *
+   * `checkAnswer` reads anything one keystroke out as a typo, and every pair of
+   * Estonian cases is one keystroke out, so the gap rung took `toast` for
+   * `toas` as "So close" and graded it Hard. `rivalsOf` over no accepted
+   * answer, because the rung asks for the gap's form or for the lemma and
+   * `checkAnswer` never treats a spelling the answer accepts as a rival.
+   */
+  rivals: string[];
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
   rung: Rung;
@@ -657,6 +667,7 @@ export async function learnBatch(
       tokens: null as GlossedToken[] | null,
       alsoSaid: null as string | null,
       canTranslate: resolveProvider() !== null,
+      rivals: rivalsOf({ lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms }, []),
       gap,
       choices: picked ? picked.options : null,
       starred: starred.has(lexeme.id),

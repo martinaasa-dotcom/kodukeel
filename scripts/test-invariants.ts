@@ -21595,6 +21595,64 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("an Estonian answer is marked against the word's other forms", () => {
+  /*
+    `checkAnswer` forgives one keystroke as a slip and counts it as recalled,
+    and in Estonian one keystroke is also the distance between two cases:
+    `toas` and `toast`, `loeksime` and `loeksite`. Handed the word's other
+    spellings as rivals it asks about those first and marks a different form
+    wrong; handed none, it told a learner who chose the seestütlev that they
+    had mistyped the seesütlev, wrote a recall into the append-only log, and
+    counted it toward passing a level on the checkpoint and the placement
+    check. So every call that marks Estonian passes a fourth argument, and a
+    call that does not is exempt below with the reason.
+  */
+  const EXEMPT: Record<string, { calls: number; why: string }> = {
+    "lib/games/flash.ts": { calls: 1, why: "markForm reads the word's own formIndex before checkAnswer and names the slot another ending belongs to" },
+    "lib/assessment/score.ts": { calls: 1, why: "the second call asks whether the answer IS one of the other forms, which is the rivals list read the other way" },
+  };
+  const bare = new Map<string, number>();
+  let marking = 0;
+  for (const file of ALL.filter((f) => !/\.test\.tsx?$/.test(f) && f !== "lib/estonian/answer.ts")) {
+    const src = code(file);
+    for (let at = src.indexOf("checkAnswer("); at >= 0; at = src.indexOf("checkAnswer(", at + 1)) {
+      if (/[\w.]/.test(src[at - 1] ?? "")) continue;
+      let depth = 0; let i = at + "checkAnswer".length; const args: string[] = []; let cur = "";
+      for (; i < src.length; i++) {
+        const ch = src[i]!;
+        if ("([{".includes(ch)) { depth++; if (depth === 1) continue; }
+        if (")]}".includes(ch)) { depth--; if (depth === 0) break; }
+        if (ch === "," && depth === 1) { args.push(cur.trim()); cur = ""; continue; }
+        if (depth >= 1) cur += ch;
+      }
+      if (cur.trim()) args.push(cur.trim());
+      if (args.length < 3 || !/^("et"|language)$/.test(args[2]!)) continue;
+      marking++;
+      if (args.length < 4) bare.set(file, (bare.get(file) ?? 0) + 1);
+    }
+  }
+  assert.ok(marking >= 11, `found only ${marking} Estonian checkAnswer calls; the sweep has stopped reading them`);
+  for (const [file, count] of bare) {
+    const exempt = EXEMPT[file];
+    assert.ok(exempt && count <= exempt.calls,
+      `${file} marks Estonian with checkAnswer and no rivals, so another form one keystroke away passes as a slip`);
+  }
+  for (const [file, exempt] of Object.entries(EXEMPT)) {
+    assert.ok((bare.get(file) ?? 0) === exempt.calls, `${file} is exempt from rivals and no longer needs it: take the line out`);
+    assert.ok(exempt.why.split(/\s+/).length >= 8, `${file} is exempt with no reason`);
+  }
+
+  /* Review builds rivals for exactly the cards it types. */
+  const types = (file: string, name: string) =>
+    new Set([...(code(file).match(new RegExp(`const ${name} = new Set\\(\\[([^\\]]*)\\]`))?.[1] ?? "")
+      .matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]!));
+  const typeable = types("app/(app)/review/ReviewSession.tsx", "TYPEABLE");
+  const marked = types("app/(app)/review/cards.ts", "MARKED_AGAINST_FORMS");
+  assert.ok(typeable.size >= 4, "could not read TYPEABLE from ReviewSession.tsx");
+  assert.deepEqual([...marked].sort(), [...typeable].sort(),
+    "cards.ts builds rivals for a different set of card types than ReviewSession types");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

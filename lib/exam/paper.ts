@@ -6,6 +6,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { sameSpelling } from "@/lib/copy/values";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { writingTasksFor } from "@/lib/estonian/writing";
+import { rivalsOf } from "@/lib/estonian/gapForms";
 import {
   blueprintFor, lengthsFor, specFor,
   type ExamLevel, type ExamSpec, type PartSpec, type TaskKind, type TaskSpec,
@@ -170,6 +171,11 @@ export interface CaseFormItem extends BaseItem {
   caseQuestion: string;
   answer: string;
   provenance: "ekilex" | "derived";
+  /**
+   * The word's other spellings, so a different case one keystroke away is
+   * marked as the wrong case rather than as "one letter out". See `rivalsOf`.
+   */
+  rivals: string[];
 }
 
 export interface GovernmentItem extends BaseItem {
@@ -662,6 +668,7 @@ function buildCaseForm(spec: TaskSpec, ctx: BuildContext): ExamTask {
       caseQuestion: task.caseQuestion,
       answer: task.targetForm,
       provenance: task.provenance,
+      rivals: rivalsOf(word, [task.targetForm]),
     });
   }
   return finish(spec, items, undefined, "nouns with an omastav stem to build on");

@@ -64,7 +64,8 @@ export function CheckpointSession({
 
   const submit = useCallback(() => {
     if (!question || saving || done) return;
-    const result = checkAnswer(typed, question.answer, "et");
+    // Another form of the word is wrong, never a slip: see `rivalsOf`.
+    const result = checkAnswer(typed, question.answer, "et", question.rivals);
     const ok = countsAsRecalled(result.verdict);
     const tally = correct + (ok ? 1 : 0);
     if (ok) setCorrect(tally);

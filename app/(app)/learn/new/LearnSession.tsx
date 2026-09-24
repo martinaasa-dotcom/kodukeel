@@ -577,7 +577,7 @@ export function LearnSession({
   const answerGap = useCallback(() => {
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
-    const check = checkAnswer(typed, expected, "et");
+    const check = checkAnswer(typed, expected, "et", word.rivals);
     setVerdict(check);
     const won = check.verdict === "correct";
     cheer(countsAsRecalled(check.verdict));
@@ -624,7 +624,7 @@ export function LearnSession({
 
   const checkRetype = useCallback(() => {
     if (!word || !result || retypeOk) return;
-    const again = checkAnswer(retyped, result.expected, "et");
+    const again = checkAnswer(retyped, result.expected, "et", word.rivals);
     if (again.verdict === "correct") {
       setRetypeOk(true);
       setRetypeNote(null);

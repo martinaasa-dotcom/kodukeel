@@ -311,6 +311,16 @@ describe("which language an answer is in", () => {
     }
   });
 
+  it("names another case of the word as that, never as one letter out", () => {
+    const form = items.find((i) => i.kind === "case-form")!;
+    if (form.kind !== "case-form") throw new Error("unreachable");
+    // `toast` is one keystroke from `toas` and is the seestütlev, not a slip.
+    const asked = { ...form, answer: "toas", rivals: ["toast", "toale"] };
+    const mark = markItem(asked, { kind: "typed", value: "toast" }, 1);
+    expect(mark.correct).toBe(false);
+    expect(mark.note).not.toBe("One letter out.");
+  });
+
   it("leaves the Estonian answers Estonian", () => {
     const form = items.find((i) => i.kind === "case-form")!;
     expect(markItem(form, { kind: "typed", value: "vale" }, 1).language).toBe("et");

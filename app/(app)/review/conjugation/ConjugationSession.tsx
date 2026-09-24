@@ -204,7 +204,14 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
   const check = useCallback(() => {
     if (!question || verdicts) return;
-    const marks = question.blanks.map((b, i) => checkAnswer(typed[i] ?? "", b.answer, "et"));
+    /*
+      The other persons of the table are the rivals of each cell: `loeksite`
+      where `loeksime` was due is one keystroke apart at eight letters, which
+      the slip rule forgives, and it is the wrong person rather than a slip.
+    */
+    const table = [question.given.value, ...question.blanks.map((b) => b.answer)];
+    const marks = question.blanks.map((b, i) =>
+      checkAnswer(typed[i] ?? "", b.answer, "et", table.filter((form) => form !== b.answer)));
     setVerdicts(marks);
     // A near miss counts as recalled, the way it does in review: a dropped õ is
     // a spelling slip and not a wrong form. A clean table is stricter, since
