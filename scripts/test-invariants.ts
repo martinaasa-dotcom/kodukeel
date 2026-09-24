@@ -7167,6 +7167,17 @@ check("nothing is stored on a device that would need asking first", () => {
       `${file} stores something on the reader's device, which /privacy does not account for`,
     );
   }
+  /*
+    And every entry still earns its place. An allowance for a file that has
+    stopped touching the device is permission waiting for the next edit to
+    use it without anybody deciding, which is the opposite of what a short
+    list with a reason per line is for.
+  */
+  const idle = allowed.filter((f) => !storage.includes(f));
+  assert.deepEqual(
+    idle, [],
+    `${idle.join(", ")} no longer store${idle.length === 1 ? "s" : ""} anything on the device, so the allowance excuses nothing. Take it off`,
+  );
   assert.match(
     read("app/privacy/page.tsx"),
     /What is kept on your own device/,
@@ -8837,8 +8848,11 @@ check("no ledger write is left to a promise the platform may drop", () => {
  */
 check("only the harvest, the seed and the screens name a Russian or Ukrainian meaning", () => {
   const allowed = new Set([
-    // Written here, out of an Ekilex response and nothing else.
-    join("scripts", "harvest-ekilex.ts"),
+    /*
+      Written here, out of an Ekilex response and nothing else. The harvest
+      itself is not on the list: it carries the equivalents as `rus` and `ukr`
+      on a harvested word, and the seed is what names the columns.
+    */
     join("prisma", "schema.prisma"),
     join("prisma", "seed.ts"),
     join("prisma", "columns.ts"),
@@ -8863,9 +8877,11 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
       now happens.
     */
     join("lib", "progress", "learn.ts"),
+    /*
+      The lesson page reads them and hands the planner and the session a
+      gloss already chosen, so neither of those two names the columns.
+    */
     join("app", "(app)", "learn", "[unitId]", "lesson", "page.tsx"),
-    join("lib", "collections", "lesson.ts"),
-    join("app", "(app)", "learn", "[unitId]", "lesson", "LessonSession.tsx"),
   ]);
 
   const roots = ["app", "lib", "components", "scripts", "prisma"];
@@ -8890,6 +8906,19 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     naming.filter((f) => !allowed.has(f)), [],
     "a new file names a Russian or Ukrainian meaning. Decide what it is doing with it: " +
     "these come from Ekilex and no model may reach them (ADR-005 in a language nobody here reads).",
+  );
+  /*
+    AND IN THE OTHER DIRECTION, or the list is a parking space. An entry that
+    no longer names the columns is a standing permission nobody is using: the
+    day that file is edited to reach them, nothing here asks why, because the
+    name is already on the list. Three were, for a while, and the one saying
+    "written here" was the harvest, which reaches the columns only through
+    the seed's own shape.
+  */
+  const idle = [...allowed].filter((f) => !naming.includes(f));
+  assert.deepEqual(
+    idle, [],
+    `${idle.join(", ")} no longer name${idle.length === 1 ? "s" : ""} a Russian or Ukrainian meaning, so ${idle.length === 1 ? "its" : "their"} place on this list excuses nothing. Take ${idle.length === 1 ? "it" : "them"} off`,
   );
 });
 
