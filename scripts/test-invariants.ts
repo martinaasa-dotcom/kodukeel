@@ -13752,6 +13752,28 @@ check("every design document a file cites is a document that exists", () => {
   assert.ok(cited >= 100, `only ${cited} citations of a design document found, so this stopped looking`);
 });
 
+check("a mailed sign-in link never changes who is signed in without saying so", () => {
+  /*
+    Login CSRF, stated in CLAUDE.md and held by nothing: the `token_hash`
+    branch of the callback is not tied to the browser that asked, so an
+    attacker's own mailed link opened by a signed-in learner would land them
+    in the attacker's account. The callback ends an existing session and sends
+    them to sign in with `switched=1`, and drops `next`. Read in order: the
+    session check before the verification, the sign-out and the switched
+    redirect inside it, and `next` nowhere in that block.
+  */
+  const cb = code("app/auth/callback/route.ts");
+  const branch = cb.slice(cb.indexOf("tokenHash && type"));
+  assert.ok(branch.length > 0 && cb.includes("tokenHash && type"), "the callback no longer has a token_hash branch this can read");
+  const guard = branch.indexOf("hasSessionCookie(");
+  const verify = branch.indexOf("verifyOtp(");
+  assert.ok(guard >= 0 && verify > guard, "a mailed link is verified before the callback asks whether somebody is already signed in");
+  const block = branch.slice(guard, verify);
+  assert.match(block, /signOut\(/, "a mailed link opened in a signed-in browser no longer ends that session");
+  assert.match(block, /switched=1/, "a mailed link that ends a session no longer says so on the sign-in screen");
+  assert.doesNotMatch(block, /\bnext\b/, "a refused mailed link still follows the next its author chose");
+});
+
 check("every gate that hands out a signed-in identity asks the allowlist", () => {
   /*
     REVOKING ACCESS IS IMMEDIATE, AND THE MIDDLEWARE IS NOT THE ONLY READER.
