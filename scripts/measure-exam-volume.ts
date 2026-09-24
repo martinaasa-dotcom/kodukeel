@@ -19,18 +19,36 @@
  */
 import { dictionaryRows } from "./lib/dictionary";
 import { buildPaper, fillRate, type PoolWord } from "../lib/exam/paper";
+import { POOL_SIZE, drawPool, eligibleFor } from "../lib/exam/pool";
+import { usableExamples } from "../lib/dict/examples";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { EXAM_LEVELS } from "../lib/exam/spec";
 
+/*
+  THE POOL IS DRAWN THE WAY THE APP DRAWS IT, OR THIS MEASURES A DIFFERENT PAPER.
+
+  The first version handed `buildPaper` the whole dictionary at every level, so
+  an A1 paper was built out of C1 words and every level read full. The app
+  filters to the level, shuffles on the paper's seed and keeps `POOL_SIZE`
+  (`lib/exam/pool.ts`, the rule `lib/progress/exam.ts` reads too), and it keeps
+  only the sentences `usableExamples` keeps. The one difference left is the
+  order the draw starts from: the app shuffles database ids and this shuffles
+  (lemma, pos), so the seed picks a different five hundred, from the same set,
+  by the same rule. Fill rates are comparable; a single seed's paper is not.
+*/
 const entries = dictionaryRows();
-const pool: PoolWord[] = entries.map((e) => ({
-  lexemeId: e.lemma, lemma: e.lemma, translation: e.translation, pos: e.pos, cefr: e.cefr,
+const asPool = (e: (typeof entries)[number]): PoolWord => ({
+  lexemeId: `${e.lemma}|${e.pos}`, lemma: e.lemma, translation: e.translation, pos: e.pos, cefr: e.cefr,
   semanticTypes: e.semanticTypes ?? null,
   forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null, morphName: null })),
-  examples: (e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null })),
+  examples: usableExamples((e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null, source: "EKILEX" as const }))).map((x) => ({ et: x.et, en: x.en ?? null })),
   government: e.government, cardId: null,
-}));
+});
+const ordered = [...entries].sort((a, b) =>
+  `${a.lemma}|${a.pos}` < `${b.lemma}|${b.pos}` ? -1 : `${a.lemma}|${a.pos}` > `${b.lemma}|${b.pos}` ? 1 : 0);
 const WORD_ORDER = orderContextFrom(entries);
+const poolFor = (level: (typeof EXAM_LEVELS)[number], seed: string): PoolWord[] =>
+  drawPool(ordered.filter((e) => eligibleFor(level, e.cefr ?? null)), level, seed).map(asPool);
 
 const SEEDS = Number(process.argv.find((a) => a.startsWith("--seeds="))?.split("=")[1] ?? 100);
 
@@ -46,7 +64,7 @@ for (const level of EXAM_LEVELS) {
 
   for (let s = 0; s < SEEDS; s++) {
     const seed = `vol-${s}`;
-    const paper = buildPaper(level, pool, seed, WORD_ORDER);
+    const paper = buildPaper(level, poolFor(level, seed), seed, WORD_ORDER);
     const rate = fillRate(paper);
     rates.push(rate);
     if (paper.thin) thin++;
@@ -72,7 +90,8 @@ for (const level of EXAM_LEVELS) {
   const min = Math.min(...rates);
   const max = Math.max(...rates);
 
-  console.log(`== ${level} ==`);
+  const eligible = ordered.filter((e) => eligibleFor(level, e.cefr ?? null)).length;
+  console.log(`== ${level} ==  (${eligible} eligible entries, pool of ${Math.min(eligible, POOL_SIZE)} per paper)`);
   console.log(`  fill rate: mean ${mean.toFixed(1)}%, min ${min}%, max ${max}%`);
   console.log(`  thin papers (any shortfall): ${thin}/${SEEDS}`);
   console.log(`  substituted-shape papers: ${substituted}/${SEEDS}`);

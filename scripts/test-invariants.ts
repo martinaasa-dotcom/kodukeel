@@ -2701,10 +2701,26 @@ check("the paper's pool is drawn from its own seed, not from what was read last"
     pool, /export async function examPool\([^)]*seed[^)]*\)/,
     "examPool no longer takes the paper's seed, so the pool is not a function of it",
   );
+  /*
+    The draw lives in `lib/exam/pool.ts` so a measurement can use it: the first
+    `measure:exam-volume` handed buildPaper the whole dictionary at every level
+    and reported an A1 paper full of C1 words. So the app draws through the
+    rule, the rule shuffles on the seed, and the script draws through the same
+    rule rather than a copy of it.
+  */
   assert.match(
-    pool, /shuffle\(/,
-    "the exam pool no longer draws with the seed",
+    pool, /drawPool\(ids, level, seed\)/,
+    "the exam pool no longer draws through lib/exam/pool.ts with the paper's seed",
   );
+  assert.match(pool, /eligibleLevels\(level\)/, "the exam pool decides its own bands again");
+  const rule = code("lib/exam/pool.ts");
+  assert.match(
+    rule, /shuffle\(\[\.\.\.orderedIds\], rng\(seedFrom\(`pool:\$\{level\}:\$\{seed\}`\)\)\)/,
+    "the pool rule no longer shuffles on the paper's own seed",
+  );
+  const measure = code("scripts/measure-exam-volume.ts");
+  assert.match(measure, /drawPool\(/, "measure:exam-volume builds a pool the app does not draw");
+  assert.match(measure, /eligibleFor\(level/, "measure:exam-volume stopped filtering the pool to the level");
 });
 
 check("a mock exam writes to the same review log as every other mode", () => {
