@@ -303,13 +303,15 @@ OpenAI and Anthropic key shapes, a Postgres URL carrying a password, a private k
 Supabase JWT whose decoded role claim is `service_role`, which is what tells it apart from the anon
 key that is public by design.
 
-Two invariants back it up: nothing may carry a `NEXT_PUBLIC_` prefix except the anon key, and no
+Two invariants back it up: no `NEXT_PUBLIC_` name shaped like a credential (ending in `KEY`,
+`SECRET`, `TOKEN` or `PASSWORD`) may exist except the anon key, and no
 client component may read a server only variable. A third reads `PROVIDER_KEY_ENV` and checks each
 key is marked in the CI canary, so the next provider added to the chain cannot be missed the way Groq
 and Gemini were.
 
-The CSP is the other half: `connect-src` names no third party at all, so a client that tried to call
-Ekilex or TartuNLP directly would be refused by the browser as well as by an invariant.
+The CSP is the other half: `connect-src` names no third party but the deployment's own Supabase
+project, which the browser needs for sign-in, so a client that tried to call Ekilex or TartuNLP
+directly would be refused by the browser as well as by an invariant.
 
 ### 4.10 An error message carrying a connection string
 
@@ -343,7 +345,9 @@ self-hosted proxy appends and is read from the right. Signed-in work never touch
 session.
 
 **Control.** `X-Frame-Options: DENY` in `lib/security/headers.ts`, and `frame-ancestors 'none'` in
-the CSP. `frame-src 'none'` refuses the other direction, which was verified rather than assumed:
+the CSP. `frame-src 'none'` refuses the other direction, except for `accounts.google.com` on a
+deployment with a Google client ID, whose sign-in button is Google's own iframe. The refusal was
+verified rather than assumed:
 Sõnaveeb and Ekilex both send `DENY` at us, which is why nothing here is an iframe.
 
 ### 4.13 Reading the deployment-wide aggregates
@@ -419,7 +423,7 @@ being trusted.
 | Transport | HSTS, two years, includeSubDomains, preload | `lib/security/headers.ts` |
 | Transport | `upgrade-insecure-requests` in the CSP | `lib/security/headers.ts` |
 | Headers | CSP set per response, so it can read which Supabase project to allow | `middleware.ts` |
-| Headers | `frame-ancestors 'none'`, `frame-src 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` | `lib/security/headers.ts` |
+| Headers | `frame-ancestors 'none'`, `frame-src 'none'` (Google's sign-in origin excepted when configured), `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` | `lib/security/headers.ts` |
 | Headers | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, COOP, cross domain policies | `next.config.ts` via `STATIC_SECURITY_HEADERS` |
 | Headers | `Permissions-Policy` denying geolocation, allowing camera and microphone to self | `lib/security/headers.ts` |
 | Headers | `X-Powered-By` removed | `next.config.ts` |
