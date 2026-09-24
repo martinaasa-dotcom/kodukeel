@@ -32,10 +32,12 @@
  * rather than a contradiction of it, and narrowing here would disagree with
  * the course harvest about words it has already written.
  *
- * IT ADDS AND NEVER OVERWRITES. An entry the course harvest already answered
- * for is left exactly as it is: that one is written by hand into
- * `prisma/data/harvested.ts` from the same source and is the half somebody has
- * looked at, and two writers filling one column is where they stop agreeing.
+ * IT ADDS AND NEVER OVERWRITES. This reads and writes the built expansion
+ * alone; the course words live in `prisma/data/harvested.ts`, which the course
+ * harvest generates and this script never touches. An expanded entry that
+ * already carries one was written by an earlier run of this script or by a
+ * homonym pin (`npm run audit:homonyms -- --write`), which reads the
+ * equivalents off the word it repoints to, and it is left exactly as it is.
  * What this fills is the entries that have nothing.
  *
  * Needs EKILEX_API_KEY and the network. Answers are cached under
@@ -116,13 +118,6 @@ async function call<T>(pathname: string, attempt = 0): Promise<T | null> {
   }
 }
 
-/**
- * Joined the way the seed joins them and the way the gloss column already
- * reads: a comma and a space. Empty is null rather than an empty string,
- * because "Ekilex records none" is the honest answer and is what the screen
- * already says.
- */
-
 async function main(): Promise<void> {
   if (!API_KEY) {
     console.error("EKILEX_API_KEY is not set. This asks the Institute; there is no offline answer.");
@@ -181,10 +176,10 @@ async function main(): Promise<void> {
     const pair = found.get(`${entry.lemma}|${entry.pos}`);
     if (!pair) continue;
     /*
-      An entry that already carries one was answered by the course harvest out
-      of the same field of the same response, and that file is the half a
-      person has read. Adding beside it rather than over it is what keeps one
-      column to one writer per entry.
+      An entry that already carries one was written by an earlier run of this
+      script or by a homonym pin, out of the same field of the same kind of
+      response. Leaving it rather than writing over it is what "adds and never
+      overwrites" means.
     */
     if (entry.translationRu || entry.translationUk) {
       kept++;
