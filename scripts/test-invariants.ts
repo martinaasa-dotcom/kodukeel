@@ -2713,6 +2713,10 @@ check("the paper's pool is drawn from its own seed, not from what was read last"
     "the exam pool no longer draws through lib/exam/pool.ts with the paper's seed",
   );
   assert.match(pool, /eligibleLevels\(level\)/, "the exam pool decides its own bands again");
+  assert.match(
+    pool, /eligibleFor\(level, null\)/,
+    "the exam pool decides for itself whether an ungraded entry is in, so the app and the measurement can disagree",
+  );
   const rule = code("lib/exam/pool.ts");
   assert.match(
     rule, /shuffle\(\[\.\.\.orderedIds\], rng\(seedFrom\(`pool:\$\{level\}:\$\{seed\}`\)\)\)/,

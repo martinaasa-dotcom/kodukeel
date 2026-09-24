@@ -4,7 +4,7 @@ import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseAccuracy } from "@/lib/stats/history";
 import { buildPaper, type PoolWord, type Paper } from "@/lib/exam/paper";
-import { drawPool, eligibleLevels } from "@/lib/exam/pool";
+import { drawPool, eligibleFor, eligibleLevels } from "@/lib/exam/pool";
 import type { ExamResult } from "@/lib/exam/score";
 import type { ExamLevel } from "@/lib/exam/spec";
 import type { PastAttempt, ReadinessSignals, SkillEvidence } from "@/lib/exam/readiness";
@@ -72,7 +72,9 @@ import { orderContextFor } from "@/lib/dict/wordOrder";
 export async function examPool(ownerId: string, level: ExamLevel, seed: string): Promise<PoolWord[]> {
   const levels = eligibleLevels(level);
 
-  const eligible = levels.includes("B1")
+  // Whether an ungraded entry is in is `eligibleFor`'s to say, the rule the
+  // measurement reads too, rather than a second reading of it here.
+  const eligible = eligibleFor(level, null)
     ? { OR: [{ cefr: { in: levels } }, { cefr: null }] }
     : { cefr: { in: levels } };
 
