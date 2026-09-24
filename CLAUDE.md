@@ -1335,7 +1335,13 @@ generated rather than installed, so the one drift check that needs no credential
 run and the page cache it carefully carries between weeks had never been written. Nothing said
 so, because a scheduled job nobody watches is red in a tab nobody opens, which is the same
 argument this file makes about a check that can fail and has never been made to. It generates
-the client now, like every job in `ci.yml`. A clean result over a
+the client now, like every job in `ci.yml`. **And the first run that got past that still kept
+nothing**: it fetched 1,500 pages, Wiktionary stopped answering, the audit went red as designed,
+and `save-always: true`, which was there to keep the cache on exactly that red, did nothing. The
+action's own log says it "does not work as intended", and the run went from the error to
+checkout's cleanup with no cache step between, so every week would have restarted at zero with a
+comment saying it carried on. It restores in one step and saves in another with `if: always()`
+now, which is GitHub's documented shape, and an invariant refuses the flag. A clean result over a
 parser this quiet is only worth the words if the check can fail, so it was made to: run the same
 comparison against a translation known to be wrong and all 5,363 flag. What remains is not parser
 drift but a page being wrong about its own word, which is what the report queue is for. The

@@ -71,18 +71,23 @@ jobs:
       # `restore-keys` rather than an exact match, because the useful cache is
       # the most recent one whatever week wrote it.
       #
-      # `save-always`, because this job is red by design until the cache has
-      # carried it past half the dictionary: actions/cache's post step skips
-      # saving once an earlier step in the job has failed, so without this the
-      # audit below never wrote anything back and every week restarted at
-      # zero. Measured: two runs, two cache misses, the same "1000 of 5363"
-      # both times.
-      - uses: actions/cache@v6
+      # Restored here and saved in a step of its own after the audit, with
+      # `if: always()`, because this job is red by design until the cache has
+      # carried it past half the dictionary, and actions/cache's own post step
+      # skips saving once an earlier step has failed. `save-always: true` was
+      # the first answer to that and it did nothing: the action's own log calls
+      # it deprecated and says it "does not work as intended", and run 4
+      # (2026-09-24) fetched 1,500 pages, failed, and went straight from the
+      # error to checkout's cleanup with no cache step between, so every page
+      # was thrown away and the next week would have started at zero again.
+      # The split is GitHub's documented shape for this, and
+      # `scripts/test-invariants.ts` refuses the flag.
+      - name: Restore the Wiktionary pages earlier weeks fetched
+        uses: actions/cache/restore@v6
         with:
           path: prisma/data/.cache
           key: wiktionary-pages-${{ github.run_id }}
           restore-keys: wiktionary-pages-
-          save-always: true
       # No database and no key: this reads prisma/data/expanded.json and asks
       # Wiktionary, which is why it is the one drift check that can run here.
       #
@@ -96,3 +101,11 @@ jobs:
       # repository: sense order is the page's own, and which sense a learner
       # needs is explicitly not a judgement this pipeline makes.
       - run: npm run audit:glosses
+      # Whatever this run fetched, kept even though the audit above is red,
+      # so next week carries on from where this one stopped.
+      - name: Keep what this run fetched, pass or fail
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: prisma/data/.cache
+          key: wiktionary-pages-${{ github.run_id }}

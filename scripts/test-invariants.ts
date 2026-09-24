@@ -10753,6 +10753,44 @@ check("every marker the merge ritual names is still somewhere in the tree", () =
   );
 });
 
+check("a cache a red run has to keep is saved by a step of its own", () => {
+  /*
+    The gloss drift job is red by design until its page cache has carried it
+    past half the dictionary, since Wiktionary stops answering partway through
+    five thousand pages, so the cache is the only way it ever finishes. It was
+    written with `save-always: true` to keep that cache when the audit fails,
+    and the flag does nothing: actions/cache calls it deprecated and "does not
+    work as intended", and run 4 (2026-09-24) fetched 1,500 pages, went red,
+    and never reached a cache step at all. Every week would have started at
+    zero, forever, with a comment saying it carried on.
+
+    So no workflow may lean on the flag, and the drift job saves in a step of
+    its own with `if: always()`, which is GitHub's documented shape. Read with
+    YAML comments stripped, because the comment explaining this names the flag.
+  */
+  const workflows = sourceFiles(".github/workflows", /\.ya?ml$/);
+  assert.ok(workflows.length >= 3, `only ${workflows.length} workflows found, so this stopped looking`);
+  const yamlCode = (file: string) => read(file).replace(/^\s*#.*$/gm, "");
+  for (const file of workflows) {
+    assert.doesNotMatch(
+      yamlCode(file),
+      /save-always:/,
+      `${file} relies on save-always, which does not save: a red run throws its cache away`,
+    );
+  }
+  const drift = yamlCode(join(".github", "workflows", "drift.yml"));
+  assert.match(drift, /actions\/cache\/restore@/, "the drift job no longer restores the pages earlier weeks fetched");
+  assert.match(
+    drift,
+    /if:\s*always\(\)\s*\n\s*uses:\s*actions\/cache\/save@/,
+    "the drift job no longer keeps what a red run fetched, so every week starts at zero",
+  );
+  assert.ok(
+    drift.indexOf("actions/cache/save@") > drift.indexOf("audit:glosses"),
+    "the drift job saves its cache before the audit has fetched anything",
+  );
+});
+
 check("every script a workflow runs is a script that exists", () => {
   /*
     The invariants already assert that a browser suite CI can run is one CI does
