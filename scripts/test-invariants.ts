@@ -5198,8 +5198,15 @@ check("a check over a list says the list was there", () => {
 
     for (const [n, call] of calls.entries()) {
       const condition = verdict(call.body);
-      for (const use of condition.matchAll(/(?:^|[^.\w)\]])([A-Za-z_$][\w$]*)\.every\(/g)) {
-        const name = use[1]!;
+      /*
+        A name, or a name spread into an array first: `[...sizes.keys()].every(`
+        is the same pass over nothing as `sizes.every(`, and the first version
+        of this only read the second, so the design suite's type floor went
+        through it.
+      */
+      const receivers = /(?:^|[^.\w)\]])([A-Za-z_$][\w$]*)\.every\(|\[\.\.\.([A-Za-z_$][\w$]*)(?:\.(?:keys|values|entries)\(\))?\]\.every\(/g;
+      for (const use of condition.matchAll(receivers)) {
+        const name = (use[1] ?? use[2])!;
         looked += 1;
         // Said in the same breath, in the verdict rather than beside it.
         if (new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(condition)) continue;

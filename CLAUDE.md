@@ -9694,7 +9694,7 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   below the fix it reads the same array the same way, so a rename that failed outright still
   reported that scheduling had survived it; the flash round had four, where a round that logged
   nothing failed one check about the log and passed the four behind it, two on an empty `every` and
-  two through a disjunction nobody counted; Today's column check, minimal-pairs and the sign-in
+  two through a disjunction nobody counted; Today's column check, the hint ladder and the sign-in
   button had one apiece. **The pairing is what makes it a rule rather than a reading**: in every
   case a check above already asks the length, because the suite knew the list could be empty, and
   that check failing is exactly the run where the ones below it stop meaning anything. So the
