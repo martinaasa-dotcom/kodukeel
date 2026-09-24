@@ -9563,7 +9563,17 @@ check("no server action returns an error message it has not redacted", () => {
   const actions = code(join("app", "actions.ts"));
   assert.match(actions, /"use server"/, "app/actions.ts is not a server action file any more");
 
-  const raw = [...actions.matchAll(/\berror(?:\s+instanceof\s+Error\s*\?)?\s*\.?message\b/g)];
+  /*
+    Any receiver, not only one named `error`: `err.message` and
+    `(e as Error).message` hand over the same string, and matching the name was
+    matching a convention. What is not a message is the `Message` model
+    (`tx.message.create`, followed by a dot), and one receiver is a sentence
+    this app wrote itself: the translate helper's `answer.message` is the
+    quota wording from `lib/usage`, never a caught error.
+  */
+  const AUTHORED = new Set(["answer"]);
+  const raw = [...actions.matchAll(/\b(\w+)\)?\s*\.message\b(?!\s*\.)/g)]
+    .filter((m) => !AUTHORED.has(m[1]!));
   for (const found of raw) {
     const line = actions.slice(0, found.index).split("\n").length;
     assert.fail(
