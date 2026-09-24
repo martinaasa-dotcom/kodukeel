@@ -297,6 +297,26 @@ describe("reading a turn", () => {
       const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
       expect(readTurn("atuba", asks, { ...context(), known: () => true }).reading).not.toBe("complete");
     });
+
+    /*
+      AND A DROPPED Õ IN THE HEAD IS STILL THE HEAD. The forms list answers
+      folded, so `sisekorv` is vouched as the spelling of `sisekõrv`, and the
+      compound rule then compared raw strings and refused it: every other
+      rule in lib/scenes/nearly.ts folds, and this one was the keyboard with
+      no õ key being told it had not been understood.
+    */
+    it("is still that word typed without the diacritics", () => {
+      const folded = (word: string) => word === "sisekorv";
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["kõrv"] }] });
+      const seen = readTurn("sisekorv", asks, { ...context(), known: folded });
+      expect(seen.reading).toBe("complete");
+      expect(seen.matched).toEqual(["sisekorv"]);
+    });
+
+    it("and the folded head still needs a modifier long enough to be one", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["kõrv"] }] });
+      expect(readTurn("akorv", asks, { ...context(), known: () => true }).reading).not.toBe("complete");
+    });
   });
 
   /*
