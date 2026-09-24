@@ -1664,7 +1664,7 @@ async function readImageOpenAiCompatible(
   await assertOk(res, config);
   const body = (await res.json()) as {
     choices?: { message?: { content?: unknown } }[];
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
   };
 
   const raw = body.choices?.[0]?.message?.content;
@@ -1679,7 +1679,9 @@ async function readImageOpenAiCompatible(
   return {
     config,
     text,
-    usage: usageFrom(body.usage?.prompt_tokens, body.usage?.completion_tokens, system + prompt, text),
+    // Thinking Gemini hides from `completion_tokens` is still billed, which is
+    // the fault `billedOutput` exists for on the chat path, one transport over.
+    usage: usageFrom(body.usage?.prompt_tokens, body.usage ? billedOutput(body.usage) : undefined, system + prompt, text),
   };
 }
 
