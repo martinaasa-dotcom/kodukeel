@@ -41,7 +41,7 @@ Type II report cannot rely on, and it is the reason a SOC 2 observation window c
 This project already generates that evidence and throws it away. The whole invariant suite runs on every push and prints its own total, 421 on the day this line was written.
 `scripts/test-invariants.ts` asserts the security rules by name: no owner id from a caller, every
 mutation through the forged request gate, no credential in the client bundle, append-only tables,
-redaction on every `"use server"` export. CI has run them on every commit for months. What is missing
+redaction on every `"use server"` export. CI runs them on every push. What is missing
 is that no run writes down which control it proved, so the history is a wall of green ticks rather
 than a population an auditor can sample.
 
@@ -73,7 +73,7 @@ of what an ISO Stage 1 readiness review asks to see.
 | **8.16, CC4, CC7.** Nothing watches the running deployment. | Point `ERROR_WEBHOOK_URL` at a mailbox or channel a person reads, and add a weekly digest of failed jobs and refused requests. This is alerting and it is not a SIEM. | 1 day | The configuration, plus the digest itself | SOC 2 |
 | **5.8, CC4, CC5.** Controls are asserted and the assertion is not recorded. | The control evidence record in section 2. | 1 to 2 days | A dated artifact per CI run | SOC 2 |
 
-Totals: about twelve working days spread across a quarter, and nothing to pay for.
+Totals: about ten working days spread across a quarter, and nothing to pay for.
 
 **Do the restore test first.** It costs one day, it closes half of the weakest of the five SOC 2
 categories (the other half is redundancy, section 6), and section 5 of `docs/29-controls.md` already says it should have happened. Everything else on this
@@ -171,7 +171,7 @@ product whose floor is about three hundred dollars a month, and `/funding` publi
    and it should have happened already.
 2. **The CI control evidence record.** One to two days, no money, and it is what makes an observation
    window affordable later.
-3. **The rest of Phase 0.** Ten days spread across a quarter. Most of an ISO Stage 1 readiness review.
+3. **The rest of Phase 0.** About a week and a half spread across a quarter. Most of an ISO Stage 1 readiness review.
 4. **The penetration test.** The first contract that funds it, or any deployment holding data for a
    school, whichever comes first. That one stops being negotiable against price quickly.
 5. **Row level security.** Engineering time rather than money, and it closes a named residual risk.
