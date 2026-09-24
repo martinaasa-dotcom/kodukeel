@@ -6171,6 +6171,13 @@ check("every component is reachable from a route and drawn by something", () => 
   const searched = [...ALL, "middleware.ts", "next.config.ts"];
   const known = new Set(searched);
   const body = new Map(searched.map((f) => [f, code(f)]));
+  /*
+    What may count as drawing a component is what a learner can be shown. A
+    test renders a component to check it, which says nothing about whether any
+    screen does, so a component drawn only inside a `*.test.tsx` is drawn
+    nowhere. Made to fail on exactly that shape.
+  */
+  const drawers = searched.filter((f) => !/\.i?test\.tsx?$/.test(f));
 
   /*
     Next's own path aliases, which is `@/` off the repository root and the
@@ -6243,7 +6250,7 @@ check("every component is reachable from a route and drawn by something", () => 
     */
     assert.ok(
       exported.some((name) =>
-        searched.some((other) =>
+        drawers.some((other) =>
           other !== file && new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
       ),
       `${file} exports ${exported.join(", ")} and nothing in the tree draws any of them as an ` +
@@ -6257,7 +6264,7 @@ check("every component is reachable from a route and drawn by something", () => 
       part drawn only inside the component beside it is drawn.
     */
     const undrawn = exported.filter(
-      (name) => !searched.some((other) => new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
+      (name) => !drawers.some((other) => new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
     );
     assert.deepEqual(
       undrawn,
