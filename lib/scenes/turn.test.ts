@@ -297,6 +297,23 @@ describe("reading a turn", () => {
       const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
       expect(readTurn("atuba", asks, { ...context(), known: () => true }).reading).not.toBe("complete");
     });
+
+    /*
+      The same compound against a card's value rather than a requirement. The
+      \`datum\` ladder was the \`case\` ladder with this rung missing, so one
+      spelling was accepted where the beat named the word and refused where
+      the card did, which is a refusal the learner cannot see a reason for.
+    */
+    it("is that word against a card's value too, in the case the card asked for", () => {
+      const asks = beat({ needs: [{ kind: "datum", slot: "place", grammCase: "ILLATIVE" }] });
+      const seen = readTurn("suurtuppa", asks, context({
+        known: (word: string) => word === "suurtuppa",
+        data: new Map([["place", new Set(["tuba", "toa", "tuppa"])]]),
+        dataLemmas: new Map([["place", ["tuba"]]]),
+      }));
+      expect(seen.reading).toBe("complete");
+      expect(seen.slips).toEqual([]);
+    });
   });
 
   /*
@@ -694,6 +711,19 @@ describe("a no on an offer that has a counter", () => {
 
   it("does not stop a yes being a yes", () => {
     expect(readTurn("14:30", offer, ctx).reading).toBe("complete");
+  });
+
+  /*
+    A no and a question in one breath is owed an answer. \`declined\` wrote
+    \`asked: null\` and \`wantsEnglish: false\` over whatever the turn said, so
+    \`wantsAsideFor\`'s "counter" branch, which only a declined turn reaches,
+    could never fire.
+  */
+  it("keeps the question and the ask for English that came with the no", () => {
+    const seen = readTurn("Ei sobi. Kus siis?", offer, ctx);
+    expect(seen.reading).toBe("declined");
+    expect(seen.asked).toBe("kus");
+    expect(readTurn("Ei, kas te räägite inglise keelt?", offer, ctx).wantsEnglish).toBe(true);
   });
 });
 

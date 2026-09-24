@@ -394,6 +394,29 @@ describe("a turn that missed because it asked something", () => {
     expect(third.response).toBe("moveOn");
   });
 
+  /*
+    ONE RECORD, WHICHEVER PATH WROTE IT. \`creditAhead\` and \`advanceHurdle\`
+    each spelled the turn out by hand and each had dropped fields \`advance\`
+    kept: during a curveball the other side never said the learner's word
+    back, and a beat credited from a distance lost the fact that a model had
+    conceded it, which is what keeps a model's verdict out of the log.
+  */
+  it("writes the same fields of a turn on every path that records one", () => {
+    const full: Evidence = {
+      ...evidence("complete"), matched: ["valu"], conceded: [0], wantsEnglish: true,
+    };
+    const start = { ...startScene(SCENE), beat: 0 };
+    const ahead = creditAhead(start, full, SCENE.beats[2]!, "valu").turns.at(-1)!;
+    const raised = { ...startScene(SCENE), beat: 1, hurdle: { id: "missing-document" as const, beat: 1, tries: 0 } };
+    const hurdled = advanceHurdle(SCENE, raised, full, "valu").state.turns.at(-1)!;
+    const plain = advance(SCENE, { ...startScene(SCENE), beat: 1 }, full, "valu").state.turns.at(-1)!;
+    for (const [path, turn] of [["creditAhead", ahead], ["advanceHurdle", hurdled], ["advance", plain]] as const) {
+      expect(turn.matched, path).toEqual(["valu"]);
+      expect(turn.conceded, path).toEqual([0]);
+      expect(turn.wantsEnglish, path).toBe(true);
+    }
+  });
+
   it("carries the question with a credit at a distance, so it can still be answered", () => {
     const start = { ...startScene(SCENE), beat: 0 };
     const credited = creditAhead(start, asking(), SCENE.beats[2]!, "kui palju?");
