@@ -1867,6 +1867,8 @@ export async function completeOnboarding(input: {
   };
 }) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "completeOnboarding");
+  if (busy) return busy;
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
   await Promise.all([
@@ -1929,12 +1931,6 @@ export async function completeOnboarding(input: {
 }
 
 /**
- * Adds every word of a path unit to the deck, with the card types that unit is
- * actually about — the rektsioon unit adds government cards, a noun unit adds
- * case-form cards. Already-present cards are skipped, so re-adding a unit after
- * finishing half of it costs nothing and loses no scheduling.
- */
-/**
  * The hundred commonest words of one kind, into the deck.
  *
  * The group rather than a list of words, and that is the point: every export
@@ -1950,6 +1946,8 @@ export async function completeOnboarding(input: {
  */
 export async function addCommonWords(group: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "addCommonWords");
+  if (busy) return busy;
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "That list does not exist." };
   }
@@ -2014,19 +2012,6 @@ export async function deepenCommonWords(group: string) {
 
   revalidatePath("/review/common");
   revalidatePath("/practice");
-  revalidatePath("/words");
-  revalidatePath("/");
-  return { ok: true as const, added, words };
-}
-
-export async function addUnitToDeck(unitId: string) {
-  const ownerId = await requireUserId();
-  const unit = unitById(unitId);
-  if (!unit) return { ok: false as const, error: "That unit does not exist." };
-
-  const { added, words } = await addUnitsToDeck(ownerId, [unitId], "COURSE");
-
-  revalidatePath("/learn");
   revalidatePath("/words");
   revalidatePath("/");
   return { ok: true as const, added, words };
@@ -2161,6 +2146,8 @@ export async function completeLesson(
   results: z.input<typeof LessonResultSchema>[],
 ) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "completeLesson");
+  if (busy) return busy;
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "That unit does not exist." };
 
@@ -3501,6 +3488,8 @@ const COURSE_DAY_CARDS = ["RECOGNITION", "PRODUCTION"] as const;
  */
 export async function startCourseDay(programmeId: string, dayId: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "startCourseDay");
+  if (busy) return busy;
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) {
@@ -3835,6 +3824,8 @@ export async function saveScan(input: {
 /** Adds every word on a saved page that is not in the deck yet. */
 export async function addScanToDeck(scanId: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "addScanToDeck");
+  if (busy) return busy;
   const scan = await prisma.scan.findFirst({
     where: { id: scanId, ownerId },
     select: { items: true },
@@ -4107,6 +4098,8 @@ const ExamSubmissionSchema = z.object({
  */
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "submitExam");
+  if (busy) return busy;
 
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };

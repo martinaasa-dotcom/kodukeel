@@ -4371,6 +4371,19 @@ applying it fails, and so does an action throttling against anything but the own
 Most actions must **not** have one. Grading a card is a single indexed write and a limit there
 would be met by learners and nobody else.
 
+**And the table was checked one way, so seven expensive actions were never put in it.** The
+invariant asked that every allowance in `ACTION_LIMITS` is applied, and nothing asked the other
+question, whether an action doing the expensive work has one. `addPlanToDeck` costs the same on a
+press that adds nothing as on the first: it reads every word with its sentences, builds every card
+and filters them under the deck lock, and the dedupe only decides what is inserted at the end. So
+first run, the frequency lists, tonight's module, a finished lesson, a page added from the scanner
+and a handed-in mock paper, which rebuilds five hundred entries to mark it, all had the cost and
+none of the allowance, while `deepenCommonWords`, `saveScan` and `finishScene` beside them did. The
+rule is drawn on reaching a bulk builder or a paper rebuild, or a card writer inside a loop, read off
+each exported action's own body, with a floor so a matcher that stops matching cannot pass on
+nobody. `addUnitToDeck` was an eighth and was deleted rather than limited: no screen had called it
+since the unit page lost its "Add to deck", and an endpoint nobody presses is only a door.
+
 **A bucket key the caller chooses is worse than no bucket key.** `clientIp` read
 `X-Forwarded-For` whatever this app was standing behind. On Vercel that is right, because the
 platform overwrites it; self-hosted behind a proxy that passes it through, it is a value the
@@ -4863,9 +4876,9 @@ deployment's own build is what runs it.
 **And then the batched builder arrived without it, which is why the key is the learner and not the
 word.** `addUnitsToDeck` is the rewrite of the loop that called `addCardsFor` per word, and it kept
 the shape and inherited no lock, so the fault came back a whole unit at a time: eight concurrent
-adds of an eighteen-word unit wrote 180 cards where 36 is right, and the two screens that reach it
-are "Add to deck" on a unit and the last button of first run, which is the one place in the app
-where somebody is already waiting and inclined to press again. `lockDeck` in `lib/srs/deck.ts` is
+adds of an eighteen-word unit wrote 180 cards where 36 is right, and the two screens that reached it
+were "Add to deck" on a unit, which no screen draws any more, and the last button of first run, which
+is the one place in the app where somebody is already waiting and inclined to press again. `lockDeck` in `lib/srs/deck.ts` is
 the one definition and both paths take it. The key had to widen to do that: a key naming the word
 is safe against another add of the same word and says nothing about a batch containing it, so two
 keys would leave each path guarded against itself and neither against the other. What that costs is

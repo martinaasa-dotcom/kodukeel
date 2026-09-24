@@ -6244,6 +6244,56 @@ check("the actions that do real work per call are throttled", () => {
   }
 });
 
+check("an action that reaches a bulk builder or a paper rebuild is in the throttle table", () => {
+  /*
+    THE CHECK ABOVE READS ONE WAY, AND THE HOLES WERE ALL ON THE OTHER.
+
+    It asserts that every allowance in `ACTION_LIMITS` is applied, which is
+    the half a typed list gets wrong. It says nothing about an action that does
+    the expensive work and was never put in the table, and that is where seven
+    of them sat: `addUnitToDeck`, `startCourseDay`, `completeOnboarding`,
+    `addCommonWords`, `completeLesson`, `addScanToDeck` and `submitExam`, beside
+    `deepenCommonWords`, `saveScan` and `finishScene`, which do the same work
+    and are limited for it.
+
+    `addPlanToDeck` costs the same on a press that adds nothing as on the first
+    one: it reads every word with its sentences, builds every card and holds
+    the learner's deck lock while it filters them, and the dedupe only decides
+    what is inserted at the end. A paper rebuild reads a few thousand ids and
+    then five hundred entries with their forms. So the rule is drawn on reaching
+    those, read off each exported function's own body with the comments
+    stripped, and a card writer called inside a loop counts as a bulk build,
+    since that is what a loop of them is.
+  */
+  const source = code("app/actions.ts");
+  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor"];
+
+  const bodies = source.split(/\n(?=export (?:async )?function )/).slice(1);
+  const reaching: string[] = [];
+  const unthrottled: string[] = [];
+  for (const body of bodies) {
+    const name = /^export (?:async )?function (\w+)/.exec(body)?.[1];
+    if (!name) continue;
+    // Up to the next top-level declaration, so a helper written after an
+    // export is not read as part of it.
+    const own = body.split(/\n(?=(?:async )?function |const |let |interface |type )/)[0]!;
+    const bulk = BULK.some((helper) => new RegExp(`\\b${helper}\\(`).test(own));
+    const looped = /\bfor \([^)]*\)\s*\{[\s\S]{0,800}?\baddCardsFor\(/.test(own);
+    if (!bulk && !looped) continue;
+    reaching.push(name);
+    if (!/\bthrottleAction\(/.test(own)) unthrottled.push(name);
+  }
+  assert.deepEqual(
+    unthrottled, [],
+    `these reach a bulk card build or a paper rebuild and have no allowance in ACTION_LIMITS: ${unthrottled.join(", ")}`,
+  );
+  // The floor: a regex that stopped matching the helpers would find nobody
+  // and pass. Nine is the count on the day this was written, and the first
+  // version of this check found seven of them, because a loop body with a
+  // brace in it ended the match before the write.
+  assert.ok(reaching.length >= 9, `expected the bulk callers, found ${reaching.length}: ${reaching.join(", ")}`);
+});
+
 check("every dead end in the app offers a way to report it", () => {
   /*
     THE RULE: nothing here may tell somebody it cannot help them and then
