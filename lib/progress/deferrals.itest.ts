@@ -116,6 +116,58 @@ describe("deferWord", () => {
 });
 
 describe("giving a word back", () => {
+  /*
+    The mirror of the race `deferWord` takes the lock for: a builder that has
+    read the deferral and not yet committed dates its card on the deferral's
+    own date. An undo or a wake that does not wait for it hands back what it
+    can see and leaves that card on the old date, with no row left to bring
+    it back. Held open on purpose, so the interleaving happens every run.
+  */
+  async function buildingOnTheDeferral(lexemeId: string, run: () => Promise<unknown>) {
+    const row = await prisma.deferral.findUniqueOrThrow({
+      where: { ownerId_lexemeId: { ownerId: MINE, lexemeId } },
+      select: { untilAt: true },
+    });
+    let pending: Promise<unknown> | null = null;
+    await prisma.$transaction(async (tx) => {
+      await lockDeck(tx, MINE);
+      await tx.card.create({
+        data: { ownerId: MINE, lexemeId, cardType: "CLOZE", front: "gap", back: "b", due: row.untilAt },
+      });
+      pending = run();
+      await new Promise((resolve) => setTimeout(resolve, 400));
+    });
+    await pending;
+  }
+
+  it("waits for a builder already holding the deck before giving the word back", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const entry = await word("zzdefer", "A1");
+    await cards(entry.id, [now]);
+    await deferWord(MINE, entry.id, "A1", "/review", now);
+
+    const back = new Date("2026-09-15T10:00:00.000Z");
+    await buildingOnTheDeferral(entry.id, () => undoDeferral(MINE, entry.id, back));
+
+    const rows = await prisma.card.findMany({ where: { ownerId: MINE } });
+    expect(rows).toHaveLength(2);
+    for (const row of rows) expect(row.due.toISOString()).toBe(back.toISOString());
+  });
+
+  it("waits for a builder already holding the deck before waking a word", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const entry = await word("zzdefer", "B1");
+    await cards(entry.id, [now]);
+    await deferWord(MINE, entry.id, "A2", "/review", now);
+
+    const moved = new Date("2026-10-01T10:00:00.000Z");
+    await buildingOnTheDeferral(entry.id, () => wakeForLevel(MINE, "B1", moved));
+
+    const rows = await prisma.card.findMany({ where: { ownerId: MINE } });
+    expect(rows).toHaveLength(2);
+    for (const row of rows) expect(row.due.toISOString()).toBe(moved.toISOString());
+  });
+
   it("returns what it took and nothing else", async () => {
     const now = new Date("2026-09-14T10:00:00.000Z");
     const entry = await word("zzdefer", "A1");

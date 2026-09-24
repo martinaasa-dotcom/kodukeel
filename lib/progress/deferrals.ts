@@ -166,17 +166,24 @@ export async function deferWord(
  * undone press stand in the aggregate for ever.
  */
 export async function undoDeferral(ownerId: string, lexemeId: string, now = new Date()): Promise<boolean> {
-  const row = await prisma.deferral.findUnique({
-    where: { ownerId_lexemeId: { ownerId, lexemeId } },
-    select: { untilAt: true },
+  /*
+    Under the deck lock, for the reason `deferWord` takes it, pointed the other
+    way: a builder that read the deferral and has not yet committed dates its
+    card on `untilAt`, and an undo running beside it would hand back the cards
+    it can see, delete the row, and leave that one on the old date with nothing
+    left to bring it back. Read inside the lock, so the row is the one in force.
+  */
+  return prisma.$transaction(async (tx) => {
+    await lockDeck(tx, ownerId);
+    const row = await tx.deferral.findUnique({
+      where: { ownerId_lexemeId: { ownerId, lexemeId } },
+      select: { untilAt: true },
+    });
+    if (!row) return false;
+    await tx.card.updateMany({ where: { ownerId, lexemeId, due: row.untilAt }, data: { due: now } });
+    await tx.deferral.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
+    return true;
   });
-  if (!row) return false;
-
-  await prisma.$transaction([
-    prisma.card.updateMany({ where: { ownerId, lexemeId, due: row.untilAt }, data: { due: now } }),
-    prisma.deferral.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } }),
-  ]);
-  return true;
 }
 
 /** The words this learner has put aside and has not got back yet. */
@@ -272,35 +279,41 @@ export async function deferredDues(
  * does, and only where the wait really was for a band.
  */
 export async function wakeForLevel(ownerId: string, level: string, now = new Date()): Promise<number> {
-  const rows = await prisma.deferral.findMany({
-    where: { ownerId, wokenAt: null, untilLevel: { not: null }, untilAt: { gt: now } },
-    select: { id: true, lexemeId: true, untilAt: true, untilLevel: true },
-  });
-  const reached = rows.filter((row) => bandReached(row, level));
-  if (reached.length === 0) return 0;
+  /*
+    Under the deck lock, as the undo is and for its reason: a builder that has
+    read a deferral and not yet committed dates its card on `untilAt`, and a
+    wake beside it would stamp the row and leave that card on the old date.
+  */
+  return prisma.$transaction(async (tx) => {
+    await lockDeck(tx, ownerId);
+    const rows = await tx.deferral.findMany({
+      where: { ownerId, wokenAt: null, untilLevel: { not: null }, untilAt: { gt: now } },
+      select: { id: true, lexemeId: true, untilAt: true, untilLevel: true },
+    });
+    const reached = rows.filter((row) => bandReached(row, level));
+    if (reached.length === 0) return 0;
 
-  await prisma.$transaction([
     /*
       Only the cards still sitting on the date this wrote, exactly as an undo
       does: a card the scheduler had honestly put further out is left where the
       scheduler put it.
     */
-    ...reached.map((row) =>
-      prisma.card.updateMany({
+    for (const row of reached) {
+      await tx.card.updateMany({
         where: { ownerId, lexemeId: row.lexemeId, due: row.untilAt },
         data: { due: now },
-      }),
-    ),
+      });
+    }
     /*
       The row stays and is stamped rather than deleted. What the learner said
       is still true of the evening they said it, and the deployment-wide count
       is built from exactly that; what the stamp buys is that no read path has
       to fetch a level to find out whether the wait is over.
     */
-    prisma.deferral.updateMany({
+    await tx.deferral.updateMany({
       where: { id: { in: reached.map((row) => row.id) } },
       data: { wokenAt: now },
-    }),
-  ]);
-  return reached.length;
+    });
+    return reached.length;
+  });
 }
