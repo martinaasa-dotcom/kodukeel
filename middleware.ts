@@ -153,10 +153,22 @@ export async function middleware(request: NextRequest) {
       `lib/email/unsubscribe.ts`, so it authorises exactly one thing for
       exactly one person.
 
-      The route that *sends* is deliberately not here. It is gated on a secret
-      of its own and answers 404 to everybody else.
+      The route that *sends* is here too, for the reason below.
     */
     path.startsWith("/api/email/unsubscribe") ||
+    /*
+      THE SCHEDULER, WHICH CARRIES A SECRET AND NO COOKIE.
+
+      `vercel.json` fires this every afternoon with `Authorization: Bearer
+      $CRON_SECRET` and no session, and it used to be left off this list on the
+      argument that its own secret gates it. It does, and the gate below never
+      let it get that far: with no session cookie the request was answered 401
+      here, before the route could check anything, so on a hosted deployment no
+      scheduled letter was ever sent. Public is not unprotected: the route
+      compares the secret in constant time, refuses when none is set, and says
+      404 to anybody else.
+    */
+    path.startsWith("/api/email/send") ||
     /*
       AND WHAT THE SENDING PROVIDER TELLS US AFTERWARDS, WHICH ARRIVES FROM
       THEIR SERVERS AND NOT FROM A BROWSER.

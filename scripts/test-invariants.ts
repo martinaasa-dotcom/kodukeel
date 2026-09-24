@@ -21336,6 +21336,22 @@ check("the scheduled run is the only thing that sends, and it is gated", () => {
     vercel.crons?.some((c) => c.path === "/api/email/send"),
     "vercel.json no longer schedules the mail run, so nothing fires it",
   );
+
+  /*
+    And a scheduled path gets past the gate. A cron carries a secret and no
+    session cookie, so a cron path the middleware does not name as public is
+    answered 401 before its own secret is ever read. That is how the mail run
+    sent nothing on a hosted deployment while every line above held: the path
+    was right, the route was right, and the request never reached it.
+  */
+  const gate = code("middleware.ts");
+  for (const { path } of vercel.crons ?? []) {
+    assert.ok(
+      gate.includes(`path.startsWith("${path}")`),
+      `vercel.json schedules ${path}, which carries no session, and the middleware does not name it ` +
+        "in isPublicPath, so the scheduler is answered 401 before the route's own secret is checked",
+    );
+  }
 });
 
 /*
