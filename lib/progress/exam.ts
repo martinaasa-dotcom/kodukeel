@@ -14,6 +14,7 @@ import { latestFor } from "./assessment";
 import { deckSnapshot, type DeckSnapshot } from "./summary";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { orderContextFor } from "@/lib/dict/wordOrder";
+import { VOUCHED_ROW } from "@/lib/dict/search";
 
 /**
  * The database half of the mock examination.
@@ -80,9 +81,14 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
     .filter(([, rank]) => rank <= ceiling)
     .map(([name]) => name);
 
+  /*
+    Never a row a model suggested (`VOUCHED_ROW`): such a row is unbanded, and
+    unbanded entries are admitted from B1, so without this an unchecked word
+    could be the answer a candidate is marked against (ADR-005).
+  */
   const eligible = ceiling >= RANK.B1!
-    ? { OR: [{ cefr: { in: levels } }, { cefr: null }] }
-    : { cefr: { in: levels } };
+    ? { ...VOUCHED_ROW, OR: [{ cefr: { in: levels } }, { cefr: null }] }
+    : { ...VOUCHED_ROW, cefr: { in: levels } };
 
   /*
     Ids only, on the primary key, which is the one ordering in this table that

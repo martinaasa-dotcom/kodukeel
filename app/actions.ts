@@ -692,9 +692,7 @@ const text = (value: unknown): string => (typeof value === "string" ? value : ""
  * it" is the assumption that turns a gap in the middleware into a data breach.
  * It also establishes who to attribute the entry to.
  */
-export async function createLexeme(input: {
-  lemma: string; translation: string; pos: string; cefr?: string;
-}) {
+export async function createLexeme(input: { lemma: string; translation: string }) {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "editDictionary");
@@ -705,15 +703,27 @@ export async function createLexeme(input: {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
 
+  /*
+    NO BAND AND NO PART OF SPEECH FROM THE CALLER, because every export of this
+    file is a public endpoint and both are claims about Estonian nobody has
+    checked. This took `pos` and `cefr` off the wire and wrote them onto a row
+    in the shared dictionary, so any signed-in account could file an invented
+    word as an A1 noun, and the pickers that read a band would hand it to other
+    learners as a lesson's decoy, a Sõnad answer or an examination question.
+    The one caller sent neither a band nor a real part of speech. A model's
+    suggestion is `OTHER` and unbanded until Ekilex answers for it, which is
+    what `enrichFromEkilex` then writes.
+  */
+  const pos = "OTHER";
   const existing = await prisma.lexeme.findUnique({
-    where: { lemma_pos: { lemma, pos: input.pos } },
+    where: { lemma_pos: { lemma, pos } },
   });
   if (existing) return { ok: true as const, id: existing.id, existed: true };
 
   const lexeme = await prisma.lexeme.create({
     data: {
-      lemma, translation, pos: input.pos,
-      cefr: input.cefr || null,
+      lemma, translation, pos,
+      cefr: null,
       /*
         AI, NOT USER, BECAUSE A MODEL SUGGESTED IT AND NOBODY HAS CHECKED IT.
 

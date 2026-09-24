@@ -649,6 +649,21 @@ export interface FormMatch {
  *
  * Pure, like `rankCandidates`, so the boundary can be tested over fixtures.
  */
+/**
+ * The same refusal as a query, for a screen that picks words out of the shared
+ * dictionary rather than matching one it was handed.
+ *
+ * `vouchable` stands between a model's suggestion and a scanned page, a
+ * headline and the chat guard, because those three all go through
+ * `matchEstonianForm`. Two pickers never did: the word of the day, which reads
+ * the whole dictionary by gloss and falls back to any row at all, and the mock
+ * exam's pool, which admits unbanded entries from B1 upwards. A model-suggested
+ * row is unbanded, so either could put a word nobody has checked in front of
+ * every learner as today's word or as an examination answer, which is the one
+ * thing ADR-005 exists to stop.
+ */
+export const VOUCHED_ROW = { provenance: { not: "AI" } } as const;
+
 export function vouchable(candidate: Candidate): boolean {
   if (candidate.provenance === "AI") return false;
   return candidate.forms.length > 0

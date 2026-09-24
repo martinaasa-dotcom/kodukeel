@@ -8,6 +8,7 @@ import type { Level } from "@/lib/collections/syllabus/types";
 import { matchesGloss, senseIndex } from "@/lib/dict/gloss";
 import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
 import { sentenceReach } from "@/lib/dict/facts";
+import { VOUCHED_ROW } from "@/lib/dict/search";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
 import type { DayClock, DayKey } from "@/lib/time/day";
@@ -203,6 +204,8 @@ async function pickThemed(
     where: {
       OR: glosses.map((gloss) => ({ translation: { contains: gloss, mode: "insensitive" as const } })),
       ...unmet(ownerId, dayStart),
+      // Never a word a model suggested and nobody has checked (ADR-005).
+      ...VOUCHED_ROW,
     },
     select: SELECT,
     /*
@@ -245,7 +248,7 @@ async function pickThemed(
  * their level has. So this exists, and it does not pretend to have a reason.
  */
 async function pickAny(ownerId: string, day: DayKey, dayStart: Date, level: Level): Promise<WordOfDay | null> {
-  const base = { ...unmet(ownerId, dayStart), translation: { not: "" } };
+  const base = { ...unmet(ownerId, dayStart), ...VOUCHED_ROW, translation: { not: "" } };
   /*
     Around the learner's level, then anything at all.
 
