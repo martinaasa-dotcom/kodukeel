@@ -24,11 +24,13 @@
  * Pure, and outside `app/actions.ts` for that reason: a `"use server"` file
  * may only export async functions, so a helper kept there cannot be tested.
  */
+import { clip } from "@/lib/copy/clip";
+
 export const DISPLAY_NAME_MAX = 32;
 
 export function cleanDisplayName(value: unknown): string {
   if (typeof value !== "string") return "";
   const tidy = value.normalize("NFC").replace(/\p{C}/gu, "").replace(/\s+/g, " ").trim();
-  const cleaned = Array.from(tidy).slice(0, DISPLAY_NAME_MAX).join("").trim();
+  const cleaned = clip(tidy, DISPLAY_NAME_MAX).trim();
   return /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : "";
 }

@@ -10,6 +10,7 @@ import { DEFAULT_VOICE, voiceFrom, VOICES } from "@/lib/audio/voice";
 import { prepareClip, WavError } from "@/lib/audio/wav";
 import { spokenText } from "@/lib/audio/say";
 import { reportError } from "@/lib/observability/report";
+import { clip } from "@/lib/copy/clip";
 
 const TARTU_NLP = "https://api.tartunlp.ai/text-to-speech/v2";
 const MAX_CHARS = 400;
@@ -125,7 +126,7 @@ export async function POST(request: Request) {
       punctuation and never a letter, and the store is keyed on what comes out
       of it, so the cache and the request cannot come apart.
     */
-    text = spokenText(body.text.trim().slice(0, MAX_CHARS));
+    text = spokenText(clip(body.text.trim(), MAX_CHARS));
     /*
       The learner's chosen voice, checked against the allowlist rather than
       passed to a third party as typed. A value that is not one of ours is

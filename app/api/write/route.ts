@@ -11,6 +11,7 @@ import {
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
 import type { CaseKey } from "@/lib/estonian/types";
+import { clip } from "@/lib/copy/clip";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
     }
     lexemeId = body.lexemeId;
     caseKey = body.caseKey as CaseKey;
-    sentence = body.sentence.trim().slice(0, MAX_SENTENCE_CHARS);
+    sentence = clip(body.sentence.trim(), MAX_SENTENCE_CHARS);
     if (typeof body.level === "string" && /^[ABC][12]$/.test(body.level)) level = body.level;
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });

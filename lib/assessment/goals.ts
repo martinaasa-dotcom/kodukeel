@@ -1,5 +1,6 @@
 import type { DayClock } from "@/lib/time/day";
 import { BANDS, type Band, type HourRange } from "./types";
+import { clip } from "@/lib/copy/clip";
 
 /**
  * Why somebody is learning Estonian, and by when.
@@ -393,6 +394,6 @@ export function normaliseGoals(input: Partial<Goals>): Goals {
     target,
     deadline: input.deadline && !Number.isNaN(new Date(input.deadline).getTime()) ? input.deadline : null,
     daysPerWeek: Number.isFinite(days) ? Math.min(7, Math.max(1, Math.round(days))) : DEFAULT_DAYS_PER_WEEK,
-    note: (input.note ?? "").trim().slice(0, 280),
+    note: clip((input.note ?? "").trim(), 280),
   };
 }

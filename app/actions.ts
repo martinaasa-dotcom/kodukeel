@@ -72,6 +72,7 @@ import {
   DEFAULT_PROGRAMME, MODULE_HOME, PROGRAMMES, continueHref, dayById, programmeById,
 } from "@/lib/course";
 import { dayIsInPlay } from "@/lib/progress/course";
+import { clip } from "@/lib/copy/clip";
 
 /**
  * The part of the ladder a level starts on, for first run.
@@ -669,7 +670,7 @@ const LIMITS = {
 } as const;
 
 const capped = (value: string | undefined | null, max: number): string =>
-  (value ?? "").trim().slice(0, max);
+  clip((value ?? "").trim(), max);
 
 /**
  * An argument that is supposed to be a string, as a string.
@@ -2326,7 +2327,7 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
 
   const busy = throttleAction(ownerId, "createClassroom");
   if (busy) return busy;
-  const trimmed = text(name).trim().slice(0, 60);
+  const trimmed = clip(text(name).trim(), 60);
   if (trimmed.length < 2) return { ok: false as const, error: "Give the class a name." };
 
   /*
@@ -2619,7 +2620,7 @@ export async function addStudyEvent(input: {
 }) {
   const ownerId = await requireUserId();
 
-  const title = input.title.trim().slice(0, 120);
+  const title = clip(input.title.trim(), 120);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const weekdays = [...new Set(input.weekdays)].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
@@ -2637,7 +2638,7 @@ export async function addStudyEvent(input: {
     data: {
       ownerId,
       title,
-      notes: input.notes?.trim().slice(0, 500) || null,
+      notes: clip(input.notes?.trim() ?? "", 500) || null,
       kind: kindFrom(input.kind),
       startMinute: clamp(Math.round(input.startMinute), 0, 1439),
       durationMinutes: clamp(Math.round(input.durationMinutes), 5, 12 * 60),
@@ -2670,7 +2671,7 @@ export async function deleteStudyEvent(id: string) {
  */
 export async function addReminder(input: { title: string; notes?: string; dueAt?: string | null }) {
   const ownerId = await requireUserId();
-  const title = input.title.trim().slice(0, 200);
+  const title = clip(input.title.trim(), 200);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const key = dayKeyOrNull(input.dueAt);
@@ -2678,7 +2679,7 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
     data: {
       ownerId,
       title,
-      notes: input.notes?.trim().slice(0, 500) || null,
+      notes: clip(input.notes?.trim() ?? "", 500) || null,
       tag: "HOMEWORK",
       // Stored at midnight UTC, which is what `<input type="date">` sends and
       // what `bucketFor` already expects: it counts whole days on the learner's
@@ -3399,7 +3400,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         const data = revive(raw, ["createdAt"]);
         const id = String(data.id ?? "");
         if (!id) continue;
-        const name = String(data.name ?? "").trim().slice(0, 60);
+        const name = clip(String(data.name ?? "").trim(), 60);
         if (!name) continue;
         const existing = await tx.deck.findUnique({ where: { id }, select: { ownerId: true } });
         if (existing && existing.ownerId !== ownerId) continue; // id collision with another learner's deck

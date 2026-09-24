@@ -6,6 +6,7 @@ import { gradeComposition } from "@/lib/tutor/grader";
 import { verifyVerdict } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
+import { clip } from "@/lib/copy/clip";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
     if (typeof body.text !== "string") {
       return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
     }
-    text = body.text.trim().slice(0, MAX_CHARS);
+    text = clip(body.text.trim(), MAX_CHARS);
     if (typeof body.level === "string" && /^[ABC][12]$/.test(body.level)) level = body.level;
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
