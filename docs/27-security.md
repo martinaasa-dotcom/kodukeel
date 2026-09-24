@@ -418,7 +418,7 @@ being trusted.
 | Input | zod schemas on backups, level checks, goals and lesson results | `app/actions.ts` |
 | Input | Every argument coerced at the boundary, because JSON off the wire is not the declared type | `text()` in `app/actions.ts` |
 | Input | Redirect targets narrowed to a rooted same origin path | `safeNext` |
-| Input | Display names cleaned of control and bidirectional characters, NFC normalised | `cleanDisplayName` |
+| Input | Text one person types and another reads (display names, class names, homework, report notes) cleaned of control and bidirectional characters, NFC normalised, cut by code point | `lib/security/visibleText.ts` |
 | Input | Uploaded image decoded in a Route Handler and never stored | `app/api/scan/`, `lib/scan/image.ts` |
 | Secrets | Nothing carries `NEXT_PUBLIC_` but the anon key, asserted | `scripts/test-invariants.ts` |
 | Secrets | CI builds with a marked value per server variable and greps the client bundle | `.github/workflows/ci.yml` |

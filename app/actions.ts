@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
+import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
@@ -666,6 +667,11 @@ const LIMITS = {
   taskTitle: 200,
   taskNotes: 2000,
 } as const;
+
+/** What a class member is called on the roster. */
+const DISPLAY_NAME_MAX = 32;
+/** What a class is called on the join screen and the roster. */
+const CLASS_NAME_MAX = 60;
 
 const capped = (value: string | undefined | null, max: number): string =>
   (value ?? "").trim().slice(0, max);
@@ -2325,7 +2331,9 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
 
   const busy = throttleAction(ownerId, "createClassroom");
   if (busy) return busy;
-  const trimmed = text(name).trim().slice(0, 60);
+  // Shown to everybody who is handed the code, on the screen they read before
+  // they decide to join, so it is cleaned like a name rather than trimmed.
+  const trimmed = visibleLine(name, CLASS_NAME_MAX);
   if (trimmed.length < 2) return { ok: false as const, error: "Give the class a name." };
 
   /*
@@ -2501,9 +2509,10 @@ export async function assignHomework(classroomId: string, title: string, notes: 
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
 
-  const cleanTitle = capped(title, LIMITS.taskTitle);
+  // On every member's Today, so cleaned like a name rather than trimmed.
+  const cleanTitle = visibleLine(title, LIMITS.taskTitle);
   if (!cleanTitle) return { ok: false as const, error: "Give the homework a title." };
-  const cleanNotes = capped(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
+  const cleanNotes = visibleProse(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
 
   const members = await prisma.classroomMember.findMany({
     where: { classroomId },
@@ -2565,27 +2574,10 @@ export async function classworkHistory(classroomId: string) {
 }
 
 /**
- * A name a class is going to see, cleaned.
- *
- * `trim().slice(0, 32)` was the whole of it, and `String.prototype.trim` does
- * not remove U+200B: two zero-width spaces are a two-character string that
- * passes the `!name` check and renders as nothing on the roster, so a member
- * could sit in a class with no name at all. U+202E is worse, because it
- * reverses what follows it and can be used to make one pupil's row read as
- * another's. The roster is the one screen in this app where a stranger's text
- * is shown to a teacher beside real pupils' names.
- *
- * `\p{C}` is every control, format and unassigned code point, which is the
- * category both of those are in, and NFC first so a name is compared and
- * stored in one normalization. At least one letter or digit, because a row
- * of punctuation is the same "renders as nothing" fault wearing a visible
- * character.
+ * A name a class is going to see, cleaned. `lib/security/visibleText.ts` says
+ * what that means and why `trim()` was not it.
  */
-function cleanDisplayName(value: unknown): string {
-  if (typeof value !== "string") return "";
-  const cleaned = value.normalize("NFC").replace(/\p{C}/gu, "").replace(/\s+/g, " ").trim().slice(0, 32);
-  return /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : "";
-}
+const cleanDisplayName = (value: unknown): string => visibleLine(value, DISPLAY_NAME_MAX);
 
 /** The name to show in a class: their chosen one, else their account's. */
 async function resolveDisplayName(ownerId: string): Promise<string> {
@@ -4203,7 +4195,8 @@ export async function submitSuggestion(input: unknown) {
     return { ok: false as const, error: "That correction does not match the kind of problem chosen." };
   }
 
-  const note = capped(raw.note, SUGGESTION_LIMITS.note);
+  // Read by a reviewer, which is somebody other than the person who typed it.
+  const note = visibleProse(raw.note, SUGGESTION_LIMITS.note);
   const lemma = capped(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
   const lexemeId = capped(raw.lexemeId, 64) || null;
   const context = capped(raw.context, SUGGESTION_LIMITS.context) || null;

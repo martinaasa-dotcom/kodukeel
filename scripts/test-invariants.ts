@@ -13610,6 +13610,44 @@ check("a case is named only when one case claims the spelling", () => {
  * nothing in it may name the table at all: a count is a `count`, and a count
  * cannot leak a sentence.
  */
+check("text one person types and another person reads is cleaned, not trimmed", () => {
+  /*
+    `cleanDisplayName` was written for the roster and reached one of the four
+    doors. The class name a stranger reads on the join screen before deciding
+    to join, the homework title on every member's Today and the note a reviewer
+    reads in the report queue were `trim()` and a slice, so two zero-width
+    spaces were a class name that passed its length check and drew as nothing,
+    and U+202E could reorder a title into something the teacher never typed.
+    The one that did clean cut by UTF-16 unit after cleaning, so a name ending
+    in an emoji kept half of it.
+
+    Asserted per door on the action's own body, because the fault was a door
+    that did not call the cleaning; and on the cleaning living in one module,
+    because a second copy of the regex is where the two stop agreeing.
+  */
+  const source = code("app/actions.ts");
+  const doors: [string, RegExp][] = [
+    ["createClassroom", /\bvisibleLine\(name,/],
+    ["assignHomework", /\bvisibleLine\(title,[\s\S]*\bvisibleProse\(notes,/],
+    ["submitSuggestion", /\bvisibleProse\(raw\.note,/],
+    ["joinClassroom", /\bcleanDisplayName\(displayName\)/],
+    ["setClassDisplayName", /\bcleanDisplayName\(/],
+  ];
+  for (const [name, cleaned] of doors) {
+    const start = source.indexOf(`export async function ${name}(`);
+    assert.ok(start >= 0, `${name} is gone, so this door is no longer checked`);
+    const next = source.indexOf("\nexport ", start + 1);
+    const body = source.slice(start, next < 0 ? undefined : next);
+    assert.match(body, cleaned, `${name} stores text somebody else reads without cleaning it`);
+  }
+  assert.match(
+    source,
+    /const cleanDisplayName = \(value: unknown\): string => visibleLine\(/,
+    "cleanDisplayName no longer reads lib/security/visibleText.ts",
+  );
+  assert.doesNotMatch(source, /\\p\{C\}/, "app/actions.ts writes its own \\p{C} cleaning rather than calling visibleText");
+});
+
 check("a class cannot read a conversation", () => {
   for (const file of LIB.filter((f) => f.startsWith("lib/classroom/") && !f.includes(".test."))) {
     const src = code(file);
