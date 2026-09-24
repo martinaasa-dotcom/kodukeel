@@ -217,6 +217,49 @@ describe("complementary suppression", () => {
   });
 });
 
+describe("complementary suppression of the mature column", () => {
+  /*
+    The mature column is a published figure of its own, gated on its own, so a
+    group that hides exactly one mature half has the same hole the all column
+    was closed against: the case table publishes the partitive's mature figure,
+    and the partitive row of a crosstab that shows every mature half but one
+    hands that one back by subtraction.
+  */
+  const cell = (level: string, people: number, each: number, matureFrom: number) =>
+    Array.from({ length: people }, (_, i) => ({
+      keys: ["PARTITIVE", level],
+      learner: `${level}${i}`,
+      reviews: each,
+      correct: each,
+      // Only people from index `matureFrom` on have seen these cards mature.
+      matureReviews: i >= matureFrom ? each : 0,
+      matureCorrect: i >= matureFrom ? each : 0,
+    }));
+
+  it("hides a second mature half when a group hid exactly one", () => {
+    const section = buildSection(CROSSTAB, [
+      ...cell("A1", 40, 20, 0),
+      ...cell("A2", 30, 20, 0),
+      ...cell("B1", 12, 10, 0), // the smallest mature survivor
+      ...cell("B2", 20, 10, 19), // mature half is one person: withheld
+    ]);
+    const mature = Object.fromEntries(section.cells.map((c) => [c.keys[1], c.mature !== null]));
+    expect(section.cells).toHaveLength(4);
+    expect(mature).toEqual({ A1: true, A2: true, B1: false, B2: false });
+  });
+
+  it("leaves the mature halves alone when the group already hid two", () => {
+    const section = buildSection(CROSSTAB, [
+      ...cell("A1", 40, 20, 0),
+      ...cell("A2", 30, 20, 0),
+      ...cell("B1", 20, 10, 19),
+      ...cell("B2", 20, 10, 19),
+    ]);
+    const mature = Object.fromEntries(section.cells.map((c) => [c.keys[1], c.mature !== null]));
+    expect(mature).toEqual({ A1: true, A2: true, B1: false, B2: false });
+  });
+});
+
 describe("the shape of a section", () => {
   it("reads worst first, and orders totally", () => {
     const section = buildSection(SPEC, [

@@ -325,6 +325,7 @@ export function buildSection(
     keys: readonly string[];
     group: string;
     raw: number;
+    rawMature: number;
     all: Summary | null;
     mature: Summary | null;
   }
@@ -337,6 +338,7 @@ export function buildSection(
       keys: cell.keys,
       group: groupKey(cell.keys, spec.groupBy),
       raw: cell.all.reduce((sum, t) => sum + t.n, 0),
+      rawMature: cell.mature.reduce((sum, t) => sum + t.n, 0),
       all: typeof all === "string" ? null : all,
       mature: typeof mature === "string" ? null : mature,
     });
@@ -364,6 +366,26 @@ export function buildSection(
       victim.all = null;
       victim.mature = null;
     }
+  }
+
+  /*
+    The mature column is a published figure gated on its own, so it needs the
+    same pass on its own. The case table prints the partitive's mature figure,
+    and a partitive row that shows every mature half but one hands that one
+    back by subtraction exactly as the all column would. A cell withheld whole
+    counts as a withheld mature half too, which is why this runs after the pass
+    above and counts every null in the group rather than only the published
+    cells'.
+  */
+  for (const group of byGroup.values()) {
+    if (group.filter((c) => !c.mature).length !== 1) continue;
+    const victim = group
+      .filter((c) => c.mature)
+      .sort(
+        (a, b) =>
+          a.rawMature - b.rawMature || a.keys.join(" ").localeCompare(b.keys.join(" ")),
+      )[0];
+    if (victim) victim.mature = null;
   }
 
   const published: Cell[] = [];
