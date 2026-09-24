@@ -38,7 +38,7 @@ An auditor's hardest problem on a small engagement is evidence over time. A cont
 the day of the audit and cannot be shown to have operated for the previous six months is a control a
 Type II report cannot rely on, and it is the reason a SOC 2 observation window costs what it costs.
 
-This project already generates that evidence and throws it away. 279 invariants run on every push.
+This project already generates that evidence and throws it away. The whole invariant suite runs on every push and prints its own total, 421 on the day this line was written.
 `scripts/test-invariants.ts` asserts the security rules by name: no owner id from a caller, every
 mutation through the forged request gate, no credential in the client bundle, append-only tables,
 redaction on every `"use server"` export. CI has run them on every commit for months. What is missing
