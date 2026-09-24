@@ -34,7 +34,7 @@ import type { CaseKey } from "@/lib/estonian/types";
 import type { Lexicon } from "./lexicon";
 import type { RoleCard } from "./props";
 import type { SceneState } from "./state";
-import { leafNeeds, type BeatSpec, type SceneSpec } from "./types";
+import { leafNeeds, type BeatSpec, type LeafRequirement, type SceneSpec } from "./types";
 
 /** One row this run earned. `rating` is the scheduler's own vocabulary. */
 export interface SceneGrade {
@@ -154,6 +154,20 @@ export function gradesFor(
     );
 
     for (const { need, index } of leafNeeds(beat.needs)) {
+      /*
+        AND A CHOICE IS GRADED ON THE OPTION THEY TOOK, NEVER ON ALL OF THEM.
+
+        `leafNeeds` opens an `anyOf` into its options and every option carries
+        the choice's own index, so `answered` is true of every one of
+        them the moment any one is met. At the ticket window "are you paying by
+        card?" is `kaardiga`, `rahaga` or a yes, and a learner who said `jah`
+        had `kaart` and `raha` in the comitative written into the review log as
+        recalls beside it; the landlord's offer, answered `jah`, wrote the
+        weekday off the card as a word they had produced. An option is graded
+        only where the words that met the choice are forms of that option's
+        own word, and where there is no lexicon to ask, not at all.
+      */
+      if (beat.needs[index]?.kind === "anyOf" && !tookOption(need, producedFor(index), card, lexicon)) continue;
       /*
         Only where a word was asked for. `question`, `negation`, `register` and
         `any` are things a learner did rather than words they hold a card for,
@@ -361,6 +375,31 @@ function oneWordFor(
     return forms ? [...produced].some((word) => forms.has(word)) : false;
   });
   return wrote.length === 1 ? wrote[0]! : null;
+}
+
+/**
+ * Whether the words that met a choice belong to this one of its options.
+ *
+ * A lemma or a case by its own word's forms, a card's value by the forms of
+ * the words the card dealt for the slot. Anything else (a question, a
+ * negation, a literal) is not a word and grades nothing whatever the answer,
+ * so it has nothing to settle. No lexicon, no answer.
+ */
+function tookOption(
+  need: LeafRequirement,
+  produced: ReadonlySet<string>,
+  card: RoleCard | null,
+  lexicon: Lexicon | null,
+): boolean {
+  if (!lexicon) return false;
+  const lemmas = need.kind === "lemma" ? need.oneOf
+    : need.kind === "case" ? [need.lemma]
+    : need.kind === "datum" ? card?.props.find((one) => one.slot === need.slot)?.lemmas ?? []
+    : [];
+  return lemmas.some((lemma) => {
+    const forms = lexicon.byLemma.get(lemma);
+    return forms !== undefined && [...produced].some((word) => forms.has(word));
+  });
 }
 
 /**
