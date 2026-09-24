@@ -2508,19 +2508,20 @@ check("a grade made offline keeps the time it was actually answered", () => {
     reviews all happened at breakfast, which is worse than losing them: FSRS
     would fit its intervals to a history that never happened.
   */
-  const outbox = read("lib/offline/outbox.ts");
+  // Comment-blind: the outbox's own notes name both of these.
+  const outbox = code("lib/offline/outbox.ts");
   assert.match(outbox, /reviewedAt/, "the queue no longer records when a grade was made");
   // Clamped in *both* directions: a device clock set ahead would schedule a card
   // into the past, and one set years back would blow up the card's stability.
-  assert.match(outbox, /clampReviewedAt/, "the queue no longer clamps a device clock");
+  assert.match(outbox, /clampReviewedAt\(/, "the queue no longer clamps a device clock");
 
-  const replay = read("lib/srs/replay.ts");
+  const replay = code("lib/srs/replay.ts");
   assert.equal(
     /reviewedAt:\s*new Date\(\)/.test(replay),
     false,
     "the replay re-stamps a grade",
   );
-  assert.match(replay, /orderForReplay/, "the replay no longer applies grades in the order they happened");
+  assert.match(replay, /orderForReplay\(/, "the replay no longer applies grades in the order they happened");
 });
 
 // ── Progress is derived, never stored (ADR-014) ──────────────────────────────
@@ -2843,7 +2844,7 @@ check("nothing about an individual survives into the metrics", () => {
   const retention = read("lib/stats/retention.ts");
   assert.doesNotMatch(retention, /ownerId|email|userId/, "the retention module learned who somebody is");
 
-  const route = read("app/api/metrics/route.ts");
+  const route = code("app/api/metrics/route.ts");
   // The route groups by owner and must, so what is checked is that it never
   // hands one onward: the grouped rows are reduced to activity before use.
   assert.match(route, /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
@@ -3263,8 +3264,8 @@ check("a word read off a photograph reaches a card only through the dictionary",
   const route = read("app/api/scan/route.ts");
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
 
-  const resolver = read("lib/dict/resolveScan.ts");
-  assert.match(resolver, /matchEstonianForm/, "the resolver stopped using the vouched matcher");
+  const resolver = code("lib/dict/resolveScan.ts");
+  assert.match(resolver, /matchEstonianForm\(/, "the resolver stopped using the vouched matcher");
 
   const search = read("lib/dict/search.ts");
   assert.match(
@@ -3969,7 +3970,7 @@ check("the chat says which model actually replied", () => {
 });
 
 check("Anu's prose is cleaned on its way to the learner", () => {
-  assert.match(read("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
+  assert.match(code("app/api/tutor/route.ts"), /new ProseStream\(/, "the humanize pass is gone");
 });
 
 check("Anu's reply is drawn as typography, shown once finished, and the marker lines have one shape", () => {
@@ -4033,14 +4034,14 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
     exactly this kind of question, which is the whole argument for a check
     here rather than a stronger request in the prompt.
   */
-  const route = read("app/api/tutor/route.ts");
+  const route = code("app/api/tutor/route.ts");
   assert.match(route, /chatEstonianTokens\(/, "the chat route no longer extracts candidate Estonian tokens");
   assert.match(route, /matchEstonianForm\(/, "the chat route no longer checks tokens against the dictionary");
   assert.match(route, /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
 
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // render the flag the same way.
-  const chat = read("components/anu/AnuParts.tsx");
+  const chat = code("components/anu/AnuParts.tsx");
   assert.match(chat, /UNVERIFIED:/, "the chat screen no longer reads the flag back");
 });
 
@@ -7392,21 +7393,33 @@ check("a call is booked only once the request is worth answering", () => {
     empty posts left four pending calls against the global budget and spent
     four of that learner's ten for the day. Every paid route validates first.
   */
+  /*
+    Read as an order, not as a presence. The first version passed whenever a
+    `releaseReservation(` appeared anywhere after the booking, which every
+    paid route has on its failure path, and whenever the file had anything in
+    front of the booking, which its imports always are: moving the tutor's
+    booking above its body check, the exact fault above, left both passing.
+    So a refusal of the request itself (400, 413, 422) may only come before
+    the first booking.
+  */
   const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f));
+  let booking = 0;
   for (const file of paid) {
     const src = code(file);
     const at = src.indexOf("authoriseCall(");
     if (at === -1) continue;
-    const before = src.slice(0, at);
-    assert.ok(
-      !/status:\s*400/.test(src.slice(at)) || /releaseReservation\(/.test(src.slice(at)),
-      `${file} can refuse a request after booking it without handing the booking back`,
+    booking += 1;
+    const late = [...src.slice(at).matchAll(/status:\s*(400|413|422)\b/g)].map((m) => m[1]);
+    assert.deepEqual(
+      late, [],
+      `${file} refuses the request (${late.join(", ")}) after booking a call for it, so a malformed post spends an allowance`,
     );
-    assert.ok(
-      before.length > 0,
-      `${file} books a call before it has read anything about the request`,
+    assert.match(
+      src.slice(0, at), /status:\s*400\b/,
+      `${file} books a call before it has refused anything about the request`,
     );
   }
+  assert.ok(booking >= 6, `only ${booking} routes book a call, so this stopped looking`);
 });
 
 check("a card never answers the card before it", () => {
