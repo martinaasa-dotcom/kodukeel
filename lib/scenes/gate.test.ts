@@ -373,6 +373,15 @@ describe("the government check", () => {
     });
     // The noun, and a conjunction. The verb is not in the clause at all.
     expect(governmentSuspect(["sest", "sellel", "on", "hea", "maitse"], tasted)).toBe(false);
+    /*
+      The same noun beside a real oblique complement, which is the half the
+      line above cannot see: there `sest` is excused as a complement and
+      nothing oblique is left, so it reads false whether or not the verb side
+      works. Here `roast` stays oblique and is not a case the verb governs, so
+      the only thing keeping the clause clear is `maitse` being the noun rather
+      than `maitsma`.
+    */
+    expect(governmentSuspect(["sellel", "on", "hea", "maitse", "roast"], tasted)).toBe(false);
     // A spelling only the verb owns still puts its government on the clause.
     expect(governmentSuspect(["see", "maitseb", "roast"], tasted)).toBe(true);
     expect(governmentSuspect(["see", "maitseb", "roale"], tasted)).toBe(false);
