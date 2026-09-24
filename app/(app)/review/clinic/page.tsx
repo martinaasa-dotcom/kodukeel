@@ -24,7 +24,9 @@ export default async function ClinicPage() {
 
   const cards = await prisma.card.findMany({
     where: { ownerId, lapses: { gte: LEECH_LAPSES } },
-    orderBy: { lapses: "desc" },
+    // Many cards sit at exactly `LEECH_LAPSES`, so without the id the plan
+    // chose which thirty the clinic ranks, and the list moved between loads.
+    orderBy: [{ lapses: "desc" }, { id: "asc" }],
     take: 30,
     include: { lexeme: { select: { lemma: true, translation: true } } },
   });
@@ -53,7 +55,7 @@ export default async function ClinicPage() {
     prisma.review.findMany({
       where: { ownerId, cardId: { in: cards.map((c) => c.id) } },
       select: { cardId: true, rating: true, reviewedAt: true },
-      orderBy: { reviewedAt: "asc" },
+      orderBy: [{ reviewedAt: "asc" }, { id: "asc" }],
       take: 2000,
     }),
     /*
@@ -65,7 +67,8 @@ export default async function ClinicPage() {
     prisma.card.findMany({
       where: { ownerId, lexemeId: { not: null } },
       select: { lexeme: { select: { lemma: true } } },
-      orderBy: { createdAt: "asc" },
+      // A word's cards share `createdAt`, so the id is what fixes the thousand.
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: 1000,
     }),
   ]);

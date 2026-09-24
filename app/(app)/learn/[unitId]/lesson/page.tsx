@@ -128,7 +128,10 @@ export default async function LessonPage({
   const pool = await prisma.lexeme.findMany({
     where: { cefr: unit.level, lemma: { notIn: [...unit.lemmas] } },
     select: { id: true, lemma: true, translation: true, pos: true, semanticTypes: true },
-    orderBy: { lemma: "asc" },
+    // The id after the lemma: a lemma can hold two entries (`hall`, or a word
+    // confirmed off a scan), and a tie at either edge of a seeded window is
+    // the plan deciding the lesson its seed promises to fix.
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
     skip: atLevel > DISTRACTOR_POOL ? poolSeed % (atLevel - DISTRACTOR_POOL) : 0,
     take: DISTRACTOR_POOL,
   });

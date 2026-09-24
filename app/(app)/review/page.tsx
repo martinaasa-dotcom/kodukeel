@@ -119,7 +119,9 @@ export default async function ReviewPage({
   if (targetCase) {
     const drill = await prisma.card.findMany({
       where: { ownerId, suspended: false, targetCase, ...notOnLadder(ownerId) },
-      orderBy: [{ lapses: "desc" }, { due: "asc" }],
+      // Ends on the id, as the unit drill below does: a word's cards share
+      // `lapses` and `due`, so which of them make the thirty was the plan's.
+      orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
       take: 30,
       include,
     });
@@ -429,7 +431,9 @@ async function inBandPool(
       ...unseenWhere(ownerId, new Date(), only, theirOwnToo),
       lexeme: { cefr: { in: [...bandsAround(level)] } },
     },
-    orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }],
+    // Ends on the id for the reason the read above does: a word's cards are
+    // written in one `createMany` and share both earlier keys exactly.
+    orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
     take: NEW_CANDIDATES,
     include,
   });
