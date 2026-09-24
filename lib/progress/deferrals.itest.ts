@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { deferWord, deferredFor, deferredWordIds, undoDeferral, wakeForLevel } from "./deferrals";
-import { addUnitsToDeck, planUnits } from "@/lib/srs/deck";
+import { addUnitsToDeck, lockDeck, planUnits } from "@/lib/srs/deck";
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { BAND_DAYS, DEFER_DAYS } from "@/lib/srs/defer";
 
@@ -47,6 +47,34 @@ beforeEach(wipe);
 afterAll(async () => { await wipe(); await prisma.$disconnect(); });
 
 describe("deferWord", () => {
+  /*
+    Every builder reads the word's deferral under the deck lock and dates a new
+    card on it. A deferral that pushes the cards without taking the same lock
+    runs beside a builder that has read "no deferral" and not yet committed:
+    the push cannot see the uncommitted card, so it commits dated now and the
+    word comes straight back. Held open here on purpose, so the interleaving is
+    the one a double tab or a dictionary render lands in, every run.
+  */
+  it("waits for a builder already holding the deck, and pushes what it built", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const entry = await word("zzdefer", "A1");
+    await cards(entry.id, [now]);
+
+    let deferred: Promise<unknown> | null = null;
+    await prisma.$transaction(async (tx) => {
+      await lockDeck(tx, MINE);
+      await tx.card.create({
+        data: { ownerId: MINE, lexemeId: entry.id, cardType: "CLOZE", front: "gap", back: "b", due: now },
+      });
+      deferred = deferWord(MINE, entry.id, "A1", "/review", now);
+      await new Promise((resolve) => setTimeout(resolve, 400));
+    });
+    await deferred;
+
+    const rows = await prisma.card.findMany({ where: { ownerId: MINE } });
+    for (const row of rows) expect(row.due.getTime()).toBeGreaterThan(now.getTime());
+  });
+
   it("pushes every card of the word, and leaves one the scheduler put further out", async () => {
     const now = new Date("2026-09-14T10:00:00.000Z");
     const entry = await word("zzdefer", "A1");
