@@ -5124,7 +5124,7 @@ check("a check over a list says the list was there", () => {
     `test-edit.mjs` asserted that a rename left an attested sentence exactly as
     recorded, over a list of gap-fill cards that has always been empty, and
     printed PASS with "0 gap-fill card(s)" beside it on every run there has
-    ever been. Its own header says so — and two checks below the fix the same
+    ever been. Its own header says so. And two checks below the fix the same
     array was read the same way again, so a rename that failed outright still
     reported that scheduling had survived it. `test-flash.mjs` had four of
     them: a round that logged nothing failed one check about the log and
@@ -5132,7 +5132,7 @@ check("a check over a list says the list was there", () => {
 
     What makes it worth a rule rather than a reading is the pairing. In every
     case the suite already knew the list could be empty, because a check
-    somewhere above it asserts the length — and that check failing is exactly
+    somewhere above it asserts the length, and that check failing is exactly
     the run where the ones below it stop meaning anything. One reported
     failure, several unlooked things, which is the sentence
     `scripts/lib/checks.mjs` opens with, arriving inside a check rather than
@@ -18011,7 +18011,7 @@ check("a control says what it does under a pointer", () => {
     keyboard disagree about which row is next. Both of those are arguments
     about one button, and this was written as a `Set` of the two filenames, so
     what it actually excused was every control in `Sidebar.tsx` and
-    `CommandPalette.tsx` — the rail's own cells, both crosses on the sheet, and
+    `CommandPalette.tsx`: the rail's own cells, both crosses on the sheet, and
     the icon button at the foot of the column. Nothing is wrong in either file
     today, which is the state a file-wide exemption is invisible in: it costs
     nothing until somebody adds a control to one of them, and then it costs
