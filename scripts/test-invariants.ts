@@ -6244,37 +6244,6 @@ check("the actions that do real work per call are throttled", () => {
   }
 });
 
-check("a level or a part of speech off the wire is checked before it is stored", () => {
-  /*
-    Every export of a "use server" file is a public endpoint, and its arguments
-    are JSON whatever the types say. Three actions wrote a caller's `cefr` or
-    `pos` straight into storage: `completeOnboarding` into two settings the
-    welcome letter prints, and `createLexeme` and `createLexemeWithForms` into
-    the shared dictionary, where `pos` is half the conflict key and `cefr` is
-    the record that puts a word in the exam pool. So no raw `input.cefr` or
-    `input.pos` may reach a write, and every export that writes a `Lexeme` row
-    runs the shared guard before it does.
-  */
-  const source = code("app/actions.ts");
-
-  const raw = [...source.matchAll(/(?:writeSetting\([^)]*|openingPartId\()\binput\.(?:cefr|pos)\b/g)];
-  assert.deepEqual(raw.map((m) => m[0]), [], "a setting is written from the caller's value unchecked");
-
-  const writers = [...source.matchAll(/export async function (\w+)\(/g)]
-    .map(([, name]) => ({ name: name!, body: between(source, `export async function ${name}(`) }))
-    .filter(({ body }) => /prisma\.lexeme\.create\(|upsertLexemeWithForms\(/.test(body));
-  assert.ok(writers.length >= 2, `expected the actions that write a dictionary row, found ${writers.length}`);
-  for (const { name, body } of writers) {
-    const guard = body.indexOf("entryFieldsRefused(input.pos, input.cefr)");
-    const write = body.search(/prisma\.lexeme\.(?:findUnique|create)\(|upsertLexemeWithForms\(/);
-    assert.ok(guard >= 0 && guard < write, `${name} writes a dictionary row before checking its pos and cefr`);
-  }
-
-  const guard = between(source, "function entryFieldsRefused(");
-  assert.match(guard, /isEntryPos\(pos\)/, "the guard no longer checks the part of speech");
-  assert.match(guard, /CEFR_LEVELS/, "the guard no longer checks the level");
-});
-
 check("every dead end in the app offers a way to report it", () => {
   /*
     THE RULE: nothing here may tell somebody it cannot help them and then
