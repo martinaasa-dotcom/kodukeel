@@ -272,7 +272,12 @@ export function ladderProgress(
   const credited = milestones.reduce(
     (n, m) => n + (m.state === "assumed" ? m.words : m.verified), 0,
   );
-  const pctOf = (n: number) => (total === 0 ? 0 : Math.round((n / total) * 100));
+  /* The same cap as a level's own figure, since the milestone letter draws
+     `verifiedPct` as a meter and a full meter over a climb with words left in
+     it says something the scheduler does not. */
+  const pctOf = (n: number) => (total === 0 ? 0
+    : n < total ? Math.min(99, Math.round((n / total) * 100))
+    : 100);
 
   return {
     target,

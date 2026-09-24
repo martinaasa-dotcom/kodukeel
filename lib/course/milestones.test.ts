@@ -268,6 +268,13 @@ describe("a level is passed when all of its words are, not when the percentage r
     expect(milestoneOwed(climb.milestones, null)).toBeNull();
   });
 
+  it("keeps the climb's own figures under a hundred while a word is left", () => {
+    const words = ladderWordsAt("A1");
+    const climb = ladderProgress("A1", { A1: words - 1 }, titles, null);
+    expect(climb.pct).toBeLessThan(100);
+    expect(climb.verifiedPct).toBeLessThan(100);
+  });
+
   it("passes it once the last word is graduated", () => {
     const climb = ladderProgress("A1", { A1: ladderWordsAt("A1") }, titles, null);
     expect(stop(climb, "A1").state).toBe("passed");
