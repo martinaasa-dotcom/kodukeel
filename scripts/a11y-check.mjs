@@ -28,6 +28,7 @@ import { createRequire } from "node:module";
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { gradeButtons, revealAnswer } from "./lib/review.mjs";
+import { missCard } from "./lib/miss.mjs";
 import { startRound } from "./lib/briefing.mjs";
 
 /*
@@ -350,7 +351,9 @@ ROUTES.push(...groups);
   not be moved. Confirmed against a real run rather than left as arithmetic:
   811 checks reached with the same four graded-review checks waived on this
   database, so a clean run is 815, and the floor keeps the same forty-two
-  under it the step above set.
+  under it the step above set. Those four were waived on every run there had
+  ever been, CI included, and a miss grades them now; the run after that
+  reached all 815 with nothing waived.
 
   What this list still does not walk, a marked paper and a scanned page, is
   named on `/accessibility` in words, and an invariant ties the two together.
@@ -660,9 +663,33 @@ for (const theme of ["light", "dark"]) {
   await graded.waitForTimeout(300);
   const shape = await revealAnswer(graded);
   const ratings = gradeButtons(graded);
+  let didGrade = false;
   if (shape && (await ratings.count())) {
     await ratings.first().click();
     await graded.waitForTimeout(1200);
+    didGrade = true;
+  } else {
+    /*
+      AND WHEN NO CARD OFFERS A GRADE, A MISS IS A GRADE.
+
+      These two checks were waived on every run there was, locally and in CI,
+      because the first card on the fixture is typed or multiple choice and
+      marks itself, and `revealAnswer` never grades by design. The waiver
+      named two causes and neither state ever arrived, which is a waiver no
+      state lifts. So the card is answered wrongly instead, with the suites'
+      own driver for that, up to three times past any first meeting, which
+      writes nothing; the miss leaves an acknowledgment behind and pressing
+      it is the grade.
+    */
+    await graded.goto(`${BASE}/review`, { waitUntil: "networkidle" });
+    await startRound(graded);
+    for (let i = 0; i < 3 && !didGrade; i += 1) {
+      const answered = await missCard(graded);
+      if (!answered) break;
+      didGrade = answered !== "meet";
+    }
+  }
+  if (didGrade) {
     const live = await graded.evaluate(() => {
       const btn = [...document.querySelectorAll("main button")].find((b) => /Undo/.test(b.textContent));
       return btn ? !btn.disabled : null;
@@ -673,9 +700,8 @@ for (const theme of ["light", "dark"]) {
     check(`/review once a card is graded, in ${theme}: axe finds nothing`,
       violations.length === 0, violations.slice(0, 2).join("; "));
   } else {
-    absent(2, `/review with a card graded, in ${theme}: no card offered a grade button, ` +
-      "so the controls a grade unlocks were never drawn. Either the deck has nothing due " +
-      "(run `npm run demo`) or every card that came up graded itself, which a clean hit does");
+    absent(2, `/review with a card graded, in ${theme}: the deck had no card to answer, so ` +
+      "nothing was graded and the controls a grade unlocks were never drawn (run `npm run demo`)");
   }
   await graded.close();
 }

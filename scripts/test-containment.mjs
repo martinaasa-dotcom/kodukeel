@@ -1184,12 +1184,16 @@ async function askedForStates(ctx, at) {
       opened = (await page.getByRole("button", { name: /Add to my deck/ }).count()) > 0;
       if (opened) break;
     }
-    const met = page.getByRole("button", { name: /^Got it$/ });
+    // Not anchored at the end: a button's accessible name carries its key
+    // cap now ("Got it ↵", "Ready ↵"), and `$` after the word matched none of
+    // them, so the walk pressed nothing, never reached a sentence, and waived
+    // these five checks on every run with a reason that blamed the fixture.
+    const met = page.getByRole("button", { name: /^Got it\b/ });
     if (await met.count()) await met.first().click().catch(() => {});
     // The round opens behind two one-off screens now, "First, just meet
     // them" and "Now answer them back" (see LearnSession.tsx): neither is
     // the round itself, so the walk presses past both on the way in.
-    const intro = page.getByRole("button", { name: /^(Show me|Ready)$/ });
+    const intro = page.getByRole("button", { name: /^(Show me|Ready)\b/ });
     if (await intro.count()) await intro.first().click().catch(() => {});
     await page.waitForTimeout(500);
   }
@@ -1197,8 +1201,12 @@ async function askedForStates(ctx, at) {
     await page.waitForTimeout(300);
     await measure(page, `a word opened out of a teaching sentence ${at}`);
   } else {
-    absent(5, `a word opened out of a teaching sentence ${at}: no word in this batch ` +
-      "carries a sentence the dictionary can vouch for. Run `npm run demo`");
+    /* The fixture's ladder batch is already past its first meeting, so the
+       round opens on the four options and no first meeting is drawn: that is
+       the state that lifts this, not the dictionary, which is what this line
+       used to blame. */
+    absent(5, `a word opened out of a teaching sentence ${at}: /learn/new opened on a ` +
+      "batch already met, so no first meeting with its sentence was drawn");
   }
 
   /*

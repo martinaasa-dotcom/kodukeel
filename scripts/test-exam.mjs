@@ -102,10 +102,21 @@ check("it offers advice rather than only a verdict",
   its own cause: a reason that sends the reader off to set a target that is
   already set is worse than no reason at all.
 */
-const aiming = /The paper you said you were aiming at/i.test(body);
+/*
+  AND IT WAS WAIVED ON EVERY RUN FOR A WHILE ANYWAY, WHICH THE PARAGRAPH ABOVE
+  SAYS CANNOT HAPPEN. The hub's target card became `ExamCountdownCard` in #267
+  and its heading went from "The paper you said you were aiming at" to "Your
+  exam", so this matched nothing, CI printed the waiver on every run, and its
+  reason sent the reader to set a target the fixture had set. It reads the
+  card's own heading now, which says the target was chosen rather than worked
+  out, and the two things the check is about in the card's own words: how long
+  is left and how likely a pass is.
+*/
+const aiming = /\bYour exam\b/i.test(body);
 if (aiming) {
   check("the paper aimed at is named with the weeks and the confidence together",
-    /weeks left|deadline is here|no deadline set/i.test(body));
+    /\d+% likely to pass/i.test(body)
+      && /\b\d+ (?:days?|weeks?)\b|Your date|already passed|no date set/i.test(body));
 } else {
   absent(1, "a target level set on this database, which the demo fixture writes");
 }
