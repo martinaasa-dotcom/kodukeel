@@ -199,7 +199,7 @@ export default function AccessibilityPage() {
             <strong>Target runs to a clock nobody can change</strong> (WCAG 2.2.1, Timing
             Adjustable). Every other practice round with a clock reads the pace set in
             Settings; this one gives eight seconds for the first question and takes a quarter
-            of a second off for each one answered, down to three and a half, and none of those
+            of a second off for each one answered right, down to three and a half, and none of those
             three numbers is the learner&rsquo;s to move. It is a practice round rather than a
             measurement, so unlike the examination above there is no argument for the limit
             being fixed. It is the next thing on this page to fix.

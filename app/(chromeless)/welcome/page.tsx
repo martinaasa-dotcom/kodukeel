@@ -580,7 +580,7 @@ function Features() {
             tone="accent"
             icon={<BookOpen size={18} aria-hidden />}
             title="Practice that sticks"
-            body={`Look a word up and it becomes a card in one press, every form, audio in twelve voices. Then ${PATH.length} units of them, brought back the day before you would forget, and heard the way people say them: at speed, over café noise, down a phone line.`}
+            body={`Look a word up and it becomes a card in one press, every form, audio in ten voices. Then ${PATH.length} units of them, brought back the day before you would forget, and heard the way people say them: at speed, over café noise, down a phone line.`}
           />
         </Reveal>
         <Reveal>
