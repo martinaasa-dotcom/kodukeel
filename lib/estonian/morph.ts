@@ -64,6 +64,29 @@ export function morphCodeOf(form: {
 }
 
 /**
+ * The Ekilex code a retrieved row carries, whichever column it is in, and
+ * nothing for a principal part.
+ *
+ * `morphCodeOf` answers a wider question: it hands a principal part back as
+ * its own `formType`, which is right for naming a form and wrong for asking
+ * about number, since `numberFromMorphCode` reads the `_PL` in `PART_PL` as a
+ * plural. This is the narrower one, and it is the one a reader of the column
+ * meant. `prisma/seed.ts` stores a harvested extra form as
+ * `formType: "EKILEX:<code>"` with no `morphCode` at all, so a reader asking
+ * the column alone answered on a live Ekilex lookup and on no seeded install:
+ * the plural guards in the card builder and the worksheet fired on nothing on
+ * a fresh deployment. Two modules had already written this out for themselves.
+ */
+export function ekilexCodeOf(form: {
+  formType?: string | null;
+  morphCode?: string | null;
+}): string | null {
+  if (form.morphCode) return form.morphCode;
+  const type = form.formType;
+  return type?.startsWith("EKILEX:") ? type.slice("EKILEX:".length) : null;
+}
+
+/**
  * Ekilex's own code for a case, for a caller holding the case rather than the
  * code: the search's suffix branch works out that `toas` is the seesütlev of
  * `tuba` from the ending, and the panel under a sentence then needs the same
