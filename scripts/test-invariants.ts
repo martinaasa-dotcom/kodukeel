@@ -10689,6 +10689,41 @@ check("every upper-case name CLAUDE.md gives is one the code still has", () => {
   }
 });
 
+check("every provider variable CLAUDE.md's model configuration names is one the app reads", () => {
+  /*
+    Stricter than the check above for the one section where a name is an
+    instruction to an operator: there, being in the code is not enough, it has
+    to be read from the environment. `OPENROUTER_VISION_MODEL` sat in this
+    section months after OpenRouter left the chain, so an operator who set it
+    changed nothing. Written first in #341, folded in here with the rewrite of
+    the section it reads.
+  */
+  const everywhere = [
+    ...ALL, "middleware.ts", "next.config.ts", join("prisma", "schema.prisma"),
+  ].map((f) => read(f)).join("\n");
+
+  const doc = read("CLAUDE.md");
+  const start = doc.indexOf("\n## Model configuration");
+  assert.ok(start >= 0, "CLAUDE.md has no \"## Model configuration\" section, so this check stopped looking");
+  const end = doc.indexOf("\n## ", start + 1);
+  const section = doc.slice(start, end < 0 ? undefined : end);
+
+  const named = [...new Set(
+    [...section.matchAll(/`([A-Z][A-Z0-9_]*_(?:API_KEY|MODEL))`/g)].map((m) => m[1]!),
+  )];
+  assert.ok(named.length >= 4, `only found ${named.length} named variables, so this check stopped looking`);
+
+  for (const key of named) {
+    // A name the code declares is a pinned constant (`VISION_MODEL`), which the
+    // section names on purpose; it has to exist, and it is not a variable.
+    if (new RegExp(`export const ${key}\\b`).test(everywhere)) continue;
+    assert.ok(
+      new RegExp(`process\\.env\\.${key}\\b|process\\.env\\["${key}"\\]|\\benv\\.${key}\\b`).test(everywhere),
+      `CLAUDE.md's model configuration tells an operator ${key} configures the chain, and nothing reads it.`,
+    );
+  }
+});
+
 check("a value CLAUDE.md states for a constant is the value the code holds", () => {
   /*
     TWO PARAGRAPHS OF THIS FILE GAVE THE SCENE COMPOSER'S LIMITS, BOTH IN THE
@@ -10704,10 +10739,27 @@ check("a value CLAUDE.md states for a constant is the value the code holds", () 
     code declares that name once as a plain numeric literal. A name declared in
     several files, or to anything but a literal, is somebody else's question.
   */
-  const WORDS: Record<string, number> = {
-    two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-    eleven: 11, twelve: 12, fifteen: 15, twenty: 20, "twenty-two": 22, thirty: 30,
-    forty: 40, fifty: 50, "fifty-five": 55, sixty: 60, "a hundred": 100,
+  /*
+    Any number word, compounds included, which is the parser #353 wrote for
+    the same check. A list of the words that happened to be in the file would
+    miss the next one somebody types.
+  */
+  const UNITS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  const TENS: Record<string, number> = {
+    twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90,
+  };
+  const numberFrom = (raw: string): number | undefined => {
+    const word = raw.toLowerCase().replace(/[,_]/g, "");
+    if (/^\d+(\.\d+)?$/.test(word)) return Number(word);
+    if (word === "a hundred") return 100;
+    if (UNITS.includes(word)) return UNITS.indexOf(word);
+    if (word in TENS) return TENS[word]!;
+    const [ten, unit] = word.split("-");
+    if (ten && unit && ten in TENS && UNITS.indexOf(unit) > 0 && UNITS.indexOf(unit) < 10) {
+      return TENS[ten]! + UNITS.indexOf(unit);
+    }
+    return undefined;
   };
   const declared = new Map<string, string[]>();
   for (const file of [...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/), ...sourceFiles("prisma")]) {
@@ -10716,18 +10768,23 @@ check("a value CLAUDE.md states for a constant is the value the code holds", () 
       declared.set(m[1]!, [...(declared.get(m[1]!) ?? []), m[2]!.replace(/_/g, "")]);
     }
   }
-  const claims = [...read("CLAUDE.md").matchAll(
+  const prose = read("CLAUDE.md");
+  const claims = [...prose.matchAll(
     /`([A-Z][A-Z0-9_]{2,})` (?:is|are) (\d[\d,_]*(?:\.\d+)?|a hundred|[a-z]+(?:-[a-z]+)?)\b/g,
   )];
   const wrong: string[] = [];
   let compared = 0;
-  for (const [, name, said] of claims) {
+  for (const claim of claims) {
+    const [, name, said] = claim;
     const values = declared.get(name!);
     if (!values || new Set(values).size !== 1) continue;
-    const stated = /^\d/.test(said!) ? Number(said!.replace(/[,_]/g, "")) : WORDS[said!];
+    const stated = numberFrom(said!);
     if (stated === undefined) continue;
     compared += 1;
-    if (stated !== Number(values[0])) wrong.push(`${name} is ${said} in CLAUDE.md and ${values[0]} in the code`);
+    if (stated !== Number(values[0])) {
+      const line = prose.slice(0, claim.index).split("\n").length;
+      wrong.push(`line ${line}: ${name} is ${said} in CLAUDE.md and ${values[0]} in the code`);
+    }
   }
   assert.ok(compared >= 6, `only ${compared} stated values compared; the phrasing or the declarations moved`);
   assert.deepEqual(wrong, [], wrong.join("; "));
