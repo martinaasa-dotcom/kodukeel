@@ -13102,6 +13102,39 @@ check("every secret-shaped variable the app reads is marked in the CI canary bui
   );
 });
 
+check("every secret-shaped variable the app reads has a row in the leaked-credential runbook", () => {
+  /*
+    The rotation table in docs/28-incident-response.md §7.1 is the list
+    somebody works down with a key in a public place, and it was typed. Four
+    secrets the app reads were not on it: `RESEND_API_KEY`, which sends mail as
+    this deployment, `EMAIL_TOKEN_SECRET`, which signs every unsubscribe link,
+    `RESEND_WEBHOOK_SECRET` and `CRON_SECRET`. A key missing from that table is
+    a key nobody rotates. Read off the same rule as the canary build above, so
+    the two lists are one definition of "secret".
+  */
+  const RUNBOOK = "docs/28-incident-response.md";
+  const table = between(read(RUNBOOK), "### 7.1 A leaked credential").split("\nSteps:")[0] ?? "";
+  assert.match(table, /\| Variable \| What it opens \|/, `${RUNBOOK} §7.1 moved, so this check is reading nothing`);
+
+  const secretish = /^[A-Z0-9_]+_(KEY|TOKEN|SECRET|PASSWORD)$/;
+  const found = new Set<string>();
+  for (const file of [...APP, ...LIB, "middleware.ts"]) {
+    for (const match of read(file).matchAll(/process\.env\.([A-Z0-9_]+)/g)) {
+      const name = match[1]!;
+      if (name.startsWith("NEXT_PUBLIC_")) continue;
+      if (secretish.test(name)) found.add(name);
+    }
+  }
+  assert.ok(found.size >= 8, `only ${found.size} secret-shaped variables found, so this check stopped looking`);
+
+  const missing = [...found].filter((name) => !table.includes(`\`${name}\``)).sort();
+  assert.deepEqual(
+    missing,
+    [],
+    `${missing.join(", ")} can leak and has no row saying what it opens or where to rotate it: add each to ${RUNBOOK} §7.1`,
+  );
+});
+
 /**
  * A CASE IS NAMED ONLY WHERE EXACTLY ONE CASE IS SPELLED THAT WAY.
  *
