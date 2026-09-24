@@ -9639,6 +9639,62 @@ check("every cache the service worker writes to is bounded, except the one that 
  * check above and for the same reason: a paragraph kept four of these honest
  * and did not catch the fifth.
  */
+check("a transaction's own time limit fits inside the function that runs it", () => {
+  /*
+    `deleteMyAccount` and `restoreBackup` each give their transaction a hundred
+    and twenty seconds, because both end in "and nothing was changed" and the
+    whole of that sentence is the transaction finishing or rolling back on its
+    own terms. The first ran on the Settings page at a sixty second ceiling and
+    the second through `/api/restore`, which declared none and took the
+    platform's default. Either way the platform ended the function before the
+    transaction's own limit, and the learner got a dropped request.
+
+    So each action in app/actions.ts that sets a transaction timeout is
+    followed to everything in app/ that imports it: a route handler is held to
+    its own `maxDuration`, and a component to the nearest page above it, which
+    is the function a Server Action it calls runs inside.
+  */
+  const actions = code("app/actions.ts");
+  const bodies = actions.split(/\n(?=export (?:async )?function )/).slice(1);
+  const timed: [string, number][] = [];
+  for (const body of bodies) {
+    const name = /^export (?:async )?function (\w+)/.exec(body)?.[1];
+    const limit = [...body.matchAll(/\{ timeout: ([\d_]+) \}/g)].map((m) => Number(m[1]!.replace(/_/g, "")));
+    if (name && limit.length > 0) timed.push([name, Math.max(...limit)]);
+  }
+  assert.ok(timed.length >= 2, `only ${timed.length} actions with a transaction timeout found`);
+
+  const budgetOf = (file: string): number | null => {
+    const hit = /export const maxDuration = (\d+);/.exec(code(file));
+    return hit ? Number(hit[1]) * 1000 : null;
+  };
+  const pageAbove = (file: string): string | null => {
+    for (let dir = dirname(file); dir.startsWith("app"); dir = dirname(dir)) {
+      const page = join(dir, "page.tsx").replace(/\\/g, "/");
+      if (existsSync(page)) return page;
+    }
+    return null;
+  };
+
+  const short: string[] = [];
+  let reached = 0;
+  for (const [name, limitMs] of timed) {
+    const callers = APP.filter((file) => file !== "app/actions.ts"
+      && new RegExp(`import \\{[^}]*\\b${name}\\b[^}]*\\} from "@/app/actions"`).test(read(file)));
+    assert.ok(callers.length > 0, `${name} sets a transaction timeout and nothing in app/ calls it`);
+    for (const caller of callers) {
+      const host = caller.endsWith("/route.ts") ? caller : pageAbove(caller);
+      const budget = host ? budgetOf(host) : null;
+      reached += 1;
+      if (budget === null || budget <= limitMs) {
+        short.push(`${name} (${limitMs / 1000}s) runs inside ${host ?? caller} at ${budget === null ? "the platform default" : `${budget / 1000}s`}`);
+      }
+    }
+  }
+  assert.ok(reached >= 2, `only ${reached} callers followed`);
+  assert.deepEqual(short, [], `a transaction outlives the function it runs in: ${short.join("; ")}`);
+});
+
 check("a route that spends something is throttled", () => {
   const routes = APP.filter((file) => /[\\/]api[\\/].*route\.tsx?$/.test(file));
   assert.ok(routes.length >= 8, `only found ${routes.length} route handlers, so this check stopped looking`);

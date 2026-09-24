@@ -63,11 +63,15 @@ export const dynamic = "force-dynamic";
   is ten seconds, and a paste that runs past it leaves a half-finished import
   and an error that says nothing about how much landed.
 
-  Sixty seconds, the same figure the writing routes use. It is a ceiling rather
-  than a reservation: a page render that takes a millisecond still takes a
-  millisecond.
+  A hundred and fifty seconds, because deleting an account is an action on
+  this page and its transaction is allowed a hundred and twenty. It was sixty,
+  so the platform would have ended the function halfway through a transaction
+  still inside its own limit, and the learner who asked to be forgotten would
+  get a dropped request instead of the sentence saying whether anything
+  changed. It is a ceiling rather than a reservation: a page render that takes
+  a millisecond still takes a millisecond.
 */
-export const maxDuration = 60;
+export const maxDuration = 150;
 
 const SHORTCUTS: [string, string][] = [
   ["⌘K / Ctrl-K", "Jump to any screen, or look a word up"],
