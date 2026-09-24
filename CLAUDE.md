@@ -10565,8 +10565,11 @@ builds off those: the ten regular cases from the genitive stem, or the present, 
 imperative from the stored first person (ADR-005 amendment 1). Nothing is written; `written.ts`
 stays pure because both derivation modules are, which is what lets the marker and the screen agree
 on which spellings count without either reaching a database. The rule is stricter and had to be checked for
-being *too* strict: the thinnest entry in the dictionary accepts ten spellings and none accepts only
-its headword, which is asserted rather than remembered.
+being *too* strict: every entry with principal parts accepts at least ten spellings, over the whole
+dictionary the seed writes, and an adverb or a phrase, which does not inflect, accepts its own. That
+is asserted rather than remembered, and it was not: the test asked for more than one, over the
+expansion alone, so the commit that dropped the plural cases took the thinnest entry from ten to three
+and passed. It asks for ten over all 6,153 now, and fails on that commit.
 
 **A confidence figure carries the evidence behind it.** `lib/exam/readiness.ts` predicts a score per
 part and then a chance of clearing sixty percent, as a logistic whose spread widens as the evidence
