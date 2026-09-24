@@ -176,9 +176,12 @@ check("every press says something",
 const letters = spellings.some(Boolean);
 if (letters) {
   const covered = spellings.map((s) => [...s].filter((c) => c === "_").length);
+  // "Strictly more than the one before" needs two rungs to mean anything, and
+  // the length that says so is counted on `spellings`, one `.map` away, where
+  // the check against an empty `every` cannot see it. So each asks for itself.
   check(
     "each press uncovers strictly more than the one before",
-    covered.every((n, i) => i === 0 || n < covered[i - 1]),
+    covered.length > 1 && covered.every((n, i) => i === 0 || n < covered[i - 1]),
     covered.join(" → "),
   );
   check("the first rung gives no letter away", covered[0] > 0 && !/\p{L}/u.test(spellings[0]), spellings[0]);
@@ -198,7 +201,7 @@ if (letters) {
 } else {
   check(
     "each press crosses out strictly more options than the one before",
-    strikes.every((n, i) => i === 0 || n > strikes[i - 1]),
+    strikes.length > 1 && strikes.every((n, i) => i === 0 || n > strikes[i - 1]),
     strikes.join(" → "),
   );
   check("the first press crosses exactly one out", strikes[0] === 1, `${strikes[0]}`);
