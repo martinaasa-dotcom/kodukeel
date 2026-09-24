@@ -44,7 +44,7 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
 ## What it does
 
 - **Situations.** Fourteen of them: a shop, a health centre, a landlord, a counter, a café, a
-  street corner, a bus ticket, a restaurant table, a friend on the phone, a neighbour on the stairs,
+  street corner, a bus ticket, a restaurant table, ringing a shop before you go, a neighbour on the stairs,
   a pharmacy, the first evening of a language course, a job interview, and taking something back.
   A card says who you are today and what you came for, and the other side speaks first, reacts to what you say, repeats your word back, and asks
   again when you were not understood. Something goes wrong on the way at every difficulty above the
