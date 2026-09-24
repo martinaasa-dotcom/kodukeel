@@ -13268,19 +13268,6 @@ check("a wrong answer records the form it reached for, and only between forms", 
   }
 });
 
-/**
- * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
- *
- * `PendingGrade` carried `slot`, IndexedDB stored it, `ReplayItem` accepted it
- * and `writeGrade` read it, and the one `map` in the middle named five fields
- * and dropped it. So the thing the flash round's own comment says must survive
- * a train was dropped on the server action's doorstep, for every grade taken
- * offline, and nothing failed: the row still landed, just about the wrong facet
- * of the word.
- *
- * The rule is read off `PendingGrade` itself rather than from a list here,
- * because a list here is the same fault one file further out.
- */
 check("asking Anu with no connection is refused where the question is sent, and said on every surface", () => {
   /*
     docs/08-ux-ia-a11y.md §4 lists "Anu needs a connection" as a state of its
@@ -13312,6 +13299,19 @@ check("asking Anu with no connection is refused where the question is sent, and 
   assert.deepEqual(silent, [], `a surface asks Anu without saying she needs a connection: ${silent.join(", ")}`);
 });
 
+/**
+ * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
+ *
+ * `PendingGrade` carried `slot`, IndexedDB stored it, `ReplayItem` accepted it
+ * and `writeGrade` read it, and the one `map` in the middle named five fields
+ * and dropped it. So the thing the flash round's own comment says must survive
+ * a train was dropped on the server action's doorstep, for every grade taken
+ * offline, and nothing failed: the row still landed, just about the wrong facet
+ * of the word.
+ *
+ * The rule is read off `PendingGrade` itself rather than from a list here,
+ * because a list here is the same fault one file further out.
+ */
 check("a grade taken offline arrives with every field it was queued with", () => {
   const fields = [...between(code("lib/offline/outbox.ts"), "export interface PendingGrade")
     .split("}")[0]!
