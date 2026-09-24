@@ -40,12 +40,14 @@
  */
 import { PERSONAS } from "../lib/scenes/personas";
 import { composeLive, composeSystem } from "../lib/scenes/prompt";
-import { runGate } from "../lib/scenes/gate";
+import { gateFor, runGate } from "../lib/scenes/gate";
+import { words } from "../lib/scenes/lexicon";
+import { topicForms } from "../lib/scenes/retrieval";
 import { sceneById } from "../lib/scenes/catalogue";
 import { scriptedFor } from "../lib/scenes/scripted";
 import { billedOutput, SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { UNKNOWN_MODEL, normaliseModel, priceFor } from "../lib/usage/pricing";
-import { HARNESS_LEVEL, keylessContext } from "./lib/sceneDraft";
+import { HARNESS_LEVEL, keylessContext, vouchOf } from "./lib/sceneDraft";
 
 interface Combo {
   readonly label: string;
@@ -267,7 +269,19 @@ async function main() {
         console.log(`  ${sceneId}/${beatId}: (nothing but thinking)`);
         continue;
       }
-      const verdict = runGate(answer.text, beat, { ...context.gate, vouched: () => true });
+      /*
+        Gated the way the route gates a composed line: `gateFor`, the beat's own
+        topic, and vouching against the forms list. This used to pass
+        `vouched: () => true` and no topic, which is a gate with its two
+        commonest refusals switched off, so "one refusal apart" was a
+        comparison on a gate no learner's line goes through.
+      */
+      const vouched = await vouchOf(context.lexicon, words(answer.text));
+      const verdict = runGate(answer.text, beat, gateFor(beat.id, {
+        ...context.gate,
+        topic: topicForms(beat, context.lexicon),
+        vouched: (word: string) => vouched.has(word),
+      }));
       if (verdict.failed.length > 0) refused += 1;
       const note = verdict.failed.length > 0 ? `   <gate: ${verdict.failed.join(",")}>` : "";
       console.log(`  ${sceneId}/${beatId}: ${answer.text}${note}`);

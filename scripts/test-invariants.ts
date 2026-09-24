@@ -13964,6 +13964,34 @@ check("a measurement sends what the route sends, and reads what it reads", () =>
   }
 
   /*
+    AND A COMPOSED LINE IS GATED THE WAY THE ROUTE GATES IT, WHICH IS THREE
+    THINGS. The route hands the gate `gateFor` (so the register curveball is
+    not judged by the one check it cannot pass), the beat's own `topic` (the
+    check that withholds most live lines), and a `vouched` reader backed by the
+    forms list (so `vouching` asks whether a spelling is Estonian rather than
+    whether this scene teaches it). `eval:composers` had none of the three and
+    ranked two models two and a half times apart that the real gate puts level;
+    `eval:thinking` had none of them either and switched vouching off outright
+    with `vouched: () => true`, on the measurement the thinking-off decision in
+    CLAUDE.md was made on. Asked of every harness that gates a line a model
+    composed, since a harness gated its own way measures a gate the app does
+    not run. The banked-line tools are not in the list: a line drafted ahead is
+    held to the scene's own list on purpose, and `bank.test.ts` asks that.
+  */
+  for (const file of ["scripts/eval-scene.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts"]) {
+    const text = code(file);
+    const gates = [...text.matchAll(/runGate\(/g)].length;
+    assert.ok(gates >= 1, `${file} no longer calls runGate, so this stopped reading it`);
+    assert.equal(
+      [...text.matchAll(/runGate\([^;]*?gateFor\(/g)].length, gates,
+      `${file} gates a composed line without gateFor, so the register curveball is judged by the one check it cannot pass`,
+    );
+    assert.match(text, /topic:\s*topicForms\(/, `${file} gates a composed line without the beat's topic, which is the check that withholds most live lines`);
+    assert.match(text, /vouched:\s*\(?\w+(?::\s*string)?\)?\s*=>\s*\w+!?\.has\(/, `${file} gates a composed line without the forms list behind vouching`);
+    assert.doesNotMatch(text, /vouched:\s*\(\)\s*=>\s*true/, `${file} switches vouching off, so it measures a gate with one check missing`);
+  }
+
+  /*
     AND THE RANKED LIST RANKS WHAT ITS OWN CAPTION SAYS. `eval:scene` prints
     the words a model reached for that the scene could not vouch for, and
     CLAUDE.md says to read that list rather than the rate: it is the
