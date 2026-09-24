@@ -123,18 +123,6 @@ export const ACTION_LIMITS = {
    */
   sceneHelp: { perMinute: 30 },
   /**
-   * Builds a whole path unit's cards in one call.
-   *
-   * The same weight as `deepenCommonWords` and left off the table beside it
-   * by the same oversight `restoreBackup` had before this file existed:
-   * `addUnitToDeck` calls `addUnitsToDeck` for a unit's worth of words, every
-   * card type that unit's words support, in one press. A call that repeats
-   * after the words are already there settles into a no-op, and a no-op here
-   * is still a transaction and an advisory lock, which is exactly the cost a
-   * limit on this shelf is for.
-   */
-  addUnitToDeck: { perMinute: 12 },
-  /**
    * Finishes a lesson, which loops `addCardsFor` once per word it taught and
    * then grades every step.
    *

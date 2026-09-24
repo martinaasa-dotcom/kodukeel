@@ -4863,9 +4863,9 @@ deployment's own build is what runs it.
 **And then the batched builder arrived without it, which is why the key is the learner and not the
 word.** `addUnitsToDeck` is the rewrite of the loop that called `addCardsFor` per word, and it kept
 the shape and inherited no lock, so the fault came back a whole unit at a time: eight concurrent
-adds of an eighteen-word unit wrote 180 cards where 36 is right, and the two screens that reach it
-are "Add to deck" on a unit and the last button of first run, which is the one place in the app
-where somebody is already waiting and inclined to press again. `lockDeck` in `lib/srs/deck.ts` is
+adds of an eighteen-word unit wrote 180 cards where 36 is right, and it is reached from the last
+button of first run, which is the one place in the app where somebody is already waiting and
+inclined to press again. `lockDeck` in `lib/srs/deck.ts` is
 the one definition and both paths take it. The key had to widen to do that: a key naming the word
 is safe against another add of the same word and says nothing about a batch containing it, so two
 keys would leave each path guarded against itself and neither against the other. What that costs is

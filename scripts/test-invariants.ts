@@ -6244,6 +6244,51 @@ check("the actions that do real work per call are throttled", () => {
   }
 });
 
+check("every Server Action is one something in the app calls", () => {
+  /*
+    AN EXPORT OF A "use server" FILE IS A PUBLIC ENDPOINT WHETHER OR NOT A
+    SCREEN USES IT.
+
+    `addUnitToDeck` built a whole unit's cards and `resolveStreak` banked
+    streak shields, and nothing in the app had called either since the unit
+    page stopped offering "Add to deck" and Today started reading the streak
+    on the server. Both stayed reachable as POSTs, took an allowance in the
+    throttle table, and were described in prose as though a learner pressed
+    them. An endpoint nobody uses is surface with no purpose: it is reviewed
+    as if it mattered, it can be called as if it were supported, and the
+    comments around it describe an app that no longer exists.
+
+    So every exported function of a file that opens with the directive has to
+    be named by some other file in the tree, read through `code()` so a
+    comment mentioning it is not a caller. A test is not a caller either,
+    since a test is exactly what keeps a dead endpoint looking alive.
+  */
+  const isTest = (f: string) => /\.(test|itest)\.tsx?$/.test(f);
+  const files = ALL.filter((f) => /\.tsx?$/.test(f) && !isTest(f));
+  const servers = files.filter((f) => /^\s*["']use server["'];?/.test(read(f)));
+  assert.ok(servers.includes("app/actions.ts"), `app/actions.ts is not read as a "use server" file; the sweep stopped seeing it`);
+
+  const bodies = new Map(files.map((f) => [f, code(f)]));
+  let asked = 0;
+  const dead: string[] = [];
+  for (const file of servers) {
+    const names = [...bodies.get(file)!.matchAll(/^export\s+(?:async\s+)?function\s+(\w+)/gm)].map((m) => m[1]!);
+    for (const name of names) {
+      asked += 1;
+      /*
+        Imported from the actions module, which is the only way a screen or a
+        route can call one: a name appearing elsewhere is a key in the
+        throttle table or a string in a message, and the table is exactly
+        where `addUnitToDeck` went on being named after nothing called it.
+      */
+      const imported = new RegExp(`import\\s*\\{[^}]*\\b${name}\\b[^}]*\\}\\s*from\\s*["'][^"']*actions["']`);
+      if (!files.some((other) => other !== file && imported.test(bodies.get(other)!))) dead.push(`${file}: ${name}`);
+    }
+  }
+  assert.ok(asked >= 80, `only ${asked} Server Actions found; the sweep stopped seeing them`);
+  assert.deepEqual(dead, [], `these Server Actions are called by nothing in the app: ${dead.join(", ")}. Delete them, or wire them to a screen`);
+});
+
 check("an action that builds a batch of cards is one of the throttled ones", () => {
   /*
     THE CHECK ABOVE VALIDATES THE TABLE'S OWN ENTRIES AND CANNOT SEE AN
@@ -6252,8 +6297,9 @@ check("an action that builds a batch of cards is one of the throttled ones", () 
     an evening's, a starter deck's or a scanned page's worth of cards in one
     call. That is the shape `deepenCommonWords` was given a limit for ("the
     same press repeated is the expensive shape, not the single press"), and
-    none of the five had one. A loop calling any of
-    them settles into idempotent reads once the cards already exist, and an
+    none of the five had one. (`addUnitToDeck` has since been deleted, since
+    nothing in the app called it; see the check above this one.) A loop calling
+    any of them settles into idempotent reads once the cards already exist, and an
     idempotent read is still a real transaction and an advisory lock, which is
     exactly what `deepenCommonWords`'s own limit is protecting against.
 

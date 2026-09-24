@@ -309,8 +309,9 @@ export const SHIELD_MILESTONES = [7, 30, 100] as const;
  * Current streak, spending banked shields on any missed days.
  *
  * Lives here rather than in app/actions.ts so a Server Component can call it
- * without importing the whole action module; `resolveStreak` in actions.ts is
- * now a thin wrapper over it.
+ * without importing the whole action module. There is no Server Action over it:
+ * the one there was had no caller left, and an export nobody calls is still a
+ * public endpoint that banks shields.
  */
 export async function resolveStreakFor(
   ownerId: string,
