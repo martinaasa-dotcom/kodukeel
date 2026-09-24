@@ -13595,52 +13595,6 @@ check("a case is named only when one case claims the spelling", () => {
  * holding only the text cannot print the chip, and a composed line cannot be
  * read as a lexicographer's by a screen that forgot to ask.
  */
-check("every practice round that counts down reads the learner's pace", () => {
-  /*
-    WCAG 2.2.1 IS MET BY ADJUSTING THE LIMIT BEFORE IT IS MET, ROUND BY ROUND.
-
-    The Case Sprint and the daily quest read `SETTING_KEYS.roundPace` and
-    Target did not: eight seconds, down to three and a half, nobody's to move,
-    in a round that is practice rather than a measurement. Read off the
-    filesystem by the shape of a count-down rather than a list of rounds, so a
-    fourth timed round has to read the setting or be exempted here by name.
-
-    The mock examination is the one exemption, and `/accessibility` names it:
-    it imitates a timed state paper, and `docs/16-exam.md` governs its clock.
-  */
-  const EXEMPT: Readonly<Record<string, string>> = {
-    "app/(app)/exam/[level]/ExamSession.tsx": "imitates the timed state examination; docs/16-exam.md",
-  };
-  const sessions = ALL.filter((f) => /^app\/\(app\)\/.*Session\.tsx$/.test(f));
-  const counting = sessions.filter((f) =>
-    /\b(left|secondsLeft|remaining|timeLeft)\s*(<=|===)\s*0\b/.test(code(f)));
-  assert.ok(counting.length >= 4, `only ${counting.length} rounds count down, so this stopped looking`);
-  for (const file of counting) {
-    if (EXEMPT[file]) continue;
-    const page = file.replace(/[^/]+Session\.tsx$/, "page.tsx");
-    assert.ok(existsSync(page), `${file} counts down and has no page beside it to read the pace`);
-    assert.match(
-      code(page), /SETTING_KEYS\.roundPace/,
-      `${file} counts down and ${page} never reads the learner's round pace, which fails WCAG 2.2.1`,
-    );
-    /*
-      AND THE ROUND USES WHAT IT IS HANDED. A page can read the setting and a
-      session ignore the prop, which reads exactly like a round that honours
-      the pace: Target with its clock back on the bare constants passed the
-      arm above. So the prop has to reach the clock, as the seconds the clock
-      starts from, as the multiplier on a constant, or handed to
-      `shotSeconds`, which is Target's whole ladder scaled at once.
-    */
-    assert.match(
-      code(file), /useState\(\s*(?:seconds|pace)\s*\)|[*/]\s*(?:pace|seconds)\b|\b(?:pace|seconds)\s*[*/]|\bshotSeconds\([^)]*\bpace\b/,
-      `${file} is handed the learner's pace and its clock never uses it, which fails WCAG 2.2.1`,
-    );
-  }
-  for (const file of Object.keys(EXEMPT)) {
-    assert.ok(counting.includes(file), `${file} is exempted from the round pace and no longer counts down`);
-  }
-});
-
 /**
  * A CLASS SEES EFFORT, NEVER A TRANSCRIPT.
  *

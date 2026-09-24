@@ -1,27 +1,11 @@
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
- * Three rounds in this app run to a clock: the Case Sprint at sixty seconds,
- * the daily quest at two minutes, and Target, whose shot starts at eight
- * seconds and shrinks to three and a half as the learner hits. Each number
- * was chosen for the round it is in and each was fixed, which is WCAG 2.2
- * success criterion 2.2.1, Timing Adjustable, failed three times. Target was
- * found after the other two and read this setting last, and it stretches its
- * whole ladder, the start, the floor and the step alike (`shotSeconds`).
- *
- * The step was left alone at first, on the argument that a quarter of a second
- * is pressure rather than a length. Measured, that argument breaks the round
- * for exactly the learners who use this setting: a round is thirty questions
- * (`TARGET_QUESTIONS`) and at the standard pace the shot reaches its floor
- * after eighteen hits, but with an unscaled step it needs thirty-six at twice
- * the length and a hundred and eighty at ten times, so from the first step up
- * the round never tightens to its floor at all, and at ten times it goes from
- * eighty seconds to seventy-two and a half over the whole of it. Scaling all
- * three is the round slowed down rather than a different round: the floor is
- * eighteen hits in at every pace, which `roundClock.test.ts` pins.
- *
- * A learner who reads slowly, who is hearing a card read out before answering
- * it, or who types with one hand is not
+ * Two rounds in this app run to a clock: the Case Sprint at sixty seconds and
+ * the daily quest at two minutes. Both numbers were chosen for the round they
+ * are in and both were fixed, which is WCAG 2.2 success criterion 2.2.1,
+ * Timing Adjustable, failed twice. A learner who reads slowly, who is hearing
+ * a card read out before answering it, or who types with one hand is not
  * playing a faster version of the same round. They are shut out of it.
  *
  * 2.2.1 is met by any one of three ways out: turn the limit off, extend it
@@ -32,7 +16,7 @@
  * is trying to rescue. Adjusting it beforehand leaves the round intact and
  * asks nothing of anybody mid-answer.
  *
- * A MULTIPLIER RATHER THAN A NUMBER OF SECONDS, because the rounds have
+ * A MULTIPLIER RATHER THAN A NUMBER OF SECONDS, because the two rounds have
  * different bases for good reasons and one setting has to serve both. Sixty
  * seconds is right for flipping cards and two minutes is right for a round
  * that picks from four options, so a stored "180 seconds" would be generous in
@@ -100,32 +84,8 @@ export function roundPaceFrom(value: string | null | undefined): RoundPace {
     : DEFAULT_ROUND_PACE;
 }
 
-/**
- * The multiplier itself, for a round whose clock is not one number of seconds.
- *
- * Target's shot shrinks as the learner hits, so what it scales is its start
- * and its floor rather than one total, and a whole-second rounding would move
- * the floor of three and a half at the standard pace.
- */
-export function paceMultiplier(pace: RoundPace): number {
+function multiplierFor(pace: RoundPace): number {
   return ROUND_PACES.find((p) => p.id === pace)?.multiplier ?? 1;
-}
-
-/**
- * Target's shot at the standard pace: eight seconds for the first question,
- * a quarter of a second off for every hit, never under three and a half.
- */
-export const TARGET_SHOT = { start: 8, floor: 3.5, step: 0.25 } as const;
-
-/**
- * How long Target's next shot is, after this many hits, at this multiplier.
- *
- * The whole ladder is scaled, so a slower pace is the same round slowed down:
- * the floor arrives after the same number of hits whatever the pace.
- */
-export function shotSeconds(hits: number, multiplier: number): number {
-  const { start, floor, step } = TARGET_SHOT;
-  return Math.max(floor, start - Math.max(0, hits) * step) * multiplier;
 }
 
 /**
@@ -136,7 +96,7 @@ export function shotSeconds(hits: number, multiplier: number): number {
  * of an odd base is not quietly shortened.
  */
 export function secondsFor(baseSeconds: number, pace: RoundPace): number {
-  return Math.round(Math.max(0, baseSeconds) * paceMultiplier(pace));
+  return Math.round(Math.max(0, baseSeconds) * multiplierFor(pace));
 }
 
 /**

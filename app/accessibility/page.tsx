@@ -163,14 +163,14 @@ export default function AccessibilityPage() {
           distinction, so a correct answer says so in words as well as in green.
         </P>
         <P>
-          <strong>The three timed practice rounds can be set to run longer</strong> (WCAG 2.2.1,
-          Timing Adjustable). The Case Sprint is a minute, the daily quest is two minutes and a
-          shot in Target starts at eight seconds, and all of those are now a starting point
-          rather than the whole story: one setting stretches whichever round you open, up to ten
-          times as long, which is the figure the criterion itself asks for. It is chosen before
-          the round starts, in Settings, and every start screen links to it. The clock stays,
-          because a speed round without one is a different round, and what was shutting people
-          out was that the length was not theirs to set.
+          <strong>The two timed practice rounds can be set to run longer</strong> (WCAG 2.2.1,
+          Timing Adjustable). The Case Sprint is a minute and the daily quest is two minutes,
+          and both of those are now a starting point rather than the whole story: one setting
+          stretches whichever round you open, up to ten times as long, which is the figure the
+          criterion itself asks for. It is chosen before the round starts, in Settings, and
+          both start screens link to it. The clock stays, because a speed round without one is
+          a different round, and what was shutting people out was that the length was not
+          theirs to set.
         </P>
         <P>
           <strong>No audit by a person with a disability using assistive technology has been
@@ -190,7 +190,7 @@ export default function AccessibilityPage() {
             <strong>The mock examination parts run to a clock nobody can change</strong> (WCAG
             2.2.1, Timing Adjustable), and it closes the part when it goes. The paper is an
             imitation of a timed state examination and untimed practice of a timed paper
-            measures something else, which is why that clock is deliberately fixed, but a
+            measures something else, which is why it is the one clock left fixed, but a
             candidate who needs extra time in the real examination has no way to ask for it
             here.
           </li>

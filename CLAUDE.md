@@ -9948,10 +9948,7 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   and a round that fetched its own length would start before it knew it. **The mock examination
   keeps its clock**, and that limitation stays on the statement with its reasoning: the paper is
   imitating a timed state examination and untimed practice of a timed paper measures something
-  else (`docs/16-exam.md`). **Target was the third timed round and the last to learn it**: its shot
-  starts at eight seconds and shrinks to three and a half, so it scales its start and its floor by
-  `paceMultiplier` rather than taking one length of seconds, and an invariant reads every round that
-  counts down off the filesystem and fails on one whose page never reads the pace.
+  else (`docs/16-exam.md`).
 
 ## Model configuration
 
