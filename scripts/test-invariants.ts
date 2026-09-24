@@ -21396,6 +21396,31 @@ check("the scheduled run is the only thing that sends, and it is gated", () => {
     vercel.crons?.some((c) => c.path === "/api/email/send"),
     "vercel.json no longer schedules the mail run, so nothing fires it",
   );
+
+  /*
+    AND THE SCHEDULER CAN GET PAST THE DOOR, WHICH IT COULD NOT.
+
+    The platform's cron carries a bearer token and no session cookie, so a
+    scheduled path the gate does not name is answered 401 before the route's
+    own secret is ever read. `/api/email/send` was deliberately left off the
+    public list on the argument that it gates itself, which is exactly why it
+    belongs on it, beside `/api/metrics` and `/api/research`: every letter this
+    app has would never have gone out on a hosted deployment, and the check
+    above, which asks that the path exists, passed the whole time. Local mode
+    steps the gate aside, which is where every suite runs.
+
+    Every scheduled path, read off `vercel.json`, so a second cron is decided
+    about rather than quietly gated.
+  */
+  const middleware = code("middleware.ts");
+  const crons = vercel.crons ?? [];
+  assert.ok(crons.length >= 1, "vercel.json schedules nothing, so this check stopped looking");
+  for (const { path } of crons) {
+    assert.ok(
+      middleware.includes(`path.startsWith("${path}")`),
+      `vercel.json schedules ${path}, which the sign-in gate answers 401 because the scheduler has no session`,
+    );
+  }
 });
 
 /*
