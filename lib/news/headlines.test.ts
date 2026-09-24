@@ -27,6 +27,23 @@ describe("reading a feed", () => {
     expect(parseHeadlines("<html><title>Not a feed</title></html>")).toEqual([]);
     expect(parseHeadlines("<item><title>unclosed")).toEqual([]);
   });
+
+  /*
+    A numeric reference past the last code point is a malformed feed, and
+    `String.fromCodePoint` throws on it rather than returning anything. One
+    such entity in one title took every headline on the front page with it,
+    since the throw left the parser and the feed read as a miss.
+  */
+  it("keeps the other headlines when one carries a reference to no character", () => {
+    const feed = `<rss><channel>
+      <item><title>Valitsus arutas eelarvet</title></item>
+      <item><title>Viga &#1114112; ja &#x110000; pealkirjas</title></item>
+    </channel></rss>`;
+    expect(parseHeadlines(feed)).toEqual([
+      "Valitsus arutas eelarvet",
+      "Viga &#1114112; ja &#x110000; pealkirjas",
+    ]);
+  });
 });
 
 describe("the words in a headline", () => {

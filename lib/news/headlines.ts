@@ -50,15 +50,22 @@ const ENTITIES: Record<string, string> = {
   amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
 };
 
+/*
+  A reference past the last code point is left as it was written, because
+  `String.fromCodePoint` throws on one, and a throw here took every headline in
+  the feed with it for the sake of one malformed title.
+*/
+const MAX_CODE_POINT = 0x10ffff;
+const character = (code: number, whole: string) =>
+  Number.isFinite(code) && code <= MAX_CODE_POINT ? String.fromCodePoint(code) : whole;
+
 function decodeEntities(text: string): string {
   return text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (whole, body: string) => {
     if (body.startsWith("#x") || body.startsWith("#X")) {
-      const code = Number.parseInt(body.slice(2), 16);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
+      return character(Number.parseInt(body.slice(2), 16), whole);
     }
     if (body.startsWith("#")) {
-      const code = Number.parseInt(body.slice(1), 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
+      return character(Number.parseInt(body.slice(1), 10), whole);
     }
     return ENTITIES[body.toLowerCase()] ?? whole;
   });
