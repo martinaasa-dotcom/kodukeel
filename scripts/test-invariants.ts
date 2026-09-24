@@ -9241,6 +9241,42 @@ check("every variable the funding page names is one the app actually reads", () 
 });
 
 /**
+ * THE MODEL CONFIGURATION IN CLAUDE.md NAMES VARIABLES THE APP READS.
+ *
+ * That section told whoever configures a deployment that
+ * `OPENROUTER_VISION_MODEL` chooses which model reads a photograph, months
+ * after OpenRouter left the chain: an operator who set it changed nothing, and
+ * the section stayed "true" because nothing checked it against the code. The
+ * funding page's variables are held the same way one check up.
+ */
+check("every provider variable CLAUDE.md's model configuration names is one the app reads", () => {
+  const everywhere = [
+    ...ALL, join("middleware.ts"), join("next.config.ts"), join("prisma", "schema.prisma"),
+  ].map((f) => read(f)).join("\n");
+
+  const doc = read("CLAUDE.md");
+  const start = doc.indexOf("\n## Model configuration");
+  assert.ok(start >= 0, "CLAUDE.md has no \"## Model configuration\" section, so this check stopped looking");
+  const end = doc.indexOf("\n## ", start + 1);
+  const section = doc.slice(start, end < 0 ? undefined : end);
+
+  const named = [...new Set(
+    [...section.matchAll(/`([A-Z][A-Z0-9_]*_(?:API_KEY|MODEL))`/g)].map((m) => m[1]!),
+  )];
+  assert.ok(named.length >= 4, `only found ${named.length} named variables, so this check stopped looking`);
+
+  for (const key of named) {
+    // A name the code declares is a pinned constant (`VISION_MODEL`), which the
+    // section names on purpose; it has to exist, and it is not a variable.
+    if (new RegExp(`export const ${key}\\b`).test(everywhere)) continue;
+    assert.ok(
+      new RegExp(`process\\.env\\.${key}\\b|process\\.env\\["${key}"\\]|\\benv\\.${key}\\b`).test(everywhere),
+      `CLAUDE.md's model configuration tells an operator ${key} configures the chain, and nothing reads it.`,
+    );
+  }
+});
+
+/**
  * WHAT IT COSTS IS PUBLIC, LIKE WHAT IT STORES.
  *
  * `/privacy` and `/terms` are outside the sign-in gate because somebody has to
