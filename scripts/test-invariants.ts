@@ -21595,6 +21595,42 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("every read of the browser's storage is inside a try", () => {
+  /*
+    `window.localStorage` and `window.sessionStorage` are accessors, and in a
+    browser whose site data is blocked, in Safari's private mode and in a
+    sandboxed frame, reading either one throws a SecurityError rather than
+    returning null. Most of this app knew that and wraps every access. Two did
+    not: the theme toggle read the stored theme in an effect in the rail,
+    which is on every signed-in screen, so a learner with storage blocked got
+    the error screen in place of the whole app; and the card a dictation,
+    speaking or sentence round resumes from was read in a state initializer,
+    which takes the round down with it. What either one keeps is a
+    convenience, so the honest failure is to keep nothing.
+  */
+  const offenders: string[] = [];
+  let seen = 0;
+  for (const file of ALL) {
+    const src = code(file);
+    for (const m of src.matchAll(/window\.(?:local|session)Storage\b/g)) {
+      seen += 1;
+      const before = src.slice(0, m.index!);
+      let inside = false;
+      for (const t of before.matchAll(/\btry\s*\{/g)) {
+        let depth = 0;
+        for (const ch of before.slice(t.index! + t[0].length - 1)) {
+          if (ch === "{") depth += 1;
+          else if (ch === "}" && (depth -= 1) === 0) break;
+        }
+        if (depth > 0) inside = true;
+      }
+      if (!inside) offenders.push(`${file}:${before.split("\n").length}`);
+    }
+  }
+  assert.ok(seen >= 20, `only ${seen} storage accesses found; the sweep has lost its haystack`);
+  assert.deepEqual(offenders, [], `${offenders.join(", ")} reads the browser's storage outside a try, which throws where site data is blocked`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

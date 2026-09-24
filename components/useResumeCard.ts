@@ -34,15 +34,26 @@ export function useResumeCard(initialCards: readonly { id: string }[]) {
   );
   const [initialIndex] = useState(() => {
     if (!resumeKey || typeof window === "undefined") return 0;
-    return resumeIndex(initialCards, window.sessionStorage.getItem(resumeKey));
+    /* Reading `sessionStorage` throws where site data is blocked, and this
+       runs inside the round's first render. Where it cannot be read, the
+       round starts at the top, which is what it did before this existed. */
+    try {
+      return resumeIndex(initialCards, window.sessionStorage.getItem(resumeKey));
+    } catch {
+      return 0;
+    }
   });
 
   /** Call with the card now on screen, or `undefined` once the round is done. */
   const remember = useCallback(
     (current: { id: string } | undefined) => {
       if (!resumeKey || typeof window === "undefined") return;
-      if (current) window.sessionStorage.setItem(resumeKey, current.id);
-      else window.sessionStorage.removeItem(resumeKey);
+      try {
+        if (current) window.sessionStorage.setItem(resumeKey, current.id);
+        else window.sessionStorage.removeItem(resumeKey);
+      } catch {
+        // Storage blocked or full: nothing is remembered, and the round goes on.
+      }
     },
     [resumeKey],
   );
