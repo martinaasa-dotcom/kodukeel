@@ -209,6 +209,10 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/robots.txt") ||
     path.startsWith("/sitemap.xml") ||
     path.startsWith("/opengraph-image") ||
+    // The home-screen icon a phone fetches with no session, from the fourth
+    // metadata file: it was left off when the other three were added, so on a
+    // hosted deployment it was a redirect to sign-in rather than a picture.
+    path.startsWith("/apple-icon") ||
     // Aggregate metrics carry their own bearer token and are read by whoever
     // runs the deployment, not by a signed-in learner. Past this gate it
     // authenticates itself, and with no token configured it 404s.

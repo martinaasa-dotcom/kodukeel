@@ -2907,7 +2907,7 @@ check("a page a stranger may read is a page the landing page links to", () => {
     // Generated metadata routes: read by a crawler and by whatever draws a
     // link preview, never by a person following a link. See the check below,
     // which asserts the other half, that they are in the allowlist at all.
-    "/robots.txt", "/sitemap.xml", "/opengraph-image",
+    "/robots.txt", "/sitemap.xml", "/opengraph-image", "/apple-icon",
   ];
 
   const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
@@ -6323,17 +6323,25 @@ check("a file written for a crawler is a file a crawler can reach", () => {
     Read off the filesystem rather than a list typed here, so a metadata route
     added tomorrow has to be decided about rather than quietly gated.
   */
-  const served: Record<string, string> = {
-    "app/robots.ts": "/robots.txt",
-    "app/sitemap.ts": "/sitemap.xml",
-    "app/opengraph-image.tsx": "/opengraph-image",
+  /*
+    The comment above said this was read off the filesystem and it was a typed
+    list of three, so `app/apple-icon.tsx` was the fourth metadata route and
+    nobody decided about it: the phone's home-screen icon redirected to
+    sign-in. It is read off the filesystem now, by Next's own metadata file
+    names, and each maps to the path Next serves it at.
+  */
+  const servedAt: Readonly<Record<string, string>> = {
+    robots: "/robots.txt", sitemap: "/sitemap.xml", icon: "/icon", "apple-icon": "/apple-icon",
+    "opengraph-image": "/opengraph-image", "twitter-image": "/twitter-image",
   };
   const middleware = code("middleware.ts");
-  for (const [file, path] of Object.entries(served)) {
-    if (!existsSync(file)) continue;
+  const metadata = readdirSync("app").filter((f) => /^(robots|sitemap|icon|apple-icon|opengraph-image|twitter-image)\.(ts|tsx)$/.test(f));
+  assert.ok(metadata.length >= 4, `only ${metadata.length} metadata routes found in app/, so this stopped looking`);
+  for (const file of metadata) {
+    const path = servedAt[file.replace(/\.(ts|tsx)$/, "")]!;
     assert.ok(
       middleware.includes(`path.startsWith("${path}")`),
-      `${file} serves ${path}, which the gate redirects to sign-in unless isPublicPath names it`,
+      `app/${file} serves ${path}, which the gate redirects to sign-in unless isPublicPath names it`,
     );
   }
 });
