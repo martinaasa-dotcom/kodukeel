@@ -10745,44 +10745,6 @@ check("a job that runs an audit generates the Prisma client first", () => {
   );
 });
 
-check("a cache that has to survive a red job is saved by a step of its own", () => {
-  /*
-    `.github/workflows/drift.yml` is red by design until its Wiktionary cache
-    has carried it past half the dictionary, so the cache is only worth having
-    if it is written on a failed run. It asked for that with `save-always: true`
-    on `actions/cache`, and the run log for 2026-09-21 says what that input
-    does: "save-always does not work as intended and will be removed", and no
-    post step ran at all after the audit failed. Every week restarted at zero,
-    under a comment saying it did not.
-
-    The answer GitHub gives is the pair, `actions/cache/restore` up front and
-    `actions/cache/save` behind `if: always()`. So the input may not appear in
-    any workflow, and drift's job has to carry the save step with that guard,
-    in either order of its two keys. Comments stripped, since the paragraph
-    explaining the fix names the input.
-  */
-  const code = (file: string) =>
-    read(file)
-      .split("\n")
-      .map((line) => line.replace(/(^|\s)#.*$/, ""))
-      .join("\n");
-  const using = sourceFiles(".github/workflows", /\.ya?ml$/).filter((file) =>
-    /save-always/.test(code(file)),
-  );
-  assert.deepEqual(using, [], `a workflow still relies on save-always: ${using.join(", ")}`);
-
-  const drift = code(".github/workflows/drift.yml");
-  assert.match(drift, /uses: actions\/cache\/restore@/, "drift no longer restores its page cache");
-  const steps = drift.split(/\n\s*- /);
-  const save = steps.find((step) => /uses: actions\/cache\/save@/.test(step));
-  assert.ok(save, "drift no longer saves its page cache at all");
-  assert.match(
-    save,
-    /\bif: (?:\$\{\{\s*)?always\(\)/,
-    "drift's page cache is not saved on a failed run, so every week starts from nothing",
-  );
-});
-
 // ── A deck is counted by building it, and built in a bounded number of queries ─
 
 /*

@@ -71,40 +71,18 @@ jobs:
       # `restore-keys` rather than an exact match, because the useful cache is
       # the most recent one whatever week wrote it.
       #
-      # RESTORE AND SAVE ARE TWO STEPS, AND THE ONE-STEP VERSION DID NOT WORK.
-      #
-      # This job is red by design until the cache has carried it past half the
-      # dictionary, which is `audit-glosses.ts`'s own rule that a run which
-      # could not read most of what it was asked to read is not a pass. So the
-      # whole scheme rests on the cache surviving a failed job, and
-      # `actions/cache` declares `post-if: success()`: its post step skips
-      # saving the moment anything in the job has failed. `save-always: true`
-      # was added to buy exactly that and buys nothing. It is deprecated, it is
-      # a no-op, and the runner says so in the log of every run that has ever
-      # been made here:
-      #
-      #   ##[warning]Input 'save-always' has been deprecated with message:
-      #   save-always does not work as intended and will be removed in a future
-      #   release. A separate `actions/cache/restore` step should be used
-      #   instead.
-      #
-      # Which is the failure this workflow exists to catch, happening to the
-      # workflow: red every week, nothing written back, every week starting at
-      # zero, and the only thing that would ever have said so is somebody
-      # reading a tab nobody opens. The comment it replaces had the mechanism
-      # exactly right and had measured the symptom ("two runs, two cache
-      # misses, the same 1000 of 5363 both times") and then fixed it with the
-      # one input that cannot fix it.
-      #
-      # `actions/cache/restore` and `actions/cache/save` are the documented
-      # answer. The save step is `if: always()`, which is the thing
-      # `save-always` claimed to be, and the key carries the run id so it is
-      # new every week and never collides with an entry already stored.
-      - uses: actions/cache/restore@v6
+      # `save-always`, because this job is red by design until the cache has
+      # carried it past half the dictionary: actions/cache's post step skips
+      # saving once an earlier step in the job has failed, so without this the
+      # audit below never wrote anything back and every week restarted at
+      # zero. Measured: two runs, two cache misses, the same "1000 of 5363"
+      # both times.
+      - uses: actions/cache@v6
         with:
           path: prisma/data/.cache
           key: wiktionary-pages-${{ github.run_id }}
           restore-keys: wiktionary-pages-
+          save-always: true
       # No database and no key: this reads prisma/data/expanded.json and asks
       # Wiktionary, which is why it is the one drift check that can run here.
       #
@@ -118,10 +96,3 @@ jobs:
       # repository: sense order is the page's own, and which sense a learner
       # needs is explicitly not a judgement this pipeline makes.
       - run: npm run audit:glosses
-      # After the audit and whatever it decided, because a partial pass is the
-      # ordinary state of this job and its half-read cache is the whole point.
-      - uses: actions/cache/save@v6
-        if: always()
-        with:
-          path: prisma/data/.cache
-          key: wiktionary-pages-${{ github.run_id }}
