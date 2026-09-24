@@ -40,10 +40,10 @@ export type Verdict = "correct" | "diacritics" | "typo" | "wrong";
  * below it is safe, only safer, since `valutama/valetama` and
  * `valutama/vajutama` are both real eight-letter pairs among the 43 — a
  * length floor cannot remove the risk, only push it down to where it stops
- * being the common case. See the comment on the typo check itself for why a
- * substitution needs a stricter floor than an insertion or a deletion does
- * at all. Re-run `npm run measure:typo-collisions` before moving this
- * number; the count is what should move it, not a feeling.
+ * being the common case. Re-run `npm run measure:typo-collisions` before
+ * moving this number; the count is what should move it, not a feeling. It
+ * also reports the insertions and deletions, which the comment on the typo
+ * check itself explains are not the safe half they were taken for.
  */
 const TYPO_SUBSTITUTION_FLOOR = 8;
 
@@ -281,9 +281,21 @@ export function checkAnswer(
     word is mina." and graded Hard, telling a learner who named the wrong
     person that they had nearly named the right one. A same-length
     one-letter difference needs TYPO_SUBSTITUTION_FLOOR letters before it is
-    read as a slip rather than as the wrong word; a different-length one
-    keeps the old floor, because an inserted or dropped letter does not
-    spell a coincidental second word the way a swapped one does.
+    read as a slip rather than as the wrong word. A different-length one
+    keeps the old floor of four.
+
+    THAT HALF WAS ARGUED ON A CLAIM, NOT A COUNT, AND THE CLAIM IS FALSE. It
+    said an inserted or dropped letter "does not spell a coincidental second
+    word the way a swapped one does". `npm run measure:typo-collisions` counts
+    it now: 498 four-letter answers are one insertion or deletion from another
+    accepted answer, 303 at five, 134 at six, 80 at seven, 34 at eight, and
+    the pairs are `hall/all`, `kuulma/kuulama`, `õpetama/lõpetama`. So
+    `kuulama` typed for `kuulma` is read as nearly right and graded Hard, a
+    recall of a word the learner did not write. The floor is left where it is
+    because both ways out are a decision rather than a fix: raising it takes
+    the forgiveness `tooas` for `toas` was written for, and asking whether the
+    typed spelling is another word needs a dictionary this pure module does
+    not have and the marking paths are barred from the accept list.
   */
   for (const answer of answers) {
     const sameLength = given.length === answer.compared.length;
