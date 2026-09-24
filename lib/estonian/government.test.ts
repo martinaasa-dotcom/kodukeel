@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOptions, maskExample, parseGovernment, readableGovernment } from "./government";
+import { buildOptions, governmentCue, maskExample, parseGovernment, readableGovernment } from "./government";
 import { CASES } from "./cases";
 import type { CaseKey } from "./types";
 
@@ -283,5 +283,29 @@ describe("the stored string, as a learner should read it", () => {
   it("says nothing about a word with no government", () => {
     expect(readableGovernment(null)).toBe("");
     expect(readableGovernment("")).toBe("");
+  });
+});
+
+describe("governmentCue", () => {
+  it("masks the government's own example, whose complement is last", () => {
+    expect(governmentCue(parseGovernment("partitive — aitan sind (I help you)")!)).toBe("aitan …");
+  });
+
+  it("prints nothing where the entry carries no example of its own", () => {
+    // The shape of every governed verb in the shipped dictionary, whose drill
+    // used to fall back to an attested usage and hide its last word.
+    const g = parseGovernment("keda/mida* (partitive)")!;
+    expect(g.example).toBeNull();
+    expect(governmentCue(g)).toBeNull();
+  });
+
+  it("refuses an experiencer example, whose governed word leads", () => {
+    const g = parseGovernment("allative experiencer — mulle meeldib see (I like it)")!;
+    expect(maskExample(g.example)).toContain("mulle");
+    expect(governmentCue(g)).toBeNull();
+  });
+
+  it("refuses a one-word example, which has no complement to hide", () => {
+    expect(governmentCue({ example: "aitan", experiencer: false })).toBeNull();
   });
 });

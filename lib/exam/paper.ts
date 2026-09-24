@@ -1,7 +1,7 @@
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { buildCloze, ESTONIAN_WORD, isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
-import { buildOptions, maskExample, parseGovernment } from "@/lib/estonian/government";
+import { buildOptions, governmentCue, parseGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
 import { sameSpelling } from "@/lib/copy/values";
 import { dictationWords } from "@/lib/estonian/dictation";
@@ -703,7 +703,7 @@ function buildGovernment(spec: TaskSpec, ctx: BuildContext): ExamTask {
     items.push({
       ...base(row.word, `${spec.id}-${items.length}`),
       kind: "government",
-      cue: maskExample(row.government.example),
+      cue: governmentCue(row.government),
       options,
       answer: row.government.caseKey,
     });

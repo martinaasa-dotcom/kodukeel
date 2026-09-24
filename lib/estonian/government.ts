@@ -290,6 +290,33 @@ const FALLBACK: readonly CaseKey[] = [
  * giving the answer away. Falls back to hiding nothing rather than mangling a
  * sentence it cannot parse.
  */
+/**
+ * The cue a government question may print before it is answered, or null.
+ *
+ * `maskExample` hides a word by its position, which is only safe on the one
+ * kind of sentence that position was promised for: the example a government
+ * entry carries in its own column, written with the complement last. Anything
+ * else put through it is a sentence whose last word is whatever the writer
+ * ended on. Measured over the shipped dictionary, no governed verb carries an
+ * example of its own, so every question the government drill asked went down
+ * the other path: the page fell back to an attested usage and masked its last
+ * word, which was often the verb itself (`Tule …` for `tulema`) and left the
+ * complement standing in the case being asked about (`Tuul viis mütsi …` over
+ * a question whose answer is the partitive). The cue printed the answer.
+ *
+ * An experiencer construction is refused for the same reason from the other
+ * end: its governed word leads (`mulle meeldib see`), so hiding the last word
+ * leaves the allative on screen. And a one-word example has nothing to hide.
+ */
+export function governmentCue(
+  government: Pick<Government, "example" | "experiencer">,
+): string | null {
+  if (government.experiencer) return null;
+  const example = government.example?.trim();
+  if (!example || example.split(/\s+/).length < 2) return null;
+  return maskExample(example);
+}
+
 export function maskExample(example: string | null): string | null {
   if (!example) return null;
   const words = example.trim().split(/\s+/);

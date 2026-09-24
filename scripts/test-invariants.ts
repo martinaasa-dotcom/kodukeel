@@ -41,7 +41,7 @@ import { HARVESTED } from "../prisma/data/harvested";
 import { mislabelled } from "../lib/collections/senses";
 import { PRACTICE_MODES } from "../lib/ux/modes";
 import { CARD_TYPES } from "../lib/srs/cards";
-import { buildOptions, parseGovernment, type Government } from "../lib/estonian/government";
+import { buildOptions, governmentCue, parseGovernment, type Government } from "../lib/estonian/government";
 import { formatGovernment } from "../lib/ekilex/mapper";
 import { OFFICIAL_LEVELS, PASS_PCT, RETAKE_WAIT_PCT, specFor } from "../lib/exam/spec";
 import type { Skill } from "../lib/assessment/types";
@@ -5746,6 +5746,43 @@ check("a government question never offers a case the word itself governs", () =>
  * question worded as a fact the entry does not support. The review drill has
  * filtered on part of speech since it was written; the exam builder never did.
  */
+/**
+ * A government question's cue is masked by position, and position is only a
+ * promise about one kind of sentence.
+ *
+ * `maskExample` hides the last word, because the example a government entry
+ * carries in its own column is written with the complement there. No governed
+ * verb in the shipped dictionary carries one, so `/review/government` fell back
+ * to an attested usage and masked that instead, on every question it asked:
+ * `Tule …` hid the verb itself, and `Tuul viis mütsi …` left the partitive the
+ * question is about standing above the options. `governmentCue` takes the
+ * parsed entry, so a caller holding any other sentence has nothing to hand it,
+ * and it refuses an experiencer, whose governed word leads. The check is on
+ * the callers: nothing outside the module may reach for the mask itself.
+ */
+check("a government cue is masked only from the entry's own example", () => {
+  const callers = ALL.filter((f) => !/\.test\.tsx?$/.test(f) && /\bgovernmentCue\(/.test(code(f)));
+  assert.ok(callers.length >= 2, `expected the drill and the exam to build a cue, found ${callers.length}`);
+  const masking = ALL.filter(
+    (f) => f !== join("lib", "estonian", "government.ts") && !/\.test\.tsx?$/.test(f) && /\bmaskExample\(/.test(code(f)),
+  );
+  assert.deepEqual(
+    masking,
+    [],
+    `${masking.join(", ")} masks a sentence by position; use governmentCue, which only masks the entry's own example`,
+  );
+  const shipped = (JSON.parse(read("prisma/data/expanded.json")) as { pos: string; government: string | null }[])
+    .filter((e) => e.pos === "VERB" && e.government)
+    .map((e) => parseGovernment(e.government))
+    .filter((g): g is Government => g !== null);
+  assert.ok(shipped.length > 100, `expected the governed verbs, found ${shipped.length}`);
+  for (const g of shipped) {
+    const cue = governmentCue(g);
+    if (cue === null) continue;
+    assert.ok(g.example && !g.experiencer, `a cue was built for ${g.caseKey} with no example of its own`);
+  }
+});
+
 check("a question that says \"the verb\" is asked about a verb", () => {
   for (const file of ["lib/exam/paper.ts", "app/(app)/review/government/page.tsx"]) {
     const source = code(file);
