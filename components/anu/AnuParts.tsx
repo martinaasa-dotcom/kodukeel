@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { CheckCheck, Plus } from "lucide-react";
+import { CheckCheck, CloudOff, Plus } from "lucide-react";
 import { createLexeme, addToDeck } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button } from "@/components/Button";
@@ -158,6 +158,32 @@ export function Starters({ compact = false, lead, onPick }: {
  * button inside a transcript. So the offer to tell somebody sits under the
  * thread, and only once something has actually failed.
  */
+/**
+ * Anu needs a connection, said before a question is typed rather than after it
+ * fails. The conversation already on screen is stored with the page and needs
+ * nothing from the network, so only asking again is blocked; `useAnuChat`'s
+ * `send` is what refuses, and this is the sentence saying why, drawn by every
+ * surface that holds the hook.
+ */
+export function AnuOffline({ online, compact = false }: { online: boolean; compact?: boolean }) {
+  if (online) return null;
+  return (
+    <Card tone="sky">
+      <div className="flex items-start gap-3">
+        <CloudOff size={18} aria-hidden style={{ color: "var(--sky-ink)" }} />
+        <div role="status">
+          <p className="font-semibold" style={{ color: "var(--ink)" }}>Anu needs a connection.</p>
+          {!compact && (
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+              Everything above still works. Ask her again once you are back online.
+            </p>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export function AnuFailure({ failure }: { failure: string | null }) {
   if (!failure) return null;
   return (

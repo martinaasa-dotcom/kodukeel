@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useOffline } from "@/components/OfflineProvider";
 
 export interface Msg { role: "user" | "assistant"; content: string }
 
@@ -37,9 +38,17 @@ export function useAnuChat(initialMessages: Msg[]) {
   */
   const [failure, setFailure] = useState<string | null>(null);
 
+  /*
+    Whether a question can be sent at all. Asked here rather than by each
+    surface, because the page at /tutor and the panel in the corner both call
+    `send` from three places apiece, and a door left open is a question typed,
+    a fetch that cannot land, and "lost the connection" read afterwards.
+  */
+  const { online } = useOffline();
+
   const send = async (text: string) => {
     const content = text.trim();
-    if (!content || streaming) return;
+    if (!content || streaming || !online) return;
 
     const next: Msg[] = [...messages, { role: "user", content }];
     setFailure(null);
@@ -113,5 +122,5 @@ export function useAnuChat(initialMessages: Msg[]) {
     }
   };
 
-  return { messages, setMessages, streaming, answeredBy, failure, send };
+  return { messages, setMessages, streaming, answeredBy, failure, send, online };
 }

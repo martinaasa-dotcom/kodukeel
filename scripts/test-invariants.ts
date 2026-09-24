@@ -13281,6 +13281,37 @@ check("a wrong answer records the form it reached for, and only between forms", 
  * The rule is read off `PendingGrade` itself rather than from a list here,
  * because a list here is the same fault one file further out.
  */
+check("asking Anu with no connection is refused where the question is sent, and said on every surface", () => {
+  /*
+    docs/08-ux-ia-a11y.md §4 lists "Anu needs a connection" as a state of its
+    own, and asking offline used to type the question, wait on a fetch that
+    could never land, and only then read that the connection was lost
+    mid-answer. The first repair gated the send buttons on the page at
+    /tutor and left two doors open: the "check this sentence" send on that
+    same page, and the whole of the panel in the corner of every signed-in
+    screen, which is where most questions are asked.
+
+    So the refusal lives in `useAnuChat`'s own `send`, which every door calls,
+    and the sentence saying why is one drawing in AnuParts that every surface
+    holding the hook renders. Read for the call and the element rather than
+    the import, since a file that imports the notice and never draws it is the
+    same silence.
+  */
+  const hook = code("components/anu/useAnuChat.ts");
+  assert.match(hook, /useOffline\(\)/, "useAnuChat no longer reads the connection");
+  const sendAt = hook.indexOf("const send = ");
+  assert.ok(sendAt >= 0, "useAnuChat no longer defines send, so this check is looking in the wrong place");
+  const sendHead = hook.slice(sendAt, hook.indexOf("fetch(", sendAt));
+  assert.match(sendHead, /!\s*online/, "useAnuChat's send reaches the network without asking whether there is one");
+
+  const surfaces = sourceFiles("app", /\.tsx$/)
+    .concat(sourceFiles("components", /\.tsx$/))
+    .filter((file) => /\buseAnuChat\(/.test(code(file)));
+  assert.ok(surfaces.length >= 2, `only ${surfaces.length} surface(s) hold useAnuChat; the page and the panel both should`);
+  const silent = surfaces.filter((file) => !/<AnuOffline\b/.test(code(file)));
+  assert.deepEqual(silent, [], `a surface asks Anu without saying she needs a connection: ${silent.join(", ")}`);
+});
+
 check("a grade taken offline arrives with every field it was queued with", () => {
   const fields = [...between(code("lib/offline/outbox.ts"), "export interface PendingGrade")
     .split("}")[0]!
