@@ -54,8 +54,15 @@ const BY_NAME = CASES
  * Does this text name a case at all? Used only to decide whether the seed's
  * head is informative, or whether the whole string has to be read because the
  * entry came from Ekilex and names its cases in brackets further along.
+ *
+ * Bounded on both sides, because the case names are ordinary English words
+ * without it: "essive" is a substring of "excessive" and "elative" of
+ * "relative", both of which are words a gloss or a note can carry. Unlike the
+ * Estonian this file is careful never to bound with `\b` elsewhere, these
+ * names are ASCII, so a word boundary is the right tool rather than the wrong
+ * one.
  */
-const EARLIEST_CASE_NAME = new RegExp(BY_NAME.map((c) => c.en).join("|"));
+const EARLIEST_CASE_NAME = new RegExp(`\\b(?:${BY_NAME.map((c) => c.en).join("|")})\\b`);
 
 /**
  * The separator between the case name and the example in a stored government
@@ -69,6 +76,11 @@ const EARLIEST_CASE_NAME = new RegExp(BY_NAME.map((c) => c.en).join("|"));
  */
 const GOVERNMENT_SEPARATOR = /[\u2014\u2013-]/;
 
+/** A boundary character for `namedCases`: not present inside any case name. */
+function isCaseNameChar(ch: string | undefined): boolean {
+  return ch !== undefined && /[a-z]/i.test(ch);
+}
+
 /**
  * Every case a government string names, in the order it names them.
  *
@@ -78,6 +90,16 @@ const GOVERNMENT_SEPARATOR = /[\u2014\u2013-]/;
  * cases the entry never mentioned. `hakkama` is "kelleks (translative) ·
  * kellel (adessive)", and a naive scan reads a third government out of it that
  * does not exist.
+ *
+ * **And it is bounded on both sides**, which a scan over case names alone does
+ * not fix: `excessive` holds `essive` and `relative` holds `elative`, both of
+ * them ordinary English words a gloss or a note can carry rather than another
+ * case's name. Without the boundary a match right up against another letter
+ * is accepted the same as one standing on its own, so an entry's own English
+ * prose could invent a government the word does not have. Case names are
+ * ASCII, so a plain letter check either side is the right guard here, unlike
+ * `\b` over Estonian text elsewhere in this file, which cannot see a
+ * diacritic as a boundary at all.
  *
  * The first entry is the primary government, which is what `parseGovernment`
  * has always returned: the front for the seed shape, and the first-listed for
@@ -89,7 +111,12 @@ function namedCases(text: string): (typeof BY_NAME)[number][] {
   const found: (typeof BY_NAME)[number][] = [];
   let i = 0;
   while (i < text.length) {
-    const hit = BY_NAME.find((c) => text.startsWith(c.en, i));
+    const hit = BY_NAME.find(
+      (c) =>
+        text.startsWith(c.en, i)
+        && !isCaseNameChar(text[i - 1])
+        && !isCaseNameChar(text[i + c.en.length]),
+    );
     if (!hit) { i++; continue; }
     if (!found.some((f) => f.key === hit.key)) found.push(hit);
     i += hit.en.length;

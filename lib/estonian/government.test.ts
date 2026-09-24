@@ -126,6 +126,20 @@ describe("parseGovernment, on the shape Ekilex writes", () => {
     expect(g?.alsoGoverned).toEqual(["ADESSIVE"]);
   });
 
+  it("does not read a case out of an ordinary English word that happens to contain one", () => {
+    /*
+      A scan with no word boundary reads a case name out of any English word
+      that contains one as a substring: "excessive" holds "essive" and
+      "relative" holds "elative". Both are ordinary words a gloss or a note
+      can carry, and neither names a case the verb takes. This is the
+      boundary check the test above already exercises against another case
+      name, driven here against plain English prose instead.
+    */
+    const g = parseGovernment("kellele (allative) · an excessive example is not relative");
+    expect(g?.caseKey).toBe("ALLATIVE");
+    expect(g?.alsoGoverned).toEqual([]);
+  });
+
   it("leaves the seed shape with one government, because that is all it records", () => {
     const g = parseGovernment("partitive — aitan sind (I help you)");
     expect(g?.alsoGoverned).toEqual([]);
