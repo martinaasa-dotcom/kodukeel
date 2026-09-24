@@ -133,7 +133,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
               : "Tubli. The ones that took two goes are the ones worth hearing again."}
           </p>
         </div>
-        <div className="mt-8 grid grid-cols-3 gap-3">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={firstTry} label="First time" tone="mint" />
           <StatTile value={`${accuracy}%`} label="Spelled" tone={accuracy >= 85 ? "mint" : "butter"} />
           <StatTile value={attempted} label="Words" tone="sky" />

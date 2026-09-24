@@ -136,7 +136,7 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
             style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
             <Trophy size={34} aria-hidden />
           </span>
-          <div className="grid w-full grid-cols-3 gap-3">
+          <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
             <StatTile value={hits} label="Hit" tone="mint" />
             <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "mint" : "butter"} />
             <StatTile value={best} label="Best run" tone="blush" />

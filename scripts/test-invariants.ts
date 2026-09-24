@@ -5364,6 +5364,37 @@ check("nobody opts back out of the wrapping default", () => {
   }
 });
 
+/*
+  A ROW OF STAT TILES IS TWO ACROSS ON A PHONE.
+
+  `overflow-wrap: anywhere` is what keeps a long word inside its box, and the
+  price of it is that a box too narrow for a word breaks the word. Three
+  StatTiles across a 360px screen leave each label about eighty pixels, and
+  `label-xs` is uppercase and tracked, so "ACCURACY" and "ATTEMPTED" came out
+  as ACCURA/CY and ATTEMPT/ED on the letters, listening, sprint, quest and
+  target summaries, measured in a browser; two across, every one of them
+  holds a line. Four rounds had already found this and use
+  `grid-cols-2 … sm:grid-cols-3`, which is why this is a rule rather than a
+  fix: the other five were the same row written before somebody looked.
+*/
+check("a row of stat tiles is two across on a phone, never three", () => {
+  let rows = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx")) continue;
+    const src = code(file);
+    for (const found of src.matchAll(/className="([^"]*)"[^>]*>\s*<StatTile\b/g)) {
+      rows += 1;
+      const classes = found[1]!.split(/\s+/);
+      assert.ok(
+        !classes.includes("grid-cols-3"),
+        `${file}:${src.slice(0, found.index).split("\n").length} lays StatTiles three across at every width; ` +
+        "a label like ACCURACY breaks mid-word at 360px. Use grid-cols-2 sm:grid-cols-3.",
+      );
+    }
+  }
+  assert.ok(rows >= 15, `only ${rows} StatTile rows found, so this check stopped looking`);
+});
+
 check("an icon is sized by its own size prop, never by a class", () => {
   /*
     A lucide icon writes `width` and `height` onto the svg from its `size`
