@@ -6341,8 +6341,9 @@ neighbour.
 
 **How long is decided by the word's own band and there are two answers.** A word at or below the
 learner's level goes back three days: a bad evening is a bad evening. A word above it did not
-arrive late, it arrived early, so it waits for the band it belongs to, and `recordCourseLevel` is
-where it comes back, since that is the one writer of a level and a level moves about twice a year.
+arrive late, it arrived early, so it waits for the band it belongs to, and it comes back where
+a level is written, `recordCourseLevel` and a level check's `saveResult` both, and a level moves
+about twice a year.
 The date behind that is a backstop and is **deliberately shorter than a band actually takes**:
 `lib/assessment/plan.ts` puts a band at 180 hours and up, which at five found hours a week is most
 of a year, and a backstop that honest is a word deleted with extra steps. A term, and if it comes

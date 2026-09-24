@@ -13269,6 +13269,24 @@ check("a wrong answer records the form it reached for, and only between forms", 
 });
 
 /**
+ * EVERY WRITER OF A LEVEL HANDS BACK THE WORDS WAITING FOR IT.
+ *
+ * A word put aside above the learner's band waits "until you get there", and
+ * two things write where somebody is: `recordCourseLevel` and a level check's
+ * `saveResult`, which `courseLevelFor` reads and which is often the newer
+ * answer. Only the first woke anything.
+ */
+check("every writer of a level hands back the words that were waiting for it", () => {
+  for (const [file, fn] of [
+    ["lib/progress/level.ts", "export async function recordCourseLevel"],
+    ["lib/progress/assessment.ts", "export async function saveResult"],
+  ] as const) {
+    assert.match(between(code(file), fn), /\bwakeForLevel\(/,
+      `${fn.split(" ").pop()} writes a level and leaves the words waiting for it on their backstop date`);
+  }
+});
+
+/**
  * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
  *
  * `PendingGrade` carried `slot`, IndexedDB stored it, `ReplayItem` accepted it

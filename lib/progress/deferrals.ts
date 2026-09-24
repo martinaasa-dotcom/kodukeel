@@ -252,9 +252,9 @@ export async function deferredDues(
 /**
  * Hands back every word that was waiting for a band the learner has reached.
  *
- * Called from `recordCourseLevel`, which is the one writer of a level that did
- * not come from a sitting, so this runs where the fact changes rather than on
- * a read path. A word deferred to B1 by somebody who moves up to B1 in March
+ * Called from both writers of a level, `recordCourseLevel` and a level
+ * check's `saveResult`, so this runs where the fact changes rather than on a
+ * read path. A word deferred to B1 by somebody who moves up to B1 in March
  * is a word they asked for: leaving it on its backstop date would mean the
  * button that says "it waits until you get there" does not.
  *

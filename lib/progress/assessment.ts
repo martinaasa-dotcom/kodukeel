@@ -10,6 +10,7 @@ import { BANDS, type Band, type Level, type Placement, type SkillResult } from "
 import { overallFrom, type Overall } from "@/lib/assessment/score";
 import { GOAL_KEYS, numberSetting, readSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 import { DEFAULT_DAYS_PER_WEEK } from "@/lib/assessment/goals";
+import { wakeForLevel } from "@/lib/progress/deferrals";
 
 /**
  * The database half of the placement check.
@@ -269,7 +270,16 @@ export async function saveResult(ownerId: string, placement: Placement): Promise
       detail: JSON.stringify(placement.skills),
     },
   });
-  return withOverall({ ...row, skills: placement.skills });
+  const stored = withOverall({ ...row, skills: placement.skills });
+  /*
+    A measured level is a level: `courseLevelFor` reads it, and it is often the
+    newer answer. So the words put aside until the learner got here come back
+    now, exactly as they do when a level is written through
+    `recordCourseLevel`. Only that path woke them, so somebody measured at B1
+    kept the B1 word they had put aside at A2 for the whole of its term.
+  */
+  if (stored.overall) await wakeForLevel(ownerId, stored.overall, row.takenAt);
+  return stored;
 }
 
 export async function historyFor(ownerId: string, take = 10): Promise<StoredAssessment[]> {
