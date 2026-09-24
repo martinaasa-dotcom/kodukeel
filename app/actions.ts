@@ -36,12 +36,10 @@ import { resolveOneWord } from "@/lib/dict/resolveScan";
 import { guessPos, MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
-import { resolveStreakFor } from "@/lib/progress/summary";
 import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
@@ -256,9 +254,8 @@ async function addCardsFor(
     see an empty deck and both insert. Measured against a real database, firing
     the same shape concurrently: two adds gave two cards, four gave four, and
     eight gave fourteen where two is right. A learner meets it by
-    double-tapping "Add to deck", and `addUnitToDeck` walks this once per word
-    with no throttle in front of it, so one impatient second on a nineteen-word
-    unit is the worst case rather than the unlikely one.
+    double-tapping "Add to deck", which is the worst case rather than the
+    unlikely one.
 
     The answer is `lib/usage/ledger.ts`'s, for the reasons its own header gives:
     a *transaction* advisory lock, so a connection pooler cannot strand it, and
@@ -1009,23 +1006,6 @@ export async function importWords(rows: { lemma: string; translation: string; po
   revalidatePath("/words");
   revalidatePath("/");
   return { ok: true as const, created, cards, skipped, truncated, limit: MAX_IMPORT_ROWS };
-}
-
-// ────────────────────────────── Achievements ───────────────────────────────
-
-/**
- * Resolves the current streak for whoever is signed in, applying any banked
- * streak shields (Duolingo's "streak freeze") to bridge missed days.
- *
- * The logic lives in lib/progress/summary.ts so a Server Component can reach it
- * without importing this whole action module. This wrapper takes no owner id on
- * purpose: an exported Server Action is a public endpoint, and one that read a
- * streak for any id passed to it would happily report on someone else's.
- */
-export async function resolveStreak() {
-  const ownerId = await requireUserId();
-  const result = await resolveStreakFor(ownerId, new Date(), await learnerDayClock(ownerId));
-  return { ok: true as const, ...result };
 }
 
 /**
@@ -2014,19 +1994,6 @@ export async function deepenCommonWords(group: string) {
 
   revalidatePath("/review/common");
   revalidatePath("/practice");
-  revalidatePath("/words");
-  revalidatePath("/");
-  return { ok: true as const, added, words };
-}
-
-export async function addUnitToDeck(unitId: string) {
-  const ownerId = await requireUserId();
-  const unit = unitById(unitId);
-  if (!unit) return { ok: false as const, error: "That unit does not exist." };
-
-  const { added, words } = await addUnitsToDeck(ownerId, [unitId], "COURSE");
-
-  revalidatePath("/learn");
   revalidatePath("/words");
   revalidatePath("/");
   return { ok: true as const, added, words };
