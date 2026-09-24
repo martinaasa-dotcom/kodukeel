@@ -5210,7 +5210,13 @@ check("a check over a list says the list was there", () => {
         looked += 1;
         // Said in the same breath, in the verdict rather than beside it.
         if (new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(condition)) continue;
-        if (new RegExp(`\\b${name}\\.some\\(`).test(condition)) continue;
+        /*
+          A `some` in the verdict says there was at least one, but only when
+          nothing is joined to it by `||`: `x.some(p) || x.every(q)` is still
+          true of an empty list, and read as a guard it waved exactly that shape
+          through.
+        */
+        if (new RegExp(`\\b${name}\\.some\\(`).test(condition) && !condition.includes("||")) continue;
         /*
           Counted by any other check in the file, before or after, which is the
           file saying it can be empty. Only above was read at first, and a
