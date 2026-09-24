@@ -124,35 +124,43 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
   const since = new Date(now.getTime() - LOOK_BACK_DAYS * 86_400_000);
 
   /*
-    The sizes first, so the walk knows how far it has to reach. Two counts on
-    indexed columns, and `distinct` here is a real `COUNT(DISTINCT)` rather
-    than the client-side deduplication a `take` beside a `distinct` would get,
-    which is the rule this project states about that pairing.
+    The sizes first, so the walk knows how far it has to reach, and both of
+    them counted in Postgres.
+
+    The reviewers used to be `findMany({ distinct: ["ownerId"] })` and a
+    `.length`, under a comment calling that a real `COUNT(DISTINCT)`. It is
+    not: Prisma deduplicates in the client with or without a `take` beside
+    it, and measured on Prisma 7 it emitted
+    `SELECT id, ownerId FROM Review WHERE reviewedAt >= $1`, so every review
+    anybody graded in the fortnight crossed the wire to produce one integer,
+    on every scheduled run. The page below was the same query again with an
+    `OFFSET` and no `LIMIT`. `Review` is the one table that grows with every
+    answer anybody gives, so this was the most expensive read the mailer made
+    and it was paid before the run had decided anything.
   */
   const [reviewers, starters] = await Promise.all([
-    prisma.review
-      .findMany({ where: { reviewedAt: { gte: since } }, distinct: ["ownerId"], select: { ownerId: true } })
-      .then((rows) => rows.length),
+    prisma.$queryRaw<{ n: number }[]>`
+      SELECT COUNT(DISTINCT "ownerId")::int AS n FROM "Review" WHERE "reviewedAt" >= ${since}
+    `.then((rows) => rows[0]?.n ?? 0),
     prisma.setting.count({
       where: { key: SETTING_KEYS.onboardedAt, value: { gte: since.toISOString() } },
     }),
   ]);
 
   const [reviewed, settled] = await Promise.all([
-    prisma.review.findMany({
-      where: { reviewedAt: { gte: since } },
-      distinct: ["ownerId"],
-      select: { ownerId: true },
-      /*
-        Ends on the primary key, because `ownerId` is not unique in `Review`
-        and a `take` over a loose order is the plan deciding which learners a
-        run considers. Stable is what matters: the page above walks, and a walk
-        over an order that moves would skip and repeat rather than cover.
-      */
-      orderBy: [{ ownerId: "asc" }, { id: "asc" }],
-      skip: rosterPage(now, reviewers, limit),
-      take: limit,
-    }),
+    /*
+      One row per learner, so `ownerId` is unique in what is ordered and the
+      order is total without a tie-break. Stable is what matters: the page
+      above walks, and a walk over an order that moves would skip and repeat
+      rather than cover. `LIMIT` and `OFFSET` are Postgres's here, which is
+      the half the Prisma version never had.
+    */
+    prisma.$queryRaw<{ ownerId: string }[]>`
+      SELECT DISTINCT "ownerId" FROM "Review"
+      WHERE "reviewedAt" >= ${since}
+      ORDER BY "ownerId" ASC
+      LIMIT ${limit} OFFSET ${rosterPage(now, reviewers, limit)}
+    `,
     /*
       And the people who finished first run and have not answered a card yet,
       who are exactly the ones a welcome is for and who a review-log query
@@ -165,7 +173,10 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
         particular key *is* an ISO-8601 instant, and ISO-8601 was designed so
         that lexical order and chronological order are the same thing. So the
         string comparison is the date comparison, in the database, on the
-        table's own primary key.
+        `(key, value)` index. Not on the primary key, which this used to say:
+        that leads with the owner and cannot serve a filter on the key alone,
+        so until the index existed this was a scan of every learner's every
+        setting.
 
         Adding an `updatedAt` column to `Setting` was the other way and is a
         migration over every learner's every preference to answer one question

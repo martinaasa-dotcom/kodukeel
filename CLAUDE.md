@@ -4825,6 +4825,19 @@ fetched once per card rather than once per word. So the pairing is owner-scoped 
 happen, which is what the invariant asserts: one learner's own cards are bounded by their deck
 whatever the `take` says, and anything deployment-wide counts in Postgres.
 
+**And "owner-scoped" is a fact about the `where`, which the check behind that rule could not see.**
+It asked whether the word `ownerId` appeared anywhere in the call, and the commonest
+deployment-wide `distinct` there is, `distinct: ["ownerId"]`, satisfies that on its own. So
+`mailoutRoster` read every `Review` row in a fortnight into the process twice per hourly run, once to
+count learners and once to page them, with the check green and a comment above it calling the count
+"a real `COUNT(DISTINCT)`". Measured on Prisma 7, both emitted `SELECT id, ownerId FROM Review WHERE
+reviewedAt >= $1` with no `DISTINCT` and no `LIMIT`; both count and page in Postgres now, and on
+1,200 learners the new page returns the old one row for row. The check reads the top-level `where`
+by brace depth, so a relation's own filter does not count, and it has a floor. **Equality or `in`
+pins an owner and `notIn` does not**, which matters one table over: `Setting`'s primary key leads
+with the owner, five reads ask about one key across the whole deployment, and one of them carries
+`ownerId: { notIn }`. They are served by `@@index([key, value])` now, asserted the same way.
+
 **A cap on rows is not a cap on time, and a loop of queries is where the difference lives.** Three
 loops were measured against a real database rather than reasoned about, and they did not all need
 the same answer. The offline replay asked "have I seen this grade before" once per item, which is
