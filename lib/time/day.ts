@@ -123,6 +123,23 @@ const CURRENT_NAME: Readonly<Record<string, string>> = {
   "Pacific/Truk": "Pacific/Chuuk",
 };
 
+/**
+ * The zone a browser should send the server, or null when there is nothing to send.
+ *
+ * Compared canonical to canonical, because the two sides no longer spell a zone
+ * alike: `canonicalZone` stores the current IANA name, and a browser built on
+ * ICU still reports the retired one (`Europe/Kiev`, `Asia/Calcutta`). Compared
+ * raw, a learner in any of the `CURRENT_NAME` zones never matched what was
+ * stored, so every page load sent the same zone back to be written again, for
+ * everybody in India and Ukraine among others. A bare offset is never sent,
+ * since the server refuses it and would be asked again on every load.
+ */
+export function zoneToSend(browser: string | null | undefined, stored: string | null | undefined): string | null {
+  const zone = canonicalZone(browser);
+  if (!zone) return null;
+  return zone === canonicalZone(stored) ? null : zone;
+}
+
 /** Whether this is a named zone both `Intl` and Postgres read the same way. See `canonicalZone`. */
 export function isTimeZone(value: unknown): value is string {
   return canonicalZone(value) !== undefined;

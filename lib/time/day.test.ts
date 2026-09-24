@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canonicalZone, dayClock, isTimeZone, nextCardLine, normaliseZone } from "./day";
+import { canonicalZone, dayClock, isTimeZone, nextCardLine, normaliseZone, zoneToSend } from "./day";
 
 /*
   The bug these exist for, stated once.
@@ -217,5 +217,24 @@ describe("canonicalZone", () => {
 
   it("keeps a named zone whose own name carries a sign, since the database names it", () => {
     expect(canonicalZone("Etc/GMT+5")).toBe("Etc/GMT+5");
+  });
+});
+
+describe("zoneToSend", () => {
+  it("sends nothing when a browser reports the retired name of the zone already stored", () => {
+    // What Chrome reports in Kyiv and Kolkata, against what the server stores.
+    expect(zoneToSend("Europe/Kiev", "Europe/Kyiv")).toBeNull();
+    expect(zoneToSend("Asia/Calcutta", "Asia/Kolkata")).toBeNull();
+  });
+
+  it("sends the canonical name when the stored zone is missing or different", () => {
+    expect(zoneToSend("Europe/Kiev", null)).toBe("Europe/Kyiv");
+    expect(zoneToSend("Europe/Tallinn", "Europe/Helsinki")).toBe("Europe/Tallinn");
+  });
+
+  it("never sends an offset or something that is not a zone", () => {
+    expect(zoneToSend("+05:30", null)).toBeNull();
+    expect(zoneToSend("Not/AZone", null)).toBeNull();
+    expect(zoneToSend(undefined, null)).toBeNull();
   });
 });

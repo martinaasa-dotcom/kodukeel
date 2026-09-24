@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { setTimeZone } from "@/app/actions";
+import { zoneToSend } from "@/lib/time/day";
 
 /**
  * Tells the server where the learner's midnight is.
@@ -30,8 +31,9 @@ export function TimeZoneSync({ stored }: { stored: string | null }) {
       // recover from.
       return;
     }
-    if (!zone || zone === stored || /^[+-]/.test(zone)) return;
-    void setTimeZone(zone).catch(() => undefined);
+    const send = zoneToSend(zone, stored);
+    if (!send) return;
+    void setTimeZone(send).catch(() => undefined);
   }, [stored]);
 
   return null;
