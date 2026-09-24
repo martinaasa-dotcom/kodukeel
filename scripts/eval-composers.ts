@@ -40,17 +40,16 @@
  */
 import { appendFileSync, mkdirSync } from "node:fs";
 import { composeLive, composeSystem } from "../lib/scenes/prompt";
-import { gateFor, runGate, type Check } from "../lib/scenes/gate";
+import { runGate, type Check } from "../lib/scenes/gate";
 import { SCENES } from "../lib/scenes/catalogue";
-import { bankTopic, scriptedFor } from "../lib/scenes/scripted";
+import { scriptedFor } from "../lib/scenes/scripted";
 import { stageFor } from "../lib/scenes/reply";
 import { words } from "../lib/scenes/lexicon";
-import { topicForms } from "../lib/scenes/retrieval";
 import type { BeatSpec, SceneSpec } from "../lib/scenes/types";
 import {
   FREE_GEMINI_MODELS, FREE_GROQ_MODELS, SCENE_REPLY_TOKENS,
 } from "../lib/tutor/provider";
-import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb, vouchOf } from "./lib/sceneDraft";
+import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb, routeGate } from "./lib/sceneDraft";
 
 const arg = (name: string, fallback: string) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -365,15 +364,7 @@ async function main() {
             goes 20 to 24. The old column had them two and a half times apart
             and they are level.
           */
-          const vouched = text ? await vouchOf(lexicon, words(text)) : null;
-          const verdict = text
-            ? runGate(text, beat, gateFor(beat.id, {
-              ...gate,
-              // The route's own topic: the beat's lemmas and its banked lines' words.
-              topic: new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
-              vouched: (word: string) => vouched!.has(word),
-            }))
-            : null;
+          const verdict = text ? runGate(text, beat, await routeGate(scene, beat, lexicon, gate, text)) : null;
           const row: Row = {
             provider: link.provider, model: link.model, scene: scene.id, beat: beat.id, sample,
             status, ms, text, waited, rateLimits,

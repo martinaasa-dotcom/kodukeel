@@ -42,13 +42,11 @@ import { SCENES } from "../lib/scenes/catalogue";
 import { formsOf, words, type Lexicon } from "../lib/scenes/lexicon";
 import { CHECKS, governmentSuspect, runGate, type Check } from "../lib/scenes/gate";
 import { retryNote } from "../lib/scenes/line";
-import { topicForms } from "../lib/scenes/retrieval";
-import { bankTopic } from "../lib/scenes/scripted";
 import { SYLLABUS } from "../lib/collections/syllabus";
 import { lemmasOfForm } from "../lib/dict/forms";
 import {
   ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneLemmas, sceneLexicon,
-  wrongRegisterForms, vouchOf, type Allowlist,
+  routeGate, wrongRegisterForms, type Allowlist,
 } from "./lib/sceneDraft";
 
 const arg = (name: string, fallback: number) => {
@@ -150,16 +148,8 @@ async function partA() {
           reported `ja` and `on` as words nothing could account for and rescued
           nothing at all, which is the harness measuring itself.
         */
-        const gateFor = async (text: string) => {
-          const vouched = await vouchOf(lexicon, words(text));
-          return {
-            ...gateContext(lexicon, wrongRegister),
-            // The route's own topic: the beat's lemmas and its banked lines' words.
-            topic: new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
-            vouched: (word: string) => vouched.has(word),
-          };
-        };
-        const first = runGate(line, beat, await gateFor(line));
+        const base = gateContext(lexicon, wrongRegister);
+        const first = runGate(line, beat, await routeGate(scene, beat, lexicon, base, line));
         /*
           THE WORDS IT REACHED PAST THE SCENE FOR, WHICH IS `stretched` AND WAS
           `unknown`. The two were one field until the vouching split, and this
@@ -190,7 +180,7 @@ async function partA() {
           for a synonym that is equally new.
         */
         const second = (await compose(scene, beat, lemmas, retryNote(first)))?.text;
-        const after = second ? runGate(second, beat, await gateFor(second)) : null;
+        const after = second ? runGate(second, beat, await routeGate(scene, beat, lexicon, base, second)) : null;
         if (after && after.failed.length === 0) { rescued++; continue; }
 
         withheld++; sceneWithheld++;

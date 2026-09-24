@@ -13978,16 +13978,36 @@ check("a measurement sends what the route sends, and reads what it reads", () =>
     not run. The banked-line tools are not in the list: a line drafted ahead is
     held to the scene's own list on purpose, and `bank.test.ts` asks that.
   */
+  /*
+    AND THROUGH ONE FUNCTION, `routeGate`, because the three had drifted three
+    ways. The first version of this arm asked each file for the pieces by
+    name, and `eval-scene.ts` passed it with its own local function called
+    `gateFor`, which skipped the register switch the library's applies: the
+    name satisfied the check and the behaviour did not. And no harness passed
+    `answers`, so `giveaway` was off in every measurement of the composer. So
+    the pieces are asked of `routeGate` once, and every `runGate` in a harness
+    has to go through it.
+  */
+  const helper = between(code("scripts/lib/sceneDraft.ts"), "export async function routeGate(");
+  for (const [piece, why] of [
+    [/return gateFor\(beat\.id,/, "the register switch, so the register curveball is judged by the one check it cannot pass"],
+    [/topic:\s*new Set\(\[\.\.\.topicForms\(beat, lexicon\), \.\.\.bankTopic\(scene, beat\)\]\)/,
+      "the route's topic (the beat's lemmas and its banked lines' words, lib/progress/scene.ts), so it counts topic refusals the app never makes"],
+    [/answers:\s*answerForms\(beat, lexicon\)/, "the forms the beat is about to ask for, so `giveaway` never fires"],
+    [/await vouchOf\(lexicon, words\(text\)\)/, "the forms list behind vouching"],
+    [/vouched:\s*\(word: string\) => vouched\.has\(word\)/, "the forms list behind vouching"],
+  ] as const) {
+    assert.match(helper, piece, `routeGate in scripts/lib/sceneDraft.ts no longer hands the gate ${why}`);
+  }
   for (const file of ["scripts/eval-scene.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts"]) {
     const text = code(file);
     const gates = [...text.matchAll(/runGate\(/g)].length;
     assert.ok(gates >= 1, `${file} no longer calls runGate, so this stopped reading it`);
     assert.equal(
-      [...text.matchAll(/runGate\([^;]*?gateFor\(/g)].length, gates,
-      `${file} gates a composed line without gateFor, so the register curveball is judged by the one check it cannot pass`,
+      [...text.matchAll(/runGate\([^;]*?\brouteGate\(/g)].length, gates,
+      `${file} gates a composed line without routeGate, so it measures a gate the app does not run`,
     );
-    assert.match(text, /topic:\s*new Set\(\[\.\.\.topicForms\([^)]*\), \.\.\.bankTopic\(/, `${file} gates a composed line without the route's topic (the beat's lemmas and its banked lines' words, lib/progress/scene.ts), so it counts topic refusals the app never makes`);
-    assert.match(text, /vouched:\s*\(?\w+(?::\s*string)?\)?\s*=>\s*\w+!?\.has\(/, `${file} gates a composed line without the forms list behind vouching`);
+    assert.doesNotMatch(text, /\bconst\s+(?:gateFor|routeGate)\s*=/, `${file} defines its own gate builder, which is how the last one lost the register switch`);
     assert.doesNotMatch(text, /vouched:\s*\(\)\s*=>\s*true/, `${file} switches vouching off, so it measures a gate with one check missing`);
   }
 

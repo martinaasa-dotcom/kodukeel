@@ -40,14 +40,12 @@
  */
 import { PERSONAS } from "../lib/scenes/personas";
 import { composeLive, composeSystem } from "../lib/scenes/prompt";
-import { gateFor, runGate } from "../lib/scenes/gate";
-import { words } from "../lib/scenes/lexicon";
-import { topicForms } from "../lib/scenes/retrieval";
+import { runGate } from "../lib/scenes/gate";
 import { sceneById } from "../lib/scenes/catalogue";
-import { bankTopic, scriptedFor } from "../lib/scenes/scripted";
+import { scriptedFor } from "../lib/scenes/scripted";
 import { billedOutput, SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { UNKNOWN_MODEL, normaliseModel, priceFor } from "../lib/usage/pricing";
-import { HARNESS_LEVEL, keylessContext, vouchOf } from "./lib/sceneDraft";
+import { HARNESS_LEVEL, keylessContext, routeGate } from "./lib/sceneDraft";
 
 interface Combo {
   readonly label: string;
@@ -270,18 +268,14 @@ async function main() {
         continue;
       }
       /*
-        Gated the way the route gates a composed line: `gateFor`, the beat's own
-        topic, and vouching against the forms list. This used to pass
+        Gated the way the route gates a composed line, through `routeGate`:
+        the register switch, the route's topic, the forms the beat is about to
+        ask for, and vouching against the forms list. This used to pass
         `vouched: () => true` and no topic, which is a gate with its two
         commonest refusals switched off, so "one refusal apart" was a
         comparison on a gate no learner's line goes through.
       */
-      const vouched = await vouchOf(context.lexicon, words(answer.text));
-      const verdict = runGate(answer.text, beat, gateFor(beat.id, {
-        ...context.gate,
-        topic: new Set([...topicForms(beat, context.lexicon), ...bankTopic(sceneById(sceneId)!, beat)]),
-        vouched: (word: string) => vouched.has(word),
-      }));
+      const verdict = runGate(answer.text, beat, await routeGate(sceneById(sceneId)!, beat, context.lexicon, context.gate, answer.text));
       if (verdict.failed.length > 0) refused += 1;
       const note = verdict.failed.length > 0 ? `   <gate: ${verdict.failed.join(",")}>` : "";
       console.log(`  ${sceneId}/${beatId}: ${answer.text}${note}`);

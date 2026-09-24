@@ -44,8 +44,9 @@ import { composeLive, composeSystem } from "../../lib/scenes/prompt";
 import { geminiCachedReply } from "../../lib/tutor/geminiCache";
 import { FAREWELLS } from "../../lib/scenes/catalogue";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
-import { FINITE_VERB_FLOOR, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
-import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
+import { FINITE_VERB_FLOOR, gateFor, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
+import { MAX_WORDS, answerForms, topicForms } from "../../lib/scenes/retrieval";
+import { bankTopic } from "../../lib/scenes/scripted";
 
 export { answerForms };
 import { QUESTION_SHAPE, type BeatSpec, type SceneSpec } from "../../lib/scenes/types";
@@ -92,6 +93,40 @@ export async function vouchOf(
     if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
   }));
   return out;
+}
+
+/**
+ * THE GATE A COMPOSED LINE MEETS LIVE, BUILT THE WAY THE ROUTE BUILDS IT, IN
+ * ONE PLACE.
+ *
+ * Three harnesses gate a line a model composed, and each spelled the gate out
+ * for itself, so each had lost a different part of it. `eval:thinking` passed
+ * `vouched: () => true` and no topic. `eval:composers` had no topic and no
+ * forms list. `eval:scene` built its own function, named `gateFor` like the
+ * library's and skipping the register switch the library's applies. And none
+ * of the three passed `answers`, so `giveaway`, which the live path has run
+ * since a real run answered the beat that wants `poes` with `Kas sa juba oled
+ * poes?`, was switched off in every measurement of the composer.
+ *
+ * What the live path adds to the scene's gate is four things: the register
+ * switch (`gateFor`), the route's topic (the beat's lemmas and the words its
+ * banked lines are made of, `lib/progress/scene.ts`), the forms the beat is
+ * about to ask for (`lib/scenes/line.ts`), and vouching against the forms list
+ * for the words this line used. This is those four, read off the same
+ * functions. What it cannot add is the learner's own last turn, which the
+ * route also folds into the topic: a harness plays no learner, so `topic`
+ * reads a little stricter here than live.
+ */
+export async function routeGate(
+  scene: SceneSpec, beat: BeatSpec, lexicon: Lexicon, base: GateContext, text: string,
+): Promise<GateContext> {
+  const vouched = await vouchOf(lexicon, words(text));
+  return gateFor(beat.id, {
+    ...base,
+    topic: new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
+    answers: answerForms(beat, lexicon),
+    vouched: (word: string) => vouched.has(word),
+  });
 }
 
 /**
