@@ -123,6 +123,58 @@ export const ACTION_LIMITS = {
    * far under anything a loop would reach.
    */
   sceneHelp: { perMinute: 30 },
+  /**
+   * Builds a whole path unit's cards in one call.
+   *
+   * The same weight as `deepenCommonWords` and left off the table beside it
+   * by the same oversight `restoreBackup` had before this file existed:
+   * `addUnitToDeck` calls `addUnitsToDeck` for a unit's worth of words, every
+   * card type that unit's words support, in one press. A call that repeats
+   * after the words are already there settles into a no-op, and a no-op here
+   * is still a transaction and an advisory lock, which is exactly the cost a
+   * limit on this shelf is for.
+   */
+  addUnitToDeck: { perMinute: 12 },
+  /**
+   * Finishes a lesson, which loops `addCardsFor` once per word it taught and
+   * then grades every step.
+   *
+   * The per-word lock is the heavier of the two builders `addUnitsToDeck`
+   * refactored out of, so a lesson of a dozen words is a dozen transactions
+   * before the grading even starts.
+   */
+  completeLesson: { perMinute: 12 },
+  /**
+   * Builds one evening of the guided course into the deck.
+   *
+   * Smaller than a whole unit and the same shape: `addPlanToDeck` over the
+   * day's words, gated on `dayIsInPlay` so it can only ever build the day the
+   * learner is actually standing on, which does nothing to stop that one day
+   * being asked for on a loop.
+   */
+  startCourseDay: { perMinute: 12 },
+  /**
+   * The last step of first run, which builds the starter units chosen on the
+   * screen before it.
+   *
+   * Bounded to `MAX_STARTER_UNITS` and, in the ordinary case, pressed once
+   * per account for the rest of its life. Every export here is still a public
+   * endpoint a script can call as fast as it likes, and a repeated call
+   * writes the onboarding settings again as well as re-walking the deck
+   * build, so it is charged rather than trusted to be rare.
+   */
+  completeOnboarding: { perMinute: 10 },
+  /**
+   * Turns a confirmed scanned page into cards, one `addCardsFor` per word on
+   * the page.
+   *
+   * `saveScan`, which resolves the photograph, already has an allowance; this
+   * is the write that follows it and was the one step of the scan flow with
+   * nothing in front of it. Matched to `saveScan`'s own number rather than to
+   * `deepenCommonWords`'s, since a scanned page is bounded by `SCAN_MAX_ITEMS`
+   * rather than by a whole unit's vocabulary.
+   */
+  addScanToDeck: { perMinute: 15 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;

@@ -1869,6 +1869,9 @@ export async function completeOnboarding(input: {
   const ownerId = await requireUserId();
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
+  const busy = throttleAction(ownerId, "completeOnboarding");
+  if (busy) return busy;
+
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.displayName, cleanDisplayName(input?.displayName) || "A learner"),
     writeSetting(ownerId, SETTING_KEYS.cefrGoal, input.cefr),
@@ -2024,6 +2027,9 @@ export async function addUnitToDeck(unitId: string) {
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "That unit does not exist." };
 
+  const busy = throttleAction(ownerId, "addUnitToDeck");
+  if (busy) return busy;
+
   const { added, words } = await addUnitsToDeck(ownerId, [unitId], "COURSE");
 
   revalidatePath("/learn");
@@ -2166,6 +2172,9 @@ export async function completeLesson(
 
   const parsed = z.array(LessonResultSchema).max(LESSON_RESULT_LIMIT).safeParse(results);
   if (!parsed.success) return { ok: false as const, error: "That lesson could not be recorded." };
+
+  const busy = throttleAction(ownerId, "completeLesson");
+  if (busy) return busy;
 
   // Only words this unit actually teaches. The unit id and the lemmas both come
   // from the caller, and this file is "use server", so every export is an
@@ -3513,6 +3522,9 @@ export async function startCourseDay(programmeId: string, dayId: string) {
     return { ok: false as const, error: "That module is further along than you are." };
   }
 
+  const busy = throttleAction(ownerId, "startCourseDay");
+  if (busy) return busy;
+
   const result = await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
   revalidatePath("/course");
   revalidatePath("/");
@@ -3835,6 +3847,10 @@ export async function saveScan(input: {
 /** Adds every word on a saved page that is not in the deck yet. */
 export async function addScanToDeck(scanId: string) {
   const ownerId = await requireUserId();
+
+  const busy = throttleAction(ownerId, "addScanToDeck");
+  if (busy) return busy;
+
   const scan = await prisma.scan.findFirst({
     where: { id: scanId, ownerId },
     select: { items: true },

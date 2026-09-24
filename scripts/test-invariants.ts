@@ -6244,6 +6244,57 @@ check("the actions that do real work per call are throttled", () => {
   }
 });
 
+check("an action that builds a batch of cards is one of the throttled ones", () => {
+  /*
+    THE CHECK ABOVE VALIDATES THE TABLE'S OWN ENTRIES AND CANNOT SEE AN
+    OMISSION FROM IT. `addUnitToDeck`, `completeLesson`, `startCourseDay`,
+    `completeOnboarding` and `addScanToDeck` each build a unit's, a lesson's,
+    an evening's, a starter deck's or a scanned page's worth of cards in one
+    call. That is the shape `deepenCommonWords` was given a limit for ("the
+    same press repeated is the expensive shape, not the single press"), and
+    none of the five had one. A loop calling any of
+    them settles into idempotent reads once the cards already exist, and an
+    idempotent read is still a real transaction and an advisory lock, which is
+    exactly what `deepenCommonWords`'s own limit is protecting against.
+
+    So this reads the shape of the violation rather than naming the five: an
+    exported function whose body calls `addUnitsToDeck(` or `addPlanToDeck(`
+    directly, or calls `addCardsFor(` from inside a loop over more than one
+    word, has to throttle itself. `addToDeck` calls `addCardsFor` once for one
+    lexeme and is correctly exempt by never matching the loop shape.
+    `addCommonWords` is the one deliberate exception, and its own comment says
+    why: it writes two cheap cards a word, which `deepenCommonWords` beside it
+    does not.
+  */
+  const source = code("app/actions.ts");
+  const boundaries = [...source.matchAll(/^(?:export )?(?:async )?function (\w+)\(/gm)];
+  assert.ok(boundaries.length >= 80, `only ${boundaries.length} top-level functions found: the sweep has stopped seeing them`);
+
+  const EXEMPT = new Set([
+    "addCommonWords", // writes two cheap cards a word; deepenCommonWords beside it is the expensive one
+  ]);
+  const missing: string[] = [];
+  for (const [i, m] of boundaries.entries()) {
+    const name = m[1]!;
+    const start = m.index!;
+    const end = boundaries[i + 1]?.index ?? source.length;
+    const body = source.slice(start, end);
+    const isExported = m[0]!.startsWith("export");
+    if (!isExported || EXEMPT.has(name)) continue;
+
+    const callsBatchBuilder = /\baddUnitsToDeck\(|\baddPlanToDeck\(/.test(body);
+    const loopsCardBuilding = /\bfor\s*\(/.test(body) && /\baddCardsFor\(/.test(body);
+    if ((callsBatchBuilder || loopsCardBuilding) && !/\bthrottleAction\(/.test(body)) {
+      missing.push(name);
+    }
+  }
+  assert.deepEqual(
+    missing, [],
+    `these actions build a batch of cards with no throttle in front: ${missing.join(", ")}. `
+      + `Add an entry to ACTION_LIMITS and call throttleAction, or add a written exemption above.`,
+  );
+});
+
 check("every dead end in the app offers a way to report it", () => {
   /*
     THE RULE: nothing here may tell somebody it cannot help them and then
