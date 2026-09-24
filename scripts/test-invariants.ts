@@ -3328,6 +3328,12 @@ check("every path that adds cards reads and writes under one lock", () => {
       write: "card.createMany",
     },
     {
+      what: "restoreBackup",
+      body: /export async function restoreBackup\(([\s\S]*?)\n\}/.exec(code("app/actions.ts"))?.[1] ?? "",
+      read: "card.findMany",
+      write: "card.createMany",
+    },
+    {
       what: "addPlanToDeck",
       body: /export async function addPlanToDeck\(([\s\S]*?)\n\}/.exec(code("lib/srs/deck.ts"))?.[1] ?? "",
       read: "card.findMany",
@@ -12517,6 +12523,38 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
   );
   for (const caller of ["app/actions.ts", "lib/srs/replay.ts"]) {
     assert.match(code(caller), /\bwriteGrade\(/, `${caller} stopped writing its grade through lib/srs/grade.ts`);
+  }
+});
+
+/*
+  A RESTORE WRITES IN BULK, AND NOTHING INSIDE ITS TRANSACTION IS CAUGHT.
+
+  `restoreBackup` asked about every row on its own, a `findUnique` and then a
+  `create` per review, inside one transaction with a two-minute deadline. On a
+  hosted database that is about 25ms a round trip, so five thousand reviews
+  spent the whole deadline and the learner was told nothing was changed. And a
+  word the backup carried under an id this deployment does not hold was created
+  inside a `try`/`catch`, which cannot work: Postgres aborts a transaction on
+  any failed statement, caught or not, so every restore onto a deployment other
+  than the one it was taken on failed on its first word.
+  `lib/progress/restoreRows.itest.ts` proves both against a real database; this
+  keeps the action from growing either back.
+*/
+check("a restore writes in bulk, and catches nothing inside its transaction", () => {
+  const actions = code("app/actions.ts");
+  const body = between(actions, "export async function restoreBackup(");
+  const tx = body.slice(body.indexOf("prisma.$transaction("), body.indexOf("timeout: 120_000"));
+  assert.ok(tx.length > 2000, "could not find the restore's transaction in app/actions.ts");
+  assert.equal(/\bcatch\b/.test(tx), false, "a statement inside the restore transaction is caught, which cannot work: Postgres has already aborted it");
+  for (const table of ["review", "card", "lexeme", "message", "assessment", "examAttempt", "sceneRun", "sceneGap", "encounter", "deferral", "starredWord", "deckWord", "courseStep", "achievement"]) {
+    assert.equal(
+      new RegExp(`tx\\.${table}\\.(findUnique|create|upsert)\\s*\\(`).test(tx),
+      false,
+      `the restore asks about ${table} rows one at a time again; see lib/progress/restoreRows.ts`,
+    );
+  }
+  for (const name of ["restoreLexemes", "createAbsent", "resolveLexemes"]) {
+    assert.match(tx, new RegExp(`\\b${name}\\(`), `the restore no longer calls ${name}`);
   }
 });
 
