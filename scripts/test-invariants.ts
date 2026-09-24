@@ -6172,6 +6172,20 @@ check("every component is reachable from a route and drawn by something", () => 
   const known = new Set(searched);
   const body = new Map(searched.map((f) => [f, code(f)]));
   /*
+    What the drawn arms read: the code with every string literal emptied. `code()`
+    strips comments and leaves strings, so `"<DeadPanel />"` in a label or a test
+    fixture read as the component being drawn, and an orphan passed on it. Made to
+    fail on exactly that before this went in. A single-quoted string is emptied
+    only where an expression starts, since `don't` in JSX text is an apostrophe,
+    and a template literal the same way and on one line, since one holding `${` is
+    not a string this can pair and a stray backtick would swallow the markup.
+    Imports are strings, which is why `body` keeps them and this is a second map.
+  */
+  const markup = new Map([...body].map(([f, src]) => [f, src
+    .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
+    .replace(/(?<=[=(,:[?{]\s*)`(?:[^`\\$\n]|\\.)*`/g, "``")
+    .replace(/(?<=[=(,:[?{]\s*)'(?:[^'\\\n]|\\.)*'/g, "''")]));
+  /*
     What may count as drawing a component is what a learner can be shown. A
     test renders a component to check it, which says nothing about whether any
     screen does, so a component drawn only inside a `*.test.tsx` is drawn
@@ -6259,7 +6273,7 @@ check("every component is reachable from a route and drawn by something", () => 
       exported.some((name) =>
         drawers.some((other) =>
           other !== file && importsThis(other) &&
-          new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
+          new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(markup.get(other)!)),
       ),
       `${file} exports ${exported.join(", ")} and nothing in the tree draws any of them as an ` +
       `element, so it is imported and rendered nowhere, which is the same silence one line later. ` +
@@ -6274,7 +6288,7 @@ check("every component is reachable from a route and drawn by something", () => 
     const undrawn = exported.filter(
       (name) => !drawers.some((other) =>
         (other === file || importsThis(other)) &&
-        new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
+        new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(markup.get(other)!)),
     );
     assert.deepEqual(
       undrawn,
