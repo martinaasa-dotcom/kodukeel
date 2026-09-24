@@ -761,7 +761,7 @@ export function disagrees(text: string, context: GateContext): boolean {
  * a model asked for a role-play line writes a role-play line, and that the
  * learner reads every word of it with the dictionary underneath.
  */
-const MAX_SENTENCES = 5;
+export const MAX_SENTENCES = 5;
 
 /**
  * How long a composed line may be, which is not how long a recorded one may be.
