@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { dayClock, isTimeZone, nextCardLine, normaliseZone } from "./day";
+import { canonicalZone, dayClock, isTimeZone, nextCardLine, normaliseZone } from "./day";
 
 /*
   The bug these exist for, stated once.
@@ -184,5 +184,38 @@ describe("nextCardLine", () => {
       .toBe("The next card comes back tomorrow.");
     expect(nextCardLine(soon, evening, dayClock("Europe/London")))
       .toBe("The next card comes back later today.");
+  });
+});
+
+describe("canonicalZone", () => {
+  it("stores one spelling of a zone whatever casing arrives", () => {
+    expect(canonicalZone("europe/tallinn")).toBe("Europe/Tallinn");
+    expect(canonicalZone("EUROPE/TALLINN")).toBe("Europe/Tallinn");
+    expect(normaliseZone("europe/tallinn")).toBe("Europe/Tallinn");
+    expect(canonicalZone("utc")).toBe("UTC");
+  });
+
+  /*
+    Intl reads "+05:30" as east of Greenwich and Postgres reads it in
+    AT TIME ZONE as west, eleven hours apart (measured on Postgres 16), and
+    a stored zone reaches both. So an offset is not a zone here.
+  */
+  it("refuses a bare offset, which Intl and Postgres read with opposite signs", () => {
+    for (const offset of ["+05:30", "-08:00", "+00:00"]) {
+      expect(canonicalZone(offset)).toBeUndefined();
+      expect(isTimeZone(offset)).toBe(false);
+      expect(normaliseZone(offset)).toBeUndefined();
+    }
+  });
+
+  it("stores the zone database's current name, which every Postgres build carries", () => {
+    expect(canonicalZone("Europe/Kiev")).toBe("Europe/Kyiv");
+    expect(canonicalZone("Europe/Kyiv")).toBe("Europe/Kyiv");
+    expect(canonicalZone("Asia/Calcutta")).toBe("Asia/Kolkata");
+    expect(dayClock("Europe/Kiev").zoneName).toBe("Europe/Kyiv");
+  });
+
+  it("keeps a named zone whose own name carries a sign, since the database names it", () => {
+    expect(canonicalZone("Etc/GMT+5")).toBe("Etc/GMT+5");
   });
 });

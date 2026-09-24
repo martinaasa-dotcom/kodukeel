@@ -42,7 +42,7 @@ import {
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
 import { learnerDayClock } from "@/lib/progress/dayClock";
-import { isTimeZone } from "@/lib/time/day";
+import { canonicalZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
@@ -1535,9 +1535,12 @@ const MAX_CELLS = 81;
  */
 export async function setTimeZone(zone: string) {
   const ownerId = await requireUserId();
-  if (!isTimeZone(zone)) return { ok: false as const, error: "That is not a timezone." };
-  await writeSetting(ownerId, SETTING_KEYS.timeZone, zone);
-  return { ok: true as const, zone };
+  // Stored in the spelling `Intl` resolves it to, so one zone is one value
+  // whatever casing the caller sent (lib/time/day.ts, `canonicalZone`).
+  const canonical = canonicalZone(zone);
+  if (!canonical) return { ok: false as const, error: "That is not a timezone." };
+  await writeSetting(ownerId, SETTING_KEYS.timeZone, canonical);
+  return { ok: true as const, zone: canonical };
 }
 
 

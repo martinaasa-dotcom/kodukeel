@@ -5126,6 +5126,17 @@ Prisma maps `DateTime` to `timestamp without time zone`, and on a naive value on
 a `timestamptz` that `TO_CHAR` renders in the *session's* zone: right on a UTC session and a day out
 on any other.
 
+**And the zone is the database's name for it, not whatever `Intl` accepts.** The same string reaches
+`dayClock` in Node and `AT TIME ZONE` in the heatmap's query, and two shapes of it meant different
+things to the two. A bare offset: `Intl` reads `+05:30` east of Greenwich and Postgres reads it
+POSIX-style, west, eleven hours apart. And ICU's canonical names: `Intl` resolves Kyiv to
+`Europe/Kiev`, which the IANA database retired to its `backward` file, and a Postgres built without
+that file answers `AT TIME ZONE 'Europe/Kiev'` with an error, so the query throws for everybody whose
+browser is set there, in an app that glosses in Ukrainian. `canonicalZone` in `lib/time/day.ts` is the
+one reading: offsets refused, any casing folded to one spelling, and the eighteen names ICU keeps and
+the database renamed mapped to the current ones. `lib/time/zone.itest.ts` asks every zone `Intl`
+knows, against whatever Postgres the suite runs on, whether both sides cut the day in the same place.
+
 **Fifteen minutes, every evening, and the word count is what moves.** A day used to be the unit
 sliced into eights and came out at anything from eighteen to thirty minutes. That is the wrong thing
 to hold fixed: what a learner can promise themselves is a quarter of an hour after dinner, every

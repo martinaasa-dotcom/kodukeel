@@ -48,28 +48,100 @@ export type DayKey = string;
  */
 export type Zone = string | undefined;
 
-/** Whether `Intl` recognizes this as a timezone, so a stored value can be trusted. */
-export function isTimeZone(value: unknown): value is string {
-  if (typeof value !== "string" || value.length === 0 || value.length > 64) return false;
+/**
+ * The zone as `Intl` spells it, or `undefined` for anything that is not a
+ * named zone in the IANA database.
+ *
+ * TWO THINGS `Intl` ACCEPTS THAT A STORED ZONE MAY NOT BE.
+ *
+ * An offset. `Intl` takes `+05:30` and reads it as five and a half hours east
+ * of Greenwich; Postgres takes the same string in `AT TIME ZONE` and reads it
+ * POSIX-style, as five and a half hours *west*. Measured on Postgres 16:
+ * noon UTC at `'+05:30'` is 06:30, and at `'Asia/Kolkata'` it is 17:30. The
+ * zone reaches both, the day clock here and the heatmap's query in
+ * `lib/progress/summary.ts`, so a learner whose browser reported an offset
+ * would have their days cut eleven hours apart by the two, which is the
+ * spent-shield fault this module exists for, arriving through the value that
+ * was meant to fix it. A named zone means the same thing to both.
+ *
+ * Any casing. `Intl` accepts `europe/tallinn` and `EUROPE/TALLINN` for
+ * `Europe/Tallinn`, so each spelling was a different stored value and a
+ * different key in the formatter cache below. The canonical spelling is what
+ * `resolvedOptions` hands back, then its current IANA name where the two
+ * differ (`CURRENT_NAME`), and that is what gets stored and cached.
+ */
+export function canonicalZone(value: unknown): string | undefined {
+  if (typeof value !== "string" || value.length === 0 || value.length > 64) return undefined;
+  let resolved: string;
   try {
-    new Intl.DateTimeFormat("en-GB", { timeZone: value });
-    return true;
+    resolved = new Intl.DateTimeFormat("en-GB", { timeZone: value }).resolvedOptions().timeZone;
   } catch {
-    return false;
+    return undefined;
   }
+  if (/^[+-]/.test(resolved)) return undefined;
+  return CURRENT_NAME[resolved] ?? resolved;
 }
 
-/** A stored zone, or `undefined` when it is missing or no longer a real zone. */
+/**
+ * THE NAMES `Intl` STILL CALLS CANONICAL AND THE ZONE DATABASE RETIRED.
+ *
+ * ICU keeps the spelling a zone had when it was first added, so `Intl`
+ * resolves Kyiv to `Europe/Kiev` and Kolkata to `Asia/Calcutta`, and a browser
+ * built on it reports those. The IANA database renamed them and moved the old
+ * spelling to its `backward` file, which some Postgres builds do not load: on
+ * one that does not, `AT TIME ZONE 'Europe/Kiev'` is an error rather than a
+ * day, and the heatmap query in `lib/progress/summary.ts` throws for every
+ * learner whose browser is set there. Ukrainian is one of the three languages
+ * this app glosses in, so that is not somebody else's edge case.
+ *
+ * So the stored and cached name is the current one, which every build of the
+ * database carries and `Intl` accepts as an alias with the same wall clock.
+ * Measured against Postgres 16's `pg_timezone_names` on 2026-09-24: these are
+ * all eighteen of the names `Intl` resolves to that it lacks, each of the
+ * right-hand names is present, and each keeps the same wall clock across the
+ * year. `lib/time/zone.itest.ts` asks the whole list of zones again on every
+ * run against whatever Postgres the suite has, so a new rename fails there.
+ */
+const CURRENT_NAME: Readonly<Record<string, string>> = {
+  "Africa/Asmera": "Africa/Asmara",
+  "America/Buenos_Aires": "America/Argentina/Buenos_Aires",
+  "America/Catamarca": "America/Argentina/Catamarca",
+  "America/Cordoba": "America/Argentina/Cordoba",
+  "America/Godthab": "America/Nuuk",
+  "America/Indianapolis": "America/Indiana/Indianapolis",
+  "America/Jujuy": "America/Argentina/Jujuy",
+  "America/Louisville": "America/Kentucky/Louisville",
+  "America/Mendoza": "America/Argentina/Mendoza",
+  "Asia/Calcutta": "Asia/Kolkata",
+  "Asia/Katmandu": "Asia/Kathmandu",
+  "Asia/Rangoon": "Asia/Yangon",
+  "Asia/Saigon": "Asia/Ho_Chi_Minh",
+  "Atlantic/Faeroe": "Atlantic/Faroe",
+  "Europe/Kiev": "Europe/Kyiv",
+  "Pacific/Enderbury": "Pacific/Kanton",
+  "Pacific/Ponape": "Pacific/Pohnpei",
+  "Pacific/Truk": "Pacific/Chuuk",
+};
+
+/** Whether this is a named zone both `Intl` and Postgres read the same way. See `canonicalZone`. */
+export function isTimeZone(value: unknown): value is string {
+  return canonicalZone(value) !== undefined;
+}
+
+/** A stored zone in its canonical spelling, or `undefined` when it is missing or not a named zone. */
 export function normaliseZone(value: unknown): Zone {
-  return isTimeZone(value) ? value : undefined;
+  return canonicalZone(value);
 }
 
 /*
   Formatters are memoised because a heatmap asks for one day key per review and
   a busy learner's chart is thousands of rows. Constructing an
   `Intl.DateTimeFormat` is the expensive part; formatting with one is not. The
-  map is keyed on the zone name and there is one entry per zone a process ever
-  sees, which is one on a server and one on a phone.
+  map is keyed on the zone name, one entry per zone a process ever sees, which
+  on a phone is one and on a server is one per zone its learners live in.
+  Bounded by the IANA database rather than by anybody's input, because every
+  key has been through `canonicalZone`: it used to take any casing `Intl`
+  would, so one learner could grow it by a formatter per spelling of one zone.
 */
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
