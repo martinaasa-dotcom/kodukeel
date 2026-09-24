@@ -13673,6 +13673,35 @@ check("a case is named only when one case claims the spelling", () => {
  * nothing in it may name the table at all: a count is a `count`, and a count
  * cannot leak a sentence.
  */
+check("no export of a \"use server\" file takes an owner id from its caller", () => {
+  /*
+    CLAUDE.md: "Nothing in a `\"use server\"` file may take an owner id from its
+    caller." Every export of such a file is a public endpoint and its
+    arguments are JSON off the wire, so an `ownerId` parameter is a way to act
+    as anybody. It was prose, and one action (`advanceCourseStep`) was checked
+    by name. Read off every file that opens with the directive, and every
+    exported function's parameter list, so the next action is held to it too.
+  */
+  const servers = ALL.filter((f) => /^\s*["']use server["']/.test(read(f)));
+  assert.ok(servers.length >= 1, "no \"use server\" file found, so this stopped looking");
+  let exported = 0;
+  for (const file of servers) {
+    const src = code(file);
+    const params = [
+      ...src.matchAll(/export\s+(?:async\s+)?function\s+(\w+)\s*\(([^)]*)\)/g),
+      ...src.matchAll(/export\s+const\s+(\w+)\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>/g),
+    ];
+    for (const [, name, list] of params) {
+      exported += 1;
+      assert.doesNotMatch(
+        list!, /\b(ownerId|userId|learnerId|ownerID)\b/,
+        `${file}: ${name} takes an owner id from its caller. Resolve it with requireUserId() instead`,
+      );
+    }
+  }
+  assert.ok(exported >= 60, `only ${exported} server exports read, so this stopped looking`);
+});
+
 check("every gate that hands out a signed-in identity asks the allowlist", () => {
   /*
     REVOKING ACCESS IS IMMEDIATE, AND THE MIDDLEWARE IS NOT THE ONLY READER.
