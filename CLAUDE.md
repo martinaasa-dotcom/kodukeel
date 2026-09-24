@@ -9338,9 +9338,10 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
-- `lib/assessment/`, `lib/estonian/`, `lib/exam/`, `lib/games/`, `lib/gamification/`,
+- `lib/assessment/`, `lib/estonian/`, `lib/exam/`, `lib/games/`, `lib/email/`, `lib/research/`,
   `lib/stats/`, `lib/collections/`, `lib/time/`, `lib/offline/`, `lib/security/`, `lib/scan/`,
-  `lib/questions/`, `lib/ux/`, `lib/random/`, `lib/learn/`, `lib/funding/` and `lib/copy/` stay free of
+  `lib/questions/`, `lib/ux/`, `lib/random/`, `lib/learn/`, `lib/scenes/`, `lib/readiness/`,
+  `lib/funding/` and `lib/copy/` stay free of
   React, Next.js and Prisma: pure functions, unit tested. Anything that
   needs the database lives in `lib/progress/` or a route. Asserted, because it
   had been prose alone and it is not a tidiness rule: the unit suite gates every
@@ -9348,7 +9349,9 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   a database behind a function four hundred tests call, and the suite does not
   fail, it gets slower or it passes against whatever rows happen to be there.
   Each directory is checked to exist too, so a rename fails there rather than
-  quietly covering nothing.
+  quietly covering nothing, and each is read to the bottom: the check once read
+  one level, so a Prisma import in `lib/collections/syllabus/` passed it, and
+  `lib/email/` was read only by a second, weaker copy of the check with no floor.
 - Data that drives UI but holds no JSX (path units, practice modes) carries a lucide icon *name*;
   `components/icons.tsx` is the only place that turns one into a component.
 - Settings go through `lib/settings/store.ts`. No new string keys scattered through pages. The five
