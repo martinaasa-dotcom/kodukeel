@@ -133,10 +133,13 @@ const BASE = baseUrl();
   of checking a route that has never broken is a second of wall clock.
 */
 const ROUTES = [
-  "/", "/learn", "/practice", "/progress", "/words", "/words/decks", "/dictionary",
-  "/grammar", "/grammar/inessive", "/settings", "/scan", "/class", "/tutor",
+  "/", "/learn", "/learn/new", "/practice", "/progress", "/words", "/words/decks", "/dictionary",
+  "/grammar", "/grammar/inessive", "/grammar/build-a-word", "/settings", "/scan", "/class", "/tutor",
   "/assess", "/assess?take=1", "/exam", "/privacy", "/terms", "/funding", "/offline",
-  "/welcome", "/suggestions", "/admin/suggestions",
+  "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions",
+  "/course", "/course/learn", "/review/letters", "/review/lookups",
+  "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
+  "/learn/kodu/lesson", "/learn/kodu/worksheet",
   "/review", "/review/write", "/review/government", "/review/conjugation", "/review/cloze", "/review/clinic",
   "/review/dictation", "/review/listening", "/review/match", "/review/pairs",
   "/review/sentences", "/review/speaking", "/review/sprint",
@@ -217,6 +220,24 @@ const browser = await launchChromium();
 const measuring = (viewport) => browser.newPage({ viewport, reducedMotion: "reduce" });
 
 const page = await measuring({ width: 1280, height: 1000 });
+
+/*
+  And the one route here no URL can be typed for: a round over one shelf,
+  which `/words/decks` links to only once the shelf holds a word. Read off
+  that page, the way `test-containment.mjs` reads a classroom off `/class`,
+  and the demo fixture lays the shelf down. A database without one says so in
+  checks rather than quietly walking one route fewer.
+*/
+await page.goto(`${BASE}/words/decks`, { waitUntil: "load" });
+const shelf = await page.locator('a[href^="/review/deck/"]').first()
+  .getAttribute("href", { timeout: 5000 }).catch(() => null);
+if (shelf) ROUTES.push(shelf);
+/* Every group, for the reason the containment suite gives: one route draws a
+   teacher's roster and a sponsor's workplace view, and both are screens. */
+await page.goto(`${BASE}/class`, { waitUntil: "load" });
+const groups = [...new Set(await page.locator('a[href^="/class/"]')
+  .evaluateAll((links) => links.map((a) => a.getAttribute("href"))).catch(() => []))];
+ROUTES.push(...groups);
 
 
 /*
@@ -314,7 +335,29 @@ const page = await measuring({ width: 1280, height: 1000 });
   claim on /accessibility, and it is worth it: a phone is where most of this
   app is read.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 578 });
+/*
+  And 773, for sixteen routes this list had never walked at all. Eight had no
+  entry of any kind: `/course`, `/course/learn`, `/grammar/build-a-word`,
+  `/learn/new`, `/review/letters`, `/review/lookups`, `/sign-in` and
+  `/start`. Five more needed only a value for their segment: `/exam/A1`,
+  `/grammar/topic/object`, `/learn/checkpoint/A1`, `/learn/kodu/lesson` and
+  `/learn/kodu/worksheet`. And three need a row first and are read off the
+  page that lists them, a shelf off `/words/decks` and both kinds of group
+  off `/class`, eleven checks each. The first run over them found four real
+  failures on two screens: the English beside a grammar point faded to 0.75
+  on the lesson, below 4.5:1, and the worksheet's table, which scrolls on a
+  phone and holds nothing a keyboard can reach, so the scroller itself could
+  not be moved. Confirmed against a real run rather than left as arithmetic:
+  811 checks reached with the same four graded-review checks waived on this
+  database, so a clean run is 815, and the floor keeps the same forty-two
+  under it the step above set.
+
+  What this list still does not walk, a marked paper and a scanned page, is
+  named on `/accessibility` in words, and an invariant ties the two together.
+*/
+const { check, absent, done } = suite("Accessibility", { floor: 773 });
+if (!shelf) absent(11, "a round over one shelf: no shelf on /words/decks holds a word. Run `npm run demo`");
+if (groups.length === 0) absent(11, "a classroom: /class lists no group. Run `npm run demo`");
 
 /*
   OPENING A ROUTE, INCLUDING THE PART THAT IS NOT THE NETWORK.

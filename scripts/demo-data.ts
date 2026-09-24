@@ -416,6 +416,30 @@ async function main() {
   }
 
   /*
+    And a shelf with words on it, for the reason the class above exists.
+
+    `/review/deck/[deckId]` is a round over one shelf, and `/words/decks` only
+    links to it once the shelf holds a word, so with no shelf in the fixture
+    no browser suite had ever opened it: not the containment sweep, not axe,
+    in either theme. Six of the learner's own words, so the round has
+    something to ask rather than drawing its empty state.
+  */
+  const shelfName = "Kitchen words";
+  const shelf = (await prisma.deck.findFirst({ where: { ownerId, name: shelfName } }))
+    ?? await prisma.deck.create({ data: { ownerId, name: shelfName } });
+  const shelved = await prisma.card.findMany({
+    where: { ownerId, lexemeId: { not: null } },
+    select: { lexemeId: true },
+    distinct: ["lexemeId"],
+    orderBy: { lexemeId: "asc" },
+    take: 6,
+  });
+  await prisma.deckWord.createMany({
+    data: shelved.flatMap(({ lexemeId }) => (lexemeId ? [{ deckId: shelf.id, ownerId, lexemeId }] : [])),
+    skipDuplicates: true,
+  });
+
+  /*
     The week this learner says they are in, and a level they are aiming at.
 
     Both are preconditions rather than decoration, and both were missing. The

@@ -13,9 +13,10 @@ import { baseUrl, suite } from "./lib/checks.mjs";
  * of what was fixed, and the thing that stops it coming back.
  */
 const B = baseUrl();
-const PAGES = ["/", "/practice", "/grammar", "/grammar/partitive", "/progress", "/learn",
+const PAGES = ["/", "/practice", "/grammar", "/grammar/partitive", "/grammar/build-a-word",
+  "/progress", "/progress/readiness", "/progress/readiness/sook-ja-jook", "/learn",
   "/learn/kodu", "/dictionary?q=tuba", "/words", "/words/mastery", "/settings", "/review",
-  "/review/dictation", "/class", "/tutor", "/scan", "/welcome", "/funding",
+  "/review/dictation", "/class", "/tutor", "/scan", "/welcome", "/funding", "/exam",
   /*
     The one screen in the app that takes the shell off and paints its own
     ground (`components/scene/SceneStage.tsx`). It is measured here for exactly

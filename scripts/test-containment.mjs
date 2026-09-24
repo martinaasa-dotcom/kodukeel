@@ -148,7 +148,9 @@ const ROUTES = [
   "/dictionary?q=tuba",
   "/words",
   "/words/decks",
+  "/words/mastery",
   "/grammar",
+  "/grammar/build-a-word",
   "/grammar/partitive",
   "/grammar/topic/object",
   /*
@@ -160,13 +162,18 @@ const ROUTES = [
   "/grammar/exceptions",
   "/grammar/exceptions/stem",
   "/review/exceptions",
+  "/review/letters",
+  "/review/lookups",
 
   // The course.
   "/learn",
+  "/learn/new",
   "/learn/kodu",
   "/learn/kodu/lesson",
   "/learn/kodu/worksheet",
   "/learn/checkpoint/A1",
+  "/course",
+  "/course/learn",
 
   // Measurement, and the things built on it.
   "/progress",
@@ -207,6 +214,8 @@ const ROUTES = [
   "/privacy",
   "/terms",
   "/funding",
+  "/trust",
+  "/accessibility",
   "/offline",
 ];
 
@@ -326,7 +335,24 @@ const SPARSE = new Map([
 // floor keeps the same ten under that. The waiver is what makes it safe to set
 // from a run that did not reach the state: `absent` lowers the target by
 // exactly what it could not ask.
-const { check, absent, done } = suite("Containment", { floor: 1290 });
+//
+// And 1580 rather than 1300, from a sweep of `app/` against this list rather
+// than against anybody's memory of it: nine routes had never been walked here
+// at all, `/trust`, `/accessibility`, `/course`, `/course/learn`,
+// `/grammar/build-a-word`, `/learn/new`, `/review/letters`, `/review/lookups`
+// and `/words/mastery`, which is 180 checks, and a tenth, a round over one
+// shelf, which no fixture had ever made, so the demo fixture lays one down and
+// the shelf is read off `/words/decks`. Reading it found a real fault on the first of the nine
+// that had anything to overflow: `/review/letters`' footer put a hint sentence
+// and the "Take back" button in one unshrinkable row, and at 360 with the
+// stress text in, the button's own icon and its key cap were drawn past the
+// button's edge, because neither sibling could shrink below its own content
+// and the button lost that fight. The hint now truncates and the button
+// carries `shrink-0`, which is the same trade every other footer in this file
+// makes between a sentence that can be cut short and a control that cannot.
+// Measured at 1570 with the fixture's own ten-check absence still standing, so
+// a clean run is 1580 and the floor keeps the same ten under that.
+const { check, absent, done } = suite("Containment", { floor: 1570 });
 
 const browser = await launchChromium();
 
@@ -446,6 +472,18 @@ async function screensToMake() {
   });
   if (classrooms) made.push(...classrooms.split(" "));
   else missing.push("a classroom, which local mode cannot create by hand: run `npm run demo`");
+
+  /*
+    A round over one shelf. `/words/decks` links to it only once the shelf
+    holds a word, so it is read off that page rather than typed, and the demo
+    fixture lays the shelf down for the reason it lays the class down.
+  */
+  const shelf = await budgeted("a shelf with words on it", 30_000, async (page) => {
+    await page.goto(`${B}/words/decks`, { waitUntil: "networkidle", timeout: 30_000 });
+    return page.locator('a[href^="/review/deck/"]').first().getAttribute("href", { timeout: 5_000 });
+  });
+  if (shelf) made.push(shelf);
+  else missing.push("a shelf with words on it, which the demo fixture lays down: run `npm run demo`");
 
   // A marked paper: sat, advanced part by part with the blanks left blank, and
   // handed in. The blanks are the point elsewhere and harmless here.

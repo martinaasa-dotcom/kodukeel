@@ -446,7 +446,7 @@ function StepCard({
                         <span lang={point.estonian ? "et" : undefined} className="underline">
                           {point.title}
                         </span>
-                        <span className="text-xs" style={{ opacity: 0.75 }}>{point.english}</span>
+                        <span className="text-xs">{point.english}</span>
                       </Link>
                     </li>
                   );
