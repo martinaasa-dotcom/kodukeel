@@ -6208,7 +6208,7 @@ check("every component is reachable from a route and drawn by something", () => 
   const stack = searched.filter(
     (f) => isRoute(f) || f === "middleware.ts" || f === "next.config.ts",
   );
-  assert.ok(stack.length >= 80, `only found ${stack.length} entry points, so this walk stopped looking`);
+  assert.ok(stack.length >= 105, `only found ${stack.length} entry points, so this walk stopped looking`);
   while (stack.length) {
     const file = stack.pop()!;
     if (reached.has(file)) continue;
@@ -6273,7 +6273,7 @@ check("every component is reachable from a route and drawn by something", () => 
       `while the file's other export is on a screen. Draw it, or delete it.`,
     );
   }
-  assert.ok(asked >= 140, `only found ${asked} component files, so this sweep stopped looking`);
+  assert.ok(asked >= 150, `only found ${asked} component files, so this sweep stopped looking`);
 });
 
 /**
