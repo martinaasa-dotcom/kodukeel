@@ -12888,6 +12888,22 @@ check("nothing decides what a gap can hide outside lib/estonian/gapForms.ts", ()
     .filter((file) => /\bbuildCloze\s*\(/.test(code(file)))
     .filter((file) => !/\bgapForms(?:FromParts)?\s*\(/.test(code(file)));
   assert.deepEqual(offenders, [], "a caller of buildCloze builds its own list of forms to hide");
+  /*
+    The two measurements are on the list because they gap for themselves, from
+    a pool and a seed the server rebuilds to mark (CLAUDE.md: exempt by name).
+    An entry for one that has stopped building a gap at all is a name on a
+    list excusing nothing, and one that has started reading gapForms has
+    changed which questions a candidate is asked while the list said it was
+    deliberately left alone. Either way somebody has to decide again.
+  */
+  for (const instrument of ["lib/exam/paper.ts", "lib/assessment/items.ts"]) {
+    const source = code(instrument);
+    assert.match(source, /\bbuildCloze\s*\(/, `${instrument} no longer builds a gap, so its exemption here excuses nothing`);
+    assert.doesNotMatch(
+      source, /\bgapForms(?:FromParts)?\s*\(/,
+      `${instrument} reads gapForms now, which changes a measurement the exemption said was left alone`,
+    );
+  }
 
   const forms = code("lib/estonian/gapForms.ts");
   assert.match(forms, /derivedVerbForms\(/, "gapForms stopped offering a verb's persons");
