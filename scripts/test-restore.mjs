@@ -52,8 +52,10 @@ const backup = await exported.text();
   owner-scoped table. Running the suites twice in an hour is an ordinary
   afternoon, and the second run said "export produced a backup (0 KB)" and
   stopped. That sends whoever reads it to look at the export, which is
-  working, rather than at the clock. The limiter is per instance and in
-  memory, so restarting the server clears it, and that is worth saying too.
+  working, rather than at the clock. The allowance is counted in Postgres
+  (`lib/usage/sharedLimit.ts`), so restarting the server does not clear it,
+  which it used to and this message used to say: on a local database, the
+  `RateLimit` table can be emptied instead.
 
   Not waived and not passed: a run that could not take a backup has not
   checked backup and restore, and this is the suite guarding the one failure
@@ -62,7 +64,8 @@ const backup = await exported.text();
 if (exported.status() === 429) {
   check("export produced a backup", false,
     "the hourly backup allowance is spent, which is /api/export working. " +
-    "Wait, or restart the server: the limiter is per instance and in memory.");
+    "Wait for the hour, or empty the RateLimit table on a local database: the " +
+    "allowance is counted in Postgres, so restarting the server does not clear it.");
   done();
 }
 check("export produced a backup", backup.length > 1000, `${Math.round(backup.length / 1024)} KB`);

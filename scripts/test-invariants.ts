@@ -8776,7 +8776,7 @@ check("first run is exercised, which means two suites run before the fixture", (
  * `.next/static` for it, which is the check CLAUDE.md leads with. It is only
  * as good as the list of variables it marks, and that list was seven names
  * somebody typed: `GROQ_API_KEY` and `GEMINI_API_KEY` joined the provider
- * chain, `PROVIDER_KEY_ENV` grew to five, and the canary stayed at three of
+ * chain, `PROVIDER_KEY_ENV` grew, and the canary stayed at three of
  * them. A key nothing marks is a key the grep cannot find, so the check would
  * have passed over exactly the two the default free chain holds.
  *
@@ -13650,7 +13650,7 @@ check("a case is named only when one case claims the spelling", () => {
 /**
  * NO MODEL DECIDES WHETHER A LEARNER WAS UNDERSTOOD.
  *
- * `docs/19-situations.md` §18 names the first way this module could fail: a
+ * `docs/21-situations.md` §18 names the first way this module could fail: a
  * chatbot in a costume. The guard is a type rather than a rule anybody has to
  * remember. `readTurn` is the only producer of `Evidence` and `advance` is its
  * only consumer, so a caller holding a model's opinion about a turn cannot
@@ -13688,7 +13688,7 @@ check("a case is named only when one case claims the spelling", () => {
 /**
  * A CLASS SEES EFFORT, NEVER A TRANSCRIPT.
  *
- * ADR-019 stands unchanged and `docs/19-situations.md` §18 names the way this
+ * ADR-019 stands unchanged and `docs/21-situations.md` §18 names the way this
  * module would break it: a roster row may say how many conversations somebody
  * finished, and the class panel may say which objective the group most often
  * misses, and a transcript belongs to one person. A `SceneRun` holds every turn
@@ -13727,6 +13727,29 @@ check("no export of a \"use server\" file takes an owner id from its caller", ()
     }
   }
   assert.ok(exported >= 60, `only ${exported} server exports read, so this stopped looking`);
+});
+
+check("every design document a file cites is a document that exists", () => {
+  /*
+    The situations design was cited as number 19 from fourteen files, the
+    schema and this one among them, after it had been renumbered to
+    `docs/21-situations.md`; `docs/19-research-export.md` is a different
+    document, so a reader following the pointer landed on the research export
+    and the section numbers made no sense there. Read across source, scripts
+    and the prose, so a rename fails here rather than in somebody's afternoon.
+  */
+  const citing = [
+    ...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), ...sourceFiles("docs", /\.md$/),
+    "CLAUDE.md", "README.md", "prisma/schema.prisma",
+  ];
+  let cited = 0;
+  for (const file of citing) {
+    for (const [doc] of read(file).matchAll(/docs\/[A-Za-z0-9._-]+\.md/g)) {
+      cited += 1;
+      assert.ok(existsSync(doc), `${file} cites ${doc}, which does not exist`);
+    }
+  }
+  assert.ok(cited >= 100, `only ${cited} citations of a design document found, so this stopped looking`);
 });
 
 check("every gate that hands out a signed-in identity asks the allowlist", () => {
@@ -13786,7 +13809,7 @@ check("a class cannot read a conversation", () => {
       src,
       /prisma\.sceneRun\.(findMany|findFirst|findUnique)/,
       `${file} reads a scene transcript. A class sees effort and aggregate, never ` +
-      "one learner's turns (ADR-019, docs/19-situations.md §18).",
+      "one learner's turns (ADR-019, docs/21-situations.md §18).",
     );
     assert.doesNotMatch(
       src,
@@ -16089,7 +16112,7 @@ check("nothing but the dictionary can advance a scene", () => {
     state,
     /export function advance\(\s*scene: SceneSpec,\s*state: SceneState,\s*evidence: Evidence,/,
     "advance no longer takes Evidence. A caller holding a model's opinion must not be able " +
-    "to satisfy it: that is the whole guard on this module (docs/19-situations.md §8).",
+    "to satisfy it: that is the whole guard on this module (docs/21-situations.md §8).",
   );
 
   /*

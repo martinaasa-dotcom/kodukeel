@@ -221,13 +221,13 @@ reaches past the scene's list rather than as whether its words are Estonian; the
 number to read.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
-`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
+`MAX_COMPOSED_WORDS` is fifty-five and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
 reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
 that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
-check written for it, and the gate has twelve now rather than five, `shape`, `vouching`, `register`,
+check written for it, and the gate had twelve by then rather than five, `shape`, `vouching`, `register`,
 `government`, `facts`, `agreement`, `topic`, `giveaway`, `stretch`, `clause`, `infinitive`,
-`negation`. **Not one of the twelve was relaxed**, and four of them are the reason: `vouching` is
+`negation`, and has fourteen since (`farewell`, `question`; `CHECKS` is the list). **Not one of the twelve was relaxed**, and four of them are the reason: `vouching` is
 where ADR-005 lives on this path, `agreement` is what catches `Kuhu te soovid sõita?` on a check that
 had never been handed `te`, `me` or `nad`, `infinitive` is what catches `aitama saan`, and `giveaway`
 is what stops the other side saying the form the beat is about to ask for. Measured: 13.7 percent of
@@ -301,7 +301,7 @@ what a live lookup returns is a sentence the shipped table already answers for, 
 and the expansion are where those words are. Four writers, all four asserted: the two halves of the
 seed, the repair for a database seeded before the table existed, and the mapper.
 
-**Nobody has read the 16,037 lines, and a mechanical second opinion was built and thrown away.** The
+**Nobody has read the 16,036 lines, and a mechanical second opinion was built and thrown away.** The
 gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
 from, and there is no equivalent here: a translation has no upstream to be checked against. What was
 tried instead was the dictionary itself, asking whether each English line shares a content word with
@@ -5136,8 +5136,9 @@ over, which is also the right thing to vary: meeting a word is the one part of a
 scales with how far in you are. `MINUTES_PER_WORD` falls from 1.1 at A1 to 0.7 at C1, because a C1
 learner meeting `hoolimata` has the stem, the case and the register already, so the same fifteen
 minutes carries five new words at A1 and seven at C1. Five is also the Learn ladder's own batch, so a
-beginner's evening is one lap of it. Measured over all 273 evenings: thirteen to sixteen minutes,
-median fourteen, 67 hours from nothing to C1.
+beginner's evening is one lap of it. Measured over the 273 evenings the ladder had when the model
+was set: thirteen to sixteen minutes, median fourteen, 67 hours from nothing to C1. `course.test.ts`
+holds every evening the ladder has now to the same fifteen minutes.
 
 **A conversation replaces the reading and both rounds rather than joining them**, which is what keeps
 the evening fifteen minutes on the night it happens: `TALK_MINUTES` is defined as exactly what it
@@ -5410,7 +5411,7 @@ take a day id from their caller, which is JSON off the wire whatever the type sa
 checked it: a forged tick would have moved the whole course onto a day two hundred evenings ahead,
 and `startCourseDay` would have built a deck out of that day's words. `dayIsInPlay` is the guard on
 both, the day reached or the one it opens on to, and it is asserted. It leans in turn on every day
-having at least one step the log cannot prove, which `course.test.ts` checks over all 273 evenings:
+having at least one step the log cannot prove, which `course.test.ts` checks over every evening:
 a day of nothing but a meet and a review would finish itself the moment its words were met
 somewhere else and walk the learner through the programme.
 
@@ -5488,7 +5489,7 @@ opening. So `rounds` takes what the evening before dealt and passes over it on t
 preferred rather than refused, since early in a level the supported rounds may be one. And a unit of
 verbs that pins the table on one evening does not meet it on the rotation the next, now that A1
 carries the table on its rotation: the drill after it stands in. Both asserted, and the rule that no
-pair repeats where the words allow another stands over all 289 evenings unchanged.
+pair repeats where the words allow another stands over every evening of the ladder unchanged.
 
 **And then the same rule was asked of every evening of every level, because a beginner is not the
 only person who can be handed something nobody told them.** A2's first evening dealt a case sprint
@@ -5524,7 +5525,7 @@ The board waits for six pictured nouns, the board's own size, since inside
 the module its top-up is the taught words and five of them is the empty state; the first board falls
 on `kodu`. The sprint tops up from any met word, as Match and Listening do, so an evening with
 nothing due and nothing lapsed is not an empty sprint. `course.test.ts` rebuilds the ledger from the
-syllabus and the readings as a second opinion and walks all 289 evenings against it.
+syllabus and the readings as a second opinion and walks every evening against it.
 
 **And the second pass over the same evenings found four more, which is the argument for walking
 them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the
@@ -7946,8 +7947,9 @@ Measured over the catalog: six of the eight `ask` beats have no recorded questio
 their topic words, because a lexicographer writes a usage to illustrate a word rather than to ask
 about one, and six of the thirteen other beats have no usage at all. So on a keyless deployment, or
 one whose allowance has gone, more than half of every conversation was the desk claiming not to
-have understood a turn that was fine. `wayOut` in `lib/scenes/line.ts` is the one function that
-decides between the two, and it takes the turn's *reading* rather than a boolean, so the decision
+have understood a turn that was fine. `wayOut` in `lib/scenes/line.ts` was the one function that
+decided between the two (it is `replyFor` in `lib/scenes/reply.ts` now, and the English rung went
+with the next paragraph), and it takes the turn's *reading* rather than a boolean, so the decision
 cannot be made by a caller that has not marked the turn: `unrecognised` and `offtarget` get the
 repair phrase in character, and everything else gets a fourth rung. That rung is **English and not
 in character**: the other side made their move and we could not put it into Estonian, so the screen
@@ -8183,7 +8185,7 @@ is asked once more about the beat ahead (`alsoDone`), which is how `ma tahan pil
 being answered with "where to?". The composer is told the same rule in words and asked for the turn
 a person takes, two to four sentences inside `MAX_COMPOSED_WORDS`, rather than the shortest question
 that would do. Every learner-facing rule stayed where it was: the dictionary reads first, the model
-never writes a grade, and a composed line still passes the twelve checks.
+never writes a grade, and a composed line still passes every check in `CHECKS`.
 
 **Every failure in a conversation looked exactly like a success, and that is why the whole module
 was reported as unusable.** A turn that landed got a word back and then the next question. A turn
@@ -8610,12 +8612,13 @@ none refused.
 **And the leash came off, because the leash was never what was holding the line together.** A
 learner asked why the limits are that tight at all, and they were right: some of these moments need
 explaining, and what is missing from a form and what to do about it is three sentences from
-anybody. `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` is twenty-two. The middle step is the
+anybody. `MAX_SENTENCES` was three and `MAX_COMPOSED_WORDS` twenty-two. The middle step is the
 one worth knowing: the ceiling was raised to eighteen once, `Tere! Mis needus täna aitama saan?`
 came back, and it was put down again on the argument that the only thing keeping a composed line
 honest is how little room it has to reach. That argument is wrong in a way the line itself shows,
 since it is six words. Length did not produce it and length was never going to stop it. What stops
-it is the check written for it, and what pays for the room is a gate with eleven checks in it.
+it is the check written for it, and what pays for the room is the gate, which had eleven checks
+then and has fourteen now.
 
 **And asking for one short sentence is what made the other side terse.** A learner read
 `Kust alustaksite tööd?` and said what the model needs is context rather than shorter questions,
@@ -8968,7 +8971,7 @@ whole sentence with one clause inside it and a reason or a consequence in a seco
 speak to any adult; at C1 how you speak to a colleague. Each row also narrows the ask, fewer
 sentences, fewer words and fewer words outside the list as the band drops, and **every figure sits
 under the gate's own ceiling**, asserted, since the gate is what keeps a composed line honest and
-none of its twelve checks was touched.
+none of its checks was touched.
 
 **A scene has no band of its own.** It did, and it decided where a tile sat on the listing and, for
 an hour, how the other side talked; the operator asked for the bands to go, and they were right
@@ -11001,8 +11004,9 @@ suite that presses the flip and knows no other shape, and on the helper learning
 ordinary afternoon of working on this, said `export produced a backup (0 KB)` and stopped. The
 export was working perfectly. That line sends whoever reads it to the one part of the app the
 suite exists to protect, and the answer was the clock. It reads the 429 now and says the
-allowance is spent and that restarting the server clears it, since the limiter is per instance
-and in memory. Still a failure rather than a waiver: a run that could not take a backup has not
+allowance is spent. It used to add that restarting the server clears it, which stopped being true
+when the export's cap moved into Postgres (`checkSharedRateLimit`), so it says to wait or empty the
+local `RateLimit` table instead. Still a failure rather than a waiver: a run that could not take a backup has not
 checked backup and restore.
 
 **And a counter the app prints in two places was read in one, so finishing a session read as an app

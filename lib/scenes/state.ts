@@ -1,7 +1,7 @@
 /**
  * The machine that decides what happens next, which is never the model.
  *
- * `docs/19-situations.md` §18 names the first way this module could fail: a
+ * `docs/21-situations.md` §18 names the first way this module could fail: a
  * chatbot in a costume. The guard is that the state machine decides what
  * happens, the dictionary decides what advances it, and the model writes one
  * line for one move inside a closed word list. This file is the first of

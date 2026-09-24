@@ -1,7 +1,7 @@
 /**
  * What the dictionary found in a learner's turn, and nothing else.
  *
- * This is the half of a scene with no model in it (`docs/19-situations.md` §8),
+ * This is the half of a scene with no model in it (`docs/21-situations.md` §8),
  * and the type system is what keeps it that way: `readTurn` is the only
  * producer of `Evidence` and `advance` is its only consumer, so a caller
  * holding a model's opinion about whether somebody was understood cannot
