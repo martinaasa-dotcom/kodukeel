@@ -7663,9 +7663,27 @@ check("signing out forgets the device", () => {
   const leavers = ALL.filter((f) => /auth\.signOut\(/.test(code(f)))
     .filter((f) => f !== "app/auth/callback/route.ts");
   assert.ok(leavers.length >= 2, "no client signs anybody out any more");
+  /*
+    Asked of every sign-out rather than every file. `DangerZone.tsx` signs out
+    on two paths, after an account is deleted and after a partial deletion, so
+    a file-level match was satisfied by either one: taking the forget off the
+    deletion path left the cached pages of an account that no longer exists on
+    the device, and this stayed green. The forget sits in the same handler as
+    the sign-out, before it or after it (the rail forgets after, so a sign-out
+    that could not reach the service loses nothing), which is what the window
+    either side of each call reads.
+  */
+  let signOuts = 0;
   for (const file of leavers) {
-    assert.match(code(file), /forgetThisDevice/, `${file} signs out without forgetting the device`);
+    const source = code(file);
+    for (const call of source.matchAll(/auth\.signOut\(/g)) {
+      signOuts += 1;
+      const around = source.slice(Math.max(0, call.index! - 300), call.index! + 300);
+      const line = source.slice(0, call.index!).split("\n").length;
+      assert.match(around, /forgetThisDevice\(/, `${file}:${line} signs out without forgetting the device`);
+    }
   }
+  assert.ok(signOuts >= 3, `found ${signOuts} sign-outs, so this stopped reading them`);
   // The outbox goes first, because a grade still queued is the one thing the
   // device cannot keep and must not quietly drop.
   const rail = code("components/Sidebar.tsx");
