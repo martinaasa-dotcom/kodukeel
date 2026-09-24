@@ -470,7 +470,10 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
  * sends it hunting for a synonym that is equally new. The words are the same
  * shape either way, so what changes is which set is sent.
  *
- * Exported because the harnesses have to retry the way the route retries.
+ * Exported because the harnesses have to tell a retry the words the route
+ * tells it. They still retry less than the route does, once rather than up to
+ * `MAX_COMPOSE_ATTEMPTS` times and without `whyWithheld`, so a harness rescue
+ * rate is a floor under the route's rather than the same number.
  * `eval:scene` passed `verdict.unknown` flat and `draft:lines` retried only
  * where it was non-empty, both written before the split gave `vouching` and
  * `stretch` a set each: after it, a line withheld for reaching too far got no

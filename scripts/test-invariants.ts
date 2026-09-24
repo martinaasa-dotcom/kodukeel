@@ -13932,7 +13932,9 @@ check("a measurement sends what the route sends, and reads what it reads", () =>
   }
 
   /*
-    AND A HARNESS RETRIES THE WAY THE ROUTE RETRIES, WHICH IS `retryNote`.
+    AND A HARNESS TELLS A RETRY WHAT THE ROUTE TELLS IT, WHICH IS `retryNote`.
+    (What it tells, not how often: the harnesses retry once where the route
+    tries up to `MAX_COMPOSE_ATTEMPTS` times and adds `whyWithheld`.)
 
     `vouching` and `stretch` had one word-set between them until the split gave
     them one each, and the app grew `retryNote` to choose: a word nothing can
