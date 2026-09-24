@@ -386,12 +386,17 @@ export function CheckStarter({ compact = false, onOpen }: { compact?: boolean; o
 }
 
 export function SentenceCheck({
-  open, estonian, meaning, streaming, compact = false, onOpen, onClose, onEstonian, onMeaning, onSubmit,
+  open, estonian, meaning, streaming, online, compact = false, onOpen, onClose, onEstonian, onMeaning, onSubmit,
 }: {
   open: boolean;
   estonian: string;
   meaning: string;
   streaming: boolean;
+  /**
+   * Required, because `send` refuses offline: a Check button left enabled
+   * would look live and do nothing, which is the fault `AnuOffline` exists for.
+   */
+  online: boolean;
   compact?: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -440,7 +445,7 @@ export function SentenceCheck({
           variant="primary"
           className="shrink-0"
           onClick={onSubmit}
-          disabled={streaming || estonian.trim().length < 3}
+          disabled={streaming || !online || estonian.trim().length < 3}
         >
           <CheckCheck size={15} aria-hidden /> Check it
         </Button>

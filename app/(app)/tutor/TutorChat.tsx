@@ -102,6 +102,7 @@ export function TutorChat({
         estonian={checkEt}
         meaning={checkEn}
         streaming={streaming}
+        online={online}
         onOpen={() => setCheckOpen(true)}
         onClose={() => setCheckOpen(false)}
         onEstonian={setCheckEt}
