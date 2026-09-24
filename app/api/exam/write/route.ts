@@ -7,6 +7,14 @@ import { verifyVerdict } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
 
+/**
+ * Every answer here is built out of one learner's own rows, so every answer says
+ * it is not to be kept, error branches included (`docs/27-security.md`, and the
+ * invariant that reads this file).
+ */
+const NO_STORE = { "cache-control": "no-store" };
+const json = (body: unknown, init?: ResponseInit) => Response.json(body, { ...init, headers: NO_STORE });
+
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
@@ -42,27 +50,27 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.text !== "string") {
-      return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+      return json({ error: "Something about that request didn't make sense." }, { status: 400 });
     }
     text = body.text.trim().slice(0, MAX_CHARS);
     if (typeof body.level === "string" && /^[ABC][12]$/.test(body.level)) level = body.level;
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return json({ error: "Something about that request didn't make sense." }, { status: 400 });
   }
 
   if (text.split(/\s+/).filter(Boolean).length < 5) {
-    return Response.json({ error: "There is not enough here to read." }, { status: 400 });
+    return json({ error: "There is not enough here to read." }, { status: 400 });
   }
 
   // The grader's own chain, not the general head (see `PURPOSE_CHAINS`).
   const config = resolveProviders({ purpose: "grader" })[0];
   if (!config) {
-    return Response.json({ comment: "", rule: "", aiAvailable: false });
+    return json({ comment: "", rule: "", aiAvailable: false });
   }
 
   const decision = await authoriseCall(ownerId, "GRADER");
   if (!decision.allowed) {
-    return Response.json({
+    return json({
       comment: "", rule: "", aiAvailable: false, quotaMessage: decision.message,
     });
   }
@@ -89,7 +97,7 @@ export async function POST(request: Request) {
     }));
     settled = true;
 
-    if (!graded) return Response.json({ comment: "", rule: "", aiAvailable: true });
+    if (!graded) return json({ comment: "", rule: "", aiAvailable: true });
 
     /*
       ADR-005, enforced rather than requested. The allowlist is the learner's own
@@ -114,13 +122,13 @@ export async function POST(request: Request) {
         ownerId,
         extra: { model: answered.model, unverified: verified.unverified },
       });
-      return Response.json({
+      return json({
         comment: "", rule: "", aiAvailable: true,
         withheld: verified.unverified, withheldReason: verified.reason,
       });
     }
 
-    return Response.json({
+    return json({
       comment: verified.graded.comment, rule: verified.graded.rule, aiAvailable: true,
     });
   } catch (error) {
@@ -129,6 +137,6 @@ export async function POST(request: Request) {
     if (!(error instanceof TutorError)) {
       reportError(error, { at: "api/exam/write", ownerId, extra: { model: config.model } });
     }
-    return Response.json({ comment: "", rule: "", aiAvailable: false });
+    return json({ comment: "", rule: "", aiAvailable: false });
   }
 }

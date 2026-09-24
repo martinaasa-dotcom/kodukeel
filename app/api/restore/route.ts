@@ -1,10 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 import { inspectBackup, restoreBackup } from "@/app/actions";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { reportError } from "@/lib/observability/report";
+
+/**
+ * Every answer here is built out of one learner's own rows, so every answer says
+ * it is not to be kept, error branches included (`docs/27-security.md`, and the
+ * invariant that reads this file).
+ */
+const NO_STORE = { "cache-control": "no-store" };
+const reply = (body: unknown, init?: ResponseInit) => Response.json(body, { ...init, headers: NO_STORE });
 
 /**
  * Restoring a backup, as a Route Handler rather than a Server Action.
@@ -61,7 +69,7 @@ export async function POST(request: NextRequest) {
 
   const declared = Number(request.headers.get("content-length") ?? "");
   if (Number.isFinite(declared) && declared > MAX_BACKUP_BYTES) {
-    return NextResponse.json(
+    return reply(
       {
         ok: false,
         error:
@@ -92,21 +100,21 @@ export async function POST(request: NextRequest) {
       costs.
     */
     if (json.length > MAX_BACKUP_BYTES) {
-      return NextResponse.json(
+      return reply(
         { ok: false, error: "That file is larger than this app will read, and nothing was changed." },
         { status: 413 },
       );
     }
   } catch (cause) {
     await reportError(cause, { at: "api/restore", extra: { stage: "read" } });
-    return NextResponse.json(
+    return reply(
       { ok: false, error: "The upload did not finish, and nothing was changed. Try again." },
       { status: 400 },
     );
   }
 
   if (!json.trim()) {
-    return NextResponse.json({ ok: false, error: "That file was empty." }, { status: 400 });
+    return reply({ ok: false, error: "That file was empty." }, { status: 400 });
   }
 
   /*
@@ -131,7 +139,7 @@ export async function POST(request: NextRequest) {
       at: "api/restore",
       extra: { stage: "read", bytes: json.length },
     });
-    return NextResponse.json(
+    return reply(
       {
         ok: false,
         error:
@@ -145,11 +153,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const result = mode === "inspect" ? await inspectBackup(json) : await restoreBackup(json, mode);
-    return NextResponse.json(result, { status: result.ok ? 200 : 400 });
+    return reply(result, { status: result.ok ? 200 : 400 });
   } catch (cause) {
     // requireUserId throws for a signed-out caller; everything else is real.
     await reportError(cause, { at: "api/restore", extra: { stage: "restore", bytes: json.length } });
-    return NextResponse.json(
+    return reply(
       {
         ok: false,
         error:

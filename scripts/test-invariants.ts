@@ -7365,7 +7365,10 @@ check("a response built out of one learner's own rows is never cacheable", () =>
     const src = code(file);
     // A route that only ever writes has nothing to cache; the ones that hand
     // back a body built from the learner's rows are the ones this is about.
-    if (!/new Response\(|ImageResponse\(/.test(src)) continue;
+    // `Response.json` and `NextResponse.json` are bodies too: read as only
+    // `new Response(`, the describe, write, exam write and restore routes were
+    // outside this check while docs/27-security.md said every route sent it.
+    if (!/new Response\(|ImageResponse\(|Response\.json\(|NextResponse\.json\(/.test(src)) continue;
     assert.match(
       src,
       /"cache-control":\s*"(private, )?no-store"/,
