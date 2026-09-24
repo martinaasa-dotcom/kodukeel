@@ -107,6 +107,8 @@ export function TutorChat({
         onEstonian={setCheckEt}
         onMeaning={setCheckEn}
         onSubmit={() => {
+          // Offline, send refuses; clearing now would throw away what they wrote.
+          if (!online) return;
           void send(sentenceCheckPrompt(checkEt, checkEn));
           setCheckEt("");
           setCheckEn("");
