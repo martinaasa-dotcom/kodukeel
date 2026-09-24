@@ -4830,8 +4830,11 @@ loops were measured against a real database rather than reasoned about, and they
 the same answer. The offline replay asked "have I seen this grade before" once per item, which is
 the one query in it that does not depend on what the previous grade did: a `Review` id is generated
 on the client and the only rows that loop writes are its own, so the answer for a whole batch is one
-read. The rest of it stays per item, because that part genuinely is what the grade before left
-behind. The word importer asked the dictionary about every pasted row on its own, five hundred of
+read. The card it grades is read once for the batch too, and what the grade before left behind is
+carried forward rather than read again: `writeGrade` returns exactly the scheduling it wrote, so the
+copy in hand after each write is the row a fresh read would return, and `replay.itest.ts` chains
+three grades of one card against three calls to the scheduler. Fifty grades went from 51 card reads
+to 1; the writes stay per item, because they are the grades. The word importer asked the dictionary about every pasted row on its own, five hundred of
 them at the cap, and `@@unique` on `(lemma, pos)` means one `IN` answers all of it; what is left per
 word is `addCardsFor`, which takes a lock and is half the cost, and collapsing that would mean a
 second path that writes cards. And `addUnitToDeck` was measured and left alone: twenty words and
