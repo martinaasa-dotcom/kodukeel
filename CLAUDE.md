@@ -8035,7 +8035,7 @@ The other side repeats the learner's own word back before moving on, off `Eviden
 every line is spoken in the persona's voice. Fourteen scenes, and all fourteen play keyless from the
 first line to the debrief. `docs/21-situations.md` §32 has the table and what it does not fix.
 
-**And the sixteenth situation is a clothes shop, which is the first counter that asks a learner to
+**And the fifteenth situation is a clothes shop, which is the first counter that asks a learner to
 describe something rather than name it.** Every other shop here is a transaction over a thing with
 a name: milk, a ticket, a prescription. `riidepood` asks for the noun and then two facts about it,
 a size and a colour, and then whether it fits, which is what `riided` claims a learner can do and
