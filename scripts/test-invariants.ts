@@ -21595,6 +21595,26 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a line of a stranger's text a class shows other people is cleaned, not trimmed", () => {
+  /*
+    `trim()` leaves U+200B and U+202E, so a name made of zero-width spaces
+    renders as nothing and one carrying a reversal can make a row read as
+    another's. Display names were cleaned; the class name, which every member
+    sees and every pupil's task quotes, and the homework title on every
+    pupil's Today, were trimmed.
+  */
+  const actions = code("app/actions.ts");
+  assert.match(actions, /function cleanShownText\([\s\S]{0,200}\\p\{C\}/, "cleanShownText no longer strips control and format characters");
+  for (const [name, pattern] of [
+    ["createClassroom", /cleanShownText\(text\(name\)/],
+    ["assignHomework", /cleanShownText\(title,/],
+  ] as const) {
+    const start = actions.indexOf(`export async function ${name}(`);
+    const body = actions.slice(start, actions.indexOf("\nexport ", start + 10));
+    assert.match(body, pattern, `${name} stores a line other people see without cleaning it`);
+  }
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

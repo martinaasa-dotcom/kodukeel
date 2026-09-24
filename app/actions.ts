@@ -2325,7 +2325,7 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
 
   const busy = throttleAction(ownerId, "createClassroom");
   if (busy) return busy;
-  const trimmed = text(name).trim().slice(0, 60);
+  const trimmed = cleanShownText(text(name), 60);
   if (trimmed.length < 2) return { ok: false as const, error: "Give the class a name." };
 
   /*
@@ -2501,7 +2501,7 @@ export async function assignHomework(classroomId: string, title: string, notes: 
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
 
-  const cleanTitle = capped(title, LIMITS.taskTitle);
+  const cleanTitle = cleanShownText(title, LIMITS.taskTitle);
   if (!cleanTitle) return { ok: false as const, error: "Give the homework a title." };
   const cleanNotes = capped(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
 
@@ -2582,8 +2582,21 @@ export async function classworkHistory(classroomId: string) {
  * character.
  */
 function cleanDisplayName(value: unknown): string {
+  return cleanShownText(value, 32);
+}
+
+/**
+ * The same cleaning for any one line of a stranger's text that a class shows
+ * to other people.
+ *
+ * A class's name is printed to every member on the join screen and written
+ * into every pupil's task as "Set by <name>.", and a homework title is on
+ * every pupil's Today; both were `trim()` alone, so the two faults above
+ * reached every member of a class rather than one row of a roster.
+ */
+function cleanShownText(value: unknown, max: number): string {
   if (typeof value !== "string") return "";
-  const cleaned = value.normalize("NFC").replace(/\p{C}/gu, "").replace(/\s+/g, " ").trim().slice(0, 32);
+  const cleaned = value.normalize("NFC").replace(/\p{C}/gu, "").replace(/\s+/g, " ").trim().slice(0, max);
   return /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : "";
 }
 
