@@ -124,35 +124,48 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
   const since = new Date(now.getTime() - LOOK_BACK_DAYS * 86_400_000);
 
   /*
-    The sizes first, so the walk knows how far it has to reach. Two counts on
-    indexed columns, and `distinct` here is a real `COUNT(DISTINCT)` rather
-    than the client-side deduplication a `take` beside a `distinct` would get,
-    which is the rule this project states about that pairing.
+    The sizes first, so the walk knows how far it has to reach.
+
+    THE REVIEWERS ARE COUNTED IN POSTGRES, WHICH THE COMMENT HERE CLAIMED AND
+    THE QUERY DID NOT DO. It said `distinct` was a real `COUNT(DISTINCT)`. It is
+    not, with or without a `take`: Prisma deduplicates in the client, so what
+    reached the database was `SELECT id, ownerId FROM Review WHERE reviewedAt
+    >= $1`, every review of the last 45 days on the whole deployment, read into
+    this process to be counted by `.length`. Read off Postgres's own statement
+    log. `Review` is the largest table in the schema and grows every time
+    anybody answers a card, so this was the run's heaviest read by far and the
+    one that grows without bound. `@@index([reviewedAt])` answers the filter.
   */
-  const [reviewers, starters] = await Promise.all([
-    prisma.review
-      .findMany({ where: { reviewedAt: { gte: since } }, distinct: ["ownerId"], select: { ownerId: true } })
-      .then((rows) => rows.length),
+  const [[counted], starters] = await Promise.all([
+    prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(DISTINCT "ownerId") AS count
+      FROM "Review"
+      WHERE "reviewedAt" >= ${since}
+    `,
     prisma.setting.count({
       where: { key: SETTING_KEYS.onboardedAt, value: { gte: since.toISOString() } },
     }),
   ]);
 
+  const reviewers = Number(counted?.count ?? 0);
+
   const [reviewed, settled] = await Promise.all([
-    prisma.review.findMany({
-      where: { reviewedAt: { gte: since } },
-      distinct: ["ownerId"],
-      select: { ownerId: true },
-      /*
-        Ends on the primary key, because `ownerId` is not unique in `Review`
-        and a `take` over a loose order is the plan deciding which learners a
-        run considers. Stable is what matters: the page above walks, and a walk
-        over an order that moves would skip and repeat rather than cover.
-      */
-      orderBy: [{ ownerId: "asc" }, { id: "asc" }],
-      skip: rosterPage(now, reviewers, limit),
-      take: limit,
-    }),
+    /*
+      One page of distinct learners, and the page is cut in Postgres. The
+      `distinct` + `skip` + `take` this replaced emitted no DISTINCT and no
+      LIMIT, only the OFFSET, so every matching review came over the wire, was
+      sorted, deduplicated in JavaScript and then sliced. Ordered on `ownerId`,
+      which after `DISTINCT` is unique, so the order is total and the walk the
+      page above makes covers rather than skipping and repeating.
+    */
+    prisma.$queryRaw<{ ownerId: string }[]>`
+      SELECT DISTINCT "ownerId"
+      FROM "Review"
+      WHERE "reviewedAt" >= ${since}
+      ORDER BY "ownerId" ASC
+      LIMIT ${limit}
+      OFFSET ${rosterPage(now, reviewers, limit)}
+    `,
     /*
       And the people who finished first run and have not answered a card yet,
       who are exactly the ones a welcome is for and who a review-log query

@@ -3713,20 +3713,62 @@ check("a `take` beside a `distinct` bounds nothing, so it is scoped to one owner
     const src = read(file).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
     let at = src.indexOf("distinct: [");
     while (at !== -1) {
-      // The enclosing call: back to the `prisma.` that opened it, forward to
-      // the end of that argument object.
+      /*
+        THE WHERE, AND ONLY THE WHERE.
+
+        This asked whether `ownerId` appeared anywhere in the call, and a call
+        that deduplicates *on* the owner names it in its own `distinct`, and
+        usually in its `select` and its `orderBy` too. So the one shape this
+        rule most needs to see, every learner on the deployment de-duplicated
+        in JavaScript, was the one it could not fail on:
+        `mailoutRoster` sent `SELECT id, ownerId FROM Review WHERE reviewedAt >= $1`
+        with no DISTINCT and no LIMIT, twice a run, under a comment calling it
+        a real COUNT(DISTINCT), and this printed PASS. Read off Postgres's own
+        statement log, not reasoned about.
+
+        So the argument object is brace-matched from the `prisma.` that opened
+        it, and the owner has to be in its `where`, which is the only place
+        that scopes the rows. A relation filter through the learner's own
+        cards counts, since that is bounded by their deck.
+      */
       const opened = src.lastIndexOf("prisma.", at);
-      const call = src.slice(opened, src.indexOf("})", at) + 2);
+      const where = whereOf(src, opened, at);
       assert.ok(
-        /ownerId/.test(call),
+        where !== null && /\bownerId\b/.test(where),
         `${file}: a Prisma \`distinct\` with no ownerId in its where. That reads the whole `
         + `table however small the \`take\` beside it looks, because Prisma emits no LIMIT `
-        + `next to a distinct. Count it in Postgres instead.`,
+        + `and no DISTINCT next to a distinct. Count it in Postgres instead.`,
       );
       at = src.indexOf("distinct: [", at + 1);
     }
   }
 });
+
+/**
+ * The `where` object of the Prisma call opened at `opened`, or null where the
+ * call carries none, found by matching braces rather than by searching for the
+ * next `})`, which stops at the first nested object that closes.
+ */
+function whereOf(src: string, opened: number, inside: number): string | null {
+  const paren = src.indexOf("(", opened);
+  let depth = 0;
+  let end = -1;
+  for (let i = paren; i < src.length; i += 1) {
+    if (src[i] === "(") depth += 1;
+    else if (src[i] === ")") { depth -= 1; if (depth === 0) { end = i; break; } }
+  }
+  if (end === -1 || inside > end) return null;
+  const call = src.slice(paren, end);
+  const key = call.search(/\bwhere\s*:/);
+  if (key === -1) return null;
+  const start = call.indexOf("{", key);
+  let level = 0;
+  for (let i = start; i < call.length; i += 1) {
+    if (call[i] === "{") level += 1;
+    else if (call[i] === "}") { level -= 1; if (level === 0) return call.slice(start, i + 1); }
+  }
+  return null;
+}
 
 check("which of two entries for one word wins is decided, not left to the rows", () => {
   /*

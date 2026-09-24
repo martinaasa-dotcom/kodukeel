@@ -4825,6 +4825,15 @@ fetched once per card rather than once per word. So the pairing is owner-scoped 
 happen, which is what the invariant asserts: one learner's own cards are bounded by their deck
 whatever the `take` says, and anything deployment-wide counts in Postgres.
 
+**And the check behind that rule could not fail on the one call it most needed to see.** It asked
+whether `ownerId` appeared anywhere in the call, and a call that deduplicates *on* the owner names it
+in its own `distinct`, its `select` and its `orderBy`. So `mailoutRoster`, which deduplicated every
+learner on the deployment, passed, under a comment calling its query a real `COUNT(DISTINCT)`. The
+statement log said otherwise: `SELECT id, ownerId FROM Review WHERE reviewedAt >= $1`, no DISTINCT
+and no LIMIT, twice every nightly run, over the largest table in the schema. Both reads are SQL
+Postgres answers itself now, `lib/progress/mailout.itest.ts` holds the roster to the same learners
+in the same pages, and the check reads the call's `where` and nothing else.
+
 **A cap on rows is not a cap on time, and a loop of queries is where the difference lives.** Three
 loops were measured against a real database rather than reasoned about, and they did not all need
 the same answer. The offline replay asked "have I seen this grade before" once per item, which is
@@ -10719,7 +10728,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
 `data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
-`OPENS_WITHOUT_BRIEFING`.
+`OPENS_WITHOUT_BRIEFING`, `whereOf`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
