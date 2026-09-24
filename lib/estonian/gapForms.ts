@@ -88,16 +88,37 @@ export function gapForms(word: GapWord): Map<string, CaseKey | null> {
 
     A retrieved form names its own slot, which is what `morphCode` is.
   */
+  /*
+    AND THE STORED ROWS ARE READ TOGETHER, NOT IN THE ORDER THEY ARRIVED.
+
+    The guard above covered `ILL_SG_SHORT` and nothing else, and first writer
+    wins below, so a retrieved row named by its `morphCode` kept its case
+    whenever it happened to come back before the principal part it shares a
+    spelling with. `arsti` stored as `SgAdt` ahead of the genitive was labeled
+    the illative, and `tuba` stored as `SgP` ahead of the nominative was
+    labeled the partitive; the other way round, both were unlabeled. A live
+    Ekilex fetch returns its rows in database order, so which case a gap card
+    wrote into `Review.slot` depended on a query plan. Every claim on a
+    spelling is collected first: one a principal part or the headword spells is
+    never named, and otherwise a case is named only where the rows agree on
+    exactly one.
+  */
   const principalValues = new Set(
     ["NOM_SG", "GEN_SG", "PART_SG"]
       .map((k) => parts[k]?.trim().toLowerCase())
+      .concat(word.lemma.trim().toLowerCase())
       .filter((v): v is string => !!v),
   );
+  const claims = new Map<string, Set<CaseKey | null>>();
   for (const form of word.forms) {
-    const named = form.formType === "ILL_SG_SHORT"
-      ? (principalValues.has(form.value.trim().toLowerCase()) ? null : "ILLATIVE" as const)
-      : caseFromMorphCode(form.morphCode);
-    add(form.value, named);
+    const clean = form.value.trim().toLowerCase();
+    if (!clean) continue;
+    const named = form.formType === "ILL_SG_SHORT" ? "ILLATIVE" as const : caseFromMorphCode(form.morphCode);
+    (claims.get(clean) ?? claims.set(clean, new Set()).get(clean)!).add(named);
+  }
+  for (const [spelling, named] of claims) {
+    const only = [...named];
+    add(spelling, !principalValues.has(spelling) && only.length === 1 ? only[0]! : null);
   }
   add(word.lemma, null);
 

@@ -4,6 +4,7 @@ import {
   seedFrom, type PoolWord,
 } from "./paper";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
+import { PARTS } from "@/lib/copy/values";
 
 /* No dictionary behind the paper, so every sentence keeps the one order the
    writer chose. What a reading of the dictionary adds is asserted in
@@ -516,6 +517,50 @@ describe("a dictionary with no recorded sentences, which is what a keyless insta
     for (const task of partial) {
       expect(task.rawAvailable).toBeLessThan(task.spec.raw);
       expect(task.rawAvailable).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("a case written from a word", () => {
+  /*
+    Every word here stores a short illative that differs from the long one,
+    which is the shape `tuba` has: `tuppa`, and `toasse` beside it.
+  */
+  const shortIllatives = Array.from({ length: 40 }, (_, i) => {
+    const lemma = nth(i, "tuba");
+    return word({
+      lemma,
+      lexemeId: `ill-${i}`,
+      translation: `room ${i}`,
+      forms: [
+        { formType: "NOM_SG", value: lemma, morphCode: null, morphName: null },
+        { formType: "GEN_SG", value: `${lemma}e`, morphCode: null, morphName: null },
+        { formType: "PART_SG", value: `${lemma}t`, morphCode: null, morphName: null },
+        { formType: "ILL_SG_SHORT", value: `${lemma}u`, morphCode: null, morphName: null },
+      ],
+    });
+  });
+
+  const items = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"].flatMap((seed) =>
+    buildPaper("B1", shortIllatives, seed, WORD_ORDER).parts
+      .flatMap((p) => p.tasks.flatMap((t) => t.items))
+      .filter((i): i is Extract<typeof i, { kind: "case-form" }> => i.kind === "case-form"));
+
+  it("accepts the long illative wherever the short one is the answer", () => {
+    const illatives = items.filter((i) => i.caseKey === "ILLATIVE");
+    expect(illatives.length).toBeGreaterThan(0);
+    for (const item of illatives) {
+      expect(item.answer).toBe([`${item.lemma}u`, `${item.lemma}esse`].join(PARTS));
+    }
+  });
+
+  it("hands the marker the word's other forms, and never a right answer among them", () => {
+    expect(items.length).toBeGreaterThan(0);
+    for (const item of items) {
+      // The nominative is never what a case-form item asks for, so it is
+      // always a rival; the genitive is the answer when the omastav is asked.
+      expect(item.rivals).toContain(item.lemma);
+      for (const right of item.answer.split(PARTS)) expect(item.rivals).not.toContain(right);
     }
   });
 });

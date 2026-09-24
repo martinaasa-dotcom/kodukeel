@@ -114,3 +114,29 @@ describe("gapForms", () => {
     expect(forms.get("toas")).toBe("INESSIVE");
   });
 });
+
+describe("the order the rows arrive in", () => {
+  const principal = [
+    { formType: "NOM_SG", value: "arst" },
+    { formType: "GEN_SG", value: "arsti" },
+    { formType: "PART_SG", value: "arsti" },
+  ];
+  const retrieved = { formType: "EKILEX:SgAdt", value: "arsti", morphCode: "SgAdt" };
+
+  it("never names a case a principal part also spells, whichever row came first", () => {
+    const after = gapForms({ lemma: "arst", pos: "NOUN", forms: [...principal, retrieved] });
+    const before = gapForms({ lemma: "arst", pos: "NOUN", forms: [retrieved, ...principal] });
+    expect(after.get("arsti")).toBeNull();
+    expect(before.get("arsti")).toBeNull();
+  });
+
+  it("never names a case the headword spells", () => {
+    const forms = [{ formType: "EKILEX:SgP", value: "tuba", morphCode: "SgP" }, { formType: "NOM_SG", value: "tuba" }];
+    expect(gapForms({ lemma: "tuba", pos: "NOUN", forms }).get("tuba")).toBeNull();
+  });
+
+  it("still names a retrieved case no other row spells", () => {
+    const forms = [{ formType: "EKILEX:SgIn", value: "toas", morphCode: "SgIn" }, { formType: "NOM_SG", value: "tuba" }];
+    expect(gapForms({ lemma: "tuba", pos: "NOUN", forms }).get("toas")).toBe("INESSIVE");
+  });
+});

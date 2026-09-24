@@ -232,8 +232,23 @@ describe("generateCards — CLOZE", () => {
   });
 
   it("tags the case, so a gap-fill counts toward the weak-case breakdown", () => {
-    const cards = generateCards(drinking, ["CLOZE"]);
-    expect(cards.some((c) => c.targetCase !== null)).toBe(true);
+    /*
+      On a spelling exactly one case claims. This used to pass on
+      `Jõin tassi kohvi.`, whose `kohvi` is the partitive and was tagged the
+      genitive because the genitive row happened to come first; a spelling two
+      cases claim names neither. `kohviga` is only ever the kaasaütlev, and the
+      sentence is a recorded usage of `kohv`.
+    */
+    const withComitative = {
+      ...drinking,
+      examples: JSON.stringify([{ et: "Proovi piirduda kahe tassi kohviga päevas.", source: "EKILEX" }]),
+    };
+    const cards = generateCards(withComitative, ["CLOZE"]);
+    expect(cards.map((c) => c.targetCase)).toEqual(["COMITATIVE"]);
+  });
+
+  it("never tags a spelling two cases share", () => {
+    for (const card of generateCards(drinking, ["CLOZE"])) expect(card.targetCase).toBeNull();
   });
 
   it("stops at two per word rather than drilling every sentence", () => {
