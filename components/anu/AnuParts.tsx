@@ -174,7 +174,7 @@ export function AnuOffline({ online, compact = false }: { online: boolean; compa
               <p className="font-semibold" style={{ color: "var(--ink)" }}>Anu needs a connection.</p>
               {!compact && (
                 <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Everything above still works. Ask her again once you are back online.
+                  What she has already said stays here. Ask her again once you are back online.
                 </p>
               )}
             </div>
