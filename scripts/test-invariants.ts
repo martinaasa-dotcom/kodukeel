@@ -6234,9 +6234,17 @@ check("every component is reachable from a route and drawn by something", () => 
       `anything a route imports, so the router cannot reach it. Whatever it does, nobody has. ` +
       `Wire it to a screen, or delete the file.`,
     );
+    /*
+      A `<` right after an identifier or a closing bracket is a type argument,
+      not an element: `useState<Foo>` and `Array<Foo>` end in `>`, which the
+      class accepts, so a component imported and rendered nowhere passed this
+      arm the moment its name appeared once as a type. Made to fail on exactly
+      that shape before the lookbehind went in.
+    */
     assert.ok(
       exported.some((name) =>
-        searched.some((other) => other !== file && new RegExp(`<${name}[\\s/>]`).test(body.get(other)!)),
+        searched.some((other) =>
+          other !== file && new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
       ),
       `${file} exports ${exported.join(", ")} and nothing in the tree draws any of them as an ` +
       `element, so it is imported and rendered nowhere, which is the same silence one line later. ` +
