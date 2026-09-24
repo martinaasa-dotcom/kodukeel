@@ -9940,15 +9940,19 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   since a burst of volume against a stopwatch is the whole of what both of these are, and an
   extension offered at the moment the time runs out interrupts the round it is rescuing.
   `lib/ux/roundClock.ts` is the one table and it holds a **multiplier rather than a number of
-  seconds**, because the two rounds have different bases for good reasons and one setting has to
-  serve both: what a learner is choosing is their own pace, which is the same fact about them
+  seconds**, because the rounds have different bases for good reasons and one setting has to
+  serve all of them: what a learner is choosing is their own pace, which is the same fact about them
   whichever round they open. It reaches ten times the standard, which is the figure the criterion
   itself names, and the unit test says so in those words. The value is resolved on the server and
   handed to each session as a number of seconds, since a client component has no settings to read
   and a round that fetched its own length would start before it knew it. **The mock examination
   keeps its clock**, and that limitation stays on the statement with its reasoning: the paper is
   imitating a timed state examination and untimed practice of a timed paper measures something
-  else (`docs/16-exam.md`).
+  else (`docs/16-exam.md`). **Target was the third clock and was found late**: it runs per question,
+  eight seconds tightening to three and a half, so it never read `secondsFor` and the statement went
+  on calling the examination the one clock left fixed. It reads `multiplierFor` now, and the
+  invariant is a sweep over every session that counts a clock down rather than a list of the two
+  that were fixed first, since a list is how the third one was missed.
 
 ## Model configuration
 

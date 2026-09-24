@@ -12,12 +12,14 @@ import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
-/** Seconds for the first shot. */
+/** Seconds for the first shot, at the standard pace. */
 const START_S = 8;
-/** The least time a shot ever gets, however far in you are. */
+/** The least time a shot ever gets at the standard pace, however far in you are. */
 const FLOOR_S = 3.5;
-/** How much of a second each hit takes off the clock. */
+/** How much of a second each hit takes off the clock at the standard pace. */
 const STEP_S = 0.25;
 
 /**
@@ -38,8 +40,22 @@ const STEP_S = 0.25;
  * was practiced: a hit is Good, a miss is Again, and running out of time is
  * Again too, because not producing a form inside eight seconds is not knowing
  * it yet.
+ *
+ * ALL THREE OF THOSE NUMBERS STRETCH BY THE LEARNER'S PACE (`stretch`), which
+ * is the setting the sprint and the quest read: eight seconds is a burst for
+ * somebody who reads fast and a wall for somebody who is hearing the card read
+ * out, and WCAG 2.2.1 asks that a limit like this be adjustable before it is
+ * met. The round still tightens as it goes; it tightens from further out.
  */
-export function TargetSession({ questions: initialQuestions }: { questions: TargetQuestion[] }) {
+export function TargetSession({ questions: initialQuestions, stretch }: {
+  questions: TargetQuestion[];
+  /** The learner's round pace as a factor, from `multiplierFor`. */
+  stretch: number;
+}) {
+  const start = START_S * stretch;
+  const floor = FLOOR_S * stretch;
+  const step = STEP_S * stretch;
+  const inModule = useModuleFocus() !== null;
   // Snapshotted on mount: `gradeCard` refreshes this route's Server Component,
   // and a round whose questions changed under the player is a different round.
   const [questions] = useState(initialQuestions);
@@ -49,12 +65,12 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
   const [hits, setHits] = useState(0);
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(0);
-  const [left, setLeft] = useState(START_S);
+  const [left, setLeft] = useState(start);
   const sound = useFeedbackSound();
   const shownAt = useRef(Date.now());
 
   const question = questions[index];
-  const allowed = Math.max(FLOOR_S, START_S - hits * STEP_S);
+  const allowed = Math.max(floor, start - hits * step);
 
   const answer = useCallback((choice: number | null) => {
     if (!question || picked !== null) return;
@@ -74,11 +90,11 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
     // moment in a round worth slowing down for.
     window.setTimeout(() => {
       setPicked(null);
-      setLeft(Math.max(FLOOR_S, START_S - (right ? hits + 1 : hits) * STEP_S));
+      setLeft(Math.max(floor, start - (right ? hits + 1 : hits) * step));
       shownAt.current = Date.now();
       setIndex((i) => i + 1);
     }, right ? 480 : 1500);
-  }, [question, picked, sound, hits]);
+  }, [question, picked, sound, hits, floor, start, step]);
 
   useEffect(() => {
     if (phase !== "running" || picked !== null) return;
@@ -114,9 +130,23 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
             only the question word tells you which of the four to hit.
           </p>
           <Button variant="primary" size="lg"
-            onClick={() => { setPhase("running"); setLeft(START_S); shownAt.current = Date.now(); }}>
+            onClick={() => { setPhase("running"); setLeft(start); shownAt.current = Date.now(); }}>
             Start
           </Button>
+          {/* The sprint's own sentence, for its reason: the moment somebody
+              notices a round is too fast is the moment they are on this screen,
+              and inside a module the sentence stays and the door out does not. */}
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+            {`The first shot gets ${Math.round(start * 10) / 10} seconds. Need longer? `}
+            {inModule ? (
+              <span>Settings lets you give yourself more time</span>
+            ) : (
+              <Link href="/settings#round-pace" className="underline underline-offset-2">
+                Give yourself more time
+              </Link>
+            )}
+            , up to ten times this.
+          </p>
           {/* The way back to the menu somebody chose this round from, which
               inside a module is a door out of the evening: the way on is the
               bar at the foot of the screen. */}

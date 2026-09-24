@@ -1,10 +1,13 @@
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
- * Two rounds in this app run to a clock: the Case Sprint at sixty seconds and
- * the daily quest at two minutes. Both numbers were chosen for the round they
- * are in and both were fixed, which is WCAG 2.2 success criterion 2.2.1,
- * Timing Adjustable, failed twice. A learner who reads slowly, who is hearing
+ * Three rounds in this app run to a clock: the Case Sprint at sixty seconds,
+ * the daily quest at two minutes, and Target at eight seconds a question that
+ * tightens to three and a half. Every one of those numbers was chosen for the
+ * round it is in and every one was fixed, which is WCAG 2.2 success criterion
+ * 2.2.1, Timing Adjustable, failed three times. Target was the third and was
+ * found late: it keeps its clock per question rather than per round, so it
+ * never read `secondsFor` and nothing asked whether it should. A learner who reads slowly, who is hearing
  * a card read out before answering it, or who types with one hand is not
  * playing a faster version of the same round. They are shut out of it.
  *
@@ -16,8 +19,8 @@
  * is trying to rescue. Adjusting it beforehand leaves the round intact and
  * asks nothing of anybody mid-answer.
  *
- * A MULTIPLIER RATHER THAN A NUMBER OF SECONDS, because the two rounds have
- * different bases for good reasons and one setting has to serve both. Sixty
+ * A MULTIPLIER RATHER THAN A NUMBER OF SECONDS, because the rounds have
+ * different bases for good reasons and one setting has to serve all of them. Sixty
  * seconds is right for flipping cards and two minutes is right for a round
  * that picks from four options, so a stored "180 seconds" would be generous in
  * one and meaningless in the other. What a learner is choosing is their own
@@ -84,7 +87,12 @@ export function roundPaceFrom(value: string | null | undefined): RoundPace {
     : DEFAULT_ROUND_PACE;
 }
 
-function multiplierFor(pace: RoundPace): number {
+/**
+ * The pace as a factor, for a round whose clock is not one whole number of
+ * seconds: Target's shots are eight seconds falling by a quarter per hit to a
+ * floor of three and a half, and all three stretch by the same factor.
+ */
+export function multiplierFor(pace: RoundPace): number {
   return ROUND_PACES.find((p) => p.id === pace)?.multiplier ?? 1;
 }
 

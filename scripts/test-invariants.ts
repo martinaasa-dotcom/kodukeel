@@ -21494,6 +21494,51 @@ check("nothing pays a model to translate a sentence nobody may be shown", () => 
   );
 });
 
+check("every round that counts a clock down lets the learner set how long it runs", () => {
+  /*
+    WCAG 2.2.1, Timing Adjustable, and `lib/ux/roundClock.ts` is how this app
+    meets it: the learner's pace is chosen before the round starts and every
+    timed round stretches by it. The Case Sprint and the daily quest were
+    fixed first and Target was missed, because it keeps its clock per
+    question rather than per round and nothing asked whether it should read
+    the setting: eight seconds a shot, whoever was playing.
+
+    So the haystack is the filesystem, not the two rounds that were fixed:
+    every session that counts a clock down, found by the shape of the
+    countdown rather than by name, and its page has to resolve the pace. Two
+    shapes of countdown, a state decremented towards nought on a timer and a
+    session holding a deadline, because the second is how the examination
+    keeps time and a sweep that only knew the first could never see it.
+
+    The mock examination is exempt by name, with the reason `roundClock.ts`
+    and `docs/16-exam.md` give, and the exemption is checked in both
+    directions so it cannot outlive the clock it is about.
+  */
+  const EXEMPT: Record<string, string> = {
+    "app/(app)/exam/[level]/ExamSession.tsx":
+      "an imitation of a timed state examination, where untimed practice of a timed paper measures "
+      + "something else; the accessibility statement names it as the one clock left fixed",
+  };
+  const COUNTDOWN = /set(?:Timeout|Interval)\(\s*\(\)\s*=>\s*set\w+\(\(?\w+\)?\s*=>\s*Math\.max\(0,/;
+  const DEADLINE = /\b(?:deadline|endsAt|remainingMs|msLeft)\b/;
+  const timed = [...APP, ...COMPONENTS].filter((f) => /Session\.tsx$/.test(f))
+    .filter((f) => COUNTDOWN.test(code(f)) || DEADLINE.test(code(f)));
+  assert.ok(timed.length >= 4, `only ${timed.length} timed sessions found; the countdown shapes moved`);
+
+  const unpaced = timed.filter((f) => !(f in EXEMPT)).filter((f) => {
+    const page = join(dirname(f), "page.tsx");
+    return !existsSync(page) || !/\broundPaceFrom\(/.test(code(page));
+  });
+  assert.deepEqual(
+    unpaced, [],
+    `${unpaced.join(", ")} counts a clock down and its page never reads the learner's round pace`,
+  );
+  for (const [file, why] of Object.entries(EXEMPT)) {
+    assert.ok(why.length > 40, `${file} is exempt with no reason`);
+    assert.ok(timed.includes(file), `${file} is exempt and no longer counts a clock down`);
+  }
+});
+
 check("every round says what is about to happen before it happens", () => {
   /*
     A ROUND OPENS ON A SCREEN SAYING WHAT IT IS AND WHAT YOU DO ABOUT IT.
