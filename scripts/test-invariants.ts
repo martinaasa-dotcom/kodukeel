@@ -13911,10 +13911,16 @@ check("a measurement sends what the route sends, and reads what it reads", () =>
     today and a rule that names only the offenders is one the next harness is
     written outside of.
   */
-  for (const file of [
-    "scripts/lib/sceneDraft.ts", "scripts/play-scene.ts",
-    "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
-  ]) {
+  /*
+    The haystack is every script, not the four that call a model today. The
+    paragraph above argues exactly that and the first version was a list of
+    four, so a fifth harness was outside the rule by being new. Nothing in
+    scripts/ has a reason to name the field, and a harness that does not open
+    a model socket passes by not naming it.
+  */
+  const harnesses = sourceFiles("scripts", /\.(ts|mjs)$/).filter((f) => f !== "scripts/test-invariants.ts");
+  assert.ok(harnesses.length >= 40, `only ${harnesses.length} scripts found, so this sweep stopped looking`);
+  for (const file of harnesses) {
     assert.doesNotMatch(
       code(file),
       /temperature:/,
