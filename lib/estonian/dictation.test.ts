@@ -164,7 +164,7 @@ describe("checkDictation", () => {
     const result = checkDictation("Ta on kuueoue", "Ta on kuue õue");
     expect(statuses("Ta on kuueoue", "Ta on kuue õue")).toEqual(["right", "right", "spacing"]);
     expect(result.verdict).toBe("spacing");
-    expect(result.note).toMatch(/one space needs moving, and one is missing its Estonian letters/);
+    expect(result.note).toMatch(/one space needs moving, and one word is missing its Estonian letters/);
   });
 
   it("never loses a typed word from the marked-up output", () => {

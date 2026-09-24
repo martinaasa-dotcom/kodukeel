@@ -343,9 +343,10 @@ function judge(
 
     const spaces = spaced.reduce((n, w) => n + spacesMoved(w), 0);
     const spaceNote = spaces === 1 ? "one space needs moving" : `${spaces} spaces need moving`;
+    // "Word", because after a clause about spaces a bare "one" reads as a space.
     const diacriticsNote = slipped === 1
-      ? "one is missing its Estonian letters"
-      : `${slipped} are missing their Estonian letters`;
+      ? "one word is missing its Estonian letters"
+      : `${slipped} words are missing their Estonian letters`;
     return {
       verdict: "spacing",
       suggestedRating: 2,
