@@ -14389,6 +14389,29 @@ check("a scene is marked by the server, and its grades go to the shared log", ()
   assert.ok(action, "finishScene has gone, or changed shape past recognition");
   assert.match(action, /finishRun\(/, "finishScene no longer re-marks on the server");
   assert.match(action, /gradeCard\(/, "a scene no longer grades through gradeCard (ADR-016)");
+  /*
+    AND IT FINDS THE CARDS ONCE. The loop over `finished.grades` asked the
+    database which card each grade was about, one `findFirst` at a time, so a
+    scene that earned ten grades waited on ten round trips before writing any
+    of them. The cards are read once before the loop now and `cardForGrade`
+    picks from them; what may stay inside the loop is `gradeCard`, because
+    each write reads the state the one before it left.
+  */
+  const loopAt = action!.indexOf("for (const grade of finished.grades)");
+  assert.ok(loopAt >= 0, "finishScene no longer loops over the run's grades; this check lost its place");
+  const open = action!.indexOf("{", loopAt);
+  let depth = 0;
+  let close = open;
+  for (let i = open; i < action!.length; i += 1) {
+    if (action![i] === "{") depth += 1;
+    else if (action![i] === "}") { depth -= 1; if (depth === 0) { close = i; break; } }
+  }
+  const loopBody = action!.slice(open, close);
+  assert.doesNotMatch(
+    loopBody, /\bprisma\./,
+    "finishScene queries the database inside its loop over grades again: read the cards once, before it",
+  );
+  assert.match(loopBody, /cardForGrade\(/, "finishScene stopped choosing each grade's card with cardForGrade");
 
   /*
     The signature rather than the body, which is the lesson `recordSonad`'s own

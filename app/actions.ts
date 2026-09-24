@@ -7,6 +7,7 @@ import { throttleAction } from "@/lib/security/actionLimits";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
+import { cardForGrade } from "@/lib/scenes/grades";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
@@ -1422,20 +1423,32 @@ export async function finishScene(input: {
     fails under pressure lands in the same weak-case charts as the case they
     fail on a card.
   */
+  /*
+    THE CARDS ARE FOUND ONCE, NOT ONCE PER GRADE.
+
+    This asked `findFirst` for each grade in turn, sequentially, so a scene
+    that earned ten grades waited on ten round trips just to learn which cards
+    they were, before `gradeCard` wrote any of them. One read of every card
+    the run's words could land on, in the order the old query ordered by, and
+    `cardForGrade` picks each grade's card out of it by the same rule.
+    `gradeCard` stays the door (ADR-016): each write still reads the state the
+    one before left behind, which is why the writes themselves stay in order.
+  */
+  const lemmas = [...new Set(finished.grades.map((grade) => grade.lemma))];
+  const candidates = lemmas.length === 0 ? [] : (await prisma.card.findMany({
+    where: {
+      ownerId,
+      lexeme: { lemma: { in: lemmas } },
+      cardType: { in: ["CASE_FORM", "PRODUCTION"] },
+    },
+    orderBy: { id: "asc" },
+    select: { id: true, cardType: true, targetCase: true, lexeme: { select: { lemma: true } } },
+  })).flatMap((card) => (card.lexeme ? [{ ...card, lemma: card.lexeme.lemma }] : []));
+
   let graded = 0;
   for (const grade of finished.grades) {
-    const card = await prisma.card.findFirst({
-      where: {
-        ownerId,
-        lexeme: { lemma: grade.lemma },
-        ...(grade.grammCase
-          ? { cardType: "CASE_FORM", targetCase: grade.grammCase }
-          : { cardType: "PRODUCTION" }),
-      },
-      orderBy: { id: "asc" },
-      select: { id: true },
-    });
-    if (!card) continue;
+    const cardId = cardForGrade(candidates, grade);
+    if (!cardId) continue;
     /*
       The case that came back instead travels with the grade, so the pair
       somebody mixes up at a counter is counted beside the pair they mix up
@@ -1443,7 +1456,7 @@ export async function finishScene(input: {
       trusting them, which is what it does for every other caller.
     */
     const result = await gradeCard(
-      card.id, grade.rating, 0, undefined,
+      cardId, grade.rating, 0, undefined,
       grade.grammCase ?? undefined, grade.reachedCase ?? undefined,
     );
     if (result.ok) graded += 1;

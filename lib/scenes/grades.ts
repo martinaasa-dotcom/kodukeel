@@ -371,3 +371,35 @@ function oneWordFor(
  * as a gap rather than as a vocabulary list.
  */
 const PER_BEAT = 3;
+
+/** A learner's card, as much of it as choosing which one a scene grade lands on needs. */
+export interface GradableCard {
+  readonly id: string;
+  readonly cardType: string;
+  readonly targetCase: string | null;
+  readonly lemma: string;
+}
+
+/**
+ * Which of the learner's cards a scene grade is about, or none.
+ *
+ * A grade that names a case lands on the case card for that case; one that
+ * does not lands on the production card. `cards` arrives ordered by id from
+ * one read of the whole run's words, and the first match wins, which is
+ * exactly the `findFirst ... orderBy id` this replaced: that asked the
+ * database once per grade, sequentially, at the end of every conversation.
+ * The order is the database's and is not re-sorted here, so the card chosen is
+ * the same card under any collation.
+ */
+export function cardForGrade(
+  cards: readonly GradableCard[],
+  grade: Pick<SceneGrade, "lemma" | "grammCase">,
+): string | null {
+  const hit = cards.find((card) =>
+    card.lemma === grade.lemma
+    && (grade.grammCase
+      ? card.cardType === "CASE_FORM" && card.targetCase === grade.grammCase
+      : card.cardType === "PRODUCTION"),
+  );
+  return hit?.id ?? null;
+}

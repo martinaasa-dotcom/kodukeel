@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { advance, startScene, type SceneState } from "./state";
-import { gradesFor, offerFor, stalledWords } from "./grades";
+import { cardForGrade, gradesFor, offerFor, stalledWords } from "./grades";
 import type { Evidence, TurnReading } from "./turn";
 import { buildLexicon } from "./lexicon";
 import type { RoleCard } from "./props";
@@ -442,5 +442,33 @@ describe("the word the other side offers", () => {
   it("and falls back to the walk where the caller knows nothing about the turn", () => {
     expect(offerFor(SCENE.beats[1]!, null, new Set(), [])).toBe("pea");
     expect(offerFor(SCENE.beats[1]!, null, new Set(), [true])).toBe("pea");
+  });
+});
+
+describe("cardForGrade", () => {
+  const cards = [
+    { id: "a1", cardType: "RECOGNITION", targetCase: null, lemma: "pood" },
+    { id: "a2", cardType: "PRODUCTION", targetCase: null, lemma: "pood" },
+    { id: "a3", cardType: "CASE_FORM", targetCase: "INESSIVE", lemma: "pood" },
+    { id: "a4", cardType: "CASE_FORM", targetCase: "ILLATIVE", lemma: "pood" },
+    { id: "a5", cardType: "PRODUCTION", targetCase: null, lemma: "pood" },
+    { id: "b1", cardType: "PRODUCTION", targetCase: null, lemma: "piim" },
+  ];
+
+  it("lands a grade with no case on the production card", () => {
+    expect(cardForGrade(cards, { lemma: "piim", grammCase: null })).toBe("b1");
+  });
+
+  it("lands a grade with a case on that case's card and no other", () => {
+    expect(cardForGrade(cards, { lemma: "pood", grammCase: "ILLATIVE" })).toBe("a4");
+    expect(cardForGrade(cards, { lemma: "pood", grammCase: "ELATIVE" })).toBeNull();
+  });
+
+  it("takes the first by the order it was handed, as findFirst did", () => {
+    expect(cardForGrade(cards, { lemma: "pood", grammCase: null })).toBe("a2");
+  });
+
+  it("finds nothing for a word the learner holds no card for", () => {
+    expect(cardForGrade(cards, { lemma: "leib", grammCase: null })).toBeNull();
   });
 });

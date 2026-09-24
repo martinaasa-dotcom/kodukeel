@@ -4837,6 +4837,13 @@ word is `addCardsFor`, which takes a lock and is half the cost, and collapsing t
 second path that writes cards. And `addUnitToDeck` was measured and left alone: twenty words and
 seventy-three cards in 117ms, so the lock it takes per word costs nothing worth restructuring for.
 
+**And a conversation found its cards one grade at a time.** `finishScene` asked `findFirst` for
+each grade's card in turn before `gradeCard` wrote it, so a scene that earned ten grades waited on
+ten sequential round trips just to learn which cards they were. The cards are read once now and
+`cardForGrade` picks each grade's out of them by the same rule, first by id, with the old and new
+choice checked equal against a real database on duplicate lemmas and suspended cards. `gradeCard`
+stays the door and the writes stay in order, because each reads the state the one before left.
+
 Where a loop cannot be collapsed, the route needs a budget: `MAX_IMPORT_ROWS` is 500 and the time
 those rows imply is not something a platform's default ten seconds covers, so
 `app/(app)/settings/page.tsx` says `maxDuration`. Deduplicating the input belongs there too, and for
@@ -10719,7 +10726,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
 `data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
-`OPENS_WITHOUT_BRIEFING`.
+`OPENS_WITHOUT_BRIEFING`, `cardForGrade`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
