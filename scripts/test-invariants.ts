@@ -6262,17 +6262,18 @@ check("an action that builds a batch of cards is one of the throttled ones", () 
     directly, or calls `addCardsFor(` from inside a loop over more than one
     word, has to throttle itself. `addToDeck` calls `addCardsFor` once for one
     lexeme and is correctly exempt by never matching the loop shape.
-    `addCommonWords` is the one deliberate exception, and its own comment says
-    why: it writes two cheap cards a word, which `deepenCommonWords` beside it
-    does not.
+
+    There is no exemption list. The first version of this carried one, for
+    `addCommonWords`, citing a comment on that function which says nothing of
+    the kind; and that function builds a hundred words through the same
+    `addPlanToDeck` as `startCourseDay`, which this check does throttle. A
+    reason that does not survive being read is how an exemption list becomes
+    the way out of the rule.
   */
   const source = code("app/actions.ts");
   const boundaries = [...source.matchAll(/^(?:export )?(?:async )?function (\w+)\(/gm)];
   assert.ok(boundaries.length >= 80, `only ${boundaries.length} top-level functions found: the sweep has stopped seeing them`);
 
-  const EXEMPT = new Set([
-    "addCommonWords", // writes two cheap cards a word; deepenCommonWords beside it is the expensive one
-  ]);
   const missing: string[] = [];
   for (const [i, m] of boundaries.entries()) {
     const name = m[1]!;
@@ -6280,7 +6281,7 @@ check("an action that builds a batch of cards is one of the throttled ones", () 
     const end = boundaries[i + 1]?.index ?? source.length;
     const body = source.slice(start, end);
     const isExported = m[0]!.startsWith("export");
-    if (!isExported || EXEMPT.has(name)) continue;
+    if (!isExported) continue;
 
     const callsBatchBuilder = /\baddUnitsToDeck\(|\baddPlanToDeck\(/.test(body);
     const loopsCardBuilding = /\bfor\s*\(/.test(body) && /\baddCardsFor\(/.test(body);
@@ -6291,7 +6292,7 @@ check("an action that builds a batch of cards is one of the throttled ones", () 
   assert.deepEqual(
     missing, [],
     `these actions build a batch of cards with no throttle in front: ${missing.join(", ")}. `
-      + `Add an entry to ACTION_LIMITS and call throttleAction, or add a written exemption above.`,
+      + `Add an entry to ACTION_LIMITS and call throttleAction.`,
   );
 });
 

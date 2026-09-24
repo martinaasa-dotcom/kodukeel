@@ -1957,6 +1957,9 @@ export async function addCommonWords(group: string) {
     return { ok: false as const, error: "That list does not exist." };
   }
 
+  const busy = throttleAction(ownerId, "addCommonWords");
+  if (busy) return busy;
+
   const { added, words } = await addPlanToDeck(
     ownerId,
     planLemmas(lemmasIn(group as FrequencyGroup), ["RECOGNITION", "PRODUCTION"]),

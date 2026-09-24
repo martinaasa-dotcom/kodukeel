@@ -175,6 +175,17 @@ export const ACTION_LIMITS = {
    * rather than by a whole unit's vocabulary.
    */
   addScanToDeck: { perMinute: 15 },
+  /**
+   * A hundred words of one frequency list, two cards each, in one call.
+   *
+   * The same `addPlanToDeck` as `startCourseDay` above and ten times the
+   * words, so the argument that throttles an evening's handful throttles
+   * this more. Two card types a word keeps each call cheaper than
+   * `deepenCommonWords`, which is why the number is higher than that one's;
+   * it does not make a loop of them free, since a repeat is still the whole
+   * list read under the deck lock.
+   */
+  addCommonWords: { perMinute: 12 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;
