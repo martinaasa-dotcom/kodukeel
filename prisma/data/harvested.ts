@@ -12,7 +12,7 @@
  * first time a word is viewed — storing it here would be a second source of
  * truth that goes stale.
  *
- * 1522 words, harvested 2026-09-22.
+ * 1521 words, harvested 2026-09-24.
  */
 
 export interface HarvestedWord {

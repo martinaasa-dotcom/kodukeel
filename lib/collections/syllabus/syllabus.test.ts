@@ -64,29 +64,6 @@ describe("the course", () => {
   });
 
   /*
-    AND CARRIES THE GLOSS THE UNIT WROTE, WHICH IS THE ONE AUTHORED COLUMN.
-
-    `harvestWord` reads the English off the syllabus entry and returns it
-    untouched, so `prisma/data/harvested.ts` is generated from these files and
-    the gloss cannot come apart from them the way a parsed one can. What
-    nothing checked is whether the generated file had been *regenerated*: the
-    test above keys on `lemma|pos` and never looks at the English, so a pass
-    over the syllabus that changed a gloss and did not re-run the harvest left
-    the two disagreeing in silence, and the seed writes the harvest's copy.
-
-    That had happened. Eight glosses were rewritten from British to American
-    spelling in the syllabus and the harvest still held the old ones, so the
-    shipped dictionary taught `hall` as "grey" while the course file said
-    "gray" and `korrus` as "storey" against "story". It is invisible on screen
-    and it is not harmless: `lib/collections/senses.ts` groups a production
-    card's prompt by the gloss, so two spellings of one English word are two
-    prompts, and the shared-prompt count moved by five when the harvest was
-    re-run.
-
-    Fails with the command that fixes it, because the fix is never to edit the
-    generated file.
-  */
-  /*
     AND EVERY HARVESTED ROW WAS ASKED FOR, WHICH IS THE OTHER DIRECTION.
 
     The test above asks that everything a unit names arrives, and nothing
@@ -112,6 +89,29 @@ describe("the course", () => {
     expect(stale, "a row nothing requested: a full `npm run harvest` drops it").toEqual([]);
   });
 
+  /*
+    AND CARRIES THE GLOSS THE UNIT WROTE, WHICH IS THE ONE AUTHORED COLUMN.
+
+    `harvestWord` reads the English off the syllabus entry and returns it
+    untouched, so `prisma/data/harvested.ts` is generated from these files and
+    the gloss cannot come apart from them the way a parsed one can. What
+    nothing checked is whether the generated file had been *regenerated*: the
+    test above keys on `lemma|pos` and never looks at the English, so a pass
+    over the syllabus that changed a gloss and did not re-run the harvest left
+    the two disagreeing in silence, and the seed writes the harvest's copy.
+
+    That had happened. Eight glosses were rewritten from British to American
+    spelling in the syllabus and the harvest still held the old ones, so the
+    shipped dictionary taught `hall` as "grey" while the course file said
+    "gray" and `korrus` as "storey" against "story". It is invisible on screen
+    and it is not harmless: `lib/collections/senses.ts` groups a production
+    card's prompt by the gloss, so two spellings of one English word are two
+    prompts, and the shared-prompt count moved by five when the harvest was
+    re-run.
+
+    Fails with the command that fixes it, because the fix is never to edit the
+    generated file.
+  */
   it("carries the gloss the unit that introduces a word wrote", () => {
     /*
       The introducing unit, which is the first in course order to name the
