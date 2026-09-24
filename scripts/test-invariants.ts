@@ -12612,15 +12612,36 @@ check("every command the README and CLAUDE.md name is a script that exists", () 
   const scripts = new Set(
     Object.keys(JSON.parse(read("package.json")).scripts as Record<string, string>),
   );
-  const named = new Set(
-    ["README.md", "CLAUDE.md"]
-      .flatMap((file) => [...read(file).matchAll(/npm run ([\w:-]+)/g)])
-      .map((m) => m[1]!),
-  );
-  assert.ok(named.size > 10, "the documentation stopped naming its commands the usual way");
+  /*
+    AND EVERY COMMAND A COMMENT NAMES, BECAUSE THAT IS WHERE A MEASUREMENT IS CITED.
 
-  const missing = [...named].filter((name) => !scripts.has(name)).sort();
-  assert.deepEqual(missing, [], "the documentation names an npm script package.json does not have");
+    This read the README and CLAUDE.md alone, and the figures a constant rests
+    on are cited in the comment above it: `provider.ts` sent its reader to
+    `npm run eval:scan` three times and to `npm run eval:grader` once, both
+    real scripts never registered, so the measurement behind the scanner's
+    model and the grader's could not be re-run the way it said. And
+    `grammarExamples.ts` named `audit:grammar-pins` for the script registered
+    as `audit:pins`. Read raw rather than through `code()`, since a comment is
+    exactly what is being asked about. A flag (`npm run --silent`) is not a
+    name, and this file's own examples are not commands.
+  */
+  const docs = ["README.md", "CLAUDE.md", "SECURITY.md"].filter((f) => existsSync(f));
+  const tree = [
+    ...ALL,
+    ...sourceFiles("scripts", /\.(ts|mjs)$/).filter((f) => f !== "scripts/test-invariants.ts"),
+    ...sourceFiles("docs", /\.md$/),
+    ...sourceFiles(".github", /\.ya?ml$/),
+  ];
+  const where = new Map<string, string>();
+  for (const file of [...docs, ...tree]) {
+    for (const m of read(file).matchAll(/npm run ([\w:][\w:-]*)/g)) {
+      if (!where.has(m[1]!)) where.set(m[1]!, file);
+    }
+  }
+  assert.ok(where.size > 25, `only ${where.size} commands named across the tree, so this stopped looking`);
+
+  const missing = [...where].filter(([name]) => !scripts.has(name)).map(([n, f]) => `${n} (${f})`).sort();
+  assert.deepEqual(missing, [], "something names an npm script package.json does not have");
 });
 
 check("the README's dictionary size is the seed's own count", () => {

@@ -629,14 +629,17 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
       recorded and banked lines, which is how a keyless deployment plays all
       fourteen of them.
 
-      Anu is the exception and takes no fallback at all. Her provider *is*
-      Anthropic, so there is nothing behind it but Groq, and `npm run
-      eval:anu` measured what Groq does with her questions: it called the
-      tuba : toa gradation "b becomes v" where the dictionary says b : ∅,
-      offered "Mul meeldib" for "Mulle meeldib", and invented `lähema` for
-      `minema` and `kotta` for `koju`, emitting the first as a VOCAB line the
-      app parses. A fallback that answers wrongly is worse than one that does
-      not answer, because the learner cannot tell.
+      Anu takes no Anthropic tail, and the reason this comment used to give
+      for that is gone. It said her provider *was* Anthropic and that nothing
+      but Groq stood behind it, and `npm run eval:anu` had measured Groq
+      teaching wrong forms to her questions (`lähema` for `minema`). Both were
+      true when written. She has since moved: her chain is `TUTOR_MODEL` on
+      Gemini with `TUTOR_FALLBACK_MODEL` on Groq behind it (`PURPOSE_CHAINS`,
+      where the comment says she is no longer the exception), measured with the
+      dictionary's words block in front of her. What is left of the rule is the
+      line below. Whether she should now take the bounded tail like the other
+      purposes is an open decision rather than a settled one, so the behaviour
+      is kept exactly as it was until somebody makes it.
     */
     if (allowFallback && options.purpose !== "tutor" && process.env.ANTHROPIC_API_KEY) {
       if (!chain.some((c) => c.name === "anthropic")) {

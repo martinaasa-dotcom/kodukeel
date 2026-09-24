@@ -9952,9 +9952,14 @@ it cannot find the rail, which was the `A || !A` shape one check over.
 
 ## Model configuration
 
-**Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` returns every
-key in `.env` in order, free first: OpenRouter (default), Anthropic, then OpenAI. Do not re-pin a
-single provider. `openWithFallback` walks past a provider that is throttled or having a bad
+**Provider-agnostic, and it is a chain rather than a choice.** The keys a deployment can hold are
+`PROVIDER_KEY_ENV`, Groq, Gemini, Anthropic and OpenAI, and that is also the order of the general
+chain `resolveProviders()` builds: the measured cheap provider first, then Gemini, then the two dear
+ones, which are only on it while the ledger says the day's fallback budget has room
+(`fallbackAllowed`). Three purposes do not read the general chain at all: Anu, scene composition
+and the grader each get the provider their `PURPOSE_CHAINS` entry names, measured for that job,
+which is the paragraph on it above. OpenRouter was the default once and is on no chain now. Do not
+re-pin a single provider. `openWithFallback` walks past a provider that is throttled or having a bad
 minute, and never past a rejected key or a model that does not exist, since every provider would
 answer those the same way and trying them all turns one clear message into a slower one. A
 provider is only ever walked past **before it has said anything**: once text is reaching the
@@ -9965,13 +9970,14 @@ sitting through 4.5 seconds of backoff against a provider that has already said 
 seconds. The Anthropic path keeps a `cache_control` breakpoint on the static Estonian system
 prompt. This supersedes the original ADR-004; see `docs/13-mvp-status.md` §2.
 
-**Reading a picture uses whichever model the deployment already configured.** Not a better one
-chosen behind the operator's back: turning the camera on must not move a free-model deployment onto
-a paid one, and the free chain that is now the default is text-only. `OPENROUTER_VISION_MODEL`,
-`ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` are how that choice is made, and they affect
-scanning and nothing else. The chain is deduplicated by model first: OpenRouter contributes a link
-per free model, so an override would otherwise ask one model the same question three times and read
-the third refusal as having exhausted the chain. The image path
+**Reading a picture leads with the one model measured reading Estonian, and then uses what the
+deployment already configured.** `visionProviders` puts `VISION_MODEL` first where a Gemini key is
+set, because `npm run eval:scan` read 144 of 144 words exactly on it, and behind it is the general
+chain, never a dearer model chosen behind the operator's back. `GEMINI_VISION_MODEL`,
+`GROQ_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` are how an operator moves
+it, and they affect scanning and nothing else. The chain is deduplicated by model first: Groq and
+Gemini each contribute a link per free model, so an override would otherwise ask one model the
+same question three times and read the third refusal as having exhausted the chain. The image path
 falls back more readily than the chat path does, and deliberately: `openWithFallback` refuses to
 walk past a 400 because every provider would refuse a malformed request the same way, but whether a
 model can see is a fact about that one model, so `completeWithImage` walks past everything except a
