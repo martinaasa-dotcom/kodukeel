@@ -108,9 +108,8 @@ export function TutorChat({
         onEstonian={setCheckEt}
         onMeaning={setCheckEn}
         onSubmit={() => {
-          // Offline, send refuses; clearing now would throw away what they wrote.
-          if (!online) return;
-          void send(sentenceCheckPrompt(checkEt, checkEn));
+          // Cleared only once it was sent: offline or mid-answer, send refuses.
+          if (!send(sentenceCheckPrompt(checkEt, checkEn))) return;
           setCheckEt("");
           setCheckEn("");
           setCheckOpen(false);
@@ -130,7 +129,7 @@ export function TutorChat({
           <EstonianInput
             value={input}
             onChange={setInput}
-            onEnter={() => { if (online) { void send(input); setInput(""); } }}
+            onEnter={() => { if (send(input)) setInput(""); }}
             placeholder="Why is it raamatut and not raamatu?"
             ariaLabel="Ask Anu a question"
             autoFocus={Boolean(initialQuestion)}
@@ -139,7 +138,7 @@ export function TutorChat({
         <Button
           variant="primary"
           size="lg"
-          onClick={() => { if (online) { void send(input); setInput(""); } }}
+          onClick={() => { if (send(input)) setInput(""); }}
           disabled={streaming || !input.trim() || !online}
         >
           <Send size={15} aria-hidden /> {streaming ? "Thinking…" : "Ask"}

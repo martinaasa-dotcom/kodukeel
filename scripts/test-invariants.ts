@@ -13299,39 +13299,29 @@ check("asking Anu with no connection is refused where the question is sent, and 
   assert.deepEqual(silent, [], `a surface asks Anu without saying she needs a connection: ${silent.join(", ")}`);
 
   /*
-    And a door that empties the box after sending asks first. The hook refusing
-    is not enough on its own: `send(input); setInput("")` on the Enter key runs
-    the refusal and then clears what the learner typed, so pressing Enter
-    offline deleted the question with nothing sent and nothing said. The Ask
-    button was disabled and Enter was not, which is how it survived the pass
-    that fixed the button.
+    And a door that empties a box asks whether the question was taken first.
+    Every one of them used to call send and clear in the next statement, so
+    pressing Enter offline deleted the question with nothing sent. Guarding
+    each door on `online` fixed that case and left the other: send also
+    refuses while Anu is still answering, and Enter on the next question typed
+    mid-answer still cleared it. So send says whether it took the question,
+    and a door reads that answer rather than guessing why it might say no.
+    `void send(` is the shape that throws the answer away, and every other
+    call has to be the condition of an `if`. That covers the sentence check,
+    which sends `sentenceCheckPrompt(...)` and then empties two boxes, as
+    well as the question box.
   */
-  const clearing = surfaces.flatMap((file) => {
-    const body = code(file);
-    return [...body.matchAll(/void send\(input\);\s*setInput\(""\);/g)]
-      .filter((m) => !/if \(online\) \{\s*$/.test(body.slice(0, m.index)))
-      .map(() => file);
-  });
-  const doors = surfaces.reduce((n, f) => n + [...code(f).matchAll(/void send\(input\);/g)].length, 0);
-  assert.ok(doors >= 4, `only ${doors} send-from-the-box door(s) found; the pattern moved`);
-  assert.deepEqual(clearing, [], `a door clears the question even when it could not be sent: ${clearing.join(", ")}`);
-
-  /*
-    AND THE SENTENCE CHECK IS A DOOR TOO, the one the pattern above cannot see
-    because it sends `sentenceCheckPrompt(...)` rather than `input`. Its caller
-    empties both boxes after sending, so offline it deleted the sentence the
-    learner had typed to be checked. The code was put right and this check was
-    not, so dropping the guard from both surfaces passed it.
-  */
-  const checks = surfaces.flatMap((file) => {
-    const body = code(file);
-    return [...body.matchAll(/onSubmit=\{\(\) => \{([\s\S]*?)\n\s*\}\}/g)]
-      .filter((m) => /sentenceCheckPrompt\(/.test(m[1]!))
-      .map((m) => ({ file, guarded: /^\s*if \(!online\) return;/.test(m[1]!) }));
-  });
-  assert.ok(checks.length >= 2, `only ${checks.length} sentence-check door(s) found; the pattern moved`);
-  const unguarded = checks.filter((c) => !c.guarded).map((c) => c.file);
-  assert.deepEqual(unguarded, [], `a sentence check clears what was typed even when it could not be sent: ${unguarded.join(", ")}`);
+  assert.match(
+    hook.slice(sendAt, hook.indexOf("=>", sendAt) + 2),
+    /\):\s*boolean\s*=>/,
+    "useAnuChat's send no longer says whether it took the question, so a door cannot know whether to clear",
+  );
+  const doors = surfaces.flatMap((file) =>
+    [...code(file).matchAll(/([^\n]{0,8})\bsend\(/g)].map((m) => ({ file, before: m[1]! })),
+  );
+  assert.ok(doors.length >= 6, `only ${doors.length} send door(s) found on the page and the panel; the pattern moved`);
+  const blind = doors.filter((d) => !/\bif \(!?$/.test(d.before)).map((d) => `${d.file} (${d.before.trim()}send()`);
+  assert.deepEqual(blind, [], `a door sends without reading whether the question was taken: ${blind.join(", ")}`);
 });
 
 /**
