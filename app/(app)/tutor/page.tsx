@@ -4,6 +4,7 @@ import { supabaseConfigured } from "@/lib/auth/mode";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { Page } from "@/components/ui";
 import { TutorChat } from "./TutorChat";
+import { clip } from "@/lib/copy/clip";
 
 export const metadata = { title: "Anu" };
 
@@ -45,7 +46,7 @@ export default async function TutorPage({ searchParams }: {
         // Prefilled, not sent. A review card can hand Anu the question a
         // learner just failed to answer; pressing send is still their call,
         // and the wording is theirs to edit first.
-        initialQuestion={typeof q === "string" ? q.slice(0, 300) : undefined}
+        initialQuestion={typeof q === "string" ? clip(q, 300) : undefined}
       />
     </Page>
   );

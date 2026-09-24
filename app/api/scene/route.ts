@@ -40,6 +40,7 @@ import { DEFAULT_VOICE } from "@/lib/audio/voice";
 import { glossSentences } from "@/lib/dict/glossed";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { clip } from "@/lib/copy/clip";
 
 /**
  * One line of one turn, walked up the ladder.
@@ -178,9 +179,9 @@ export async function POST(request: Request) {
         const one = (turn ?? {}) as Record<string, unknown>;
         return {
           beatId: String(one.beatId ?? "").slice(0, 64),
-          said: String(one.said ?? "").slice(0, MAX_TURN_CHARS),
+          said: clip(String(one.said ?? ""), MAX_TURN_CHARS),
           helped: one.helped === true,
-          heard: String(one.heard ?? "").slice(0, MAX_TURN_CHARS),
+          heard: clip(String(one.heard ?? ""), MAX_TURN_CHARS),
           conceded: concededOf(one.conceded),
           alsoDone: alsoDoneOf(one.alsoDone),
         };
@@ -809,8 +810,8 @@ export async function POST(request: Request) {
   const conversation: ChatMessage[] = state.turns
     .slice(-MAX_CONTEXT_TURNS)
     .flatMap((turn) => [
-      ...(turn.heard ? [{ role: "assistant" as const, content: turn.heard.slice(0, MAX_CONTEXT_CHARS) }] : []),
-      { role: "user" as const, content: turn.said.slice(0, MAX_CONTEXT_CHARS) },
+      ...(turn.heard ? [{ role: "assistant" as const, content: clip(turn.heard, MAX_CONTEXT_CHARS) }] : []),
+      { role: "user" as const, content: clip(turn.said, MAX_CONTEXT_CHARS) },
     ]);
 
   /*

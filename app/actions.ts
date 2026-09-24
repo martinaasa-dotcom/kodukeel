@@ -1306,9 +1306,9 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
         const row = (one ?? {}) as Record<string, unknown>;
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: text(row.said).slice(0, MAX_TURN_CHARS),
+          said: clip(text(row.said), MAX_TURN_CHARS),
           helped: row.helped === true,
-          heard: text(row.heard).slice(0, MAX_TURN_CHARS),
+          heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
         };
@@ -1392,9 +1392,9 @@ export async function finishScene(input: {
         const row = (turn ?? {}) as Record<string, unknown>;
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: text(row.said).slice(0, MAX_TURN_CHARS),
+          said: clip(text(row.said), MAX_TURN_CHARS),
           helped: row.helped === true,
-          heard: text(row.heard).slice(0, MAX_TURN_CHARS),
+          heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
         };
@@ -2731,7 +2731,7 @@ export async function buildClozeFromText(passageIn: string) {
 
   const busy = throttleAction(ownerId, "buildCloze");
   if (busy) return busy;
-  const passage = raw.slice(0, MAX_PASSAGE_CHARS);
+  const passage = clip(raw, MAX_PASSAGE_CHARS);
   if (!passage.trim()) return { ok: false as const, error: "Paste some Estonian first." };
 
   // Ordered, because past the cap which of somebody's words could be blanked

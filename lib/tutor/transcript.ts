@@ -24,6 +24,7 @@
  *
  * Pure: no React, no Next, no Prisma.
  */
+import { clip } from "@/lib/copy/clip";
 export interface Turn {
   role: "user" | "assistant";
   content: string;
@@ -53,9 +54,9 @@ export function forTheModel(messages: readonly Turn[]): Turn[] {
   for (const m of messages) {
     if (m.role === "assistant") {
       const said = saidByAnu(m.content);
-      if (said) clean.push({ role: "assistant", content: said.slice(0, MAX_MESSAGE_CHARS) });
+      if (said) clean.push({ role: "assistant", content: clip(said, MAX_MESSAGE_CHARS) });
     } else if (m.content.trim()) {
-      clean.push({ role: "user", content: m.content.slice(0, MAX_MESSAGE_CHARS) });
+      clean.push({ role: "user", content: clip(m.content, MAX_MESSAGE_CHARS) });
     }
   }
   const recent = clean.slice(-MAX_HISTORY);
