@@ -18323,10 +18323,17 @@ check("a word enough people put aside is offered later, not rewritten", () => {
  * button quietly not working on the screen it was asked for.
  */
 check("a card built for a word put aside is built put aside", () => {
-  const builders: [string, string][] = [
-    [join("app", "actions.ts"), "the single add"],
-    [join("lib", "srs", "deck.ts"), "the batched builder"],
-  ];
+  /*
+    A sweep over every file that inserts cards rather than a list of the two
+    builders somebody remembered: the list missed the third, the gap-fill
+    backfill a dictionary render runs, which dated its new card now whatever
+    the word's deferral said. Read through `code()`, so a comment naming the
+    insert is not a builder.
+  */
+  const builders: [string, string][] = [...APP, ...LIB]
+    .filter((file) => !/\.(i?test)\.tsx?$/.test(file) && /\bcard\.createMany\(/.test(code(file)))
+    .map((file) => [file, "a card builder"]);
+  assert.ok(builders.length >= 3, `found ${builders.length} files that insert cards; the sweep has stopped finding them`);
   for (const [file, what] of builders) {
     const body = code(file);
     assert.match(
