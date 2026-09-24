@@ -173,20 +173,48 @@ export function dayClock(zone?: unknown): DayClock {
   };
 
   /*
-    Local midnight as an instant, found by subtracting the wall clock's own
-    time of day. It never has to name the zone's offset, which is what keeps
-    it right across a DST change: the offset that applies is the one in force
-    at `date`, and reading the wall clock there is how you get it.
+    Local midnight as an instant: the wall clock's date read as UTC, less the
+    zone's offset at midnight.
 
-    On a spring-forward day midnight itself may not exist in some zones; this
-    lands on the first instant that does, which is what a day boundary means
-    there anyway.
+    IT USED TO SUBTRACT THE WALL CLOCK'S TIME OF DAY, which is how long ago
+    midnight was on every day but the two a year the offset moves. On a day
+    the clocks go back, 12:00 is thirteen hours after midnight and the old
+    answer landed on 01:00; on a day they go forward it is eleven, and the old
+    answer landed on 23:00 the day before, so a learner's "today" took in an
+    hour of yesterday's reviews. The offset in force at `date` is not the one
+    in force at midnight, and the comment here used to claim it was.
+
+    So midnight is tried under every offset in force within half a day of it,
+    and the earliest instant that really reads 00:00:00 on this date wins:
+    where the clocks go back across midnight, as Havana's do, the day has two
+    and it begins at the first. Where no candidate reads midnight, because a
+    zone springs forward at 00:00, the offset in force just after the gap
+    lands on the first instant that does exist, which is what a day boundary
+    means there anyway.
   */
+  const offsetAt = (at: number): number => {
+    const whole = Math.floor(at / 1000) * 1000;
+    const p = partsIn(new Date(whole), tz);
+    return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - whole;
+  };
+  const HALF_DAY = 12 * 3_600_000;
   const startOf = (date: Date): Date => {
     const p = partsIn(date, tz);
-    const intoDay =
-      p.hour * 3_600_000 + p.minute * 60_000 + p.second * 1000 + date.getMilliseconds();
-    return new Date(date.getTime() - intoDay);
+    const wallMidnight = Date.UTC(p.year, p.month - 1, p.day);
+    const guess = wallMidnight - offsetAt(date.getTime());
+    const offsets = new Set([
+      offsetAt(date.getTime()), offsetAt(guess), offsetAt(guess - HALF_DAY), offsetAt(guess + HALF_DAY),
+    ]);
+    let best: number | null = null;
+    for (const offset of offsets) {
+      const at = wallMidnight - offset;
+      const q = partsIn(new Date(at), tz);
+      const isMidnight =
+        Date.UTC(q.year, q.month - 1, q.day) === wallMidnight &&
+        q.hour === 0 && q.minute === 0 && q.second === 0;
+      if (isMidnight && (best === null || at < best)) best = at;
+    }
+    return new Date(best ?? wallMidnight - offsetAt(guess));
   };
 
   /*

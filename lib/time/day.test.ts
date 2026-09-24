@@ -74,6 +74,52 @@ describe("midnight is the zone's midnight", () => {
   });
 });
 
+describe("midnight survives a clock change", () => {
+  /*
+    The wall clock's time of day is not how long ago midnight was on the two
+    days a year the offset moves. On 25 October 2026 Tallinn falls back at
+    04:00, so at 12:00 local thirteen hours have passed since midnight, and
+    subtracting twelve landed on 01:00. On 29 March it springs forward at
+    03:00, so eleven hours have passed, and subtracting twelve landed on 23:00
+    the day before: an hour of yesterday's reviews counted toward today.
+  */
+  it("finds midnight on the day the clocks go back", () => {
+    const clock = dayClock(TALLINN);
+    const noon = new Date("2026-10-25T10:00:00.000Z"); // 12:00 EET
+    expect(clock.startOfDay(noon).toISOString()).toBe("2026-10-24T21:00:00.000Z");
+  });
+
+  it("finds midnight on the day the clocks go forward", () => {
+    const clock = dayClock(TALLINN);
+    const noon = new Date("2026-03-29T09:00:00.000Z"); // 12:00 EEST
+    expect(clock.startOfDay(noon).toISOString()).toBe("2026-03-28T22:00:00.000Z");
+  });
+
+  it("does the same on the other side of the Atlantic", () => {
+    const clock = dayClock(NEW_YORK);
+    // New York falls back on 1 November 2026 and springs forward on 8 March.
+    expect(clock.startOfDay(new Date("2026-11-01T17:00:00.000Z")).toISOString())
+      .toBe("2026-11-01T04:00:00.000Z");
+    expect(clock.startOfDay(new Date("2026-03-08T16:00:00.000Z")).toISOString())
+      .toBe("2026-03-08T05:00:00.000Z");
+  });
+
+  it("starts at the first of two midnights where the clocks go back across one", () => {
+    // Havana goes from 01:00 CDT back to 00:00 CST on 1 November 2026.
+    const clock = dayClock("America/Havana");
+    expect(clock.startOfDay(new Date("2026-11-01T17:00:00.000Z")).toISOString())
+      .toBe("2026-11-01T04:00:00.000Z");
+  });
+
+  it("lands on the first instant that exists where midnight is skipped", () => {
+    // Santiago springs forward from 00:00 to 01:00 on 6 September 2026.
+    const clock = dayClock("America/Santiago");
+    const start = clock.startOfDay(new Date("2026-09-06T16:00:00.000Z"));
+    expect(clock.dayKey(start)).toBe("2026-09-06");
+    expect(clock.dayKey(new Date(start.getTime() - 1))).toBe("2026-09-05");
+  });
+});
+
 describe("stepping days survives a clock change", () => {
   /*
     Europe/Tallinn moves off summer time at 04:00 local on 25 October 2026, so
