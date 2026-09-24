@@ -21595,6 +21595,129 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a Server Action called from the browser is caught, so a dropped connection keeps the screen", () => {
+  /*
+    A Server Action does not return a refusal when the network is gone: it
+    throws. Awaited inside a transition and uncaught, that rejection renders
+    the error page in place of the screen, which was measured on Settings with
+    the plug pulled: picking a level replaced the whole page with "That screen
+    didn't load". Outside a transition it leaves a busy flag set for good, so
+    a conversation or a quest stops on the card it was on. CLAUDE.md wrote this
+    down about the module's own bar and list, and 77 other calls still had it.
+
+    So every call to an export of `app/actions.ts` from a client file is
+    followed by a `.catch(` (after any `.then(`/`.finally(`), is inside a
+    `try {` block, or is an argument to a `Promise.all` that is caught. Read
+    with comments and string contents blanked to the same length, so a paren
+    inside a message cannot unbalance the walk and a comment naming an action
+    is not a call.
+  */
+  const blankLiterals = (src: string) => {
+    let out = "";
+    let i = 0;
+    while (i < src.length) {
+      const c = src[i]!;
+      const d = src[i + 1];
+      if (c === "/" && d === "*") {
+        const e = src.indexOf("*/", i + 2);
+        const end = e < 0 ? src.length : e + 2;
+        out += src.slice(i, end).replace(/[^\n]/g, " ");
+        i = end;
+        continue;
+      }
+      if (c === "/" && d === "/") {
+        const e = src.indexOf("\n", i);
+        const end = e < 0 ? src.length : e;
+        out += " ".repeat(end - i);
+        i = end;
+        continue;
+      }
+      if (c === '"' || c === "'" || c === "`") {
+        let j = i + 1;
+        while (j < src.length && src[j] !== c) { if (src[j] === "\\") j += 1; j += 1; }
+        out += c + src.slice(i + 1, j).replace(/[^\n]/g, " ") + (src[j] ?? "");
+        i = j + 1;
+        continue;
+      }
+      out += c;
+      i += 1;
+    }
+    return out;
+  };
+  const closeParen = (s: string, from: number) => {
+    let i = from;
+    let depth = 1;
+    while (i < s.length && depth > 0) {
+      if (s[i] === "(") depth += 1;
+      else if (s[i] === ")") depth -= 1;
+      i += 1;
+    }
+    return i;
+  };
+  const pastChain = (s: string, from: number) => {
+    let i = from;
+    for (;;) {
+      const m = /^\s*\.(then|finally)\(/.exec(s.slice(i));
+      if (!m) return i;
+      i = closeParen(s, i + m[0].length);
+    }
+  };
+  const caughtNext = (s: string, at: number) => /^\s*\.catch\(/.test(s.slice(at));
+  const insideTry = (s: string, at: number) => {
+    let depth = 0;
+    for (let k = at - 1; k >= 0; k -= 1) {
+      if (s[k] === "}") depth += 1;
+      else if (s[k] === "{") {
+        if (depth > 0) depth -= 1;
+        else if (/try\s*$/.test(s.slice(Math.max(0, k - 10), k))) return true;
+      }
+    }
+    return false;
+  };
+  const inCaughtAll = (s: string, at: number) => {
+    let depth = 0;
+    for (let k = at - 1; k >= 0; k -= 1) {
+      const ch = s[k];
+      if (ch === ")" || ch === "]") depth += 1;
+      else if (ch === "(" || ch === "[") {
+        if (depth > 0) { depth -= 1; continue; }
+        if (ch === "[") continue;
+        if (!/Promise\.(all|allSettled)$/.test(s.slice(Math.max(0, k - 20), k))) return false;
+        return caughtNext(s, pastChain(s, closeParen(s, k + 1)));
+      }
+    }
+    return false;
+  };
+
+  const callers = [...APP, ...COMPONENTS].filter((f) => /^\s*["']use client["']/.test(read(f)));
+  const uncaught: string[] = [];
+  let calls = 0;
+  for (const file of callers) {
+    const raw = read(file);
+    const names = [...raw.matchAll(/import\s*\{([^}]*)\}\s*from\s*["']@\/app\/actions["']/g)]
+      .flatMap((m) => m[1]!.split(","))
+      .map((t) => t.trim())
+      .filter((t) => t && !t.startsWith("type "))
+      .map((t) => t.split(/\s+as\s+/).pop()!);
+    if (names.length === 0) continue;
+    const s = blankLiterals(raw);
+    for (const name of names) {
+      for (const hit of s.matchAll(new RegExp(`(?<![\\w.])${name}\\(`, "g"))) {
+        if (/function\s+$/.test(s.slice(Math.max(0, hit.index - 12), hit.index))) continue;
+        calls += 1;
+        const after = pastChain(s, closeParen(s, hit.index + hit[0].length));
+        if (caughtNext(s, after) || insideTry(s, hit.index) || inCaughtAll(s, hit.index)) continue;
+        uncaught.push(`${file}:${s.slice(0, hit.index).split("\n").length} ${name}`);
+      }
+    }
+  }
+  /* Measured at 118 calls across the tree; the floor is what makes a rename
+     of the import path show up as a failure rather than as nothing to check. */
+  assert.ok(calls >= 100, `found only ${calls} calls to app/actions.ts from the browser; the pattern that finds them has stopped matching`);
+  assert.deepEqual(uncaught, [],
+    `these calls leave a dropped connection uncaught, which renders the error page from a transition: ${uncaught.join(", ")}`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

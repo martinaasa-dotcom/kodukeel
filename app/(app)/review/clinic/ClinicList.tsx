@@ -92,8 +92,8 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                   )}
                   <Button
                     onClick={async () => {
-                      await setCardSuspended(leech.cardId, true);
-                      setHandled((h) => ({ ...h, [leech.cardId]: "suspended" }));
+                      const landed = await setCardSuspended(leech.cardId, true).then(() => true).catch(() => false);
+                      if (landed) setHandled((h) => ({ ...h, [leech.cardId]: "suspended" }));
                     }}
                   >
                     <Pause size={15} aria-hidden /> Park it for now
@@ -101,8 +101,8 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                   <Button
                     variant="danger"
                     onClick={async () => {
-                      await deleteCard(leech.cardId);
-                      setHandled((h) => ({ ...h, [leech.cardId]: "deleted" }));
+                      const landed = await deleteCard(leech.cardId).then(() => true).catch(() => false);
+                      if (landed) setHandled((h) => ({ ...h, [leech.cardId]: "deleted" }));
                     }}
                   >
                     <Trash2 size={15} aria-hidden /> Not worth learning

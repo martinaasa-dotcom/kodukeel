@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { saveLearningGoals } from "@/app/actions";
+import { NOT_REACHED } from "@/lib/copy/values";
 import { Button } from "@/components/Button";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { icon } from "@/components/icons";
@@ -27,15 +28,20 @@ export function GoalsPanel({ current }: { current: Goals }) {
   const [days, setDays] = useState(current.daysPerWeek);
   const [note, setNote] = useState(current.note);
   const [saved, setSaved] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [pending, start] = useTransition();
 
   const weeks = weeksUntil(deadline, new Date());
 
   const save = () => {
     setSaved(false);
+    setFailed(false);
     start(async () => {
-      await saveLearningGoals({ reason: reasonsToStored(reasons), target, deadline, daysPerWeek: days, note });
-      setSaved(true);
+      const landed = await saveLearningGoals({ reason: reasonsToStored(reasons), target, deadline, daysPerWeek: days, note })
+        .then(() => true)
+        .catch(() => false);
+      setSaved(landed);
+      if (!landed) setFailed(true);
     });
   };
 
@@ -118,6 +124,9 @@ export function GoalsPanel({ current }: { current: Goals }) {
         <Button variant="primary" onClick={save} disabled={pending}>
           {pending ? <><Loader2 size={14} className="animate-spin" aria-hidden /> Saving</> : "Save goals"}
         </Button>
+        {failed && !pending && (
+          <span role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>{NOT_REACHED}</span>
+        )}
         {saved && !pending && (
           <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--good-ink)" }}>
             <Check size={14} aria-hidden /> Saved

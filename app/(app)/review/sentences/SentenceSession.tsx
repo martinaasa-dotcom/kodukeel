@@ -140,8 +140,8 @@ export function SentenceSession(
   useEffect(() => {
     const upcoming = tasks.slice(index, index + 3).filter((t) => t.en === null);
     for (const next of upcoming) {
-      void translateExample(next.lexemeId, next.et).then((result) => {
-        if (!result.ok) return;
+      void translateExample(next.lexemeId, next.et).catch(() => null).then((result) => {
+        if (!result?.ok) return;
         setTasks((list) => list.map((t) => (t.et === next.et ? { ...t, en: result.en } : t)));
       });
     }

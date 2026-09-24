@@ -24,7 +24,8 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
   const pick = (next: RoundPace) => {
     setValue(next);
     start(async () => {
-      await setRoundPace(next);
+      const landed = await setRoundPace(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };

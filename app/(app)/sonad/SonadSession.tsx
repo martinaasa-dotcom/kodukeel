@@ -494,8 +494,8 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
   onKeep: () => void;
 }) {
   const keeper = useKeepWord(puzzle.lexemeId, async (deckIds) => {
-    const result = await addToDeck(puzzle.lexemeId, ["RECOGNITION", "PRODUCTION"], "LOOKUP", deckIds);
-    if (result.ok) onKeep();
+    const result = await addToDeck(puzzle.lexemeId, ["RECOGNITION", "PRODUCTION"], "LOOKUP", deckIds).catch(() => null);
+    if (result?.ok) onKeep();
   });
 
   return (

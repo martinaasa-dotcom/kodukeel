@@ -14,6 +14,7 @@ import { Card, Chip, Note } from "@/components/ui";
 import { MAX_EDGE } from "@/lib/scan/image";
 import { MAX_ITEMS } from "@/lib/scan/extract";
 import { summarise, type ResolvedItem } from "@/lib/scan/items";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /** A row on screen: what came back, plus whether the learner still wants it. */
 interface Row extends ResolvedItem {
@@ -120,8 +121,8 @@ export function ScanCapture() {
     const row = rows[index];
     if (!row) return;
     start(async () => {
-      const result = await resolveScannedWord(row.et);
-      if (!result.ok || !result.item) return;
+      const result = await resolveScannedWord(row.et).catch(() => null);
+      if (!result?.ok || !result.item) return;
       update(index, { ...result.item, keep: true });
     });
   };
@@ -136,9 +137,9 @@ export function ScanCapture() {
         title,
         items: kept.map(({ keep: _keep, ...item }) => item),
         addCards,
-      });
-      if (!result.ok) {
-        setError(result.error);
+      }).catch(() => null);
+      if (!result || !result.ok) {
+        setError(result ? result.error : NOT_REACHED);
         setPhase("review");
         return;
       }

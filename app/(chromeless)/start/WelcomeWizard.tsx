@@ -18,7 +18,7 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { weeksToLearn, type Standing } from "@/lib/assessment/plan";
 import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/assessment/types";
 import { DEFAULT_LETTER_BAR, LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
-import { counted } from "@/lib/copy/values";
+import { counted, NOT_REACHED } from "@/lib/copy/values";
 import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course";
 import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
@@ -199,6 +199,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   const [estimated, setEstimated] = useState<string | null>(null);
 
   const [goal, setGoal] = useState<number>(15);
+  const [unsent, setUnsent] = useState(false);
   const [pending, start] = useTransition();
 
   /** The level everything downstream uses: measured if it was, stated if not. */
@@ -281,8 +282,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   const totalEvenings = parts.reduce((n, p) => n + p.days, 0);
 
   const finish = () => {
+    setUnsent(false);
     start(async () => {
-      await completeOnboarding({
+      const landed = await completeOnboarding({
         displayName: name,
         cefr: startBand,
         dailyGoal: goal,
@@ -296,7 +298,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           daysPerWeek: goals.daysPerWeek,
           note: goals.note,
         },
-      });
+      }).then(() => true).catch(() => false);
+      // Every answer is still on the screen, so the press can simply be made again.
+      if (!landed) { setUnsent(true); return; }
       /*
         Straight to tonight's module rather than to Today. Somebody who has
         just been told what the evening is wants the evening, and a dashboard
@@ -953,6 +957,11 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             </Button>
           )}
         </div>
+        {unsent && !pending && (
+          <p role="status" className="mt-3 text-right text-sm" style={{ color: "var(--again-ink)" }}>
+            {NOT_REACHED}
+          </p>
+        )}
 
         {/*
           NO WAY OUT OF SETUP, AND ONE WAY PAST ONE QUESTION.

@@ -994,8 +994,9 @@ export function ReviewSession({
     const last = history[history.length - 1];
     if (!last || busy) return;
     setBusy(true);
-    const result = await undoGrade(last.cardId, last.before);
-    if (result.ok) {
+    // Undo is a write, so it can fail to land; the card then stays answered.
+    const result = await undoGrade(last.cardId, last.before).catch(() => null);
+    if (result?.ok) {
       scheduled.current.set(last.cardId, last.before);
       setHistory((h) => h.slice(0, -1));
       // The card is in front of the learner again, so that showing has not
