@@ -30,7 +30,7 @@ import { emailPrefsFrom } from "@/lib/email/prefs";
 import { EMAIL_KINDS, type EmailKind } from "@/lib/email/letter";
 import type { Candidate } from "@/lib/email/schedule";
 import { AWAY_DAYS, UNCAPPED } from "@/lib/email/schedule";
-import { weeksUntil } from "@/lib/assessment/goals";
+import { exactWeeksUntil } from "@/lib/assessment/goals";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
 import { examCountdown } from "@/lib/progress/countdown";
@@ -338,7 +338,8 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     letter to write about it.
   */
   const deadlineRaw = settings[SETTING_KEYS.goalDeadline];
-  const weeksLeft = deadlineRaw ? weeksUntil(deadlineRaw, now) : null;
+  // Unrounded, because the letter's window has edges: rounded, 24.6 days read as four weeks.
+  const weeksLeft = deadlineRaw ? exactWeeksUntil(deadlineRaw, now) : null;
   const deadlineWeeks = weeksLeft !== null && weeksLeft > 0 ? weeksLeft : null;
 
   /*
