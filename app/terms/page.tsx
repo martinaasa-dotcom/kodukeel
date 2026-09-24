@@ -105,7 +105,12 @@ export default function TermsPage() {
           whenever you like from Settings, in a format that restores into any installation.
           The dictionary is two sources joined, and they carry different licenses, so it is
           worth being exact rather than tidy. Every Estonian form and every example sentence
-          comes from Ekilex and is licensed <strong>CC BY 4.0</strong> by the Institute of
+          comes from <a
+            href="https://ekilex.ee"
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2"
+          >Ekilex</a> and is licensed <strong>CC BY 4.0</strong> by the Institute of
           the Estonian Language. Every English gloss that was not written for this project
           comes from <a
             href="https://en.wiktionary.org"

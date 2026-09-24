@@ -32,6 +32,7 @@ import { OPENS_WITHOUT_BRIEFING } from "../lib/copy/briefingCoverage";
 import { BRIEFINGS } from "../lib/copy/briefings";
 import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
+import { SOURCE_CREDITS } from "../lib/legal/credits";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
 import { plainAsk } from "../lib/estonian/plainAsk";
@@ -301,6 +302,51 @@ check("the keyed services are only ever reached from the server", () => {
     const hit = call.exec(read(file));
     assert.equal(hit, null, `${file} calls ${hit?.[2]} from the browser`);
   }
+});
+
+check("every source LICENSE asks a credit for is credited on every surface that owes it", () => {
+  /*
+    `LICENSE` names the sources this app is built on and says which ask for a
+    credit, and CLAUDE.md says each is credited on sign-in, in the landing
+    footer and on /terms as well. Nothing compared the four, so when the forms
+    list arrived with three sources, the one that is a repository in its own
+    right (`KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex`, CC BY-SA 4.0)
+    reached `LICENSE` and /terms and neither of the other two.
+
+    The sources are read out of `LICENSE` rather than typed here, because a list
+    in the check is the second copy that falls behind. A block needs a credit
+    where it names a licence that asks for one; TartuNLP's says it is fetched
+    and not redistributed, and asks for none.
+  */
+  const licence = readFileSync("LICENSE", "utf8");
+  const start = licence.indexOf("terms set by the people who made it:");
+  const end = licence.indexOf("`prisma/data/expanded.json` is a build product");
+  assert.ok(start > 0 && end > start, "LICENSE no longer has the list of sources this check reads");
+  const blocks = licence.slice(start, end).split(/\n\s*\n/);
+  const owed = blocks
+    .filter((block) => /CC BY|LGPL|Attribution required/.test(block))
+    .flatMap((block) => block.match(/https:\/\/\S+/g) ?? [])
+    .map((url) => url.replace(/\/$/, ""));
+  assert.ok(owed.length >= 5, `read ${owed.length} credited sources out of LICENSE, expected at least 5`);
+
+  const hrefs = new Set(SOURCE_CREDITS.map((c) => c.href));
+  const terms = read("app/terms/page.tsx");
+  const signIn = code("app/(chromeless)/sign-in/page.tsx");
+  for (const url of owed) {
+    assert.ok(hrefs.has(url), `LICENSE credits ${url} and lib/legal/credits.ts, which the landing footer draws, does not`);
+    assert.ok(terms.includes(url), `LICENSE credits ${url} and /terms does not link it`);
+    const credit = SOURCE_CREDITS.find((c) => c.href === url);
+    if (credit) assert.ok(signIn.includes(credit.name), `LICENSE credits ${credit.name} and the sign-in page does not name it`);
+  }
+  // The other direction: a licensed row in the table that LICENSE never
+  // mentions is a credit on screen for terms nobody wrote down.
+  for (const credit of SOURCE_CREDITS) {
+    if (credit.licence) assert.ok(licence.includes(credit.href), `${credit.name} is credited on screen as ${credit.licence} and LICENSE does not name it`);
+  }
+  // The footer has to draw the table rather than a list of its own, or the
+  // table is the second copy.
+  const landing = code("app/(chromeless)/welcome/page.tsx");
+  assert.match(landing, /SOURCE_CREDITS\.map\(/, "the landing footer stopped drawing lib/legal/credits.ts");
 });
 
 // ── Never write Estonian, never generate morphology (ADR-005, ADR-017) ───────
