@@ -13695,21 +13695,20 @@ check("a class cannot read a conversation", () => {
 /**
  * A ROUTED PURPOSE ASKS FOR ITS OWN CHAIN, AND NOTHING FAILS IF IT STOPS.
  *
- * Two paid keys are configured for two different reasons: Anu asks Anthropic
- * because Sonnet was the best of everything tested on real Estonian, and scene
- * composition asks Groq because `qwen/qwen3.8-27b` answered 24 of 24 with a
- * finite verb every time at a quarter-second median, for a fortieth of the
- * price, on a path that makes calls by the dozen.
+ * Each purpose was measured for its own job and pinned to what won: Anu on
+ * `TUTOR_MODEL`, scenes on `SCENE_MODELS`, the graders on `GRADER_MODELS`
+ * (see `PURPOSE_CHAINS` for the figures). The models have moved since this
+ * was written and will move again; what this check holds is the split.
  *
  * `resolveProviders()` with no argument is still the whole chain, deliberately,
  * because twenty-odd callers mean "is a model configured at all" by it and none
  * of them is choosing where to send anything. That is also what makes this
  * regression invisible: a route that dropped its `purpose` still compiles,
  * still answers, and still names the model that wrote it in a header nobody
- * watches. What it stops doing is the split. Anu's question gets answered by a
- * model ranked on fourteen-word constrained sentences, or every scene line in
- * every conversation gets billed at Sonnet's rate against a $5 balance, and
- * a Groq outage starts taking Anu down with it.
+ * watches. What it stops doing is the split: Anu's question gets answered by a
+ * model nobody ranked on grammar questions, or every scene line is billed at
+ * whatever the general chain's head costs, and one provider's outage starts
+ * taking the other purposes down with it.
  *
  * Anchored on the call rather than on the import, for the reason five other
  * checks in this file are: a file can import the right function and go on
