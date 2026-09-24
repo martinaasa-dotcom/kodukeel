@@ -1,6 +1,6 @@
 import { CASES } from "@/lib/estonian/cases";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
-import { caseAnswer, stemsFromParts } from "@/lib/estonian/derive";
+import { caseAnswer, stemsFrom, stemsFromParts } from "@/lib/estonian/derive";
 import { caseFromMorphCode } from "@/lib/estonian/morph";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -137,4 +137,35 @@ export function gapFormsFromParts(word: {
     pos: word.pos,
     forms: Object.entries(word.parts).map(([formType, value]) => ({ formType, value })),
   });
+}
+
+/**
+ * Every spelling that is the same form of the word as `answer`, itself included.
+ *
+ * Estonian has genuine parallel forms, and the dictionary stores both: 2,016
+ * shipped entries carry two partitive plurals (`aegu`, `aegasid`) and an
+ * enriched entry holds both illatives. A gap cut for one of them has the other
+ * as a true answer, and the two gap-choice builders excluded only the exact
+ * spelling from their wrong options, so the twin, which is the nearest form
+ * the ranking can find, was the likeliest option to be offered as wrong.
+ *
+ * A twin is a stored form under the same slot as a row spelled like the
+ * answer, or the other half of a case's accepted pair. It errs toward too
+ * many: a spelling that is two cases at once takes both slots' twins, which
+ * costs a builder a distractor and can never mark a right answer wrong.
+ */
+export function twinsOf(word: GapWord, answer: string): Set<string> {
+  const wanted = answer.trim().toLowerCase();
+  const out = new Set<string>([wanted]);
+  const slotOf = (f: GapWord["forms"][number]) => f.morphCode || f.formType;
+  const slots = new Set(word.forms.filter((f) => f.value.trim().toLowerCase() === wanted).map(slotOf));
+  for (const form of word.forms) {
+    if (slots.has(slotOf(form))) out.add(form.value.trim().toLowerCase());
+  }
+  const stems = stemsFrom(word.forms);
+  for (const spec of CASES) {
+    const accepted = (caseAnswer(stems, spec.key)?.accepted ?? []).map((a) => a.toLowerCase());
+    if (accepted.includes(wanted)) for (const a of accepted) out.add(a);
+  }
+  return out;
 }
