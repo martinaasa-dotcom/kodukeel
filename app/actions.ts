@@ -19,11 +19,12 @@ import { generateCode, isValidCode, normaliseCode } from "@/lib/classroom/code";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
-import { mergeExamples, parseExamples, serialiseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
+import { mergeExamples, parseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
 import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
+import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
 import {
@@ -592,16 +593,23 @@ export async function translateExample(lexemeId: string, sentence: string) {
   }
   const en = answer.text;
 
-  await prisma.lexeme.update({
-    where: { id: lexeme.id },
-    data: {
-      examples: serialiseExamples(
-        examples.map((e) => (e.et === sentence ? { ...e, en } : e)),
-      ),
-    },
+  /*
+    Written against the row as it is now rather than the copy read before the
+    call, which can be seconds old: a reviewer may have refused this line or
+    dropped the sentence meanwhile, and a learner may have added one. See
+    lib/dict/editExamples.ts. A line somebody else filled in the gap wins.
+  */
+  const saved = await editExamples(lexeme.id, (now) => {
+    const current = now.find((e) => e.et === sentence);
+    if (!current || current.enRefused) return { next: null, result: null };
+    if (current.en) return { next: null, result: current.en };
+    return { next: now.map((e) => (e.et === sentence ? { ...e, en } : e)), result: en };
   });
+  if (!saved.found || saved.result === null) {
+    return { ok: false as const, refused: true as const, error: "" };
+  }
   revalidatePath("/dictionary");
-  return { ok: true as const, en };
+  return { ok: true as const, en: saved.result };
 }
 
 /**
@@ -629,19 +637,13 @@ export async function addExample(lexemeId: string, sentence: string, translation
   const et = capped(sentence, LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That is too short to be a sentence." };
 
-  const lexeme = await prisma.lexeme.findUnique({
-    where: { id: lexemeId },
-    select: { id: true, examples: true },
-  });
-  if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
-
-  const merged = mergeExamples(parseExamples(lexeme.examples), [
-    { et, en: capped(translation ?? "", LIMITS.translation) || null, source: "USER" },
-  ]);
-  await prisma.lexeme.update({
-    where: { id: lexeme.id },
-    data: { examples: serialiseExamples(merged), editedBy: ownerId, editedAt: new Date() },
-  });
+  const en = capped(translation ?? "", LIMITS.translation) || null;
+  const saved = await editExamples(
+    typeof lexemeId === "string" ? lexemeId : "",
+    (now) => ({ next: mergeExamples(now, [{ et, en, source: "USER" }]), result: null }),
+    { editedBy: ownerId, editedAt: new Date() },
+  );
+  if (!saved.found) return { ok: false as const, error: "That word no longer exists." };
   revalidatePath("/dictionary");
   return { ok: true as const };
 }

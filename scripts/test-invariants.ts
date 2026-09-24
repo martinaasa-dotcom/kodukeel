@@ -1497,7 +1497,7 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // they are outside the net and an exemption for them would be one nobody
     // reads. The staleness loop below is what said so.
     "lib/suggestions/queue.ts": "shows a reviewer what a report is about",
-    "lib/suggestions/apply.ts": "removes a sentence a reviewer accepted, and picks none",
+    "lib/dict/editExamples.ts": "writes an edit back under a row lock, and picks none",
     // A scene line is chosen against a beat rather than to teach a word, and
     // it has a gate of its own: see lib/scenes/retrieval.ts.
     "lib/progress/scene.ts": "picks a line for a beat, through the scene gate",
@@ -21593,6 +21593,37 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("an existing entry's sentences are edited under a row lock, and nowhere else", () => {
+  /*
+    `Lexeme.examples` is a JSON array, so every change is a read, an edit and a
+    write of the whole of it, and three of the writers waited on a model or on
+    Ekilex between the read and the write. A reviewer's refusal, a dropped
+    sentence or a learner's own line landing in that gap was undone by the late
+    write for every learner. `editExamples` reads and writes under
+    `SELECT … FOR UPDATE`; an update may not set the column any other way.
+    Creating a row is not an edit, and is the one other place it is written.
+  */
+  const writers: string[] = [];
+  for (const file of ALL.filter((f) => !/\.(i?test)\.ts$/.test(f) && f !== "lib/dict/editExamples.ts")) {
+    const src = code(file);
+    for (const m of src.matchAll(/prisma\.lexeme\.(update|updateMany|upsert)\(\{/g)) {
+      let depth = 0; let end = m.index! + m[0].length - 1;
+      for (let i = end; i < src.length; i++) {
+        if (src[i] === "{") depth++;
+        else if (src[i] === "}" && --depth === 0) { end = i; break; }
+      }
+      const call = src.slice(m.index!, end + 1);
+      // `data` passed by name is checked where it is built: see lookup.ts.
+      if (/\bexamples\s*:/.test(call)) writers.push(`${file}:${src.slice(0, m.index!).split("\n").length}`);
+    }
+  }
+  assert.deepEqual(writers, [], `sets Lexeme.examples outside editExamples: ${writers.join(", ")}`);
+  assert.match(code("lib/dict/editExamples.ts"), /FOR UPDATE/, "editExamples no longer locks the row it edits");
+  const lookup = code("lib/dict/lookup.ts");
+  assert.ok(!/const data = \{[^}]*\bexamples\s*:/.test(lookup),
+    "lookup.ts writes the examples in the shared update data rather than through editExamples");
 });
 
 console.log(
