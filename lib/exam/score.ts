@@ -243,7 +243,10 @@ export function markItem(
 
     case "case-form":
       return scale(markTyped(
-        item, item.answer, response.kind === "typed" ? response.value : "", false, item.rivals,
+        // Both illatives where the dictionary records both, joined the way
+        // every back holding a pair is, which `checkAnswer` splits on.
+        item, item.alsoRight ? `${item.answer} / ${item.alsoRight}` : item.answer,
+        response.kind === "typed" ? response.value : "", false, item.rivals,
       ));
 
     case "order": {

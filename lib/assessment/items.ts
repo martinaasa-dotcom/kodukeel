@@ -205,6 +205,16 @@ export interface Gap {
   answer: string;
   /** Other forms of the same word, none of them standing in the sentence. */
   siblings: string[];
+  /**
+   * Every other spelling of the word, for marking a typed answer.
+   *
+   * Not `siblings`, which is chosen to make good wrong options and is the
+   * attested forms alone wherever there are three: a seeded entry stores its
+   * principal parts, so the derived cases never reached it, and `toast`
+   * typed for `toas` came back from `checkAnswer` as a slip, credit 0.8 and
+   * right. These are what the sentence could not have wanted.
+   */
+  rivals: string[];
 }
 
 /**
@@ -317,6 +327,7 @@ export function gapFrom(word: WordRow): Gap | null {
     return {
       text: cloze.text, full: cloze.full, answer: cloze.answer,
       en: en || null, siblings: pool,
+      rivals: forms.filter((f) => f.toLowerCase() !== answer),
     };
   }
   return null;
@@ -821,7 +832,7 @@ export function writingItems(words: readonly WordRow[], rng: () => number): Writ
       sentence: gap.text,
       full: gap.full,
       targetForm: gap.answer,
-      otherForms: gap.siblings,
+      otherForms: gap.rivals,
       because: explainWrittenGap(word, gap),
       kind: "write",
     });

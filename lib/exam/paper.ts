@@ -172,6 +172,13 @@ export interface CaseFormItem extends BaseItem {
   answer: string;
   provenance: "ekilex" | "derived";
   /**
+   * The other spelling a lexicographer records for this case, where there is
+   * one: the long illative beside the short one. Accepted as right, since
+   * Estonian has both and marking a candidate wrong for the other true answer
+   * is the `tuppa` fault pointed the other way.
+   */
+  alsoRight: string | null;
+  /**
    * The word's other spellings, so a different case one keystroke away is
    * marked as the wrong case rather than as "one letter out". See `rivalsOf`.
    */
@@ -668,7 +675,8 @@ function buildCaseForm(spec: TaskSpec, ctx: BuildContext): ExamTask {
       caseQuestion: task.caseQuestion,
       answer: task.targetForm,
       provenance: task.provenance,
-      rivals: rivalsOf(word, [task.targetForm]),
+      alsoRight: task.alsoRight,
+      rivals: rivalsOf(word, task.alsoRight ? [task.targetForm, task.alsoRight] : [task.targetForm]),
     });
   }
   return finish(spec, items, undefined, "nouns with an omastav stem to build on");

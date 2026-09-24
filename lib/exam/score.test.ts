@@ -321,6 +321,15 @@ describe("which language an answer is in", () => {
     expect(mark.note).not.toBe("One letter out.");
   });
 
+  it("takes the long illative where the dictionary records both", () => {
+    const form = items.find((i) => i.kind === "case-form")!;
+    if (form.kind !== "case-form") throw new Error("unreachable");
+    const asked = { ...form, answer: "tuppa", alsoRight: "toasse", rivals: ["toas", "toast"] };
+    expect(markItem(asked, { kind: "typed", value: "toasse" }, 1).correct).toBe(true);
+    expect(markItem(asked, { kind: "typed", value: "tuppa" }, 1).correct).toBe(true);
+    expect(markItem(asked, { kind: "typed", value: "toas" }, 1).correct).toBe(false);
+  });
+
   it("leaves the Estonian answers Estonian", () => {
     const form = items.find((i) => i.kind === "case-form")!;
     expect(markItem(form, { kind: "typed", value: "vale" }, 1).language).toBe("et");

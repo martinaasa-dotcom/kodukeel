@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
+import { gradeWrite } from "./score";
 import { assemble, BLUEPRINT, buildPaper, explainForm, explainGap, explainWrittenGap, gapFrom, listeningItems, mulberry32, readingItems, speakingItems, writingItems, type WordRow } from "./items";
 import { heardIndex, meaningsHeard } from "./heard";
 import { BLANK } from "@/lib/estonian/cloze";
@@ -478,6 +479,20 @@ describe("the explanation after a gap", () => {
     // And the clause `lib/estonian/plainAsk.ts` holds for the slot, which is
     // what a person would say out loud rather than what a class calls it.
     expect(explained!.because).toContain("when something is inside it");
+  });
+
+  it("marks a derived case one keystroke away as the wrong case, not a slip", () => {
+    // `toast` is built on the genitive stem rather than stored, so it is never
+    // among the distractors a seeded entry offers, and it has to be among the
+    // spellings the typed answer is marked against or it reads as a typo.
+    const tuba: WordRow = {
+      ...WORDS.find((w) => w.lemma === "tuba")!,
+      examples: [{ et: "Ma olen praegu toas.", en: "I am in the room right now." }],
+    };
+    const item = writingItems([tuba], mulberry32(3)).find((i) => i.targetForm === "toas");
+    expect(item, "no written gap was built").toBeDefined();
+    const marked = gradeWrite(item!, "toast");
+    expect(marked.right).toBe(false);
   });
 
   it("keeps the sentence for the shape that is still showing a blank", () => {
