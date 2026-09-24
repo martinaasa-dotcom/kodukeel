@@ -110,7 +110,10 @@ export async function writeGrade(ownerId: string, write: GradeWrite): Promise<Sc
       lexemeId: card.lexemeId,
       rating,
       reviewedAt: at,
-      durationMs: Math.min(Math.max(durationMs, 0), 600_000),
+      // A finite whole number of milliseconds: `Math.min`/`Math.max` pass NaN
+      // straight through and a fraction is refused by the Int column, so a
+      // client sending either got a database error instead of a row.
+      durationMs: Number.isFinite(durationMs) ? Math.round(Math.min(Math.max(durationMs, 0), 600_000)) : 0,
       stateBefore: card.state,
       targetCase: card.targetCase,
       slot,
