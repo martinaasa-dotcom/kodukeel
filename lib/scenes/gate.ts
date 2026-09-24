@@ -94,8 +94,8 @@ export const QUESTION_FLOOR = 3;
  * learner who has turned the underlines off gets the words bare.
  *
  * TEN, BECAUSE A WITHHELD LINE IS WORSE THAN A LONG ONE. Six was set against
- * a three-sentence ceiling and the ceiling is five sentences and forty words
- * now: at six, a line of the length the gate allows has to be nine tenths
+ * a three-sentence ceiling and the ceiling is `MAX_SENTENCES` sentences and
+ * `MAX_COMPOSED_WORDS` words now: at six, a line of the length the gate allows has to be nine tenths
  * course vocabulary, which is not how anybody talks, and the cost of missing
  * is not a clumsy sentence but no sentence at all. A withheld line drops to a
  * banked one written months ago against the beat alone, which is the stilted
@@ -761,7 +761,7 @@ export function disagrees(text: string, context: GateContext): boolean {
  * a model asked for a role-play line writes a role-play line, and that the
  * learner reads every word of it with the dictionary underneath.
  */
-const MAX_SENTENCES = 5;
+export const MAX_SENTENCES = 5;
 
 /**
  * How long a composed line may be, which is not how long a recorded one may be.

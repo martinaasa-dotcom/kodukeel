@@ -3210,6 +3210,24 @@ check("a constant CLAUDE.md says is a number is that number", () => {
   // A pattern that stopped matching would compare nothing and pass.
   assert.ok(compared >= 6, `only ${compared} stated constants read out of CLAUDE.md`);
   assert.deepEqual(wrong, [], `CLAUDE.md states a constant the code no longer holds:\n${wrong.join("\n")}`);
+
+  /*
+    And the model is told the ceiling the gate applies, in the same way. The
+    retry instruction in `whyWithheld` said "at most five sentences and at most
+    fifty-five words" as typed text, so the day the gate moved, the model would
+    be told one limit and refused on another. Read off the code, so the comment
+    recording this does not satisfy it.
+  */
+  for (const file of ["lib/scenes/line.ts", "lib/scenes/prompt.ts"]) {
+    const src = code(file);
+    const typed = src.match(/(?:at most|over|up to)\s+(?:\d+|[a-z]+(?:-[a-z]+)?)\s+(?:sentences|words)\b/i);
+    assert.ok(
+      !typed || /^\S+\s+\$\{/.test(typed[0]),
+      `${file} tells the model a typed limit ("${typed?.[0]}") rather than the gate's constant`,
+    );
+  }
+  assert.match(code("lib/scenes/line.ts"), /\$\{MAX_SENTENCES\} sentences and at most \$\{MAX_COMPOSED_WORDS\} words/,
+    "whyWithheld no longer states the gate's own ceiling");
 });
 
 check("the counts CLAUDE.md states about the harvest are the harvest's own", () => {

@@ -24,7 +24,9 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { passes, runGate, type Check, type GateContext, type Verdict } from "./gate";
+import {
+  MAX_COMPOSED_WORDS, MAX_SENTENCES, passes, runGate, type Check, type GateContext, type Verdict,
+} from "./gate";
 import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
 import type { BeatSpec } from "./types";
@@ -493,7 +495,9 @@ export function whyWithheld(verdict: Verdict | null): string | undefined {
     facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, in digits or in words",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
     topic: "it was not about what you are doing at this moment, or about what they just said",
-    shape: "it was the wrong shape: an ask holds a question, an instruction or an answer does not, and it has to be punctuated, unformatted, at most five sentences and at most fifty-five words",
+    // The ceiling is read off the gate rather than typed, so the retry is told
+    // the limit the gate will actually apply to the line it writes next.
+    shape: `it was the wrong shape: an ask holds a question, an instruction or an answer does not, and it has to be punctuated, unformatted, at most ${MAX_SENTENCES} sentences and at most ${MAX_COMPOSED_WORDS} words`,
     agreement: "its subject and its verb did not agree in person",
     infinitive: "it put the ma-infinitive where the da-infinitive belongs",
     negation: "a verb after the negator kept its personal ending",
