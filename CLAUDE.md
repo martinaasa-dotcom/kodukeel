@@ -7094,6 +7094,11 @@ render**, with `cache()` from React, which is what `requireUserId` already did a
 dropping it, because a Server Action that banks a shield and then reads the count back is real and
 is on Today. And **two answers that do not need each other are asked at once**, which is most of
 what was wrong: the four opening reads of Today were four `await`s in a row and are one `Promise.all`.
+That was fixed on Today and nowhere else, so the same shape sat on the learn page, the sprint, the
+exceptions round, the review queue's drills and the metrics route, eight pairs in all. It is
+asserted over every page and route now (`independentAwaits`): two neighbouring `await`s where the
+second never names what the first bound fail the invariants, drawn to miss rather than to fire,
+since only adjacent statements count and a nested callback is not a neighbour.
 
 **And what a page does not need before its first byte goes behind a `Suspense`.** The class board
 on Progress is four round trips to fill the last panel on a page of charts, so it streams in behind
