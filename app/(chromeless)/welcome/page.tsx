@@ -588,7 +588,7 @@ function Features() {
             tone="mint"
             icon={<Target size={18} aria-hidden />}
             title="Then the real thing"
-            body="A receptionist with no slot on Thursday, a landlord on a bad line, a counter with a queue. The model plays their side, using only words your course has taught you, checked before you see them. Then take the smallest step outside: one thing to say to a real person today, and a count of how it went. That count is the only score that matters here."
+            body="A receptionist with no slot on Thursday, a landlord on a bad line, a counter with a queue. Then take the smallest step outside: one thing to say to a real person today, and a count of how it went. That count is the only score that matters here."
           />
         </Reveal>
       </div>
