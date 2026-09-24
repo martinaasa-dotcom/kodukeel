@@ -4435,6 +4435,32 @@ check("the pure modules stay free of React, Next and Prisma", () => {
   }
 });
 
+check("the integration suite refuses a database that is not on this machine", () => {
+  /*
+    `npm run test:db` writes: learners, ledger rows booked against the shared
+    daily budget, invented dictionary entries. It opened whatever DATABASE_URL
+    the shell exported, and a shell carrying the deployment's connection string
+    is what a copied `.env` produces, so nothing stood between that command and
+    the database every learner uses. `scripts/itest-guard.ts` runs as the
+    suite's global setup and refuses anything off loopback unless the run opts
+    in by name. Anchored on the config naming the guard and the guard asking
+    `databaseTarget` of both variables, since a guard nobody wires up is the
+    same silence one file later.
+  */
+  const config = code("vitest.integration.config.mts");
+  assert.match(
+    config,
+    /globalSetup:\s*\[\s*"scripts\/itest-guard\.ts"\s*\]/,
+    "the integration suite no longer runs its database guard before loading",
+  );
+  const guard = code("scripts/itest-guard.ts");
+  assert.match(guard, /databaseTarget\(/, "the guard no longer asks whether the database is local");
+  for (const name of ["DATABASE_URL", "DIRECT_URL"]) {
+    assert.ok(guard.includes(`"${name}"`), `the guard no longer checks ${name}`);
+  }
+  assert.match(guard, /throw new Error\(/, "the guard no longer refuses; it only warns");
+});
+
 check("the unit suite runs on a stated machine, not on whatever the shell exported", () => {
   /*
     The unit suite gates every commit on being hermetic: no database, no
