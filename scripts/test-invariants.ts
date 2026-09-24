@@ -2469,7 +2469,9 @@ check("no code path updates a review", () => {
     fixture can always write the row it wants in the first place.
   */
   for (const file of ALL) {
-    assert.equal(/review\.update/.test(code(file)), false, `${file} updates a review`);
+    // Every way to change a row, not only the obvious one: an upsert and raw
+    // SQL rewrite a review as surely as `review.update` does.
+    assert.equal(/review\.(update|upsert)|UPDATE\s+"Review"/.test(code(file)), false, `${file} updates a review`);
   }
 });
 
@@ -13057,6 +13059,16 @@ check("the research opt-out is applied in the query, and is where the page says"
     /const not = [\s\S]{0,60}Prisma\.sql`AND e\."ownerId" NOT IN/,
     "the reported conversations no longer exclude anybody, so somebody who asked to be left out is published in the errand table",
   );
+  /*
+    And each clause reaches its query. The three checks above ask that the
+    exclusion is *built*; deleting the `${not}` it is spliced in through left
+    all three passing, with the clause sitting in a variable nothing read.
+  */
+  const built = route.split(/\bconst not = /).slice(1);
+  assert.ok(built.length >= 2, `only ${built.length} exclusion clauses found, so this stopped looking`);
+  for (const [i, after] of built.entries()) {
+    assert.match(after, /\$\{not\}/, `exclusion clause ${i + 1} is built and never spliced into its query`);
+  }
 
   const label = "Anonymous statistics";
   for (const file of ["app/privacy/page.tsx", "app/(app)/settings/page.tsx"]) {
