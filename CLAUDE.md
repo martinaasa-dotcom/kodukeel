@@ -9338,10 +9338,11 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
-- `lib/assessment/`, `lib/estonian/`, `lib/exam/`, `lib/games/`, `lib/gamification/`,
-  `lib/stats/`, `lib/collections/`, `lib/time/`, `lib/offline/`, `lib/security/`, `lib/scan/`,
-  `lib/questions/`, `lib/ux/`, `lib/random/`, `lib/learn/`, `lib/funding/` and `lib/copy/` stay free of
-  React, Next.js and Prisma: pure functions, unit tested. Anything that
+- `lib/assessment/`, `lib/estonian/`, `lib/exam/`, `lib/games/`, `lib/stats/`, `lib/collections/`,
+  `lib/time/`, `lib/offline/`, `lib/security/`, `lib/scan/`, `lib/questions/`, `lib/ux/`,
+  `lib/random/`, `lib/learn/`, `lib/funding/`, `lib/copy/`, `lib/research/`, `lib/scenes/`,
+  `lib/readiness/` and `lib/email/` stay free of React, Next.js and Prisma, subdirectories
+  included: pure functions, unit tested. Anything that
   needs the database lives in `lib/progress/` or a route. Asserted, because it
   had been prose alone and it is not a tidiness rule: the unit suite gates every
   commit on being hermetic, so one `import { prisma }` inside `lib/stats/` puts

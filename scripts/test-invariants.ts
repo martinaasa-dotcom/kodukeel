@@ -9485,10 +9485,13 @@ check("the layers that promise to be pure import no database, React or Next", ()
   const pure = [
     "assessment", "estonian", "exam", "games", "stats", "collections", "time",
     "offline", "security", "scan", "questions", "ux", "random", "copy", "funding", "research",
-    "learn", "scenes", "readiness",
+    "learn", "scenes", "readiness", "email",
   ];
   const banned = [
     [/from "@\/lib\/db"/, "the database"],
+    // The same module by a relative path. `./db` is not it: `lib/offline/db.ts`
+    // is the browser's IndexedDB and lives beside its readers on purpose.
+    [/from "\.\.\/(?:\.\.\/)*db"/, "the database"],
     [/from "@prisma\/client"/, "Prisma"],
     [/from "react"|from "react\//, "React"],
     [/from "next\//, "Next"],
@@ -9502,16 +9505,20 @@ check("the layers that promise to be pure import no database, React or Next", ()
       existsSync(dir),
       `lib/${name} is named as a pure layer and is not there. Rename it here or put it back.`,
     );
-    for (const file of readdirSync(dir)) {
-      if (!file.endsWith(".ts") && !file.endsWith(".tsx")) continue;
+    /*
+      Every file under the directory, not only its top level: this read one
+      level deep, so `lib/collections/syllabus/` and `lib/email/letters/` were
+      promised pure and never looked at, and a database import in either passed.
+    */
+    for (const file of sourceFiles(dir)) {
       if (file.includes(".test.") || file.includes(".itest.")) continue;
       looked += 1;
-      const src = code(join(dir, file));
+      const src = code(file);
       for (const [pattern, what] of banned) {
         assert.doesNotMatch(
           src,
           pattern,
-          `lib/${name}/${file} imports ${what}. That layer is unit tested hermetically, ` +
+          `${file} imports ${what}. That layer is unit tested hermetically, ` +
           "so anything needing the database belongs in lib/progress/ or a route.",
         );
       }
