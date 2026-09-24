@@ -13792,6 +13792,34 @@ check("a metered route asks the ledger before offering a last resort", () => {
   }
 
   /*
+    Per call rather than per file, because a file that passes the verdict once
+    satisfies the match above however many chains it builds. The scene route
+    asks the ledger three times and builds a chain after each, so a fourth build
+    written without the verdict would sit behind the three that have it and
+    pass. Every build after the file's first ledger call has to carry it, unless
+    it is only asking whether anything is configured, which is what `.length`
+    and a head read for its name are; a head that is then called is a chain,
+    and is what the verdict exists to bound.
+  */
+  const unguarded: string[] = [];
+  for (const file of spenders) {
+    const src = code(file);
+    const firstAsk = src.search(/\bauthoriseCall\s*\(/);
+    for (const m of src.matchAll(/(resolveProviders|sceneProviders|visionProviders)\s*\(([^)]*)\)(\s*(?:\.length|\[0\]))?/g)) {
+      if (m.index! < firstAsk) continue;
+      if (/purpose:\s*"tutor"/.test(m[2] ?? "")) continue;
+      if (m[3]) continue;
+      if (/allowFallback:\s*decision\.fallbackAllowed/.test(m[2] ?? "")) continue;
+      unguarded.push(`${file}:${src.slice(0, m.index).split("\n").length}`);
+    }
+  }
+  assert.deepEqual(
+    unguarded,
+    [],
+    `a chain built after asking the ledger does not carry its verdict: ${unguarded.join(", ")}`,
+  );
+
+  /*
     And Anu never gets one. Anthropic is her primary, so the only thing behind
     her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
     "b becomes v" against a dictionary that says b : the consonant going, and
