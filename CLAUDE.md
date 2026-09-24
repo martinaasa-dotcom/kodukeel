@@ -9949,6 +9949,16 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   keeps its clock**, and that limitation stays on the statement with its reasoning: the paper is
   imitating a timed state examination and untimed practice of a timed paper measures something
   else (`docs/16-exam.md`).
+- **And there were three clocks, not two, and nothing was counting them.** Target gave eight seconds
+  a question falling to three and a half, all three typed into the session, so the rule above held
+  for two rounds and the third was the same WCAG 2.2.1 failure, on a practice round where nothing
+  argues for the limit being fixed. Its allowance is a fraction of a second, which `secondsFor`
+  would round away, so `lib/games/target.ts` multiplies the whole allowance by `multiplierFor`
+  instead, and the start, the step and the floor keep their shape at every pace. The rule is
+  asserted now, off the shape of a countdown rather than a list of rounds: a session stepping a
+  setter to zero from a timer has to be handed its length by a page that reads the pace. Made to
+  fail on Target first. A stopwatch counting up, which is Match and the picture board, is not a
+  limit and is not asked.
 
 ## Model configuration
 

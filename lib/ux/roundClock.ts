@@ -84,7 +84,16 @@ export function roundPaceFrom(value: string | null | undefined): RoundPace {
     : DEFAULT_ROUND_PACE;
 }
 
-function multiplierFor(pace: RoundPace): number {
+/**
+ * How many times the round's own length a pace is.
+ *
+ * Exported for the round whose clock is not whole seconds: Target gives each
+ * question its own allowance that shrinks a quarter of a second at a time, and
+ * `secondsFor` rounds to whole seconds, which would turn a quarter second
+ * scaled by one and a half into nothing. That round scales its allowance by
+ * this instead, so every timed practice round reads the one setting.
+ */
+export function multiplierFor(pace: RoundPace): number {
   return ROUND_PACES.find((p) => p.id === pace)?.multiplier ?? 1;
 }
 

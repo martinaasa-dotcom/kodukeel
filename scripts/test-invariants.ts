@@ -10359,6 +10359,47 @@ check("the accessibility sweep runs axe, over both themes", () => {
   const pkg = JSON.parse(read("package.json")) as { devDependencies?: Record<string, string> };
   assert.ok(pkg.devDependencies?.["axe-core"], "axe-core is not a dependency, so CI cannot run it");
 });
+/**
+ * A TIMED PRACTICE ROUND IS ADJUSTED BEFORE IT STARTS, AND EVERY ONE READS THE
+ * ONE SETTING.
+ *
+ * CLAUDE.md states the rule and nothing asserted it, which is how the third
+ * clock was missed: the Case Sprint and the daily quest read the pace from
+ * `lib/ux/roundClock.ts`, and Target gave eight seconds a question falling to
+ * three and a half with all three numbers typed into the session. WCAG 2.2.1,
+ * Timing Adjustable, failed on a practice round, where unlike the examination
+ * there is no argument for the limit being fixed.
+ *
+ * The haystack is the filesystem, read on the shape of a countdown rather than
+ * on a list of round names: a setter stepped towards zero from inside a
+ * `setInterval` or `setTimeout`. That is a limit the learner is racing, where a
+ * stopwatch counting up (Match, the picture board) is not a limit at all. A
+ * session with that shape has to be handed its length by a page that reads the
+ * pace. The examination is the one clock left fixed, on purpose and said so on
+ * /accessibility, and it counts down from stored deadlines rather than in this
+ * shape, so it is not in the haystack to exempt.
+ */
+check("every timed practice round reads the learner's pace", () => {
+  const COUNTDOWN = /set(?:Interval|Timeout)\(\s*\(\)\s*=>\s*set\w+\(\(\w+\)\s*=>\s*Math\.max\(0,/;
+  const timed = [...APP, ...COMPONENTS].filter(
+    (file) => file.endsWith("Session.tsx") && COUNTDOWN.test(code(file)),
+  );
+  assert.ok(
+    timed.length >= 3,
+    `only ${timed.length} timed rounds found; the countdown shape moved and this stopped looking`,
+  );
+  for (const file of timed) {
+    const page = join(dirname(file), "page.tsx");
+    assert.ok(existsSync(page), `${file} counts down and has no page beside it to hand it a length`);
+    assert.match(
+      code(page),
+      /from "@\/lib\/ux\/roundClock"/,
+      `${file} counts down to a limit its page never reads the learner's pace for. WCAG 2.2.1 `
+      + "asks for the limit to be adjustable before it starts: read roundPaceFrom off the "
+      + "roundPace setting on the page and hand the round its length.",
+    );
+  }
+});
 
 /*
   A figure shaped for a screen is never a divisor.
