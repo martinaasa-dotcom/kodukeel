@@ -48,7 +48,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { readExpanded, writeExpanded } from "./lib/expandedFile";
-import { equivalentsFrom } from "../lib/ekilex/client";
+import { equivalentsFrom, equivalentsText } from "../lib/ekilex/client";
 
 const ROOT = path.resolve(__dirname, "..");
 const CACHE = path.join(ROOT, ".ekilex-cache");
@@ -122,7 +122,6 @@ async function call<T>(pathname: string, attempt = 0): Promise<T | null> {
  * because "Ekilex records none" is the honest answer and is what the screen
  * already says.
  */
-const joined = (words: string[]): string | null => (words.length > 0 ? words.join(", ") : null);
 
 async function main(): Promise<void> {
   if (!API_KEY) {
@@ -191,8 +190,8 @@ async function main(): Promise<void> {
       kept++;
       continue;
     }
-    const ru = joined(pair.rus);
-    const uk = joined(pair.ukr);
+    const ru = equivalentsText(pair.rus);
+    const uk = equivalentsText(pair.ukr);
     if (ru === (entry.translationRu ?? null) && uk === (entry.translationUk ?? null)) continue;
     entry.translationRu = ru;
     entry.translationUk = uk;

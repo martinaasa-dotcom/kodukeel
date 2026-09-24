@@ -201,6 +201,16 @@ export function equivalentsFrom(
   return out;
 }
 
+/**
+ * The equivalents as the dictionary stores them: one comma-separated line, or
+ * null where Ekilex records none. One spelling for every writer of the two
+ * columns, so an entry repointed by a homonym pin reads exactly like one
+ * filled by the translation harvest.
+ */
+export function equivalentsText(words: readonly string[]): string | null {
+  return words.length > 0 ? words.join(", ") : null;
+}
+
 export async function fetchEkilexDetails(wordId: number): Promise<EkilexDetails | null> {
   const data = await call<RawDetails>(`/word/details/${wordId}`);
   if (!data?.word) return null;
