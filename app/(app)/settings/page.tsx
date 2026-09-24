@@ -414,8 +414,8 @@ export default async function SettingsPage() {
             HOW LONG A TIMED ROUND RUNS, WHICH IS WCAG 2.2.1 RATHER THAN A
             DIFFICULTY DIAL.
 
-            The Case Sprint and the daily quest each ran to a clock nobody
-            could change, and a learner who reads slowly or types with one
+            The Case Sprint, the daily quest and Target each ran to a clock
+            nobody could change, and a learner who reads slowly or types with one
             hand was not playing a harder round, they were shut out of it. The
             criterion is met by letting the limit be adjusted before it is
             met, which is what this is; see lib/ux/roundClock.ts for why
@@ -426,8 +426,8 @@ export default async function SettingsPage() {
             <SectionTitle hint={roundPaceName}>Time in a timed round</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                The sprint and the daily quest run to a clock. This is how long that clock
-                gives you, and it changes nothing else about either round.
+                The sprint, the daily quest and Target run to a clock. This is how long that
+                clock gives you, and it changes nothing else about any of them.
               </p>
               <RoundPacePanel current={roundPace} />
               <Explain label="The one clock this leaves alone">

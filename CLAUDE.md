@@ -9948,7 +9948,14 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   and a round that fetched its own length would start before it knew it. **The mock examination
   keeps its clock**, and that limitation stays on the statement with its reasoning: the paper is
   imitating a timed state examination and untimed practice of a timed paper measures something
-  else (`docs/16-exam.md`).
+  else (`docs/16-exam.md`). **And the rule is a sweep, because the third timed round missed it.**
+  Target shipped with its eight seconds and its floor of three and a half as constants in the
+  session, so it failed 2.2.1 while this paragraph and the accessibility statement both described
+  two timed rounds. A component that counts a state down to nought on a timer now has to be handed
+  its seconds by the page beside it, worked out with `secondsFor` from the stored pace, and the
+  check finds the rounds by that shape rather than by a list. Target's clock ticks in tenths, so
+  `secondsFor` takes the tick it rounds to, and the step each hit takes off stays the round's own:
+  it is pressure rather than length.
 
 ## Model configuration
 

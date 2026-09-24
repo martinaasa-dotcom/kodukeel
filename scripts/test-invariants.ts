@@ -21494,6 +21494,42 @@ check("nothing pays a model to translate a sentence nobody may be shown", () => 
   );
 });
 
+check("a round that counts down runs to the learner's own pace", () => {
+  /*
+    WCAG 2.2.1, TIMING ADJUSTABLE, IS MET HERE BY THE LIMIT BEING ADJUSTABLE
+    BEFORE IT IS MET, AND THAT WAS TRUE OF TWO ROUNDS OUT OF THREE.
+
+    `lib/ux/roundClock.ts` is the setting and its unit test holds the table to
+    ten times the standard, which is the criterion. What nothing asked was
+    whether every round with a clock reads it. Target arrived with its own
+    three constants, eight seconds for the first shot and a floor of three and
+    a half, none of them the learner's to move, and the accessibility statement
+    went on saying the timed practice rounds could be set to run longer.
+
+    So the rule is asked of the shape rather than of a list: a component that
+    counts a state down to nought is a round with a time limit, and the page
+    beside it has to hand it seconds worked out from the learner's pace. The
+    mock examination is the one exemption, for the reason `docs/16-exam.md`
+    gives: it imitates a timed state paper, and it keeps a deadline rather than
+    a countdown, so it is not in the haystack either way.
+  */
+  // A state walked down toward nought by a timer. Undoing a grade also takes
+  // one off a count, which is why the timer is part of the shape.
+  const COUNTDOWN = /set(?:Interval|Timeout)\(\s*\(\)\s*=>\s*set\w+\(\(\w+\)\s*=>\s*Math\.max\(0,/;
+  const timed = [...APP, ...COMPONENTS].filter((f) => f.endsWith(".tsx") && COUNTDOWN.test(code(f)));
+  assert.ok(timed.length >= 3, `only ${timed.length} rounds count down; the sweep stopped seeing them`);
+  for (const file of timed) {
+    const page = join(dirname(file), "page.tsx");
+    assert.ok(existsSync(page), `${file} counts down and has no page beside it to hand it a pace`);
+    const src = code(page);
+    assert.ok(
+      /\broundPaceFrom\(/.test(src) && /\bsecondsFor\(/.test(src),
+      `${file} counts down on a clock the learner cannot lengthen: ${page} has to work its seconds out ` +
+        "with secondsFor and the stored pace, which is WCAG 2.2.1",
+    );
+  }
+});
+
 check("every round says what is about to happen before it happens", () => {
   /*
     A ROUND OPENS ON A SCREEN SAYING WHAT IT IS AND WHAT YOU DO ABOUT IT.

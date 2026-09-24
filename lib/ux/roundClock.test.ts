@@ -88,3 +88,25 @@ describe("roundLength", () => {
     expect(roundLength(600)).toBe("10 minutes");
   });
 });
+
+describe("secondsFor on a clock that ticks in tenths", () => {
+  /*
+    Target counts down in tenths and its floor is three and a half seconds.
+    Rounded to whole seconds that floor would be four at the standard pace,
+    which lengthens the round nobody asked to lengthen.
+  */
+  it("keeps a fractional length exact at the standard pace", () => {
+    expect(secondsFor(3.5, "standard", 0.1)).toBe(3.5);
+    expect(secondsFor(8, "standard", 0.1)).toBe(8);
+  });
+
+  it("scales it by the pace and rounds to the tick rather than to a second", () => {
+    expect(secondsFor(3.5, "half-again", 0.1)).toBe(5.3);
+    expect(secondsFor(3.5, "ten-times", 0.1)).toBe(35);
+    expect(secondsFor(8, "double", 0.1)).toBe(16);
+  });
+
+  it("still rounds to whole seconds when no tick is given", () => {
+    expect(secondsFor(3.5, "standard")).toBe(4);
+  });
+});
