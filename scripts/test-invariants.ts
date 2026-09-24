@@ -13315,6 +13315,23 @@ check("asking Anu with no connection is refused where the question is sent, and 
   const doors = surfaces.reduce((n, f) => n + [...code(f).matchAll(/void send\(input\);/g)].length, 0);
   assert.ok(doors >= 4, `only ${doors} send-from-the-box door(s) found; the pattern moved`);
   assert.deepEqual(clearing, [], `a door clears the question even when it could not be sent: ${clearing.join(", ")}`);
+
+  /*
+    AND THE SENTENCE CHECK IS A DOOR TOO, the one the pattern above cannot see
+    because it sends `sentenceCheckPrompt(...)` rather than `input`. Its caller
+    empties both boxes after sending, so offline it deleted the sentence the
+    learner had typed to be checked. The code was put right and this check was
+    not, so dropping the guard from both surfaces passed it.
+  */
+  const checks = surfaces.flatMap((file) => {
+    const body = code(file);
+    return [...body.matchAll(/onSubmit=\{\(\) => \{([\s\S]*?)\n\s*\}\}/g)]
+      .filter((m) => /sentenceCheckPrompt\(/.test(m[1]!))
+      .map((m) => ({ file, guarded: /^\s*if \(!online\) return;/.test(m[1]!) }));
+  });
+  assert.ok(checks.length >= 2, `only ${checks.length} sentence-check door(s) found; the pattern moved`);
+  const unguarded = checks.filter((c) => !c.guarded).map((c) => c.file);
+  assert.deepEqual(unguarded, [], `a sentence check clears what was typed even when it could not be sent: ${unguarded.join(", ")}`);
 });
 
 /**

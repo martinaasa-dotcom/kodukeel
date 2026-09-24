@@ -150,6 +150,42 @@ export function Starters({ compact = false, lead, onPick }: {
 }
 
 /**
+ * Anu needs a connection, said before a question is typed rather than after it
+ * fails. The conversation already on screen is stored with the page and needs
+ * nothing from the network, so only asking again is blocked; `useAnuChat`'s
+ * `send` is what refuses, and this is the sentence saying why, drawn by every
+ * surface that holds the hook.
+ */
+export function AnuOffline({ online, compact = false }: { online: boolean; compact?: boolean }) {
+  /*
+    The status region is mounted whether or not there is anything to say. A
+    live region inserted into the page already holding its text is announced
+    by some screen readers and not others, and the network going mid-
+    conversation is exactly when a person using one needs to hear it, so the
+    region waits empty and the notice is what changes inside it.
+  */
+  return (
+    <div role="status">
+      {!online && (
+        <Card tone="sky">
+          <div className="flex items-start gap-3">
+            <CloudOff size={18} aria-hidden style={{ color: "var(--sky-ink)" }} />
+            <div>
+              <p className="font-semibold" style={{ color: "var(--ink)" }}>Anu needs a connection.</p>
+              {!compact && (
+                <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+                  Everything above still works. Ask her again once you are back online.
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+/**
  * The way out when Anu could not answer.
  *
  * Both surfaces show the failure inside the conversation, because that is
@@ -158,32 +194,6 @@ export function Starters({ compact = false, lead, onPick }: {
  * button inside a transcript. So the offer to tell somebody sits under the
  * thread, and only once something has actually failed.
  */
-/**
- * Anu needs a connection, said before a question is typed rather than after it
- * fails. The conversation already on screen is stored with the page and needs
- * nothing from the network, so only asking again is blocked; `useAnuChat`'s
- * `send` is what refuses, and this is the sentence saying why, drawn by every
- * surface that holds the hook.
- */
-export function AnuOffline({ online, compact = false }: { online: boolean; compact?: boolean }) {
-  if (online) return null;
-  return (
-    <Card tone="sky">
-      <div className="flex items-start gap-3">
-        <CloudOff size={18} aria-hidden style={{ color: "var(--sky-ink)" }} />
-        <div role="status">
-          <p className="font-semibold" style={{ color: "var(--ink)" }}>Anu needs a connection.</p>
-          {!compact && (
-            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-              Everything above still works. Ask her again once you are back online.
-            </p>
-          )}
-        </div>
-      </div>
-    </Card>
-  );
-}
-
 export function AnuFailure({ failure }: { failure: string | null }) {
   if (!failure) return null;
   return (
