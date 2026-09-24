@@ -34,11 +34,17 @@ Pinning one paid provider fails that.
 
 | Key in `.env` | Used | Default model |
 |---|---|---|
-| `OPENROUTER_API_KEY` | OpenRouter (OpenAI-compatible) | `z-ai/glm-5.2:free`, genuinely free |
+| `GROQ_API_KEY` | Groq (OpenAI-compatible) | `openai/gpt-oss-120b`, then the rest of `FREE_GROQ_MODELS` |
+| `GEMINI_API_KEY` | Google Gemini (OpenAI-compatible) | `gemini-flash-latest`, then the rest of `FREE_GEMINI_MODELS` |
 | `ANTHROPIC_API_KEY` | Anthropic Messages API | `claude-sonnet-5` |
 | `OPENAI_API_KEY` | OpenAI | `gpt-4o-mini` |
 
-All three stream. The Anthropic path keeps the `cache_control` breakpoint on the Estonian system
+The table began with an OpenRouter row and a free model behind it; OpenRouter has since been
+removed from the chain entirely, and `PROVIDER_KEY_ENV` in `lib/tutor/provider.ts` is the list of
+keys the app reads. Anu, scene lines and the scanner each have a pinned model of their own on top of
+this general chain (`TUTOR_MODEL`, `SCENE_MODELS`, `VISION_MODEL`).
+
+All four stream. The Anthropic path keeps the `cache_control` breakpoint on the Estonian system
 prompt, since that prompt is identical every turn. Nothing above the adapter knows which provider is
 in play, so switching is a one-line `.env` change and a restart.
 

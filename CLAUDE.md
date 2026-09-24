@@ -9953,8 +9953,9 @@ it cannot find the rail, which was the `A || !A` shape one check over.
 ## Model configuration
 
 **Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` returns every
-key in `.env` in order, free first: OpenRouter (default), Anthropic, then OpenAI. Do not re-pin a
-single provider. `openWithFallback` walks past a provider that is throttled or having a bad
+key in `.env` in order, the cheap and measured ones first: Groq, then Gemini, then Anthropic and
+OpenAI behind the day's fallback budget, and `PROVIDER_KEY_ENV` is the list. Anu, scene lines and
+the scanner are pinned per purpose on top of it (`PURPOSE_CHAINS`). Do not re-pin a single provider. `openWithFallback` walks past a provider that is throttled or having a bad
 minute, and never past a rejected key or a model that does not exist, since every provider would
 answer those the same way and trying them all turns one clear message into a slower one. A
 provider is only ever walked past **before it has said anything**: once text is reaching the
@@ -9967,11 +9968,11 @@ prompt. This supersedes the original ADR-004; see `docs/13-mvp-status.md` §2.
 
 **Reading a picture uses whichever model the deployment already configured.** Not a better one
 chosen behind the operator's back: turning the camera on must not move a free-model deployment onto
-a paid one, and the free chain that is now the default is text-only. `OPENROUTER_VISION_MODEL`,
-`ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` are how that choice is made, and they affect
-scanning and nothing else. The chain is deduplicated by model first: OpenRouter contributes a link
-per free model, so an override would otherwise ask one model the same question three times and read
-the third refusal as having exhausted the chain. The image path
+a paid one. `GEMINI_VISION_MODEL`, `GROQ_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and
+`OPENAI_VISION_MODEL` are how that choice is made, and they affect scanning and nothing else. The
+chain is deduplicated by model first: Groq and Gemini each contribute a link per free model, so an
+override would otherwise ask one model the same question three times and read the third refusal as
+having exhausted the chain. The image path
 falls back more readily than the chat path does, and deliberately: `openWithFallback` refuses to
 walk past a 400 because every provider would refuse a malformed request the same way, but whether a
 model can see is a fact about that one model, so `completeWithImage` walks past everything except a
@@ -10906,7 +10907,7 @@ add checks; never lower one to make a run pass.
 
 **A floor is only honest while the count is a property of the code rather than
 of the machine.** It was not. `test-teaching.mjs` was measured on a box whose
-environment carried `EKILEX_API_KEY` and `OPENROUTER_API_KEY`, so dictation
+environment carried `EKILEX_API_KEY` and a model provider's key, so dictation
 built a real round and Anu had a text box, and its floor of 38 counted both.
 CI has neither key, ran the same correct code, came in at 34, and the floor
 read that as a block having stopped running. Lowering it was not available:

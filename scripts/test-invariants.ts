@@ -8767,6 +8767,46 @@ check("every provider key the chain can hold is marked in the credential canary"
   assert.ok(assigned.length >= 10, `only ${assigned.length} variables are marked, so this stopped looking`);
 });
 
+/**
+ * A DOCUMENT MAY ONLY NAME A PROVIDER VARIABLE THE APP READS.
+ *
+ * OpenRouter was taken out of the provider chain and five documents went on
+ * describing it as the default: this file's own "Model configuration" rules,
+ * the provider table in the status document, the trust-boundary diagram and
+ * the canary recipe in the security document, and the credential table in the
+ * incident plan, which is the page somebody reads when a key has leaked and
+ * has to know which consoles to go and revoke. `OPENROUTER_API_KEY` and
+ * `OPENROUTER_VISION_MODEL` were read by nothing. A variable a reader is told
+ * to set, rotate or mark that the code never reads is worse than one the page
+ * forgets: the reader acts on it and nothing happens.
+ *
+ * Provider-shaped names only (a key, a vision override, a provider's model
+ * override), because those are what an operator configures; a constant such
+ * as `TUTOR_MODEL` is a name in the code rather than a setting, and the
+ * general `[A-Z_]+` shape would read every one of them as a variable.
+ */
+check("every provider variable a document names is one the app reads", () => {
+  const PROVIDER_VAR = /\b(?:[A-Z][A-Z0-9]*_(?:API_KEY|VISION_MODEL)|(?:GROQ|GEMINI|ANTHROPIC|OPENAI|OPENROUTER)_MODEL)\b/g;
+  const docs = [
+    "CLAUDE.md", "README.md", ".env.example",
+    ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => join("docs", f)),
+  ];
+  const named = new Map<string, string>();
+  for (const file of docs) {
+    for (const m of read(file).matchAll(PROVIDER_VAR)) if (!named.has(m[0])) named.set(m[0], file);
+  }
+  assert.ok(named.size >= 8, `only ${named.size} provider variables named in the documents, so this stopped looking`);
+
+  const source = [...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/)].map((f) => code(f)).join("\n");
+  const unread = [...named].filter(([name]) =>
+    !new RegExp(`process\\.env\\.${name}\\b|["'\`]${name}["'\`]`).test(source));
+  assert.deepEqual(
+    unread.map(([name, file]) => `${name} (named in ${file})`), [],
+    "a document tells an operator to set or rotate a variable nothing in the app reads: " +
+      unread.map(([name, file]) => `${name} in ${file}`).join(", "),
+  );
+});
+
 check("no ledger write is left to a promise the platform may drop", () => {
   const roots = ["app", "lib"];
   const files: string[] = [];
