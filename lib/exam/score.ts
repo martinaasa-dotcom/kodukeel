@@ -509,7 +509,20 @@ export function markPaper(paper: Paper, responses: ReadonlyMap<string, Response>
   const set = parts.filter((p) => p.rawAvailable > 0);
   const points = Math.round(set.reduce((sum, p) => sum + p.points, 0) * 10) / 10;
   const maxPoints = set.reduce((sum, p) => sum + p.maxPoints, 0);
-  const pct = maxPoints === 0 ? 0 : Math.floor((points / maxPoints) * 100);
+  /*
+    THE PASS IS DECIDED ON WHAT WAS SCORED, NOT ON WHAT IS PRINTED.
+
+    `points` is rounded per part to a tenth for the screen, and the floor below
+    was taken on that sum, so four parts at 14.98 of 25 printed as 15.0 each
+    and a true 59.92 percent became 60 and a pass. That is the one direction a
+    mock may not err in: it tells somebody to book the state examination. So
+    the percentage is floored on the unrounded shares, and rounded to a
+    millionth first, since a paper that really is sixty percent can come out
+    of the arithmetic as 59.999999999 and must not be failed for it.
+  */
+  const exact = set.reduce((sum, p) =>
+    sum + (p.rawAvailable === 0 ? 0 : (p.tasks.reduce((n, t) => n + t.raw, 0) / p.rawAvailable) * p.maxPoints), 0);
+  const pct = maxPoints === 0 ? 0 : Math.floor(Math.round((exact / maxPoints) * 100 * 1e6) / 1e6);
   const zero = set.find((p) => p.points === 0);
 
   return {
