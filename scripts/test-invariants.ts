@@ -13625,6 +13625,32 @@ check("a case is named only when one case claims the spelling", () => {
  * nothing in it may name the table at all: a count is a `count`, and a count
  * cannot leak a sentence.
  */
+check("every gate that hands out a signed-in identity asks the allowlist", () => {
+  /*
+    REVOKING ACCESS IS IMMEDIATE, AND THE MIDDLEWARE IS NOT THE ONLY READER.
+
+    The middleware signs out an address that has come off the allowlist, and
+    it also lets an "unknown" identity through, because a bad minute at the
+    auth service is not a sign-out. The page, action or route behind it then
+    resolves its own owner, and that read can come back "in" for the address
+    the list no longer names. So every function in `lib/auth/` that accepts a
+    signed-in identity asks the allowlist itself. Read per function, so a new
+    gate that reads the identity has to ask as well.
+  */
+  const gates = ["lib/auth/session.ts", "lib/auth/admin.ts"];
+  let seen = 0;
+  for (const file of gates) {
+    const src = code(file);
+    for (const body of src.split(/\nexport (?:const|async function|function) /).slice(1)) {
+      if (!/who\.state !== "in"/.test(body)) continue;
+      seen += 1;
+      const name = body.slice(0, body.search(/[ (=]/));
+      assert.match(body, /isAllowedEmail\(who\.learner\.email\)/, `${file}: ${name} accepts a signed-in identity without asking the allowlist`);
+    }
+  }
+  assert.ok(seen >= 4, `only ${seen} identity gates found, so this stopped looking`);
+});
+
 check("an archived class is refused by every action that writes to its members", () => {
   /*
     ARCHIVING IS A PROMISE THE SCREEN KEPT AND THE ACTIONS DID NOT.
