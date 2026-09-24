@@ -88,6 +88,16 @@ interface Entry {
   readonly name: string;
   readonly tokens: number;
   expiresAt: number;
+  /**
+   * What making or extending the entry cost and no turn has booked yet.
+   *
+   * Google charges for the write and the storage when the entry is made,
+   * whatever happens to the generate call after it. Handed only to the turn
+   * that made it, a 429 on that turn lost the charge, and the next turn
+   * reused the entry booking the prompt alone. So it is carried here and
+   * cleared by the first turn that comes back.
+   */
+  owed: Booked | null;
 }
 
 /** What this turn owes for the entry it used: the tokens written, if it made it, and the seconds of storage it bought. */
@@ -136,9 +146,17 @@ async function entryFor(config: ProviderConfig, system: string): Promise<{ entry
   const held = entries.get(key);
   if (held) {
     const now = Date.now();
-    if (held.expiresAt - now > EXTEND_BELOW_MS) return { entry: held, booked: null };
+    if (held.expiresAt - now > EXTEND_BELOW_MS) return { entry: held, booked: held.owed };
     const bought = await extend(config, held, now);
-    return { entry: held, booked: bought > 0 ? { tokens: held.tokens, model: config.model, written: false, storageSeconds: bought } : null };
+    if (bought > 0) {
+      held.owed = {
+        tokens: held.tokens,
+        model: config.model,
+        written: held.owed?.written ?? false,
+        storageSeconds: (held.owed?.storageSeconds ?? 0) + bought,
+      };
+    }
+    return { entry: held, booked: held.owed };
   }
 
   const res = await fetch(`${BASE}/cachedContents?key=${keyOf()}`, {
@@ -163,9 +181,10 @@ async function entryFor(config: ProviderConfig, system: string): Promise<{ entry
     name: made.name,
     tokens: made.usageMetadata?.totalTokenCount ?? 0,
     expiresAt: Date.now() + CACHE_TTL_SECONDS * 1000,
+    owed: { tokens: made.usageMetadata?.totalTokenCount ?? 0, model: config.model, written: true, storageSeconds: CACHE_TTL_SECONDS },
   };
   entries.set(key, entry);
-  return { entry, booked: { tokens: entry.tokens, model: config.model, written: true, storageSeconds: CACHE_TTL_SECONDS } };
+  return { entry, booked: entry.owed };
 }
 
 /**
@@ -301,6 +320,8 @@ export async function geminiCachedReply(
   const reply = await res.json() as GenerateReply;
   const text = reply.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
   const usage = usageFromMetadata(reply.usageMetadata, booked);
+  // This turn books what the entry owed, so the next one does not book it again.
+  if (entry.owed === booked) entry.owed = null;
   if (reply.candidates?.[0]?.finishReason === "MAX_TOKENS") usage.truncated = true;
   return { text, usage };
 }

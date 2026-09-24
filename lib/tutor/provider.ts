@@ -1664,7 +1664,7 @@ async function readImageOpenAiCompatible(
   await assertOk(res, config);
   const body = (await res.json()) as {
     choices?: { message?: { content?: unknown } }[];
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
   };
 
   const raw = body.choices?.[0]?.message?.content;
@@ -1679,7 +1679,10 @@ async function readImageOpenAiCompatible(
   return {
     config,
     text,
-    usage: usageFrom(body.usage?.prompt_tokens, body.usage?.completion_tokens, system + prompt, text),
+    // `billedOutput` rather than `completion_tokens`: the scanner's Gemini link
+    // is sent no reasoning setting, and what it thinks is billed as output and
+    // reported only in the total, which the chat and grader paths already read.
+    usage: usageFrom(body.usage?.prompt_tokens, body.usage ? billedOutput(body.usage) : undefined, system + prompt, text),
   };
 }
 

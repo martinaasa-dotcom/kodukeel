@@ -57,6 +57,19 @@ describe("the scene prompt held on Google's side", () => {
     expect(warm).toBeLessThan(cold / 4);
   });
 
+  it("books the entry's write on the next turn that comes back, where the turn that made it failed", async () => {
+    const calls: { url: string; body: string }[] = [];
+    vi.stubGlobal("fetch", google(calls, { generateStatus: 429 }));
+    await expect(geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "tere" }])).rejects.toThrow();
+    vi.stubGlobal("fetch", google(calls));
+    const next = await geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "tere" }]);
+    const after = await geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "poodi" }]);
+    const storage = cacheStorageAsInputTokens("gemini-3.8-flash", 1592, CACHE_TTL_SECONDS);
+    expect(calls.filter((c) => c.url.includes("/cachedContents"))).toHaveLength(1);
+    expect(next.usage).toMatchObject({ inputTokens: 1704 + 1592 + storage });
+    expect(after.usage).toMatchObject({ inputTokens: 1704 });
+  });
+
   it("puts the system prompt in the entry, the live block before the last user turn, and the thinking off", async () => {
     const calls: { url: string; body: string }[] = [];
     vi.stubGlobal("fetch", google(calls));

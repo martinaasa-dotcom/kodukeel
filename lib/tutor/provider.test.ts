@@ -888,6 +888,17 @@ describe("the chain that looks at pictures", () => {
     expect(seen).toEqual([{ input: 2100, output: 40 }]);
   });
 
+  it("bills the thinking a Gemini link reports only in the total", async () => {
+    only("openai");
+    vi.stubEnv("OPENAI_VISION_MODEL", "");
+    vi.stubGlobal("fetch", vi.fn(async () =>
+      jsonReply([{ et: "tuba", en: "room" }], { prompt_tokens: 1000, completion_tokens: 20, total_tokens: 2167 })));
+
+    const seen: number[] = [];
+    await completeWithImage(visionProviders(), "system", "prompt", IMAGE, (usage) => seen.push(usage.outputTokens));
+    expect(seen).toEqual([1167]);
+  });
+
   it("walks past a model that cannot see, unlike the chat path", async () => {
     /*
       A 400 stops `openWithFallback`, because a malformed request would be
