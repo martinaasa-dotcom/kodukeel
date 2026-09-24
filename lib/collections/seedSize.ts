@@ -123,4 +123,4 @@
  * `sõitma`, `jalgratas`, `ootama` and `aadress` are all A1 to the Institute
  * and were A2 or B1 here.
  */
-export const SEED_SET_SIZE = { words: 6_153, forms: 39_725 };
+export const SEED_SET_SIZE = { words: 6_184, forms: 39_725 };

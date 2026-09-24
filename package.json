@@ -40,6 +40,7 @@
     "forms": "tsx scripts/build-forms.ts",
     "harvest": "tsx scripts/harvest-ekilex.ts",
     "harvest:semantics": "tsx scripts/harvest-semantics.ts",
+    "harvest:translations": "tsx scripts/harvest-translations.ts",
     "build:frequency": "tsx scripts/build-frequency.ts",
     "scenes:template": "tsx scripts/scene-template.ts",
     "scenes:import": "tsx scripts/import-scene-answers.ts",

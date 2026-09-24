@@ -1303,4 +1303,109 @@ export const A1 = [
       ["vaja", "necessary, needed", "ADVERB"],
     ],
   }),
+
+  /*
+    THE WORDS THE SENTENCE BUILDER MOVES, WHICH THE COURSE HAD NEVER TAUGHT.
+
+    `lib/estonian/wordOrder.ts` names 32 particles and stakes the whole
+    word-ordering exercise on them: a particle standing after the finite verb
+    may instead stand at the end of its clause, which is the one permutation
+    this app is willing to accept as correct Estonian. Measured against the
+    syllabus, the course taught 8 of the 32, and `BUILD_FROM` is A2, so from
+    the first ordering step a learner was being asked to move words nobody had
+    shown them. That is `sidesonad`'s own finding one word class over: the
+    course teaches the nouns of a situation and not the words that do things
+    with them.
+
+    They are the half of an Estonian verb an English speaker cannot guess,
+    because the particle is where the meaning is: `panen` is put and `panen
+    kinni` is shut, `tuleb` is comes and `tuleb välja` is turns out. A learner
+    who has the verb and not the particle has half of every sentence anybody
+    says to them.
+
+    ADVERB for the reason the connectives are: these do not inflect, and
+    demanding forms of them would drop every one on the way out of the harvest.
+    At A1 rather than A2 so that they are taught before the ordering step that
+    moves them, which is the whole point of adding them.
+  */
+  unit({
+    id: "osakesed",
+    title: "Osakesed",
+    subtitle: "Kinni, lahti, välja",
+    icon: "Combine",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Change what a verb means with the small word after it.",
+    blurb: "Panen is put and panen kinni is shut. The verb carries the ending and this little word carries the meaning.",
+    grammar: ["particle-verbs", "word-order"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["pohiverbid"],
+    words: [
+      ["kinni", "shut, closed", "ADVERB"],
+      ["lahti", "open, undone", "ADVERB"],
+      ["välja", "out", "ADVERB"],
+      ["sisse", "in, inside", "ADVERB"],
+      ["üles", "up", "ADVERB"],
+      ["maha", "down, off", "ADVERB"],
+      // Also the mark in musical notation, which Ekilex holds as a second entry.
+      ["alla", "down, downwards", "ADVERB", 156509],
+      ["kokku", "together", "ADVERB"],
+      ["laiali", "apart, scattered", "ADVERB"],
+      // Not the noun for a spouse, which is the other entry under this spelling.
+      ["kaasa", "along (coming with somebody)", "ADVERB", 175887],
+      ["ette", "in front, ahead", "ADVERB"],
+      ["taha", "to behind", "ADVERB"],
+      ["juurde", "over to, up to", "ADVERB"],
+      ["järele", "after, to fetch", "ADVERB"],
+    ],
+  }),
+
+  /*
+    HOW, AND HOW NEARLY, WHICH IS THE OTHER HALF OF `maaramine`.
+
+    That unit answers how much and how strongly. Nothing answered how, and the
+    ranked list of words the attested corpus needs that no entry can vouch for
+    is full of them: `kiiresti` 31 times, `umbes` and `usna` 27 each,
+    `tavaliselt` and `taiesti` 21. They are the words a person reaches for the
+    moment they stop naming things and start saying what happened, and an
+    approximation word is the one a learner needs earliest of all, because it
+    is what you say when you do not know the exact answer.
+
+    ADVERB throughout, and at A1 beside `maaramine` for its reason: none of
+    them inflects, so what they cost a deck is a recognition card and a
+    production card each.
+  */
+  unit({
+    id: "viisisonad",
+    title: "Kuidas ja kui täpselt",
+    subtitle: "Kiiresti, umbes, peaaegu",
+    icon: "Zap",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Say how something was done, and say about rather than exactly.",
+    blurb: "Umbes and peaaegu are the two words that let you answer before you are sure of the number.",
+    grammar: ["word-order"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["maaramine"],
+    words: [
+      ["kiiresti", "quickly", "ADVERB"],
+      ["kergesti", "easily", "ADVERB"],
+      ["kõvasti", "hard, loudly", "ADVERB"],
+      ["halvasti", "badly", "ADVERB"],
+      ["tavaliselt", "usually", "ADVERB"],
+      ["enamasti", "mostly", "ADVERB"],
+      ["pidevalt", "constantly", "ADVERB"],
+      // Not the adjective for blocked or swollen, which is the other entry.
+      ["umbes", "about, roughly", "ADVERB", 251199],
+      ["peaaegu", "almost", "ADVERB"],
+      ["üsna", "fairly, rather", "ADVERB"],
+      ["täiesti", "completely", "ADVERB"],
+      ["veidi", "a little", "ADVERB"],
+      ["pisut", "a bit", "ADVERB"],
+      ["vähemalt", "at least", "ADVERB"],
+      ["alles", "only just, still", "ADVERB"],
+      ["taas", "again", "ADVERB"],
+      ["pigem", "rather", "ADVERB"],
+    ],
+  }),
 ] as const;

@@ -596,7 +596,7 @@ describe("a line that gives the answer away", () => {
  * One membership test against the scene's few hundred lemmas was asked as
  * both, so the only way for a model to say the natural thing was to have the
  * line withheld: seventeen of the twenty-five lines the gate withheld across
- * the fourteen scenes were real Estonian refused for one word a person would
+ * the fifteen scenes were real Estonian refused for one word a person would
  * obviously have said. `vouching` is now the hard one, against whatever the
  * caller can account for; `stretch` is the readable one, and it is a budget.
  */

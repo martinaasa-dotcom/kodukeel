@@ -8818,6 +8818,16 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     join("prisma", "schema.prisma"),
     join("prisma", "seed.ts"),
     join("prisma", "columns.ts"),
+    /*
+      And the second writer, for `semanticTypes`'s own reason: the seed's bulk
+      upsert covers the course words and `prisma/expanded.ts` covers the 5,363
+      the expansion brings, so a column added to one of them is written for a
+      fifth of the dictionary and nothing fails. `harvest-translations.ts` is
+      what fills them there, out of the same Ekilex field the course harvest
+      reads and through the same `equivalentsFrom`.
+    */
+    join("prisma", "expanded.ts"),
+    join("scripts", "harvest-translations.ts"),
     // Read here: the choice of language, and the four screens that print it.
     join("lib", "collections", "glossLanguage.ts"),
     join("lib", "collections", "glossLanguage.test.ts"),
@@ -8859,7 +8869,7 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
   const naming = files.filter((f) =>
     /translation(Ru|Uk)/.test(f.endsWith(".prisma") ? read(f) : code(f)));
   assert.ok(
-    naming.length >= 6,
+    naming.length >= 8,
     `only ${naming.length} files name the columns, so this check stopped looking`,
   );
   assert.deepEqual(
