@@ -1040,13 +1040,14 @@ describe("a reply that hit its own ceiling says so, not only what it cost", () =
  * WHERE EACH HOP ACTUALLY GOES, DRIVEN RATHER THAN READ OFF THE CHAIN.
  *
  * Everything above asks what `resolveProviders` returns, which is the right
- * question about composition and cannot see the fault this is for. The grader
- * chose its endpoint with "OpenRouter, or else OpenAI", written when the chain
- * held exactly those two; Groq and Gemini both fell down the else side and were
- * posted to `api.openai.com` carrying `OPENAI_API_KEY`, so every GRADER call on
- * the two providers a stranger can set up without a card answered 401. The
- * chain was correct in every one of those tests. What was wrong was invisible
- * in the arguments and visible only in the outgoing request.
+ * question about composition and says nothing about where a request lands.
+ * That gap is real and was once a fault: the grader's `callForJson` chose its
+ * endpoint with "OpenRouter, or else OpenAI" and posted Groq and Gemini calls
+ * to `api.openai.com`. That fault lived in `callForJson` rather than here, and
+ * it is guarded where it lived, in `lib/tutor/grader.test.ts`. These drive
+ * `openWithFallback`, which read the right table all along, so they could not
+ * have failed against it: they hold the streaming path to the same property,
+ * so a later edit to it cannot reopen the gap on this side.
  *
  * So each purpose is walked the whole way down with a stubbed `fetch`, every
  * link answering 503, and what is asserted is the host, the key and the model
@@ -1119,7 +1120,7 @@ describe("what the chain actually sends, hop by hop", () => {
     ]);
   });
 
-  it("posts a grader to Gemini and Groq rather than to OpenAI, which is the fault this is for", async () => {
+  it("posts a grader chain to Gemini and Groq rather than to OpenAI", async () => {
     allKeys();
     const walk = await walked(() => openWithFallback(
       resolveProviders({ purpose: "grader" }), "sys", [{ role: "user", content: "hi" }],
@@ -1129,7 +1130,7 @@ describe("what the chain actually sends, hop by hop", () => {
       `api.groq.com GROQ_API_KEY-val ${GRADER_MODELS[1]!.model}`,
       "api.anthropic.com ANTHROPIC_API_KEY-val claude-sonnet-5",
     ]);
-    // The shape of the original bug, stated rather than implied by the list.
+    // The shape of the `callForJson` fault, held on this path too.
     expect(walk.some((hop) => hop.startsWith("api.openai.com"))).toBe(false);
     expect(walk.some((hop) => hop.includes("OPENAI_API_KEY"))).toBe(false);
   });
