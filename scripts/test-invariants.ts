@@ -13297,6 +13297,24 @@ check("asking Anu with no connection is refused where the question is sent, and 
   assert.ok(surfaces.length >= 2, `only ${surfaces.length} surface(s) hold useAnuChat; the page and the panel both should`);
   const silent = surfaces.filter((file) => !/<AnuOffline\b/.test(code(file)));
   assert.deepEqual(silent, [], `a surface asks Anu without saying she needs a connection: ${silent.join(", ")}`);
+
+  /*
+    And a door that empties the box after sending asks first. The hook refusing
+    is not enough on its own: `send(input); setInput("")` on the Enter key runs
+    the refusal and then clears what the learner typed, so pressing Enter
+    offline deleted the question with nothing sent and nothing said. The Ask
+    button was disabled and Enter was not, which is how it survived the pass
+    that fixed the button.
+  */
+  const clearing = surfaces.flatMap((file) => {
+    const body = code(file);
+    return [...body.matchAll(/void send\(input\);\s*setInput\(""\);/g)]
+      .filter((m) => !/if \(online\) \{\s*$/.test(body.slice(0, m.index)))
+      .map(() => file);
+  });
+  const doors = surfaces.reduce((n, f) => n + [...code(f).matchAll(/void send\(input\);/g)].length, 0);
+  assert.ok(doors >= 4, `only ${doors} send-from-the-box door(s) found; the pattern moved`);
+  assert.deepEqual(clearing, [], `a door clears the question even when it could not be sent: ${clearing.join(", ")}`);
 });
 
 /**

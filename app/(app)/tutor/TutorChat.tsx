@@ -129,7 +129,7 @@ export function TutorChat({
           <EstonianInput
             value={input}
             onChange={setInput}
-            onEnter={() => { void send(input); setInput(""); }}
+            onEnter={() => { if (online) { void send(input); setInput(""); } }}
             placeholder="Why is it raamatut and not raamatu?"
             ariaLabel="Ask Anu a question"
             autoFocus={Boolean(initialQuestion)}
@@ -138,7 +138,7 @@ export function TutorChat({
         <Button
           variant="primary"
           size="lg"
-          onClick={() => { void send(input); setInput(""); }}
+          onClick={() => { if (online) { void send(input); setInput(""); } }}
           disabled={streaming || !input.trim() || !online}
         >
           <Send size={15} aria-hidden /> {streaming ? "Thinking…" : "Ask"}

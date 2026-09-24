@@ -235,7 +235,7 @@ export function AnuPanel({
                 compact
                 value={input}
                 onChange={setInput}
-                onEnter={() => { void send(input); setInput(""); }}
+                onEnter={() => { if (online) { void send(input); setInput(""); } }}
                 placeholder="Why raamatut and not raamatu?"
                 ariaLabel="Ask Anu a question"
                 inputRef={boxRef}
@@ -243,7 +243,7 @@ export function AnuPanel({
             </div>
             <Button
               variant="primary"
-              onClick={() => { void send(input); setInput(""); }}
+              onClick={() => { if (online) { void send(input); setInput(""); } }}
               disabled={streaming || !input.trim() || !online}
               aria-label={streaming ? "Anu is thinking" : "Ask"}
             >
