@@ -3,6 +3,7 @@ import {
   availableCardTypes, generateCards, inTeachingOrder, teachingRank, type LexemeForCards,
 } from "./cards";
 import { BLANK } from "@/lib/estonian/cloze";
+import { PARTS } from "@/lib/copy/values";
 import { checkAnswer } from "@/lib/estonian/answer";
 
 const tuba: LexemeForCards = {
@@ -396,6 +397,37 @@ describe("generateCards — CASE_FORM", () => {
   it("is only offered when it can produce something", () => {
     expect(availableCardTypes(bed)).toContain("CASE_FORM");
     expect(availableCardTypes({ ...bed, examples: null })).not.toContain("CASE_FORM");
+  });
+});
+
+/*
+  A HINT MAY NOT PRINT ANY ANSWER THE BACK TAKES, NOT ONLY THE ONE THE SENTENCE
+  HELD. `salv` is glossed "salve, ointment" and its short illative is `salve`,
+  so a gap wanting `salvisse` took `salve` as well and the cue under the
+  question read `salv, salve, ointment`. The builder checked the hint against
+  the sentence's own spelling alone; only the audit asked about the rest.
+*/
+describe("generateCards — a hint and every accepted answer", () => {
+  const salv = {
+    id: "salv", lemma: "salv", translation: "salve, ointment", pos: "NOUN",
+    gradation: "NONE", gradationNote: null, government: null, semanticTypes: "aine",
+    examples: JSON.stringify([{ et: "Ta kastis sõrme salvisse ja määris haava kinni.", source: "EKILEX" }]),
+    forms: [
+      { formType: "NOM_SG", value: "salv", morphCode: null },
+      { formType: "GEN_SG", value: "salvi", morphCode: null },
+      { formType: "PART_SG", value: "salvi", morphCode: null },
+      { formType: "ILL_SG_SHORT", value: "salve", morphCode: null },
+    ],
+  };
+
+  it("never cues a gap with a spelling the back accepts", () => {
+    const cards = generateCards(salv, ["CASE_FORM"]);
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) {
+      for (const answer of card.back.split(PARTS)) {
+        expect(card.hint ?? "", `${card.back} in "${card.hint}"`).not.toMatch(new RegExp(`\\b${answer}\\b`, "i"));
+      }
+    }
   });
 });
 
