@@ -6930,17 +6930,25 @@ check("nothing reaches a paid provider without going through the ledger", () => 
     the meter inside `ask()` a fix rather than a patch: every future caller of
     it inherits the meter instead of having to remember it.
   */
-  const entryPoints = /\b(openWithFallback|completeWithImage)\s*\(/;
+  /*
+    The grader's own openers are entry points too. `lib/tutor/grader.ts`
+    reaches a provider through `callChainForJson` and a direct `fetch`, never
+    through either function above, so a new caller of `gradeSentence` with no
+    ledger around it was invisible here. Read comment-blind, since a file whose
+    notes name these would otherwise count as calling them.
+  */
+  const entryPoints = /\b(openWithFallback|completeWithImage|callChainForJson|gradeSentence|gradeComposition|gradeDescription)\s*\(/;
   const callers = ALL.filter(
     (f) =>
       !/\.(test|itest)\.tsx?$/.test(f) &&
       f !== "lib/tutor/provider.ts" &&
-      entryPoints.test(read(f)),
+      f !== "lib/tutor/grader.ts" &&
+      entryPoints.test(code(f)),
   );
-  assert.ok(callers.length >= 3, `expected the provider callers, found ${callers.length}`);
+  assert.ok(callers.length >= 6, `expected the provider callers, found ${callers.length}`);
 
   for (const file of callers) {
-    const source = read(file);
+    const source = code(file);
     /*
       AUTHORIZED IN THE SAME FILE, WITHOUT EXCEPTION.
 
