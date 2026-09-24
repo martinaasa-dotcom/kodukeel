@@ -1257,9 +1257,15 @@ function negatedIn(
   const takesNo = leafNeeds(beat.needs).some(({ need }) =>
     need.kind === "lemma" && need.oneOf.some((lemma) => context.negators.has(lemma.toLowerCase())));
   if (takesNo) return false;
+  /*
+    What the learner typed, not only what the dictionary made of it. On a slip
+    `hit.word` is the corrected spelling, which is nowhere in the clause, so a
+    refusal carrying a typo or a wrong ending read as the answer.
+  */
+  const typed = [hit.slip?.said.toLowerCase(), hit.word.toLowerCase()].filter((w): w is string => !!w);
   for (const clause of text.split(/[,;:]/)) {
     const said = words(clause);
-    const at = said.indexOf(hit.word);
+    const at = said.findIndex((word) => typed.includes(word));
     if (at < 0) continue;
     if (said.slice(0, at).some((word) => context.negators.has(word))) return true;
   }

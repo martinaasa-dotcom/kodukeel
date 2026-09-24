@@ -969,6 +969,23 @@ describe("a word the learner negated", () => {
     expect(seen.satisfiedBy, "a negated word was recorded as produced").toEqual([]);
   });
 
+  /*
+    The guard looked for `hit.word`, and on every slip that is the dictionary's
+    corrected spelling rather than what the learner typed, so a refusal with a
+    typo or a wrong ending in it was nowhere to be found in the clause and met
+    the beat: the word said back as the answer, the objective ticked, a row in
+    the log.
+  */
+  it("does not meet it when the negated word carries a slip of the pen or a wrong ending", () => {
+    for (const [slipped, plain] of [["ma ei taha valusidd", "mul on valusidd"], ["ma ei taha valut", "mul on valut"]] as const) {
+      // The slip on its own is understood, which is what makes the guard matter.
+      expect(readTurn(plain, beat({ shape: "sentence" }), ctx).reading, `${plain} was not understood`).toBe("complete");
+      const seen = readTurn(slipped, beat(), ctx);
+      expect(seen.reading, `${slipped} met the beat it refused`).not.toBe("complete");
+      expect(seen.satisfiedBy, `${slipped} was recorded as produced`).toEqual([]);
+    }
+  });
+
   it("meets it where the negator is in another clause, which is where it usually is", () => {
     // "I do not know where the pain is" says where nothing is negated.
     expect(readTurn("ma ei tea, kus on valu", beat({ shape: "sentence" }), ctx).reading)
