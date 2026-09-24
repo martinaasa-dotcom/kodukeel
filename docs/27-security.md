@@ -442,7 +442,7 @@ being trusted.
 | Data | Erasure has no exemptions, and removes the Supabase Auth identity too | `lib/auth/erase.ts` |
 | Data | Anonymity gate on the research export, four rules | `lib/research/corpus.ts` |
 | Dependencies | Two blocking `npm audit` gates, production and dev | `.github/workflows/ci.yml` |
-| Assurance | Invariants asserted in CI (421 on 2026-09-24) | `scripts/test-invariants.ts` |
+| Assurance | The invariant suite runs in CI and prints its own total, so the figure is one command rather than a number to trust | `scripts/test-invariants.ts` |
 
 ## 6. What has not been done
 
@@ -519,7 +519,7 @@ grep the client bundle:
 
 ```
 CI_CANARY=canary-CI_CANARY-must-not-ship \
-GEMINI_API_KEY=canary-GEMINI_API_KEY-must-not-ship \
+GROQ_API_KEY=canary-GROQ_API_KEY-must-not-ship \
 SUPABASE_SERVICE_ROLE_KEY=canary-SUPABASE_SERVICE_ROLE_KEY-must-not-ship \
 npx next build
 grep -rEho "canary-[A-Z_]+-must-not-ship" .next/static   # must print nothing
