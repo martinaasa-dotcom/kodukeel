@@ -4,6 +4,9 @@ import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { requireAppShell } from "./lib/prefs.mjs";
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 /**
  * A LEARNER'S OWN SHELVES, DRIVEN.
@@ -69,7 +72,40 @@ async function dropOurDecks() {
   await prisma.deck.deleteMany({ where: { ownerId: OWNER, name: { in: [DECK, RENAMED] } } });
 }
 
+/*
+  AND THE LEARNER'S OWN SHELVES ARE SET ASIDE FOR THE RUN, THEN PUT BACK.
+
+  The first check below is a claim about holding no shelf at all, and the demo
+  fixture lays one down so the sweeps can walk `/review/deck/[deckId]`. Left
+  where it was, that check waived itself on every run there would ever be,
+  which is a hole wearing a waiver's clothes, and the "Add words" button
+  matched two shelves and threw. Deleting them outright is the broad delete
+  `dropOurDecks` refuses for a reason: on the machine somebody works on they
+  are that person's shelves. So they are written to a stash file first,
+  removed, and recreated with the same ids at the end; and a run that died
+  before the end is repaired by the next one, which restores any stash it
+  finds before it does anything else.
+*/
+const STASH = join(tmpdir(), "kodukeel-test-decks-stash.json");
+
+async function restoreStash() {
+  if (!existsSync(STASH)) return;
+  const { decks, words } = JSON.parse(readFileSync(STASH, "utf8"));
+  await prisma.deck.createMany({ data: decks, skipDuplicates: true });
+  await prisma.deckWord.createMany({ data: words, skipDuplicates: true });
+  unlinkSync(STASH);
+}
+
+await restoreStash();
 await dropOurDecks();
+{
+  const decks = await prisma.deck.findMany({ where: { ownerId: OWNER } });
+  const words = await prisma.deckWord.findMany({ where: { deckId: { in: decks.map((d) => d.id) } } });
+  if (decks.length > 0) {
+    writeFileSync(STASH, JSON.stringify({ decks, words }));
+    await prisma.deck.deleteMany({ where: { id: { in: decks.map((d) => d.id) } } });
+  }
+}
 
 /*
   What this learner already has, so the checks can name real words and the
@@ -287,6 +323,7 @@ const extra = (await prisma.card.findMany({ where: { ownerId: OWNER }, select: {
 if (extra.length) await prisma.card.deleteMany({ where: { id: { in: extra } } });
 
 await dropOurDecks();
+await restoreStash();
 await browser.close();
 await prisma.$disconnect();
 done();
