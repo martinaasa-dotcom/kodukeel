@@ -10637,10 +10637,19 @@ check("every marker the merge ritual names is still somewhere in the tree", () =
     `only ${markers.length} markers parsed out of CLAUDE.md; the list or its wording moved`,
   );
 
+  /*
+    Read as code, not as text, for the reason this file says about every other
+    check: a marker that only a comment still names is a marker that is gone.
+    `decoyGlosses` was consolidated into `decoyOptions`, and the paragraph in
+    `lib/dict/facts.ts` recording that kept it "in the tree" for as long as the
+    comment stood, so the ritual sent a reader after a function nothing calls.
+    The stylesheet is read raw, since a custom property is not a comment.
+  */
   const haystack = [
     ...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/), ...sourceFiles("prisma"),
-    "middleware.ts", "next.config.ts", "app/globals.css",
-  ].filter((f) => existsSync(f)).map(read).join("\n");
+    "middleware.ts", "next.config.ts",
+  ].filter((f) => existsSync(f)).map((f) => (/\.(ts|tsx|mjs)$/.test(f) ? code(f) : read(f)))
+    .concat(read("app/globals.css")).join("\n");
 
   const gone = markers.filter((marker) => !haystack.includes(marker));
   assert.deepEqual(
