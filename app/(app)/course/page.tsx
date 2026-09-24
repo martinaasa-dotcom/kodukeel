@@ -376,7 +376,7 @@ export default async function CoursePage({
           <p className="mt-2 text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
             {day.canDo}
           </p>
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatTile value={day.words.length} label="New words" tone="mint" />
             <StatTile
               value={standing.complete ? "0" : `${standing.minutesLeft}m`}
