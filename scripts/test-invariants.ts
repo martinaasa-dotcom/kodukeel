@@ -6250,6 +6250,21 @@ check("every component is reachable from a route and drawn by something", () => 
       `element, so it is imported and rendered nowhere, which is the same silence one line later. ` +
       `Draw it, or delete the file.`,
     );
+    /*
+      And every one of them, not just one: a file whose first component is on
+      a screen and whose second is drawn nowhere passes the arm above, which
+      reads the file rather than the export. Its own file counts here, since a
+      part drawn only inside the component beside it is drawn.
+    */
+    const undrawn = exported.filter(
+      (name) => !searched.some((other) => new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
+    );
+    assert.deepEqual(
+      undrawn,
+      [],
+      `${file} exports ${undrawn.join(", ")} and nothing in the tree draws it as an element, ` +
+      `while the file's other export is on a screen. Draw it, or delete it.`,
+    );
   }
   assert.ok(asked >= 140, `only found ${asked} component files, so this sweep stopped looking`);
 });
