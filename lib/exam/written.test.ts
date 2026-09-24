@@ -65,6 +65,18 @@ describe("whether a required word was used", () => {
     expect(usesRequiredWord(word("aeg"), "Mul ei ole aega.")).toBe(true);
   });
 
+  it("counts a word in a plural case, which is built on the stored genitive plural", () => {
+    /*
+      The plural obliques are a suffix on the genitive plural, so no entry
+      stores them and only the case table reaches them. Reading the accepted
+      spellings off `gapForms` alone, which walks the singular, dropped every
+      one of them, and a candidate who wrote `raamatutes` was marked as not
+      having used `raamat` on a mock state examination.
+    */
+    expect(usesRequiredWord(word("raamat"), "Seda on kirjutatud paljudes raamatutes.")).toBe(true);
+    expect(usesRequiredWord(word("maja"), "Nad elavad suurtes majades.")).toBe(true);
+  });
+
   it("counts a case the dictionary stores rather than derives", () => {
     // The short illative is lexically unpredictable and is what people say.
     expect(usesRequiredWord(word("jõgi"), "Ta hüppas jõkke.")).toBe(true);

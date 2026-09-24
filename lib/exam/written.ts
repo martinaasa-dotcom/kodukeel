@@ -19,6 +19,7 @@
  * on are pure for the same reason, which is what lets the marker and the
  * screen agree on which spellings count without either of them reaching a database.
  */
+import { buildCaseTable, stemsFromParts } from "@/lib/estonian/derive";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { tidyForm } from "@/lib/estonian/whichCase";
 
@@ -63,9 +64,29 @@ export interface RequiredWord {
  */
 export function acceptedUses(word: RequiredWord): Set<string> {
   const out = new Set<string>();
-  for (const spelling of gapForms(word).keys()) {
-    const cleaned = tidyForm(spelling);
+  const add = (spelling: string | null | undefined) => {
+    const cleaned = tidyForm(spelling ?? "");
     if (cleaned) out.add(cleaned);
+  };
+  for (const spelling of gapForms(word).keys()) add(spelling);
+  /*
+    AND THE PLURAL CASES, WHICH `gapForms` DOES NOT WALK.
+
+    `gapForms` answers what a gap-fill may hide, and it walks the singular:
+    the plural obliques are a suffix on the stored genitive plural, so no
+    entry stores them and the case table is the only thing that reaches
+    them. This function used to add them and the move onto `gapForms`
+    dropped them, so a candidate who wrote `raamatutes` was marked as not
+    having used `raamat`. That is the fault this module's header is about,
+    marking a right answer wrong on a mock state examination, and it is a
+    word a candidate is far likelier to write in a paragraph than to meet
+    in a gap. A verb has no case table and `gapForms` already carries its
+    persons.
+  */
+  if (word.pos !== "VERB") {
+    const parts: Record<string, string> = {};
+    for (const form of word.forms) parts[form.formType] = form.value;
+    for (const derived of buildCaseTable(stemsFromParts(parts))) add(derived.plural);
   }
   return out;
 }
