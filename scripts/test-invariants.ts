@@ -21595,6 +21595,33 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a round survives a grade that could not be sent", () => {
+  /*
+    `gradeCard` and `undoGrade` are Server Actions, and one that gets no
+    answer rejects. Awaited bare, the rejection leaves the transition with the
+    round's `busy` flag set: the daily quest froze on its card with the answer
+    lost, and review's undo left every control on the card disabled. So every
+    awaited call in a client file sits inside a `try`.
+  */
+  const clients = ALL.filter((f) => f.endsWith(".tsx") && /^\s*["']use client["']/.test(read(f)));
+  let calls = 0;
+  const bare: string[] = [];
+  for (const file of clients) {
+    const src = code(file);
+    for (const m of src.matchAll(/await (gradeCard|undoGrade)\(/g)) {
+      calls += 1;
+      const back = src.slice(Math.max(0, m.index! - 800), m.index!);
+      if (back.lastIndexOf("try {") <= back.lastIndexOf("} catch")) {
+        bare.push(`${file}:${src.slice(0, m.index!).split("\n").length} (${m[1]})`);
+      }
+    }
+  }
+  assert.ok(calls >= 5, `found only ${calls} awaited grades; the sweep has stopped reading them`);
+  assert.deepEqual(bare, [], `awaited with nothing to catch a rejection: ${bare.join(", ")}`);
+  assert.match(code("app/(app)/review/ReviewSession.tsx"), /dropFromOutbox\(\[last\.queuedId\]\)/,
+    "review's undo no longer takes a queued grade back out of the outbox");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

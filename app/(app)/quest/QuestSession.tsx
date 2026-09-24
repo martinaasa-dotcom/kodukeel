@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { Flame, Target, Timer, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
+import { useOffline } from "@/components/OfflineProvider";
+import { enqueueGrade } from "@/lib/offline/db";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
@@ -143,6 +145,7 @@ export function QuestSession({
       .some((f) => f.toLocaleLowerCase("et") === text.toLocaleLowerCase("et"))) ?? card.back
     : "";
   const ladder = card?.choices ? narrowLadder(options, answerText) : [];
+  const { refresh: refreshOutbox } = useOffline();
   const hints = useHints({
     word: card?.lemma ?? card?.id ?? null,
     question: card?.id ?? null,
@@ -181,18 +184,47 @@ export function QuestSession({
       cases.
     */
     if (!got) hints.noteMiss();
-    await gradeCard(
-      // A hint is paid for: see `lib/questions/hints.ts`.
-      card.id, Math.min(got ? 3 : 1, hints.ceiling) as 1 | 2 | 3,
-      Date.now() - shownAt.current, undefined,
-      card.targetCase ?? undefined, reached ?? undefined,
-    );
+    // A hint is paid for: see `lib/questions/hints.ts`.
+    const rating = Math.min(got ? 3 : 1, hints.ceiling) as 1 | 2 | 3;
+    const duration = Date.now() - shownAt.current;
+    const answeredAt = new Date().toISOString();
+    /*
+      A GRADE THAT CANNOT REACH THE SERVER IS QUEUED, AND THE ROUND GOES ON.
+
+      This awaited the action bare, so with the network gone the rejection left
+      `busy` set and the index where it was: the round froze on the card with
+      every control disabled, and the answer was lost. Every other round
+      catches it; this one goes to the same outbox with the time it was
+      answered, which is what ADR-015 promises the daily path.
+    */
+    try {
+      const res = await gradeCard(
+        card.id, rating, duration, answeredAt,
+        card.targetCase ?? undefined, reached ?? undefined,
+      );
+      if (!res.ok) throw new Error(res.error);
+    } catch {
+      try {
+        await enqueueGrade({
+          id: crypto.randomUUID(),
+          cardId: card.id,
+          rating,
+          durationMs: duration,
+          reviewedAt: Date.parse(answeredAt),
+          slot: card.targetCase ?? undefined,
+          reachedSlot: reached ?? undefined,
+        });
+        refreshOutbox();
+      } catch {
+        // No IndexedDB either: the answer is lost, and the round still goes on.
+      }
+    }
     setPicked(null);
     setRevealed(false);
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
     setBusy(false);
-  }, [card, busy, sound, hints]);
+  }, [card, busy, sound, hints, refreshOutbox]);
 
   /*
     A pick marks itself. The option carries what it would mean, so a wrong one

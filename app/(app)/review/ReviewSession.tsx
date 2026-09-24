@@ -26,7 +26,7 @@ import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
-import { enqueueGrade, readStashedSession, stashSession } from "@/lib/offline/db";
+import { dropFromOutbox, enqueueGrade, readOutbox, readStashedSession, stashSession } from "@/lib/offline/db";
 import { useOffline } from "@/components/OfflineProvider";
 import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
@@ -443,6 +443,12 @@ interface Done {
   rating: RatingValue;
   /** The card's scheduling before the grade — everything undo needs. */
   before: ReviewCard["scheduling"];
+  /**
+   * The outbox id, where the grade never reached the server. Undoing that one
+   * is taking it back out of the outbox rather than asking the server to
+   * rewind a grade it has never seen, which left the queued one to replay.
+   */
+  queuedId?: string;
 }
 
 export function ReviewSession({
@@ -936,6 +942,7 @@ export function ReviewSession({
       is what tells them either way.
     */
     try {
+    let queuedId: string | undefined;
     try {
       const result = await gradeCard(card.id, rating, duration, answeredAt);
       if (!result.ok) throw new Error(result.error);
@@ -945,19 +952,21 @@ export function ReviewSession({
       // something the learner did, so it goes to the durable outbox and is
       // replayed in order with this timestamp once there is a connection —
       // which, because Review is append-only, lands exactly where it would have.
+      const id = crypto.randomUUID();
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id,
         cardId: card.id,
         rating,
         durationMs: duration,
         reviewedAt: Date.parse(answeredAt),
       });
+      queuedId = id;
       refreshOutbox();
     }
 
     setDone((d) => d + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
-    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before }]);
+    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, queuedId }]);
     recordSeen(card, false);
 
     // "Again" means it is not learned — put it back near the end of this session.
@@ -994,8 +1003,32 @@ export function ReviewSession({
     const last = history[history.length - 1];
     if (!last || busy) return;
     setBusy(true);
-    const result = await undoGrade(last.cardId, last.before);
-    if (result.ok) {
+    /*
+      THE SAME RULE AS GRADING: THE FLAG COMES OFF WHATEVER HAPPENS.
+
+      The action was awaited bare, so with the network gone the rejection left
+      `busy` set and every control on the card disabled for the rest of the
+      session. And a grade that went to the outbox was never on the server, so
+      rewinding it there did nothing while the queued grade replayed later and
+      put the answer back. That one is taken out of the outbox instead, unless
+      it has already been sent, in which case the server rewind is right.
+    */
+    let ok = false;
+    try {
+      const pending = last.queuedId
+        ? (await readOutbox()).some((g) => g.id === last.queuedId)
+        : false;
+      if (pending && last.queuedId) {
+        await dropFromOutbox([last.queuedId]);
+        refreshOutbox();
+        ok = true;
+      } else {
+        ok = (await undoGrade(last.cardId, last.before)).ok;
+      }
+    } catch {
+      ok = false;
+    }
+    if (ok) {
       scheduled.current.set(last.cardId, last.before);
       setHistory((h) => h.slice(0, -1));
       // The card is in front of the learner again, so that showing has not
@@ -1016,7 +1049,7 @@ export function ReviewSession({
       setIndex(last.index);
     }
     setBusy(false);
-  }, [history, busy, queue, forget]);
+  }, [history, busy, queue, forget, refreshOutbox]);
 
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
