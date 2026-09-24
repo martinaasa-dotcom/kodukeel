@@ -200,6 +200,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
 
   const [goal, setGoal] = useState<number>(15);
   const [pending, start] = useTransition();
+  const [failed, setFailed] = useState<string | null>(null);
 
   /** The level everything downstream uses: measured if it was, stated if not. */
   const level: Level | null = measured ? measured.overall : (estimated as Band | null);
@@ -281,8 +282,19 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   const totalEvenings = parts.reduce((n, p) => n + p.days, 0);
 
   const finish = () => {
+    setFailed(null);
     start(async () => {
-      await completeOnboarding({
+      /*
+        READ THE ANSWER, BECAUSE IT CAN NOW BE NO. This used to be awaited and
+        dropped, which was safe while the action could only succeed. It is
+        throttled now (`ACTION_LIMITS.completeOnboarding`), so a refusal came
+        back, nobody read it, and the learner was sent on to /course with no
+        deck built and no setting written. A request that never reached the
+        server throws rather than returning, and a rejection left in a
+        transition tears the tree down, so it is caught the way the module
+        list catches it.
+      */
+      const result = await completeOnboarding({
         displayName: name,
         cefr: startBand,
         dailyGoal: goal,
@@ -296,7 +308,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           daysPerWeek: goals.daysPerWeek,
           note: goals.note,
         },
-      });
+      }).catch(() => null);
+      if (!result) { setFailed("That did not reach the server."); return; }
+      if (!result.ok) { setFailed(result.error); return; }
       /*
         Straight to tonight's module rather than to Today. Somebody who has
         just been told what the evening is wants the evening, and a dashboard
@@ -953,6 +967,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             </Button>
           )}
         </div>
+
+        {failed && (
+          <div role="status" className="mt-4">
+            <Note tone="again">{failed} Nothing was changed, so press it again.</Note>
+          </div>
+        )}
 
         {/*
           NO WAY OUT OF SETUP, AND ONE WAY PAST ONE QUESTION.

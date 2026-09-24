@@ -6296,6 +6296,42 @@ check("an action that builds a batch of cards is one of the throttled ones", () 
   );
 });
 
+/*
+  AND A REFUSAL IS READ BY WHOEVER ASKED.
+
+  A throttle is only half a limit: the other half is the screen saying so. The
+  check above makes the batch builders throttle themselves, and the first one
+  it made throttle was `completeOnboarding`, whose one caller awaited it and
+  dropped the answer, which was safe for as long as the action could only
+  succeed. Once it could say no, the wizard went on to /course with nothing
+  written and the refusal reached nobody, which is the silent failure the limit
+  table's own header says a learner must never meet. So every caller of an
+  action that throttles itself has to hold the result rather than discard it.
+*/
+check("a throttled action's refusal reaches the screen that asked", () => {
+  const actions = code("app/actions.ts");
+  const boundaries = [...actions.matchAll(/^export async function (\w+)\(/gm)];
+  const throttled: string[] = [];
+  for (const [i, m] of boundaries.entries()) {
+    const body = actions.slice(m.index!, boundaries[i + 1]?.index ?? actions.length);
+    if (/\bthrottleAction\(/.test(body)) throttled.push(m[1]!);
+  }
+  assert.ok(throttled.length >= 15, `only ${throttled.length} throttled actions found, so this stopped looking`);
+
+  const dropped: string[] = [];
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (file === join("app", "actions.ts")) continue;
+    const source = code(file);
+    for (const name of throttled) {
+      if (new RegExp(`^\\s*(?:await|void)\\s+${name}\\(`, "m").test(source)) dropped.push(`${file}: ${name}`);
+    }
+  }
+  assert.deepEqual(
+    dropped, [],
+    "these call a throttled action and drop its answer, so a refusal reaches nobody: " + dropped.join(", "),
+  );
+});
+
 check("every dead end in the app offers a way to report it", () => {
   /*
     THE RULE: nothing here may tell somebody it cannot help them and then
