@@ -12,12 +12,21 @@ import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
-/** Seconds for the first shot. */
+/** Seconds for the first shot, at the standard pace. */
 const START_S = 8;
-/** The least time a shot ever gets, however far in you are. */
+/** The least time a shot ever gets, however far in you are, at the standard pace. */
 const FLOOR_S = 3.5;
-/** How much of a second each hit takes off the clock. */
+/**
+ * How much of a second each hit takes off the clock, at every pace.
+ *
+ * The start and the floor are lengths and scale with the learner's pace; the
+ * step is the round tightening around whoever is playing it, which is pressure
+ * rather than a length, so it stays. At ten times the pace that is a round
+ * that tightens slowly from eighty seconds, which is what was asked for.
+ */
 const STEP_S = 0.25;
 
 /**
@@ -36,10 +45,22 @@ const STEP_S = 0.25;
  *
  * Every answer grades through `gradeCard` (ADR-016) so the scheduler sees what
  * was practiced: a hit is Good, a miss is Again, and running out of time is
- * Again too, because not producing a form inside eight seconds is not knowing
- * it yet.
+ * Again too, because not producing a form inside the time the learner gave
+ * themselves is not knowing it yet.
+ *
+ * `pace` is the learner's, resolved on the server from `lib/ux/roundClock.ts`
+ * (WCAG 2.2.1, Timing Adjustable). This round was written with its clock as
+ * three constants and nobody could move them, while the sprint and the quest
+ * beside it both read the setting.
  */
-export function TargetSession({ questions: initialQuestions }: { questions: TargetQuestion[] }) {
+export function TargetSession({ questions: initialQuestions, pace }: {
+  questions: TargetQuestion[];
+  /** The learner's pace as a factor over the standard round. */
+  pace: number;
+}) {
+  const start = START_S * pace;
+  const floor = FLOOR_S * pace;
+  const inModule = useModuleFocus() !== null;
   // Snapshotted on mount: `gradeCard` refreshes this route's Server Component,
   // and a round whose questions changed under the player is a different round.
   const [questions] = useState(initialQuestions);
@@ -49,12 +70,12 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
   const [hits, setHits] = useState(0);
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(0);
-  const [left, setLeft] = useState(START_S);
+  const [left, setLeft] = useState(start);
   const sound = useFeedbackSound();
   const shownAt = useRef(Date.now());
 
   const question = questions[index];
-  const allowed = Math.max(FLOOR_S, START_S - hits * STEP_S);
+  const allowed = Math.max(floor, start - hits * STEP_S);
 
   const answer = useCallback((choice: number | null) => {
     if (!question || picked !== null) return;
@@ -74,11 +95,11 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
     // moment in a round worth slowing down for.
     window.setTimeout(() => {
       setPicked(null);
-      setLeft(Math.max(FLOOR_S, START_S - (right ? hits + 1 : hits) * STEP_S));
+      setLeft(Math.max(floor, start - (right ? hits + 1 : hits) * STEP_S));
       shownAt.current = Date.now();
       setIndex((i) => i + 1);
     }, right ? 480 : 1500);
-  }, [question, picked, sound, hits]);
+  }, [question, picked, sound, hits, start, floor]);
 
   useEffect(() => {
     if (phase !== "running" || picked !== null) return;
@@ -114,9 +135,23 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
             only the question word tells you which of the four to hit.
           </p>
           <Button variant="primary" size="lg"
-            onClick={() => { setPhase("running"); setLeft(START_S); shownAt.current = Date.now(); }}>
+            onClick={() => { setPhase("running"); setLeft(start); shownAt.current = Date.now(); }}>
             Start
           </Button>
+          {/* Where the clock is set, said on the screen somebody is standing on
+              when they find the round too fast. Inside the module the sentence
+              stays and the door does not, which is the sprint's own rule. */}
+          <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+            Need longer?{" "}
+            {inModule ? (
+              <span>Settings lets you give yourself more time</span>
+            ) : (
+              <Link href="/settings#round-pace" className="underline underline-offset-2">
+                Give yourself more time
+              </Link>
+            )}
+            , up to ten times this.
+          </p>
           {/* The way back to the menu somebody chose this round from, which
               inside a module is a door out of the evening: the way on is the
               bar at the foot of the screen. */}

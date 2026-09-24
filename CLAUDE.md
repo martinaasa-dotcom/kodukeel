@@ -9950,6 +9950,17 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   imitating a timed state examination and untimed practice of a timed paper measures something
   else (`docs/16-exam.md`).
 
+  **And there were three, and the rule reached two.** Target opens at eight seconds a shot and
+  tightens toward three and a half, and all three numbers were constants in the session while the
+  sprint and the quest beside it read the setting; Settings called the examination "the one clock
+  this leaves alone" over a second one nobody could move. It takes `paceMultiplier` rather than a
+  number of seconds, since its start and floor are fractions of a second and a whole-second
+  rounding would move the standard round, and it scales those two and leaves the per-hit step,
+  which is pressure rather than a length. The rule was a paragraph and each round that obeyed it had
+  been written to, so the invariant now finds **every countdown in the app by its shape**, a timer
+  whose callback walks a number down to nought, and holds its page to reading the stored pace. A
+  fourth round arrives in the haystack by existing.
+
 ## Model configuration
 
 **Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` returns every

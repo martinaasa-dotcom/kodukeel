@@ -426,13 +426,13 @@ export default async function SettingsPage() {
             <SectionTitle hint={roundPaceName}>Time in a timed round</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                The sprint and the daily quest run to a clock. This is how long that clock
-                gives you, and it changes nothing else about either round.
+                Every practice round that runs to a clock gives you this much time, and
+                nothing else about the round changes.
               </p>
               <RoundPacePanel current={roundPace} />
-              <Explain label="The one clock this leaves alone">
-                The mock examination is the one clock this leaves alone. That paper is
-                imitating a timed state examination, so its parts keep the real timings.
+              <Explain label="The clock this leaves alone">
+                The mock examination keeps its own clock. That paper is imitating a timed
+                state examination, so its parts keep the real timings.
               </Explain>
             </Card>
           </section>

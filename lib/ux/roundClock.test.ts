@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_ROUND_PACE, ROUND_PACES, roundLength, roundPaceFrom, secondsFor,
+  paceMultiplier,
 } from "./roundClock";
 
 describe("roundPaceFrom", () => {
@@ -74,6 +75,25 @@ describe("secondsFor", () => {
 
   it("never returns a negative round", () => {
     expect(secondsFor(-30, "double")).toBe(0);
+  });
+});
+
+/*
+  Target scales its own start and floor by this rather than asking secondsFor,
+  because both are fractions of a second and a whole-second rounding would move
+  the standard round. So the factor has to be exactly what secondsFor applies,
+  or the two kinds of round would disagree about one learner's pace.
+*/
+describe("paceMultiplier", () => {
+  it("is exactly the factor secondsFor applies, at every pace", () => {
+    for (const pace of ROUND_PACES) {
+      expect(paceMultiplier(pace.id)).toBe(pace.multiplier);
+      expect(secondsFor(60, pace.id)).toBe(Math.round(60 * paceMultiplier(pace.id)));
+    }
+  });
+
+  it("leaves the standard round exactly as written", () => {
+    expect(paceMultiplier(DEFAULT_ROUND_PACE)).toBe(1);
   });
 });
 

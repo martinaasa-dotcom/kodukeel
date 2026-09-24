@@ -6516,6 +6516,59 @@ check("dictation says which kind of mistake it was, in text", () => {
   assert.match(session, /wordNote\(/, "the dictation marking stopped showing which mistake it was");
 });
 
+check("every practice round that runs to a clock runs to the learner's pace", () => {
+  /*
+    WCAG 2.2.1, Timing Adjustable, is met here by the limit being adjustable
+    before the round starts: `lib/ux/roundClock.ts` holds the pace, Settings
+    sets it, and a round's page resolves it on the server and hands the seconds
+    down. Two rounds did that and a third did not. Target shipped with eight
+    seconds, a floor of three and a half and nothing the learner could move,
+    under a Settings paragraph saying the examination was "the one clock this
+    leaves alone" and an accessibility statement saying "the two timed practice
+    rounds" could be set to run longer. Nothing could see it, because the rule
+    was a paragraph and each round that obeyed it had simply been written to.
+
+    So the haystack is every countdown in the app, found by the shape a
+    countdown takes rather than by a list of rounds: a timer whose callback is a
+    state setter walking a number down to nought. An undo that floors a counter
+    at nought is the same arithmetic with no timer, and is not a clock. Its page has to read the stored pace. The
+    mock examination is not in the haystack, because its clock is a deadline
+    rather than a counter, and it is deliberately not this setting's business.
+  */
+  const COUNTDOWN = /set(?:Timeout|Interval)\(\s*\(\)\s*=>\s*set\w+\(\s*\(?\w+\)?\s*=>\s*Math\.max\(\s*0\s*,/;
+  const rounds = [...sourceFiles("app", /\.tsx$/), ...sourceFiles("components", /\.tsx$/)].filter((f) =>
+    COUNTDOWN.test(code(f)),
+  );
+  assert.ok(rounds.length >= 3, `only ${rounds.length} countdown(s) found; the pattern moved`);
+  const fixed = rounds.filter((f) => {
+    const page = join(dirname(f), "page.tsx");
+    return !existsSync(page) || !/SETTING_KEYS\.roundPace/.test(code(page));
+  });
+  assert.deepEqual(
+    fixed,
+    [],
+    `a round runs to a clock whose page never reads the learner's pace: ${fixed.join(", ")}`,
+  );
+
+  /*
+    And the copy that names the rounds is not a list somebody has to extend. A
+    sentence counting "the sprint and the daily quest" was true on the day it
+    was written and false the day Target arrived, so the Settings paragraph may
+    not count them, and it may not call the examination the only clock left.
+  */
+  const settings = code("app/(app)/settings/page.tsx");
+  assert.doesNotMatch(
+    settings,
+    /one clock this leaves alone/,
+    "Settings calls the examination the only clock the pace leaves alone",
+  );
+  assert.doesNotMatch(
+    settings,
+    /sprint and the daily quest run to a clock/,
+    "Settings counts the timed rounds again, which is the sentence that went stale",
+  );
+});
+
 check("a daily reminder fires on the learner's clock, not the server's", () => {
   /*
     The hour somebody picks in Settings is a reading on their own clock. This

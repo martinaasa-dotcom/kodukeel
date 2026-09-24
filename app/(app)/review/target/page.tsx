@@ -4,6 +4,8 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { TargetSession } from "./TargetSession";
 import { moduleScopeFrom } from "@/lib/course/scope";
+import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { paceMultiplier, roundPaceFrom } from "@/lib/ux/roundClock";
 
 export const metadata = { title: "Target" };
 
@@ -44,5 +46,13 @@ export default async function TargetPage({
     );
   }
 
-  return <TargetSession questions={questions} />;
+  /*
+    How long a shot runs, resolved here and handed down, which is how the
+    sprint and the quest already read it: the session is a client component and
+    has no settings of its own to read. See lib/ux/roundClock.ts.
+  */
+  const settings = await readSettings(ownerId, [SETTING_KEYS.roundPace]);
+  const pace = paceMultiplier(roundPaceFrom(settings[SETTING_KEYS.roundPace]));
+
+  return <TargetSession questions={questions} pace={pace} />;
 }

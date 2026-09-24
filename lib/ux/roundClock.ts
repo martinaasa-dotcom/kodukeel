@@ -1,10 +1,13 @@
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
- * Two rounds in this app run to a clock: the Case Sprint at sixty seconds and
- * the daily quest at two minutes. Both numbers were chosen for the round they
- * are in and both were fixed, which is WCAG 2.2 success criterion 2.2.1,
- * Timing Adjustable, failed twice. A learner who reads slowly, who is hearing
+ * Three rounds in this app run to a clock: the Case Sprint at sixty seconds,
+ * the daily quest at two minutes, and Target at eight seconds a shot that
+ * tightens as the learner hits. Every one of those numbers was chosen for the
+ * round it is in and every one was fixed, which is WCAG 2.2 success criterion
+ * 2.2.1, Timing Adjustable, failed three times. The first two were brought
+ * under this setting together and Target was missed, so an invariant now finds
+ * every countdown in the app by its shape and holds its page to the pace. A learner who reads slowly, who is hearing
  * a card read out before answering it, or who types with one hand is not
  * playing a faster version of the same round. They are shut out of it.
  *
@@ -16,11 +19,12 @@
  * is trying to rescue. Adjusting it beforehand leaves the round intact and
  * asks nothing of anybody mid-answer.
  *
- * A MULTIPLIER RATHER THAN A NUMBER OF SECONDS, because the two rounds have
- * different bases for good reasons and one setting has to serve both. Sixty
- * seconds is right for flipping cards and two minutes is right for a round
- * that picks from four options, so a stored "180 seconds" would be generous in
- * one and meaningless in the other. What a learner is choosing is their own
+ * A MULTIPLIER RATHER THAN A NUMBER OF SECONDS, because the rounds have
+ * different bases for good reasons and one setting has to serve all of them.
+ * Sixty seconds is right for flipping cards, two minutes is right for a round
+ * that picks from four options and eight seconds is right for one shot at a
+ * target, so a stored "180 seconds" would be generous in one and meaningless
+ * in the others. What a learner is choosing is their own
  * pace, which is the same fact about them whichever round they open.
  *
  * TEN TIMES IS THE TOP OF THE TABLE, because that is the figure the criterion
@@ -84,7 +88,16 @@ export function roundPaceFrom(value: string | null | undefined): RoundPace {
     : DEFAULT_ROUND_PACE;
 }
 
-function multiplierFor(pace: RoundPace): number {
+/**
+ * The pace as a factor, for a round whose clock is not one length.
+ *
+ * `secondsFor` is right for a round that is one number of seconds long. Target
+ * is not: it opens at eight seconds a shot and tightens toward a floor, and
+ * both of those are fractions of a second apart, so a whole-second rounding
+ * would move the standard round itself. It scales its own start and floor by
+ * this instead.
+ */
+export function paceMultiplier(pace: RoundPace): number {
   return ROUND_PACES.find((p) => p.id === pace)?.multiplier ?? 1;
 }
 
@@ -96,7 +109,7 @@ function multiplierFor(pace: RoundPace): number {
  * of an odd base is not quietly shortened.
  */
 export function secondsFor(baseSeconds: number, pace: RoundPace): number {
-  return Math.round(Math.max(0, baseSeconds) * multiplierFor(pace));
+  return Math.round(Math.max(0, baseSeconds) * paceMultiplier(pace));
 }
 
 /**
