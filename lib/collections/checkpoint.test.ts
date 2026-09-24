@@ -82,6 +82,8 @@ describe("buildCheckpoint", () => {
 
   it("builds gap questions only from attested sentences", () => {
     const gaps = buildCheckpoint(WORDS, 12, 6).filter((q) => q.kind === "gap");
+    // Some were built, or "only from attested sentences" is true of none.
+    expect(gaps.length).toBeGreaterThan(0);
     for (const gap of gaps) {
       const source = WORDS.find((w) => w.lemma === gap.lemma)!;
       expect(source.examples).toContain(gap.full);
@@ -100,12 +102,17 @@ describe("buildCheckpoint", () => {
       examples: ["Oleme ikka sõbrad edasi!"],
       parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
     });
-    const gaps = buildCheckpoint([friend], 1, 1).filter((q) => q.kind === "gap");
+    const asked = buildCheckpoint([friend], 1, 1);
+    // Still asked about, or "never gaps a plural" is true of a checkpoint that
+    // built nothing at all.
+    expect(asked.length).toBeGreaterThan(0);
+    const gaps = asked.filter((q) => q.kind === "gap");
     for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
   });
 
   it("falls back to production for a word with no sentence", () => {
     const bare = buildCheckpoint(WORDS.filter((w) => w.examples.length === 0), 8, 3);
+    expect(bare.length).toBeGreaterThan(0);
     expect(bare.every((q) => q.kind === "type")).toBe(true);
     for (const q of bare) expect(q.answer).toBe(q.lemma);
   });

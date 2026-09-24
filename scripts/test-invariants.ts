@@ -8501,6 +8501,66 @@ check("every browser suite that exists is a browser suite CI runs", () => {
   }
 });
 
+/*
+  A UNIT TEST OVER A FILTERED LIST SAYS THE LIST WAS THERE.
+
+  `for (const x of list) expect(...)` over a list built by `.filter()` asks
+  nothing when the filter keeps nothing, and a generator that stops producing
+  what it was filtered for leaves every such test green. The browser suites had
+  this shape and it was found there; the unit suite had it too. The worst was
+  the crossword's "never lays a word alongside another": its grid laid one word
+  across, so the check over across pairs compared nothing, and with the
+  compiler's adjacency rule deleted the file still passed 12 of 12. A case
+  question "never from thin air", a checkpoint gap "only from attested
+  sentences" and a paper's scrambled order were the same: true of none.
+
+  So a list a test narrows with `.filter()` and then walks with an `expect` is
+  counted somewhere in the same file, or it is named below with the reason it
+  cannot be.
+*/
+check("a unit test over a filtered list says the list was there", () => {
+  const exempt: Record<string, string> = {
+    // One direction of a grid can hold no word; the test counts the pairs it
+    // compared across both directions and asserts that count instead.
+    "lib/games/crossword.test.ts|run": "counted through `compared`",
+  };
+  const tests = [...ALL, ...sourceFiles("prisma"), ...sourceFiles("scripts")]
+    .filter((f) => /\.test\.tsx?$/.test(f));
+  assert.ok(tests.length > 180, `only ${tests.length} unit test files found, so this check stopped looking`);
+
+  let walked = 0;
+  const found = new Set<string>();
+  const offenders: string[] = [];
+  for (const file of tests) {
+    const source = code(file);
+    const filtered = new Set(
+      [...source.matchAll(/const (\w+)\s*(?::[^=]+)?=\s*[^;]*?\.filter\(/g)].map(([, name]) => name!),
+    );
+    for (const name of filtered) {
+      const walks = new RegExp(
+        `for \\(const [^)]*? of ${name}\\)|expect\\(${name}\\.every\\(|\\b${name}\\.forEach\\(`,
+      ).test(source);
+      if (!walks) continue;
+      walked += 1;
+      const counted = new RegExp(
+        `\\b${name}\\.(?:length|size)\\b|expect\\(${name}\\)\\.(?:toHaveLength|not\\.toEqual\\(\\[\\]\\))`,
+      ).test(source);
+      const key = `${file}|${name}`;
+      if (exempt[key]) found.add(key);
+      else if (!counted) offenders.push(key);
+    }
+  }
+  assert.ok(walked >= 26, `only ${walked} filtered lists walked in unit tests, so this check stopped looking`);
+  assert.deepEqual(
+    offenders, [],
+    "a unit test walks a filtered list it never counts, so it passes when the filter keeps nothing. " +
+      "Assert its length inside the test, or name it in the exemption with the reason",
+  );
+  for (const key of Object.keys(exempt)) {
+    assert.ok(found.has(key), `${key} is exempt and no longer walks a filtered list, so the entry is a parking space`);
+  }
+});
+
 /**
  * And the other one, at the far end of the same list.
  *

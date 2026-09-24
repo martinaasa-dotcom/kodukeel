@@ -614,6 +614,7 @@ describe("the scene catalog", () => {
       scene.props.filter((prop) => prop.kind === "word").map((prop) => ({ scene, prop } as const)));
 
     it("names only a sense the dictionary already gives the word", () => {
+      expect(wordProps.length).toBeGreaterThan(0);
       for (const { scene, prop } of wordProps) {
         for (const [lemma, sense] of Object.entries(prop.means ?? {})) {
           expect(

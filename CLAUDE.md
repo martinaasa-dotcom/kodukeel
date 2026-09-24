@@ -9672,6 +9672,17 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   production and no more. And the scene suite's report-button check opened `spoken === 0 || ...`,
   which passes when there is nothing on screen to report. Where the subject can honestly be empty,
   say so with `absent` and name what would fill it; where it cannot, assert the claim.
+- **And the unit suite had the same shape, and one of them could not fail at all.** A test that
+  narrows a list with `.filter()` and then walks it with an `expect` asks nothing when the filter
+  keeps nothing. The crossword's "never lays a word alongside another" compiled a grid with one word
+  across, so its loop over across pairs compared nothing; with the compiler's adjacency rule deleted,
+  the file still passed 12 of 12. "Stops at the number a phone can hold" compiled four words
+  against a cap of seven. A case question "never from thin air", a gap "only from attested
+  sentences" and a scrambled order "not the original" were each true of none. Each test now counts
+  what it walks inside itself, the crossword compares both directions and asserts it compared
+  something, and its cap test uses a pool that places eight when nothing stops it. The invariant
+  reads every unit test for a filtered list walked and never counted, with one written exemption
+  checked both ways.
 - **A suite that pairs two facts by walking the markup goes blind the day the markup moves, and
   waives itself while it does.** `scripts/test-scene.mjs` asks two questions only a browser can
   answer, that a composed line and a scripted line are each one short sentence saying which rung
