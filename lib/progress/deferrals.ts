@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { hardWords } from "@/lib/dict/facts";
+import { lockDeck } from "@/lib/srs/deck";
 import { bandReached, daysBetween, deferralFor, deferralNote, inForce, offeredBand, type Deferral } from "@/lib/srs/defer";
 
 /**
@@ -74,6 +75,15 @@ export async function deferWord(
   const fresh = deferralFor({ band, level, now });
 
   const deferral = await prisma.$transaction(async (tx) => {
+    /*
+      Under the deck lock every builder takes. A builder reads the deferral and
+      dates its new cards on it under that lock, so a push that does not take
+      it runs beside a builder that has read "none" and not yet committed: the
+      push cannot see the uncommitted card, and it lands dated now, bringing
+      the word straight back. Taken, the push waits for the builder and moves
+      what it built.
+    */
+    await lockDeck(tx, ownerId);
     /*
       A SECOND PRESS NEVER SHORTENS A WAIT, WHICH IS A RULE ABOUT THE CARDS
       RATHER THAN ABOUT POLITENESS.
