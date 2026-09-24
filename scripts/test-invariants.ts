@@ -9639,6 +9639,23 @@ check("every cache the service worker writes to is bounded, except the one that 
  * check above and for the same reason: a paragraph kept four of these honest
  * and did not catch the fifth.
  */
+check("the health check asks the database at most once a window, however often it is called", () => {
+  /*
+    `/api/health` is the one route that reaches Postgres with neither a session
+    nor a limiter in front of it, on purpose, since a monitor has neither. It
+    ran a query per request, so anybody could turn a flood of GETs into a flood
+    of pooler connections. The answer is remembered for a window and
+    concurrent checks share one query. Asserted on the code: the handler reads
+    through the window, and the only query goes through the single flight.
+  */
+  const src = code("app/api/health/route.ts");
+  const handler = src.slice(src.indexOf("export async function GET"));
+  assert.match(handler, /databaseAnswersRecently\(\)/, "GET no longer reads the database through the freshness window");
+  assert.doesNotMatch(handler, /\bdatabaseAnswers\(\)/, "GET asks the database directly, once per request");
+  assert.match(src, /singleFlight\("health:database", databaseAnswers\)/, "concurrent health checks no longer share one query");
+  assert.match(src, /const FRESH_MS = [\d_]+;/, "the freshness window is gone");
+});
+
 check("a route that spends something is throttled", () => {
   const routes = APP.filter((file) => /[\\/]api[\\/].*route\.tsx?$/.test(file));
   assert.ok(routes.length >= 8, `only found ${routes.length} route handlers, so this check stopped looking`);
