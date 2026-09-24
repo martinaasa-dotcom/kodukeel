@@ -2548,9 +2548,15 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * newest and busiest mode would sit outside a rule that reported itself as held.
  * That is the failure this file exists to catch, so it is not a shape this file
  * may have itself.
+ *
+ * `recordMatchGrades` is the eighth: Match used to grade its board by looping
+ * over `pairs` and calling `gradeCard` once each, which is eight sequential
+ * Server Action round trips for an eight-pair board. It now sends the whole
+ * round in one call, through `applyGradeBatch` the same as `completeLesson`
+ * and `submitExam`, so it belongs in this list rather than under `gradeCards?`.
  */
 const GRADING_DOORS =
-  /\b(gradeCards?|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene)\b/;
+  /\b(gradeCards?|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
 
 /**
  * Sessions that measure rather than practice.
@@ -2619,6 +2625,58 @@ check("every practice mode writes to the same review log", () => {
       code(file),
       GRADING_DOORS,
       `${file} now grades, so it is a practice mode and must come off the exemption list`,
+    );
+  }
+});
+/**
+ * A round that grades in bulk sends the round once, not a request per card.
+ *
+ * `gradeCard` is a Server Action, so each call is a POST from the browser, a
+ * session read, a card lookup, a write and a `revalidatePath`. Match finished
+ * its board by looping over its pairs and awaiting one per pair, which is eight
+ * sequential round trips before the finish screen settled on an eight-pair
+ * board. `completeLesson`, `submitExam` and now `recordMatchGrades` close a
+ * round the way this app already knew how: the whole round in one call, one
+ * `applyGradeBatch` on the other side.
+ *
+ * Read off the loop rather than off a list of rounds, because the fault is the
+ * shape and the next round to grade in bulk would not be on a list. A round
+ * that grades one card per learner action is not this shape and is not caught:
+ * that is a person answering, and it should be one request per answer.
+ */
+function awaitsGradeInLoop(source: string): boolean {
+  const lines = source.split("\n");
+  for (let i = 0; i < lines.length; i += 1) {
+    if (!/\b(for|while)\s*\(/.test(lines[i]!)) continue;
+    let depth = 0;
+    let opened = false;
+    for (let j = i; j < lines.length; j += 1) {
+      const line = lines[j]!;
+      if (opened && /\bawait\s+gradeCards?\(/.test(line)) return true;
+      depth += (line.match(/\{/g) ?? []).length - (line.match(/\}/g) ?? []).length;
+      if (line.includes("{")) opened = true;
+      if (opened && depth <= 0) break;
+    }
+  }
+  return false;
+}
+
+check("a round that grades in bulk sends the round once, not a request per card", () => {
+  assert.equal(
+    awaitsGradeInLoop("for (const p of pairs) {\n  await gradeCard(p.id, 3, 0);\n}"), true,
+    "the loop detector no longer sees the shape it was written for",
+  );
+  assert.equal(
+    awaitsGradeInLoop("const r = await gradeCard(card.id, 3, 0);\nfor (const x of xs) {\n  n += 1;\n}"), false,
+    "the loop detector fires on a single grade beside an unrelated loop",
+  );
+  const sessions = SESSION_FILES();
+  assert.ok(sessions.length >= 6, `expected the practice sessions, found ${sessions.length}`);
+  for (const file of sessions) {
+    assert.equal(
+      awaitsGradeInLoop(code(file)), false,
+      `${file} awaits gradeCard inside a loop: one Server Action round trip per card. `
+      + "Send the round once and grade it through applyGradeBatch, as recordMatchGrades does.",
     );
   }
 });
