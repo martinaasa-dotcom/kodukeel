@@ -58,6 +58,17 @@ export const ACTION_LIMITS = {
   assignUnit: { perMinute: 10 },
   /** Writes a task per member of a class. */
   assignHomework: { perMinute: 10 },
+  /**
+   * Handing in a mock paper, which rebuilds it on the server to mark it.
+   *
+   * The rebuild is the cost: the level's eligible ids, five hundred entries
+   * with their forms and sentences, the word-order reads and the learner's own
+   * cards, because the client never sends a mark (ADR-022). A seed already
+   * handed in writes nothing new, but it still pays for the rebuild, and a seed
+   * the caller invents is a new sitting. A real paper takes the best part of
+   * two hours, so six a minute is a double press with room to spare.
+   */
+  submitExam: { perMinute: 6 },
   /** Parses and writes a whole backup: the most expensive call in the app. */
   restoreBackup: { perMinute: 4 },
   /**

@@ -44,8 +44,10 @@ import {
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
 import {
-  forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  DEFAULT_DAILY_GOAL, forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
+import { isEntryPos } from "@/lib/dict/pos";
+import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { isEmailKind } from "@/lib/email/letter";
 import { emailPrefsFrom, emailOptInTo, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
 import { parseReminderTime } from "@/lib/time/reminder";
@@ -685,6 +687,22 @@ const text = (value: unknown): string => (typeof value === "string" ? value : ""
 
 
 /**
+ * Whether a hand-written entry names a part of speech and a band the dictionary
+ * has. Both arrive off the wire into a row every learner reads: `pos` is half of
+ * the conflict key, and `cefr` is the record that something vouched for the
+ * word, which puts it into the exam pool and the suggestion row. `undefined`
+ * is the caller having no opinion and an empty band clears one, as the edit
+ * form's own blank option does.
+ */
+function entryFieldsRefused(pos: unknown, cefr: unknown) {
+  if (!isEntryPos(pos)) return { ok: false as const, error: "That is not a type of word the dictionary uses." };
+  if (cefr !== undefined && cefr !== "" && !(CEFR_LEVELS as readonly unknown[]).includes(cefr)) {
+    return { ok: false as const, error: "That is not a level." };
+  }
+  return null;
+}
+
+/**
  * Adds a word to the shared dictionary.
  *
  * Requires a session even though the row is shared rather than personal: every
@@ -704,6 +722,9 @@ export async function createLexeme(input: {
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
+
+  const refused = entryFieldsRefused(input.pos, input.cefr);
+  if (refused) return refused;
 
   const existing = await prisma.lexeme.findUnique({
     where: { lemma_pos: { lemma, pos: input.pos } },
@@ -767,6 +788,9 @@ export async function createLexemeWithForms(input: {
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
+
+  const refused = entryFieldsRefused(input.pos, input.cefr);
+  if (refused) return refused;
 
   const lexeme = await upsertLexemeWithForms({
     id: input.id,
@@ -1867,11 +1891,19 @@ export async function completeOnboarding(input: {
   };
 }) {
   const ownerId = await requireUserId();
-  const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
+  /*
+    Both arrive off the wire whatever the type says. A level that is not one
+    was written raw into two settings and printed by the welcome letter, and a
+    goal that is not a number survived every clamp as NaN, since `Math.max(5,
+    NaN)` is NaN, and was stored as the string "NaN".
+  */
+  const cefr = (LEVELS as readonly string[]).includes(text(input.cefr)) ? text(input.cefr) : LEVELS[0]!;
+  const asked = Number(input.dailyGoal);
+  const goal = Number.isFinite(asked) ? Math.min(200, Math.max(5, Math.round(asked))) : DEFAULT_DAILY_GOAL;
 
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.displayName, cleanDisplayName(input?.displayName) || "A learner"),
-    writeSetting(ownerId, SETTING_KEYS.cefrGoal, input.cefr),
+    writeSetting(ownerId, SETTING_KEYS.cefrGoal, cefr),
     /*
       The level somebody declares at sign-up is the best guess available until
       they take the placement test, and the course needs *some* starting point
@@ -1884,7 +1916,7 @@ export async function completeOnboarding(input: {
       it must never outrank the check sat on the next screen of this same
       wizard. The blank clears a stamp left by an earlier life of the account.
     */
-    writeSetting(ownerId, SETTING_KEYS.cefrPlacement, input.cefr),
+    writeSetting(ownerId, SETTING_KEYS.cefrPlacement, cefr),
     writeSetting(ownerId, SETTING_KEYS.cefrPlacementAt, ""),
     writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(goal)),
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
@@ -1900,7 +1932,7 @@ export async function completeOnboarding(input: {
       Writing it at the end of first run pins where they actually started, and
       finishing a part is the only thing that moves it.
     */
-    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(input.cefr)),
+    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(cefr)),
     input.goals
       ? saveGoals(ownerId, normaliseGoals({
           reason: input.goals.reason ?? null,
@@ -4107,6 +4139,9 @@ const ExamSubmissionSchema = z.object({
  */
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
+
+  const busy = throttleAction(ownerId, "submitExam");
+  if (busy) return busy;
 
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };

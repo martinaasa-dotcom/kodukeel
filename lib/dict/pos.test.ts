@@ -1,6 +1,7 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { hasNoFields, resolvePos } from "./pos";
+import { ENTRY_POS, hasNoFields, isEntryPos, resolvePos } from "./pos";
 
 /**
  * Each case here is a real page whose label was wrong, or was right and could
@@ -94,5 +95,25 @@ describe("hasNoFields", () => {
     expect(hasNoFields("OTHER")).toBe(false);
     expect(hasNoFields(null)).toBe(false);
     expect(hasNoFields(undefined)).toBe(false);
+  });
+});
+
+describe("isEntryPos", () => {
+  it("takes every type the add-a-word form offers and nothing else", () => {
+    // The server refuses anything outside ENTRY_POS, so the form offering a
+    // type the list lacks is a word nobody can save, and the reverse is a
+    // type the server would store that no screen lets anybody pick.
+    const form = readFileSync("app/(app)/dictionary/AddWord.tsx", "utf8");
+    const offered = [...form.matchAll(/<option value="([A-Z]+)">/g)].map((m) => m[1]);
+    expect(offered.length).toBeGreaterThanOrEqual(5);
+    expect([...offered].sort()).toEqual([...ENTRY_POS].sort());
+  });
+
+  it("refuses what is not a part of speech", () => {
+    expect(isEntryPos("NOUN")).toBe(true);
+    expect(isEntryPos("noun")).toBe(false);
+    expect(isEntryPos("")).toBe(false);
+    expect(isEntryPos(42)).toBe(false);
+    expect(isEntryPos(undefined)).toBe(false);
   });
 });

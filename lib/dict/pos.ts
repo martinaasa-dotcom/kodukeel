@@ -84,6 +84,20 @@ export function hasNoFields(pos: string | null | undefined): boolean {
   return pos === "PHRASE" || pos === "ADVERB";
 }
 
+/**
+ * Every part of speech a person may give an entry by hand.
+ *
+ * `createLexeme` and `editDictionary` are public endpoints writing the shared
+ * dictionary, and `pos` is half of `Lexeme`'s conflict key, so a value off the
+ * wire that is none of these would be a second row beside the real one that no
+ * screen knows how to draw. The add-a-word form offers exactly this list.
+ */
+export const ENTRY_POS = ["NOUN", "VERB", "PRONOUN", "ADJECTIVE", "ADVERB", "PHRASE", "OTHER"] as const;
+
+export function isEntryPos(pos: unknown): pos is (typeof ENTRY_POS)[number] {
+  return typeof pos === "string" && (ENTRY_POS as readonly string[]).includes(pos);
+}
+
 /** Parts of speech a built entry may carry. `Lexeme.pos` also allows PHRASE and OTHER. */
 const NOMINALS = new Set(["NOUN", "ADJECTIVE", "ADVERB"]);
 

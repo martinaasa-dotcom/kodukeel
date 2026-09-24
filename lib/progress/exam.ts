@@ -544,6 +544,18 @@ export async function attemptById(ownerId: string, id: string) {
  * Only ever called after a paper is submitted. An abandoned paper leaves no
  * row, which is the same promise every other mode makes (ADR-016) and the
  * reason there is nothing written when one is started.
+ *
+ * AND ONCE PER SITTING, WHICH IS ONCE PER SEED.
+ *
+ * A seed is minted only by the redirect that opens a new paper, so a second
+ * submission carrying one already stored is the same sitting arriving again: a
+ * double-pressed Submit, a reload, the back button. The grades already knew
+ * that, since `submitExam` keys each one on the seed and the card and the
+ * replay skips an id it holds. The attempt did not, so the one sitting was
+ * listed twice on the hub and in the history, the second time with a result
+ * whose grades had never been applied. The first answer stands and its id is
+ * handed back, under a lock so two presses in the same instant cannot both
+ * find nothing and both write.
  */
 export async function recordAttempt(input: {
   ownerId: string;
@@ -552,7 +564,24 @@ export async function recordAttempt(input: {
   startedAt: Date;
   result: ExamResult;
 }): Promise<string> {
-  const row = await prisma.examAttempt.create({
+  return prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SET LOCAL lock_timeout = '3s'`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`exam:${input.ownerId}:${input.seed}`}, 0))`;
+    const sat = await tx.examAttempt.findFirst({
+      where: { ownerId: input.ownerId, level: input.level, seed: input.seed },
+      orderBy: [{ finishedAt: "asc" }, { id: "asc" }],
+      select: { id: true },
+    });
+    if (sat) return sat.id;
+    return createAttempt(tx, input);
+  });
+}
+
+async function createAttempt(
+  tx: Pick<typeof prisma, "examAttempt">,
+  input: { ownerId: string; level: ExamLevel; seed: string; startedAt: Date; result: ExamResult },
+): Promise<string> {
+  const row = await tx.examAttempt.create({
     data: {
       ownerId: input.ownerId,
       level: input.level,
