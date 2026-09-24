@@ -51,6 +51,19 @@ window, a per-user day, and a global day cap) and there is no way to switch it o
 closed, and an unrecognised model prices at the dearest rate in the table rather than at zero,
 because a cap that fails open is not a cap.
 
+**And the table above is the chain as it was, 2026-09.** OpenRouter has left it entirely.
+`PROVIDER_KEY_ENV` in `lib/tutor/provider.ts` is the whole list of keys a deployment can hold today:
+
+| Key in `.env` | Where it sits |
+|---|---|
+| `GROQ_API_KEY` | First in the general chain, and the fixed second link behind Gemini on scenes, the grader and Anu |
+| `GEMINI_API_KEY` | Second in the general chain, and first for the purposes measured to want it: scenes, the scanner, Anu and the grader |
+| `ANTHROPIC_API_KEY` | The bounded last resort, behind every purpose but Anu's and taken off the chain once the day's fallback budget is spent |
+| `OPENAI_API_KEY` | Behind Anthropic on the general chain only, on the same budget; no purpose reaches it |
+
+Which model each purpose asks for is a measured decision rather than a default, and CLAUDE.md
+("There is a model per purpose") is where the measurements are.
+
 ## 3. What is built
 
 | Area | State |

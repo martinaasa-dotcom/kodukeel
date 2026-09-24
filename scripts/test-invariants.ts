@@ -12674,6 +12674,33 @@ check("every command the README and CLAUDE.md name is a script that exists", () 
 
   const missing = [...named].filter((name) => !scripts.has(name)).sort();
   assert.deepEqual(missing, [], "the documentation names an npm script package.json does not have");
+
+  /*
+    And the comments, which are where a maintainer is told what to run.
+    `lib/tutor/provider.ts` said four times that the scanner's model was chosen
+    by `npm run eval:scan` and the grader's by `npm run eval:grader`, and neither
+    was a script: both files were in `scripts/` with no entry in package.json,
+    so the instruction beside the decision failed on the one command it named.
+    `lib/estonian/grammarExamples.ts` named `audit:grammar-pins`, which is the
+    file's name and not the script's. Read raw rather than through `code()`,
+    because the comment is exactly the thing being checked.
+  */
+  const HYPOTHETICAL: Record<string, string> = {
+    "test:whatever": "a stand-in name in an invariant's own comment about renamed scripts",
+  };
+  const inSource = new Map<string, string>();
+  for (const file of [...sourceFiles("lib"), ...sourceFiles("app"), ...sourceFiles("components"), ...sourceFiles("scripts", /\.(ts|mjs)$/)]) {
+    for (const m of read(file).matchAll(/npm run (?:-{1,2}[a-z][\w-]*\s+)*([a-z][\w:-]*)/g)) {
+      if (!scripts.has(m[1]!) && !(m[1]! in HYPOTHETICAL)) inSource.set(m[1]!, file);
+    }
+  }
+  assert.deepEqual(
+    [...inSource].map(([name, file]) => `${name} (${file})`),
+    [],
+    "a comment tells a maintainer to run an npm script package.json does not have",
+  );
+  const stale = Object.keys(HYPOTHETICAL).filter((name) => scripts.has(name));
+  assert.deepEqual(stale, [], `a name exempted as hypothetical is a real script now: ${stale.join(", ")}`);
 });
 
 check("the README's dictionary size is the seed's own count", () => {
@@ -13795,6 +13822,42 @@ check("each routed purpose asks for its own chain", () => {
  * verdict. Anchored on the call rather than the import, for the reason six other
  * checks in this file are.
  */
+check("the model configuration CLAUDE.md describes is the one the code reads", () => {
+  /*
+    The section opened "free first: OpenRouter (default), Anthropic, then
+    OpenAI" and named `OPENROUTER_VISION_MODEL` as how a deployment chooses its
+    scanner, months after OpenRouter left the chain: `PROVIDER_KEY_ENV` is the
+    whole list of keys a deployment can hold and has not included it since, and
+    no line of `lib/` or `app/` reads either variable. A reader setting up a
+    deployment from that paragraph sets a key nothing reads and gets no model.
+
+    So every environment variable the section names has to be one the code
+    reads, and every key in `PROVIDER_KEY_ENV` has to be named there. The
+    history elsewhere in the file may mention a retired key, and does; this
+    section describes what is true now.
+  */
+  const doc = read("CLAUDE.md");
+  const start = doc.indexOf("\n## Model configuration\n");
+  assert.ok(start >= 0, "CLAUDE.md has no Model configuration section, so this is looking in the wrong place");
+  const end = doc.indexOf("\n## ", start + 5);
+  const section = doc.slice(start, end < 0 ? undefined : end);
+  const named = [...new Set([...section.matchAll(/`([A-Z][A-Z0-9]*_(?:API_KEY|VISION_MODEL))`/g)].map((m) => m[1]!))];
+  const source = [...sourceFiles("lib"), ...sourceFiles("app")]
+    .filter((f) => !/\.(?:i)?test\.ts$/.test(f))
+    .map((f) => code(f))
+    .join("\n");
+  const unread = named.filter((name) => !new RegExp(`process\\.env\\.${name}\\b|["']${name}["']`).test(source));
+  assert.deepEqual(unread, [], `CLAUDE.md's model section names a variable nothing reads: ${unread.join(", ")}`);
+  // A floor, because a section that names nothing passes the line above.
+  assert.ok(named.length >= 8, `only ${named.length} variable(s) named in the section; the pattern moved`);
+
+  const keys = [...code("lib/tutor/provider.ts").matchAll(/PROVIDER_KEY_ENV = \[([^\]]*)\]/g)][0]?.[1] ?? "";
+  const listed = [...keys.matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]!);
+  assert.ok(listed.length >= 2, "PROVIDER_KEY_ENV could not be read out of provider.ts");
+  const unnamed = listed.filter((key) => !section.includes(`\`${key}\``));
+  assert.deepEqual(unnamed, [], `CLAUDE.md's model section does not name a key the chain reads: ${unnamed.join(", ")}`);
+});
+
 check("a metered route asks the ledger before offering a last resort", () => {
   const routes = [
     "app/api/scene/route.ts",
