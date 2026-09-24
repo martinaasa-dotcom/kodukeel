@@ -133,7 +133,13 @@ function Nav() {
           boxShadow: "var(--shadow-sm)",
         }}
       >
-        <Link href="/welcome" aria-label="Kodukeel, home">
+        {/*
+          44px tall, which is what a thumb is owed and what the 30px wordmark
+          alone did not give it: the floor in app/globals.css reaches a link
+          that is a lone icon, and this one is an icon and a word. The row is
+          already 45px for the button beside it, so the nav does not grow.
+        */}
+        <Link href="/welcome" aria-label="Kodukeel, home" className="flex min-h-11 items-center">
           <Wordmark size={30} />
         </Link>
         {/*
