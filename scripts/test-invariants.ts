@@ -21595,6 +21595,24 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("Today's homework panel counts what is waiting, not the rows it drew", () => {
+  /*
+    Today reads twelve open tasks to draw, and the panel's hint said
+    "N left" and "N late" off those twelve: a learner with twenty
+    assignments waiting was told twelve were left, and one with fifteen late
+    was told twelve. A count is a count of the table, asked of Postgres, and
+    the drawn rows are only ever the ones there was room for.
+  */
+  const plan = code("components/TodayPlan.tsx");
+  assert.doesNotMatch(plan, /\btasks\.length\}\s*left/,
+    "TodayPlan prints the length of the rows it was handed as the number left, which Today caps at twelve");
+  assert.doesNotMatch(plan, /=\s*overdueCount\(/,
+    "TodayPlan counts late tasks off the rows it was handed, which Today caps at twelve");
+  const today = code("app/(app)/page.tsx");
+  assert.match(today, /prisma\.task\.count\(/,
+    "Today does not count the open tasks, so the panel can only report the rows it drew");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
