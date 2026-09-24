@@ -163,15 +163,14 @@ export default function AccessibilityPage() {
           distinction, so a correct answer says so in words as well as in green.
         </P>
         <P>
-          <strong>Two of the three timed practice rounds can be set to run longer</strong> (WCAG
-          2.2.1, Timing Adjustable). The Case Sprint is a minute and the daily quest is two
-          minutes, and both of those are now a starting point rather than the whole story: one
-          setting stretches whichever round you open, up to ten times as long, which is the
-          figure the criterion itself asks for. It is chosen before the round starts, in
-          Settings, and both start screens link to it. The clock stays, because a speed round
-          without one is a different round, and what was shutting people out was that the length
-          was not theirs to set. Target is the third and that setting does not reach it yet,
-          which is named below rather than left for somebody to find.
+          <strong>The three timed practice rounds can be set to run longer</strong> (WCAG 2.2.1,
+          Timing Adjustable). The Case Sprint is a minute, the daily quest is two minutes and a
+          shot in Target starts at eight seconds, and all of those are now a starting point
+          rather than the whole story: one setting stretches whichever round you open, up to ten
+          times as long, which is the figure the criterion itself asks for. It is chosen before
+          the round starts, in Settings, and every start screen links to it. The clock stays,
+          because a speed round without one is a different round, and what was shutting people
+          out was that the length was not theirs to set.
         </P>
         <P>
           <strong>No audit by a person with a disability using assistive technology has been
@@ -194,15 +193,6 @@ export default function AccessibilityPage() {
             measures something else, which is why that clock is deliberately fixed, but a
             candidate who needs extra time in the real examination has no way to ask for it
             here.
-          </li>
-          <li>
-            <strong>Target runs to a clock nobody can change</strong> (WCAG 2.2.1, Timing
-            Adjustable). Every other practice round with a clock reads the pace set in
-            Settings; this one gives eight seconds for the first question and takes a quarter
-            of a second off for each one answered, down to three and a half, and none of those
-            three numbers is the learner&rsquo;s to move. It is a practice round rather than a
-            measurement, so unlike the examination above there is no argument for the limit
-            being fixed. It is the next thing on this page to fix.
           </li>
           <li>
             <strong>The listening, dictation and minimal-pair rounds require hearing</strong>{" "}

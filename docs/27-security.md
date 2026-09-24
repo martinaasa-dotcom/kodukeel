@@ -451,7 +451,7 @@ being trusted.
 | Data | Erasure has no exemptions, and removes the Supabase Auth identity too | `lib/auth/erase.ts` |
 | Data | Anonymity gate on the research export, four rules | `lib/research/corpus.ts` |
 | Dependencies | Two blocking `npm audit` gates, production and dev | `.github/workflows/ci.yml` |
-| Assurance | Every rule this document cites asserted in CI. The suite prints its own total, 421 on the day this line was written, so the figure is one command rather than a number to trust | `scripts/test-invariants.ts` |
+| Assurance | The invariant suite runs in CI and prints its own total, so the figure is one command rather than a number to trust | `scripts/test-invariants.ts` |
 
 ## 6. What has not been done
 

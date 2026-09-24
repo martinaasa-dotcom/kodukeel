@@ -4,6 +4,8 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { TargetSession } from "./TargetSession";
 import { moduleScopeFrom } from "@/lib/course/scope";
+import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { paceMultiplier, roundPaceFrom } from "@/lib/ux/roundClock";
 
 export const metadata = { title: "Target" };
 
@@ -44,5 +46,10 @@ export default async function TargetPage({
     );
   }
 
-  return <TargetSession questions={questions} />;
+  // The learner's pace, resolved here and handed down as a number, exactly as
+  // the sprint does: a client component has no settings to read.
+  const settings = await readSettings(ownerId, [SETTING_KEYS.roundPace]);
+  const pace = paceMultiplier(roundPaceFrom(settings[SETTING_KEYS.roundPace]));
+
+  return <TargetSession questions={questions} pace={pace} />;
 }
