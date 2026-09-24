@@ -184,9 +184,17 @@ function seededLemmas(): Set<string> {
   return out;
 }
 
+/*
+  A missing anchor throws rather than returning nothing. It returned "", and
+  37 checks slice a function out of a file with this, some of them to assert
+  what is absent from it: rename the function and the slice is empty, so
+  "this body divides by a literal" or "this body queries in a loop" passes on
+  nothing. Measured: `lead` in Today renamed with `Math.round(12 / 6)` put back
+  inside it, and "cards become minutes through one rate" printed PASS.
+*/
 function between(source: string, from: string): string {
   const start = source.indexOf(from);
-  if (start < 0) return "";
+  if (start < 0) throw new Error(`between: anchor not found: ${from.slice(0, 80)}`);
   const rest = source.slice(start + from.length);
   const end = rest.indexOf("\nexport ");
   return end < 0 ? rest : rest.slice(0, end);
