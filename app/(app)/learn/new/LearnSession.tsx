@@ -499,13 +499,15 @@ export function LearnSession({
     */
     let after: LearnScheduling;
     try {
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
     try {
-      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt);
+      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt, undefined, undefined, reviewId);
       if (!res.ok) throw new Error(res.error);
       after = res.scheduling;
     } catch {
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: reviewId,
         cardId: word.cardId,
         rating,
         durationMs,

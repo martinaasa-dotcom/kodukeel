@@ -936,8 +936,10 @@ export function ReviewSession({
       is what tells them either way.
     */
     try {
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
     try {
-      const result = await gradeCard(card.id, rating, duration, answeredAt);
+      const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, reviewId);
       if (!result.ok) throw new Error(result.error);
       scheduled.current.set(card.id, result.scheduling);
     } catch {
@@ -946,7 +948,7 @@ export function ReviewSession({
       // replayed in order with this timestamp once there is a connection —
       // which, because Review is append-only, lands exactly where it would have.
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: reviewId,
         cardId: card.id,
         rating,
         durationMs: duration,
@@ -994,8 +996,15 @@ export function ReviewSession({
     const last = history[history.length - 1];
     if (!last || busy) return;
     setBusy(true);
-    const result = await undoGrade(last.cardId, last.before);
-    if (result.ok) {
+    /*
+      Offline the action throws rather than returning, and without the
+      `finally` the session stayed busy for good: every button on the card
+      disabled, over one press of Undo on a train. Nothing changes on a throw,
+      which is the honest answer to an undo that could not reach the server.
+    */
+    try {
+    const result = await undoGrade(last.cardId, last.before).catch(() => null);
+    if (result?.ok) {
       scheduled.current.set(last.cardId, last.before);
       setHistory((h) => h.slice(0, -1));
       // The card is in front of the learner again, so that showing has not
@@ -1015,7 +1024,9 @@ export function ReviewSession({
       });
       setIndex(last.index);
     }
-    setBusy(false);
+    } finally {
+      setBusy(false);
+    }
   }, [history, busy, queue, forget]);
 
   const checkTyped = useCallback(() => {

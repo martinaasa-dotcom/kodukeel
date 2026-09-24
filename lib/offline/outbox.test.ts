@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  MAX_BACKDATE_DAYS, REPLAY_BATCH, clampReviewedAt, isValidPending, nextBatch,
+  MAX_BACKDATE_DAYS, REPLAY_BATCH, clampReviewedAt, isClientReviewId, isValidPending, nextBatch,
   orderForReplay, withoutSettled, type PendingGrade,
 } from "./outbox";
 
@@ -111,5 +111,16 @@ describe("nextBatch", () => {
 
   it("handles an empty queue", () => {
     expect(nextBatch([])).toEqual([]);
+  });
+});
+
+describe("isClientReviewId", () => {
+  it("takes the id a device generates", () => {
+    expect(isClientReviewId("3f2b8c1e-9a4d-4e21-b6a7-0c5d2e8f1a93")).toBe(true);
+  });
+  it("refuses anything else as a primary key", () => {
+    for (const bad of ["", "short", "a".repeat(65), "has space in it", "semi;colon-12", 42, null, undefined]) {
+      expect(isClientReviewId(bad)).toBe(false);
+    }
   });
 });

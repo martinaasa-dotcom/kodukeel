@@ -109,6 +109,18 @@ export function isValidPending(value: unknown): value is PendingGrade {
   );
 }
 
+/**
+ * An id a device may choose for its own Review row.
+ *
+ * Every one this app writes is `crypto.randomUUID()`, and the online door
+ * takes the id the device picked so that a lost answer and its retry are one
+ * row (`writeGrade`). It becomes a primary key in the one table that is never
+ * repaired, so a caller gets a short run of hex and hyphens and nothing else.
+ */
+export function isClientReviewId(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9A-Za-z-]{8,64}$/.test(value);
+}
+
 /** Batches so one failure costs a small retry rather than the whole backlog. */
 export const REPLAY_BATCH = 50;
 

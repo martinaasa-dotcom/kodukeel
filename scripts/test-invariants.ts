@@ -13269,6 +13269,43 @@ check("a wrong answer records the form it reached for, and only between forms", 
 });
 
 /**
+ * A GRADE QUEUED AFTER A FAILED ONLINE WRITE KEEPS THE ID THE WRITE WAS SENT WITH.
+ *
+ * Every session asked `gradeCard` with no id and, on any throw, queued the
+ * grade under a fresh `crypto.randomUUID()`. A throw is not proof nothing was
+ * written: a write that committed and whose answer was lost on a flaky
+ * connection went to the outbox as a stranger, the replay found no row under
+ * the new id, and the one answer became two permanent rows and two runs of the
+ * scheduler. The id is chosen before asking now and reused in the outbox, and
+ * `writeGrade` treats an id already written as an answer already applied.
+ *
+ * Swept rather than listed: every file that queues a grade, and every call in
+ * it, has to hand `gradeCard` the id it queues.
+ */
+check("a grade queued after a failed online write keeps the id it was sent with", () => {
+  const files = sourceFiles("app").concat(sourceFiles("components"))
+    .filter((f) => /enqueueGrade\(\{/.test(code(f)));
+  assert.ok(files.length >= 4, `only ${files.length} file(s) queue a grade; the sweep has lost them`);
+  const bad: string[] = [];
+  for (const file of files) {
+    const source = code(file);
+    for (const m of source.matchAll(/enqueueGrade\(\{([\s\S]*?)\}\)/g)) {
+      const id = /\bid:\s*([A-Za-z_$][\w$]*)\s*,/.exec(m[1]!)?.[1];
+      if (!id) { bad.push(`${file}: queues an id that is not a named value`); continue; }
+      const calls = [...source.matchAll(/gradeCard\(([\s\S]*?)\)/g)];
+      if (!calls.some((c) => new RegExp(`\\b${id}\\b`).test(c[1]!))) {
+        bad.push(`${file}: queues ${id} without having sent it to gradeCard`);
+      }
+    }
+  }
+  assert.deepEqual(bad, [], `a lost online answer would be replayed as a second one:\n${bad.join("\n")}`);
+  assert.match(code("lib/srs/grade.ts"), /findUnique\(\{\s*where:\s*\{\s*id:\s*reviewId/,
+    "writeGrade no longer treats an id already written as an answer already applied");
+  assert.match(code("lib/srs/grade.ts"), /\$transaction\(\[/,
+    "writeGrade writes the review and the card's scheduling apart again");
+});
+
+/**
  * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
  *
  * `PendingGrade` carried `slot`, IndexedDB stored it, `ReplayItem` accepted it
