@@ -7345,42 +7345,91 @@ check("a response built out of one learner's own rows is never cacheable", () =>
   /*
     THE FRAMEWORK'S SILENCE IS NOT A CACHE POLICY.
 
-    `/api/share` renders a picture carrying a name, a streak and an XP total,
-    and `ImageResponse` stamps `public, immutable, max-age=31536000` on
-    anything that does not say otherwise: measured on the running build, three
-    fetches made one request, the last two served from the browser's own cache
-    after everything a sign-out clears had been cleared. `/api/export` and
-    `/api/reminder` sent no freshness directive at all, and the export is
-    every review, every conversation and every exam composition the learner
-    has written.
+    `/api/share` renders a picture carrying a name and a streak, and
+    `ImageResponse` stamps `public, immutable, max-age=31536000` on anything
+    that does not say otherwise: measured on the running build, three fetches
+    made one request, the last two served from the browser's own cache after
+    everything a sign-out clears had been cleared. `/api/export` and
+    `/api/reminder` sent no freshness directive at all, and the export is every
+    review, every conversation and every exam composition the learner has
+    written.
 
-    So a Route Handler that resolves an owner says who the response belongs
-    to. `no-store` and a `Cookie` vary, asserted from the source, because the
-    next such route will inherit the same silence.
+    AND THE FIRST VERSION OF THIS CHECK COULD SEE FIVE ROUTES OF TWELVE. It
+    skipped any route that did not build its answer with `new Response(` or
+    `ImageResponse(`, which is every route answering with `Response.json(` or
+    `NextResponse.json(`, and where it did look it asked whether the file
+    mentioned the header once. Four owner-scoped routes, the writing grader,
+    the picture grader, the exam composition note and the restore, carried no
+    cache directive anywhere, and 52 of the 59 responses the twelve return
+    carried none, under a rule that said every one of them did. So it reads
+    every response construction in every route that resolves an owner, and
+    asks each one.
+
+    ONE DEFINITION. `NO_STORE` and `PRIVATE_NO_STORE` live in
+    `lib/security/headers.ts`, and a route spelling the string for itself is a
+    second answer to the question that one module exists to settle.
   */
+  // Comments and string contents masked to the same length, so a paren inside
+  // an error message cannot unbalance the walk and an offset still means what
+  // it meant in the file.
+  const mask = (t: string) => {
+    let out = "";
+    for (let i = 0; i < t.length;) {
+      const c = t[i], n = t[i + 1];
+      if (c === "/" && n === "*") {
+        const e = t.indexOf("*/", i + 2), end = e < 0 ? t.length : e + 2;
+        out += t.slice(i, end).replace(/[^\n]/g, " "); i = end; continue;
+      }
+      if (c === "/" && n === "/" && t[i - 1] !== ":") {
+        const e = t.indexOf("\n", i), end = e < 0 ? t.length : e;
+        out += " ".repeat(end - i); i = end; continue;
+      }
+      if (c === '"' || c === "'" || c === "`") {
+        let j = i + 1;
+        while (j < t.length && t[j] !== c) { if (t[j] === "\\") j++; j++; }
+        out += c + t.slice(i + 1, j).replace(/[^\n]/g, "x") + (t[j] ?? ""); i = j + 1; continue;
+      }
+      out += c; i++;
+    }
+    return out;
+  };
+  const callAt = (src: string, open: number) => {
+    let depth = 0;
+    for (let i = open; i < src.length; i++) {
+      if ("([{".includes(src[i]!)) depth++;
+      else if (")]}".includes(src[i]!) && --depth === 0) return src.slice(open, i + 1);
+    }
+    return src.slice(open);
+  };
+
   const routes = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f));
   const owned = routes.filter((f) => /requireUserId\(/.test(code(f)));
-  assert.ok(owned.length >= 3, "no route handler resolves an owner any more");
+  assert.ok(owned.length >= 10, `only ${owned.length} route handlers resolve an owner, where there were twelve`);
+
+  let responses = 0;
+  const bare: string[] = [];
+  const spelled: string[] = [];
   for (const file of owned) {
-    const src = code(file);
-    // A route that only ever writes has nothing to cache; the ones that hand
-    // back a body built from the learner's rows are the ones this is about.
-    if (!/new Response\(|ImageResponse\(/.test(src)) continue;
-    assert.match(
-      src,
-      /"cache-control":\s*"(private, )?no-store"/,
-      `${file} builds a response from one learner's rows without saying it is not to be kept`,
-    );
-    /*
-      A download and a picture are the two shapes a cache in front of the app
-      would otherwise be free to keep and hand on, so those say whose they are
-      as well as that they are not to be stored.
-    */
-    if (/content-disposition|ImageResponse\(/.test(src)) {
-      assert.match(src, /"cache-control":\s*"private, no-store"/, `${file} is a download or a picture and does not say it is private`);
-      assert.match(src, /vary:\s*"Cookie"/, `${file} does not vary on the cookie that chose it`);
+    const src = mask(read(file));
+    // Read off `code()` rather than the masked text: masking blanks every
+    // string's contents, which is exactly where this would be spelled.
+    if (/["']cache-control["']\s*:/.test(code(file))) spelled.push(file);
+    const download = /["']content-disposition["']|ImageResponse\(/.test(code(file));
+    for (const m of src.matchAll(/(?:new (?:Next)?Response|Response\.json|NextResponse\.json|new ImageResponse)\s*\(/g)) {
+      responses += 1;
+      const call = callAt(src, m.index! + m[0].length - 1);
+      const line = src.slice(0, m.index).split("\n").length;
+      if (!/headers\s*:\s*(?:\{[^}]*\.\.\.)?\s*(PRIVATE_)?NO_STORE\b/.test(call)) bare.push(`${file}:${line}`);
+      else if (download && !/PRIVATE_NO_STORE/.test(call)) {
+        bare.push(`${file}:${line} (a download or a picture, and not said to be private)`);
+      }
     }
   }
+  // A floor on the responses as well as the routes, because the pattern that
+  // finds a response is the thing most likely to stop matching quietly.
+  assert.ok(responses >= 45, `found only ${responses} responses across ${owned.length} owner-scoped routes`);
+  assert.deepEqual(bare, [], `an owner-scoped route returns a response that does not say it is not to be kept: ${bare.join(", ")}`);
+  assert.deepEqual(spelled, [], `spells its cache directive for itself rather than reading lib/security/headers.ts: ${spelled.join(", ")}`);
 });
 
 check("a call is booked only once the request is worth answering", () => {
@@ -7392,19 +7441,33 @@ check("a call is booked only once the request is worth answering", () => {
     empty posts left four pending calls against the global budget and spent
     four of that learner's ten for the day. Every paid route validates first.
   */
-  const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f));
+  /*
+    AND THE FIRST VERSION COULD NOT FAIL. It had no floor, so a rename of
+    `authoriseCall` would have skipped every route and passed, and its second
+    assertion was `before.length > 0` over the text in front of the first
+    booking, which every file with an import line satisfies. What that line
+    was reaching for is the claim in the paragraph above: the request is read,
+    and can be refused, before anything is booked.
+  */
+  const paid = ALL
+    .filter((f) => /^app\/api\/.*route\.tsx?$/.test(f))
+    .filter((f) => code(f).includes("authoriseCall("));
+  assert.ok(paid.length >= 5, `only ${paid.length} routes book a call, where there were seven`);
   for (const file of paid) {
     const src = code(file);
     const at = src.indexOf("authoriseCall(");
-    if (at === -1) continue;
     const before = src.slice(0, at);
     assert.ok(
       !/status:\s*400/.test(src.slice(at)) || /releaseReservation\(/.test(src.slice(at)),
       `${file} can refuse a request after booking it without handing the booking back`,
     );
-    assert.ok(
-      before.length > 0,
-      `${file} books a call before it has read anything about the request`,
+    assert.match(
+      before, /safeParse\(|\.json\(\)|formData\(\)/,
+      `${file} books a call before it has read the request`,
+    );
+    assert.match(
+      before, /status:\s*400/,
+      `${file} books a call before it could have refused a malformed request`,
     );
   }
 });

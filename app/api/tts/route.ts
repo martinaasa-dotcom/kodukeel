@@ -10,6 +10,7 @@ import { DEFAULT_VOICE, voiceFrom, VOICES } from "@/lib/audio/voice";
 import { prepareClip, WavError } from "@/lib/audio/wav";
 import { spokenText } from "@/lib/audio/say";
 import { reportError } from "@/lib/observability/report";
+import { NO_STORE } from "@/lib/security/headers";
 
 const TARTU_NLP = "https://api.tartunlp.ai/text-to-speech/v2";
 const MAX_CHARS = 400;
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
     */
     const body = (await request.json()) as { text?: unknown; voice?: unknown };
     if (typeof body.text !== "string" || !body.text.trim()) {
-      return NextResponse.json({ error: "Nothing to say." }, { status: 400 });
+      return NextResponse.json({ error: "Nothing to say." }, { headers: NO_STORE, status: 400 });
     }
     /*
       Finished, rather than as typed. TartuNLP reads sentences, and a bare
@@ -134,7 +135,7 @@ export async function POST(request: Request) {
     */
     if (typeof body.voice === "string" && VOICES.some((v) => v.id === body.voice)) voice = voiceFrom(body.voice);
   } catch {
-    return NextResponse.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return NextResponse.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
 
   const speaker = voice ?? voiceFrom(process.env.TTS_SPEAKER ?? DEFAULT_VOICE);
@@ -174,7 +175,7 @@ export async function POST(request: Request) {
   if (!ownerId) {
     return Response.json(
       { error: "That clip is not stored yet, and we could not tell who is asking. Try again in a moment." },
-      { status: 503, headers: { "retry-after": "30" } },
+      { status: 503, headers: { ...NO_STORE, "retry-after": "30" } },
     );
   }
   const decision = await authoriseCall(ownerId, "TTS");
@@ -183,9 +184,10 @@ export async function POST(request: Request) {
       { error: decision.message, reason: decision.reason },
       {
         status: 429,
-        headers: decision.retryAfterSeconds
-          ? { "retry-after": String(decision.retryAfterSeconds) }
-          : undefined,
+        headers: {
+          ...NO_STORE,
+          ...(decision.retryAfterSeconds ? { "retry-after": String(decision.retryAfterSeconds) } : {}),
+        },
       },
     );
   }
@@ -231,7 +233,7 @@ export async function POST(request: Request) {
     const status = error instanceof SpeechError ? error.status : 503;
     const message =
       status === 502 ? "Speech service could not read that." : "Speech service unreachable.";
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json({ error: message }, { headers: NO_STORE, status });
   }
 }
 
@@ -323,7 +325,7 @@ function wav(body: Buffer, cache: AudioSource | "joined") {
   return new NextResponse(new Uint8Array(body), {
     headers: {
       "content-type": "audio/wav",
-      "cache-control": "no-store",
+      ...NO_STORE,
       // Which of the three caches answered, for the offline smoke test and for
       // anybody wondering whether the disk store is doing its job.
       "x-tts-cache": cache,

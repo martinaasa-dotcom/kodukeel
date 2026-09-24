@@ -6829,6 +6829,17 @@ composition somebody has written. Every owner-scoped route says `no-store` now, 
 a shared cache would otherwise keep, a download and a picture, say `private` and vary on the
 cookie that chose them. Asserted, because the next such route inherits the same silence.
 
+**And the assertion could see five routes of twelve, so the sentence above was false for a while.**
+It skipped any route that did not build its answer with `new Response(` or `ImageResponse(`, which
+is every route answering with `Response.json(` or `NextResponse.json(`, and where it did look it
+asked only whether the file mentioned the header once. Four owner-scoped routes carried no cache
+directive at all, the writing grader, the picture grader, the exam composition note and the
+restore, and 52 of the 59 responses the twelve return carried none. `NO_STORE` and
+`PRIVATE_NO_STORE` in `lib/security/headers.ts` are the one definition now, every response reads
+one of them, and the check walks every response construction in every route that resolves an
+owner, with a floor on the responses as well as the routes because the pattern that finds a
+response is the thing most likely to stop matching quietly.
+
 **A call is booked once the request is worth answering, and not before.** The ledger writes a call
 down when it authorizes it, which is what stops ten tabs reading the same "under the limit"; the
 price of that is that anything refused afterwards has to hand the booking back. `/api/tutor`
