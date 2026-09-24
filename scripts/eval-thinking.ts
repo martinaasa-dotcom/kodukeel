@@ -44,7 +44,7 @@ import { gateFor, runGate } from "../lib/scenes/gate";
 import { words } from "../lib/scenes/lexicon";
 import { topicForms } from "../lib/scenes/retrieval";
 import { sceneById } from "../lib/scenes/catalogue";
-import { scriptedFor } from "../lib/scenes/scripted";
+import { bankTopic, scriptedFor } from "../lib/scenes/scripted";
 import { billedOutput, SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { UNKNOWN_MODEL, normaliseModel, priceFor } from "../lib/usage/pricing";
 import { HARNESS_LEVEL, keylessContext, vouchOf } from "./lib/sceneDraft";
@@ -279,7 +279,7 @@ async function main() {
       const vouched = await vouchOf(context.lexicon, words(answer.text));
       const verdict = runGate(answer.text, beat, gateFor(beat.id, {
         ...context.gate,
-        topic: topicForms(beat, context.lexicon),
+        topic: new Set([...topicForms(beat, context.lexicon), ...bankTopic(sceneById(sceneId)!, beat)]),
         vouched: (word: string) => vouched.has(word),
       }));
       if (verdict.failed.length > 0) refused += 1;

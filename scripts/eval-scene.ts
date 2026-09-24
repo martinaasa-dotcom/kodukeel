@@ -43,6 +43,7 @@ import { formsOf, words, type Lexicon } from "../lib/scenes/lexicon";
 import { CHECKS, governmentSuspect, runGate, type Check } from "../lib/scenes/gate";
 import { retryNote } from "../lib/scenes/line";
 import { topicForms } from "../lib/scenes/retrieval";
+import { bankTopic } from "../lib/scenes/scripted";
 import { SYLLABUS } from "../lib/collections/syllabus";
 import { lemmasOfForm } from "../lib/dict/forms";
 import {
@@ -153,7 +154,8 @@ async function partA() {
           const vouched = await vouchOf(lexicon, words(text));
           return {
             ...gateContext(lexicon, wrongRegister),
-            topic: topicForms(beat, lexicon),
+            // The route's own topic: the beat's lemmas and its banked lines' words.
+            topic: new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
             vouched: (word: string) => vouched.has(word),
           };
         };

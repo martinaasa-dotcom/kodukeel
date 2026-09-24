@@ -13986,7 +13986,7 @@ check("a measurement sends what the route sends, and reads what it reads", () =>
       [...text.matchAll(/runGate\([^;]*?gateFor\(/g)].length, gates,
       `${file} gates a composed line without gateFor, so the register curveball is judged by the one check it cannot pass`,
     );
-    assert.match(text, /topic:\s*topicForms\(/, `${file} gates a composed line without the beat's topic, which is the check that withholds most live lines`);
+    assert.match(text, /topic:\s*new Set\(\[\.\.\.topicForms\([^)]*\), \.\.\.bankTopic\(/, `${file} gates a composed line without the route's topic (the beat's lemmas and its banked lines' words, lib/progress/scene.ts), so it counts topic refusals the app never makes`);
     assert.match(text, /vouched:\s*\(?\w+(?::\s*string)?\)?\s*=>\s*\w+!?\.has\(/, `${file} gates a composed line without the forms list behind vouching`);
     assert.doesNotMatch(text, /vouched:\s*\(\)\s*=>\s*true/, `${file} switches vouching off, so it measures a gate with one check missing`);
   }

@@ -42,7 +42,7 @@ import { appendFileSync, mkdirSync } from "node:fs";
 import { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { gateFor, runGate, type Check } from "../lib/scenes/gate";
 import { SCENES } from "../lib/scenes/catalogue";
-import { scriptedFor } from "../lib/scenes/scripted";
+import { bankTopic, scriptedFor } from "../lib/scenes/scripted";
 import { stageFor } from "../lib/scenes/reply";
 import { words } from "../lib/scenes/lexicon";
 import { topicForms } from "../lib/scenes/retrieval";
@@ -369,7 +369,8 @@ async function main() {
           const verdict = text
             ? runGate(text, beat, gateFor(beat.id, {
               ...gate,
-              topic: topicForms(beat, lexicon),
+              // The route's own topic: the beat's lemmas and its banked lines' words.
+              topic: new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
               vouched: (word: string) => vouched!.has(word),
             }))
             : null;
