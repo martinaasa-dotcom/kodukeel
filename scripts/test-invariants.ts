@@ -3660,6 +3660,25 @@ check("there is one shuffle, and the sort-comparator kind is not a shuffle at al
       + `that reads better as two shuffles concatenated than as a key trick whose two `
       + `ranges happen not to overlap.`,
     );
+    /*
+      And Fisher-Yates wherever it is written, not only inside a function
+      called `shuffle`. The arm above that reads for the function name let a
+      loop straight through: `SentenceSession.tsx` shuffled its tiles with the
+      algorithm inline in a `useMemo`, correct and the ninth copy, which is the
+      thing this check exists to stop, and `shuffleArray` or `_shuffle` would
+      have passed the same way. What every copy shares is a loop walking an
+      index down to 1 and drawing a partner up to and including it,
+      `random() * (i + 1)` on that same counter, so that is the shape read.
+      The loop is part of the pattern on purpose: the draw alone is also how
+      anybody picks a random integer from nought to n, and the first version of
+      this fired on exactly that in `corpus.test.ts`, which is a check people
+      learn to waive.
+    */
+    assert.ok(
+      !/for\s*\(\s*let\s+(\w+)\s*=[^;]+;\s*\1\s*>\s*0\s*;\s*(?:\1--|--\1|\1\s*-=\s*1)\s*\)[\s\S]{0,200}?Math\.floor\(\s*[\w.]+\(\)\s*\*\s*\(\s*\1\s*\+\s*1\s*\)\s*\)/.test(src),
+      `${file}: a Fisher-Yates shuffle written out by hand. Use shuffle() from ${SHUFFLE_HOME}, `
+      + `which takes the generator as a parameter if the draw has to be seeded.`,
+    );
   }
 
   // And the exception carries its reason, so nobody reads it as an oversight.

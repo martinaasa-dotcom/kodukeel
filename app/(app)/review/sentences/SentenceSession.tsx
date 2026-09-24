@@ -10,6 +10,7 @@ import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
 import { sentenceTiles } from "@/lib/estonian/cloze";
+import { shuffle } from "@/lib/random/shuffle";
 import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordOrder";
 import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
@@ -126,11 +127,7 @@ export function SentenceSession(
   const tiles = useMemo(() => {
     if (!task || !mounted) return [];
     const words = sentenceTiles(task.et);
-    const order = words.map((_, i) => i);
-    for (let i = order.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [order[i], order[j]] = [order[j]!, order[i]!];
-    }
+    const order = shuffle(words.map((_, i) => i));
     // A shuffle that happens to be the right order is not an exercise.
     if (order.every((v, i) => v === i) && order.length > 1) order.reverse();
     return order.map((i) => ({ index: i, word: words[i]! }));
