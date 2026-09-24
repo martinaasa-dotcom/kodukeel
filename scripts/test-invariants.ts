@@ -2596,7 +2596,7 @@ check("every practice mode writes to the same review log", () => {
     below holds that door to gradeCard the way submitExam's holds its own.
   */
   const sessions = SESSION_FILES().filter((f) => !MEASURES_RATHER_THAN_PRACTISES.includes(f));
-  assert.ok(sessions.length >= 6, `expected the practice sessions, found ${sessions.length}`);
+  assert.ok(sessions.length >= 21, `expected the practice sessions, found ${sessions.length}`);
   for (const file of sessions) {
     assert.match(
       code(file),
@@ -2765,7 +2765,7 @@ check("a session never lets its questions change under the learner", () => {
     index into it directly.
   */
   const sessions = SESSION_FILES();
-  assert.ok(sessions.length >= 6, `expected the practice and exam sessions, found ${sessions.length}`);
+  assert.ok(sessions.length >= 21, `expected the practice and exam sessions, found ${sessions.length}`);
   for (const file of sessions) {
     const source = code(file);
     // The exam session hands its answers to a Server Action rather than grading
@@ -5713,7 +5713,7 @@ check("a government question never offers a case the word itself governs", () =>
 
   const multi = verbs.filter((v) => v.government.alsoGoverned.length > 0);
   assert.ok(
-    multi.length > 20,
+    multi.length > 48,
     `expected verbs governing more than one case, found ${multi.length}: either the dictionary ` +
     "changed shape or the parser stopped reading past the first case name",
   );
@@ -7360,7 +7360,7 @@ check("a response built out of one learner's own rows is never cacheable", () =>
   */
   const routes = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f));
   const owned = routes.filter((f) => /requireUserId\(/.test(code(f)));
-  assert.ok(owned.length >= 3, "no route handler resolves an owner any more");
+  assert.ok(owned.length >= 9, "the sweep for route handlers that resolve an owner stopped finding them");
   for (const file of owned) {
     const src = code(file);
     // A route that only ever writes has nothing to cache; the ones that hand
@@ -8436,7 +8436,7 @@ check("every browser suite that exists is a browser suite CI runs", () => {
   const declared = readdirSync("scripts")
     .filter((f) => f.endsWith(".mjs"))
     .filter((f) => DECLARES_SUITE.test(read(join("scripts", f))));
-  assert.ok(declared.length > 10, `only found ${declared.length} suites, so this check stopped looking`);
+  assert.ok(declared.length > 24, `only found ${declared.length} suites, so this check stopped looking`);
 
   const workflow = read(join(".github", "workflows", "ci.yml"));
   const exempt = NOT_IN_CI as Record<string, string>;
@@ -8873,7 +8873,7 @@ check("a suite that reveals a review card knows all the shapes it comes in", () 
   const suites = readdirSync("scripts")
     .filter((f) => f.endsWith(".mjs"))
     .filter((f) => DECLARES_SUITE.test(read(join("scripts", f))));
-  assert.ok(suites.length > 10, `only found ${suites.length} suites, so this check stopped looking`);
+  assert.ok(suites.length > 24, `only found ${suites.length} suites, so this check stopped looking`);
 
   let drivers = 0;
   for (const file of suites) {
@@ -9002,7 +9002,7 @@ check("a truncated query in the progress layer ends on the primary key", () => {
   const dir = join("lib", "progress");
   const files = readdirSync(dir)
     .filter((f) => f.endsWith(".ts") && !f.includes(".test.") && !f.includes(".itest."));
-  assert.ok(files.length > 3, `only found ${files.length} files, so this check stopped looking`);
+  assert.ok(files.length > 29, `only found ${files.length} files, so this check stopped looking`);
 
   let looked = 0;
   for (const file of files) {
@@ -9071,7 +9071,7 @@ check("a truncated query in the progress layer ends on the primary key", () => {
       );
     }
   }
-  assert.ok(looked > 8, `only ${looked} truncated queries found, so this check stopped looking`);
+  assert.ok(looked > 26, `only ${looked} truncated queries found, so this check stopped looking`);
 });
 
 /**
@@ -10633,7 +10633,7 @@ check("every marker the merge ritual names is still somewhere in the tree", () =
     .matchAll(/`([^`]+)`/g)].map((m) => m[1]!);
 
   assert.ok(
-    markers.length >= 25,
+    markers.length >= 320,
     `only ${markers.length} markers parsed out of CLAUDE.md; the list or its wording moved`,
   );
 
@@ -10681,7 +10681,7 @@ check("every script a workflow runs is a script that exists", () => {
   assert.deepEqual(missing, [], `a workflow runs an npm script that no longer exists: ${missing.join(", ")}`);
 
   const paths = [...new Set([...yaml.matchAll(/scripts\/([\w.-]+\.(?:mjs|ts))/g)].map((m) => m[1]!))];
-  assert.ok(paths.length >= 5, `only ${paths.length} script paths found in the workflows; the pattern moved`);
+  assert.ok(paths.length >= 27, `only ${paths.length} script paths found in the workflows; the pattern moved`);
   const absent = paths.filter((file) => !existsSync(join("scripts", file)));
   assert.deepEqual(absent, [], `a workflow runs a script file that is not there: ${absent.join(", ")}`);
 });
@@ -12617,7 +12617,7 @@ check("every command the README and CLAUDE.md name is a script that exists", () 
       .flatMap((file) => [...read(file).matchAll(/npm run ([\w:-]+)/g)])
       .map((m) => m[1]!),
   );
-  assert.ok(named.size > 10, "the documentation stopped naming its commands the usual way");
+  assert.ok(named.size > 42, "the documentation stopped naming its commands the usual way");
 
   const missing = [...named].filter((name) => !scripts.has(name)).sort();
   assert.deepEqual(missing, [], "the documentation names an npm script package.json does not have");
@@ -21180,7 +21180,7 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
       // recurring mistake in this repository's own checks, made once more.
       !/\.(test|itest)\.ts$/.test(f),
   );
-  assert.ok(letters.length >= 6, `only found ${letters.length} letter files, so this check stopped looking`);
+  assert.ok(letters.length >= 18, `only found ${letters.length} letter files, so this check stopped looking`);
   for (const file of letters) {
     const source = code(file);
     assert.doesNotMatch(
