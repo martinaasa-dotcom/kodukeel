@@ -6181,6 +6181,33 @@ function ownerScopedModels(): string[] {
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
 
+/*
+  THE COMPOSER'S LIMITS ARE STATED ONCE IN CLAUDE.md, AND THE STATEMENT WENT
+  STALE. The paragraph that says what the leash is now read "forty" words for
+  months after `MAX_COMPOSED_WORDS` moved to fifty-five, so anybody reasoning
+  from the house rules about how long a composed line may be reasoned from the
+  wrong number. Scoped to that paragraph, because the file also quotes the old
+  figures as history ("MAX_SENTENCES is three" is true of the day it records).
+*/
+check("CLAUDE.md states the composer's current limits", () => {
+  const words: Record<string, number> = {
+    two: 2, three: 3, four: 4, five: 5, six: 6, ten: 10, twelve: 12, twenty: 20,
+    "twenty-two": 22, thirty: 30, forty: 40, fifty: 50, "fifty-five": 55, sixty: 60,
+  };
+  const doc = read("CLAUDE.md");
+  const start = doc.indexOf("**The leash came off the composer");
+  assert.ok(start >= 0, "the paragraph stating the composer's limits is gone, so this stopped looking");
+  const para = doc.slice(start, doc.indexOf("\n\n", start));
+  const source = code(join("lib", "scenes", "gate.ts"));
+  for (const name of ["MAX_SENTENCES", "MAX_COMPOSED_WORDS", "NEW_WORDS"]) {
+    const actual = Number(source.match(new RegExp(`const ${name}\\b[^=]*=\\s*(\\d+)`))?.[1]);
+    assert.ok(Number.isFinite(actual), `could not read ${name} out of the scene gate`);
+    const stated = para.match(new RegExp("`" + name + "` is ([a-z-]+)"))?.[1];
+    assert.ok(stated && stated in words, `the paragraph no longer states ${name} as a number word`);
+    assert.equal(words[stated!], actual, `CLAUDE.md says ${name} is ${stated}, the code says ${actual}`);
+  }
+});
+
 check("the actions that do real work per call are throttled", () => {
   /*
     Every mutation a learner makes here is a Server Action, which is a POST to
