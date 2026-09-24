@@ -6248,10 +6248,18 @@ check("every component is reachable from a route and drawn by something", () => 
       arm the moment its name appeared once as a type. Made to fail on exactly
       that shape before the lookbehind went in.
     */
+    /*
+      Drawn by a file that imports this one, not by any file at all. A name is
+      not unique across the tree: four files draw a local `Row`, so an
+      orphaned component exporting `Row` passed on their say-so. Made to fail
+      on exactly that before the import went in.
+    */
+    const importsThis = (other: string) => (imports.get(other) ?? []).includes(file);
     assert.ok(
       exported.some((name) =>
         drawers.some((other) =>
-          other !== file && new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
+          other !== file && importsThis(other) &&
+          new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
       ),
       `${file} exports ${exported.join(", ")} and nothing in the tree draws any of them as an ` +
       `element, so it is imported and rendered nowhere, which is the same silence one line later. ` +
@@ -6264,7 +6272,9 @@ check("every component is reachable from a route and drawn by something", () => 
       part drawn only inside the component beside it is drawn.
     */
     const undrawn = exported.filter(
-      (name) => !drawers.some((other) => new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
+      (name) => !drawers.some((other) =>
+        (other === file || importsThis(other)) &&
+        new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(body.get(other)!)),
     );
     assert.deepEqual(
       undrawn,
