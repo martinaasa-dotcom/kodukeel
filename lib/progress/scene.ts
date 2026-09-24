@@ -34,7 +34,7 @@ import type { TurnContext } from "@/lib/scenes/turn";
 import {
   CLOCK_LEMMA, HOUR_LEMMAS, NUMBER_LEMMAS, dealtHours, numberWords, slotKinds, timeWords, type RoleCard,
 } from "@/lib/scenes/props";
-import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
+import { leafNeeds, type BeatSpec, type SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms, substitutes } from "@/lib/dict/facts";
 import { sensesOf, substitutesFrom } from "@/lib/dict/synonyms";
@@ -1381,7 +1381,14 @@ export function replay(
     if (closeBeat && beat.move !== "close") {
       const bye = readTurn(said, closeBeat, marker);
       const here = readTurn(said, beat, marker);
-      if (bye.reading === "complete" && here.reading !== "complete") {
+      /*
+        A beat that takes any reply at all is complete for every turn, so read
+        on its own it credited the goodbye as the answer: `Nägemist` said to
+        "Täna on ilus ilm" was listed on the debrief as a reply about the
+        weather. On such a beat a goodbye is leaving, like anywhere else.
+      */
+      const takesAnything = leafNeeds(beat.needs).every(({ need }) => need.kind === "any");
+      if (bye.reading === "complete" && (here.reading !== "complete" || takesAnything)) {
         state = { ...state, beat: closeAt, patience: patienceAt(context.scene, state, closeAt), hurdle: null };
         ({ state, response } = advance(context.scene, state, bye, said, false, heardNow));
         previous = heardNow;

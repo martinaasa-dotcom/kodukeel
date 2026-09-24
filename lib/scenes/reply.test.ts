@@ -143,6 +143,19 @@ describe("a turn that landed", () => {
     expect(seen.size, "the rotation collapsed to one word").toBeGreaterThan(1);
   });
 
+  /*
+    AN EITHER-OR IS NOT A YES-OR-NO. `Kas suur või väike?` opens on `kas` and
+    is answered with one of the two, so `Jah.` after `suurt` is the waiter not
+    having listened.
+  */
+  it("does not say yes to a question that offered two things", () => {
+    const seen = new Set<string>();
+    for (let met = 0; met < 6; met += 1) {
+      seen.add(replyFor(input({ answered: ASK, met, heard: "Kas suur või väike?", said: "ma tahan suurt palun" }))[0]!.text);
+    }
+    expect(seen).not.toContain("Jah.");
+  });
+
   it("keeps the rotation rather than emptying it where every word was said", () => {
     const said = REACTIONS.acknowledge.join(" ");
     const line = replyFor(input({ answered: ASK, heard: "Kas teil on valu?", said }))[0]!.text;

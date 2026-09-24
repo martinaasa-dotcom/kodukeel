@@ -15672,7 +15672,9 @@ check("the other side may volunteer something, and never says it twice", () => {
     "the rotation may hand the learner their own word back",
   );
   assert.match(
-    reply, /words\(heard\)\[0\] === "kas" : false;/,
+    reply,
+    // Nothing heard reads as no question (`[]`), and an either-or is not a yes-or-no.
+    /const asked = heard \? words\(heard\) : \[\];\s*const polar = asked\[0\] === "kas" && !asked\.includes\(CHOICE_WORD\);/,
     "the polar reading stopped being a reading of the question's own first word, or stopped erring "
     + "toward leaving `jah` out where there is nothing to read",
   );
