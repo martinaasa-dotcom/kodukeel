@@ -22,6 +22,7 @@ import { loadRecentMessages } from "@/lib/tutor/history";
 import { mergeExamples, parseExamples, serialiseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
 import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
+import { restoredEntry } from "@/lib/dict/restoredEntry";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { requireAdminId } from "@/lib/auth/admin";
@@ -3128,9 +3129,9 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
 
         So a restore does what the seed does, `ON CONFLICT DO NOTHING`: a word
         the dictionary already holds is left exactly as it is, and a word it
-        does not is created as this learner's own, without the provenance or
-        the Ekilex identifiers that would claim otherwise. Nothing is lost by
-        it, because the cards below point at ids either way.
+        does not is created as this learner's own, carrying only what a hand
+        edit could have supplied (`restoredEntry` says which columns and why).
+        Nothing is lost by it, because the cards below point at ids either way.
       */
       const wanted = backup.lexemes.map((l) => String((l as { id?: unknown }).id ?? ""));
       const present = new Set(
@@ -3138,31 +3139,21 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
           .map((l) => l.id),
       );
       for (const raw of backup.lexemes) {
-        const { forms, ...lex } = raw as Record<string, unknown> & { forms?: unknown[] };
-        const data = revive(lex, ["createdAt", "updatedAt"]);
-        delete data.starred; // dropped field from a pre-multi-user backup
-        if (present.has(String(data.id))) continue;
-
-        // Whoever restores it is who added it, and it is not Ekilex's.
-        data.provenance = "USER";
-        data.editedBy = ownerId;
-        delete data.ekilexWordId;
-        delete data.fetchedAt;
-        delete data.lookupMissAt;
-
-        try {
-          await tx.lexeme.create({ data: data as never });
-        } catch {
-          // Another word already holds this (lemma, pos). Theirs stays.
-          continue;
-        }
-        if (Array.isArray(forms) && forms.length) {
+        const entry = restoredEntry(raw as Record<string, unknown>, ownerId);
+        if (!entry || present.has(entry.lexeme.id)) continue;
+        /*
+          `createMany` with `skipDuplicates` is `ON CONFLICT DO NOTHING`, which
+          is what "theirs stays" needs. It was a `create` inside a try, and
+          Postgres aborts the whole transaction on the first error whether the
+          code catches it or not, so a backup naming a word that now exists
+          under another id failed every statement after it. That is the
+          ordinary case for a backup taken before a reseed.
+        */
+        const made = await tx.lexeme.createMany({ data: [entry.lexeme], skipDuplicates: true });
+        if (made.count === 0) continue;
+        if (entry.forms.length) {
           await tx.form.createMany({
-            data: forms.map((f) => {
-              const form = revive(f as Record<string, unknown>, []);
-              form.lexemeId = String(data.id);
-              return form;
-            }) as never,
+            data: entry.forms.map((f) => ({ ...f, lexemeId: entry.lexeme.id })),
             skipDuplicates: true,
           });
         }

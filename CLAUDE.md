@@ -6846,7 +6846,10 @@ deleted and recreated its forms, taking `lemma`, `provenance`, `editedBy`, `ekil
 `Form` exactly as written: any signed-in learner could rewrite any word every other learner reads,
 forge "retrieved from Ekilex" on their own text, and delete the attested forms underneath. It does
 what the seed does now, `ON CONFLICT DO NOTHING`, and what it creates is marked as the restorer's
-own. `addExample` was the same door one plank narrower: no cap, no throttle, no attribution, and
+own. And it carries only what a hand edit could have supplied (`restoredEntry`): the file's
+sentences come back marked as the learner's and capped at two, only the principal parts come back,
+and no column the Institute fills survives, because a sentence labelled `EKILEX` in a file anybody
+can write was a sentence lent to every other learner's cards. `addExample` was the same door one plank narrower: no cap, no throttle, no attribution, and
 `usableExamples` sorted by length alone, so eight short sentences from one learner pushed every
 Ekilex usage off a word for everybody, including the sentences the mock exam and the level check
 are built from. An attested sentence now outranks a typed one and a learner may occupy at most two.
