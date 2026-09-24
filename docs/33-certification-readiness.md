@@ -69,7 +69,7 @@ of what an ISO Stage 1 readiness review asks to see.
 | **5.1, CC1.** Policies exist as design documents. There is no ISMS with a scope and a Statement of Applicability. | Write the scope, the policy index, the SoA skeleton against all 93 Annex A controls, and one measurable objective. | 2 to 3 days | An ISMS document set in `docs/` | ISO Stage 1 |
 | **6.3.** No awareness programme. | A short written induction covering the rules in `CLAUDE.md` that are security rules, plus a yearly read and acknowledge with a date. | Half a day, then an hour a year | The induction, plus dated acknowledgements | ISO Stage 2, SOC 2 |
 | **6.7, 7.7, 7.9.** Devices are personal machines with full disk encryption and nothing enforcing it. | A device policy, and a per-device attestation that encryption is on, screen lock is set and the OS is current. | 2 hours, then an hour a year | The policy, plus one attestation per machine | ISO Stage 2 |
-| **8.32, CC8.** Pull requests to a protected branch, with no record of the branch protection itself. | Export the branch protection rules and the required checks, and record who may merge. | 2 hours | A settings export committed beside the workflows | SOC 2 |
+| **8.32, CC8.** The default branch is not protected, so CI runs on every change and is not required to pass before a merge. | Turn on branch protection with the CI jobs as required checks, export the rules, and record who may merge. | 2 hours | A settings export committed beside the workflows | SOC 2 |
 | **8.16, CC4, CC7.** Nothing watches the running deployment. | Point `ERROR_WEBHOOK_URL` at a mailbox or channel a person reads, and add a weekly digest of failed jobs and refused requests. This is alerting and it is not a SIEM. | 1 day | The configuration, plus the digest itself | SOC 2 |
 | **5.8, CC4, CC5.** Controls are asserted and the assertion is not recorded. | The control evidence record in section 2. | 1 to 2 days | A dated artifact per CI run | SOC 2 |
 
@@ -143,9 +143,9 @@ Written here rather than left for an auditor to find.
 
 **Segregation of duties.** One person can write a change, approve it and merge it. The compensating
 control is CI on every change, with the security rules asserted rather than reviewed by eye.
-Whether the branch is protected against its own author overriding CI is a repository setting that
-nothing here records, so it is not claimed. CI is a real control and it is not segregation of
-duties. Say so.
+The default branch is not protected: GitHub's branch listing reported `protected: false` for
+`main` on 2026-09-24, so nothing stops the author merging past a red run. CI is a real control and
+it is not segregation of duties. Say so.
 
 **Background screening.** 6.1 is Not done and stays Not done until there is an HR function.
 

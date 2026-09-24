@@ -96,7 +96,7 @@ This is the theme where the work actually is, so it is the longest.
 | 8.1 User endpoint devices | Nothing enforced. Learners use their own browsers, which is the point of a web app. What the app does about a shared device is under 8.12. | | Not applicable |
 | 8.2 Privileged access rights | Reviewer status is an environment variable of exact addresses and cannot be granted by any request, because a privilege a request can grant is one a forged request can grant. Provider consoles are behind those providers' own MFA. | `lib/auth/admin.ts` | Implemented |
 | 8.3 Information access restriction | Every owner scoped query filters on an owner the server resolved. Class and workplace rosters expose effort and never contents. | `lib/auth/session.ts`, `lib/classroom/roster.ts` | Implemented |
-| 8.4 Access to source code | Public repository, protected default branch, CI required. | GitHub | Implemented |
+| 8.4 Access to source code | Public repository; only collaborators can push. CI runs on every push, and the default branch is not protected, so nothing stops a collaborator merging past a red run. | GitHub | Implemented |
 | 8.5 Secure authentication | Token verified against cached signing keys, under a 2,500ms deadline, with three states so an unreachable auth service is not read as a sign-out. Login CSRF defence on the mailed link. | `lib/auth/identity.ts`, `app/auth/callback/route.ts` | Implemented |
 | 8.6 Capacity management | Three spend limits with no off switch, per learner rate limits on routes and actions, and a published cost model. | `lib/usage/quota.ts`, `lib/security/actionLimits.ts`, `/funding` | Implemented |
 | 8.7 Protection against malware | No file execution and no user uploads that are stored. A scanned photograph is decoded in a Route Handler and dropped; `Scan` has no column an image could go in, asserted. | `app/api/scan/` | Implemented |
@@ -122,7 +122,7 @@ This is the theme where the work actually is, so it is the longest.
 | 8.29 Security testing | Automated: invariants, credential scan, dependency gates, browser suites including offline, restore, sign-in and accessibility. **No penetration test.** | `.github/workflows/ci.yml` | Partial |
 | 8.30 Outsourced development | None. | | Not applicable |
 | 8.31 Separation of environments | Preview deployments are disabled for agent branches so the deployment cap is spent on production. Browser suites build into their own output directory. Local mode is keyed on absent configuration and a configured deployment cannot be talked into it. | `vercel.json`, `next.config.ts`, `lib/auth/mode.ts` | Implemented |
-| 8.32 Change management | Pull requests, CI required, protected default branch. No formal change advisory board, which would be one person approving their own work. | GitHub | Partial |
+| 8.32 Change management | Pull requests with CI on every push. The default branch is not protected, so CI is not enforced at merge. No formal change advisory board, which would be one person approving their own work. | GitHub | Partial |
 | 8.33 Test information | Test fixtures are generated, never copied from production. The end-to-end suite and the demo fixture refuse to run against anything but a local database and say so rather than proceeding. | `scripts/demo-data.ts` | Implemented |
 | 8.34 Protection during audit testing | Not applicable. No audit has been run. | | Not applicable |
 
@@ -142,7 +142,7 @@ been performed, there is no Type I and no Type II report, and no service auditor
 | CC5 Control activities | Controls implemented in code and asserted, rather than described in a manual. | Implemented |
 | CC6 Logical and physical access | Authentication, authorisation, credential handling, device forgetting on sign-out, and privileged access that cannot be granted at runtime. Physical is inherited from Vercel and Supabase. | Implemented for logical, Inherited for physical |
 | CC7 System operations | Detection described honestly, incident response with runbooks per incident type, and a review step that asks why nothing caught it. Detection itself is weak: no continuous monitoring. | Partial |
-| CC8 Change management | CI-gated pull requests to a protected branch. No separate approval body. | Partial |
+| CC8 Change management | Pull requests with CI on every push, to a default branch that is not protected. No separate approval body. | Partial |
 | CC9 Risk mitigation | Spend caps that fail closed, rate limits, append-only tables that cannot be edited away, and a restore path that cannot rewrite the shared dictionary. Vendor risk is not formally assessed. | Partial |
 
 ### Availability
