@@ -10119,6 +10119,26 @@ check("a date is written in the reader's own locale, not the server's", () => {
   );
 });
 
+check("the exam date a learner set is printed with its year", () => {
+  /*
+    A goal date is not today's date. First run lets a learner put it a year or
+    more out, and the countdown card on the examination hub printed it as a day
+    and a month: "Your date: September 22" over a deadline in the following
+    September reads as this week. Both halves are read, the `LocalDate` options
+    and the server's fallback, because the fallback is what a reader sees until
+    the browser takes over and a year on one of them is a year on neither.
+  */
+  const source = code("components/ExamCountdown.tsx");
+  const options = source.match(/<LocalDate[\s\S]*?\/>/)?.[0] ?? "";
+  assert.ok(options.length > 0, "ExamCountdown no longer draws the goal date through LocalDate");
+  const yearNamed = options.match(/year: "numeric"/g) ?? [];
+  assert.equal(
+    yearNamed.length, 2,
+    "ExamCountdown prints the goal date without its year in the LocalDate options or its fallback, "
+    + "so a deadline a year out reads as this week",
+  );
+});
+
 /*
   A CONTROL LOOKS LIKE A CONTROL, AND A CHOSEN ONE LOOKS CHOSEN.
 

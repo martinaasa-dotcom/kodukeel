@@ -6,13 +6,17 @@
  * bank of pre-written exams (see lib/exam/paper.ts's own header), so "how many
  * exams do you have" has no fixed answer the way a claim of a stated count
  * does. It is however many seeds produce a paper the dictionary can fill
- * without a shortfall, which is a question worth measuring rather than
- * assuming: `npm run measure:exam-volume -- --seeds=200` is 100.0% fill at
- * every level with zero thin papers and zero duplicate papers across 200
- * distinct seeds each, on the shipped dictionary as of this writing. Re-run it
- * before repeating that figure anywhere, the way `eval:scene` asks to be
- * re-run before its own numbers are quoted: the dictionary grows and a claim
- * about it should be re-measured rather than remembered.
+ * without a shortfall, and how much of one paper the next already asked, which
+ * is a question worth measuring rather than assuming. Re-run it before
+ * repeating a figure from it anywhere, the way `eval:scene` asks to be re-run
+ * before its own numbers are quoted: the dictionary grows and a claim about it
+ * should be re-measured rather than remembered.
+ *
+ * NOT "DUPLICATE PAPERS". The first version counted papers identical item for
+ * item, which is the extreme and never happens: two papers sharing four fifths
+ * of their words are a repeat to the person sitting the second, and that count
+ * read nought for them. What is printed instead is the share of a paper's
+ * words the closest earlier paper already asked about.
  *
  * No database: reads the shipped dictionary through scripts/lib/dictionary.ts,
  * exactly as audit-questions.ts does.
@@ -59,8 +63,9 @@ for (const level of EXAM_LEVELS) {
   let thin = 0;
   let substituted = 0;
   const shortfallByTask = new Map<string, number>();
-  const seenPapers = new Set<string>();
-  let duplicatePapers = 0;
+  const asked: Set<string>[] = [];
+  let overlapSum = 0;
+  let worstOverlap = 0;
 
   for (let s = 0; s < SEEDS; s++) {
     const seed = `vol-${s}`;
@@ -70,11 +75,20 @@ for (const level of EXAM_LEVELS) {
     if (paper.thin) thin++;
     if (paper.substituted) substituted++;
 
-    const fingerprint = paper.parts
-      .flatMap((p) => p.tasks.flatMap((t) => t.items.map((i) => i.id + ":" + i.lemma)))
-      .join("|");
-    if (seenPapers.has(fingerprint)) duplicatePapers++;
-    seenPapers.add(fingerprint);
+    const words = new Set(
+      paper.parts.flatMap((p) => p.tasks.flatMap((t) => t.items.map((i) => i.lexemeId))).filter(Boolean),
+    );
+    let nearest = 0;
+    for (const earlier of asked) {
+      let shared = 0;
+      for (const w of words) if (earlier.has(w)) shared++;
+      if (words.size > 0) nearest = Math.max(nearest, shared / words.size);
+    }
+    if (asked.length > 0) {
+      overlapSum += nearest;
+      worstOverlap = Math.max(worstOverlap, nearest);
+    }
+    asked.push(words);
 
     for (const part of paper.parts) {
       for (const task of part.tasks) {
@@ -95,7 +109,12 @@ for (const level of EXAM_LEVELS) {
   console.log(`  fill rate: mean ${mean.toFixed(1)}%, min ${min}%, max ${max}%`);
   console.log(`  thin papers (any shortfall): ${thin}/${SEEDS}`);
   console.log(`  substituted-shape papers: ${substituted}/${SEEDS}`);
-  console.log(`  duplicate papers across ${SEEDS} seeds: ${duplicatePapers}`);
+  if (SEEDS > 1) {
+    const pct = (x: number) => `${Math.round(x * 100)}%`;
+    console.log(
+      `  words shared with the closest earlier paper: mean ${pct(overlapSum / (SEEDS - 1))}, worst ${pct(worstOverlap)}`,
+    );
+  }
   if (shortfallByTask.size > 0) {
     console.log(`  shortfall by task (total marks missed across ${SEEDS} papers):`);
     for (const [k, v] of [...shortfallByTask.entries()].sort((a, b) => b[1] - a[1])) {
