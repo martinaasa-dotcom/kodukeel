@@ -4917,7 +4917,18 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     block sent after the static prompt so the cached part stays cached.
   */
   const tutorRoute = code("app/api/tutor/route.ts");
-  assert.doesNotMatch(tutorRoute, /body\.level/, "the tutor route reads a level from the client again");
+  /*
+    Read as any way a level comes off the request, not only `body.level`: a
+    destructure (`const { messages, level } = await request.json()`) or an
+    index put the client's number back just as surely and passed the old
+    pattern. The one `level` the route may name is the learner context's own,
+    and the fallback it uses when that cannot be read.
+  */
+  assert.doesNotMatch(
+    tutorRoute,
+    /(?<!\blearner|UNKNOWN_LEARNER)\.level\b|[{,]\s*level\s*[,}=]|\[\s*["'`]level["'`]\s*\]/,
+    "the tutor route reads a level from the client again",
+  );
   assert.match(tutorRoute, /learnerContextFor\(ownerId\)/, "the tutor route no longer asks who is asking");
   assert.match(tutorRoute, /learnerNote\(learner\)/, "the tutor route no longer hands Anu the learner note");
   /*
@@ -9556,14 +9567,43 @@ check("no server action returns an error message it has not redacted", () => {
   const actions = code(join("app", "actions.ts"));
   assert.match(actions, /"use server"/, "app/actions.ts is not a server action file any more");
 
-  const raw = [...actions.matchAll(/\berror(?:\s+instanceof\s+Error\s*\?)?\s*\.?message\b/g)];
-  for (const found of raw) {
-    const line = actions.slice(0, found.index).split("\n").length;
-    assert.fail(
-      `app/actions.ts:${line} puts an error's own message into a value the browser reads. ` +
-      "Use safeMessage from lib/observability/report: a Prisma failure can name the " +
-      "deployment's database host, user and password.",
-    );
+  /*
+    AND THE RULE IS ABOUT WHAT WAS CAUGHT, NOT ABOUT ONE VARIABLE'S NAME.
+
+    This read `error.message` and nothing else, in one file. `catch (e)` and
+    `e.message`, `(err as Error).message`, `String(err)` and `${err}` all hand
+    the browser the same Prisma sentence with the same connection string in
+    it, and all passed; so would any second `"use server"` file, which the
+    comment above calls every such export and the check never opened. So every
+    `"use server"` file is read, the names a `catch` or a `.catch(` binds are
+    collected per file, and each of those is refused wherever it is turned
+    into text. `safeMessage(e)` and `reportError(e, ...)` hand the whole error
+    to a function that redacts it, so they are not a read of it.
+  */
+  const serverFiles = [...APP, ...LIB, ...COMPONENTS].filter((f) => /^\s*["']use server["']/m.test(read(f)));
+  assert.ok(serverFiles.includes(join("app", "actions.ts")), "the sweep for server action files stopped finding app/actions.ts");
+  for (const file of serverFiles) {
+    const source = code(file);
+    const caught = new Set(["error"]);
+    for (const m of source.matchAll(/\bcatch\s*\(\s*(\w+)/g)) caught.add(m[1]!);
+    for (const m of source.matchAll(/\.catch\(\s*(?:async\s*)?\(?\s*(\w+)\s*(?::[^)=]*)?\)?\s*=>/g)) caught.add(m[1]!);
+    for (const name of caught) {
+      const reads = new RegExp(
+        `\\b${name}(?:\\s+instanceof\\s+Error\\s*\\?)?\\s*\\.message\\b` +
+        `|\\(\\s*${name}\\s+as\\s+[^)]*\\)\\s*\\.message\\b` +
+        `|\\bString\\(\\s*${name}\\s*\\)` +
+        `|\\$\\{\\s*${name}\\s*\\}`,
+        "g",
+      );
+      for (const found of source.matchAll(reads)) {
+        const line = source.slice(0, found.index).split("\n").length;
+        assert.fail(
+          `${file}:${line} puts a caught error's own text into a value the browser reads. ` +
+          "Use safeMessage from lib/observability/report: a Prisma failure can name the " +
+          "deployment's database host, user and password.",
+        );
+      }
+    }
   }
 
   assert.match(
