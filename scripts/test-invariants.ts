@@ -17991,6 +17991,19 @@ check("a control says what it does under a pointer", () => {
     }
   }
   assert.ok(drawn >= 25, `only ${drawn} hand-drawn controls found; the sweep has stopped seeing them`);
+  /*
+    A whole file is excused for one control in it, so the excuse has to still
+    be needed: the day the scrim or the palette's rows answer a pointer like
+    everything else, every other button in that file goes back to being
+    unchecked for nothing.
+  */
+  for (const file of EXEMPT) {
+    const source = code(file);
+    const bare = [...source.matchAll(button)]
+      .map((m) => /className="([^"]*)"/.exec(m[1] ?? "")?.[1])
+      .filter((c): c is string => c !== undefined && !answers.test(c));
+    assert.ok(bare.length > 0, `${file} no longer has a control that needs excusing, so take it off the list`);
+  }
 });
 
 /*
