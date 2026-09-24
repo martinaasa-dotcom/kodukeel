@@ -10534,6 +10534,18 @@ check("cards become minutes through one rate, measured where the log has one", (
     between(today, "function lead("), /\/\s*\d+\s*\)/,
     "Today's lead divides the cards due by a literal again; the rate is the learner's own or the shared default",
   );
+  /*
+    "After a fortnight" is half of that sentence and it was not held. Today read
+    `pace.cardsPerMinute` straight off the first day's log, where the plan waits
+    for `MIN_PACE_WEEKS`, so one evening of Match read as six cards a minute and
+    the morning promised half the minutes the plan was budgeting. The rate goes
+    through `ownCardsPerMinute`, which applies the plan's own threshold.
+  */
+  assert.doesNotMatch(
+    today, /\.cardsPerMinute\b/,
+    "Today reads the measured rate raw rather than through ownCardsPerMinute, so the first day's log is believed",
+  );
+  assert.match(today, /ownCardsPerMinute\(/, "Today no longer reads the rate through ownCardsPerMinute");
   assert.match(
     between(code("components/assessment/PlanPanel.tsx"), "export function minutesFor"), /minutesForCards\(/,
     "PlanPanel's minutesFor keeps a rate of its own again",
