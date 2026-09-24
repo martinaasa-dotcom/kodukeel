@@ -115,7 +115,11 @@ export async function vouchOf(
  * for the words this line used. This is those four, read off the same
  * functions. What it cannot add is the learner's own last turn, which the
  * route also folds into the topic: a harness plays no learner, so `topic`
- * reads a little stricter here than live.
+ * reads a little stricter here than live. Nor can it add the card: the route
+ * joins the numbers, clock times and prices this run dealt (`dealt`, `times`,
+ * `money`), and a harness that deals no card hands none, so `facts` withholds
+ * any figure a composed line names. That is stricter than live too, never
+ * looser, which is the direction a measurement may err in.
  */
 export async function routeGate(
   scene: SceneSpec, beat: BeatSpec, lexicon: Lexicon, base: GateContext, text: string,
