@@ -75,8 +75,8 @@ of what an ISO Stage 1 readiness review asks to see.
 
 Totals: about twelve working days spread across a quarter, and nothing to pay for.
 
-**Do the restore test first.** It costs one day, it closes the weakest of the five SOC 2 categories,
-and section 5 of `docs/29-controls.md` already says it should have happened. Everything else on this
+**Do the restore test first.** It costs one day, it closes half of the weakest of the five SOC 2
+categories (the other half is redundancy, section 6), and section 5 of `docs/29-controls.md` already says it should have happened. Everything else on this
 table waits behind nothing.
 
 ## 4. Phase 1: the first money, and the smallest useful amount of it
@@ -142,9 +142,10 @@ The second is a real cost and a real decision, not paperwork.
 Written here rather than left for an auditor to find.
 
 **Segregation of duties.** One person can write a change, approve it and merge it. The compensating
-control is that CI is required and the author cannot bypass it, on a protected branch, with the
-security rules asserted rather than reviewed by eye. That is a real control and it is not segregation
-of duties. Say so.
+control is CI on every change, with the security rules asserted rather than reviewed by eye.
+Whether the branch is protected against its own author overriding CI is a repository setting that
+nothing here records, so it is not claimed. CI is a real control and it is not segregation of
+duties. Say so.
 
 **Background screening.** 6.1 is Not done and stays Not done until there is an HR function.
 
@@ -166,8 +167,8 @@ product whose floor is about three hundred dollars a month, and `/funding` publi
 
 ## 8. The order, and why it is that order
 
-1. **The restore test.** One day, no money, closes the weakest SOC 2 criterion, and it should have
-   happened already.
+1. **The restore test.** One day, no money, closes the untested half of the weakest SOC 2 criterion,
+   and it should have happened already.
 2. **The CI control evidence record.** One to two days, no money, and it is what makes an observation
    window affordable later.
 3. **The rest of Phase 0.** Ten days spread across a quarter. Most of an ISO Stage 1 readiness review.
