@@ -178,8 +178,8 @@ export const PROVIDER_KEY_ENV = [
  *
  * "tutor" is Anu: general questions about grammar and vocabulary, asked rarely
  * and answered at length. "scene" is one line of a role-play conversation:
- * asked constantly, answered in at most fourteen words, inside a closed word
- * list the gate then checks four ways.
+ * asked constantly, answered in a few short sentences (`MAX_COMPOSED_WORDS`),
+ * mostly inside a closed word list and every line checked by the gate.
  *
  * They are different jobs and the measurements say so, which is why they no
  * longer share a chain. See `PURPOSE_CHAINS` for which provider answers which
@@ -626,17 +626,15 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
       cost the Anthropic balance is that one number. Past it the chain is the
       purpose's own provider again, that provider is down, and the purpose
       degrades exactly as it did before this existed — a scene off its
-      recorded and banked lines, which is how a keyless deployment plays all
-      fourteen of them.
+      recorded and banked lines, which is how a keyless deployment plays every
+      one of them.
 
-      Anu is the exception and takes no fallback at all. Her provider *is*
-      Anthropic, so there is nothing behind it but Groq, and `npm run
-      eval:anu` measured what Groq does with her questions: it called the
-      tuba : toa gradation "b becomes v" where the dictionary says b : ∅,
-      offered "Mul meeldib" for "Mulle meeldib", and invented `lähema` for
-      `minema` and `kotta` for `koju`, emitting the first as a VOCAB line the
-      app parses. A fallback that answers wrongly is worse than one that does
-      not answer, because the learner cannot tell.
+      Anu is the exception and takes no Anthropic tail. Her chain is her own
+      two pinned links, Gemini then Groq (`PURPOSE_CHAINS.tutor`), each
+      measured on `npm run eval:anu` with the dictionary's words block in
+      front of it, and behind them is nothing rather than a dearer model
+      nobody chose for her. This comment used to say her provider was
+      Anthropic, which stopped being true when `TUTOR_MODEL` moved to Gemini.
     */
     if (allowFallback && options.purpose !== "tutor" && process.env.ANTHROPIC_API_KEY) {
       if (!chain.some((c) => c.name === "anthropic")) {

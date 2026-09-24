@@ -8765,6 +8765,21 @@ check("every provider key the chain can hold is marked in the credential canary"
     "a variable's canary marker does not carry its own name, so a failure cannot say which leaked",
   );
   assert.ok(assigned.length >= 10, `only ${assigned.length} variables are marked, so this stopped looking`);
+
+  /*
+    And the recipe the security document hands a reader for reproducing this
+    marks variables CI marks. It marked `OPENROUTER_API_KEY` for months after
+    OpenRouter left every chain, so a reader following it proved that a
+    variable nothing reads does not leak, which is a check that cannot fail.
+  */
+  const marked = new Set(assigned.map(([, variable]) => variable));
+  const recipe = [...read(join("docs", "27-security.md")).matchAll(/^([A-Z_]+)=canary-\1-must-not-ship/gm)]
+    .map((m) => m[1]!);
+  assert.ok(recipe.length >= 2, `the security document's canary recipe names ${recipe.length} variables, so this stopped looking`);
+  assert.deepEqual(
+    recipe.filter((v) => !marked.has(v)), [],
+    "docs/27-security.md tells a reader to mark a variable CI's canary does not, so reproducing it proves nothing",
+  );
 });
 
 check("no ledger write is left to a promise the platform may drop", () => {
