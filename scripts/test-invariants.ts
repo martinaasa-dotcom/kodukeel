@@ -13638,6 +13638,17 @@ check("every practice round that counts down reads the learner's pace", () => {
       code(page), /SETTING_KEYS\.roundPace/,
       `${file} counts down and ${page} never reads the learner's round pace, which fails WCAG 2.2.1`,
     );
+    /*
+      AND THE ROUND USES WHAT IT IS HANDED. A page can read the setting and a
+      session ignore the prop, which reads exactly like a round that honours
+      the pace: Target with its clock back on the bare constants passed the
+      arm above. So the prop has to reach the clock, as the seconds the clock
+      starts from or as the multiplier on a constant.
+    */
+    assert.match(
+      code(file), /useState\(\s*(?:seconds|pace)\s*\)|[*/]\s*(?:pace|seconds)\b|\b(?:pace|seconds)\s*[*/]/,
+      `${file} is handed the learner's pace and its clock never uses it, which fails WCAG 2.2.1`,
+    );
   }
   for (const file of Object.keys(EXEMPT)) {
     assert.ok(counting.includes(file), `${file} is exempted from the round pace and no longer counts down`);
