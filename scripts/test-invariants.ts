@@ -3524,10 +3524,10 @@ check("there is one assembly of the shipped dictionary", () => {
   assert.ok(existsSync(HOME), `the one assembly has gone from ${HOME}`);
 
   // Reading one of these is ordinary. Reading several is assembling the seed.
-  const sources = [
-    /prisma\/data\/nouns/, /prisma\/data\/verbs/, /prisma\/data\/other/,
-    /prisma\/data\/advanced/, /prisma\/data\/harvested/, /prisma\/data\/expanded/,
-  ];
+  // Relative imports too: the seed reads `./data/nouns`, so patterns naming
+  // `prisma/data` alone could never see an assembly written inside `prisma/`.
+  const sources = ["nouns", "verbs", "other", "advanced", "harvested", "expanded"]
+    .map((name) => new RegExp(`(?:prisma|\\.)\\/data\\/${name}`));
   /*
     Two exceptions and both have to be exceptions.
 
@@ -3544,10 +3544,17 @@ check("there is one assembly of the shipped dictionary", () => {
   const allowed = new Set([HOME, "prisma/seed.ts", "lib/collections/seedSize.test.ts"]);
 
   const copies: string[] = [];
-  for (const file of [...LIB, ...APP, ...sourceFiles("scripts")]) {
-    if (allowed.has(file)) continue;
+  const assembling = new Set<string>();
+  // And `prisma/`, which is where the seed is: an exemption for a file the
+  // sweep never opened was an exemption for nothing.
+  for (const file of [...LIB, ...APP, ...sourceFiles("scripts"), ...sourceFiles("prisma")]) {
     const src = code(file);
-    if (sources.filter((pattern) => pattern.test(src)).length > 2) copies.push(file);
+    if (sources.filter((pattern) => pattern.test(src)).length <= 2) continue;
+    assembling.add(file);
+    if (!allowed.has(file)) copies.push(file);
+  }
+  for (const file of allowed) {
+    assert.ok(assembling.has(file), `${file} is excused as an assembly and no longer reads the seed's files`);
   }
   assert.deepEqual(
     copies, [],
@@ -12823,12 +12830,19 @@ check("the data model page names every model the schema has, and no others", () 
 
 check("nothing decides what a gap can hide outside lib/estonian/gapForms.ts", () => {
   const allowed = new Set([
-    // Where `buildCloze` is written, and where `gapForms` is.
+    // Where `buildCloze` is written. `gapForms.ts` was here too and calls
+    // nothing it would need excusing for, which the staleness arm below said.
     "lib/estonian/cloze.ts",
-    "lib/estonian/gapForms.ts",
     "lib/exam/paper.ts",
     "lib/assessment/items.ts",
   ]);
+  for (const file of allowed) {
+    const src = code(file);
+    assert.ok(
+      /\bbuildCloze\s*\(/.test(src) && !/\bgapForms(?:FromParts)?\s*\(/.test(src),
+      `${file} is excused from reading gapForms and no longer needs to be`,
+    );
+  }
   const offenders = ["app", "lib", "components"]
     .flatMap((dir) => sourceFiles(dir))
     .filter((file) => !allowed.has(file) && !/\.i?test\.tsx?$/.test(file))
