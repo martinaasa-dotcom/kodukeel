@@ -94,6 +94,9 @@ describe("occasionsFor", () => {
     */
     for (const day of ["2026-06-14", "2026-03-25"]) {
       const keys = occasionsFor(day).map((o) => o.key);
+      // The month always answers, so an empty list is a fault, and `every` on
+      // nothing would pass it.
+      expect(keys.length, day).toBeGreaterThan(0);
       expect(keys.every((k) => /^(june|march|day-14|day-25|sunday|monday|wednesday|friday|saturday)$/.test(k)), day).toBe(true);
     }
   });
