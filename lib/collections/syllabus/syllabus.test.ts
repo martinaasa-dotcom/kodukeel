@@ -86,6 +86,32 @@ describe("the course", () => {
     Fails with the command that fixes it, because the fix is never to edit the
     generated file.
   */
+  /*
+    AND EVERY HARVESTED ROW WAS ASKED FOR, WHICH IS THE OTHER DIRECTION.
+
+    The test above asks that everything a unit names arrives, and nothing
+    asked the reverse: that everything the seed will write was named. The
+    harvest's `--only` stands its answers into the previous file rather than
+    replacing it, so a word first harvested under one part of speech and then
+    relabelled leaves its old row behind. That happened to `vene`: requested
+    as an adjective it matched a regular noun spelled the same, a dugout
+    canoe, and when it was relabelled the canoe's row stayed, glossed
+    "Russian", carrying `venet` and `vened`, the canoe's definition, and
+    `чёлн` as its Russian. The seed loads this file, so the shared dictionary
+    would have taught it.
+
+    Keyed exactly as the harvest keys its requests, the units plus the
+    retired list through `inferPos`, so an honest row is never reported.
+  */
+  it("holds no row that nothing asked for", () => {
+    const asked = new Set<string>();
+    for (const u of SYLLABUS) for (const v of u.vocabulary) asked.add(`${v.lemma}|${v.pos}`);
+    for (const w of RETIRED_WORDS) asked.add(`${w[0]}|${inferPos(w[0], w[2])}`);
+    const stale = HARVESTED.filter((w) => !asked.has(`${w.lemma}|${w.pos}`))
+      .map((w) => `${w.lemma}|${w.pos}`);
+    expect(stale, "a row nothing requested: a full `npm run harvest` drops it").toEqual([]);
+  });
+
   it("carries the gloss the unit that introduces a word wrote", () => {
     /*
       The introducing unit, which is the first in course order to name the

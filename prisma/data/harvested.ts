@@ -16700,18 +16700,6 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["брат", "братья"], ukr: ["брат"],
   },
   {
-    lemma: "vene", gloss: "Russian", pos: "ADJECTIVE", cefr: null,
-    ekilexWordId: 255517,
-    ekilexPos: ["s"],
-    parts: { NOM_SG: "vene", GEN_SG: "vene", PART_SG: "venet", NOM_PL: "vened", PART_PL: "venesid", GEN_PL: "venede" },
-    extraForms: [],
-    government: null,
-    usages: [],
-    note: "endisaegne ühest puust (hrl haavast või paplist) õõnestatud paat, mille küljed on laiali painutatud ja kaartega toestatud",
-    semanticTypes: ["ese_instru"],
-    rus: ["чёлн", "челнок"], ukr: [],
-  },
-  {
     lemma: "vene", gloss: "Russian", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 255516,
     ekilexPos: ["adjg"],
