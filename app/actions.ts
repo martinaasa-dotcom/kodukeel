@@ -1,5 +1,6 @@
 "use server";
 
+import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -27,7 +28,7 @@ import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
 import {
-  SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
+  PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory,
 } from "@/lib/suggestions/model";
 import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
@@ -667,8 +668,36 @@ const LIMITS = {
   taskNotes: 2000,
 } as const;
 
-const capped = (value: string | undefined | null, max: number): string =>
-  (value ?? "").trim().slice(0, max);
+/*
+  `unknown` rather than a string type, because what reaches it is JSON off the
+  wire: `capped(42)` used to throw a TypeError, which the framework answers
+  with a 500 where a refusal is the honest reply, on eight actions that write
+  to the shared dictionary and a learner's deck.
+*/
+const capped = (value: unknown, max: number): string =>
+  (typeof value === "string" ? value : "").trim().slice(0, max);
+
+/*
+  THE SHARED DICTIONARY TAKES A PART OF SPEECH AND A LEVEL FROM ITS OWN LISTS.
+
+  `lemma`, `translation` and `government` were capped and these two were
+  written as sent, into rows every learner reads. A `cefr` of "ZZ" on a seeded
+  entry takes the word out of the exam pool, the readiness counts and the
+  suggestion row for everybody, because each of them reads that column as
+  the record that the course vouched for the word; a `pos` is half of the
+  entry's unique key and had no length at all. `PATCH_POS` is the list the
+  suggestion queue already holds a proposal to, and every value the shipped
+  dictionary carries is on it.
+*/
+function partOfSpeech(value: unknown): string | null {
+  return typeof value === "string" && (PATCH_POS as readonly string[]).includes(value) ? value : null;
+}
+
+/** A level off the list, "" for none, or null where what arrived is neither. */
+function levelOrNone(value: unknown): string | null {
+  if (value === undefined || value === null || value === "") return "";
+  return typeof value === "string" && (CEFR_LEVELS as readonly string[]).includes(value) ? value : null;
+}
 
 /**
  * An argument that is supposed to be a string, as a string.
@@ -704,16 +733,21 @@ export async function createLexeme(input: {
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
+  const pos = partOfSpeech(input.pos);
+  const cefr = levelOrNone(input.cefr);
+  if (pos === null || cefr === null) {
+    return { ok: false as const, error: "That word could not be added. Nothing was changed." };
+  }
 
   const existing = await prisma.lexeme.findUnique({
-    where: { lemma_pos: { lemma, pos: input.pos } },
+    where: { lemma_pos: { lemma, pos } },
   });
   if (existing) return { ok: true as const, id: existing.id, existed: true };
 
   const lexeme = await prisma.lexeme.create({
     data: {
-      lemma, translation, pos: input.pos,
-      cefr: input.cefr || null,
+      lemma, translation, pos,
+      cefr: cefr || null,
       /*
         AI, NOT USER, BECAUSE A MODEL SUGGESTED IT AND NOBODY HAS CHECKED IT.
 
@@ -768,15 +802,27 @@ export async function createLexemeWithForms(input: {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
 
+  const pos = partOfSpeech(input.pos);
+  const cefr = levelOrNone(input.cefr);
+  const levelSent = input.cefr !== undefined;
+  if (pos === null || cefr === null) {
+    return { ok: false as const, error: "That word could not be saved. Nothing was changed." };
+  }
+  const forms = input.forms && typeof input.forms === "object" && !Array.isArray(input.forms)
+    ? input.forms
+    : {};
+
   const lexeme = await upsertLexemeWithForms({
-    id: input.id,
+    id: typeof input.id === "string" ? input.id : undefined,
     lemma,
     translation,
-    pos: input.pos,
-    cefr: input.cefr,
+    pos,
+    // Undefined leaves the stored level alone, which is what the form means by
+    // sending none; an empty string clears it.
+    cefr: levelSent ? cefr : undefined,
     government: capped(input.government, LIMITS.government),
     forms: Object.fromEntries(
-      Object.entries(input.forms).map(([type, value]) => [type, capped(value, LIMITS.form)]),
+      Object.entries(forms).map(([type, value]) => [type, capped(value, LIMITS.form)]),
     ),
     editedBy: ownerId,
   });
@@ -917,7 +963,7 @@ export async function importWords(rows: { lemma: string; translation: string; po
   let created = 0;
   let cards = 0;
   const skipped: string[] = [];
-  const truncated = rows.length > MAX_IMPORT_ROWS;
+  const truncated = Array.isArray(rows) && rows.length > MAX_IMPORT_ROWS;
 
   /*
     ASKED ONCE FOR THE WHOLE PASTE, NOT ONCE PER LINE.
@@ -951,14 +997,17 @@ export async function importWords(rows: { lemma: string; translation: string; po
   */
   const wanted: { lemma: string; translation: string; pos: string }[] = [];
   const seenKeys = new Set<string>();
-  for (const row of rows.slice(0, MAX_IMPORT_ROWS)) {
+  for (const row of (Array.isArray(rows) ? rows : []).slice(0, MAX_IMPORT_ROWS)) {
+    if (!row || typeof row !== "object") continue;
     const lemma = capped(row.lemma, LIMITS.lemma);
     const translation = capped(row.translation, LIMITS.translation);
-    if (!lemma || !translation) continue;
-    const key = `${lemma}|${row.pos}`;
+    // The paste panel sends VERB or OTHER; anything off the list is not a row.
+    const pos = partOfSpeech(row.pos);
+    if (!lemma || !translation || !pos) continue;
+    const key = `${lemma}|${pos}`;
     if (seenKeys.has(key)) continue;
     seenKeys.add(key);
-    wanted.push({ lemma, translation, pos: row.pos });
+    wanted.push({ lemma, translation, pos });
   }
 
   const present = new Map(

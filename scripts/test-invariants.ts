@@ -21595,6 +21595,28 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a word written to the shared dictionary takes its part of speech and level off the lists", () => {
+  /*
+    `createLexeme`, `createLexemeWithForms` and `importWords` wrote `pos` and
+    `cefr` exactly as the caller sent them into rows every learner reads, so
+    a `cefr` of "ZZ" took a seeded word out of the exam pool and the readiness
+    counts for everybody. And `capped` took a string type and called `.trim()`
+    on whatever arrived, so a number there was a 500 rather than a refusal.
+  */
+  const actions = code("app/actions.ts");
+  const raw = actions.match(/\b(pos|cefr):\s*(input|row)\.(pos|cefr)\b/g) ?? [];
+  assert.deepEqual(raw, [], `app/actions.ts writes ${raw.join(", ")} to the dictionary unchecked`);
+  assert.match(actions, /const capped = \(value: unknown,/, "capped no longer takes an unknown");
+  assert.match(actions, /function partOfSpeech\(value: unknown\)[\s\S]{0,200}PATCH_POS/,
+    "partOfSpeech no longer reads the closed list in lib/suggestions/model.ts");
+  for (const name of ["createLexeme", "createLexemeWithForms", "importWords"]) {
+    const start = actions.indexOf(`export async function ${name}(`);
+    assert.ok(start >= 0, `${name} is gone from app/actions.ts`);
+    const body = actions.slice(start, actions.indexOf("\nexport ", start + 10));
+    assert.match(body, /partOfSpeech\(/, `${name} writes a part of speech it has not checked`);
+  }
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
