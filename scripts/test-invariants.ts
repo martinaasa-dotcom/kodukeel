@@ -5166,6 +5166,30 @@ check("a rating key works wherever a rating button is drawn", () => {
     /if \(ask !== "flip"\) return;/,
     "the rating keys are not gated on the shape that actually draws them",
   );
+
+  /*
+    AND "THE ANSWER IS ON THE SCREEN" IS SPELLED ONCE.
+
+    The name the old fix used survived the reshaping: `answerShown` is still
+    how the render asks whether the answer side is drawn, and CLAUDE.md says
+    a sixth reader spelling it out longhand fails here. Nothing did, and one
+    had already arrived: the "why this card" row was drawn under
+    `revealed || chosen || ask === "intro"`, which is `answerShown` written
+    out again beside a third term. Two copies of one condition is the shape
+    the whole fault came from, so the longhand is refused wherever it sits,
+    in either order, and the one definition has to still be there to read.
+  */
+  const logic = code("app/(app)/review/ReviewSession.tsx");
+  const defined = logic.match(/const answerShown = revealed \|\| ask === "intro";/g)?.length ?? 0;
+  assert.equal(defined, 1, "answerShown is no longer defined once, as the one reading of whether the answer is drawn");
+  const longhand = [
+    ...logic.matchAll(/\brevealed\b[^;{}\n]*\|\|[^;{}\n]*ask === "intro"|ask === "intro"[^;{}\n]*\|\|[^;{}\n]*\brevealed\b/g),
+  ].filter((m) => !/const answerShown =\s*$/.test(logic.slice(0, m.index)));
+  const spelled = longhand.map((m) => `line ${logic.slice(0, m.index).split("\n").length}: ${m[0].trim()}`);
+  assert.deepEqual(
+    spelled, [],
+    `ReviewSession.tsx spells out whether the answer is drawn instead of reading answerShown (${spelled.join("; ")})`,
+  );
 });
 
 check("a suite that writes to the shared dictionary invents the word it writes", () => {
