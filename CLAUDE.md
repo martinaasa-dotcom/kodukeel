@@ -93,6 +93,18 @@ the date it doubles rather than left in a diary. A model the table does not name
 `UNKNOWN_MODEL`, which is the dearest row, so an omission fails expensive and a zero fails silently:
 that asymmetry is the whole argument for never writing one.
 
+**And a date written down is a diary until something reads it.** That sentence was true and nothing
+acted on it, so on 1 January 2027 six figures would have understated by two with the bill as the
+only reader, which is the one direction this table never errs in. The three dated rows carry a
+`promotion` and `priceFor` takes a clock, so the doubling happens on the day whether or not anybody
+has opened the file since; the clock is a parameter because a rule that fires on a future morning
+cannot be tested against the machine's own. Re-read against Google's page on 2026-09-22 and every
+row still matched it exactly, and so did every Groq row against `/v1/models`. `compound-mini` went
+the other way: Groq no longer serve it, so a zero row for a model nobody can call was the silent
+zero this paragraph is about, kept alive by the excuse that created it. It is gone from the table
+and from `FREE_GROQ_MODELS`, and there is no third Groq name to put back, because the two text
+models left on that account are the two `provider.ts` already records rejecting by name.
+
 **There is a model per purpose rather than a house model, and every one of them was measured
 through its own production call path.** Four paths here call a model and none of them wants the same
 thing: a scene wants Estonian a native speaker would recognise, the scanner wants a photographed word
