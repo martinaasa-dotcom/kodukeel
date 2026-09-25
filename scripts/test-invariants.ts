@@ -6894,6 +6894,46 @@ function ownerScopedModels(): string[] {
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
 
+/*
+  AN EXPORTED SERVER ACTION IS A PUBLIC ENDPOINT, SO ONE NOTHING CALLS IS ONLY
+  THAT.
+
+  Every export of a `"use server"` file can be posted to by anybody holding a
+  session, whether or not a screen ever does it, which is the argument this file
+  makes about owner ids and throttles. An export no screen reaches keeps all of
+  that exposure and serves nobody: it is never exercised by a browser suite,
+  never read by the person changing the code around it, and it can go on writing
+  long after its purpose went. Two were in this state. `resolveStreak` banked and
+  spent streak shields on request while every screen reached the same logic
+  through `lib/progress/summary.ts`, and `addUnitToDeck` built a whole unit's
+  cards with no screen offering the button that used to call it.
+
+  Code only, and a test file is not a caller, because a comment naming an
+  action and a unit test stubbing one are both things that survive the last
+  real caller going away. A call from another action in the same file counts,
+  since that is a real use.
+*/
+check("every exported server action has a caller", () => {
+  const actions = code(join("app", "actions.ts"));
+  const names = [...actions.matchAll(/^export async function (\w+)\(/gm)].map((m) => m[1]!);
+  assert.ok(names.length >= 80, `only ${names.length} exported actions found, so this stopped looking`);
+
+  const callers = [...APP, ...COMPONENTS, ...LIB]
+    .filter((f) => f !== join("app", "actions.ts") && !/\.i?test\.tsx?$/.test(f))
+    .map((f) => code(f));
+  const uncalled = names.filter((name) => {
+    const use = new RegExp(`\\b${name}\\b`, "g");
+    if (callers.some((body) => new RegExp(`\\b${name}\\b`).test(body))) return false;
+    // Its own declaration is one mention; a second is another action calling it.
+    return (actions.match(use) ?? []).length < 2;
+  });
+  assert.deepEqual(
+    uncalled, [],
+    `no screen or module calls these, so each is a public endpoint serving nobody: ${uncalled.join(", ")}. `
+      + "Call it from where it belongs, or delete it.",
+  );
+});
+
 check("the actions that do real work per call are throttled", () => {
   /*
     Every mutation a learner makes here is a Server Action, which is a POST to
