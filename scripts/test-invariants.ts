@@ -15694,6 +15694,25 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
 });
 
 /*
+  A PRESS SETS THE STATE THE SCREEN SHOWED, AND NEVER THE OPPOSITE OF THE ROW.
+
+  `toggleStar` and `toggleTask` each read a stored boolean and wrote its
+  negation, which answers what the database holds rather than what the learner
+  was looking at: a stale Today unticked homework already handed in, a stale
+  star turned "Add" into a removal, and two presses landing together undid
+  each other or threw. The screen sends the state it wants now. What this
+  refuses is the shape itself, a write whose value is the negation of a field
+  just read, anywhere a learner's press arrives.
+*/
+check("a press sets the state the screen showed, never the opposite of the row", () => {
+  const flips = [...code("app/actions.ts").matchAll(/(\w+):\s*!\s*\w+\.\1\b/g)].map((m) => m[0]);
+  assert.deepEqual(flips, [], "a server action writes a stored boolean as the negation of what it read");
+  for (const [file, call] of [["components/StarWord.tsx", /toggleStar\(lexemeId,\s*\w+\)/], ["components/TaskRow.tsx", /toggleTask\(task\.id,\s*!task\.completed\)/]] as const) {
+    assert.match(code(file), call, `${file} stopped sending the state it wants`);
+  }
+});
+
+/*
   A BACKUP CARRIES EVERY WORD THE LEARNER'S OWN ROWS POINT AT.
 
   The export gathers which dictionary entries to carry from the tables that

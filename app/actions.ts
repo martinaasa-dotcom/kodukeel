@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
 import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
+import { setTaskDone } from "@/lib/progress/tasks";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { deleteOwnReminder } from "@/lib/progress/reminders";
 import { classworkMarker } from "@/lib/ux/agenda";
@@ -2779,15 +2780,21 @@ async function resolveDisplayName(ownerId: string): Promise<string> {
  * Ticks a task a teacher assigned. The manual homework list is gone, so this
  * is the one thing a learner does to a task: the row on Today, done or not.
  */
-export async function toggleTask(id: string) {
-  id = text(id);
+export async function toggleTask(id: string, done?: boolean) {
   const ownerId = await requireUserId();
-  const task = await prisma.task.findFirst({ where: { id, ownerId }, select: { completed: true } });
-  if (!task) return { ok: false as const };
-  await prisma.task.update({
-    where: { id },
-    data: { completed: !task.completed, completedAt: task.completed ? null : new Date() },
-  });
+  const taskId = text(id);
+  /*
+    The row says which state it wants, for the reason `setTaskDone` gives. A
+    tab still on the bundle from before this sends none and gets the toggle it
+    was written against.
+  */
+  let want = done;
+  if (typeof want !== "boolean") {
+    const task = await prisma.task.findFirst({ where: { id: taskId, ownerId }, select: { completed: true } });
+    if (!task) return { ok: false as const };
+    want = !task.completed;
+  }
+  if (!(await setTaskDone(ownerId, taskId, want))) return { ok: false as const };
   revalidatePath("/");
   return { ok: true as const };
 }
