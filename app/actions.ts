@@ -1192,7 +1192,7 @@ export async function recordSonad(day: string, guesses: unknown) {
     ? guesses.filter((g): g is string => typeof g === "string").slice(0, SONAD_GUESSES)
     : [];
   if (played.length === 0) return { ok: false as const, error: "Nothing to record." };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
 
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
@@ -1528,7 +1528,7 @@ export async function finishScene(input: {
 
 export async function recordCrossword(day: string, typed: unknown, helped: unknown) {
   const ownerId = await requireUserId();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
 
   /*
     Off the wire, whatever the types say. A cell index that is not a number and
@@ -2783,9 +2783,22 @@ export async function deleteReminder(id: string) {
 const clamp = (n: number, lo: number, hi: number) =>
   Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo;
 
+/**
+ * A `YYYY-MM-DD` string, asked about as a string first.
+ *
+ * `RegExp.test` converts its argument, so `["2026-09-24"]` passes the pattern
+ * as readily as the string does, and an argument off the wire is whatever the
+ * caller sent: `recordSonad(["2026-09-24"], ...)` went on to `day.split("-")`
+ * inside the puzzle builder and threw. One check, so the three doors that take
+ * a day cannot disagree about what one is.
+ */
+function isDayKey(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 /** A `YYYY-MM-DD` string, or null for anything that is not one. */
-function dayKeyOrNull(value: string | null | undefined): string | null {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+function dayKeyOrNull(value: unknown): string | null {
+  if (!isDayKey(value)) return null;
   return Number.isNaN(Date.parse(`${value}T00:00:00.000Z`)) ? null : value;
 }
 
