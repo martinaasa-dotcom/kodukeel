@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { ClipboardCheck, Compass, Flame, Footprints, Shield } from "lucide-react";
+import { ClipboardCheck, Compass, FileText, Flame, Footprints, Shield } from "lucide-react";
 import { outThere } from "@/lib/progress/outThere";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -193,6 +193,9 @@ export default async function ProgressPage() {
           </ButtonLink>
           <ButtonLink href="/exam">
             <ClipboardCheck size={15} aria-hidden /> Mock exam
+          </ButtonLink>
+          <ButtonLink href="/progress/record">
+            <FileText size={15} aria-hidden /> Record of study
           </ButtonLink>
         </span>
       }

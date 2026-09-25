@@ -184,7 +184,7 @@ const ROUTES = [
     a claim and a line each, and a detail with three bars, a list of
     struggles and a row of word chips, which is the shape that wraps.
   */
-  "/progress/readiness",
+  "/progress/readiness", "/progress/record",
   "/progress/readiness/sook-ja-jook",
   "/exam",
   "/assess",
