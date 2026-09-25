@@ -111,7 +111,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
         // Good first time, Hard after a wrong try: the same two ratings a near
         // miss and a clean hit get everywhere else. Not awaited, because a
         // matching board should never wait on a round trip between taps.
-        void gradeCard(pair.cardId, missedPairs.current.has(pair.id) ? 2 : 3, 0);
+        void gradeCard(pair.cardId, missedPairs.current.has(pair.id) ? 2 : 3, 0).catch(() => {});
       }
       return;
     }
