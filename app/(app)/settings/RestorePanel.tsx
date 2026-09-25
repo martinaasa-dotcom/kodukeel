@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { AlertTriangle, Upload } from "lucide-react";
 import { type RestoreSummary } from "@/app/actions";
 import { Button } from "@/components/Button";
+import { counted } from "@/lib/copy/values";
 
 type Mode = "merge" | "replace";
 
@@ -81,8 +82,8 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
       if (!result.ok) { setError(result.error); return; }
       setDone(
         mode === "merge"
-          ? `Merged in ${result.summary.words} words, ${result.summary.cards} cards and ${result.summary.reviews} reviews. Nothing was removed.`
-          : `Replaced everything with the backup: ${result.summary.words} words, ${result.summary.cards} cards, ${result.summary.reviews} reviews.`,
+          ? `Merged in ${counted(result.summary.words, "word")}, ${counted(result.summary.cards, "card")} and ${counted(result.summary.reviews, "review")}. Nothing was removed.`
+          : `Replaced everything with the backup: ${counted(result.summary.words, "word")}, ${counted(result.summary.cards, "card")}, ${counted(result.summary.reviews, "review")}.`,
       );
       setJson(null); setSummary(null); setConfirmText("");
       if (fileRef.current) fileRef.current.value = "";

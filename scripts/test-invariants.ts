@@ -5152,6 +5152,46 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
   assert.deepEqual(offenders, [], "a placeholder is typed in rather than read from NO_VALUE");
 });
 
+/**
+ * A count that can be one says so in the singular.
+ *
+ * "Added 1 cards." was what the dictionary's keep button said about a word
+ * that already had one of its two cards, and the restore summary and the
+ * import could say "1 words" the same way. `counted` in `lib/copy/values.ts`
+ * is the rule. A count interpolated before a plural noun either goes through
+ * it, guards its own singular on the same line, reads "N of M", or is named
+ * here with the reason it can never be one.
+ */
+const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
+  "app/(chromeless)/welcome/page.tsx": "the dictionary's size, which is thousands",
+  "app/(app)/dictionary/page.tsx": "the dictionary's size, which is thousands",
+  "app/(app)/review/ReviewSession.tsx": "the one live count is guarded a line above; the other is a case name",
+  "app/(app)/page.tsx": "said only once the goal is met, and the smallest goal is five",
+  "app/(app)/settings/page.tsx": "the daily goal, whose smallest setting is five",
+  "app/(app)/learn/[unitId]/lesson/LessonSession.tsx": "a sitting folds a trailing one or two words into the one before it",
+  "components/WeakestCases.tsx": "a case is listed only above its floor of answers",
+  "app/(app)/exam/[level]/ExamSession.tsx": "a dictation is a sentence, and a single word is said as one word",
+};
+
+check("a count that can be one is said in the singular", () => {
+  const found = new Map<string, string[]>();
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (/\.test\.tsx?$/.test(file)) continue;
+    code(file).split("\n").forEach((line, i) => {
+      if (/=== 1 \?|> 1 \?|>= 2/.test(line)) return;
+      for (const m of line.matchAll(/(of )?\$\{[^}]+\} (?:cards|words|reviews)\b/g)) {
+        if (m[1]) continue;
+        if (/\$\{[^}]+\} of \$\{/.test(line)) continue;
+        found.set(file, [...(found.get(file) ?? []), `${file}:${i + 1}`]);
+      }
+    });
+  }
+  const offenders = [...found].filter(([file]) => !(file in PLURAL_COUNT_EXEMPT)).flatMap(([, at]) => at);
+  assert.deepEqual(offenders, [], `${offenders.join(", ")} prints a count before a plural noun; use counted`);
+  const stale = Object.keys(PLURAL_COUNT_EXEMPT).filter((file) => !found.has(file));
+  assert.deepEqual(stale, [], `${stale.join(", ")} is exempt and no longer prints such a count`);
+});
+
 check("the app drops a capital only where the capital is its own to drop", () => {
   /*
     `plainPhrase` exists so a card teaches `tere hommikust` rather than
