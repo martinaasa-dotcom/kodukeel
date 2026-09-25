@@ -25,16 +25,34 @@ export function keyColumns(sections: readonly Section[]): number {
 }
 
 /**
+ * A text cell a spreadsheet would read as a formula, made to read as text.
+ *
+ * The lemma column is not only the Institute's: a learner can add a word by
+ * hand or paste a list, so `=HYPERLINK(...)` is a lemma the dictionary will
+ * hold, and a spreadsheet opening this file runs it. Sign-up is open, so the
+ * anonymity floor is a number of accounts rather than a number of people.
+ * The fix is the one spreadsheets themselves document, a leading apostrophe,
+ * applied only where a cell opens on a character that starts a formula. A
+ * leading hyphen is let through when a word follows it and nothing else, since
+ * a suffix entry is a hyphen and letters and a formula never is.
+ */
+export function defused(text: string): string {
+  if (/^[=+@\t\r]/.test(text)) return `'${text}`;
+  if (text.startsWith("-") && !/^-[\p{L}]+$/u.test(text)) return `'${text}`;
+  return text;
+}
+
+/**
  * One CSV field.
  *
  * Quoted whenever quoting could matter rather than only when it does, since the
  * cost is a byte and the failure is a file that parses into the wrong shape on
- * somebody else's machine. A lemma cannot contain a comma today, and this file
- * should not be the thing that breaks on the day a gloss does.
+ * somebody else's machine. A lemma a learner typed can hold a comma or a quote,
+ * so this is the thing that keeps the row the right width when one does.
  */
 function field(value: string | number | null): string {
   if (value === null) return "";
-  const text = String(value);
+  const text = typeof value === "number" ? String(value) : defused(value);
   if (!/[",\n\r]/.test(text)) return text;
   return `"${text.replace(/"/g, '""')}"`;
 }

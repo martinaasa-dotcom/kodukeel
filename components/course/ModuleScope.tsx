@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, ListChecks } from "lucide-react";
 import { advanceCourseStep } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
-import { MODULE_HOME, MODULE_PARAM, readFocus, type ModuleFocus } from "@/lib/course";
+import { MODULE_HOME, MODULE_PARAM, readFocus, type ModuleFocus } from "@/lib/course/focus";
 import { ModuleContext } from "./moduleFocus";
 
 /**

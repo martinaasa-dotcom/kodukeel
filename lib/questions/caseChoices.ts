@@ -1,4 +1,5 @@
 import { CASES } from "@/lib/estonian/cases";
+import { acceptedAnswers } from "@/lib/estonian/answer";
 import { caseAnswer, shownForms, type NounStems } from "@/lib/estonian/derive";
 import { differentText, formNearness, pickOptions } from "./distractors";
 import { CONJUGATION_SLOTS } from "@/lib/srs/slots";
@@ -166,4 +167,24 @@ export function verbFormSlots(lex: VerbForms): Map<string, string | null> {
     }
   }
   return out;
+}
+
+/**
+ * Whether a picked option is the card's answer.
+ *
+ * An option is one spelling and a back can be two: `tuppa / toasse` is how a
+ * case card holds both illatives, and the options are built around one of
+ * them. So comparing the pick with the back as a string marks the right
+ * option wrong on every card whose back is a pair, grades it Again and puts
+ * it back in the queue, which is the one outcome a choice exists to prevent.
+ * The pick is right when it is any spelling the back accepts, read through
+ * `acceptedAnswers`, which is what the typed marker and the daily quest
+ * already compare against.
+ */
+export function choiceIsRight(choice: string, back: string, language: "et" | "en"): boolean {
+  if (choice === back) return true;
+  // A meaning is offered whole, so only a form can be one spelling of a pair.
+  if (language !== "et") return false;
+  const picked = acceptedAnswers(choice, "et")[0];
+  return picked !== undefined && acceptedAnswers(back, "et").includes(picked);
 }
