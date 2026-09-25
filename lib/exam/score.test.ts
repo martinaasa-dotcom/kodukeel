@@ -222,6 +222,27 @@ describe("what one answer is worth", () => {
     expect(mark.recalled).toBe(true);
   });
 
+  it("forgives one slipped keystroke in a long word, as the spec's own test says", () => {
+    if (dictation.kind !== "dictation") throw new Error("expected a dictation item");
+    // The listening gap task does not count a spelling slip that leaves the
+    // answer understood, and one letter out of `ülikoolis` does. The marker's
+    // own floor decides what a slip is, so this is the same word the review
+    // card would take.
+    const item = { ...dictation, answer: "Ta õpib ülikoolis" };
+    const mark = markItem(item, { kind: "typed", value: "Ta õpib ülikoolos" }, 1);
+    expect(mark.correct).toBe(true);
+    expect(mark.recalled).toBe(true);
+  });
+
+  it("does not forgive a slip on a short word, which usually spells another word", () => {
+    if (dictation.kind !== "dictation") throw new Error("expected a dictation item");
+    // `lammas` for `hammas` is one letter and a sheep: short one-letter
+    // substitutions collide with real words, which is why the marker's floor
+    // is eight letters (`npm run measure:typo-collisions`).
+    const item = { ...dictation, answer: "Mul valutab hammas" };
+    expect(markItem(item, { kind: "typed", value: "Mul valutab lammas" }, 1).correct).toBe(false);
+  });
+
   it("does not forgive a missing word", () => {
     if (dictation.kind !== "dictation") throw new Error("expected a dictation item");
     const short = dictation.answer.split(" ").slice(0, -1).join(" ");

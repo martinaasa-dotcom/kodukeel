@@ -250,19 +250,26 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
       ) : (
         <Card>
           {/*
+            Every question is keyed on its id, so its own state (the option
+            picked, the words typed, the mark) starts fresh with the question
+            rather than being reset by an effect one render late: two
+            questions of one kind in a row are one component otherwise, and
+            the render between them drew the new question under the last
+            one's pick.
+
             A section whose audio cannot be produced is abandoned rather than
             failed. `Speak` removes itself once the proxy has refused, so there
             is nothing left to retry with, and a silent speaker is a fact about
             this deployment rather than about anybody's listening.
           */}
           {item.kind === "choice" && (
-            <ChoiceQuestion item={item} onAnswer={answer} onNoAudio={() => skipSkill(item.skill)} />
+            <ChoiceQuestion key={item.id} item={item} onAnswer={answer} onNoAudio={() => skipSkill(item.skill)} />
           )}
           {item.kind === "dictation" && (
-            <DictationQuestion item={item} onAnswer={answer} onNoAudio={() => skipSkill(item.skill)} />
+            <DictationQuestion key={item.id} item={item} onAnswer={answer} onNoAudio={() => skipSkill(item.skill)} />
           )}
-          {item.kind === "write" && <WriteQuestion item={item} onAnswer={answer} />}
-          {item.kind === "speak" && <SpeakQuestion item={item} onAnswer={answer} />}
+          {item.kind === "write" && <WriteQuestion key={item.id} item={item} onAnswer={answer} />}
+          {item.kind === "speak" && <SpeakQuestion key={item.id} item={item} onAnswer={answer} />}
         </Card>
       )}
 

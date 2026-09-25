@@ -27,6 +27,7 @@ const LEX = buildLexicon([
 const BEAT: BeatSpec = {
   id: "b", goal: "Say it.", they: "They ask.", move: "ask", topic: ["tuba"],
   needs: [{ kind: "lemma", oneOf: ["valu", "palavik"] }],
+  choice: ["valu", "palavik"],
   required: true, patience: 3, shape: "word",
 };
 
@@ -49,7 +50,7 @@ describe("narrowing a question to two", () => {
       { lemma: "Appi!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
       { lemma: "Tuli!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
     ]);
-    const shout = { ...BEAT, needs: [{ kind: "lemma" as const, oneOf: ["Appi!", "Tuli!"] }] };
+    const shout: BeatSpec = { ...BEAT, needs: [{ kind: "lemma", oneOf: ["Appi!", "Tuli!"] }], choice: ["Appi!", "Tuli!"] };
     expect(choiceOf({ beat: shout, card: CARD, lexicon: lex, roll: 0 })).toBe(`Appi ${CHOICE_WORD} Tuli?`);
   });
 
@@ -114,21 +115,20 @@ describe("narrowing a question to two", () => {
   });
 
   /*
-    A CHOICE IS TWO OF ONE KIND OF THING. Taking a beat's first two words put
-    `Valu või valutama?`, `Sobima või jah?` and `Tere või Tere hommikust?` on
-    screen: one thing in two word classes, a verb and a yes, and one greeting
-    said two ways. Two nouns, two adjectives or two pronouns is what a person
-    at a counter offers, and a beat with no such pair gets the app's hint.
+    A CHOICE IS ONE THE SCENE NAMES. The beat's list is every word that would
+    answer it, and two of those were offered as `Probleem või viga?`,
+    `Palk või raha?` and `Arve või raha?`: one thing said two ways. Nothing
+    about the list says which two are different things, so a beat that names
+    no pair is narrowed on nothing, and a pair naming a word the requirement
+    does not take is not offered either.
   */
-  it("passes over a word of another kind to find two of one", () => {
-    const beat: BeatSpec = { ...BEAT, needs: [{ kind: "lemma", oneOf: ["valu", "valutama", "palavik"] }] };
-    expect(choiceOf({ beat, card: CARD, lexicon: LEX, roll: 0 })).toBe(`Valu ${CHOICE_WORD} palavik?`);
+  it("offers nothing off a beat's list that names no pair", () => {
+    const { choice: _, ...plain } = BEAT;
+    expect(choiceOf({ beat: plain, card: CARD, lexicon: LEX, roll: 0 })).toBeNull();
   });
 
-  it("offers no verbs, no phrases and no uninflected words as a choice", () => {
-    for (const oneOf of [["sobima", "valutama"], ["Tere!", "Tere hommikust!"], ["jah", "ei"], ["sobima", "jah"]]) {
-      const beat: BeatSpec = { ...BEAT, needs: [{ kind: "lemma", oneOf }] };
-      expect(choiceOf({ beat, card: CARD, lexicon: LEX, roll: 0 }), oneOf.join(" ")).toBeNull();
-    }
+  it("refuses a named pair the requirement does not take", () => {
+    const beat: BeatSpec = { ...BEAT, choice: ["valu", "tuba"] };
+    expect(choiceOf({ beat, card: CARD, lexicon: LEX, roll: 0 })).toBeNull();
   });
 });

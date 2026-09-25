@@ -462,6 +462,30 @@ export interface MatchedForm {
  */
 const FOLD_COLLISION_LOSES = new Set(["õli"]);
 
+/**
+ * Whether a query could be this spelling with nothing but diacritics dropped.
+ *
+ * Folding both sides is how `sona` finds `sõna`, and it is a repair for a
+ * query somebody typed without the letters: it says nothing about a query
+ * that carries them. `lähed` is "you go" and folds to `lahed`, the plural of
+ * `laht`, so the ladder below handed a learner tapping the second word of
+ * `Kuhu sa lähed?` a bay. A letter the query has and the spelling lacks is a
+ * letter somebody meant, so a match has to agree wherever the query is
+ * specific and may differ only where it is plain. `parast` still reaches
+ * `pärast`; `lähed` no longer reaches `lahed`.
+ */
+function meantBy(query: string, spelling: string): boolean {
+  const q = query.toLowerCase();
+  const s = spelling.toLowerCase();
+  if (q.length !== s.length) return false;
+  for (let i = 0; i < q.length; i++) {
+    const a = q[i]!;
+    const b = s[i]!;
+    if (a !== b && fold(b) !== a) return false;
+  }
+  return true;
+}
+
 function rank(
   c: Candidate, raw: string, folded: string,
   /**
@@ -484,10 +508,10 @@ function rank(
   if (english && t === r) return { score: 95 };
 
   if (!FOLD_COLLISION_LOSES.has(c.lemma.toLowerCase())) {
-    if (l === folded) return { score: 90 };
+    if (l === folded && meantBy(r, c.lemma)) return { score: 90 };
 
     // A stored principal part: `loen` should find `lugema`.
-    const stored = c.forms.find((f) => fold(f.value) === folded);
+    const stored = c.forms.find((f) => fold(f.value) === folded && meantBy(r, f.value));
     if (stored) {
       return {
         score: 88,
@@ -504,7 +528,7 @@ function rank(
     const pres1sg = c.forms.find((f) => f.formType === "PRES_1SG")?.value;
     if (pres1sg) {
       const person = derivedVerbForms({ lemma: c.lemma, pres1sg })
-        .find((form) => fold(form.value) === folded);
+        .find((form) => fold(form.value) === folded && meantBy(r, form.value));
       if (person) {
         return {
           score: 85,
@@ -522,7 +546,7 @@ function rank(
       const stemFolded = fold(stem);
       for (const { suffix, en, et, key } of CASE_SUFFIXES) {
         if (!folded.endsWith(suffix)) continue;
-        if (folded.slice(0, folded.length - suffix.length) === stemFolded) {
+        if (folded.slice(0, folded.length - suffix.length) === stemFolded && meantBy(r, stem + suffix)) {
           // Named the way a class names it. Estonian puts its word for the
           // plural in front of the case name rather than after it, so the two
           // halves cannot be concatenated the way the English pair can.
@@ -559,7 +583,7 @@ function rank(
       A stored `NOM_PL` is matched instead, like any other stored form.
     */
     const nomPl = c.forms.find((f) => f.formType === "NOM_PL")?.value;
-    if (nomPl && folded === fold(nomPl)) {
+    if (nomPl && folded === fold(nomPl) && meantBy(r, nomPl)) {
       return {
         score: 85,
         // Read off the table for the reason `CASE_SUFFIXES` is: this branch is
