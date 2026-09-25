@@ -623,7 +623,11 @@ export default async function SettingsPage() {
                         <dt>
                           <KeyCap>{keys}</KeyCap>
                         </dt>
-                        <dd className="min-w-0 flex-1 text-xs" style={{ color: "var(--ink-3)" }}>{what}</dd>
+                        {/* A basis rather than `flex-1` alone, so a long key takes its
+                            own line and the words under it wrap onto the next one:
+                            "1-4 (listening, choice)" left its description 28px at 360,
+                            and `min-w-0` let it shrink into that instead of moving down. */}
+                        <dd className="min-w-0 flex-[1_1_10rem] text-xs" style={{ color: "var(--ink-3)" }}>{what}</dd>
                       </div>
                     ))}
                   </dl>
