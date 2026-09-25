@@ -629,14 +629,15 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
       recorded and banked lines, which is how a keyless deployment plays all
       fourteen of them.
 
-      Anu is the exception and takes no fallback at all. Her provider *is*
-      Anthropic, so there is nothing behind it but Groq, and `npm run
-      eval:anu` measured what Groq does with her questions: it called the
-      tuba : toa gradation "b becomes v" where the dictionary says b : ∅,
-      offered "Mul meeldib" for "Mulle meeldib", and invented `lähema` for
-      `minema` and `kotta` for `koju`, emitting the first as a VOCAB line the
-      app parses. A fallback that answers wrongly is worse than one that does
-      not answer, because the learner cannot tell.
+      Anu is the exception and takes no Anthropic tail. The paragraph that
+      argued it was written while her provider was Anthropic and Groq was the
+      only thing behind her, and `npm run eval:anu` had caught Groq calling
+      the tuba : toa gradation "b becomes v" and inventing `lähema` for
+      `minema`. Her chain is Gemini then Groq now (`PURPOSE_CHAINS.tutor`),
+      both measured on her questions with the words block in front of them,
+      so that argument no longer describes the chain. Whether a budget-gated
+      Anthropic link belongs behind the two is a question that eval has not
+      been asked, and until it is, the tail stays off for her.
     */
     if (allowFallback && options.purpose !== "tutor" && process.env.ANTHROPIC_API_KEY) {
       if (!chain.some((c) => c.name === "anthropic")) {
