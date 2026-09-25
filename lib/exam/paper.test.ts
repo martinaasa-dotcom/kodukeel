@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   BLANK, buildPaper, cardsInPaper, eligibleWords, fillRate, formsOf, maskForms, partOf, rng,
-  seedFrom, type PoolWord,
+  seedFrom, sentencesFrom, type PoolWord,
 } from "./paper";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
 import { PARTS } from "@/lib/copy/values";
@@ -112,6 +112,31 @@ describe("choosing what a level may be examined on", () => {
     const untagged = [word({ lemma: "x", lexemeId: "1", cefr: null })];
     expect(eligibleWords(untagged, "A2")).toHaveLength(0);
     expect(eligibleWords(untagged, "B1")).toHaveLength(1);
+  });
+});
+
+describe("which usages count as a sentence", () => {
+  /*
+    The label pattern is a noun's rule, which `nominalOpener` in
+    `lib/estonian/cloze.ts` says and the deck, the ladder and the placement
+    check all read. This paper kept its own copy with the old exemption, `VERB`
+    alone, so an interjection, an adverb or a phrase opening its own usage
+    before a comma was refused here and kept everywhere else. Spelled so
+    nobody could mistake it for Estonian: the shape is what is under test.
+  */
+  const opening = (pos: string) => word({
+    lemma: "zorb", pos, lexemeId: `z-${pos}`,
+    examples: [{ et: "Zorb, mina olen siin kodus.", en: null }],
+  });
+
+  it("refuses a noun that opens its own usage before a comma", () => {
+    expect(sentencesFrom([opening("NOUN")])).toHaveLength(0);
+  });
+
+  it("keeps every other word class that does, the one rule the rest of the app reads", () => {
+    for (const pos of ["VERB", "ADVERB", "ADJECTIVE", "PHRASE", "PRONOUN"]) {
+      expect(sentencesFrom([opening(pos)]).map((s) => s.text), pos).toEqual(["Zorb, mina olen siin kodus."]);
+    }
   });
 });
 

@@ -1,5 +1,5 @@
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { buildCloze, ESTONIAN_WORD, isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
+import { buildCloze, ESTONIAN_WORD, isBuildable, naturalSentence, nominalOpener, sentenceTiles } from "@/lib/estonian/cloze";
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { buildOptions, governmentCue, parseGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -490,7 +490,7 @@ interface Sentence {
   text: string;
 }
 
-function sentencesFrom(words: readonly PoolWord[]): Sentence[] {
+export function sentencesFrom(words: readonly PoolWord[]): Sentence[] {
   const out: Sentence[] = [];
   for (const word of words) {
     /*
@@ -501,9 +501,14 @@ function sentencesFrom(words: readonly PoolWord[]): Sentence[] {
       with it. One definition in `lib/estonian/cloze.ts`, because two papers
       disagreeing about what counts as a sentence is two answers to one
       question.
+
+      And the label pattern is read through `nominalOpener` rather than a
+      copy of it, because the copy that stood here kept the old exemption,
+      `VERB` alone, after the rule was narrowed to the noun: an interjection,
+      an adverb or a phrase opening its own usage before a comma was refused
+      in this paper and kept by the deck and the placement check.
     */
-    const forms = new Set(formsOf(word).map((f) => f.toLowerCase()));
-    const opener = word.pos === "VERB" ? undefined : (opening: string) => forms.has(opening.toLowerCase());
+    const opener = nominalOpener(word.pos, formsOf(word));
     for (const example of word.examples) {
       const text = example.et.trim().replace(/\s+/g, " ");
       if (text.length < 8 || text.length > 140) continue;
