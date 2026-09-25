@@ -94,9 +94,14 @@ const CANDIDATES: ProviderConfig[] = [
   { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
   { name: "groq", model: "openai/gpt-oss-20b", label: "Groq" },
   { name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" },
-  { name: "groq", model: "groq/compound-mini", label: "Groq" },
-  { name: "groq", model: "meta-llama/llama-4-scout-17b-16e-instruct", label: "Groq" },
-  { name: "groq", model: "moonshotai/kimi-k2-instruct", label: "Groq" },
+  /*
+    Llama 4 Scout and Kimi K2 were candidates here and are gone: both answered
+    404 in the measurement above, and on 2026-09-25 `/v1/models` on this
+    account listed neither, so running them spent two of eight candidates on
+    a refusal. What the account serves for text beyond the three above is a
+    moderation pair, a safety variant, an Arabic model and `qwen3.6-27b`,
+    which `provider.ts` already records rejecting by name.
+  */
   ...(process.env.ANTHROPIC_API_KEY
     ? ([
         { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },

@@ -199,6 +199,12 @@ jobs:
       # key that is public by design by decoding the role claim.
       - name: Scan every built file for credential shapes
         run: npm run check:secrets
+      # And no dictionary data. The course harvest reached every signed-in
+      # page through a barrel import once, 916 KB of it, and nothing about the
+      # source said so: which module survives to the browser is the bundler's
+      # decision, so this reads the bundle this job has just built.
+      - name: Grep the client bundle for the shipped dictionary data
+        run: npm run check:bundle
 
   build:
     name: Build against a real database

@@ -165,10 +165,26 @@ export function gradesFor(
         .find((slip) => slip.kind === "case" && slip.grammCase && slip.reached)?.reached ?? null;
 
       if (need.kind === "lemma") {
-        // One requirement, one row: `oneOf` is a choice and the turn does not
-        // say which was taken, so a row per candidate would credit words
-        // nobody used. The first is the beat's own head word.
-        const lemma = need.oneOf[0];
+        /*
+          One requirement, one row, and the row names the word they wrote.
+
+          This took `oneOf[0]` under a comment saying the turn does not say
+          which was taken. It does: `producedFor(index)` is `satisfiedBy`,
+          which is the word that met the requirement, and `oneWordFor` two
+          hundred lines down has been settling exactly this ambiguity for a
+          card's own slot since ADR-025 amendment 3. 60 of the catalogue's 61
+          `lemma` requirements name more than one word, and the health centre's names
+          ten, so a learner who wrote `Mu selg valutab` had `pea` written into
+          the append-only log as a recall. That is the false row the
+          `substituted`, `conceded` and `chose` guards directly above exist to
+          keep out, arriving through the branch nobody guarded.
+
+          Where the words settle it on neither or on both, or where there is
+          no lexicon to ask, it grades nothing, which is the discipline the
+          card's own slot already takes and is the safe direction: a row not
+          written costs a schedule nothing, and a wrong one is never repaired.
+        */
+        const lemma = oneOfProduced(need.oneOf, producedFor(index), lexicon);
         if (lemma && answered(index)) {
           out.push({ lemma, grammCase: null, reachedCase: null, rating, beatId: beat.id });
         }
@@ -353,10 +369,28 @@ function oneWordFor(
   lexicon: Lexicon | null,
 ): string | null {
   const prop = card?.props.find((one) => one.slot === slot);
-  if (!prop || prop.lemmas.length === 0) return null;
-  if (prop.lemmas.length === 1) return prop.lemmas[0]!;
+  if (!prop) return null;
+  return oneOfProduced(prop.lemmas, produced, lexicon);
+}
+
+/**
+ * Which of several candidate lemmas the learner actually wrote, or nothing.
+ *
+ * One candidate is itself. More than one is settled by the turn's own words
+ * against the scene's forms, and settled on neither or on both is nothing,
+ * because a row here is a claim about somebody's memory in the one table
+ * this app never repairs. Shared by the `lemma` branch and by the card's own
+ * slot, which had this rule and the beat's own words did not.
+ */
+function oneOfProduced(
+  lemmas: readonly string[],
+  produced: ReadonlySet<string>,
+  lexicon: Lexicon | null,
+): string | null {
+  if (lemmas.length === 0) return null;
+  if (lemmas.length === 1) return lemmas[0]!;
   if (!lexicon) return null;
-  const wrote = prop.lemmas.filter((lemma) => {
+  const wrote = lemmas.filter((lemma) => {
     const forms = lexicon.byLemma.get(lemma);
     return forms ? [...produced].some((word) => forms.has(word)) : false;
   });
