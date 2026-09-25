@@ -112,11 +112,10 @@ describe("the scripted bank", () => {
     }
   });
 
-  it("says who drafted each line and when, and whether a person has read it", () => {
+  it("says who drafted each line and when", () => {
     for (const row of BANK) {
       expect(row.model.length).toBeGreaterThan(0);
       expect(row.draftedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(typeof row.reviewed).toBe("boolean");
     }
   });
 

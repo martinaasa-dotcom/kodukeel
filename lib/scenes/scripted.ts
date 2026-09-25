@@ -19,8 +19,8 @@ import type { Level } from "@/lib/collections/syllabus/types";
  * drafts it offline (`scripts/draft-lines.ts`), inside the same closed word
  * list, and it passes the same four checks then, or it is not written. It
  * lands in `bank.ts`, which is generated and never typed, so the pull request
- * that adds it is where a person reads it; and a native speaker's pass, when
- * there is one, edits the same file and flips `reviewed`. The screen prints
+ * that adds it is where the native Estonian speaker who develops this app
+ * reads it. The screen prints
  * which rung answered, exactly as it does for the other three.
  *
  * WHAT A SCRIPTED LINE MAY NEVER BE. It is Estonian a model wrote, so it is
@@ -48,11 +48,6 @@ export interface ScriptedLine {
   readonly model: string;
   /** The day it was drafted, ISO date. */
   readonly draftedAt: string;
-  /**
-   * Whether a native speaker has read it. False on every row a script wrote;
-   * true is set by a person editing this file, and the chip changes with it.
-   */
-  readonly reviewed: boolean;
   /**
    * THE BAND THE LINE WAS DRAFTED FOR, where it was drafted for one.
    *

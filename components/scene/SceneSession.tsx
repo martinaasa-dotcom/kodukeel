@@ -1978,9 +1978,7 @@ const PROVENANCE: Record<Provenance, string> = {
   attested: "From the course",
   /*
     Honest about both halves: a model wrote it, and every word was checked
-    against the dictionary before it was kept. "Checked by a native speaker"
-    is a different claim and the label does not make it until the bank's row
-    says so (lib/scenes/scripted.ts).
+    against the dictionary before it was kept (lib/scenes/scripted.ts).
   */
   scripted: "Written for this scene, checked word by word",
   composed: "Written for this turn",

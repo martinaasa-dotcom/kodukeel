@@ -1687,8 +1687,8 @@ to progress", with "no complicated AI", which is a scene whose other side is kno
 the same chain the route asks, with the same prompt, inside the same closed word list, and runs the
 answer through the same four checks in `lib/scenes/gate.ts`. What passes is written into
 `lib/scenes/bank.ts`, which is generated and never typed, with the model that wrote it and the day.
-The pull request that adds a row is where a person reads it. A native speaker's pass, when there is
-one, edits the same file and flips `reviewed`, and the chip on screen changes with it. The ladder
+The pull request that adds a row is where the native Estonian speaker who develops this app reads
+it. The ladder
 is four rungs now: attested, scripted, composed, the way out, in that order, because that is the
 provenance order. A recorded sentence is somebody's Estonian; a scripted line was gated yesterday
 and read since; a composed line was gated a second ago and read by nobody.
@@ -1716,7 +1716,7 @@ test asks it of every row. It refuses a line with no finite verb in it, too, whi
 four checks cannot see and the first full run produced four times: `Kus pood praegu olema?` has
 every word on the list, breaks no government and is one sentence long, and it is not a sentence
 anybody says, because the `ma`-infinitive is standing where `on` belongs. The retrieval rung
-already holds a recorded usage to that floor. And every unreviewed row is re-judged by today's
+already holds a recorded usage to that floor. And every row is re-judged by today's
 rules on every run of the drafter, so a rule added after a bank was written reaches the bank rather
 than only the next line. The finite-verb rule exempts the greeting and the farewell, which are
 phrases, and asks nothing of a line under four words, because `Millisest päevast alates?` is a
@@ -1889,10 +1889,9 @@ is that the other side gave up on Estonian and the learner is practicing not to.
 
 The free models this repository can reach wrote nothing usable for those beats, so the lines were
 typed in a session and pushed through the same four checks and the same refusals the drafter
-applies, and only what passed went in: 53 rows, model `authored`, `reviewed` false like every row a
-person has not yet read. A row is in the bank because the checks let it through and a reader can
-see it in the diff, which is the standing every drafted row has had; what a native speaker's pass
-adds is the same for both. That is a widening of the bank's own rule, that nothing in it is typed
+applies, and only what passed went in: 53 rows, model `authored`. A row is in the bank because the
+checks let it through and a reader can see it in the diff, which is the standing every drafted row
+has had. That is a widening of the bank's own rule, that nothing in it is typed
 by hand, and it is written down here rather than left for somebody to find: the rule was there to
 keep unchecked Estonian out, and these rows were checked by the very code the rule exists to
 route everything through.
@@ -1947,8 +1946,7 @@ it practises off its beats, in the words a class uses, and how the last run ende
 
 ### What this does not fix
 
-Every row a person typed is `reviewed: false` and should be read by a native speaker, which is
-the standing every drafted row has always had. The `other-register` curveball has no line and
+The `other-register` curveball has no line and
 cannot: a line in the other register fails the gate by design, so it stays a stage direction until
 the gate learns to make an exception it can explain. And the drafter still cannot fill a beat whose
 line has to name a value off the card, so a keyed deployment composes those live and a keyless one
@@ -2018,8 +2016,7 @@ its own, so nothing drafted for the first offer is said as the second.
 Driven offline against the harvest: the transcript above meets all seven beats and ends on the
 outcome that says so; `Ei sobi` then `Sobib` does the same by way of `Reedel kell 11:30?`; `Ei sobi`
 then `Ei` ends on `Hästi.` and the farewell with the beat met. What it does not fix: there is one
-counter and not a negotiation, since a third offer is a branch and the machine is a line, and every
-line the bank holds is still `reviewed: false`.
+counter and not a negotiation, since a third offer is a branch and the machine is a line.
 
 
 ## 34. The fifth pass: a turn is credited with two beats on two words, not on one mark
@@ -2170,7 +2167,7 @@ anybody had asked whether it was near, and then never said when they did. `BeatS
 fix: the other side opens the beat with nothing but the stage direction, the ladder is not walked
 for an opening line, and what the bank holds for the beat lives under its answer id. `far` is the
 one such beat so far; `answer:wait` and `answer:confirm` at the counter and `answer:refuse` at the
-landlord's carry answers of their own, typed in this pass, gated, `reviewed: false`.
+landlord's carry answers of their own, typed in this pass and gated.
 
 **Three beats learned the case a person says the word in.** The ticket window asked "where to?" and
 took `jaam` in any form, so the echo was `Jaam.`; nobody says that. A `datum` requirement can carry
@@ -2485,8 +2482,7 @@ scenes at all. Of the forty-five live claims the course makes, seven had a rehea
   recall. First run names the first conversation off the reason the learner gave.
 - The learner's own turn carries the speaker, which §11 promised and nothing drew.
 
-**What this does not fix.** A native speaker has read none of the 296 lines in the bank, and every
-one is `reviewed: false`. And a scene is still typed: the spoken unmarked mode of §11 is the same
+**What this does not fix.** A scene is still typed: the spoken unmarked mode of §11 is the same
 distance away it was.
 
 
@@ -4508,11 +4504,8 @@ drafter's own instruction says the line is said in the middle of a conversation
 that has begun. After that the A1 corner shop reads `Kus sa nüüd oled?` and
 `Mida sa poest osta tahad?`, which is what the hand-written rows say.
 
-What it does not do is read any of them: a native speaker has still read none
-of the bank, at any band, and the pitched rows arrive `reviewed: false` like
-the rest. `npm run draft:lines -- --level B1` drafts one band, `--unpitched`
-drafts the old shape, and `--refresh` still drops every unreviewed row first,
-which on this bank is every row.
+`npm run draft:lines -- --level B1` drafts one band, `--unpitched` drafts the
+old shape, and `--refresh` drops every row first.
 
 ## 61. The eighteenth pass: an interview on the fallback model
 

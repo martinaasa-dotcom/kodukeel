@@ -325,7 +325,7 @@ what a live lookup returns is a sentence the shipped table already answers for, 
 and the expansion are where those words are. Four writers, all four asserted: the two halves of the
 seed, the repair for a database seeded before the table existed, and the mapper.
 
-**Nobody has read the 16,163 lines, and a mechanical second opinion was built and thrown away.** The
+**A mechanical second opinion on the 16,163 lines was built and thrown away.** The
 gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
 from, and there is no equivalent here: a translation has no upstream to be checked against. What was
 tried instead was the dictionary itself, asking whether each English line shares a content word with
@@ -334,7 +334,7 @@ can judge and every example is correct**: a gloss is terse where a translation i
 "meadow" and the line says "the meadows turned green", and Estonian morphology means the words do
 not line up. A check that fires on honest data one time in seven is the check this file says to
 waive and then nobody reads, so it is not shipped and this paragraph is the record of why. What is
-left is a person reading a sample, and the report button, below.
+left is the native Estonian speaker who develops this app, and the report button, below.
 
 **So a wrong translation has a way out, and it is not the one that deletes the sentence.**
 `WRONG_EXAMPLE` was the only category a learner could reach for and its remedy is `DROP_EXAMPLE`,
@@ -468,9 +468,9 @@ back like `tuppa / toasse` are tried. Three card types rather than one, `CASE_FO
 `CONJUGATION`, because a rule reading only the first would leave standing the gap-fill card on the
 daily path that the fault was reported from.
 
-**What this does not claim is that the corpus has been read.** Nobody has read the 15,125 sentences
-the dictionary ships or the 16,163 English lines built for them, and this is not a quality filter
-over either. A list built by guessing would withhold correct Estonian far more often than it
+**It is not a quality filter over the corpus.** The 15,125 sentences the dictionary ships and the
+16,163 English lines built for them are read by the native Estonian speaker who develops this app,
+and this list is not a filter over either. A list built by guessing would withhold correct Estonian far more often than it
 withheld anything worth withholding, which is the measured argument the gloss audit already makes
 about a mechanical second opinion. An entry goes in when somebody who speaks the language has read
 that sentence and said so, and the report button on every screen that draws one is the door a
@@ -1240,13 +1240,10 @@ is every converb and every quotative. `npm run audit:pins` is where all of it is
 counted, for the reason `eval:scene` prints a ranked list, and it was the reading that found the
 faults below.
 
-**Nobody who speaks Estonian has read any of them, and the table says so rather than implying
-otherwise.** `PinnedExample.reviewed` is false on all 250, which is the standing `lib/scenes/bank.ts`
-already has about its own lines and is the honest state: the checks above are about attestation and
-about slots, and whether a sentence *illustrates* the claim it is filed under is a person. Nothing
-on screen reads the field, because a learner is shown an attested sentence either way and a chip
-saying nobody has checked this would be the app doubting itself in front of the person it is
-teaching. The audit prints the count, so the number a reviewer has moved is one command away.
+**Whether a sentence illustrates its point is a person's judgement, and the person is the
+developer.** The checks above are about attestation and about slots; whether a sentence
+*illustrates* the claim it is filed under is read by the native Estonian speaker who develops this
+app. There is no per-row flag for it, because a learner is shown an attested sentence either way.
 
 **Three faults the reading found, and the first was a gap that was not one.** The superlative's
 one-word form was written down as impossible, "the corpus holds no short superlative in a sentence a
@@ -4427,7 +4424,7 @@ deployment, which has no key, only two: a recorded sentence, and the way out. A 
 composed line moved to a different moment. `npm run draft:lines` asks the same chain with the same
 prompt inside the same closed word list, runs the answer through the same four checks, and writes
 the survivors into `lib/scenes/bank.ts`, which is generated and never typed; the pull request is
-where a person reads them, and a native speaker's pass edits the same file and flips `reviewed`.
+where the native Estonian speaker who develops this app reads them.
 It sits between the lexicographer and the live model because that is the provenance order, the
 route tries it before booking a call, and the screen says which rung answered (ADR-025 amendment
 1). `scriptable` refuses any beat whose line has to name a time, a number or a code the card draws
@@ -8297,8 +8294,7 @@ until one lands or the other side lets it go, and the debrief says which. Before
 difficulty dial drew them, stored them and changed nothing. The curveballs have lines in the bank
 too, under `hurdle:<id>` beats, and 53 of the rows there were typed in a session rather than
 drafted, because the free models wrote nothing usable: every one went through the same four checks
-and the same refusals the drafter applies, is marked `authored`, and is `reviewed: false` until a
-native speaker reads it. Two of the checks were corrected on the way, since the government check
+and the same refusals the drafter applies, and is marked `authored`. Two of the checks were corrected on the way, since the government check
 was refusing `Kust sa tuled?` and `See aeg ei sobi enam`, which are what people say.
 The other side repeats the learner's own word back before moving on, off `Evidence.matched`, and
 every line is spoken in the persona's voice. Fourteen scenes, and all fourteen play keyless from the
@@ -8334,11 +8330,10 @@ something back to a shop are scenes now, each testing a unit that already made t
 naming only words its declared units teach, each with an errand for the day after. `bank.test.ts`
 holds every beat and every admitted curveball of every scene to a line, so a scene arrives with its
 lines or fails, and the 137 lines those seven and the two curveballs needed were typed in a session
-through `npm run check:lines`, marked `authored` and `reviewed: false`, like the 53 before them. The
+through `npm run check:lines` and marked `authored`, like the 53 before them. The
 two curveballs are `contradiction`, which was in the catalog and admitted by no scene, and
 `misheard`, admitted by one: both are admitted where the beat shape supports them now, and a
-curveball nobody admits is dead data. What the seven cannot do is what none of the fifteen can: a
-native speaker has read none of the 296 lines, and that is the next thing the module needs.
+curveball nobody admits is dead data.
 
 **An offer names a day, and a yes is an answer.** The landlord asked `Kas küte on katki?`, heard
 "Millal teil on aeg?", and said `Jah. Kell 14:00?`: a yes to a question with no yes in it, then a
@@ -9333,7 +9328,7 @@ hundred of them were typed by hand for the curveballs no free model could write.
 corrected the table: told "two or three sentences is a whole turn", the model wrote three at A1
 every time, and with no conversation in front of it opened mid-scene beats with a greeting, so A1
 is one sentence and two at most and the drafter's instruction says the conversation has already
-begun. Nobody has read any of it, at any band.
+begun.
 
 **The other side talks like a person, and a person says `ma`, not `mina`.** A learner reported
 the composed lines as a robot's, and every one of them was correct Estonian: the word list hands

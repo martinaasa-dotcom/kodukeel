@@ -94,8 +94,7 @@ export interface RefusedSentence {
  * Every refusal, in the order they were made.
  *
  * Small on purpose. This is not a quality filter over the corpus and must not
- * become one: the corpus is fifteen thousand sentences, nobody has read them,
- * and a list built by guessing would withhold correct Estonian at a far
+ * become one: the corpus is fifteen thousand sentences, and a list built by guessing would withhold correct Estonian at a far
  * greater rate than it withholds anything worth withholding. An entry goes in
  * when somebody who speaks the language has read that sentence and said so.
  */

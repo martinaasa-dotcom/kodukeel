@@ -2272,8 +2272,8 @@ language is the interaction", with no model at runtime. Both are one change: a f
 
 `scripts/draft-lines.ts` drafts lines with the same chain and prompt the route uses, gates each one
 with the same four checks, and writes the survivors into `lib/scenes/bank.ts` with the model and
-the day. The diff is the review; a native speaker's later pass edits the same file and flips
-`reviewed`, which the chip reads. `lib/scenes/scripted.ts` decides which beats may have one (none
+the day. The diff is the review, read by the native Estonian speaker who develops the app.
+`lib/scenes/scripted.ts` decides which beats may have one (none
 that names a value the card draws per run) and reads the bank through that rule. The route tries
 the two rungs that cost a comparison before it books a call, and the screen prints which answered.
 
@@ -2364,8 +2364,7 @@ and all seven play keyless from the first line to the debrief, which `bank.test.
 
 **What was bent, and where it says so.** The bank held only drafted rows; 103 of its 159 are now
 typed in a session and checked by the same four checks and refusals the drafter applies, because
-the free models wrote nothing usable, and every one is `reviewed: false` until a native speaker
-reads it. The government check was refusing `Kust sa tuled?` and `See aeg ei sobi enam` and now
+the free models wrote nothing usable. The government check was refusing `Kust sa tuled?` and `See aeg ei sobi enam` and now
 knows a question word is the complement and a subject is not one. `scriptable` refuses only a beat
 whose line names a value off the card. `npm run check:lines` is the tool for the next person.
 
