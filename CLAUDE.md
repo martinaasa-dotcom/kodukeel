@@ -152,6 +152,17 @@ harness carried `max_tokens: 1200` after the route moved to `SCENE_REPLY_TOKENS`
 `play-scene.ts`'s fault one harness over: gpt-oss came back empty on a fifth of its calls and read as
 a model that cannot write a line until the constant was read rather than typed.
 
+**And the verbless lines stopped being the difference once `question` shipped, so the choice now
+rests on latency.** Measured on 2026-09-25 through `npm run play:scenes -- --compose --drafts`, every
+scene in the `curious` and `sloppy` styles, each model pinned through the app's own scene chain:
+qwen withheld 79 of 249 drafts (31.7%) and gpt-oss-120b 81 of 237 (34.2%), and each wrote two
+verbless lines. That is the check below doing the work the fallback's choice used to do.
+What still separates them is where they fail and how fast they answer: qwen trips
+`agreement` (13 against 3) and gpt-oss says goodbye before the scene is over (12 against 3), and
+qwen answers in about a fifth of the time, which is a learner waiting mid-conversation. So qwen stays,
+for the latency and not for the verbs, at about five times the price per line.
+`groq/compound-mini` answers 404 on every call now and is out of the running.
+
 **And a question naming a pronoun holds a verb, which is the line the clause check cannot see.**
 `clause` stands down under four words and on any line carrying a word outside the scene's list, so
 `Kus teie valu?` and `Kas teie valu peas?`, the commonest pidgin the two Groq models write, passed
