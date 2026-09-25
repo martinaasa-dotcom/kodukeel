@@ -624,7 +624,7 @@ export async function POST(request: Request) {
       the question they were asked.
     */
     offer: (response === "help" || response === "moveOn") && answered
-      ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [])
+      ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
       : null,
     met: state.done.length,
     /*
@@ -781,7 +781,7 @@ export async function POST(request: Request) {
   const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
   /* The word the beat was waiting for, where the other side is letting it go or was asked for help. */
   const handing = (response === "help" || response === "moveOn") && answered
-    ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [])
+    ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
     : null;
 
   /*
