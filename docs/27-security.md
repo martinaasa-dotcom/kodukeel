@@ -315,6 +315,7 @@ and Gemini were.
 The CSP is the other half: `connect-src` names no third party but the deployment's own Supabase
 project, which the browser needs for sign-in, so a client that tried to call Ekilex or TartuNLP
 directly would be refused by the browser as well as by an invariant.
+`lib/security/headers.test.ts` pins the whole directive rather than listing what it may not contain.
 
 ### 4.10 An error message carrying a connection string
 
