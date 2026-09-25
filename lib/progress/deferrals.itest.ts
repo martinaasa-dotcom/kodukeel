@@ -4,6 +4,8 @@ import { deferWord, deferredFor, deferredWordIds, undoDeferral, wakeForLevel } f
 import { addUnitsToDeck, lockDeck, planUnits } from "@/lib/srs/deck";
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { BAND_DAYS, DEFER_DAYS } from "@/lib/srs/defer";
+import { saveResult } from "./assessment";
+import type { Placement } from "@/lib/assessment/types";
 
 /**
  * Putting a word aside, against a database, because what it promises is about
@@ -24,6 +26,7 @@ const LATER = new Date("2027-06-01T09:00:00.000Z");
 async function wipe() {
   await prisma.card.deleteMany({ where: { ownerId: MINE } });
   await prisma.deferral.deleteMany({ where: { ownerId: MINE } });
+  await prisma.assessment.deleteMany({ where: { ownerId: MINE } });
   await prisma.lexeme.deleteMany({ where: { lemma: { in: ["zzdefer", "zzdeferb"] } } });
 }
 
@@ -212,6 +215,32 @@ describe("giving a word back", () => {
 
     const listed = await deferredFor(MINE, moved);
     expect(listed.map((row) => row.lemma)).toEqual(["zzdeferb"]);
+  });
+
+  /*
+    A level check is a level too, and `courseLevelFor` reads it. Only the
+    settings writer woke a waiting word, so somebody measured at B1 kept the B1
+    word they had put aside at A2 for the whole of its term, under a note
+    saying it waits until they get there.
+  */
+  it("hands them back when a level check measures the learner there", async () => {
+    const now = new Date();
+    const waiting = await word("zzdefer", "B1");
+    await cards(waiting.id, [now]);
+    await deferWord(MINE, waiting.id, "A2", "/review", now);
+
+    const skill = (name: string) => ({
+      skill: name, measured: true, items: 6, credit: 5, bands: [], level: "B1", selfRating: null,
+    });
+    const sitting = {
+      skills: [skill("reading"), skill("listening"), skill("writing")],
+      overall: "B1", nearly: null, ceiling: "B1", confidence: "moderate", itemsAnswered: 18,
+    } as unknown as Placement;
+    await saveResult(MINE, sitting);
+
+    const back = await prisma.card.findFirst({ where: { ownerId: MINE, lexemeId: waiting.id } });
+    expect(back!.due.getTime()).toBeLessThanOrEqual(Date.now());
+    expect((await deferredWordIds(MINE, new Date())).has(waiting.id)).toBe(false);
   });
 });
 
