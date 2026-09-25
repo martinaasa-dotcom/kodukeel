@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Send, Sparkles } from "lucide-react";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card, Empty } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -61,7 +61,7 @@ export function TutorChat({
               </p>
             )}
             {readerCanConfigure && (
-              <Button onClick={() => { window.location.href = "/settings"; }}>Open Settings</Button>
+              <ButtonLink href="/settings">Open Settings</ButtonLink>
             )}
           </div>
         }

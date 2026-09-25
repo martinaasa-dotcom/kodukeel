@@ -206,7 +206,11 @@ export function ScanCapture() {
                 <Camera size={15} aria-hidden />
                 Scan another
               </Button>
-              <Button variant="primary" onClick={() => window.location.assign(`/scan/${saved.id}`)}>
+              <Button
+                variant="primary"
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a document load on purpose, argued above
+                onClick={() => window.location.assign(`/scan/${saved.id}`)}
+              >
                 Open the page
               </Button>
             </div>

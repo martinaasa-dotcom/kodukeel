@@ -8,7 +8,7 @@
     "prebuild": "npm run lint",
     "build": "prisma generate && prisma db push && npm run db:seed:ensure && next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -14,7 +14,7 @@ import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store"
 import { GAMES, QUICK_MODES, modeAt, type PracticeMode } from "@/lib/ux/modes";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { WeakestCases } from "@/components/WeakestCases";
 import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 
@@ -357,7 +357,6 @@ export default async function PracticePage() {
  * place eleven times over on the page you press.
  */
 function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
-  const Icon = icon(mode.icon);
   return (
     <Link
       href={mode.href}
@@ -368,7 +367,7 @@ function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
         style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
       >
-        <Icon size={18} aria-hidden />
+        <NamedIcon name={mode.icon} size={18} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-base font-bold" style={{ color: "var(--ink)" }}>{mode.title}</span>
@@ -540,7 +539,6 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
   meta: string;
   primary?: boolean;
 }) {
-  const Icon = icon(iconName);
   return (
     <Link
       href={href}
@@ -556,7 +554,7 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
           className="flex h-11 w-11 items-center justify-center rounded-full"
           style={{ background: `var(--${tone})`, color: "var(--surface)" }}
         >
-          <Icon size={19} aria-hidden />
+          <NamedIcon name={iconName} size={19} aria-hidden />
         </span>
         <span className="min-w-0">
           <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{title}</span>
