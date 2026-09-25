@@ -90,7 +90,7 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
   const weekAgo = new Date(now.getTime() - 7 * 86_400_000);
   const historyStart = new Date(now.getTime() - HISTORY_DAYS * 86_400_000);
 
-  const [reviews, known, zones] = await Promise.all([
+  const [reviews, known, zones, lasts] = await Promise.all([
     prisma.review.findMany({
       where: { reviewedAt: { gte: historyStart }, ownerId: { in: ids } },
       select: { reviewedAt: true, rating: true, targetCase: true, ownerId: true },
@@ -128,7 +128,19 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
       where: { ownerId: { in: ids }, key: SETTING_KEYS.timeZone },
       select: { ownerId: true, value: true },
     }),
+    /*
+      THE LAST REVIEW EVER, NOT THE LAST ONE INSIDE THE WINDOW. The history
+      above is read over `HISTORY_DAYS`, so a student who last reviewed 121
+      days ago had no row in it and was shown as never having reviewed at
+      all, which is the fault `workplaceRoster` below reads all time to avoid.
+    */
+    prisma.review.groupBy({
+      by: ["ownerId"],
+      where: { ownerId: { in: ids } },
+      _max: { reviewedAt: true },
+    }),
   ]);
+  const lastByOwner = new Map(lasts.map((row) => [row.ownerId, row._max.reviewedAt]));
 
   const cardsByOwner = new Map<string, { state: number; lemma: string | null }[]>();
   for (const card of known) {
@@ -157,7 +169,7 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
 
   const entries: RosterEntry[] = members.map((member) => {
     const stats = byOwner.get(member.ownerId)!;
-    const last = stats.dates.reduce<Date | null>((a, b) => (!a || b > a ? b : a), null);
+    const last = lastByOwner.get(member.ownerId) ?? null;
     const weakest = caseAccuracy(stats.caseReviews, MIN_STUDENT_CASE_REVIEWS)[0];
     return {
       ownerId: member.ownerId,
