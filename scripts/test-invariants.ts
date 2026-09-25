@@ -22688,6 +22688,37 @@ check("the hint's state is one hook rather than a copy per round", () => {
     [...new Set(collapsed.map((f) => f.replace(/\\/g, "/")))], [],
     "these rounds do not tell `useHints` what the word is and what the question is",
   );
+
+  /*
+    AND A ROUND THAT PUTS A QUESTION BACK IN ITS OWN QUEUE KEYS THE LADDER ON
+    THE ASKING, NOT ON THE CARD.
+
+    The review session and the learn ladder both `requeue` what was not
+    finished, and `requeue` puts it `REQUEUE_GAP` places on or, where the queue
+    is shorter than that, straight back in front of the learner. Keyed on the
+    card alone, or on the card and a rung the answer did not move, the second
+    asking is the same question to the hook and the rungs taken the first time
+    are still taken: the last word of a Learn batch, hinted once at the gap and
+    then answered right, is capped at Hard, and Hard at the second learning
+    step stays at the second learning step, so it comes back, capped again, for
+    as long as the learner keeps answering it, with a Hard written to the
+    append-only log every time. A choice card whose options were all struck is
+    the same loop at Again. Whether a hint carried over depended on whether
+    another card happened to sit between the two askings, which is exactly the
+    reset-on-the-wrong-thing the hook exists to end. `asking` is the counter
+    each such round advances every time it deals a question.
+  */
+  const requeueing = drawing.filter((f) => /\brequeue\(/.test(code(f)));
+  const perCard = requeueing.filter((f) => {
+    const call = code(f).match(/useHints\(\{[\s\S]{0,400}?\}\)/);
+    const question = call?.[0].match(/\bquestion:[^\n]*/)?.[0] ?? "";
+    return !/\basking\b/.test(question);
+  });
+  assert.ok(requeueing.length >= 2, "no round requeues a question any more, so this check reads nothing");
+  assert.deepEqual(
+    [...new Set(perCard.map((f) => f.replace(/\\/g, "/")))], [],
+    "these rounds requeue a question and key its hint ladder on the card, so a hint taken on one asking is charged on the next",
+  );
 });
 
 check("nothing but the hint ladder decides what a hint gives away", () => {
