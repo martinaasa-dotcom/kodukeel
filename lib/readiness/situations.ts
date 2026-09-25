@@ -294,6 +294,10 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
     live: false, needs: [], cases: ["ELATIVE", "PARTITIVE"],
     tryThis: "Compare two places you have lived and say which was better and why.",
   },
+  kuivord: {
+    live: false, needs: [], cases: [],
+    tryThis: "Answer three questions about your week with almost, at least or completely rather than yes.",
+  },
   tunded: {
     live: true, needs: ["replies"], cases: ["ADESSIVE", "PARTITIVE", "ELATIVE"],
     tryThis: "Tell a friend how you actually are, not just fine, and ask them the same.",

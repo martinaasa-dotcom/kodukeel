@@ -5329,6 +5329,25 @@ check("the smallest step on the scale is one a reader can actually see", () => {
   assert.deepEqual(out.map((s) => s.name), [], "a step on the scale is not larger than the one below it");
 });
 
+/**
+ * A count is spelled from one table.
+ *
+ * Five files kept their own, reaching three, seven, ten and fourteen, so one
+ * letter wrote "4 shields" where another wrote "four", and three of them put
+ * the word first in a sentence and sent it out lowercase, one as a subject
+ * line. `spelledCount` and `SpelledCount` in `lib/copy/values.ts` are the
+ * table; an array literal spelling "one", "two", "three" anywhere else is a
+ * sixth copy.
+ */
+check("a count is spelled from the one table in lib/copy/values.ts", () => {
+  const tables = ALL.filter(
+    (f) => f !== join("lib", "copy", "values.ts") && !/\.test\.tsx?$/.test(f) &&
+      /\[\s*(?:"no",\s*)?"one",\s*"two",\s*"three"/.test(code(f)),
+  );
+  assert.deepEqual(tables, [], `${tables.join(", ")} spells counts from a table of its own; use spelledCount`);
+  assert.match(code("lib/copy/values.ts"), /export function spelledCount\(/, "the one table has gone");
+});
+
 check("an empty cell goes through NO_VALUE, never a literal", () => {
   /*
     THIS HAS GONE WRONG TWICE, THE SAME WAY, AND THE COPY GUARD CANNOT SEE IT.
@@ -6835,6 +6854,51 @@ check("a sat check is never edited, and is deleted only on request", () => {
   );
 });
 
+check("a sitting restored from a backup is history and never evidence", () => {
+  /*
+    ADR-022: a result anybody can type is not a measurement. A backup carries a
+    paper's marks and a check's levels and not the answers they came from, so
+    nothing can mark a restored row again, and a hand-edited file could hand
+    itself a C1 pass. The row comes back as written and stamped `restoredAt`,
+    and every reader that treats a sitting as evidence asks for it to be null:
+    the hub's readiness signals, the readiness picture, the level the course
+    opens at (through `latestFor`), and both cohort rosters. Four halves, since
+    any one of them left out is the forged pass reaching a screen.
+  */
+  const actions = code("app/actions.ts");
+  for (const table of ["assessments", "examAttempts"]) {
+    assert.match(
+      actions,
+      new RegExp(`backup\\.${table}[^\\n]*asRestoredMeasurement\\(`),
+      `restoreBackup writes ${table} without stamping them as restored`,
+    );
+  }
+  const exam = code("lib/progress/exam.ts");
+  assert.match(
+    exam,
+    /export async function readinessSignals[\s\S]*?recentAttempts\(ownerId, \{ measured: true \}\)/,
+    "readinessSignals reads restored sittings as evidence",
+  );
+  assert.match(
+    code("lib/progress/readiness.ts"),
+    /recentAttempts\(ownerId, \{ measured: true \}\)/,
+    "the readiness picture reads restored sittings as evidence",
+  );
+  assert.match(
+    code("lib/progress/assessment.ts"),
+    /latestFor = cache\([\s\S]*?historyFor\(ownerId, 1, \{ measured: true \}\)/,
+    "latestFor answers with a restored level check",
+  );
+  const roster = code("lib/classroom/roster.ts");
+  for (const table of ["examAttempt", "assessment"]) {
+    const reads = [...roster.matchAll(new RegExp(`prisma\\.${table}\\.find\\w+\\(\\{\\s*where: ([^\\n]*)`, "g"))];
+    assert.ok(reads.length > 0, `the roster no longer reads ${table}, so this check reads nothing`);
+    for (const r of reads) {
+      assert.match(r[1] ?? "", /restoredAt: null/, `a roster reads restored ${table} rows as evidence`);
+    }
+  }
+});
+
 check("the goal a learner states is stored through the settings store", () => {
   /*
     Settings go through lib/settings/store.ts, keys included. Five string
@@ -7061,6 +7125,40 @@ check("the privacy notice carries what Article 13 requires", () => {
   for (const [pattern, what] of required) {
     assert.match(privacy, pattern, `the privacy page no longer states ${what}`);
   }
+});
+
+/**
+ * THE SUBPROCESSOR REGISTER NAMES WHAT THE GENERATED LIST CAN NAME, AND NO MORE.
+ *
+ * `docs/26-subprocessors.md` says of itself that it describes the same table
+ * `lib/legal/recipients.ts` generates, and it had drifted three ways while the
+ * code moved on: OpenRouter sat in the provider table after the chain stopped
+ * reading its key, Vercel was written up as "not on the generated list" after
+ * the list learned to name it, and the page said no mail provider was
+ * configured while the list named Resend. A register a DPO reads is the wrong
+ * place for the code's history.
+ *
+ * Both directions: every recipient the code can generate has an entry, and
+ * the provider table holds exactly the labels `PROVIDER_HOME` knows, so a
+ * provider added to or taken out of the chain moves the page with it.
+ */
+check("the subprocessor register names every recipient the list can generate, and no retired provider", () => {
+  const register = read("docs/26-subprocessors.md");
+  const source = code("lib/legal/recipients.ts");
+  const stems = [...source.matchAll(/name:\s*["`]([^"`$,]+)/g)]
+    .map((m) => m[1]!.replace(/\s+at\s*$/, "").trim());
+  assert.ok(stems.length >= 6, `only ${stems.length} recipient names read from the code, so this stopped looking`);
+  const missing = stems.filter((stem) => !register.includes(stem));
+  assert.deepEqual(missing, [], `the register has no entry for: ${missing.join(", ")}`);
+
+  const home = source.slice(source.indexOf("PROVIDER_HOME"), source.indexOf("};", source.indexOf("PROVIDER_HOME")));
+  const labels = [...home.matchAll(/^\s*(?:"([^"]+)"|([A-Za-z]+)):/gm)].map((m) => (m[1] ?? m[2])!);
+  assert.ok(labels.length >= 3, "PROVIDER_HOME was not read");
+  const section = register.slice(register.indexOf("### The AI provider chain"));
+  const table = section.slice(0, section.indexOf("**What they process.**"));
+  const rows = [...table.matchAll(/^\| ([^|]+?) \| [^|]+ \| (?:Inside|Outside) \|$/gm)].map((m) => m[1]!);
+  assert.deepEqual([...rows].sort(), [...labels].sort(),
+    "the register's provider table and PROVIDER_HOME name different providers");
 });
 
 /*
@@ -9078,6 +9176,35 @@ check("nothing is stored on a device that would need asking first", () => {
     /What is kept on your own device/,
     "the privacy page stopped saying what is kept on the device",
   );
+});
+
+check("a due date is printed and bucketed as the day it names, never as an instant", () => {
+  /*
+    A due date is typed into `<input type="date">` and stored at midnight UTC,
+    so it is a day rather than an instant. Read in the learner's zone it named
+    the day before anywhere west of Greenwich: homework was "Late" on the day it
+    was due and printed as due the day before. `bucketFor` reads the stored day
+    through `dueDayKey`, and a screen that prints one formats it in UTC through
+    `DUE_DATE_FORMAT`. Asked of every place a due date reaches a formatter.
+  */
+  const agendaSrc = code("lib/ux/agenda.ts");
+  assert.match(agendaSrc, /const days = dayNumber\(dueDayKey\(dueAt\)\) - dayNumber\(clock\.dayKey\(now\)\)/,
+    "bucketFor reads a due date as an instant in the learner's zone again");
+  const bare: string[] = [];
+  let seen = 0;
+  for (const file of [...APP, ...COMPONENTS].filter((f) => f.endsWith(".tsx"))) {
+    const src = code(file);
+    for (const m of src.matchAll(/\b(?:dueAt|due)\??\.toLocale(?:Date)?String\(([^)]*)\)/g)) {
+      seen++;
+      if (!/DUE_DATE_FORMAT/.test(m[1]!)) bare.push(`${file}: ${m[0]}`);
+    }
+    for (const m of src.matchAll(/<LocalDate\b[^>]*iso=\{[^}]*\b(?:dueAt|due)\b[^>]*>/g)) {
+      seen++;
+      if (!/zone="UTC"/.test(m[0]) || !/DUE_DATE_FORMAT/.test(m[0])) bare.push(`${file}: LocalDate over a due date`);
+    }
+  }
+  assert.ok(seen >= 3, `only ${seen} due dates formatted; the pattern has stopped reaching them`);
+  assert.deepEqual(bare, [], `a due date printed in the reader's zone, a day early west of UTC: ${bare.join("; ")}`);
 });
 
 check("browser storage is read and written inside a try, because a blocked store throws", () => {
@@ -11886,7 +12013,8 @@ check("a transaction's own time limit fits inside the function that runs it", ()
   const short: string[] = [];
   let reached = 0;
   for (const [name, limitMs] of timed) {
-    const callers = APP.filter((file) => file !== "app/actions.ts"
+    // A test calls the action directly and runs inside no platform function.
+    const callers = APP.filter((file) => file !== "app/actions.ts" && !/\.(?:test|itest)\.tsx?$/.test(file)
       && new RegExp(`import \\{[^}]*\\b${name}\\b[^}]*\\} from "@/app/actions"`).test(read(file)));
     assert.ok(callers.length > 0, `${name} sets a transaction timeout and nothing in app/ calls it`);
     for (const caller of callers) {
@@ -14643,7 +14771,9 @@ check("late is decided in one place, against the learner's own day", () => {
     second time, and getting it wrong is the default.
   */
   const agenda = read("lib/ux/agenda.ts");
-  assert.match(agenda, /daysBetween\(/, "the agenda stopped counting in whole days");
+  // Whole calendar days, from the day the date names to the learner's today:
+  // see "a due date is printed and bucketed as the day it names".
+  assert.match(agenda, /dayNumber\(dueDayKey\(dueAt\)\) - dayNumber\(clock\.dayKey\(now\)\)/, "the agenda stopped counting in whole days");
 
   for (const file of ALL) {
     if (file === "lib/ux/agenda.ts") continue;
@@ -14655,6 +14785,19 @@ check("late is decided in one place, against the learner's own day", () => {
   }
 });
 
+
+check("a roster's days since the last review are calendar days on the member's clock", () => {
+  /*
+    Both rosters print "reviewed today" at nought. Counted in whole 24-hour
+    spans, a review at 23:00 last night read at 08:00 was "today" beside a
+    streak, on the same member's clock, that knew it was yesterday.
+  */
+  const roster = code("lib/classroom/roster.ts");
+  assert.doesNotMatch(roster, /getTime\(\)\s*\)\s*\/\s*86_400_000\)/, "a roster counts days in 24-hour spans again");
+  const calls = roster.match(/daysSinceLastReview:\s*daysSince\(/g) ?? [];
+  assert.equal(calls.length, 2, "both rosters no longer read days since through daysSince");
+  assert.match(code("lib/classroom/cohort.ts"), /dayClock\(zone\)\.daysBetween\(last, now\)/, "daysSince stopped counting calendar days");
+});
 
 check("the daily quest types what review types, and flips only what review flips", () => {
   /*
@@ -15628,6 +15771,25 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
   );
   for (const caller of ["app/actions.ts", "lib/srs/replay.ts"]) {
     assert.match(code(caller), /\bwriteGrade\(/, `${caller} stopped writing its grade through lib/srs/grade.ts`);
+  }
+});
+
+/*
+  A PRESS SETS THE STATE THE SCREEN SHOWED, AND NEVER THE OPPOSITE OF THE ROW.
+
+  `toggleStar` and `toggleTask` each read a stored boolean and wrote its
+  negation, which answers what the database holds rather than what the learner
+  was looking at: a stale Today unticked homework already handed in, a stale
+  star turned "Add" into a removal, and two presses landing together undid
+  each other or threw. The screen sends the state it wants now. What this
+  refuses is the shape itself, a write whose value is the negation of a field
+  just read, anywhere a learner's press arrives.
+*/
+check("a press sets the state the screen showed, never the opposite of the row", () => {
+  const flips = [...code("app/actions.ts").matchAll(/(\w+):\s*!\s*\w+\.\1\b/g)].map((m) => m[0]);
+  assert.deepEqual(flips, [], "a server action writes a stored boolean as the negation of what it read");
+  for (const [file, call] of [["components/StarWord.tsx", /toggleStar\(lexemeId,\s*\w+\)/], ["components/TaskRow.tsx", /toggleTask\(task\.id,\s*!task\.completed\)/]] as const) {
+    assert.match(code(file), call, `${file} stopped sending the state it wants`);
   }
 });
 
@@ -17405,10 +17567,11 @@ check("a metered route asks the ledger before offering a last resort", () => {
   );
 
   /*
-    And Anu never gets one. Anthropic is her primary, so the only thing behind
-    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
-    "b becomes v" against a dictionary that says b : the consonant going, and
-    inventing a lemma it then emitted as a VOCAB line.
+    And Anu never gets one. Her chain is Gemini and then Groq, both measured
+    on her job by `eval:anu`, and anything past them is a model nobody
+    measured: an older run of that eval caught an unmeasured model calling the
+    tuba : toa gradation "b becomes v" against a dictionary that says b : the
+    consonant going, and inventing a lemma it then emitted as a VOCAB line.
   */
   assert.match(
     code(join("lib", "tutor", "provider.ts")),
@@ -20928,6 +21091,8 @@ check("every screen that keeps a word asks which shelf, through one press", () =
 
   const keepers = ALL.filter(
     (file) => file !== DICTIONARY && file !== PRESS && file !== join("app", "actions.ts")
+      // A test calls the action to check it and is not a screen anybody keeps a word on.
+      && !/\.i?test\.tsx?$/.test(file)
       && /\baddToDeck\(/.test(code(file)),
   );
   assert.ok(keepers.length >= 6, `only ${keepers.length} screens keep a word, so this check has stopped looking`);
@@ -25705,6 +25870,47 @@ check("a translation a reviewer refused is never filled in again", () => {
   result, after the call is bought and the file rewritten, which is the wrong
   end to find it from.
 */
+/**
+ * A built entry's notes are its own word's senses, on every path that writes them.
+ *
+ * The builder took the next three senses on the Wiktionary page whatever they
+ * belonged to, so a page holding two words gave each the other's meanings:
+ * `tee` the road kept "tea", `palk` the salary "log, beam". `furtherSenses`
+ * keeps the first sense's etymology. Two scripts write notes, the builder and
+ * the gloss audit's correction, and the seed carries the fix to a deployment
+ * seeded before it, ahead of the early return.
+ */
+check("a built entry's notes come from its own etymology on every writer", () => {
+  for (const file of ["scripts/expand-seed.ts", "scripts/audit-glosses.ts"]) {
+    const source = code(file);
+    assert.match(source, /\bfurtherSenses\(/, `${file} builds notes without furtherSenses`);
+    assert.doesNotMatch(source, /senses\.slice\(1,\s*4\)/, `${file} takes the page's next senses whatever word they belong to`);
+  }
+  const seed = code("prisma/seed.ts");
+  const at = seed.indexOf("applyNotesCorrections(prisma)");
+  const early = seed.indexOf('process.argv.includes("--only-if-empty")');
+  assert.ok(at > 0 && early > 0 && at < early, "the seed does not correct notes before the early return");
+});
+
+/**
+ * A homonym pin takes the other word's notes with it, on every path.
+ *
+ * Pinning re-reads an entry from the Ekilex word it names and kept the notes,
+ * which are the Wiktionary page's other senses: `kurk` the throat kept
+ * "cucumber". `prisma/pinnedNotes.test.ts` holds the shipped file; this holds
+ * the two writers, the script that applies a pin and the seed that repairs a
+ * deployment seeded before it, on both of the seed's paths.
+ */
+check("a homonym pin carries no notes from the other word", () => {
+  const audit = code("scripts/audit-homonyms.ts");
+  const apply = /async function applyPins[\s\S]*?\n}/.exec(audit)?.[0] ?? "";
+  assert.match(apply, /notes: null/, "applyPins keeps the page's other senses on a pinned entry");
+  const seed = code("prisma/seed.ts");
+  assert.equal((seed.match(/\bclearPinnedNotes\(/g) ?? []).length, 2,
+    "the seed does not clear pinned notes on both its paths");
+  assert.match(code("prisma/expanded.ts"), /"editedBy" IS NULL/, "clearPinnedNotes may reach a hand edit");
+});
+
 check("nothing pays a model to translate a sentence nobody may be shown", () => {
   assert.match(
     code("scripts/translate-examples.ts"),
@@ -25825,6 +26031,21 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("a word-ordering tile does not say which tile goes first", () => {
+  /*
+    A sentence opens on a capital because it is first, and a tile keeping that
+    capital hands the first move over: 9,441 of the 9,463 sentences the builder
+    can set open on one. \`tileFaces\` takes it off where the forms list says the
+    opener is an ordinary word, and both screens that hand a learner tiles
+    have to read it. The examination paper is not one of them on purpose: it
+    is a marked instrument and its items are built in \`lib/exam/paper.ts\`.
+  */
+  for (const file of ["app/(app)/review/sentences/SentenceSession.tsx", "app/(app)/learn/[unitId]/lesson/page.tsx"]) {
+    assert.match(code(file), /\btileFaces\(/, `${file} hands a learner tiles still carrying the sentence's opening capital`);
+  }
+  assert.match(code("lib/dict/openers.ts"), /\bisKnownForm\(/, "the opener is no longer decided against the forms list");
 });
 
 check("an existing entry's sentences are edited under a row lock, and nowhere else", () => {
@@ -26826,6 +27047,48 @@ check("the scene judge is asked about the beat the turn was aimed at", () => {
     "the judged row is the last row again, which is another beat's whenever the turn moved the pointer");
   assert.match(route, /conceded: turns\[turns\.length - 1\]\?\.conceded \?\? null/,
     "a concession is read back off the last row, which a cascade row after it hides from the client");
+});
+
+check("an id a Server Action takes is read as a string before anything reads it", () => {
+  /*
+    Every export of app/actions.ts is a public endpoint and Prisma reads an
+    object where a string was typed as a filter. `assignHomework({ not: "" },
+    ...)` passed the ownership check against a class the caller owned and then
+    read the roster with the same argument, which matched every membership in
+    the deployment, so one teacher could write a task into every class
+    member's list. `deleteCard({ not: "" })` emptied a deck in one call. So a
+    positional id is coerced before any other line names it, and the rule is
+    asked of the order rather than of the presence, since a `text(id)` two
+    lines after a query is the same hole.
+  */
+  const src = code("app/actions.ts");
+  const exports = [...src.matchAll(/^export async function (\w+)\(([\s\S]*?)\)(?:\s*:\s*[^{]+)?\s*\{\n/gm)];
+  let ids = 0;
+  const loose: string[] = [];
+  for (const m of exports) {
+    const params = (m[2] ?? "").replace(/\{[\s\S]*?\}/g, "");
+    const names = [...params.matchAll(/(?:^|[,(\s])(\w*[iI]d)\??\s*:\s*string\b(?!\s*\|\s*null)/g)]
+      .map((x) => x[1] ?? "").filter((n) => n === "id" || /Id$/.test(n));
+    const start = (m.index ?? 0) + m[0].length;
+    const next = src.indexOf("\nexport ", start);
+    const body = src.slice(start, next === -1 ? undefined : next);
+    for (const n of names) {
+      ids++;
+      const first = body.search(new RegExp(`\\b${n}\\b`));
+      // A type guard asked before anything else reads it is as good as a
+      // coercion: `reviewId !== undefined && !isClientReviewId(reviewId)`
+      // refuses every value that is not a string of the right shape.
+      const coerced = body.search(new RegExp(
+        `(?:${n} = text|text|String)\\(${n}\\b|(?:${n} !== undefined && )?!is[A-Z]\\w*\\(${n}\\)`,
+      ));
+      if (first === -1) continue;
+      if (coerced === -1 || coerced > first) loose.push(`${m[1]}(${n})`);
+    }
+  }
+  assert.ok(ids >= 30, `found only ${ids} id parameters on the exports of app/actions.ts; the parser has stopped reading them`);
+  assert.deepEqual(loose, [], `${loose.join(", ")} reads an id before it is known to be a string`);
+  const rosters = [...src.matchAll(/classroomMember\.findMany\(\{\s*where: \{ classroomId(?![:\w])/g)];
+  assert.equal(rosters.length, 0, "a roster is read with the caller's argument rather than the id the ownership check returned");
 });
 
 check("the closing round compares a server tick with a server time", () => {
