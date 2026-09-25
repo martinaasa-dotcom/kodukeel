@@ -649,6 +649,13 @@ export interface FormMatch {
  *
  * Pure, like `rankCandidates`, so the boundary can be tested over fixtures.
  */
+export function vouchable(candidate: Candidate): boolean {
+  if (candidate.provenance === "AI") return false;
+  return candidate.forms.length > 0
+    || candidate.provenance === "SEED"
+    || candidate.provenance === "EKILEX";
+}
+
 /**
  * The same refusal as a query, for a screen that picks words out of the shared
  * dictionary rather than matching one it was handed.
@@ -663,13 +670,6 @@ export interface FormMatch {
  * thing ADR-005 exists to stop.
  */
 export const VOUCHED_ROW = { provenance: { not: "AI" } } as const;
-
-export function vouchable(candidate: Candidate): boolean {
-  if (candidate.provenance === "AI") return false;
-  return candidate.forms.length > 0
-    || candidate.provenance === "SEED"
-    || candidate.provenance === "EKILEX";
-}
 
 export function matchEstonianForm(candidates: Candidate[], word: string): FormMatch | null {
   const raw = word.trim();
