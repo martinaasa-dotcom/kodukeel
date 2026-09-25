@@ -70,6 +70,19 @@ function partsByNeed(parts: readonly PartResult[]): PartResult[] {
   });
 }
 
+/**
+ * A part at nought fails the paper whatever the total, so the total can be at
+ * or over the pass mark on a paper that failed. Subtracting it from the pass
+ * mark then printed "You are -15 points of percentage short" under a result
+ * that had just said the total was fine, and under a total that did fall short
+ * it counted points while the part at nought was the half that decides.
+ */
+function zeroPartConsequence(pct: number, part: string): string {
+  return pct >= PASS_PCT
+    ? `The total is enough. A part at nought fails the paper on its own, so ${part} is the one to work on.`
+    : `You are ${PASS_PCT - pct} points of percentage short, and ${part} has to score something too.`;
+}
+
 export function buildReport(result: ExamResult): ExamReport {
   const ordered = partsByNeed(result.parts);
   // The best of the parts that were actually set. `ordered` puts the absent
@@ -88,7 +101,9 @@ export function buildReport(result: ExamResult): ExamReport {
     ? "On a real sitting this would be a certificate."
     : result.waitBeforeResit
       ? `Under ${RETAKE_WAIT_PCT} percent, a real candidate waits six months before sitting again. Worth knowing before booking one.`
-      : `You are ${PASS_PCT - result.pct} points of percentage short. That is one part, not four.`;
+      : result.zeroPart
+        ? zeroPartConsequence(result.pct, SKILL_LABEL[result.zeroPart].toLowerCase())
+        : `You are ${PASS_PCT - result.pct} points of percentage short. That is one part, not four.`;
 
   const gaps: Feedback[] = [];
   if (result.absentParts.length > 0) {

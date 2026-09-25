@@ -64,9 +64,11 @@ export async function POST(request: Request) {
 
   let payload: { image?: unknown };
   try {
+    // A body that parses to `null` is not a picture, and reading its key after
+    // this block had closed threw, which the framework answered with a 500.
     const parsed: unknown = await request.json();
-    // `null` parses, and reading `.image` off it threw outside this try.
-    payload = (parsed && typeof parsed === "object" ? parsed : {}) as { image?: unknown };
+    if (typeof parsed !== "object" || parsed === null) throw new TypeError("not an object");
+    payload = parsed as { image?: unknown };
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
   }

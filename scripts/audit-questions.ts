@@ -586,7 +586,7 @@ for (const e of entries) {
         ? task.translation : "",
       task.label,
     ].filter(Boolean).join(" · ");
-    ask(`flash ${task.shape} ${e.lemma} ${task.slot}`, shown, task.accepted.join(" / "));
+    ask(`flash ${task.shape} ${e.lemma} ${task.slot}`, shown, task.accepted.join(PARTS));
   });
 }
 });
@@ -651,7 +651,7 @@ for (const scene of SCENES) {
       // The prompt is the situation and all three words, which is what makes
       // this different from a card: the answer may be any of the three.
       const prompt = `${scene.situation} ${words.map((w) => w.lemma).join(" ")}`;
-      ask(`scene ${scene.id} ${words[index]!.lemma} ${caseKey}`, prompt, task.accepted.join(" / "));
+      ask(`scene ${scene.id} ${words[index]!.lemma} ${caseKey}`, prompt, task.accepted.join(PARTS));
     }
   }
 }
@@ -731,7 +731,7 @@ for (const e of entries) {
       const shown = task.rung === "use"
         ? `${task.gapped ?? ""} ${task.translation ?? ""}`
         : `${task.lemma} ${task.translation ?? ""} ${task.label} ${plainAskLine(task.slot) ?? ""}`;
-      ask(`exceptions ${task.rung} ${e.lemma} ${task.kind}`, shown, task.accepted.join(" / "));
+      ask(`exceptions ${task.rung} ${e.lemma} ${task.kind}`, shown, task.accepted.join(PARTS));
     }
   }
 }

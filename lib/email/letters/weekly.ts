@@ -39,7 +39,6 @@ import { meter, weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
 
 export interface WeeklyInput {
-  readonly name: string | null;
   readonly origin: string;
   /** Seven days ending yesterday, oldest first, each with a one-letter label. */
   readonly week: readonly { readonly label: string; readonly studied: boolean }[];
