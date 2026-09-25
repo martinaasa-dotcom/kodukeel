@@ -11,6 +11,7 @@ import {
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
 import type { CaseKey } from "@/lib/estonian/types";
+import { courseLevelFor } from "@/lib/progress/level";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -47,7 +48,6 @@ export async function POST(request: Request) {
   let lexemeId: string;
   let caseKey: CaseKey;
   let sentence: string;
-  let level = "B1";
   try {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.lexemeId !== "string" || typeof body.caseKey !== "string" ||
@@ -57,7 +57,6 @@ export async function POST(request: Request) {
     lexemeId = body.lexemeId;
     caseKey = body.caseKey as CaseKey;
     sentence = body.sentence.trim().slice(0, MAX_SENTENCE_CHARS);
-    if (typeof body.level === "string" && /^[ABC][12]$/.test(body.level)) level = body.level;
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
   }
@@ -121,6 +120,13 @@ export async function POST(request: Request) {
   // verification. Only the first is owed its authorization back.
   let settled = false;
   try {
+    /*
+      WHO IS WRITING IS READ OFF THEIR OWN LOG, the way `/api/describe` and
+      `/api/tutor` read it. This took `body.level` and fell back to B1, and the
+      one screen that calls it sends none, so every learner was graded as B1.
+      Inside the try, so a read that fails hands the booking back.
+    */
+    const level = await courseLevelFor(ownerId);
       /*
     The grader's chain (`PURPOSE_CHAINS`): the model `eval:grader` measured
     first, the other measured one behind it, and the paid tail only while the

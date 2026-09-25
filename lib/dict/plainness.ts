@@ -53,6 +53,7 @@ import { derivedVerbForms, isFiniteVerbCode, pres1sgFrom } from "@/lib/estonian/
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { buildCaseTable, stemsFromParts } from "@/lib/estonian/derive";
+import { ekilexCodeOf } from "@/lib/estonian/morph";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/index";
 import type { Example } from "@/lib/dict/examples";
 
@@ -193,8 +194,7 @@ export function plainReach(entries: readonly PlainEntry[]): PlainReach {
       pildid.` has a verb in it, which is the one shape the check is for.
     */
     for (const form of entry.forms) {
-      const code = form.morphCode
-        ?? (form.formType.startsWith("EKILEX:") ? form.formType.slice(7) : null);
+      const code = ekilexCodeOf(form);
       if (isFiniteVerbCode(code)) finite.add(form.value.toLocaleLowerCase("et"));
     }
   }

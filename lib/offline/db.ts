@@ -147,6 +147,37 @@ export async function dropFromOutbox(ids: string[]): Promise<void> {
   });
 }
 
+/**
+ * Takes one grade back out of the outbox, and says whether it was there.
+ *
+ * Undo is the caller: a grade still queued never reached the server, so taking
+ * it back is removing it here, and the server's undo is only needed for a
+ * grade that has already landed. Read and delete in one transaction so a sync
+ * reading the store between the two cannot send a grade undo has claimed.
+ */
+export async function takeFromOutbox(id: string): Promise<boolean> {
+  const db = await open();
+  if (!db) return false;
+  return new Promise<boolean>((resolve) => {
+    let found = false;
+    try {
+      const tx = db.transaction(OUTBOX, "readwrite");
+      const store = tx.objectStore(OUTBOX);
+      const request = store.get(id);
+      request.onsuccess = () => {
+        if (request.result === undefined) return;
+        found = true;
+        store.delete(id);
+      };
+      tx.oncomplete = () => { db.close(); resolve(found); };
+      tx.onerror = () => resolve(false);
+      tx.onabort = () => resolve(false);
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
 export async function outboxSize(): Promise<number> {
   return run<number>(OUTBOX, "readonly", (s) => s.count(), 0);
 }
