@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 import { toggleTask } from "@/app/actions";
 import { DUE_DATE_FORMAT, TASK_TAGS, bucketFor } from "@/lib/ux/agenda";
 import { dayClock } from "@/lib/time/day";
-import { LocalDate } from "@/components/LocalDate";
+import { LocalDate, stableDate } from "@/components/LocalDate";
 
 export interface TaskView {
   id: string;
@@ -80,7 +80,7 @@ export function TaskRow({ task }: { task: TaskView }) {
                 iso={due.toISOString()}
                 zone="UTC"
                 options={DUE_DATE_FORMAT}
-                fallback={new Intl.DateTimeFormat("en-GB", DUE_DATE_FORMAT).format(due)}
+                fallback={stableDate(due, DUE_DATE_FORMAT)}
               />
             </span>
           )}

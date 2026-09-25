@@ -267,7 +267,7 @@ export interface Candidate {
    */
   readonly runsGroup: boolean;
   /**
-   * Whole weeks until the date they set themselves, or null where they set
+   * Weeks until the date they set themselves, unrounded, or null where they set
    * none or it has already passed.
    *
    * Past is null rather than negative, because a deadline already gone is its
@@ -480,7 +480,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     who.localHour < 15 &&
     allowed(who, "deadline", now)
   ) {
-    return { kind: "deadline", because: `${who.deadlineWeeks} weeks until the date they set` };
+    return { kind: "deadline", because: `${Math.round(who.deadlineWeeks)} weeks until the date they set` };
   }
 
   /*
