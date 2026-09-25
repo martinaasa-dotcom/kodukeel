@@ -7040,7 +7040,7 @@ check("the actions that do real work per call are throttled", () => {
   }
 });
 
-check("an action that reaches a bulk builder or a paper rebuild is in the throttle table", () => {
+check("an action that reaches a bulk builder, a paper rebuild or an append-only measurement is in the throttle table", () => {
   /*
     THE CHECK ABOVE READS ONE WAY, AND THE HOLES WERE ALL ON THE OTHER.
 
@@ -7062,7 +7062,9 @@ check("an action that reaches a bulk builder or a paper rebuild is in the thrott
     since that is what a loop of them is.
   */
   const source = code("app/actions.ts");
-  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor"];
+  // `recordAttempt` and `saveResult` append to `ExamAttempt` and `Assessment`,
+  // which nothing repairs, so a loop of them is permanent rather than slow.
+  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor", "recordAttempt", "saveResult"];
 
   const bodies = source.split(/\n(?=export (?:async )?function )/).slice(1);
   const reaching: string[] = [];
@@ -7081,7 +7083,7 @@ check("an action that reaches a bulk builder or a paper rebuild is in the thrott
   }
   assert.deepEqual(
     unthrottled, [],
-    `these reach a bulk card build or a paper rebuild and have no allowance in ACTION_LIMITS: ${unthrottled.join(", ")}`,
+    `these reach a bulk card build or a paper rebuild and have no allowance in ACTION_LIMITS, or append to a table nothing repairs: ${unthrottled.join(", ")}`,
   );
   // The floor: a regex that stopped matching the helpers would find nobody
   // and pass. Nine is the count on the day this was written, and the first
