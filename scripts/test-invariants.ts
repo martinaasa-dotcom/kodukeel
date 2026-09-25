@@ -4730,25 +4730,6 @@ check("the smallest step on the scale is one a reader can actually see", () => {
   assert.deepEqual(out.map((s) => s.name), [], "a step on the scale is not larger than the one below it");
 });
 
-/**
- * A homonym pin takes the other word's notes with it, on every path.
- *
- * Pinning re-reads an entry from the Ekilex word it names and kept the notes,
- * which are the Wiktionary page's other senses: `kurk` the throat kept
- * "cucumber". `prisma/pinnedNotes.test.ts` holds the shipped file; this holds
- * the two writers, the script that applies a pin and the seed that repairs a
- * deployment seeded before it, on both of the seed's paths.
- */
-check("a homonym pin carries no notes from the other word", () => {
-  const audit = code("scripts/audit-homonyms.ts");
-  const apply = /async function applyPins[\s\S]*?\n}/.exec(audit)?.[0] ?? "";
-  assert.match(apply, /notes: null/, "applyPins keeps the page's other senses on a pinned entry");
-  const seed = code("prisma/seed.ts");
-  assert.equal((seed.match(/\bclearPinnedNotes\(/g) ?? []).length, 2,
-    "the seed does not clear pinned notes on both its paths");
-  assert.match(code("prisma/expanded.ts"), /"editedBy" IS NULL/, "clearPinnedNotes may reach a hand edit");
-});
-
 check("an empty cell goes through NO_VALUE, never a literal", () => {
   /*
     THIS HAS GONE WRONG TWICE, THE SAME WAY, AND THE COPY GUARD CANNOT SEE IT.
@@ -21613,6 +21594,25 @@ check("a translation a reviewer refused is never filled in again", () => {
   result, after the call is bought and the file rewritten, which is the wrong
   end to find it from.
 */
+/**
+ * A homonym pin takes the other word's notes with it, on every path.
+ *
+ * Pinning re-reads an entry from the Ekilex word it names and kept the notes,
+ * which are the Wiktionary page's other senses: `kurk` the throat kept
+ * "cucumber". `prisma/pinnedNotes.test.ts` holds the shipped file; this holds
+ * the two writers, the script that applies a pin and the seed that repairs a
+ * deployment seeded before it, on both of the seed's paths.
+ */
+check("a homonym pin carries no notes from the other word", () => {
+  const audit = code("scripts/audit-homonyms.ts");
+  const apply = /async function applyPins[\s\S]*?\n}/.exec(audit)?.[0] ?? "";
+  assert.match(apply, /notes: null/, "applyPins keeps the page's other senses on a pinned entry");
+  const seed = code("prisma/seed.ts");
+  assert.equal((seed.match(/\bclearPinnedNotes\(/g) ?? []).length, 2,
+    "the seed does not clear pinned notes on both its paths");
+  assert.match(code("prisma/expanded.ts"), /"editedBy" IS NULL/, "clearPinnedNotes may reach a hand edit");
+});
+
 check("nothing pays a model to translate a sentence nobody may be shown", () => {
   assert.match(
     code("scripts/translate-examples.ts"),
