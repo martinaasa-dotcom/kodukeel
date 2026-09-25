@@ -4,7 +4,7 @@ import { Download, Keyboard, Smartphone } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { supabaseConfigured } from "@/lib/auth/mode";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { resolveProviders } from "@/lib/tutor/provider";
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { dailyGoalFrom, readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { letterBarFrom } from "@/lib/ux/letterBar";
@@ -63,11 +63,15 @@ export const dynamic = "force-dynamic";
   is ten seconds, and a paste that runs past it leaves a half-finished import
   and an error that says nothing about how much landed.
 
-  Sixty seconds, the same figure the writing routes use. It is a ceiling rather
-  than a reservation: a page render that takes a millisecond still takes a
-  millisecond.
+  A hundred and fifty seconds, because deleting an account is an action on
+  this page and its transaction is allowed a hundred and twenty. It was sixty,
+  so the platform would have ended the function halfway through a transaction
+  still inside its own limit, and the learner who asked to be forgotten would
+  get a dropped request instead of the sentence saying whether anything
+  changed. It is a ceiling rather than a reservation: a page render that takes
+  a millisecond still takes a millisecond.
 */
-export const maxDuration = 60;
+export const maxDuration = 150;
 
 const SHORTCUTS: [string, string][] = [
   ["⌘K / Ctrl-K", "Jump to any screen, or look a word up"],
@@ -103,8 +107,16 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 
 export default async function SettingsPage() {
   const ownerId = await requireUserId();
-  const provider = resolveProvider();
-  const resilience = providerResilience();
+  /*
+    Anu's own chain, not the general one. The general chain leads with Groq
+    and includes the paid keys, and Anu's is Gemini then Groq and nothing
+    else, so reading the general one here named a model she never answers on
+    and, with only a paid key set, said "Connected" over a tutor the route
+    refuses. The shell and /tutor already read it this way.
+  */
+  const tutorChain = resolveProviders({ purpose: "tutor" });
+  const provider = tutorChain[0] ?? null;
+  const resilience = providerResilience(tutorChain);
   const hosted = supabaseConfigured();
   const ekilexOn = ekilexConfigured();
 
@@ -414,8 +426,8 @@ export default async function SettingsPage() {
             HOW LONG A TIMED ROUND RUNS, WHICH IS WCAG 2.2.1 RATHER THAN A
             DIFFICULTY DIAL.
 
-            The Case Sprint and the daily quest each ran to a clock nobody
-            could change, and a learner who reads slowly or types with one
+            The Case Sprint, the daily quest and Target each ran to a clock
+            nobody could change, and a learner who reads slowly or types with one
             hand was not playing a harder round, they were shut out of it. The
             criterion is met by letting the limit be adjusted before it is
             met, which is what this is; see lib/ux/roundClock.ts for why
@@ -426,8 +438,8 @@ export default async function SettingsPage() {
             <SectionTitle hint={roundPaceName}>Time in a timed round</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                The sprint and the daily quest run to a clock. This is how long that clock
-                gives you, and it changes nothing else about either round.
+                The Case Sprint, the daily quest and Target run to a clock. This is how long
+                that clock gives you, and it changes nothing else about any of them.
               </p>
               <RoundPacePanel current={roundPace} />
               <Explain label="The one clock this leaves alone">
@@ -515,9 +527,10 @@ export default async function SettingsPage() {
                       Everything above runs through {resilience.providers[0]}, on one account. If
                       that key stops answering, whether it runs out of credit or just has a bad
                       minute, Anu stops with it.
-                      Adding <code className="text-xs">GROQ_API_KEY</code> or{" "}
-                      <code className="text-xs">GEMINI_API_KEY</code> to <code className="text-xs">.env</code>{" "}
-                      gives Anu somewhere else to turn. Both are free and neither asks for a card.
+                      Adding{" "}
+                      <code className="text-xs">{resilience.providers[0] === "Groq" ? "GEMINI_API_KEY" : "GROQ_API_KEY"}</code>{" "}
+                      to <code className="text-xs">.env</code> gives Anu somewhere else to turn. It
+                      is free and asks for no card.
                       Read the note beside them in{" "}
                       <code className="text-xs">.env.example</code> first: free usually means the
                       provider may look at what goes through it.

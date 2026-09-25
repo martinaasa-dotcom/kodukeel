@@ -29,8 +29,8 @@ const ROUND = 8;
  * one, the exercise is "say this in Estonian", which is a genuine production
  * task rather than a memory drill.
  *
- * Always renders SentenceSession, even with nothing to do — the same reason as
- * every other mode (see app/review/sprint/page.tsx): grading refreshes this
+ * Always renders SentenceSession, even with nothing to do, for the same reason
+ * as every other mode (see app/(app)/review/sprint/page.tsx): grading refreshes this
  * Server Component, and a conditional empty state here would swap in mid-round.
  */
 export default async function SentencesPage({
