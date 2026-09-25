@@ -36,6 +36,7 @@
  * somebody confirmed off a photograph or pasted in shares a prompt exactly as
  * readily as a seeded one.
  */
+import { PARTS } from "../lib/copy/values";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { spellingFor } from "../lib/srs/cardSpelling";
 import { alsoAcceptedByLemma, sharedPrompts } from "../lib/collections/senses";
@@ -76,7 +77,7 @@ export async function repairProductionBacks(prisma: PrismaClient): Promise<numbe
     rows.push({
       lexemeId: lexeme.id,
       from: lexeme.lemma,
-      to: [lexeme.lemma, ...others].join(" / "),
+      to: [lexeme.lemma, ...others].join(PARTS),
     });
   }
   if (rows.length === 0) return 0;

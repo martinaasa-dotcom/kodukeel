@@ -549,6 +549,15 @@ export function ReviewSession({
   const [retypeOk, setRetypeOk] = useState(false);
   const [retypeNote, setRetypeNote] = useState<string | null>(null);
   const [done, setDone] = useState(0);
+  /*
+    How many times this session has dealt a question, which the hint ladder is
+    keyed on beside the card. A card graded Again goes back through `requeue`,
+    and where the queue is shorter than the gap it is dealt again at once: keyed
+    on the card alone the rungs taken the first time were still taken, so a
+    card whose answer the ladder had spelled out was capped at Again on every
+    asking after and never left the session.
+  */
+  const [asking, setAsking] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState<Done[]>([]);
@@ -717,7 +726,7 @@ export function ReviewSession({
     word: card ? wordKey(card) : null,
     // The card rather than the word: a deck holds several cards of one word,
     // and two letters of `toas` are not two letters of `toale`.
-    question: card?.id ?? null,
+    question: card ? `${card.id}:${asking}` : null,
     ladder,
     lapses: card?.scheduling.lapses ?? 0,
   });
@@ -841,6 +850,7 @@ export function ReviewSession({
       const [seen] = next.splice(index, 1);
       return seen ? requeue(next, seen, index) : next;
     });
+    setAsking((n) => n + 1);
     setRevealed(false);
     setTyped("");
     setVerdict(null);
@@ -901,7 +911,7 @@ export function ReviewSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
     producedAt.current = null;
-  }, [card, queue, index]);
+  }, [card, queue]);
 
   const submit = useCallback(async (asked: RatingValue) => {
     if (!card || busy) return;
@@ -962,6 +972,7 @@ export function ReviewSession({
     }
 
     setDone((d) => d + 1);
+    setAsking((n) => n + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
     setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId }]);
     recordSeen(card, false);
@@ -1779,7 +1790,7 @@ export function ReviewSession({
               question somebody has the moment they first see one, and the
               screen that introduces the form is the obvious place to answer
               it. */}
-          {(revealed || chosen || ask === "intro") && <WhyRow card={card} />}
+          {(answerShown || chosen) && <WhyRow card={card} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>

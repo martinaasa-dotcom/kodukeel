@@ -102,6 +102,22 @@ describe("buildPassageCloze", () => {
   });
 });
 
+describe("a passage pasted with its letters decomposed", () => {
+  // macOS and most PDFs write õ as o plus U+0303; a keyboard types one code point.
+  const decomposed = "Ma tahan eesti keelt õppima hakata.".normalize("NFD");
+
+  it("still gaps the word that carries the diacritic", () => {
+    const [item] = buildPassageCloze(decomposed, known);
+    expect(item?.answer).toBe("õppima");
+  });
+
+  it("and marks the answer typed on a keyboard right", () => {
+    const [item] = buildPassageCloze(decomposed, known);
+    expect(isClozeCorrect("õppima", item?.answer ?? "")).toBe(true);
+    expect(isClozeCorrect("õppima".normalize("NFD"), "õppima")).toBe(true);
+  });
+});
+
 describe("isClozeCorrect", () => {
   it("accepts the exact answer", () => {
     expect(isClozeCorrect("toas", "toas")).toBe(true);
