@@ -21716,6 +21716,27 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a document the documentation points to exists", () => {
+  /*
+    The docs cross-reference each other by filename, and a file renumbered
+    leaves every pointer to it aimed at nothing: `docs/04-data-model.md` sent
+    a reader to `docs/19-situations.md` for why a scene's role card is fiction,
+    long after the situations design became `docs/21-situations.md` and 19
+    became the research export. Only document paths are held here, since
+    CLAUDE.md names deleted source files on purpose, to say they may not come
+    back.
+  */
+  const pages = ["CLAUDE.md", "README.md", ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => `docs/${f}`)];
+  let seen = 0;
+  for (const page of pages) {
+    for (const m of read(page).matchAll(/`(docs\/[A-Za-z0-9_.-]+\.md)`/g)) {
+      seen += 1;
+      assert.ok(existsSync(m[1]!), `${page} points to ${m[1]}, which does not exist`);
+    }
+  }
+  assert.ok(seen >= 100, `only ${seen} document references found; the pattern has rotted`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
