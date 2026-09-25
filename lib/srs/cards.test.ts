@@ -9,7 +9,7 @@ import { checkAnswer } from "@/lib/estonian/answer";
 const tuba: LexemeForCards = {
   lemma: "tuba", translation: "room", pos: "NOUN",
   gradation: "QUALITATIVE", gradationNote: "b : ∅", government: null,
-  semanticTypes: "koht_hoone",
+  semanticTypes: "koht_hoone", examples: null,
   forms: [
     { formType: "NOM_SG", value: "tuba" },
     { formType: "GEN_SG", value: "toa" },
@@ -21,7 +21,7 @@ const aitama: LexemeForCards = {
   lemma: "aitama", translation: "to help", pos: "VERB",
   gradation: "NONE", gradationNote: null,
   government: "partitive — aitan sind",
-  semanticTypes: null,
+  semanticTypes: null, examples: null,
   forms: [{ formType: "INF_MA", value: "aitama" }],
 };
 
@@ -42,7 +42,7 @@ const aitama: LexemeForCards = {
 describe("a prompt more than one word answers", () => {
   const ja: LexemeForCards = {
     lemma: "ja", translation: "and", pos: "ADVERB",
-    gradation: "NONE", gradationNote: null, government: null, semanticTypes: null, forms: [],
+    gradation: "NONE", gradationNote: null, government: null, semanticTypes: null, examples: null, forms: [],
     alsoAccepted: ["ning"],
   };
 
