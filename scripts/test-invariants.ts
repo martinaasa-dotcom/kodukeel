@@ -16755,17 +16755,20 @@ check("a verdict is one size, and never below the body step", () => {
     the body step, which is what the five rounds had before this.
   */
   const small = /\btext-(?:2xs|xs|sm)\b|\blabel-xs\b|\btext-\[(?:[0-9]|1[0-4])(?:\.\d+)?px\]/;
+  let panels = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const body = code(file);
     if (!/VERDICT_CLASS/.test(body)) continue;
     for (const literal of body.match(/`[^`]*`/g) ?? []) {
       if (!/VERDICT_CLASS/.test(literal)) continue;
+      panels++;
       assert.doesNotMatch(
         literal, small,
         `${file} sets a verdict below the body step: ${literal.replace(/\s+/g, " ").slice(0, 90)}`,
       );
     }
   }
+  assert.ok(panels >= 20, `read ${panels} verdict panels; the class-list sweep has stopped finding them`);
 
   /*
     The other shape a verdict takes is a run of text with nothing behind it,
@@ -16779,6 +16782,7 @@ check("a verdict is one size, and never below the body step", () => {
     the 13px tick that carry the same ink are left alone: what is refused is a
     caption class on the element the ink is written on.
   */
+  let inked = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const body = code(file);
     if (!/VERDICT_INK/.test(body)) continue;
@@ -16786,12 +16790,14 @@ check("a verdict is one size, and never below the body step", () => {
       if (!/VERDICT_INK/.test(tag)) continue;
       const classes = tag.match(/className=(?:"([^"]*)"|\{`([^`]*)`\})/);
       const names = classes?.[1] ?? classes?.[2] ?? "";
+      if (names) inked++;
       assert.doesNotMatch(
         names, small,
         `${file} writes a verdict in the verdict ink and sets it below the body step: ${names}`,
       );
     }
   }
+  assert.ok(inked >= 1, "read no element written in the verdict ink; the tag sweep has stopped finding them");
 });
 
 /*
@@ -17527,9 +17533,11 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     "the room takes a className again, which is a second answer to how big it is and loses to its "
     + "own class list wherever the two disagree",
   );
+  let rooms = 0;
   for (const file of COMPONENTS) {
     const source = code(file);
     for (const match of source.matchAll(/<SceneVignette([^>]*)>/g)) {
+      rooms++;
       const call = match[1] ?? "";
       assert.ok(
         !/className/.test(call),
@@ -17537,6 +17545,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
       );
     }
   }
+  assert.ok(rooms >= 5, `found ${rooms} rooms drawn; the tag this sweep reads has moved`);
 
   /*
     AND THE DEBRIEF IS READ IN THE ROOM IT HAPPENED IN.
@@ -18177,7 +18186,11 @@ check("putting a word aside moves a date and grades nothing", () => {
     a button that promised not to touch it.
   */
   for (const [what, where] of [["an undo", "undoDeferral"], ["the level wake", "wakeForLevel"]]) {
-    const body = defer.slice(defer.indexOf(`export async function ${where}`));
+    const from = defer.indexOf(`export async function ${where}`);
+    assert.ok(from >= 0, `lib/progress/deferrals.ts no longer exports ${where}`);
+    // Bounded at the next export, or one function's line answers for the other.
+    const next = defer.indexOf("\nexport ", from + 1);
+    const body = defer.slice(from, next === -1 ? undefined : next);
     assert.match(
       body, /due: row\.untilAt/,
       `${what} pulls cards forward without matching the date the deferral wrote, `
@@ -18771,7 +18784,9 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
     reads rather than on a count, because adding it to the started one is the
     silent regression: the learner keeps meeting words and never finishes one.
   */
-  const started = learn.slice(learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1"));
+  const startedAt = learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1");
+  assert.ok(startedAt >= 0, "the started read moved; this check is anchored on its where clause");
+  const started = learn.slice(startedAt);
   assert.doesNotMatch(
     started.slice(0, 200), /introducible/,
     "a word part way up the ladder is being held back by the module, which strands it mid-word",
@@ -19174,23 +19189,29 @@ check("an order the writer did not choose is not a wrong order", () => {
     reach the screen as `ETTE`. It is `Chip`'s `caseSensitive` rule one screen
     over, and the one that put `-SSE` on a grammar card.
   */
-  for (const file of markers) {
+  /*
+    Asked of the two elements that actually print the note, named here by the
+    text that fills them. The first version walked back from each
+    `orderVariantNote(` call to the nearest `<p` and skipped the call when it
+    found none or found one without `label-xs`, which on the screens as they
+    are is every call: the lesson stores the note in state and prints it in
+    `Verdict`, the sentence round prints it in a plain `<p>`, and the paper has
+    no markup at all. It asserted nothing. So each printing site has to be
+    found, and its element has to be one that keeps the word's case.
+  */
+  const printed: [string, RegExp][] = [
+    ["app/(app)/review/sentences/SentenceSession.tsx", /orderVariantNote\(/],
+    ["app/(app)/learn/[unitId]/lesson/LessonSession.tsx", /\{note \?\? \(ok/],
+  ];
+  for (const [file, anchor] of printed) {
     const body = code(file);
-    /*
-      The element the note is printed in, which is the window from the run of
-      markup before it. A sweep of the whole file would answer about whichever
-      other caption came first, which is what the first version of this did.
-    */
-    for (const at of [...body.matchAll(/orderVariantNote\(/g)].map((m) => m.index)) {
-      const around = body.slice(Math.max(0, at - 600), at);
-      const opened = around.lastIndexOf("<p");
-      if (opened < 0) continue;
-      const tag = around.slice(opened);
-      if (!/\blabel-xs\b/.test(tag)) continue;
-      assert.match(
-        tag, /textTransform/,
-        `${file} prints the word a learner moved in a class that uppercases it`,
-      );
+    const at = body.search(anchor);
+    assert.ok(at >= 0, `${file} no longer prints the word-order note where this check looks for it`);
+    const tags = [...body.slice(Math.max(0, at - 600), at).matchAll(/<[a-z][\w.]*\b[^<>]*>/g)];
+    const tag = tags.at(-1)?.[0];
+    assert.ok(tag, `${file}: found no element around the word-order note`);
+    if (/\b(?:label-xs|uppercase)\b/.test(tag)) {
+      assert.match(tag, /textTransform/, `${file} prints the word a learner moved in a class that uppercases it`);
     }
   }
 
@@ -20509,6 +20530,7 @@ check("a round that draws a hint pays for it in the grade it sends", () => {
   const drawing = HINT_SWEPT_DIRS
     .flatMap((dir) => sourceFiles(dir, /Session\.tsx$/))
     .filter((f) => /<HintLadder\b/.test(code(f)));
+  assert.ok(drawing.length >= 12, `found ${drawing.length} rounds drawing a hint; the sweep has stopped finding them`);
   const free = drawing.filter((f) => !/\.ceiling\b/.test(code(f)));
   assert.deepEqual(
     free.map((f) => f.replace(/\\/g, "/")), [],
@@ -20529,6 +20551,7 @@ check("the hint's state is one hook rather than a copy per round", () => {
   const drawing = [...HINT_SWEPT_DIRS, "app/(app)"]
     .flatMap((dir) => sourceFiles(dir, /\.tsx$/))
     .filter((f) => /<HintLadder\b/.test(code(f)));
+  assert.ok(new Set(drawing).size >= 12, `found ${new Set(drawing).size} rounds drawing a hint; the sweep has stopped finding them`);
   const rolled = drawing.filter((f) => !/\buseHints\(/.test(code(f)));
   assert.deepEqual(
     [...new Set(rolled.map((f) => f.replace(/\\/g, "/")))], [],
@@ -20802,7 +20825,7 @@ check("the grammar examples carry the hook the browser suite finds them by", () 
     "PointExamples no longer marks itself for the suite that drives it",
   );
   assert.ok(
-    /data-point-examples/.test(read("scripts/test-teaching.mjs")),
+    /locator\("\[data-point-examples\]"\)/.test(code("scripts/test-teaching.mjs")),
     "the teaching suite no longer checks that a claim is shown rather than stated",
   );
 });
@@ -21197,8 +21220,12 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
     the subject or the body would be a copy of somebody's letter sitting in a
     table, and an `openedAt` would be the pixel arriving through the schema.
   */
-  const model = read("prisma/schema.prisma").slice(read("prisma/schema.prisma").indexOf("model EmailSend"));
+  const schema = read("prisma/schema.prisma");
+  const modelAt = schema.indexOf("model EmailSend {");
+  assert.ok(modelAt >= 0, "prisma/schema.prisma has no EmailSend model for this check to read");
+  const model = schema.slice(modelAt);
   const fields = model.slice(0, model.indexOf("\n}"));
+  assert.match(fields, /^\s+ownerId\b/m, "the EmailSend fields this check reads are not the model's own");
   for (const banned of ["subject", "body", "html", "openedAt", "clickedAt"]) {
     assert.ok(
       !new RegExp(`^\\s+${banned}\\b`, "m").test(fields),
