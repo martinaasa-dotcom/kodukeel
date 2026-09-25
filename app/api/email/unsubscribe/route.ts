@@ -1,9 +1,8 @@
-import { prisma } from "@/lib/db";
-import { emailOptInTo, emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
+import { switchOff } from "@/lib/email/prefs";
+import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { kindsInScope, mailSecret, readUnsubscribe } from "@/lib/email/unsubscribe";
 import { esc } from "@/lib/email/html";
 import { PALETTE as P } from "@/lib/email/palette";
-import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
@@ -145,57 +144,15 @@ export async function POST(request: Request) {
   if (!allowed.ok) return page(DONE, "That is already being dealt with.");
 
   try {
-    const existing = await prisma.setting.findMany({
-      where: {
-        ownerId: read.ownerId,
-        key: { in: [SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn] },
-      },
-      select: { key: true, value: true },
-    });
-    const rowFor = (key: string) => existing.find((row) => row.key === key)?.value ?? null;
-    const next = switchOff(
-      emailPrefsFrom(rowFor(SETTING_KEYS.emailsOff), rowFor(SETTING_KEYS.emailsOn)),
-      kindsInScope(read.scope),
-    );
-    const value = emailPrefsTo(next);
     /*
-      AND THE OPT-IN ROW IS WITHDRAWN WITH IT.
-
-      `switchOff` already drops a kind from the asked-for set, and writing only
-      the refusal row would leave the old request standing on disk: harmless
-      today, because `wants` reads the refusal first, and exactly the kind of
-      contradiction that gets resolved the wrong way by whoever next changes
-      which row wins. Somebody who pressed unsubscribe did not leave a standing
-      request behind.
+      Through the one locked read-and-write, because this route and the
+      Settings switch can land together and the second of two unlocked writes
+      puts back what the first switched off (`lib/progress/emailPrefs.ts`).
+      `switchOff` drops the kinds from the asked-for set too, so somebody who
+      pressed unsubscribe does not leave a standing request behind, and the
+      store is told, because the write went round `writeSetting`.
     */
-    const optIn = emailOptInTo(next);
-
-    /*
-      Written directly rather than through `writeSetting`, which memoises per
-      request for a signed-in learner. There is no session here and the owner
-      is whoever the token names, so the helper's cache would be keyed on the
-      wrong person.
-    */
-    await prisma.$transaction([
-      prisma.setting.upsert({
-        where: { ownerId_key: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff } },
-        create: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff, value },
-        update: { value },
-      }),
-      prisma.setting.upsert({
-        where: { ownerId_key: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOn } },
-        create: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOn, value: optIn },
-        update: { value: optIn },
-      }),
-    ]);
-    /*
-      And the store is told, because a request holds one memoised read of a
-      learner's settings and a write it does not know about is a value the rest
-      of that request cannot see. Nothing else in this request reads them
-      today, which is exactly the argument for doing it anyway: the day
-      somebody adds a line below this that does, the bug is silent.
-    */
-    forgetSettings(read.ownerId);
+    await changeEmailPrefs(read.ownerId, (current) => switchOff(current, kindsInScope(read.scope)));
   } catch (error) {
     reportError(error, { at: "api/email/unsubscribe", ownerId: read.ownerId });
     /*
