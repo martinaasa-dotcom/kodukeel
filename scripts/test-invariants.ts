@@ -6871,6 +6871,34 @@ check("the privacy notice carries what Article 13 requires", () => {
 });
 
 /**
+ * THE .env A FRESH CLONE GETS IS LOCAL MODE, AND IT RUNS.
+ *
+ * `npm run setup` copies `.env.example` to `.env` before anything else, so the
+ * active assignments in that file are the configuration somebody following
+ * the README's three commands actually runs on. It set
+ * `NEXT_PUBLIC_SUPABASE_URL` to a placeholder beside an empty anon key, which
+ * `halfConfigured()` reads as neither mode, so every page answered 503 to a
+ * contributor who had been told that with no Supabase keys the app runs as
+ * one local learner. And its database lines were a placeholder pooler, so
+ * the schema push failed until they were edited. The example's live lines
+ * are the local case now and the hosted ones are comments.
+ */
+check("the .env a fresh clone gets is a working local mode", () => {
+  const active = new Map<string, string>();
+  for (const m of read(".env.example").matchAll(/^([A-Z][A-Z0-9_]+)=(.*)$/gm)) {
+    active.set(m[1]!, m[2]!.trim().replace(/^"(.*)"$/, "$1"));
+  }
+  assert.ok(active.size >= 15, `only ${active.size} live assignments read, so this stopped looking`);
+  const url = Boolean(active.get("NEXT_PUBLIC_SUPABASE_URL"));
+  const key = Boolean(active.get("NEXT_PUBLIC_SUPABASE_ANON_KEY"));
+  assert.equal(url, key, "the copied .env sets one Supabase key and not the other, which is a 503 on every page");
+  for (const name of ["DATABASE_URL", "DIRECT_URL"]) {
+    const value = active.get(name) ?? "";
+    assert.match(value, /@(127\.0\.0\.1|localhost)[:/]/, `the copied .env's ${name} is not a local Postgres`);
+  }
+});
+
+/**
  * NO NPM SCRIPT RESHAPES A DATABASE THAT IS NOT ON THIS MACHINE BY ACCIDENT.
  *
  * `npm run build` is `prisma db push` and the seed before it is a compile, so
