@@ -6647,7 +6647,7 @@ check("a sitting restored from a backup is history and never evidence", () => {
   for (const table of ["assessments", "examAttempts"]) {
     assert.match(
       actions,
-      new RegExp(`backup\\.${table}[^\\n]*\\)\\s*\\{\\s*const data = asRestoredMeasurement\\(`),
+      new RegExp(`backup\\.${table}[^\\n]*asRestoredMeasurement\\(`),
       `restoreBackup writes ${table} without stamping them as restored`,
     );
   }
@@ -11049,7 +11049,8 @@ check("a transaction's own time limit fits inside the function that runs it", ()
   const short: string[] = [];
   let reached = 0;
   for (const [name, limitMs] of timed) {
-    const callers = APP.filter((file) => file !== "app/actions.ts"
+    // A test calls the action directly and runs inside no platform function.
+    const callers = APP.filter((file) => file !== "app/actions.ts" && !/\.(?:test|itest)\.tsx?$/.test(file)
       && new RegExp(`import \\{[^}]*\\b${name}\\b[^}]*\\} from "@/app/actions"`).test(read(file)));
     assert.ok(callers.length > 0, `${name} sets a transaction timeout and nothing in app/ calls it`);
     for (const caller of callers) {
