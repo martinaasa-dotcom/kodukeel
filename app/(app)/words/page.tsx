@@ -17,16 +17,16 @@ export const dynamic = "force-dynamic";
 export default async function WordsPage() {
   const ownerId = await requireUserId();
   /*
-    Two queries, not three. The third read five thousand reviews to tally case
+    Three queries, not four. The third read five thousand reviews to tally case
     accuracy for a panel Progress already draws from the same log, with its own
     copy of the arithmetic: the same learner could read two different numbers
     for one case and nothing here would disagree with either.
 
-    The count rides beside them rather than in front: an empty deck pays for
-    two cheap reads it will not show, and everybody else saves a round trip.
+    The total is the per-state counts added up: `state` is a column no card
+    is without, so the grouped read over the same rows already holds it, and a
+    separate `count` was the same scan asked twice.
   */
-  const [totalCards, cards, counts, mastery] = await Promise.all([
-    prisma.card.count({ where: { ownerId } }),
+  const [cards, counts, mastery] = await Promise.all([
     prisma.card.findMany({
       where: { ownerId },
       /*
@@ -64,6 +64,7 @@ export default async function WordsPage() {
   }));
 
   const byState = Object.fromEntries(counts.map((c) => [c.state, c._count]));
+  const totalCards = counts.reduce((sum, c) => sum + c._count, 0);
 
   return (
     <Page

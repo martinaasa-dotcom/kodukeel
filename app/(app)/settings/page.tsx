@@ -120,7 +120,7 @@ export default async function SettingsPage() {
   const hosted = supabaseConfigured();
   const ekilexOn = ekilexConfigured();
 
-  const [words, cards, reviews, settings, learner, goals, latestCheck, courseLevel] = await Promise.all([
+  const [words, cards, reviews, settings, learner, goals, latestCheck, courseLevel, [programme, programmeDay]] = await Promise.all([
     prisma.lexeme.count(),
     prisma.card.count({ where: { ownerId } }),
     prisma.review.count({ where: { ownerId } }),
@@ -146,6 +146,17 @@ export default async function SettingsPage() {
       would print one level in the hint and hand the picker another.
     */
     courseLevelFor(ownerId),
+    /*
+      Whether the learner is being led, and how far in. Read here rather than
+      threaded down, because the panel is the one place the answer is changed
+      and a second reader is a second answer. In the batch, chained on the
+      programme, because it needs nothing else here and it was two more round
+      trips after all of this had come back.
+    */
+    Promise.all([programmeFor(ownerId), learnerDayClock(ownerId)]).then(async ([led, clock]) => [
+      led,
+      led ? (await courseReading(ownerId, led, clock)).current?.day.index ?? led.days.length : 0,
+    ] as const),
   ]);
 
   const dailyGoal = dailyGoalFrom(settings[SETTING_KEYS.dailyGoal]);
@@ -161,17 +172,7 @@ export default async function SettingsPage() {
   */
   const canSend = mailerConfig() !== null;
 
-  /*
-    Whether the learner is being led, and how far in. Read here rather than
-    threaded down, because the panel is the one place the answer is changed and
-    a second reader is a second answer.
-  */
-  const programme = await programmeFor(ownerId);
   const opening = programme ? null : openingPart(courseLevel);
-  const programmeDay = programme
-    ? (await courseReading(ownerId, programme, await learnerDayClock(ownerId))).current?.day.index
-      ?? programme.days.length
-    : 0;
   const researchExported = researchExportConfigured();
   const voice = voiceFrom(settings[SETTING_KEYS.ttsVoice]);
   const voiceName = VOICES.find((v) => v.id === voice)?.name ?? voice;
