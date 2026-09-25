@@ -200,7 +200,12 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         return;
       }
       if (!result) return;
-      if (isAdvanceKey(e)) { e.preventDefault(); next(); }
+      /* Not from the box. The Enter that marks the sentence is pressed in it,
+         and React has marked it and re-registered this listener before the
+         same event reaches the window, so without this one press checked the
+         sentence and moved past the marking before anybody had read it. The
+         box is gone once the sentence is marked, so the next Enter is free. */
+      if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); next(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
