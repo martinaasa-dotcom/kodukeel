@@ -74,7 +74,8 @@ import { buildCloze, isBuildable, mentions, sentenceTiles } from "@/lib/estonian
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { gapFormsFromParts } from "@/lib/estonian/gapForms";
 import { caseAnswer, stemsFromParts } from "@/lib/estonian/derive";
-import { CASES } from "@/lib/estonian/cases";
+import { CASES, caseByKey } from "@/lib/estonian/cases";
+import { buildOptions, parseGovernment } from "@/lib/estonian/government";
 import { caseFits, caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
@@ -494,26 +495,7 @@ function pickWrong(
 
 /**
  * Builds a multiple choice whose wrong answers are real and not accidentally
- * right.
- *
- * Returns null rather than padding when there are too few candidates: three
- * options where the design says four is a question with a one-in-three floor,
- * and silently changing the odds is worse than not asking.
- */
-function choiceOf(
-  correct: string,
-  pool: readonly string[],
-  rand: () => number,
-): { options: string[]; answer: number } | null {
-  const seen = new Set([correct.toLowerCase()]);
-  const wrong = pickWrong(pool, OPTIONS - 1, rand, seen, correct);
-  if (wrong.length < OPTIONS - 1) return null;
-  const options = shuffle([correct, ...wrong], rand);
-  return { options, answer: options.indexOf(correct) };
-}
-
-/**
- * Like `choiceOf`, but reaches for the same part of speech first.
+ * right, reaching for the same part of speech first.
  *
  * A gloss is not just a translation, it is authored in whatever convention
  * that part of speech uses: a verb reads "to help", a phrase reads "Thank
@@ -521,8 +503,12 @@ function choiceOf(
  * that looks like one, so it is the answer before anyone reads it. Wrong
  * options drawn from the word's own part of speech are ones a learner has
  * to actually rule out, and they carry the same authoring style along with
- * it. Falls back to the whole pool exactly where `choiceOf` would, when
- * there is not enough of the same kind to fill four.
+ * it. Falls back to the whole pool when there is not enough of the same
+ * kind to fill four.
+ *
+ * Returns null rather than padding when there are too few candidates: three
+ * options where the design says four is a question with a one-in-three floor,
+ * and silently changing the odds is worse than not asking.
  */
 function choiceOfNear(
   correct: string,
@@ -596,14 +582,6 @@ const DRILL_CASES: readonly CaseKey[] = [
 */
 const isInflecting = (w: LessonWord) => w.pos === "NOUN" || w.pos === "ADJECTIVE";
 
-/**
- * The Estonian cases a government question offers.
- *
- * Ekilex records government as a question word — "keda", "kellele" — so the
- * options are those question words, which is how the distinction is actually
- * taught. Wrong options are other real government patterns, never invented ones.
- */
-const GOVERNMENT_OPTIONS = ["mida", "kellele", "kellest", "millega", "kelle", "millele"];
 
 // ────────────────────────────── step builders ──────────────────────────────
 // Each returns null when the word cannot support that question. A step is only
@@ -758,15 +736,31 @@ function governStep(
 ): GovernStep | null {
   if (!rules.mayGovern) return null;
   if (word.pos !== "VERB" || !word.government) return null;
-  // Ekilex writes government as one or more question words; the first is the one
-  // a learner needs. Anything longer is a note, not a drillable answer.
-  const correct = word.government.split(/[,;]/)[0]?.trim();
-  if (!correct || correct.split(/\s+/).length > 2) return null;
-  const choice = choiceOf(correct, GOVERNMENT_OPTIONS, rand);
-  if (!choice) return null;
+  /*
+    READ THROUGH THE ONE PARSER, AND OFFERED THROUGH THE ONE BUILDER.
+
+    This split the stored string on a comma and printed its first piece as the
+    right option, which is the Ekilex column verbatim: `mida* (partitive)`,
+    asterisk and Latin case name included, beside three bare question words
+    from a list typed here. The answer was the only option shaped like that,
+    so it could be picked without reading, and it put the Latin name on a
+    screen. The typed list also held words a verb governs as well as its
+    primary, so `mida` could stand as the wrong answer to `keda/mida*`. And
+    the column separates cases with a middot rather than a comma, so 255 of
+    the 392 governed verbs in the shipped dictionary were refused outright
+    while `et` and `kuhu (direction)` were asked as though they were cases.
+    `parseGovernment` and `buildOptions` are what the drill and the mock exam
+    read: the primary case is the answer, every case the entry also names is
+    kept off the options, and each option is the question the case answers.
+  */
+  const government = parseGovernment(word.government);
+  if (!government) return null;
+  const keys = buildOptions(government, [], OPTIONS, rand);
+  if (!keys) return null;
   return {
     id, kind: "govern", lemma: word.lemma, gloss: word.gloss,
-    options: choice.options, answer: choice.answer,
+    options: keys.map((key) => caseByKey(key)?.question ?? key),
+    answer: keys.indexOf(government.caseKey),
   };
 }
 

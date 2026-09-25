@@ -42,11 +42,18 @@ export function formatTime(date: Date, locale?: string): string {
  * shape; only the hour is ours.
  */
 export function formatDateTime(date: Date, locale?: string): string {
-  return new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).format(date);
+  return new Intl.DateTimeFormat(locale, DATE_TIME_SHAPE).format(date);
 }
+
+/**
+ * The shape `formatDateTime` writes, for a client component that has to hand
+ * it to `LocalDate` rather than format in render, where the server's locale
+ * and the browser's would disagree during hydration.
+ */
+export const DATE_TIME_SHAPE: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+};
