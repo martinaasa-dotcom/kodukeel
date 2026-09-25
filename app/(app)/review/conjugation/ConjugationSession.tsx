@@ -93,8 +93,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   */
   const keeper = useKeepWord(question?.lexemeId ?? null, async (deckIds) => {
     if (!question) return;
-    await addToDeck(question.lexemeId, ["RECOGNITION", "PRODUCTION", "CONJUGATION"], "LOOKUP", deckIds);
-    setAdded(question.lexemeId);
+    const result = await addToDeck(question.lexemeId, ["RECOGNITION", "PRODUCTION", "CONJUGATION"], "LOOKUP", deckIds).catch(() => null);
+    if (result?.ok) setAdded(question.lexemeId);
   });
   const finished = !question;
   const revealed = verdicts !== null;

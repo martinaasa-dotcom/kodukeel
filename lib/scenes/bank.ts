@@ -350,7 +350,6 @@ export const BANK: readonly ScriptedLine[] = [
   { scene: "riidepood", beat: "want", text: "Kuidas ma saan teid poes aidata? Mis riideid te soovite?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", reviewed: false, level: "A1" },
   { scene: "riidepood", beat: "want", text: "Kuidas ma saan teid aidata, millist riiet te meie poest osta soovite?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", reviewed: false, level: "A2" },
   { scene: "riidepood", beat: "want", text: "Kuidas ma saan teid aidata, millist riiet te meie poest soovite?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", reviewed: false, level: "A2" },
-  { scene: "riidepood", beat: "want", text: "Kas ma saan teid aidata? Mis riie teie soovid, kas püksid või kleit?", model: "qwen/qwen3.8-27b", draftedAt: "2026-09-22", reviewed: false, level: "B1" },
   { scene: "riidepood", beat: "want", text: "Kuidas ma saan teid aidata? Meie poes on praegu palju uusi riideid. Kas te soovite osta mantlit või kampsunit?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", reviewed: false, level: "B1" },
   { scene: "tee-kusimine", beat: "answer:far", text: "Jah, see on lähedal.", model: "authored", draftedAt: "2026-09-05", reviewed: false },
   { scene: "tee-kusimine", beat: "answer:far", text: "See on siin kõrval, viis minutit.", model: "authored", draftedAt: "2026-09-05", reviewed: false },

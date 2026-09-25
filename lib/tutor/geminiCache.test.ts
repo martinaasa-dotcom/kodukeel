@@ -57,6 +57,43 @@ describe("the scene prompt held on Google's side", () => {
     expect(warm).toBeLessThan(cold / 4);
   });
 
+  it("books the entry's write on the next turn that comes back, where the turn that made it failed", async () => {
+    const calls: { url: string; body: string }[] = [];
+    vi.stubGlobal("fetch", google(calls, { generateStatus: 429 }));
+    await expect(geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "tere" }])).rejects.toThrow();
+    vi.stubGlobal("fetch", google(calls));
+    const next = await geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "tere" }]);
+    const after = await geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "poodi" }]);
+    const storage = cacheStorageAsInputTokens("gemini-3.8-flash", 1592, CACHE_TTL_SECONDS);
+    expect(calls.filter((c) => c.url.includes("/cachedContents"))).toHaveLength(1);
+    expect(next.usage).toMatchObject({ inputTokens: 1704 + 1592 + storage });
+    expect(after.usage).toMatchObject({ inputTokens: 1704 });
+  });
+
+  it("books the entry's write once when two turns are in flight on it", async () => {
+    /*
+      The debt is taken by the turn it is handed to. Read and cleared only once
+      a turn came back, the second of two overlapping turns was handed the same
+      debt, and both booked a write that happened once.
+    */
+    const calls: { url: string; body: string }[] = [];
+    const answer = google(calls);
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => { release = resolve; });
+    let generates = 0;
+    vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
+      if (String(url).includes(":generateContent") && generates++ === 0) await held;
+      return answer(url, init);
+    });
+    const first = geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "tere" }]);
+    await vi.waitFor(() => expect(generates).toBe(1));
+    const second = await geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "poodi" }]);
+    release();
+    const storage = cacheStorageAsInputTokens("gemini-3.8-flash", 1592, CACHE_TTL_SECONDS);
+    expect((await first).usage).toMatchObject({ inputTokens: 1704 + 1592 + storage });
+    expect(second.usage).toMatchObject({ inputTokens: 1704 });
+  });
+
   it("puts the system prompt in the entry, the live block before the last user turn, and the thinking off", async () => {
     const calls: { url: string; body: string }[] = [];
     vi.stubGlobal("fetch", google(calls));
@@ -166,6 +203,7 @@ describe("the scene prompt held on Google's side", () => {
       return new Response("data: [DONE]\n\n", { headers: { "content-type": "text/event-stream" } });
     });
     await openWithFallback([chain[0]!], "SYSTEM", [{ role: "user", content: "hi" }]);
+    expect(calls.length).toBeGreaterThan(0);
     expect(calls.every((c) => c.url.includes("/openai/chat/completions"))).toBe(true);
   });
 });

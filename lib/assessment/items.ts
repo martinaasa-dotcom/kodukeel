@@ -1,4 +1,5 @@
 import { CASES } from "@/lib/estonian/cases";
+import { twinsOf } from "@/lib/estonian/gapForms";
 import { buildCloze, ESTONIAN_WORD, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { dictationWords } from "@/lib/estonian/dictation";
@@ -310,9 +311,11 @@ export function gapFrom(word: WordRow): Gap | null {
     );
     const answer = cloze.answer.toLowerCase();
     const ambiguous = objectPair.has(answer);
+    // Not the answer, and not its twin: `aegasid` is right wherever `aegu` is.
+    const twins = twinsOf(word, cloze.answer);
     const siblings = forms.filter((f) => {
       const lower = f.toLowerCase();
-      if (lower === answer || standing.has(lower)) return false;
+      if (twins.has(lower) || standing.has(lower)) return false;
       return !(ambiguous && objectPair.has(lower));
     });
 

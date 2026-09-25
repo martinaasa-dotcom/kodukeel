@@ -83,6 +83,8 @@ describe("buildCheckpoint", () => {
 
   it("builds gap questions only from attested sentences", () => {
     const gaps = buildCheckpoint(WORDS, 12, 6).filter((q) => q.kind === "gap");
+    // Some were built, or "only from attested sentences" is true of none.
+    expect(gaps.length).toBeGreaterThan(0);
     for (const gap of gaps) {
       const source = WORDS.find((w) => w.lemma === gap.lemma)!;
       expect(source.examples).toContain(gap.full);
@@ -132,6 +134,7 @@ describe("buildCheckpoint", () => {
 
   it("falls back to production for a word with no sentence", () => {
     const bare = buildCheckpoint(WORDS.filter((w) => w.examples.length === 0), 8, 3);
+    expect(bare.length).toBeGreaterThan(0);
     expect(bare.every((q) => q.kind === "type")).toBe(true);
     for (const q of bare) expect(q.answer).toBe(q.lemma);
   });
