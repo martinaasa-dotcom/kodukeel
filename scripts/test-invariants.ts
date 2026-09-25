@@ -5746,6 +5746,18 @@ check("a government question never offers a case the word itself governs", () =>
  * question worded as a fact the entry does not support. The review drill has
  * filtered on part of speech since it was written; the exam builder never did.
  */
+check("a question that says \"the verb\" is asked about a verb", () => {
+  for (const file of ["lib/exam/paper.ts", "app/(app)/review/government/page.tsx"]) {
+    const source = code(file);
+    const builder = /buildGovernment[\s\S]*?\n}/.exec(source)?.[0] ?? source;
+    assert.match(
+      builder,
+      /pos === "VERB"|pos: "VERB"/,
+      `${file} builds a verb-government question without filtering to verbs`,
+    );
+  }
+});
+
 /**
  * A government string is read by `parseGovernment` and nothing else.
  *
@@ -5767,18 +5779,6 @@ check("a stored government string is read only through parseGovernment", () => {
     const source = code(file);
     assert.match(source, /\bparseGovernment\(/, `${file} builds a government question without parseGovernment`);
     assert.match(source, /\bbuildOptions\(/, `${file} builds government options without buildOptions`);
-  }
-});
-
-check("a question that says \"the verb\" is asked about a verb", () => {
-  for (const file of ["lib/exam/paper.ts", "app/(app)/review/government/page.tsx"]) {
-    const source = code(file);
-    const builder = /buildGovernment[\s\S]*?\n}/.exec(source)?.[0] ?? source;
-    assert.match(
-      builder,
-      /pos === "VERB"|pos: "VERB"/,
-      `${file} builds a verb-government question without filtering to verbs`,
-    );
   }
 });
 
