@@ -2491,7 +2491,7 @@ check("a review is only ever deleted by something the learner asked for", () => 
   const actions = read("app/actions.ts");
   assert.match(
     actions,
-    /confirmation\.trim\(\)\.toLowerCase\(\) !== "delete"/,
+    /text\(confirmation\)\.trim\(\)\.toLowerCase\(\) !== "delete"/,
     "account deletion no longer asks the learner to confirm",
   );
   assert.match(actions, /mode === "replace"/, "the restore no longer guards on an explicit replace");
@@ -21593,6 +21593,39 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("no Server Action calls a string method on an argument before it is known to be a string", () => {
+  /*
+    `joinClassroom(42)` reached `.trim()` and answered with a 500 and a digest,
+    which is why `text()` exists, and six exports had gone on calling string
+    methods straight off the wire: `recordCheckpoint(5)` threw on
+    `level.toUpperCase()`, `deleteMyAccount(1)` on `confirmation.trim()`, a
+    calendar event or a reminder whose title was a number on `input.title.trim()`,
+    and `capped` read `(value ?? "").trim()`, so every field it cleaned threw
+    on a number too. A refusal is the honest answer to garbage and a crash is
+    not, so no positional string parameter and no field of `input` may have a
+    string method called on it directly; `text()` or `capped()` goes first.
+  */
+  const src = code("app/actions.ts");
+  const exports = [...src.matchAll(/^export async function (\w+)\(([\s\S]*?)\)(?:\s*:\s*[^{]+)?\s*\{\n/gm)];
+  assert.ok(exports.length >= 60, `read only ${exports.length} exports of app/actions.ts; the parser has stopped reading them`);
+  const METHOD = "\\??\\.(?:trim|toUpperCase|toLowerCase|split|normalize|startsWith)\\(";
+  const raw: string[] = [];
+  for (const m of exports) {
+    const params = (m[2] ?? "").replace(/\{[\s\S]*?\}/g, "");
+    const names = [...params.matchAll(/(?:^|[,(\s])(\w+)\??\s*:\s*string\b/g)].map((x) => x[1] ?? "");
+    const start = (m.index ?? 0) + m[0].length;
+    const next = src.indexOf("\nexport ", start);
+    const body = src.slice(start, next === -1 ? undefined : next);
+    for (const n of [...names, "input\\??\\.\\w+"]) {
+      const hit = body.match(new RegExp(`(?<![\\w.])${n}${METHOD}`));
+      if (hit) raw.push(`${m[1]}: ${hit[0]}`);
+    }
+  }
+  assert.deepEqual(raw, [], `${raw.join("; ")} calls a string method on what the caller sent`);
+  assert.match(src, /const capped = \(value: unknown, max: number\): string =>\s*\(typeof value === "string" \? value : ""\)/,
+    "capped() trusts its argument to be a string again");
 });
 
 console.log(

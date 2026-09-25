@@ -44,7 +44,7 @@ import {
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
 import {
-  forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  DEFAULT_DAILY_GOAL, forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 import { isEmailKind } from "@/lib/email/letter";
 import { emailPrefsFrom, emailOptInTo, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
@@ -667,8 +667,8 @@ const LIMITS = {
   taskNotes: 2000,
 } as const;
 
-const capped = (value: string | undefined | null, max: number): string =>
-  (value ?? "").trim().slice(0, max);
+const capped = (value: unknown, max: number): string =>
+  (typeof value === "string" ? value : "").trim().slice(0, max);
 
 /**
  * An argument that is supposed to be a string, as a string.
@@ -1045,6 +1045,11 @@ export async function getTutorHistory() {
 /** Sets the review count that fills the daily-goal ring on Today. */
 export async function setDailyGoal(goal: number) {
   const ownerId = await requireUserId();
+  // `Math.round("x")` is NaN and survives both clamps, so a string off the
+  // wire used to be stored as the goal and read back as no goal at all.
+  if (typeof goal !== "number" || !Number.isFinite(goal)) {
+    return { ok: false as const, error: "That is not a number of reviews." };
+  }
   const clamped = Math.min(200, Math.max(5, Math.round(goal)));
   await writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(clamped));
   revalidatePath("/");
@@ -1778,7 +1783,7 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
     readSetting(ownerId, SETTING_KEYS.emailsOn),
   ]);
   const current = emailPrefsFrom(off, on);
-  const next = input.on ? switchOn(current, input.kind) : switchOff(current, [input.kind]);
+  const next = input.on === true ? switchOn(current, input.kind) : switchOff(current, [input.kind]);
   await writeSetting(ownerId, SETTING_KEYS.emailsOff, emailPrefsTo(next));
   await writeSetting(ownerId, SETTING_KEYS.emailsOn, emailOptInTo(next));
   revalidatePath("/settings");
@@ -1867,11 +1872,27 @@ export async function completeOnboarding(input: {
   };
 }) {
   const ownerId = await requireUserId();
-  const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
+  /*
+    Everything below is read off the wire, and three parts of it used to be
+    trusted: a level that is not a level was stored as the placement every
+    screen bands by, a goals object skipped the schema `saveLearningGoals`
+    holds the same fields to, and a missing object threw before any of it.
+  */
+  if (!input || typeof input !== "object") return { ok: false as const, error: "That setup could not be read." };
+  const cefr = z.enum(["A1", "A2", "B1", "B2", "C1"]).safeParse(text(input.cefr).toUpperCase());
+  const goals = input.goals === undefined || input.goals === null ? null : GOALS.safeParse(input.goals);
+  if (!cefr.success || (goals && !goals.success)) {
+    return { ok: false as const, error: "That setup could not be read." };
+  }
+  const unitIds = (Array.isArray(input.unitIds) ? input.unitIds : [])
+    .filter((id): id is string => typeof id === "string");
+  const goal = typeof input.dailyGoal === "number" && Number.isFinite(input.dailyGoal)
+    ? Math.min(200, Math.max(5, Math.round(input.dailyGoal)))
+    : DEFAULT_DAILY_GOAL;
 
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.displayName, cleanDisplayName(input?.displayName) || "A learner"),
-    writeSetting(ownerId, SETTING_KEYS.cefrGoal, input.cefr),
+    writeSetting(ownerId, SETTING_KEYS.cefrGoal, cefr.data),
     /*
       The level somebody declares at sign-up is the best guess available until
       they take the placement test, and the course needs *some* starting point
@@ -1884,7 +1905,7 @@ export async function completeOnboarding(input: {
       it must never outrank the check sat on the next screen of this same
       wizard. The blank clears a stamp left by an earlier life of the account.
     */
-    writeSetting(ownerId, SETTING_KEYS.cefrPlacement, input.cefr),
+    writeSetting(ownerId, SETTING_KEYS.cefrPlacement, cefr.data),
     writeSetting(ownerId, SETTING_KEYS.cefrPlacementAt, ""),
     writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(goal)),
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
@@ -1900,14 +1921,14 @@ export async function completeOnboarding(input: {
       Writing it at the end of first run pins where they actually started, and
       finishing a part is the only thing that moves it.
     */
-    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(input.cefr)),
-    input.goals
+    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(cefr.data)),
+    goals?.success
       ? saveGoals(ownerId, normaliseGoals({
-          reason: input.goals.reason ?? null,
-          target: (input.goals.target ?? null) as Band | null,
-          deadline: input.goals.deadline ?? null,
-          daysPerWeek: input.goals.daysPerWeek ?? DEFAULT_DAYS_PER_WEEK,
-          note: input.goals.note ?? "",
+          reason: goals.data.reason ?? null,
+          target: (goals.data.target ?? null) as Band | null,
+          deadline: goals.data.deadline ?? null,
+          daysPerWeek: goals.data.daysPerWeek ?? DEFAULT_DAYS_PER_WEEK,
+          note: goals.data.note ?? "",
         }))
       : Promise.resolve(),
   ]);
@@ -1921,7 +1942,7 @@ export async function completeOnboarding(input: {
     seconds on the one screen where the app is asking them to trust it. See
     `lib/srs/deck.ts` for the shape.
   */
-  const { added } = await addUnitsToDeck(ownerId, input.unitIds.slice(0, MAX_STARTER_UNITS), "COURSE");
+  const { added } = await addUnitsToDeck(ownerId, unitIds.slice(0, MAX_STARTER_UNITS), "COURSE");
 
   revalidatePath("/");
   revalidatePath("/learn");
@@ -2267,7 +2288,7 @@ export async function recordCheckpoint(
     level: z.enum(["A1", "A2", "B1", "B2", "C1"]),
     correct: z.number().int().min(0).max(100),
     total: z.number().int().min(1).max(100),
-  }).safeParse({ level: level.toUpperCase(), correct, total });
+  }).safeParse({ level: text(level).toUpperCase(), correct, total });
   if (!parsed.success || parsed.data.correct > parsed.data.total) {
     return { ok: false as const, error: "That result could not be read." };
   }
@@ -2641,10 +2662,10 @@ export async function addStudyEvent(input: {
 }) {
   const ownerId = await requireUserId();
 
-  const title = input.title.trim().slice(0, 120);
+  const title = capped(input?.title, 120);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
-  const weekdays = [...new Set(input.weekdays)].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
+  const weekdays = [...new Set(Array.isArray(input.weekdays) ? input.weekdays : [])].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
   /*
     A one-off needs a day and a repeat must not carry one. Reading a stray
     `onDate` on a repeating event would make `eventsOn` answer two ways about
@@ -2659,7 +2680,7 @@ export async function addStudyEvent(input: {
     data: {
       ownerId,
       title,
-      notes: input.notes?.trim().slice(0, 500) || null,
+      notes: capped(input.notes, 500) || null,
       kind: kindFrom(input.kind),
       startMinute: clamp(Math.round(input.startMinute), 0, 1439),
       durationMinutes: clamp(Math.round(input.durationMinutes), 5, 12 * 60),
@@ -2692,7 +2713,7 @@ export async function deleteStudyEvent(id: string) {
  */
 export async function addReminder(input: { title: string; notes?: string; dueAt?: string | null }) {
   const ownerId = await requireUserId();
-  const title = input.title.trim().slice(0, 200);
+  const title = capped(input?.title, 200);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const key = dayKeyOrNull(input.dueAt);
@@ -2700,7 +2721,7 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
     data: {
       ownerId,
       title,
-      notes: input.notes?.trim().slice(0, 500) || null,
+      notes: capped(input.notes, 500) || null,
       tag: "HOMEWORK",
       // Stored at midnight UTC, which is what `<input type="date">` sends and
       // what `bucketFor` already expects: it counts whole days on the learner's
@@ -2844,7 +2865,7 @@ export async function buildClozeFromText(passageIn: string) {
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  if (confirmation.trim().toLowerCase() !== "delete") {
+  if (text(confirmation).trim().toLowerCase() !== "delete") {
     return { ok: false as const, error: 'Type "delete" to confirm.' };
   }
 
