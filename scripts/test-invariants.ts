@@ -6854,6 +6854,51 @@ check("a sat check is never edited, and is deleted only on request", () => {
   );
 });
 
+check("a sitting restored from a backup is history and never evidence", () => {
+  /*
+    ADR-022: a result anybody can type is not a measurement. A backup carries a
+    paper's marks and a check's levels and not the answers they came from, so
+    nothing can mark a restored row again, and a hand-edited file could hand
+    itself a C1 pass. The row comes back as written and stamped `restoredAt`,
+    and every reader that treats a sitting as evidence asks for it to be null:
+    the hub's readiness signals, the readiness picture, the level the course
+    opens at (through `latestFor`), and both cohort rosters. Four halves, since
+    any one of them left out is the forged pass reaching a screen.
+  */
+  const actions = code("app/actions.ts");
+  for (const table of ["assessments", "examAttempts"]) {
+    assert.match(
+      actions,
+      new RegExp(`backup\\.${table}[^\\n]*asRestoredMeasurement\\(`),
+      `restoreBackup writes ${table} without stamping them as restored`,
+    );
+  }
+  const exam = code("lib/progress/exam.ts");
+  assert.match(
+    exam,
+    /export async function readinessSignals[\s\S]*?recentAttempts\(ownerId, \{ measured: true \}\)/,
+    "readinessSignals reads restored sittings as evidence",
+  );
+  assert.match(
+    code("lib/progress/readiness.ts"),
+    /recentAttempts\(ownerId, \{ measured: true \}\)/,
+    "the readiness picture reads restored sittings as evidence",
+  );
+  assert.match(
+    code("lib/progress/assessment.ts"),
+    /latestFor = cache\([\s\S]*?historyFor\(ownerId, 1, \{ measured: true \}\)/,
+    "latestFor answers with a restored level check",
+  );
+  const roster = code("lib/classroom/roster.ts");
+  for (const table of ["examAttempt", "assessment"]) {
+    const reads = [...roster.matchAll(new RegExp(`prisma\\.${table}\\.find\\w+\\(\\{\\s*where: ([^\\n]*)`, "g"))];
+    assert.ok(reads.length > 0, `the roster no longer reads ${table}, so this check reads nothing`);
+    for (const r of reads) {
+      assert.match(r[1] ?? "", /restoredAt: null/, `a roster reads restored ${table} rows as evidence`);
+    }
+  }
+});
+
 check("the goal a learner states is stored through the settings store", () => {
   /*
     Settings go through lib/settings/store.ts, keys included. Five string
@@ -8257,6 +8302,28 @@ check("a not-found boundary draws a main only where its layout does not", () => 
     code("app/(app)/layout.tsx"),
     /<main/,
     "the signed-in layout no longer draws a main, so the boundary below it has to",
+  );
+});
+
+check("a key a caller chose is looked up as an own key, and a duration is a number", () => {
+  /*
+    TWO WAYS A VALUE OFF THE WIRE REACHED A COLUMN IT COULD NOT GO IN.
+
+    `beginScene` checked the difficulty with `chosen in BUDGETS`. `in` walks the
+    prototype, so `constructor`, `toString` and `__proto__` all passed, and
+    `BUDGETS[chosen]` handed the `Object` function to `SceneRun.difficulty`,
+    which is an Int: the action threw where it meant to say "Not a difficulty."
+    And `gradeCard` passed `durationMs` straight through to `writeGrade`, which
+    clamped it with `Math.min` and `Math.max`, both of which return NaN for NaN,
+    so a NaN or a string threw on insert and `1.5` reached an Int column.
+  */
+  const actions = code("app/actions.ts");
+  const walks = actions.match(/!\(\s*\w+\s+in\s+[A-Z][A-Z0-9_]+\s*\)/g) ?? [];
+  assert.deepEqual(walks, [], "a \"use server\" export checks a caller's key with `in`, which walks the prototype");
+  const grade = code("lib/srs/grade.ts");
+  assert.match(
+    grade, /durationMs:\s*Number\.isFinite\(durationMs\)/,
+    "writeGrade writes a duration it has not checked is a number into an Int column",
   );
 });
 
@@ -11946,7 +12013,8 @@ check("a transaction's own time limit fits inside the function that runs it", ()
   const short: string[] = [];
   let reached = 0;
   for (const [name, limitMs] of timed) {
-    const callers = APP.filter((file) => file !== "app/actions.ts"
+    // A test calls the action directly and runs inside no platform function.
+    const callers = APP.filter((file) => file !== "app/actions.ts" && !/\.(?:test|itest)\.tsx?$/.test(file)
       && new RegExp(`import \\{[^}]*\\b${name}\\b[^}]*\\} from "@/app/actions"`).test(read(file)));
     assert.ok(callers.length > 0, `${name} sets a transaction timeout and nothing in app/ calls it`);
     for (const caller of callers) {
@@ -14718,6 +14786,39 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("after a letter is sent, a failed write is reported rather than counted as a failed send", () => {
+  const run = code("lib/mailer/run.ts");
+  assert.match(run, /await rememberAfterSend\(ownerId, built\.remember\.key, built\.remember\.value\)/,
+    "the high-water mark is written bare after a send again, so a failure counts the letter as failed and it can go twice");
+});
+
+
+check("a grade writes a card's case and slot to the log only where they are on the closed list", () => {
+  /*
+    A card restored from a backup carries whatever the file said, and the grade
+    copied its \`targetCase\` and its own slot into \`Review\` unchecked: the one
+    table that is never repaired, which the case charts print.
+  */
+  const grade = code("lib/srs/grade.ts");
+  assert.doesNotMatch(grade, /targetCase: card\.targetCase/, "a grade copies the card's case into the log unchecked");
+  assert.doesNotMatch(grade, /return slotOfCard\(card\)/, "a grade takes the card's own slot unchecked");
+  assert.match(grade, /isKnownSlot\(s\)/, "a grade no longer checks the card's own slot");
+});
+
+
+check("a roster's days since the last review are calendar days on the member's clock", () => {
+  /*
+    Both rosters print "reviewed today" at nought. Counted in whole 24-hour
+    spans, a review at 23:00 last night read at 08:00 was "today" beside a
+    streak, on the same member's clock, that knew it was yesterday.
+  */
+  const roster = code("lib/classroom/roster.ts");
+  assert.doesNotMatch(roster, /getTime\(\)\s*\)\s*\/\s*86_400_000\)/, "a roster counts days in 24-hour spans again");
+  const calls = roster.match(/daysSinceLastReview:\s*daysSince\(/g) ?? [];
+  assert.equal(calls.length, 2, "both rosters no longer read days since through daysSince");
+  assert.match(code("lib/classroom/cohort.ts"), /dayClock\(zone\)\.daysBetween\(last, now\)/, "daysSince stopped counting calendar days");
+});
+
 check("the daily quest types what review types, and flips only what review flips", () => {
   /*
     The quest gave options to case and conjugation cards and turned every other
@@ -16605,7 +16706,7 @@ check("an answer records which form it was about, from a list nothing can widen"
   );
   assert.match(
     grade,
-    /targetCase:\s*card\.targetCase/,
+    /targetCase:\s*(?:knownCase\()?card\.targetCase/,
     "writeGrade stopped recording the card's own case. That column is what the " +
     "case charts read and it is not the slot's to take over.",
   );
@@ -16671,7 +16772,7 @@ check("a wrong answer records the form it reached for, and only between forms", 
   const grade = code("lib/srs/grade.ts");
   assert.match(
     between(grade, "prisma.review.create"),
-    /reachedSlot:\s*reachedFor\(/,
+    /reachedSlot:\s*(?:slot \? )?reachedFor\(/,
     "writeGrade no longer records the form that came back instead, so the " +
     "confusion panel goes quiet and nothing says why",
   );
@@ -17486,10 +17587,11 @@ check("a metered route asks the ledger before offering a last resort", () => {
   );
 
   /*
-    And Anu never gets one. Anthropic is her primary, so the only thing behind
-    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
-    "b becomes v" against a dictionary that says b : the consonant going, and
-    inventing a lemma it then emitted as a VOCAB line.
+    And Anu never gets one. Her chain is Gemini and then Groq, both measured
+    on her job by `eval:anu`, and anything past them is a model nobody
+    measured: an older run of that eval caught an unmeasured model calling the
+    tuba : toa gradation "b becomes v" against a dictionary that says b : the
+    consonant going, and inventing a lemma it then emitted as a VOCAB line.
   */
   assert.match(
     code(join("lib", "tutor", "provider.ts")),
@@ -25788,6 +25890,47 @@ check("a translation a reviewer refused is never filled in again", () => {
   result, after the call is bought and the file rewritten, which is the wrong
   end to find it from.
 */
+/**
+ * A built entry's notes are its own word's senses, on every path that writes them.
+ *
+ * The builder took the next three senses on the Wiktionary page whatever they
+ * belonged to, so a page holding two words gave each the other's meanings:
+ * `tee` the road kept "tea", `palk` the salary "log, beam". `furtherSenses`
+ * keeps the first sense's etymology. Two scripts write notes, the builder and
+ * the gloss audit's correction, and the seed carries the fix to a deployment
+ * seeded before it, ahead of the early return.
+ */
+check("a built entry's notes come from its own etymology on every writer", () => {
+  for (const file of ["scripts/expand-seed.ts", "scripts/audit-glosses.ts"]) {
+    const source = code(file);
+    assert.match(source, /\bfurtherSenses\(/, `${file} builds notes without furtherSenses`);
+    assert.doesNotMatch(source, /senses\.slice\(1,\s*4\)/, `${file} takes the page's next senses whatever word they belong to`);
+  }
+  const seed = code("prisma/seed.ts");
+  const at = seed.indexOf("applyNotesCorrections(prisma)");
+  const early = seed.indexOf('process.argv.includes("--only-if-empty")');
+  assert.ok(at > 0 && early > 0 && at < early, "the seed does not correct notes before the early return");
+});
+
+/**
+ * A homonym pin takes the other word's notes with it, on every path.
+ *
+ * Pinning re-reads an entry from the Ekilex word it names and kept the notes,
+ * which are the Wiktionary page's other senses: `kurk` the throat kept
+ * "cucumber". `prisma/pinnedNotes.test.ts` holds the shipped file; this holds
+ * the two writers, the script that applies a pin and the seed that repairs a
+ * deployment seeded before it, on both of the seed's paths.
+ */
+check("a homonym pin carries no notes from the other word", () => {
+  const audit = code("scripts/audit-homonyms.ts");
+  const apply = /async function applyPins[\s\S]*?\n}/.exec(audit)?.[0] ?? "";
+  assert.match(apply, /notes: null/, "applyPins keeps the page's other senses on a pinned entry");
+  const seed = code("prisma/seed.ts");
+  assert.equal((seed.match(/\bclearPinnedNotes\(/g) ?? []).length, 2,
+    "the seed does not clear pinned notes on both its paths");
+  assert.match(code("prisma/expanded.ts"), /"editedBy" IS NULL/, "clearPinnedNotes may reach a hand edit");
+});
+
 check("nothing pays a model to translate a sentence nobody may be shown", () => {
   assert.match(
     code("scripts/translate-examples.ts"),
@@ -25908,6 +26051,44 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("a game graded on the server writes one review however often its round is reported", () => {
+  /*
+    Sõnad and the crossword report a finished round once, and again the next
+    time the board opens if the response was lost, and again from a second
+    device. Each report was a fresh row in the append-only log and a second
+    scheduling of the card. The id is derived from the game, the day and the
+    card (`stableReviewId`), so the second write collides on the key before
+    `writeGrade` touches the card; `gradeOnce` is what reads that as done.
+  */
+  const actions = code("app/actions.ts");
+  for (const [name, game] of [["recordSonad", "sonad"], ["recordCrossword", "crossword"]] as const) {
+    const body = between(actions, `export async function ${name}(`);
+    assert.match(body, new RegExp(`gradeOnce\\([^;]*stableReviewId\\("${game}"`),
+      `${name} grades without an id derived from the round, so a resent round is a second review`);
+    assert.doesNotMatch(body, /\bgradeCard\(|\bgradeFor\(/, `${name} grades through a door that takes no derived id`);
+  }
+  const once = between(actions, "async function gradeOnce(");
+  assert.match(once, /isRepeatedReview\(/, "gradeOnce no longer reads a repeat as done");
+  const card = between(actions, "export async function gradeCard(");
+  assert.match(card, /return gradeFor\([^;]*\breviewId\b/,
+    "gradeCard drops the id the device chose, so a replayed grade is a second review");
+});
+
+check("a word-ordering tile does not say which tile goes first", () => {
+  /*
+    A sentence opens on a capital because it is first, and a tile keeping that
+    capital hands the first move over: 9,441 of the 9,463 sentences the builder
+    can set open on one. \`tileFaces\` takes it off where the forms list says the
+    opener is an ordinary word, and both screens that hand a learner tiles
+    have to read it. The examination paper is not one of them on purpose: it
+    is a marked instrument and its items are built in \`lib/exam/paper.ts\`.
+  */
+  for (const file of ["app/(app)/review/sentences/SentenceSession.tsx", "app/(app)/learn/[unitId]/lesson/page.tsx"]) {
+    assert.match(code(file), /\btileFaces\(/, `${file} hands a learner tiles still carrying the sentence's opening capital`);
+  }
+  assert.match(code("lib/dict/openers.ts"), /\bisKnownForm\(/, "the opener is no longer decided against the forms list");
 });
 
 check("an existing entry's sentences are edited under a row lock, and nowhere else", () => {
