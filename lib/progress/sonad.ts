@@ -5,7 +5,7 @@ import { guessableWords } from "@/lib/dict/facts";
 import { dayIndex } from "@/lib/random/dayHash";
 import { SONAD_LENGTH } from "@/lib/games/sonad";
 import { semanticCategory } from "@/lib/estonian/semantics";
-import type { DayKey } from "@/lib/time/day";
+import { earliestStartOf, type DayKey } from "@/lib/time/day";
 
 /**
  * WHICH WORD SÕNAD IS ABOUT TODAY, AND WHICH WORDS IT WILL ACCEPT.
@@ -85,14 +85,36 @@ export async function puzzleFor(
     The length filter is in SQL rather than in JavaScript because the pool is
     six thousand rows and the answer is one of them.
   */
-  const pool = await prisma.$queryRaw<{ id: string }[]>`
+  /*
+    AS THE DICTIONARY STOOD WHEN THE DAY BEGAN, because the board and the
+    marking are two draws. The board is built when the learner opens it and
+    `recordSonad` builds the puzzle again to mark it, and the dictionary grows
+    in between: a live lookup stores a word, a conversation stores what it
+    needed. One word of six letters in the band added at noon moved the skip,
+    and a round solved on `kahjum` was marked against `usklik`, measured in
+    `sonad.itest.ts` on every one of eight days. A row stored after the day
+    began, anywhere, is left out of that day's pool (`earliestStartOf`).
+
+    A dictionary seeded after the day began has nothing from before it, and
+    that day falls back to the whole pool rather than to no puzzle; the cutoff
+    is fixed for the day, so the fallback is the same one both times.
+
+    What this cannot see is an entry that MOVED into or out of the band during
+    the day, which a live enrichment does when Ekilex grades a word
+    differently: that needs the row as it was, and nothing keeps it.
+  */
+  const before = earliestStartOf(day).toISOString();
+  const draw = (cutoff: string | null) => prisma.$queryRaw<{ id: string }[]>`
     SELECT DISTINCT ON (lemma) id FROM "Lexeme"
     WHERE char_length(lemma) = ${SONAD_LENGTH}
       AND lemma ~ ${"^[a-zäöüõšž]+$"}
       AND cefr = ANY(${bands})
       AND pos = ANY(${kinds})
+      AND (${cutoff}::timestamp IS NULL OR "createdAt" < ${cutoff}::timestamp)
     ORDER BY lemma, id
   `;
+  const settled = await draw(before);
+  const pool = settled.length > 0 ? settled : await draw(null);
   if (pool.length === 0) return null;
 
   /*

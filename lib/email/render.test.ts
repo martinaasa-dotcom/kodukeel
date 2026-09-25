@@ -58,17 +58,13 @@ const EVERY: Letter[] = [
     word: { lemma: "pannkook", translation: "pancake", occasion: NASTY },
   }),
   welcomeLetter({
-    name: NASTY,
     origin: CHROME.origin,
     reminderAt: "18:00",
     cardsWaiting: 404,
     opensOn: { title: NASTY, subtitle: "At home" },
-    target: { level: "B1", deadline: "2027-06-01" },
   }),
   comebackLetter({
-    name: NASTY,
     origin: CHROME.origin,
-    daysAway: 9,
     wordsKept: 212,
     shieldUsed: true,
     streak: 7,
@@ -76,7 +72,6 @@ const EVERY: Letter[] = [
     word: { lemma: "lumi", translation: "snow", occasion: null },
   }),
   errandLetter({
-    name: NASTY,
     origin: CHROME.origin,
     errand: {
       says: NASTY,
@@ -88,7 +83,6 @@ const EVERY: Letter[] = [
     word: { lemma: "kohv", translation: "coffee" },
   }),
   milestoneLetter({
-    name: NASTY,
     origin: CHROME.origin,
     level: { key: "A1", title: NASTY, arrival: NASTY, words: 493 },
     pct: 41,
@@ -96,7 +90,6 @@ const EVERY: Letter[] = [
     next: { level: "A2", wordsAway: 118 },
   }),
   shieldLetter({
-    name: NASTY,
     origin: CHROME.origin,
     streak: 12,
     remaining: 1,
@@ -104,7 +97,6 @@ const EVERY: Letter[] = [
     week: ["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({ label, studied: i !== 5 })),
   }),
   weeklyLetter({
-    name: NASTY,
     origin: CHROME.origin,
     week: ["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({ label, studied: i < 5 })),
     reviews: 91,
@@ -114,7 +106,6 @@ const EVERY: Letter[] = [
     part: { title: NASTY, eveningsLeft: 3 },
   }),
   deadlineLetter({
-    name: NASTY,
     origin: CHROME.origin,
     band: "B1",
     label: "Live in the language",
