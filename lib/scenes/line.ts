@@ -1,7 +1,7 @@
 /**
  * The one function that answers "what does the other side say here".
  *
- * `docs/19-situations.md` §2. It works the way `caseAnswer` works: an attested
+ * `docs/21-situations.md` §2. It works the way `caseAnswer` works: an attested
  * sentence ahead of a composed one ahead of the way out, **with the screen
  * saying which it got**. That last clause is the whole of ADR-025's second
  * half, and it is why the return type carries a provenance rather than a
@@ -501,7 +501,13 @@ export function retryNote(verdict: Verdict | null): readonly string[] {
  */
 export function whyWithheld(verdict: Verdict | null): string | undefined {
   if (!verdict) return undefined;
-  const reasons: Partial<Record<Check, string>> = {
+  /*
+    Total over every check but the two `retryNote` already speaks for, so a
+    fifteenth check that arrives without a reason does not compile: `question`
+    arrived that way and its retries were told nothing, so they wrote the same
+    verbless question again and the turn fell to the bank.
+  */
+  const reasons: Record<Exclude<Check, "vouching" | "stretch">, string> = {
     facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, in digits or in words",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
     topic: "it was not about what you are doing at this moment, or about what they just said",
@@ -514,9 +520,11 @@ export function whyWithheld(verdict: Verdict | null): string | undefined {
     register: "it addressed them with the pronoun this conversation does not use",
     clause: "it had no finite verb, so it was not a sentence",
     government: "a noun was in a case the verb beside it does not take",
+    question: "it was a question with a question word and a pronoun but no verb, which is not how anybody asks; say it as a whole question with its verb",
     farewell: "it said goodbye, and the conversation is not over: you still have things to settle, so do not thank them for coming or take your leave until you do",
   };
-  const said = verdict.failed.flatMap((check) => (reasons[check] ? [reasons[check]!] : []));
+  const said = verdict.failed.flatMap((check) =>
+    check === "vouching" || check === "stretch" ? [] : [reasons[check]]);
   return said.length > 0 ? said.join("; ") : undefined;
 }
 

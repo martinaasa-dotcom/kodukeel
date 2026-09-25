@@ -1,11 +1,12 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { newPrismaClient } from "../lib/db";
 import { NOUNS } from "./data/nouns";
 import { VERBS } from "./data/verbs";
 import { ADJECTIVES, PHRASES } from "./data/other";
 import { ADVANCED_ADJECTIVES, ADVANCED_NOUNS, ADVANCED_VERBS } from "./data/advanced";
 import { HARVESTED } from "./data/harvested";
-import { LEXEME_COLUMNS, type SeedEntry } from "./columns";
+import { type SeedEntry } from "./columns";
+import { writeSeedEntries, key } from "./seedWrite";
 import { applyGlossCorrections, applyPosCorrections, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
 import {
@@ -311,7 +312,7 @@ async function main() {
     });
   }
 
-  const written = await write(dedupe(authored));
+  const written = await writeSeedEntries(prisma, dedupe(authored));
   console.log(
     `Seeded ${written.lexemes} entries and ${written.forms} forms ` +
     `(${HARVESTED.length} from the course harvest, superseding ${superseded} hand-typed ones).`,
@@ -379,93 +380,6 @@ async function clearDuplicatedNotes(prisma: PrismaClient): Promise<void> {
 const courseLevel = new Map(courseWords().map((w) => [`${w.lemma}|${w.pos}`, w.level]));
 
 /**
- * Writes the whole dictionary in six statements rather than three per entry.
- *
- * There are ~360 lexemes and ~1,570 forms. One entry at a time that is over a
- * thousand sequential round trips: unnoticeable over a local socket, and about
- * nine minutes against a hosted database in another region — a cost paid by
- * exactly the deploy that can least afford it, the first one, where
- * `--only-if-empty` finds an empty dictionary and has to fill it.
- *
- * It all runs in one transaction, so a seed that dies partway leaves the
- * dictionary as it was rather than half-written with some entries missing their
- * forms.
- */
-async function write(entries: SeedEntry[]) {
-  return prisma.$transaction(async (tx) => {
-    const ids = new Map<string, string>();
-    /*
-      A statement per ownership shape, because the update differs.
-
-      A column marked `onlyWhenOwned` is written only for entries whose payload
-      carries its key: the phrases own their English note and the harvested
-      words own their Estonian definition, and everything else must leave both
-      alone, since the dictionary editor and the live Ekilex lookup write them
-      too. This was one hardcoded test for `notes`; a second such column made
-      the shape a set rather than a boolean.
-    */
-    const groups = new Map<string, SeedEntry[]>();
-    for (const entry of entries) {
-      const shape = ownedBy(entry).join("|");
-      const group = groups.get(shape) ?? [];
-      group.push(entry);
-      groups.set(shape, group);
-    }
-    for (const group of groups.values()) {
-      for (const batch of chunks(group, 500)) {
-        for (const row of await upsertLexemes(tx, batch)) ids.set(key(row), row.id);
-      }
-    }
-
-    // Replace forms wholesale so a corrected seed value actually lands.
-    await tx.form.deleteMany({ where: { lexemeId: { in: [...ids.values()] } } });
-
-    const rows = entries.flatMap((e) => e.forms.map((f) => ({ ...f, lexemeId: ids.get(key(e))! })));
-    for (const batch of chunks(rows, 2000)) await tx.form.createMany({ data: batch });
-
-    return { lexemes: ids.size, forms: rows.length };
-  }, { timeout: 120_000 });
-}
-
-/**
- * One `INSERT ... ON CONFLICT DO UPDATE` for a batch of entries, built from the
- * column table in `columns.ts` so the column list, the `VALUES` tuples and the
- * `SET` clause cannot drift apart. The identifiers are `Prisma.raw` because they
- * are literals from that table — every value is still a bound parameter.
- */
-async function upsertLexemes(tx: Prisma.TransactionClient, batch: SeedEntry[]) {
-  // Every entry in a batch has the same shape: `write` grouped them by it.
-  const owned = new Set(batch[0] ? ownedBy(batch[0]) : []);
-  const columns = LEXEME_COLUMNS.filter((c) => !c.onlyWhenOwned || owned.has(c.name));
-  const quoted = (name: string) => Prisma.raw(`"${name}"`);
-
-  const values = batch.map((e) => Prisma.sql`(${Prisma.join([
-    Prisma.sql`${crypto.randomUUID()}`,
-    ...columns.map((c) => (c.cast ? Prisma.sql`${c.value(e)}::${Prisma.raw(c.cast)}` : Prisma.sql`${c.value(e)}`)),
-    Prisma.sql`NOW()`,
-  ])})`);
-
-  return tx.$queryRaw<{ id: string; lemma: string; pos: string }[]>`
-    INSERT INTO "Lexeme" (id, ${Prisma.join(columns.map((c) => quoted(c.name)))}, "updatedAt")
-    VALUES ${Prisma.join(values)}
-    ON CONFLICT (lemma, pos) DO UPDATE SET
-      ${Prisma.join(
-        columns
-          .filter((c) => c.reseeded)
-          .map((c) => Prisma.sql`${quoted(c.name)} = EXCLUDED.${quoted(c.name)}`),
-      )},
-      "updatedAt" = NOW()
-    RETURNING id, lemma, pos
-  `;
-}
-
-const key = (e: { lemma: string; pos: string }) => `${e.lemma} ${e.pos}`;
-
-/** Which of the owned columns this entry hands to the seed, in table order. */
-const ownedBy = (e: SeedEntry) =>
-  LEXEME_COLUMNS.filter((c) => c.onlyWhenOwned && Object.hasOwn(e, c.name)).map((c) => c.name);
-
-/**
  * `ON CONFLICT DO UPDATE` refuses to touch the same row twice in one statement,
  * so a word listed in two of the data files would now fail the whole seed where
  * the old entry-at-a-time loop quietly let the second one win. Keep letting it
@@ -478,12 +392,6 @@ function dedupe(entries: SeedEntry[]) {
     byKey.set(key(e), e);
   }
   return [...byKey.values()];
-}
-
-function chunks<T>(items: T[], size: number) {
-  const out: T[][] = [];
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
-  return out;
 }
 
 function forms(map: Record<string, string | undefined>) {

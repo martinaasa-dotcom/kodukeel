@@ -26,7 +26,7 @@
  * sentences. So this runs its second half on any machine and says what it could
  * not do rather than refusing to start.
  *
- * IT TALKS TO THE PROVIDER DIRECTLY, like `scripts/eval-anu.mjs` beside it, and
+ * IT TALKS TO THE PROVIDER DIRECTLY, like `scripts/eval-tutor.ts` beside it, and
  * it does not go through `lib/usage/ledger.ts`. That is not the rule being
  * bent: the ledger rations one learner's share of a deployment's budget, and
  * nobody's allowance is involved when a developer runs a measurement against
@@ -89,7 +89,7 @@ function suspect(tokens: readonly string[]): boolean {
 }
 
 const EMPTY_LEXICON: Lexicon = {
-  forms: new Set(), spoken: [], byLemma: new Map(), byCase: new Map(), caseForm: new Map(),
+  forms: new Set(), spoken: [], byLemma: new Map(), posOf: new Map(), byCase: new Map(), caseForm: new Map(),
   folded: new Map(), infinitives: new Map(), persons: new Map(),
 };
 
