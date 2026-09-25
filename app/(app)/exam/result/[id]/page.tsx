@@ -17,6 +17,9 @@ import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Note, Page, Ring, SectionTitle } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { AnuReading } from "./AnuReading";
+import { SelfCheck } from "./SelfCheck";
+import { SELF_CHECK, isWrittenKind } from "@/lib/exam/selfCheck";
+import { writtenSampleFor } from "@/lib/exam/official";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 
 export const metadata = { title: "Exam result" };
@@ -52,6 +55,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
   const report = buildReport(result);
   const spec = specFor(result.level);
+  const sample = writtenSampleFor(result.level);
   /*
     Not off `report.missed`: a text that scored well is not in that list, and it
     is the answer worth reading back whether or not it lost marks. Both of them
@@ -319,6 +323,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
               const task = result.parts
                 .flatMap((p) => p.tasks)
                 .find((t) => t.marks.some((m) => m.itemId === mark.itemId));
+              const kind = spec.parts.flatMap((p) => p.tasks).find((t) => t.id === task?.taskId)?.kind;
               return (
                 <li key={mark.itemId}>
                   <AnuReading
@@ -327,10 +332,37 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                     title={task?.title}
                     marks={`${Math.round(mark.scored * 10) / 10} of ${mark.available}`}
                   />
+                  {isWrittenKind(kind) && <SelfCheck items={SELF_CHECK[kind]} />}
                 </li>
               );
             })}
           </ul>
+          {/*
+            What an examiner actually said about real scripts at this level,
+            which is the one view of a text's accuracy this app can point at
+            without pretending to hold it. The Board's own PDF, named as such.
+          */}
+          {sample && (
+            <Card className="mt-4">
+              <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
+                How examiners marked real {result.level} texts
+              </p>
+              <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+                The Board published texts by past candidates with the examiners&rsquo; comments beside
+                them. Reading one next to yours is the nearest thing to a second opinion.
+              </p>
+              <a
+                href={sample.href}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold underline underline-offset-4"
+                style={{ color: "var(--accent-deep)" }}
+              >
+                Open the {result.level} samples on harno.ee <ArrowRight size={14} aria-hidden />
+              </a>
+              <p className="text-xs" style={{ color: "var(--ink-3)" }}>A PDF, in Estonian.</p>
+            </Card>
+          )}
         </section>
       )}
 
