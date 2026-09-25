@@ -65,14 +65,16 @@ import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
  */
 const QUESTION_UNIT = "kusisonad";
 /**
- * The negator, and the pronoun each register expects.
+ * The negators, and the pronoun each register expects. `mitte` is one because
+ * "mitte piima, vaid kohvi" turns the milk down; `ega` is not, because
+ * `Ega sa tea?` opens a question with it.
  *
  * Named as lemmas rather than as units, because `vastused` teaches five words
  * and only one of them is the negator, and `asesonad` teaches the six persons
  * of which exactly one is the register in question. A unit would make "did
  * they say no" true of `jah`.
  */
-const NEGATOR = "ei";
+const NEGATORS = ["ei", "mitte"] as const;
 const REGISTER_PRONOUN = { teie: "teie", sina: "sina" } as const;
 
 export interface SceneContext {
@@ -470,7 +472,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     // What each slot on the card holds, so a datum can take a value the learner chose (ADR-025 amendment 3).
     slots: slotKinds(scene.props),
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
-    negators: formsOfLemmas(rows, [NEGATOR]),
+    negators: formsOfLemmas(rows, NEGATORS),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
     hasFiniteVerb,
   };
