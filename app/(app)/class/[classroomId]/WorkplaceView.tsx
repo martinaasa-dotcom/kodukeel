@@ -29,15 +29,17 @@ export function WorkplaceView({ summary, sponsor }: {
 
   return (
     <>
+      {/* Columns by the room the tiles have: at 768 `sm:grid-cols-3` left
+          "Practiced" 83px of the 94 it needs, drawn across two lines. */}
       {sharesCounts(summary.members.length, sponsor) ? (
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-3">
           <StatTile value={summary.members.length} label="People" tone="sky" />
           <StatTile value={summary.active} label={`Practiced in ${QUIET_DAYS} days`} tone="mint" />
           <StatTile value={counts.likely} label={`On track for ${summary.level}`} tone="accent" />
         </div>
       ) : (
         /* A group this small would name somebody by subtraction: see `MIN_GROUP_TO_SHARE`. */
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-3">
           <StatTile value={summary.members.length} label="People" tone="sky" />
         </div>
       )}
