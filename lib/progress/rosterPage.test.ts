@@ -38,14 +38,53 @@ describe("the roster walk", () => {
     expect(seen).toEqual(new Set([0, LIMIT, 2 * LIMIT]));
   });
 
-  it("covers everybody inside a day at the sizes this app models", () => {
-    // The funding page models a hundred thousand learners. Twenty-four hourly
-    // runs have to reach all of them, or somebody is still excluded.
-    for (const total of [5_000, 48_000, 100_000]) {
+  it("covers everybody inside a day of hourly runs, up to twenty-four pages", () => {
+    /*
+      This used to assert a hundred thousand learners, fifty pages, inside fifty
+      consecutive hours. A walk that moves a page every hour moves twenty-four
+      pages a day, which is exactly what left a daily run on the same page for
+      ever, and no function of the clock can promise both: the daily run is the
+      schedule this deployment has, so it is the one kept whole. Beyond
+      twenty-four pages an hourly run still reaches everybody, over days rather
+      than hours, which the test below asserts.
+    */
+    for (const total of [5_000, 24_000, 48_000]) {
       const pages = Math.ceil(total / LIMIT);
       const seen = new Set<number>();
       for (let h = 0; h < pages; h += 1) seen.add(rosterPage(hour(h), total, LIMIT));
       expect(seen.size, `${total} learners left gaps in the walk`).toBe(pages);
+    }
+  });
+
+  it("covers everybody on the schedule the deployment actually has", () => {
+    /*
+      THE TESTS ABOVE DRIVE CONSECUTIVE HOURS, AND THE DEPLOYMENT RUNS ONCE A
+      DAY. `vercel.json` fires the run at 16:00 UTC, because a Hobby plan
+      refuses anything more often (README, "Hourly is what this wants"). Keyed
+      on the hour since the epoch, a daily run advances the key by exactly 24,
+      so any page count sharing a factor with 24 lands on the same page every
+      day: five thousand learners is three pages, (24d + 16) mod 3 is 1 on
+      every day there is, and four thousand people were never considered.
+      This drives the real cadence, and an hourly one beside it, because the
+      README's way back to hourly is a scheduler outside this repository.
+    */
+    const day = (d: number, h: number) => new Date((d * 24 + h) * 3_600_000);
+    for (const total of [3_000, 5_000, 7_000, 9_000, 13_000, 25_000, 48_000, 100_000]) {
+      const pages = Math.ceil(total / LIMIT);
+      const daily = new Set<number>();
+      for (let d = 0; d < pages; d += 1) daily.add(rosterPage(day(d, 16), total, LIMIT));
+      expect(daily.size, `${total} learners on a daily run at 16:00 left gaps`).toBe(pages);
+
+      // Hourly, a day reaches twenty-four pages, which is everybody up to
+      // forty-eight thousand learners, and beyond that nobody is excluded:
+      // every page comes round within as many days as there are pages.
+      const inADay = new Set<number>();
+      for (let h = 0; h < 24; h += 1) inADay.add(rosterPage(day(0, h), total, LIMIT));
+      expect(inADay.size, `${total} learners on one day of hourly runs`).toBe(Math.min(pages, 24));
+
+      const eventually = new Set<number>();
+      for (let h = 0; h < pages * 24; h += 1) eventually.add(rosterPage(day(0, h), total, LIMIT));
+      expect(eventually.size, `${total} learners on hourly runs left somebody out for good`).toBe(pages);
     }
   });
 

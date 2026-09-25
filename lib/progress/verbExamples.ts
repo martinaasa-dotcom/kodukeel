@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
+import { ekilexCodeOf } from "@/lib/estonian/morph";
 
 /**
  * Real verbs conjugated, for the grammar reference.
@@ -146,7 +147,7 @@ export function conjugatedForms(
   if (!pres1sg) return [];
   const attested = new Map<string, string>();
   for (const f of forms) {
-    const code = f.morphCode ?? (f.formType.startsWith("EKILEX:") ? f.formType.slice(7) : null);
+    const code = ekilexCodeOf(f);
     if (code && !attested.has(code)) attested.set(code, f.value);
   }
   /*

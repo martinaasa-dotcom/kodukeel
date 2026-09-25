@@ -40,6 +40,7 @@
  * checked against a vendor's page is the rate this prints; a cached share the
  * provider reports is priced at the cache rate.
  */
+import { PARTS } from "../lib/copy/values";
 import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import path from "node:path";
@@ -279,7 +280,7 @@ async function main() {
           const ok = q.fix === "none"
             ? fixes.every((f) => norm(f) === learnerSentence)
             : fixes.some((f) => (q.fix as RegExp).test(f));
-          if (ok) tally.fixOk += 1; else issues.push(`fix(${fixes.join(" / ") || "none"})`);
+          if (ok) tally.fixOk += 1; else issues.push(`fix(${fixes.join(PARTS) || "none"})`);
         }
         if (!q.fix) {
           const stray = a.text.split("\n").map(fixFrom).filter(Boolean).length;
