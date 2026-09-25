@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ASKABLE_CASES, markDescription, taskFor, type SceneWord } from "./describe";
+import { ASKABLE_CASES, markDescription, pictureLabel, taskFor, type SceneWord } from "./describe";
 
 const forms = (parts: Record<string, string>) =>
   Object.entries(parts).map(([formType, value]) => ({ formType, value }));
@@ -146,5 +146,20 @@ describe("markDescription", () => {
   it("knows a fragment is not a sentence", () => {
     expect(markDescription(task, "koeras").isSentence).toBe(false);
     expect(markDescription(task, "Koeras on midagi.").isSentence).toBe(true);
+  });
+});
+
+describe("pictureLabel", () => {
+  it("names two senses of each thing, so the drawn one is among them", () => {
+    expect(pictureLabel(["tape, ribbon", "stone, rock", "bath, bathtub"]))
+      .toBe("A picture of tape or ribbon, stone or rock and bath or bathtub.");
+  });
+
+  it("leaves a single-sense gloss alone", () => {
+    expect(pictureLabel(["egg"])).toBe("A picture of egg.");
+  });
+
+  it("says nothing where there is nothing to name", () => {
+    expect(pictureLabel(["", " "])).toBe("");
   });
 });

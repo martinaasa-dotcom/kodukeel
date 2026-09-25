@@ -1,5 +1,5 @@
 import { CASES } from "./cases";
-import { caseAnswer, type NounStems } from "./derive";
+import { buildCaseTable, caseAnswer, type NounStems } from "./derive";
 import type { CaseKey } from "./types";
 
 /**
@@ -93,6 +93,29 @@ export function caseIndex(stems: NounStems): Map<string, CaseKey[]> {
     claim(answer.value, spec.key);
     claim(answer.alsoRight, spec.key);
   }
+
+  /*
+    AND A PLURAL IS A CASE TOO, SO IT COLLIDES. The strict rule is "exactly
+    one case spells it this way", and the index held the singular alone, so a
+    principal part spelled like a plural of another case read as one case:
+    the partitive plural of `käsi` is spelled like its nominative, and the
+    nominative plural of `pea` like its partitive. Measured over the shipped
+    dictionary, 164 spellings, and each was named as the singular case, which
+    reports a plural subject as an object on every screen that names one.
+
+    Only as a collision, never as a claim of its own: a plural spelled like
+    no singular stays unknown, exactly as before, because the screens reading
+    this give a plural no frame and a new "one" here would hand them one. The
+    plural obliques are a stored genitive plural plus the case's own ending,
+    so they are read off `buildCaseTable` rather than joined here: that is the
+    one module allowed to put a suffix on a stem, and the one that leaves a gap
+    where no genitive plural is stored.
+  */
+  const collide = (spelling: string | null | undefined, key: CaseKey) => {
+    const form = tidyForm(spelling ?? "");
+    if (form && index.has(form)) claim(form, key);
+  };
+  for (const row of buildCaseTable(stems)) collide(row.plural, row.spec.key);
 
   return index;
 }

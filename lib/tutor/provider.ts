@@ -629,14 +629,16 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
       recorded and banked lines, which is how a keyless deployment plays all
       fourteen of them.
 
-      Anu is the exception and takes no fallback at all. Her provider *is*
-      Anthropic, so there is nothing behind it but Groq, and `npm run
-      eval:anu` measured what Groq does with her questions: it called the
-      tuba : toa gradation "b becomes v" where the dictionary says b : ∅,
-      offered "Mul meeldib" for "Mulle meeldib", and invented `lähema` for
-      `minema` and `kotta` for `koju`, emitting the first as a VOCAB line the
-      app parses. A fallback that answers wrongly is worse than one that does
-      not answer, because the learner cannot tell.
+      Anu is the exception and takes no Anthropic tail. This used to say her
+      provider *was* Anthropic with nothing behind it but Groq, and that
+      `npm run eval:anu` had watched Groq call the tuba : toa gradation "b
+      becomes v" and invent `lähema` for `minema`. Both halves have moved: she
+      answers on `TUTOR_MODEL`, and her own chain already carries Groq's
+      `TUTOR_FALLBACK_MODEL` behind it, measured at 83 of 87 facts on the
+      eval that chose `TUTOR_MODEL`. So her fallback is the one
+      `PURPOSE_CHAINS.tutor` names. Whether
+      she should also reach Anthropic on a day both of those are down has not
+      been measured since, and the exclusion stands as it was until it is.
     */
     if (allowFallback && options.purpose !== "tutor" && process.env.ANTHROPIC_API_KEY) {
       if (!chain.some((c) => c.name === "anthropic")) {
@@ -720,10 +722,27 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
  * take a comma-separated list, so a deployment can point a provider at a paid
  * model without touching this.
  *
- * Three models each, because a model name that has been retired is walkable
+ * More than one each, because a model name that has been retired is walkable
  * within a provider but ends the chain if it is that provider's only link.
  * Both lists are overridable, and the console's own model list is the thing to
  * check if a name here has moved on.
+ *
+ * AND ONE OF THEM HAD MOVED ON, WHICH IS WHAT THAT SENTENCE IS FOR.
+ * `groq/compound-mini` was the third Groq link and Groq no longer serve it:
+ * asked with this deployment's own key on 2026-09-22, `/v1/models` does not
+ * list it and `/v1/models/groq/compound-mini` answers `model_not_found`. It
+ * cost a Groq-only deployment one refused request on the days both links above
+ * it had already failed, which is exactly the walkable 404 this list is built
+ * to survive rather than a fault, and that is why nothing reported it.
+ *
+ * There is no third name to put back, and the reason is worth reading rather
+ * than rediscovering. Groq's list today holds two other text models and both
+ * are already rejected above by name: `openai/gpt-oss-20b` returns an empty
+ * string and `qwen/qwen3.6-27b` streams its reasoning to the screen. The rest
+ * are a moderation pair, a safety variant and an Arabic model. So Groq is two
+ * links until either a rejection stops being true or Groq publish something
+ * new, and the check on that is the console's model list rather than this
+ * paragraph.
  *
  * EVERY NAME BELOW WAS ASKED THE QUESTION BEFORE IT WAS WRITTEN DOWN, against
  * each account's own model list and then with a real Estonian one ("Why is it
@@ -745,11 +764,7 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
  * flash model is, and a provider having a bad minute is the exact thing the
  * two names behind it are for.
  */
-export const FREE_GROQ_MODELS = [
-  "openai/gpt-oss-120b",
-  "qwen/qwen3.8-27b",
-  "groq/compound-mini",
-] as const;
+export const FREE_GROQ_MODELS = ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"] as const;
 
 /*
   An alias first, deliberately.
@@ -1664,7 +1679,7 @@ async function readImageOpenAiCompatible(
   await assertOk(res, config);
   const body = (await res.json()) as {
     choices?: { message?: { content?: unknown } }[];
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
   };
 
   const raw = body.choices?.[0]?.message?.content;
@@ -1679,7 +1694,9 @@ async function readImageOpenAiCompatible(
   return {
     config,
     text,
-    usage: usageFrom(body.usage?.prompt_tokens, body.usage?.completion_tokens, system + prompt, text),
+    // Thinking Gemini hides from `completion_tokens` is still billed, which is
+    // the fault `billedOutput` exists for on the chat path, one transport over.
+    usage: usageFrom(body.usage?.prompt_tokens, body.usage ? billedOutput(body.usage) : undefined, system + prompt, text),
   };
 }
 

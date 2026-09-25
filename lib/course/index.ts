@@ -97,8 +97,10 @@ export const unitOf = (d: CourseDay) => unitById(d.unitId);
  *
  * It is monotonic, which is what makes it safe: a tick is never deleted, so
  * the day reached never moves backwards. `markCourseStep` is the other half,
- * and refuses a tick for a day past this one, so the pointer can only ever be
- * moved by finishing the day in front of it.
+ * and refuses a tick for any day past the one after it, so the pointer moves
+ * one evening at a time. It does not wait for the day reached to be finished:
+ * a tick on the next day is "start the next one now", and walking past a day
+ * is what this reading counts as finishing it.
  */
 export function dayReached(programme: Programme, ticked: ReadonlySet<string>): CourseDay {
   let reached = programme.days[0]!;

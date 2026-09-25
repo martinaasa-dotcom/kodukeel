@@ -7,7 +7,7 @@ import { type AudioSource, readAudio, writeAudio } from "@/lib/audio/store";
 import { singleFlightTagged } from "@/lib/cache/singleFlight";
 import { recordUsage, authoriseCall, releaseReservation } from "@/lib/usage/ledger";
 import { DEFAULT_VOICE, voiceFrom, VOICES } from "@/lib/audio/voice";
-import { prepareClip, WavError } from "@/lib/audio/wav";
+import { clipForStore } from "@/lib/audio/wav";
 import { spokenText } from "@/lib/audio/say";
 import { reportError } from "@/lib/observability/report";
 import { NO_STORE } from "@/lib/security/headers";
@@ -264,27 +264,17 @@ async function speak(
   if (!upstream.ok) throw new SpeechError(502);
 
   const raw = new Uint8Array(await upstream.arrayBuffer());
-  const audio = Buffer.from(prepare(raw));
-  await writeAudio(hash, audio); // Never throws: a failed cache write is a slower next play.
-  return audio;
-}
-
-/**
- * Trimmed, leveled and written as 16-bit before it is kept; see lib/audio/wav.ts.
- * A response this cannot read is kept as it came, reported, and still spoken,
- * because an untrimmed clip is better than none and the report is how anybody
- * learns the service changed its format.
- */
-function prepare(raw: Uint8Array): Uint8Array {
-  try {
-    return prepareClip(raw);
-  } catch (error) {
-    if (error instanceof WavError) {
-      reportError(error, { at: "tts/prepare", extra: { bytes: raw.byteLength } });
-      return raw;
-    }
-    throw error;
+  // Nothing to play is a failed answer, not a clip; the booking goes back.
+  if (raw.byteLength === 0) throw new SpeechError(502);
+  const prepared = clipForStore(raw);
+  if (prepared.error) {
+    reportError(prepared.error, { at: "tts/prepare", extra: { bytes: raw.byteLength } });
   }
+  const audio = Buffer.from(prepared.audio);
+  // Never throws: a failed cache write is a slower next play. And only a clip
+  // this route could read is kept, since the store answers before the service.
+  if (prepared.keep) await writeAudio(hash, audio);
+  return audio;
 }
 
 /**
