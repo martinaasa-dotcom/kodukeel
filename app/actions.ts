@@ -478,6 +478,7 @@ function snapshotOf(state: SchedulingState): SchedulingSnapshot {
  */
 export async function replayGrades(batch: ReplayItem[]) {
   const ownerId = await requireUserId();
+  if (!Array.isArray(batch)) return { ok: false as const, error: "Replay failed." };
   const result = await applyGradeBatch(ownerId, batch);
   if (!result.ok) return { ok: false as const, error: result.error ?? "Replay failed." };
   revalidatePath("/");
@@ -532,7 +533,8 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
 
 export async function setCardSuspended(cardId: string, suspended: boolean) {
   const ownerId = await requireUserId();
-  await prisma.card.updateMany({ where: { id: cardId, ownerId }, data: { suspended } });
+  if (typeof suspended !== "boolean") return { ok: false as const, error: "That is not a yes or a no." };
+  await prisma.card.updateMany({ where: { id: text(cardId), ownerId }, data: { suspended } });
   revalidatePath("/words");
   revalidatePath("/progress"); // the sticking-points list lives there
   revalidatePath("/");
@@ -1809,6 +1811,10 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
   if (!isEmailKind(input?.kind) || input.kind === "system") {
     return { ok: false as const, error: "That is not something we send." };
   }
+  // A string "false" is truthy, so anything but a real boolean was read as on.
+  if (typeof input.on !== "boolean") {
+    return { ok: false as const, error: "That is not a yes or a no." };
+  }
 
   /*
     BOTH ROWS, BECAUSE THERE ARE TWO DEFAULTS AND ONE ROW CANNOT CARRY THEM.
@@ -2861,7 +2867,7 @@ export async function buildClozeFromText(passageIn: string) {
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  if (confirmation.trim().toLowerCase() !== "delete") {
+  if (text(confirmation).trim().toLowerCase() !== "delete") {
     return { ok: false as const, error: 'Type "delete" to confirm.' };
   }
 
@@ -4074,6 +4080,9 @@ const ExamResponseSchema = z.union([
   z.object({ kind: z.literal("blank") }),
 ]);
 
+/** More answers than any paper holds questions, by a long way. */
+const MAX_EXAM_RESPONSES = 1_000;
+
 const ExamSubmissionSchema = z.object({
   level: z.string().regex(/^[ABC][12]$/),
   seed: z.string().min(1).max(64),
@@ -4106,6 +4115,15 @@ export async function submitExam(input: unknown) {
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 
+  /*
+    Counted before the schema walks them: a record with no ceiling is a free
+    parse of however many keys fit under the body limit, which is hundreds of
+    thousands. No paper comes near a thousand questions.
+  */
+  const raw = (input as { responses?: unknown } | null)?.responses;
+  if (raw && typeof raw === "object" && Object.keys(raw).length > MAX_EXAM_RESPONSES) {
+    return { ok: false as const, error: "Something about that submission didn't make sense." };
+  }
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };
   const { level, seed, startedAt, responses } = parsed.data;
