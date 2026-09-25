@@ -13888,6 +13888,22 @@ check("every free provider the app would ask, a measuring script can ask too", (
 
 });
 
+check("the route and every harness build a governed verb the same way", () => {
+  /*
+    The route built its table of governed verbs in lib/progress/scene.ts and
+    the harness built its own in scripts/lib/sceneDraft.ts, and the harness's
+    had lost the place cases and the derived persons: `Minge otse edasi ja
+    siis vasakule.` was withheld in every measurement while the route passed
+    it. Both go through `governedWord` now, and neither may read a government
+    for itself.
+  */
+  for (const file of ["lib/progress/scene.ts", "scripts/lib/sceneDraft.ts"]) {
+    const src = code(file);
+    assert.match(src, /\bgovernedWord\(\{/, `${file} no longer builds its governed verbs through governedWord`);
+    assert.doesNotMatch(src, /\bparseGovernment\(/, `${file} reads a government for itself again, beside governedWord`);
+  }
+});
+
 check("a measurement sends what the route sends, and reads what it reads", () => {
   /*
     AND NO HARNESS SENDS A TEMPERATURE, BECAUSE THE APP NAMES THE FIELD ON NO

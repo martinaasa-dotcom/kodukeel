@@ -26,7 +26,6 @@
  */
 import { buildCaseTable, stemsFrom } from "../../lib/estonian/derive";
 import { derivedVerbForms } from "../../lib/estonian/conjugate";
-import { parseGovernment } from "../../lib/estonian/government";
 import type { CaseKey } from "../../lib/estonian/types";
 /*
   The token budget is the app's, not a number of this script's own.
@@ -44,7 +43,7 @@ import { composeLive, composeSystem } from "../../lib/scenes/prompt";
 import { geminiCachedReply } from "../../lib/tutor/geminiCache";
 import { FAREWELLS } from "../../lib/scenes/catalogue";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
-import { FINITE_VERB_FLOOR, gateFor, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
+import { FINITE_VERB_FLOOR, gateFor, governedWord, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS, answerForms, topicForms } from "../../lib/scenes/retrieval";
 import { bankTopic } from "../../lib/scenes/scripted";
 
@@ -198,16 +197,23 @@ export function wrongRegisterForms(scene: SceneSpec): ReadonlySet<string> {
  * wrong for one of the others is the fault `buildOptions` exists to prevent.
  */
 export const GOVERNED: GovernedWord[] = [];
+/*
+  Through `governedWord`, the function the route builds its table with. This
+  kept a copy that lost the place cases and the derived persons, so a line the
+  route passed was withheld here: `Minge otse edasi ja siis vasakule.` on
+  `minema`, whose government names `kuhu`.
+*/
 for (const entry of shipped) {
-  const government = parseGovernment(entry.government ?? null);
-  if (!government || entry.pos !== "VERB") continue;
   const dict = byLemma.get(`${entry.lemma}|${entry.pos}`);
   if (!dict) continue;
-  GOVERNED.push({
+  const word = governedWord({
     lemma: entry.lemma,
-    forms: new Set(formsOf(dict)),
-    cases: new Set([government.caseKey, ...government.alsoGoverned]),
+    pos: entry.pos,
+    government: entry.government,
+    forms: formsOf(dict),
+    pres1sg: dict.parts.PRES_1SG,
   });
+  if (word) GOVERNED.push(word);
 }
 
 /**

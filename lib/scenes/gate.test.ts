@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, subjectsIn, type DictEntry } from "./lexicon";
-import { NEW_WORDS, disagrees, governmentSuspect, passes, runGate, type GateContext } from "./gate";
+import { NEW_WORDS, disagrees, governedWord, governmentSuspect, passes, runGate, type GateContext } from "./gate";
 import type { BeatSpec } from "./types";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -334,6 +334,37 @@ describe("the government check", () => {
  * being survivable the moment the model is asked first on every beat, because
  * the learner is then being invited to agree to an appointment nobody offered.
  */
+/**
+ * A GOVERNMENT NAMING A PLACE QUESTION GOVERNS THE CASES THAT ANSWER IT.
+ *
+ * `minema` is stored as "kuhu (direction) · millega (comitative) · ...", and
+ * `parseGovernment` names a case for the comitative alone, since `kuhu` is not
+ * a case. Read that way the gate withheld `Minge otse edasi ja siis vasakule.`
+ * in every measurement, where the route had long added the place cases.
+ */
+describe("a governed verb, built once for the route and the harness", () => {
+  it("takes the cases that answer a place question its government names", () => {
+    const word = governedWord({
+      lemma: "minema", pos: "VERB", forms: ["minna", "lähen"], pres1sg: "lähen",
+      government: "kuhu (direction) · millega (comitative) · mida tegema · mille peale",
+    });
+    expect([...word!.cases].sort()).toEqual(["ALLATIVE", "COMITATIVE", "ILLATIVE"]);
+  });
+
+  it("carries the persons the rule derives, so a conjugated verb is the verb", () => {
+    const word = governedWord({
+      lemma: "sõitma", pos: "VERB", forms: ["sõita"], pres1sg: "sõidan",
+      government: "kuhu (direction) · millega (comitative)",
+    });
+    expect(word!.forms.has("sõidab")).toBe(true);
+  });
+
+  it("builds nothing for a word that is not a verb or has no government", () => {
+    expect(governedWord({ lemma: "osa", pos: "NOUN", forms: [], government: "mille (genitive)" })).toBeNull();
+    expect(governedWord({ lemma: "olema", pos: "VERB", forms: [], government: null })).toBeNull();
+  });
+});
+
 describe("a number nobody dealt", () => {
   it("is withheld, and the value that was dealt is not", () => {
     const dealt = new Set(["15:30", "15.30"]);
