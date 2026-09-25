@@ -3,8 +3,9 @@
 **Controller.** Upthink Solutions OÜ, registry code 16683946, Aiandi tn 8/2-28, Mustamäe linnaosa,
 12915 Tallinn, Harju maakond, Estonia. Contact: privacy@upthink.ee.
 
-**Written 5 September 2026.** Reviewed with `docs/24-dpia.md`, on the same schedule and for the same
-triggers.
+**Written 5 September 2026. Revised 22 September 2026**, out of cycle: two owner-scoped models had
+been added and this schedule named neither, and the one table with a genuine expiry was on no row.
+Reviewed with `docs/24-dpia.md`, on the same schedule and for the same triggers.
 
 ## What this document is honest about first
 
@@ -60,6 +61,12 @@ reads a day at a time (`lib/usage/quota.ts`), so nothing older than the current 
 app for any purpose. Pruning last year's rows is an operator task rather than something the app does
 on a schedule, and this document does not claim a job runs. What the app guarantees is the erasure:
 an account's ledger rows go with the account, immediately, like everything else.
+
+### Counted rather than owned
+
+| Category | Kept for | Trigger for deletion | Enforced by |
+| --- | --- | --- | --- |
+| Request counters (`RateLimit`) | Until the window it counts stops meaning anything. This is the one table in the app with a real expiry rather than an event | `expiresAt`, pruned opportunistically as the limiter writes | `lib/usage/sharedLimit.ts`. It holds a SHA-256 digest of the caller-and-endpoint key rather than the key, so there is nothing in it to read back into a person, which is why it is in no export and no erasure |
 
 ### Reference data, owned by nobody
 
@@ -124,8 +131,8 @@ download, is theirs to keep or delete and this app holds no copy of it.
 - **The learner signs out.** Everything on the device, above.
 - **A different account signs in on the same browser.** The same clearing, without a sign-out.
 - **A group owner archives or deletes a group.** The group, and its memberships with it.
-- **The operator prunes the ledger.** The one thing on this page with a period rather than an event,
-  and the one thing not automated.
+- **The operator prunes the ledger.** The one deletion on this page that nothing automates. The
+  request counters expire on their own, and everything else waits for an event.
 
 ## Where retention is currently open, and stated as such
 
