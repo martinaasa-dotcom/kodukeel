@@ -33,6 +33,7 @@ import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
 import { OPENS_WITHOUT_BRIEFING } from "../lib/copy/briefingCoverage";
 import { BRIEFINGS } from "../lib/copy/briefings";
 import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
+import { estonianNotCopied } from "../lib/dict/copiedWords";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
@@ -349,6 +350,44 @@ check("no server component calls a function it imported from a client module", (
 });
 
 // ── Never ship a credential to the client ────────────────────────────────────
+
+check("a small group names nobody by subtraction, to a member", () => {
+  /*
+    The counts a colleague sees name nobody, and in a group of three the
+    member's own band beside "1 on track" names the other person. The class
+    page's lesson plan is the same arithmetic in a class of two. So a member
+    sees the workplace counts only through `sharesCounts`, and the class-wide
+    cases are the teacher's.
+  */
+  const view = code("app/(app)/class/[classroomId]/WorkplaceView.tsx");
+  assert.match(view, /sharesCounts\(summary\.members\.length, sponsor\)/,
+    "the workplace tiles are shown to a member of a group small enough to subtract a colleague from");
+  const page = code("app/(app)/class/[classroomId]/page.tsx");
+  assert.match(page, /isTeacher && roster\.weakestCases\.length > 0/,
+    "the class-wide weakest cases are shown to a student, who in a small class can subtract their own");
+});
+
+// ── Never ship a credential to the client ────────────────────────────────────
+
+check("a mock paper is rebuilt the same way it was sat, and every figure on the hub says what it rests on", () => {
+  /*
+    Three ways the sitting and the marking, or the figure and its basis, came
+    apart. The pool's forms were ordered on a column the seed leaves at 0, so
+    which form a dictation asked for was the plan's choice, at the sitting and
+    again at the marking. The sitting page took any seed, and the hand-in
+    takes one string of up to 64. And the per-level rings printed a
+    percentage with the only tier text on another section.
+  */
+  const pool = code("lib/progress/exam.ts");
+  assert.match(pool, /forms: \{ orderBy: \[\{ orderIndex: "asc" \}, \{ id: "asc" \}\] \}/,
+    "the exam pool reads a word's forms in an order that ties, so a paper can be marked against another form");
+  const sit = code("app/(app)/exam/[level]/page.tsx");
+  assert.match(sit, /first && first\.length <= 64/,
+    "the sitting page accepts a seed the hand-in refuses, so a paper can be sat and never handed in");
+  const hub = code("app/(app)/exam/page.tsx");
+  assert.match(hub, /EVIDENCE_LABEL\[readiness\.evidence\]/,
+    "the hub prints a confidence ring per level with no evidence tier beside it");
+});
 
 check("no secret carries a NEXT_PUBLIC_ prefix", () => {
   const secrets = /NEXT_PUBLIC_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD)/g;
@@ -2852,7 +2891,8 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * one fact: the seventh door, `finishScene`, had to be added to all three or the
  * newest and busiest mode would sit outside a rule that reported itself as held.
  * That is the failure this file exists to catch, so it is not a shape this file
- * may have itself.
+ * may have itself. `useGrade` is on it because it is `gradeCard` with the
+ * outbox behind it, which the check on that hook holds it to.
  *
  * `recordMatchGrades` is the eighth: Match used to grade its board by looping
  * over `pairs` and calling `gradeCard` once each, which is eight sequential
@@ -2861,7 +2901,7 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * and `submitExam`, so it belongs in this list rather than under `gradeCards?`.
  */
 const GRADING_DOORS =
-  /\b(gradeCards?|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
+  /\b(gradeCards?|useGrade|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
 
 /**
  * Sessions that measure rather than practice.
@@ -6319,6 +6359,67 @@ check("nobody opts back out of the wrapping default", () => {
       `${file} asks for a word to be kept whole, which is the same opt-out by another name`,
     );
   }
+});
+
+/*
+  A ROW OF STAT TILES IS TWO ACROSS ON A PHONE.
+
+  `overflow-wrap: anywhere` is what keeps a long word inside its box, and the
+  price of it is that a box too narrow for a word breaks the word. Three
+  StatTiles across a 360px screen leave each label about eighty pixels, and
+  `label-xs` is uppercase and tracked, so "ACCURACY" and "ATTEMPTED" came out
+  as ACCURA/CY and ATTEMPT/ED on the letters, listening, sprint, quest and
+  target summaries, measured in a browser; two across, every one of them
+  holds a line. Four rounds had already found this and use
+  `grid-cols-2 … sm:grid-cols-3`, which is why this is a rule rather than a
+  fix: the other five were the same row written before somebody looked.
+*/
+check("a row of stat tiles is two across on a phone, never three", () => {
+  let rows = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx")) continue;
+    const src = code(file);
+    for (const found of src.matchAll(/className="([^"]*)"[^>]*>\s*<StatTile\b/g)) {
+      rows += 1;
+      const classes = found[1]!.split(/\s+/);
+      assert.ok(
+        !classes.includes("grid-cols-3"),
+        `${file}:${src.slice(0, found.index).split("\n").length} lays StatTiles three across at every width; ` +
+        "a label like ACCURACY breaks mid-word at 360px. Use grid-cols-2 sm:grid-cols-3, or " +
+        "grid-cols-2 @sm:grid-cols-3 inside an @container where the row sits in a column narrower than the window.",
+      );
+    }
+  }
+  assert.ok(rows >= 15, `only ${rows} StatTile rows found, so this check stopped looking`);
+});
+
+/*
+  A CONTAINER QUERY NEEDS A CONTAINER, AND WITHOUT ONE IT FAILS IN SILENCE.
+
+  From 768 the rail takes a column and the page is 368px, so a grid that
+  chose its columns by the window laid out two cards of 174 or five tiles of
+  57, and `overflow-wrap: anywhere` broke the words inside them mid-letter.
+  Those grids ask their container now (`@container` beside `@lg:grid-cols-2`),
+  which has one failure a viewport breakpoint does not: a `@lg:` variant with
+  no `@container` above it matches nothing, so the grid is one column at
+  every width and nothing says so. The wrapper is written in the same file as
+  the variant everywhere it is used, which is what this reads: a file using a
+  container variant declares the container too.
+*/
+check("a container query variant has its container in the same file", () => {
+  let files = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx")) continue;
+    const src = code(file);
+    const uses = src.match(/(?:^|[\s"'`])@(?:3xs|2xs|xs|sm|md|lg|xl|[2-7]xl):[a-z][a-z0-9-]*/gm);
+    if (!uses) continue;
+    files += 1;
+    assert.ok(
+      /(?:^|[\s"'`])@container(?:[\s"'`/]|$)/m.test(src),
+      `${file} uses a container variant (${uses[0]!.trim()}) and declares no @container, so it matches nothing`,
+    );
+  }
+  assert.ok(files >= 12, `only ${files} files use a container variant, so this check stopped looking`);
 });
 
 check("an icon is sized by its own size prop, never by a class", () => {
@@ -16797,7 +16898,7 @@ check("a wrong answer records the form it reached for, and only between forms", 
   ]) {
     assert.match(
       code(file),
-      /gradeCard\([\s\S]{0,260}reached/,
+      /(?:gradeCard|grade)\([\s\S]{0,260}reached/,
       `${file} works out which form the learner reached for, prints it, and no ` +
       "longer sends it. That was the whole life of the fact before this column.",
     );
@@ -17023,7 +17124,8 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
       stopped short and the check passed against the live bug. Made to fail on
       the real line before being kept.
     */
-    .filter((file) => /gradeCard\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
+    // `grade(` is `useGrade`'s, which is how most rounds reach `gradeCard` now.
+    .filter((file) => /\b(?:gradeCard|grade)\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
   /*
     The half above is only a claim while SESSION_FILES finds the rounds: a
     rename of the Session suffix empties it and the deepEqual passes on nothing.
@@ -17032,7 +17134,7 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
   // A sweep over nothing passes: the rounds that write a duration are the
   // haystack, and a rename that moved them out of SESSION_FILES would leave
   // this asking about no file at all.
-  const grading = SESSION_FILES().filter((file) => /\bgradeCard\(/.test(code(file)));
+  const grading = SESSION_FILES().filter((file) => /\b(?:gradeCard|grade)\(/.test(code(file)));
   assert.ok(grading.length >= 15, `only ${grading.length} round sessions grade through gradeCard, so the sweep is looking in the wrong place`);
   assert.deepEqual(
     averaged, [],
@@ -20756,7 +20858,7 @@ check("a verdict is painted once, in the tint and the ink", () => {
   }
 
   // The screens that mark an answer are the ones that call the app's markers.
-  const marks = /\b(gradeCard|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
+  const marks = /\b(gradeCard|useGrade|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
   // Sõnad is not on this list and is not exempt from it: it marks letters with
   // three kinds of object rather than three tints, by a design argued at the
   // top of its own file, and it calls none of the markers above.
@@ -22336,11 +22438,25 @@ check("putting a word aside moves a date and grades nothing", () => {
     const next = defer.indexOf("\nexport ", from + 1);
     const body = defer.slice(from, next === -1 ? undefined : next);
     assert.match(
-      body, /due: row\.untilAt/,
-      `${what} pulls cards forward without matching the date the deferral wrote, `
-      + "so a card FSRS had honestly put further out comes back early.",
+      body, /\bgiveBack\(tx,/,
+      `${what} gives cards back without going through giveBack, which is the one place `
+      + "that matches the date the deferral wrote and returns each card to where the wait found it.",
     );
   }
+  /*
+    And the one way back matches that date, and puts a card no earlier than the
+    date it had before the push: a card due in two days that the wait moved
+    comes back in two days rather than tonight.
+  */
+  const back = defer.slice(defer.indexOf("async function giveBack"));
+  assert.match(
+    back.slice(0, 2500), /due: row\.untilAt/,
+    "giveBack reaches cards the wait did not put on its date, so a card FSRS had put further out comes back early",
+  );
+  assert.match(
+    back.slice(0, 2500), /readPriorDues\(row\.priorDues\)/,
+    "giveBack sets every card it moved to now, so a card due after tonight comes back early",
+  );
 
   /*
     AND A SECOND PRESS MAY NOT SHORTEN A WAIT, which is the same rule read
@@ -24672,11 +24788,14 @@ check("the shipped translations are English, and there are enough of them to mat
     AND NOT ONE OF THEM IS ESTONIAN. The whole value of the file is that it is
     the other language, and the way a weaker model fails this job is by handing
     the sentence back: `looksLikeEcho` catches an exact echo and the script
-    refuses anything still carrying õ, ä, ö, ü, š or ž. A line of Estonian
-    printed under a heading promising English is worse than no line at all.
+    refuses a line carrying õ, ä, ö, ü, š or ž in a word its sentence did not
+    hold. A name or a quoted word copied through is the sentence rather than
+    the model (`estonianNotCopied`), and refusing those left 137 sentences with
+    a place or a person in them bare. A line of Estonian printed under a
+    heading promising English is worse than no line at all.
   */
   const table: Record<string, string> = JSON.parse(readFileSync("prisma/data/example-english.json", "utf8"));
-  const estonian = Object.entries(table).filter(([, en]) => /[õäöüšž]/i.test(en));
+  const estonian = Object.entries(table).filter(([et, en]) => estonianNotCopied(en, et));
   assert.deepEqual(
     estonian.slice(0, 3), [],
     `${estonian.length} shipped translations still carry Estonian's own letters, so they are not English`,
@@ -26053,6 +26172,23 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a personal best is compared inside the write that keeps it", () => {
+  /*
+    Read, compare, write is check-then-act, and two rounds finishing together
+    let the slower one lower the best (`lib/progress/personalBest.ts`,
+    shown in `personalBest.itest.ts`). ADR-014 stores a best because nothing
+    can rebuild it, so the only writer is the conditional upsert.
+  */
+  const helper = code("lib/progress/personalBest.ts");
+  assert.match(helper, /ON CONFLICT[\s\S]*DO UPDATE[\s\S]*WHERE/, "keepBest no longer compares inside the write");
+  const writers = ALL.filter(
+    (f) =>
+      f !== "lib/progress/personalBest.ts" &&
+      /writeSetting\([^)]*SETTING_KEYS\.(?:sprintBest|matchBest)|ownerId_key:\s*\{[^}]*SETTING_KEYS\.(?:sprintBest|matchBest)/.test(code(f)),
+  );
+  assert.deepEqual(writers, [], `${writers.join(", ")} writes a personal best outside keepBest`);
+});
+
 check("a game graded on the server writes one review however often its round is reported", () => {
   /*
     Sõnad and the crossword report a finished round once, and again the next
@@ -26217,8 +26353,8 @@ check("a round that asks one case says which when it grades", () => {
     fault the flash round's own practisedSlot was added for.
   */
   const rounds: Record<string, RegExp> = {
-    "app/(app)/review/write/WriteSession.tsx": /gradeCard\([^;]{0,200}?prompt\.caseKey/,
-    "app/(app)/review/target/TargetSession.tsx": /gradeCard\([^;]{0,200}?question\.caseKey/,
+    "app/(app)/review/write/WriteSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?prompt\.caseKey/,
+    "app/(app)/review/target/TargetSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?question\.caseKey/,
   };
   for (const [file, pattern] of Object.entries(rounds)) {
     assert.match(code(file).replace(/\s+/g, " "), pattern, `${file} grades without saying which case it asked`);

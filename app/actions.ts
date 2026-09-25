@@ -8,6 +8,7 @@ import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { setTaskDone } from "@/lib/progress/tasks";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
+import { keepBest } from "@/lib/progress/personalBest";
 import { deleteOwnReminder } from "@/lib/progress/reminders";
 import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
@@ -113,7 +114,7 @@ import type { Band } from "@/lib/assessment/types";
 import { goalsFor, markSitting, saveGoals, saveResult } from "@/lib/progress/assessment";
 import { recordCourseLevel } from "@/lib/progress/level";
 import { REPLAY_BATCH, isClientReviewId } from "@/lib/offline/outbox";
-import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
+import { paperFor as examPaperFor, recordAttempt, sittingOf } from "@/lib/progress/exam";
 import { gradesFrom, markPaper, type Response as ExamResponse } from "@/lib/exam/score";
 import { isExamLevel } from "@/lib/exam/spec";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -1280,10 +1281,13 @@ export async function recordSprintScore(score: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(score)) return { ok: false as const, error: "That is not a score." };
   const clamped = Math.min(MAX_SPRINT_SCORE, Math.max(0, Math.round(score)));
-  const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.sprintBest), 0);
-  const isNewBest = clamped > best;
-  if (isNewBest) await writeSetting(ownerId, SETTING_KEYS.sprintBest, String(clamped));
-  return { ok: true as const, best: Math.max(clamped, best), isNewBest };
+  // A round of nothing beats no stored best and writes no row, as before.
+  if (clamped === 0) {
+    const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.sprintBest), 0);
+    return { ok: true as const, best, isNewBest: false };
+  }
+  // Compared inside the write, so a slower round cannot lower it (lib/progress/personalBest.ts).
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.sprintBest, clamped, "higher")) };
 }
 
 /**
@@ -1332,10 +1336,7 @@ export async function recordMatchTime(seconds: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(seconds)) return { ok: false as const, error: "That is not a time." };
   const rounded = Math.min(MAX_MATCH_SECONDS, Math.max(1, Math.round(seconds)));
-  const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.matchBest), 0);
-  const isNewBest = best === 0 || rounded < best;
-  if (isNewBest) await writeSetting(ownerId, SETTING_KEYS.matchBest, String(rounded));
-  return { ok: true as const, best: isNewBest ? rounded : best, isNewBest };
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.matchBest, rounded, "lower")) };
 }
 
 /**
@@ -4398,6 +4399,11 @@ export async function submitExam(input: unknown) {
   const { level, seed, startedAt, responses } = parsed.data;
   if (!isExamLevel(level)) return { ok: false as const, error: "No paper at that level." };
 
+  // A paper handed in once is answered with its own result, whatever arrives
+  // the second time (`sittingOf`).
+  const sat = await sittingOf(ownerId, level, seed);
+  if (sat) return { ok: true as const, id: sat.id, pct: sat.pct, passed: sat.passed };
+
   const paper = await examPaperFor(ownerId, level, seed);
   const answered = new Map<string, ExamResponse>(
     Object.entries(responses) as [string, ExamResponse][],
@@ -4439,11 +4445,11 @@ export async function submitExam(input: unknown) {
   }
 
   const began = new Date(Math.min(startedAt, Date.now()));
-  const id = await recordAttempt({ ownerId, level, seed, startedAt: began, result });
+  const sitting = await recordAttempt({ ownerId, level, seed, startedAt: began, result });
 
   revalidatePath("/exam");
   revalidatePath("/");
-  return { ok: true as const, id, pct: result.pct, passed: result.passed };
+  return { ok: true as const, id: sitting.id, pct: sitting.pct, passed: sitting.passed };
 }
 
 // ───────────────────────── Suggested fixes ─────────────────────────────────
