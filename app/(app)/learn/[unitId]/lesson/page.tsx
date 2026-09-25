@@ -12,7 +12,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { taughtSpellings } from "@/lib/progress/lessonWords";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { parseExamples, teachableSentences } from "@/lib/dict/examples";
-import { nominalOpener } from "@/lib/estonian/cloze";
+import { nominalOpener, sentenceTiles, tileFaces } from "@/lib/estonian/cloze";
 import { everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { isPrincipalFormType } from "@/lib/estonian/types";
@@ -23,6 +23,7 @@ import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
+import { ordinaryOpeners } from "@/lib/dict/openers";
 import { firstParams } from "@/lib/ux/queryParam";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
@@ -218,7 +219,7 @@ export default async function LessonPage({
     lessons.slice(0, index + 1).flat().map((w) => w.lemma),
   );
 
-  const steps = planLesson({
+  const planned = planLesson({
     unit,
     words: chosen,
     taughtWords: taught,
@@ -233,6 +234,20 @@ export default async function LessonPage({
     // rather than reshuffling the questions under someone who came back to it.
     seed: hash(`${unit.id}:${index}`),
     wordOrder,
+  });
+
+  /*
+    A build step's tiles lose the capital the sentence opens on, where the
+    opener is an ordinary word, or the capital says which tile goes first. The
+    planner is pure and the forms list is a file read, so it is settled here.
+  */
+  const openers = await ordinaryOpeners(
+    planned.flatMap((step) => (step.kind === "build" ? [step.sentence] : [])),
+  );
+  const steps = planned.map((step) => {
+    if (step.kind !== "build") return step;
+    const opener = sentenceTiles(step.sentence)[0] ?? "";
+    return { ...step, tiles: tileFaces(step.tiles, opener, openers.has(opener)) };
   });
 
   /*

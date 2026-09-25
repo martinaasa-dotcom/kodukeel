@@ -5329,6 +5329,25 @@ check("the smallest step on the scale is one a reader can actually see", () => {
   assert.deepEqual(out.map((s) => s.name), [], "a step on the scale is not larger than the one below it");
 });
 
+/**
+ * A count is spelled from one table.
+ *
+ * Five files kept their own, reaching three, seven, ten and fourteen, so one
+ * letter wrote "4 shields" where another wrote "four", and three of them put
+ * the word first in a sentence and sent it out lowercase, one as a subject
+ * line. `spelledCount` and `SpelledCount` in `lib/copy/values.ts` are the
+ * table; an array literal spelling "one", "two", "three" anywhere else is a
+ * sixth copy.
+ */
+check("a count is spelled from the one table in lib/copy/values.ts", () => {
+  const tables = ALL.filter(
+    (f) => f !== join("lib", "copy", "values.ts") && !/\.test\.tsx?$/.test(f) &&
+      /\[\s*(?:"no",\s*)?"one",\s*"two",\s*"three"/.test(code(f)),
+  );
+  assert.deepEqual(tables, [], `${tables.join(", ")} spells counts from a table of its own; use spelledCount`);
+  assert.match(code("lib/copy/values.ts"), /export function spelledCount\(/, "the one table has gone");
+});
+
 check("an empty cell goes through NO_VALUE, never a literal", () => {
   /*
     THIS HAS GONE WRONG TWICE, THE SAME WAY, AND THE COPY GUARD CANNOT SEE IT.
@@ -7061,6 +7080,40 @@ check("the privacy notice carries what Article 13 requires", () => {
   for (const [pattern, what] of required) {
     assert.match(privacy, pattern, `the privacy page no longer states ${what}`);
   }
+});
+
+/**
+ * THE SUBPROCESSOR REGISTER NAMES WHAT THE GENERATED LIST CAN NAME, AND NO MORE.
+ *
+ * `docs/26-subprocessors.md` says of itself that it describes the same table
+ * `lib/legal/recipients.ts` generates, and it had drifted three ways while the
+ * code moved on: OpenRouter sat in the provider table after the chain stopped
+ * reading its key, Vercel was written up as "not on the generated list" after
+ * the list learned to name it, and the page said no mail provider was
+ * configured while the list named Resend. A register a DPO reads is the wrong
+ * place for the code's history.
+ *
+ * Both directions: every recipient the code can generate has an entry, and
+ * the provider table holds exactly the labels `PROVIDER_HOME` knows, so a
+ * provider added to or taken out of the chain moves the page with it.
+ */
+check("the subprocessor register names every recipient the list can generate, and no retired provider", () => {
+  const register = read("docs/26-subprocessors.md");
+  const source = code("lib/legal/recipients.ts");
+  const stems = [...source.matchAll(/name:\s*["`]([^"`$,]+)/g)]
+    .map((m) => m[1]!.replace(/\s+at\s*$/, "").trim());
+  assert.ok(stems.length >= 6, `only ${stems.length} recipient names read from the code, so this stopped looking`);
+  const missing = stems.filter((stem) => !register.includes(stem));
+  assert.deepEqual(missing, [], `the register has no entry for: ${missing.join(", ")}`);
+
+  const home = source.slice(source.indexOf("PROVIDER_HOME"), source.indexOf("};", source.indexOf("PROVIDER_HOME")));
+  const labels = [...home.matchAll(/^\s*(?:"([^"]+)"|([A-Za-z]+)):/gm)].map((m) => (m[1] ?? m[2])!);
+  assert.ok(labels.length >= 3, "PROVIDER_HOME was not read");
+  const section = register.slice(register.indexOf("### The AI provider chain"));
+  const table = section.slice(0, section.indexOf("**What they process.**"));
+  const rows = [...table.matchAll(/^\| ([^|]+?) \| [^|]+ \| (?:Inside|Outside) \|$/gm)].map((m) => m[1]!);
+  assert.deepEqual([...rows].sort(), [...labels].sort(),
+    "the register's provider table and PROVIDER_HOME name different providers");
 });
 
 /*
@@ -14665,6 +14718,19 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("a roster's days since the last review are calendar days on the member's clock", () => {
+  /*
+    Both rosters print "reviewed today" at nought. Counted in whole 24-hour
+    spans, a review at 23:00 last night read at 08:00 was "today" beside a
+    streak, on the same member's clock, that knew it was yesterday.
+  */
+  const roster = code("lib/classroom/roster.ts");
+  assert.doesNotMatch(roster, /getTime\(\)\s*\)\s*\/\s*86_400_000\)/, "a roster counts days in 24-hour spans again");
+  const calls = roster.match(/daysSinceLastReview:\s*daysSince\(/g) ?? [];
+  assert.equal(calls.length, 2, "both rosters no longer read days since through daysSince");
+  assert.match(code("lib/classroom/cohort.ts"), /dayClock\(zone\)\.daysBetween\(last, now\)/, "daysSince stopped counting calendar days");
+});
+
 check("the daily quest types what review types, and flips only what review flips", () => {
   /*
     The quest gave options to case and conjugation cards and turned every other
@@ -15637,6 +15703,25 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
   );
   for (const caller of ["app/actions.ts", "lib/srs/replay.ts"]) {
     assert.match(code(caller), /\bwriteGrade\(/, `${caller} stopped writing its grade through lib/srs/grade.ts`);
+  }
+});
+
+/*
+  A PRESS SETS THE STATE THE SCREEN SHOWED, AND NEVER THE OPPOSITE OF THE ROW.
+
+  `toggleStar` and `toggleTask` each read a stored boolean and wrote its
+  negation, which answers what the database holds rather than what the learner
+  was looking at: a stale Today unticked homework already handed in, a stale
+  star turned "Add" into a removal, and two presses landing together undid
+  each other or threw. The screen sends the state it wants now. What this
+  refuses is the shape itself, a write whose value is the negation of a field
+  just read, anywhere a learner's press arrives.
+*/
+check("a press sets the state the screen showed, never the opposite of the row", () => {
+  const flips = [...code("app/actions.ts").matchAll(/(\w+):\s*!\s*\w+\.\1\b/g)].map((m) => m[0]);
+  assert.deepEqual(flips, [], "a server action writes a stored boolean as the negation of what it read");
+  for (const [file, call] of [["components/StarWord.tsx", /toggleStar\(lexemeId,\s*\w+\)/], ["components/TaskRow.tsx", /toggleTask\(task\.id,\s*!task\.completed\)/]] as const) {
+    assert.match(code(file), call, `${file} stopped sending the state it wants`);
   }
 });
 
@@ -17414,10 +17499,11 @@ check("a metered route asks the ledger before offering a last resort", () => {
   );
 
   /*
-    And Anu never gets one. Anthropic is her primary, so the only thing behind
-    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
-    "b becomes v" against a dictionary that says b : the consonant going, and
-    inventing a lemma it then emitted as a VOCAB line.
+    And Anu never gets one. Her chain is Gemini and then Groq, both measured
+    on her job by `eval:anu`, and anything past them is a model nobody
+    measured: an older run of that eval caught an unmeasured model calling the
+    tuba : toa gradation "b becomes v" against a dictionary that says b : the
+    consonant going, and inventing a lemma it then emitted as a VOCAB line.
   */
   assert.match(
     code(join("lib", "tutor", "provider.ts")),
@@ -25836,6 +25922,21 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("a word-ordering tile does not say which tile goes first", () => {
+  /*
+    A sentence opens on a capital because it is first, and a tile keeping that
+    capital hands the first move over: 9,441 of the 9,463 sentences the builder
+    can set open on one. \`tileFaces\` takes it off where the forms list says the
+    opener is an ordinary word, and both screens that hand a learner tiles
+    have to read it. The examination paper is not one of them on purpose: it
+    is a marked instrument and its items are built in \`lib/exam/paper.ts\`.
+  */
+  for (const file of ["app/(app)/review/sentences/SentenceSession.tsx", "app/(app)/learn/[unitId]/lesson/page.tsx"]) {
+    assert.match(code(file), /\btileFaces\(/, `${file} hands a learner tiles still carrying the sentence's opening capital`);
+  }
+  assert.match(code("lib/dict/openers.ts"), /\bisKnownForm\(/, "the opener is no longer decided against the forms list");
 });
 
 check("an existing entry's sentences are edited under a row lock, and nowhere else", () => {
