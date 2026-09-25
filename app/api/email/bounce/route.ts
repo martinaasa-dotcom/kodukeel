@@ -2,7 +2,8 @@ import { prisma } from "@/lib/db";
 import { switchOff } from "@/lib/email/prefs";
 import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { OPTIONAL_KINDS } from "@/lib/email/letter";
-import { addressDigest, BLOCKED_ANY, readDelivery, verifyDelivery, webhookSecret } from "@/lib/email/webhook";
+import { mailSecret } from "@/lib/email/unsubscribe";
+import { readDelivery, undeliverableValue, verifyDelivery, webhookSecret } from "@/lib/email/webhook";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
 import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -145,9 +146,10 @@ export async function POST(request: Request) {
       Which address failed, rather than which learner. Somebody whose old
       address bounced and who then changes it in their account has to be able
       to hear from this app again, and a row about the person can never say
-      that. `lib/email/webhook.ts` argues it at length.
+      that. `lib/email/webhook.ts` argues it at length. Keyed on the mail
+      secret, which is the key the send path reads it back with.
     */
-    const value = event.address ? addressDigest(event.address) : BLOCKED_ANY;
+    const value = undeliverableValue(event.address, mailSecret());
     await prisma.setting.upsert({
       where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailUndeliverable } },
       create: { ownerId: sent.ownerId, key: SETTING_KEYS.emailUndeliverable, value },

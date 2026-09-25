@@ -58,6 +58,7 @@
  */
 import { writeFileSync } from "node:fs";
 import { gateFor, runGate, passes } from "../lib/scenes/gate";
+import { retryNote } from "../lib/scenes/line";
 import { fitsPitch } from "../lib/scenes/pitch";
 import { LEVELS, type Level } from "../lib/collections/syllabus";
 import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
@@ -165,10 +166,29 @@ async function main() {
             asked++;
             let candidate = first;
             let verdict = runGate(candidate.text, beat, gateFor(beat.id, gate));
-            if (!passes(verdict) && verdict.unknown.length > 0) {
-              // The one retry, with the failing words named. The design's rule, not a kindness.
-              const second = await compose(scene, beat, lemmas, verdict.unknown, links, withhold, level);
-              if (second) { asked++; candidate = second; verdict = runGate(candidate.text, beat, gate); }
+            /*
+              THE ONE RETRY, THE WAY THE ROUTE RETRIES. The design's rule, not
+              a kindness, and two things about it were this script's own.
+
+              It fired only where `unknown` was non-empty, which before the
+              vouching split meant "any word off the list" and after it means
+              "not Estonian at all": a line withheld for reaching too far got
+              no retry whatever, so the bank was drafted without the rescue the
+              route gives that line. `retryNote` is the app's own choice of
+              which set to name.
+
+              And the retry was gated with `gate` where the first attempt used
+              `gateFor(beat.id, gate)`. The only thing `gateFor` does is stand
+              the register check down for `hurdle:other-register`, whose whole
+              move is the other side switching pronoun, so on that beat every
+              retried draft was judged by the one check it cannot pass. Its own
+              header warns that a line banked against one gate would be refused
+              by another; this was that, inside the drafter.
+            */
+            const retryWords = retryNote(verdict);
+            if (!passes(verdict) && retryWords.length > 0) {
+              const second = await compose(scene, beat, lemmas, retryWords, links, withhold, level);
+              if (second) { asked++; candidate = second; verdict = runGate(candidate.text, beat, gateFor(beat.id, gate)); }
             }
             if (!passes(verdict)) { withheld++; for (const c of verdict.failed) note(`gate: ${c}`); continue; }
             const why = refused(candidate.text, FALLBACK_PHRASE, answerForms(beat, lexicon), beat, level);
