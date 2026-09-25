@@ -15025,6 +15025,28 @@ check("the research export counts a right answer the way the rest of the app doe
 });
 
 /**
+ * A mature review is one asked of a card in the Review state, and nothing
+ * else, wherever the app reads one.
+ *
+ * `retentionReading` and the research export both count `stateBefore` equal
+ * to the Review state and say in so many words that learning and relearning
+ * answers are excluded. The exam hub's recall figure and the class roster's
+ * copy of it read `>= MATURE_STATE`, which takes in Relearning as well, so one
+ * learner could read 100 percent retention on Progress and 50 percent recall
+ * on the exam hub, over the same reviews, on the same day: ten Good answers on
+ * cards in Review beside ten Again answers on cards being relearned. The
+ * comparison has to be an equality everywhere it is written.
+ */
+check("a mature review is the Review state and nothing past it, in every reader", () => {
+  const offenders: string[] = [];
+  for (const file of ALL) {
+    const src = code(file);
+    if (/stateBefore\s*>=?\s*(MATURE_STATE|REVIEW_STATE|2\b)/.test(src)) offenders.push(file);
+    if (/stateBefore:\s*\{\s*gte?:\s*(MATURE_STATE|REVIEW_STATE|2\b)/.test(src)) offenders.push(file);
+  }
+  assert.deepEqual(offenders, [], `${offenders.join(", ")} counts a relearning answer as mature, where retentionReading does not`);
+});
+/**
  * Every secret the app reads is marked in the build CI greps.
  *
  * The second of two checks on that list, and the pair is deliberate rather
