@@ -19767,7 +19767,6 @@ check("a verdict is one size, and never below the body step", () => {
         is read as the whole tag rather than as nothing, since nothing passes.
       */
       const names = classes?.[1] ?? classes?.[2] ?? tag;
-      const names = classes?.[1] ?? classes?.[2] ?? "";
       if (names) inked++;
       assert.doesNotMatch(
         names, small,
