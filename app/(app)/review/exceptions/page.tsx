@@ -63,8 +63,7 @@ export default async function ExceptionsRoundPage({
     ? kind.toUpperCase()
     : null;
 
-  const level = await courseLevelFor(ownerId);
-  const index = await exceptionIndex();
+  const [level, index] = await Promise.all([courseLevelFor(ownerId), exceptionIndex()]);
   const near = index.filter(
     (row) => (scope ? scope.lemmas.includes(row.lemma) : isAround(row.cefr, level))
       && (!wanted || row.exceptions.some((e) => e.kind === wanted)),
@@ -82,16 +81,19 @@ export default async function ExceptionsRoundPage({
     );
   }
 
-  const starred = await starredAmong(ownerId, near.map((row) => row.id));
-
-  const cards = await prisma.card.findMany({
-    where: { ownerId, lexemeId: { in: near.map((row) => row.id) } },
-    select: { id: true, lexemeId: true, cardType: true, targetCase: true },
-    // Ordered because it is what decides which words grade a real card, and an
-    // unordered read hands that to the query plan: the same word would score on
-    // one visit and not the next.
-    orderBy: { id: "asc" },
-  });
+  // Both are asked of the same list and neither needs the other, so they are
+  // one round trip.
+  const [starred, cards] = await Promise.all([
+    starredAmong(ownerId, near.map((row) => row.id)),
+    prisma.card.findMany({
+      where: { ownerId, lexemeId: { in: near.map((row) => row.id) } },
+      select: { id: true, lexemeId: true, cardType: true, targetCase: true },
+      // Ordered because it is what decides which words grade a real card, and an
+      // unordered read hands that to the query plan: the same word would score on
+      // one visit and not the next.
+      orderBy: { id: "asc" },
+    }),
+  ]);
 
   const mine = new Set(cards.map((c) => c.lexemeId));
   const ordered = [

@@ -24691,6 +24691,87 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+/**
+ * Two neighbouring `const x = await ...` statements in a server file where the
+ * second never names what the first bound: two reads that do not need each
+ * other, asked one after the other.
+ *
+ * A heuristic rather than a parse, and drawn to miss rather than to fire: only
+ * adjacent statements with nothing between them, a second statement that does
+ * not mention any name the first bound, and never a first statement that is
+ * the request itself (`params`, `searchParams`, the session). A nested callback
+ * is not a neighbour, so `Promise.all(LEVELS.map(async ...))` is left alone.
+ * Nor is a first statement that writes: a read after a create or an update
+ * needs the write to have landed whether or not it names what the write
+ * returned, and a check that asked for the two at once would be asking for
+ * the read to race its own precondition.
+ */
+function independentAwaits(source: string): { line: number; first: string; second: string }[] {
+  const statements: { start: number; end: number; names: string[]; text: string }[] = [];
+  const opener = /(?:const|let)\s+(\{[^}]*\}|\[[^\]]*\]|\w+)\s*(?::[^=]+)?=\s*await\s/g;
+  for (const m of source.matchAll(opener)) {
+    let i = m.index! + m[0].length;
+    let depth = 0;
+    for (; i < source.length; i += 1) {
+      const c = source[i]!;
+      if ("([{".includes(c)) depth += 1;
+      else if (")]}".includes(c)) depth -= 1;
+      else if (c === ";" && depth <= 0) break;
+    }
+    const names = m[1]!.replace(/[{}[\]]/g, "").split(",")
+      .map((part) => part.split(":").pop()!.replace(/=.*/, "").replace(/^\.\.\./, "").trim())
+      .filter(Boolean);
+    statements.push({ start: m.index!, end: i, names, text: source.slice(m.index!, i) });
+  }
+  const out: { line: number; first: string; second: string }[] = [];
+  // A statement inside the one before it (an `await` in a callback) is not a
+  // neighbour of anything, so the comparison is always with the last
+  // statement that had finished before this one began.
+  let previous: (typeof statements)[number] | null = null;
+  for (const b of statements) {
+    const a = previous;
+    if (a && b.start < a.end) continue;
+    previous = b;
+    if (!a) continue;
+    if (source.slice(a.end + 1, b.start).trim() !== "") continue;
+    if (/\b(?:params|searchParams|requireUserId)\b/.test(a.text)) continue;
+    if (/\.(?:create|createMany|update|updateMany|upsert|delete|deleteMany)\(|\$executeRaw|\$transaction|\bwrite[A-Z]\w*\(/.test(a.text)) continue;
+    const rhs = b.text.slice(b.text.indexOf("await"));
+    if (a.names.some((n) => new RegExp(`\\b${n.replace(/\$/g, "\\$")}\\b`).test(rhs))) continue;
+    out.push({ line: source.slice(0, b.start).split("\n").length, first: a.names.join(","), second: b.names.join(",") });
+  }
+  return out;
+}
+
+check("a server page asks two reads that do not need each other at once", () => {
+  /*
+    The rule CLAUDE.md states about Today, "two answers that do not need each
+    other are asked at once", held to every page and route rather than to the
+    one that was fixed. On a hosted database each `await` is a round trip in
+    another region, and this shape was on the learn page, the sprint, the
+    exceptions round, the daily review queue and the metrics route.
+  */
+  const fires = independentAwaits("const a = await one();\nconst b = await two();\n");
+  assert.equal(fires.length, 1, "the detector no longer finds two independent awaits");
+  assert.equal(independentAwaits("const a = await one();\nconst b = await two(a);\n").length, 0,
+    "the detector fires on a read that needs the one before it");
+  assert.equal(independentAwaits("const x = await Promise.all(L.map(async () => { const y = await f(); return y; }));\nconst z = await g();\n").length, 1,
+    "the detector reads a nested callback as a neighbour");
+  assert.equal(independentAwaits("const row = await prisma.card.create({ data });\nconst all = await prisma.card.findMany();\n").length, 0,
+    "the detector asks a read to race the write before it");
+
+  let scanned = 0;
+  const found: string[] = [];
+  for (const file of APP.filter((f) => /(?:page|layout)\.tsx$|route\.ts$/.test(f))) {
+    scanned += 1;
+    for (const hit of independentAwaits(code(file))) {
+      found.push(`${file}:${hit.line} awaits ${hit.second} after ${hit.first}`);
+    }
+  }
+  assert.ok(scanned >= 60, `only ${scanned} server files were read, so this is looking at nothing`);
+  assert.deepEqual(found, [], `${found.join("; ")}. Neither needs the other: ask them in one Promise.all`);
+});
+
 check("every action that writes a grade tells Today it changed", () => {
   /*
     A grade moves a card's due date, and Today counts what is due. Batching
