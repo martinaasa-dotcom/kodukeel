@@ -1201,12 +1201,14 @@ async function askedForStates(ctx, at) {
     await page.waitForTimeout(300);
     await measure(page, `a word opened out of a teaching sentence ${at}`);
   } else {
-    /* The fixture's ladder batch is already past its first meeting, so the
-       round opens on the four options and no first meeting is drawn: that is
-       the state that lifts this, not the dictionary, which is what this line
-       used to blame. */
-    absent(5, `a word opened out of a teaching sentence ${at}: /learn/new opened on a ` +
-      "batch already met, so no first meeting with its sentence was drawn");
+    /* What lifts this is a first meeting with a word above A1, and the demo
+       fixture has none: every word in it is an A1 course word, and
+       `components/WordIntro.tsx` meets an A1 word on its own, with no
+       sentence (`showSentence`), on purpose. The ladder batch it deals is
+       also already past its meetings. This line used to blame the
+       dictionary, which holds four sentences for each of those words. */
+    absent(5, `a word opened out of a teaching sentence ${at}: no first meeting ` +
+      "with a word above A1 was dealt, and an A1 word is met without its sentence by design");
   }
 
   /*
