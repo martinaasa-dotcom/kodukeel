@@ -113,7 +113,7 @@ import type { Band } from "@/lib/assessment/types";
 import { goalsFor, markSitting, saveGoals, saveResult } from "@/lib/progress/assessment";
 import { recordCourseLevel } from "@/lib/progress/level";
 import { REPLAY_BATCH, isClientReviewId } from "@/lib/offline/outbox";
-import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
+import { paperFor as examPaperFor, recordAttempt, sittingOf } from "@/lib/progress/exam";
 import { gradesFrom, markPaper, type Response as ExamResponse } from "@/lib/exam/score";
 import { isExamLevel } from "@/lib/exam/spec";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -4398,6 +4398,11 @@ export async function submitExam(input: unknown) {
   const { level, seed, startedAt, responses } = parsed.data;
   if (!isExamLevel(level)) return { ok: false as const, error: "No paper at that level." };
 
+  // A paper handed in once is answered with its own result, whatever arrives
+  // the second time (`sittingOf`).
+  const sat = await sittingOf(ownerId, level, seed);
+  if (sat) return { ok: true as const, id: sat.id, pct: sat.pct, passed: sat.passed };
+
   const paper = await examPaperFor(ownerId, level, seed);
   const answered = new Map<string, ExamResponse>(
     Object.entries(responses) as [string, ExamResponse][],
@@ -4439,11 +4444,11 @@ export async function submitExam(input: unknown) {
   }
 
   const began = new Date(Math.min(startedAt, Date.now()));
-  const id = await recordAttempt({ ownerId, level, seed, startedAt: began, result });
+  const sitting = await recordAttempt({ ownerId, level, seed, startedAt: began, result });
 
   revalidatePath("/exam");
   revalidatePath("/");
-  return { ok: true as const, id, pct: result.pct, passed: result.passed };
+  return { ok: true as const, id: sitting.id, pct: sitting.pct, passed: sitting.passed };
 }
 
 // ───────────────────────── Suggested fixes ─────────────────────────────────

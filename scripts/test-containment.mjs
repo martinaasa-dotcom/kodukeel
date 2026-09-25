@@ -531,7 +531,9 @@ async function screensToMake() {
   // A marked paper: sat, advanced part by part with the blanks left blank, and
   // handed in. The blanks are the point elsewhere and harmless here.
   const result = await budgeted("a marked paper", 120_000, async (page) => {
-    await page.goto(`${B}/exam/A2?seed=containment-result`, { waitUntil: "networkidle", timeout: 30_000 });
+    // A seed of this run's own: a paper is sat once, and one an earlier run
+    // handed in opens on its result, with no clock to start.
+    await page.goto(`${B}/exam/A2?seed=containment-result-${Date.now().toString(36)}`, { waitUntil: "networkidle", timeout: 30_000 });
     await page.getByRole("button", { name: "Start the clock" }).click({ timeout: 10_000 });
     for (let part = 0; part < 8 && !/\/exam\/result\//.test(page.url()); part += 1) {
       for (const name of [/^Next part|^Hand in$/, /Leave them blank and move on|Hand in anyway/, /Start the spoken part/]) {
