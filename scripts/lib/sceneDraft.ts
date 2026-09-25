@@ -325,7 +325,14 @@ const QUESTION_WORDS: ReadonlySet<string> = new Set(
 export function gateContext(
   lexicon: Lexicon,
   wrongRegister: ReadonlySet<string>,
-  entries: readonly DictEntry[] = [],
+  /*
+    Required, because `subjects` is read off these and an empty list switches
+    `agreement` off in silence: `eval:scene` called this with two arguments,
+    so the check that withholds `Kuhu te soovid sõita?` was inert in every
+    Part A run, which is the `hasFiniteVerb` fault below one field over. A
+    caller with nothing to hand over says so with `[]`.
+  */
+  entries: readonly DictEntry[],
 ): GateContext {
   return {
     lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,

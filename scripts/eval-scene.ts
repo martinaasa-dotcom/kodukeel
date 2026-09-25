@@ -45,7 +45,7 @@ import { retryNote } from "../lib/scenes/line";
 import { SYLLABUS } from "../lib/collections/syllabus";
 import { lemmasOfForm } from "../lib/dict/forms";
 import {
-  ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneLemmas, sceneLexicon,
+  ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneEntries, sceneLemmas, sceneLexicon,
   routeGate, wrongRegisterForms, type Allowlist,
 } from "./lib/sceneDraft";
 
@@ -83,7 +83,7 @@ const CHAIN = chain();
 
 /** The one government check, so Part B measures what a learner would meet. */
 function suspect(tokens: readonly string[]): boolean {
-  return governmentSuspect(tokens, gateContext(EMPTY_LEXICON, new Set()));
+  return governmentSuspect(tokens, gateContext(EMPTY_LEXICON, new Set(), []));
 }
 
 const EMPTY_LEXICON: Lexicon = {
@@ -148,7 +148,7 @@ async function partA() {
           reported `ja` and `on` as words nothing could account for and rescued
           nothing at all, which is the harness measuring itself.
         */
-        const base = gateContext(lexicon, wrongRegister);
+        const base = gateContext(lexicon, wrongRegister, sceneEntries(scene, ALLOWLIST));
         const first = runGate(line, beat, await routeGate(scene, beat, lexicon, base, line));
         /*
           THE WORDS IT REACHED PAST THE SCENE FOR, WHICH IS `stretched` AND WAS
