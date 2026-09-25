@@ -1,23 +1,24 @@
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
- * Two rounds in this app run to a clock: the Case Sprint at sixty seconds and
- * the daily quest at two minutes. Both numbers were chosen for the round they
- * are in and both were fixed, which is WCAG 2.2 success criterion 2.2.1,
- * Timing Adjustable, failed twice. A learner who reads slowly, who is hearing
+ * Three rounds in this app run to a clock: the Case Sprint at sixty seconds,
+ * the daily quest at two minutes, and Target at eight seconds a question
+ * (`lib/games/target.ts`). Every one of those numbers was chosen for its round
+ * and every one was fixed, which is WCAG 2.2 success criterion 2.2.1, Timing
+ * Adjustable, failed three times. A learner who reads slowly, who is hearing
  * a card read out before answering it, or who types with one hand is not
  * playing a faster version of the same round. They are shut out of it.
  *
  * 2.2.1 is met by any one of three ways out: turn the limit off, extend it
  * once it is met, or let it be adjusted before it is met. The third is the one
  * taken here. Turning the clock off removes the round rather than opening it,
- * since what both of these are is a burst of volume against a stopwatch, and
+ * since what all of these are is a burst of volume against a stopwatch, and
  * an extension offered at the moment the time runs out interrupts the round it
  * is trying to rescue. Adjusting it beforehand leaves the round intact and
  * asks nothing of anybody mid-answer.
  *
- * A MULTIPLIER RATHER THAN A NUMBER OF SECONDS, because the two rounds have
- * different bases for good reasons and one setting has to serve both. Sixty
+ * A MULTIPLIER RATHER THAN A NUMBER OF SECONDS, because the rounds have
+ * different bases for good reasons and one setting has to serve all of them. Sixty
  * seconds is right for flipping cards and two minutes is right for a round
  * that picks from four options, so a stored "180 seconds" would be generous in
  * one and meaningless in the other. What a learner is choosing is their own
@@ -95,7 +96,16 @@ export function roundPaceFrom(value: string | null | undefined): RoundPace {
     : DEFAULT_ROUND_PACE;
 }
 
-function multiplierFor(pace: RoundPace): number {
+/**
+ * How many times the round's own length a pace is.
+ *
+ * Exported for the round whose clock is not whole seconds: Target gives each
+ * question its own allowance that shrinks a quarter of a second at a time, and
+ * `secondsFor` rounds to whole seconds, which would turn a quarter second
+ * scaled by one and a half into nothing. That round scales its allowance by
+ * this instead, so every timed practice round reads the one setting.
+ */
+export function multiplierFor(pace: RoundPace): number {
   return ROUND_PACES.find((p) => p.id === pace)?.multiplier ?? 1;
 }
 

@@ -89,7 +89,7 @@ export interface PinnedExample {
    * Optional, because plenty of points are not about a slot at all. The
    * quotative and the converb are not stored on any entry, `ei` and `ära` do
    * not inflect, and a point about word order has no form to name. What is not
-   * claimed is reported as unclaimed by `npm run audit:grammar-pins` rather
+   * claimed is reported as unclaimed by `npm run audit:pins` rather
    * than passing quietly.
    */
   readonly slot?: string;
