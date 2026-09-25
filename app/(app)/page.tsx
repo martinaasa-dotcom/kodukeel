@@ -7,7 +7,7 @@ import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
-import { minutesForCards } from "@/lib/stats/pace";
+import { minutesForCards, ownCardsPerMinute } from "@/lib/stats/pace";
 import { wordOfDay, wordOfDayCollection } from "@/lib/progress/wordOfDay";
 import { outThereToday } from "@/lib/progress/outThere";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -34,7 +34,8 @@ import { featuredTitle, gameAfter, gameOn } from "@/lib/ux/weekGames";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
-import { errandForDay, startedUnits } from "@/lib/collections/errands";
+import { errandForDay } from "@/lib/collections/errands";
+import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
@@ -925,7 +926,7 @@ export default async function TodayPage() {
       title={name ? `${greeting(clock, now, placement)}, ${name}` : greeting(clock, now, placement)}
       lead={courseNow && (moduleTonight || courseNow.finishedToday)
         ? courseLead(toReview, courseNow.finishedToday)
-        : lead(stage, toReview, toLearn, pace?.cardsPerMinute ?? null)}
+        : lead(stage, toReview, toLearn, ownCardsPerMinute(pace))}
     >
       {/*
         ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.

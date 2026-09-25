@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   capPauses, decodeWav, encodeWav16, FADE_MS, FRAME_MS, LEAD_MS, MAX_PAUSE_MS, normaliseLoudness, prepareClip,
-  SILENCE_SHARE, TARGET_PEAK, TARGET_RMS, TRAIL_MS, trimSilence, WavError,
+  SILENCE_SHARE, TARGET_PEAK, TARGET_RMS, TRAIL_MS, trimSilence, WavError, clipForStore,
 } from "./wav";
 
 const RATE = 22050;
@@ -241,5 +241,35 @@ describe("prepareClip", () => {
     expect(out.byteLength).toBeLessThan(raw.byteLength / 3);
     const pcm = decodeWav(out);
     expect(pcm.samples.length / RATE).toBeCloseTo(0.4 + (LEAD_MS + TRAIL_MS) / 1000, 1);
+  });
+});
+
+describe("a body the route cannot read", () => {
+  function header(fmtLength: number, total: number): Uint8Array {
+    const bytes = new Uint8Array(total);
+    const view = new DataView(bytes.buffer);
+    bytes.set([...Buffer.from("RIFF")], 0);
+    view.setUint32(4, total - 8, true);
+    bytes.set([...Buffer.from("WAVEfmt ")], 8);
+    view.setUint32(16, fmtLength, true);
+    return bytes;
+  }
+
+  it("names a fmt chunk that ends before its fields as a WavError, not a RangeError", () => {
+    expect(() => decodeWav(header(16, 20))).toThrow(WavError);
+  });
+
+  it("refuses a fmt chunk shorter than the fields it has to hold", () => {
+    expect(() => decodeWav(header(8, 64))).toThrow(WavError);
+  });
+
+  it("keeps a clip it could prepare and never one it could not", () => {
+    expect(clipForStore(encodeWav16(decodeWav(tartuLike(0.1, 0.2)))).keep).toBe(true);
+    const html = new TextEncoder().encode("<html>maintenance</html>");
+    const unread = clipForStore(html);
+    expect(unread.keep).toBe(false);
+    expect(unread.audio).toEqual(html);
+    expect(unread.error).toBeInstanceOf(WavError);
+    expect(clipForStore(new Uint8Array(0)).keep).toBe(false);
   });
 });

@@ -1262,7 +1262,7 @@ function personSlip(
  *
  * Two guards. The clause, because a negator earlier in the sentence is often
  * about something else entirely (`Ma ei tea, kus on pood`), and the boundary is
- * the comma Estonian writes, which is what the gate's agreement check reads.
+ * the comma Estonian writes or the end of a sentence.
  * And **a beat that accepts the negator is never refused by it**: "Kas te
  * soovite piima?" takes `ei` as a whole answer, and reading a no there as a
  * turn that met nothing would be the app refusing the word it asked for.
@@ -1277,9 +1277,17 @@ function negatedIn(
   const takesNo = leafNeeds(beat.needs).some(({ need }) =>
     need.kind === "lemma" && need.oneOf.some((lemma) => context.negators.has(lemma.toLowerCase())));
   if (takesNo) return false;
-  for (const clause of text.split(/[,;:]/)) {
+  /*
+    The learner's own spelling as well as the dictionary's, because a hit
+    that came with a slip carries the form it was read as in `word`: looked
+    for under that alone, `ma ei taha valut` never found its `valu`, and a
+    refusal with one letter wrong met the beat.
+  */
+  const spelled = new Set([hit.word, ...(hit.slip ? words(hit.slip.said) : [])].map((w) => w.toLowerCase()));
+  // A sentence ends a clause as surely as a comma does: "Ei. Mul on valu." is a no and then a yes.
+  for (const clause of text.split(/[,;:.!?]/)) {
     const said = words(clause);
-    const at = said.indexOf(hit.word);
+    const at = said.findIndex((word) => spelled.has(word));
     if (at < 0) continue;
     if (said.slice(0, at).some((word) => context.negators.has(word))) return true;
   }
