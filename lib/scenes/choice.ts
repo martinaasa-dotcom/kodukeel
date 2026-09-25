@@ -81,9 +81,10 @@ export function choiceOf(input: ChoiceInput): string | null {
   const options = optionsFor(input);
   if (options.length < OPTIONS) return null;
   /*
-    A greeting or a farewell beat names whole phrases, `Tere!` and `Head
-    aega!`, and joining those as they are printed `Tere! või Tere hommikust!?`.
-    The line ends in one question mark, so each option's own closing mark goes.
+    A lemma can carry its own closing mark, and joining two such as they are
+    printed gave `Tere! või Tere hommikust!?`. Greetings are no longer offered
+    (`alternatives` takes no phrase), but the line still ends in one question
+    mark, so each option's own closing mark goes.
   */
   const bare = options.map((option) => option.replace(/[.!?]+$/, ""));
   const [first, second] = input.roll % 2 === 0 ? bare : [bare[1]!, bare[0]!];
@@ -117,8 +118,8 @@ function optionsFor(input: ChoiceInput): string[] {
         Any of a beat's own words is a right answer, so both options are true
         and the learner cannot be caught out by taking either.
       */
-      const said = need.oneOf.filter((lemma) => lexicon.byLemma.has(lemma)).slice(0, OPTIONS);
-      if (said.length === OPTIONS) return said;
+      const pair = alternatives(need.oneOf, lexicon);
+      if (pair) return pair;
       continue;
     }
     /*
@@ -152,4 +153,47 @@ function optionsFor(input: ChoiceInput): string[] {
     }
   }
   return [];
+}
+
+/**
+ * The part of speech a narrowed question may offer a pair of.
+ *
+ * A noun, an adjective or a pronoun is an answer on its own in its dictionary
+ * form: `Pea või kõrv?`, `Suur või väike?`, `Üks või kaks?`. A verb is not,
+ * since nobody offers `Helistama või küsima?`, and a phrase is not a thing to
+ * choose between: a greeting is said, so `Tere või Tere hommikust?` is one
+ * thing said two ways.
+ *
+ * And an adverb is not one kind of thing here. The course labels every word
+ * that does not inflect `ADVERB`, because the label decides which cards a word
+ * takes rather than what it is, so a yes, a thank you, an agreement and a now
+ * all carry it, and this offered `Jah või aitäh?` and `Jah või nüüd?`. It
+ * costs `Jah või ei?` and `Otse või vasakul?`, which fall to the app's hint.
+ */
+const OFFERABLE: ReadonlySet<string> = new Set(["NOUN", "ADJECTIVE", "PRONOUN"]);
+
+function offerable(pos: string | undefined): boolean {
+  return pos !== undefined && OFFERABLE.has(pos);
+}
+
+/**
+ * The first two of a beat's own words that are two of one kind of thing.
+ *
+ * A beat's list mixes kinds, because it names every word that answers it:
+ * `valu` and `valutama`, `sobima` and `jah`, `arve` and `maksma`. Taking the
+ * first two put exactly those side by side, which is not two things a person
+ * could have meant but one thing in two word classes, or a thing and a yes.
+ * Measured over the catalogue, that was most of the pairs it offered. Two of
+ * one part of speech is what a choice at a counter is, and a beat with no such
+ * pair falls to the app's own hint, which is the honest thing to say.
+ */
+function alternatives(oneOf: readonly string[], lexicon: Lexicon): [string, string] | null {
+  const known = oneOf.filter((lemma) => lexicon.byLemma.has(lemma));
+  for (let i = 0; i < known.length; i++) {
+    const pos = lexicon.posOf.get(known[i]!);
+    if (!offerable(pos)) continue;
+    const partner = known.slice(i + 1).find((lemma) => lexicon.posOf.get(lemma) === pos);
+    if (partner) return [known[i]!, partner];
+  }
+  return null;
 }
