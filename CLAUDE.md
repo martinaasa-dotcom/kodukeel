@@ -4,8 +4,9 @@
 
 An Estonian learning app: dictionary, learning path, spaced-repetition review, practice games and a
 grammar tutor. `docs/` holds the plan it was built from; `docs/13-mvp-status.md` says what is built,
-what is deliberately not, and the known limitations. Read that first, and §6 of it especially. That
-is the current state.
+what is deliberately not, and the known limitations. Read that first, starting with its header: it is
+a log of passes in the order they landed, and the latest pass that speaks to a thing is the current
+state of it.
 
 ## Read before writing code
 
@@ -6596,7 +6597,11 @@ enough people have put aside is *offered* one band later, for everybody, which r
 places that decide which word somebody is taught next: the new-card ordering on `/review` and the
 ladder's own pick. **Two numbers rather than a head count**, because five people out of the five who
 hold the word is the course being wrong and five out of four hundred is five people having a bad
-week, and the denominator is how many learners hold a card for it. **One band and never more**,
+week, and the denominator is how many learners hold a card for it. **And only somebody who has
+graded a card has a vote**, because sign-up is open and five accounts made for the purpose could
+otherwise move any word few people hold: a fresh account's press still puts the word aside for
+them, and `votesFor` leaves it out of the count, the move and the admin's reading alike. The press
+itself is throttled like any other action that reaches past one learner. **One band and never more**,
 never past C2, and never for a word that carries no band: a word moved once has to earn the next
 step from the learners who meet it where it now sits, which is what stops a feedback loop walking a
 word off the top of the course.
@@ -7215,8 +7220,9 @@ memory and another in the table.
 
 **The row holds a digest, not the key.** The key is `tts:o:<uuid>`, so a table of those is a record
 of who was awake and when, kept for no reason anybody could state. A digest tells two callers apart,
-which is the whole job, and cannot be read back into a person, so there is nothing in `RateLimit`
-for the export or the erasure to carry. **A database that cannot answer degrades to the Map** rather
+which is the whole job, and does not hold the id or the address, so there is nothing in `RateLimit`
+for the export or the erasure to carry. It is pseudonymous rather than anonymous, since anybody
+holding a candidate id can hash it and confirm a match, which is why a row lives an hour at most. **A database that cannot answer degrades to the Map** rather
 than failing open or closed: closed would turn a bad minute at Postgres into a total outage of four
 routes on an app whose every page reads the same database, open would drop the control exactly when
 somebody has put the database under load, and the Map is the behaviour this app shipped with and was
