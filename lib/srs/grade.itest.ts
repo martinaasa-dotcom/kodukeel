@@ -81,6 +81,58 @@ describe("writeGrade", () => {
     });
     expect(await prisma.review.count({ where: { id: "from-the-device" } })).toBe(1);
   });
+
+  /*
+    The online write committed and its answer never reached the device, so the
+    same grade arrives again under the same id, first as a retry and then
+    through the outbox. It is one answer and the scheduler hears it once.
+  */
+  it("applies a grade once however often its id arrives", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    const write = {
+      rating: 3 as const, durationMs: 0, reviewedAt: new Date("2026-08-20T09:00:00Z"),
+      now: new Date("2026-09-02T09:00:00Z"), reviewId: "sent-twice",
+    };
+    const first = await writeGrade(OWNER, { card, ...write });
+    const again = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    const second = await writeGrade(OWNER, { card: again, ...write });
+
+    expect(await prisma.review.count({ where: { cardId: card.id } })).toBe(1);
+    const stored = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(stored.reps).toBe(1);
+    expect(second.due.toISOString()).toBe(first.due.toISOString());
+  });
+
+  it("applies it once when two copies arrive at the same moment", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    const write = {
+      card, rating: 3 as const, durationMs: 0, reviewedAt: new Date("2026-08-20T09:00:00Z"),
+      now: new Date("2026-09-02T09:00:00Z"), reviewId: "raced",
+    };
+    await Promise.all([writeGrade(OWNER, write), writeGrade(OWNER, write)]);
+
+    expect(await prisma.review.count({ where: { cardId: card.id } })).toBe(1);
+    expect((await prisma.card.findUniqueOrThrow({ where: { id: card.id } })).reps).toBe(1);
+  });
+
+  it("never applies a grade whose id belongs to somebody else", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await prisma.review.create({
+      data: {
+        id: "not-yours", ownerId: "itest-someone-else", cardId: "elsewhere", lexemeId: null,
+        rating: 1, reviewedAt: new Date("2026-08-10T09:00:00Z"), durationMs: 0, stateBefore: 0,
+      },
+    });
+    try {
+      await expect(writeGrade(OWNER, {
+        card, rating: 3, durationMs: 0, reviewedAt: new Date("2026-08-20T09:00:00Z"),
+        now: new Date("2026-09-02T09:00:00Z"), reviewId: "not-yours",
+      })).rejects.toThrow();
+      expect((await prisma.card.findUniqueOrThrow({ where: { id: card.id } })).reps).toBe(0);
+    } finally {
+      await prisma.review.deleteMany({ where: { id: "not-yours" } });
+    }
+  });
 });
 
 describe("the replay path takes the same floor", () => {

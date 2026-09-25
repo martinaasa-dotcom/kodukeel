@@ -12,13 +12,10 @@ import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { useModuleFocus } from "@/components/course/moduleFocus";
+import { shotSeconds } from "@/lib/games/target";
 
-/** Seconds for the first shot. */
-const START_S = 8;
-/** The least time a shot ever gets, however far in you are. */
-const FLOOR_S = 3.5;
-/** How much of a second each hit takes off the clock. */
-const STEP_S = 0.25;
 
 /**
  * TARGET.
@@ -27,7 +24,8 @@ const STEP_S = 0.25;
  * second off the next shot, so the round tightens around whoever is playing it
  * rather than around a difficulty somebody picked: a learner who knows their
  * endings ends up with three and a half seconds a question, and one who does
- * not never gets there.
+ * not never gets there. Those are the figures at the standard pace, and every
+ * one of them is multiplied by the pace the learner set (`lib/games/target.ts`).
  *
  * A MISS COSTS THE SHOT AND NOT THE ROUND. The right answer is shown, the
  * clock resets, and the next question comes. Ending a round on the first wrong
@@ -36,10 +34,14 @@ const STEP_S = 0.25;
  *
  * Every answer grades through `gradeCard` (ADR-016) so the scheduler sees what
  * was practiced: a hit is Good, a miss is Again, and running out of time is
- * Again too, because not producing a form inside eight seconds is not knowing
- * it yet.
+ * Again too, because not producing a form inside the time the learner gave
+ * themselves is not knowing it yet.
  */
-export function TargetSession({ questions: initialQuestions }: { questions: TargetQuestion[] }) {
+export function TargetSession({ questions: initialQuestions, multiplier }: {
+  questions: TargetQuestion[];
+  /** The learner's own pace, from `lib/ux/roundClock.ts`, resolved on the page. */
+  multiplier: number;
+}) {
   // Snapshotted on mount: `gradeCard` refreshes this route's Server Component,
   // and a round whose questions changed under the player is a different round.
   const [questions] = useState(initialQuestions);
@@ -49,12 +51,13 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
   const [hits, setHits] = useState(0);
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(0);
-  const [left, setLeft] = useState(START_S);
+  const [left, setLeft] = useState(() => shotSeconds(0, multiplier));
   const sound = useFeedbackSound();
   const shownAt = useRef(Date.now());
 
   const question = questions[index];
-  const allowed = Math.max(FLOOR_S, START_S - hits * STEP_S);
+  const allowed = shotSeconds(hits, multiplier);
+  const inModule = useModuleFocus() !== null;
 
   const answer = useCallback((choice: number | null) => {
     if (!question || picked !== null) return;
@@ -80,11 +83,11 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
     // moment in a round worth slowing down for.
     window.setTimeout(() => {
       setPicked(null);
-      setLeft(Math.max(FLOOR_S, START_S - (right ? hits + 1 : hits) * STEP_S));
+      setLeft(shotSeconds(right ? hits + 1 : hits, multiplier));
       shownAt.current = Date.now();
       setIndex((i) => i + 1);
     }, right ? 480 : 1500);
-  }, [question, picked, sound, hits]);
+  }, [question, picked, sound, hits, multiplier]);
 
   useEffect(() => {
     if (phase !== "running" || picked !== null) return;
@@ -120,9 +123,27 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
             only the question word tells you which of the four to hit.
           </p>
           <Button variant="primary" size="lg"
-            onClick={() => { setPhase("running"); setLeft(START_S); shownAt.current = Date.now(); }}>
+            onClick={() => { setPhase("running"); setLeft(shotSeconds(0, multiplier)); shownAt.current = Date.now(); }}>
             Start
           </Button>
+          {/*
+            The same sentence the Case Sprint carries, for the same reason: the
+            moment somebody finds the clock too fast is the moment they are
+            looking at this screen. Inside a module the sentence stays and the
+            link goes, since a link out of the round would land the learner on
+            Settings with the evening gone (see SprintSession.tsx).
+          */}
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+            Need longer?{" "}
+            {inModule ? (
+              <span>Settings lets you give yourself more time</span>
+            ) : (
+              <Link href="/settings#round-pace" className="underline underline-offset-2">
+                Give yourself more time
+              </Link>
+            )}
+            , up to ten times this.
+          </p>
           {/* The way back to the menu somebody chose this round from, which
               inside a module is a door out of the evening: the way on is the
               bar at the foot of the screen. */}

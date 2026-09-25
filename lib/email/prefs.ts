@@ -128,9 +128,11 @@ export function switchOff(prefs: EmailPrefs, kinds: readonly EmailKind[]): Email
     Turning off every kind there is means the same thing as pressing the
     client's own button, so it is stored the same way. Otherwise somebody who
     unticked every box by hand would be opted in to the next kind the day it
-    exists, having plainly said they wanted none.
+    exists, having plainly said they wanted none. A kind that is off until
+    asked for and was never asked for is off too, since its box was already
+    unticked and there was nothing to press.
   */
-  return OPTIONAL_KINDS.every((k) => off.has(k))
+  return OPTIONAL_KINDS.every((k) => off.has(k) || (DEFAULT_OFF.includes(k) && !on.has(k)))
     ? { kind: "all-off" }
     : { kind: "some-off", off, on };
 }
