@@ -1,5 +1,6 @@
 import { CLOSE_PCT, LIKELY_PCT, type Evidence, type Readiness } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
+import type { DayClock } from "@/lib/time/day";
 
 /**
  * A GROUP SEEN BY WHOEVER IS PAYING FOR IT, WHICH IS NOT THE SAME SEAT AS A
@@ -234,4 +235,17 @@ export function withoutMember(summary: CohortSummary, ownerId: string): CohortSu
       EVIDENCE_RANK[member.evidence] < EVIDENCE_RANK[worst] ? member.evidence : worst
     ), members.length > 0 ? "good" : "thin"),
   };
+}
+
+/**
+ * WHOLE CALENDAR DAYS SINCE THE LAST REVIEW, ON THE LEARNER'S OWN CLOCK.
+ *
+ * It was elapsed time divided by a day, so a review at 23:00 read as "reviewed
+ * today" at nine the next morning, and one on Monday morning read as "1 day
+ * ago" until Wednesday morning. The streak printed beside it is counted in the
+ * learner's calendar days, so the two could disagree on one row. Both read the
+ * same clock now.
+ */
+export function daysSince(last: Date, now: Date, clock: DayClock): number {
+  return Math.max(0, clock.daysBetween(last, now));
 }

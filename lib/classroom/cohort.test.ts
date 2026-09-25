@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { Evidence, Readiness } from "@/lib/exam/readiness";
 import { CLOSE_PCT, LIKELY_PCT } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
+import { dayClock } from "@/lib/time/day";
 import {
-  MIN_EVIDENCE_TO_BAND, bandFor, cohortKind, summariseCohort, withoutMember, type CohortInput,
+  MIN_EVIDENCE_TO_BAND, bandFor, cohortKind, daysSince, summariseCohort, withoutMember, type CohortInput,
 } from "./cohort";
 
 /** A readiness object carrying one confidence at one level, which is all this reads. */
@@ -214,5 +215,16 @@ describe("the group with its owner taken out", () => {
     const none = withoutMember(one, "hr");
     expect(none.members).toEqual([]);
     expect(none.evidence).toBe("thin");
+  });
+});
+
+describe("daysSince", () => {
+  const tallinn = dayClock("Europe/Tallinn");
+  it("counts calendar days on the learner's clock, not elapsed time", () => {
+    // 23:00 on the 1st in Tallinn, read at 09:00 on the 2nd: yesterday, ten hours ago.
+    expect(daysSince(new Date("2026-09-01T20:00:00Z"), new Date("2026-09-02T06:00:00Z"), tallinn)).toBe(1);
+    // 08:00 on the 1st, read at 22:00 on the 2nd: one day, not rounded down to zero.
+    expect(daysSince(new Date("2026-09-01T05:00:00Z"), new Date("2026-09-02T19:00:00Z"), tallinn)).toBe(1);
+    expect(daysSince(new Date("2026-09-02T05:00:00Z"), new Date("2026-09-02T19:00:00Z"), tallinn)).toBe(0);
   });
 });

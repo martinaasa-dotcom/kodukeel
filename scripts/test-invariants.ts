@@ -6302,6 +6302,19 @@ function ownerScopedModels(): string[] {
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
 
+check("a roster's last-seen figure is counted in the learner's calendar days", () => {
+  /*
+    "Reviewed today" beside a review at 23:00 last night, read at nine in the
+    morning, was elapsed time divided by a day. The streak on the same row is
+    counted on the learner's own clock, so both rosters read \`daysSince\` off
+    that clock and nothing divides by a day to get there.
+  */
+  const src = code("lib/classroom/roster.ts");
+  assert.doesNotMatch(src, /daysSinceLastReview:[^,]*86_400_000/, "a roster divides elapsed time by a day again");
+  assert.equal((src.match(/daysSince\(last, now, dayClock\(/g) ?? []).length, 2,
+    "both rosters have to count last-seen days on the learner's clock");
+});
+
 check("the actions that do real work per call are throttled", () => {
   /*
     Every mutation a learner makes here is a Server Action, which is a POST to
