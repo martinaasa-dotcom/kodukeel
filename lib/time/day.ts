@@ -267,19 +267,20 @@ export function daysBetween(a: Date, b: Date): number {
  * would be ambiguous, so it says how many days. "Later today" and "tomorrow"
  * are the two the calendar has better words for than a weekday does.
  *
- * The weekday is written in the deployment's locale rather than the reader's,
- * which is the one thing here that is not perfect and is deliberate: this
- * string is built on a server so that it can use the learner's own *zone*,
- * which decides which day it is, and every screen of this app is in English
- * anyway. Getting the zone wrong names the wrong day; getting the locale wrong
- * spells the right one differently.
+ * The weekday is written in English, because the sentence it sits in is
+ * English. This string is built on a server so that it can use the learner's
+ * own *zone*, which decides which day it is, and a server has no reader's
+ * locale to offer. It used to take the deployment's instead, which is English
+ * on Vercel and is anything at all on a machine somebody set up in Tallinn:
+ * "The next card comes back on laupäev." is neither language, and the unit
+ * test for it failed on every non-English host.
  */
 export function nextCardLine(due: Date, now: Date, clock: DayClock): string {
   const days = clock.daysBetween(now, due);
   if (days <= 0) return "The next card comes back later today.";
   if (days === 1) return "The next card comes back tomorrow.";
   if (days < 7) {
-    const weekday = new Intl.DateTimeFormat(undefined, {
+    const weekday = new Intl.DateTimeFormat("en", {
       weekday: "long", timeZone: clock.zoneName,
     }).format(due);
     return `The next card comes back on ${weekday}.`;
