@@ -9,7 +9,7 @@
  * question they answered two turns ago. Vouching is about vocabulary, and
  * neither of those is a vocabulary fault.
  *
- * `docs/19-situations.md` §2. Never shown with a caveat: a caveat still puts a
+ * `docs/21-situations.md` §2. Never shown with a caveat: a caveat still puts a
  * wrong form in front of somebody trying to learn one, which is the same rule
  * `lib/tutor/verify.ts` follows about a grader's note. What the learner sees
  * instead is the fallback, which is somebody who did not catch what they said.
@@ -27,6 +27,9 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
+import { CASES } from "@/lib/estonian/cases";
+import { derivedVerbForms } from "@/lib/estonian/conjugate";
+import { parseGovernment } from "@/lib/estonian/government";
 import type { CaseKey } from "@/lib/estonian/types";
 import {
   DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, words, type Lexicon, type Subject,
@@ -112,6 +115,60 @@ export interface GovernedWord {
   readonly forms: ReadonlySet<string>;
   /** Every case its entry names, never only the primary. */
   readonly cases: ReadonlySet<CaseKey>;
+}
+
+/**
+ * One governed verb as the gate reads it, built the same way for everybody.
+ *
+ * The route built this in `lib/progress/scene.ts` and the harness built its
+ * own table in `scripts/lib/sceneDraft.ts`, and the two had come apart twice.
+ * The harness never added the place cases, so `minema`, `tulema` and `sõitma`
+ * governed the comitative alone and `Minge otse edasi ja siis vasakule.` was
+ * withheld in every measurement while the route passed it; and it took the
+ * stored forms without the persons the rule derives. One function now, so a
+ * line the harness withholds is a line the route withholds.
+ *
+ * `null` for a word with no government this can read, or no verb to hold it.
+ */
+export function governedWord(word: {
+  readonly lemma: string;
+  readonly pos: string;
+  readonly government: string | null | undefined;
+  readonly forms: Iterable<string>;
+  readonly pres1sg?: string | null;
+}): GovernedWord | null {
+  if (word.pos !== "VERB") return null;
+  const government = parseGovernment(word.government ?? null);
+  if (!government) return null;
+  const forms = new Set<string>([word.lemma.toLowerCase()]);
+  for (const form of word.forms) forms.add(form.toLowerCase());
+  for (const derived of derivedVerbForms({ lemma: word.lemma, pres1sg: word.pres1sg ?? undefined })) {
+    forms.add(derived.value.toLowerCase());
+  }
+  return {
+    lemma: word.lemma,
+    forms,
+    cases: new Set([government.caseKey, ...government.alsoGoverned, ...placeCases(word.government ?? "")]),
+  };
+}
+
+/**
+ * THE CASES THAT ANSWER A PLACE QUESTION A GOVERNMENT NAMES.
+ *
+ * Ekilex records `sõitma` as "kuhu (direction) · millega (comitative)", and
+ * `parseGovernment` names a case for the second and none for the first, since
+ * `kuhu` is not a case. So the gate held `sõitma` to the comitative alone and
+ * withheld `Buss sõidab jaama kell kaks`, three times running, on the one
+ * beat that had to say where the bus goes. `kuhu` is answered by the
+ * sisseütlev and the alaleütlev, `kus` and `kust` by their pairs, which is
+ * what `CASES` already records as `asksWhere`, so a government naming a place
+ * question governs every case that answers it. Read off the table rather
+ * than typed, for the reason the question words themselves are.
+ */
+export function placeCases(government: string): CaseKey[] {
+  const asked = new Set((government.toLowerCase().match(/\b(kuhu|kus|kust)\b/g) ?? []).map((w) => `${w}?`));
+  if (asked.size === 0) return [];
+  return CASES.filter((spec) => spec.asksWhere && asked.has(spec.asksWhere)).map((spec) => spec.key);
 }
 
 /**
@@ -398,7 +455,8 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     arrives underlined with the dictionary under it, so the cost of one is a
     word to notice rather than a word that stops the conversation.
   */
-  const stretched = tokens.filter((word) => !context.lexicon.forms.has(word));
+  // Counted as different words: a line saying one new word twice holds one.
+  const stretched = [...new Set(tokens.filter((word) => !context.lexicon.forms.has(word)))];
   if (stretched.length > NEW_WORDS) failed.push("stretch");
 
   if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");
@@ -761,7 +819,7 @@ export function disagrees(text: string, context: GateContext): boolean {
  * a model asked for a role-play line writes a role-play line, and that the
  * learner reads every word of it with the dictionary underneath.
  */
-const MAX_SENTENCES = 5;
+export const MAX_SENTENCES = 5;
 
 /**
  * How long a composed line may be, which is not how long a recorded one may be.
@@ -797,7 +855,7 @@ const MAX_SENTENCES = 5;
 export const MAX_COMPOSED_WORDS = 55;
 
 /**
- * At most two short sentences, inside the word count, punctuated, no markdown,
+ * At most `MAX_SENTENCES` sentences, inside the word count, punctuated, no markdown,
  * and the shape the move asked for.
  *
  * A move of `ask` that comes back without a question mark did not do what it
@@ -808,10 +866,16 @@ export const MAX_COMPOSED_WORDS = 55;
  */
 function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boolean {
   const trimmed = text.trim();
-  const sentences = trimmed.split(/[.!?]+\s+/).filter(Boolean).length;
+  /*
+    A sentence ends on a stop followed by the next one's capital. Splitting on
+    every stop and a space counted `3. korrusel` and `15. mail`, which is how
+    Estonian writes an ordinal and a date, as two sentences each.
+  */
+  const sentences = trimmed.split(/[.!?]+\s+(?=[\p{Lu}„"«])/u).filter(Boolean).length;
   const shape = QUESTION_SHAPE[beat.move];
   return sentences >= 1 && sentences <= MAX_SENTENCES
-    && /[.!?]"?$/.test(trimmed)
+    // A closing quote may follow the stop, Estonian's own `“` included.
+    && /[.!?]["“”»]?$/.test(trimmed)
     && !/[*_`#[\]]/.test(text)
     && tokens.length > 0
     && tokens.length <= MAX_COMPOSED_WORDS
@@ -840,9 +904,22 @@ function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boole
  *
  * Measured before it shipped rather than reasoned about. `npm run eval:scene`
  * builds a labeled set out of attested lines and the same lines with one
- * nominal moved into a case the verb does not govern: it withholds 44.3% of
- * real errors and 8.3% of good lines over 494 pairs, so §2's condition is met.
- * A check that fires on honest output is a check somebody waives.
+ * nominal moved into a case the verb does not govern. `npm run eval:scene
+ * --part-b` on 2026-09-22: 29.4% of real errors withheld and 0.4% of good
+ * lines, over 500 pairs, so §2's condition is met. A check that fires on
+ * honest output is a check somebody waives.
+ *
+ * The figures here were 44.3% and 8.3% long after the object-case rule below
+ * had moved them, which is a header disagreeing with a comment eighty lines
+ * under it about the same run. Re-read them off the script before trusting
+ * them; it needs no key.
+ *
+ * AND THAT SET CANNOT SEE EVERY WAY THIS FIRES. It is built by moving a
+ * nominal into a wrong case, so every pair in it holds a governed verb that
+ * really is the verb and a nominal that really is a nominal. The homograph
+ * faults the two rules below are about are invisible to it: the fix for them
+ * left all three numbers on this set exactly where they were. Live lines are
+ * the other half of the reading (`npm run eval:scene` Part A).
  */
 export function governmentSuspect(tokens: readonly string[], context: GateContext, text?: string): boolean {
   /*
@@ -868,7 +945,25 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
     in it has a nominal in a case it governs, which is the same weak claim
     made across all of them rather than about whichever came first.
   */
-  const present = context.governed.filter((g) => lower.some((t) => g.forms.has(t)));
+  /*
+    AND A SPELLING THE SCENE TEACHES AS A WORD OF ITS OWN IS THAT WORD.
+
+    A governed verb used to count as present on any spelling it happened to
+    own, which put its cases on a clause the verb was never in. `maitse` is a
+    headword the course glosses "taste, flavor" and also one of the forms
+    the dictionary lists for `maitsma`, so `sest sellel on väga hea maitse` was read as
+    governing the allative and withheld. Twelve spellings across the catalogue
+    are this shape: `tänav` is claimed by `tänama`, `käsi` by `käskima`, `sai`
+    by `saama`, `viis` by `viima`.
+
+    `lib/estonian/wordOrder.ts` states the rule for exactly this and names
+    `täna`, the imperative of `tänama`, as the case it was written for: a
+    spelling that is two words is neither. The course's own list settles it, so
+    nothing here is a claim about Estonian, and it can only ever weaken the
+    check, which is the direction this module errs in.
+  */
+  const ownWord = (t: string, lemma: string) => context.lexicon.byLemma.has(t) && t !== lemma;
+  const present = context.governed.filter((g) => lower.some((t) => g.forms.has(t) && !ownWord(t, g.lemma)));
   if (present.length === 0) return false;
   return present.every((word) => suspectFor(word, lower, context));
 }
@@ -928,7 +1023,18 @@ function suspectFor(word: GovernedWord, lower: readonly string[], context: GateC
     the safe way. Refusing correct Estonian is the fault this module is built
     against; missing a corrupted line costs a learner a line the bank answers.
   */
+  /*
+    AND THE SAME RULE ON THIS SIDE, WHICH IS WHERE THE FUNCTION WORDS LIVE.
+    `sest`, `pärast` and `aeglaselt` are headwords the course teaches, and the
+    case table the check reads gives each an oblique case: `sest` as the elative
+    of `see` and `aeglaselt` as a form of `aeglane`, with `pärast` carrying an
+    elative that no other headword in any scene claims. Read that way, each
+    stood in as the complement that made a clause suspect. A headword may still exonerate
+    a clause by carrying a case the verb governs, through `nominals` above; what
+    it may no longer do is be the thing that incriminates one.
+  */
   const oblique = nominals.filter((t) => {
+    if (context.lexicon.byLemma.has(t)) return false;
     const cases = context.caseOf.get(t);
     if (!cases || cases.has("NOMINATIVE") || cases.has("GENITIVE") || cases.has("PARTITIVE")) return false;
     return ![...cases].some((c) => ADJUNCT_CASES.has(c));

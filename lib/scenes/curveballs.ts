@@ -1,7 +1,7 @@
 /**
  * A difficulty setting is a budget, not a mode.
  *
- * `docs/19-situations.md` §9. Each curveball costs points, the setting is how
+ * `docs/21-situations.md` §9. Each curveball costs points, the setting is how
  * many points a run may spend, and the draw is seeded. Difficulty is then one
  * number a learner can move by one, rather than four presets that jump, and it
  * sits on the scene rather than in Settings because it is a decision about this

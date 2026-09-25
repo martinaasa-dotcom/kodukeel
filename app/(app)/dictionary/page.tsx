@@ -11,12 +11,13 @@ import { didYouMean, knownAs as knownLemmas } from "@/lib/dict/known";
 import { backfillClozeCards } from "@/lib/srs/backfill";
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { resolveProvider, resolveProviders } from "@/lib/tutor/provider";
 import { suggestWords, type Suggestions } from "@/lib/dict/suggest";
 import { readableHeadlines } from "@/lib/dict/headlines";
 import { feedHost } from "@/lib/news/feed";
 import { Page } from "@/components/ui";
 import { DictionaryClient, type EntryView } from "./DictionaryClient";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Dictionary" };
 
@@ -28,7 +29,7 @@ const EMPTY_SUGGESTIONS: Suggestions = { label: "", source: "level", words: [] }
 export default async function DictionaryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; entry?: string }>;
+  searchParams: Promise<{ q?: string | string[]; entry?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
   /*
@@ -42,7 +43,7 @@ export default async function DictionaryPage({
     frost entry was unreachable from anywhere in the app. It is a plain id
     rather than an index, so a link keeps working when the ranking changes.
   */
-  const { q = "", entry: wanted } = await searchParams;
+  const { q = "", entry: wanted } = firstParams(await searchParams);
   let hits = q ? await searchLexemes(q) : [];
 
   /*
@@ -186,7 +187,9 @@ export default async function DictionaryPage({
       }
     >
       <DictionaryClient
-        tutorReady={resolveProvider() !== null}
+        // Anu's own chain: this offers a question to her, and her route reads
+        // nothing else.
+        tutorReady={resolveProviders({ purpose: "tutor" }).length > 0}
         canScan={resolveProvider() !== null}
         justFetched={fetched}
         initialQuery={q}
