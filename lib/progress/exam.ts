@@ -4,8 +4,7 @@ import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseAccuracy } from "@/lib/stats/history";
 import { buildPaper, type PoolWord, type Paper } from "@/lib/exam/paper";
-import { rng, seedFrom } from "@/lib/random/seeded";
-import { shuffle } from "@/lib/random/shuffle";
+import { drawPool, eligibleFor, eligibleLevels } from "@/lib/exam/pool";
 import type { ExamResult } from "@/lib/exam/score";
 import type { ExamLevel } from "@/lib/exam/spec";
 import type { PastAttempt, ReadinessSignals, SkillEvidence } from "@/lib/exam/readiness";
@@ -24,10 +23,6 @@ import { orderContextFor } from "@/lib/dict/wordOrder";
  * Prisma exists.
  */
 
-const RANK: Record<string, number> = { A1: 0, A2: 1, B1: 2, B2: 3, C1: 4 };
-
-/** How many dictionary entries one paper is drawn from. */
-const POOL_SIZE = 500;
 
 /**
  * The dictionary material a paper at this level can be built out of.
@@ -75,12 +70,11 @@ const POOL_SIZE = 500;
  * fault: today a paper is mis-marked whenever anybody looks a word up.
  */
 export async function examPool(ownerId: string, level: ExamLevel, seed: string): Promise<PoolWord[]> {
-  const ceiling = RANK[level] ?? 2;
-  const levels = Object.entries(RANK)
-    .filter(([, rank]) => rank <= ceiling)
-    .map(([name]) => name);
+  const levels = eligibleLevels(level);
 
-  const eligible = ceiling >= RANK.B1!
+  // Whether an ungraded entry is in is `eligibleFor`'s to say, the rule the
+  // measurement reads too, rather than a second reading of it here.
+  const eligible = eligibleFor(level, null)
     ? { OR: [{ cefr: { in: levels } }, { cefr: null }] }
     : { cefr: { in: levels } };
 
@@ -102,7 +96,7 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
     of the questions inside it are not the same walk; `lib/exam/paper.ts` is
     the one module that keeps a private shuffle, and this is not it.
   */
-  const drawn = shuffle(ids, rng(seedFrom(`pool:${level}:${seed}`))).slice(0, POOL_SIZE);
+  const drawn = drawPool(ids, level, seed);
 
   const rows = await prisma.lexeme.findMany({
     where: { id: { in: drawn } },
