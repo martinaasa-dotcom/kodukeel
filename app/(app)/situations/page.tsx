@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
  *
  * Each one says where you are standing, what you would be trying to get done,
  * and how long it takes, which is what somebody deciding whether they have time
- * for one actually needs (`docs/19-situations.md` §13).
+ * for one actually needs (`docs/21-situations.md` §13).
  *
  * NO SCENE HAS A BAND OF ITS OWN. They did, and the page sorted them into
  * "at your level" and "a bit above or below you" on it. What a band on a tile
