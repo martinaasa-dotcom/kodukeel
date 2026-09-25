@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { gapForms, gapFormsFromParts } from "./gapForms";
+import { gapForms, gapFormsFromParts, twinsOf } from "./gapForms";
 
 const TUBA = {
   lemma: "tuba",
@@ -186,5 +186,35 @@ describe("gapForms", () => {
       expect(forms.has("tubadega"), `${morphCode ?? "seeded"} dropped the spelling`).toBe(true);
       expect(forms.get("tubadega"), `${morphCode ?? "seeded"} named a case for a plural`).toBeNull();
     }
+  });
+});
+
+describe("twinsOf", () => {
+  const aeg = {
+    lemma: "aeg", pos: "NOUN",
+    forms: [
+      { formType: "NOM_SG", value: "aeg" }, { formType: "GEN_SG", value: "aja" },
+      { formType: "PART_SG", value: "aega" }, { formType: "PART_PL", value: "aegu" },
+      { formType: "PART_PL", value: "aegasid" },
+    ],
+  };
+
+  it("takes the other stored form in the same slot", () => {
+    expect([...twinsOf(aeg, "aegu")].sort()).toEqual(["aegasid", "aegu"]);
+  });
+
+  it("takes the other half of a case's pair, which is the long illative", () => {
+    const tuba = {
+      lemma: "tuba", pos: "NOUN",
+      forms: [
+        { formType: "NOM_SG", value: "tuba" }, { formType: "GEN_SG", value: "toa" },
+        { formType: "PART_SG", value: "tuba" }, { formType: "ILL_SG_SHORT", value: "tuppa" },
+      ],
+    };
+    expect(twinsOf(tuba, "tuppa").has("toasse")).toBe(true);
+  });
+
+  it("leaves another case alone", () => {
+    expect(twinsOf(aeg, "aegu").has("aja")).toBe(false);
   });
 });

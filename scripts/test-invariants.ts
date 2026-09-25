@@ -25756,6 +25756,19 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a gap-choice builder never offers the answer's twin as a wrong option", () => {
+  /*
+    `aegu` and `aegasid` are both the partitive plural of `aeg`, and both are
+    stored. The exam's gapped text and the placement check's gap excluded only
+    the exact spelling from their wrong options, so the twin, which is the
+    nearest form the ranking finds, was the likeliest one to be offered, and
+    a candidate who chose it was marked wrong for a correct form.
+  */
+  for (const file of ["lib/exam/paper.ts", "lib/assessment/items.ts"]) {
+    assert.match(code(file), /twinsOf\(/, `${file} builds gap options without excluding the answer's twins`);
+  }
+});
+
 check("a truncated read whose order is the result ends on the primary key", () => {
   /*
     Outside lib/progress the rule is only that a cut says where it cuts, since
