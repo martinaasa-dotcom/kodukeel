@@ -4,7 +4,7 @@ import { CLOSE_PCT, LIKELY_PCT } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
 import {
   MIN_CASE_CONTRIBUTORS, MIN_EVIDENCE_TO_BAND, MIN_GROUP_TO_SHARE, bandFor, classWideCases, cohortKind,
-  sharesCounts, summariseCohort,
+  daysSince, sharesCounts, summariseCohort,
   withoutMember, type CohortInput,
 } from "./cohort";
 
@@ -237,6 +237,18 @@ describe("sharesCounts", () => {
   it("holds them back from a member until the group is too big to subtract a person from", () => {
     expect(sharesCounts(3, false)).toBe(false);
     expect(sharesCounts(MIN_GROUP_TO_SHARE, false)).toBe(true);
+  });
+});
+
+describe("daysSince", () => {
+  it("counts calendar days on the member's clock, not 24-hour spans", () => {
+    // 23:00 on the 24th in Tallinn, read at 08:00 on the 25th: that was yesterday.
+    const last = new Date("2026-09-24T20:00:00Z");
+    const now = new Date("2026-09-25T05:00:00Z");
+    expect(daysSince(last, now, "Europe/Tallinn")).toBe(1);
+    // An hour before, same evening, is today.
+    expect(daysSince(new Date("2026-09-25T04:00:00Z"), now, "Europe/Tallinn")).toBe(0);
+    expect(daysSince(null, now, "Europe/Tallinn")).toBeNull();
   });
 });
 

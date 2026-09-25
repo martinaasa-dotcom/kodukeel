@@ -13,6 +13,7 @@ import { BLANK } from "@/lib/estonian/cloze";
 import type { CheckpointQuestion } from "@/lib/collections/checkpoint";
 import type { Level } from "@/lib/collections/syllabus";
 import { Explain } from "@/components/Explain";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * Sits a level checkpoint.
@@ -56,15 +57,15 @@ export function CheckpointSession({
     finalAnswers: typeof answers,
   ) => {
     setSaving(true);
-    const result = await recordCheckpoint(level, finalCorrect, total, finalAnswers);
+    const result = await recordCheckpoint(level, finalCorrect, total, finalAnswers).catch(() => null);
     setSaving(false);
-    if (!result.ok) { setError(result.error); return; }
+    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
     setDone({ passed: result.passed, level: result.level });
   }, [level, total]);
 
   const submit = useCallback(() => {
     if (!question || saving || done) return;
-    const result = checkAnswer(typed, question.answer, "et");
+    const result = checkAnswer(typed, question.answer, "et", question.rivals);
     const ok = countsAsRecalled(result.verdict);
     const tally = correct + (ok ? 1 : 0);
     if (ok) setCorrect(tally);

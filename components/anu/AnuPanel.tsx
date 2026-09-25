@@ -64,6 +64,10 @@ export function AnuPanel({
     setHistoryLoaded(true);
     void getTutorHistory().then((history) => {
       if (history.length > 0) setMessages(history);
+    }).catch(() => {
+      // No history is the empty conversation she already shows. Not asked
+      // again here: resetting the flag would re-run this effect in a loop
+      // for as long as the network is gone.
     });
   }, [historyLoaded, configured, setMessages]);
 

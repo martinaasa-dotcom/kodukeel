@@ -33,7 +33,7 @@ import { dirname } from "node:path";
 
 import { fetchEkilexDetails, searchEkilexAnswered } from "../lib/ekilex/client";
 import { mapEkilexDetails } from "../lib/ekilex/mapper";
-import { extractEstonianEntries, type EstonianSense } from "../lib/dict/wiktionary";
+import { extractEstonianEntries, furtherSenses, type EstonianSense } from "../lib/dict/wiktionary";
 import { resolvePos } from "../lib/dict/pos";
 import { unreachableSlots } from "../lib/estonian/conjugate";
 import { unreachableCaseForms } from "../lib/estonian/derive";
@@ -302,7 +302,7 @@ async function build(lemma: string, pos: string): Promise<ExpandedEntry | null> 
     gradation: mapped.gradation,
     gradationNote: mapped.gradationNote,
     government: mapped.government,
-    notes: senses.length > 1 ? senses.slice(1, 4).map((s) => s.gloss).join("; ") : null,
+    notes: furtherSenses(senses),
     examples: mapped.examples.slice(0, 3).map((e) => ({ et: e.et, en: e.en ?? null })),
     /*
       The principal parts, and the whole forms no rule of this app reaches.

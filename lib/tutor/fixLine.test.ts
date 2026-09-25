@@ -46,4 +46,19 @@ describe("sentenceRun", () => {
   it("does not count a capitalised English word standing on its own", () => {
     expect(sentenceRun("How do you say Tuesday?", [])).toBe(0);
   });
+
+  it("counts the two-letter words a short sentence is made of, which the dictionary lookup never asks about", () => {
+    // questionWords skips anything under three letters, so only "koolis" comes back vouched.
+    const message = "Is this right: Ma on koolis.";
+    const run = sentenceRun(message, ["koolis"]);
+    expect(run).toBeGreaterThanOrEqual(3);
+    expect(isStrayFix("Ma olen koolis.", message, run)).toBe(false);
+    expect(sentenceRun("Kas ta ei tule?", ["kas", "tule"])).toBe(4);
+  });
+
+  it("does not let an English question through on its own 'me' and 'on'", () => {
+    expect(sentenceRun("Can you show me on kaart?", ["kaart"])).toBeLessThan(3);
+    expect(sentenceRun("What is it on koolis?", ["koolis"])).toBeLessThan(3);
+    expect(sentenceRun("Is ma a word?", [])).toBe(0);
+  });
 });

@@ -813,6 +813,43 @@ describe("a question with no verb in it", () => {
   });
 });
 
+/**
+ * AND A CLAUSE ENDS WHERE ITS SENTENCE DOES.
+ *
+ * The four checks that read a clause at a time split only at a comma, a
+ * semicolon and a colon, so two sentences were one clause to them. A composed
+ * line is up to five sentences, and a person's second sentence is the one that
+ * says the next thing: `Küsin kohe, mis teil on. Mida te otsite?` was withheld
+ * live because the second sentence's `te` was checked against the first
+ * sentence's `on`. The shape check two screens down already counts sentences at
+ * the full stop; these read the same boundary now.
+ */
+describe("a clause does not run on past the end of its sentence", () => {
+  it("does not check one sentence's subject against another sentence's verb", () => {
+    const ctx = context({ subjects: subjectsIn(ENTRIES) });
+    // `otsite` is a verb this table does not hold, so it cannot agree or
+    // disagree; the only person in sight used to be the first sentence's `on`.
+    expect(runGate("Valu on. Mida te otsite?", beat(), ctx).failed).not.toContain("agreement");
+    // The sentence that really disagrees is still caught on its own.
+    expect(runGate("Valu on. Kuhu te soovid?", beat(), ctx).failed).toContain("agreement");
+  });
+
+  it("does not let the next sentence lend a verbless question its verb", () => {
+    const ctx = context({
+      questionWords: new Set(["kas", "kus"]),
+      hasFiniteVerb: (word: string) => word === "on",
+      subjects: new Map([["teie", { code: "IndPrPl2", sure: false }]]),
+    });
+    expect(runGate("Kus teie valu? Valu on.", beat(), ctx).failed).toContain("question");
+  });
+
+  it("does not pair the last word of one sentence with the first of the next", () => {
+    const ctx = context();
+    expect(runGate("Kas valu on või ei? Tahate teed?", beat(), ctx).failed).not.toContain("negation");
+    expect(runGate("Tulen aitama. Saan kohe.", beat(), ctx).failed).not.toContain("infinitive");
+  });
+});
+
 describe("a farewell on a beat that is not the goodbye", () => {
   // `Head aega!` as the catalogue resolves it: a run of words, never a bag.
   const ctx = context({ farewells: [["head", "aega"], ["nägemist"]] });

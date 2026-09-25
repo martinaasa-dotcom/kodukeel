@@ -248,7 +248,7 @@ export async function readinessSignals(
         where: { ownerId },
         select: { id: true, cardType: true },
       }),
-      recentAttempts(ownerId),
+      recentAttempts(ownerId, { measured: true }),
       latestFor(ownerId),
     ]);
 
@@ -438,10 +438,20 @@ export function skillEvidenceFrom(
 
 // ── Sittings ─────────────────────────────────────────────────────────────────
 
-/** Past sittings, most recent first, with each part's percentage. */
-export async function recentAttempts(ownerId: string): Promise<PastAttempt[]> {
+/**
+ * Past sittings, most recent first, with each part's percentage.
+ *
+ * `measured` keeps only the sittings this deployment marked itself. A sitting
+ * that came back from a backup file carries marks nothing here can check
+ * (`lib/security/restoredMeasurement.ts`), so it belongs in the list of what
+ * somebody did and never in a figure about what they can do.
+ */
+export async function recentAttempts(
+  ownerId: string,
+  { measured = false }: { measured?: boolean } = {},
+): Promise<PastAttempt[]> {
   const rows = await prisma.examAttempt.findMany({
-    where: { ownerId },
+    where: measured ? { ownerId, restoredAt: null } : { ownerId },
     orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
     take: ATTEMPT_WINDOW,
     select: { level: true, pct: true, passed: true, finishedAt: true, result: true },
@@ -543,7 +553,28 @@ export async function attemptById(ownerId: string, id: string) {
 }
 
 /**
- * Writes a finished sitting.
+ * The sitting a paper already has, or null where it has never been handed in.
+ *
+ * A paper is (level, seed) and is sat once. The seed lives in the URL, so a
+ * reload returns the same paper, which is the point; and a sitting's stored
+ * result carries every expected answer, so a second submission of the same
+ * seed was a pass anybody could copy out of the first and hand in, on the
+ * figure a teacher's and a sponsor's roster read.
+ */
+export interface Sitting { id: string; pct: number; passed: boolean }
+
+export async function sittingOf(
+  ownerId: string, level: ExamLevel, seed: string,
+): Promise<Sitting | null> {
+  return prisma.examAttempt.findFirst({
+    where: { ownerId, level, seed },
+    orderBy: [{ finishedAt: "asc" }, { id: "asc" }],
+    select: { id: true, pct: true, passed: true },
+  });
+}
+
+/**
+ * Writes a finished sitting, once per paper.
  *
  * Only ever called after a paper is submitted. An abandoned paper leaves no
  * row, which is the same promise every other mode makes (ADR-016) and the
@@ -559,7 +590,9 @@ export async function attemptById(ownerId: string, id: string) {
  * listed twice on the hub and in the history, the second time with a result
  * whose grades had never been applied. The first answer stands and its id is
  * handed back, under a lock so two presses in the same instant cannot both
- * find nothing and both write.
+ * find nothing and both write. Its verdict comes back with it, so whoever
+ * arrives second is told the result that was stored rather than the one their
+ * own answers would have earned.
  */
 export async function recordAttempt(input: {
   ownerId: string;
@@ -567,16 +600,16 @@ export async function recordAttempt(input: {
   seed: string;
   startedAt: Date;
   result: ExamResult;
-}): Promise<string> {
+}): Promise<Sitting> {
   return prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SET LOCAL lock_timeout = '3s'`;
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`exam:${input.ownerId}:${input.seed}`}, 0))`;
     const sat = await tx.examAttempt.findFirst({
       where: { ownerId: input.ownerId, level: input.level, seed: input.seed },
       orderBy: [{ finishedAt: "asc" }, { id: "asc" }],
-      select: { id: true },
+      select: { id: true, pct: true, passed: true },
     });
-    if (sat) return sat.id;
+    if (sat) return sat;
     return createAttempt(tx, input);
   });
 }
@@ -584,8 +617,8 @@ export async function recordAttempt(input: {
 async function createAttempt(
   tx: Pick<typeof prisma, "examAttempt">,
   input: { ownerId: string; level: ExamLevel; seed: string; startedAt: Date; result: ExamResult },
-): Promise<string> {
-  const row = await tx.examAttempt.create({
+): Promise<Sitting> {
+  return tx.examAttempt.create({
     data: {
       ownerId: input.ownerId,
       level: input.level,
@@ -596,7 +629,6 @@ async function createAttempt(
       startedAt: input.startedAt,
       finishedAt: new Date(),
     },
-    select: { id: true },
+    select: { id: true, pct: true, passed: true },
   });
-  return row.id;
 }

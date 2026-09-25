@@ -52,6 +52,7 @@ function context(over: Partial<TurnContext> = {}): TurnContext {
   return {
     lexicon: LEX,
     questionWords: new Set(["kus", "millal"]),
+    askingForms: new Set(["küsida", "küsin", "otsin"]),
     negators: new Set(["ei"]),
     registerForms: new Set(["teie", "teil", "teile"]),
     hasFiniteVerb: (word: string) => word === "on",
@@ -299,6 +300,26 @@ describe("reading a turn", () => {
     });
 
     /*
+      AND A DROPPED Õ IN THE HEAD IS STILL THE HEAD. The forms list answers
+      folded, so `sisekorv` is vouched as the spelling of `sisekõrv`, and the
+      compound rule then compared raw strings and refused it: every other
+      rule in lib/scenes/nearly.ts folds, and this one was the keyboard with
+      no õ key being told it had not been understood.
+    */
+    it("is still that word typed without the diacritics", () => {
+      const folded = (word: string) => word === "sisekorv";
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["kõrv"] }] });
+      const seen = readTurn("sisekorv", asks, { ...context(), known: folded });
+      expect(seen.reading).toBe("complete");
+      expect(seen.matched).toEqual(["sisekorv"]);
+    });
+
+    it("and the folded head still needs a modifier long enough to be one", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["kõrv"] }] });
+      expect(readTurn("akorv", asks, { ...context(), known: () => true }).reading).not.toBe("complete");
+    });
+
+    /*
       The same compound against a card's value rather than a requirement. The
       `datum` ladder was the `case` ladder with this rung missing, so one
       spelling was accepted where the beat named the word and refused where
@@ -357,6 +378,21 @@ describe("reading a turn", () => {
     expect(readTurn("Kus?", asks, context()).reading).toBe("complete");
     expect(readTurn("Kus see on", asks, context()).reading).toBe("complete");
     expect(readTurn("valu", asks, context()).reading).not.toBe("complete");
+  });
+
+  /*
+    Naming the act of asking is asking. `probe:turns` read `Ma otsin panka` on
+    the way to a bank and `Ma tahan palga kohta küsida` at an interview as a
+    turn that had not asked yet, and the other side waited for a question the
+    learner had just put.
+  */
+  it("takes a turn that names the act of asking as a question", () => {
+    const asks = beat({ needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["valu"] }] });
+    expect(readTurn("ma otsin valu", asks, context()).reading).toBe("complete");
+    expect(readTurn("valu kohta küsida", asks, context()).reading).toBe("complete");
+    expect(readTurn("valu", asks, context()).reading).not.toBe("complete");
+    // Where the scene's units teach neither verb, nothing is read into them.
+    expect(readTurn("ma otsin valu", asks, context({ askingForms: new Set() })).reading).not.toBe("complete");
   });
 
   /*

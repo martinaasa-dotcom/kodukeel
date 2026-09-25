@@ -75,6 +75,23 @@ export function words(text: string): string[] {
 }
 
 /**
+ * The clauses of a line, as the weakest boundary available without a parser.
+ *
+ * A comma, a semicolon, a colon, and the end of a sentence. The gate's four
+ * clause checks and the turn marker's negation split at the first three only,
+ * so two sentences were one clause to them. `Küsin kohe, mis teil on. Mida te
+ * otsite?` was withheld live because the second sentence's `te` was checked
+ * against the first sentence's `on`; a verbless question borrowed its verb
+ * from the sentence after it; and a learner who wrote `Ei. Mul on valu.` had
+ * the no read into the second sentence and the answer refused. The gate's
+ * shape and government checks already split at the full stop; one boundary
+ * for every reader.
+ */
+export function clausesOf(text: string): string[] {
+  return text.split(/[.!?,;:]+/);
+}
+
+/**
  * Every form of one entry, lowercased.
  *
  * A `PHRASE` has no forms because Ekilex has no headword for it, so what it

@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { shuffle } from "@/lib/random/shuffle";
 import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
-import { gradeCard, translateExample } from "@/app/actions";
+import { translateExample } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
-import { sentenceTiles } from "@/lib/estonian/cloze";
+import { sentenceTiles, tileFaces } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordOrder";
 import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
@@ -39,6 +40,11 @@ export interface SentenceTask {
    * `lib/estonian/wordOrder.ts`, for this round, the lesson and the paper.
    */
   alsoRight: readonly string[];
+  /**
+   * Whether the sentence opens on an ordinary word, so its first tile loses
+   * the capital that would say which tile goes first. See `tileFaces`.
+   */
+  openerIsWord: boolean;
 }
 
 /** How long the sentence is shown before it is scrambled, when there is no English. */
@@ -73,6 +79,7 @@ export function SentenceSession(
     opensAt?: string;
   },
 ) {
+  const grade = useGrade();
   const uiText = useUiText();
   const [tasks, setTasks] = useState(initialTasks);
   // Which task to reopen on after a detour to its dictionary entry. See
@@ -126,7 +133,8 @@ export function SentenceSession(
   // mid-exercise would move the tile under the learner's finger.
   const tiles = useMemo(() => {
     if (!task || !mounted) return [];
-    const words = sentenceTiles(task.et);
+    const recorded = sentenceTiles(task.et);
+    const words = tileFaces(recorded, recorded[0] ?? "", task.openerIsWord);
     const order = shuffle(words.map((_, i) => i));
     // A shuffle that happens to be the right order is not an exercise.
     if (order.every((v, i) => v === i) && order.length > 1) order.reverse();
@@ -137,8 +145,8 @@ export function SentenceSession(
   useEffect(() => {
     const upcoming = tasks.slice(index, index + 3).filter((t) => t.en === null);
     for (const next of upcoming) {
-      void translateExample(next.lexemeId, next.et).then((result) => {
-        if (!result.ok) return;
+      void translateExample(next.lexemeId, next.et).catch(() => null).then((result) => {
+        if (!result?.ok) return;
         setTasks((list) => list.map((t) => (t.et === next.et ? { ...t, en: result.en } : t)));
       });
     }
@@ -175,13 +183,9 @@ export function SentenceSession(
     if (!right) hints.noteMiss();
     // A hint is paid for: see `lib/questions/hints.ts`.
     const rating = Math.min(right ? 3 : 1, hints.ceiling) as 1 | 2 | 3;
-    try {
-      await gradeCard(task.cardId, rating, Date.now() - shownAt.current);
-    } catch {
-      // The round still counts on screen; the grade is simply not recorded.
-    }
+    await grade(task.cardId, rating, Date.now() - shownAt.current);
     setBusy(false);
-  }, [task, busy, checked, answer, hints]);
+  }, [task, busy, checked, answer, hints, grade]);
 
   const next = useCallback(() => {
     /* The sentence the writer wrote, which is the answer this round is
