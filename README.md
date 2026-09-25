@@ -31,7 +31,10 @@ npm run dev       # starts the app
 Open **http://localhost:3000** and the setup wizard takes it from there.
 
 `DATABASE_URL` and `DIRECT_URL` in `.env` are the only settings that are not optional. Any Postgres
-will do, a local one, or the free tier of [supabase.com](https://supabase.com).
+will do, a local one, or the free tier of [supabase.com](https://supabase.com). The `.env` that setup
+writes points at `postgres:postgres@127.0.0.1:5432/kodukeel`, so with a Postgres on this machine and a
+database of that name the three commands above run as they are; otherwise change the two URLs and run
+`npm run setup` again.
 
 **Sign-in is optional.** With no Supabase keys configured the app runs in *local mode*: one learner,
 no accounts, everything in the database on your machine. Add `NEXT_PUBLIC_SUPABASE_URL` and
