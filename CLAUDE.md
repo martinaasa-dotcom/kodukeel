@@ -10659,6 +10659,16 @@ rather than against the branch. `npm run audit:merge` reads the other side's
 added lines and cannot see this at all, since nothing was reverted: what says so
 is `npm run build` and `npm run test:invariants` on main itself.
 
+**A new invariant goes in a file of its own under `scripts/invariants/`.** Every check used to be
+appended above the summary at the foot of `scripts/test-invariants.ts`, so two branches that each
+added one conflicted on the same lines whatever they were about: on 2026-09-25 that was nearly
+every open pull request against nearly every other. A file there exports one named function that
+is handed the suite's own helpers (`scripts/lib/invariantKit.ts`) and registers its checks through
+them, so a new check touches a new file and collides with nobody. The loader sits beside `code()`
+rather than at the foot, and it fails a file that registers no check, because an empty or misnamed
+export reads exactly like a file whose checks all passed. The checks already in the big file stay
+where they are; moving 424 of them would be one enormous conflict to end the small ones.
+
 When somebody else's work overlaps yours, one of them has to go. Keep the one
 that is safer or more precise and **delete the other outright** rather than
 leaving both: their fixture entry reaches four lapses in twelve reviews and

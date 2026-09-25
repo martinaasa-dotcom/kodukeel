@@ -71,6 +71,7 @@ import { HINT_EXEMPT, HINT_SWEPT_DIRS } from "../lib/questions/hintCoverage";
 import { NOT_IN_SETTINGS, OPTIONAL_KINDS } from "../lib/email/letter";
 import { UNCAPPED } from "../lib/email/schedule";
 import { CAPTION_MAX } from "../lib/copy/values";
+import type { InvariantKit } from "./lib/invariantKit";
 // @ts-expect-error - plain JS, shared with the .mjs browser suites it describes.
 import { DECLARES_SUITE, NOT_IN_CI } from "./lib/suites.mjs";
 
@@ -146,6 +147,38 @@ const code = (file: string) =>
     */
     .replace(/\/\*[\s\S]*?\*\//g, (m) => "\n".repeat(m.split("\n").length - 1) || " ")
     .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+
+/*
+  A NEW CHECK GOES IN A FILE OF ITS OWN, BECAUSE THE END OF THIS ONE IS WHERE
+  EVERY BRANCH COLLIDES.
+
+  Every check used to be appended above the summary at the foot of this file,
+  so two branches that each added one conflicted on that spot whatever they
+  were about. On 2026-09-25 that was nearly every open pull request against
+  nearly every other one. A file under `scripts/invariants/` exports one
+  function that is handed the helpers above and registers its checks through
+  them, so a new check touches a new file and nothing else. The loader sits
+  here rather than at the foot so it is not itself on the contested lines.
+
+  Loaded in name order, synchronously, because a check that runs after the
+  tally is printed is a check that cannot fail. A file that registers nothing
+  fails, since an empty or misnamed export would otherwise look exactly like a
+  file whose checks all passed.
+*/
+declare const require: (id: string) => { default?: unknown };
+const INVARIANT_DIR = "scripts/invariants";
+const invariantFiles = existsSync(INVARIANT_DIR)
+  ? readdirSync(INVARIANT_DIR).filter((f) => f.endsWith(".ts")).sort()
+  : [];
+for (const file of invariantFiles) {
+  const before = checks;
+  const run = require(join(process.cwd(), INVARIANT_DIR, file)).default;
+  check(`${INVARIANT_DIR}/${file} loads and registers its checks`, () => {
+    assert.equal(typeof run, "function", `${file} has no default export to hand the kit to`);
+    (run as (kit: InvariantKit) => void)({ check, code, read, sourceFiles, APP, LIB, COMPONENTS, ALL });
+    assert.ok(checks > before + 1, `${file} registered no check, so nothing in it is asserted`);
+  });
+}
 
 /**
  * One exported function's body, from its signature to the next export.
