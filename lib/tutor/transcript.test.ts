@@ -20,6 +20,23 @@ describe("what of the conversation goes back to Anu", () => {
     ]);
   });
 
+  it("drops a warning the app wrote under the end of a real reply, not only a whole failed turn", () => {
+    /*
+      The route itself appends one when the reply hits its ceiling or the
+      stream breaks, and the chat hook appends one when the connection drops
+      mid-answer. All three land after text Anu did write, so they are not at
+      the start of the turn, and the browser sends the lot back as hers.
+    */
+    const cut = `Kohvi is the partitive.\n\n${FAILURE_MARK} That ran long and got cut off. Ask again, or ask for the short version.`;
+    expect(saidByAnu(cut)).toBe("Kohvi is the partitive.");
+    expect(saidByAnu(`${cut}\nUNVERIFIED: kohvi`)).toBe("Kohvi is the partitive.");
+    expect(saidByAnu(`Half an answer\n\n${FAILURE_MARK} Lost the connection to Anu. Ask that again when you are ready.`))
+      .toBe("Half an answer");
+    expect(saidByAnu(`Half\n\n${FAILURE_MARK} Anu could not be reached.`)).toBe("Half");
+    // A mark inside her own prose is hers and stays.
+    expect(saidByAnu(`Watch out: ${FAILURE_MARK} is not a letter.\nIt stays.`)).toBe(`Watch out: ${FAILURE_MARK} is not a letter.\nIt stays.`);
+  });
+
   it("keeps the newest turns that fit the budget, whole, oldest first", () => {
     const many = Array.from({ length: MAX_HISTORY + 5 }, (_, i) => ({ role: i % 2 ? "assistant" as const : "user" as const, content: `turn ${i}` }));
     const kept = forTheModel(many);

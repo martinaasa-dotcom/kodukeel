@@ -66,6 +66,35 @@ export interface AgendaGroup<T> {
   items: T[];
 }
 
+/**
+ * WHETHER A TASK IS A CLASS'S OR THE LEARNER'S, READ OFF THE ROW ITSELF.
+ *
+ * A reminder the learner wrote is theirs to delete and homework a class set is
+ * not. That used to be read off `Task.classWeek`, which the class week wrote
+ * and nothing has written since that page was cut: every row carries null, so
+ * every assignment read as the learner's own, the calendar drew a bin beside
+ * it and `deleteReminder` removed it. On the teacher's own copy that costs
+ * more than a pupil's line of homework, because that copy is the only record
+ * `classworkHistory` has of what the class was ever sent.
+ *
+ * What does mark classwork is the sentence both assigning actions open the
+ * notes with, so it is declared here once and read by the writers, the
+ * calendar and the delete. A learner who opens a note of their own with
+ * "Set by " is read as a class too, which costs them the bin on one row they
+ * wrote in a class's words, and that is the side to err on.
+ */
+export const CLASSWORK_PREFIX = "Set by ";
+
+/** The sentence every classroom-issued task's notes start with. */
+export function classworkMarker(classroomName: string): string {
+  return `${CLASSWORK_PREFIX}${classroomName}.`;
+}
+
+/** True where a class set this task rather than the learner writing it. */
+export function isClasswork(notes: string | null | undefined): boolean {
+  return typeof notes === "string" && notes.startsWith(CLASSWORK_PREFIX);
+}
+
 /** Which heading one due date belongs under. */
 export function bucketFor(dueAt: Date | null, clock: DayClock, now: Date): Bucket {
   if (!dueAt) return "undated";

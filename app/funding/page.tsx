@@ -53,7 +53,8 @@ export const dynamic = "force-dynamic";
  *
  * THAT FIRST FIGURE READ "ABOUT FORTY-SIX DOLLARS" UNTIL A GRANT CASE WAS
  * WRITTEN OFF THIS PAGE AND THE NUMBERS WERE RUN AGAIN. `billFor` at one
- * learner is 301.07, which is what CLAUDE.md has said all along. Forty-six is
+ * learner is 299.27 with the tutor on the model it answers on, which is what
+ * CLAUDE.md has said all along. Forty-six is
  * close to what the retrenchment ladder now calls Lights on, 45, which is the
  * bill with nobody paid, no tooling and the tutor switched off. Those are two
  * different questions and the comment had quietly answered the wrong one: a
@@ -62,7 +63,10 @@ export const dynamic = "force-dynamic";
  */
 export default function FundingPage() {
   const operator = resolveOperator();
-  const chain = resolveProviders();
+  // Anu's own chain rather than the general one: the general chain carries the
+  // paid tail, which a tutor chain never reaches, so naming it here told a
+  // reader Anthropic answers Anu on a deployment where it cannot.
+  const chain = resolveProviders({ purpose: "tutor" });
   const modelLabels = [...new Set(chain.map((p) => p.label))];
   /*
     Whether the configured chain actually charges, asked of the pricing table

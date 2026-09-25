@@ -58,7 +58,7 @@ const GROUPS: Group[] = [
   },
   {
     title: "Case Sprint",
-    hint: "the 60-second round",
+    hint: "the timed round",
     keys: [
       { press: ["Enter", "Space"], does: "Flip the card, then count it as right" },
       { press: ["⌫"], does: "Count it as missed and move on" },
