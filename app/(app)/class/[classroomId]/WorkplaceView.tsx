@@ -1,4 +1,4 @@
-import { Building2, Users } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { BAND_LABEL, QUIET_DAYS, sharesCounts, type CohortSummary, type ReadinessBand } from "@/lib/classroom/cohort";
 import { EVIDENCE_LABEL, EVIDENCE_NOTE } from "@/lib/exam/readiness";
 import { Card, Chip, Empty, Note, SectionTitle, StatTile } from "@/components/ui";

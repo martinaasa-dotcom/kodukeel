@@ -2972,7 +2972,7 @@ check("no code path updates a review", () => {
   for (const file of ALL) {
     // Every way to change a row, not only the obvious one: an upsert and raw
     // SQL rewrite a review as surely as `review.update` does.
-    assert.equal(/review\.(update|upsert)|UPDATE\s+"Review"/.test(code(file)), false, `${file} updates a review`);
+    assert.equal(/review\.(update|upsert)|\bUPDATE\s+"Review"/i.test(code(file)), false, `${file} updates a review`);
   }
 });
 
