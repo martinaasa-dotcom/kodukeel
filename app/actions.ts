@@ -5,6 +5,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
+import { deleteOwnReminder } from "@/lib/progress/reminders";
+import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
@@ -2464,7 +2466,7 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
     data: members.map((m) => ({
       ownerId: m.ownerId,
       title: `${unit.title}, ${unit.subtitle}`,
-      notes: `Set by ${classroom.name}. Open the unit on the learning path, add its words and review them.`,
+      notes: `${classworkMarker(classroom.name)} Open the unit on the learning path, add its words and review them.`,
       tag: "VOCABULARY",
       dueAt: due && !Number.isNaN(due.getTime()) ? due : null,
     })),
@@ -2472,11 +2474,6 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
 
   revalidatePath("/class");
   return { ok: true as const, assigned: members.length };
-}
-
-/** The marker every classroom-issued task's `notes` starts with, teacher and student alike. */
-function classworkMarker(classroomName: string): string {
-  return `Set by ${classroomName}.`;
 }
 
 /**
@@ -2713,11 +2710,14 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
   return { ok: true as const };
 }
 
-/** Removes a reminder the learner wrote. A teacher's assignment is theirs to remove. */
+/**
+ * Removes a reminder the learner wrote. Homework a class set is not theirs to
+ * remove, and what says which is `isClasswork` in lib/ux/agenda.ts.
+ */
 export async function deleteReminder(id: string) {
   const ownerId = await requireUserId();
-  const { count } = await prisma.task.deleteMany({ where: { id, ownerId, classWeek: null } });
-  if (count === 0) return { ok: false as const };
+  if (typeof id !== "string") return { ok: false as const };
+  if (!(await deleteOwnReminder(ownerId, id))) return { ok: false as const };
   revalidatePath("/calendar");
   revalidatePath("/");
   return { ok: true as const };

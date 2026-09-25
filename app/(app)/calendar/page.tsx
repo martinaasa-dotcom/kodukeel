@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { dayClock } from "@/lib/time/day";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { kindFrom, weekOf, type StudyEvent } from "@/lib/ux/schedule";
+import { isClasswork } from "@/lib/ux/agenda";
 import { Page, Stack } from "@/components/ui";
 import { CalendarWeek } from "./CalendarWeek";
 
@@ -103,8 +104,8 @@ export default async function CalendarPage({
             // column it belongs in is a question about the learner's own day.
             dueKey: t.dueAt ? t.dueAt.toISOString().slice(0, 10) : null,
             completed: t.completed,
-            /* A teacher's assignment is not the learner's to delete. */
-            mine: t.classWeek === null,
+            /* A class's homework is not the learner's to delete. */
+            mine: !isClasswork(t.notes),
           }))}
         />
       </Stack>
