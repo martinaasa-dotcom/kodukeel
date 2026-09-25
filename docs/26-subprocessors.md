@@ -3,7 +3,9 @@
 **Controller.** Upthink Solutions OÜ, registry code 16683946, Aiandi tn 8/2-28, Mustamäe linnaosa,
 12915 Tallinn, Harju maakond, Estonia. Contact: privacy@upthink.ee.
 
-**Written 5 September 2026.** Reviewed with `docs/24-dpia.md`.
+**Written 5 September 2026. Revised 22 September 2026**, out of cycle and for the reason the review
+section gives: two recipients had joined the generated list and this page still said neither was on
+it, and a provider had left the chain. Reviewed with `docs/24-dpia.md`.
 
 ## The list is generated, so this page and the app cannot quietly disagree
 
@@ -27,8 +29,9 @@ Two properties of that module are worth stating, because they are what makes the
 
 ## Conditional on configuration
 
-Only one entry below is unconditional. The rest appear when a deployment sets a variable, which
-is why the running app generates its own list rather than inheriting this one.
+One entry below is unconditional. The rest appear when a deployment sets a variable, or in one case
+when the platform sets one about itself, which is why the running app generates its own list rather
+than inheriting this one.
 
 | Recipient | Appears when |
 | --- | --- |
@@ -37,9 +40,9 @@ is why the running app generates its own list rather than inheriting this one.
 | Ekilex | `EKILEX_API_KEY` is set |
 | An AI provider, one entry per provider in the chain | That provider's key is set. With none set the tutor and the page scanner do not exist |
 | Supabase | `NEXT_PUBLIC_SUPABASE_URL` is set. With no Supabase keys the app runs as a single local learner (ADR-013) |
+| Resend | `RESEND_API_KEY` is set. With none, the app sends no letters |
 | An error reporting endpoint | `ERROR_WEBHOOK_URL` is set |
-| Resend | `RESEND_API_KEY` is set |
-| Vercel | `VERCEL` is `1`, which the platform sets itself when it runs the code |
+| Vercel | `VERCEL` is set by the platform itself, so it appears when somebody else owns the machine and not when the operator does |
 
 ## The register
 
@@ -80,12 +83,11 @@ than per model.
 the deck, the review history, the tasks and the level checks are never sent to any of them, and the
 route no longer accepts a level from the client either. The learner's name and email are not sent.
 
-**OpenRouter was removed.** It was the first default and no provider chain reads
-`OPENROUTER_API_KEY` any longer, so it is off this register and off the generated list. A
-deployment that still has the variable set sends nothing to OpenRouter.
-
 **Where established.** All of them outside the EEA, which is recorded in `PROVIDER_HOME` as a
-judgment about the company rather than about a region setting on somebody's account.
+judgment about the company rather than about a region setting on somebody's account. OpenRouter was
+on this table and is no longer in the chain at all: `PROVIDER_KEY_ENV` in `lib/tutor/provider.ts` is
+the whole list of keys a deployment can hold, and it is the four above. A deployment that still has
+`OPENROUTER_API_KEY` set sends nothing to OpenRouter.
 
 **Safeguard.** The standard contractual clauses each provider publishes, and nothing else.
 `/privacy` says that, and says protection there is not identical to protection here, and says the
@@ -146,6 +148,39 @@ anywhere, and no audio of a learner is stored (ADR-018).
 
 **Role.** Recipient of a synthesis request.
 
+### Resend, which posts the letters
+
+**Conditional**, on `RESEND_API_KEY`.
+
+**What it processes.** The learner's email address, and whatever a letter says about their own
+course: an evening that is unfinished, a level the scheduler graduated them past, a streak shield
+that was spent, an errand to go and try, or a word a day. `lib/email/` composes and is pure,
+`lib/mailer/` posts, and `EmailSend` records one line per message so the same letter is not sent
+twice.
+
+**Where established.** Resend Inc. is established in the United States. Outside the EEA.
+
+**Safeguard.** Resend's own data processing addendum and the standard contractual clauses it
+publishes. No transfer impact assessment has been carried out, the same open item as the model
+providers.
+
+**Why it is the sharpest entry on this page.** Every other recipient here gets a word, a phrase or a
+photograph with no account attached. This one gets an address and a message addressed to it, which
+is personal data by the plainest reading there is, and it is the only place outside the sign-in
+provider that this deployment's addresses go. It is generated whenever the transport is configured
+rather than whenever a letter is sent, because what a reader is asking is who their address could
+reach rather than who it has reached this week. The way out is in every footer, it is an HMAC over
+the learner and the kind so it works with no session (`EMAIL_TOKEN_SECRET`), and a kind a learner
+has switched off is never sent.
+
+**A second route to the same company.** The README configures Resend as the SMTP server behind
+Supabase's sign-in links. That is set in the Supabase dashboard rather than in this app's
+environment, so the generated list cannot see it: a deployment that sends sign-in links through
+Resend without setting `RESEND_API_KEY` sends addresses to Resend and does not name it on `/privacy`.
+That is a gap and it is stated rather than closed.
+
+**Role.** Processor.
+
 ### The error reporting endpoint
 
 **Conditional**, on `ERROR_WEBHOOK_URL`.
@@ -164,27 +199,6 @@ generated list for that reason.
 
 **Role.** Processor, of the operator's choosing.
 
-### Resend, which posts the letters
-
-**Conditional**, on `RESEND_API_KEY`.
-
-**What it processes.** The learner's email address and each letter addressed to it, which is
-whatever that letter says about their own course. This is the one recipient besides the sign-in
-provider that receives an address.
-
-**Where established.** United States. Outside the EEA, recorded as such in `lib/legal/recipients.ts`.
-
-**Safeguard.** Resend's own data processing terms and the standard contractual clauses. No transfer
-impact assessment has been carried out, the same open item as the model providers.
-
-**A second route to the same company.** The README configures Resend as the SMTP server behind
-Supabase's sign-in links. That is set in the Supabase dashboard rather than in this app's
-environment, so the generated list cannot see it: a deployment that sends sign-in links through
-Resend without setting `RESEND_API_KEY` sends addresses to Resend and does not name it on `/privacy`.
-That is a gap and it is stated rather than closed.
-
-**Role.** Processor.
-
 ### Vercel, the hosting platform
 
 **Conditional**, on `VERCEL` being `1`, which the platform sets itself. Self-hosted, the operator
@@ -196,7 +210,9 @@ came from. For a signed-in request that includes the session cookie.
 **Where established.** United States. Outside the EEA. `vercel.json` pins the functions to the
 database's region, which decides where a request is answered and not where the company is.
 
-**Safeguard.** Vercel's own data processing addendum and the standard contractual clauses.
+**Safeguard.** Vercel's own data processing addendum and the standard contractual clauses. An
+operator hosting this elsewhere substitutes their own platform here, and sees no Vercel entry on
+their own privacy page.
 
 **Role.** Processor.
 
@@ -231,6 +247,10 @@ by it, and it is not on the generated list either.
   recipients list did not name it.
 - **No advertising network, no data broker, no enrichment service.** Nothing is sold and nothing is
   used to train a model by us.
+- **No second email provider.** Resend is the one, above, and it carries both the sign-in links
+  Supabase sends through it and the letters this app composes itself. Supabase's built-in sender is
+  for testing, which the README says, so a deployment that tells anybody about itself is a
+  deployment with `RESEND_API_KEY` set and Resend on its generated list.
 - **Whoever receives a research file.** The output of `/api/research` is anonymous information under
   Recital 26, so its recipient is not a recipient of personal data. `docs/19-research-export.md` is
   what to read before sending one to anybody.
