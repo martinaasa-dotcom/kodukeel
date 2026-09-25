@@ -22408,9 +22408,19 @@ check("every design document the repository cites is one that exists", () => {
   let cited = 0;
   const missing = new Set<string>();
   for (const file of haystack) {
-    for (const m of read(file).matchAll(/docs\/\d{2}-[a-z0-9-]+\.md/g)) {
+    const text = read(file);
+    for (const m of text.matchAll(/docs\/\d{2}-[a-z0-9-]+\.md/g)) {
       cited += 1;
-      if (!existsSync(m[0])) missing.add(`${m[0]} (in ${file})`);
+      /*
+        A backlog may name the file a piece of work will produce, which is a
+        citation of something that does not exist yet on purpose. It says so
+        in words beside the path, so the reader is not sent looking for it,
+        and that is what lets it through; the same words on a file that does
+        exist are refused, since then the note is the stale half.
+      */
+      const planned = /^`?\s*\(to be written\)/.test(text.slice(m.index! + m[0].length));
+      if (planned && existsSync(m[0])) missing.add(`${m[0]} is marked to be written and exists (in ${file})`);
+      if (!planned && !existsSync(m[0])) missing.add(`${m[0]} (in ${file})`);
     }
   }
   assert.ok(cited >= 200, `found only ${cited} citations of a design doc, so the sweep has stopped reading what it should`);
