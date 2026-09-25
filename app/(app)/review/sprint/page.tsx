@@ -8,7 +8,7 @@ import { BLANK, filledSentence } from "@/lib/estonian/cloze";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { roundPaceFrom, secondsFor } from "@/lib/ux/roundClock";
+import { roundPaceFrom, secondsFor, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { cardWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
 
@@ -18,8 +18,6 @@ export const dynamic = "force-dynamic";
 
 const POOL_SIZE = 40;
 
-/** The round as it was written. A learner can stretch it in Settings. */
-const BASE_DURATION_S = 60;
 
 /**
  * A sixty second speed round by default, the "timed practice" idea, adapted to
@@ -128,7 +126,7 @@ export default async function SprintPage({
     reading a setting for itself; see lib/ux/roundClock.ts for why this is a
     pace over the round's own base rather than a stored number of seconds.
   */
-  const seconds = secondsFor(BASE_DURATION_S, roundPaceFrom(settings[SETTING_KEYS.roundPace]));
+  const seconds = secondsFor(SPRINT_SECONDS, roundPaceFrom(settings[SETTING_KEYS.roundPace]));
 
   return <SprintSession cards={sprintCards} best={best} seconds={seconds} canTranslate={resolveProvider() !== null} />;
 }

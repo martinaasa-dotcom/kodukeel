@@ -64,7 +64,7 @@ export async function POST(request: Request) {
   const learnerPromise = learnerContextFor(ownerId).catch(() => null);
 
   /*
-    Anu's own chain, which since the split is Anthropic and nothing else.
+    Anu's own chain, which is Gemini and then Groq and nothing else.
 
     Not the general chain: `resolveProviders()` with no purpose is still every
     configured provider, and reading it here would put a scene composer's cheap
