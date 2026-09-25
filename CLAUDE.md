@@ -8165,8 +8165,8 @@ the next beat's line whatever the state machine had decided about the turn. `lib
 reads the response and the reading and answers as a person would: an acknowledgement then the
 move, `Ma ei saa aru` then the same question again, `Jah?` and a wait, the question again in
 Estonian for a turn in English. Every reaction is a lemma in `REACTIONS`, taught by units every
-scene declares, and the repair phrase is chosen on `reading === "unrecognised"` and nowhere else,
-asserted. Every beat carries `they`, what the other side does in English from their own side, and
+scene declares, and the repair phrase is chosen on the reading, a turn nobody could read
+(`unrecognised`) or the other side's own line handed back (`echo`), and nowhere else, asserted. Every beat carries `they`, what the other side does in English from their own side, and
 it is what the drafter and the composer are told they are doing: told the learner's `goal` instead,
 a model drafted the landlord asking the tenant when they planned to do the repairs. Fifteen such
 rows left the bank. And the curveballs are played: `raiseHurdle` stands one in front of its beat
