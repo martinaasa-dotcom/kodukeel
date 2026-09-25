@@ -485,10 +485,26 @@ function saysGoodbye(tokens: readonly string[], beat: BeatSpec, context: GateCon
  * the persons the harvest stored reach it through `hasFiniteVerb`; the
  * derived persons through `isPerson`.
  */
+/**
+ * The clauses of a line, as the weakest boundary available without a parser.
+ *
+ * A comma, a semicolon, a colon, and the end of a sentence. The four checks
+ * that read a clause at a time split at the first three only, so two sentences
+ * were one clause to them: `Küsin kohe, mis teil on. Mida te otsite?` was
+ * withheld live because the second sentence's `te` was checked against the
+ * first sentence's `on`, a verbless question borrowed its verb from the
+ * sentence after it, and the last word of one sentence was paired with the
+ * first of the next. The shape check counts sentences at the full stop, and
+ * the government check already splits here; one boundary for all of them.
+ */
+function clausesOf(text: string): string[] {
+  return text.split(/[.!?,;:]+/);
+}
+
 function verblessQuestion(text: string, context: GateContext): boolean {
   const questions = context.questionWords;
   if (!questions || questions.size === 0 || !context.subjects) return false;
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const lower = words(clause);
     if (lower.length < QUESTION_FLOOR) continue;
     if (!questions.has(lower[0]!)) continue;
@@ -642,7 +658,7 @@ function inflectedAfterEi(text: string, context: GateContext): boolean {
   }
   if (persons.size === 0) return false;
 
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const lower = words(clause);
     for (let at = 0; at < lower.length - 1; at += 1) {
       if (lower[at] === "ei" && persons.has(lower[at + 1]!)) return true;
@@ -692,7 +708,7 @@ function wrongInfinitive(text: string, context: GateContext): boolean {
     for (const form of forms) infinitive.set(form.toLowerCase(), lemma);
   }
 
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const lower = words(clause);
     for (let at = 0; at < lower.length - 1; at += 1) {
       const here = lower[at]!;
@@ -721,7 +737,7 @@ export function disagrees(text: string, context: GateContext): boolean {
     still a clause boundary is available without a parser, and a check reading
     the sentence whole refused a line the bank has held since it was drafted.
   */
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const lower = words(clause);
     const said = lower.filter((t) => subjects.has(t) && !possessive(t, lower, context));
     if (said.length !== 1) continue;
