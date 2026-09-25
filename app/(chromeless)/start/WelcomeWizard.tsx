@@ -10,7 +10,7 @@ import { ResultPanel } from "@/components/assessment/ResultPanel";
 import { Button } from "@/components/Button";
 import { LetterBarScope, LetterSample } from "@/components/DiacriticBar";
 import { Mascot } from "@/components/brand";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { Chip, Meter, Note, SectionTitle } from "@/components/ui";
 import { DEADLINES, REASONS, TARGETS, deadlineFrom, firstSceneFor, impliedTarget, reasonsToStored, type Goals } from "@/lib/assessment/goals";
@@ -152,9 +152,11 @@ const STEPS = ["You", "Level", "Goal", "Tonight"] as const;
  *   - **Start** picks the daily goal and the first units. Last, because the
  *     plan has to be seen before anybody invests an evening in a deck.
  *
- * The tour that was step seven is `/guide`, in the rail and in the palette,
- * where it can be reopened a fortnight in when the question actually arises.
- * The honest limits it led with are on the first screen here in one sentence,
+ * The tour that was step seven became a page and was then removed with it,
+ * since the landing page already makes that case to somebody deciding and a
+ * learner finds the rest by using the app (CLAUDE.md, "There is no page
+ * describing this app"). The honest limits it led with are on the first screen
+ * here in one sentence,
  * because that is where they earn their place: before the investment, not
  * after seven screens of it.
  */
@@ -165,7 +167,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   parts: CoursePart[];
   suggestedName: string;
   /** The level check, built server side. Empty when the dictionary cannot fill one. */
-  paper: { items: Item[]; missing: string[] };
+  paper: { items: Item[]; missing: string[]; seed: number; builtAt: number };
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -200,6 +202,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
 
   const [goal, setGoal] = useState<number>(15);
   const [pending, start] = useTransition();
+  const [failed, setFailed] = useState<string | null>(null);
 
   /** The level everything downstream uses: measured if it was, stated if not. */
   const level: Level | null = measured ? measured.overall : (estimated as Band | null);
@@ -281,8 +284,15 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   const totalEvenings = parts.reduce((n, p) => n + p.days, 0);
 
   const finish = () => {
+    setFailed(null);
     start(async () => {
-      await completeOnboarding({
+      /*
+        Read rather than awaited and forgotten. It can refuse now, when a press
+        is repeated past its allowance, and a press that never reached the
+        server rejects: pushing on to /course after either sends the learner
+        back into first run with nothing saved and nothing said.
+      */
+      const result = await completeOnboarding({
         displayName: name,
         cefr: startBand,
         dailyGoal: goal,
@@ -296,7 +306,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           daysPerWeek: goals.daysPerWeek,
           note: goals.note,
         },
-      });
+      }).catch(() => null);
+      if (!result) { setFailed("That did not reach the server. Nothing has changed, so press it again."); return; }
+      if (!result.ok) { setFailed(result.error); return; }
       /*
         Straight to tonight's module rather than to Today. Somebody who has
         just been told what the evening is wants the evening, and a dashboard
@@ -316,6 +328,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           <AssessmentRunner
           items={paper.items}
           missing={paper.missing}
+          seed={paper.seed}
+          builtAt={paper.builtAt}
           /*
             Back to the level step, not past it.
 
@@ -618,13 +632,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               className="mt-6 grid gap-3 sm:grid-cols-2"
             >
               {REASONS.map((r) => {
-                const Icon = icon(r.icon);
                 return (
                   <ChoiceCard
                     key={r.id}
                     selected={reasons.includes(r.id)}
                     onSelect={() => toggleReason(r.id)}
-                    icon={<Icon size={18} aria-hidden />}
+                    icon={<NamedIcon name={r.icon} size={18} aria-hidden />}
                     title={r.label}
                     detail={r.detail}
                   />
@@ -829,14 +842,13 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             */}
             <ul className="mt-5 flex flex-col gap-2">
               {deck.units.map((u) => {
-                const Icon = icon(u.icon);
                 return (
                   <li
                     key={u.id}
                     className="flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3"
                     style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
                   >
-                    <Icon size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
+                    <NamedIcon name={u.icon} size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
                     <div className="min-w-0">
                       <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
                         {u.title}
@@ -953,6 +965,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             </Button>
           )}
         </div>
+        <p role="status" className="mt-3 text-right text-sm" style={{ color: "var(--ink-2)" }}>
+          {failed}
+        </p>
 
         {/*
           NO WAY OUT OF SETUP, AND ONE WAY PAST ONE QUESTION.
