@@ -260,22 +260,24 @@ Everything except the two things that need a model, Anu and reading a photograph
 
 ## Turning on Anu, the tutor
 
-Anu needs one API key, and Situations and scanning a page need a second. Both are free and neither
-asks for a card. **Settings** in the app walks through it, but in short:
+One free key turns on Anu, Situations and scanning a page, and a second free key is the backup
+for all of them. Neither asks for a card. **Settings** in the app walks through it, but in short:
 
-1. Sign in at [console.groq.com](https://console.groq.com), free, no card.
-2. **API Keys** → **Create API Key**. Copy it; you only see it once.
+1. Sign in at [aistudio.google.com](https://aistudio.google.com/apikey), free, no card.
+2. **Create API key**. Copy it.
 3. Open the file `.env` in this folder and fill in:
    ```
-   GROQ_API_KEY="paste-your-key-here"
+   GEMINI_API_KEY="paste-your-key-here"
    ```
 4. Stop the app (Ctrl-C) and run `npm run dev` again.
 
-That is Anu. **Situations** and **Scan a page** compose and read with Gemini, so for those add a
-second key from [aistudio.google.com](https://aistudio.google.com/apikey) (Create API key, free
-tier, no card) on a line of its own:
+That is all three. Anu answers on `gemini-3.1-flash-lite`, scenes compose on `gemini-3.8-flash` and
+scanning reads with `gemini-3.1-flash-lite`. For a backup, add a key from
+[console.groq.com](https://console.groq.com) (**API Keys** → **Create API Key**, free, no card) on
+a line of its own; Groq then answers Anu on `openai/gpt-oss-120b` and scenes on `qwen/qwen3.8-27b`
+whenever Gemini is missing, out of credit or having a bad minute:
    ```
-   GEMINI_API_KEY="paste-your-key-here"
+   GROQ_API_KEY="paste-your-key-here"
    ```
 
 An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is optional and paid: it sits behind the two free keys as
@@ -304,8 +306,8 @@ request for the rest of the day (OpenRouter is no longer in the chain), which is
 and is the argument for the lines written in advance being good rather than for the ladder being
 different.
 
-**Conversations are pinned to `gemini-3.8-flash`, with Groq's `openai/gpt-oss-120b` a fixed second
-link behind it, and no variable moves either.** They compose on Gemini when `GEMINI_API_KEY` is set,
+**Conversations are pinned to `gemini-3.8-flash`, with `gemini-3.1-flash-lite` behind it and Groq's
+`qwen/qwen3.8-27b` a fixed link behind both, and no variable moves any of them.** They compose on Gemini when `GEMINI_API_KEY` is set,
 fall to Groq when it is not or is having a bad minute, and only fall to their recorded and banked
 lines once both are unavailable. Anthropic sits behind both, still only as the gated last resort.
 There is no `SCENE_MODEL` and no `*_SCENE_MODEL` override any more: the first held a Groq model name
