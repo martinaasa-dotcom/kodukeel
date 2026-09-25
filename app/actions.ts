@@ -804,15 +804,30 @@ export async function createLexemeWithForms(input: {
   return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null };
 }
 
-export async function toggleStar(lexemeId: string) {
+/**
+ * Sets a star to the state the learner pressed for, rather than flipping it.
+ *
+ * A flip is a guess about what the button showed. A word met twice in one
+ * session, recognition then production, was starred on the first card and
+ * then drawn unstarred on the second from the page's own snapshot, so the
+ * press meaning "keep this" deleted it. `starred` is what the press asked
+ * for; a caller that sends none gets the old flip.
+ */
+export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   const ownerId = await requireUserId();
-  const existing = await prisma.starredWord.findUnique({
-    where: { ownerId_lexemeId: { ownerId, lexemeId } },
-  });
-  if (existing) {
-    await prisma.starredWord.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
-  } else {
-    await prisma.starredWord.create({ data: { ownerId, lexemeId } });
+  const id = text(lexemeId).slice(0, 64);
+  if (!id) return { ok: false as const, error: "That is not a word." };
+  const exists = await prisma.lexeme.findUnique({ where: { id }, select: { id: true } });
+  if (!exists) return { ok: false as const, error: "That word is not in the dictionary." };
+
+  const key = { ownerId_lexemeId: { ownerId, lexemeId: id } };
+  const existing = await prisma.starredWord.findUnique({ where: key });
+  const want = typeof starred === "boolean" ? starred : !existing;
+  if (want && !existing) {
+    // A second tab pressing at the same moment has already written it.
+    await prisma.starredWord.createMany({ data: [{ ownerId, lexemeId: id }], skipDuplicates: true });
+  } else if (!want && existing) {
+    await prisma.starredWord.deleteMany({ where: { ownerId, lexemeId: id } });
   }
   /*
     The dictionary is where a star used to be set from and the only place it
@@ -823,7 +838,7 @@ export async function toggleStar(lexemeId: string) {
   */
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
-  return { ok: true as const, starred: !existing };
+  return { ok: true as const, starred: want };
 }
 
 /**
