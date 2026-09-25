@@ -12698,6 +12698,55 @@ check("the card types are the same seven wherever they are written down", () => 
 });
 
 /*
+  AND EVERY OTHER LINE OF THAT VALUE LIST HAD DRIFTED THE SAME WAY.
+
+  The card types were checked and the four lines under them were not.
+  `CardSource` printed seven of the eleven values `lib/srs/sources.ts` accepts,
+  `SceneGap` had no `REACHED`, `DeferReason` printed `WEEKS`, which the code
+  only reads back from old rows, and the prose above `FormType` counted eleven
+  parts where the list beside it named twelve. The same page described the
+  level check's overall as the weakest skill after ADR-020 amendment 2 made it
+  the average, and `Achievement` as something written when a condition is met
+  after nothing was left to meet one. Each line is read against the list that
+  decides it, and the two retired claims may not come back.
+*/
+check("docs/04-data-model.md names the values each list in the code accepts", () => {
+  const doc = read(join("docs", "04-data-model.md"));
+  const block = /```\n(CardType[\s\S]*?)```/.exec(doc)?.[1] ?? "";
+  assert.ok(block, "docs/04-data-model.md no longer prints the value list");
+  const lineOf = (name: string): string[] => {
+    const m = new RegExp(`^${name}\\s+([A-Z_ ]+)`, "m").exec(block);
+    return m?.[1]?.trim().split(/\s+/) ?? [];
+  };
+  const sorted = (xs: readonly string[]) => [...xs].sort();
+
+  const sources = [...(/CARD_SOURCES\s*=\s*\[([\s\S]*?)\]/.exec(code("lib/srs/sources.ts"))?.[1] ?? "").matchAll(/"(\w+)"/g)].map((m) => m[1]!);
+  assert.ok(sources.length >= 8, "lib/srs/sources.ts no longer declares CARD_SOURCES as a list");
+  assert.deepEqual(sorted(lineOf("CardSource")), sorted(sources), "CardSource line differs from CARD_SOURCES");
+
+  const schema = read(join("prisma", "schema.prisma"));
+  const gapModel = /model SceneGap \{([\s\S]*?)\n\}/.exec(schema)?.[1] ?? "";
+  const gapKinds = [...gapModel.matchAll(/`([A-Z]+)`/g)].map((m) => m[1]!);
+  assert.ok(gapKinds.length >= 3, "the SceneGap kind comment no longer names its values");
+  assert.deepEqual(sorted(lineOf("SceneGap")), sorted(new Set(gapKinds)), "SceneGap line differs from the schema's kind comment");
+
+  const deferType = /export type DeferReason\s*=([\s\S]*?);/.exec(code("lib/srs/defer.ts"))?.[1] ?? "";
+  const reasons = [...deferType.matchAll(/"(\w+)"/g)].map((m) => m[1]!);
+  assert.ok(reasons.length >= 2, "lib/srs/defer.ts no longer declares DeferReason as a union");
+  assert.deepEqual(sorted(lineOf("DeferReason")), sorted(reasons), "DeferReason line differs from lib/srs/defer.ts");
+
+  const parts = [...(/PRINCIPAL_FORM_TYPES\s*=\s*\[([\s\S]*?)\]/.exec(code("lib/estonian/types.ts"))?.[1] ?? "").matchAll(/"(\w+)"/g)].map((m) => m[1]!);
+  const formLine = /^FormType\s+([\s\S]*?)\n\s+EKILEX/m.exec(block)?.[1]?.trim().split(/\s+/) ?? [];
+  assert.deepEqual(sorted(formLine), sorted(parts), "FormType line differs from PRINCIPAL_FORM_TYPES");
+  const words = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen"];
+  const counted = /drawn from the (\w+)\s+`FormType` values/.exec(doc)?.[1];
+  assert.equal(counted, words[parts.length], "the prose counts a different number of form types from the list");
+
+  assert.ok(!/weakest measured skill/.test(doc), "docs/04-data-model.md still calls the overall level the weakest skill (ADR-020 amendment 2)");
+  assert.ok(!/condition is first met/.test(doc + schema), "Achievement is still described as earned when a condition is met; nothing earns one now");
+});
+
+/*
   AND THE PAGE A NEW CONTRIBUTOR READS ABOUT THE SCHEMA NAMES THE SCHEMA'S OWN
   MODELS.
 
