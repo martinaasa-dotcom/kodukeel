@@ -11,6 +11,7 @@ import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor, standingFor } from "@/lib/progress/plan";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { Explain } from "@/components/Explain";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Level check" };
 
@@ -29,10 +30,10 @@ export const dynamic = "force-dynamic";
 export default async function AssessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ take?: string }>;
+  searchParams: Promise<{ take?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const { take } = await searchParams;
+  const { take } = firstParams(await searchParams);
 
   if (take) {
     // A different seed every sitting, so a second attempt is a second test
