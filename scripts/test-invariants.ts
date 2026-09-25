@@ -41,7 +41,7 @@ import { HARVESTED } from "../prisma/data/harvested";
 import { mislabelled } from "../lib/collections/senses";
 import { PRACTICE_MODES } from "../lib/ux/modes";
 import { CARD_TYPES } from "../lib/srs/cards";
-import { buildOptions, parseGovernment, type Government } from "../lib/estonian/government";
+import { buildOptions, governmentCue, parseGovernment, type Government } from "../lib/estonian/government";
 import { formatGovernment } from "../lib/ekilex/mapper";
 import { OFFICIAL_LEVELS, PASS_PCT, RETAKE_WAIT_PCT, specFor } from "../lib/exam/spec";
 import type { Skill } from "../lib/assessment/types";
@@ -6268,6 +6268,42 @@ check("a government question never offers a case the word itself governs", () =>
       assert.equal(new Set(options).size, options.length, `${verb.lemma} was offered a repeat`);
     }
   }
+});
+
+/**
+ * A government question's cue is masked by position, and position is only a
+ * promise about one kind of sentence.
+ *
+ * `maskExample` hides the last word, because the example a government entry
+ * carries in its own column is written with the complement there. No governed
+ * verb in the shipped dictionary carries one, so `/review/government` fell back
+ * to an attested usage and masked that instead, on every question it asked:
+ * `Tule …` hid the verb itself, and `Tuul viis mütsi …` left the partitive the
+ * question is about standing above the options. `governmentCue` takes the
+ * parsed entry, so a caller holding any other sentence has nothing to hand it,
+ * and it refuses an experiencer, whose governed word leads. The check is on
+ * the callers: nothing outside the module may reach for the mask itself.
+ */
+check("a government cue is masked only from the entry's own example", () => {
+  const callers = ALL.filter((f) => !/\.test\.tsx?$/.test(f) && /\bgovernmentCue\(/.test(code(f)));
+  assert.ok(callers.length >= 2, `expected the drill and the exam to build a cue, found ${callers.length}`);
+  const masking = ALL.filter(
+    (f) => f !== join("lib", "estonian", "government.ts") && !/\.test\.tsx?$/.test(f) && /\bmaskExample\(/.test(code(f)),
+  );
+  assert.deepEqual(
+    masking,
+    [],
+    `${masking.join(", ")} masks a sentence by position; use governmentCue, which only masks the entry's own example`,
+  );
+  /*
+    The rule itself, probed. A loop over the shipped verbs cannot fail today,
+    because none carries an example of its own and every cue comes back null;
+    these ask the three cases the function exists to decide.
+  */
+  assert.equal(governmentCue({ example: null, experiencer: false }), null, "a cue was built with no example of the entry's own");
+  assert.equal(governmentCue({ example: "aa bb cc", experiencer: true }), null, "a cue was built for an experiencer, whose governed word leads");
+  const cue = governmentCue({ example: "aa bb cc", experiencer: false });
+  assert.ok(cue !== null && !cue.includes("cc"), `the entry's own example came back unmasked: ${cue}`);
 });
 
 /**
