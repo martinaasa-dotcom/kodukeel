@@ -4502,6 +4502,9 @@ check("the chat says which model actually replied", () => {
 
 check("Anu's prose is cleaned on its way to the learner", () => {
   assert.match(code("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
+  // Anchored on the construction in code, not the word: the route's own
+  // comment names ProseStream, and that alone satisfied the first version.
+  assert.match(code("app/api/tutor/route.ts"), /new ProseStream\(/, "the humanize pass is gone");
 });
 
 check("Anu's reply is drawn as typography, shown once finished, and the marker lines have one shape", () => {
@@ -5860,7 +5863,16 @@ check("a rating key works wherever a rating button is drawn", () => {
     the two cannot come to disagree about which keys exist or what they grade;
     a handler matching digits by hand is how they would.
   */
-  const source = read("app/(app)/review/ReviewSession.tsx");
+  const source = code("app/(app)/review/ReviewSession.tsx");
+
+  /*
+    "Is the answer on screen" is `answerShown`, defined once. A second
+    longhand `revealed || ask === "intro"` is the copy the keydown handler once
+    lacked, which is the fault this check was written for.
+  */
+  const longhand = source.match(/revealed\s*\|\|\s*ask\s*===\s*"intro"/g)?.length ?? 0;
+  assert.match(source, /const answerShown = revealed \|\| ask === "intro"/, "answerShown is no longer the one definition of whether the answer is on screen");
+  assert.equal(longhand, 1, `"revealed || ask === intro" is spelled out ${longhand} times; read answerShown instead`);
 
   assert.match(
     source, /SELF_GRADES\.map\(/,
@@ -15836,6 +15848,11 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
     rename of the Session suffix empties it and the deepEqual passes on nothing.
   */
   assert.ok(SESSION_FILES().length >= 20, `only ${SESSION_FILES().length} round components found, so the sweep stopped looking`);
+  // A sweep over nothing passes: the rounds that write a duration are the
+  // haystack, and a rename that moved them out of SESSION_FILES would leave
+  // this asking about no file at all.
+  const grading = SESSION_FILES().filter((file) => /\bgradeCard\(/.test(code(file)));
+  assert.ok(grading.length >= 15, `only ${grading.length} round sessions grade through gradeCard, so the sweep is looking in the wrong place`);
   assert.deepEqual(
     averaged, [],
     `a round clock divided by the number of answers is being written into ` +
