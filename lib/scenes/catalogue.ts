@@ -1138,6 +1138,7 @@ const TICKET: SceneSpec = {
     {
       kind: "word", slot: "to", oneOf: ["kesklinn", "jaam", "haigla", "ülikool", "rand"],
       says: "Where you are going.",
+      places: true,
     },
     { kind: "time", slot: "time", from: 8, to: 20, says: "The time you are meeting." },
     /*
