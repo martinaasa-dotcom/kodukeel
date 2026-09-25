@@ -11,7 +11,7 @@
 | ORM | Prisma | |
 | Database | Postgres, hosted on Supabase | ADR-002 chose SQLite; ADR-011 swapped it, which the schema was written to allow |
 | Components | `components/ui.tsx` | this app's own primitives, not a component library |
-| AI | no SDK: one HTTP client over a chain of providers | `lib/tutor/provider.ts`, OpenRouter then Anthropic then OpenAI, per `13-mvp-status.md` §2 |
+| AI | no SDK: one HTTP client over a chain of providers | `lib/tutor/provider.ts`: Groq then Gemini, with Anthropic and OpenAI as a budget-gated tail; Anu and scenes each read a pinned chain of their own (`PURPOSE_CHAINS`), per `13-mvp-status.md` §2 |
 | SRS | `ts-fsrs` (MIT, 5.4.1) | replaces hand-rolled SM-2 (audit D6) |
 | State | Server Components and Server Actions | no client store and no query library; the database is the state |
 | Tests | Vitest, Playwright | `10-testing-quality.md` |

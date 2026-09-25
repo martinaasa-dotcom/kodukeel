@@ -9987,7 +9987,9 @@ it cannot find the rail, which was the `A || !A` shape one check over.
 ## Model configuration
 
 **Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` returns every
-key in `.env` in order, free first: OpenRouter (default), Anthropic, then OpenAI. Do not re-pin a
+key in `.env` in order: Groq, then Gemini, then Anthropic and OpenAI as a tail gated by the day's
+fallback budget; Anu and scene composition each read a pinned chain of their own
+(`PURPOSE_CHAINS`). OpenRouter was the first default and no chain reads it now. Do not re-pin a
 single provider. `openWithFallback` walks past a provider that is throttled or having a bad
 minute, and never past a rejected key or a model that does not exist, since every provider would
 answer those the same way and trying them all turns one clear message into a slower one. A
@@ -10001,11 +10003,12 @@ prompt. This supersedes the original ADR-004; see `docs/13-mvp-status.md` §2.
 
 **Reading a picture uses whichever model the deployment already configured.** Not a better one
 chosen behind the operator's back: turning the camera on must not move a free-model deployment onto
-a paid one, and the free chain that is now the default is text-only. `OPENROUTER_VISION_MODEL`,
-`ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` are how that choice is made, and they affect
-scanning and nothing else. The chain is deduplicated by model first: OpenRouter contributes a link
-per free model, so an override would otherwise ask one model the same question three times and read
-the third refusal as having exhausted the chain. The image path
+a paid one. `GROQ_VISION_MODEL`, `GEMINI_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and
+`OPENAI_VISION_MODEL` are how that choice is made, and they affect scanning and nothing else; the
+chain leads on `VISION_MODEL` where a Gemini key is set, since that is the one model measured
+reading a page exactly. The chain is deduplicated by model first: Groq and Gemini each contribute a
+link per free model, so an override would otherwise ask one model the same question three times and
+read the third refusal as having exhausted the chain. The image path
 falls back more readily than the chat path does, and deliberately: `openWithFallback` refuses to
 walk past a 400 because every provider would refuse a malformed request the same way, but whether a
 model can see is a fact about that one model, so `completeWithImage` walks past everything except a

@@ -34,11 +34,14 @@ Pinning one paid provider fails that.
 
 | Key in `.env` | Used | Default model |
 |---|---|---|
-| `OPENROUTER_API_KEY` | OpenRouter (OpenAI-compatible) | `z-ai/glm-5.2:free`, genuinely free |
-| `ANTHROPIC_API_KEY` | Anthropic Messages API | `claude-sonnet-5` |
-| `OPENAI_API_KEY` | OpenAI | `gpt-4o-mini` |
+| `GROQ_API_KEY` | Groq (OpenAI-compatible) | `openai/gpt-oss-120b`, then the rest of `FREE_GROQ_MODELS` |
+| `GEMINI_API_KEY` | Google Gemini (OpenAI-compatible) | `gemini-flash-latest`, then the rest of `FREE_GEMINI_MODELS` |
+| `ANTHROPIC_API_KEY` | Anthropic Messages API | `claude-sonnet-5`, gated by the day's fallback budget |
+| `OPENAI_API_KEY` | OpenAI | `gpt-4o-mini`, gated the same way |
 
-All three stream. The Anthropic path keeps the `cache_control` breakpoint on the Estonian system
+That is the general chain, in that order. Anu and scene composition each read a pinned chain of
+their own (`PURPOSE_CHAINS`), and the scanner leads on `VISION_MODEL`. OpenRouter was the first
+default and is no longer read by any chain. All four stream. The Anthropic path keeps the `cache_control` breakpoint on the Estonian system
 prompt, since that prompt is identical every turn. Nothing above the adapter knows which provider is
 in play, so switching is a one-line `.env` change and a restart.
 

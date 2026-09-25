@@ -40,7 +40,7 @@ internet under one shared id with every visitor treated as a reviewer. `halfConf
   Browser (learner's device)
     | HTTPS, HSTS preloaded, CSP set per response
     v
-  Next.js on Vercel  ------ server only ------> Anthropic / OpenAI / OpenRouter / Groq / Gemini
+  Next.js on Vercel  ------ server only ------> Groq / Gemini / Anthropic / OpenAI
     |   middleware.ts                             (whichever keys the deployment holds)
     |   Server Actions, Route Handlers   ------> TartuNLP speech (api.tartunlp.ai)
     |                                    ------> Ekilex, Wiktionary
@@ -519,7 +519,7 @@ grep the client bundle:
 
 ```
 CI_CANARY=canary-CI_CANARY-must-not-ship \
-OPENROUTER_API_KEY=canary-OPENROUTER_API_KEY-must-not-ship \
+GEMINI_API_KEY=canary-GEMINI_API_KEY-must-not-ship \
 SUPABASE_SERVICE_ROLE_KEY=canary-SUPABASE_SERVICE_ROLE_KEY-must-not-ship \
 npx next build
 grep -rEho "canary-[A-Z_]+-must-not-ship" .next/static   # must print nothing
