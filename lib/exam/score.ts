@@ -107,8 +107,10 @@ function acceptsSlips(kind: ExamItem["kind"]): boolean {
   return kind === "dictation";
 }
 
-function markTyped(item: ExamItem, expected: string, typed: string, lenient: boolean): ItemMark {
-  const check = checkAnswer(typed, expected, "et");
+function markTyped(
+  item: ExamItem, expected: string, typed: string, lenient: boolean, rivals: readonly string[] = [],
+): ItemMark {
+  const check = checkAnswer(typed, expected, "et", rivals);
   const correct = lenient ? countsAsRecalled(check.verdict) : check.verdict === "correct";
   return {
     itemId: item.id,
@@ -240,7 +242,7 @@ export function markItem(
 
     case "case-form":
       return scale(markTyped(
-        item, item.answer, response.kind === "typed" ? response.value : "", false,
+        item, item.answer, response.kind === "typed" ? response.value : "", false, item.rivals,
       ));
 
     case "order": {
@@ -513,11 +515,30 @@ export function markPaper(paper: Paper, responses: ReadonlyMap<string, Response>
     };
   });
 
+  /*
+    THE VERDICT IS READ OFF WHAT WAS EARNED, NOT OFF WHAT IS PRINTED.
+
+    Each part's `points` is rounded to a tenth for the screen, and the total
+    used to be the sum of those roundings, floored. Rounding up four times can
+    carry a paper over the line: four parts at 374 of 625 are 59.84 percent,
+    and the rounded parts summed to exactly 60, a pass, against `pct`'s own
+    rule that 59.6 percent is not one. The zero-part clause read the rounded
+    figure too, so a part that earned a sliver printed as 0.0 and failed the
+    paper as though it had not been attempted. Both are exact now; only what a
+    screen prints is rounded.
+  */
   const set = parts.filter((p) => p.rawAvailable > 0);
-  const points = Math.round(set.reduce((sum, p) => sum + p.points, 0) * 10) / 10;
+  const earned = new Map(paper.parts.map((part, i) => {
+    const r = parts[i]!;
+    const exact = r.rawAvailable === 0 ? 0 : (r.tasks.reduce((sum, t) => sum + t.raw, 0) / r.rawAvailable) * part.spec.points;
+    return [r, exact] as const;
+  }));
+  const exactPoints = set.reduce((sum, p) => sum + earned.get(p)!, 0);
+  const points = Math.round(exactPoints * 10) / 10;
   const maxPoints = set.reduce((sum, p) => sum + p.maxPoints, 0);
-  const pct = maxPoints === 0 ? 0 : Math.floor((points / maxPoints) * 100);
-  const zero = set.find((p) => p.points === 0);
+  // The epsilon keeps an exact 60 at 60, since 3/5 of 100 can land at 59.99...
+  const pct = maxPoints === 0 ? 0 : Math.floor((exactPoints / maxPoints) * 100 + 1e-9);
+  const zero = set.find((p) => earned.get(p) === 0);
 
   return {
     level: paper.level,

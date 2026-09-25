@@ -3,7 +3,7 @@ import { buildCloze, ESTONIAN_WORD, isBuildable, naturalSentence, sentenceTiles 
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { buildOptions, governmentCue, parseGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
-import { sameSpelling } from "@/lib/copy/values";
+import { PARTS, sameSpelling } from "@/lib/copy/values";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { writingTasksFor } from "@/lib/estonian/writing";
 import {
@@ -168,7 +168,13 @@ export interface CaseFormItem extends BaseItem {
   caseKey: string;
   caseEt: string;
   caseQuestion: string;
+  /** Every spelling that is right, joined on `PARTS`: `tuppa / toasse`. */
   answer: string;
+  /**
+   * The word's other forms, for the marker to tell a slip of the hand from the
+   * wrong ending: `toast` is one keystroke from `toas` and is the elative.
+   */
+  rivals: string[];
   provenance: "ekilex" | "derived";
 }
 
@@ -654,13 +660,27 @@ function buildCaseForm(spec: TaskSpec, ctx: BuildContext): ExamTask {
     if (tasks.length === 0) continue;
     const task = tasks[Math.floor(ctx.random() * tasks.length)] ?? tasks[0]!;
     ctx.spent.add(word.lexemeId);
+    /*
+      Both illatives are right, as they are on every other screen that asks
+      for one: the item carried `targetForm` alone, so a candidate who wrote
+      `toasse` for the illative of `tuba` was marked wrong on a mock state
+      examination. And the word's other forms travel with it, because without
+      them the typo rule reads `toast` for `toas` as one letter out and the
+      grade batch logs the wrong case as a recall.
+    */
+    const right = [task.targetForm, task.alsoRight].filter((f): f is string => Boolean(f));
+    const rivals = [...new Set([
+      ...word.forms.map((f) => f.value),
+      ...tasks.flatMap((t) => [t.targetForm, t.alsoRight]),
+    ])].filter((f): f is string => Boolean(f) && !right.includes(f!));
     items.push({
       ...base(word, `${spec.id}-${items.length}`),
       kind: "case-form",
       caseKey: task.caseKey,
       caseEt: task.caseEt,
       caseQuestion: task.caseQuestion,
-      answer: task.targetForm,
+      answer: right.join(PARTS),
+      rivals,
       provenance: task.provenance,
     });
   }
