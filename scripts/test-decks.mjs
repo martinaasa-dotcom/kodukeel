@@ -263,7 +263,23 @@ check("a filed word is still in the learner's deck", await shows("In deck"));
   the day the fixture lands on. The invariant "the deck question has one home"
   is what holds this without a fixture, since it fails on an add button that
   stops reaching for the shared question at all.
+
+  AND ON THE DEMO FIXTURE IT WAS CUT ON EVERY RUN, which is a hole rather than
+  a state. The fixture gives the errand, the calendar, the homework, the round
+  and the streak something to say, so the word came sixth and was never drawn:
+  this waiver fired on every CI run there was. The learner's own Today order
+  is the app's lever for exactly this (`lib/ux/todayOrder.ts`), so the word is
+  put first the way Settings would put it, and the learner's own order is put
+  back straight after. The waiver below is for a day the word has nothing to
+  offer, which is a real state.
 */
+const ORDER_KEY = "todayOrder";
+const ownOrder = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: ORDER_KEY } } });
+await prisma.setting.upsert({
+  where: { ownerId_key: { ownerId: OWNER, key: ORDER_KEY } },
+  create: { ownerId: OWNER, key: ORDER_KEY, value: "word" },
+  update: { value: "word" },
+});
 await page.goto(`${B}/`, { waitUntil: "networkidle" });
 const keep = page.getByRole("button", { name: /Add it to my deck/i }).first();
 if ((await keep.count()) > 0) {
@@ -274,7 +290,15 @@ if ((await keep.count()) > 0) {
   await page.getByRole("button", { name: /^Add it$/ }).first().click();
   check("and says which shelf it went on", await eventually(() => shows(DECK), { timeoutMs: 8000 }));
 } else {
-  absent(2, "the word of the day was not among today's five cards, so the home page drew no add button");
+  absent(2, "a word of the day to keep: with it first on Today the home page still drew no " +
+    "add button, which is a day whose word the learner already has");
+}
+if (ownOrder) {
+  await prisma.setting.update({
+    where: { ownerId_key: { ownerId: OWNER, key: ORDER_KEY } }, data: { value: ownOrder.value },
+  });
+} else {
+  await prisma.setting.delete({ where: { ownerId_key: { ownerId: OWNER, key: ORDER_KEY } } });
 }
 
 // ── Renaming, and taking a word off ───────────────────────────────────────
