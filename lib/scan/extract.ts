@@ -21,6 +21,7 @@
  * no framework, so the parsing of a hostile reply can be tested over fixtures
  * rather than against whatever a provider felt like sending today.
  */
+import { clip } from "@/lib/copy/clip";
 
 /** One line as it appears on the page: an Estonian word, and its gloss if the page had one. */
 export interface ScannedItem {
@@ -183,7 +184,7 @@ export function parseScanReply(reply: string): ScannedItem[] {
     // A gloss in a script the page cannot have printed is dropped on its own,
     // rather than taking the Estonian word down with it: the word is still on
     // the page and the dictionary may well know its meaning already.
-    const en = FOREIGN_SCRIPT.test(enRaw) ? "" : enRaw.slice(0, MAX_EN_CHARS);
+    const en = FOREIGN_SCRIPT.test(enRaw) ? "" : clip(enRaw, MAX_EN_CHARS);
 
     out.push({ et, en });
     if (out.length >= MAX_ITEMS) break;

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Check, Ear, Loader2, Volume2 } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
@@ -34,6 +34,7 @@ export interface PairQuestion {
  * speech proxy already existed and was already verified end to end.
  */
 export function PairsSession({ questions: initialQuestions }: { questions: PairQuestion[] }) {
+  const grade = useGrade();
   /*
     Snapshotted once on mount, never updated from later props. gradeCard() is a
     Server Action and Next refreshes this route's Server Component after every
@@ -131,8 +132,8 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     const right = value.toLowerCase() === question.heard.toLowerCase();
     if (right) setCorrect((c) => c + 1);
     // ADR-016: the same review log as every other mode.
-    if (question.cardId) void gradeCard(question.cardId, right ? 3 : 1, 0).catch(() => {});
-  }, [question, picked]);
+    if (question.cardId) void grade(question.cardId, right ? 3 : 1, 0);
+  }, [question, picked, grade]);
 
   const next = useCallback(() => {
     /* Which of the two was actually played, which is the one thing a learner
@@ -282,7 +283,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         </div>
 
         <div className="px-4 pb-4">
-          <div className="grid gap-2 sm:grid-cols-2">
+          {/* `choice-grid` rather than `sm:grid-cols-2`: at 768 two columns
+              gave "seitsetteist" 101px of the 115 it needs, drawn across two
+              lines. See the class in app/globals.css. */}
+          <div className="choice-grid">
             {question.options.map((option, i) => {
               const isAnswer = option.value.toLowerCase() === question.heard.toLowerCase();
               const isPicked = option.value === picked;

@@ -11,6 +11,7 @@ import {
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
 import type { CaseKey } from "@/lib/estonian/types";
+import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
 import { courseLevelFor } from "@/lib/progress/level";
 
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     }
     lexemeId = body.lexemeId;
     caseKey = body.caseKey as CaseKey;
-    sentence = body.sentence.trim().slice(0, MAX_SENTENCE_CHARS);
+    sentence = clip(body.sentence.trim(), MAX_SENTENCE_CHARS);
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }

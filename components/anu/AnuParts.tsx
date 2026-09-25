@@ -505,7 +505,7 @@ function VocabRow({ word }: { word: { et: string; en: string } }) {
       // it", which is what `vouchable` reads to refuse the word as a scanned
       // page's answer, a headline's headword or the chat guard's own evidence.
       // It used to be a sentence in `notes`, where nothing read it.
-      lemma: word.et, translation: word.en, pos: "OTHER",
+      lemma: word.et, translation: word.en,
     }).catch(() => null);
     if (!created?.ok) return;
     const result = await addToDeck(created.id, ["RECOGNITION", "PRODUCTION"], "TUTOR", deckIds).catch(() => null);

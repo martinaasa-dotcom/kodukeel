@@ -30,6 +30,7 @@
  */
 
 import { isPrincipalFormType } from "@/lib/estonian/types";
+import { clip } from "@/lib/copy/clip";
 
 /** The eight things that can go wrong, as a learner would name them. */
 export const SUGGESTION_CATEGORIES = {
@@ -200,7 +201,7 @@ export type Patch =
 export const PATCH_POS = ["NOUN", "VERB", "ADJECTIVE", "ADVERB", "PRONOUN", "PHRASE", "OTHER"] as const;
 
 const trimmed = (value: unknown, max: number): string =>
-  typeof value === "string" ? value.trim().slice(0, max) : "";
+  typeof value === "string" ? clip(value.trim(), max) : "";
 
 /**
  * Reads a stored patch, or returns null.

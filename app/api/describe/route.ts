@@ -13,6 +13,7 @@ import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provi
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { courseLevelFor } from "@/lib/progress/level";
+import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
     sceneId = body.sceneId;
     caseKey = body.caseKey;
     askLemma = body.askLemma;
-    sentence = body.sentence.trim().slice(0, MAX_SENTENCE_CHARS);
+    sentence = clip(body.sentence.trim(), MAX_SENTENCE_CHARS);
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }

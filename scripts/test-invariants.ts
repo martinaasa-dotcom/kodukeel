@@ -33,6 +33,7 @@ import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
 import { OPENS_WITHOUT_BRIEFING } from "../lib/copy/briefingCoverage";
 import { BRIEFINGS } from "../lib/copy/briefings";
 import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
+import { estonianNotCopied } from "../lib/dict/copiedWords";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
@@ -349,6 +350,44 @@ check("no server component calls a function it imported from a client module", (
 });
 
 // ── Never ship a credential to the client ────────────────────────────────────
+
+check("a small group names nobody by subtraction, to a member", () => {
+  /*
+    The counts a colleague sees name nobody, and in a group of three the
+    member's own band beside "1 on track" names the other person. The class
+    page's lesson plan is the same arithmetic in a class of two. So a member
+    sees the workplace counts only through `sharesCounts`, and the class-wide
+    cases are the teacher's.
+  */
+  const view = code("app/(app)/class/[classroomId]/WorkplaceView.tsx");
+  assert.match(view, /sharesCounts\(summary\.members\.length, sponsor\)/,
+    "the workplace tiles are shown to a member of a group small enough to subtract a colleague from");
+  const page = code("app/(app)/class/[classroomId]/page.tsx");
+  assert.match(page, /isTeacher && roster\.weakestCases\.length > 0/,
+    "the class-wide weakest cases are shown to a student, who in a small class can subtract their own");
+});
+
+// ── Never ship a credential to the client ────────────────────────────────────
+
+check("a mock paper is rebuilt the same way it was sat, and every figure on the hub says what it rests on", () => {
+  /*
+    Three ways the sitting and the marking, or the figure and its basis, came
+    apart. The pool's forms were ordered on a column the seed leaves at 0, so
+    which form a dictation asked for was the plan's choice, at the sitting and
+    again at the marking. The sitting page took any seed, and the hand-in
+    takes one string of up to 64. And the per-level rings printed a
+    percentage with the only tier text on another section.
+  */
+  const pool = code("lib/progress/exam.ts");
+  assert.match(pool, /forms: \{ orderBy: \[\{ orderIndex: "asc" \}, \{ id: "asc" \}\] \}/,
+    "the exam pool reads a word's forms in an order that ties, so a paper can be marked against another form");
+  const sit = code("app/(app)/exam/[level]/page.tsx");
+  assert.match(sit, /first && first\.length <= 64/,
+    "the sitting page accepts a seed the hand-in refuses, so a paper can be sat and never handed in");
+  const hub = code("app/(app)/exam/page.tsx");
+  assert.match(hub, /EVIDENCE_LABEL\[readiness\.evidence\]/,
+    "the hub prints a confidence ring per level with no evidence tier beside it");
+});
 
 check("no secret carries a NEXT_PUBLIC_ prefix", () => {
   const secrets = /NEXT_PUBLIC_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD)/g;
@@ -932,7 +971,7 @@ check("a word is asked for finished, in one place, and the two clip versions agr
   const route = code("app/api/tts/route.ts");
   assert.match(
     route,
-    /text = spokenText\(body\.text\.trim\(\)\.slice\(0, MAX_CHARS\)\)/,
+    /text = spokenText\(clip\(body\.text\.trim\(\), MAX_CHARS\)\)/,
     "the speech route asks the service for the text as typed rather than as a finished utterance",
   );
   assert.match(
@@ -2773,7 +2812,9 @@ check("no code path updates a review", () => {
     fixture can always write the row it wants in the first place.
   */
   for (const file of ALL) {
-    assert.equal(/review\.update/.test(code(file)), false, `${file} updates a review`);
+    // Every way to change a row, not only the obvious one: an upsert and raw
+    // SQL rewrite a review as surely as `review.update` does.
+    assert.equal(/review\.(update|upsert)|UPDATE\s+"Review"/.test(code(file)), false, `${file} updates a review`);
   }
 });
 
@@ -2814,18 +2855,20 @@ check("a grade made offline keeps the time it was actually answered", () => {
     reviews all happened at breakfast, which is worse than losing them: FSRS
     would fit its intervals to a history that never happened.
   */
-  assert.match(code("lib/offline/outbox.ts"), /reviewedAt/, "the queue no longer records when a grade was made");
+  // Comment-blind: the outbox's own notes name both of these.
+  const outbox = code("lib/offline/outbox.ts");
+  assert.match(outbox, /reviewedAt/, "the queue no longer records when a grade was made");
   // Clamped in *both* directions: a device clock set ahead would schedule a card
   // into the past, and one set years back would blow up the card's stability.
-  assert.match(code("lib/offline/outbox.ts"), /clampReviewedAt/, "the queue no longer clamps a device clock");
+  assert.match(outbox, /clampReviewedAt\(/, "the queue no longer clamps a device clock");
 
-  const replay = read("lib/srs/replay.ts");
+  const replay = code("lib/srs/replay.ts");
   assert.equal(
     /reviewedAt:\s*new Date\(\)/.test(replay),
     false,
     "the replay re-stamps a grade",
   );
-  assert.match(code("lib/srs/replay.ts"), /orderForReplay/, "the replay no longer applies grades in the order they happened");
+  assert.match(replay, /orderForReplay\(/, "the replay no longer applies grades in the order they happened");
 });
 
 // ── Progress is derived, never stored (ADR-014) ──────────────────────────────
@@ -2852,7 +2895,8 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * one fact: the seventh door, `finishScene`, had to be added to all three or the
  * newest and busiest mode would sit outside a rule that reported itself as held.
  * That is the failure this file exists to catch, so it is not a shape this file
- * may have itself.
+ * may have itself. `useGrade` is on it because it is `gradeCard` with the
+ * outbox behind it, which the check on that hook holds it to.
  *
  * `recordMatchGrades` is the eighth: Match used to grade its board by looping
  * over `pairs` and calling `gradeCard` once each, which is eight sequential
@@ -2861,7 +2905,7 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * and `submitExam`, so it belongs in this list rather than under `gradeCards?`.
  */
 const GRADING_DOORS =
-  /\b(gradeCards?|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
+  /\b(gradeCards?|useGrade|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
 
 /**
  * Sessions that measure rather than practice.
@@ -3273,7 +3317,7 @@ check("nothing about an individual survives into the metrics", () => {
   const retention = read("lib/stats/retention.ts");
   assert.doesNotMatch(retention, /ownerId|email|userId/, "the retention module learned who somebody is");
 
-  const route = read("app/api/metrics/route.ts");
+  const route = code("app/api/metrics/route.ts");
   // The route groups by owner and must, so what is checked is that it never
   // hands one onward: the grouped rows are reduced to activity before use.
   assert.match(code("app/api/metrics/route.ts"), /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
@@ -3683,6 +3727,62 @@ check("a cap is charged to the learner, never to their address alone", () => {
 
 // ── A photograph is read, never believed ─────────────────────────────────────
 
+check("a word a model suggested reaches no learner but the one who kept it", () => {
+  /*
+    CLAUDE.md says a model-suggested row is "never a scanned page's answer,
+    never a headline's headword, never the word of the day, never lent a
+    sentence", and names `vouchable` as the whole of the guard. `vouchable`
+    only stands on the paths through `matchEstonianForm`. The word of the day
+    read the whole dictionary by gloss with no such filter and fell back to
+    any row at all; the mock exam's pool admits unbanded entries from B1; and
+    `createLexeme`, a public Server Action, took the band and the part of
+    speech off the wire, so any account could file an invented word as an A1
+    noun for every banded picker in the app to hand to other learners.
+
+    Three arms. `createLexeme` sets the band and the part of speech itself; a
+    picker that admits an unbanded row excludes AI rows; and the word of the
+    day does, on both of its reads.
+  */
+  const actions = code("app/actions.ts");
+  const create = actions.slice(
+    actions.indexOf("export async function createLexeme"),
+    actions.indexOf("export async function", actions.indexOf("export async function createLexeme") + 10),
+  );
+  assert.ok(create.length > 100, "app/actions.ts no longer has a createLexeme to check");
+  assert.doesNotMatch(create, /input\.(?:pos|cefr)\b/, "createLexeme writes a band or part of speech its caller chose");
+  assert.match(create, /provenance: "AI"/, "createLexeme no longer marks a model's word as one");
+  assert.match(create, /cefr: null/, "createLexeme no longer leaves a model's word unbanded");
+
+  const unbanded = [...ALL].filter((f) => /\{\s*cefr:\s*null\s*\}/.test(code(f)) && /prisma\.lexeme\./.test(code(f)));
+  assert.ok(unbanded.length >= 1, "no picker admits an unbanded row, so this arm checks nothing");
+  // On the expression that admits the unbanded row, not somewhere in the
+  // file: a file that imports the fragment and spreads it into one branch of
+  // a ternary passed the first version of this with the other branch open.
+  const open = unbanded.filter((f) => {
+    const text = code(f);
+    return [...text.matchAll(/\{\s*cefr:\s*null\s*\}/g)]
+      .some((m) => !/\.\.\.VOUCHED_ROW\b/.test(text.slice(Math.max(0, m.index! - 120), m.index)));
+  });
+  assert.deepEqual(open, [], `${open.join(", ")} admits an unbanded dictionary row and never excludes a model's suggestion`);
+
+  const wordOfDay = code("lib/progress/wordOfDay.ts");
+  assert.ok(
+    (wordOfDay.match(/\.\.\.VOUCHED_ROW\b/g) ?? []).length >= 2,
+    "the word of the day reads the dictionary without refusing a model's suggestion on both of its reads",
+  );
+
+  // And the rows written before `createLexeme` stopped taking a band: a
+  // builder fix reaches no deployment already holding one, so the seed clears
+  // them, above `--only-if-empty`'s early return, and touches nothing else.
+  const seed = code("prisma/seed.ts");
+  const cleared = seed.indexOf("clearModelBands(prisma)");
+  assert.ok(cleared >= 0, "the seed never takes the band off a word a model suggested");
+  assert.ok(cleared < seed.indexOf('"--only-if-empty"'), "the band is cleared below --only-if-empty's early return, which a seeded deployment never passes");
+  const repair = /export async function clearModelBands[\s\S]*?\n\}/.exec(code("prisma/repair.ts"));
+  assert.ok(repair, "prisma/repair.ts has no clearModelBands");
+  assert.match(repair[0], /SET cefr = NULL\s+WHERE provenance = 'AI'/, "clearModelBands writes something other than the band, or not only on a model's rows");
+});
+
 check("a word read off a photograph reaches a card only through the dictionary", () => {
   /*
     THIS IS ADR-005 ON THE ONE PATH WHERE A MODEL UNAVOIDABLY READS ESTONIAN.
@@ -3697,7 +3797,8 @@ check("a word read off a photograph reaches a card only through the dictionary",
   const route = read("app/api/scan/route.ts");
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
 
-  assert.match(code("lib/dict/resolveScan.ts"), /matchEstonianForm/, "the resolver stopped using the vouched matcher");
+  const resolver = code("lib/dict/resolveScan.ts");
+  assert.match(resolver, /matchEstonianForm\(/, "the resolver stopped using the vouched matcher");
 
   const search = read("lib/dict/search.ts");
   assert.match(
@@ -4568,9 +4669,6 @@ check("the chat says which model actually replied", () => {
 });
 
 check("Anu's prose is cleaned on its way to the learner", () => {
-  assert.match(code("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
-  // Anchored on the construction in code, not the word: the route's own
-  // comment names ProseStream, and that alone satisfied the first version.
   assert.match(code("app/api/tutor/route.ts"), /new ProseStream\(/, "the humanize pass is gone");
 });
 
@@ -4635,7 +4733,7 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
     exactly this kind of question, which is the whole argument for a check
     here rather than a stronger request in the prompt.
   */
-  const route = read("app/api/tutor/route.ts");
+  const route = code("app/api/tutor/route.ts");
   assert.match(route, /chatEstonianTokens\(/, "the chat route no longer extracts candidate Estonian tokens");
   assert.match(route, /matchEstonianForm\(/, "the chat route no longer checks tokens against the dictionary");
   assert.match(code("app/api/tutor/route.ts"), /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
@@ -6321,6 +6419,67 @@ check("nobody opts back out of the wrapping default", () => {
   }
 });
 
+/*
+  A ROW OF STAT TILES IS TWO ACROSS ON A PHONE.
+
+  `overflow-wrap: anywhere` is what keeps a long word inside its box, and the
+  price of it is that a box too narrow for a word breaks the word. Three
+  StatTiles across a 360px screen leave each label about eighty pixels, and
+  `label-xs` is uppercase and tracked, so "ACCURACY" and "ATTEMPTED" came out
+  as ACCURA/CY and ATTEMPT/ED on the letters, listening, sprint, quest and
+  target summaries, measured in a browser; two across, every one of them
+  holds a line. Four rounds had already found this and use
+  `grid-cols-2 … sm:grid-cols-3`, which is why this is a rule rather than a
+  fix: the other five were the same row written before somebody looked.
+*/
+check("a row of stat tiles is two across on a phone, never three", () => {
+  let rows = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx")) continue;
+    const src = code(file);
+    for (const found of src.matchAll(/className="([^"]*)"[^>]*>\s*<StatTile\b/g)) {
+      rows += 1;
+      const classes = found[1]!.split(/\s+/);
+      assert.ok(
+        !classes.includes("grid-cols-3"),
+        `${file}:${src.slice(0, found.index).split("\n").length} lays StatTiles three across at every width; ` +
+        "a label like ACCURACY breaks mid-word at 360px. Use grid-cols-2 sm:grid-cols-3, or " +
+        "grid-cols-2 @sm:grid-cols-3 inside an @container where the row sits in a column narrower than the window.",
+      );
+    }
+  }
+  assert.ok(rows >= 15, `only ${rows} StatTile rows found, so this check stopped looking`);
+});
+
+/*
+  A CONTAINER QUERY NEEDS A CONTAINER, AND WITHOUT ONE IT FAILS IN SILENCE.
+
+  From 768 the rail takes a column and the page is 368px, so a grid that
+  chose its columns by the window laid out two cards of 174 or five tiles of
+  57, and `overflow-wrap: anywhere` broke the words inside them mid-letter.
+  Those grids ask their container now (`@container` beside `@lg:grid-cols-2`),
+  which has one failure a viewport breakpoint does not: a `@lg:` variant with
+  no `@container` above it matches nothing, so the grid is one column at
+  every width and nothing says so. The wrapper is written in the same file as
+  the variant everywhere it is used, which is what this reads: a file using a
+  container variant declares the container too.
+*/
+check("a container query variant has its container in the same file", () => {
+  let files = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx")) continue;
+    const src = code(file);
+    const uses = src.match(/(?:^|[\s"'`])@(?:3xs|2xs|xs|sm|md|lg|xl|[2-7]xl):[a-z][a-z0-9-]*/gm);
+    if (!uses) continue;
+    files += 1;
+    assert.ok(
+      /(?:^|[\s"'`])@container(?:[\s"'`/]|$)/m.test(src),
+      `${file} uses a container variant (${uses[0]!.trim()}) and declares no @container, so it matches nothing`,
+    );
+  }
+  assert.ok(files >= 12, `only ${files} files use a container variant, so this check stopped looking`);
+});
+
 check("an icon is sized by its own size prop, never by a class", () => {
   /*
     A lucide icon writes `width` and `height` onto the svg from its `size`
@@ -7742,7 +7901,7 @@ check("a malformed argument to a server action is refused, not thrown or stored"
   const source = code("app/actions.ts");
 
   assert.match(
-    source, /const capped = \(value: unknown, max: number\): string =>\s*text\(value\)/,
+    source, /const capped = \(value: unknown, max: number\): string =>\s*(?:clip\()?text\(value\)/,
     "`capped` calls a string method on whatever it is handed, so every caller of it throws on a non-string",
   );
 
@@ -8919,10 +9078,10 @@ check("nothing reaches a paid provider without going through the ledger", () => 
       f !== "lib/tutor/grader.ts" &&
       entryPoints.test(code(f)),
   );
-  assert.ok(callers.length >= 3, `expected the provider callers, found ${callers.length}`);
+  assert.ok(callers.length >= 6, `expected the provider callers, found ${callers.length}`);
 
   for (const file of callers) {
-    const source = read(file);
+    const source = code(file);
     /*
       AUTHORIZED IN THE SAME FILE, WITHOUT EXCEPTION.
 
@@ -9542,13 +9701,13 @@ check("a call is booked only once the request is worth answering", () => {
     four of that learner's ten for the day. Every paid route validates first.
   */
   /*
-    Asked as the rule is stated rather than as a way round it. The first
-    version passed a refusal after the booking whenever `releaseReservation(`
-    appeared anywhere later in the file, and every paid route releases on its
-    provider-failure path, so a 400 moved below the booking without a release
-    of its own passed on all seven. It also asserted that the text before the
-    booking was not empty, which every file with an import satisfies. So a
-    refusal of the request itself may not come after the booking at all.
+    Read as an order, not as a presence. The first version passed whenever a
+    `releaseReservation(` appeared anywhere after the booking, which every
+    paid route has on its failure path, and whenever the file had anything in
+    front of the booking, which its imports always are: moving the tutor's
+    booking above its body check, the exact fault above, left both passing.
+    So a refusal of the request itself (400, 413, 422) may only come before
+    the first booking.
   */
   const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f))
     .map((file) => ({ file, src: code(file) }))
@@ -10952,7 +11111,7 @@ check("first run is exercised, which means two suites run before the fixture", (
  * `.next/static` for it, which is the check CLAUDE.md leads with. It is only
  * as good as the list of variables it marks, and that list was seven names
  * somebody typed: `GROQ_API_KEY` and `GEMINI_API_KEY` joined the provider
- * chain, `PROVIDER_KEY_ENV` grew to five, and the canary stayed at three of
+ * chain, `PROVIDER_KEY_ENV` grew, and the canary stayed at three of
  * them. A key nothing marks is a key the grep cannot find, so the check would
  * have passed over exactly the two the default free chain holds.
  *
@@ -10989,6 +11148,21 @@ check("every provider key the chain can hold is marked in the credential canary"
     "a variable's canary marker does not carry its own name, so a failure cannot say which leaked",
   );
   assert.ok(assigned.length >= 10, `only ${assigned.length} variables are marked, so this stopped looking`);
+
+  /*
+    And the recipe the security document hands a reader for reproducing this
+    marks variables CI marks. It marked `OPENROUTER_API_KEY` for months after
+    OpenRouter left every chain, so a reader following it proved that a
+    variable nothing reads does not leak, which is a check that cannot fail.
+  */
+  const marked = new Set(assigned.map(([, variable]) => variable));
+  const recipe = [...read(join("docs", "27-security.md")).matchAll(/^([A-Z_]+)=canary-\1-must-not-ship/gm)]
+    .map((m) => m[1]!);
+  assert.ok(recipe.length >= 2, `the security document's canary recipe names ${recipe.length} variables, so this stopped looking`);
+  assert.deepEqual(
+    recipe.filter((v) => !marked.has(v)), [],
+    "docs/27-security.md tells a reader to mark a variable CI's canary does not, so reproducing it proves nothing",
+  );
 });
 
 /**
@@ -11810,7 +11984,7 @@ check("the layers that promise to be pure import no database, React or Next", ()
         assert.doesNotMatch(
           src,
           pattern,
-          `lib/${name}/${file} imports ${what}. That layer is unit tested hermetically, ` +
+          `${file} imports ${what}. That layer is unit tested hermetically, ` +
           "so anything needing the database belongs in lib/progress/ or a route.",
         );
       }
@@ -16463,6 +16637,16 @@ check("the research opt-out is applied in the query, and is where the page says"
     /const not = [\s\S]{0,60}Prisma\.sql`AND e\."ownerId" NOT IN/,
     "the reported conversations no longer exclude anybody, so somebody who asked to be left out is published in the errand table",
   );
+  /*
+    And each clause reaches its query. The three checks above ask that the
+    exclusion is *built*; deleting the `${not}` it is spliced in through left
+    all three passing, with the clause sitting in a variable nothing read.
+  */
+  const built = route.split(/\bconst not = /).slice(1);
+  assert.ok(built.length >= 2, `only ${built.length} exclusion clauses found, so this stopped looking`);
+  for (const [i, after] of built.entries()) {
+    assert.match(after, /\$\{not\}/, `exclusion clause ${i + 1} is built and never spliced into its query`);
+  }
 
   const label = "Anonymous statistics";
   for (const file of ["app/privacy/page.tsx", "app/(app)/settings/page.tsx"]) {
@@ -16797,7 +16981,7 @@ check("a wrong answer records the form it reached for, and only between forms", 
   ]) {
     assert.match(
       code(file),
-      /gradeCard\([\s\S]{0,260}reached/,
+      /(?:gradeCard|grade)\([\s\S]{0,260}reached/,
       `${file} works out which form the learner reached for, prints it, and no ` +
       "longer sends it. That was the whole life of the fact before this column.",
     );
@@ -17023,7 +17207,8 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
       stopped short and the check passed against the live bug. Made to fail on
       the real line before being kept.
     */
-    .filter((file) => /gradeCard\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
+    // `grade(` is `useGrade`'s, which is how most rounds reach `gradeCard` now.
+    .filter((file) => /\b(?:gradeCard|grade)\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
   /*
     The half above is only a claim while SESSION_FILES finds the rounds: a
     rename of the Session suffix empties it and the deepEqual passes on nothing.
@@ -17032,7 +17217,7 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
   // A sweep over nothing passes: the rounds that write a duration are the
   // haystack, and a rename that moved them out of SESSION_FILES would leave
   // this asking about no file at all.
-  const grading = SESSION_FILES().filter((file) => /\bgradeCard\(/.test(code(file)));
+  const grading = SESSION_FILES().filter((file) => /\b(?:gradeCard|grade)\(/.test(code(file)));
   assert.ok(grading.length >= 15, `only ${grading.length} round sessions grade through gradeCard, so the sweep is looking in the wrong place`);
   assert.deepEqual(
     averaged, [],
@@ -17322,6 +17507,130 @@ check("a case is named only when one case claims the spelling", () => {
  * nothing in it may name the table at all: a count is a `count`, and a count
  * cannot leak a sentence.
  */
+check("no export of a \"use server\" file takes an owner id from its caller", () => {
+  /*
+    CLAUDE.md: "Nothing in a `\"use server\"` file may take an owner id from its
+    caller." Every export of such a file is a public endpoint and its
+    arguments are JSON off the wire, so an `ownerId` parameter is a way to act
+    as anybody. It was prose, and one action (`advanceCourseStep`) was checked
+    by name. Read off every file that opens with the directive, and every
+    exported function's parameter list, so the next action is held to it too.
+  */
+  const servers = ALL.filter((f) => /^\s*["']use server["']/.test(read(f)));
+  assert.ok(servers.length >= 1, "no \"use server\" file found, so this stopped looking");
+  let exported = 0;
+  for (const file of servers) {
+    const src = code(file);
+    const params = [
+      ...src.matchAll(/export\s+(?:async\s+)?function\s+(\w+)\s*\(([^)]*)\)/g),
+      ...src.matchAll(/export\s+const\s+(\w+)\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>/g),
+    ];
+    for (const [, name, list] of params) {
+      exported += 1;
+      assert.doesNotMatch(
+        list!, /\b(ownerId|userId|learnerId|ownerID)\b/,
+        `${file}: ${name} takes an owner id from its caller. Resolve it with requireUserId() instead`,
+      );
+    }
+  }
+  assert.ok(exported >= 60, `only ${exported} server exports read, so this stopped looking`);
+});
+
+check("every design document a file cites is a document that exists", () => {
+  /*
+    The situations design was cited as number 19 from fourteen files, the
+    schema and this one among them, after it had been renumbered to
+    `docs/21-situations.md`; `docs/19-research-export.md` is a different
+    document, so a reader following the pointer landed on the research export
+    and the section numbers made no sense there. Read across source, scripts
+    and the prose, so a rename fails here rather than in somebody's afternoon.
+  */
+  const citing = [
+    ...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), ...sourceFiles("docs", /\.md$/),
+    "CLAUDE.md", "README.md", "prisma/schema.prisma",
+  ];
+  let cited = 0;
+  for (const file of citing) {
+    for (const [doc] of read(file).matchAll(/docs\/[A-Za-z0-9._-]+\.md/g)) {
+      cited += 1;
+      assert.ok(existsSync(doc), `${file} cites ${doc}, which does not exist`);
+    }
+  }
+  assert.ok(cited >= 100, `only ${cited} citations of a design document found, so this stopped looking`);
+});
+
+check("a mailed sign-in link never changes who is signed in without saying so", () => {
+  /*
+    Login CSRF, stated in CLAUDE.md and held by nothing: the `token_hash`
+    branch of the callback is not tied to the browser that asked, so an
+    attacker's own mailed link opened by a signed-in learner would land them
+    in the attacker's account. The callback ends an existing session and sends
+    them to sign in with `switched=1`, and drops `next`. Read in order: the
+    session check before the verification, the sign-out and the switched
+    redirect inside it, and `next` nowhere in that block.
+  */
+  const cb = code("app/auth/callback/route.ts");
+  const branch = cb.slice(cb.indexOf("tokenHash && type"));
+  assert.ok(branch.length > 0 && cb.includes("tokenHash && type"), "the callback no longer has a token_hash branch this can read");
+  const guard = branch.indexOf("hasSessionCookie(");
+  const verify = branch.indexOf("verifyOtp(");
+  assert.ok(guard >= 0 && verify > guard, "a mailed link is verified before the callback asks whether somebody is already signed in");
+  const block = branch.slice(guard, verify);
+  assert.match(block, /signOut\(/, "a mailed link opened in a signed-in browser no longer ends that session");
+  assert.match(block, /switched=1/, "a mailed link that ends a session no longer says so on the sign-in screen");
+  assert.doesNotMatch(block, /\bnext\b/, "a refused mailed link still follows the next its author chose");
+});
+
+check("every gate that hands out a signed-in identity asks the allowlist", () => {
+  /*
+    REVOKING ACCESS IS IMMEDIATE, AND THE MIDDLEWARE IS NOT THE ONLY READER.
+
+    The middleware signs out an address that has come off the allowlist, and
+    it also lets an "unknown" identity through, because a bad minute at the
+    auth service is not a sign-out. The page, action or route behind it then
+    resolves its own owner, and that read can come back "in" for the address
+    the list no longer names. So every function in `lib/auth/` that accepts a
+    signed-in identity asks the allowlist itself. Read per function, so a new
+    gate that reads the identity has to ask as well.
+  */
+  const gates = ["lib/auth/session.ts", "lib/auth/admin.ts"];
+  let seen = 0;
+  for (const file of gates) {
+    const src = code(file);
+    for (const body of src.split(/\nexport (?:const|async function|function) /).slice(1)) {
+      if (!/who\.state !== "in"/.test(body)) continue;
+      seen += 1;
+      const name = body.slice(0, body.search(/[ (=]/));
+      assert.match(body, /isAllowedEmail\(who\.learner\.email\)/, `${file}: ${name} accepts a signed-in identity without asking the allowlist`);
+    }
+  }
+  assert.ok(seen >= 4, `only ${seen} identity gates found, so this stopped looking`);
+});
+
+check("an archived class is refused by every action that writes to its members", () => {
+  /*
+    ARCHIVING IS A PROMISE THE SCREEN KEPT AND THE ACTIONS DID NOT.
+
+    The class page hides "assign" once a class is archived, and `assignUnit`
+    and `assignHomework` are public endpoints that read the class by id and
+    owner alone, so a teacher's stale tab, or anybody holding the id, could go
+    on writing tasks into every member's list for a class that had been
+    closed. Read off the actions rather than a list of two, so a third action
+    that fans out to a class's members has to decide about archiving too.
+  */
+  const actions = code("app/actions.ts");
+  const bodies = actions.split(/\nexport async function /).slice(1);
+  const fanOut = bodies.filter((b) => /classroomMember\.findMany/.test(b) && /\.createMany\(/.test(b));
+  assert.ok(fanOut.length >= 2, `only ${fanOut.length} actions write to a class's members, so this stopped looking`);
+  for (const body of fanOut) {
+    const name = body.slice(0, body.indexOf("("));
+    assert.match(
+      body, /\.archived\)/,
+      `${name} writes to every member of a class without refusing an archived one`,
+    );
+  }
+});
+
 check("text one person types and another person reads is cleaned, not trimmed", () => {
   /*
     `cleanDisplayName` was written for the roster and reached one of the four
@@ -17397,21 +17706,20 @@ check("a class cannot read a conversation", () => {
 /**
  * A ROUTED PURPOSE ASKS FOR ITS OWN CHAIN, AND NOTHING FAILS IF IT STOPS.
  *
- * Two paid keys are configured for two different reasons: Anu asks Anthropic
- * because Sonnet was the best of everything tested on real Estonian, and scene
- * composition asks Groq because `qwen/qwen3.8-27b` answered 24 of 24 with a
- * finite verb every time at a quarter-second median, for a fortieth of the
- * price, on a path that makes calls by the dozen.
+ * Each purpose was measured for its own job and pinned to what won: Anu on
+ * `TUTOR_MODEL`, scenes on `SCENE_MODELS`, the graders on `GRADER_MODELS`
+ * (see `PURPOSE_CHAINS` for the figures). The models have moved since this
+ * was written and will move again; what this check holds is the split.
  *
  * `resolveProviders()` with no argument is still the whole chain, deliberately,
  * because twenty-odd callers mean "is a model configured at all" by it and none
  * of them is choosing where to send anything. That is also what makes this
  * regression invisible: a route that dropped its `purpose` still compiles,
  * still answers, and still names the model that wrote it in a header nobody
- * watches. What it stops doing is the split. Anu's question gets answered by a
- * model ranked on fourteen-word constrained sentences, or every scene line in
- * every conversation gets billed at Sonnet's rate against a $5 balance, and
- * a Groq outage starts taking Anu down with it.
+ * watches. What it stops doing is the split: Anu's question gets answered by a
+ * model nobody ranked on grammar questions, or every scene line is billed at
+ * whatever the general chain's head costs, and one provider's outage starts
+ * taking the other purposes down with it.
  *
  * Anchored on the call rather than on the import, for the reason five other
  * checks in this file are: a file can import the right function and go on
@@ -20864,7 +21172,7 @@ check("a verdict is painted once, in the tint and the ink", () => {
   }
 
   // The screens that mark an answer are the ones that call the app's markers.
-  const marks = /\b(gradeCard|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
+  const marks = /\b(gradeCard|useGrade|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
   // Sõnad is not on this list and is not exempt from it: it marks letters with
   // three kinds of object rather than three tints, by a design argued at the
   // top of its own file, and it calls none of the markers above.
@@ -22444,11 +22752,25 @@ check("putting a word aside moves a date and grades nothing", () => {
     const next = defer.indexOf("\nexport ", from + 1);
     const body = defer.slice(from, next === -1 ? undefined : next);
     assert.match(
-      body, /due: row\.untilAt/,
-      `${what} pulls cards forward without matching the date the deferral wrote, `
-      + "so a card FSRS had honestly put further out comes back early.",
+      body, /\bgiveBack\(tx,/,
+      `${what} gives cards back without going through giveBack, which is the one place `
+      + "that matches the date the deferral wrote and returns each card to where the wait found it.",
     );
   }
+  /*
+    And the one way back matches that date, and puts a card no earlier than the
+    date it had before the push: a card due in two days that the wait moved
+    comes back in two days rather than tonight.
+  */
+  const back = defer.slice(defer.indexOf("async function giveBack"));
+  assert.match(
+    back.slice(0, 2500), /due: row\.untilAt/,
+    "giveBack reaches cards the wait did not put on its date, so a card FSRS had put further out comes back early",
+  );
+  assert.match(
+    back.slice(0, 2500), /readPriorDues\(row\.priorDues\)/,
+    "giveBack sets every card it moved to now, so a card due after tonight comes back early",
+  );
 
   /*
     AND A SECOND PRESS MAY NOT SHORTEN A WAIT, which is the same rule read
@@ -24780,11 +25102,14 @@ check("the shipped translations are English, and there are enough of them to mat
     AND NOT ONE OF THEM IS ESTONIAN. The whole value of the file is that it is
     the other language, and the way a weaker model fails this job is by handing
     the sentence back: `looksLikeEcho` catches an exact echo and the script
-    refuses anything still carrying õ, ä, ö, ü, š or ž. A line of Estonian
-    printed under a heading promising English is worse than no line at all.
+    refuses a line carrying õ, ä, ö, ü, š or ž in a word its sentence did not
+    hold. A name or a quoted word copied through is the sentence rather than
+    the model (`estonianNotCopied`), and refusing those left 137 sentences with
+    a place or a person in them bare. A line of Estonian printed under a
+    heading promising English is worse than no line at all.
   */
   const table: Record<string, string> = JSON.parse(readFileSync("prisma/data/example-english.json", "utf8"));
-  const estonian = Object.entries(table).filter(([, en]) => /[õäöüšž]/i.test(en));
+  const estonian = Object.entries(table).filter(([et, en]) => estonianNotCopied(en, et));
   assert.deepEqual(
     estonian.slice(0, 3), [],
     `${estonian.length} shipped translations still carry Estonian's own letters, so they are not English`,
@@ -26342,8 +26667,8 @@ check("a round that asks one case says which when it grades", () => {
     fault the flash round's own practisedSlot was added for.
   */
   const rounds: Record<string, RegExp> = {
-    "app/(app)/review/write/WriteSession.tsx": /gradeCard\([^;]{0,200}?prompt\.caseKey/,
-    "app/(app)/review/target/TargetSession.tsx": /gradeCard\([^;]{0,200}?question\.caseKey/,
+    "app/(app)/review/write/WriteSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?prompt\.caseKey/,
+    "app/(app)/review/target/TargetSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?question\.caseKey/,
   };
   for (const [file, pattern] of Object.entries(rounds)) {
     assert.match(code(file).replace(/\s+/g, " "), pattern, `${file} grades without saying which case it asked`);

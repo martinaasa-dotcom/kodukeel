@@ -102,7 +102,7 @@ export async function deferWord(
     */
     const standing = await tx.deferral.findUnique({
       where: { ownerId_lexemeId: { ownerId, lexemeId } },
-      select: { untilAt: true, untilLevel: true, reason: true, wokenAt: true },
+      select: { untilAt: true, untilLevel: true, reason: true, wokenAt: true, priorDues: true },
     });
     const holds = standing !== null && inForce(standing, now) && standing.untilAt >= fresh.untilAt;
     const kept: Deferral = holds
@@ -122,12 +122,32 @@ export async function deferWord(
         }
       : fresh;
 
+    /*
+      WHAT THIS PUSH MOVES, AND FROM WHERE, SO THE WAY BACK CAN PUT IT THERE.
+
+      A give-back used to set every card sitting on the wait's date to now,
+      which is right for a card that was due tonight and wrong for one the
+      scheduler had due in two days or in two months: it came back early, on
+      the button that promised not to touch the schedule. A card already on a
+      wait still standing keeps the date it had before that wait, because the
+      date it has now is the wait's rather than the scheduler's.
+    */
+    const earlier = standing && inForce(standing, now) ? readPriorDues(standing.priorDues) : {};
+    const moving = await tx.card.findMany({
+      where: { ownerId, lexemeId, due: { lt: kept.untilAt } },
+      select: { id: true, due: true },
+    });
+    // What the standing wait already moved is carried over, since a press that
+    // keeps it moves nothing and would otherwise forget where those cards were.
+    const priorDues: Record<string, string> = { ...earlier };
+    for (const card of moving) priorDues[card.id] = earlier[card.id] ?? card.due.toISOString();
+
     await tx.deferral.upsert({
       where: { ownerId_lexemeId: { ownerId, lexemeId } },
       create: {
         ownerId, lexemeId, lemma: word.lemma, band, level,
         reason: kept.reason, untilAt: kept.untilAt, untilLevel: kept.untilLevel,
-        context,
+        context, priorDues,
       },
       /*
         A second press is the same person saying it again, so the row keeps its
@@ -138,7 +158,7 @@ export async function deferWord(
       update: {
         lemma: word.lemma, band, level,
         reason: kept.reason, untilAt: kept.untilAt, untilLevel: kept.untilLevel,
-        context, times: { increment: 1 },
+        context, priorDues, times: { increment: 1 },
         // A word put aside again is put aside again, whatever happened to the
         // last wait: a stale `wokenAt` would leave the row reading as spent
         // and the deck would go on serving a word somebody just refused.
@@ -171,19 +191,65 @@ export async function undoDeferral(ownerId: string, lexemeId: string, now = new 
     way: a builder that read the deferral and has not yet committed dates its
     card on `untilAt`, and an undo running beside it would hand back the cards
     it can see, delete the row, and leave that one on the old date with nothing
-    left to bring it back. Read inside the lock, so the row is the one in force.
+    left to bring it back. Read inside the lock, so the row is the one in force,
+    and a second press landing in between cannot move the cards to a date this
+    then fails to match.
   */
   return prisma.$transaction(async (tx) => {
     await lockDeck(tx, ownerId);
     const row = await tx.deferral.findUnique({
       where: { ownerId_lexemeId: { ownerId, lexemeId } },
-      select: { untilAt: true },
+      select: { untilAt: true, priorDues: true },
     });
     if (!row) return false;
-    await tx.card.updateMany({ where: { ownerId, lexemeId, due: row.untilAt }, data: { due: now } });
+    await giveBack(tx, ownerId, lexemeId, row, now);
     await tx.deferral.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
     return true;
   });
+}
+
+/** The recorded prior dues, read defensively: a JSON column is whatever was put there. */
+function readPriorDues(value: unknown): Record<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const out: Record<string, string> = {};
+  for (const [id, iso] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof iso === "string" && !Number.isNaN(Date.parse(iso))) out[id] = iso;
+  }
+  return out;
+}
+
+/**
+ * Puts a word's cards back where the wait found them.
+ *
+ * Only the cards still sitting on the date the wait wrote, which is what stops
+ * this reaching a card the scheduler has since put somewhere else; and each
+ * one to the later of now and the date it had before, so nothing the scheduler
+ * had put after tonight comes back tonight. A card with no recorded date, built
+ * after the press or on a row written before the column, comes back now.
+ */
+async function giveBack(
+  tx: Pick<typeof prisma, "card">,
+  ownerId: string,
+  lexemeId: string,
+  row: { untilAt: Date; priorDues: unknown },
+  now: Date,
+): Promise<void> {
+  const prior = readPriorDues(row.priorDues);
+  const sitting = await tx.card.findMany({
+    where: { ownerId, lexemeId, due: row.untilAt },
+    select: { id: true },
+  });
+  const byDate = new Map<number, string[]>();
+  for (const card of sitting) {
+    const was = prior[card.id] ? new Date(prior[card.id]!) : now;
+    const back = was.getTime() > now.getTime() && was.getTime() < row.untilAt.getTime() ? was : now;
+    const ids = byDate.get(back.getTime()) ?? [];
+    ids.push(card.id);
+    byDate.set(back.getTime(), ids);
+  }
+  for (const [time, ids] of byDate) {
+    await tx.card.updateMany({ where: { id: { in: ids }, ownerId, due: row.untilAt }, data: { due: new Date(time) } });
+  }
 }
 
 /** The words this learner has put aside and has not got back yet. */
@@ -288,22 +354,16 @@ export async function wakeForLevel(ownerId: string, level: string, now = new Dat
     await lockDeck(tx, ownerId);
     const rows = await tx.deferral.findMany({
       where: { ownerId, wokenAt: null, untilLevel: { not: null }, untilAt: { gt: now } },
-      select: { id: true, lexemeId: true, untilAt: true, untilLevel: true },
+      select: { id: true, lexemeId: true, untilAt: true, untilLevel: true, priorDues: true },
     });
     const reached = rows.filter((row) => bandReached(row, level));
     if (reached.length === 0) return 0;
 
     /*
-      Only the cards still sitting on the date this wrote, exactly as an undo
-      does: a card the scheduler had honestly put further out is left where the
-      scheduler put it.
+      Only the cards still sitting on the date this wrote, each to where the
+      wait found it, exactly as an undo does (`giveBack`).
     */
-    for (const row of reached) {
-      await tx.card.updateMany({
-        where: { ownerId, lexemeId: row.lexemeId, due: row.untilAt },
-        data: { due: now },
-      });
-    }
+    for (const row of reached) await giveBack(tx, ownerId, row.lexemeId, row, now);
     /*
       The row stays and is stamped rather than deleted. What the learner said
       is still true of the evening they said it, and the deployment-wide count

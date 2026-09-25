@@ -136,7 +136,10 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
         {inDeck > 0 && (
           <section>
             <SectionTitle>Practice this page</SectionTitle>
-            <div className="grid gap-3 sm:grid-cols-3">
+            {/* Columns by the room the tiles have, not the window: at 768
+                `sm:grid-cols-3` gave each title 25px and "Match" was drawn
+                across three lines. */}
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3">
               <PractiseTile
                 href={`/review?scan=${scan.id}`}
                 tone="accent"
