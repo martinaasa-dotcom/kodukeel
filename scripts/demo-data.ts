@@ -1,6 +1,5 @@
 /** Populates a few cards, reviews and tasks so the UI can be reviewed with real content. */
 import { newPrismaClient } from "../lib/db";
-// @ts-expect-error - plain JS helper, shared with the .mjs end-to-end scripts.
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { generateCards, type LexemeForCards } from "../lib/srs/cards";
 import { emptyScheduling, grade } from "../lib/srs/scheduler";

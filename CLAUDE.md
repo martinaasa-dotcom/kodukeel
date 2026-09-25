@@ -9664,7 +9664,12 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   happened to add.
 - Unit tests stay hermetic: no database, no network, no clock you do not control. Anything needing
   Postgres is an `*.itest.ts` under `npm run test:db`. The unit suite gates every commit and must
-  stay fast enough that nobody is tempted to skip it.
+  stay fast enough that nobody is tempted to skip it. **Nor an environment it did not state**:
+  `vitest.config.mts` blanks every variable the app reads, because a real `ERROR_WEBHOOK_URL` in the
+  shell had a unit-test run posting to the live error channel, and an invariant keeps that list
+  whole. And `npm run test:db` writes, so `scripts/itest-guard.ts` refuses a `DATABASE_URL` that is
+  not on loopback, by the rule in `scripts/lib/local-db.mjs` every destructive script already asks,
+  unless the run sets `KODUKEEL_ALLOW_REMOTE_DB=1`.
   **And a zone is a clock.** CI runs in UTC, and three clock tests that built their dates with
   `Date.UTC` passed there and failed on `npm test` in Tallinn, since the formatter reads a time in
   the reader's zone. `vitest.config.mts` pins `Pacific/Chatham`, a quarter-hour offset thirteen

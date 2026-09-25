@@ -19,6 +19,7 @@ import { GAP_MARKS, GAP_WITHOUT_MEANING, NEVER_SAYS_WHAT_IT_MEANS } from "../lib
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, dirname, join, normalize } from "node:path";
+import { createRequire } from "node:module";
 import { ACTIVITIES } from "@/lib/course/types";
 
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
@@ -5026,6 +5027,87 @@ check("where you are is one pane, and it arrives under a pointer", () => {
     /durationMs\s*<=\s*0/,
     "a pane with no travel would animate anyway, since `glide` lost its way out",
   );
+});
+
+check("the integration suite refuses a database that is not on this machine", () => {
+  /*
+    `npm run test:db` writes: learners, ledger rows booked against the shared
+    daily budget, invented dictionary entries. It opened whatever DATABASE_URL
+    the shell exported, and a shell carrying the deployment's connection string
+    is what a copied `.env` produces, so nothing stood between that command and
+    the database every learner uses. `scripts/itest-guard.ts` runs as the
+    suite's global setup and refuses anything off loopback unless the run opts
+    in by name. Anchored on the config naming the guard and the guard asking
+    `isLocal` of both variables, off `scripts/lib/local-db.mjs`, which is the
+    rule every script that deletes rows already asks: a second definition of
+    "local" would be two answers to one question. A guard nobody wires up is
+    the same silence one file later.
+  */
+  const config = code("vitest.integration.config.mts");
+  assert.match(
+    config,
+    /globalSetup:\s*\[\s*"scripts\/itest-guard\.ts"\s*\]/,
+    "the integration suite no longer runs its database guard before loading",
+  );
+  const guard = code("scripts/itest-guard.ts");
+  assert.match(guard, /isLocal\(/, "the guard no longer asks whether the database is local");
+  assert.match(
+    guard,
+    /from "\.\/lib\/local-db\.mjs"/,
+    "the guard keeps its own definition of a local database beside the one the scripts ask",
+  );
+  for (const name of ["DATABASE_URL", "DIRECT_URL"]) {
+    assert.ok(guard.includes(`"${name}"`), `the guard no longer checks ${name}`);
+  }
+  assert.match(guard, /throw new Error\(/, "the guard no longer refuses; it only warns");
+});
+
+check("the unit suite runs on a stated machine, not on whatever the shell exported", () => {
+  /*
+    The unit suite gates every commit on being hermetic: no database, no
+    network, no clock it does not control. It was not hermetic about the
+    environment. Vitest hands every test the shell it was started from, so a
+    test passed or failed on what the host happened to export, and CI, which
+    exports nothing, could never see the difference.
+
+    Measured by running the whole suite under a realistic deployment's
+    variables, with dummy values. Two tests failed on correct code:
+    `headers.test.ts` because a Google client ID opens `frame-src`, and
+    `provider.test.ts` because `ERROR_WEBHOOK_URL` made `reportError` post, which
+    the test's stubbed `fetch` counted as a provider call. The second is the
+    one that matters. With a real webhook in the shell, which is where a
+    developer's copied `.env` puts it, a unit-test run posts its errors to the
+    live channel.
+
+    So `vitest.config.mts` blanks every variable the app reads, and a test that
+    needs a value stubs it. This check holds that list to the app: a variable
+    added to the code and not to the list fails here, which is the only way a
+    list like that stays complete.
+  */
+  const config = read("vitest.config.mts");
+  const blanked = new Set([...config.matchAll(/^\s*([A-Z][A-Z0-9_]+):\s*""/gm)].map((m) => m[1]!));
+  assert.ok(blanked.size >= 20, `only ${blanked.size} variable(s) blanked in vitest.config.mts; the list moved`);
+
+  /*
+    Runtime facts rather than configuration: which build and which runtime the
+    code is in. Blanking NODE_ENV would change what every test means.
+  */
+  const RUNTIME: Record<string, string> = {
+    NODE_ENV: "which build this is; vitest sets it to test and tests stub production where they mean it",
+    NEXT_RUNTIME: "set by Next per request, never by a deployment",
+  };
+  const source = [...sourceFiles("lib"), ...sourceFiles("app"), "middleware.ts"]
+    .filter((f) => !/\.(?:i)?test\.ts$/.test(f))
+    .map((f) => code(f))
+    .join("\n");
+  const read_ = new Set(
+    [...source.matchAll(/\benv(?:\.|\[["'])([A-Z][A-Z0-9_]{2,})\b/g)].map((m) => m[1]!),
+  );
+  assert.ok(read_.size >= 30, `only ${read_.size} environment variables found in the app; the pattern moved`);
+  const missing = [...read_].filter((name) => !blanked.has(name) && !(name in RUNTIME)).sort();
+  assert.deepEqual(missing, [], `the unit suite inherits these from the shell: ${missing.join(", ")}`);
+  const stale = Object.keys(RUNTIME).filter((name) => blanked.has(name));
+  assert.deepEqual(stale, [], `a runtime variable is both exempt and blanked: ${stale.join(", ")}`);
 });
 
 check("color comes from a token, never a raw hex", () => {
@@ -25445,6 +25527,54 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("every workflow runs on a Node the shipped dependencies accept", () => {
+  /*
+    CI ran on Node 20 while the Supabase client and four of its packages
+    declare `>=22.0.0`, so every job was testing a runtime the dependencies
+    say they do not support, and a deployment on 22 or 24 was not the thing
+    CI had measured. The versions are read off the workflows and the engine
+    ranges off the lockfile, so a dependency raising its floor fails here
+    rather than on a production build. Dev-only packages are left out, since
+    they never reach a deployment, and so are optional ones, which are the
+    per-platform binaries only one of which is ever installed.
+  */
+  const semver = createRequire(import.meta.url)("semver") as {
+    satisfies: (v: string, range: string) => boolean;
+  };
+  const lock = JSON.parse(read("package-lock.json")) as {
+    packages: Record<string, { dev?: boolean; optional?: boolean; engines?: { node?: string } }>;
+  };
+  const ranges = Object.entries(lock.packages)
+    .filter(([name, p]) => name && !p.dev && !p.optional && typeof p.engines?.node === "string")
+    .map(([name, p]) => [name, p.engines!.node!] as const);
+  assert.ok(ranges.length >= 5, `read only ${ranges.length} engine ranges out of the lockfile`);
+  const workflows = readdirSync(".github/workflows").filter((f) => f.endsWith(".yml"));
+  let seen = 0;
+  for (const wf of workflows) {
+    for (const m of read(`.github/workflows/${wf}`).matchAll(/node-version:\s*"?([\d.]+)"?/g)) {
+      seen++;
+      const version = /^\d+$/.test(m[1]!) ? `${m[1]}.99.0` : m[1]!;
+      const refused = ranges.filter(([, r]) => !semver.satisfies(version, r)).map(([n, r]) => `${n} ${r}`);
+      assert.deepEqual(refused, [], `${wf} runs Node ${m[1]}, which ${refused.join(", ")} refuse`);
+    }
+  }
+  assert.ok(seen >= 10, `found only ${seen} node-version lines across the workflows`);
+
+  /*
+    And the repository says so itself. A workflow pins CI; the deployment's
+    Node is the host's own setting and a contributor's is whatever they have,
+    and neither reads a workflow. `engines` is what Vercel and npm both read,
+    so its lowest version has to satisfy every range above too, or the one
+    runtime nobody pinned is the one the app ships on.
+  */
+  const pkg = JSON.parse(read("package.json")) as { engines?: { node?: string } };
+  const floor = /^>=\s*(\d+)(?:\.(\d+))?(?:\.(\d+))?$/.exec(pkg.engines?.node ?? "");
+  assert.ok(floor, `package.json declares engines.node as ${JSON.stringify(pkg.engines?.node)}, not a ">=" floor`);
+  const lowest = `${floor[1]}.${floor[2] ?? 0}.${floor[3] ?? 0}`;
+  const refused = ranges.filter(([, r]) => !semver.satisfies(lowest, r)).map(([n, r]) => `${n} ${r}`);
+  assert.deepEqual(refused, [], `package.json allows Node ${lowest}, which ${refused.join(", ")} refuse`);
 });
 
 check("every route the app has is walked by the containment and accessibility sweeps", () => {
