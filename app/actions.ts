@@ -1182,7 +1182,7 @@ export async function recordSonad(day: string, guesses: unknown) {
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
 
-  const rating = ratingFor(played, puzzle.answer);
+  const rating = ratingFor(played, puzzle.answer, puzzle.category !== null);
   if (rating === null) return { ok: false as const, error: "That round is not over." };
   if (!puzzle.inDeck) return { ok: true as const, graded: false };
 
