@@ -267,7 +267,7 @@ export interface Candidate {
    */
   readonly runsGroup: boolean;
   /**
-   * Whole weeks until the date they set themselves, or null where they set
+   * Weeks until the date they set themselves, unrounded, or null where they set
    * none or it has already passed.
    *
    * Past is null rather than negative, because a deadline already gone is its
@@ -306,7 +306,29 @@ function gapClear(who: Candidate, kind: EmailKind, now: Date): boolean {
 function allowed(who: Candidate, kind: EmailKind, now: Date): boolean {
   if (!wants(who.prefs, kind)) return false;
   if (!UNCAPPED.includes(kind) && who.sentThisWeek >= MAX_PER_WEEK) return false;
+  if (!UNCAPPED.includes(kind) && !apartFromTheLast(who, now)) return false;
   return gapClear(who, kind, now);
+}
+
+/**
+ * The least time between any two letters the weekly ceiling is about.
+ *
+ * The per-kind gaps stop one kind repeating and nothing stopped the kinds
+ * following each other: on hourly runs a Sunday milestone at eight was
+ * followed by the Sunday summary at nine, because each had its own gap and
+ * neither knew about the other. "At most one letter per run" was true and was
+ * not the promise, which is not two letters on one morning. Eight hours lets
+ * a morning letter and the evening one both through, which are two different
+ * moments somebody reads mail in.
+ */
+export const MIN_HOURS_BETWEEN_LETTERS = 8;
+
+function apartFromTheLast(who: Candidate, now: Date): boolean {
+  for (const [kind, at] of who.lastSent) {
+    if (kind === "system" || UNCAPPED.includes(kind)) continue;
+    if (hoursBetween(now, at) < MIN_HOURS_BETWEEN_LETTERS) return false;
+  }
+  return true;
 }
 
 /**
@@ -406,7 +428,15 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
       the respectful answer and it is also the one that keeps the sign-in links
       landing in an inbox rather than in a spam folder.
     */
-    return allowed(who, "comeback", now)
+    /*
+      Once per absence, which the fortnight gap alone never said: it let the
+      letter out again every fourteen days, so somebody who stayed away got it
+      on day 6, day 20 and day 34 of one absence. A comeback sent after their
+      last review is this absence's, and the answer after it is silence.
+    */
+    const lastComeback = who.lastSent.get("comeback");
+    const toldThisAbsence = lastComeback !== undefined && who.lastReviewAt !== null && lastComeback > who.lastReviewAt;
+    return !toldThisAbsence && allowed(who, "comeback", now)
       ? { kind: "comeback", because: `no review in ${away} days` }
       : worddayOwed(who, now);
   }
@@ -480,7 +510,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     who.localHour < 15 &&
     allowed(who, "deadline", now)
   ) {
-    return { kind: "deadline", because: `${who.deadlineWeeks} weeks until the date they set` };
+    return { kind: "deadline", because: `${Math.round(who.deadlineWeeks)} weeks until the date they set` };
   }
 
   /*

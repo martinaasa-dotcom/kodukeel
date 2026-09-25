@@ -4,6 +4,7 @@ import { supabaseConfigured } from "@/lib/auth/mode";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { Page } from "@/components/ui";
 import { TutorChat } from "./TutorChat";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Anu" };
 
@@ -11,13 +12,13 @@ export const dynamic = "force-dynamic";
 
 /** Anu, optionally opened with a question already written. */
 export default async function TutorPage({ searchParams }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string | string[] }>;
 }) {
-  const { q } = await searchParams;
+  const { q } = firstParams(await searchParams);
   const ownerId = await requireUserId();
   // Anu's own chain, for the reason the shell reads it that way: this draws
-  // either a text box or the setup walkthrough, and `/api/tutor` is Anthropic
-  // only since the purpose split.
+  // either a text box or the setup walkthrough, and `/api/tutor` asks Gemini
+  // and then Groq and nothing else.
   const chain = resolveProviders({ purpose: "tutor" });
   const history = await loadRecentMessages(ownerId);
 

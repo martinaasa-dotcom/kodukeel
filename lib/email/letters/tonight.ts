@@ -151,7 +151,7 @@ export function tonightLetter(input: TonightInput): Letter {
     blocks.push({
       t: "text",
       text:
-        `You are ${spelledCount(done)} steps into ${day.title}` +
+        `${input.name ? `${input.name}, you` : "You"} are ${spelledCount(done)} ${done === 1 ? "step" : "steps"} into ${day.title}` +
         (day.part.of > 1 ? `, part ${day.part.n} of ${day.part.of}` : "") +
         `. The rest is waiting where you left it.`,
     });
@@ -160,6 +160,7 @@ export function tonightLetter(input: TonightInput): Letter {
     blocks.push({
       t: "text",
       text:
+        (input.name ? `${input.name}, this is ` : "") +
         `${day.title}, ${day.subtitle.toLowerCase()}` +
         (day.part.of > 1 ? `, part ${day.part.n} of ${day.part.of}` : "") +
         `. At the end of it: ${day.canDo.toLowerCase()}`,
