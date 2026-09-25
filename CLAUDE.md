@@ -4,8 +4,9 @@
 
 An Estonian learning app: dictionary, learning path, spaced-repetition review, practice games and a
 grammar tutor. `docs/` holds the plan it was built from; `docs/13-mvp-status.md` says what is built,
-what is deliberately not, and the known limitations. Read that first, and §6 of it especially. That
-is the current state.
+what is deliberately not, and the known limitations. Read that first, starting with its header: it is
+a log of passes in the order they landed, and the latest pass that speaks to a thing is the current
+state of it.
 
 ## Read before writing code
 
@@ -324,7 +325,7 @@ what a live lookup returns is a sentence the shipped table already answers for, 
 and the expansion are where those words are. Four writers, all four asserted: the two halves of the
 seed, the repair for a database seeded before the table existed, and the mapper.
 
-**Nobody has read the 16,036 lines, and a mechanical second opinion was built and thrown away.** The
+**Nobody has read the 16,163 lines, and a mechanical second opinion was built and thrown away.** The
 gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
 from, and there is no equivalent here: a translation has no upstream to be checked against. What was
 tried instead was the dictionary itself, asking whether each English line shares a content word with
@@ -468,7 +469,7 @@ back like `tuppa / toasse` are tried. Three card types rather than one, `CASE_FO
 daily path that the fault was reported from.
 
 **What this does not claim is that the corpus has been read.** Nobody has read the 15,125 sentences
-the dictionary ships or the 16,036 English lines built for them, and this is not a quality filter
+the dictionary ships or the 16,163 English lines built for them, and this is not a quality filter
 over either. A list built by guessing would withhold correct Estonian far more often than it
 withheld anything worth withholding, which is the measured argument the gloss audit already makes
 about a mechanical second opinion. An entry goes in when somebody who speaks the language has read
@@ -1735,7 +1736,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,551 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,563 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1962,7 +1963,7 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
 word that inflects less. Asserted on the call in both builders. That is 1,767 forms across 378 of the
-1,551 course words. Four codes are nearly all of it, and the fact that they are the four is the
+1,563 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -6387,7 +6388,7 @@ is not the app measures the harness.
 **And the two audits that ask whether a question is answerable read half the dictionary.** Both
 `npm run audit:questions` and `npm run audit:sense` opened `prisma/data/expanded.json` under a
 comment calling it "what the seed loads", and the seed loads that file *and*
-`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,190 entries against the expansion's 5,363,
+`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,202 entries against the expansion's 5,363,
 and 761 of the 1,514 course words are in no expansion row. `dictionaryRows` in
 `scripts/lib/dictionary.ts` is the one adapter both read now, over `shippedDictionary`, so there is
 still one merge: the harvest replaces a hand-typed entry and the expansion defers to one, which is
@@ -6596,7 +6597,11 @@ enough people have put aside is *offered* one band later, for everybody, which r
 places that decide which word somebody is taught next: the new-card ordering on `/review` and the
 ladder's own pick. **Two numbers rather than a head count**, because five people out of the five who
 hold the word is the course being wrong and five out of four hundred is five people having a bad
-week, and the denominator is how many learners hold a card for it. **One band and never more**,
+week, and the denominator is how many learners hold a card for it. **And only somebody who has
+graded a card has a vote**, because sign-up is open and five accounts made for the purpose could
+otherwise move any word few people hold: a fresh account's press still puts the word aside for
+them, and `votesFor` leaves it out of the count, the move and the admin's reading alike. The press
+itself is throttled like any other action that reaches past one learner. **One band and never more**,
 never past C2, and never for a word that carries no band: a word moved once has to earn the next
 step from the learners who meet it where it now sits, which is what stops a feedback loop walking a
 word off the top of the course.
@@ -7215,8 +7220,9 @@ memory and another in the table.
 
 **The row holds a digest, not the key.** The key is `tts:o:<uuid>`, so a table of those is a record
 of who was awake and when, kept for no reason anybody could state. A digest tells two callers apart,
-which is the whole job, and cannot be read back into a person, so there is nothing in `RateLimit`
-for the export or the erasure to carry. **A database that cannot answer degrades to the Map** rather
+which is the whole job, and does not hold the id or the address, so there is nothing in `RateLimit`
+for the export or the erasure to carry. It is pseudonymous rather than anonymous, since anybody
+holding a candidate id can hash it and confirm a match, which is why a row lives an hour at most. **A database that cannot answer degrades to the Map** rather
 than failing open or closed: closed would turn a bad minute at Postgres into a total outage of four
 routes on an app whose every page reads the same database, open would drop the control exactly when
 somebody has put the database under load, and the Map is the behaviour this app shipped with and was
