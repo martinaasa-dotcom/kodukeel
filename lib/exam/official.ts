@@ -47,11 +47,11 @@ export const SOURCES = {
     href: "https://harno.ee/en/examinations-tests-and-studies/examinations-tests-and-certificates/estonian-language-proficiency",
   },
   harnoEt: {
-    label: "Harno, eesti keele tasemeeksamid",
+    label: "Harno, the language examinations (the fuller page, in Estonian)",
     href: "https://harno.ee/eesti-keele-tasemeeksamid",
   },
   citizenship: {
-    label: "Harno, kodakondsuseksamid",
+    label: "Harno, the citizenship examinations (in Estonian)",
     href: "https://harno.ee/eksamid-testid-ja-uuringud/eksamid-testid-ja-lopudokumendid/kodakondsuseksamid",
   },
   eis: { label: "EIS, the examinations information system", href: "https://eis.harno.ee/" },
