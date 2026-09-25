@@ -6,7 +6,7 @@ import { ADJECTIVES, PHRASES } from "./data/other";
 import { ADVANCED_ADJECTIVES, ADVANCED_NOUNS, ADVANCED_VERBS } from "./data/advanced";
 import { HARVESTED } from "./data/harvested";
 import { LEXEME_COLUMNS, type SeedEntry } from "./columns";
-import { applyGlossCorrections, applyPosCorrections, writeExpanded } from "./expanded";
+import { applyExpandedEquivalents, applyGlossCorrections, applyPosCorrections, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
@@ -74,6 +74,17 @@ async function main() {
   const reglossed = await applyGlossCorrections(prisma);
   if (reglossed > 0) {
     console.log(`Corrected the gloss on ${reglossed} entries.`);
+  }
+
+  /*
+    The Russian and Ukrainian the expansion carries, onto rows seeded before it
+    carried them. Here for the reason the two corrections above are: the
+    expansion never updates a row, and a deployment that already has words is
+    exactly what `--only-if-empty` leaves alone.
+  */
+  const equivalents = await applyExpandedEquivalents(prisma);
+  if (equivalents > 0) {
+    console.log(`Filled the Russian and Ukrainian on ${equivalents} entries.`);
   }
 
   /*

@@ -21619,6 +21619,28 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("an already-seeded deployment receives the expansion's Russian and Ukrainian", () => {
+  /*
+    The expansion inserts with ON CONFLICT DO NOTHING, so equivalents added to
+    it after a deployment was seeded reach that deployment only through
+    `applyExpandedEquivalents`, and only if the seed calls it before the
+    `--only-if-empty` early return, which is the path every deploy takes.
+  */
+  const seed = code("prisma/seed.ts");
+  const at = seed.indexOf("applyExpandedEquivalents(prisma)");
+  const earlyReturn = seed.indexOf('"--only-if-empty"');
+  assert.ok(at >= 0, "prisma/seed.ts no longer fills the expansion's equivalents onto rows already seeded");
+  assert.ok(earlyReturn < 0 || at < earlyReturn,
+    "prisma/seed.ts fills the equivalents after the --only-if-empty early return, which no seeded deployment reaches");
+  const fn = code("prisma/expanded.ts");
+  const body = fn.slice(fn.indexOf("export async function applyExpandedEquivalents"));
+  assert.match(body.slice(0, 1500), /"editedBy" IS NULL/, "applyExpandedEquivalents may overwrite a row somebody edited");
+  // Both equivalents null, spelled without naming the columns, which may only
+  // be named by the files on the closed list above.
+  assert.ok((body.slice(0, 1500).match(/"translation\w\w" IS NULL/g) ?? []).length >= 2,
+    "applyExpandedEquivalents overwrites an equivalent a row already has");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
