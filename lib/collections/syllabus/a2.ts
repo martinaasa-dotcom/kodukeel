@@ -476,15 +476,14 @@ export const A2 = [
     ],
   }),
   /*
-    The degree words `maaramine` had no room for. `npm run measure:scenes`
-    ranked all twelve among the commonest words the attested corpus needs and
-    no unit taught, and `maaramine` sits at the 24-word ceiling of an A1
-    sitting, so they are a unit of their own. A2 rather than A1, because A1
-    already has `väga`, `natuke` and `päris`, and these are the words that
-    come once somebody has something to qualify. Appended to the end of the
-    last A2 part, so no day id before it moves. Each is `ADVERB` for the
-    reason the connectives are: an Estonian adverb does not inflect, and the
-    label says which cards a word takes.
+    The degree words no unit teaches. `viisisonad` at A1 has the everyday half
+    (`peaaegu`, `üsna`, `täiesti`, `veidi`, `pisut`, `vähemalt`, `kõvasti`);
+    these are the ones that come once somebody has something to qualify: how
+    much of it, whether it was enough, and the two that mean "more and more".
+    Every one was asked of Ekilex and came back as an adverb, and the bands are
+    Ekilex's own, A1 to B2. Appended to the end of the last A2 part, so no day
+    id before it moves. Each is `ADVERB` for the reason the connectives are: an
+    Estonian adverb does not inflect, and the label says which cards it takes.
   */
   unit({
     id: "kuivord",
@@ -493,22 +492,22 @@ export const A2 = [
     icon: "Gauge",
     level: "A2",
     module: "Igapäevane suhtlus",
-    canDo: "Say how much you mean something: almost, at least, completely, a bit.",
+    canDo: "Say how much you mean something: partly, fully, enough, not at all, more and more.",
     blurb: "Small words that change how strongly a sentence says what it says.",
     grammar: ["word-order"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["maaramine"],
     words: [
-      ["täiesti", "completely", "ADVERB"],
-      ["üsna", "fairly, quite", "ADVERB"],
-      ["peaaegu", "almost", "ADVERB"],
-      ["veidi", "slightly", "ADVERB"],
-      ["pisut", "a bit", "ADVERB"],
       ["vähe", "not much, little", "ADVERB"],
-      ["vähemalt", "at least", "ADVERB"],
+      ["vähem", "less", "ADVERB"],
+      ["piisavalt", "enough, sufficiently", "ADVERB"],
+      ["osaliselt", "partly", "ADVERB"],
+      ["täielikult", "fully, entirely", "ADVERB"],
+      ["äärmiselt", "extremely", "ADVERB"],
+      ["lausa", "downright, even", "ADVERB"],
+      ["sugugi", "(not) at all", "ADVERB"],
       ["hoopis", "instead, altogether", "ADVERB"],
       ["ligi", "nearly (with a number)", "ADVERB"],
-      ["kõvasti", "a lot, hard", "ADVERB"],
       ["üha", "more and more", "ADVERB"],
       ["aina", "all the time", "ADVERB"],
     ],

@@ -6,6 +6,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { PARTS, sameSpelling } from "@/lib/copy/values";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { writingTasksFor } from "@/lib/estonian/writing";
+import { twinsOf } from "@/lib/estonian/gapForms";
 import {
   blueprintFor, lengthsFor, specFor,
   type ExamLevel, type ExamSpec, type PartSpec, type TaskKind, type TaskSpec,
@@ -594,8 +595,10 @@ function buildGapChoice(spec: TaskSpec, ctx: BuildContext): ExamTask {
       [...cloze.text.matchAll(ESTONIAN_WORD)].map((m) => m[0].toLowerCase()),
     );
     const answerLower = cloze.answer.toLowerCase();
+    // Not the answer, and not its twin: `aegasid` is right wherever `aegu` is.
+    const twins = twinsOf(sentence.word, cloze.answer);
     const siblings = forms.filter(
-      (f) => f.toLowerCase() !== answerLower && !inSentence.has(f.toLowerCase()),
+      (f) => !twins.has(f.toLowerCase()) && !inSentence.has(f.toLowerCase()),
     );
     const own = new Set(siblings.map((f) => f.toLowerCase()));
     const strangers = ctx.words

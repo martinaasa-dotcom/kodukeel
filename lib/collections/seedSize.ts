@@ -131,4 +131,4 @@
  * peoples unit, which was already at its per-evening ceiling and had room
  * for three.
  */
-export const SEED_SET_SIZE = { words: 6_171, forms: 39_734 };
+export const SEED_SET_SIZE = { words: 6_202, forms: 39_734 };
