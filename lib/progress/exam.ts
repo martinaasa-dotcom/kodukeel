@@ -5,6 +5,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { caseAccuracy, matureRecall, REVIEW_STATE } from "@/lib/stats/history";
 import { buildPaper, type PoolWord, type Paper } from "@/lib/exam/paper";
 import { drawPool, eligibleFor, eligibleLevels } from "@/lib/exam/pool";
+import { seedIssuedAt } from "@/lib/exam/seed";
 import type { ExamResult } from "@/lib/exam/score";
 import type { ExamLevel } from "@/lib/exam/spec";
 import type { PastAttempt, ReadinessSignals, SkillEvidence } from "@/lib/exam/readiness";
@@ -55,9 +56,10 @@ import { VOUCHED_ROW } from "@/lib/dict/search";
  *
  * So the eligible set is read as ids in an order nothing can move, the seed
  * shuffles it, and the first `POOL_SIZE` are the pool. The paper is then a
- * function of (level, seed) and of which words the dictionary holds at all,
- * which changes when a word is added and not when one is read. It is also a
- * fair draw across the level rather than the head of the alphabet.
+ * function of (level, seed) and of which words the dictionary held when the
+ * seed was issued, which changes neither when a word is read nor when one is
+ * added during the sitting (lib/exam/seed.ts). It is also a fair draw across
+ * the level rather than the head of the alphabet.
  *
  * The preference for entries carrying a sentence is not expressed here and was
  * not expressed by the ordering it replaces either: the sentence is what three
@@ -80,9 +82,17 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
     ungraded entry is in at all is `eligibleFor`'s to say, the rule the
     measurement reads too, rather than a second reading of it here.
   */
-  const eligible = eligibleFor(level, null)
+  const band = eligibleFor(level, null)
     ? { ...VOUCHED_ROW, OR: [{ cefr: { in: levels } }, { cefr: null }] }
     : { ...VOUCHED_ROW, cefr: { in: levels } };
+  /*
+    Only what the dictionary held when the paper was first built. A word added
+    mid-sitting grew this set by one, the shuffle walks the whole set, and the
+    rebuilt paper that marks the answers was a different paper. See
+    lib/exam/seed.ts, and why a seed with no moment in it keeps the old reading.
+  */
+  const issuedAt = seedIssuedAt(seed);
+  const eligible = issuedAt ? { AND: [band, { createdAt: { lte: issuedAt } }] } : band;
 
   /*
     Ids only, on the primary key, which is the one ordering in this table that
