@@ -22,10 +22,17 @@ export const dynamic = "force-dynamic";
 export default async function ClinicPage() {
   const ownerId = await requireUserId();
 
+  /*
+    Worst first, and then the id, because `lapses` is where the ties are.
+
+    A learner with sixty cards stuck at the same six lapses got whichever
+    thirty of them the plan returned, so which words the clinic offered to
+    take apart could differ between two identical loads. The clinic is a
+    short list somebody works through over several sittings, which is exactly
+    the case where a row quietly swapping out reads as the app losing track.
+  */
   const cards = await prisma.card.findMany({
     where: { ownerId, lapses: { gte: LEECH_LAPSES } },
-    // Many cards sit at exactly `LEECH_LAPSES`, so without the id the plan
-    // chose which thirty the clinic ranks, and the list moved between loads.
     orderBy: [{ lapses: "desc" }, { id: "asc" }],
     take: 30,
     include: { lexeme: { select: { lemma: true, translation: true } } },
@@ -63,11 +70,17 @@ export default async function ClinicPage() {
       so a deck past the cap compares the same thousand words every time, since
       that warning is one a learner should be able to see twice rather than one
       that comes and goes with the plan.
+
+      And ordered to the end, which that sentence claimed and the query did not
+      do: `addCardsFor` writes a word's recognition and production cards in one
+      `createMany`, so they carry the same `createdAt` to the millisecond, and
+      the cut at the thousandth row fell wherever the plan left the tie. The
+      confusable list is built out of these, so a warning naming a lookalike
+      really could come and go between two loads.
     */
     prisma.card.findMany({
       where: { ownerId, lexemeId: { not: null } },
       select: { lexeme: { select: { lemma: true } } },
-      // A word's cards share `createdAt`, so the id is what fixes the thousand.
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: 1000,
     }),

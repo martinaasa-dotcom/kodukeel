@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { readFileSync } from "node:fs";
 
-import { bothLocalSetsOrdinary, isAnimate, semanticGroup } from "./semantics";
+import { bothLocalSetsOrdinary, isAnimate, semanticCategory, semanticGroup } from "./semantics";
 
 /*
   PINNED AGAINST REAL ENTRIES, NOT AGAINST INVENTED CODES.
@@ -128,3 +128,24 @@ describe("a body of people", () => {
   });
 });
 
+
+describe("semanticCategory", () => {
+  it("names a noun's kind", () => {
+    expect(semanticCategory("loom")).toBe("an animal");
+    expect(semanticCategory("koht_hoone")).toBe("a building");
+  });
+
+  it("names a verb's kind too, whatever the case the code is spelled in", () => {
+    /*
+      The Institute spells its verb codes with a capital, `VERB_liikuma`, and
+      `codesOf` lowers every code before it is compared, so the seven verb rows
+      of the table were matched against a spelling nothing could produce and
+      every verb in Sõnad went without its clue. 17 shipped entries carry
+      `VERB_toituma` alone.
+    */
+    expect(semanticCategory("VERB_liikuma")).toBe("moving");
+    expect(semanticCategory("VERB_toituma")).toBe("eating or drinking");
+    expect(semanticCategory(["VERB_suhtlus"])).toBe("talking");
+    expect(semanticCategory("VERB_tegevus")).toBeNull();
+  });
+});

@@ -124,7 +124,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Target", tone: "accent", group: "targeted", note: "From your log",
     within: "/",
     blurb:
-      "Two minutes on the cases you get wrong most often, drawn from your own log. " +
+      "A short round on the cases you get wrong most often, drawn from your own log. " +
       "It grades like any other round, so the cards you miss come back sooner.",
   },
   {
@@ -201,9 +201,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "out by meaning, so the only way through is the ending. Every hit shortens the clock.",
   },
   {
-    href: "/review/sprint", title: "Case Sprint", subtitle: "60 seconds", icon: "Zap", tone: "butter",
+    href: "/review/sprint", title: "Case Sprint", subtitle: "Against the clock", icon: "Zap", tone: "butter",
     group: "quick", note: "No score yet",
-    blurb: "Sixty seconds, as many case forms as you can manage, drawn from the cards you are weakest on.",
+    blurb: "As many case forms as you can manage against the clock, drawn from the cards you are weakest on.",
   },
   {
     href: "/review/match", title: "Match", subtitle: "Eight pairs", icon: "Grid2x2", tone: "mint",
