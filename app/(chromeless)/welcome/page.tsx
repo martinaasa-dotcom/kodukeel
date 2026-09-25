@@ -169,8 +169,15 @@ function Nav() {
           >
             Sign in
           </Link>
+          {/* Under 360 the pill holds the wordmark and "Start" and no more:
+              "Start free" with its arrow came to 290px in a 256px pill and
+              broke "Start" in half, and "Start" with the arrow still did at 94px.
+              Two whole labels rather than one with a word hidden, so each is a
+              single run of text wherever it shows, and no arrow down there. */}
           <ButtonLink href="/sign-in" variant="primary" className="group">
-            Start free <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-0.5" />
+            <span className="max-[359px]:hidden">Start free</span>
+            <span className="hidden max-[359px]:inline">Start</span>
+            <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-0.5 max-[359px]:hidden" />
           </ButtonLink>
         </div>
       </nav>
@@ -815,7 +822,9 @@ function Comparison() {
             style={{ background: "var(--surface)", borderColor: "var(--rule)" }}
           >
             <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{row.label}</p>
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            {/* A column each only where a column holds the name: two to a row
+                at 320 left "Keeleklikk" 64px beside its mark and broke it. */}
+            <div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-2">
               {TOOLS.map((tool, i) => (
                 <span key={tool.name} className="flex items-center gap-2">
                   <Mark verdict={row.cells[i] ?? "unsure"} />

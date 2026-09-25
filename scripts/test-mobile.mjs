@@ -52,7 +52,7 @@ const browser = await launchChromium();
   that only reads the source, which is what made it worth measuring here
   instead.
 */
-const { check, done } = suite("The phone", { floor: 100 });
+const { check, done } = suite("The phone", { floor: 113 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -114,11 +114,13 @@ for (const width of [...PHONES, ...WIDE]) {
 //      across" meant two cards of 174 and a unit's own sentence was laid out
 //      0px wide. Those choose by their container now. /welcome's comparison
 //      table is drawn from md up only, so it is asked at 1280 as well. The
-//      app's own chrome is left to the bar's check above.
+//      app's own chrome is left to the bar's check above. 320 is asked too,
+//      below the 360 the app is built for, because a phone held at 320 is
+//      still a phone somebody owns and a word broken there is the same fault.
 const WORD_SPLIT = [
   ...["/progress", "/progress/readiness", "/grammar", "/quest", "/settings", "/admin/suggestions",
     "/exam", "/learn", "/learn/kodu", "/situations", "/course", "/grammar/build-a-word", "/welcome"]
-    .flatMap((path) => [[360, path], [768, path]]),
+    .flatMap((path) => [[320, path], [360, path], [768, path]]),
   [1280, "/welcome"],
 ];
 for (const [width, path] of WORD_SPLIT) {

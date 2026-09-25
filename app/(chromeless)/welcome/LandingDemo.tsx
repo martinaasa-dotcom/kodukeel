@@ -245,7 +245,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
                 <span
                   key={`${word.lemma}-${p.label}`}
                   lang="et"
-                  className="settle text-lg font-bold"
+                  className="settle shrink-0 text-lg font-bold"
                   style={{ color: "var(--ink)", "--i": n } as React.CSSProperties}
                 >
                   {p.value}
