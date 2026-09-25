@@ -284,6 +284,23 @@ describe("every letter, whatever it is given", () => {
   }
 });
 
+describe("a subject line", () => {
+  /*
+    A subject is a sentence standing alone at the top of somebody's inbox, so
+    it opens on a capital. The evening letter built its count out of a table
+    of lower-case number words and printed "three steps left in ..." in the
+    one line everybody reads. Two open on something this app did not write and
+    are left as written: the word of the day opens on the Estonian word,
+    spelled as the dictionary spells it, and the register on the group's name,
+    spelled as the teacher typed it.
+  */
+  for (const letter of EVERY.filter((l) => l.kind !== "wordday" && l.kind !== "classroom")) {
+    it(`${letter.kind} opens on a capital or a figure`, () => {
+      expect(letter.subject).toMatch(/^[\p{Lu}\d]/u);
+    });
+  }
+});
+
 describe("the escaping really happens", () => {
   it("escapes learner text in every letter that carries any", () => {
     /*

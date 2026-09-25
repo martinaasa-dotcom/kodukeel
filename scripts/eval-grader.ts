@@ -21,7 +21,7 @@
   Every Estonian character in the fixtures comes out of
   prisma/data/expanded.json. Nothing is written anywhere.
 
-    TRIALS=12 npx tsx scripts/eval-grader.ts
+    TRIALS=12 npm run eval:grader
 
   runs every Groq model the chain can reach and the Gemini tier, and, with
   ANTHROPIC_API_KEY set, sonnet and haiku behind them. An org-scoped Anthropic
@@ -36,8 +36,7 @@
   switched off; `qwen/qwen3.8-27b` 34 of 36 with five withheld at up to
   $0.83; `gemini-3.8-flash` 33 of 36; `openai/gpt-oss-20b` 31 of 36 with
   400s. Llama 4 Scout, Kimi K2 and both Gemini 2.5 models answered 404 on
-  these accounts and are no longer asked; compound-mini is not asked either,
-  since it is off every chain for having no price. So `GRADER_MODELS` in `lib/tutor/provider.ts` is
+  these accounts. So `GRADER_MODELS` in `lib/tutor/provider.ts` is
   `gemini-3.1-flash-lite` first and `gpt-oss-120b` behind it: the only two
   that never failed, cheapest first. What this measures is whether a valid
   verdict comes back and whether the note quotes only forms the learner
@@ -95,6 +94,14 @@ const CANDIDATES: ProviderConfig[] = [
   { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
   { name: "groq", model: "openai/gpt-oss-20b", label: "Groq" },
   { name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" },
+  /*
+    Llama 4 Scout and Kimi K2 were candidates here and are gone: both answered
+    404 in the measurement above, and on 2026-09-25 `/v1/models` on this
+    account listed neither, so running them spent two of eight candidates on
+    a refusal. What the account serves for text beyond the three above is a
+    moderation pair, a safety variant, an Arabic model and `qwen3.6-27b`,
+    which `provider.ts` already records rejecting by name.
+  */
   ...(process.env.ANTHROPIC_API_KEY
     ? ([
         { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },

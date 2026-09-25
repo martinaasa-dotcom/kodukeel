@@ -97,6 +97,16 @@ describe("searchLexemes against the seeded dictionary", () => {
     expect(plural?.lemma).toBe("helistama");
   });
 
+  /*
+    A particle verb stores its first person as both words, `annan edasi`, and
+    the strip used to hand back the bare verb alone, so no derived person of
+    any of them could be found: 252 forms in the shipped dictionary.
+  */
+  it("finds a particle verb by a person the rule works out", async () => {
+    const hits = await searchLexemes("annab edasi");
+    expect(hits.map((h) => h.lemma)).toContain("edasi andma");
+  });
+
   it("finds a verb by its conditional, and names the mood a class names", async () => {
     const [hit] = await searchLexemes("loeksin");
     expect(hit?.lemma).toBe("lugema");
