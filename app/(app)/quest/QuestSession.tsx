@@ -12,12 +12,14 @@ import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
-import { acceptedAnswers } from "@/lib/estonian/answer";
+import { acceptedAnswers, checkAnswer, type AnswerCheck } from "@/lib/estonian/answer";
+import { EstonianInput } from "@/components/EstonianInput";
+import { caseByKey } from "@/lib/estonian/cases";
 import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
-import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
+import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck } from "@/lib/ux/verdict";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
-import { narrowLadder, struckOptions } from "@/lib/questions/hints";
+import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
@@ -142,7 +144,19 @@ export function QuestSession({
     ? options.find((text) => acceptedAnswers(card.back, "et")
       .some((f) => f.toLocaleLowerCase("et") === text.toLocaleLowerCase("et"))) ?? card.back
     : "";
-  const ladder = card?.choices ? narrowLadder(options, answerText) : [];
+  /*
+    A typed card uncovers letters, the ladder the review card uses on the same
+    card, since there are no options to cross out.
+  */
+  const ladder = card?.choices
+    ? narrowLadder(options, answerText)
+    : card?.typed
+      ? hintLadder({
+        answer: primaryAnswer(card.back),
+        stems: [...card.rivals, card.lemma],
+        suffix: card.targetCase ? caseByKey(card.targetCase)?.suffix : null,
+      })
+      : [];
   const hints = useHints({
     word: card?.lemma ?? card?.id ?? null,
     question: card?.id ?? null,
@@ -162,7 +176,10 @@ export function QuestSession({
     if (phase === "running" && (secondsLeft === 0 || exhausted)) finish();
   }, [phase, secondsLeft, exhausted, finish]);
 
-  const answer = useCallback(async (got: boolean, reached?: string | null) => {
+  // What a typed card has in its box, and the mark it got (`markTyped` below).
+  const [typed, setTyped] = useState("");
+  const [check, setCheck] = useState<AnswerCheck | null>(null);
+  const answer = useCallback(async (got: boolean, reached?: string | null, rating?: 1 | 2 | 3) => {
     if (!card || busy) return;
     setBusy(true);
     sound(got ? "right" : "wrong");
@@ -183,12 +200,14 @@ export function QuestSession({
     if (!got) hints.noteMiss();
     await gradeCard(
       // A hint is paid for: see `lib/questions/hints.ts`.
-      card.id, Math.min(got ? 3 : 1, hints.ceiling) as 1 | 2 | 3,
+      card.id, Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3,
       Date.now() - shownAt.current, undefined,
       card.targetCase ?? undefined, reached ?? undefined,
     );
     setPicked(null);
     setRevealed(false);
+    setTyped("");
+    setCheck(null);
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
     setBusy(false);
@@ -210,6 +229,23 @@ export function QuestSession({
     void answer(right, right ? null : option.slot);
   }, [card, busy, picked, answer]);
 
+  /*
+    A TYPED CARD IS MARKED, NOT CLAIMED. `checkAnswer` against what the card
+    accepts, with the word's other forms as rivals so another ending typed is
+    the wrong form rather than a forgiven slip. The verdict is shown with the
+    answer, and the next press grades what it said.
+  */
+  const markTyped = useCallback(() => {
+    if (!card?.typed || revealed || busy) return;
+    const result = checkAnswer(typed, card.back, "et", card.rivals);
+    setCheck(result);
+    setRevealed(true);
+  }, [card, revealed, busy, typed]);
+  const nextTyped = useCallback(() => {
+    if (!check) return;
+    void answer(check.suggestedRating > 1, null, check.suggestedRating);
+  }, [check, answer]);
+
   /* Keys, because a two-minute round is one a keyboard should be able to play:
      space turns the card, then 1 and 2 answer it. Same two answers as a flip
      card in review, for the same reason. */
@@ -222,6 +258,12 @@ export function QuestSession({
         row the multiple-choice cards in review use. A card with none keeps the
         flip it always had: space, then 1 and 2.
       */
+      if (card?.typed) {
+        // The box takes Enter while it is being typed into; after the mark,
+        // the advance key moves on.
+        if (revealed && isAdvanceKey(e)) { e.preventDefault(); nextTyped(); }
+        return;
+      }
       const options = card?.choices;
       if (options) {
         const at = Number(e.key) - 1;
@@ -238,7 +280,7 @@ export function QuestSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, revealed, answer, card, choose]);
+  }, [phase, revealed, answer, card, choose, nextTyped]);
 
   if (cards.length === 0) {
     return (
@@ -514,9 +556,23 @@ export function QuestSession({
                   <Speak text={primaryAnswer(card.back)} autoplay />
                 </div>
               )}
+              {card.typed && check ? (
+                <div className="mt-2 flex w-full max-w-sm flex-col gap-3">
+                  <p
+                    role="status"
+                    className={`${check.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(check.verdict)]} verdict-panel`}
+                  >
+                    {check.verdict === "correct" ? "Right." : check.note || `The answer is ${primaryAnswer(card.back)}.`}
+                  </p>
+                  <Button variant="primary" size="lg" autoFocus disabled={busy} onClick={nextTyped}>
+                    Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                  </Button>
+                </div>
+              ) : (
               <div className="mt-2 grid w-full max-w-sm grid-cols-2 gap-2">
                 {/* The two self-grades in the palette's own words, as Sprint
-                    and the review card draw them. */}
+                    and the review card draw them. Only where there is nothing
+                    to compare, which is the flip review keeps too. */}
                 <button
                   type="button"
                   disabled={busy}
@@ -534,7 +590,33 @@ export function QuestSession({
                   Had it <KeyCap className="ml-1">2</KeyCap>
                 </button>
               </div>
+              )}
             </>
+          ) : card.typed ? (
+            <div className="mt-2 flex w-full max-w-sm flex-col gap-3 text-left">
+              <label htmlFor="quest-answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
+                Type the answer
+              </label>
+              <EstonianInput
+                id="quest-answer"
+                value={typed}
+                onChange={setTyped}
+                onEnter={markTyped}
+                ariaLabel="Type your answer"
+                autoFocus
+                large
+              />
+              <Button variant="primary" size="lg" disabled={busy} onClick={markTyped}>
+                Check it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              </Button>
+              <HintLadder
+                ladder={ladder}
+                taken={hints.taken}
+                onTake={hints.take}
+                open={hints.open}
+                label={card.lemma ?? card.front}
+              />
+            </div>
           ) : (
             <Button variant="primary" size="lg" onClick={() => setRevealed(true)}>
               Show answer <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
