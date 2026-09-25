@@ -221,7 +221,8 @@ reaches past the scene's list rather than as whether its words are Estonian; the
 number to read.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
-`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
+`MAX_COMPOSED_WORDS` is fifty-five (forty until the prompt asked for a whole person,
+`docs/21-situations.md` §60) and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
 reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
 that to be wrong: length did not produce it and length was never going to stop it. What stops it is a

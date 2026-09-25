@@ -7,6 +7,9 @@ describe("spellable", () => {
   it("takes one word with an order to find", () => {
     expect(spellable("tere")).toBe(true);
     expect(spellable("aitäh")).toBe(true);
+    // Both ends of the length rule are inside it.
+    expect(spellable("abc".slice(0, MIN_LETTERS))).toBe(true);
+    expect(spellable("ab".repeat(MAX_LETTERS).slice(0, MAX_LETTERS))).toBe(true);
     expect(spellable("Eesti")).toBe(true);
   });
   it("refuses two letters, a phrase, and a word of one letter repeated", () => {

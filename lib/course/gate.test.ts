@@ -20,6 +20,8 @@ describe("whether the log supports the next part", () => {
     /* Terrible on both readings, and still unmeasured: nobody has watched. */
     const thin = ladderVerdict(evidence({ known: 0, right: 0, answers: MIN_EVIDENCE - 1 }));
     expect(thin.kind).toBe("unmeasured");
+    // And exactly the floor is evidence: "under" is the word that decides it.
+    expect(ladderVerdict(evidence({ known: 0, right: 0, answers: MIN_EVIDENCE })).kind).not.toBe("unmeasured");
   });
 
   it("lets somebody on when both readings hold", () => {

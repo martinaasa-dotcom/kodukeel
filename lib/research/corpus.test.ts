@@ -82,6 +82,17 @@ describe("the threshold rule", () => {
 });
 
 describe("the dominance rule", () => {
+  it("publishes a cell one person is exactly the share of, which 'no more than' allows", () => {
+    // Ten learners and a hundred answers, one of them exactly half.
+    const rows = [{ learner: "heavy", n: 50, ok: 30 }];
+    for (let i = 0; i < MIN_LEARNERS - 1; i++) rows.push({ learner: `l${i}`, n: i === 0 ? 10 : 5, ok: 3 });
+    const total = rows.reduce((sum, r) => sum + r.n, 0);
+    expect(50 / total).toBe(MAX_LEARNER_SHARE);
+    expect(typeof gate(rows)).not.toBe("string");
+    rows[0] = { learner: "heavy", n: 51, ok: 30 };
+    expect(gate(rows)).toBe("dominance");
+  });
+
   it("withholds a cell one person is most of", () => {
     const rows = tallies(contributors(MIN_LEARNERS + 5, 4, 2));
     rows.push({ learner: "heavy", n: 500, ok: 500 });
