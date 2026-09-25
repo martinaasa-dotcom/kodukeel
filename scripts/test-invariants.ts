@@ -6244,6 +6244,28 @@ check("the actions that do real work per call are throttled", () => {
   }
 });
 
+check("the restore route reads no more than the proxy in front of it lets through", () => {
+  /*
+    `/api/restore` declared a 128 MB ceiling while `proxyClientMaxBodySize`
+    truncates every body at 16 MB on its way through the middleware. The
+    route's number could never be reached, and a backup between the two
+    arrived cut short, passed the length check because it was now exactly the
+    proxy's size, and was reported as not a backup. The three limits on one
+    upload are read here and held to one figure.
+  */
+  const config = code("next.config.ts");
+  const mb = (key: string) => {
+    const m = new RegExp(`${key}:\\s*"(\\d+)mb"`).exec(config);
+    assert.ok(m, `next.config.ts sets no ${key} in megabytes`);
+    return Number(m[1]);
+  };
+  const proxy = mb("proxyClientMaxBodySize");
+  assert.equal(mb("bodySizeLimit"), proxy, "the Server Action body limit and the proxy limit disagree");
+  const route = /const MAX_BACKUP_BYTES = (\d+) \* 1024 \* 1024;/.exec(code("app/api/restore/route.ts"));
+  assert.ok(route, "app/api/restore/route.ts states no MAX_BACKUP_BYTES in megabytes");
+  assert.equal(Number(route[1]), proxy, `the restore route reads ${route[1]} MB behind a proxy that truncates at ${proxy} MB`);
+});
+
 check("every dead end in the app offers a way to report it", () => {
   /*
     THE RULE: nothing here may tell somebody it cannot help them and then
