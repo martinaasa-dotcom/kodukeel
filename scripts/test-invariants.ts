@@ -9732,6 +9732,23 @@ check("every path the documentation names exists, or is named because it is gone
   }
 });
 
+check("every npm command the documentation names is one package.json has", () => {
+  // The same class as a stale path: a command a contributor is told to run
+  // and cannot. Clean when this was written, which is the moment to hold it.
+  const scripts = (JSON.parse(prose("package.json")) as { scripts: Record<string, string> }).scripts;
+  const pages = ["CLAUDE.md", "README.md", ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => join("docs", f))];
+  const unknown: string[] = [];
+  let named = 0;
+  for (const page of pages) {
+    for (const m of prose(page).matchAll(/npm run ([a-z][\w:-]*)/g)) {
+      named += 1;
+      if (!(m[1]! in scripts)) unknown.push(`${page}: npm run ${m[1]}`);
+    }
+  }
+  assert.ok(named > 100, `only ${named} npm commands found in the documentation, so this stopped reading it`);
+  assert.deepEqual(unknown, [], `the documentation names a command package.json does not have: ${unknown.join("; ")}`);
+});
+
 check("CLAUDE.md names the pure layers the checks hold", () => {
   const claude = read("CLAUDE.md");
   const start = claude.indexOf("- `lib/assessment/`");
