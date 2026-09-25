@@ -125,6 +125,19 @@ const LEX = buildLexicon(ENTRIES);
 const EXTRA = new Set(["teil", "mul", "kus", "kas", "te", "teie", "see", "millal", "peas", "katki"]);
 const LEXICON = { ...LEX, forms: new Set([...LEX.forms, ...EXTRA]) };
 
+/**
+ * The scene's list with these spellings in it as headwords of their own.
+ *
+ * `byLemma`'s keys are what the course teaches as words, which is what the
+ * government check reads to tell a headword from another word's inflected
+ * form.
+ */
+function withHeadwords(lemmas: readonly string[]): typeof LEXICON {
+  const byLemma = new Map<string, ReadonlySet<string>>(LEXICON.byLemma);
+  for (const lemma of lemmas) byLemma.set(lemma, new Set([lemma]));
+  return { ...LEXICON, byLemma };
+}
+
 function context(over: Partial<GateContext> = {}): GateContext {
   return {
     lexicon: LEXICON,
@@ -321,6 +334,59 @@ describe("the government check", () => {
     expect(governmentSuspect(["pilet", "maksab", "eurot"], priced)).toBe(false);
     expect(governmentSuspect(["minu", "sõber", "elab", "siin"], priced)).toBe(false);
     expect(governmentSuspect(["pilet", "maksab", "tuppa"], priced)).toBe(true);
+  });
+
+  /*
+    AND A SPELLING THE SCENE TEACHES AS A WORD OF ITS OWN IS THAT WORD.
+
+    This function already refuses to count a nominal whose spelling has more
+    than one reading: the oblique filter drops anything that could be a
+    nominative, a genitive or a partitive. It never asked the same question
+    about the verb, so any spelling a governed verb happened to own put that
+    verb's cases on the clause, and it never asked it about a function word, so
+    an uninflecting one that looks like a case form supplied a complement.
+
+    Both readings are settled by the course's own word list rather than by any
+    claim of ours. `maitse` is a headword glossed "taste, flavor" and also one
+    of the forms the dictionary lists for `maitsma`, so `sest sellel on väga hea maitse` was
+    read as governing the allative. `sest` is a headword glossed "because" and
+    also the elative of `see`, so it stood in as the oblique complement that
+    made the same clause suspect. `lib/estonian/wordOrder.ts` states this rule
+    for exactly this shape, and names `täna` (also the imperative of `tänama`)
+    as the case it was written for.
+
+    It may only ever make the check weaker: a headword can still exonerate a
+    clause by carrying a case the verb governs, and can no longer be what
+    incriminates one. Refusing correct Estonian is the fault this module is
+    built against.
+  */
+  it("does not read another word's form into a spelling the scene teaches as a headword", () => {
+    const tasted = context({
+      lexicon: withHeadwords(["maitse", "sest", "roog"]),
+      governed: [{ lemma: "maitsma", forms: new Set(["maitse", "maitseb"]), cases: new Set(["ALLATIVE"]) }],
+      caseOf: new Map<string, ReadonlySet<CaseKey>>([
+        ["maitse", new Set(["NOMINATIVE", "GENITIVE"])],
+        ["sest", new Set(["ELATIVE"])],
+        ["roale", new Set(["ALLATIVE"])],
+        ["roast", new Set(["ELATIVE"])],
+      ]),
+    });
+    // The noun, and a conjunction. The verb is not in the clause at all.
+    expect(governmentSuspect(["sest", "sellel", "on", "hea", "maitse"], tasted)).toBe(false);
+    /*
+      The same noun beside a real oblique complement, which is the half the
+      line above cannot see: there `sest` is excused as a complement and
+      nothing oblique is left, so it reads false whether or not the verb side
+      works. Here `roast` stays oblique and is not a case the verb governs, so
+      the only thing keeping the clause clear is `maitse` being the noun rather
+      than `maitsma`.
+    */
+    expect(governmentSuspect(["sellel", "on", "hea", "maitse", "roast"], tasted)).toBe(false);
+    // A spelling only the verb owns still puts its government on the clause.
+    expect(governmentSuspect(["see", "maitseb", "roast"], tasted)).toBe(true);
+    expect(governmentSuspect(["see", "maitseb", "roale"], tasted)).toBe(false);
+    // And a headword may still exonerate: it is never what incriminates.
+    expect(governmentSuspect(["see", "maitseb", "sest"], tasted)).toBe(false);
   });
 });
 
