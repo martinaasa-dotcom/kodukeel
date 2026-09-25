@@ -6458,6 +6458,30 @@ check("a file written for a crawler is a file a crawler can reach", () => {
   }
 });
 
+check("every answer after the session is read carries the cookies reading it wrote", () => {
+  /*
+    Verifying a session can rotate its tokens and a failed refresh clears them,
+    both through the cookie adapter, which rebuilds the pass-through response.
+    A branch that returns a fresh redirect instead drops them. It was fixed for
+    the allowlist refusal and left on the sign-in bounce and the signed-out
+    gate. So past `readIdentity` a response is `carrying(...)` or the rebuilt
+    `response` itself, and nothing else.
+  */
+  const middleware = code("middleware.ts");
+  const at = middleware.indexOf("await readIdentity(");
+  assert.ok(at > 0, "the middleware no longer reads the session through readIdentity");
+  const end = middleware.indexOf("\nexport const config");
+  const after = middleware.slice(at, end > at ? end : undefined);
+  const returns = [...after.matchAll(/return ([^;]+);/g)].map((m) => m[1]!.trim());
+  assert.ok(returns.length >= 4, `only ${returns.length} returns past readIdentity; the sweep has lost its footing`);
+  for (const r of returns) {
+    if (r.startsWith("carrying(") || r === "withCsp(response)" || r === "withCsp(answer)") continue;
+    // A return inside a helper function further down the file is not a branch of this one.
+    if (!/NextResponse|signedOut|withCsp/.test(r)) continue;
+    assert.fail(`\`return ${r}\` past readIdentity drops the cookies the session read wrote`);
+  }
+});
+
 check("a not-found boundary draws a main only where its layout does not", () => {
   /*
     ONE `main` PER SCREEN, INCLUDING THE SCREEN THAT SAYS THERE IS NO SCREEN.
