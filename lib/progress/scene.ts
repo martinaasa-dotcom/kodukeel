@@ -32,7 +32,7 @@ import type { TurnContext } from "@/lib/scenes/turn";
 import {
   CLOCK_LEMMA, HOUR_LEMMAS, NUMBER_LEMMAS, dealtHours, numberWords, slotKinds, timeWords, type RoleCard,
 } from "@/lib/scenes/props";
-import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
+import { leafNeeds, type BeatSpec, type SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms, substitutes } from "@/lib/dict/facts";
 import { sensesOf, substitutesFrom } from "@/lib/dict/synonyms";
@@ -65,14 +65,16 @@ import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
  */
 const QUESTION_UNIT = "kusisonad";
 /**
- * The negator, and the pronoun each register expects.
+ * The negators, and the pronoun each register expects. `mitte` is one because
+ * "mitte piima, vaid kohvi" turns the milk down; `ega` is not, because
+ * `Ega sa tea?` opens a question with it.
  *
  * Named as lemmas rather than as units, because `vastused` teaches five words
  * and only one of them is the negator, and `asesonad` teaches the six persons
  * of which exactly one is the register in question. A unit would make "did
  * they say no" true of `jah`.
  */
-const NEGATOR = "ei";
+const NEGATORS = ["ei", "mitte"] as const;
 const REGISTER_PRONOUN = { teie: "teie", sina: "sina" } as const;
 
 export interface SceneContext {
@@ -470,7 +472,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     // What each slot on the card holds, so a datum can take a value the learner chose (ADR-025 amendment 3).
     slots: slotKinds(scene.props),
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
-    negators: formsOfLemmas(rows, [NEGATOR]),
+    negators: formsOfLemmas(rows, NEGATORS),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
     hasFiniteVerb,
   };
@@ -973,7 +975,7 @@ export interface Briefing {
  * purpose. Ordered, so which one leads is the app's answer rather than the
  * plan's.
  */
-async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
+export async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
   const lemmas = [...new Set(run.card.props.flatMap((prop) => prop.lemmas))];
   if (lemmas.length === 0) return new Map();
   const rows = await prisma.lexeme.findMany({
@@ -984,6 +986,22 @@ async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
   const out = new Map<string, string>();
   for (const row of rows) if (!out.has(row.lemma)) out.set(row.lemma, row.translation);
   return out;
+}
+
+/**
+ * The card as a run stores it: every drawn word with its English beside it,
+ * for `stageFor`. One function because a harness that opens a run its own way
+ * fuzzes a card the app never deals, which is how `npm run fuzz:scenes`
+ * reported a landlord offering "esmaspäev" inside an English sentence.
+ */
+export function glossCard(card: RoleCard, glosses: ReadonlyMap<string, string>): RoleCard {
+  return {
+    ...card,
+    props: card.props.map((prop) => {
+      const english = prop.lemmas[0] ? glosses.get(prop.lemmas[0]) : undefined;
+      return english ? { ...prop, english } : prop;
+    }),
+  };
 }
 
 function briefingOf(run: SceneRunPlan, glosses: ReadonlyMap<string, string>): Briefing {
@@ -1069,13 +1087,7 @@ export async function beginRun(input: {
     is what a reload and the debrief read back.
   */
   const glosses = await glossesFor(run);
-  const card: RoleCard = {
-    ...run.card,
-    props: run.card.props.map((prop) => {
-      const english = prop.lemmas[0] ? glosses.get(prop.lemmas[0]) : undefined;
-      return english ? { ...prop, english } : prop;
-    }),
-  };
+  const card = glossCard(run.card, glosses);
   const draw: StoredDraw = {
     persona: run.persona.id,
     card,
@@ -1354,7 +1366,14 @@ export function replay(
     if (closeBeat && beat.move !== "close") {
       const bye = readTurn(said, closeBeat, marker);
       const here = readTurn(said, beat, marker);
-      if (bye.reading === "complete" && here.reading !== "complete") {
+      /*
+        A beat that takes any reply at all is complete for every turn, so read
+        on its own it credited the goodbye as the answer: `Nägemist` said to
+        "Täna on ilus ilm" was listed on the debrief as a reply about the
+        weather. On such a beat a goodbye is leaving, like anywhere else.
+      */
+      const takesAnything = leafNeeds(beat.needs).every(({ need }) => need.kind === "any");
+      if (bye.reading === "complete" && (here.reading !== "complete" || takesAnything)) {
         state = { ...state, beat: closeAt, patience: patienceAt(context.scene, state, closeAt), hurdle: null };
         ({ state, response } = advance(context.scene, state, bye, said, false, heardNow));
         previous = heardNow;

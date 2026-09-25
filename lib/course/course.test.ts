@@ -1011,3 +1011,19 @@ describe("where somebody is", () => {
     expect(units[0]).toBe(programme.days[0]!.unitId);
   });
 });
+
+/*
+  FOUR GOVERNED VERBS MEANS FOUR VERBS. Words are taught again across parts on
+  purpose, and the ledger counted a governed verb each time, so one verb met
+  four times opened the government round the same as four verbs would.
+*/
+describe("the ledger counts a word taught twice once", () => {
+  it("does not open the government round on one verb taught four times", () => {
+    const verb = SYLLABUS.flatMap((u) => u.vocabulary).find((v) => v.pos === "VERB"
+      && taughtFrom([v], [{ grammar: "government" }]).governed === 1);
+    expect(verb, "no course verb carries a recorded government").toBeDefined();
+    const taught = taughtFrom([verb!, verb!, verb!, verb!], [{ grammar: "government" }]);
+    expect(taught.governed).toBe(1);
+    expect(supportsRound("government", taught)).toBe(false);
+  });
+});

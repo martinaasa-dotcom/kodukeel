@@ -7,7 +7,7 @@ import { recordAssessment } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Mascot } from "@/components/brand";
 import { Card, Chip, Meter, Note, SectionTitle } from "@/components/ui";
-import { placement } from "@/lib/assessment/score";
+import { placement, responseFor, type Answered } from "@/lib/assessment/score";
 import { nextCursor, progress } from "@/lib/assessment/session";
 import type { Item, ItemRef, Placement, Response, Skill } from "@/lib/assessment/types";
 import { ChoiceQuestion, DictationQuestion, SpeakQuestion, WriteQuestion, type Answer } from "./Question";
@@ -68,8 +68,14 @@ const SECTIONS: Record<Skill, { icon: typeof Compass; title: string; body: strin
   },
 };
 
-export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
+export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, onFinish }: {
   items: Item[];
+  /**
+   * What the server needs to build this paper again, which is how it marks
+   * the answers itself rather than taking a mark from the browser.
+   */
+  seed: number;
+  builtAt: number;
   /** Sections the dictionary could not fill, named rather than hidden. */
   missing: string[];
   /** Set by the first-run wizard, which shows its own summary afterwards. */
@@ -83,6 +89,8 @@ export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
   */
   const [items] = useState(initialItems);
   const [responses, setResponses] = useState<Response[]>([]);
+  /** What was done with each question, unmarked. This is what is posted. */
+  const [answers, setAnswers] = useState<Answered[]>([]);
   const [seenIntro, setSeenIntro] = useState<Skill[]>([]);
   const [result, setResult] = useState<Placement | null>(null);
   const [saveFailed, setSaveFailed] = useState(false);
@@ -96,15 +104,12 @@ export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
   const cursor = nextCursor(refs, responses);
   const item = cursor.index === null ? null : items[cursor.index];
 
-  const finish = useCallback(async (all: Response[]) => {
+  const finish = useCallback(async (all: Response[], given: Answered[]) => {
     const computed = placement(refs, all);
     setResult(computed);
     setSaving(true);
     try {
-      const saved = await recordAssessment({
-        items: refs,
-        responses: all,
-      });
+      const saved = await recordAssessment({ seed, builtAt, answers: given });
       if (!saved.ok) setSaveFailed(true);
     } catch {
       // Offline, or the write failed. The result is still worth showing: it was
@@ -113,35 +118,30 @@ export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
     }
     setSaving(false);
     onFinish?.(computed);
-  }, [refs, onFinish]);
+  }, [refs, onFinish, seed, builtAt]);
 
   const answer = useCallback((given: Answer) => {
     if (!item) return;
-    const response: Response = {
-      itemId: item.id,
-      skill: item.skill,
-      band: item.band,
-      credit: given.credit,
-      ms: Date.now() - shownAt.current,
-      ...(given.selfRating === undefined ? {} : { selfRating: given.selfRating }),
-      ...(given.skipped ? { skipped: true } : {}),
-    };
+    const answered: Answered = { itemId: item.id, given, ms: Date.now() - shownAt.current };
     shownAt.current = Date.now();
-    const all = [...responses, response];
+    const all = [...responses, responseFor(item, answered)];
+    const sent = [...answers, answered];
     setResponses(all);
-    if (nextCursor(refs, all).index === null) void finish(all);
-  }, [item, responses, refs, finish]);
+    setAnswers(sent);
+    if (nextCursor(refs, all).index === null) void finish(all, sent);
+  }, [item, responses, answers, refs, finish]);
 
   /** Abandons a whole section, for when the audio cannot play at all. */
   const skipSkill = useCallback((skill: Skill) => {
     const answered = new Set(responses.map((r) => r.itemId));
-    const skips: Response[] = items
-      .filter((i) => i.skill === skill && !answered.has(i.id))
-      .map((i) => ({ itemId: i.id, skill: i.skill, band: i.band, credit: 0, ms: 0, skipped: true }));
-    const all = [...responses, ...skips];
+    const left = items.filter((i) => i.skill === skill && !answered.has(i.id));
+    const skips: Answered[] = left.map((i) => ({ itemId: i.id, given: { kind: "skipped" }, ms: 0 }));
+    const all = [...responses, ...left.map((i, n) => responseFor(i, skips[n]!))];
+    const sent = [...answers, ...skips];
     setResponses(all);
-    if (nextCursor(refs, all).index === null) void finish(all);
-  }, [items, responses, refs, finish]);
+    setAnswers(sent);
+    if (nextCursor(refs, all).index === null) void finish(all, sent);
+  }, [items, responses, answers, refs, finish]);
 
   if (result) {
     if (onFinish) {
