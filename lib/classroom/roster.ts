@@ -1,3 +1,4 @@
+import { caseAsked } from "@/lib/srs/slots";
 import { prisma } from "@/lib/db";
 import { computeStreak } from "@/lib/stats/streak";
 import { caseAccuracy, matureRecall } from "@/lib/stats/history";
@@ -10,7 +11,7 @@ import {
 } from "@/lib/progress/exam";
 import { knownLemmasFrom } from "@/lib/progress/summary";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
-import { classWideCases, summariseCohort, type CohortInput, type CohortSummary } from "./cohort";
+import { classWideCases, daysSince, summariseCohort, type CohortInput, type CohortSummary } from "./cohort";
 
 /**
  * What a teacher needs to see about a class, in three queries rather than three
@@ -101,7 +102,7 @@ export async function classRoster(
   const [reviews, known, zones, lasts] = await Promise.all([
     prisma.review.findMany({
       where: { reviewedAt: { gte: historyStart }, ownerId: { in: ids } },
-      select: { reviewedAt: true, rating: true, targetCase: true, ownerId: true },
+      select: { reviewedAt: true, rating: true, targetCase: true, slot: true, ownerId: true },
     }),
     /*
       WORDS, NOT CARDS, WHICH IS WHAT THE COLUMN SAYS.
@@ -171,7 +172,8 @@ export async function classRoster(
     const entry = byOwner.get(review.ownerId);
     if (!entry) continue;
     entry.dates.push(review.reviewedAt);
-    entry.caseReviews.push({ targetCase: review.targetCase, rating: review.rating });
+    // The case asked, as every learner's own panel reads it (`caseAsked`).
+    entry.caseReviews.push({ targetCase: caseAsked(review), rating: review.rating });
     if (review.reviewedAt >= weekAgo) entry.weekCount++;
   }
 
@@ -187,9 +189,7 @@ export async function classRoster(
       reviewsThisWeek: stats.weekCount,
       streak: computeStreak(stats.dates, now, dayClock(zoneByOwner.get(member.ownerId))),
       wordsKnown: knownByOwner.get(member.ownerId) ?? 0,
-      daysSinceLastReview: last
-        ? Math.floor((now.getTime() - last.getTime()) / 86_400_000)
-        : null,
+      daysSinceLastReview: daysSince(last, now, zoneByOwner.get(member.ownerId)),
       weakestCase: weakest ?? null,
     };
   });
@@ -202,15 +202,15 @@ export async function classRoster(
   */
   entries.sort((a, b) => b.reviewsThisWeek - a.reviewsThisWeek || a.displayName.localeCompare(b.displayName));
 
+  // Each answer under the case it asked, read once for the board and the letter,
+  // so the two cannot name different cases as the class's weakest.
+  const asked = reviews.map((r) => ({ ownerId: r.ownerId, targetCase: caseAsked(r), rating: r.rating }));
   return {
     entries,
     // The class-wide picture, for a lesson plan. entries[].weakestCase is the
     // per-student one, for who to sit next to during it.
-    weakestCases: caseAccuracy(
-      reviews.map((r) => ({ targetCase: r.targetCase, rating: r.rating })),
-      10,
-    ).slice(0, 5),
-    sharedCases: classWideCases(reviews, opts.leaveOut ?? null),
+    weakestCases: caseAccuracy(asked, 10).slice(0, 5),
+    sharedCases: classWideCases(asked, opts.leaveOut ?? null),
     totalReviewsThisWeek: entries.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
     activeThisWeek: entries.filter((e) => e.reviewsThisWeek > 0).length,
   };
@@ -267,7 +267,7 @@ export async function workplaceRoster(
   const weekAgo = new Date(now.getTime() - 7 * 86_400_000);
   const windowStart = new Date(now.getTime() - COHORT_WINDOW_DAYS * 86_400_000);
 
-  const [cards, available, lexemeLevels, reviews, totals, attemptRows, placements] =
+  const [cards, available, lexemeLevels, reviews, totals, attemptRows, placements, zones] =
     await Promise.all([
       prisma.card.findMany({
         where: { ownerId: { in: ids } },
@@ -314,20 +314,28 @@ export async function workplaceRoster(
         _count: true,
         _max: { reviewedAt: true },
       }),
+      // A sitting or a check restored from a backup is history, never evidence:
+      // nothing here marked it (lib/security/restoredMeasurement.ts).
       prisma.examAttempt.findMany({
-        where: { ownerId: { in: ids } },
+        where: { ownerId: { in: ids }, restoredAt: null },
         orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
         select: { ownerId: true, level: true, pct: true, passed: true, finishedAt: true, result: true },
       }),
       prisma.assessment.findMany({
-        where: { ownerId: { in: ids } },
+        where: { ownerId: { in: ids }, restoredAt: null },
         orderBy: [{ takenAt: "desc" }, { id: "asc" }],
         select: {
           ownerId: true, takenAt: true, answered: true,
           reading: true, listening: true, writing: true,
         },
       }),
+      // Each member's own zone, for the same reason the class roster reads it.
+      prisma.setting.findMany({
+        where: { ownerId: { in: ids }, key: SETTING_KEYS.timeZone },
+        select: { ownerId: true, value: true },
+      }),
     ]);
+  const zoneOf = new Map(zones.map((z) => [z.ownerId, z.value]));
 
   const cardsBy = groupBy(cards, (c) => c.ownerId);
   const reviewsBy = groupBy(reviews, (r) => r.ownerId);
@@ -401,9 +409,7 @@ export async function workplaceRoster(
       displayName: member.displayName,
       readiness: signals.totalReviews === 0 ? null : assessReadiness(signals),
       reviewsThisWeek: ownReviews.filter((r) => r.reviewedAt >= weekAgo).length,
-      daysSinceLastReview: last === null
-        ? null
-        : Math.floor((now.getTime() - last.getTime()) / 86_400_000),
+      daysSinceLastReview: daysSince(last ?? null, now, zoneOf.get(member.ownerId)),
     };
   });
 

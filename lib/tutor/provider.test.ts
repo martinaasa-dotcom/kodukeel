@@ -269,10 +269,11 @@ describe("a chain built for a purpose", () => {
       wrong in a way the learner cannot see is worse than no answer, whoever
       wrote it, so there is nothing worth falling to.
 
-      `npm run eval:anu` now asks the same six questions through the route's own
-      transport, and `openai/gpt-oss-120b` answered all six on three separate
-      runs with no invented form, which is what moved her onto it. The rule
-      underneath is unchanged: one model, measured, and nothing behind it.
+      `npm run eval:anu` now asks thirty-seven questions through the route's
+      own transport, and her chain is the two links that eval measured,
+      `gemini-3.1-flash-lite` and then `openai/gpt-oss-120b` behind it. The
+      rule underneath is unchanged: only measured models, and nothing behind
+      them.
     */
     all();
     expect(resolveProviders({ purpose: "tutor", allowFallback: true }).map((c) => c.name))
@@ -907,6 +908,17 @@ describe("the chain that looks at pictures", () => {
 
     expect(reply.text).toContain("tuba");
     expect(seen).toEqual([{ input: 2100, output: 40 }]);
+  });
+
+  it("bills the thinking a Gemini link reports only in the total", async () => {
+    only("openai");
+    vi.stubEnv("OPENAI_VISION_MODEL", "");
+    vi.stubGlobal("fetch", vi.fn(async () =>
+      jsonReply([{ et: "tuba", en: "room" }], { prompt_tokens: 1000, completion_tokens: 20, total_tokens: 2167 })));
+
+    const seen: number[] = [];
+    await completeWithImage(visionProviders(), "system", "prompt", IMAGE, (usage) => seen.push(usage.outputTokens));
+    expect(seen).toEqual([1167]);
   });
 
   it("walks past a model that cannot see, unlike the chat path", async () => {

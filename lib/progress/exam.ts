@@ -5,6 +5,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { caseAccuracy, matureRecall, REVIEW_STATE } from "@/lib/stats/history";
 import { buildPaper, type PoolWord, type Paper } from "@/lib/exam/paper";
 import { drawPool, eligibleFor, eligibleLevels } from "@/lib/exam/pool";
+import { seedIssuedAt } from "@/lib/exam/seed";
 import type { ExamResult } from "@/lib/exam/score";
 import type { ExamLevel } from "@/lib/exam/spec";
 import type { PastAttempt, ReadinessSignals, SkillEvidence } from "@/lib/exam/readiness";
@@ -54,9 +55,10 @@ import { orderContextFor } from "@/lib/dict/wordOrder";
  *
  * So the eligible set is read as ids in an order nothing can move, the seed
  * shuffles it, and the first `POOL_SIZE` are the pool. The paper is then a
- * function of (level, seed) and of which words the dictionary holds at all,
- * which changes when a word is added and not when one is read. It is also a
- * fair draw across the level rather than the head of the alphabet.
+ * function of (level, seed) and of which words the dictionary held when the
+ * seed was issued, which changes neither when a word is read nor when one is
+ * added during the sitting (lib/exam/seed.ts). It is also a fair draw across
+ * the level rather than the head of the alphabet.
  *
  * The preference for entries carrying a sentence is not expressed here and was
  * not expressed by the ordering it replaces either: the sentence is what three
@@ -74,9 +76,17 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
 
   // Whether an ungraded entry is in is `eligibleFor`'s to say, the rule the
   // measurement reads too, rather than a second reading of it here.
-  const eligible = eligibleFor(level, null)
+  const band = eligibleFor(level, null)
     ? { OR: [{ cefr: { in: levels } }, { cefr: null }] }
     : { cefr: { in: levels } };
+  /*
+    Only what the dictionary held when the paper was first built. A word added
+    mid-sitting grew this set by one, the shuffle walks the whole set, and the
+    rebuilt paper that marks the answers was a different paper. See
+    lib/exam/seed.ts, and why a seed with no moment in it keeps the old reading.
+  */
+  const issuedAt = seedIssuedAt(seed);
+  const eligible = issuedAt ? { AND: [band, { createdAt: { lte: issuedAt } }] } : band;
 
   /*
     Ids only, on the primary key, which is the one ordering in this table that
@@ -238,7 +248,7 @@ export async function readinessSignals(
         where: { ownerId },
         select: { id: true, cardType: true },
       }),
-      recentAttempts(ownerId),
+      recentAttempts(ownerId, { measured: true }),
       latestFor(ownerId),
     ]);
 
@@ -428,10 +438,20 @@ export function skillEvidenceFrom(
 
 // ── Sittings ─────────────────────────────────────────────────────────────────
 
-/** Past sittings, most recent first, with each part's percentage. */
-export async function recentAttempts(ownerId: string): Promise<PastAttempt[]> {
+/**
+ * Past sittings, most recent first, with each part's percentage.
+ *
+ * `measured` keeps only the sittings this deployment marked itself. A sitting
+ * that came back from a backup file carries marks nothing here can check
+ * (`lib/security/restoredMeasurement.ts`), so it belongs in the list of what
+ * somebody did and never in a figure about what they can do.
+ */
+export async function recentAttempts(
+  ownerId: string,
+  { measured = false }: { measured?: boolean } = {},
+): Promise<PastAttempt[]> {
   const rows = await prisma.examAttempt.findMany({
-    where: { ownerId },
+    where: measured ? { ownerId, restoredAt: null } : { ownerId },
     orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
     take: ATTEMPT_WINDOW,
     select: { level: true, pct: true, passed: true, finishedAt: true, result: true },

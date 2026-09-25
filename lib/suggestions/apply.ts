@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
-import { parseExamples, serialiseExamples } from "@/lib/dict/examples";
+import { editExamples } from "@/lib/dict/editExamples";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
+import { replaceForms } from "@/lib/dict/replaceForms";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { createWordClash, type Patch } from "./model";
 
@@ -113,10 +114,14 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
       if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };
 
-      await prisma.form.deleteMany({ where: { lexemeId: lexeme.id, formType: patch.formType } });
-      await prisma.form.create({
-        data: { lexemeId: lexeme.id, formType: patch.formType, value: patch.value, isPrincipal: true },
-      });
+      // Under the entry's own row: two reviewers accepting two corrections to
+      // one slot at once otherwise leave both values standing, since the value
+      // is part of the unique key. See lib/dict/replaceForms.ts.
+      await replaceForms(
+        lexeme.id,
+        [{ formType: patch.formType, value: patch.value, isPrincipal: true }],
+        { formType: patch.formType },
+      );
       await prisma.lexeme.update({
         where: { id: lexeme.id },
         data: { editedBy: reviewerId, editedAt: new Date() },
@@ -142,53 +147,49 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       than that they have a better one.
     */
     case "CLEAR_TRANSLATION": {
-      const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
-      if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };
-      const examples = parseExamples(lexeme.examples);
-      let cleared = false;
-      const next = examples.map((e) => {
-        if (e.et.trim() !== patch.sentence.trim() || !e.en) return e;
-        cleared = true;
-        /*
-          And the decision is written down beside the blank. Null alone reads
-          as "nobody has answered yet", which is what the next seed and the
-          next render both act on, so the line came straight back from the
-          shipped table. `enRefused` is what tells the two apart.
-        */
-        return { ...e, en: null, enRefused: true };
-      });
-      if (!cleared) {
+      // Under the row lock, so a translation being written as this is
+      // accepted cannot put the refused line back. See lib/dict/editExamples.ts.
+      const outcome = await editExamples(patch.lexemeId, (examples) => {
+        let cleared = false;
+        const next = examples.map((e) => {
+          if (e.et.trim() !== patch.sentence.trim() || !e.en) return e;
+          cleared = true;
+          /*
+            And the decision is written down beside the blank. Null alone reads
+            as "nobody has answered yet", which is what the next seed and the
+            next render both act on, so the line came straight back from the
+            shipped table. `enRefused` is what tells the two apart.
+          */
+          return { ...e, en: null, enRefused: true };
+        });
+        return { next: cleared ? next : null, result: cleared };
+      }, { editedBy: reviewerId, editedAt: new Date() });
+      if (!outcome.found) return { ok: false, error: "That entry is no longer in the dictionary." };
+      if (!outcome.result) {
         return { ok: false, error: "That sentence has no English on it any more, so there is nothing to take off." };
       }
-      await prisma.lexeme.update({
-        where: { id: lexeme.id },
-        data: { examples: serialiseExamples(next), editedBy: reviewerId, editedAt: new Date() },
-      });
       return {
         ok: true,
         changed: true,
-        lexemeId: lexeme.id,
-        summary: `Took the English off one example on ${lexeme.lemma}.`,
+        lexemeId: patch.lexemeId,
+        summary: `Took the English off one example on ${outcome.lemma}.`,
       };
     }
 
     case "DROP_EXAMPLE": {
-      const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
-      if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };
-      const examples = parseExamples(lexeme.examples);
-      const kept = examples.filter((e) => e.et.trim() !== patch.sentence.trim());
-      if (kept.length === examples.length) {
+      const outcome = await editExamples(patch.lexemeId, (examples) => {
+        const kept = examples.filter((e) => e.et.trim() !== patch.sentence.trim());
+        return kept.length === examples.length ? { next: null, result: false } : { next: kept, result: true };
+      }, { editedBy: reviewerId, editedAt: new Date() });
+      if (!outcome.found) return { ok: false, error: "That entry is no longer in the dictionary." };
+      if (!outcome.result) {
         return { ok: false, error: "That sentence is no longer on the entry, so there is nothing to remove." };
       }
-      await prisma.lexeme.update({
-        where: { id: lexeme.id },
-        data: { examples: serialiseExamples(kept), editedBy: reviewerId, editedAt: new Date() },
-      });
       return {
         ok: true,
         changed: true,
-        lexemeId: lexeme.id,
-        summary: `Removed one example from ${lexeme.lemma}.`,
+        lexemeId: patch.lexemeId,
+        summary: `Removed one example from ${outcome.lemma}.`,
       };
     }
   }

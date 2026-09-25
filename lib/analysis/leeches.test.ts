@@ -71,6 +71,15 @@ describe("rankLeeches", () => {
     expect(rankLeeches([candidate({ lapses: LEECH_LAPSES })])).toHaveLength(1);
   });
 
+  it("does not depend on the order the rows arrived in, where two cards tie", () => {
+    // Same lapses and the same fail rate: which of them makes the eight was
+    // the query plan's choice, and the clinic's list moved between loads.
+    const tied = Array.from({ length: 10 }, (_, i) => candidate({ cardId: `c${i}`, lapses: LEECH_LAPSES }));
+    const forward = rankLeeches(tied).map((l) => l.cardId);
+    const backward = rankLeeches([...tied].reverse()).map((l) => l.cardId);
+    expect(backward).toEqual(forward);
+  });
+
   it("ranks by lapses, since that is what the card is costing", () => {
     const ranked = rankLeeches([
       candidate({ cardId: "few", lapses: 4 }),

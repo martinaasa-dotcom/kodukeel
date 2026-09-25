@@ -60,22 +60,44 @@ describe("compile", () => {
     // `bcdefg` shares no letter with the first at a legal place; if it were
     // placed anyway it would run parallel and spell pairs down the columns.
     const puzzle = compile([word("abcdef"), word("bcdefg"), word("xxcxx"), word("yyexy")]);
-    if (!puzzle) return;
-    // Every pair of parallel words must be at least two rows or columns apart.
-    const across = puzzle.entries.filter((e) => e.direction === "across");
-    for (const a of across) {
-      for (const b of across) {
-        if (a === b) continue;
-        const overlap = Math.max(a.col, b.col) < Math.min(a.col + a.lemma.length, b.col + b.lemma.length);
-        if (overlap) expect(Math.abs(a.row - b.row)).toBeGreaterThan(1);
+    /*
+      Both directions, and at least one pair compared. This grid lays one word
+      across and two down, so a check over the across words alone compared
+      nothing and passed whatever the compiler did; so did a compiler that
+      returned no grid, through an early return.
+    */
+    expect(puzzle).not.toBeNull();
+    let compared = 0;
+    for (const direction of ["across", "down"] as const) {
+      const run = puzzle!.entries.filter((e) => e.direction === direction);
+      const along = (e: (typeof run)[number]) => (direction === "across" ? e.col : e.row);
+      const across = (e: (typeof run)[number]) => (direction === "across" ? e.row : e.col);
+      for (const a of run) {
+        for (const b of run) {
+          if (a === b) continue;
+          const overlap = Math.max(along(a), along(b)) < Math.min(along(a) + a.lemma.length, along(b) + b.lemma.length);
+          if (!overlap) continue;
+          compared += 1;
+          // Every pair of parallel words must be at least two rows or columns apart.
+          expect(Math.abs(across(a) - across(b))).toBeGreaterThan(1);
+        }
       }
     }
+    expect(compared).toBeGreaterThan(0);
   });
 
   it("stops at the number a phone can hold", () => {
-    const pool = ["abcdef", ...Array.from({ length: 20 }, (_, i) => `${"xyz"[i % 3]}${i}bcd`)];
+    /*
+      A pool that places more than the cap if nothing stops it: eight, measured
+      with the cap lifted. The one this replaced placed four, so it asked a
+      compiler that never reached the cap whether it had stopped at it, and an
+      early `if (puzzle)` passed a compiler that placed nothing.
+    */
+    const rotate = (s: string, i: number) => s.slice(i) + s.slice(0, i);
+    const pool = Array.from({ length: 30 }, (_, i) => rotate("abcdefgh", i % 8) + "xyz"[i % 3])
+      .map((s, i) => s.slice(0, 5 + (i % 3)));
     const puzzle = compile(pool.map(word));
-    if (puzzle) expect(puzzle.entries.length).toBeLessThanOrEqual(MAX_ENTRIES);
+    expect(puzzle?.entries.length).toBe(MAX_ENTRIES);
   });
 
   /**
