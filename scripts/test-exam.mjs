@@ -115,7 +115,14 @@ check("every gap hands over somewhere to go", (await firstGapLink.count()) > 0);
 
 // ── The briefing ─────────────────────────────────────────────────────────────
 
-await page.goto(`${B}/exam/A2?seed=suite`, { waitUntil: "networkidle" });
+/*
+  A seed of this run's own. A paper is sat once (\`sittingOf\`), and a seed sat
+  by an earlier run on the same database opens on that run's result rather
+  than on a paper, which would read as this suite's briefing having gone.
+*/
+const SUITE = `suite-${Date.now().toString(36)}`;
+
+await page.goto(`${B}/exam/A2?seed=${SUITE}`, { waitUntil: "networkidle" });
 const brief = await page.locator("body").innerText();
 
 check("the briefing names the four parts with their minutes and points",
@@ -155,16 +162,16 @@ async function firstPartOf(seed) {
   return page.locator("main, body").first().innerText();
 }
 
-const seedPaper = await firstPartOf("suite");
+const seedPaper = await firstPartOf(SUITE);
 check("the same seed rebuilds the same paper, so a reload does not lose it",
-  (await firstPartOf("suite")) === seedPaper);
+  (await firstPartOf(SUITE)) === seedPaper);
 
 check("a different seed is a different paper",
-  (await firstPartOf("other")) !== seedPaper);
+  (await firstPartOf(`${SUITE}-other`)) !== seedPaper);
 
 // ── Sitting it ───────────────────────────────────────────────────────────────
 
-await page.goto(`${B}/exam/A2?seed=suite`, { waitUntil: "networkidle" });
+await page.goto(`${B}/exam/A2?seed=${SUITE}`, { waitUntil: "networkidle" });
 await page.getByRole("button", { name: "Start the clock" }).click();
 await page.waitForTimeout(600);
 
@@ -419,7 +426,7 @@ if (!landed) {
   an hour into a B2 paper threw the lot away. What is checked is the promise the
   briefing now makes instead: the answers come back, and the clock does not.
 */
-await page.goto(`${B}/exam/A2?seed=resume`, { waitUntil: "networkidle" });
+await page.goto(`${B}/exam/A2?seed=${SUITE}-resume`, { waitUntil: "networkidle" });
 await page.getByRole("button", { name: "Start the clock" }).click();
 await page.waitForTimeout(500);
 await page.locator("textarea").first().fill("Tere ma kirjutan siia oma teate ja jatan selle pooleli.");
