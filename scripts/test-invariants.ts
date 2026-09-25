@@ -6046,6 +6046,44 @@ check("the privacy notice carries what Article 13 requires", () => {
   }
 });
 
+/**
+ * EVERY VARIABLE THE APP READS IS ONE AN OPERATOR CAN FIND.
+ *
+ * `.env.example` is where somebody installing this learns what can be set,
+ * and six variables the mail run needs (`RESEND_API_KEY`, `EMAIL_FROM`,
+ * `EMAIL_TOKEN_SECRET`, `CRON_SECRET`, `EMAIL_REPLY_TO`,
+ * `RESEND_WEBHOOK_SECRET`) were read by the code and named nowhere in it, so a
+ * deployment could only turn the reminders on by reading the README's prose
+ * or the source. The two vision overrides and `TTS_SPEAKER` were the same.
+ * Both directions matter; this is the direction nothing checked.
+ *
+ * Platform and toolchain variables are exempt by name with the reason, since
+ * nobody sets those in a `.env`.
+ */
+check("every environment variable the app reads is in .env.example", () => {
+  const EXEMPT: Record<string, string> = {
+    NODE_ENV: "set by Node and Next for the build and the server",
+    NEXT_RUNTIME: "set by Next to say which runtime a module is running in",
+    VERCEL: "set by the platform on its own builder and functions",
+    VERCEL_GIT_COMMIT_SHA: "set by the platform to the commit it deployed",
+    NEXT_DIST_DIR: "a test harness's build directory, never a deployment setting",
+    NEXT_PUBLIC_ENABLE_SW: "turns the service worker on in `next dev`, where it is off by default",
+    SCENE_MODEL: "retired and read only to warn that it is ignored; .env.example says so in prose",
+  };
+  const files = [...ALL, "middleware.ts", "next.config.ts", "prisma.config.ts"];
+  const read_ = new Set(files.flatMap((f) => [...code(f).matchAll(/process\.env\.([A-Z][A-Z0-9_]+)/g)].map((m) => m[1]!)));
+  assert.ok(read_.size >= 40, `only ${read_.size} variables read, so this stopped looking`);
+  const example = read(".env.example");
+  const documented = new Set([...example.matchAll(/^#?\s?([A-Z][A-Z0-9_]+)=/gm)].map((m) => m[1]!));
+  const missing = [...read_].filter((name) => !documented.has(name) && !(name in EXEMPT)).sort();
+  assert.deepEqual(missing, [], `read by the app and not in .env.example: ${missing.join(", ")}`);
+  for (const [name, why] of Object.entries(EXEMPT)) {
+    assert.ok(read_.has(name), `${name} is exempt and nothing reads it any more`);
+    assert.ok(!documented.has(name), `${name} is exempt and also documented`);
+    assert.ok(why.length > 20, `${name} is exempt with no reason`);
+  }
+});
+
 check("a deletion that leaves something behind says so", () => {
   /*
     `deleteMyAccount` empties every table this app owns. The identity is not in
