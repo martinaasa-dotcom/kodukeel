@@ -11327,6 +11327,43 @@ check("no source file holds a control character it could have named", () => {
   }
 });
 
+/*
+  AND NO SOURCE FILE HOLDS A CHARACTER THAT REORDERS OR HIDES THE TEXT AROUND IT.
+
+  The check above is about the C0 controls, and the characters that do the
+  most damage in source are not among them: a bidirectional override
+  (U+202A to U+202E, U+2066 to U+2069) makes a line render in a different
+  order from the one the compiler reads, which is the "Trojan Source" attack,
+  and a zero-width space or a byte-order mark in the middle of a file splits a
+  word nobody can see is split. A review cannot catch any of them, because a
+  review is what they are built to get past. `lib/security/visibleText.ts`
+  refuses them in what a learner types; this refuses them in what we write.
+  The zero-width joiner is left alone on purpose, since it is how an emoji
+  sequence is spelled and `scripts/build-emoji.ts` quotes one.
+*/
+check("no source file holds an invisible format or bidirectional character", () => {
+  const HIDDEN = /[\u200b\u200c\u200e\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff]/;
+  // The pattern itself, probed, so a typo in it cannot pass everything.
+  for (const probe of ["\u200b", "\u202e", "\u2066", "\ufeff"]) {
+    assert.ok(HIDDEN.test(probe), `the pattern no longer catches U+${probe.charCodeAt(0).toString(16)}`);
+  }
+  assert.ok(!HIDDEN.test("\u200d"), "the pattern refuses the zero-width joiner an emoji is spelled with");
+
+  let looked = 0;
+  for (const file of [...ALL, ...sourceFiles("scripts"), ...sourceFiles("prisma")]) {
+    looked += 1;
+    const raw = read(file);
+    const at = raw.search(HIDDEN);
+    if (at < 0) continue;
+    assert.fail(
+      `${file}:${raw.slice(0, at).split("\n").length}: holds U+${raw.charCodeAt(at).toString(16).padStart(4, "0")} `
+      + "as a literal character. Write it as an escape: it is invisible in an editor and in a diff, and a "
+      + "bidirectional one makes the line render in a different order from the one the compiler reads.",
+    );
+  }
+  assert.ok(looked >= 500, `only ${looked} source files read, so this stopped looking`);
+});
+
 check("the emoji board is unique by picture as well as by word", () => {
   const file = join("app", "(app)", "review", "emoji", "page.tsx");
   const source = code(file);
