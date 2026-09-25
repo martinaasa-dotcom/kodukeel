@@ -130,5 +130,10 @@
  * adverbs, and `vene`, `prantsuse` and `Prantsusmaa` the countries and
  * peoples unit, which was already at its per-evening ceiling and had room
  * for three.
+ *
+ * Seven forms went the other way, with no word lost: `täis` was harvested as
+ * the homonym meaning "whole", with its seven principal parts, where the
+ * course teaches "full", which Ekilex records as a separate word that does not
+ * inflect. Pinning the right one took the forms that belonged to the other.
  */
-export const SEED_SET_SIZE = { words: 6_202, forms: 39_734 };
+export const SEED_SET_SIZE = { words: 6_202, forms: 39_727 };
