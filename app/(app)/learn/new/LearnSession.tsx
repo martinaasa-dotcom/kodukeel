@@ -260,7 +260,7 @@ export function LearnSession({
     is what makes it safe on a screen whose every answer is already in the log.
   */
   const look = useLookBack();
-  const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
+  const { pending: outboxPending, refresh: refreshOutbox, drainFirst } = useOffline();
   const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
 
@@ -511,13 +511,16 @@ export function LearnSession({
     */
     let after: LearnScheduling;
     try {
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
     try {
-      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt);
+      await drainFirst();
+      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt, undefined, undefined, reviewId);
       if (!res.ok) throw new Error(res.error);
       after = res.scheduling;
     } catch {
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: reviewId,
         cardId: word.cardId,
         rating,
         durationMs,
@@ -566,7 +569,7 @@ export function LearnSession({
     } finally {
       setBusy(false);
     }
-  }, [word, busy, rungs, advance, refreshOutbox, hints]);
+  }, [word, busy, rungs, advance, refreshOutbox, drainFirst, hints]);
 
   /** The meeting writes nothing. The word comes back a lap later as a question. */
   const met = useCallback(() => {

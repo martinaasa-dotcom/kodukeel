@@ -102,7 +102,7 @@ import { PAPER_SIZE } from "@/lib/assessment/items";
 import type { Band, ItemRef, Response } from "@/lib/assessment/types";
 import { goalsFor, saveGoals, saveResult } from "@/lib/progress/assessment";
 import { recordCourseLevel } from "@/lib/progress/level";
-import { REPLAY_BATCH } from "@/lib/offline/outbox";
+import { REPLAY_BATCH, isClientReviewId } from "@/lib/offline/outbox";
 import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
 import { gradesFrom, markPaper, type Response as ExamResponse } from "@/lib/exam/score";
 import { isExamLevel } from "@/lib/exam/spec";
@@ -383,8 +383,21 @@ export async function gradeCard(
    * meant, got a case" as a confusion between two cases.
    */
   reachedSlot?: string,
+  /**
+   * The id the device chose for this answer, before it asked.
+   *
+   * The same id goes to the outbox if this call throws, so a write that
+   * committed and whose answer was lost is one row rather than two once the
+   * outbox replays it (`writeGrade`). Shape-checked because it becomes a
+   * primary key in a table nothing ever repairs.
+   */
+  reviewId?: string,
 ) {
   const ownerId = await requireUserId();
+
+  if (reviewId !== undefined && !isClientReviewId(reviewId)) {
+    return { ok: false as const, error: "That is not a grade id." };
+  }
 
   /*
     `Review` IS APPEND-ONLY, SO A BAD ROW IS PERMANENT.
@@ -416,6 +429,7 @@ export async function gradeCard(
     reviewedAt: reviewedAt ? new Date(reviewedAt) : new Date(),
     practisedSlot,
     reachedSlot,
+    reviewId,
   });
 
   revalidatePath("/");
