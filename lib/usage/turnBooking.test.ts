@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { turnBooking } from "./turnBooking";
 import type { Reservation } from "./ledger";
 
-const booked: Reservation = { id: "r1", ownerId: "o1", kind: "SCENE", micros: 1_000 };
+const booked: Reservation = { id: "r1", ownerId: "o1", kind: "SCENE", micros: 1_000, day: "2026-09-25" };
 
 /** What `recordUsage` files for one report: the difference against the booking it is handed. */
 const filed = (actual: number, against: Reservation) => actual - against.micros;
