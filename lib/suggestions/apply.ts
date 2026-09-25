@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { editExamples } from "@/lib/dict/editExamples";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
+import { replaceForms } from "@/lib/dict/replaceForms";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import type { Patch } from "./model";
 
@@ -95,10 +96,14 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
       if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };
 
-      await prisma.form.deleteMany({ where: { lexemeId: lexeme.id, formType: patch.formType } });
-      await prisma.form.create({
-        data: { lexemeId: lexeme.id, formType: patch.formType, value: patch.value, isPrincipal: true },
-      });
+      // Under the entry's own row: two reviewers accepting two corrections to
+      // one slot at once otherwise leave both values standing, since the value
+      // is part of the unique key. See lib/dict/replaceForms.ts.
+      await replaceForms(
+        lexeme.id,
+        [{ formType: patch.formType, value: patch.value, isPrincipal: true }],
+        { formType: patch.formType },
+      );
       await prisma.lexeme.update({
         where: { id: lexeme.id },
         data: { editedBy: reviewerId, editedAt: new Date() },
