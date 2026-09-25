@@ -2462,8 +2462,10 @@ export async function joinClassroom(code: string, displayName?: string) {
 }
 
 /** Leaves a class. Removes the membership row and nothing else — no deck, no history. */
-export async function leaveClassroom(classroomId: string) {
+export async function leaveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return { ok: false as const, error: "That is not a class." };
   const classroom = await prisma.classroom.findUnique({
     where: { id: classroomId },
     select: { ownerId: true },
@@ -2477,8 +2479,10 @@ export async function leaveClassroom(classroomId: string) {
 }
 
 /** Archives a class the caller teaches: the code stops working, the data stays. */
-export async function archiveClassroom(classroomId: string) {
+export async function archiveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return { ok: false as const, error: "That is not a class." };
   const updated = await prisma.classroom.updateMany({
     where: { id: classroomId, ownerId },
     data: { archived: true },
@@ -2496,13 +2500,18 @@ export async function archiveClassroom(classroomId: string) {
  * they owe lives, and homework from class belongs in it. Nobody's deck is
  * touched — the task says what to do, the student decides when.
  */
-export async function assignUnit(classroomId: string, unitId: string, dueAt?: string) {
+export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, rawDueAt?: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const unitId = text(rawUnitId).slice(0, 64);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "That is not your class." };
 
   const busy = throttleAction(ownerId, "assignUnit");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    where: { id: classroomId, ownerId },
+    // An archived class takes no more work, which the page says and the action now does.
+    where: { id: classroomId, ownerId, archived: false },
     select: { id: true, name: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
@@ -2541,13 +2550,21 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
  * touched, the teacher's own copy of the task (they are a member too) is what
  * lets the class page read its own history back without a table to hold it.
  */
-export async function assignHomework(classroomId: string, title: string, notes: string, dueAt?: string) {
+export async function assignHomework(
+  rawClassroomId: unknown, rawTitle: unknown, rawNotes: unknown, rawDueAt?: unknown,
+) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const title = text(rawTitle);
+  const notes = text(rawNotes);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "That is not your class." };
 
   const busy = throttleAction(ownerId, "assignHomework");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    where: { id: classroomId, ownerId },
+    // An archived class takes no more work, which the page says and the action now does.
+    where: { id: classroomId, ownerId, archived: false },
     select: { id: true, name: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
@@ -2592,8 +2609,10 @@ export async function assignHomework(classroomId: string, title: string, notes: 
  * teacher with the exact same name would share a marker. Rare enough, and
  * visible enough if it happens, not to be worth a schema change over.
  */
-export async function classworkHistory(classroomId: string) {
+export async function classworkHistory(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return [];
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { name: true },
