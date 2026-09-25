@@ -46,6 +46,13 @@ describe("boundedRestoredReview", () => {
     expect(out.slot).toBe("INESSIVE");
   });
 
+  it("does not let the file say the server received a row now", () => {
+    // Read as a receive time, a backup's whole history would count towards
+    // tonight's closing round, which compares against the server's own ticks.
+    const out = boundedRestoredReview(row({ receivedAt: "2026-09-11T19:59:00Z" }), NOW)!;
+    expect(out.receivedAt).toBeNull();
+  });
+
   it("will not restore a review into the future", () => {
     const out = boundedRestoredReview(row({ reviewedAt: new Date("2027-01-01T00:00:00Z") }), NOW)!;
     expect((out.reviewedAt as Date).toISOString()).toBe(NOW.toISOString());

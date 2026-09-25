@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useGrade } from "@/components/round/useGrade";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { Flame, Target, Timer, X } from "lucide-react";
+import { gradeCard } from "@/app/actions";
+import { useOffline } from "@/components/OfflineProvider";
+import { enqueueGrade } from "@/lib/offline/db";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
@@ -89,7 +91,6 @@ const isGap = (front: string) => front.includes(BLANK);
 export function QuestSession({
   cards: initialCards, aimed, seconds,
 }: { cards: QuestCard[]; aimed: AimedCase[]; seconds: number }) {
-  const grade = useGrade();
   // Snapshotted once on mount and never updated from later props: `gradeCard`
   // refreshes this route's Server Component on every call, which would hand
   // down a shrinking pool mid-round. See ReviewSession for the same reasoning.
@@ -157,6 +158,7 @@ export function QuestSession({
         suffix: card.targetCase ? caseByKey(card.targetCase)?.suffix : null,
       })
       : [];
+  const { refresh: refreshOutbox, drainFirst } = useOffline();
   const hints = useHints({
     word: card?.lemma ?? card?.id ?? null,
     question: card?.id ?? null,
@@ -198,12 +200,44 @@ export function QuestSession({
       cases.
     */
     if (!got) hints.noteMiss();
-    await grade(
-      // A hint is paid for: see `lib/questions/hints.ts`.
-      card.id, Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3,
-      Date.now() - shownAt.current,
-      card.targetCase ?? undefined, reached ?? undefined,
-    );
+    // A hint is paid for: see `lib/questions/hints.ts`.
+    const grade = Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3;
+    const duration = Date.now() - shownAt.current;
+    const answeredAt = new Date().toISOString();
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
+    /*
+      A GRADE THAT CANNOT REACH THE SERVER IS QUEUED, AND THE ROUND GOES ON.
+
+      With the network gone the answer used to be lost: the round moved on and
+      the scheduler never heard it. It goes to the same outbox the review path
+      uses, with the time it was answered, which is what ADR-015 promises the
+      daily path.
+    */
+    try {
+      // Anything queued earlier goes first, so the scheduler hears the answers in order.
+      await drainFirst();
+      const res = await gradeCard(
+        card.id, grade, duration, answeredAt,
+        card.targetCase ?? undefined, reached ?? undefined, reviewId,
+      );
+      if (!res.ok) throw new Error(res.error);
+    } catch {
+      try {
+        await enqueueGrade({
+          id: reviewId,
+          cardId: card.id,
+          rating: grade,
+          durationMs: duration,
+          reviewedAt: Date.parse(answeredAt),
+          slot: card.targetCase ?? undefined,
+          reachedSlot: reached ?? undefined,
+        });
+        refreshOutbox();
+      } catch {
+        // No IndexedDB either: the answer is lost, and the round still goes on.
+      }
+    }
     setPicked(null);
     setRevealed(false);
     setTyped("");
@@ -211,7 +245,7 @@ export function QuestSession({
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
     setBusy(false);
-  }, [card, busy, sound, hints, grade]);
+  }, [card, busy, sound, hints, refreshOutbox, drainFirst]);
 
   /*
     A pick marks itself. The option carries what it would mean, so a wrong one

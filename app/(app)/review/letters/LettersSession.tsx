@@ -383,10 +383,10 @@ function Board({ word, streak, correct, onSettled, onNext }: {
           </Button>
         ) : (
           <>
-            <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+            <span className="min-w-0 truncate text-xs" style={{ color: "var(--ink-3)" }}>
               {misses > 0 ? "One more go." : "Tap or type the letters."}
             </span>
-            <Button variant="secondary" className="ml-auto whitespace-nowrap" onClick={takeBack} disabled={placed.length === 0 || shaking || busy}>
+            <Button variant="secondary" className="ml-auto shrink-0 whitespace-nowrap" onClick={takeBack} disabled={placed.length === 0 || shaking || busy}>
               <Delete size={15} aria-hidden /> Take back
               <KeyCap className="ml-1">⌫</KeyCap>
             </Button>

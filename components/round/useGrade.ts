@@ -34,7 +34,7 @@ import type { RatingValue } from "@/lib/srs/scheduler";
  * no round is asked to do anything different either way.
  */
 export function useGrade() {
-  const { refresh } = useOffline();
+  const { refresh, drainFirst } = useOffline();
   return useCallback(
     async (
       cardId: string,
@@ -48,6 +48,9 @@ export function useGrade() {
       // that committed and lost its answer is settled on replay, not doubled.
       const reviewId = crypto.randomUUID();
       try {
+        // Anything queued earlier goes first, so the scheduler hears two
+        // answers to one card in the order they were given.
+        await drainFirst();
         const res = await gradeCard(cardId, rating, durationMs, answeredAt, slot, reachedSlot, reviewId);
         if (res.ok) return true;
       } catch {
@@ -69,7 +72,7 @@ export function useGrade() {
       }
       return false;
     },
-    [refresh],
+    [refresh, drainFirst],
   );
 }
 

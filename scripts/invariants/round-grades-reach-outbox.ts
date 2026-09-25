@@ -16,11 +16,17 @@ export default function roundGradesReachOutbox({ check, ALL, code }: InvariantKi
     const hook = code("components/round/useGrade.ts");
     assert.match(hook, /await gradeCard\(/, "useGrade no longer calls gradeCard");
     assert.match(hook, /enqueueGrade\(/, "useGrade no longer queues a grade that did not land");
+    // The ordering rule the rounds under app/ are held to: older queued grades
+    // go first. That sweep reads app/ alone, so the hook is asked here.
+    const drained = hook.indexOf("await drainFirst()");
+    assert.ok(drained > 0 && hook.indexOf("await gradeCard(") > drained,
+      "useGrade sends a grade online before the outbox holding older ones has been sent");
     const OWN_OUTBOX = new Set([
       "app/(app)/review/ReviewSession.tsx",
       "app/(app)/review/flashcards/FlashSession.tsx",
       "app/(app)/review/exceptions/ExceptionsSession.tsx",
       "app/(app)/learn/new/LearnSession.tsx",
+      "app/(app)/quest/QuestSession.tsx",
     ]);
     const callers = ALL.filter((f) => /\bgradeCard\(/.test(code(f)) && !f.startsWith("app/actions") && f !== "components/round/useGrade.ts");
     assert.ok(callers.length >= 4, `only ${callers.length} files call gradeCard directly`);
@@ -40,5 +46,8 @@ export default function roundGradesReachOutbox({ check, ALL, code }: InvariantKi
     const match = code("app/(app)/review/match/MatchSession.tsx");
     assert.match(match, /recordMatchGrades\(/, "Match no longer grades its board in one call");
     assert.match(match, /useQueueGrades\(\)/, "Match no longer queues a board whose grades did not land");
+    const drainedMatch = match.indexOf("await drainFirst()");
+    assert.ok(drainedMatch > 0 && match.indexOf("await recordMatchGrades(") > drainedMatch,
+      "Match sends its board before the outbox holding older grades has been sent");
   });
 }

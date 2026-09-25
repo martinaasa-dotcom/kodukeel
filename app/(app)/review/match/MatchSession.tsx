@@ -5,6 +5,7 @@ import { useQueueGrades } from "@/components/round/useGrade";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Timer, Trophy, X } from "lucide-react";
 import { recordMatchGrades, recordMatchTime } from "@/app/actions";
+import { useOffline } from "@/components/OfflineProvider";
 import { Button, ButtonLink } from "@/components/Button";
 import { Confetti } from "@/components/Confetti";
 import { Empty, Page, Stat } from "@/components/ui";
@@ -41,6 +42,7 @@ interface Tile {
  */
 export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]; best: number }) {
   const queueGrades = useQueueGrades();
+  const { drainFirst } = useOffline();
   /*
     Snapshotted once on mount. This round grades every pair at the end, and the
     refresh that follows hands down a smaller `pairs` prop as those cards leave
@@ -124,6 +126,8 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
     const answeredAt = Date.now();
     let landed = false;
     try {
+      // Older queued grades go first, so the log hears answers in order.
+      await drainFirst();
       landed = (await recordMatchGrades(board)).ok;
     } catch {
       // Queued below.
@@ -144,9 +148,9 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       })));
     }
 
-    const result = await recordMatchTime(finalSeconds);
-    setIsNewBest(result.ok && result.isNewBest);
-  }, [pairs, queueGrades]);
+    const result = await recordMatchTime(finalSeconds).catch(() => null);
+    setIsNewBest(!!result?.ok && result.isNewBest);
+  }, [pairs, queueGrades, drainFirst]);
 
   const pick = (tile: Tile) => {
     if (phase !== "playing" || matched.has(tile.cardId) || wrong) return;

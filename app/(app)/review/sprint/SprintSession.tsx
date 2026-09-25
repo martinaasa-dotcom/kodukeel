@@ -98,9 +98,9 @@ export function SprintSession({
 
   const finish = useCallback((finalScore: number) => {
     setPhase("done");
-    void recordSprintScore(finalScore).then((r) => {
+    void recordSprintScore(finalScore).catch(() => null).then((r) => {
       // A refused score is not a new best; the round is over either way.
-      setIsNewBest(r.ok && r.isNewBest);
+      setIsNewBest(!!r?.ok && r.isNewBest);
     });
   }, []);
 

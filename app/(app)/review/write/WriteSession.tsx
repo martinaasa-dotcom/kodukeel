@@ -150,7 +150,9 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       // sentence still moves nothing, and neither does this: it can only lower
       // what the dictionary's own check already decided.
       const rating = Math.min(writeRating(result.formCheck), hints.ceiling) as 1 | 2 | 3 | 4;
-      void grade(prompt.cardId, rating, Date.now() - startedAt.current);
+      // The case the task asked for, which is not always the card it grades: the
+      // slot is what mastery counts, and without it this read as the card's case.
+      void grade(prompt.cardId, rating, Date.now() - startedAt.current, prompt.caseKey);
     } catch {
       setError("Marking needs a connection. Your sentence is still here.");
     } finally {
