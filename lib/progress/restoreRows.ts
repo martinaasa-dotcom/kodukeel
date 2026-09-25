@@ -210,3 +210,37 @@ export async function resolveLexemes(
     return live.get(s) ?? (here.has(s) ? s : null);
   };
 }
+
+/**
+ * Rows a learner owns by their original id: created where the id is free,
+ * updated where it is already this learner's, and left alone where another
+ * learner holds it, which is what the old per-row `findUnique` and `upsert`
+ * did at two round trips a row. Returns the ids this learner holds afterwards,
+ * which is what a table pointing at these rows needs to know.
+ *
+ * The update stays a statement per row, and only for rows already here: that
+ * is a repeat restore of the same file, where each row may carry different
+ * values, and batching it would mean deleting and recreating, which resets any
+ * column an older backup does not carry.
+ */
+export async function restoreOwned(
+  ownerId: string,
+  rows: readonly Row[],
+  table: {
+    read: (chunk: string[]) => Promise<{ id: string; ownerId: string }[]>;
+    insert: (chunk: Row[]) => Promise<{ count: number }>;
+    update: (row: Row) => Promise<unknown>;
+  },
+): Promise<Set<string>> {
+  const owners = await ownersOf(rows.map((row) => String(row.id)), table.read);
+  await createAbsent(rows.filter((row) => !owners.has(String(row.id))), table.insert);
+  for (const row of rows) {
+    if (owners.get(String(row.id)) === ownerId) await table.update(row);
+  }
+  const held = new Set<string>();
+  for (const row of rows) {
+    const owner = owners.get(String(row.id));
+    if (owner === undefined || owner === ownerId) held.add(String(row.id));
+  }
+  return held;
+}

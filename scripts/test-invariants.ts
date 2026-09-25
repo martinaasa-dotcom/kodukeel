@@ -12573,14 +12573,14 @@ check("a restore writes in bulk, and catches nothing inside its transaction", ()
   const tx = body.slice(body.indexOf("prisma.$transaction("), body.indexOf("timeout: 120_000"));
   assert.ok(tx.length > 2000, "could not find the restore's transaction in app/actions.ts");
   assert.equal(/\bcatch\b/.test(tx), false, "a statement inside the restore transaction is caught, which cannot work: Postgres has already aborted it");
-  for (const table of ["review", "card", "lexeme", "message", "assessment", "examAttempt", "sceneRun", "sceneGap", "encounter", "deferral", "starredWord", "deckWord", "courseStep", "achievement"]) {
+  for (const table of ["review", "card", "lexeme", "message", "assessment", "examAttempt", "sceneRun", "sceneGap", "encounter", "deferral", "starredWord", "deckWord", "courseStep", "achievement", "task", "studyEvent", "scan", "deck", "setting"]) {
     assert.equal(
       new RegExp(`tx\\.${table}\\.(findUnique|create|upsert)\\s*\\(`).test(tx),
       false,
       `the restore asks about ${table} rows one at a time again; see lib/progress/restoreRows.ts`,
     );
   }
-  for (const name of ["restoreLexemes", "createAbsent", "resolveLexemes"]) {
+  for (const name of ["restoreLexemes", "createAbsent", "resolveLexemes", "restoreOwned"]) {
     assert.match(tx, new RegExp(`\\b${name}\\(`), `the restore no longer calls ${name}`);
   }
 });

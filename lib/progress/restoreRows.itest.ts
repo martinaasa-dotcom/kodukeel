@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/db";
-import { createAbsent, ownersOf, resolveLexemes, restoreLexemes, RESTORE_CHUNK } from "./restoreRows";
+import { createAbsent, ownersOf, resolveLexemes, restoreLexemes, restoreOwned, RESTORE_CHUNK } from "./restoreRows";
 
 /**
  * A restore, against the database, because both faults it had were facts about
@@ -19,6 +19,7 @@ const PREFIX = "zqxrestoreitest";
 async function wipe() {
   await prisma.review.deleteMany({ where: { ownerId: { in: [MINE, THEIRS] } } });
   await prisma.card.deleteMany({ where: { ownerId: { in: [MINE, THEIRS] } } });
+  await prisma.task.deleteMany({ where: { ownerId: { in: [MINE, THEIRS] } } });
   await prisma.lexeme.deleteMany({ where: { lemma: { startsWith: PREFIX } } });
 }
 
@@ -154,5 +155,31 @@ describe("ownersOf", () => {
     );
     expect(owners.get(card.id)).toBe(THEIRS);
     expect(owners.has("nobody")).toBe(false);
+  });
+});
+
+describe("restoreOwned", () => {
+  const table = {
+    read: (chunk: string[]) => prisma.task.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+    insert: (chunk: Record<string, unknown>[]) => prisma.task.createMany({ data: chunk as never, skipDuplicates: true }),
+    update: (row: Record<string, unknown>) => prisma.task.update({ where: { id: String(row.id) }, data: row as never }),
+  };
+
+  it("creates a free id, updates this learner's own, and never touches another learner's", async () => {
+    const mine = await prisma.task.create({ data: { ownerId: MINE, title: "old title" } });
+    const theirs = await prisma.task.create({ data: { ownerId: THEIRS, title: "theirs" } });
+    const fresh = randomUUID();
+    let reads = 0;
+    const held = await restoreOwned(MINE, [
+      { id: mine.id, ownerId: MINE, title: "restored title" },
+      { id: theirs.id, ownerId: MINE, title: "a forged claim" },
+      { id: fresh, ownerId: MINE, title: "new" },
+    ], { ...table, read: (chunk) => { reads += 1; return table.read(chunk); } });
+
+    expect(reads).toBe(1);
+    expect([...held].sort()).toEqual([mine.id, fresh].sort());
+    expect((await prisma.task.findUniqueOrThrow({ where: { id: mine.id } })).title).toBe("restored title");
+    expect(await prisma.task.findUniqueOrThrow({ where: { id: theirs.id } })).toMatchObject({ ownerId: THEIRS, title: "theirs" });
+    expect((await prisma.task.findUniqueOrThrow({ where: { id: fresh } })).ownerId).toBe(MINE);
   });
 });
