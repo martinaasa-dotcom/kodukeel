@@ -107,7 +107,7 @@ export const ACTIVITIES = {
   },
   sprint: {
     href: "/review/sprint", kind: "game",
-    why: "Sixty seconds through what you have met, endings included once you have read one. Speed is what turns a form you can work out into one you have.",
+    why: "A round against the clock through what you have met, endings included once you have read one. Speed is what turns a form you can work out into one you have.",
   },
   sentences: {
     href: "/review/sentences", kind: "drill",

@@ -31,7 +31,10 @@ npm run dev       # starts the app
 Open **http://localhost:3000** and the setup wizard takes it from there.
 
 `DATABASE_URL` and `DIRECT_URL` in `.env` are the only settings that are not optional. Any Postgres
-will do, a local one, or the free tier of [supabase.com](https://supabase.com).
+will do, a local one, or the free tier of [supabase.com](https://supabase.com). The `.env` that setup
+writes points at `postgres:postgres@127.0.0.1:5432/kodukeel`, so with a Postgres on this machine and a
+database of that name the three commands above run as they are; otherwise change the two URLs and run
+`npm run setup` again.
 
 **Sign-in is optional.** With no Supabase keys configured the app runs in *local mode*: one learner,
 no accounts, everything in the database on your machine. Add `NEXT_PUBLIC_SUPABASE_URL` and
@@ -596,10 +599,13 @@ deployed at all. It did: eighteen merges to main between 2026-09-18 and 2026-09-
 and the live site served the commit before the hourly cron was added until somebody went looking
 for why.
 
-The way back to hourly is a Pro plan, or any scheduler outside this repository that can GET that
-URL with `Authorization: Bearer $CRON_SECRET`. If you change the expression, check that the plan
-allows it before merging, because the failure is a deploy that never happens rather than a letter
-that never arrives.
+The way back to hourly is a Pro plan, or any scheduler that can GET that URL with
+`Authorization: Bearer $CRON_SECRET`. `.github/workflows/mailout.yml` is one, and it costs
+nothing: set the repository secret `CRON_SECRET` to the deployment's value and the repository
+variable `MAILOUT_URL` to its origin, and it asks every hour. Until both are set it does nothing
+and says so. If you change the Vercel expression instead, check that the plan allows it before
+merging, because the failure is a deploy that never happens rather than a letter that never
+arrives.
 
 What goes out, to whom and how often is `lib/email/schedule.ts`, which is pure and unit tested.
 What each letter says is `lib/email/letters/`. Both are swept for the voice rules like every
