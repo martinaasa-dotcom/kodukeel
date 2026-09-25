@@ -23,7 +23,7 @@ import { shows, stageOf, TODAY_CARDS } from "@/lib/ux/disclosure";
 import { orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { modeAt } from "@/lib/ux/modes";
 import { ButtonLink } from "@/components/Button";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { Card, Columns, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { LocalDate } from "@/components/LocalDate";
 import { dateLine } from "@/lib/time/estonianDate";
@@ -980,13 +980,12 @@ export default async function TodayPage() {
 }
 
 function NextUnitIcon({ name }: { name: string }) {
-  const Icon = icon(name);
   return (
     <span
       className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
       style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
     >
-      <Icon size={20} aria-hidden />
+      <NamedIcon name={name} size={20} aria-hidden />
     </span>
   );
 }
