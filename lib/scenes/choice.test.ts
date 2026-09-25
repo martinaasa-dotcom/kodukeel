@@ -39,28 +39,18 @@ describe("narrowing a question to two", () => {
   });
 
   /*
-    A beat's words can carry their own closing mark, and joined as printed they
-    came out `Tere! või Tere hommikust!?`. The question ends in one mark.
-    Greetings no longer reach this, because a greeting is said rather than
-    chosen between (below), so the mark is carried on two nouns instead: the
-    stripping is a rule about the option text, whichever words reach it.
+    A lemma can carry its own closing mark, and joined as printed two of them
+    came out `Tere! või Tere hommikust!?`. That pair is no longer offered at
+    all (a greeting is one thing said, below), but the join still ends the
+    line in one mark whatever the options were spelled with.
   */
   it("takes each option's own closing mark off before joining them", () => {
     const lex = buildLexicon([
-      { lemma: "Pood!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
-      { lemma: "Turg!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
+      { lemma: "Appi!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
+      { lemma: "Tuli!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
     ]);
-    const where = { ...BEAT, needs: [{ kind: "lemma" as const, oneOf: ["Pood!", "Turg!"] }] };
-    expect(choiceOf({ beat: where, card: CARD, lexicon: lex, roll: 0 })).toBe(`Pood ${CHOICE_WORD} Turg?`);
-  });
-
-  it("offers no choice between two greetings, which are one thing said two ways", () => {
-    const lex = buildLexicon([
-      { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
-      { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
-    ]);
-    const greet = { ...BEAT, move: "greet" as const, needs: [{ kind: "lemma" as const, oneOf: ["Tere!", "Tere hommikust!"] }] };
-    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBeNull();
+    const shout = { ...BEAT, needs: [{ kind: "lemma" as const, oneOf: ["Appi!", "Tuli!"] }] };
+    expect(choiceOf({ beat: shout, card: CARD, lexicon: lex, roll: 0 })).toBe(`Appi ${CHOICE_WORD} Tuli?`);
   });
 
   /*

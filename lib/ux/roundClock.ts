@@ -78,6 +78,17 @@ export type RoundPace = (typeof ROUND_PACES)[number]["id"];
  */
 export const DEFAULT_ROUND_PACE: RoundPace = "standard";
 
+/**
+ * Each timed round's length as it was written, before the learner's pace.
+ *
+ * One place, because the Case Sprint's sixty seconds was typed three times: in
+ * the round, in the Settings panel that says what a pace does to it, and as a
+ * bare "60 seconds" under its tile on Practice, which went on saying sixty to a
+ * learner who had asked for five minutes.
+ */
+export const SPRINT_SECONDS = 60;
+export const QUEST_SECONDS = 120;
+
 /** A stored value, or the default. Never throws: a stored row can be anything. */
 export function roundPaceFrom(value: string | null | undefined): RoundPace {
   return ROUND_PACES.some((p) => p.id === value)
@@ -124,4 +135,19 @@ export function roundLength(seconds: number): string {
     return `${minutes} minutes`;
   }
   return `${whole} seconds`;
+}
+
+/**
+ * How long a round runs for the learner whose stored pace this is, said the
+ * way a screen says it, with a capital so it can open a sentence.
+ *
+ * For the screens that describe a round rather than run one: the Practice
+ * tile, the scan page's sprint tile, Today's quest card. They read the same
+ * stored pace a round does and say the length that round will run, and they
+ * go through this rather than `roundPaceFrom` directly, so that calling
+ * `roundPaceFrom` stays what marks a page as a round with a clock.
+ */
+export function lengthAtPace(base: number, stored: string | null | undefined): string {
+  const said = roundLength(secondsFor(base, roundPaceFrom(stored)));
+  return `${said[0]!.toUpperCase()}${said.slice(1)}`;
 }
