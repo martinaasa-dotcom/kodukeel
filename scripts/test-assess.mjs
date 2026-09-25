@@ -131,24 +131,16 @@ for (let step = 0; step < 200; step++) {
 
   // Listening needs the speech service played first. Where there is none the
   // section abandons itself, which is the honest outcome rather than a zero.
+  /*
+    The play button is itself disabled while the clip is being fetched, so a
+    driver that clicks it the moment the options lock waits out Playwright's
+    thirty seconds on a button correctly saying "not yet", and then throws a
+    timeout in the app's name. A disabled play button is a wait: the loop comes
+    back round once the clip lands or the section says it cannot play.
+  */
   const play = page.getByRole("button", { name: /Play the (Estonian|sentence)/ });
   if (await play.count() && (await page.locator("main button:disabled").count()) > 0) {
-    /*
-      The speaker is disabled while its clip is being fetched, and a click on a
-      disabled button waits out Playwright's thirty seconds and throws, which
-      reads as the paper being broken. Wait for the fetch to finish, or for the
-      section to abandon itself and take the button with it, and go round again.
-    */
-    const ready = await play.first().isEnabled().catch(() => false);
-    if (!ready) {
-      await page.waitForFunction(() => {
-        const button = [...document.querySelectorAll("main button")]
-          .find((b) => /Play the (Estonian|sentence)/.test(b.getAttribute("aria-label") ?? ""));
-        return !button || !button.disabled;
-      }, null, { timeout: 15_000 }).catch(() => {});
-      continue;
-    }
-    await play.first().click({ timeout: 5_000 }).catch(() => {});
+    if (await play.first().isEnabled()) await play.first().click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(400);
     continue;
   }

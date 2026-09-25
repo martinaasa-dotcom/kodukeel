@@ -25,16 +25,17 @@ import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { mergeExamples, parseExamples, serialiseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
-import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
+import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
 import {
-  SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
+  PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory,
 } from "@/lib/suggestions/model";
+import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
 import { NEEDS_TRANSLATION } from "@/lib/copy/values";
 import { resolveOneWord, vouchScanItems } from "@/lib/dict/resolveScan";
@@ -45,7 +46,7 @@ import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { isTimeZone } from "@/lib/time/day";
+import { canonicalZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
@@ -239,7 +240,7 @@ export async function deleteMyDeck(deckId: string) {
 async function addCardsFor(
   owner: string, lexemeId: string, types: CardType[], source: string,
 ) {
-  const [lexeme, borrowed, reach] = await Promise.all([
+  const [lexeme, borrowed, reach, alsoAccepted] = await Promise.all([
     prisma.lexeme.findUnique({
       where: { id: lexemeId },
       include: { forms: true },
@@ -250,6 +251,16 @@ async function addCardsFor(
     // And how a beginner's word orders its own, which is the same kind of
     // fact and cached the same way. See lib/dict/plainness.ts.
     sentenceReach(),
+    /*
+      And which other words answer the same prompt, the fact `lib/srs/deck.ts`
+      reads for a unit. Without it a production card built one word at a time
+      took its own word alone: `pere` added from the dictionary got a back
+      of `pere` where a unit gives it `pere / perekond`, so a learner who wrote
+      `perekond` for "family" was marked wrong on a card that could not tell
+      them apart. The back reads `pere / perekond` now, read off a card
+      added in a browser; the invariant for it was made to fail on this line.
+    */
+    alsoAcceptedByLemma(),
   ]);
   if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
 
@@ -308,6 +319,7 @@ async function addCardsFor(
     const generated = generateCards(
       {
         ...(lexeme as LexemeForCards),
+        alsoAccepted: alsoAccepted.get(`${lexeme.lemma}|${lexeme.pos}`) ?? [],
         borrowed: borrowed.get(lexemeId) ?? [],
         plainest: plainerFirst(lexeme.cefr, reach),
       }, types,
@@ -692,8 +704,16 @@ const DISPLAY_NAME_MAX = 32;
 /** What a class is called on the join screen and the roster. */
 const CLASS_NAME_MAX = 60;
 
-const capped = (value: string | undefined | null, max: number): string =>
-  (value ?? "").trim().slice(0, max);
+/**
+ * A string argument, trimmed and cut to length, whatever actually arrived.
+ *
+ * Through `text()` below, because this is the one helper every caller reaches
+ * for and it called `.trim()` on whatever it was handed: `createLexeme({ lemma:
+ * 42 })` threw the `TypeError` `text()` was written to prevent, from twenty-four
+ * call sites at once.
+ */
+const capped = (value: unknown, max: number): string =>
+  text(value).trim().slice(0, max);
 
 /**
  * An argument that is supposed to be a string, as a string.
@@ -707,6 +727,42 @@ const capped = (value: string | undefined | null, max: number): string =>
  * already has a sentence for nothing.
  */
 const text = (value: unknown): string => (typeof value === "string" ? value : "");
+
+/**
+ * An argument that is supposed to be an object, as one.
+ *
+ * The same off-the-wire rule as `text()`, one shape up: a parameter typed as an
+ * object says what the callers in this tree send and nothing about what
+ * arrives, so `finishScene(null)` threw on `input.runId`. Anything that is not
+ * an object is an empty one, and every field of it then reads as missing,
+ * which each of these paths already has a sentence for. The type is the
+ * caller's, so every field read off the result still goes through `text()`,
+ * `Array.isArray` or a check of its own.
+ */
+const fieldsOf = <T extends object>(value: T): T =>
+  (value !== null && typeof value === "object" ? value : {}) as T;
+
+/**
+ * A part of speech the shared dictionary may hold, or null.
+ *
+ * `Lexeme.pos` is a free string column and half of the entry's unique key, so a
+ * value written here is a row every learner reads: the add-a-word form and the
+ * importer both wrote whatever arrived. The suggestion queue already refuses
+ * anything off `PATCH_POS`, which is the same set every source of the built
+ * dictionary produces, and these are the other two doors into the same table.
+ */
+const posFrom = (value: unknown): string | null =>
+  (PATCH_POS as readonly string[]).includes(text(value)) ? text(value) : null;
+
+/**
+ * A level for a dictionary entry: null for none, the level, or undefined when
+ * what arrived is neither, which the caller refuses. `cefr` is what bands a
+ * word for every learner, so a value off the list is a word no band holds.
+ */
+const entryLevelFrom = (value: unknown): string | null | undefined => {
+  if (value === undefined || value === null || value === "") return null;
+  return (CEFR_LEVELS as readonly string[]).includes(text(value)) ? text(value) : undefined;
+};
 
 
 /**
@@ -724,21 +780,26 @@ export async function createLexeme(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
+  input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
+  const pos = posFrom(input.pos);
+  const cefr = entryLevelFrom(input.cefr);
+  if (!pos) return { ok: false as const, error: "That is not a part of speech." };
+  if (cefr === undefined) return { ok: false as const, error: "That is not a level." };
 
   const existing = await prisma.lexeme.findUnique({
-    where: { lemma_pos: { lemma, pos: input.pos } },
+    where: { lemma_pos: { lemma, pos } },
   });
   if (existing) return { ok: true as const, id: existing.id, existed: true };
 
   const lexeme = await prisma.lexeme.create({
     data: {
-      lemma, translation, pos: input.pos,
-      cefr: input.cefr || null,
+      lemma, translation, pos,
+      cefr,
       /*
         AI, NOT USER, BECAUSE A MODEL SUGGESTED IT AND NOBODY HAS CHECKED IT.
 
@@ -787,21 +848,33 @@ export async function createLexemeWithForms(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
+  input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
+  const pos = posFrom(input.pos);
+  if (!pos) return { ok: false as const, error: "That is not a part of speech." };
+  /*
+    Absent is "leave the level as it is" to the upsert, which is what an edit
+    that did not touch it means, so it stays absent. Anything present is
+    checked: blank clears it and a level sets it.
+  */
+  const level = input.cefr === undefined ? undefined : entryLevelFrom(input.cefr);
+  if (input.cefr !== undefined && level === undefined) {
+    return { ok: false as const, error: "That is not a level." };
+  }
 
   const lexeme = await upsertLexemeWithForms({
-    id: input.id,
+    id: text(input.id) || undefined,
     lemma,
     translation,
-    pos: input.pos,
-    cefr: input.cefr,
+    pos,
+    cefr: level === null ? "" : level,
     government: visibleLine(input.government, LIMITS.government),
     forms: Object.fromEntries(
-      Object.entries(input.forms).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
+      Object.entries(fieldsOf(input.forms)).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
     ),
     editedBy: ownerId,
   });
@@ -957,7 +1030,11 @@ export async function importWords(rows: { lemma: string; translation: string; po
   let created = 0;
   let cards = 0;
   const skipped: string[] = [];
-  const truncated = rows.length > MAX_IMPORT_ROWS;
+  // A paste is a list of rows off the wire, and a row a record: neither is
+  // trusted to be the shape the panel sends, so `importWords(null)` imports
+  // nothing rather than throwing on `.length`.
+  const list = Array.isArray(rows) ? rows : [];
+  const truncated = list.length > MAX_IMPORT_ROWS;
 
   /*
     ASKED ONCE FOR THE WHOLE PASTE, NOT ONCE PER LINE.
@@ -991,14 +1068,18 @@ export async function importWords(rows: { lemma: string; translation: string; po
   */
   const wanted: { lemma: string; translation: string; pos: string }[] = [];
   const seenKeys = new Set<string>();
-  for (const row of rows.slice(0, MAX_IMPORT_ROWS)) {
+  for (const raw of list.slice(0, MAX_IMPORT_ROWS)) {
+    const row = fieldsOf(raw);
     const lemma = visibleLine(row.lemma, LIMITS.lemma);
     const translation = visibleLine(row.translation, LIMITS.translation);
-    if (!lemma || !translation) continue;
-    const key = `${lemma}|${row.pos}`;
+    // A part of speech off `PATCH_POS` or the row is not written, since these
+    // rows go into the dictionary every learner reads.
+    const pos = posFrom(row.pos);
+    if (!lemma || !translation || !pos) continue;
+    const key = `${lemma}|${pos}`;
     if (seenKeys.has(key)) continue;
     seenKeys.add(key);
-    wanted.push({ lemma, translation, pos: row.pos });
+    wanted.push({ lemma, translation, pos });
   }
 
   const present = new Map(
@@ -1068,6 +1149,9 @@ export async function getTutorHistory() {
 /** Sets the review count that fills the daily-goal ring on Today. */
 export async function setDailyGoal(goal: number) {
   const ownerId = await requireUserId();
+  // `Math.max(5, NaN)` is NaN, so without this "NaN" was stored as somebody's
+  // goal: the fault the comment below records the personal bests having had.
+  if (!Number.isFinite(goal)) return { ok: false as const, error: "That is not a goal." };
   const clamped = Math.min(200, Math.max(5, Math.round(goal)));
   await writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(clamped));
   revalidatePath("/");
@@ -1435,6 +1519,7 @@ export async function finishScene(input: {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "finishScene");
   if (busy) return busy;
+  input = fieldsOf(input);
 
   /*
     Off the wire, whatever the types say: every export of this file is a public
@@ -1600,9 +1685,12 @@ const MAX_CELLS = 81;
  */
 export async function setTimeZone(zone: string) {
   const ownerId = await requireUserId();
-  if (!isTimeZone(zone)) return { ok: false as const, error: "That is not a timezone." };
-  await writeSetting(ownerId, SETTING_KEYS.timeZone, zone);
-  return { ok: true as const, zone };
+  // Stored in the spelling `Intl` resolves it to, so one zone is one value
+  // whatever casing the caller sent (lib/time/day.ts, `canonicalZone`).
+  const canonical = canonicalZone(zone);
+  if (!canonical) return { ok: false as const, error: "That is not a timezone." };
+  await writeSetting(ownerId, SETTING_KEYS.timeZone, canonical);
+  return { ok: true as const, zone: canonical };
 }
 
 
@@ -1825,6 +1913,7 @@ export async function setResearchParticipation(value: string) {
  */
 export async function setEmailKind(input: { kind: string; on: boolean }) {
   const ownerId = await requireUserId();
+  input = fieldsOf(input);
   if (!isEmailKind(input?.kind) || input.kind === "system") {
     return { ok: false as const, error: "That is not something we send." };
   }
@@ -1932,6 +2021,19 @@ export async function completeOnboarding(input: {
   };
 }) {
   const ownerId = await requireUserId();
+  input = fieldsOf(input);
+  /*
+    CHECKED BEFORE ANYTHING IS WRITTEN, BECAUSE THIS WRITES WHAT SET-UP
+    NEVER ASKS AGAIN. A goal that is not a number came out of `Math.max(5,
+    NaN)` as NaN and was stored as "NaN", and the level went into the two
+    settings `setCourseLevel` refuses to write anything off `LEVELS` into, and
+    into the part of the ladder the course opens on. The wizard sends neither
+    shape; a caller that does is refused rather than trusted.
+  */
+  if (!Number.isFinite(input.dailyGoal)) return { ok: false as const, error: "That is not a goal." };
+  if (!(LEVELS as readonly string[]).includes(text(input.cefr))) {
+    return { ok: false as const, error: "That is not a level." };
+  }
   const busy = throttleAction(ownerId, "completeOnboarding");
   if (busy) return busy;
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
@@ -1988,7 +2090,9 @@ export async function completeOnboarding(input: {
     seconds on the one screen where the app is asking them to trust it. See
     `lib/srs/deck.ts` for the shape.
   */
-  const { added } = await addUnitsToDeck(ownerId, input.unitIds.slice(0, MAX_STARTER_UNITS), "COURSE");
+  const unitIds = (Array.isArray(input.unitIds) ? input.unitIds : [])
+    .filter((id): id is string => typeof id === "string");
+  const { added } = await addUnitsToDeck(ownerId, unitIds.slice(0, MAX_STARTER_UNITS), "COURSE");
 
   revalidatePath("/");
   revalidatePath("/learn");
@@ -2319,7 +2423,7 @@ export async function recordCheckpoint(
     level: z.enum(["A1", "A2", "B1", "B2", "C1"]),
     correct: z.number().int().min(0).max(100),
     total: z.number().int().min(1).max(100),
-  }).safeParse({ level: level.toUpperCase(), correct, total });
+  }).safeParse({ level: text(level).toUpperCase(), correct, total });
   if (!parsed.success || parsed.data.correct > parsed.data.total) {
     return { ok: false as const, error: "That result could not be read." };
   }
@@ -2680,11 +2784,13 @@ export async function addStudyEvent(input: {
   onDate?: string | null;
 }) {
   const ownerId = await requireUserId();
+  input = fieldsOf(input);
 
-  const title = input.title.trim().slice(0, 120);
+  const title = text(input.title).trim().slice(0, 120);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
-  const weekdays = [...new Set(input.weekdays)].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
+  const weekdays = [...new Set(Array.isArray(input.weekdays) ? input.weekdays : [])]
+    .filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
   /*
     A one-off needs a day and a repeat must not carry one. Reading a stray
     `onDate` on a repeating event would make `eventsOn` answer two ways about
@@ -2699,7 +2805,7 @@ export async function addStudyEvent(input: {
     data: {
       ownerId,
       title,
-      notes: input.notes?.trim().slice(0, 500) || null,
+      notes: text(input.notes).trim().slice(0, 500) || null,
       kind: kindFrom(input.kind),
       startMinute: clamp(Math.round(input.startMinute), 0, 1439),
       durationMinutes: clamp(Math.round(input.durationMinutes), 5, 12 * 60),
@@ -2732,7 +2838,8 @@ export async function deleteStudyEvent(id: string) {
  */
 export async function addReminder(input: { title: string; notes?: string; dueAt?: string | null }) {
   const ownerId = await requireUserId();
-  const title = input.title.trim().slice(0, 200);
+  input = fieldsOf(input);
+  const title = text(input.title).trim().slice(0, 200);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const key = dayKeyOrNull(input.dueAt);
@@ -2740,7 +2847,7 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
     data: {
       ownerId,
       title,
-      notes: input.notes?.trim().slice(0, 500) || null,
+      notes: text(input.notes).trim().slice(0, 500) || null,
       tag: "HOMEWORK",
       // Stored at midnight UTC, which is what `<input type="date">` sends and
       // what `bucketFor` already expects: it counts whole days on the learner's
@@ -3742,6 +3849,7 @@ export async function saveScan(input: {
 
   const busy = throttleAction(ownerId, "saveScan");
   if (busy) return busy;
+  input = fieldsOf(input);
   const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
   if (sent.length === 0) {
     return { ok: false as const, error: "Nothing on that page was ticked." };
