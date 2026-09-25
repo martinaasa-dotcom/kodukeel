@@ -11,7 +11,7 @@
  * rather than at zero. A cap that fails open is not a cap.
  */
 
-export interface ModelPrice {
+export interface Rate {
   /** USD per million input tokens. */
   readonly inputPerMTok: number;
   /** USD per million output tokens. */
@@ -24,6 +24,38 @@ export interface ModelPrice {
    * dearer of the two figures Google publishes.
    */
   readonly cacheStoragePerMTokHour?: number;
+}
+
+/**
+ * A RATE THE VENDOR HAS ALREADY PUBLISHED AN END DATE FOR.
+ *
+ * The comment on the Gemini block says the Flash tier "roughly doubles on
+ * 1 January 2027, which is written here rather than in a diary because a table
+ * that silently halves the real rate is the fault above wearing a date". It was
+ * written here and nothing read it. A date in a comment is a diary with extra
+ * steps: on the morning it passes, six rows understate by two and the only
+ * thing that notices is the bill, which is the one reader this table exists so
+ * nobody has to wait for. Every other way of being wrong about a price in this
+ * file now fails expensive, and this one was set to fail cheap on a known day.
+ *
+ * So the end date and the rate after it are data, and `priceFor` reads them.
+ * Nobody merges anything: a deployment that has not been touched since 2026
+ * starts charging the real rate on the day Google starts charging it.
+ *
+ * `until` is exclusive and is read as UTC midnight, which is deliberately no
+ * later than the vendor's own switch whatever zone they mean by it: charging
+ * the higher rate a few hours early is the direction this table always errs.
+ */
+export interface Promotion {
+  /** ISO date, exclusive. The promotional rate applies strictly before this. */
+  readonly until: string;
+  /** What the row becomes from that date. */
+  readonly then: Rate;
+}
+
+/** A row of the table: today's rate, and the end date where the vendor set one. */
+export interface ModelPrice extends Rate {
+  readonly promotion?: Promotion;
 }
 
 /**
@@ -65,10 +97,22 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   // Read the same way, off Groq's own `/v1/models`: half its bigger sibling,
   // and the cheapest input rate any provider on this deployment's keys quotes.
   "gpt-oss-20b": { inputPerMTok: 0.075, outputPerMTok: 0.3 },
-  // Groq publishes no price for this one, so there is none to write down. It is
-  // on no purpose chain and is reachable only on an install that sets no
-  // GROQ_MODEL; if it ever earns a rate, read it off the API rather than guess.
-  "compound-mini": { inputPerMTok: 0, outputPerMTok: 0 },
+  /*
+    `compound-mini` was here at zero because Groq published no price for it, and
+    it is gone because Groq no longer publishes the model: asked with this
+    deployment's own key on 2026-09-22, `/v1/models` does not list it and
+    `/v1/models/groq/compound-mini` answers `model_not_found`. The row's whole
+    justification was "there is no rate to write down", and a row with no rate
+    behind it for a model nobody can call is the silent zero this block argues
+    against, kept alive by the reason it was created for.
+
+    It has gone from `FREE_GROQ_MODELS` with it, and it had to: `provider.test.ts`
+    holds every model on a free list to having a row here, which is the right
+    pairing and is what caught this. Nothing was lost by the link going, since
+    it could only ever answer 404. If Groq restore the model it prices at
+    `UNKNOWN_MODEL` until somebody reads the real rate off the API, which is
+    the direction every other omission in this table fails.
+  */
 
   /*
     THE ONE ROW THAT IS NOT FREE, AND THE REASON IT STOPPED BEING.
@@ -121,19 +165,62 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
     global spend cap switched off on the one scenes are pinned to
     (`SCENE_MODELS`) and on whichever the general chain names.
 
-    Read off Google's own page rather than recalled, on 2026-09-06:
+    Read off Google's own page rather than recalled, on 2026-09-06 and again on
+    2026-09-22, when every row below still matched it exactly:
     https://ai.google.dev/gemini-api/docs/pricing. The Flash tier is
     promotional until the end of 2026 and roughly doubles on 1 January 2027,
     which is written here rather than in a diary because a table that silently
     halves the real rate is the fault above wearing a date.
 
+    That sentence was true and was still a diary, because nothing read it. The
+    three dated rows carry a `promotion` now and `priceFor` resolves it, so the
+    doubling happens on the day whether or not anybody has looked at this file
+    since.
+
     A model this table does not name prices at `UNKNOWN_MODEL`, which is the
     dearest row and the honest answer for a rate nobody has looked up. That is
     what makes the omissions safe and the zeros dangerous.
   */
-  "gemini-3.8-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75, cacheStoragePerMTokHour: 0.5 },
-  "gemini-3.7-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75 },
-  "gemini-3.6-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75 },
+  /*
+    The three carrying `promotion` are the rows Google's page dates: input,
+    output and cache storage all double on 1 January 2027, and `priceFor`
+    switches them itself rather than waiting for somebody to read this comment.
+
+    The storage figure is on all three now, where two of them were letting it
+    fall through to `CACHE_STORAGE_PER_MTOK_HOUR`. That default is the dearer
+    of the two figures and so was never dangerous, and it made the same three
+    rows disagree about a rate the page quotes identically for them. Writing it
+    down costs nothing: `cacheStorageAsInputTokens` divides the storage cost by
+    the row's own input rate, and both halves double together, so a held entry
+    books the same number of token-equivalents before and after the flip.
+  */
+  "gemini-3.8-flash": {
+    inputPerMTok: 0.75,
+    outputPerMTok: 3.75,
+    cacheStoragePerMTokHour: 0.5,
+    promotion: {
+      until: "2027-01-01",
+      then: { inputPerMTok: 1.5, outputPerMTok: 7.5, cacheStoragePerMTokHour: 1 },
+    },
+  },
+  "gemini-3.7-flash": {
+    inputPerMTok: 0.75,
+    outputPerMTok: 3.75,
+    cacheStoragePerMTokHour: 0.5,
+    promotion: {
+      until: "2027-01-01",
+      then: { inputPerMTok: 1.5, outputPerMTok: 7.5, cacheStoragePerMTokHour: 1 },
+    },
+  },
+  "gemini-3.6-flash": {
+    inputPerMTok: 0.75,
+    outputPerMTok: 3.75,
+    cacheStoragePerMTokHour: 0.5,
+    promotion: {
+      until: "2027-01-01",
+      then: { inputPerMTok: 1.5, outputPerMTok: 7.5, cacheStoragePerMTokHour: 1 },
+    },
+  },
   "gemini-3.5-flash": { inputPerMTok: 1.5, outputPerMTok: 9 },
   "gemini-2.5-flash": { inputPerMTok: 0.3, outputPerMTok: 2.5 },
   "gemini-3.5-flash-lite": { inputPerMTok: 0.3, outputPerMTok: 2.5 },
@@ -183,9 +270,22 @@ export function isFreeModel(model: string): boolean {
   return model.trim().toLowerCase().endsWith(":free");
 }
 
-export function priceFor(model: string): ModelPrice {
+/**
+ * What a model costs, on the day it is asked about.
+ *
+ * `now` is a parameter because a rate with an end date on it cannot be tested
+ * against a clock nobody controls, and because this is the one function in the
+ * file whose answer moves on its own. Production passes nothing.
+ *
+ * A promotion is resolved away rather than handed back, so no caller can read
+ * `inputPerMTok` off a row whose promotional rate has expired.
+ */
+export function priceFor(model: string, now: Date = new Date()): Rate {
   if (isFreeModel(model)) return { inputPerMTok: 0, outputPerMTok: 0 };
-  return PRICES[normaliseModel(model)] ?? UNKNOWN_MODEL;
+  const row = PRICES[normaliseModel(model)] ?? UNKNOWN_MODEL;
+  const { promotion, ...rate } = row;
+  if (!promotion) return rate;
+  return now.getTime() < Date.parse(`${promotion.until}T00:00:00Z`) ? rate : promotion.then;
 }
 
 /**
@@ -216,10 +316,12 @@ export const CACHE_WRITE_RATE = 1.25;
 /**
  * What Gemini charges to hold an explicit cache entry, per million tokens per
  * hour, where the model's own row does not say. Read off
- * https://ai.google.dev/gemini-api/docs/pricing on 2026-09-14: $1.00 on the
- * Lite tier and every older Flash, $0.50 on `gemini-3.8-flash` until the end
- * of 2026 and $1.00 from 1 January 2027. The default is the dearer figure, so
- * a row that never wrote its own storage rate errs high rather than free.
+ * https://ai.google.dev/gemini-api/docs/pricing on 2026-09-14 and again on
+ * 2026-09-22: $1.00 on the Lite tier and every older Flash, $0.50 on the three
+ * promotional Flash rows until the end of 2026 and $1.00 from 1 January 2027.
+ * All three write their own figure and their own end date now, so this default
+ * is reached only by a row that never had a storage rate at all; it stays the
+ * dearer figure, so such a row errs high rather than free.
  */
 export const CACHE_STORAGE_PER_MTOK_HOUR = 1;
 
@@ -237,8 +339,13 @@ export const CACHE_STORAGE_PER_MTOK_HOUR = 1;
  * since there is no rate to express it in; a free row is a decision this
  * table already makes about the whole call.
  */
-export function cacheStorageAsInputTokens(model: string, tokens: number, seconds: number): number {
-  const price = priceFor(model);
+export function cacheStorageAsInputTokens(
+  model: string,
+  tokens: number,
+  seconds: number,
+  now?: Date,
+): number {
+  const price = priceFor(model, now);
   if (price.inputPerMTok <= 0 || tokens <= 0 || seconds <= 0) return 0;
   const perHour = price.cacheStoragePerMTokHour ?? CACHE_STORAGE_PER_MTOK_HOUR;
   const dollars = (tokens / 1e6) * perHour * (seconds / 3600);
