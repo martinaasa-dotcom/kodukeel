@@ -81,9 +81,10 @@ export function choiceOf(input: ChoiceInput): string | null {
   const options = optionsFor(input);
   if (options.length < OPTIONS) return null;
   /*
-    A greeting or a farewell beat names whole phrases, `Tere!` and `Head
-    aega!`, and joining those as they are printed `Tere! või Tere hommikust!?`.
-    The line ends in one question mark, so each option's own closing mark goes.
+    A lemma can carry its own closing mark, and joining two such as they are
+    printed gave `Tere! või Tere hommikust!?`. Greetings are no longer offered
+    (`alternatives` takes no phrase), but the line still ends in one question
+    mark, so each option's own closing mark goes.
   */
   const bare = options.map((option) => option.replace(/[.!?]+$/, ""));
   const [first, second] = input.roll % 2 === 0 ? bare : [bare[1]!, bare[0]!];
