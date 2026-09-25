@@ -12527,6 +12527,31 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
 });
 
 /*
+  A BACKUP CARRIES EVERY WORD THE LEARNER'S OWN ROWS POINT AT.
+
+  The export gathers which dictionary entries to carry from the tables that
+  reference one, and it named four while seven do. A shelf of dictionary words
+  is a word with no card behind it, so the file held the shelf and not its
+  words, and a restore onto another deployment dropped the shelf whole, since
+  `DeckWord.lexemeId` is a real foreign key with nothing to point at. Read off
+  the schema rather than a list, so an eighth such table fails here until the
+  export asks it too.
+*/
+check("a backup carries every word the learner's own rows point at", () => {
+  const models = [...SCHEMA.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)]
+    .filter(([, , body]) => /^\s+ownerId\s/m.test(body!) && /^\s+lexemeId\s/m.test(body!))
+    .map(([, name]) => name!.charAt(0).toLowerCase() + name!.slice(1));
+  assert.ok(models.length >= 7, `expected the owner-scoped tables that point at a word, found ${models.length}`);
+  const exported = code("app/api/export/route.ts");
+  const gather = exported.slice(0, exported.indexOf("const mine"));
+  assert.ok(gather.length > 0, "could not find where the export gathers its words");
+  const missing = models.filter((model) => !new RegExp(
+    `prisma\\.${model}\\.findMany\\(\\{ where: \\{ ownerId \\}, select: \\{ lexemeId: true \\} \\}\\)`,
+  ).test(gather));
+  assert.deepEqual(missing, [], "the export leaves these tables' words out of the backup, so a restore elsewhere drops their rows");
+});
+
+/*
   A RESTORE WRITES IN BULK, AND NOTHING INSIDE ITS TRANSACTION IS CAUGHT.
 
   `restoreBackup` asked about every row on its own, a `findUnique` and then a

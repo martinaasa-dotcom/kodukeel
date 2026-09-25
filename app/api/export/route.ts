@@ -95,20 +95,31 @@ export async function GET() {
   /*
     Which words to carry, asked before the rest so the answer can be used.
 
-    Four tables reference a lexeme and every one of them is the learner's own.
-    `Review` keeps `lexemeId` as a plain column with no relation, deliberately,
-    so it outlives the card it was about: a word they have not had a card for
-    in a year is still a word their history is about, and leaving it out would
-    restore a log pointing at nothing.
+    Every table of the learner's own that points at a word is asked, because a
+    word missing from the file is a row the restore cannot put back anywhere
+    but where the backup was taken. `Review` keeps `lexemeId` as a plain column
+    with no relation, deliberately, so it outlives the card it was about: a
+    word they have not had a card for in a year is still a word their history
+    is about, and leaving it out would restore a log pointing at nothing.
+
+    It was four tables and it is seven. A named shelf of dictionary words is
+    the plainest case of a word with no card behind it, and a shelf carried
+    without its words was dropped whole by a restore onto another deployment,
+    since `DeckWord.lexemeId` is a real foreign key and there is nothing to
+    point it at. A word put aside and a word a conversation needed are the
+    same shape. The invariant reads the schema, so an eighth cannot be missed.
   */
-  const [cardWords, reviewWords, starWords, reportWords] = await Promise.all([
+  const wordRows = await Promise.all([
     prisma.card.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.review.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.starredWord.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.suggestion.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+    prisma.deckWord.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+    prisma.deferral.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+    prisma.sceneGap.findMany({ where: { ownerId }, select: { lexemeId: true } }),
   ]);
   const mine = new Set<string>();
-  for (const row of [...cardWords, ...reviewWords, ...starWords, ...reportWords]) {
+  for (const row of wordRows.flat()) {
     if (row.lexemeId) mine.add(row.lexemeId);
   }
 
