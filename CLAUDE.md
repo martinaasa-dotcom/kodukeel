@@ -6597,7 +6597,11 @@ enough people have put aside is *offered* one band later, for everybody, which r
 places that decide which word somebody is taught next: the new-card ordering on `/review` and the
 ladder's own pick. **Two numbers rather than a head count**, because five people out of the five who
 hold the word is the course being wrong and five out of four hundred is five people having a bad
-week, and the denominator is how many learners hold a card for it. **One band and never more**,
+week, and the denominator is how many learners hold a card for it. **And only somebody who has
+graded a card has a vote**, because sign-up is open and five accounts made for the purpose could
+otherwise move any word few people hold: a fresh account's press still puts the word aside for
+them, and `votesFor` leaves it out of the count, the move and the admin's reading alike. The press
+itself is throttled like any other action that reaches past one learner. **One band and never more**,
 never past C2, and never for a word that carries no band: a word moved once has to earn the next
 step from the learners who meet it where it now sits, which is what stops a feedback loop walking a
 word off the top of the course.
