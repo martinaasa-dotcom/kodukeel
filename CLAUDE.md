@@ -2855,8 +2855,8 @@ shape a pin is written in, and `prisma/data/homonym-pins.json` is where a person
 re-reads a pinned entry from that word as `expand-seed.ts` would have: the forms, the sentences, the
 level, the gradation and the Institute's semantic type all belong to whichever homonym was taken, so
 all of them are read again, and only the gloss and the part of speech stay, because those came from
-Wiktionary and are not what was wrong. Fifteen are pinned, each checked against Ekilex's own Estonian
-definition; ten of them are the entry a learner actually meets and five are shadowed by the course
+Wiktionary and are not what was wrong. Sixteen are pinned, each checked against Ekilex's own Estonian
+definition; eleven of them are the entry a learner actually meets and five are shadowed by the course
 harvest, which had already pinned the same words.
 
 **And a wrong answer may be tricky, never true.** The listening check plays a whole sentence and asks
