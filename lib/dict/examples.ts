@@ -200,7 +200,7 @@ export function usableExamples(examples: Example[], plainest?: Rank): Example[] 
 export type Rank = (a: Example, b: Example) => number;
 
 /** How many of a shared word's sentences one learner may occupy. */
-const MAX_USER_PER_WORD = 2;
+export const MAX_USER_PER_WORD = 2;
 
 /**
  * Merges freshly fetched sentences into what is already stored.
