@@ -39,7 +39,7 @@ describe("how long a word goes away for", () => {
     Reading a missing band as "beyond them" would put a word they went to the
     trouble of adding away for months.
   */
-  it("gives an untagged word the plain few weeks", () => {
+  it("gives an untagged word the plain few days", () => {
     const put = deferralFor({ band: null, level: "A1", now: NOW });
     expect(put.reason).toBe("SOON");
     expect(put.untilLevel).toBeNull();

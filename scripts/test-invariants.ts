@@ -18298,13 +18298,27 @@ check("putting a word aside moves a date and grades nothing", () => {
     a button that promised not to touch it.
   */
   for (const [what, where] of [["an undo", "undoDeferral"], ["the level wake", "wakeForLevel"]]) {
-    const body = defer.slice(defer.indexOf(`export async function ${where}`));
+    const body = between(defer, `export async function ${where}`);
     assert.match(
-      body, /due: row\.untilAt/,
-      `${what} pulls cards forward without matching the date the deferral wrote, `
-      + "so a card FSRS had honestly put further out comes back early.",
+      body, /\bgiveBack\(tx,/,
+      `${what} gives cards back without going through giveBack, which is the one place `
+      + "that matches the date the deferral wrote and returns each card to where the wait found it.",
     );
   }
+  /*
+    And the one way back matches that date, and puts a card no earlier than the
+    date it had before the push: a card due in two days that the wait moved
+    comes back in two days rather than tonight.
+  */
+  const back = defer.slice(defer.indexOf("async function giveBack"));
+  assert.match(
+    back.slice(0, 2500), /due: row\.untilAt/,
+    "giveBack reaches cards the wait did not put on its date, so a card FSRS had put further out comes back early",
+  );
+  assert.match(
+    back.slice(0, 2500), /readPriorDues\(row\.priorDues\)/,
+    "giveBack sets every card it moved to now, so a card due after tonight comes back early",
+  );
 
   /*
     AND A SECOND PRESS MAY NOT SHORTEN A WAIT, which is the same rule read
