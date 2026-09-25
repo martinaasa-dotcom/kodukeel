@@ -25,7 +25,7 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
-import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
+import { ORDER_EXACT, orderVariantNote, ORDER_WRONG, NOT_REACHED } from "@/lib/copy/values";
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
@@ -182,9 +182,9 @@ export function LessonSession({
   const submit = useCallback(async () => {
     if (saving || saved) return;
     setSaving(true);
-    const result = await completeLesson(unitId, answers);
+    const result = await completeLesson(unitId, answers).catch(() => null);
     setSaving(false);
-    setSaved(result.ok ? { ok: true } : { ok: false, error: result.error });
+    setSaved(result?.ok ? { ok: true } : { ok: false, error: result ? result.error : NOT_REACHED });
   }, [answers, saved, saving, unitId]);
 
   useEffect(() => {
@@ -458,7 +458,7 @@ function StepCard({
                         <span lang={point.estonian ? "et" : undefined} className="underline">
                           {point.title}
                         </span>
-                        <span className="text-xs" style={{ opacity: 0.75 }}>{point.english}</span>
+                        <span className="text-xs">{point.english}</span>
                       </Link>
                     </li>
                   );

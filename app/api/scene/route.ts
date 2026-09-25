@@ -41,6 +41,7 @@ import { DEFAULT_VOICE } from "@/lib/audio/voice";
 import { glossSentences } from "@/lib/dict/glossed";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { NO_STORE } from "@/lib/security/headers";
 
 /**
  * One line of one turn, walked up the ladder.
@@ -106,7 +107,6 @@ const MAX_CONTEXT_CHARS = 600;
 const MAX_CONTEXT_TURNS = 6;
 /** Per instance, and not the thing that bounds cost: the ledger is (§16). */
 const PER_MINUTE = 30;
-const NO_STORE = { "cache-control": "no-store" };
 
 export async function POST(request: Request) {
   const ownerId = await requireUserId();
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
     : null;
   const scene = row ? sceneById(row.sceneId) : null;
   if (!scene) {
-    return Response.json({ error: "That is not a turn in a scene." }, { status: 400 });
+    return Response.json({ error: "That is not a turn in a scene." }, { headers: NO_STORE, status: 400 });
   }
 
   /*
@@ -161,7 +161,7 @@ export async function POST(request: Request) {
 
   const context = await sceneContext(scene.id, level);
   if (!context) {
-    return Response.json({ error: "That scene could not be built." }, { status: 400 });
+    return Response.json({ error: "That scene could not be built." }, { headers: NO_STORE, status: 400 });
   }
 
   const persona = personaOf(row!.transcript);

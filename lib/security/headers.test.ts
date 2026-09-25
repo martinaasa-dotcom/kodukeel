@@ -19,9 +19,18 @@ describe("the policy says what the app actually needs", () => {
   it("refuses to be framed, in both directions", () => {
     // Sõnaveeb and Ekilex send X-Frame-Options: DENY at us and this app sends
     // it back out. Nothing here is meant to be embedded anywhere.
-    expect(directive("frame-ancestors")).toBe("frame-ancestors 'none'");
-    expect(directive("frame-src")).toBe("frame-src 'none'");
-    expect(header("X-Frame-Options")).toBe("DENY");
+    //
+    // Stated rather than inherited: `frame-src` opens for Google's iframe when
+    // a client ID is set, so a machine that exported one failed this line
+    // while the policy was perfectly correct.
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID", "");
+    try {
+      expect(directive("frame-ancestors")).toBe("frame-ancestors 'none'");
+      expect(directive("frame-src")).toBe("frame-src 'none'");
+      expect(header("X-Frame-Options")).toBe("DENY");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("allows Google's own sign-in iframe only when a client ID is configured", () => {
@@ -69,6 +78,29 @@ describe("the policy says what the app actually needs", () => {
      * connect to but ourselves.
      */
     expect(directive("connect-src")).not.toMatch(/ekilex|wiktionary|tartunlp/i);
+  });
+
+  /*
+    The line above names three services and forbids them, so a fourth origin
+    added to `connect-src` passed it: the test's name said "no third party" and
+    what it asked was "not these three". The whole directive is pinned here
+    instead, on a stated machine: a production build with no Supabase project
+    connects to itself and nothing else, and with one it adds exactly that
+    project's two origins. Anything a later change adds has to be written into
+    this test on purpose.
+  */
+  it("connects to itself, and to one Supabase project where one is configured, and nowhere else", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    try {
+      expect(directive("connect-src")).toBe("connect-src 'self'");
+      vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://abcdefgh.supabase.co");
+      expect(directive("connect-src")).toBe(
+        "connect-src 'self' https://abcdefgh.supabase.co wss://abcdefgh.supabase.co",
+      );
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("allows the Supabase project when one is configured, and nothing wider", () => {
