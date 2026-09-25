@@ -206,6 +206,10 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/robots.txt") ||
     path.startsWith("/sitemap.xml") ||
     path.startsWith("/opengraph-image") ||
+    // The home-screen icon, drawn the same for everybody. A phone fetches it
+    // with no session when somebody adds the site to their home screen, and
+    // it has no extension for the matcher to skip.
+    path.startsWith("/apple-icon") ||
     // Aggregate metrics carry their own bearer token and are read by whoever
     // runs the deployment, not by a signed-in learner. Past this gate it
     // authenticates itself, and with no token configured it 404s.

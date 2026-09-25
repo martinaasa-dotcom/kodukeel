@@ -191,6 +191,29 @@ function between(source: string, from: string): string {
   const end = rest.indexOf("\nexport ");
   return end < 0 ? rest : rest.slice(0, end);
 }
+/**
+ * The files a Next metadata convention serves from the root of `app/`, and the
+ * path each one answers on. Read off the filesystem so a new one is found by
+ * both checks that care: one requires it be reachable signed out, the other
+ * lets it be absent from the landing page, since a crawler reads it and no
+ * person follows a link to it.
+ */
+const METADATA_CONVENTIONS: Record<string, string> = {
+  robots: "/robots.txt",
+  sitemap: "/sitemap.xml",
+  manifest: "/manifest.webmanifest",
+  "opengraph-image": "/opengraph-image",
+  "twitter-image": "/twitter-image",
+  icon: "/icon",
+  "apple-icon": "/apple-icon",
+};
+function metadataRoutes(): { file: string; path: string }[] {
+  return readdirSync("app")
+    .map((name) => /^([a-z-]+)\.(?:ts|tsx)$/.exec(name)?.[1])
+    .filter((base): base is string => base !== undefined && base in METADATA_CONVENTIONS)
+    .map((base) => ({ file: `app/${base}`, path: METADATA_CONVENTIONS[base]! }));
+}
+
 const SCHEMA = read("prisma/schema.prisma");
 const CSS = read("app/globals.css");
 
@@ -2489,20 +2512,24 @@ check("a withheld note claims Estonian only when it caught Estonian", () => {
   // Both routes have to carry it out to the client, and both screens have to
   // branch on it. Anchored on the member rather than on a sentence, because
   // the wording is copy and a copy sweep may rewrite it.
-  for (const file of [
-    "app/api/write/route.ts",
-    "app/api/exam/write/route.ts",
-    "app/(app)/review/write/WriteSession.tsx",
-    "app/(app)/exam/result/[id]/AnuReading.tsx",
-  ]) {
-    assert.match(read(file), /withheldReason/, `${file} dropped the withhold reason`);
+  //
+  // Read with the comments stripped and on the assignment rather than the
+  // word: the exam route names `withheldReason` in a comment above the line
+  // that sets it, and each screen declares it on an interface, so a raw
+  // `/withheldReason/` held with the value never sent and the branch deleted.
+  for (const file of ["app/api/write/route.ts", "app/api/exam/write/route.ts"]) {
+    assert.match(
+      code(file),
+      /withheldReason\s*[:=]\s*verified\.reason/,
+      `${file} no longer carries the withhold reason to the client`,
+    );
   }
   for (const file of [
     "app/(app)/review/write/WriteSession.tsx",
     "app/(app)/exam/result/[id]/AnuReading.tsx",
   ]) {
     assert.match(
-      read(file),
+      code(file),
       /withheldReason === "unvouched-word"/,
       `${file} tells every withheld learner that Anu wrote Estonian, including when she did not`,
     );
@@ -3050,10 +3077,11 @@ check("a page a stranger may read is a page the landing page links to", () => {
   const landing = read("app/(chromeless)/welcome/page.tsx");
   const notAPage = [
     "/sign-in", "/auth/callback", "/offline", "/api/",
-    // Generated metadata routes: read by a crawler and by whatever draws a
-    // link preview, never by a person following a link. See the check below,
-    // which asserts the other half, that they are in the allowlist at all.
-    "/robots.txt", "/sitemap.xml", "/opengraph-image",
+    // Generated metadata routes: read by a crawler, a link preview or a phone
+    // adding a home-screen icon, never by a person following a link. Taken
+    // from the same table as the check below, which asserts the other half,
+    // that each is reachable signed out at all.
+    ...metadataRoutes().map((r) => r.path),
   ];
 
   const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
@@ -5626,17 +5654,27 @@ check("a suite that writes to the shared dictionary invents the word it writes",
   const lemmas = seededLemmas();
   assert.ok(lemmas.size > 100, "the built dictionary could not be read, so this check sees nothing");
 
+  let checked = 0;
   for (const file of sourceFiles("scripts", /\.mjs$/)) {
-    const source = read(file);
+    const source = code(file);
     /*
       An item the dictionary did not vouch for, in a stubbed scan response.
       `lexemeId: null` is what makes it one, and the `et` beside it is what
       would be written. Matched in either order, because an object literal has
       no canonical one.
+
+      Both real fixtures name the word through a constant (`et: UNVOUCHED`,
+      `et: UNKNOWN`), and this used to read a string literal and nothing else,
+      so every item was skipped and the check held whatever those constants
+      said. A name is resolved to the string it is bound to in the same file.
     */
     for (const item of source.matchAll(/\{[^{}]*lexemeId:\s*null[^{}]*\}/g)) {
-      const et = /\bet:\s*"([^"]+)"/.exec(item[0])?.[1];
+      const said = /\bet:\s*(?:"([^"]+)"|([A-Za-z_$][\w$]*))/.exec(item[0]);
+      const et = said?.[1]
+        ?? (said?.[2] ? new RegExp(`\\bconst ${said[2]}\\s*=\\s*"([^"]+)"`).exec(source)?.[1] : undefined);
+      assert.ok(said === null || et, `${file} ticks a word through ${said?.[2]}, which this check cannot read`);
       if (!et) continue;
+      checked += 1;
       assert.equal(
         lemmas.has(et.toLowerCase()),
         false,
@@ -5644,6 +5682,7 @@ check("a suite that writes to the shared dictionary invents the word it writes",
       );
     }
   }
+  assert.ok(checked >= 2, `expected the fixtures that tick an unvouched word, read ${checked}`);
 });
 
 check("no type size is written as a literal", () => {
@@ -6985,16 +7024,30 @@ check("a file written for a crawler is a file a crawler can reach", () => {
     Read off the filesystem rather than a list typed here, so a metadata route
     added tomorrow has to be decided about rather than quietly gated.
   */
-  const served: Record<string, string> = {
-    "app/robots.ts": "/robots.txt",
-    "app/sitemap.ts": "/sitemap.xml",
-    "app/opengraph-image.tsx": "/opengraph-image",
-  };
+  /*
+    AND THE LIST IS THE FILESYSTEM, WHICH IS WHAT THE SENTENCE ABOVE SAID.
+
+    It was three file names typed here, each skipped when absent, so the
+    check could not see a fourth and passed in silence if one was renamed.
+    `app/apple-icon.tsx` was the fourth: `/apple-icon` has no extension for
+    the matcher to exclude and was named nowhere in `isPublicPath`, so the
+    icon a phone fetches for a home-screen shortcut, signed out, came back as
+    a redirect to sign-in. Every file a Next metadata convention serves from
+    the root is found here and has to be reachable one way or the other.
+  */
+  const served = metadataRoutes();
+  assert.ok(served.length >= 4, `expected the root metadata routes, found ${served.length}`);
+
   const middleware = code("middleware.ts");
-  for (const [file, path] of Object.entries(served)) {
-    if (!existsSync(file)) continue;
+  const matcher = /matcher:\s*\[\s*"([^"]+)"/.exec(middleware)?.[1];
+  assert.ok(matcher, "could not read the middleware matcher");
+  const matched = new RegExp(`^${matcher.replace(/\\\\/g, "\\")}$`);
+  assert.ok(matched.test("/today") && !matched.test("/_next/static/x.js"), "the matcher no longer reads as it did");
+
+  for (const { file, path } of served) {
+    const gated = matched.test(path);
     assert.ok(
-      middleware.includes(`path.startsWith("${path}")`),
+      !gated || middleware.includes(`path.startsWith("${path}")`),
       `${file} serves ${path}, which the gate redirects to sign-in unless isPublicPath names it`,
     );
   }
@@ -8066,19 +8119,25 @@ check("a call is booked only once the request is worth answering", () => {
     empty posts left four pending calls against the global budget and spent
     four of that learner's ten for the day. Every paid route validates first.
   */
-  const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f));
-  for (const file of paid) {
-    const src = code(file);
-    const at = src.indexOf("authoriseCall(");
-    if (at === -1) continue;
-    const before = src.slice(0, at);
-    assert.ok(
-      !/status:\s*400/.test(src.slice(at)) || /releaseReservation\(/.test(src.slice(at)),
-      `${file} can refuse a request after booking it without handing the booking back`,
-    );
-    assert.ok(
-      before.length > 0,
-      `${file} books a call before it has read anything about the request`,
+  /*
+    Asked as the rule is stated rather than as a way round it. The first
+    version passed a refusal after the booking whenever `releaseReservation(`
+    appeared anywhere later in the file, and every paid route releases on its
+    provider-failure path, so a 400 moved below the booking without a release
+    of its own passed on all seven. It also asserted that the text before the
+    booking was not empty, which every file with an import satisfies. So a
+    refusal of the request itself may not come after the booking at all.
+  */
+  const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f))
+    .map((file) => ({ file, src: code(file) }))
+    .filter(({ src }) => src.includes("authoriseCall("));
+  assert.ok(paid.length >= 6, `expected the routes that spend on a model or a service, found ${paid.length}`);
+  for (const { file, src } of paid) {
+    const after = src.slice(src.indexOf("authoriseCall("));
+    assert.doesNotMatch(
+      after,
+      /status:\s*(?:400|413|422)\b/,
+      `${file} refuses a request after booking a call for it, so the booking stands against the budget`,
     );
   }
 });
@@ -11497,10 +11556,21 @@ check("every marker the merge ritual names is still somewhere in the tree", () =
     `only ${markers.length} markers parsed out of CLAUDE.md; the list or its wording moved`,
   );
 
+  /*
+    Code, not prose, and not this file's own mentions. Read raw, a marker whose
+    code was deleted survived in the comment explaining why it went
+    (`decoyGlosses` was replaced by `decoyOptions` and lived on in
+    `lib/dict/facts.ts` as "This used to be two functions"), and this file's
+    messages name markers too. What this file contributes is only what it
+    declares, since `buttonRuns` is a helper that lives here.
+  */
+  const SELF = "scripts/test-invariants.ts";
+  const declaredHere = [...code(SELF).matchAll(/\b(?:function|const|let)\s+([A-Za-z_$][\w$]*)/g)]
+    .map((m) => m[1]!).join("\n");
   const haystack = [
     ...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/), ...sourceFiles("prisma"),
     "middleware.ts", "next.config.ts", "app/globals.css",
-  ].filter((f) => existsSync(f)).map(read).join("\n");
+  ].filter((f) => f !== SELF && existsSync(f)).map(code).join("\n") + "\n" + declaredHere;
 
   const gone = markers.filter((marker) => !haystack.includes(marker));
   assert.deepEqual(
@@ -22181,6 +22251,9 @@ check("the hint's state is one hook rather than a copy per round", () => {
   const drawing = [...HINT_SWEPT_DIRS, "app/(app)"]
     .flatMap((dir) => sourceFiles(dir, /\.tsx$/))
     .filter((f) => /<HintLadder\b/.test(code(f)));
+  // Both sweeps below are empty-list passes if the ladder is renamed, so the
+  // haystack has to be there first. Fourteen rounds draw it today.
+  assert.ok(drawing.length >= 10, `expected the rounds that draw the hint ladder, found ${drawing.length}`);
   const rolled = drawing.filter((f) => !/\buseHints\(/.test(code(f)));
   assert.deepEqual(
     [...new Set(rolled.map((f) => f.replace(/\\/g, "/")))], [],
