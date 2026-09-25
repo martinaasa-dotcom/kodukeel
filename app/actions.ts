@@ -1338,7 +1338,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
  * cost is that `advance` sees the next turn as helped. Nothing is deducted, no
  * objective is withheld, and the word goes on the debrief with a button to keep
  * it. Somebody who asks for four words and finishes has learned more than
- * somebody who gave up with none (`docs/19-situations.md` §12).
+ * somebody who gave up with none (`docs/21-situations.md` §12).
  *
  * The first version of this button recorded the *beat id* as the word needed,
  * so a debrief listed `reason` and `greet` under "words this conversation
@@ -1421,7 +1421,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
  * writes into the review log and a forged one would schedule words nobody said.
  *
  * Nothing in the transcript is true about the learner. The role card is fiction
- * (`docs/19-situations.md` §3), which is what makes a table of somebody's
+ * (`docs/21-situations.md` §3), which is what makes a table of somebody's
  * practice sentences about a doctor's appointment safe to hold at all.
  */
 export async function finishScene(input: {
@@ -4143,9 +4143,6 @@ const ExamSubmissionSchema = z.object({
  */
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
-
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 
