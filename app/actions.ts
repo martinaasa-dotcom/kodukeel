@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
+import { setStarred, starredAmong } from "@/lib/progress/stars";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
@@ -804,16 +805,18 @@ export async function createLexemeWithForms(input: {
   return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null };
 }
 
-export async function toggleStar(lexemeId: string) {
+export async function toggleStar(lexemeId: string, want?: boolean) {
   const ownerId = await requireUserId();
-  const existing = await prisma.starredWord.findUnique({
-    where: { ownerId_lexemeId: { ownerId, lexemeId } },
-  });
-  if (existing) {
-    await prisma.starredWord.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
-  } else {
-    await prisma.starredWord.create({ data: { ownerId, lexemeId } });
-  }
+  const id = text(lexemeId);
+  /*
+    The button says which state it wants, so a stale screen cannot turn a
+    press on "Add" into a removal (`setStarred` says why). A tab still running
+    the bundle from before this sends no state, and gets the toggle it was
+    written against.
+  */
+  const starred = await setStarred(
+    ownerId, id, typeof want === "boolean" ? want : !(await starredAmong(ownerId, [id])).has(id),
+  );
   /*
     The dictionary is where a star used to be set from and the only place it
     could be read; the mastery page is where the favorites are listed now,
@@ -823,7 +826,7 @@ export async function toggleStar(lexemeId: string) {
   */
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
-  return { ok: true as const, starred: !existing };
+  return { ok: true as const, starred };
 }
 
 /**

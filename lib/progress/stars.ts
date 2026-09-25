@@ -82,3 +82,26 @@ export async function favorites(ownerId: string): Promise<Favorite[]> {
 export function favoriteCount(ownerId: string): Promise<number> {
   return prisma.starredWord.count({ where: { ownerId } });
 }
+
+/**
+ * Put a word on or off the favorites, as asked, and never the other way.
+ *
+ * The star used to be toggled on the server: read whether the word was
+ * starred, then write the opposite. That is relative to what the database
+ * holds rather than to what the learner was looking at, so a screen gone stale
+ * in another tab read "Add to favorites" and pressing it removed the star. And
+ * two presses landing together both read "not starred", one created the row
+ * and the other threw on the key, and the button put itself back to unstarred
+ * over a database that said starred. The button says which state it wants now,
+ * and this writes that state whatever was there: `skipDuplicates` and
+ * `deleteMany` are both no-ops on a row already in the wanted state, so there
+ * is nothing left to race.
+ */
+export async function setStarred(ownerId: string, lexemeId: string, want: boolean): Promise<boolean> {
+  if (want) {
+    await prisma.starredWord.createMany({ data: [{ ownerId, lexemeId }], skipDuplicates: true });
+  } else {
+    await prisma.starredWord.deleteMany({ where: { ownerId, lexemeId } });
+  }
+  return want;
+}
