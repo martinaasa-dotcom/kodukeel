@@ -123,7 +123,7 @@ This is the theme where the work actually is, so it is the longest.
 | 8.30 Outsourced development | None. | | Not applicable |
 | 8.31 Separation of environments | Preview deployments are disabled for agent branches so the deployment cap is spent on production. Browser suites build into their own output directory. Local mode is keyed on absent configuration and a configured deployment cannot be talked into it. | `vercel.json`, `next.config.ts`, `lib/auth/mode.ts` | Implemented |
 | 8.32 Change management | Pull requests, CI required, protected default branch. No formal change advisory board, which would be one person approving their own work. | GitHub | Partial |
-| 8.33 Test information | Test fixtures are generated, never copied from production. The end-to-end suite and the demo fixture refuse to run against anything but a local database and say so rather than proceeding. | `scripts/demo-data.ts` | Implemented |
+| 8.33 Test information | Test fixtures are generated, never copied from production. The demo fixture writes to one named account only (the local learner, or `DEMO_OWNER_ID` where sign-in is configured) and refuses an account holding more than twenty reviews unless `--force` is passed, saying why rather than proceeding. It does not check which database it is pointed at; that is the operator's to get right. | `scripts/demo-data.ts` | Implemented |
 | 8.34 Protection during audit testing | Not applicable. No audit has been run. | | Not applicable |
 
 ## 3. SOC 2 Trust Services Criteria

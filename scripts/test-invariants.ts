@@ -21716,6 +21716,19 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("the report box says a person reads it, which the privacy assessment relies on", () => {
+  /*
+    docs/24-dpia.md §1.4 names the warning on the report box as the mitigation
+    for free text there. A mitigation that exists only in the assessment is a
+    claim, so the sentence has to be on the screen, outside a comment, and the
+    assessment has to still point at it.
+  */
+  assert.match(code("components/SuggestFix.tsx"), /A person reads this, so please leave out anything private\./,
+    "the report box no longer warns that a person reads it");
+  assert.match(read("docs/24-dpia.md"), /`SuggestFix`[\s\S]{0,120}another person reads it/,
+    "the assessment no longer names the report box warning as its mitigation");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

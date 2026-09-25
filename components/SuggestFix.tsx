@@ -358,6 +358,15 @@ export function SuggestFix({
           className="field w-full text-sm"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />
+        {/*
+          An assurance rather than an explanation, so it is on the screen at a
+          size somebody reads rather than behind a press: it answers the
+          question a careful person has before they type, and docs/24-dpia.md
+          §1.4 names it as the mitigation for free text in this box.
+        */}
+        <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+          A person reads this, so please leave out anything private.
+        </p>
       </div>
 
       {error && (
