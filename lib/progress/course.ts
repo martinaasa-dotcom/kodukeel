@@ -448,6 +448,23 @@ export interface CourseReading extends ProgrammeStanding {
   /** True where the current day's last step was finished today. */
   finishedToday: boolean;
   /**
+   * True where an evening of this programme was finished today, including one
+   * this render walked past because a step of the next was already ticked.
+   *
+   * Not `finishedToday`, which is the screen's "come back tomorrow" and is
+   * rightly false once somebody has pressed "start the next one now": the
+   * screen is then about the next module. The evening letter asks a different
+   * question, whether tonight's evening is done, and somebody who finished one
+   * and carried on has done it.
+   */
+  eveningDoneToday: boolean;
+  /**
+   * Whether this learner has ticked anything in the programme at all. With
+   * nothing ticked the programme is `openingPart` read off their level, which
+   * is an offer rather than a course they chose; see `moduleReached`.
+   */
+  started: boolean;
+  /**
    * How many evenings in a row this programme has been worked on, counting
    * today where today has a tick and yesterday where it does not, which is
    * `computeStreak`'s own rule and the same midnight the review streak breaks
@@ -553,7 +570,20 @@ export async function courseReading(
   */
   const eveningsInARow = computeStreak(ticks.at, now, clock);
 
-  return { ...standing, finishedToday, eveningsInARow };
+  /*
+    AN EVENING DONE TODAY, WHICHEVER RENDER NOTICED. The day before the one
+    reached has been walked past, which is what finishing it means, so its
+    last tick landing today is an evening finished today even though this
+    render did not finish it.
+  */
+  const before = programme.days[programme.days.indexOf(reached) - 1];
+  const beforeLast = before ? ticks.lastAt.get(before.id) : undefined;
+  const eveningDoneToday = finishedToday
+    || Boolean(beforeLast && beforeLast >= midnight);
+
+  return {
+    ...standing, finishedToday, eveningDoneToday, started: ticks.byDay.size > 0, eveningsInARow,
+  };
 }
 
 /**

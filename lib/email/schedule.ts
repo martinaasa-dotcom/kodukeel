@@ -220,9 +220,15 @@ export interface Candidate {
   readonly lastReviewAt: Date | null;
   /** When they finished first run, which is what a welcome answers. */
   readonly onboardedAt: Date | null;
-  /** Whether they have a course to be reminded about at all. */
-  readonly hasProgramme: boolean;
-  /** Whether tonight's evening is already finished, on their clock. */
+  /**
+   * Whether they have started a course to be reminded about: at least one step
+   * ticked. A programme merely offered off their level is not one they chose.
+   */
+  readonly startedCourse: boolean;
+  /**
+   * Whether an evening was already finished today, on their clock, including
+   * one followed by a start on the next module.
+   */
   readonly finishedToday: boolean;
   /**
    * How far in they are, as `lib/ux/disclosure.ts` decides it.
@@ -578,7 +584,8 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     AND THE EVENING NUDGE, WHICH IS THE ONE THE WHOLE SYSTEM IS FOR.
 
     Four conditions and every one of them is a way it would otherwise be
-    unwelcome. There has to be a course to be reminded about. Tonight has to
+    unwelcome. There has to be a course they started, not one merely offered
+    off their level: every letter is about an evening somebody chose. Tonight has to
     be unfinished, or the letter is congratulating somebody on work it is
     asking them to do. It has to be their evening rather than the server's,
     which is the whole argument `lib/time/reminder.ts` makes at length about
@@ -593,7 +600,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
   */
   const hour = who.reminderHour ?? 18;
   if (
-    who.hasProgramme &&
+    who.startedCourse &&
     !who.finishedToday &&
     who.localHour >= hour &&
     who.localHour < 22 &&
