@@ -220,14 +220,18 @@ check("a filed word is still in the learner's deck", await shows("In deck"));
   feature as covered while the screen a learner opens every morning had the
   button and not the question.
 
-  WAIVED WHERE THE CARD IS NOT DRAWN, and that is a real state rather than a
-  hedge: Today names seven cards in priority order and draws the first five, so
-  whether the word of the day makes the cut depends on how many of the errand,
-  the calendar, the homework, the round and the streak have something to say on
-  the day the fixture lands on. The invariant "the deck question has one home"
-  is what holds this without a fixture, since it fails on an add button that
-  stops reaching for the shared question at all.
+  PUT FIRST FOR THE LENGTH OF THESE TWO CHECKS. Today names eight cards in
+  priority order and draws the first five, the word of the day is seventh,
+  and on the CI fixture the five above it always have something to say: this
+  waived on every run CI made, under a reason ("was not among today's five
+  cards") that was true and never going to change. A learner can put it first
+  in Settings, and `todayOrder` is that choice stored, so the suite makes it
+  and puts back what was there. Waived only where the word is already in the
+  deck, which draws no add button, and that is a fact about the fixture.
 */
+const ORDER = { ownerId: OWNER, key: "todayOrder" };
+const orderBefore = await prisma.setting.findUnique({ where: { ownerId_key: ORDER } });
+await prisma.setting.upsert({ where: { ownerId_key: ORDER }, create: { ...ORDER, value: "word" }, update: { value: "word" } });
 await page.goto(`${B}/`, { waitUntil: "networkidle" });
 const keep = page.getByRole("button", { name: /Add it to my deck/i }).first();
 if ((await keep.count()) > 0) {
@@ -238,8 +242,10 @@ if ((await keep.count()) > 0) {
   await page.getByRole("button", { name: /^Add it$/ }).first().click();
   check("and says which shelf it went on", await eventually(() => shows(DECK), { timeoutMs: 8000 }));
 } else {
-  absent(2, "the word of the day was not among today's five cards, so the home page drew no add button");
+  absent(2, "the word of the day is already in this deck, so the home page drew no add button");
 }
+if (orderBefore) await prisma.setting.update({ where: { ownerId_key: ORDER }, data: { value: orderBefore.value } });
+else await prisma.setting.delete({ where: { ownerId_key: ORDER } });
 
 // ── Renaming, and taking a word off ───────────────────────────────────────
 await deckPage();
