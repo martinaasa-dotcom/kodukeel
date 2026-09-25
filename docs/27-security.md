@@ -442,7 +442,7 @@ being trusted.
 | Data | Erasure has no exemptions, and removes the Supabase Auth identity too | `lib/auth/erase.ts` |
 | Data | Anonymity gate on the research export, four rules | `lib/research/corpus.ts` |
 | Dependencies | Two blocking `npm audit` gates, production and dev | `.github/workflows/ci.yml` |
-| Assurance | 279 invariants asserted in CI | `scripts/test-invariants.ts` |
+| Assurance | Every invariant in `scripts/test-invariants.ts`, asserted in CI | `scripts/test-invariants.ts` |
 
 ## 6. What has not been done
 
@@ -508,7 +508,7 @@ npx prisma generate
 npm run typecheck        # strict, plus noUncheckedIndexedAccess
 npm run lint
 npm test                 # unit suite, hermetic: no database, no network, no clock
-npm run test:invariants  # 279 asserted rules, including every security one above
+npm run test:invariants  # every asserted rule, including every security one above
 npm run check:secrets    # scans a built tree for credential shapes
 npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
