@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { dayClock, isTimeZone, nextCardLine, normaliseZone, partsIn, slowPartsIn } from "./day";
+import { dayClock, earliestStartOf, isTimeZone, nextCardLine, normaliseZone, partsIn, slowPartsIn } from "./day";
 
 /*
   The bug these exist for, stated once.
@@ -246,5 +246,15 @@ describe("the wall clock is the formatter's answer, whatever the cache holds", (
     // Which throws, exactly as it did before there was a cache in front of it.
     expect(() => slowPartsIn(new Date(Number.NaN), "Europe/Tallinn")).toThrow(RangeError);
     expect(() => partsIn(new Date(Number.NaN), "Europe/Tallinn")).toThrow(RangeError);
+  });
+});
+
+describe("earliestStartOf", () => {
+  it("is midnight at UTC+14, which no zone's day begins before", () => {
+    expect(earliestStartOf("2026-09-25").toISOString()).toBe("2026-09-24T10:00:00.000Z");
+    for (const zone of ["Pacific/Kiritimati", "Europe/Tallinn", "UTC", "Pacific/Pago_Pago"]) {
+      const midnight = dayClock(zone).startOfDay(new Date("2026-09-25T12:00:00Z"));
+      expect(midnight.getTime()).toBeGreaterThanOrEqual(earliestStartOf("2026-09-25").getTime());
+    }
   });
 });

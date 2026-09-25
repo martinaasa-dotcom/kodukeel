@@ -316,6 +316,21 @@ export function startOfDay(date: Date = new Date()): Date {
   return processClock.startOfDay(date);
 }
 
+/**
+ * The first instant of the calendar day `day` anywhere on Earth.
+ *
+ * A day begins earliest at UTC+14, so this is that day's midnight in UTC less
+ * fourteen hours. It needs no zone, which is the point: a daily puzzle is keyed
+ * on the learner's own day and rebuilt on the server from that key alone to be
+ * marked, so "what the dictionary held when this day began" has to be one
+ * instant the key decides by itself. Anything stored after it is stored during
+ * somebody's day, and nothing a learner does inside their day comes before it.
+ */
+export function earliestStartOf(day: DayKey): Date {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y!, m! - 1, d!) - 14 * 60 * 60 * 1000);
+}
+
 /** Local day keys from `days - 1` days ago up to today, oldest first. */
 export function recentDayKeys(days: number, from: Date = new Date()): DayKey[] {
   return processClock.recentDayKeys(days, from);
