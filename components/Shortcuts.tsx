@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Keyboard, X } from "lucide-react";
 import { KeyCap } from "@/components/ui";
 import { Explain } from "@/components/Explain";
+import { useModalFocus } from "@/components/useModalFocus";
 
 /** The event the command palette fires to open this without a keyboard. */
 export const SHORTCUTS_EVENT = "kodukeel:shortcuts";
@@ -75,6 +76,10 @@ const GROUPS: Group[] = [
  */
 export function Shortcuts() {
   const [open, setOpen] = useState(false);
+  const sheet = useRef<HTMLDivElement>(null);
+  // The caret goes to the close button, Tab stays in the sheet, and closing
+  // hands it back to whatever had it when `?` was pressed.
+  useModalFocus(open, sheet);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -125,6 +130,7 @@ export function Shortcuts() {
       aria-label="Keyboard shortcuts"
     >
       <div
+        ref={sheet}
         className="scroll-host pop-in max-h-full w-full max-w-2xl rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
         onClick={(e) => e.stopPropagation()}

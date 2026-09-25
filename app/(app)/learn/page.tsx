@@ -41,15 +41,15 @@ export default async function LearnPage() {
     promising twelve words waiting, over a round the module then holds back,
     reads as a counting fault rather than as a rule.
   */
-  const [snapshot, placement, taught] = await Promise.all([
-    deckSnapshot(ownerId),
+  const [[snapshot, units], placement, counts] = await Promise.all([
+    /*
+      Each chain waits only on the answer it needs: the path is read off the
+      deck, and the counts off where the module has taken the learner. They
+      were two batches, so the counts waited on the deck for nothing.
+    */
+    deckSnapshot(ownerId).then(async (snap) => [snap, await pathWithProgress(ownerId, snap)] as const),
     courseLevelFor(ownerId),
-    learnerModuleScope(ownerId),
-  ]);
-  // Neither needs the other's answer, so they are one round trip.
-  const [counts, units] = await Promise.all([
-    learnCounts(ownerId, undefined, taught?.lemmas ?? null),
-    pathWithProgress(ownerId, snapshot),
+    learnerModuleScope(ownerId).then((taught) => learnCounts(ownerId, undefined, taught?.lemmas ?? null)),
   ]);
 
   const doneIds = new Set(units.filter((u) => u.state === "done").map((u) => u.unit.id));

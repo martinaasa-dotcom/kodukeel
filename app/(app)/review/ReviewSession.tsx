@@ -1206,6 +1206,10 @@ export function ReviewSession({
         // be seen again here after the re-render — with the verdict already
         // set — and would grade the card before it had been read.
         if (typing) return;
+        // An option with the keyboard on it is pressed by its own Enter, like
+        // any button: taking that key here left a keyboard able to pick only
+        // by digit.
+        if (ask === "choice" && !chosen && e.target instanceof HTMLButtonElement) return;
         e.preventDefault();
         if (ask === "intro") { meetDone(); return; }
         if (ask === "type" && !verdict) { checkTyped(); return; }
@@ -1319,14 +1323,26 @@ export function ReviewSession({
     summary or the press reads as a card that vanished. One expression rather
     than two copies, because the second copy is the one whose wording rots.
   */
-  const asideNote = aside ? (
-    <p className="mt-4 text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
-      {aside}{" "}
-      <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
-        Bring it back
-      </Link>
+  /*
+    Always mounted, and only its words change: a status region that arrives
+    with its sentence already in it is one a screen reader may never read out.
+  */
+  const asideNote = (
+    <p
+      className={aside ? "mt-4 text-center text-sm" : "sr-only"}
+      role="status"
+      style={aside ? { color: "var(--ink-2)" } : undefined}
+    >
+      {aside && (
+        <>
+          {aside}{" "}
+          <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
+            Bring it back
+          </Link>
+        </>
+      )}
     </p>
-  ) : null;
+  );
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -1380,6 +1396,30 @@ export function ReviewSession({
   const progress = queue.length ? (index / queue.length) * 100 : 0;
   const frontLang = estonianSide(card.cardType, "front") ? "et" : "en";
   const backLang = estonianSide(card.cardType, "back") ? "et" : "en";
+  /*
+    What the status line at the foot of the card says: the verdict in words,
+    once there is one, and nothing before. A typed miss whose note already
+    names the form is said as the note, as it is drawn.
+  */
+  const shownAnswer = primaryAnswer(card.back);
+  const spokenVerdict =
+    ask === "type" && verdict
+      ? retypeOk
+        ? `${uiText("Õige!", "Correct!")} That is the one.`
+        : verdict.verdict === "correct"
+          ? uiText("Õige!", "Correct!")
+          : countsAsRecalled(verdict.verdict)
+            ? `Close: ${verdict.note}`
+            : verdict.note.includes(shownAnswer)
+              ? verdict.note
+              : `${verdict.note} The answer is ${shownAnswer}.`
+      : ask === "choice" && chosen
+        ? choiceIsRight(chosen, card.back, answerLanguage)
+          ? "Right."
+          : `Not this time. The answer is ${rightChoice}.`
+        : ask === "flip" && revealed
+          ? `The answer is ${shownAnswer}.`
+          : "";
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
@@ -1476,10 +1516,15 @@ export function ReviewSession({
           </div>
         </div>
 
+        {/*
+          Keyed on the reveal so a flipped card pops in, except on a
+          multiple-choice card: there the reveal is the pick, and remounting
+          the card there would unmount the option that was just pressed and
+          drop the focus on the page body. The options turn in place instead.
+        */}
         <div
-          key={`${card.id}-${revealed}`}
+          key={`${card.id}-${ask === "choice" ? "choice" : revealed}`}
           className="pop-in flex min-h-[280px] flex-col items-center justify-center gap-4 px-6 py-11 text-center md:min-h-[320px]"
-          aria-live="polite"
         >
           {ask === "intro" && <MeetWord card={card} firstMeetingCardId={firstMeetingCardId} />}
 
@@ -1648,40 +1693,67 @@ export function ReviewSession({
             </div>
           )}
 
-          {ask === "choice" && card.choices && !chosen && (
+          {ask === "choice" && card.choices && (
             <div className="mt-2 grid w-full max-w-md gap-2">
-              {card.choices.map((choice, i) => (
+              {card.choices.map((choice, i) => {
                 /*
-                  `.choice-btn` and a tone through `--choice-bg`, like every
-                  other option in the app. It painted its own background
-                  inline, which is the fault that class's own comment names:
-                  an inline style beats a class `:hover`, so the busiest
-                  options in the app could never define one and moved under a
-                  pointer without changing at all.
+                  One list of buttons before the pick and after it, so the
+                  button somebody pressed is the same element once it turns:
+                  swapping it for a `div` took the focus with it, and on a miss
+                  the caret landed on the page body. After the pick an option
+                  is `aria-disabled` rather than `disabled`, which is what
+                  keeps it focusable, and a press on it does nothing because
+                  `pickChoice` refuses a second pick.
+
+                  Before the pick it is `.choice-btn` with a tone through
+                  `--choice-bg`, like every other option in the app. It painted
+                  its own background inline once, which is the fault that
+                  class's own comment names: an inline style beats a class
+                  `:hover`, so the busiest options in the app could never
+                  define one and moved under a pointer without changing at all.
                 */
-                <button
-                  key={choice}
-                  type="button"
-                  onClick={() => pickChoice(choice)}
-                  className={`choice-btn ${struck.includes(choice) ? "line-through" : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium`}
-                  style={{
-                    "--choice-bg": "var(--accent-soft)",
-                    "--choice-border": "transparent",
-                    color: struck.includes(choice) ? "var(--ink-3)" : "var(--accent-deep)",
-                    boxShadow: "var(--shadow-sm)",
-                  } as CSSProperties}
-                >
-                  <KeyCap>{i + 1}</KeyCap>
-                  {choice}
-                  {/*
-                    Struck rather than removed, and still pressable. An option
-                    that vanishes takes the rows under it up the screen while
-                    somebody is reading them, and refusing the press would be
-                    the app saying they are wrong before they have answered.
-                  */}
-                  {struck.includes(choice) && <span className="sr-only"> (ruled out by a hint)</span>}
-                </button>
-              ))}
+                const state = chosen
+                  ? optionState(choiceIsRight(choice, card.back, answerLanguage), choice === chosen)
+                  : null;
+                return (
+                  <button
+                    key={choice}
+                    type="button"
+                    onClick={() => pickChoice(choice)}
+                    aria-disabled={state ? true : undefined}
+                    className={state
+                      ? `${OPTION_CLASS[state]} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium`
+                      : `choice-btn ${struck.includes(choice) ? "line-through" : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium`}
+                    style={state ? undefined : {
+                      "--choice-bg": "var(--accent-soft)",
+                      "--choice-border": "transparent",
+                      color: struck.includes(choice) ? "var(--ink-3)" : "var(--accent-deep)",
+                      boxShadow: "var(--shadow-sm)",
+                    } as CSSProperties}
+                  >
+                    {state ? (
+                      <>
+                        <span className="flex-1">{choice}</span>
+                        {state === "right" && <Check size={16} aria-label="Right" />}
+                        {state === "wrong" && <X size={16} aria-label="Your pick" />}
+                      </>
+                    ) : (
+                      <>
+                        <KeyCap>{i + 1}</KeyCap>
+                        {choice}
+                        {/*
+                          Struck rather than removed, and still pressable. An
+                          option that vanishes takes the rows under it up the
+                          screen while somebody is reading them, and refusing
+                          the press would be the app saying they are wrong
+                          before they have answered.
+                        */}
+                        {struck.includes(choice) && <span className="sr-only"> (ruled out by a hint)</span>}
+                      </>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -1693,24 +1765,6 @@ export function ReviewSession({
               open={hints.open}
               label={card.lemma ?? card.front}
             />
-          )}
-
-          {ask === "choice" && chosen && (
-            <div className="mt-2 grid w-full max-w-md gap-2">
-              {card.choices?.map((choice) => {
-                const state = optionState(choiceIsRight(choice, card.back, answerLanguage), choice === chosen);
-                return (
-                  <div
-                    key={choice}
-                    className={`${OPTION_CLASS[state]} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium`}
-                  >
-                    <span className="flex-1">{choice}</span>
-                    {state === "right" && <Check size={16} aria-label="Right" />}
-                    {state === "wrong" && <X size={16} aria-label="Your pick" />}
-                  </div>
-                );
-              })}
-            </div>
           )}
 
           {revealed && ask !== "choice" && (
@@ -1957,9 +2011,16 @@ export function ReviewSession({
           You&rsquo;re offline. {pendingOffline} grade{pendingOffline === 1 ? "" : "s"} saved here, sent once you reconnect.
         </p>
       )}
-      {verdict && countsAsRecalled(verdict.verdict) && verdict.verdict !== "correct" && (
-        <p className="sr-only" role="status">Close: {verdict.note}</p>
-      )}
+      {/*
+        THE ONE PLACE A VERDICT IS SAID OUT LOUD.
+
+        The card above is keyed on the reveal so it can pop in, and a live
+        region that is remounted is a new region: a screen reader either says
+        nothing or reads the whole card again. So the card carries no
+        `aria-live`, and this line, which is never unmounted while a round is
+        on, is what changes. Only its words move.
+      */}
+      <p className="sr-only" role="status">{spokenVerdict}</p>
     </div>
   );
 }

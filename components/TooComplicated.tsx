@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/Button";
 import { putWordAside } from "@/app/actions";
 import { awayIn, DEFER_DAYS } from "@/lib/srs/defer";
+import { useModalFocus } from "@/components/useModalFocus";
 
 /**
  * TOO COMPLICATED, WHEREVER THE WORD IS.
@@ -56,6 +57,12 @@ export function TooComplicated({
   const [pending, start] = useTransition();
   const [failed, setFailed] = useState(false);
   const [asking, setAsking] = useState(false);
+  const dialog = useRef<HTMLDivElement>(null);
+  const cancel = useRef<HTMLButtonElement>(null);
+  // Focus lands on Cancel, the choice that changes nothing, so an Enter
+  // pressed out of habit does not put a word away. Closing hands it back to
+  // the button that asked.
+  useModalFocus(asking, dialog, { initial: cancel });
 
   useEffect(() => {
     if (!asking) return;
@@ -116,6 +123,7 @@ export function TooComplicated({
           aria-labelledby={`too-complicated-${lexemeId}`}
         >
           <div
+            ref={dialog}
             className="pop-in w-full max-w-sm rounded-[var(--r-xl)] border p-5"
             style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
             onClick={(e) => e.stopPropagation()}
@@ -135,7 +143,7 @@ export function TooComplicated({
               </p>
             )}
             <div className="mt-5 flex justify-end gap-2">
-              <Button variant="secondary" onClick={() => setAsking(false)} disabled={pending}>
+              <Button ref={cancel} variant="secondary" onClick={() => setAsking(false)} disabled={pending}>
                 Cancel
               </Button>
               <Button variant="primary" onClick={confirm} disabled={pending}>

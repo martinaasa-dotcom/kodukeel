@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Compass, Loader2 } from "lucide-react";
 import { completeOnboarding } from "@/app/actions";
@@ -182,6 +182,29 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     document.querySelector("main")?.scrollTo?.({ top: 0, left: 0 });
   }, [step]);
+  /*
+    AND THE CARET GOES WITH IT, TO THE NEW STEP'S HEADING.
+    Continue changes the whole question under the button, so a keyboard was
+    left on Continue and a screen reader was told nothing had happened; Back on
+    the second step and the skip link under the goal each take themselves away
+    when pressed, which drops the caret on the body. Only after a press, never
+    on the first render: arriving at first run is not a navigation.
+  */
+  /*
+    Counted by press rather than read off `step`, because the level check
+    hands back to the step it was opened from: the step does not change, the
+    whole card is drawn again, and the caret still needs somewhere to land.
+  */
+  const card = useRef<HTMLDivElement>(null);
+  const [presses, setPresses] = useState(0);
+  const go = (next: number | ((s: number) => number)) => {
+    setPresses((n) => n + 1);
+    setStep(next);
+  };
+  useEffect(() => {
+    if (presses === 0) return;
+    card.current?.querySelector<HTMLElement>("h1")?.focus({ preventScroll: true });
+  }, [presses]);
   const [name, setName] = useState(suggestedName);
   const [letters, setLetters] = useState<LetterBar>(DEFAULT_LETTER_BAR);
   const [gloss, setGloss] = useState<GlossLanguage>(DEFAULT_GLOSS_LANGUAGE);
@@ -343,7 +366,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           onFinish={(result) => {
             setMeasured(result);
             setChecking(false);
-            setStep(1);
+            go(1);
           }}
         />
         </main>
@@ -372,6 +395,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
       </div>
 
       <div
+        ref={card}
         className="pop-in relative mx-auto w-full max-w-2xl rounded-[var(--r-xl)] border p-7 md:p-10"
         style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow-lg)" }}
       >
@@ -401,7 +425,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               before an evening goes into a deck, and they do not have to be the
               thing standing between the welcome and the name field.
             */}
-            <h1 lang="et" className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+            <h1 tabIndex={-1} lang="et" className="text-3xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
               Tere tulemast!
             </h1>
 
@@ -532,7 +556,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
 
         {step === 1 && (
           <section>
-            <h1 className="text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+            <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
               Where are you now?
             </h1>
             {/*
@@ -610,7 +634,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
 
         {step === 2 && (
           <section>
-            <h1 className="text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+            <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
               Why Estonian?
             </h1>
             <p className="mt-3 max-w-[54ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -724,7 +748,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
         */}
         {step === 3 && (!deck || deck.cards === 0) && (
           <section>
-            <h1 className="text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+            <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
               Your first words
             </h1>
             <Note tone="hard">
@@ -754,7 +778,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
 
         {step === 3 && deck && deck.cards > 0 && (
           <section>
-            <h1 className="text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+            <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
               Tonight, and every night after it
             </h1>
             <p className="mt-2 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
@@ -938,7 +962,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
 
         <div className="mt-10 flex items-center gap-3">
           {step > 0 && (
-            <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={pending}>
+            <Button variant="ghost" onClick={() => go((s) => s - 1)} disabled={pending}>
               <ArrowLeft size={15} aria-hidden /> Back
             </Button>
           )}
@@ -952,7 +976,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               variant="primary"
               size="lg"
               className="ml-auto"
-              onClick={() => setStep((s) => s + 1)}
+              onClick={() => go((s) => s + 1)}
               disabled={pending || !canContinue}
             >
               Continue <ArrowRight size={15} aria-hidden />
@@ -989,7 +1013,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           <div className="mt-6 text-center">
             <button
               type="button"
-              onClick={() => setStep(3)}
+              onClick={() => go(3)}
               disabled={pending}
               className="text-xs underline underline-offset-2 transition-opacity hover:opacity-70"
               style={{ color: "var(--ink-3)" }}

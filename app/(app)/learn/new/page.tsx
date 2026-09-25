@@ -72,22 +72,25 @@ export default async function LearnNewPage({
     learnerModuleScope(ownerId),
   ]);
   const within = taught?.lemmas ?? null;
-  const [counts, spellings] = await Promise.all([
+  /*
+    The counts and the batch need nothing from each other, so they are asked
+    at once. The batch waited on the counts for a figure it never reads, which
+    was one round trip in front of the widest read on the screen.
+  */
+  const [counts, words] = await Promise.all([
     learnCounts(ownerId, undefined, within),
-    moduleSpellings(taught),
+    moduleSpellings(taught).then((spellings) => learnBatch(
+      ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]), undefined,
+      {
+        kind,
+        within,
+        // Only where the module has said something: `readableFor` fails closed on
+        // a null set, so handing it one for a learner who follows no module would
+        // take every gap off the A1 ladder.
+        ...(taught ? { taughtWords: spellings, sentenceReader: "lesson" as const } : {}),
+      },
+    )),
   ]);
-
-  const words = await learnBatch(
-    ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]), undefined,
-    {
-      kind,
-      within,
-      // Only where the module has said something: `readableFor` fails closed on
-      // a null set, so handing it one for a learner who follows no module would
-      // take every gap off the A1 ladder.
-      ...(taught ? { taughtWords: spellings, sentenceReader: "lesson" as const } : {}),
-    },
-  );
 
   const { waiting, started } = kind === "phrase" ? counts.phrases : counts;
   return <LearnSession words={words} waiting={waiting} started={started} kind={kind} />;

@@ -296,8 +296,17 @@ export function ClozeSession() {
             )}
           </div>
 
+          {/* Mounted before the verdict so a screen reader hears it arrive;
+              the panel under it is for the eye. */}
+          <p className="sr-only" role="status">
+            {!checked ? "" : right
+              ? "Exactly the form the writer used."
+              : slip
+                ? `Right word, missing a diacritic. The form is ${item.answer}.`
+                : `The writer used ${item.answer}, the ${item.formLabel}.`}
+          </p>
           {checked && (
-            <div className="mt-5" aria-live="polite">
+            <div className="mt-5">
               <div className={`${VERDICT_CLASS[verdict]} verdict-panel flex items-start gap-2.5`}>
                 {right
                   ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />

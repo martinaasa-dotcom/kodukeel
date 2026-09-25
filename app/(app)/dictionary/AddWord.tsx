@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Pencil, Plus } from "lucide-react";
 import { createLexemeWithForms } from "@/app/actions";
 import { Button } from "@/components/Button";
@@ -103,7 +103,27 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
 
   const setForm = (key: string, value: string) => setForms((f) => ({ ...f, [key]: value }));
 
+  /*
+    THE CARET FOLLOWS THE FORM IN AND OUT. The button that opens it goes away
+    as it arrives and Cancel goes away as it leaves, so both presses used to
+    drop focus on the body. Opening lands on the first field and closing goes
+    back to the button that opened it. Only after a press, since `shown`
+    starts false and the first render moves nothing.
+  */
+  const form = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLButtonElement>(null);
+  const shown = useRef(false);
+  useEffect(() => {
+    if (open) {
+      shown.current = true;
+      form.current?.querySelector<HTMLElement>("input, select, textarea")?.focus();
+    } else if (shown.current) {
+      opener.current?.focus();
+    }
+  }, [open]);
+
   const submit = () => {
+    if (pending) return;
     setError(null);
     start(async () => {
       // The citation form doubles as the first principal part, so it is filled in
@@ -149,7 +169,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
 
   if (!open) {
     return (
-      <Button onClick={() => setOpen(true)}>
+      <Button ref={opener} onClick={() => setOpen(true)}>
         {edit
           ? <><Pencil size={14} aria-hidden /> Edit</>
           : <><Plus size={15} aria-hidden /> Add a word</>}
@@ -159,6 +179,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
 
   return (
     <Card className="flex flex-col gap-4">
+      <div ref={form} className="contents">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
           {edit ? `Edit ${edit.lemma}` : "Add a word"}
@@ -256,13 +277,22 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
         </div>
       )}
 
-      {error && <p className="text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
+      {error && <p role="alert" className="text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
 
       <div className="flex flex-wrap items-center gap-4">
-        <Button variant="primary" onClick={submit} disabled={pending || !lemma.trim() || !translation.trim()}>
+        {/* Not `disabled` while it saves: the press is what starts the save,
+            and a control disabled under the caret drops focus onto the body. */}
+        <Button
+          variant="primary"
+          onClick={submit}
+          disabled={!lemma.trim() || !translation.trim()}
+          aria-disabled={pending || undefined}
+          className="aria-disabled:opacity-45"
+        >
           {pending ? "Saving…" : edit ? "Save changes" : "Save word"}
         </Button>
         <DiacriticBar label="Insert an Estonian letter into the field you're typing in" />
+      </div>
       </div>
     </Card>
   );
