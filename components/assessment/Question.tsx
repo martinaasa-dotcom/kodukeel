@@ -9,30 +9,32 @@ import { LEARNING_RATE } from "@/lib/audio/clip";
 import { Chip, KeyCap, Note } from "@/components/ui";
 import { BLANK } from "@/lib/estonian/cloze";
 import { splitOnForm } from "@/lib/dict/examples";
-import { gradeChoice, gradeDictation, gradeWrite } from "@/lib/assessment/score";
+import { gradeDictation, gradeWrite } from "@/lib/assessment/score";
 import type { ChoiceItem, DictationItem, SpeakItem, WriteItem } from "@/lib/assessment/types";
+import type { Given } from "@/lib/assessment/score";
 import { wordNote, type WordStatus } from "@/lib/estonian/dictation";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCredit, verdictOfDictation } from "@/lib/ux/verdict";
 
 /**
  * One question, and its answer.
  *
- * Each kind reports the same thing back: a credit between 0 and 1, and, for
- * speaking, the learner's own rating instead. Nothing here decides a level; the
- * pure marking functions in `lib/assessment/score.ts` do the marking and
- * `placement()` does the rest, so what a learner sees on screen and what the
- * result is built from cannot drift apart.
+ * Each kind reports what the learner did, unmarked: the option picked, the
+ * text typed, or for speaking their own rating. Nothing here decides a mark or
+ * a level; the pure functions in `lib/assessment/score.ts` do the marking, in
+ * the browser for the feedback and again on the server for the record, and
+ * `placement()` does the rest.
  *
  * Feedback is shown after every answer, including the wrong ones, with the
  * reason. A placement check that withholds the answers is fifteen minutes spent
  * learning nothing, and the learner has already agreed to be tested.
  */
 
-export interface Answer {
-  credit: number;
-  selfRating?: number;
-  skipped?: boolean;
-}
+/**
+ * What the learner did, unmarked. The runner marks it with `responseFor` and
+ * the server marks it again with the same function, so what a learner sees on
+ * screen and what the stored level is built from cannot drift apart.
+ */
+export type Answer = Given;
 
 const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
   right: { className: VERDICT_CLASS.right, title: "Exactly right" },
@@ -252,7 +254,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             size="lg"
             className="mt-5"
             autoFocus
-            onClick={() => onAnswer({ credit: gradeChoice(item, picked) })}
+            onClick={() => onAnswer({ kind: "picked", option: item.options[picked] ?? "" })}
           >
             Next question
           </Button>
@@ -391,7 +393,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
             })}
           </div>
           <p lang="et" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{item.et}</p>
-          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit })}>
+          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text: typed })}>
             Next question
           </Button>
         </div>
@@ -465,7 +467,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
           {mark.credit < 1 && item.because && (
             <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.because}</p>
           )}
-          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit })}>
+          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text })}>
             Next question
           </Button>
         </div>
@@ -553,7 +555,7 @@ export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (
           <button
             key={rating.value}
             type="button"
-            onClick={() => onAnswer({ credit: 0, selfRating: rating.value })}
+            onClick={() => onAnswer({ kind: "rated", rating: rating.value })}
             className="choice-btn min-h-[52px] rounded-[var(--r-lg)] border px-4 py-3 text-left"
           >
             <span className="block text-base font-medium" style={{ color: "var(--ink)" }}>{rating.label}</span>

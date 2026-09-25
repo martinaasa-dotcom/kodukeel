@@ -40,6 +40,13 @@ Pinning one paid provider fails that.
 | `ANTHROPIC_API_KEY` | Anthropic Messages API | `claude-sonnet-5` |
 | `OPENAI_API_KEY` | OpenAI | `gpt-4o-mini` |
 
+**Superseded, 2026-09.** OpenRouter is no longer in the chain, and the table above describes the
+adapter as it was at MVP. `PROVIDER_KEY_ENV` in `lib/tutor/provider.ts` is the list of keys now:
+`GROQ_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY` and `OPENAI_API_KEY`. A purpose gets a chain of
+its own (Anu, a scene line, the grader), and the general chain is Groq, then Gemini, then Anthropic
+and OpenAI behind the day's fallback budget. CLAUDE.md's "Model configuration" is the current
+statement and says why each model was chosen.
+
 All three stream. The Anthropic path keeps the `cache_control` breakpoint on the Estonian system
 prompt, since that prompt is identical every turn. Nothing above the adapter knows which provider is
 in play, so switching is a one-line `.env` change and a restart.

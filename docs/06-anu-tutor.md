@@ -57,11 +57,11 @@ for. See `13-mvp-status.md` §2 for the decision; what matters here is what it m
 
 | Choice | Why |
 |---|---|
-| A chain, not a model | `resolveProviders()` returns every key in `.env`, cheapest first: Groq, then Gemini, with Anthropic and OpenAI behind the fallback budget. `PURPOSE_CHAINS` pins each purpose to the provider it was measured on, so Anu answers on Gemini with Groq behind her. A deployment with no paid key still has a tutor wherever a free key is set |
+| A chain, not a model | `resolveProviders()` builds Anu her own chain, `TUTOR_MODEL` on Gemini with Groq's `TUTOR_FALLBACK_MODEL` behind it, and the general chain is Groq, then Gemini, then Anthropic and OpenAI as a budget-gated tail. A deployment with no paid key still has a tutor |
 | Walk past a bad minute, never past a bad key | `openWithFallback` moves on from a throttle or a hiccup and stops at a rejected key or a model that does not exist, because every provider would answer those the same way and trying them all turns one clear message into a slower one |
 | Never walk past a first token | Once text is reaching the learner a failure stays a failure: a second answer appended to half of a first one is two teachers talking over each other |
 | Streaming | A grammar explanation is long enough that non-streaming reads as a hang |
-| The static prompt held by the provider, where it can be | The Estonian prompt is identical every turn, so it is held rather than resent: an explicit `cachedContents` entry on Gemini (`lib/tutor/geminiCache.ts`), and a `cache_control` breakpoint on the Anthropic path |
+| `cache_control` on the static prompt, where the provider has one | The Estonian prompt is identical every turn, so on the Anthropic path it is paid once per session rather than once per turn |
 | The learner's own context **after** that breakpoint | Volatile content before a breakpoint invalidates the cache every turn, which is the classic silent cache killer. `lib/progress/tutorContext.ts` builds it from the learner's own log, and the route reads no level from the request at all |
 | Which model answered travels with the answer | `x-model-provider` and `x-model-id` are response headers, set after the handshake and before the first token, so the line under the conversation says "Will ask" until a reply arrives and "Answered by" after. Never the head of the chain: a screen naming the wrong model is worse than one naming none |
 
@@ -123,48 +123,61 @@ asymmetry is the whole design: **Anu explains, Ekilex supplies.**
 
 ## 6. Cost model and budget control (audit C5)
 
-Anu answers on `gemini-3.1-flash-lite`, at $0.25 per million input tokens and $1.50 per million
-output (`lib/usage/pricing.ts`), with Groq's `openai/gpt-oss-120b` behind it. A turn is booked at
-about 4,000 tokens in and 700 out, which is about $0.0021 at the base rate; with the static prompt
-held on Google's side it was measured at $0.33 a thousand answers. That is why the prompt is held
-rather than resent and is not a micro-optimisation.
+`claude-opus-5`: $5 / MTok input, $25 / MTok output.
+
+A realistic heavy turn: ~3 000 input tokens (of which ~2 500 cached) + ~700 output.
+
+| Component | Tokens | Cost |
+|---|---|---|
+| Uncached input | 500 | $0.0025 |
+| Cached read | 2 500 | ~$0.0013 |
+| Output | 700 | $0.0175 |
+| **Per turn** | | **≈ $0.021** |
+| 30 turns/day (heavy study day) | | **≈ $0.63** |
+| Sustained daily heavy use, per month | | **≈ $19** |
+
+Prompt caching is roughly a 40% saving on input at this shape, which is the reason the breakpoint placement
+in §2 is not a micro-optimisation.
 
 **Controls:**
-- Every call is booked in the `UsageEvent` ledger before it is made and settled from the provider's
-  own `usage` after (`lib/usage/ledger.ts`), so spend is measured rather than estimated and the caps
-  hold under concurrency. There is no off switch, and an unrecognised model prices at the dearest
-  rate in the table.
-- A per-learner allowance, ten answers a day by default (`AI_DAILY_CALLS_PER_USER`) with a burst
-  limit in front of it, and a deployment-wide slice for the tutor (`AI_DAILY_USD_TUTOR`, $0.10 by
-  default) under the global day (`AI_DAILY_USD_GLOBAL`, $3). At a cap the route answers with a
-  sentence naming the limit, and the rest of the app is unaffected.
-- What a learner has used is on the Settings usage meter.
+- `UsageDay` ledger written from real `usage` on every response, so spend is measured rather than estimated.
+- Configurable daily cap (default **$2.00**). At 80% the UI warns; at 100% chat returns a clear
+  message and the rest of the app is unaffected.
+- A live token/cost meter in the tutor panel.
+- Long documents pasted for parsing go to the **Batch API** at 50% cost where latency does not
+  matter.
 
 ## 7. Failure handling
 
 | Failure | Behavior |
 |---|---|
-| A throttle or a bad minute at one provider | `openWithFallback` walks on to the next link in her chain, Gemini to Groq, and waits out a retry only on the last link |
-| A rejected key or a model that does not exist | Stops with a clear message rather than trying the others, since every provider would answer the same way |
-| Budget cap | The ledger refuses the call with a sentence naming the limit |
-| Network loss mid-stream | The partial reply is kept and marked as cut off, with an invitation to ask again; never silently truncated |
-| No key for her chain | The tutor shows setup instructions; **the rest of the app works normally** |
+| 429 rate limit | Typed `RateLimitError` → "Anu is busy, retrying…" with automatic backoff |
+| 5xx | Retry twice, then a clear error with the message preserved for resend |
+| Budget cap | Explicit message naming the cap and where to change it |
+| `stop_reason: "refusal"` | Handled explicitly, checked before reading content |
+| Network loss mid-stream | Partial response kept and marked incomplete; never silently truncated |
+| Missing API key | Tutor tab shows setup instructions; **rest of the app works normally** |
 
 ## 8. Evaluating the tutor
 
-Untested prompts drift. `npm run eval:anu` (`scripts/eval-tutor.ts`) asks thirty-seven questions of
-seven kinds through the route's own transport and prompt, with the dictionary's words block in front
-of them, and checks the answers mechanically rather than with a model as judge: the grammar facts
-each answer must state, a stray `FIX:` line under a question with no sentence to correct, an
-inflected `VOCAB:` entry, a shape the renderer will not draw, the length of a one-line answer, and
-every Estonian spelling against the forms list in `prisma/data/forms/`. Run it before any prompt or
-model change ships; it is what put her on the model she is on.
+Untested prompts drift. A small eval suite (`evals/anu/`) of ~40 Estonian grammar questions with
+known-correct answers, covering:
+
+- case selection in context (10),
+- object case / aspect minimal pairs (10),
+- gradation identification (5),
+- verb government (5),
+- error correction of learner sentences (10).
+
+Scored by an LLM judge against a reference answer, run before any prompt change ships. The bar:
+**no regression on case selection or object case**, the two categories where a wrong answer does
+the most damage.
 
 ## 9. Security
 
-- Keys server-side only; CI builds with a marked string in every server-only variable and greps the client bundle for it, so a leak names which variable leaked (the `secrets` job in `.github/workflows/ci.yml`).
-- Every call goes through the ledger's burst limit and daily allowance per learner, which bounds both cost and abuse.
-- Conversations are stored in this deployment's own database for a day and deleted after (`lib/tutor/lifetime.ts`), and each question is sent to whichever provider in her chain answers it, Gemini or Groq behind it, which is what `/privacy` tells a learner.
+- Key server-side only; CI greps the client bundle for `sk-ant` patterns (`10-testing-quality.md` §5).
+- Route Handler rate-limited per session to bound both cost and abuse.
+- Conversations stored locally; never sent anywhere but Anthropic.
 - Pasted content is treated as data, not instruction: user text is never concatenated into the
   system prompt, only into `messages`. This matters because the importer's whole purpose is pasting
   text from elsewhere, since a class handout or a web page could otherwise carry prompt injection.
