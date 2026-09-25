@@ -75,6 +75,13 @@ const QUESTION_UNIT = "kusisonad";
  * they say no" true of `jah`.
  */
 const NEGATORS = ["ei", "mitte"] as const;
+/**
+ * The verbs that name the act of asking: "I want to ask about the pay", "I am
+ * looking for the bank". Lemma requests against the course, `küsima` in
+ * `iga-paev`, which every scene declares, and `otsima` in `reisimine`, so a
+ * scene whose units do not teach one simply has no forms of it.
+ */
+const ASKING = ["küsima", "otsima"];
 const REGISTER_PRONOUN = { teie: "teie", sina: "sina" } as const;
 
 export interface SceneContext {
@@ -472,6 +479,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     // What each slot on the card holds, so a datum can take a value the learner chose (ADR-025 amendment 3).
     slots: slotKinds(scene.props),
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
+    askingForms: formsOfLemmas(rows, ASKING),
     negators: formsOfLemmas(rows, NEGATORS),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
     hasFiniteVerb,
@@ -1427,6 +1435,16 @@ export function replay(
       if (state.hurdle || response === "moveOn") break;
       const next = currentBeat(context.scene, state);
       if (!next) break;
+      /*
+        AN OFFER IS MADE BY THE OTHER SIDE ON ITS OWN BEAT, SO THE CASCADE STOPS
+        IN FRONT OF IT, for the reason the look-ahead below passes over one. The
+        guard was written there and not here: answering "since when?" with
+        `neljapäevast. Kas homme sobib?` walked on into the offer beat, the
+        `sobib` accepted an appointment the receptionist had not proposed, and
+        the next line read a time back to somebody who had never been offered
+        one. The offer is said, and the learner's yes is read against it then.
+      */
+      if (next.move === "offer") break;
       const read = readTurn(said, next, marker);
       /*
         A judge may have said this same turn met the next beat too, in a word

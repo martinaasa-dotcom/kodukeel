@@ -12,6 +12,7 @@ import { cohortKind } from "@/lib/classroom/cohort";
 import type { ExamLevel } from "@/lib/exam/spec";
 import { WorkplaceView } from "./WorkplaceView";
 import { LocalDate } from "@/components/LocalDate";
+import { DUE_DATE_FORMAT } from "@/lib/ux/agenda";
 import { Card, Chip, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { ArchiveClass, AssignHomework, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { counted } from "@/lib/copy/values";
@@ -230,7 +231,9 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           )}
         </section>
 
-        {roster.weakestCases.length > 0 && (
+        {/* The teacher's lesson plan. Shown to a student, a class of two is their
+            classmate's accuracy less their own. */}
+        {isTeacher && roster.weakestCases.length > 0 && (
           <section>
             <SectionTitle hint="the whole class, not one person">What to teach next</SectionTitle>
             <Card>
@@ -310,10 +313,14 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                           {h.dueAt && (
                             <>
                               {" · due "}
+                              {/* A day rather than an instant, stored at midnight UTC,
+                                  so it is printed in UTC: in the reader's own zone it
+                                  named the day before anywhere west of Greenwich. */}
                               <LocalDate
                                 iso={h.dueAt.toISOString()}
-                                options={{ day: "numeric", month: "short" }}
-                                fallback={h.dueAt.toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+                                zone="UTC"
+                                options={DUE_DATE_FORMAT}
+                                fallback={h.dueAt.toLocaleDateString(undefined, DUE_DATE_FORMAT)}
                               />
                             </>
                           )}

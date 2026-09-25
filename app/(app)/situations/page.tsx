@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
  *
  * Each one says where you are standing, what you would be trying to get done,
  * and how long it takes, which is what somebody deciding whether they have time
- * for one actually needs (`docs/19-situations.md` §13).
+ * for one actually needs (`docs/21-situations.md` §13).
  *
  * NO SCENE HAS A BAND OF ITS OWN. They did, and the page sorted them into
  * "at your level" and "a bit above or below you" on it. What a band on a tile
@@ -64,11 +64,15 @@ export default async function SituationsPage() {
             action={<ButtonLink href="/practice">Practice</ButtonLink>}
           />
         ) : (
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {scenes.map((scene) => (
-              <SceneTile key={scene.id} scene={scene} history={history.get(scene.id)} learnerLevel={learnerLevel} />
-            ))}
-          </ul>
+          /* Two across by the list's own width: at 768 the window said two
+             and the column held 368px, which laid each title out in 76px. */
+          <div className="@container">
+            <ul className="grid gap-3 @lg:grid-cols-2">
+              {scenes.map((scene) => (
+                <SceneTile key={scene.id} scene={scene} history={history.get(scene.id)} learnerLevel={learnerLevel} />
+              ))}
+            </ul>
+          </div>
         )}
 
         {/*
@@ -106,18 +110,20 @@ export default async function SituationsPage() {
           <p className="mb-3 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
             The rehearsal is here. The conversation is out there, and these are free.
           </p>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {PLACES_TO_TALK.map((place) => (
-              <li key={place.href}>
-                <Card className="flex h-full flex-col gap-1">
-                  <a href={place.href} target="_blank" rel="noreferrer" className="text-base font-medium underline">
-                    {place.name}
-                  </a>
-                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>{place.what}</p>
-                </Card>
-              </li>
-            ))}
-          </ul>
+          <div className="@container">
+            <ul className="grid gap-3 @lg:grid-cols-2 @2xl:grid-cols-3">
+              {PLACES_TO_TALK.map((place) => (
+                <li key={place.href}>
+                  <Card className="flex h-full flex-col gap-1">
+                    <a href={place.href} target="_blank" rel="noreferrer" className="text-base font-medium underline">
+                      {place.name}
+                    </a>
+                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>{place.what}</p>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       </Stack>
     </Page>

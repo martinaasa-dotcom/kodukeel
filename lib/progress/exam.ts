@@ -5,6 +5,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { caseAccuracy, matureRecall, REVIEW_STATE } from "@/lib/stats/history";
 import { buildPaper, type PoolWord, type Paper } from "@/lib/exam/paper";
 import { drawPool, eligibleFor, eligibleLevels } from "@/lib/exam/pool";
+import { seedIssuedAt } from "@/lib/exam/seed";
 import type { ExamResult } from "@/lib/exam/score";
 import type { ExamLevel } from "@/lib/exam/spec";
 import type { PastAttempt, ReadinessSignals, SkillEvidence } from "@/lib/exam/readiness";
@@ -54,9 +55,10 @@ import { orderContextFor } from "@/lib/dict/wordOrder";
  *
  * So the eligible set is read as ids in an order nothing can move, the seed
  * shuffles it, and the first `POOL_SIZE` are the pool. The paper is then a
- * function of (level, seed) and of which words the dictionary holds at all,
- * which changes when a word is added and not when one is read. It is also a
- * fair draw across the level rather than the head of the alphabet.
+ * function of (level, seed) and of which words the dictionary held when the
+ * seed was issued, which changes neither when a word is read nor when one is
+ * added during the sitting (lib/exam/seed.ts). It is also a fair draw across
+ * the level rather than the head of the alphabet.
  *
  * The preference for entries carrying a sentence is not expressed here and was
  * not expressed by the ordering it replaces either: the sentence is what three
@@ -74,9 +76,17 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
 
   // Whether an ungraded entry is in is `eligibleFor`'s to say, the rule the
   // measurement reads too, rather than a second reading of it here.
-  const eligible = eligibleFor(level, null)
+  const band = eligibleFor(level, null)
     ? { OR: [{ cefr: { in: levels } }, { cefr: null }] }
     : { cefr: { in: levels } };
+  /*
+    Only what the dictionary held when the paper was first built. A word added
+    mid-sitting grew this set by one, the shuffle walks the whole set, and the
+    rebuilt paper that marks the answers was a different paper. See
+    lib/exam/seed.ts, and why a seed with no moment in it keeps the old reading.
+  */
+  const issuedAt = seedIssuedAt(seed);
+  const eligible = issuedAt ? { AND: [band, { createdAt: { lte: issuedAt } }] } : band;
 
   /*
     Ids only, on the primary key, which is the one ordering in this table that
@@ -100,7 +110,10 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
 
   const rows = await prisma.lexeme.findMany({
     where: { id: { in: drawn } },
-    include: { forms: { orderBy: { orderIndex: "asc" } } },
+    // Ends on the id: seeded forms all carry orderIndex 0, so a tie handed to
+    // the plan decided which form a dictation asked for, at the sitting and
+    // again, differently, at the marking.
+    include: { forms: { orderBy: [{ orderIndex: "asc" }, { id: "asc" }] } },
   });
   // `IN (…)` comes back in whatever order the plan likes, so the draw is put
   // back by hand: the pool's order is part of what the seed decided.
@@ -238,7 +251,7 @@ export async function readinessSignals(
         where: { ownerId },
         select: { id: true, cardType: true },
       }),
-      recentAttempts(ownerId),
+      recentAttempts(ownerId, { measured: true }),
       latestFor(ownerId),
     ]);
 
@@ -428,10 +441,20 @@ export function skillEvidenceFrom(
 
 // ── Sittings ─────────────────────────────────────────────────────────────────
 
-/** Past sittings, most recent first, with each part's percentage. */
-export async function recentAttempts(ownerId: string): Promise<PastAttempt[]> {
+/**
+ * Past sittings, most recent first, with each part's percentage.
+ *
+ * `measured` keeps only the sittings this deployment marked itself. A sitting
+ * that came back from a backup file carries marks nothing here can check
+ * (`lib/security/restoredMeasurement.ts`), so it belongs in the list of what
+ * somebody did and never in a figure about what they can do.
+ */
+export async function recentAttempts(
+  ownerId: string,
+  { measured = false }: { measured?: boolean } = {},
+): Promise<PastAttempt[]> {
   const rows = await prisma.examAttempt.findMany({
-    where: { ownerId },
+    where: measured ? { ownerId, restoredAt: null } : { ownerId },
     orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
     take: ATTEMPT_WINDOW,
     select: { level: true, pct: true, passed: true, finishedAt: true, result: true },
@@ -463,6 +486,16 @@ export function partPercentages(json: string): Partial<Record<SkillKey, number>>
     for (const part of parts) {
       const skill = (part as { skill?: unknown }).skill;
       const pct = (part as { pct?: unknown }).pct;
+      /*
+        A part nothing could be set for is stored with a percentage of nought,
+        because the share of nothing is nothing, and the result page leaves it
+        out of the total. Read back as a figure it was a real 0% sitting: the
+        hub printed "listening predicted at 0" after the speech service was
+        down for a paper, and counted the part as measured. A row written
+        before the column is read as it always was.
+      */
+      const available = (part as { rawAvailable?: unknown }).rawAvailable;
+      if (typeof available === "number" && available <= 0) continue;
       if (typeof skill === "string" && typeof pct === "number" &&
           (SKILLS as readonly string[]).includes(skill)) {
         out[skill as SkillKey] = pct;
@@ -533,7 +566,28 @@ export async function attemptById(ownerId: string, id: string) {
 }
 
 /**
- * Writes a finished sitting.
+ * The sitting a paper already has, or null where it has never been handed in.
+ *
+ * A paper is (level, seed) and is sat once. The seed lives in the URL, so a
+ * reload returns the same paper, which is the point; and a sitting's stored
+ * result carries every expected answer, so a second submission of the same
+ * seed was a pass anybody could copy out of the first and hand in, on the
+ * figure a teacher's and a sponsor's roster read.
+ */
+export interface Sitting { id: string; pct: number; passed: boolean }
+
+export async function sittingOf(
+  ownerId: string, level: ExamLevel, seed: string,
+): Promise<Sitting | null> {
+  return prisma.examAttempt.findFirst({
+    where: { ownerId, level, seed },
+    orderBy: [{ finishedAt: "asc" }, { id: "asc" }],
+    select: { id: true, pct: true, passed: true },
+  });
+}
+
+/**
+ * Writes a finished sitting, once per paper.
  *
  * Only ever called after a paper is submitted. An abandoned paper leaves no
  * row, which is the same promise every other mode makes (ADR-016) and the
@@ -549,7 +603,9 @@ export async function attemptById(ownerId: string, id: string) {
  * listed twice on the hub and in the history, the second time with a result
  * whose grades had never been applied. The first answer stands and its id is
  * handed back, under a lock so two presses in the same instant cannot both
- * find nothing and both write.
+ * find nothing and both write. Its verdict comes back with it, so whoever
+ * arrives second is told the result that was stored rather than the one their
+ * own answers would have earned.
  */
 export async function recordAttempt(input: {
   ownerId: string;
@@ -557,16 +613,16 @@ export async function recordAttempt(input: {
   seed: string;
   startedAt: Date;
   result: ExamResult;
-}): Promise<string> {
+}): Promise<Sitting> {
   return prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SET LOCAL lock_timeout = '3s'`;
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`exam:${input.ownerId}:${input.seed}`}, 0))`;
     const sat = await tx.examAttempt.findFirst({
       where: { ownerId: input.ownerId, level: input.level, seed: input.seed },
       orderBy: [{ finishedAt: "asc" }, { id: "asc" }],
-      select: { id: true },
+      select: { id: true, pct: true, passed: true },
     });
-    if (sat) return sat.id;
+    if (sat) return sat;
     return createAttempt(tx, input);
   });
 }
@@ -574,8 +630,8 @@ export async function recordAttempt(input: {
 async function createAttempt(
   tx: Pick<typeof prisma, "examAttempt">,
   input: { ownerId: string; level: ExamLevel; seed: string; startedAt: Date; result: ExamResult },
-): Promise<string> {
-  const row = await tx.examAttempt.create({
+): Promise<Sitting> {
+  return tx.examAttempt.create({
     data: {
       ownerId: input.ownerId,
       level: input.level,
@@ -586,7 +642,6 @@ async function createAttempt(
       startedAt: input.startedAt,
       finishedAt: new Date(),
     },
-    select: { id: true },
+    select: { id: true, pct: true, passed: true },
   });
-  return row.id;
 }

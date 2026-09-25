@@ -1,6 +1,5 @@
 /** Populates a few cards, reviews and tasks so the UI can be reviewed with real content. */
 import { newPrismaClient } from "../lib/db";
-// @ts-expect-error - plain JS helper, shared with the .mjs end-to-end scripts.
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { generateCards, type LexemeForCards } from "../lib/srs/cards";
 import { emptyScheduling, grade } from "../lib/srs/scheduler";
@@ -416,14 +415,37 @@ async function main() {
   }
 
   /*
-    The week this learner says they are in, and a level they are aiming at.
+    And a shelf with words on it, for the reason the class above exists.
 
-    Both are preconditions rather than decoration, and both were missing. The
-    week decides whether `/week` renders its picker at all, so the two contrast
-    faults sitting on that screen were invisible to every suite: a pass can only
-    measure a state it can reach, and nothing here had ever set one. The target
-    and the deadline are what Today's countdown needs before it draws anything,
-    for the same reason.
+    `/review/deck/[deckId]` is a round over one shelf, and `/words/decks` only
+    links to it once the shelf holds a word, so with no shelf in the fixture
+    no browser suite had ever opened it: not the containment sweep, not axe,
+    in either theme. Six of the learner's own words, so the round has
+    something to ask rather than drawing its empty state.
+  */
+  const shelfName = "Kitchen words";
+  const shelf = (await prisma.deck.findFirst({ where: { ownerId, name: shelfName } }))
+    ?? await prisma.deck.create({ data: { ownerId, name: shelfName } });
+  const shelved = await prisma.card.findMany({
+    where: { ownerId, lexemeId: { not: null } },
+    select: { lexemeId: true },
+    distinct: ["lexemeId"],
+    orderBy: { lexemeId: "asc" },
+    take: 6,
+  });
+  await prisma.deckWord.createMany({
+    data: shelved.flatMap(({ lexemeId }) => (lexemeId ? [{ deckId: shelf.id, ownerId, lexemeId }] : [])),
+    skipDuplicates: true,
+  });
+
+  /*
+    A level this learner is aiming at, and by when.
+
+    A precondition rather than decoration: the target and the deadline are what
+    Today's countdown needs before it draws anything, and a pass can only
+    measure a state it can reach. This used to set a class week as well, for
+    the class week screen, which was cut with the homework list
+    (`docs/13-mvp-status.md` §24), so nothing reads that setting any more.
   */
   for (const [key, value] of [
     ["goalTarget", "B1"],

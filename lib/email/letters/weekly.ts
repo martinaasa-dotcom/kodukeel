@@ -37,6 +37,7 @@
 */
 import { meter, weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
+import { SpelledCount } from "@/lib/copy/values";
 
 export interface WeeklyInput {
   readonly origin: string;
@@ -72,8 +73,6 @@ export interface WeeklyInput {
   readonly part: { readonly title: string; readonly eveningsLeft: number } | null;
 }
 
-const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven"];
-const count = (n: number): string => WORDS[n] ?? String(n);
 
 export function weeklyLetter(input: WeeklyInput): Letter {
   const studied = input.week.filter((d) => d.studied).length;
@@ -81,7 +80,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
 
   blocks.push({
     t: "heading",
-    text: studied === 0 ? "A quiet week." : `${count(studied)} days of the last seven.`,
+    text: studied === 0 ? "A quiet week." : `${SpelledCount(studied)} days of the last seven.`,
   });
 
   blocks.push({
@@ -175,7 +174,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
       text:
         input.part.eveningsLeft === 1
           ? `One evening left in ${input.part.title}.`
-          : `${count(input.part.eveningsLeft)} evenings left in ${input.part.title}.`,
+          : `${SpelledCount(input.part.eveningsLeft)} evenings left in ${input.part.title}.`,
     });
   }
 

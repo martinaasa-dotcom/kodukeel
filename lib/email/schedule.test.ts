@@ -168,6 +168,24 @@ describe("the letter after a gap", () => {
   });
 });
 
+describe("two letters in one morning", () => {
+  it("are not sent, whichever kinds they are", () => {
+    // A Sunday milestone at eight, and at nine the summary was owed on its own gap.
+    const sunday = candidate({ localWeekday: 0, localHour: 10, lastSent: new Map([["milestone", hoursAgo(1)]]) });
+    expect(letterOwed(sunday, NOW)).toBeNull();
+  });
+
+  it("still lets the evening letter through after a morning one", () => {
+    const evening = candidate({ lastSent: new Map([["milestone", hoursAgo(10)]]) });
+    expect(letterOwed(evening, NOW)?.kind).toBe("tonight");
+  });
+
+  it("does not count the letters the ceiling is not about", () => {
+    const morning = candidate({ localWeekday: 0, localHour: 10, lastSent: new Map([["wordday", hoursAgo(1)]]) });
+    expect(letterOwed(morning, NOW)?.kind).toBe("weekly");
+  });
+});
+
 describe("the Sunday summary", () => {
   it("goes out on a Sunday morning where they are, not where the server is", () => {
     const sunday = candidate({ localWeekday: 0, localHour: 10 });

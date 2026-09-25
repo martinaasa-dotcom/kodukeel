@@ -210,6 +210,27 @@ const trimmed = (value: unknown, max: number): string =>
  * note and offers no accept-and-apply button, rather than offering one that
  * would half-write a row. Nothing downstream may guess at a missing field.
  */
+/**
+ * The entry a missing-word report would write over, if the dictionary has one.
+ *
+ * One rule for the two places that ask: the queue, which marks the row blocked
+ * and draws no Accept button, and `applyPatch`, which refuses. The queue alone
+ * was not enough, because its page is deliberately not revalidated between
+ * clicks, so a page loaded before a live lookup stored the word still offered
+ * the button and the accept overwrote the gloss every learner reads.
+ *
+ * Any entry of that lemma and that part of speech, compared without case,
+ * rather than the entry the app leads with: `@@unique` is on `(lemma, pos)`, so
+ * a lemma can carry an adjective and a noun, and the report names one of them.
+ */
+export function createWordClash<T extends { lemma: string; pos: string }>(
+  patch: Pick<CreateWordPatch, "lemma" | "pos">,
+  entries: readonly T[],
+): T | undefined {
+  const lemma = patch.lemma.toLowerCase();
+  return entries.find((e) => e.lemma.toLowerCase() === lemma && e.pos === patch.pos);
+}
+
 export function parsePatch(json: string | null | undefined): Patch | null {
   if (!json) return null;
   try {

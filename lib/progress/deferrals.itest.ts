@@ -187,6 +187,37 @@ describe("giving a word back", () => {
     expect(await prisma.deferral.count({ where: { ownerId: MINE } })).toBe(0);
   });
 
+  /*
+    A card the scheduler had due before the wait's date was moved to it, and
+    giving the word back set it to now: a card due in two days came back
+    tonight, on the button that promised not to touch the schedule.
+  */
+  it("puts a card due after tonight back on its own date", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const soon = new Date("2026-09-16T10:00:00.000Z");
+    const entry = await word("zzdefer", "A1");
+    await cards(entry.id, [now, soon]);
+    await deferWord(MINE, entry.id, "A1", "/review", now);
+
+    const back = new Date("2026-09-14T20:00:00.000Z");
+    expect(await undoDeferral(MINE, entry.id, back)).toBe(true);
+    const rows = await prisma.card.findMany({ where: { ownerId: MINE }, orderBy: { due: "asc" } });
+    expect(rows.map((r) => r.due.toISOString())).toEqual([back.toISOString(), soon.toISOString()]);
+  });
+
+  it("puts it back on its own date when a level wakes it, too", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const soon = new Date("2026-11-01T10:00:00.000Z");
+    const entry = await word("zzdefer", "B1");
+    await cards(entry.id, [now, soon]);
+    await deferWord(MINE, entry.id, "A2", "/review", now);
+
+    const moved = new Date("2026-10-01T10:00:00.000Z");
+    expect(await wakeForLevel(MINE, "B1", moved)).toBe(1);
+    const rows = await prisma.card.findMany({ where: { ownerId: MINE }, orderBy: { due: "asc" } });
+    expect(rows.map((r) => r.due.toISOString())).toEqual([moved.toISOString(), soon.toISOString()]);
+  });
+
   it("hands back the words that were waiting for a band the learner reaches", async () => {
     const now = new Date("2026-09-14T10:00:00.000Z");
     const waiting = await word("zzdefer", "B1");
@@ -368,6 +399,21 @@ describe("a second press", () => {
     // And the one the scheduler put six months out is still six months out.
     expect(rows[1]!.due.toISOString()).toBe(LATER.toISOString());
     expect(await deferredWordIds(MINE, back)).not.toContain(entry.id);
+  });
+
+  it("remembers where the first press found a card, not where the wait put it", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const soon = new Date("2026-09-15T10:00:00.000Z");
+    const entry = await word("zzdefer", "B2");
+    await cards(entry.id, [soon]);
+
+    await deferWord(MINE, entry.id, "A1", "/review", now);
+    await deferWord(MINE, entry.id, "B2", "/review", new Date(now.getTime() + 3600 * 1000));
+
+    const back = new Date(now.getTime() + 2 * 3600 * 1000);
+    await undoDeferral(MINE, entry.id, back);
+    const card = await prisma.card.findFirstOrThrow({ where: { ownerId: MINE } });
+    expect(card.due.toISOString()).toBe(soon.toISOString());
   });
 
   it("does start a fresh wait once the last one is spent", async () => {

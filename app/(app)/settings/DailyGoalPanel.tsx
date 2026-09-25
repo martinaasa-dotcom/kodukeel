@@ -16,8 +16,12 @@ export function DailyGoalPanel({ currentGoal }: { currentGoal: number }) {
   const [, startTransition] = useTransition();
 
   const pick = (value: number) => {
+    const was = goal;
     setGoal(value);
-    startTransition(() => { void setDailyGoal(value); });
+    // A preset that did not reach the server goes back to the one that did.
+    startTransition(() => {
+      void setDailyGoal(value).catch(() => setGoal(was));
+    });
   };
 
   return (

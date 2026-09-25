@@ -332,9 +332,40 @@ async function metWords(ownerId: string, words: readonly string[]): Promise<bool
   return known === 0;
 }
 
-/** Answers graded since a moment, which is what the closing round counts. */
+/**
+ * Answers graded since a moment, which is what the closing round counts.
+ *
+ * The moment is a tick, and a tick is stamped by the server, so it is compared
+ * with the time the server received each answer rather than the time the
+ * device says it was given. Read against `reviewedAt`, a device clock a few
+ * minutes slow dated every closing answer before the tick that opened the
+ * round, and the step is derived, so no press anywhere could finish the
+ * evening. A row with no `receivedAt` was written before the column existed or
+ * restored from a file, and keeps the reading it always had.
+ */
 async function gradedSince(ownerId: string, since: Date): Promise<number> {
-  return prisma.review.count({ where: { ownerId, reviewedAt: { gte: since } } });
+  return prisma.review.count({
+    where: {
+      ownerId,
+      OR: [
+        { receivedAt: { gte: since } },
+        { receivedAt: null, reviewedAt: { gte: since } },
+      ],
+    },
+  });
+}
+
+/** Answers the server received in `[since, until)`, read the way `gradedSince` reads them. */
+async function gradedBetween(ownerId: string, since: Date, until: Date): Promise<number> {
+  return prisma.review.count({
+    where: {
+      ownerId,
+      OR: [
+        { receivedAt: { gte: since, lt: until } },
+        { receivedAt: null, reviewedAt: { gte: since, lt: until } },
+      ],
+    },
+  });
 }
 
 /** How far into a day's closing round the learner is. Nought before it opens. */
@@ -510,7 +541,26 @@ export async function courseReading(
   */
   const today = clock.startOfDay(now);
   const lastTick = justFinished ? ticks.lastAt.get(justFinished) : undefined;
-  const finishedToday = Boolean(lastTick && lastTick >= today);
+  const midnight = clock.startOfDay(now);
+  let finishedToday = Boolean(lastTick && lastTick >= midnight);
+  /*
+    AND A DAY WHOSE LAST TICK WAS YESTERDAY CAN STILL HAVE FINISHED TODAY,
+    because the closing round is the one step nobody ticks: its answers are
+    the proof, and they can land the morning after the steps in front of it.
+    Read off the tick alone, a round left two answers in last night and
+    finished tonight read as an evening done yesterday, and the learner who
+    had just finished it was handed the next module as though tonight had
+    held nothing. So the round finished today where it was not yet whole at
+    midnight and answers arrived since. Asked only on that path, which is two
+    counts on a render that has just advanced a day.
+  */
+  if (!finishedToday && lastTick && justFinished && !ticks.byDay.get(justFinished)?.has(REVIEW_STEP)) {
+    const [before, since] = await Promise.all([
+      gradedBetween(ownerId, lastTick, midnight),
+      gradedSince(ownerId, midnight),
+    ]);
+    finishedToday = before < CLOSING_REVIEW && since > 0;
+  }
 
   /*
     THE RUN OF EVENINGS, off the same rows. A tick is a fact about an evening

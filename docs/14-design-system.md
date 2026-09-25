@@ -36,9 +36,9 @@ Two uses of colour, and only one of them carries meaning:
   and in dictation. `hard` says "there is an irregularity here to learn", which is what gradation
   notes and the memorized principal parts wear. Reach for a hue on a chip only when you mean the
   thing that hue means.
-- **A tile in a set of tiles is just telling itself apart from its neighbors.** The four figures
-  in a session summary, and the practice modes on Today, cycle the palette so they can be scanned
-  apart. XP is blush there because it is the fifth tile, not because Anu is involved.
+- **A tile in a set of tiles is just telling itself apart from its neighbors.** The figures in a
+  session summary, and the practice modes on Practice, cycle the palette so they can be scanned
+  apart. A tile's hue there says which tile it is, not what its figure means.
 
 ### Every hue has an ink
 

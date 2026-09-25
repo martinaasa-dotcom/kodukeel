@@ -1,8 +1,9 @@
 "use client";
 
 import { createRef, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Check, Repeat } from "lucide-react";
-import { addToDeck, gradeCard } from "@/app/actions";
+import { addToDeck } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Stat } from "@/components/ui";
@@ -68,6 +69,7 @@ const GROUP: Record<Tense, "PRESENT" | "CONDITIONAL"> = { present: "PRESENT", co
  * it. The verdicts are what `checkAnswer` says and nothing else.
  */
 export function ConjugationSession({ questions: initialQuestions }: { questions: ConjugationQuestion[] }) {
+  const grade = useGrade();
   // Snapshotted once: gradeCard is a Server Action and the page re-renders
   // after every call with a freshly drawn round. See GovernmentSession.
   const [questions] = useState(initialQuestions);
@@ -93,8 +95,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   */
   const keeper = useKeepWord(question?.lexemeId ?? null, async (deckIds) => {
     if (!question) return;
-    await addToDeck(question.lexemeId, ["RECOGNITION", "PRODUCTION", "CONJUGATION"], "LOOKUP", deckIds);
-    setAdded(question.lexemeId);
+    const result = await addToDeck(question.lexemeId, ["RECOGNITION", "PRODUCTION", "CONJUGATION"], "LOOKUP", deckIds).catch(() => null);
+    if (result?.ok) setAdded(question.lexemeId);
   });
   const finished = !question;
   const revealed = verdicts !== null;
@@ -223,9 +225,9 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       // A hint is paid for: see `lib/questions/hints.ts`. The ceiling is 4 with
       // nothing taken, so a table nobody asked for help on grades as it did.
       const earned = right >= marks.length - 1 ? 3 : 1;
-      void gradeCard(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current).catch(() => {});
+      void grade(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current);
     }
-  }, [question, verdicts, typed, sound, hints]);
+  }, [question, verdicts, typed, sound, hints, grade]);
 
   const next = useCallback(() => {
     /* The whole table as it was filled in, which is what somebody looking

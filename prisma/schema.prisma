@@ -306,8 +306,21 @@ model Review {
   /// the direction, which `lib/stats/confusions.ts` merges and a later pass
   /// could split. Closed-list checked in `writeGrade`, like `slot`.
   reachedSlot String?
+  /// When the server wrote the row, which `reviewedAt` is not: that is the
+  /// moment the device says the answer was given, so a grade taken on a train
+  /// and replayed later keeps the time it happened (ADR-015). Every comparison
+  /// against a row the *server* timestamped, which is a `CourseStep` tick, reads
+  /// this instead, or a device clock ten minutes slow dates the evening's
+  /// closing answers before the tick that opened the round and the evening can
+  /// never be finished. Null on every row written before this column and on a
+  /// restored one, which were not received now; `lib/progress/course.ts` reads
+  /// those by `reviewedAt`, which is what they always had. No default, on
+  /// purpose: a default would stamp the whole existing log with the moment of
+  /// the migration and count a year of answers towards tonight's round.
+  receivedAt  DateTime?
 
   @@index([ownerId, reviewedAt])
+  @@index([ownerId, receivedAt])
   @@index([ownerId, targetCase])
   @@index([cardId])
   @@index([reviewedAt])
@@ -536,6 +549,13 @@ model ExamAttempt {
   startedAt  DateTime @default(now())
   finishedAt DateTime @default(now())
 
+  /// When this row came back from a backup file rather than being written here.
+  /// A backup carries the marks but not the answers or the paper, so nothing
+  /// can mark it again: it stays in the history and is never read as evidence
+  /// (ADR-022, "a result anybody can type is not a measurement"). Null is a row
+  /// this deployment wrote itself. Always set on restore, whatever the file says.
+  restoredAt DateTime?
+
   @@index([ownerId, finishedAt])
   @@index([ownerId, level])
 }
@@ -550,7 +570,7 @@ model ExamAttempt {
 /// kept. `lib/estonian/passage.ts` treats a pasted reading the same way.
 ///
 /// Words are held as lemmas rather than as copies of dictionary rows, exactly
-/// as a learning-path unit is (lib/collections/path.ts). A page is a *reference*
+/// as a course unit is (lib/collections/syllabus/). A page is a *reference*
 /// to vocabulary, so correcting a word in the shared dictionary corrects it on
 /// every page it appears on, and a page can never drift out of step.
 model Scan {
@@ -654,6 +674,12 @@ model Deferral {
   wokenAt DateTime?
 
   /// Where they were standing when they pressed it: "/review", "/learn/new".
+  /// Each card's due before this wait moved it, by card id, as ISO strings.
+  /// A give-back returns a card to that date or to now, whichever is later, so
+  /// a card the scheduler had due in two days is not handed back tonight.
+  /// Null on a row written before the column, which gives back to now.
+  priorDues Json?
+
   context String?
 
   createdAt DateTime @default(now())
@@ -700,6 +726,13 @@ model Assessment {
 
   /// JSON: the per band breakdown, for the detail view and the next comparison.
   detail String @default("{}")
+
+  /// When this row came back from a backup file rather than being written here.
+  /// A backup carries the marks but not the answers or the paper, so nothing
+  /// can mark it again: it stays in the history and is never read as evidence
+  /// (ADR-022, "a result anybody can type is not a measurement"). Null is a row
+  /// this deployment wrote itself. Always set on restore, whatever the file says.
+  restoredAt DateTime?
 
   @@index([ownerId, takenAt])
 }
@@ -783,7 +816,7 @@ model Suggestion {
 /// row, and there is no update path.
 ///
 /// NOTHING IN HERE IS TRUE ABOUT THE LEARNER. The role card is fiction
-/// (docs/19-situations.md §3), which is a marking rule and a legal one: a
+/// (docs/21-situations.md §3), which is a marking rule and a legal one: a
 /// health-centre scene where somebody typed about their own symptoms would be
 /// Article 9 special category data, and no scene asks for a real document
 /// number either.
@@ -905,9 +938,10 @@ model CourseStep {
 /// NOT OWNER-SCOPED, AND THAT IS THE POINT OF `bucket` BEING A DIGEST. A rate
 /// limit needs to tell two callers apart and never needs to know who they are,
 /// so storing an owner id here would be a second copy of who was awake at
-/// 03:00, kept for no reason anybody could state. The digest cannot be read
-/// back into an id, the row is deleted once its window has passed, and there is
-/// nothing in the table for the export or the erasure to carry.
+/// 03:00, kept for no reason anybody could state. The digest does not hold the
+/// id, though it is unsalted and so can be matched by hashing a candidate id or
+/// address; the row is deleted by the first prune after its window has passed,
+/// and there is no owner id in the table for the export or the erasure to find.
 model RateLimit {
   /// SHA-256 of the caller-and-endpoint key, hex. Never the key itself.
   bucket      String

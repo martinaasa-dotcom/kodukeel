@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Blocks, Delete } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -133,7 +133,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
               : "Tubli. The ones that took two goes are the ones worth hearing again."}
           </p>
         </div>
-        <div className="mt-8 grid grid-cols-3 gap-3">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={firstTry} label="First time" tone="mint" />
           <StatTile value={`${accuracy}%`} label="Spelled" tone={accuracy >= 85 ? "mint" : "butter"} />
           <StatTile value={attempted} label="Words" tone="sky" />
@@ -204,6 +204,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
   onSettled: (solved: boolean, misses: number) => void;
   onNext: () => void;
 }) {
+  const grade = useGrade();
   const letters = useMemo(() => lettersOf(word.lemma), [word.lemma]);
   const tiles = word.tiles;
   const [placed, setPlaced] = useState<Tile[]>([]);
@@ -231,13 +232,9 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     }
     onSettled(solved, missCount);
     const duration = shownAt.current === null ? 0 : Date.now() - shownAt.current;
-    try {
-      await gradeCard(word.cardId, rating, duration, undefined, "PRODUCTION");
-    } catch {
-      // The grade did not reach the database; the round still shows the answer.
-    }
+    await grade(word.cardId, rating, duration, "PRODUCTION");
     setBusy(false);
-  }, [word, sound, streak, onSettled]);
+  }, [word, sound, streak, onSettled, grade]);
 
   const check = useCallback((row: Tile[]) => {
     const built = row.map((t) => t.letter).join("");
@@ -386,10 +383,10 @@ function Board({ word, streak, correct, onSettled, onNext }: {
           </Button>
         ) : (
           <>
-            <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+            <span className="min-w-0 truncate text-xs" style={{ color: "var(--ink-3)" }}>
               {misses > 0 ? "One more go." : "Tap or type the letters."}
             </span>
-            <Button variant="secondary" className="ml-auto whitespace-nowrap" onClick={takeBack} disabled={placed.length === 0 || shaking || busy}>
+            <Button variant="secondary" className="ml-auto shrink-0 whitespace-nowrap" onClick={takeBack} disabled={placed.length === 0 || shaking || busy}>
               <Delete size={15} aria-hidden /> Take back
               <KeyCap className="ml-1">⌫</KeyCap>
             </Button>

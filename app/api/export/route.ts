@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+import { PRIVATE_NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -32,9 +33,10 @@ export const dynamic = "force-dynamic";
  * be rebuilt, which is exactly the argument `Review` is append-only for.
  *
  * So the file carries the lexemes this learner's own rows reference, with their
- * forms: every word their cards, their review log, their starred list and their
- * reports are about. Measured on a demo deck, 15.19 MB became 0.08 MB, and the
- * size now scales with the deck rather than with the dictionary, which is the
+ * forms: every word their cards, their review log, their starred list, their
+ * reports, their shelves, their deferrals and their conversations are about.
+ * Measured on a demo deck, 15.19 MB became 0.08 MB, and the size now scales
+ * with the deck rather than with the dictionary, which is the
  * property that stops this coming back.
  */
 export async function GET() {
@@ -227,8 +229,7 @@ export async function GET() {
         a default TTL for a 200 would have been free to hand it to the next
         request. `private, no-store` and a `Cookie` vary say who it belongs to.
       */
-      "cache-control": "private, no-store",
-      vary: "Cookie",
+      ...PRIVATE_NO_STORE,
     },
   });
 }

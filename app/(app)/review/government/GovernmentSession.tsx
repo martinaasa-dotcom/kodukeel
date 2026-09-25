@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Check, Scale } from "lucide-react";
-import { addToDeck, gradeCard } from "@/app/actions";
+import { addToDeck } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Stat } from "@/components/ui";
@@ -65,6 +66,7 @@ const caseLabel = (key: CaseKey) => CASES.find((c) => c.key === key);
  * spelling.
  */
 export function GovernmentSession({ questions: initialQuestions }: { questions: GovernmentQuestion[] }) {
+  const grade = useGrade();
   /*
     Snapshotted once on mount, never updated from later props. gradeCard() is a
     Server Action and Next refreshes this route's Server Component after every
@@ -93,8 +95,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
   */
   const keeper = useKeepWord(question?.lexemeId ?? null, async (deckIds) => {
     if (!question) return;
-    await addToDeck(question.lexemeId, ["RECOGNITION", "GOVERNMENT"], "LOOKUP", deckIds);
-    setAdded(question.lexemeId);
+    const result = await addToDeck(question.lexemeId, ["RECOGNITION", "GOVERNMENT"], "LOOKUP", deckIds).catch(() => null);
+    if (result?.ok) setAdded(question.lexemeId);
   });
   const finished = !question;
   const revealed = picked !== null;
@@ -128,8 +130,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     if (!right) hints.noteMiss();
     // A hint is paid for: see `lib/questions/hints.ts`.
     const rating = Math.min(right ? 3 : 1, hints.ceiling) as 1 | 2 | 3;
-    if (question.cardId) void gradeCard(question.cardId, rating, 0).catch(() => {});
-  }, [question, picked, hints]);
+    if (question.cardId) void grade(question.cardId, rating, 0);
+  }, [question, picked, hints, grade]);
 
   const next = useCallback(() => {
     /* The verb, the case it governs and the sentence that shows it, which is
@@ -263,7 +265,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         </div>
 
         <div className="px-4 pb-4">
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="choice-grid">
             {question.options.map((option, i) => {
               const spec = caseLabel(option);
               const isAnswer = option === question.answer;
