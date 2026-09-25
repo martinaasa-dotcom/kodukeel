@@ -12,7 +12,7 @@ import { splitIntoLessons } from "@/lib/collections/lesson";
 import { readableGovernment } from "@/lib/estonian/government";
 import { grammarPoint } from "@/lib/estonian/grammar";
 import { ButtonLink } from "@/components/Button";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { sceneTesting } from "@/lib/scenes/catalogue";
 import { Card, Chip, Meter, Page, Ring } from "@/components/ui";
 import { Speak } from "@/components/Speak";
@@ -83,8 +83,6 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
   */
   const offered = unit.cardTypes.filter((type) =>
     type !== "GRADATION" || words.some((w) => w.gradation && w.gradation !== "NONE"));
-
-  const Icon = icon(unit.icon);
   const tested = sceneTesting(unit.id);
   const missing = unit.lemmas.length - words.length;
   const lessons = splitIntoLessons(words).length;
@@ -103,7 +101,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
       <div className="flex flex-col gap-5">
         <Card className="flex flex-wrap items-center gap-5">
           <Ring pct={progress.pct} size={70} label={`${progress.pct}% of this unit learned`}>
-            <Icon size={22} aria-hidden style={{ color: "var(--accent-deep)" }} />
+            <NamedIcon name={unit.icon} size={22} aria-hidden style={{ color: "var(--accent-deep)" }} />
           </Ring>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">

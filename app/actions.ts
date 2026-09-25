@@ -4,9 +4,13 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
+import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
+import { deleteOwnReminder } from "@/lib/progress/reminders";
+import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
+import { cardsForGrades } from "@/lib/scenes/grades";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
@@ -32,16 +36,14 @@ import {
 } from "@/lib/suggestions/model";
 import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
 import { NEEDS_TRANSLATION } from "@/lib/copy/values";
-import { resolveOneWord } from "@/lib/dict/resolveScan";
+import { resolveOneWord, vouchScanItems } from "@/lib/dict/resolveScan";
 import { guessPos, MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
-import { resolveStreakFor } from "@/lib/progress/summary";
 import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
@@ -64,6 +66,7 @@ import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
 import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
+import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
@@ -93,14 +96,14 @@ import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
 import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
+import { matchGrades } from "@/lib/srs/matchGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
-import { placement } from "@/lib/assessment/score";
 import { PAPER_SIZE } from "@/lib/assessment/items";
-import type { Band, ItemRef, Response } from "@/lib/assessment/types";
-import { goalsFor, saveGoals, saveResult } from "@/lib/progress/assessment";
+import type { Band } from "@/lib/assessment/types";
+import { goalsFor, markSitting, saveGoals, saveResult } from "@/lib/progress/assessment";
 import { recordCourseLevel } from "@/lib/progress/level";
-import { REPLAY_BATCH } from "@/lib/offline/outbox";
+import { REPLAY_BATCH, isClientReviewId } from "@/lib/offline/outbox";
 import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
 import { gradesFrom, markPaper, type Response as ExamResponse } from "@/lib/exam/score";
 import { isExamLevel } from "@/lib/exam/spec";
@@ -266,9 +269,8 @@ async function addCardsFor(
     see an empty deck and both insert. Measured against a real database, firing
     the same shape concurrently: two adds gave two cards, four gave four, and
     eight gave fourteen where two is right. A learner meets it by
-    double-tapping "Add to deck", and `addUnitToDeck` walks this once per word
-    with no throttle in front of it, so one impatient second on a nineteen-word
-    unit is the worst case rather than the unlikely one.
+    double-tapping "Add to deck", which is the worst case rather than the
+    unlikely one.
 
     The answer is `lib/usage/ledger.ts`'s, for the reasons its own header gives:
     a *transaction* advisory lock, so a connection pooler cannot strand it, and
@@ -393,8 +395,21 @@ export async function gradeCard(
    * meant, got a case" as a confusion between two cases.
    */
   reachedSlot?: string,
+  /**
+   * The id the device chose for this answer, before it asked.
+   *
+   * The same id goes to the outbox if this call throws, so a write that
+   * committed and whose answer was lost is one row rather than two once the
+   * outbox replays it (`writeGrade`). Shape-checked because it becomes a
+   * primary key in a table nothing ever repairs.
+   */
+  reviewId?: string,
 ) {
   const ownerId = await requireUserId();
+
+  if (reviewId !== undefined && !isClientReviewId(reviewId)) {
+    return { ok: false as const, error: "That is not a grade id." };
+  }
 
   /*
     `Review` IS APPEND-ONLY, SO A BAD ROW IS PERMANENT.
@@ -426,6 +441,7 @@ export async function gradeCard(
     reviewedAt: reviewedAt ? new Date(reviewedAt) : new Date(),
     practisedSlot,
     reachedSlot,
+    reviewId,
   });
 
   revalidatePath("/");
@@ -473,6 +489,7 @@ function snapshotOf(state: SchedulingState): SchedulingSnapshot {
  */
 export async function replayGrades(batch: ReplayItem[]) {
   const ownerId = await requireUserId();
+  if (!Array.isArray(batch)) return { ok: false as const, error: "Replay failed." };
   const result = await applyGradeBatch(ownerId, batch);
   if (!result.ok) return { ok: false as const, error: result.error ?? "Replay failed." };
   revalidatePath("/");
@@ -527,7 +544,8 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
 
 export async function setCardSuspended(cardId: string, suspended: boolean) {
   const ownerId = await requireUserId();
-  await prisma.card.updateMany({ where: { id: cardId, ownerId }, data: { suspended } });
+  if (typeof suspended !== "boolean") return { ok: false as const, error: "That is not a yes or a no." };
+  await prisma.card.updateMany({ where: { id: text(cardId), ownerId }, data: { suspended } });
   revalidatePath("/words");
   revalidatePath("/progress"); // the sticking-points list lives there
   revalidatePath("/");
@@ -637,7 +655,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
 
-  const et = capped(sentence, LIMITS.example);
+  const et = visibleLine(sentence, LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That is too short to be a sentence." };
 
   const lexeme = await prisma.lexeme.findUnique({
@@ -647,7 +665,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
 
   const merged = mergeExamples(parseExamples(lexeme.examples), [
-    { et, en: capped(translation ?? "", LIMITS.translation) || null, source: "USER" },
+    { et, en: visibleLine(translation ?? "", LIMITS.translation) || null, source: "USER" },
   ]);
   await prisma.lexeme.update({
     where: { id: lexeme.id },
@@ -677,6 +695,11 @@ const LIMITS = {
   taskTitle: 200,
   taskNotes: 2000,
 } as const;
+
+/** What a class member is called on the roster. */
+const DISPLAY_NAME_MAX = 32;
+/** What a class is called on the join screen and the roster. */
+const CLASS_NAME_MAX = 60;
 
 const capped = (value: string | undefined | null, max: number): string =>
   (value ?? "").trim().slice(0, max);
@@ -710,8 +733,8 @@ export async function createLexeme(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
-  const lemma = capped(input.lemma, LIMITS.lemma);
-  const translation = capped(input.translation, LIMITS.translation);
+  const lemma = visibleLine(input.lemma, LIMITS.lemma);
+  const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
@@ -773,8 +796,8 @@ export async function createLexemeWithForms(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
-  const lemma = capped(input.lemma, LIMITS.lemma);
-  const translation = capped(input.translation, LIMITS.translation);
+  const lemma = visibleLine(input.lemma, LIMITS.lemma);
+  const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
@@ -785,9 +808,9 @@ export async function createLexemeWithForms(input: {
     translation,
     pos: input.pos,
     cefr: input.cefr,
-    government: capped(input.government, LIMITS.government),
+    government: visibleLine(input.government, LIMITS.government),
     forms: Object.fromEntries(
-      Object.entries(input.forms).map(([type, value]) => [type, capped(value, LIMITS.form)]),
+      Object.entries(input.forms).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
     ),
     editedBy: ownerId,
   });
@@ -815,15 +838,30 @@ export async function createLexemeWithForms(input: {
   return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null };
 }
 
-export async function toggleStar(lexemeId: string) {
+/**
+ * Sets a star to the state the learner pressed for, rather than flipping it.
+ *
+ * A flip is a guess about what the button showed. A word met twice in one
+ * session, recognition then production, was starred on the first card and
+ * then drawn unstarred on the second from the page's own snapshot, so the
+ * press meaning "keep this" deleted it. `starred` is what the press asked
+ * for; a caller that sends none gets the old flip.
+ */
+export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   const ownerId = await requireUserId();
-  const existing = await prisma.starredWord.findUnique({
-    where: { ownerId_lexemeId: { ownerId, lexemeId } },
-  });
-  if (existing) {
-    await prisma.starredWord.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
-  } else {
-    await prisma.starredWord.create({ data: { ownerId, lexemeId } });
+  const id = text(lexemeId).slice(0, 64);
+  if (!id) return { ok: false as const, error: "That is not a word." };
+  const exists = await prisma.lexeme.findUnique({ where: { id }, select: { id: true } });
+  if (!exists) return { ok: false as const, error: "That word is not in the dictionary." };
+
+  const key = { ownerId_lexemeId: { ownerId, lexemeId: id } };
+  const existing = await prisma.starredWord.findUnique({ where: key });
+  const want = typeof starred === "boolean" ? starred : !existing;
+  if (want && !existing) {
+    // A second tab pressing at the same moment has already written it.
+    await prisma.starredWord.createMany({ data: [{ ownerId, lexemeId: id }], skipDuplicates: true });
+  } else if (!want && existing) {
+    await prisma.starredWord.deleteMany({ where: { ownerId, lexemeId: id } });
   }
   /*
     The dictionary is where a star used to be set from and the only place it
@@ -834,7 +872,7 @@ export async function toggleStar(lexemeId: string) {
   */
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
-  return { ok: true as const, starred: !existing };
+  return { ok: true as const, starred: want };
 }
 
 /**
@@ -963,8 +1001,8 @@ export async function importWords(rows: { lemma: string; translation: string; po
   const wanted: { lemma: string; translation: string; pos: string }[] = [];
   const seenKeys = new Set<string>();
   for (const row of rows.slice(0, MAX_IMPORT_ROWS)) {
-    const lemma = capped(row.lemma, LIMITS.lemma);
-    const translation = capped(row.translation, LIMITS.translation);
+    const lemma = visibleLine(row.lemma, LIMITS.lemma);
+    const translation = visibleLine(row.translation, LIMITS.translation);
     if (!lemma || !translation) continue;
     const key = `${lemma}|${row.pos}`;
     if (seenKeys.has(key)) continue;
@@ -1022,23 +1060,6 @@ export async function importWords(rows: { lemma: string; translation: string; po
   return { ok: true as const, created, cards, skipped, truncated, limit: MAX_IMPORT_ROWS };
 }
 
-// ────────────────────────────── Achievements ───────────────────────────────
-
-/**
- * Resolves the current streak for whoever is signed in, applying any banked
- * streak shields (Duolingo's "streak freeze") to bridge missed days.
- *
- * The logic lives in lib/progress/summary.ts so a Server Component can reach it
- * without importing this whole action module. This wrapper takes no owner id on
- * purpose: an exported Server Action is a public endpoint, and one that read a
- * streak for any id passed to it would happily report on someone else's.
- */
-export async function resolveStreak() {
-  const ownerId = await requireUserId();
-  const result = await resolveStreakFor(ownerId, new Date(), await learnerDayClock(ownerId));
-  return { ok: true as const, ...result };
-}
-
 /**
  * A learner's recent turns with Anu, for the floating Anu button.
  *
@@ -1087,6 +1108,8 @@ export async function setDailyGoal(goal: number) {
 /** A round of this app is a minute long; nothing honest reaches these. */
 const MAX_SPRINT_SCORE = 500;
 const MAX_MATCH_SECONDS = 3_600;
+/** Twice the board's own size (see PAIRS in the round's page.tsx). A ceiling, not a pace. */
+const MAX_MATCH_PAIRS = 16;
 
 /** Records a Case Sprint score, keeping only the personal best. */
 export async function recordSprintScore(score: number) {
@@ -1100,10 +1123,45 @@ export async function recordSprintScore(score: number) {
 }
 
 /**
+ * Records a finished match round in the review log, one write rather than
+ * one per pair.
+ *
+ * MatchSession used to grade this by looping over its pairs and calling
+ * gradeCard once each, which for an eight-pair board is eight sequential
+ * Server Action round trips before the finish screen could show, each its
+ * own requireUserId, its own card lookup and its own revalidatePath. That is
+ * the shape completeLesson and submitExam already fixed for their own
+ * rounds: the client sends what happened, and the whole batch lands through
+ * one call to applyGradeBatch (ADR-016).
+ *
+ * What each pair is worth is `matchGrades`, pure and unit tested. The id per
+ * grade is minted on the client at finish, so a doubled request settles
+ * rather than doubling the count, which is exactly what applyGradeBatch is
+ * built to do with a repeated id.
+ */
+export async function recordMatchGrades(grades: unknown) {
+  const ownerId = await requireUserId();
+
+  const batch = matchGrades(grades, MAX_MATCH_PAIRS, Date.now());
+  if (batch.length === 0) return { ok: false as const, error: "Nothing to record." };
+
+  const result = await applyGradeBatch(ownerId, batch);
+  if (!result.ok) return { ok: false as const, error: result.error ?? "Could not record the round." };
+  /*
+    Every pair used to go through `gradeCard`, which revalidates Today; the
+    batch does not, so Today would show the old due count for as long as the
+    router cache holds it.
+  */
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, graded: result.settled.length };
+}
+
+/**
  * Records a finished match round, keeping the fastest time.
  *
- * Lower is better here, which is the opposite of every other score in the app —
- * hence the explicit "0 means never played" rather than a plain `Math.min`,
+ * Lower is better here, which is the opposite of every other score in the app,
+ * hence the explicit "0 means never played" rather than a plain Math.min,
  * which would leave a first-ever round competing against zero and always losing.
  */
 export async function recordMatchTime(seconds: number) {
@@ -1145,12 +1203,12 @@ export async function recordSonad(day: string, guesses: unknown) {
     ? guesses.filter((g): g is string => typeof g === "string").slice(0, SONAD_GUESSES)
     : [];
   if (played.length === 0) return { ok: false as const, error: "Nothing to record." };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
 
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
 
-  const rating = ratingFor(played, puzzle.answer);
+  const rating = ratingFor(played, puzzle.answer, puzzle.category !== null);
   if (rating === null) return { ok: false as const, error: "That round is not over." };
   if (!puzzle.inDeck) return { ok: true as const, graded: false };
 
@@ -1291,7 +1349,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
  * cost is that `advance` sees the next turn as helped. Nothing is deducted, no
  * objective is withheld, and the word goes on the debrief with a button to keep
  * it. Somebody who asks for four words and finishes has learned more than
- * somebody who gave up with none (`docs/19-situations.md` §12).
+ * somebody who gave up with none (`docs/21-situations.md` §12).
  *
  * The first version of this button recorded the *beat id* as the word needed,
  * so a debrief listed `reason` and `greet` under "words this conversation
@@ -1374,7 +1432,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
  * writes into the review log and a forged one would schedule words nobody said.
  *
  * Nothing in the transcript is true about the learner. The role card is fiction
- * (`docs/19-situations.md` §3), which is what makes a table of somebody's
+ * (`docs/21-situations.md` §3), which is what makes a table of somebody's
  * practice sentences about a doctor's appointment safe to hold at all.
  */
 export async function finishScene(input: {
@@ -1433,20 +1491,25 @@ export async function finishScene(input: {
     fails under pressure lands in the same weak-case charts as the case they
     fail on a card.
   */
+  /*
+    Every candidate card read once, and matched in `cardsForGrades`. This was a
+    `findFirst` per grade inside the loop below, so a conversation that met ten
+    requirements made ten round trips before its first write, on the screen
+    that says how it went. Bounded by this learner's own cards for the words
+    the run graded.
+  */
+  const lemmas = [...new Set(finished.grades.map((grade) => grade.lemma))];
+  const candidates = lemmas.length === 0 ? [] : await prisma.card.findMany({
+    where: { ownerId, lexeme: { lemma: { in: lemmas } }, cardType: { in: ["CASE_FORM", "PRODUCTION"] } },
+    select: { id: true, cardType: true, targetCase: true, lexeme: { select: { lemma: true } } },
+    orderBy: { id: "asc" },
+  });
+  const cardIds = cardsForGrades(finished.grades, candidates);
+
   let graded = 0;
-  for (const grade of finished.grades) {
-    const card = await prisma.card.findFirst({
-      where: {
-        ownerId,
-        lexeme: { lemma: grade.lemma },
-        ...(grade.grammCase
-          ? { cardType: "CASE_FORM", targetCase: grade.grammCase }
-          : { cardType: "PRODUCTION" }),
-      },
-      orderBy: { id: "asc" },
-      select: { id: true },
-    });
-    if (!card) continue;
+  for (const [index, grade] of finished.grades.entries()) {
+    const cardId = cardIds[index];
+    if (!cardId) continue;
     /*
       The case that came back instead travels with the grade, so the pair
       somebody mixes up at a counter is counted beside the pair they mix up
@@ -1454,7 +1517,7 @@ export async function finishScene(input: {
       trusting them, which is what it does for every other caller.
     */
     const result = await gradeCard(
-      card.id, grade.rating, 0, undefined,
+      cardId, grade.rating, 0, undefined,
       grade.grammCase ?? undefined, grade.reachedCase ?? undefined,
     );
     if (result.ok) graded += 1;
@@ -1476,7 +1539,7 @@ export async function finishScene(input: {
 
 export async function recordCrossword(day: string, typed: unknown, helped: unknown) {
   const ownerId = await requireUserId();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
 
   /*
     Off the wire, whatever the types say. A cell index that is not a number and
@@ -1774,6 +1837,10 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
   if (!isEmailKind(input?.kind) || input.kind === "system") {
     return { ok: false as const, error: "That is not something we send." };
   }
+  // A string "false" is truthy, so anything but a real boolean was read as on.
+  if (typeof input.on !== "boolean") {
+    return { ok: false as const, error: "That is not a yes or a no." };
+  }
 
   /*
     BOTH ROWS, BECAUSE THERE ARE TWO DEFAULTS AND ONE ROW CANNOT CARRY THEM.
@@ -1878,6 +1945,8 @@ export async function completeOnboarding(input: {
   };
 }) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "completeOnboarding");
+  if (busy) return busy;
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
   await Promise.all([
@@ -1940,12 +2009,6 @@ export async function completeOnboarding(input: {
 }
 
 /**
- * Adds every word of a path unit to the deck, with the card types that unit is
- * actually about — the rektsioon unit adds government cards, a noun unit adds
- * case-form cards. Already-present cards are skipped, so re-adding a unit after
- * finishing half of it costs nothing and loses no scheduling.
- */
-/**
  * The hundred commonest words of one kind, into the deck.
  *
  * The group rather than a list of words, and that is the point: every export
@@ -1961,6 +2024,8 @@ export async function completeOnboarding(input: {
  */
 export async function addCommonWords(group: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "addCommonWords");
+  if (busy) return busy;
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "That list does not exist." };
   }
@@ -2025,19 +2090,6 @@ export async function deepenCommonWords(group: string) {
 
   revalidatePath("/review/common");
   revalidatePath("/practice");
-  revalidatePath("/words");
-  revalidatePath("/");
-  return { ok: true as const, added, words };
-}
-
-export async function addUnitToDeck(unitId: string) {
-  const ownerId = await requireUserId();
-  const unit = unitById(unitId);
-  if (!unit) return { ok: false as const, error: "That unit does not exist." };
-
-  const { added, words } = await addUnitsToDeck(ownerId, [unitId], "COURSE");
-
-  revalidatePath("/learn");
   revalidatePath("/words");
   revalidatePath("/");
   return { ok: true as const, added, words };
@@ -2172,6 +2224,8 @@ export async function completeLesson(
   results: z.input<typeof LessonResultSchema>[],
 ) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "completeLesson");
+  if (busy) return busy;
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "That unit does not exist." };
 
@@ -2336,7 +2390,9 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
 
   const busy = throttleAction(ownerId, "createClassroom");
   if (busy) return busy;
-  const trimmed = text(name).trim().slice(0, 60);
+  // Shown to everybody who is handed the code, on the screen they read before
+  // they decide to join, so it is cleaned like a name rather than trimmed.
+  const trimmed = visibleLine(name, CLASS_NAME_MAX);
   if (trimmed.length < 2) return { ok: false as const, error: "Give the class a name." };
 
   /*
@@ -2417,8 +2473,10 @@ export async function joinClassroom(code: string, displayName?: string) {
 }
 
 /** Leaves a class. Removes the membership row and nothing else — no deck, no history. */
-export async function leaveClassroom(classroomId: string) {
+export async function leaveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return { ok: false as const, error: "That is not a class." };
   const classroom = await prisma.classroom.findUnique({
     where: { id: classroomId },
     select: { ownerId: true },
@@ -2432,8 +2490,10 @@ export async function leaveClassroom(classroomId: string) {
 }
 
 /** Archives a class the caller teaches: the code stops working, the data stays. */
-export async function archiveClassroom(classroomId: string) {
+export async function archiveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return { ok: false as const, error: "That is not a class." };
   const updated = await prisma.classroom.updateMany({
     where: { id: classroomId, ownerId },
     data: { archived: true },
@@ -2451,13 +2511,18 @@ export async function archiveClassroom(classroomId: string) {
  * they owe lives, and homework from class belongs in it. Nobody's deck is
  * touched — the task says what to do, the student decides when.
  */
-export async function assignUnit(classroomId: string, unitId: string, dueAt?: string) {
+export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, rawDueAt?: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const unitId = text(rawUnitId).slice(0, 64);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "That is not your class." };
 
   const busy = throttleAction(ownerId, "assignUnit");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    where: { id: classroomId, ownerId },
+    // An archived class takes no more work, which the page says and the action now does.
+    where: { id: classroomId, ownerId, archived: false },
     select: { id: true, name: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
@@ -2475,7 +2540,7 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
     data: members.map((m) => ({
       ownerId: m.ownerId,
       title: `${unit.title}, ${unit.subtitle}`,
-      notes: `Set by ${classroom.name}. Open the unit on the learning path, add its words and review them.`,
+      notes: `${classworkMarker(classroom.name)} Open the unit on the learning path, add its words and review them.`,
       tag: "VOCABULARY",
       dueAt: due && !Number.isNaN(due.getTime()) ? due : null,
     })),
@@ -2483,11 +2548,6 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
 
   revalidatePath("/class");
   return { ok: true as const, assigned: members.length };
-}
-
-/** The marker every classroom-issued task's `notes` starts with, teacher and student alike. */
-function classworkMarker(classroomName: string): string {
-  return `Set by ${classroomName}.`;
 }
 
 /**
@@ -2501,20 +2561,29 @@ function classworkMarker(classroomName: string): string {
  * touched, the teacher's own copy of the task (they are a member too) is what
  * lets the class page read its own history back without a table to hold it.
  */
-export async function assignHomework(classroomId: string, title: string, notes: string, dueAt?: string) {
+export async function assignHomework(
+  rawClassroomId: unknown, rawTitle: unknown, rawNotes: unknown, rawDueAt?: unknown,
+) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const title = text(rawTitle);
+  const notes = text(rawNotes);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "That is not your class." };
 
   const busy = throttleAction(ownerId, "assignHomework");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    where: { id: classroomId, ownerId },
+    // An archived class takes no more work, which the page says and the action now does.
+    where: { id: classroomId, ownerId, archived: false },
     select: { id: true, name: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
 
-  const cleanTitle = capped(title, LIMITS.taskTitle);
+  // On every member's Today, so cleaned like a name rather than trimmed.
+  const cleanTitle = visibleLine(title, LIMITS.taskTitle);
   if (!cleanTitle) return { ok: false as const, error: "Give the homework a title." };
-  const cleanNotes = capped(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
+  const cleanNotes = visibleProse(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
 
   const members = await prisma.classroomMember.findMany({
     where: { classroomId },
@@ -2551,8 +2620,10 @@ export async function assignHomework(classroomId: string, title: string, notes: 
  * teacher with the exact same name would share a marker. Rare enough, and
  * visible enough if it happens, not to be worth a schema change over.
  */
-export async function classworkHistory(classroomId: string) {
+export async function classworkHistory(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return [];
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { name: true },
@@ -2576,27 +2647,10 @@ export async function classworkHistory(classroomId: string) {
 }
 
 /**
- * A name a class is going to see, cleaned.
- *
- * `trim().slice(0, 32)` was the whole of it, and `String.prototype.trim` does
- * not remove U+200B: two zero-width spaces are a two-character string that
- * passes the `!name` check and renders as nothing on the roster, so a member
- * could sit in a class with no name at all. U+202E is worse, because it
- * reverses what follows it and can be used to make one pupil's row read as
- * another's. The roster is the one screen in this app where a stranger's text
- * is shown to a teacher beside real pupils' names.
- *
- * `\p{C}` is every control, format and unassigned code point, which is the
- * category both of those are in, and NFC first so a name is compared and
- * stored in one normalization. At least one letter or digit, because a row
- * of punctuation is the same "renders as nothing" fault wearing a visible
- * character.
+ * A name a class is going to see, cleaned. `lib/security/visibleText.ts` says
+ * what that means and why `trim()` was not it.
  */
-function cleanDisplayName(value: unknown): string {
-  if (typeof value !== "string") return "";
-  const cleaned = value.normalize("NFC").replace(/\p{C}/gu, "").replace(/\s+/g, " ").trim().slice(0, 32);
-  return /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : "";
-}
+const cleanDisplayName = (value: unknown): string => visibleLine(value, DISPLAY_NAME_MAX);
 
 /** The name to show in a class: their chosen one, else their account's. */
 async function resolveDisplayName(ownerId: string): Promise<string> {
@@ -2724,11 +2778,14 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
   return { ok: true as const };
 }
 
-/** Removes a reminder the learner wrote. A teacher's assignment is theirs to remove. */
+/**
+ * Removes a reminder the learner wrote. Homework a class set is not theirs to
+ * remove, and what says which is `isClasswork` in lib/ux/agenda.ts.
+ */
 export async function deleteReminder(id: string) {
   const ownerId = await requireUserId();
-  const { count } = await prisma.task.deleteMany({ where: { id, ownerId, classWeek: null } });
-  if (count === 0) return { ok: false as const };
+  if (typeof id !== "string") return { ok: false as const };
+  if (!(await deleteOwnReminder(ownerId, id))) return { ok: false as const };
   revalidatePath("/calendar");
   revalidatePath("/");
   return { ok: true as const };
@@ -2737,9 +2794,22 @@ export async function deleteReminder(id: string) {
 const clamp = (n: number, lo: number, hi: number) =>
   Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo;
 
+/**
+ * A `YYYY-MM-DD` string, asked about as a string first.
+ *
+ * `RegExp.test` converts its argument, so `["2026-09-24"]` passes the pattern
+ * as readily as the string does, and an argument off the wire is whatever the
+ * caller sent: `recordSonad(["2026-09-24"], ...)` went on to `day.split("-")`
+ * inside the puzzle builder and threw. One check, so the three doors that take
+ * a day cannot disagree about what one is.
+ */
+function isDayKey(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 /** A `YYYY-MM-DD` string, or null for anything that is not one. */
-function dayKeyOrNull(value: string | null | undefined): string | null {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+function dayKeyOrNull(value: unknown): string | null {
+  if (!isDayKey(value)) return null;
   return Number.isNaN(Date.parse(`${value}T00:00:00.000Z`)) ? null : value;
 }
 
@@ -2855,7 +2925,7 @@ export async function buildClozeFromText(passageIn: string) {
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  if (confirmation.trim().toLowerCase() !== "delete") {
+  if (text(confirmation).trim().toLowerCase() !== "delete") {
     return { ok: false as const, error: 'Type "delete" to confirm.' };
   }
 
@@ -3108,6 +3178,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
 
   try {
     await prisma.$transaction(async (tx) => {
+      /*
+        The deck lock, because a restore is the widest add a deck ever gets: a
+        tab pressing "Add to deck" while a replace has emptied the deck and not
+        yet put it back would read an empty deck and write its own cards
+        beside the restored ones.
+      */
+      await lockDeck(tx, ownerId);
       if (mode === "replace") {
         // Scoped to this user's own data only — Lexeme/Form are the shared
         // dictionary and must never be wiped by one person's restore.
@@ -3143,51 +3220,42 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         the Ekilex identifiers that would claim otherwise. Nothing is lost by
         it, because the cards below point at ids either way.
       */
-      const wanted = backup.lexemes.map((l) => String((l as { id?: unknown }).id ?? ""));
-      const present = new Set(
-        (await tx.lexeme.findMany({ where: { id: { in: wanted } }, select: { id: true } }))
-          .map((l) => l.id),
-      );
-      for (const raw of backup.lexemes) {
+      const live = await restoreLexemes(tx, ownerId, backup.lexemes.map((raw) => {
         const { forms, ...lex } = raw as Record<string, unknown> & { forms?: unknown[] };
-        const data = revive(lex, ["createdAt", "updatedAt"]);
-        delete data.starred; // dropped field from a pre-multi-user backup
-        if (present.has(String(data.id))) continue;
-
-        // Whoever restores it is who added it, and it is not Ekilex's.
-        data.provenance = "USER";
-        data.editedBy = ownerId;
-        delete data.ekilexWordId;
-        delete data.fetchedAt;
-        delete data.lookupMissAt;
-
-        try {
-          await tx.lexeme.create({ data: data as never });
-        } catch {
-          // Another word already holds this (lemma, pos). Theirs stays.
-          continue;
-        }
-        if (Array.isArray(forms) && forms.length) {
-          await tx.form.createMany({
-            data: forms.map((f) => {
-              const form = revive(f as Record<string, unknown>, []);
-              form.lexemeId = String(data.id);
-              return form;
-            }) as never,
-            skipDuplicates: true,
-          });
-        }
-      }
+        return {
+          data: revive(lex, ["createdAt", "updatedAt"]),
+          forms: Array.isArray(forms) ? forms.map((f) => revive(f as Record<string, unknown>, [])) : [],
+        };
+      }));
+      /*
+        Every row below that points at a word points at it through `wordOf`,
+        which is where that word lives on this deployment. A card whose word is
+        nowhere here is left out rather than written: it would fail the foreign
+        key and take the whole restore with it, over a word nothing can show.
+      */
+      const wordOf = await resolveLexemes(tx, live, [
+        ...backup.cards, ...backup.reviews, ...(backup.stars ?? []), ...(backup.deckWords ?? []),
+        ...(backup.sceneGaps ?? []), ...(backup.deferrals ?? []),
+      ].map((row) => row.lexemeId));
 
       // Cards/tasks are always attributed to the person restoring them, regardless
       // of what the backup file says — restoring "my backup" always means "my data".
-      for (const raw of backup.cards) {
+      const cards = backup.cards.flatMap((raw) => {
         const data = revive(raw, ["due", "lastReview", "createdAt"]);
         data.ownerId = ownerId;
-        const existing = await tx.card.findUnique({ where: { id: String(data.id) }, select: { ownerId: true } });
-        if (existing && existing.ownerId !== ownerId) continue; // id collision with another user's card — skip
-        await tx.card.upsert({ where: { id: String(data.id) }, create: data as never, update: data as never });
-      }
+        if (data.lexemeId != null) {
+          data.lexemeId = wordOf(data.lexemeId);
+          if (data.lexemeId === null) return [];
+        }
+        return [data];
+      });
+      // A card already here is updated only where it is already this learner's;
+      // an id collision with another learner's card is skipped.
+      await restoreOwned(ownerId, cards, {
+        read: (chunk) => tx.card.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+        insert: (chunk) => tx.card.createMany({ data: chunk as never, skipDuplicates: true }),
+        update: (data) => tx.card.update({ where: { id: String(data.id) }, data: data as never }),
+      });
 
       /*
         Reviews are append-only, so they are created if absent and never
@@ -3203,22 +3271,26 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         two that need a card left out.
       */
       const restoredAt = new Date();
-      for (const raw of backup.reviews) {
-        const data = boundedRestoredReview(revive(raw, ["reviewedAt"]), restoredAt);
-        if (!data) continue;
-        const exists = await tx.review.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        data.ownerId = ownerId;
-        await tx.review.create({ data: data as never });
-      }
+      await createAbsent(
+        backup.reviews.flatMap((raw) => {
+          const data = boundedRestoredReview(revive(raw, ["reviewedAt"]), restoredAt);
+          if (!data) return [];
+          data.ownerId = ownerId;
+          data.lexemeId = wordOf(data.lexemeId) ?? data.lexemeId;
+          return [data];
+        }),
+        (chunk) => tx.review.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.tasks) {
-        const data = revive(raw, ["dueAt", "completedAt", "createdAt"]);
-        data.ownerId = ownerId;
-        const existing = await tx.task.findUnique({ where: { id: String(data.id) }, select: { ownerId: true } });
-        if (existing && existing.ownerId !== ownerId) continue;
-        await tx.task.upsert({ where: { id: String(data.id) }, create: data as never, update: data as never });
-      }
+      await restoreOwned(
+        ownerId,
+        backup.tasks.map((raw) => ({ ...revive(raw, ["dueAt", "completedAt", "createdAt"]), ownerId })),
+        {
+          read: (chunk) => tx.task.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+          insert: (chunk) => tx.task.createMany({ data: chunk as never, skipDuplicates: true }),
+          update: (data) => tx.task.update({ where: { id: String(data.id) }, data: data as never }),
+        },
+      );
 
       /*
         The calendar, on the same terms: written by its original id so a second
@@ -3226,34 +3298,36 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         A replace deletes these, so a restore that did not put them back would
         take somebody's class times away in the name of giving them their data.
       */
-      for (const raw of backup.studyEvents ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const existing = await tx.studyEvent.findUnique({
-          where: { id: String(data.id) }, select: { ownerId: true },
-        });
-        if (existing && existing.ownerId !== ownerId) continue;
-        await tx.studyEvent.upsert({
-          where: { id: String(data.id) }, create: data as never, update: data as never,
-        });
-      }
+      await restoreOwned(
+        ownerId,
+        (backup.studyEvents ?? []).map((raw) => ({ ...revive(raw, ["createdAt"]), ownerId })),
+        {
+          read: (chunk) => tx.studyEvent.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+          insert: (chunk) => tx.studyEvent.createMany({ data: chunk as never, skipDuplicates: true }),
+          update: (data) => tx.studyEvent.update({ where: { id: String(data.id) }, data: data as never }),
+        },
+      );
 
       // Photographed pages, on the same terms as everything else here: written
       // by their original id so a second restore changes nothing, and always
       // attributed to whoever is restoring. The item list is re-checked on the
       // way in rather than trusted, because the file is supplied by its caller.
-      for (const raw of backup.scans ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        data.items = serialiseItems(parseItems(
-          typeof data.items === "string" ? data.items : null, SCAN_MAX_ITEMS,
-        ));
-        data.title = capped(typeof data.title === "string" ? data.title : "", MAX_SCAN_TITLE);
-        if (!data.title) data.title = "A page";
-        const existing = await tx.scan.findUnique({ where: { id: String(data.id) }, select: { ownerId: true } });
-        if (existing && existing.ownerId !== ownerId) continue;
-        await tx.scan.upsert({ where: { id: String(data.id) }, create: data as never, update: data as never });
-      }
+      await restoreOwned(
+        ownerId,
+        (backup.scans ?? []).map((raw) => {
+          const data: Record<string, unknown> = { ...revive(raw, ["createdAt"]), ownerId };
+          data.items = serialiseItems(parseItems(
+            typeof data.items === "string" ? data.items : null, SCAN_MAX_ITEMS,
+          ));
+          data.title = capped(typeof data.title === "string" ? data.title : "", MAX_SCAN_TITLE) || "A page";
+          return data;
+        }),
+        {
+          read: (chunk) => tx.scan.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+          insert: (chunk) => tx.scan.createMany({ data: chunk as never, skipDuplicates: true }),
+          update: (data) => tx.scan.update({ where: { id: String(data.id) }, data: data as never }),
+        },
+      );
 
       /*
         THE FIVE THAT USED TO BE EXPORTED NOWHERE AND RESTORED NOWHERE.
@@ -3268,95 +3342,79 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         measured alone. The other four are upserts, because a setting or a star
         is a current value rather than a fact about a moment.
       */
+      const settings = new Map<string, string>();
       for (const raw of backup.settings ?? []) {
         const data = revive(raw, []);
         const key = String(data.key ?? "");
-        if (!key) continue;
-        const value = String(data.value ?? "");
-        await tx.setting.upsert({
-          where: { ownerId_key: { ownerId, key } },
-          create: { ownerId, key, value },
-          update: { value },
-        });
+        if (key) settings.set(key, String(data.value ?? ""));
+      }
+      const heldKeys = new Set((await tx.setting.findMany({
+        where: { ownerId, key: { in: [...settings.keys()] } }, select: { key: true },
+      })).map((row) => row.key));
+      await tx.setting.createMany({
+        data: [...settings].filter(([key]) => !heldKeys.has(key)).map(([key, value]) => ({ ownerId, key, value })),
+        skipDuplicates: true,
+      });
+      for (const key of heldKeys) {
+        await tx.setting.update({ where: { ownerId_key: { ownerId, key } }, data: { value: settings.get(key)! } });
       }
       // Written straight at the table rather than through `writeSetting`,
       // because a restore replaces the lot. See lib/settings/store.ts.
       forgetSettings(ownerId);
 
-      for (const raw of backup.messages ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.message.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.message.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.messages ?? []).map((raw) => ({ ...revive(raw, ["createdAt"]), ownerId })),
+        (chunk) => tx.message.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.assessments ?? []) {
-        const data = revive(raw, ["takenAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.assessment.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.assessment.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.assessments ?? []).map((raw) => ({ ...revive(raw, ["takenAt"]), ownerId })),
+        (chunk) => tx.assessment.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.examAttempts ?? []) {
-        const data = revive(raw, ["startedAt", "finishedAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.examAttempt.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.examAttempt.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.examAttempts ?? []).map((raw) => ({ ...revive(raw, ["startedAt", "finishedAt"]), ownerId })),
+        (chunk) => tx.examAttempt.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
       /*
         A conversation played through, with its transcript, and the words it
         needed. Both append-only, so a row already here is left exactly as it
         is; a gap whose run did not come back is still a fact about a word.
       */
-      for (const raw of backup.sceneRuns ?? []) {
-        const data = revive(raw, ["startedAt", "endedAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.sceneRun.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.sceneRun.create({ data: data as never });
-      }
-      for (const raw of backup.sceneGaps ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.sceneGap.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        if (data.lexemeId) {
-          const lexeme = await tx.lexeme.findUnique({ where: { id: String(data.lexemeId) }, select: { id: true } });
-          if (!lexeme) data.lexemeId = null;
-        }
-        await tx.sceneGap.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.sceneRuns ?? []).map((raw) => ({ ...revive(raw, ["startedAt", "endedAt"]), ownerId })),
+        (chunk) => tx.sceneRun.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
+      await createAbsent(
+        (backup.sceneGaps ?? []).map((raw) => {
+          const data: Record<string, unknown> = { ...revive(raw, ["createdAt"]), ownerId };
+          if (data.lexemeId) data.lexemeId = wordOf(data.lexemeId);
+          return data;
+        }),
+        (chunk) => tx.sceneGap.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.encounters ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.encounter.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.encounter.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.encounters ?? []).map((raw) => ({ ...revive(raw, ["createdAt"]), ownerId })),
+        (chunk) => tx.encounter.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.deferrals ?? []) {
-        const data = revive(raw, ["untilAt", "wokenAt", "createdAt", "updatedAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.deferral.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        /*
-          One row per owner per word is what makes the deployment-wide count
-          mean people, so a restore onto a database that already holds a
-          deferral for this word keeps the one that is there rather than
-          failing the whole transaction over a word somebody put aside twice.
-        */
-        const held = await tx.deferral.findUnique({
-          where: { ownerId_lexemeId: { ownerId, lexemeId: String(data.lexemeId ?? "") } },
-          select: { id: true },
-        });
-        if (held) continue;
-        await tx.deferral.create({ data: data as never });
-      }
+      /*
+        One row per owner per word is what makes the deployment-wide count
+        mean people, so a restore onto a database that already holds a
+        deferral for this word keeps the one that is there rather than
+        failing the whole transaction over a word somebody put aside twice.
+        `skipDuplicates` skips on that key as well as on the id.
+      */
+      await createAbsent(
+        (backup.deferrals ?? []).map((raw) => {
+          const data: Record<string, unknown> = { ...revive(raw, ["untilAt", "wokenAt", "createdAt", "updatedAt"]), ownerId };
+          data.lexemeId = wordOf(data.lexemeId) ?? data.lexemeId;
+          return data;
+        }),
+        (chunk) => tx.deferral.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
       /*
         Steps of a planned course day. Created and never updated, like every
@@ -3372,54 +3430,47 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         all-or-nothing. `StarredWord` and `Achievement` are the same shape two
         loops down and already did it this way.
       */
-      for (const raw of backup.courseSteps ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        const programmeId = String(data.programmeId ?? "");
-        const dayId = String(data.dayId ?? "");
-        const stepId = String(data.stepId ?? "");
-        if (!programmeId || !dayId || !stepId) continue;
-        await tx.courseStep.upsert({
-          where: {
-            ownerId_programmeId_dayId_stepId: { ownerId, programmeId, dayId, stepId },
-          },
-          create: {
+      await createAbsent(
+        (backup.courseSteps ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const programmeId = String(data.programmeId ?? "");
+          const dayId = String(data.dayId ?? "");
+          const stepId = String(data.stepId ?? "");
+          if (!programmeId || !dayId || !stepId) return [];
+          return [{
             ownerId, programmeId, dayId, stepId,
             ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
-          },
-          update: {},
-        });
-      }
+          }];
+        }),
+        (chunk) => tx.courseStep.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.stars ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        const lexemeId = String(data.lexemeId ?? "");
-        if (!lexemeId) continue;
-        /*
-          A star points at a dictionary entry with a real foreign key, and a
-          merge onto a database that does not hold that entry would abort the
-          whole transaction over a bookmark. The backup carries the dictionary,
-          so this normally finds it; when it does not, one lost star is the
-          right price for the rest of the restore completing.
-        */
-        const lexeme = await tx.lexeme.findUnique({ where: { id: lexemeId }, select: { id: true } });
-        if (!lexeme) continue;
-        await tx.starredWord.upsert({
-          where: { ownerId_lexemeId: { ownerId, lexemeId } },
-          create: { ownerId, lexemeId, ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}) },
-          update: {},
-        });
-      }
+      /*
+        A star points at a dictionary entry with a real foreign key, and a
+        merge onto a database that does not hold that entry would abort the
+        whole transaction over a bookmark. The backup carries the dictionary,
+        so this normally finds it; when it does not, one lost star is the
+        right price for the rest of the restore completing.
+      */
+      await createAbsent(
+        (backup.stars ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const lexemeId = wordOf(data.lexemeId);
+          if (!lexemeId) return [];
+          return [{ ownerId, lexemeId, ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}) }];
+        }),
+        (chunk) => tx.starredWord.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.achievements ?? []) {
-        const data = revive(raw, ["earnedAt"]);
-        const key = String(data.key ?? "");
-        if (!key) continue;
-        await tx.achievement.upsert({
-          where: { ownerId_key: { ownerId, key } },
-          create: { ownerId, key, ...(data.earnedAt ? { earnedAt: data.earnedAt as Date } : {}) },
-          update: {},
-        });
-      }
+      await createAbsent(
+        (backup.achievements ?? []).flatMap((raw) => {
+          const data = revive(raw, ["earnedAt"]);
+          const key = String(data.key ?? "");
+          if (!key) return [];
+          return [{ ownerId, key, ...(data.earnedAt ? { earnedAt: data.earnedAt as Date } : {}) }];
+        }),
+        (chunk) => tx.achievement.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
       /*
         Their own named shelves, on the same terms as everything else here:
@@ -3427,46 +3478,39 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         always attributed to whoever is restoring rather than to whatever the
         file claims. Decks first, because a `DeckWord` points at one.
       */
-      const deckIdMap = new Map<string, string>();
-      for (const raw of backup.decks ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        const id = String(data.id ?? "");
-        if (!id) continue;
-        const name = String(data.name ?? "").trim().slice(0, 60);
-        if (!name) continue;
-        const existing = await tx.deck.findUnique({ where: { id }, select: { ownerId: true } });
-        if (existing && existing.ownerId !== ownerId) continue; // id collision with another learner's deck
-        await tx.deck.upsert({
-          where: { id },
-          create: {
-            id, ownerId, name,
-            ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
-          },
-          update: { name },
-        });
-        deckIdMap.set(id, id);
-      }
+      const deckIdMap = await restoreOwned(
+        ownerId,
+        (backup.decks ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const id = String(data.id ?? "");
+          const name = String(data.name ?? "").trim().slice(0, 60);
+          if (!id || !name) return [];
+          return [{ id, ownerId, name, ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}) }];
+        }),
+        {
+          read: (chunk) => tx.deck.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+          insert: (chunk) => tx.deck.createMany({ data: chunk as never, skipDuplicates: true }),
+          update: (data) => tx.deck.update({ where: { id: String(data.id) }, data: { name: String(data.name) } }),
+        },
+      );
 
       // A word on a shelf points at a dictionary entry with a real foreign
       // key, the same as a star above: when the backup's dictionary does not
       // hold it, one dropped shelf entry is the right price for the rest of
       // the restore completing.
-      for (const raw of backup.deckWords ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        const deckId = String(data.deckId ?? "");
-        const lexemeId = String(data.lexemeId ?? "");
-        if (!deckId || !lexemeId || !deckIdMap.has(deckId)) continue;
-        const lexeme = await tx.lexeme.findUnique({ where: { id: lexemeId }, select: { id: true } });
-        if (!lexeme) continue;
-        await tx.deckWord.upsert({
-          where: { deckId_lexemeId: { deckId, lexemeId } },
-          create: {
+      await createAbsent(
+        (backup.deckWords ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const deckId = String(data.deckId ?? "");
+          const lexemeId = wordOf(data.lexemeId);
+          if (!deckId || !lexemeId || !deckIdMap.has(deckId)) return [];
+          return [{
             deckId, ownerId, lexemeId,
             ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
-          },
-          update: {},
-        });
-      }
+          }];
+        }),
+        (chunk) => tx.deckWord.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
     }, { timeout: 120_000 });
   } catch (error) {
     return {
@@ -3512,6 +3556,8 @@ const COURSE_DAY_CARDS = ["RECOGNITION", "PRODUCTION"] as const;
  */
 export async function startCourseDay(programmeId: string, dayId: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "startCourseDay");
+  if (busy) return busy;
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) {
@@ -3721,20 +3767,21 @@ export async function saveScan(input: {
 
   const busy = throttleAction(ownerId, "saveScan");
   if (busy) return busy;
-  const items = sanitiseItems(input.items, SCAN_MAX_ITEMS);
-  if (items.length === 0) {
+  const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
+  if (sent.length === 0) {
     return { ok: false as const, error: "Nothing on that page was ticked." };
   }
+  // What the dictionary says about each spelling, asked again here rather
+  // than taken from the request: see `vouchScanItems`.
+  const items = await vouchScanItems(sent);
 
   const title = capped(input.title, MAX_SCAN_TITLE) || "A page";
 
   /*
-    An id from the client is an id the client chose, and this file is
-    "use server", so every argument is attacker-controllable. Resolving the
-    ids against the dictionary here means a row can only ever point at a
-    Lexeme that exists, and a row whose id has gone stale falls back to being
-    treated as a new word rather than silently attaching cards to whatever now
-    holds that id.
+    Every id here came from `vouchScanItems` rather than from the request.
+    Reading them back still means a row can only ever point at a Lexeme that
+    exists, and a row the dictionary would not vouch for is treated as a new
+    word rather than silently attaching cards to whatever holds some id.
   */
   const claimed = items.map((i) => i.lexemeId).filter((id): id is string => id !== null);
   /*
@@ -3762,7 +3809,7 @@ export async function saveScan(input: {
   // hold it. `(lemma, pos)` is `Lexeme`'s own unique key, so this is the same
   // question the loop below asks and the same one the write below settles.
   const keyOf = (et: string) => {
-    const lemma = capped(et, LIMITS.lemma);
+    const lemma = visibleLine(et, LIMITS.lemma);
     const pos = guessPos(lemma);
     return { lemma, pos, key: `${lemma}|${pos}` };
   };
@@ -3786,7 +3833,7 @@ export async function saveScan(input: {
         data: missing.map(([, w]) => ({
           lemma: w.lemma,
           pos: w.pos,
-          translation: capped(w.en, LIMITS.translation) || NEEDS_TRANSLATION,
+          translation: visibleLine(w.en, LIMITS.translation) || NEEDS_TRANSLATION,
           provenance: "USER" as const,
           editedBy: ownerId,
           editedAt: new Date(),
@@ -3846,6 +3893,8 @@ export async function saveScan(input: {
 /** Adds every word on a saved page that is not in the deck yet. */
 export async function addScanToDeck(scanId: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "addScanToDeck");
+  if (busy) return busy;
   const scan = await prisma.scan.findFirst({
     where: { id: scanId, ownerId },
     select: { items: true },
@@ -3938,7 +3987,7 @@ export async function deleteScan(scanId: string) {
  */
 export async function resolveScannedWord(word: string) {
   const ownerId = await requireUserId();
-  const trimmed = capped(word, LIMITS.lemma);
+  const trimmed = visibleLine(word, LIMITS.lemma);
   if (!trimmed) return { ok: false as const, error: "Type the word first." };
 
   const local = await resolveOneWord(trimmed);
@@ -3965,23 +4014,22 @@ function revive(row: Record<string, unknown>, dateFields: string[]): Record<stri
 
 // ───────────────────────────── Placement check ─────────────────────────────
 
-const BAND = z.enum(["A1", "A2", "B1", "B2", "C1"]);
-const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
-
 /**
  * One sitting of the level check, as it comes back from the browser.
  *
- * The paper is marked in the browser, because it has to be: the answers are in
- * it, feedback appears the instant a question is answered, and a placement
- * check that needed a round trip per question would be unusable on a train.
- * Nothing is at stake in it either. It sets nobody's rank, it is not on the
- * class roster (`lib/classroom/roster.ts` shares effort, never contents), and
- * the only person a forged result misleads is the person who forged it.
+ * The browser marks every answer as it is given, because feedback has to
+ * appear the instant a question is answered and a round trip per question
+ * would be unusable on a train. What it may not do is tell the server the
+ * mark. It used to: each response carried a credit, a skill and a band, and
+ * `placement()` believed all three, so a hand-made request could post full
+ * credit on every question or call an A1 question C1, and that level reached
+ * Today, the plan and a sponsor's cohort view.
  *
- * What the server does *not* delegate is the rule that turns marks into a
- * level. The credits arrive, `placement()` runs here, and the level comes out
- * of the same function the tests cover, so a stale browser or a hand-made
- * request cannot invent its own scale.
+ * So what comes back is the seed, when the paper was built, and what was done
+ * with each question, unmarked. `markSitting` builds the same paper again,
+ * takes the skill and band off each item and marks the answers with
+ * `responseFor`, the function the runner marked them with. That is ADR-022's
+ * rule for the mock exam, applied to the check that sets the level.
  */
 /*
   Bounded by the paper rather than by a number typed here.
@@ -3994,17 +4042,21 @@ const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
   the hub saying nothing had ever been measured. Two numbers for one fact, and
   the one that was wrong was the one nobody looks at.
 */
+const GIVEN = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("picked"), option: z.string().max(400) }),
+  z.object({ kind: z.literal("typed"), text: z.string().max(400) }),
+  z.object({ kind: z.literal("rated"), rating: z.number().int().min(1).max(4) }),
+  z.object({ kind: z.literal("skipped") }),
+]);
+
 const ASSESSMENT = z.object({
-  items: z.array(z.object({ id: z.string().min(1).max(120), skill: SKILL, band: BAND })).min(1).max(PAPER_SIZE),
-  responses: z.array(z.object({
+  seed: z.number().int().min(0).max(1_000_000),
+  builtAt: z.number().int().nonnegative(),
+  answers: z.array(z.object({
     itemId: z.string().min(1).max(120),
-    skill: SKILL,
-    band: BAND,
-    credit: z.number().min(0).max(1),
-    selfRating: z.number().int().min(1).max(4).optional(),
+    given: GIVEN,
     ms: z.number().int().min(0).max(3_600_000),
-    skipped: z.boolean().optional(),
-  })).max(PAPER_SIZE),
+  })).min(1).max(PAPER_SIZE),
 });
 
 export async function recordAssessment(input: unknown) {
@@ -4012,15 +4064,9 @@ export async function recordAssessment(input: unknown) {
   const parsed = ASSESSMENT.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "That result could not be read." };
 
-  /*
-    Only the three fields the scale is computed from are carried across, so a
-    response naming an item the paper does not contain cannot vote.
-  */
-  const items: ItemRef[] = parsed.data.items;
-  const known = new Set(items.map((i) => i.id));
-  const responses = parsed.data.responses.filter((r) => known.has(r.itemId)) as Response[];
-
-  const result = placement(items, responses);
+  const { seed, builtAt, answers } = parsed.data;
+  const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
+  if (!result) return { ok: false as const, error: "That result does not match the paper it was sat on." };
   const stored = await saveResult(ownerId, result);
 
   revalidatePath("/assess");
@@ -4092,6 +4138,9 @@ const ExamResponseSchema = z.union([
   z.object({ kind: z.literal("blank") }),
 ]);
 
+/** More answers than any paper holds questions, by a long way. */
+const MAX_EXAM_RESPONSES = 1_000;
+
 const ExamSubmissionSchema = z.object({
   level: z.string().regex(/^[ABC][12]$/),
   seed: z.string().min(1).max(64),
@@ -4118,7 +4167,18 @@ const ExamSubmissionSchema = z.object({
  */
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "submitExam");
+  if (busy) return busy;
 
+  /*
+    Counted before the schema walks them: a record with no ceiling is a free
+    parse of however many keys fit under the body limit, which is hundreds of
+    thousands. No paper comes near a thousand questions.
+  */
+  const raw = (input as { responses?: unknown } | null)?.responses;
+  if (raw && typeof raw === "object" && Object.keys(raw).length > MAX_EXAM_RESPONSES) {
+    return { ok: false as const, error: "Something about that submission didn't make sense." };
+  }
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };
   const { level, seed, startedAt, responses } = parsed.data;
@@ -4130,9 +4190,18 @@ export async function submitExam(input: unknown) {
   );
   const result = markPaper(paper, answered);
 
-  const grades = gradesFrom(result).slice(0, REPLAY_BATCH);
-  if (grades.length > 0) {
-    const now = Date.now();
+  /*
+    IN PIECES, NOT THE FIRST PIECE.
+
+    `applyGradeBatch` takes at most `REPLAY_BATCH` grades, and this used to
+    meet that by slicing the paper's grades to fifty. A B2 paper carries up to
+    54 items on a card and a C1 paper 60, so for a learner who held those words
+    the last of them, which is the reading part since the marks are flattened
+    in the order the parts are sat, never reached the log at all.
+  */
+  const grades = gradesFrom(result);
+  const now = Date.now();
+  for (let at = 0; at < grades.length; at += REPLAY_BATCH) {
     /*
       AN ID THAT IS STABLE ACROSS A RESUBMIT, WHICH IS WHAT MAKES THE BATCH
       IDEMPOTENT AT ALL.
@@ -4146,7 +4215,7 @@ export async function submitExam(input: unknown) {
       the sitting was taken at, so seed and card together name the grade.
     */
     const stable = (cardId: string) => `exam:${seed}:${cardId}`;
-    await applyGradeBatch(ownerId, grades.map((g) => ({
+    await applyGradeBatch(ownerId, grades.slice(at, at + REPLAY_BATCH).map((g) => ({
       id: stable(g.cardId),
       cardId: g.cardId,
       rating: g.rating as RatingValue,
@@ -4214,11 +4283,12 @@ export async function submitSuggestion(input: unknown) {
     return { ok: false as const, error: "That correction does not match the kind of problem chosen." };
   }
 
-  const note = capped(raw.note, SUGGESTION_LIMITS.note);
-  const lemma = capped(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
+  // Read by a reviewer, which is somebody other than the person who typed it.
+  const note = visibleProse(raw.note, SUGGESTION_LIMITS.note);
+  const lemma = visibleLine(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
   const lexemeId = capped(raw.lexemeId, 64) || null;
-  const context = capped(raw.context, SUGGESTION_LIMITS.context) || null;
-  const trigger = capped(raw.trigger, SUGGESTION_LIMITS.trigger) || null;
+  const context = visibleProse(raw.context, SUGGESTION_LIMITS.context) || null;
+  const trigger = visibleLine(raw.trigger, SUGGESTION_LIMITS.trigger) || null;
 
   const groupKey = groupKeyFor({ category, lexemeId, lemma, context, trigger, patch });
 
@@ -4314,7 +4384,7 @@ export async function reviewSuggestion(input: unknown) {
       status: decision === "ACCEPT" ? "ACCEPTED" : "DECLINED",
       reviewedBy: reviewerId,
       reviewedAt: new Date(),
-      decision: capped(parsed.data.note, SUGGESTION_LIMITS.decision) || null,
+      decision: visibleProse(parsed.data.note, SUGGESTION_LIMITS.decision) || null,
     },
   });
 

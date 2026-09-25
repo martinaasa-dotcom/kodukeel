@@ -1,4 +1,4 @@
-import { agenda, overdueCount, type AgendaGroup } from "@/lib/ux/agenda";
+import { agenda, type AgendaGroup } from "@/lib/ux/agenda";
 import type { DayClock } from "@/lib/time/day";
 import { Card, SectionTitle } from "@/components/ui";
 import { TaskRow, type TaskView } from "@/components/TaskRow";
@@ -18,24 +18,33 @@ import { TaskRow, type TaskView } from "@/components/TaskRow";
  * hue that has to carry the whole distinction is the thing the design system
  * forbids.
  *
- * It shows five rows at most and says how many it did not show. A home page
- * panel that grows without limit is a page nobody scrolls to the bottom of, and
- * "and four more" with a way through is the honest shape.
+ * It shows the twelve most urgent rows and its hint counts every open task,
+ * off the table rather than off the rows, so a panel that stops at twelve
+ * still says how many are waiting.
  */
-export function TodayPlan({ tasks, clock, now, className }: {
+export function TodayPlan({ tasks, open, late, clock, now, className }: {
   tasks: TaskView[];
+  /**
+   * Open tasks and late ones, counted in the database rather than off `tasks`.
+   *
+   * Today draws at most `SHOWN` rows, and a hint read off the rows it drew
+   * said "12 left" to somebody with twenty assignments waiting and "12 late"
+   * to somebody with fifteen past due. A count is a fact about the table;
+   * the rows are only the ones there was room for.
+   */
+  open: number;
+  late: number;
   clock: DayClock;
   now: Date;
   className?: string;
 }) {
   const groups: AgendaGroup<TaskView>[] = agenda(tasks, dueDate, clock, now, SHOWN);
-  // The count worth putting beside a heading is the one that costs something.
-  const late = overdueCount(tasks, dueDate, clock, now);
 
   return (
     <Card className={className}>
       <SectionTitle
-        hint={late > 0 ? `${late} late` : tasks.length > 0 ? `${tasks.length} left` : undefined}
+        // The count worth putting beside a heading is the one that costs something.
+        hint={late > 0 ? `${late} late` : open > 0 ? `${open} left` : undefined}
       >
         On today
       </SectionTitle>

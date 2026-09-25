@@ -1,7 +1,7 @@
 /**
  * The machine that decides what happens next, which is never the model.
  *
- * `docs/19-situations.md` §18 names the first way this module could fail: a
+ * `docs/21-situations.md` §18 names the first way this module could fail: a
  * chatbot in a costume. The guard is that the state machine decides what
  * happens, the dictionary decides what advances it, and the model writes one
  * line for one move inside a closed word list. This file is the first of
@@ -205,6 +205,54 @@ export function isOver(scene: SceneSpec, state: SceneState): boolean {
  * it is counted and never scolded: what it buys is the persona's answer and
  * one fewer attempt, not a mark and not a word about it.
  */
+/**
+ * One turn, written down.
+ *
+ * THREE COPIES OF THIS LITERAL HAD ALREADY DRIFTED THREE FIELDS.
+ *
+ * `advance`, `creditAhead` and `advanceHurdle` each spelled the same object
+ * out longhand, and each had lost a different part of it: `creditAhead` wrote
+ * no `conceded` and no `wantsEnglish`, `advanceHurdle` no `matched` and no
+ * `wantsEnglish`. Nothing failed, because a turn with a field missing is a
+ * turn written before that field existed, which is a shape every reader is
+ * built to tolerate. What it cost is quiet: `route.ts` reads `matched` for the
+ * word the other side repeats back and for whether a slip was recast, so
+ * during a curveball the other side never said the learner's word back and
+ * never put a case right; it reads `wantsEnglish`, so somebody asking the
+ * phrase the course teaches was not answered in English on either path; and
+ * `gradesFor` skips a requirement a model conceded, so a beat credited from
+ * a distance could write a model's verdict into the append-only log as a
+ * recall.
+ *
+ * So the mapping is here, once, and a field added to `Evidence` reaches all
+ * three by being added to it.
+ */
+function turnRecord(
+  beatId: string,
+  evidence: Evidence,
+  said: string,
+  extra: { readonly helped: boolean; readonly heard: string },
+): TurnRecord {
+  return {
+    beatId,
+    said,
+    reading: evidence.reading,
+    met: evidence.met,
+    helped: extra.helped,
+    produced: evidence.satisfiedBy,
+    substituted: evidence.substituted,
+    ...(extra.heard ? { heard: extra.heard } : {}),
+    ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
+    ...(evidence.conceded && evidence.conceded.length > 0 ? { conceded: evidence.conceded } : {}),
+    ...(evidence.chose && evidence.chose.length > 0 ? { chose: evidence.chose } : {}),
+    ...(evidence.wantsEnglish ? { wantsEnglish: true } : {}),
+    ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
+    // The question travels with the credit, or a turn that asked the price
+    // and met a beat two along is answered about neither.
+    ...(evidence.asked ? { asked: evidence.asked } : {}),
+  };
+}
+
 export function advance(
   scene: SceneSpec,
   state: SceneState,
@@ -216,22 +264,7 @@ export function advance(
   const beat = currentBeat(scene, state);
   if (!beat || state.walkedOut) return { state, response: "answer" };
 
-  const turns = [...state.turns, {
-    beatId: beat.id,
-    said,
-    reading: evidence.reading,
-    met: evidence.met,
-    helped,
-    ...(heard ? { heard } : {}),
-    ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
-    produced: evidence.satisfiedBy,
-    substituted: evidence.substituted,
-    ...(evidence.conceded && evidence.conceded.length > 0 ? { conceded: evidence.conceded } : {}),
-    ...(evidence.chose && evidence.chose.length > 0 ? { chose: evidence.chose } : {}),
-    ...(evidence.wantsEnglish ? { wantsEnglish: true } : {}),
-    ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
-    ...(evidence.asked ? { asked: evidence.asked } : {}),
-  }];
+  const turns = [...state.turns, turnRecord(beat.id, evidence, said, { helped, heard })];
 
   /*
     A PERSON WAITS ONCE, AND THEN TAKES THE WORD, AND THE SECOND HALF OF THAT
@@ -426,22 +459,7 @@ export function creditAhead(
   return {
     ...state,
     done: [...state.done, beat.id],
-    turns: [...state.turns, {
-      beatId: beat.id,
-      said,
-      reading: evidence.reading,
-      met: evidence.met,
-      helped: false,
-      ...(heard ? { heard } : {}),
-      ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
-      produced: evidence.satisfiedBy,
-      substituted: evidence.substituted,
-      ...(evidence.chose && evidence.chose.length > 0 ? { chose: evidence.chose } : {}),
-      ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
-      // The question travels with the credit, or a turn that asked the price
-      // and met a beat two along is answered about neither.
-      ...(evidence.asked ? { asked: evidence.asked } : {}),
-    }],
+    turns: [...state.turns, turnRecord(beat.id, evidence, said, { helped: false, heard })],
   };
 }
 
@@ -561,20 +579,10 @@ export function advanceHurdle(
   const beat = currentBeat(scene, state);
   if (!hurdle || !beat) return { state, response: "answer" };
 
-  const turns = [...state.turns, {
-    beatId: `hurdle:${hurdle.id}`,
-    said,
-    reading: evidence.reading,
-    met: evidence.met,
-    helped: false,
-    produced: evidence.satisfiedBy,
-    substituted: evidence.substituted,
-    ...(evidence.conceded && evidence.conceded.length > 0 ? { conceded: evidence.conceded } : {}),
-    ...(evidence.chose && evidence.chose.length > 0 ? { chose: evidence.chose } : {}),
-    ...(heard ? { heard } : {}),
-    ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
-    ...(evidence.asked ? { asked: evidence.asked } : {}),
-  }];
+  const turns = [
+    ...state.turns,
+    turnRecord(`hurdle:${hurdle.id}`, evidence, said, { helped: false, heard }),
+  ];
 
   const previous = state.turns[state.turns.length - 1];
   const waitedAlready = previous?.beatId === `hurdle:${hurdle.id}`

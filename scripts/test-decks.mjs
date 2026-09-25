@@ -4,9 +4,6 @@ import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { requireAppShell } from "./lib/prefs.mjs";
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 
 /**
  * A LEARNER'S OWN SHELVES, DRIVEN.
@@ -72,40 +69,7 @@ async function dropOurDecks() {
   await prisma.deck.deleteMany({ where: { ownerId: OWNER, name: { in: [DECK, RENAMED] } } });
 }
 
-/*
-  AND THE LEARNER'S OWN SHELVES ARE SET ASIDE FOR THE RUN, THEN PUT BACK.
-
-  The first check below is a claim about holding no shelf at all, and the demo
-  fixture lays one down so the sweeps can walk `/review/deck/[deckId]`. Left
-  where it was, that check waived itself on every run there would ever be,
-  which is a hole wearing a waiver's clothes, and the "Add words" button
-  matched two shelves and threw. Deleting them outright is the broad delete
-  `dropOurDecks` refuses for a reason: on the machine somebody works on they
-  are that person's shelves. So they are written to a stash file first,
-  removed, and recreated with the same ids at the end; and a run that died
-  before the end is repaired by the next one, which restores any stash it
-  finds before it does anything else.
-*/
-const STASH = join(tmpdir(), "kodukeel-test-decks-stash.json");
-
-async function restoreStash() {
-  if (!existsSync(STASH)) return;
-  const { decks, words } = JSON.parse(readFileSync(STASH, "utf8"));
-  await prisma.deck.createMany({ data: decks, skipDuplicates: true });
-  await prisma.deckWord.createMany({ data: words, skipDuplicates: true });
-  unlinkSync(STASH);
-}
-
-await restoreStash();
 await dropOurDecks();
-{
-  const decks = await prisma.deck.findMany({ where: { ownerId: OWNER } });
-  const words = await prisma.deckWord.findMany({ where: { deckId: { in: decks.map((d) => d.id) } } });
-  if (decks.length > 0) {
-    writeFileSync(STASH, JSON.stringify({ decks, words }));
-    await prisma.deck.deleteMany({ where: { id: { in: decks.map((d) => d.id) } } });
-  }
-}
 
 /*
   What this learner already has, so the checks can name real words and the
@@ -256,30 +220,18 @@ check("a filed word is still in the learner's deck", await shows("In deck"));
   feature as covered while the screen a learner opens every morning had the
   button and not the question.
 
-  WAIVED WHERE THE CARD IS NOT DRAWN, and that is a real state rather than a
-  hedge: Today names seven cards in priority order and draws the first five, so
-  whether the word of the day makes the cut depends on how many of the errand,
-  the calendar, the homework, the round and the streak have something to say on
-  the day the fixture lands on. The invariant "the deck question has one home"
-  is what holds this without a fixture, since it fails on an add button that
-  stops reaching for the shared question at all.
-
-  AND ON THE DEMO FIXTURE IT WAS CUT ON EVERY RUN, which is a hole rather than
-  a state. The fixture gives the errand, the calendar, the homework, the round
-  and the streak something to say, so the word came sixth and was never drawn:
-  this waiver fired on every CI run there was. The learner's own Today order
-  is the app's lever for exactly this (`lib/ux/todayOrder.ts`), so the word is
-  put first the way Settings would put it, and the learner's own order is put
-  back straight after. The waiver below is for a day the word has nothing to
-  offer, which is a real state.
+  PUT FIRST FOR THE LENGTH OF THESE TWO CHECKS. Today names eight cards in
+  priority order and draws the first five, the word of the day is seventh,
+  and on the CI fixture the five above it always have something to say: this
+  waived on every run CI made, under a reason ("was not among today's five
+  cards") that was true and never going to change. A learner can put it first
+  in Settings, and `todayOrder` is that choice stored, so the suite makes it
+  and puts back what was there. Waived only where the word is already in the
+  deck, which draws no add button, and that is a fact about the fixture.
 */
-const ORDER_KEY = "todayOrder";
-const ownOrder = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: ORDER_KEY } } });
-await prisma.setting.upsert({
-  where: { ownerId_key: { ownerId: OWNER, key: ORDER_KEY } },
-  create: { ownerId: OWNER, key: ORDER_KEY, value: "word" },
-  update: { value: "word" },
-});
+const ORDER = { ownerId: OWNER, key: "todayOrder" };
+const orderBefore = await prisma.setting.findUnique({ where: { ownerId_key: ORDER } });
+await prisma.setting.upsert({ where: { ownerId_key: ORDER }, create: { ...ORDER, value: "word" }, update: { value: "word" } });
 await page.goto(`${B}/`, { waitUntil: "networkidle" });
 const keep = page.getByRole("button", { name: /Add it to my deck/i }).first();
 if ((await keep.count()) > 0) {
@@ -290,16 +242,10 @@ if ((await keep.count()) > 0) {
   await page.getByRole("button", { name: /^Add it$/ }).first().click();
   check("and says which shelf it went on", await eventually(() => shows(DECK), { timeoutMs: 8000 }));
 } else {
-  absent(2, "a word of the day to keep: with it first on Today the home page still drew no " +
-    "add button, which is a day whose word the learner already has");
+  absent(2, "the word of the day is already in this deck, so the home page drew no add button");
 }
-if (ownOrder) {
-  await prisma.setting.update({
-    where: { ownerId_key: { ownerId: OWNER, key: ORDER_KEY } }, data: { value: ownOrder.value },
-  });
-} else {
-  await prisma.setting.delete({ where: { ownerId_key: { ownerId: OWNER, key: ORDER_KEY } } });
-}
+if (orderBefore) await prisma.setting.update({ where: { ownerId_key: ORDER }, data: { value: orderBefore.value } });
+else await prisma.setting.delete({ where: { ownerId_key: ORDER } });
 
 // ── Renaming, and taking a word off ───────────────────────────────────────
 await deckPage();
@@ -347,7 +293,6 @@ const extra = (await prisma.card.findMany({ where: { ownerId: OWNER }, select: {
 if (extra.length) await prisma.card.deleteMany({ where: { id: { in: extra } } });
 
 await dropOurDecks();
-await restoreStash();
 await browser.close();
 await prisma.$disconnect();
 done();

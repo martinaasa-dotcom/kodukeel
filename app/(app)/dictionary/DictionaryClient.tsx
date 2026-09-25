@@ -22,7 +22,7 @@ import { CaseQuestion } from "@/components/CaseQuestion";
 import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
-import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
+import { SAME_SPELLING, sameSpelling, PARTS } from "@/lib/copy/values";
 import { Examples } from "./Examples";
 import { DerivedVerbForms, WordForms } from "./Forms";
 import type { SearchHit } from "@/lib/dict/search";
@@ -886,7 +886,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                         splits, so typing either half of what is on screen is
                         right. */}
                     <td lang="et" className="px-3 py-2 text-base" style={{ color: origin === "STORED" ? "var(--ink)" : "var(--ink-2)", fontWeight: origin === "STORED" ? 600 : 400 }}>
-                      {singular ? shownForms({ singular, alsoRight }).join(" / ") : NO_VALUE}
+                      {singular ? shownForms({ singular, alsoRight }).join(PARTS) : NO_VALUE}
                     </td>
                     <td lang="et" className="px-3 py-2 text-base" style={{ color: "var(--ink-2)" }}>
                       {plural ?? <span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>}

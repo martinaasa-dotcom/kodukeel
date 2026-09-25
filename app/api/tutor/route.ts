@@ -64,7 +64,7 @@ export async function POST(request: Request) {
   const learnerPromise = learnerContextFor(ownerId).catch(() => null);
 
   /*
-    Anu's own chain, which since the split is Anthropic and nothing else.
+    Anu's own chain, which is Gemini and then Groq and nothing else.
 
     Not the general chain: `resolveProviders()` with no purpose is still every
     configured provider, and reading it here would put a scene composer's cheap
@@ -254,8 +254,16 @@ export async function POST(request: Request) {
         const message = error instanceof TutorError ? error.message : "Anu could not be reached.";
         say(`\n\n\u26a0 ${message}`);
       } finally {
+        /*
+          Handed to `after()` rather than floated, and before the close rather
+          than behind it: this is the write that keeps today's turn and forgets
+          yesterday's (`forgetOldMessages`), which is what the retention
+          schedule and /privacy promise, and the platform may suspend the
+          function the moment the last byte is out. `after()` is what keeps the
+          invocation alive until it lands, as it does for the settlement above.
+        */
+        after(() => persist(ownerId, messages, full));
         controller.close();
-        void persist(ownerId, messages, full);
       }
     },
   });

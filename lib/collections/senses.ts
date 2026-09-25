@@ -207,7 +207,15 @@ export const COARSENS: Record<string, readonly string[]> = {
   VERB: ["v"],
   ADJECTIVE: ["adj", "s", "num"],
   PRONOUN: ["pron", "s"],
-  ADVERB: ["adv", "konj", "prep", "interj"],
+  /*
+    `adjg` is Ekilex's own indeclinable adjective, a nationality word like
+    `vene` or `prantsuse` that agrees with a noun (`vene keel`) and never
+    takes an ending. The harvest's ADJECTIVE path asks for a genitive stem
+    to build a case table from, and there is none to ask for, so it is
+    harvested formless the way a connective is: real because Ekilex has it,
+    with no forms to get wrong.
+  */
+  ADVERB: ["adv", "konj", "prep", "interj", "adjg"],
   /*
     Empty on purpose, and not a gap. A multi-word greeting is not a headword,
     so the harvest does not fetch one and Ekilex never labels it: `mislabelled`

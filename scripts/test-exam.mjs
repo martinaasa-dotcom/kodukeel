@@ -103,20 +103,21 @@ check("it offers advice rather than only a verdict",
   already set is worse than no reason at all.
 */
 /*
-  AND IT WAS WAIVED ON EVERY RUN FOR A WHILE ANYWAY, WHICH THE PARAGRAPH ABOVE
-  SAYS CANNOT HAPPEN. The hub's target card became `ExamCountdownCard` in #267
-  and its heading went from "The paper you said you were aiming at" to "Your
-  exam", so this matched nothing, CI printed the waiver on every run, and its
-  reason sent the reader to set a target the fixture had set. It reads the
-  card's own heading now, which says the target was chosen rather than worked
-  out, and the two things the check is about in the card's own words: how long
-  is left and how likely a pass is.
+  And it did fire on every run CI made, because the block it looked for was
+  replaced by the same `ExamCountdownCard` Today draws, and the phrase it
+  matched ("The paper you said you were aiming at") left the app with it. A
+  target set by the fixture was then read as no target, and the reason sent
+  the reader to set one. It reads the card now, by its own heading, and asks
+  the card itself for the time left and the chance together.
 */
-const aiming = /\bYour exam\b/i.test(body);
-if (aiming) {
-  check("the paper aimed at is named with the weeks and the confidence together",
-    /\d+% likely to pass/i.test(body)
-      && /\b\d+ (?:days?|weeks?)\b|Your date|already passed|no date set/i.test(body));
+const yourExam = page.getByRole("heading", { name: /^Your exam\b/ });
+if (await yourExam.count()) {
+  const card = page.locator("section, div, article").filter({ has: yourExam, hasText: /likely to pass/ }).last();
+  const text = (await card.count()) ? await card.innerText() : "";
+  check("the paper aimed at is named with the time left and the confidence together",
+    /\d+ (days|weeks|months|years?)|today|tomorrow|that date has gone|no date set/i.test(text)
+      && /\d+% likely to pass/.test(text),
+    text.replace(/\s+/g, " ").slice(0, 120));
 } else {
   absent(1, "a target level set on this database, which the demo fixture writes");
 }

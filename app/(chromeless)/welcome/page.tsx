@@ -1,3 +1,4 @@
+import { PARTS } from "@/lib/copy/values";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import type { Metadata } from "next";
 import {
@@ -586,7 +587,7 @@ function Features() {
             tone="accent"
             icon={<BookOpen size={18} aria-hidden />}
             title="Practice that sticks"
-            body={`Look a word up and it becomes a card in one press, every form, audio in twelve voices. Then ${PATH.length} units of them, brought back the day before you would forget, and heard the way people say them: at speed, over café noise, down a phone line.`}
+            body={`Look a word up and it becomes a card in one press, every form, audio in ten voices. Then ${PATH.length} units of them, brought back the day before you would forget, and heard the way people say them: at speed, over café noise, down a phone line.`}
           />
         </Reveal>
         <Reveal>
@@ -934,7 +935,7 @@ const FAQS = [
       misleads. The shorter answer is main's and is better than what this
       branch had.
     */
-    "It runs A1 to C1, and the parts that stay hard are taught on their own: a card for consonant gradation, a card for the case each verb demands, and a unit and a grammar page for whether an object is whole or partial. There is a level check if you would rather not guess where you are, and a mock state examination paper at A2, B1, B2 and C1.",
+    "It runs A1 to C1, and the parts that stay hard are taught on their own: a card for consonant gradation, a card for the case each verb demands, and a unit and a grammar page for whether an object is whole or partial. There is a level check if you would rather not guess where you are, and a mock state examination paper at A2, B1, B2 and C1. Each paper is assembled fresh from real sentences and marked by rule rather than by a model, apart from the spoken part, which you mark yourself.",
   ],
   [
     "Will it actually get me talking to people?",
@@ -1397,7 +1398,7 @@ function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | nul
       lib/estonian/caseQuestion.ts.
     */
     question: caseQuestionFor(row.spec, subject),
-    singular: shown.length > 0 ? shown.join(" / ") : null,
+    singular: shown.length > 0 ? shown.join(PARTS) : null,
     plural: row.plural ?? null,
     principal: row.spec.principal,
     stored: !row.spec.principal && shown.length > 0 && !regular,

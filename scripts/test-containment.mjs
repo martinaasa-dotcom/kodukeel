@@ -358,6 +358,13 @@ const SPARSE = new Map([
 // stub key CI starts its server with reaches all 1580. The floor is that.
 const { check, absent, done } = suite("Containment", { floor: 1580 });
 
+/**
+ * An A2 unit, whose lesson meets words with their sentence under them: A1
+ * words are met without one (`components/WordIntro.tsx`). The first A2 unit,
+ * because it is the one every conversation needs and is not going anywhere.
+ */
+const A2_UNIT = "korraldused";
+
 const browser = await launchChromium();
 
 /*
@@ -1216,11 +1223,21 @@ async function askedForStates(ctx, at) {
     in the smallest box on the screen, which is exactly the shape this suite
     exists for.
 
-    Waived rather than failed where the batch has no sentence with a vouched
-    word in it, because which words a deck holds is a fact about the fixture
-    and not about the markup.
+    WHERE IT IS WALKED, AND WHY IT FAILS RATHER THAN WAIVES. It used to be
+    `/learn/new`, which meets whatever the deck holds next. A1 words are met
+    with no sentence at all (`WordIntro`, since #285), and the fixture's
+    words are A1, so from that day the walk found no sentence on any run,
+    waived five checks at each width, and blamed the fixture ("Run `npm run
+    demo`") for a fault that was its own. Its intro button regex was exact on
+    "Ready" as well, and the key cap makes that button's name "Ready ↵", so
+    it could not have got past the first screen even on a deck that had one.
+
+    An A2 unit's lesson meets words that carry a sentence whatever the deck
+    holds, because a lesson plans from the unit rather than from the queue,
+    and the dictionary is seeded wherever this suite runs. So a panel that
+    does not open there is the markup failing, and is reported as that.
   */
-  await page.goto(`${B}/learn/new`, { waitUntil: "networkidle", timeout: 60000 });
+  await page.goto(`${B}/learn/${A2_UNIT}/lesson`, { waitUntil: "networkidle", timeout: 60000 });
   await startRound(page);
   let opened = false;
   for (let tries = 0; tries < 12 && !opened; tries += 1) {
@@ -1230,17 +1247,11 @@ async function askedForStates(ctx, at) {
       opened = (await page.getByRole("button", { name: /Add to my deck/ }).count()) > 0;
       if (opened) break;
     }
-    // Not anchored at the end: a button's accessible name carries its key
-    // cap now ("Got it ↵", "Ready ↵"), and `$` after the word matched none of
-    // them, so the walk pressed nothing, never reached a sentence, and waived
-    // these five checks on every run with a reason that blamed the fixture.
-    const met = page.getByRole("button", { name: /^Got it\b/ });
-    if (await met.count()) await met.first().click().catch(() => {});
-    // The round opens behind two one-off screens now, "First, just meet
-    // them" and "Now answer them back" (see LearnSession.tsx): neither is
-    // the round itself, so the walk presses past both on the way in.
-    const intro = page.getByRole("button", { name: /^(Show me|Ready)\b/ });
-    if (await intro.count()) await intro.first().click().catch(() => {});
+    // Into the lesson, then past a meet step whose sentence held no word the
+    // dictionary vouches for. `\b` rather than `$`: a key cap is part of a
+    // button's accessible name.
+    const on = page.getByRole("button", { name: /^(Start these|Got it)\b/ });
+    if (await on.count()) await on.first().click().catch(() => {});
     await page.waitForTimeout(500);
   }
   /*
@@ -1274,16 +1285,8 @@ async function askedForStates(ctx, at) {
     await page.waitForTimeout(300);
     await measure(page, `a word opened out of a teaching sentence ${at}`);
   } else {
-    /* What lifts this is a first meeting with a word above A1, and the demo
-       fixture has none: every word in it is an A1 course word, and
-       `components/WordIntro.tsx` meets an A1 word on its own, with no
-       sentence (`showSentence`), on purpose. The ladder batch it deals is
-       also already past its meetings. This line used to blame the
-       dictionary, which holds four sentences for each of those words. */
-    absent(5, `a word opened out of a teaching sentence ${at}: ` + (scanPath
-      ? "the scanned page's drill dealt no first meeting with a word above A1"
-      : "no first meeting with a word above A1 was dealt and no scanned page was made to carry " +
-        "one, which needs a provider key on the server for the camera to be offered"));
+    check(`a word opened out of a teaching sentence ${at}`, false,
+      `/learn/${A2_UNIT}/lesson met no word whose sentence opened a panel with "Add to my deck"`);
   }
 
   /*
