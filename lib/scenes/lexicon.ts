@@ -154,12 +154,6 @@ export interface Lexicon {
   /** Lemma to its own forms, so a beat can ask whether its word is present. */
   readonly byLemma: ReadonlyMap<string, ReadonlySet<string>>;
   /**
-   * Lemma to its part of speech, as the dictionary stores it. A narrowed
-   * question offers two words of one kind (`lib/scenes/choice.ts`), and
-   * "Valu või valutama?" is what it offered while it could not tell.
-   */
-  readonly posOf: ReadonlyMap<string, string>;
-  /**
    * `lemma|CASE` to every spelling that counts as that case of that word.
    *
    * A beat can require a word *in a case*, which is the one requirement that
@@ -381,10 +375,8 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
   const infinitives = new Map<string, ReadonlySet<string>>();
   const persons = new Map<string, ReadonlyMap<DerivedVerbCode, string>>();
   const spoken: string[] = [];
-  const posOf = new Map<string, string>();
   for (const entry of entries) {
     spoken.push(spokenForm(entry));
-    if (!posOf.has(entry.lemma)) posOf.set(entry.lemma, entry.pos);
     const own = byLemma.get(entry.lemma) ?? new Set<string>();
     for (const form of formsOf(entry)) {
       forms.add(form);
@@ -431,7 +423,7 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
       if (row.singular && !caseForm.has(key)) caseForm.set(key, row.singular);
     }
   }
-  return { forms, spoken, byLemma, posOf, byCase, caseForm, folded, infinitives, persons };
+  return { forms, spoken, byLemma, byCase, caseForm, folded, infinitives, persons };
 }
 
 /** The eleven derivable cases of one nominal, attested forms leading. */
