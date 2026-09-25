@@ -24787,6 +24787,8 @@ check("every action that writes a grade tells Today it changed", () => {
     .filter((b) => !/revalidatePath\(\s*"\/"\s*\)/.test(b))
     .map((b) => /^export (?:async )?function (\w+)/.exec(b)?.[1] ?? "?");
   assert.deepEqual(silent, [], `${silent.join(", ")} writes a grade and never revalidates Today`);
+});
+
 check("a picked option is marked through choiceIsRight, never against the back as a string", () => {
   /*
     A back can hold two spellings (`tuppa / toasse`) and an option holds one,
