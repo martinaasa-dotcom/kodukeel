@@ -138,6 +138,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
 
     const duration = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
+    // One id for this answer, online or queued, so it can only ever be written once.
+    const gradeId = crypto.randomUUID();
     /*
       The ending they reached for instead, which this round has always known
       and has only ever said out loud. `markFlash` names it to print "That is
@@ -153,7 +155,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       : undefined;
     try {
       const res = await gradeCard(
-        task.cardId, result.rating, duration, answeredAt, task.slot, reached,
+        task.cardId, result.rating, duration, answeredAt, task.slot, reached, gradeId,
       );
       if (!res.ok) throw new Error(res.error);
     } catch {
@@ -162,7 +164,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       // answer about the kaasaütlev would go down as an answer about whatever
       // the card happens to be.
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: gradeId,
         cardId: task.cardId,
         rating: result.rating,
         durationMs: duration,

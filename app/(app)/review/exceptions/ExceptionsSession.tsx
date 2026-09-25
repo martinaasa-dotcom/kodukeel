@@ -110,6 +110,8 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
 
     const duration = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
+    // One id for this answer, online or queued, so it can only ever be written once.
+    const gradeId = crypto.randomUUID();
     /*
       The ending they reached for instead, where the marker could name one.
       `writeGrade` checks it again rather than trusting it, since this is a
@@ -120,12 +122,12 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
       : undefined;
     try {
       const res = await gradeCard(
-        task.cardId, result.rating, duration, answeredAt, task.slot, reached,
+        task.cardId, result.rating, duration, answeredAt, task.slot, reached, gradeId,
       );
       if (!res.ok) throw new Error(res.error);
     } catch {
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: gradeId,
         cardId: task.cardId,
         rating: result.rating,
         durationMs: duration,

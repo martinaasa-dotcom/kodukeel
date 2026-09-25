@@ -488,6 +488,8 @@ export function LearnSession({
     const rating = Math.min(ratingFor(outcome), hints.ceiling) as RatingValue;
     const durationMs = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
+    // One id for this answer, online or queued, so it can only ever be written once.
+    const gradeId = crypto.randomUUID();
     const before = scheduled.current.get(word.cardId) ?? word.scheduling;
 
     /*
@@ -500,12 +502,12 @@ export function LearnSession({
     let after: LearnScheduling;
     try {
     try {
-      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt);
+      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt, undefined, undefined, gradeId);
       if (!res.ok) throw new Error(res.error);
       after = res.scheduling;
     } catch {
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: gradeId,
         cardId: word.cardId,
         rating,
         durationMs,

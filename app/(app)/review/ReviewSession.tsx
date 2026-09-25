@@ -920,6 +920,8 @@ export function ReviewSession({
     const duration = (producedAt.current ?? Date.now()) - shownAt.current;
     producedAt.current = null;
     const answeredAt = new Date().toISOString();
+    // One id for this answer, online or queued, so it can only ever be written once.
+    const gradeId = crypto.randomUUID();
     const before = scheduled.current.get(card.id) ?? card.scheduling;
 
     /*
@@ -937,7 +939,7 @@ export function ReviewSession({
     */
     try {
     try {
-      const result = await gradeCard(card.id, rating, duration, answeredAt);
+      const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, gradeId);
       if (!result.ok) throw new Error(result.error);
       scheduled.current.set(card.id, result.scheduling);
     } catch {
@@ -946,7 +948,7 @@ export function ReviewSession({
       // replayed in order with this timestamp once there is a connection —
       // which, because Review is append-only, lands exactly where it would have.
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: gradeId,
         cardId: card.id,
         rating,
         durationMs: duration,

@@ -382,8 +382,24 @@ export async function gradeCard(
    * meant, got a case" as a confusion between two cases.
    */
   reachedSlot?: string,
+  /**
+   * The id the device gave this grade, which is the id the outbox copy
+   * carries when this call does not come back.
+   *
+   * Without it the two never shared one: a grade that reached the server and
+   * lost its response on the way back went into the outbox under a fresh id,
+   * and the replay wrote a second row into the one table that is never
+   * repaired, graded the card a second time, and counted one answer as two.
+   * Checked against a UUID's shape rather than trusted, like everything else
+   * that reaches this table.
+   */
+  reviewId?: string,
 ) {
   const ownerId = await requireUserId();
+
+  if (reviewId !== undefined && (typeof reviewId !== "string" || !UUID.test(reviewId))) {
+    return { ok: false as const, error: "That is not a grade id." };
+  }
 
   /*
     `Review` IS APPEND-ONLY, SO A BAD ROW IS PERMANENT.
@@ -400,6 +416,19 @@ export async function gradeCard(
   const card = await prisma.card.findFirst({ where: { id: cardId, ownerId } });
   if (!card) return { ok: false as const, error: "Card not found." };
 
+  // Already written: this is the same answer arriving a second time, from a
+  // retry or from the outbox beating this call to the server.
+  const written = async () => {
+    if (!reviewId) return null;
+    const seen = await prisma.review.findUnique({ where: { id: reviewId }, select: { ownerId: true } });
+    if (!seen) return null;
+    if (seen.ownerId !== ownerId) return { ok: false as const, error: "That is not a grade id." };
+    const now = await prisma.card.findFirstOrThrow({ where: { id: cardId, ownerId } });
+    return { ok: true as const, due: now.due, scheduling: snapshotOf(now) };
+  };
+  const already = await written();
+  if (already) return already;
+
   /*
     A grade carries the time it was actually answered, because the offline
     outbox replays in order with the timestamp it was given (ADR-015), and a
@@ -408,14 +437,23 @@ export async function gradeCard(
     floor at the card's own creation and the replay path, which is the door
     those timestamps actually come through, did not.
   */
-  const next = await writeGrade(ownerId, {
-    card,
-    rating,
-    durationMs,
-    reviewedAt: reviewedAt ? new Date(reviewedAt) : new Date(),
-    practisedSlot,
-    reachedSlot,
-  });
+  let next: SchedulingState;
+  try {
+    next = await writeGrade(ownerId, {
+      card,
+      rating,
+      durationMs,
+      reviewedAt: reviewedAt ? new Date(reviewedAt) : new Date(),
+      practisedSlot,
+      reachedSlot,
+      reviewId,
+    });
+  } catch (error) {
+    // The replay wrote the same id between the check above and this write.
+    const raced = (error as { code?: string })?.code === "P2002" ? await written() : null;
+    if (raced) return raced;
+    throw error;
+  }
 
   revalidatePath("/");
   /*
@@ -430,6 +468,9 @@ export async function gradeCard(
   */
   return { ok: true as const, due: next.due, scheduling: snapshotOf(next) };
 }
+
+/** The shape `crypto.randomUUID` hands a grade on the device. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** A scheduling state in the shape that crosses the wire, which `undoGrade` takes back. */
 function snapshotOf(state: SchedulingState): SchedulingSnapshot {
