@@ -20,10 +20,11 @@ import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
 import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
 import { isAppsChoice } from "@/lib/srs/sources";
 import {
-  MAX_SESSION, NEW_CANDIDATES, dueWhere, notOnLadder, pastTheLadder, roomFor,
+  MAX_SESSION, NEW_CANDIDATES, dueWhere, meetingFirst, notOnLadder, pastTheLadder, roomFor,
   unseenWhere,
 } from "@/lib/srs/reviewQueue";
 import { include, withChoices, type CardRow } from "./cards";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Review" };
 
@@ -39,10 +40,10 @@ export const dynamic = "force-dynamic";
 export default async function ReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ case?: string; unit?: string; scan?: string; module?: string }>;
+  searchParams: Promise<{ case?: string | string[]; unit?: string | string[]; scan?: string | string[]; module?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const params = await searchParams;
+  const params = firstParams(await searchParams);
   const { case: targetCase, unit: unitId, scan: scanId } = params;
   /*
     THE MODULE'S CLOSING ROUND INTRODUCES NOTHING THE MODULE HAS NOT TAUGHT.
@@ -117,13 +118,15 @@ export default async function ReviewPage({
   // See app/review/sprint/ and app/review/listening/ for the same pattern,
   // and the shared reasoning in ReviewSession.tsx.
   if (targetCase) {
-    const drill = await prisma.card.findMany({
-      where: { ownerId, suspended: false, targetCase, ...notOnLadder(ownerId) },
-      orderBy: [{ lapses: "desc" }, { due: "asc" }],
-      take: 30,
-      include,
-    });
-    const gloss = await glossChosen();
+    const [drill, gloss] = await Promise.all([
+      prisma.card.findMany({
+        where: { ownerId, suspended: false, targetCase, ...notOnLadder(ownerId) },
+        orderBy: [{ lapses: "desc" }, { due: "asc" }],
+        take: 30,
+        include,
+      }),
+      glossChosen(),
+    ]);
     return (
       <BeforeYouStart id="review" ready={drill.length > 0} count={{ n: drill.length, noun: "card" }}>
         <ReviewSession
@@ -187,7 +190,7 @@ export default async function ReviewPage({
       : [];
     const drill = lexemeIds.length
       ? await prisma.card.findMany({
-          where: { ownerId, suspended: false, lexemeId: { in: lexemeIds } },
+          where: { ownerId, suspended: false, lexemeId: { in: lexemeIds }, ...meetingFirst(ownerId) },
           orderBy: [{ due: "asc" }, { lapses: "desc" }, { id: "asc" }],
           take: 60,
           include,
@@ -256,7 +259,7 @@ export default async function ReviewPage({
   // can interleave two words. `inTeachingOrder` then settles the order
   // *within* a word, which is what stops a conjugation card being somebody's
   // first sight of a verb.
-  const freshPool = await prisma.card.findMany({
+  const [freshPool, spellings] = await Promise.all([prisma.card.findMany({
     // Only a word the module has taught, and on the daily path the learner's
     // own words beside it: see `unseenWhere`, which the module's own closing
     // count reads too, and which keeps `pastTheLadder` under `AND` so a
@@ -267,7 +270,7 @@ export default async function ReviewPage({
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
     take: NEW_CANDIDATES,
     include,
-  });
+  }), moduleSpellings(taught)]);
 
   /*
     A CARD NEVER ANSWERS THE CARD BEFORE IT.
@@ -293,7 +296,6 @@ export default async function ReviewPage({
     left in the queue for standalone review and the module's own round asks
     what the module has taught (`cardWithin`).
   */
-  const spellings = await moduleSpellings(taught);
   const within = (card: CardRow) => cardWithin(scope, card, spellings);
   /*
     The same question asked of a card about to be introduced. `within` is the

@@ -56,12 +56,12 @@ export interface FeaturedGame {
  * would mean two conventions in one directory.
  */
 export const WEEK_GAMES: readonly FeaturedGame[] = [
-  { href: "/quest", why: "Two minutes on whatever went wrong this week." },
+  { href: "/quest", why: "A short round on whatever went wrong this week." },
   { href: "/sonad", why: "A new word every Monday morning, and every other one." },
   { href: "/review/emoji", why: "No English on the board. The picture is the meaning." },
   { href: "/situations", why: "Midweek, a conversation. Somebody wants something from you." },
   { href: "/review/match", why: "Pairs against the clock. There is a personal best to beat." },
-  { href: "/review/sprint", why: "Sixty seconds of cases. Friday does not need a long one." },
+  { href: "/review/sprint", why: "A quick round of cases. Friday does not need a long one." },
   { href: "/crossword", why: "The crossword, for the day there is time for a long one." },
 ];
 

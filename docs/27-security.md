@@ -18,7 +18,7 @@ touches the data, `docs/28-incident-response.md` for what happens when this fail
 ## 1. What the system is
 
 Kodukeel teaches Estonian: a dictionary, a spaced repetition deck, practice rounds, a mock state
-examination, and a tutor. It is a Next.js 15 App Router application. It is also software people
+examination, and a tutor. It is a Next.js 16 App Router application. It is also software people
 install, so there are two shapes of deployment and the difference matters to everything below.
 
 **Hosted.** Supabase Auth is configured, every route is gated, and each learner sees only their own
@@ -40,10 +40,12 @@ internet under one shared id with every visitor treated as a reviewer. `halfConf
   Browser (learner's device)
     | HTTPS, HSTS preloaded, CSP set per response
     v
-  Next.js on Vercel  ------ server only ------> Anthropic / OpenAI / OpenRouter / Groq / Gemini
+  Next.js on Vercel  ------ server only ------> Groq / Gemini / Anthropic / OpenAI
     |   middleware.ts                             (whichever keys the deployment holds)
     |   Server Actions, Route Handlers   ------> TartuNLP speech (api.tartunlp.ai)
     |                                    ------> Ekilex, Wiktionary
+    |                                    ------> Resend, where letters are configured
+    |                                    ------> the news feed, where one is configured
     v
   Postgres (Supabase)          Supabase Auth          Supabase Storage (audio cache)
 ```
@@ -67,11 +69,17 @@ check against a cached key set and reaches the network not at all.
 It goes out from a Route Handler, never from the browser, and every call is metered before it is made
 (`lib/usage/ledger.ts`).
 
-**Server to Ekilex, Wiktionary and TartuNLP.** Reference data and speech. These are read only,
-carry nothing about the learner, and are proxied so their keys and their quota stay on the server.
-The Content Security Policy's `connect-src` names none of them, and names nothing beyond this
-origin but the one Supabase project the browser signs in through, which is what makes that
-structural rather than a habit.
+**Server to Ekilex, Wiktionary, TartuNLP and the news feed.** Reference data, speech and
+headlines. These are read only, carry nothing about the learner, and are proxied so their keys and
+their quota stay on the server. The Content Security Policy names none of them in `connect-src`,
+which is what makes that structural rather than a habit: the only origins in it are this one and
+the deployment's own Supabase project, which the browser genuinely talks to for the session.
+
+**Server to Resend.** Where a deployment sends letters, this is the only place outside the sign-in
+provider that an email address leaves the app, and it is the one outbound destination carrying
+personal data rather than a word or a phrase. `lib/mailer/` posts, `lib/email/` composes and is
+pure, and every letter carries a way out of it signed with `EMAIL_TOKEN_SECRET`. It appears on the
+generated recipients list whenever `RESEND_API_KEY` is set.
 
 ## 3. What is worth taking
 
@@ -241,9 +249,10 @@ An unrecognised model prices at the dearest rate in the table. A cap that fails 
 
 In front of that sits `lib/security/rateLimit.ts`, and its own header is honest about what it is: a
 per instance in-memory limiter, so a burst spread across cold starts meets an empty map. It keeps an
-obvious loop from making a hundred database round trips on its way to being refused, and it caps the
-routes the ledger does not price at all. The Postgres ledger is what actually bounds cost, because it
-is the same number whichever instance answers.
+obvious loop from making a hundred database round trips on its way to being refused. The routes the
+ledger does not price at all, speech, the share card, the export and the restore, are counted again
+behind it in a row every instance can see (`lib/usage/sharedLimit.ts`, section 8). The Postgres ledger
+is what actually bounds cost, because it is the same number whichever instance answers.
 
 Buckets are keyed on the **learner**, never on the address. Twenty-five students on one school
 network are one IP, and a review session asks for audio on nearly every card.
@@ -273,8 +282,10 @@ and the Ekilex identifiers stripped.
 
 Size is bounded twice, and both limits are set to the same number on purpose because two limits on
 one upload that disagree is how the last fault happened. `serverActions.bodySizeLimit` and
-`proxyClientMaxBodySize` in `next.config.ts` are both 16 MB; `/api/restore` declares its own
-128 MB ceiling and checks `content-length` before reading. `inspectBackup`, which parses the same
+`proxyClientMaxBodySize` in `next.config.ts` are both 16 MB, and `/api/restore` checks
+`content-length` against the same 16 MB before reading. It used to declare 128 MB, which no request
+could reach: the proxy truncates a larger body rather than refusing it, so an oversized backup was
+parsed half-read and reported as not a backup at all. `inspectBackup`, which parses the same
 whole file and writes nothing, is throttled too, because it never looked expensive and is a public
 endpoint like every other `"use server"` export.
 
@@ -295,18 +306,16 @@ OpenAI and Anthropic key shapes, a Postgres URL carrying a password, a private k
 Supabase JWT whose decoded role claim is `service_role`, which is what tells it apart from the anon
 key that is public by design.
 
-Two invariants back it up: no variable named like a secret (`KEY`, `SECRET`, `TOKEN`, `PASSWORD`)
-may carry a `NEXT_PUBLIC_` prefix except the anon key, and no client component may read a server only
-variable. The four public variables that do carry it (the Supabase URL, the site URL, the Google
-client ID and the service worker switch) are addresses and switches rather than credentials. A third reads `PROVIDER_KEY_ENV` and checks each
+Two invariants back it up: no `NEXT_PUBLIC_` name shaped like a credential (ending in `KEY`,
+`SECRET`, `TOKEN` or `PASSWORD`) may exist except the anon key, and no
+client component may read a server only variable. A third reads `PROVIDER_KEY_ENV` and checks each
 key is marked in the CI canary, so the next provider added to the chain cannot be missed the way Groq
 and Gemini were.
 
-The CSP is the other half: `connect-src` is the app's own origin and, where the deployment uses
-Supabase, that one project's origin and its websocket, which is how the browser signs in. Nothing else
-is on it, so a client that tried to call Ekilex or TartuNLP directly would be refused by the browser as
-well as by an invariant. `lib/security/headers.test.ts` pins the whole directive rather than listing
-what it may not contain.
+The CSP is the other half: `connect-src` names no third party but the deployment's own Supabase
+project, which the browser needs for sign-in, so a client that tried to call Ekilex or TartuNLP
+directly would be refused by the browser as well as by an invariant.
+`lib/security/headers.test.ts` pins the whole directive rather than listing what it may not contain.
 
 ### 4.10 An error message carrying a connection string
 
@@ -340,7 +349,9 @@ self-hosted proxy appends and is read from the right. Signed-in work never touch
 session.
 
 **Control.** `X-Frame-Options: DENY` in `lib/security/headers.ts`, and `frame-ancestors 'none'` in
-the CSP. `frame-src 'none'` refuses the other direction, which was verified rather than assumed:
+the CSP. `frame-src 'none'` refuses the other direction, except for `accounts.google.com` on a
+deployment with a Google client ID, whose sign-in button is Google's own iframe. The refusal was
+verified rather than assumed:
 Sõnaveeb and Ekilex both send `DENY` at us, which is why nothing here is an iframe.
 
 ### 4.13 Reading the deployment-wide aggregates
@@ -416,7 +427,7 @@ being trusted.
 | Transport | HSTS, two years, includeSubDomains, preload | `lib/security/headers.ts` |
 | Transport | `upgrade-insecure-requests` in the CSP | `lib/security/headers.ts` |
 | Headers | CSP set per response, so it can read which Supabase project to allow | `middleware.ts` |
-| Headers | `frame-ancestors 'none'`, `frame-src 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` | `lib/security/headers.ts` |
+| Headers | `frame-ancestors 'none'`, `frame-src 'none'` (Google's sign-in origin excepted when configured), `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` | `lib/security/headers.ts` |
 | Headers | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, COOP, cross domain policies | `next.config.ts` via `STATIC_SECURITY_HEADERS` |
 | Headers | `Permissions-Policy` denying geolocation, allowing camera and microphone to self | `lib/security/headers.ts` |
 | Headers | `X-Powered-By` removed | `next.config.ts` |
@@ -424,7 +435,7 @@ being trusted.
 | Input | zod schemas on backups, level checks, goals and lesson results | `app/actions.ts` |
 | Input | Every argument coerced at the boundary, because JSON off the wire is not the declared type | `text()` in `app/actions.ts` |
 | Input | Redirect targets narrowed to a rooted same origin path | `safeNext` |
-| Input | Display names cleaned of control and bidirectional characters, NFC normalised | `cleanDisplayName` |
+| Input | Text one person types and another reads (display names, class names, homework, report notes) cleaned of control and bidirectional characters, NFC normalised, cut by code point | `lib/security/visibleText.ts` |
 | Input | Uploaded image decoded in a Route Handler and never stored | `app/api/scan/`, `lib/scan/image.ts` |
 | Secrets | Nothing carries `NEXT_PUBLIC_` but the anon key, asserted | `scripts/test-invariants.ts` |
 | Secrets | CI builds with a marked value per server variable and greps the client bundle | `.github/workflows/ci.yml` |
@@ -448,7 +459,7 @@ being trusted.
 | Data | Erasure has no exemptions, and removes the Supabase Auth identity too | `lib/auth/erase.ts` |
 | Data | Anonymity gate on the research export, four rules | `lib/research/corpus.ts` |
 | Dependencies | Two blocking `npm audit` gates, production and dev | `.github/workflows/ci.yml` |
-| Assurance | 279 invariants asserted in CI | `scripts/test-invariants.ts` |
+| Assurance | The invariant suite runs in CI and prints its own total, so the figure is one command rather than a number to trust | `scripts/test-invariants.ts` |
 
 ## 6. What has not been done
 
@@ -467,7 +478,8 @@ which would say the sample of one is not enough.
 
 **No certification.** Not ISO/IEC 27001, not SOC 2, not ISKE or its successor. `docs/29-controls.md`
 is a self-assessment and says so at the top in bold. *Plan and trigger:* set out in that document,
-with the cost.
+with the cost, and `docs/33-certification-readiness.md` turns every gap in it into a sized piece of
+work in the order we would actually do them.
 
 **No formal risk register or asset inventory as separate documents.** Section 3 above is the closest
 thing, and it lives in a design document rather than in a register anybody reviews on a schedule.
@@ -499,9 +511,11 @@ locally, so a session revoked elsewhere survives until that token expires, an ho
 sign-in allowlist is not part of that trade: the address is a claim inside the token, so removing
 somebody from `ALLOWED_EMAILS` takes effect on their next request.
 
-**The rate limiter is per instance.** Its own header says so. On serverless a burst spread across
-cold starts meets an empty map. The routes it alone protects are speech, the share card, the export
-and the restore; the routes that cost money are bounded by the Postgres ledger instead.
+**The in-memory rate limiter is per instance.** Its own header says so. On serverless a burst
+spread across cold starts meets an empty map. No route relies on it alone: speech, the share card,
+the export and the restore are counted across instances by `lib/usage/sharedLimit.ts`, and the routes
+that cost money are bounded by the Postgres ledger. What is left is the moment the database cannot
+answer, when the shared count falls back to the per-instance map rather than failing open or closed.
 
 ## 7. How to verify any of this yourself
 
@@ -514,7 +528,7 @@ npx prisma generate
 npm run typecheck        # strict, plus noUncheckedIndexedAccess
 npm run lint
 npm test                 # unit suite, hermetic: no database, no network, no clock
-npm run test:invariants  # 279 asserted rules, including every security one above
+npm run test:invariants  # the asserted rules, including every security one above
 npm run check:secrets    # scans a built tree for credential shapes
 npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
@@ -525,7 +539,7 @@ grep the client bundle:
 
 ```
 CI_CANARY=canary-CI_CANARY-must-not-ship \
-OPENROUTER_API_KEY=canary-OPENROUTER_API_KEY-must-not-ship \
+GROQ_API_KEY=canary-GROQ_API_KEY-must-not-ship \
 SUPABASE_SERVICE_ROLE_KEY=canary-SUPABASE_SERVICE_ROLE_KEY-must-not-ship \
 npx next build
 grep -rEho "canary-[A-Z_]+-must-not-ship" .next/static   # must print nothing

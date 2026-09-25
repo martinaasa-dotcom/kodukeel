@@ -1,0 +1,60 @@
+name: Send the letters, hourly
+
+# The letters are written for an hourly run and the platform runs one a day.
+#
+# `lib/email/schedule.ts` sends each kind in a window of the learner's own
+# hours: the word of the day between seven and ten, the Sunday summary between
+# nine and twelve, a milestone between eight and eleven, the evening letter
+# from the hour they chose until ten. `vercel.json` fires `/api/email/send`
+# once a day at 16:00 UTC, because a Hobby plan refuses to deploy anything more
+# often (#279), and 16:00 UTC is 19:00 in Tallinn: every morning window is
+# closed at that hour, so on a Hobby plan the morning letters were never sent
+# to anybody in Estonia, and the evening letter reached only learners who had
+# asked for it before seven.
+#
+# The deploy notes already name the way back that costs nothing: any scheduler
+# that can GET that URL with `Authorization: Bearer $CRON_SECRET`. This is that
+# scheduler. The run is idempotent, capped, and takes a lock across every
+# instance, and every kind carries its own minimum gap in the send log, so a
+# run here beside the daily Vercel one is one more look rather than a second
+# letter.
+#
+# IT DOES NOTHING UNTIL SOMEBODY SWITCHES IT ON. It needs the repository secret
+# `CRON_SECRET`, the same value the deployment holds, and the repository
+# variable `MAILOUT_URL`, the deployment's own origin. Where either is missing
+# the job says so and succeeds, so a fork or a deployment that does not mail
+# anybody sees a green tick rather than a red one every hour. The secret is
+# mapped into the one step that sends the request and no other, and the job
+# runs on a schedule or by hand, never from a pull request.
+
+on:
+  schedule:
+    # Minute 7, off the hour, where scheduled workflows queue least.
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: mailout
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    name: Send
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ask the deployment to send what is owed
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          MAILOUT_URL: ${{ vars.MAILOUT_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ] || [ -z "$MAILOUT_URL" ]; then
+            echo "CRON_SECRET or MAILOUT_URL is not set, so this installation sends from its daily cron alone."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 240 \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "${MAILOUT_URL%/}/api/email/send"

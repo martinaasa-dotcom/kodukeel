@@ -23,8 +23,9 @@ const page = await ctx.newPage();
 const app = page.locator("main");
 
 // Floor: the count CI reaches, which is every check here, including the one
-// about the cache that is deliberately never trimmed.
-const { check, absent, done } = suite("Offline review", { floor: 15 });
+// about the cache that is deliberately never trimmed and the eight about Anu,
+// whose server carries the stubbed provider key that configures her.
+const { check, absent, done } = suite("Offline review", { floor: 23 });
 
 
 /*
@@ -306,20 +307,32 @@ const trimmed = await page.evaluate(async (name) => {
 }, audioCache);
 check("a cache can be filled past its ceiling to prove the trim runs", trimmed >= 420, `${trimmed}`);
 
-await page.evaluate(async () => {
+const ttsStatus = await page.evaluate(async () => {
   // One real clip through the worker, which trims the audio cache after it
-  // writes. The phrase does not matter and a failure to fetch is fine: the
-  // trim runs on the success path, so this waits for a real one.
-  await fetch("/api/tts", {
+  // writes. The phrase does not matter.
+  const r = await fetch("/api/tts", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ text: "tere" }),
-  }).catch(() => undefined);
+  }).catch(() => null);
+  return r ? r.status : 0;
 });
-await page.waitForTimeout(2500);
-const afterTrim = await page.evaluate(async (name) =>
-  (await caches.open(name)).keys().then((k) => k.length), audioCache);
-check("the audio cache is trimmed back to its ceiling", afterTrim <= 400, `${afterTrim} entries`);
+/*
+  The trim runs on the success path and only there (`public/sw.js`), so a
+  speech service that did not answer in time leaves nothing to trim after.
+  Asserted anyway, that read as a worker that had stopped trimming, which
+  sends whoever reads it into the one file that was working. A clip that
+  failed is stated as what it is, with its status, and still counts against
+  the floor.
+*/
+if (ttsStatus >= 200 && ttsStatus < 300) {
+  await page.waitForTimeout(2500);
+  const afterTrim = await page.evaluate(async (name) =>
+    (await caches.open(name)).keys().then((k) => k.length), audioCache);
+  check("the audio cache is trimmed back to its ceiling", afterTrim <= 400, `${afterTrim} entries`);
+} else {
+  absent(1, `a clip the speech service answered (HTTP ${ttsStatus}): the worker trims after a successful write, so with no clip there is nothing to trim after`);
+}
 
 /*
   And the other half of that rule: the one cache with no ceiling still has what
@@ -504,6 +517,63 @@ for (let i = 0; i < 30; i++) {
 
 check("the outbox drains once the connection is back", drained,
   `${await outboxSize()} still queued`);
+
+// ── Anu, who needs a connection and says so before anything is typed ────────
+/*
+  `docs/08-ux-ia-a11y.md` §4 names her offline state, and neither surface had
+  one: the question was typed, the box was cleared, and only after a fetch that
+  could never land did the reply say the connection was lost. The refusal is in
+  `useAnuChat` and the notice is `AnuOffline`, and whether either is drawn is a
+  fact about a running tab rather than about the source, so it is asked here,
+  on both surfaces, with the plug pulled.
+
+  She is only configured where a provider key is present. CI's server carries a
+  stubbed one for the scanner, which is enough, since nothing here sends; a
+  keyless server draws "Anu needs an AI key" instead, which is a different
+  state and has nothing to go offline from.
+*/
+const ANU_CHECKS = 8;
+await page.goto(`${BASE}/tutor`, { waitUntil: "domcontentloaded" });
+await page.waitForSelector("main h1");
+const asks = page.getByRole("textbox", { name: "Ask Anu a question" });
+if (await asks.count() === 0) {
+  absent(ANU_CHECKS, "this server has no provider key, so Anu shows her key state and has no offline state to draw");
+} else {
+  const notice = () => page.getByText("Anu needs a connection.");
+  check("Anu draws no offline notice while online", await notice().count() === 0);
+  await ctx.setOffline(true);
+  await page.evaluate(() => window.dispatchEvent(new Event("offline")));
+  await page.waitForTimeout(300);
+  check("Anu says she needs a connection once it goes", await notice().isVisible());
+  await asks.fill("Why is it raamatut?");
+  check("Anu's Ask button is not live offline", await page.getByRole("button", { name: "Ask" }).isDisabled());
+  await asks.press("Enter");
+  await page.waitForTimeout(300);
+  check("pressing Enter offline keeps the question in the box", (await asks.inputValue()) === "Why is it raamatut?",
+    `the box reads "${await asks.inputValue()}"`);
+  check("nothing is sent to Anu offline", await page.getByText("Lost the connection").count() === 0);
+  await ctx.setOffline(false);
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await page.waitForTimeout(300);
+  check("the notice goes when the connection is back", await notice().count() === 0);
+
+  // The panel in the corner of every screen, which the first fix missed.
+  await page.goto(`${BASE}/practice`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("main h1");
+  await page.getByRole("button", { name: /Anu/ }).first().click();
+  const panelBox = page.getByRole("textbox", { name: "Ask Anu a question" });
+  await panelBox.waitFor();
+  await ctx.setOffline(true);
+  await page.evaluate(() => window.dispatchEvent(new Event("offline")));
+  await page.waitForTimeout(300);
+  check("Anu's corner panel says she needs a connection", await notice().isVisible());
+  await panelBox.fill("Mis on osastav?");
+  await panelBox.press("Enter");
+  await page.waitForTimeout(300);
+  check("the panel keeps an offline question in its box", (await panelBox.inputValue()) === "Mis on osastav?",
+    `the box reads "${await panelBox.inputValue()}"`);
+  await ctx.setOffline(false);
+}
 
 await browser.close();
 done();
