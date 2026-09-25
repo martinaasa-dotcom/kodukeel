@@ -39,16 +39,17 @@ describe("narrowing a question to two", () => {
   });
 
   /*
-    A greeting beat names whole phrases, and joined as printed they came out
-    `Tere! või Tere hommikust!?`. The question ends in one mark.
+    A greeting beat names whole phrases, and a greeting is said rather than
+    chosen, so `Tere või Tere hommikust?` is one thing said two ways and the
+    beat falls to the app's own hint (see OFFERABLE in choice.ts).
   */
-  it("takes each option's own closing mark off before joining them", () => {
+  it("offers no choice between two phrases", () => {
     const lex = buildLexicon([
       { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
       { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
     ]);
     const greet = { ...BEAT, move: "greet" as const, needs: [{ kind: "lemma" as const, oneOf: ["Tere!", "Tere hommikust!"] }] };
-    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBe(`Tere ${CHOICE_WORD} Tere hommikust?`);
+    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBeNull();
   });
 
   /*
