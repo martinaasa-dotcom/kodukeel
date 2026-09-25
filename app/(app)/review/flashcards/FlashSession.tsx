@@ -68,7 +68,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const sound = useFeedbackSound();
-  const { refresh: refreshOutbox } = useOffline();
+  const { refresh: refreshOutbox, drainFirst } = useOffline();
 
   const task = prompts[index];
   const finished = !task;
@@ -154,6 +154,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
     try {
+      await drainFirst();
       const res = await gradeCard(
         task.cardId, result.rating, duration, answeredAt, task.slot, reached, reviewId,
       );
@@ -174,7 +175,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       });
       refreshOutbox();
     }
-  }, [task, typed, mark, sound, streak, refreshOutbox, hints]);
+  }, [task, typed, mark, sound, streak, refreshOutbox, drainFirst, hints]);
 
   const next = useCallback(() => {
     /*

@@ -62,7 +62,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const sound = useFeedbackSound();
-  const { refresh: refreshOutbox } = useOffline();
+  const { refresh: refreshOutbox, drainFirst } = useOffline();
 
   const task = tasks[index];
   /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
@@ -121,6 +121,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
     try {
+      await drainFirst();
       const res = await gradeCard(
         task.cardId, result.rating, duration, answeredAt, task.slot, reached, reviewId,
       );
@@ -137,7 +138,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
       });
       refreshOutbox();
     }
-  }, [task, typed, mark, sound, refreshOutbox, hints]);
+  }, [task, typed, mark, sound, refreshOutbox, drainFirst, hints]);
 
   const next = useCallback(() => {
     /* The word, the form it turned out to take and what it departs from,

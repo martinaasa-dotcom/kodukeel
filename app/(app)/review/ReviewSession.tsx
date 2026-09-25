@@ -598,7 +598,7 @@ export function ReviewSession({
   /** Cards whose word has been met this session and which are now asked properly. */
   const [met, setMet] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingOffline, setPendingOffline] = useState(0);
-  const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
+  const { pending: outboxPending, refresh: refreshOutbox, drainFirst } = useOffline();
   const shownAt = useRef(Date.now());
   /*
     WHEN THE ANSWER WAS ACTUALLY GIVEN, WHICH IS NOT WHEN THE CARD IS FINALLY
@@ -942,6 +942,7 @@ export function ReviewSession({
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
     try {
+      await drainFirst();
       const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, reviewId);
       if (!result.ok) throw new Error(result.error);
       scheduled.current.set(card.id, result.scheduling);
@@ -987,7 +988,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, hints, recordSeen]);
+  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen]);
 
   /**
    * Puts the last graded card back.

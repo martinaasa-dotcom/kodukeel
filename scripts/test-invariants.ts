@@ -13298,6 +13298,18 @@ check("undo takes a queued grade back, and flush waits for a sync in flight", ()
   assert.ok(taken > 0 && asked > taken,
     "undo asks the server without first taking the grade back out of the outbox");
   const provider = code("components/OfflineProvider.tsx");
+  /*
+    And a new grade goes online only after anything queued before it: the
+    scheduler has to hear two answers to one card in the order they happened.
+  */
+  const queuing = sourceFiles("app").filter((f) => /enqueueGrade\(\{/.test(code(f)));
+  for (const file of queuing) {
+    const source = code(file);
+    const drained = source.indexOf("await drainFirst()");
+    const sent = source.indexOf("await gradeCard(");
+    assert.ok(drained > 0 && sent > drained,
+      `${file} sends a grade online before the outbox holding older ones has been sent`);
+  }
   assert.match(provider, /if \(inflight\.current\) return inflight\.current;/,
     "a sync already running is no longer the promise a second caller gets, so flush returns before it lands");
 });

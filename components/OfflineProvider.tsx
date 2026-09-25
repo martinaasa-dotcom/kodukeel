@@ -19,10 +19,18 @@ interface OfflineState {
    * them (`lib/offline/forget.ts`).
    */
   flush: () => Promise<void>;
+  /**
+   * Sends anything still queued before a new grade goes online. A grade the
+   * outbox is holding was answered earlier, and the scheduler has to hear the
+   * two in the order they happened: an online Good landing first and a queued
+   * Again after it left a card lapsed that the learner had just got right.
+   * Costs nothing when the outbox is empty, which is nearly always.
+   */
+  drainFirst: () => Promise<void>;
 }
 
 const Context = createContext<OfflineState>({
-  online: true, pending: 0, refresh: () => {}, flush: async () => {},
+  online: true, pending: 0, refresh: () => {}, flush: async () => {}, drainFirst: async () => {},
 });
 
 /** How often to retry a stuck queue. Long enough to be invisible, short enough to matter. */
@@ -130,6 +138,12 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     }
   }, [refresh]);
 
+  const pendingRef = useRef(0);
+  pendingRef.current = pending;
+  const drainFirst = useCallback(async () => {
+    if (pendingRef.current > 0) await sync();
+  }, [sync]);
+
   useEffect(() => {
     setOnline(navigator.onLine);
     refresh();
@@ -182,7 +196,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Context.Provider value={{ online, pending, refresh, flush: sync }}>
+    <Context.Provider value={{ online, pending, refresh, flush: sync, drainFirst }}>
       {children}
       <OfflineBanner online={online} pending={pending} syncing={syncing} />
     </Context.Provider>
