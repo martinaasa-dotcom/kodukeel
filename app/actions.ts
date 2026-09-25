@@ -25,8 +25,9 @@ import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { mergeExamples, parseExamples, serialiseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
-import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
+import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
+import { restoredEntry } from "@/lib/dict/restoredEntry";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { requireAdminId } from "@/lib/auth/admin";
@@ -46,7 +47,7 @@ import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { isTimeZone } from "@/lib/time/day";
+import { canonicalZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
@@ -240,7 +241,7 @@ export async function deleteMyDeck(deckId: string) {
 async function addCardsFor(
   owner: string, lexemeId: string, types: CardType[], source: string,
 ) {
-  const [lexeme, borrowed, reach] = await Promise.all([
+  const [lexeme, borrowed, reach, alsoAccepted] = await Promise.all([
     prisma.lexeme.findUnique({
       where: { id: lexemeId },
       include: { forms: true },
@@ -251,6 +252,16 @@ async function addCardsFor(
     // And how a beginner's word orders its own, which is the same kind of
     // fact and cached the same way. See lib/dict/plainness.ts.
     sentenceReach(),
+    /*
+      And which other words answer the same prompt, the fact `lib/srs/deck.ts`
+      reads for a unit. Without it a production card built one word at a time
+      took its own word alone: `pere` added from the dictionary got a back
+      of `pere` where a unit gives it `pere / perekond`, so a learner who wrote
+      `perekond` for "family" was marked wrong on a card that could not tell
+      them apart. The back reads `pere / perekond` now, read off a card
+      added in a browser; the invariant for it was made to fail on this line.
+    */
+    alsoAcceptedByLemma(),
   ]);
   if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
 
@@ -309,6 +320,7 @@ async function addCardsFor(
     const generated = generateCards(
       {
         ...(lexeme as LexemeForCards),
+        alsoAccepted: alsoAccepted.get(`${lexeme.lemma}|${lexeme.pos}`) ?? [],
         borrowed: borrowed.get(lexemeId) ?? [],
         plainest: plainerFirst(lexeme.cefr, reach),
       }, types,
@@ -1674,9 +1686,12 @@ const MAX_CELLS = 81;
  */
 export async function setTimeZone(zone: string) {
   const ownerId = await requireUserId();
-  if (!isTimeZone(zone)) return { ok: false as const, error: "That is not a timezone." };
-  await writeSetting(ownerId, SETTING_KEYS.timeZone, zone);
-  return { ok: true as const, zone };
+  // Stored in the spelling `Intl` resolves it to, so one zone is one value
+  // whatever casing the caller sent (lib/time/day.ts, `canonicalZone`).
+  const canonical = canonicalZone(zone);
+  if (!canonical) return { ok: false as const, error: "That is not a timezone." };
+  await writeSetting(ownerId, SETTING_KEYS.timeZone, canonical);
+  return { ok: true as const, zone: canonical };
 }
 
 
@@ -3284,16 +3299,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
 
         So a restore does what the seed does, `ON CONFLICT DO NOTHING`: a word
         the dictionary already holds is left exactly as it is, and a word it
-        does not is created as this learner's own, without the provenance or
-        the Ekilex identifiers that would claim otherwise. Nothing is lost by
-        it, because the cards below point at ids either way.
+        does not is created as this learner's own, carrying only what a hand
+        edit could have supplied (`restoredEntry` says which columns and why).
+        Nothing is lost by it, because the cards below point at ids either way.
       */
-      const live = await restoreLexemes(tx, ownerId, backup.lexemes.map((raw) => {
-        const { forms, ...lex } = raw as Record<string, unknown> & { forms?: unknown[] };
-        return {
-          data: revive(lex, ["createdAt", "updatedAt"]),
-          forms: Array.isArray(forms) ? forms.map((f) => revive(f as Record<string, unknown>, [])) : [],
-        };
+      const live = await restoreLexemes(tx, ownerId, backup.lexemes.flatMap((raw) => {
+        const entry = restoredEntry(raw as Record<string, unknown>, ownerId);
+        return entry ? [{ data: entry.lexeme, forms: entry.forms }] : [];
       }));
       /*
         Every row below that points at a word points at it through `wordOf`,

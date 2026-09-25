@@ -106,6 +106,45 @@ describe("gapForms", () => {
     expect(gapForms(TUBA).get("tuppa")).toBe("ILLATIVE");
   });
 
+  /*
+    THE SAME FAULT ARRIVES THROUGH THE RETRIEVED ROWS. An entry enriched from
+    Ekilex stores `arsti` a second time under `EKILEX:SgAdt`, which names the
+    short illative on its own, and the first row read still decided the label:
+    illative when that row came first, nothing when the genitive did. Exactly
+    one slot claims a spelling or none is named, whichever order and whichever
+    column the claims arrived in.
+  */
+  it("names no case for a spelling a retrieved row and a principal part both claim, in either order", () => {
+    const principal = [
+      { formType: "NOM_SG", value: "arst" },
+      { formType: "GEN_SG", value: "arsti" },
+      { formType: "PART_SG", value: "arsti" },
+    ];
+    for (const seeded of [true, false]) {
+      const retrieved = seeded
+        ? { formType: "EKILEX:SgAdt", value: "arsti" }
+        : { formType: "EKILEX:SgAdt", value: "arsti", morphCode: "SgAdt" };
+      for (const forms of [[retrieved, ...principal], [...principal, retrieved]]) {
+        const arst = gapForms({ lemma: "arst", pos: "NOUN", forms });
+        expect(arst.has("arsti")).toBe(true);
+        expect(arst.get("arsti"), `${seeded ? "seeded" : "live"} row, ${forms[0]!.formType} first`).toBeNull();
+      }
+    }
+  });
+
+  it("names no case for a spelling two retrieved rows read two ways", () => {
+    const forms = gapForms({
+      ...TUBA,
+      forms: [
+        ...TUBA.forms,
+        { formType: "EKILEX:SgIn", value: "qqtoas" },
+        { formType: "EKILEX:PlP", value: "qqtoas" },
+      ],
+    });
+    expect(forms.has("qqtoas")).toBe(true);
+    expect(forms.get("qqtoas")).toBeNull();
+  });
+
   it("keeps the slot the dictionary named over the one a rule would guess", () => {
     const forms = gapForms({
       ...TUBA,
