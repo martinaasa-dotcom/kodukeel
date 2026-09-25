@@ -26,6 +26,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import { looksLikeSentence } from "@/lib/estonian/writing";
+import { whereWhole } from "@/lib/estonian/cloze";
 import { ASK_ENGLISH, LOST } from "./catalogue";
 import { casualBye, casualHello } from "./casual";
 import { fold } from "@/lib/estonian/fold";
@@ -1056,13 +1057,16 @@ function satisfies(
         `15` is `15` and is not `150`. Everything else keeps the substring
         reading it had: a time said in words is a phrase with a space in it
         (`pool neli`), and a reference is letters and digits together
-        (`KK-1234`), and neither can be read off a digit run.
+        (`KK-1234`), and neither can be read off a digit run. Those are
+        matched whole too, through `mentions`, since a bare `includes` found
+        `pool kaks` (13:30) inside `pool kaksteist` (11:30) and `KK-1234`
+        inside `KK-12345`.
       */
       const runs: string[] = text.toLowerCase().match(/\d{1,2}[:.]\d{2}|\d+/g) ?? [];
       const isDigits = (value: string) => /^\d{1,2}([:.]\d{2})?$/.test(value);
       const literal = [...accepted].find((value) => (isDigits(value)
         ? runs.includes(value)
-        : /\d|\s/.test(value) && lower.includes(value)));
+        : /\d|\s/.test(value) && wholeLiteral(lower, value)));
       if (literal) return { word: literal };
       const near = nearly(accepted);
       if (near) return { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma: near.form } };
@@ -1474,4 +1478,24 @@ export function concede(evidence: Evidence, indices: readonly number[]): Evidenc
     missing,
     conceded,
   };
+}
+
+/**
+ * A phrase or a reference found as a whole in the turn: `whereWhole` decides
+ * what a whole word is, and a digit on either side ends a reference as well,
+ * which a word boundary alone does not.
+ */
+function wholeLiteral(text: string, value: string): boolean {
+  let from = 0;
+  while (from <= text.length) {
+    const hit = whereWhole(text.slice(from), value);
+    if (!hit) return false;
+    const start = from + hit.index;
+    const end = start + hit.length;
+    // The slice hides what stood before it, so the boundary is read again on the whole text.
+    const before = text[start - 1] ?? "";
+    if (!/[\d\p{L}\p{M}-]/u.test(before) && !/\d/.test(text[end] ?? "")) return true;
+    from = start + 1;
+  }
+  return false;
 }
