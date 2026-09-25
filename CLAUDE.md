@@ -6566,6 +6566,16 @@ they are, since they are what gates `b`, and they are no longer what makes this 
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)
 
+**And a round that grades in bulk sends the round once, not a request per card.** `gradeCard` is a
+Server Action, so every call is a POST, a session read, a card lookup, a write and a
+`revalidatePath`. Match finished its board by looping over its pairs and awaiting one each, which
+is eight sequential round trips before an eight-pair board's finish screen settled.
+`recordMatchGrades` sends the whole round and grades it through `applyGradeBatch`, which is how
+`completeLesson` and `submitExam` already close theirs, and what a pair is worth is
+`lib/srs/matchGrades.ts`, pure and unit tested. The invariant is on the shape rather than on Match:
+no session may await `gradeCard` inside a loop, and it was made to fail on the real line first. A
+round that grades one card per answer is not this shape, because that is a person answering.
+
 **Every mutation goes through the forged-request gate, and it is not an `/api/` rule.** Every
 mutation a learner makes here is a Server Action, which is a POST to a *page* path, so a gate
 inside an `isApi` branch would be watching the quiet door. `lib/security/sameOrigin.ts` reads
@@ -10832,7 +10842,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
 `data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
-`OPENS_WITHOUT_BRIEFING`.
+`OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

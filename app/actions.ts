@@ -93,6 +93,7 @@ import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
 import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
+import { matchGrades } from "@/lib/srs/matchGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
 import { placement } from "@/lib/assessment/score";
@@ -1076,6 +1077,8 @@ export async function setDailyGoal(goal: number) {
 /** A round of this app is a minute long; nothing honest reaches these. */
 const MAX_SPRINT_SCORE = 500;
 const MAX_MATCH_SECONDS = 3_600;
+/** Twice the board's own size (see PAIRS in the round's page.tsx). A ceiling, not a pace. */
+const MAX_MATCH_PAIRS = 16;
 
 /** Records a Case Sprint score, keeping only the personal best. */
 export async function recordSprintScore(score: number) {
@@ -1089,10 +1092,45 @@ export async function recordSprintScore(score: number) {
 }
 
 /**
+ * Records a finished match round in the review log, one write rather than
+ * one per pair.
+ *
+ * MatchSession used to grade this by looping over its pairs and calling
+ * gradeCard once each, which for an eight-pair board is eight sequential
+ * Server Action round trips before the finish screen could show, each its
+ * own requireUserId, its own card lookup and its own revalidatePath. That is
+ * the shape completeLesson and submitExam already fixed for their own
+ * rounds: the client sends what happened, and the whole batch lands through
+ * one call to applyGradeBatch (ADR-016).
+ *
+ * What each pair is worth is `matchGrades`, pure and unit tested. The id per
+ * grade is minted on the client at finish, so a doubled request settles
+ * rather than doubling the count, which is exactly what applyGradeBatch is
+ * built to do with a repeated id.
+ */
+export async function recordMatchGrades(grades: unknown) {
+  const ownerId = await requireUserId();
+
+  const batch = matchGrades(grades, MAX_MATCH_PAIRS, Date.now());
+  if (batch.length === 0) return { ok: false as const, error: "Nothing to record." };
+
+  const result = await applyGradeBatch(ownerId, batch);
+  if (!result.ok) return { ok: false as const, error: result.error ?? "Could not record the round." };
+  /*
+    Every pair used to go through `gradeCard`, which revalidates Today; the
+    batch does not, so Today would show the old due count for as long as the
+    router cache holds it.
+  */
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, graded: result.settled.length };
+}
+
+/**
  * Records a finished match round, keeping the fastest time.
  *
- * Lower is better here, which is the opposite of every other score in the app —
- * hence the explicit "0 means never played" rather than a plain `Math.min`,
+ * Lower is better here, which is the opposite of every other score in the app,
+ * hence the explicit "0 means never played" rather than a plain Math.min,
  * which would leave a first-ever round competing against zero and always losing.
  */
 export async function recordMatchTime(seconds: number) {
