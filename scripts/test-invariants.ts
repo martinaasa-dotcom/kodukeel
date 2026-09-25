@@ -12530,10 +12530,12 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
   A BACKUP CARRIES EVERY WORD THE LEARNER'S OWN ROWS POINT AT.
 
   The export gathers which dictionary entries to carry from the tables that
-  reference one, and it named four while seven do. A shelf of dictionary words
-  is a word with no card behind it, so the file held the shelf and not its
-  words, and a restore onto another deployment dropped the shelf whole, since
-  `DeckWord.lexemeId` is a real foreign key with nothing to point at. Read off
+  reference one, and it named four while seven do. Each of the three it missed
+  can point at a word the learner holds no card for: a word a conversation
+  needed, a word refused in a lesson before its cards existed, a shelf entry
+  that outlived a deleted card. The file then held the row and not its word,
+  and a restore onto another deployment dropped it or lost which word it was.
+  Read off
   the schema rather than a list, so an eighth such table fails here until the
   export asks it too.
 */
