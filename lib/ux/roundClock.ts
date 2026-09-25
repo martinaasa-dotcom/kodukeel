@@ -136,3 +136,18 @@ export function roundLength(seconds: number): string {
   }
   return `${whole} seconds`;
 }
+
+/**
+ * How long a round runs for the learner whose stored pace this is, said the
+ * way a screen says it, with a capital so it can open a sentence.
+ *
+ * For the screens that describe a round rather than run one: the Practice
+ * tile, the scan page's sprint tile, Today's quest card. They read the same
+ * stored pace a round does and say the length that round will run, and they
+ * go through this rather than `roundPaceFrom` directly, so that calling
+ * `roundPaceFrom` stays what marks a page as a round with a clock.
+ */
+export function lengthAtPace(base: number, stored: string | null | undefined): string {
+  const said = roundLength(secondsFor(base, roundPaceFrom(stored)));
+  return `${said[0]!.toUpperCase()}${said.slice(1)}`;
+}

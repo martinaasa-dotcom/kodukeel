@@ -6880,16 +6880,16 @@ check("a timed round's length is written once and shown at the learner's pace", 
     assert.doesNotMatch(src, /const \w+ = (60|120);/, `${file} types a round length of its own`);
   }
   const practice = code("app/(app)/practice/page.tsx");
-  assert.match(practice, /secondsFor\(SPRINT_SECONDS,\s*roundPaceFrom\(/, "Practice shows the sprint's length without the learner's pace");
+  assert.match(practice, /lengthAtPace\(SPRINT_SECONDS,/, "Practice shows the sprint's length without the learner's pace");
   const sprintMode = /href: "\/review\/sprint"[^}]*subtitle: "([^"]*)"/.exec(code("lib/ux/modes.ts"))?.[1];
   assert.ok(sprintMode !== undefined, "the sprint's mode entry was not found");
   assert.doesNotMatch(sprintMode, /\d/, "the sprint's mode entry states a length the pace can change");
   assert.match(
-    code("app/(app)/scan/[scanId]/page.tsx"), /secondsFor\(SPRINT_SECONDS,\s*roundPaceFrom\(/,
+    code("app/(app)/scan/[scanId]/page.tsx"), /lengthAtPace\(SPRINT_SECONDS,/,
     "the scan page's sprint tile states a length without the learner's pace",
   );
   assert.match(
-    code("app/(app)/page.tsx"), /secondsFor\(QUEST_SECONDS,\s*roundPaceFrom\(/,
+    code("app/(app)/page.tsx"), /lengthAtPace\(QUEST_SECONDS,/,
     "Today's quest card states a length without the learner's pace",
   );
   /*

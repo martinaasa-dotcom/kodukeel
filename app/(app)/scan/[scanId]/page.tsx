@@ -11,7 +11,7 @@ import { Speak } from "@/components/Speak";
 import { Card, Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { ScanActions } from "./ScanActions";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { roundLength, roundPaceFrom, secondsFor, SPRINT_SECONDS } from "@/lib/ux/roundClock";
+import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +64,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   ]);
   // The sprint's length at this learner's pace, the figure the round itself
   // runs for, rather than the standard minute typed into a sentence.
-  const sprintLength = roundLength(secondsFor(SPRINT_SECONDS, roundPaceFrom(settings[SETTING_KEYS.roundPace])));
+  const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace]);
 
   const byId = new Map(lexemes.map((l) => [l.id, l]));
   // The page's own order, which is the order it is printed in. A learner
@@ -134,7 +134,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                 href="/review/sprint"
                 tone="peach"
                 title="Sprint"
-                body={`${sprintLength[0]!.toUpperCase()}${sprintLength.slice(1)}. The fastest way to find out which of these has not stuck.`}
+                body={`${sprintLength}. The fastest way to find out which of these has not stuck.`}
               />
             </div>
           </section>

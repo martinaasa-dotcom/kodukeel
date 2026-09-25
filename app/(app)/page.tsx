@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { roundLength, roundPaceFrom, secondsFor, QUEST_SECONDS } from "@/lib/ux/roundClock";
+import { lengthAtPace, QUEST_SECONDS } from "@/lib/ux/roundClock";
 import { redirect } from "next/navigation";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { ArrowRight, Flame, Shield, Target } from "lucide-react";
@@ -719,8 +719,7 @@ export default async function TodayPage() {
   // The quest's length at this learner's pace, which is what the round runs
   // for: "two minutes" was the standard figure printed to somebody who had
   // asked for five.
-  const questSeconds = roundLength(secondsFor(QUEST_SECONDS, roundPaceFrom(settings[SETTING_KEYS.roundPace])));
-  const questLength = `${questSeconds[0]!.toUpperCase()}${questSeconds.slice(1)}`;
+  const questLength = lengthAtPace(QUEST_SECONDS, settings[SETTING_KEYS.roundPace]);
   const questCard = questDay ? (
     <Card tone="accent">
       {/* No "two minutes" hint: the line under this says it, and a figure

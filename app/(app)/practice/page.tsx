@@ -12,7 +12,7 @@ import { isBuildable } from "@/lib/estonian/cloze";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { GAMES, QUICK_MODES, modeAt, type PracticeMode } from "@/lib/ux/modes";
-import { roundLength, roundPaceFrom, secondsFor, SPRINT_SECONDS } from "@/lib/ux/roundClock";
+import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
@@ -146,7 +146,7 @@ export default async function PracticePage() {
     the sprint runs to whatever pace they set in Settings, so a fixed "60
     seconds" here was wrong for everybody who had asked for longer.
   */
-  const sprintLength = roundLength(secondsFor(SPRINT_SECONDS, roundPaceFrom(settings[SETTING_KEYS.roundPace])));
+  const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace]);
   const withLength = (mode: PracticeMode): PracticeMode =>
     mode.href === "/review/sprint" ? { ...mode, subtitle: sprintLength } : mode;
 
