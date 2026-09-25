@@ -34,3 +34,6 @@ prisma/data/.cache/
 
 # Cached speech while measuring what the service does with a word (scripts/measure-speech.ts).
 .speech-cache/
+
+# Session scaffolding for an isolated agent worktree. Not repository content.
+.claude/worktrees/

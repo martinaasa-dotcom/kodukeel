@@ -489,7 +489,14 @@ function ownReaction(line: SpokenLine | null): boolean {
  * makes zero sense, and it is the echo rule arriving through another door.
  */
 function acknowledgements(heard: string | null, said: string | null): readonly string[] {
-  const polar = heard ? words(heard)[0] === "kas" : false;
+  /*
+    A question opening on `kas` is a yes-or-no question unless it offers two
+    things: `Kas suur või väike?` is answered with one of them, and a `Jah.`
+    after `suurt` reads as not having been listened to. `või` is the word the
+    choice is made with, the one `choiceOf` reads too.
+  */
+  const asked = heard ? words(heard) : [];
+  const polar = asked[0] === "kas" && !asked.includes(CHOICE_WORD);
   const mine = polar ? REACTIONS.acknowledge : REACTIONS.acknowledge.filter((word) => word !== "jah");
   /*
     Every word of the turn rather than its first, since `Aitäh` and `Hästi`

@@ -14,7 +14,7 @@ import { oneEntryPerLemma } from "@/lib/dict/search";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { shuffle } from "@/lib/random/shuffle";
 import { caseAccuracy } from "@/lib/stats/history";
-import type { ModuleScope } from "@/lib/course/scope";
+import { caseWithin, type ModuleScope } from "@/lib/course/scope";
 
 /**
  * WHICH SCENES THIS LEARNER IS ASKED ABOUT, AND WHICH CASE EACH ONE ASKS FOR.
@@ -178,7 +178,7 @@ export async function describeRound(
   */
   // And only a case whose page has been read, inside the module.
   const readCases = scope
-    ? ASKABLE_CASES.filter((c) => scope.cases.includes(c))
+    ? ASKABLE_CASES.filter((c) => caseWithin(scope, c))
     : ASKABLE_CASES;
   if (readCases.length === 0) return [];
   const priority = [

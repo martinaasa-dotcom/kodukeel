@@ -45,7 +45,7 @@ import { sceneById } from "../lib/scenes/catalogue";
 import { scriptedFor } from "../lib/scenes/scripted";
 import { billedOutput, SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { UNKNOWN_MODEL, normaliseModel, priceFor } from "../lib/usage/pricing";
-import { HARNESS_LEVEL, keylessContext } from "./lib/sceneDraft";
+import { HARNESS_LEVEL, keylessContext, routeGate } from "./lib/sceneDraft";
 
 interface Combo {
   readonly label: string;
@@ -267,7 +267,15 @@ async function main() {
         console.log(`  ${sceneId}/${beatId}: (nothing but thinking)`);
         continue;
       }
-      const verdict = runGate(answer.text, beat, { ...context.gate, vouched: () => true });
+      /*
+        Gated the way the route gates a composed line, through `routeGate`:
+        the register switch, the route's topic, the forms the beat is about to
+        ask for, and vouching against the forms list. This used to pass
+        `vouched: () => true` and no topic, which is a gate with its two
+        commonest refusals switched off, so "one refusal apart" was a
+        comparison on a gate no learner's line goes through.
+      */
+      const verdict = runGate(answer.text, beat, await routeGate(sceneById(sceneId)!, beat, context.lexicon, context.gate, answer.text));
       if (verdict.failed.length > 0) refused += 1;
       const note = verdict.failed.length > 0 ? `   <gate: ${verdict.failed.join(",")}>` : "";
       console.log(`  ${sceneId}/${beatId}: ${answer.text}${note}`);

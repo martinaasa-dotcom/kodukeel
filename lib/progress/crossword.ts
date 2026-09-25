@@ -7,7 +7,7 @@ import { compile, type Candidate, type Crossword } from "@/lib/games/crossword";
 import { dayOrdinal } from "@/lib/random/dayHash";
 import { dayRng } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import type { DayKey } from "@/lib/time/day";
+import { earliestStartOf, type DayKey } from "@/lib/time/day";
 
 /**
  * WHICH WORDS TODAY'S CROSSWORD IS MADE OF.
@@ -64,7 +64,25 @@ export async function crosswordFor(
     */
     clueClashes(),
   ]);
-  if (rows.length === 0) return null;
+  /*
+    AS THE DICTIONARY STOOD WHEN THE DAY BEGAN. The grid is compiled when the
+    learner opens it and again by `recordCrossword` to mark it, and one word
+    stored in between (a live lookup, a conversation growing the dictionary)
+    reshuffles the whole pool: `sonad.itest.ts` measured a different grid on
+    every one of eight days after one invented word was added at noon. So a row
+    stored after the day began anywhere is not in that day's grid, and one
+    entry per lemma is taken after that rather than before it. A dictionary
+    seeded after the day began falls back to all of it, the same way both times.
+  */
+  const cutoff = earliestStartOf(day).getTime();
+  const settled = rows.filter((row) => row.createdAt.getTime() < cutoff);
+  const perLemma = new Set<string>();
+  const dayRows = (settled.length > 0 ? settled : rows).filter((row) => {
+    if (perLemma.has(row.lemma)) return false;
+    perLemma.add(row.lemma);
+    return true;
+  });
+  if (dayRows.length === 0) return null;
 
   /*
     Seeded on the day's ordinal, so every learner at one level gets one puzzle
@@ -81,7 +99,7 @@ export async function crosswordFor(
     now, with the difference written down where it can be seen.
   */
   const random = dayRng(dayOrdinal(day));
-  const pool: Candidate[] = shuffle(rows, random)
+  const pool: Candidate[] = shuffle(dayRows, random)
     .filter((row) => !clashes.has(clueKey(row.lemma, row.pos)))
     .map((row) => ({
       lemma: row.lemma,
