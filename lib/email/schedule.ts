@@ -417,7 +417,19 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
       the respectful answer and it is also the one that keeps the sign-in links
       landing in an inbox rather than in a spam folder.
     */
-    return allowed(who, "comeback", now)
+    /*
+      AND IT ARRIVES IN THEIR EVENING, WHICH THE SCHEDULE USED TO DECIDE BY
+      ACCIDENT.
+
+      Every other routine letter has an hour; this one had none because the
+      run fired once a day, at 18:00 or 19:00 in Tallinn, and that was the hour
+      it went out. Run hourly, the first run after the fortnight passes would
+      send it, which is as often as not the middle of the night. The evening
+      they used to study in is the hour a letter about coming back to it is
+      read in, so it takes the evening nudge's own window.
+    */
+    const evening = who.localHour >= (who.reminderHour ?? 18) && who.localHour < 22;
+    return evening && allowed(who, "comeback", now)
       ? { kind: "comeback", because: `no review in ${away} days` }
       : worddayOwed(who, now);
   }

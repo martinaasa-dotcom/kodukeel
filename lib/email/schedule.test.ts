@@ -111,7 +111,22 @@ describe("the letter after a gap", () => {
       localWeekday: 0,
       localHour: 10,
     });
-    expect(letterOwed(both, NOW)?.kind).toBe("comeback");
+    // The summary is not sent that morning, and the comeback is the evening's.
+    expect(letterOwed(both, NOW)).toBeNull();
+    expect(letterOwed({ ...both, localHour: 19 }, NOW)?.kind).toBe("comeback");
+  });
+
+  it("arrives in their evening, never in the night an hourly run would reach", () => {
+    /*
+      It had no hour of its own while the run fired once a day, at 18:00 or
+      19:00 in Tallinn. Hourly, the first run past the fortnight would send it,
+      which is as often as not three in the morning.
+    */
+    const away = candidate({ lastReviewAt: daysAgo(AWAY_DAYS + 1) });
+    expect(letterOwed({ ...away, localHour: 3 }, NOW)).toBeNull();
+    expect(letterOwed({ ...away, localHour: 17 }, NOW)).toBeNull();
+    expect(letterOwed({ ...away, localHour: 18 }, NOW)?.kind).toBe("comeback");
+    expect(letterOwed({ ...away, localHour: 22 }, NOW)).toBeNull();
   });
 
   it("is the only letter somebody away ever gets, so nobody is nagged nightly", () => {
@@ -224,7 +239,9 @@ describe("news before asks", () => {
       before they stopped is not the thing to open with.
     */
     const away = morning({ milestoneReached: "A1", lastReviewAt: daysAgo(20) });
-    expect(letterOwed(away, NOW)?.kind).toBe("comeback");
+    // Nothing that morning, and the comeback is the evening's letter.
+    expect(letterOwed(away, NOW)).toBeNull();
+    expect(letterOwed({ ...away, localHour: 19 }, NOW)?.kind).toBe("comeback");
   });
 
   it("does not repeat the same news twice in a morning", () => {
@@ -301,7 +318,8 @@ describe("the errand", () => {
     // Somebody a fortnight away gets the one letter about coming back. Being
     // sent out to talk to a stranger is not what that person needs first.
     const away = morning({ lastReviewAt: daysAgo(20) });
-    expect(letterOwed(away, NOW)?.kind).toBe("comeback");
+    expect(letterOwed(away, NOW)).toBeNull();
+    expect(letterOwed({ ...away, localHour: 19 }, NOW)?.kind).toBe("comeback");
   });
 });
 
