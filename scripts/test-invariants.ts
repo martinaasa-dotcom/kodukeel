@@ -21605,6 +21605,10 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
  * not mention any name the first bound, and never a first statement that is
  * the request itself (`params`, `searchParams`, the session). A nested callback
  * is not a neighbour, so `Promise.all(LEVELS.map(async ...))` is left alone.
+ * Nor is a first statement that writes: a read after a create or an update
+ * needs the write to have landed whether or not it names what the write
+ * returned, and a check that asked for the two at once would be asking for
+ * the read to race its own precondition.
  */
 function independentAwaits(source: string): { line: number; first: string; second: string }[] {
   const statements: { start: number; end: number; names: string[]; text: string }[] = [];
@@ -21635,6 +21639,7 @@ function independentAwaits(source: string): { line: number; first: string; secon
     if (!a) continue;
     if (source.slice(a.end + 1, b.start).trim() !== "") continue;
     if (/\b(?:params|searchParams|requireUserId)\b/.test(a.text)) continue;
+    if (/\.(?:create|createMany|update|updateMany|upsert|delete|deleteMany)\(|\$executeRaw|\$transaction|\bwrite[A-Z]\w*\(/.test(a.text)) continue;
     const rhs = b.text.slice(b.text.indexOf("await"));
     if (a.names.some((n) => new RegExp(`\\b${n.replace(/\$/g, "\\$")}\\b`).test(rhs))) continue;
     out.push({ line: source.slice(0, b.start).split("\n").length, first: a.names.join(","), second: b.names.join(",") });
@@ -21656,6 +21661,8 @@ check("a server page asks two reads that do not need each other at once", () => 
     "the detector fires on a read that needs the one before it");
   assert.equal(independentAwaits("const x = await Promise.all(L.map(async () => { const y = await f(); return y; }));\nconst z = await g();\n").length, 1,
     "the detector reads a nested callback as a neighbour");
+  assert.equal(independentAwaits("const row = await prisma.card.create({ data });\nconst all = await prisma.card.findMany();\n").length, 0,
+    "the detector asks a read to race the write before it");
 
   let scanned = 0;
   const found: string[] = [];
