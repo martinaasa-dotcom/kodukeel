@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { dayClock, isTimeZone, nextCardLine, normaliseZone } from "./day";
+import { dayClock, isTimeZone, nextCardLine, normaliseZone, partsIn, slowPartsIn } from "./day";
 
 /*
   The bug these exist for, stated once.
@@ -184,5 +184,67 @@ describe("nextCardLine", () => {
       .toBe("The next card comes back tomorrow.");
     expect(nextCardLine(soon, evening, dayClock("Europe/London")))
       .toBe("The next card comes back later today.");
+  });
+});
+
+describe("the wall clock is the formatter's answer, whatever the cache holds", () => {
+  /*
+    `partsIn` remembers each zone's offset per UTC quarter hour and does the
+    rest by arithmetic, which took `dayKey` and `hourOf` from most of /progress
+    to a rounding error. Only worth having if it is the same answer, so it is
+    held to `formatToParts` minute by minute around every transition these
+    zones had in three years, which is where an offset cached one quarter too
+    long would show, and at a spread of ordinary instants besides. The zones
+    are chosen for their offsets: whole hours, a half-hour summer time
+    (Lord Howe), quarter hours (Chatham, Kathmandu), a half hour behind UTC
+    (St John's), and the process's own.
+  */
+  const ZONES = [
+    "Europe/Tallinn", "America/Los_Angeles", "Pacific/Chatham", "Australia/Lord_Howe",
+    "Asia/Kathmandu", "America/St_Johns", undefined,
+  ] as const;
+  const from = Date.UTC(2025, 0, 1);
+  const to = Date.UTC(2028, 0, 1);
+  const offsetOf = (ms: number, zone: string | undefined) => {
+    const p = slowPartsIn(new Date(ms), zone);
+    return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
+  };
+
+  it("agrees minute by minute across every transition, in every zone", () => {
+    let transitions = 0;
+    let compared = 0;
+    for (const zone of ZONES) {
+      let before = offsetOf(from, zone);
+      for (let ms = from + 3_600_000; ms < to; ms += 3_600_000) {
+        const now = offsetOf(ms, zone);
+        if (now === before) continue;
+        before = now;
+        transitions += 1;
+        for (let m = ms - 2 * 3_600_000; m <= ms + 2 * 3_600_000; m += 60_000) {
+          for (const at of [m, m + 999, m + 30_000]) {
+            expect(partsIn(new Date(at), zone)).toEqual(slowPartsIn(new Date(at), zone));
+            compared += 1;
+          }
+        }
+      }
+    }
+    // Five of the six named zones keep a summer time, twice a year for three
+    // years; a count that fell would mean the scan stopped finding them.
+    expect(transitions).toBeGreaterThanOrEqual(24);
+    expect(compared).toBeGreaterThan(10_000);
+  });
+
+  it("agrees at ordinary instants across the range", () => {
+    for (const zone of ZONES) {
+      for (let ms = from; ms < to; ms += 7_777_777) {
+        expect(partsIn(new Date(ms), zone)).toEqual(slowPartsIn(new Date(ms), zone));
+      }
+    }
+  });
+
+  it("hands a date that is not one to the formatter rather than inventing parts for it", () => {
+    // Which throws, exactly as it did before there was a cache in front of it.
+    expect(() => slowPartsIn(new Date(Number.NaN), "Europe/Tallinn")).toThrow(RangeError);
+    expect(() => partsIn(new Date(Number.NaN), "Europe/Tallinn")).toThrow(RangeError);
   });
 });
