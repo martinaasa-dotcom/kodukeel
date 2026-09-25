@@ -36,12 +36,57 @@ export const ACTION_LIMITS = {
    * Deepens a batch of the commonest words into every card type they support.
    *
    * Bounded to `COMMON_BATCH` words a press, so one call is about the size of a
-   * course unit. It is here rather than beside `addCommonWords`, which has no
-   * allowance, because that one writes two cheap cards a word and this one
-   * writes every case a noun has: the same press repeated is the expensive
-   * shape, not the single press.
+   * course unit. It writes every case a noun has where `addCommonWords` writes
+   * two cards a word, so it has its own allowance rather than sharing one.
    */
   deepenCommonWords: { perMinute: 12 },
+  /**
+   * A hundred of the commonest words into the deck, two cards apiece.
+   *
+   * It had no allowance, on the argument that two cards a word is cheap. The
+   * cards are the cheap half. `addPlanToDeck` reads every one of the hundred
+   * words with its sentences, builds their cards and filters them against the
+   * deck under the learner's lock on every press, and the dedupe only decides
+   * what is inserted at the end, so the second press costs what the first did
+   * and writes nothing. There are four lists; twelve a minute is never met.
+   */
+  addCommonWords: { perMinute: 12 },
+  /**
+   * The evening's words into the deck, which is the same bulk build on a day's
+   * words. A press per evening, and a module a learner walks through quickly
+   * is still a handful of presses a minute at most.
+   */
+  startCourseDay: { perMinute: 12 },
+  /**
+   * First run's deck, which is up to `MAX_STARTER_UNITS` units in one build and
+   * a dozen settings written beside it.
+   *
+   * This is the one screen where somebody is waiting and inclined to press
+   * again, so the allowance sits well above a nervous double press and far
+   * under a loop. It is charged before anything is written, so a refusal here
+   * really does mean nothing has changed.
+   */
+  completeOnboarding: { perMinute: 6 },
+  /**
+   * A finished lesson: a card write per word the unit teaches, each under its
+   * own lock, then the grades. A lesson takes minutes to sit, so this is a
+   * ceiling nobody sitting one can reach.
+   */
+  completeLesson: { perMinute: 12 },
+  /**
+   * A confirmed page into the deck, a card write per word on it. The same
+   * allowance as `saveScan`, which is the press before it on the same screen.
+   */
+  addScanToDeck: { perMinute: 15 },
+  /**
+   * Handing in a mock paper.
+   *
+   * The expensive part is the rebuild, as it is for `finishScene`: the client
+   * never sends a mark (ADR-022), so the server draws the pool again, a few
+   * thousand ids and then five hundred entries with their forms, and marks
+   * against that. Nobody hands in six papers a minute.
+   */
+  submitExam: { perMinute: 6 },
   /** Writes a lexeme and its principal parts into the shared dictionary. */
   editDictionary: { perMinute: 30 },
   /** Resolves a confirmed page against the dictionary and builds cards. */
@@ -58,6 +103,17 @@ export const ACTION_LIMITS = {
   assignUnit: { perMinute: 10 },
   /** Writes a task per member of a class. */
   assignHomework: { perMinute: 10 },
+  /**
+   * Handing in a mock paper, which rebuilds it on the server to mark it.
+   *
+   * The rebuild is the cost: the level's eligible ids, five hundred entries
+   * with their forms and sentences, the word-order reads and the learner's own
+   * cards, because the client never sends a mark (ADR-022). A seed already
+   * handed in writes nothing new, but it still pays for the rebuild, and a seed
+   * the caller invents is a new sitting. A real paper takes the best part of
+   * two hours, so six a minute is a double press with room to spare.
+   */
+  submitExam: { perMinute: 6 },
   /** Parses and writes a whole backup: the most expensive call in the app. */
   restoreBackup: { perMinute: 4 },
   /**

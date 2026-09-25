@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
-import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay } from "@/lib/progress/course";
+import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay, ladderReading } from "@/lib/progress/course";
 import { recordCourseLevel } from "@/lib/progress/level";
 import { dayClock } from "@/lib/time/day";
 
@@ -464,5 +464,28 @@ describe("the closing round's own counter", () => {
     await review(2, new Date(at.getTime() + 60_000));
     await scheduleAway(two);
     expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
+  });
+});
+
+/*
+  "RIGHT" IS WHAT EVERY OTHER READING IN THIS APP CALLS RECALLED, which is Good
+  or Easy. Hard is what a hint, a slip or the right word in the wrong ending is
+  graded, and the hand-off counted it as right, so a fortnight of near misses
+  read as a fortnight of perfect answers and the part was handed on.
+*/
+describe("the reading at the hand-off", () => {
+  it("does not count a Hard answer as right", async () => {
+    await deck(PROGRAMME.days[0]!.words, 2);
+    const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+    for (let i = 0; i < 40; i += 1) {
+      await prisma.review.create({
+        data: {
+          ownerId: OWNER, cardId: card!.id, lexemeId: card!.lexemeId,
+          rating: i < 20 ? 3 : 2, durationMs: 4000, reviewedAt: new Date(EVENING.getTime() + i * 1000),
+        },
+      });
+    }
+    const verdict = await ladderReading(OWNER, PROGRAMME, NOW);
+    expect(verdict).toEqual({ kind: "hold", because: "accuracy", seen: 0.5, bar: 0.7 });
   });
 });

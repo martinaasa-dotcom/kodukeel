@@ -80,7 +80,13 @@ export interface ChoiceInput {
 export function choiceOf(input: ChoiceInput): string | null {
   const options = optionsFor(input);
   if (options.length < OPTIONS) return null;
-  const [first, second] = input.roll % 2 === 0 ? options : [options[1]!, options[0]!];
+  /*
+    A greeting or a farewell beat names whole phrases, `Tere!` and `Head
+    aega!`, and joining those as they are printed `Tere! või Tere hommikust!?`.
+    The line ends in one question mark, so each option's own closing mark goes.
+  */
+  const bare = options.map((option) => option.replace(/[.!?]+$/, ""));
+  const [first, second] = input.roll % 2 === 0 ? bare : [bare[1]!, bare[0]!];
   const line = `${first} ${CHOICE_WORD} ${second}`;
   return `${line.charAt(0).toUpperCase()}${line.slice(1)}?`;
 }

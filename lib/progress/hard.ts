@@ -16,11 +16,11 @@ import { HARD_LEARNERS, tooHardForEveryone } from "@/lib/srs/defer";
  *
  * TWO QUERIES AND THE SECOND ONE IS THE POINT. The first groups `Deferral`,
  * which holds one row per learner per word, so its count is people, and only
- * people who have graded a card (`votesFor`). That gives
- * a handful of candidates. The second asks `Card` how many learners hold each
- * of *those* words, which is the denominator `tooHardForEveryone` needs and
- * which is only cheap because the candidate list is short and `Card` is
- * indexed on `lexemeId`.
+ * people who have graded a card (`votesFor`). That gives a handful of
+ * candidates. The second asks how many learners met each of *those* words, by
+ * a card or by having put it aside, which is the denominator
+ * `tooHardForEveryone` needs and which is only cheap because the candidate
+ * list is short and both tables are indexed on `lexemeId`.
  *
  * AND "SHORT" IS A CAP RATHER THAN A HOPE. The candidate list is whatever
  * `HARD_LEARNERS` lets through, which is a number about people and says
@@ -33,7 +33,15 @@ import { HARD_LEARNERS, tooHardForEveryone } from "@/lib/srs/defer";
  * problem rather than a query problem.
  */
 
-/** People holding a card for each of these words. The denominator. */
+/**
+ * People who met each of these words. The denominator.
+ *
+ * A card, or a press of "Too complicated", whichever came first. The unit
+ * lesson puts a word aside before any card for it exists, so counting card
+ * holders alone put those learners on top of the share and never under it:
+ * the share could pass one, and a word refused only in lessons had no holders
+ * at all and could never move however many people refused it.
+ */
 async function holdersOf(ids: readonly string[]): Promise<Map<string, number>> {
   if (ids.length === 0) return new Map();
   /*
@@ -43,11 +51,16 @@ async function holdersOf(ids: readonly string[]): Promise<Map<string, number>> {
     candidate at once.
   */
   const rows = await prisma.$queryRaw<{ lexemeId: string; learners: number }[]>`
-    SELECT c."lexemeId" AS "lexemeId",
-           COUNT(DISTINCT c."ownerId")::int AS "learners"
-    FROM "Card" c
-    WHERE c."lexemeId" IN (${Prisma.join([...ids])})
-    GROUP BY c."lexemeId"
+    SELECT met."lexemeId" AS "lexemeId",
+           COUNT(DISTINCT met."ownerId")::int AS "learners"
+    FROM (
+      SELECT c."lexemeId", c."ownerId" FROM "Card" c
+      WHERE c."lexemeId" IN (${Prisma.join([...ids])})
+      UNION
+      SELECT d."lexemeId", d."ownerId" FROM "Deferral" d
+      WHERE d."lexemeId" IN (${Prisma.join([...ids])})
+    ) met
+    GROUP BY met."lexemeId"
   `;
   return new Map(rows.map((row) => [row.lexemeId, row.learners]));
 }

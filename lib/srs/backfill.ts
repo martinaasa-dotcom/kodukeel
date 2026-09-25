@@ -83,10 +83,16 @@ export async function backfillClozeCards(
     await lockDeck(tx, ownerId);
     const [already, held] = await Promise.all([
       tx.card.count({ where: { ownerId, lexemeId, cardType: "CLOZE" } }),
+      /*
+        A word the learner put aside keeps waiting. Its existing cards were
+        pushed to the date the deferral wrote, and a gap-fill dated now would
+        bring the word back on the next review, from a dictionary render.
+        Dated on the deferral instead, so the undo and the level wake, which
+        both match on that date, take it back with the rest.
+      */
       deferredDues(tx, ownerId, [lexemeId], now),
     ]);
     if (already > 0) return 0;
-    const due = held.get(lexemeId) ?? scheduling.due;
     await tx.card.createMany({
     data: generated.map((c) => ({
       ownerId,
@@ -98,7 +104,7 @@ export async function backfillClozeCards(
       targetCase: c.targetCase,
       slot: c.slot,
       source,
-      due,
+      due: held.get(lexemeId) ?? scheduling.due,
       stability: scheduling.stability,
       difficulty: scheduling.difficulty,
       state: scheduling.state,
