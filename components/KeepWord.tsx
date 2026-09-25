@@ -35,7 +35,13 @@ import { DeckChoiceList, useDeckChoice } from "@/components/DeckChoice";
  */
 export function useKeepWord(
   lexemeId: string | null,
-  keep: (deckIds: string[] | undefined) => Promise<void>,
+  /**
+   * The write, handed the shelves chosen and their names. The names come in
+   * as an argument rather than off `choice`, because a callback reading the
+   * hook's own return value reads a variable declared after it, which is
+   * what `react-hooks/immutability` refuses.
+   */
+  keep: (deckIds: string[] | undefined, shelves: string[]) => Promise<void>,
 ) {
   const [asking, setAsking] = useState(false);
   const [pending, start] = useTransition();
@@ -59,14 +65,16 @@ export function useKeepWord(
   const press = () => {
     if (asking) {
       start(async () => {
-        await keep(choice.argument);
+        const chosen = choice.argument;
+        const shelves = choice.decks?.filter((d) => chosen?.includes(d.id)).map((d) => d.name) ?? [];
+        await keep(chosen, shelves);
         setAsking(false);
       });
       return;
     }
     start(async () => {
       const available = await choice.ensure();
-      if (available.length === 0) { await keep(undefined); return; }
+      if (available.length === 0) { await keep(undefined, []); return; }
       setAsking(true);
     });
   };
