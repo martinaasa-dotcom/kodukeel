@@ -208,9 +208,9 @@ MB. One spoken phrase as stored is 51 KB. Loading the whole dictionary into an e
 takes 3.4 seconds. Vendor prices carry the page they came off and the day it was read, and the
 euro to dollar rate is the European Central Bank's own reference rate with its date.
 
-Run over the scale ladder with the tutor on the model it answers on, the monthly bill is $300.86 at
-one learner, $302.05 at a hundred, $429.46 at ten thousand and $2,123.41 at a hundred thousand, which
-is $3.02 per learner per month at a hundred falling to 2.1 cents. At ten thousand and above the app's
+Run over the scale ladder with the tutor on the model it answers on, the monthly bill is $299.27 at
+one learner, $300.46 at a hundred, $427.87 at ten thousand and $2,121.82 at a hundred thousand, which
+is $3.00 per learner per month at a hundred falling to 2.1 cents. At ten thousand and above the app's
 own daily cap on model spending is what holds the tutor line down. At a hundred thousand learners the value of what is given to this app, priced at Amazon
 Polly's published neural rate purely to show its size, is $2,880 a month and exceeds every billed
 line put together. No free vendor tier is modelled anywhere, because a free plan pauses when nobody

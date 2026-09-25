@@ -6974,6 +6974,7 @@ check("every environment variable the app reads is in .env.example", () => {
     assert.ok(read_.has(name), `${name} is exempt and nothing reads it any more`);
     assert.ok(!documented.has(name), `${name} is exempt and also documented`);
     assert.ok(why.length > 20, `${name} is exempt with no reason`);
+  }
 });
 
 /**

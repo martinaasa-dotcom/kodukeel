@@ -53,7 +53,7 @@ export const dynamic = "force-dynamic";
  *
  * THAT FIRST FIGURE READ "ABOUT FORTY-SIX DOLLARS" UNTIL A GRANT CASE WAS
  * WRITTEN OFF THIS PAGE AND THE NUMBERS WERE RUN AGAIN. `billFor` at one
- * learner is 300.86 with the tutor on the model it answers on, which is what
+ * learner is 299.27 with the tutor on the model it answers on, which is what
  * CLAUDE.md has said all along. Forty-six is
  * close to what the retrenchment ladder now calls Lights on, 45, which is the
  * bill with nobody paid, no tooling and the tutor switched off. Those are two
