@@ -17005,6 +17005,8 @@ check("every screen that keeps a word asks which shelf, through one press", () =
 
   const keepers = ALL.filter(
     (file) => file !== DICTIONARY && file !== PRESS && file !== join("app", "actions.ts")
+      // A test calls the action to check it and is not a screen anybody keeps a word on.
+      && !/\.i?test\.tsx?$/.test(file)
       && /\baddToDeck\(/.test(code(file)),
   );
   assert.ok(keepers.length >= 6, `only ${keepers.length} screens keep a word, so this check has stopped looking`);
@@ -17025,7 +17027,8 @@ check("every screen that keeps a word asks which shelf, through one press", () =
 });
 
 check("a word is favourited by one button, and the toggle has one caller", () => {
-  const callers = ALL.filter((file) => /\btoggleStar\b/.test(code(file)));
+  // A test calls the action to check it and is not a screen that draws a star.
+  const callers = ALL.filter((file) => !/\.i?test\.tsx?$/.test(file) && /\btoggleStar\b/.test(code(file)));
   assert.deepEqual(
     callers.sort(),
     [join("app", "actions.ts"), join("components", "StarWord.tsx")].sort(),

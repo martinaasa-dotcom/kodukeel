@@ -75,7 +75,7 @@ export function StarWord({
         const next = !on;
         setOn(next);
         start(async () => {
-          const result = await toggleStar(lexemeId).catch(() => null);
+          const result = await toggleStar(lexemeId, next).catch(() => null);
           setOn(result?.ok ? result.starred : !next);
         });
       }}
