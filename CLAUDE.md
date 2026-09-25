@@ -6817,6 +6817,20 @@ not fire. And `exceptions.ts` was said to hold no Estonian letter while nothing 
 reads what the prose says, and each was made to fail on a planted fault first. When you write
 "asserted" here, open the check and read what it actually asserts.
 
+**And the second half of this file had the same fault, two of them matching nothing at all.** The
+check that a suite invents the word it writes had read string literals since the fixtures moved
+their words into named constants, so it found no fixture and passed on every run, which is how the
+`tuba` fault it was written for could have come back unseen. The merge-ritual check searched
+`scripts/` including the invariants file, which quotes most markers itself, so a marker could leave
+the app and still be found; read as code and as whole words, it named `decoyGlosses`, renamed long
+ago. `spokenText` was said to be asserted over every sentence the app speaks and was asserted over
+seventeen, and a dropped final letter passes the seventeen. The `answerShown`, the gate's stretch
+budget, Today's one round and the per-learner caps were claimed and not asked; the pure layers were
+read one directory deep; the skip rule missed the smoke suites; and the cache rule missed a GET
+answering through `Response.json`. Each was made to fail on a planted fault first, and one widening
+was reverted rather than kept: holding the raw mint and peach to the verdict rule fired on the
+sprint clock and on start screens, which the design system allows.
+
 **A browser refusing to autoplay is a fact about the gesture, and one module knows it.** Every
 browser blocks `HTMLAudioElement.play()` on a page the reader has not touched yet and rejects it
 with a `NotAllowedError`: the clip is in hand, the service answered, and the same call on a press is
@@ -7000,7 +7014,7 @@ with less than `LEAD_MS` in front of its word is padded rather than trusted, whi
 useful shape for a rule that may never fail on any one word: the guarantee no longer depends on what
 the recording contained. 120 ms, since every millisecond of it is a millisecond between the press
 and the word, and the trail stays the longer of the two because a final `s` falls away slowly.
-**Not one sample of the word pays for it**, asserted against the real clips: what is cut is whole
+**Not one sample of the word pays for it**, asserted against a clip shaped the way TartuNLP returns one (`tartuLike`, a padded tone, since no real recording is committed): what is cut is whole
 frames the floor called silence, what is added is zeros, and the ramp at each seam sits on the frame
 *outside* the speech rather than on its first six milliseconds, or this would cause the fault it
 exists to prevent. `lib/audio/stretch.ts` marks the lead and the trail as padding and leaves them
@@ -7051,7 +7065,8 @@ three fetches made one request, and the second and third were served from the br
 *after* everything `forgetThisDevice` clears had been cleared, so signing out on a shared laptop
 left the last person's card one fetch away. `/api/export` and `/api/reminder` sent no freshness
 directive at all, and the export is every review, every conversation with Anu and every exam
-composition somebody has written. Every owner-scoped route says `no-store` now, and the two shapes
+composition somebody has written. Every owner-scoped route that answers a GET says `no-store` now,
+however it builds the body (a POST is cached by nothing unless told to), and the two shapes
 a shared cache would otherwise keep, a download and a picture, say `private` and vary on the
 cookie that chose them. Asserted, because the next such route inherits the same silence.
 
@@ -8441,9 +8456,9 @@ word list is the units a scene declares, and it was also deciding whether a *tur
 all: a bus window that does not declare the shopping unit read `sularahaga` as nothing anybody could
 make out and answered "I did not catch that", to somebody who had said "with cash" in a word the
 course teaches. The marker asks `courseForms`, a fact about the shared dictionary cached beside the
-others, one read a minute per instance; the gate and retrieval keep the scene's own list, asserted,
-because a model composing inside the whole course writes lines the learner has not been taught to
-read. The course rather than the dictionary, 1,400 entries against 6,110, because those are the
+others, one read a minute per instance; retrieval and the gate's `stretch` budget keep the scene's own
+list, asserted, because a model composing inside the whole course writes lines the learner has not
+been taught to read (the gate's vouching has since widened to the forms list, below). The course rather than the dictionary, 1,400 entries against 6,110, because those are the
 words somebody could have been taught. **A real word is never read as a slip of the pen for
 another**: `valutab` is the third person of a verb the course teaches and was read as a typo of
 `valuta`, so the review told a learner the word they got right is said some other way. **A wrong
