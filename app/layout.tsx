@@ -1,21 +1,40 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Onest } from "next/font/google";
 import { OfflineProvider } from "@/components/OfflineProvider";
 import { canonicalOrigin } from "@/lib/auth/canonical";
 import "./globals.css";
 
 /**
- * Plus Jakarta Sans, for all of it. Estonian used to be set in a second face,
- * which meant a card asking "Which word is this?" in one typeface and offering
- * its four answers in another, on most screens in the app.
+ * Onest for all of the reading, Bricolage Grotesque for the few words set large.
  *
- * latin-ext is not optional here: without it õ ä ö ü š ž fall back to a
+ * Onest carries Cyrillic as well as Latin Extended, and that decided it: most
+ * people learning Estonian here read Russian or Ukrainian first, and an
+ * interface in either would otherwise fall back to a different face mid-page.
+ * It was Plus Jakarta Sans, which is also the face of a great many product
+ * templates, and a page that looks like a template is read like one.
+ *
+ * Bricolage Grotesque is for display sizes alone (`--font-display`): it has an
+ * optical size axis, so a headline at 88px is drawn tighter and more
+ * characterful than the same face would be at 17px, and it is what gives the
+ * front of the app a voice of its own. It has no Cyrillic, so the stack falls
+ * back to Onest for a headline in Russian rather than to a system face.
+ *
+ * latin-ext is not optional in either: without it õ ä ö ü š ž fall back to a
  * different face mid-word, which is the fault this rule exists to prevent.
+ * Estonian and the English around it stay in one face, since a prompt in one
+ * typeface and its four answers in another is most of this app.
  */
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-jakarta",
+const onest = Onest({
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  variable: "--font-onest",
   display: "swap",
+});
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-bricolage",
+  display: "swap",
+  axes: ["opsz", "wdth"],
 });
 
 export const metadata: Metadata = {
@@ -129,9 +148,9 @@ const THEME_SCRIPT =
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // The font variable goes on <html>, not <body>: `--font-sans` is declared on
-    // :root and references `--font-jakarta`, and a custom property is
+    // :root and references `--font-onest`, and a custom property is
     // substituted where it is *declared*, so the face has to be in scope there.
-    <html lang="en" className={jakarta.variable} suppressHydrationWarning>
+    <html lang="en" className={`${onest.variable} ${bricolage.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>

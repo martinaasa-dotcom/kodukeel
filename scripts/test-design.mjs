@@ -299,8 +299,24 @@ check("every run of text clears WCAG AA on its background", contrast.length === 
 check("weights stay within the four the system defines", weights.size <= 4,
   [...weights.keys()].join(" "));
 
-// Radii: the four tokens, fully-round pills, circles, and the heatmap cell.
-const ALLOWED_RADII = new Set(["10px", "16px", "22px", "30px", "50%", "2px", "8px", "0px"]);
+/*
+  Radii: the tokens, fully-round pills, circles, and the heatmap cell.
+
+  Read off the running page for the reason the type scale is: this was a
+  second list of what the radii are, and the first time they were retuned it
+  called every card off-scale while the stylesheet was right. `--r-*` are the
+  app's own four and `--radius-*` are Tailwind's names mapped onto them.
+*/
+const TOKEN_RADII = await p.evaluate(() => {
+  const cs = getComputedStyle(document.documentElement);
+  return ["--r-sm", "--r", "--r-lg", "--r-xl", "--radius-sm", "--radius-md", "--radius-lg", "--radius-xl", "--radius-2xl"]
+    .map((name) => cs.getPropertyValue(name).trim())
+    .filter(Boolean);
+});
+if (TOKEN_RADII.length < 4) {
+  throw new Error(`the page declares ${TOKEN_RADII.length} radius tokens: --r-* stopped reaching :root`);
+}
+const ALLOWED_RADII = new Set([...TOKEN_RADII, "50%", "2px", "0px"]);
 const strayRadii = [...radii.keys()].filter((r) => !ALLOWED_RADII.has(r) && parseFloat(r) < 1000);
 check("corners come from the four token radii", strayRadii.length === 0, strayRadii.join(" "));
 
