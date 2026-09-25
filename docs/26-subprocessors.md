@@ -3,7 +3,7 @@
 **Controller.** Upthink Solutions OÜ, registry code 16683946, Aiandi tn 8/2-28, Mustamäe linnaosa,
 12915 Tallinn, Harju maakond, Estonia. Contact: privacy@upthink.ee.
 
-**Written 5 September 2026.** Reviewed with `docs/24-dpia.md`.
+**Written 5 September 2026, revised 25 September 2026.** Reviewed with `docs/24-dpia.md`.
 
 ## The list is generated, so this page and the app cannot quietly disagree
 
@@ -27,7 +27,7 @@ Two properties of that module are worth stating, because they are what makes the
 
 ## Conditional on configuration
 
-Only two entries below are unconditional. The rest appear when a deployment sets a variable, which
+Only one entry below is unconditional. The rest appear when a deployment sets a variable, which
 is why the running app generates its own list rather than inheriting this one.
 
 | Recipient | Appears when |
@@ -37,7 +37,9 @@ is why the running app generates its own list rather than inheriting this one.
 | Ekilex | `EKILEX_API_KEY` is set |
 | An AI provider, one entry per provider in the chain | That provider's key is set. With none set the tutor and the page scanner do not exist |
 | Supabase | `NEXT_PUBLIC_SUPABASE_URL` is set. With no Supabase keys the app runs as a single local learner (ADR-013) |
+| Resend | `RESEND_API_KEY` is set |
 | An error reporting endpoint | `ERROR_WEBHOOK_URL` is set |
+| Vercel | `VERCEL` is `1`, which the platform sets itself |
 
 ## The register
 
@@ -68,7 +70,6 @@ label rather than per model.
 
 | Provider | Where established | On the EEA list |
 | --- | --- | --- |
-| OpenRouter | United States | Outside |
 | Groq | United States | Outside |
 | Google Gemini | United States | Outside |
 | Anthropic | United States | Outside |
@@ -158,13 +159,37 @@ generated list for that reason.
 
 **Role.** Processor, of the operator's choosing.
 
+### Resend
+
+**Conditional**, on `RESEND_API_KEY`.
+
+**What it processes.** The learner's email address, and whatever a letter to them says about their
+own course: a sign-in link, a reminder, a milestone. Named whenever the transport is configured
+rather than whenever a letter is sent, because the question a reader is asking is who their address
+could reach.
+
+**Where established.** United States. Outside the EEA.
+
+**Safeguard.** Resend's own data processing addendum and the standard contractual clauses.
+
+**Role.** Processor.
+
 ### The hosting platform
 
-The deployment runs on Vercel, which is established in the United States. It is not on the generated
-recipients list, and that is a gap worth naming rather than hiding: the list is built from the
-services the application code calls, and the platform serving the code is not one of them. What it
-necessarily handles is request metadata, which for a signed-in request includes the session cookie.
-Vercel's own data processing addendum and the standard contractual clauses are the safeguard. An
+**Conditional**, on `VERCEL`, which the platform sets itself. The list is built from the services
+the application code calls, and the machine the code runs on is not one of those, so it was once the
+one recipient the generated list could not name. `resolveRecipients` names it now wherever somebody
+else owns the machine. Self-hosted, the operator at the top of `/privacy` is the host, and listing
+them as a recipient of their own data would be noise.
+
+**What it processes.** Every request while it is being answered, and a request log carrying the
+client's address. For a signed-in request that includes the session cookie.
+
+**Where established.** United States. Outside the EEA. `vercel.json` pins the functions beside the
+database, so a European deployment is answered in Europe, but Article 44 asks where the company is
+established rather than where the machine is.
+
+**Safeguard.** Vercel's own data processing addendum and the standard contractual clauses. An
 operator hosting this elsewhere substitutes their own platform here.
 
 **Role.** Processor.
@@ -177,9 +202,6 @@ operator hosting this elsewhere substitutes their own platform here.
   recipients list did not name it.
 - **No advertising network, no data broker, no enrichment service.** Nothing is sold and nothing is
   used to train a model by us.
-- **No email provider is currently configured for transactional mail.** The README notes that
-  Supabase's built-in sender is for testing and that a deployment telling anybody about itself needs
-  its own. If one is configured, it belongs on this page and on the generated list.
 - **Whoever receives a research file.** The output of `/api/research` is anonymous information under
   Recital 26, so its recipient is not a recipient of personal data. `docs/19-research-export.md` is
   what to read before sending one to anybody.
