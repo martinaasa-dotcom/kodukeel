@@ -16,6 +16,12 @@ const LEX = buildLexicon([
   { lemma: "tuba", pos: "NOUN", cefr: "A1", usages: [], parts: { NOM_SG: "tuba", GEN_SG: "toa", PART_SG: "tuba" } },
   { lemma: "valu", pos: "NOUN", cefr: "A2", usages: [], parts: { NOM_SG: "valu", GEN_SG: "valu", PART_SG: "valu" } },
   { lemma: "palavik", pos: "NOUN", cefr: "A2", usages: [], parts: { NOM_SG: "palavik", GEN_SG: "palaviku", PART_SG: "palavikku" } },
+  { lemma: "valutama", pos: "VERB", cefr: "A2", usages: [], parts: { INF_MA: "valutama" } },
+  { lemma: "sobima", pos: "VERB", cefr: "A2", usages: [], parts: { INF_MA: "sobima" } },
+  { lemma: "jah", pos: "ADVERB", cefr: "A1", usages: [], parts: {} },
+  { lemma: "ei", pos: "ADVERB", cefr: "A1", usages: [], parts: {} },
+  { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
+  { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
 ]);
 
 const BEAT: BeatSpec = {
@@ -30,6 +36,21 @@ describe("narrowing a question to two", () => {
   it("offers two of the beat's own words, both of which are right", () => {
     const said = choiceOf({ beat: BEAT, card: CARD, lexicon: LEX, roll: 0 });
     expect(said).toBe(`Valu ${CHOICE_WORD} palavik?`);
+  });
+
+  /*
+    A greeting beat names whole phrases, and joined as printed they came out
+    `Tere! või Tere hommikust!?`. A greeting is said rather than chosen, so
+    the two are one thing said two ways and no choice is built from them: the
+    beat falls to the app's hint instead.
+  */
+  it("offers no choice between two ways of saying one greeting", () => {
+    const lex = buildLexicon([
+      { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
+      { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
+    ]);
+    const greet = { ...BEAT, move: "greet" as const, needs: [{ kind: "lemma" as const, oneOf: ["Tere!", "Tere hommikust!"] }] };
+    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBeNull();
   });
 
   /*
@@ -89,6 +110,25 @@ describe("narrowing a question to two", () => {
     const said = choiceOf({ beat: BEAT, card: CARD, lexicon: LEX, roll: 0 })!;
     for (const word of said.replace("?", "").toLowerCase().split(" ")) {
       expect(word === CHOICE_WORD || LEX.forms.has(word), word).toBe(true);
+    }
+  });
+
+  /*
+    A CHOICE IS TWO OF ONE KIND OF THING. Taking a beat's first two words put
+    `Valu või valutama?`, `Sobima või jah?` and `Tere või Tere hommikust?` on
+    screen: one thing in two word classes, a verb and a yes, and one greeting
+    said two ways. Two nouns, two adjectives or two pronouns is what a person
+    at a counter offers, and a beat with no such pair gets the app's hint.
+  */
+  it("passes over a word of another kind to find two of one", () => {
+    const beat: BeatSpec = { ...BEAT, needs: [{ kind: "lemma", oneOf: ["valu", "valutama", "palavik"] }] };
+    expect(choiceOf({ beat, card: CARD, lexicon: LEX, roll: 0 })).toBe(`Valu ${CHOICE_WORD} palavik?`);
+  });
+
+  it("offers no verbs, no phrases and no uninflected words as a choice", () => {
+    for (const oneOf of [["sobima", "valutama"], ["Tere!", "Tere hommikust!"], ["jah", "ei"], ["sobima", "jah"]]) {
+      const beat: BeatSpec = { ...BEAT, needs: [{ kind: "lemma", oneOf }] };
+      expect(choiceOf({ beat, card: CARD, lexicon: LEX, roll: 0 }), oneOf.join(" ")).toBeNull();
     }
   });
 });
