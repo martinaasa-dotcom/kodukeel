@@ -710,8 +710,17 @@ export async function createLexeme(input: {
   });
   if (existing) return { ok: true as const, id: existing.id, existed: true };
 
-  const lexeme = await prisma.lexeme.create({
-    data: {
+  /*
+    `createMany` with `skipDuplicates` rather than `create`, because the read
+    above is not a guard: two presses in two tabs, or two learners keeping the
+    same word Anu offered, both find nothing and the second `create` was
+    refused on `(lemma, pos)` with an error. Here the loser writes nothing and
+    reads back the entry the winner made, which is what the read above would
+    have told it a moment later.
+  */
+  const written = await prisma.lexeme.createMany({
+    skipDuplicates: true,
+    data: [{
       lemma, translation, pos: input.pos,
       cefr: input.cefr || null,
       /*
@@ -736,8 +745,13 @@ export async function createLexeme(input: {
       provenance: "AI",
       editedBy: ownerId,
       editedAt: new Date(),
-    },
+    }],
   });
+  const lexeme = await prisma.lexeme.findUniqueOrThrow({
+    where: { lemma_pos: { lemma, pos: input.pos } },
+    select: { id: true },
+  });
+  if (written.count === 0) return { ok: true as const, id: lexeme.id, existed: true };
   revalidatePath("/dictionary");
   return { ok: true as const, id: lexeme.id, existed: false };
 }
