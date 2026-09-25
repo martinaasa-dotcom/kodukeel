@@ -113,6 +113,41 @@ describe("gapForms", () => {
     });
     expect(forms.get("toas")).toBe("INESSIVE");
   });
+
+  /*
+    AND THE SEED WRITES THAT ROW WITH NO morphCode AT ALL. `prisma/seed.ts`
+    stores a harvested extra form as `formType: "EKILEX:<code>"` and nothing
+    else, so reading `morphCode` alone named the case on a live Ekilex lookup
+    and on no seeded install: measured over the shipped harvest, 399 spellings
+    across 376 entries had a case one way and none the other. The test above
+    only ever built the live shape, which is why nothing said so.
+  */
+  it("names the same slot whichever shape the row arrived in", () => {
+    const seeded = gapForms({
+      ...TUBA,
+      forms: [...TUBA.forms, { formType: "EKILEX:SgIn", value: "toas" }],
+    });
+    expect(seeded.get("toas")).toBe("INESSIVE");
+  });
+
+  /*
+    And a plural names no case. `caseFromMorphCode` reads `SgKom` and `PlKom`
+    alike as the kaasaütlev, "ignoring number" by its own comment, so a stored
+    plural claimed the singular case beside it and a card cut on it would write
+    that into `Review.slot`. The module's own rule is that exactly one slot
+    claims a spelling or none is named; a plural is still hideable, and still
+    in the map, it just says nothing it cannot back.
+  */
+  it("keeps a plural hideable and names no case for it", () => {
+    for (const morphCode of ["PlKom", null]) {
+      const forms = gapForms({
+        ...TUBA,
+        forms: [...TUBA.forms, { formType: "EKILEX:PlKom", value: "tubadega", morphCode }],
+      });
+      expect(forms.has("tubadega"), `${morphCode ?? "seeded"} dropped the spelling`).toBe(true);
+      expect(forms.get("tubadega"), `${morphCode ?? "seeded"} named a case for a plural`).toBeNull();
+    }
+  });
 });
 
 describe("twinsOf", () => {

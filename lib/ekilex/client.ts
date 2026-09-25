@@ -109,10 +109,23 @@ async function call<T>(path: string): Promise<T | null> {
 }
 
 export async function searchEkilex(query: string): Promise<EkilexWordSummary[]> {
+  return (await searchEkilexAnswered(query)) ?? [];
+}
+
+/**
+ * The same search, with "Ekilex did not answer" kept apart from "Ekilex holds
+ * nothing". `searchEkilex` folds both into an empty list, which is right for a
+ * search box falling back to the local dictionary and wrong for anything that
+ * reports what Ekilex holds: `npm run audit:homonyms`, run with no key or
+ * against a refusal, printed "no Ekilex homonym has those parts, so the page
+ * is the one that is wrong" about `laid`, whose homonym 192289 has exactly
+ * the page's parts. A refusal is not a miss.
+ */
+export async function searchEkilexAnswered(query: string): Promise<EkilexWordSummary[] | null> {
   const data = await call<{ words?: EkilexWordSummary[] }>(
     `/word/search/${encodeURIComponent(query)}/${DATASETS}`,
   );
-  return (data?.words ?? []).filter((w) => w.lang === "est");
+  return data ? (data.words ?? []).filter((w) => w.lang === "est") : null;
 }
 
 /**
@@ -153,6 +166,64 @@ export function primarySemanticTypes(
   return [];
 }
 
+/**
+ * THE INSTITUTE'S RUSSIAN AND UKRAINIAN FOR A WORD, OFF ITS OWN RESPONSE.
+ *
+ * `MEANING_WORD` is the synonym that *is* this meaning in that language; the
+ * other synonym kinds are relations between meanings rather than the word a
+ * learner wants on a card. `wordValue` is the plain spelling, where
+ * `wordValuePrese` carries Ekilex's own `<eki-stress>` markup for a rendering
+ * this app does not do.
+ *
+ * EVERY SENSE RATHER THAN THE PRIMARY ONE, which is the opposite of
+ * `primarySemanticTypes` above and is deliberate. That one answers a question
+ * with one right answer, which case set a word takes, so a later sense's code
+ * is a wrong claim about the word and the union drills a river as a person.
+ * This answers "what do they call this in Russian", where a second equivalent
+ * off a later sense is more of the same fact rather than a contradiction of
+ * it, and the two writers that already fill these columns both read every
+ * lexeme. A reading that narrowed here would disagree with the harvest about
+ * words the harvest has already written.
+ *
+ * Exported for `primarySemanticTypes`'s reason: two scripts and this mapper
+ * read the same field off their own cached copies of this response, and a
+ * second reading of somebody else's JSON is where the readings stop agreeing.
+ */
+export function equivalentsFrom(
+  lexemes: readonly {
+    synonymLangGroups?: {
+      lang?: string;
+      synonyms?: { type?: string; words?: { wordValue?: string }[] }[];
+    }[];
+  }[] | undefined,
+): { rus: string[]; ukr: string[] } {
+  const out: { rus: string[]; ukr: string[] } = { rus: [], ukr: [] };
+  for (const lexeme of lexemes ?? []) {
+    for (const group of lexeme.synonymLangGroups ?? []) {
+      const into = group.lang === "rus" ? out.rus : group.lang === "ukr" ? out.ukr : null;
+      if (!into) continue;
+      for (const synonym of group.synonyms ?? []) {
+        if (synonym.type !== "MEANING_WORD") continue;
+        for (const word of synonym.words ?? []) {
+          const value = word.wordValue?.trim();
+          if (value && !into.includes(value)) into.push(value);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * The equivalents as the dictionary stores them: one comma-separated line, or
+ * null where Ekilex records none. One spelling for every writer of the two
+ * columns, so an entry repointed by a homonym pin reads exactly like one
+ * filled by the translation harvest.
+ */
+export function equivalentsText(words: readonly string[]): string | null {
+  return words.length > 0 ? words.join(", ") : null;
+}
+
 export async function fetchEkilexDetails(wordId: number): Promise<EkilexDetails | null> {
   const data = await call<RawDetails>(`/word/details/${wordId}`);
   if (!data?.word) return null;
@@ -160,7 +231,7 @@ export async function fetchEkilexDetails(wordId: number): Promise<EkilexDetails 
   const definitions: string[] = [];
   const governments: string[] = [];
   const usages: string[] = [];
-  const translations: { rus: string[]; ukr: string[] } = { rus: [], ukr: [] };
+  const translations = equivalentsFrom(data.lexemes);
   let cefr: string | null = null;
 
   for (const lexeme of data.lexemes ?? []) {
@@ -179,26 +250,6 @@ export async function fetchEkilexDetails(wordId: number): Promise<EkilexDetails 
       if (u.lang !== "est" || u.public === false) continue;
       const value = u.value?.trim();
       if (value && !usages.includes(value)) usages.push(value);
-    }
-    /*
-      The equivalents in the other languages of the country. `MEANING_WORD` is
-      the synonym that *is* this meaning in that language; the other kinds are
-      relations between meanings and are not what a learner wants on a card.
-      `wordValue` is the plain spelling, where `wordValuePrese` carries
-      Ekilex's own `<eki-stress>` markup for a rendering this app does not do.
-    */
-    for (const group of lexeme.synonymLangGroups ?? []) {
-      const into = group.lang === "rus" ? translations.rus
-        : group.lang === "ukr" ? translations.ukr
-        : null;
-      if (!into) continue;
-      for (const synonym of group.synonyms ?? []) {
-        if (synonym.type !== "MEANING_WORD") continue;
-        for (const word of synonym.words ?? []) {
-          const value = word.wordValue?.trim();
-          if (value && !into.includes(value)) into.push(value);
-        }
-      }
     }
   }
 

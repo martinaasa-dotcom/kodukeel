@@ -1,7 +1,7 @@
 import { CASES } from "@/lib/estonian/cases";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { caseAnswer, stemsFrom, stemsFromParts } from "@/lib/estonian/derive";
-import { caseFromMorphCode } from "@/lib/estonian/morph";
+import { caseFromMorphCode, ekilexCodeOf, numberFromMorphCode } from "@/lib/estonian/morph";
 import type { CaseKey } from "@/lib/estonian/types";
 
 /**
@@ -87,6 +87,24 @@ export function gapForms(word: GapWord): Map<string, CaseKey | null> {
     claim a case it shares with another.
 
     A retrieved form names its own slot, which is what `morphCode` is.
+
+    READ THROUGH `ekilexCodeOf`, BECAUSE THE SEED WRITES NO morphCode. A
+    harvested extra form is stored as `formType: "EKILEX:<code>"` and nothing
+    else (`prisma/seed.ts`), so reading the column alone named the case on a
+    live Ekilex lookup and on no seeded install: 399 spellings across 376
+    shipped entries, the same word two ways by which door it came in. Not
+    `slotCodeOf`, which would translate `NOM_SG` into a code and start naming
+    the principal parts this block exists to leave unnamed, and not
+    `morphCodeOf`, which hands a principal part back as its own name.
+
+    AND A PLURAL NAMES NO CASE. `caseFromMorphCode` ignores number, so a stored
+    `PlKom` claimed the kaasaütlev its singular has, and a card cut on it would
+    write the singular case into `Review.slot`. That is the rule above, exactly
+    one slot or none, applied to number as it is to the short illative. The
+    spelling stays in the map, so every reader asking whether a form may be
+    hidden gets the answer it always had; `lib/srs/cards.ts` is the one reader
+    of the label, and deciding which plurals a fresh card may reach for is
+    still its call to make.
   */
   const principalValues = new Set(
     ["NOM_SG", "GEN_SG", "PART_SG"]
@@ -96,7 +114,7 @@ export function gapForms(word: GapWord): Map<string, CaseKey | null> {
   for (const form of word.forms) {
     const named = form.formType === "ILL_SG_SHORT"
       ? (principalValues.has(form.value.trim().toLowerCase()) ? null : "ILLATIVE" as const)
-      : caseFromMorphCode(form.morphCode);
+      : singularCaseOf(ekilexCodeOf(form));
     add(form.value, named);
   }
   add(word.lemma, null);
@@ -116,6 +134,11 @@ export function gapForms(word: GapWord): Map<string, CaseKey | null> {
     for (const value of caseAnswer(stems, spec.key)?.accepted ?? []) add(value, spec.key);
   }
   return out;
+}
+
+/** The case a code names, where it names a singular; nothing for a plural. */
+function singularCaseOf(code: string | null): CaseKey | null {
+  return numberFromMorphCode(code) === "SINGULAR" ? caseFromMorphCode(code) : null;
 }
 
 /**
