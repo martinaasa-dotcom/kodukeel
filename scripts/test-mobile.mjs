@@ -52,7 +52,7 @@ const browser = await launchChromium();
   that only reads the source, which is what made it worth measuring here
   instead.
 */
-const { check, done } = suite("The phone", { floor: 75 });
+const { check, done } = suite("The phone", { floor: 79 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -98,6 +98,28 @@ for (const width of [...PHONES, ...WIDE]) {
     return { wider: document.documentElement.scrollWidth > window.innerWidth, x: window.scrollX };
   });
   check(`no horizontal overflow at ${width}`, !over.wider && over.x === 0, JSON.stringify(over));
+  await ctx.close();
+}
+
+// 2b — Every label on the bar holds one line. `overflow-wrap: anywhere` is what
+//      keeps a long word inside its box, and five cells of equal width at 360
+//      left "Dictionary" 64px for a word 70px wide, so every screen in the app
+//      read "Dictionar / y" along the bottom. 320 as well, which is the
+//      narrowest phone still sold and where "Practice" broke the same way. A
+//      label is read off its own text node, since the cell also holds the icon.
+for (const width of [320, ...PHONES]) {
+  const { ctx, page } = await open(width, 844, "/");
+  const cells = await page.evaluate(() =>
+    [...document.querySelectorAll('nav[data-chrome="dock"] .nav-cell')].map((cell) => {
+      const text = [...cell.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+      if (!text) return { label: "(none)", lines: 0 };
+      const range = document.createRange();
+      range.selectNodeContents(text);
+      return { label: text.textContent.trim(), lines: range.getClientRects().length };
+    }));
+  const broken = cells.filter((c) => c.lines !== 1);
+  check(`every label on the bar holds one line at ${width}`, cells.length >= 5 && broken.length === 0,
+    broken.length ? broken.map((c) => `${c.label}: ${c.lines} lines`).join(", ") : `${cells.length} labels`);
   await ctx.close();
 }
 

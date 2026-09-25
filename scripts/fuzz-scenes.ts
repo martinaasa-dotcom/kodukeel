@@ -21,13 +21,17 @@
 import { prisma } from "../lib/db";
 import { HARNESS_LEVEL } from "./lib/sceneDraft";
 import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
-import { replay, sceneContext, type StoredDraw } from "../lib/progress/scene";
+import { glossCard, glossesFor, knowing, replay, sceneContext, type StoredDraw } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
-import { replyFor, datumLine, cardChosen, cardInPlay, counterBeat } from "../lib/scenes/reply";
+import { replyFor, datumLine, cardChosen, cardInPlay, cardAfterHurdles, counterBeat } from "../lib/scenes/reply";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { isSpokenEstonian, sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
 import { sceneBeats } from "../lib/scenes/scripted";
+import { dealtNumbers } from "../lib/scenes/props";
+
+/** How the route reads a number out of a turn: a clock time or a run of digits. */
+const NUMBERS = /\d{1,2}[:.]\d{2}|\d+/g;
 
 const NASTY = [
   "", " ", "\t\n", "?", "!!!", "...", "1234", "13:30", "kell 13:30", "Tere Tere Tere Tere Tere Tere Tere Tere Tere",
@@ -52,7 +56,9 @@ async function main() {
     for (const difficulty of ["textbook", "bad"] as const) {
       for (let seedNo = 0; seedNo < 6; seedNo++) {
         const run = planRun(scene, `fuzz-${seedNo}`, HARNESS_LEVEL, difficulty);
-        const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: "scripted", patience: run.patience };
+        // The draw as `beginScene` stores it, the English of each drawn word included.
+        const dealt = glossCard(run.card, await glossesFor(run));
+        const draw: StoredDraw = { persona: run.persona.id, card: dealt, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: "scripted", patience: run.patience };
         const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
         // sequences: pure garbage, alternating garbage/real, and all-real
         const sequences: string[][] = [];
@@ -67,12 +73,20 @@ async function main() {
           for (let i = 0; i < seq.length && !over; i++) {
             let state, response;
             try {
-              ({ state, response } = replay(context, draw, turns));
+              // Widened the way the route widens, or the repair-phrase rule
+              // below is asked of a narrower marker than a learner meets.
+              ({ state, response } = replay(await knowing(context, turns.map((t) => t.said)), draw, turns));
             } catch (e) { bad(`${scene.id} ${difficulty} replay threw: ${(e as Error).message}`); break; }
             const beat = currentBeat(scene, state);
             const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
             const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
-            const card = cardChosen(cardInPlay(draw.card, scene.beats, state.countered), state.turns);
+            // The card as the route builds it: hurdles and counters stood in, and a
+            // word the learner chose named in English for the stage direction.
+            const card = cardChosen(
+              cardAfterHurdles(cardInPlay(draw.card, scene.beats, state.countered), state),
+              state.turns,
+              (lemma) => context.marker.englishFor?.get(lemma)?.[0],
+            );
             const spokenFor = standing ?? speaking;
             let line = null;
             if (spokenFor) {
@@ -102,21 +116,29 @@ async function main() {
             } catch (e) { bad(`${scene.id} replyFor threw: ${(e as Error).message}`); break; }
             over = isOver(scene, state);
             if (!over && lines.length === 0) bad(`${scene.id} ${difficulty} turn ${i}: empty reply (response ${response}, reading ${last?.reading})`);
+            // What the route's gate lets a line say: see `dealt` in app/api/scene/route.ts.
+            const allowed = new Set([
+              ...dealtNumbers(draw.card), ...dealtNumbers(card),
+              ...[...turns, ...state.turns].flatMap((t) => t.said.match(NUMBERS) ?? []),
+            ]);
             for (const l of lines) {
               if (!l.text.trim()) bad(`${scene.id}: blank line`);
               if (/\{\w+\}/.test(l.text)) bad(`${scene.id}: placeholder on screen: ${l.text}`);
               if (l.provenance === "unspoken" && /[õäöüšž]/i.test(l.text)) bad(`${scene.id}: Estonian in a stage direction: ${l.text}`);
               if (l.text === FALLBACK_PHRASE && last && last.reading !== "unrecognised" && last.reading !== "echo") bad(`${scene.id}: repair phrase at reading ${last.reading} for "${last.said}"`);
               /*
-                A digit in a line somebody said in Estonian, other than the
-                clock time off the card. `datumLine` builds `Homme kell 10:30?`
-                and `Teisipäeval kell 14:00?`, which are the lines a beat says
-                out of the card's own values and are the reason a time may
-                appear at all: the check anchored on the start of the line and
-                so reported every one of them, 160 times in a run. What it is
-                really for is a number nobody dealt turning up in Estonian.
+                A number nobody dealt turning up in Estonian. It was every digit
+                but a clock time, which stopped being the question the day a
+                card began dealing prices, a wage and a floor: `Palk on 1580
+                eurot kuus?` is the offer said off the card, and 142 lines like
+                it in a run buried any number that really was invented. So each
+                number in the line is held to what the route's own gate lets a
+                line say, the card's numbers and the learner's.
               */
-              if (isSpokenEstonian(l.provenance) && /\d/.test(l.text) && !/\bkell \d/i.test(l.text)) bad(`${scene.id}: digit in an Estonian line: ${l.text}`);
+              if (isSpokenEstonian(l.provenance)) {
+                const stray = (l.text.match(NUMBERS) ?? []).filter((n) => !allowed.has(n));
+                if (stray.length > 0) bad(`${scene.id}: a number nobody dealt (${stray.join(", ")}) in an Estonian line: ${l.text}`);
+              }
             }
             // what the learner is now answering
             const move = [...lines].reverse().find((l) => !l.reaction);

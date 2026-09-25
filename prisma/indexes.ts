@@ -1,5 +1,27 @@
 import type { PrismaClient } from "@prisma/client";
 
+/*
+  THE FOURTH COPY OF THE ONE TABLE, AND THE ONE THAT FAILS SILENTLY.
+
+  `lib/estonian/fold.ts` exists because there were three tables of which
+  Estonian letters fold and they agreed, which is the dangerous state rather
+  than the safe one. This was a fourth, written out as two strings rather than
+  as a record, so neither the sweep that found the other three nor its own
+  comment could see it: the comment asked to be "kept identical to `fold` in
+  lib/dict/search.ts", a file that has not held the table since it moved out of
+  it.
+
+  What a drift here would cost is worse than two screens disagreeing, because
+  nothing would look wrong. These are function indexes, and Postgres uses one
+  only where the expression in the query matches the expression it was built
+  on. A seventh letter added to `FOLD` would leave every search computing a
+  seven-character `translate` against an index built on six: the same rows come
+  back, and both tables are scanned end to end to find them, which is the
+  35ms-to-two-seconds fault the block below says these exist to prevent.
+  Correct, slow, and reported by nobody.
+*/
+import { FOLD_FROM as FROM, FOLD_TO as TO } from "../lib/estonian/fold";
+
 /**
  * Indexes the dictionary search needs, which Prisma cannot express.
  *
@@ -20,10 +42,6 @@ import type { PrismaClient } from "@prisma/client";
  * statement, so a deployment that already has them pays nothing and a database
  * that refuses one still gets the others.
  */
-
-/** Kept identical to `fold` in lib/dict/search.ts, character for character. */
-const FROM = "õäöüšž";
-const TO = "oaousz";
 
 const INDEXES: { name: string; sql: string }[] = [
   {

@@ -26,7 +26,6 @@
  */
 import { buildCaseTable, stemsFrom } from "../../lib/estonian/derive";
 import { derivedVerbForms } from "../../lib/estonian/conjugate";
-import { parseGovernment } from "../../lib/estonian/government";
 import type { CaseKey } from "../../lib/estonian/types";
 /*
   The token budget is the app's, not a number of this script's own.
@@ -44,13 +43,15 @@ import { composeLive, composeSystem } from "../../lib/scenes/prompt";
 import { geminiCachedReply } from "../../lib/tutor/geminiCache";
 import { FAREWELLS } from "../../lib/scenes/catalogue";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
-import { FINITE_VERB_FLOOR, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
-import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
+import { FINITE_VERB_FLOOR, gateFor, governedWord, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
+import { MAX_WORDS, answerForms, topicForms } from "../../lib/scenes/retrieval";
+import { bankTopic } from "../../lib/scenes/scripted";
 
 export { answerForms };
 import { QUESTION_SHAPE, type BeatSpec, type SceneSpec } from "../../lib/scenes/types";
 import { LEVELS, SYLLABUS, unitById, type Level } from "../../lib/collections/syllabus";
 import { PITCH, pitchFor } from "../../lib/scenes/pitch";
+import { isKnownForm } from "../../lib/dict/forms";
 import { shippedDictionary } from "./dictionary";
 
 /* ------------------------------------------------------------------ *
@@ -70,6 +71,66 @@ export const POOL: DictEntry[] = shipped.map((e) => ({
 const byLemma = new Map(POOL.map((e) => [`${e.lemma}|${e.pos}`, e]));
 
 export type Allowlist = "units" | "course";
+
+/**
+ * THE APP'S OWN VOUCHING, minus the course read that needs a database: the
+ * scene's list, then the forms list (`sceneVouch`). `courseForms` is a query
+ * and every word it holds is in the forms list anyway, so what this loses is
+ * speed rather than an answer.
+ *
+ * One copy, because there were two identical ones and a third was about to be
+ * written. A harness that skips this gates against the scene's own units
+ * alone, which is the pre-split gate: every word of real Estonian the scene
+ * does not teach comes back as `vouching` rather than as `stretch`, so a model
+ * that reaches further is punished for reaching rather than for being wrong.
+ */
+export async function vouchOf(
+  lexicon: Lexicon, spellings: readonly string[],
+): Promise<ReadonlySet<string>> {
+  const out = new Set<string>();
+  await Promise.all([...new Set(spellings)].map(async (word) => {
+    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
+  }));
+  return out;
+}
+
+/**
+ * THE GATE A COMPOSED LINE MEETS LIVE, BUILT THE WAY THE ROUTE BUILDS IT, IN
+ * ONE PLACE.
+ *
+ * Three harnesses gate a line a model composed, and each spelled the gate out
+ * for itself, so each had lost a different part of it. `eval:thinking` passed
+ * `vouched: () => true` and no topic. `eval:composers` had no topic and no
+ * forms list. `eval:scene` built its own function, named `gateFor` like the
+ * library's and skipping the register switch the library's applies. And none
+ * of the three passed `answers`, so `giveaway`, which the live path has run
+ * since a real run answered the beat that wants `poes` with `Kas sa juba oled
+ * poes?`, was switched off in every measurement of the composer.
+ *
+ * What the live path adds to the scene's gate is four things: the register
+ * switch (`gateFor`), the route's topic (the beat's lemmas and the words its
+ * banked lines are made of, `lib/progress/scene.ts`), the forms the beat is
+ * about to ask for (`lib/scenes/line.ts`), and vouching against the forms list
+ * for the words this line used. This is those four, read off the same
+ * functions. What it cannot add is the learner's own last turn, which the
+ * route also folds into the topic: a harness plays no learner, so `topic`
+ * reads a little stricter here than live. Nor can it add the card: the route
+ * joins the numbers, clock times and prices this run dealt (`dealt`, `times`,
+ * `money`), and a harness that deals no card hands none, so `facts` withholds
+ * any figure a composed line names. That is stricter than live too, never
+ * looser, which is the direction a measurement may err in.
+ */
+export async function routeGate(
+  scene: SceneSpec, beat: BeatSpec, lexicon: Lexicon, base: GateContext, text: string,
+): Promise<GateContext> {
+  const vouched = await vouchOf(lexicon, words(text));
+  return gateFor(beat.id, {
+    ...base,
+    topic: new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
+    answers: answerForms(beat, lexicon),
+    vouched: (word: string) => vouched.has(word),
+  });
+}
 
 /**
  * THE BAND A HARNESS PLAYS AT UNLESS TOLD OTHERWISE.
@@ -136,16 +197,23 @@ export function wrongRegisterForms(scene: SceneSpec): ReadonlySet<string> {
  * wrong for one of the others is the fault `buildOptions` exists to prevent.
  */
 export const GOVERNED: GovernedWord[] = [];
+/*
+  Through `governedWord`, the function the route builds its table with. This
+  kept a copy that lost the place cases and the derived persons, so a line the
+  route passed was withheld here: `Minge otse edasi ja siis vasakule.` on
+  `minema`, whose government names `kuhu`.
+*/
 for (const entry of shipped) {
-  const government = parseGovernment(entry.government ?? null);
-  if (!government || entry.pos !== "VERB") continue;
   const dict = byLemma.get(`${entry.lemma}|${entry.pos}`);
   if (!dict) continue;
-  GOVERNED.push({
+  const word = governedWord({
     lemma: entry.lemma,
-    forms: new Set(formsOf(dict)),
-    cases: new Set([government.caseKey, ...government.alsoGoverned]),
+    pos: entry.pos,
+    government: entry.government,
+    forms: formsOf(dict),
+    pres1sg: dict.parts.PRES_1SG,
   });
+  if (word) GOVERNED.push(word);
 }
 
 /**
@@ -263,7 +331,14 @@ const QUESTION_WORDS: ReadonlySet<string> = new Set(
 export function gateContext(
   lexicon: Lexicon,
   wrongRegister: ReadonlySet<string>,
-  entries: readonly DictEntry[] = [],
+  /*
+    Required, because `subjects` is read off these and an empty list switches
+    `agreement` off in silence: `eval:scene` called this with two arguments,
+    so the check that withholds `Kuhu te soovid sõita?` was inert in every
+    Part A run, which is the `hasFiniteVerb` fault below one field over. A
+    caller with nothing to hand over says so with `[]`.
+  */
+  entries: readonly DictEntry[],
 ): GateContext {
   return {
     lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,
@@ -464,7 +539,7 @@ export async function compose(
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
-          model: link.model, temperature: 0.8, max_tokens: SCENE_REPLY_TOKENS,
+          model: link.model, max_tokens: SCENE_REPLY_TOKENS,
           ...(link.reasoning ? { reasoning_effort: link.reasoning } : {}),
           messages: [{ role: "system", content: systemFor(level) }, { role: "user", content: user }],
         }),
@@ -532,7 +607,16 @@ export async function askLine(
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
           model: link.model,
-          temperature: 0.8,
+          /*
+            AND NO TEMPERATURE, BECAUSE THE APP NAMES THE FIELD ON NO PATH.
+            Both call sites here sent 0.8, which is not a knob anybody swept
+            and pinned: it is a number typed once and inherited by every
+            measurement since, and it fails flattering, since a cooler composer
+            reaches outside the scene's list less often than the deployment's
+            does. The branch above goes through the app's own
+            `geminiCachedReply`, which sends none, so one function was asking
+            two providers two different questions.
+          */
           // The app's own budget: a thinking model spends its first hundreds of tokens reasoning.
           max_tokens: SCENE_REPLY_TOKENS,
           // And the app's own answer to that, where the chain has one: no thinking on a scene line.
