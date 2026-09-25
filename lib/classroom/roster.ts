@@ -314,13 +314,15 @@ export async function workplaceRoster(
         _count: true,
         _max: { reviewedAt: true },
       }),
+      // A sitting or a check restored from a backup is history, never evidence:
+      // nothing here marked it (lib/security/restoredMeasurement.ts).
       prisma.examAttempt.findMany({
-        where: { ownerId: { in: ids } },
+        where: { ownerId: { in: ids }, restoredAt: null },
         orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
         select: { ownerId: true, level: true, pct: true, passed: true, finishedAt: true, result: true },
       }),
       prisma.assessment.findMany({
-        where: { ownerId: { in: ids } },
+        where: { ownerId: { in: ids }, restoredAt: null },
         orderBy: [{ takenAt: "desc" }, { id: "asc" }],
         select: {
           ownerId: true, takenAt: true, answered: true,

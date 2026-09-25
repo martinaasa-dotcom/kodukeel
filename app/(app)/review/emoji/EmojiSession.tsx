@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Grid2x2, Timer, Trophy } from "lucide-react";
 import { ButtonLink, Button } from "@/components/Button";
 import { Chip, Page, StatTile } from "@/components/ui";
@@ -8,12 +9,10 @@ import { Speak } from "@/components/Speak";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { plainAsk } from "@/lib/estonian/plainAsk";
 import { shuffle } from "@/lib/random/shuffle";
-import { gradeCard } from "@/app/actions";
 import { OPTION_CLASS } from "@/lib/ux/verdict";
 import { boardLead, type EmojiPair } from "@/lib/games/emojiBoard";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
-
 
 type Side = "picture" | "word";
 interface Tile { key: string; pairId: string; side: Side }
@@ -44,6 +43,7 @@ interface Tile { key: string; pairId: string; side: Side }
  */
 
 export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
+  const grade = useGrade();
   // Snapshotted once on mount, like every session here: a Server Action
   // refreshing this route must not swap the board mid-round.
   const [pairs] = useState(initialPairs);
@@ -111,7 +111,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
         // Good first time, Hard after a wrong try: the same two ratings a near
         // miss and a clean hit get everywhere else. Not awaited, because a
         // matching board should never wait on a round trip between taps.
-        void gradeCard(pair.cardId, missedPairs.current.has(pair.id) ? 2 : 3, 0).catch(() => {});
+        void grade(pair.cardId, missedPairs.current.has(pair.id) ? 2 : 3, 0);
       }
       return;
     }
@@ -124,7 +124,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
     setWrong([picked.key, tile.key]);
     setPicked(null);
     window.setTimeout(() => setWrong([]), 420);
-  }, [phase, picked, matched, pairs, sound]);
+  }, [phase, picked, matched, pairs, sound, grade]);
 
   if (phase === "ready") {
     return (

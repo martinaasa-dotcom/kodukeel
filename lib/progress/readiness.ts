@@ -97,7 +97,7 @@ export const readinessPicture = cache(async (ownerId: string, now = new Date()):
     dictionaryLemmas(),
     caseReviewsFor(ownerId, now),
     latestFor(ownerId),
-    recentAttempts(ownerId),
+    recentAttempts(ownerId, { measured: true }),
     courseLevelFor(ownerId),
   ]);
 

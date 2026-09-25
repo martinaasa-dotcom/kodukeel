@@ -1,0 +1,704 @@
+[
+ {
+  "lemma": "koor",
+  "pos": "NOUN",
+  "notesFrom": "peel; cream; choir",
+  "notesTo": "peel; cream"
+ },
+ {
+  "lemma": "kurk",
+  "pos": "NOUN",
+  "notesFrom": "cucumber",
+  "notesTo": null
+ },
+ {
+  "lemma": "lamp",
+  "pos": "NOUN",
+  "notesFrom": "random; flat",
+  "notesTo": "random"
+ },
+ {
+  "lemma": "nõu",
+  "pos": "NOUN",
+  "notesFrom": "plan, idea; receptacle, container, vessel; dish, utensil",
+  "notesTo": "plan, idea"
+ },
+ {
+  "lemma": "oktoober",
+  "pos": "NOUN",
+  "notesFrom": "hard hat",
+  "notesTo": null
+ },
+ {
+  "lemma": "paar",
+  "pos": "NOUN",
+  "notesFrom": "couple; a couple; speed",
+  "notesTo": "couple; a couple"
+ },
+ {
+  "lemma": "sina",
+  "pos": "PRONOUN",
+  "notesFrom": "blueness",
+  "notesTo": null
+ },
+ {
+  "lemma": "sool",
+  "pos": "NOUN",
+  "notesFrom": "salt",
+  "notesTo": null
+ },
+ {
+  "lemma": "tee",
+  "pos": "NOUN",
+  "notesFrom": "tea",
+  "notesTo": null
+ },
+ {
+  "lemma": "tükk",
+  "pos": "NOUN",
+  "notesFrom": "trick; a mischievous act; cannon",
+  "notesTo": "trick; a mischievous act"
+ },
+ {
+  "lemma": "viis",
+  "pos": "NOUN",
+  "notesFrom": "way, manner; mode; melody, tune",
+  "notesTo": null
+ },
+ {
+  "lemma": "baar",
+  "pos": "NOUN",
+  "notesFrom": "bar",
+  "notesTo": null
+ },
+ {
+  "lemma": "kaitse",
+  "pos": "NOUN",
+  "notesFrom": "a protective device; circuit breaker",
+  "notesTo": null
+ },
+ {
+  "lemma": "karp",
+  "pos": "NOUN",
+  "notesFrom": "carp",
+  "notesTo": null
+ },
+ {
+  "lemma": "mari",
+  "pos": "NOUN",
+  "notesFrom": "roe; Mari",
+  "notesTo": "roe"
+ },
+ {
+  "lemma": "mure",
+  "pos": "NOUN",
+  "notesFrom": "problem, task, responsibility; crumbly",
+  "notesTo": "problem, task, responsibility"
+ },
+ {
+  "lemma": "müts",
+  "pos": "NOUN",
+  "notesFrom": "thump, thud",
+  "notesTo": null
+ },
+ {
+  "lemma": "norm",
+  "pos": "NOUN",
+  "notesFrom": "norm; OK, all right, decent",
+  "notesTo": "norm"
+ },
+ {
+  "lemma": "pakk",
+  "pos": "NOUN",
+  "notesFrom": "package; being full of something; a hurry",
+  "notesTo": null
+ },
+ {
+  "lemma": "palk",
+  "pos": "NOUN",
+  "notesFrom": "log, beam",
+  "notesTo": null
+ },
+ {
+  "lemma": "rahu",
+  "pos": "NOUN",
+  "notesFrom": "reef",
+  "notesTo": null
+ },
+ {
+  "lemma": "reis",
+  "pos": "NOUN",
+  "notesFrom": "trip, journey",
+  "notesTo": null
+ },
+ {
+  "lemma": "saar",
+  "pos": "NOUN",
+  "notesFrom": "ash",
+  "notesTo": null
+ },
+ {
+  "lemma": "sokk",
+  "pos": "NOUN",
+  "notesFrom": "buck",
+  "notesTo": null
+ },
+ {
+  "lemma": "tulp",
+  "pos": "NOUN",
+  "notesFrom": "post, pole; column, pillar; column",
+  "notesTo": null
+ },
+ {
+  "lemma": "valu",
+  "pos": "NOUN",
+  "notesFrom": "cast; lightness, light",
+  "notesTo": null
+ },
+ {
+  "lemma": "õlg",
+  "pos": "NOUN",
+  "notesFrom": "straw, hay",
+  "notesTo": null
+ },
+ {
+  "lemma": "arm",
+  "pos": "NOUN",
+  "notesFrom": "mercy; pardon; love, affection",
+  "notesTo": null
+ },
+ {
+  "lemma": "aste",
+  "pos": "NOUN",
+  "notesFrom": "grade, step",
+  "notesTo": null
+ },
+ {
+  "lemma": "iga",
+  "pos": "PRONOUN",
+  "notesFrom": "each; age; lifetime",
+  "notesTo": "each"
+ },
+ {
+  "lemma": "jaht",
+  "pos": "NOUN",
+  "notesFrom": "yacht",
+  "notesTo": null
+ },
+ {
+  "lemma": "kama",
+  "pos": "NOUN",
+  "notesFrom": "stuff, things",
+  "notesTo": null
+ },
+ {
+  "lemma": "kann",
+  "pos": "NOUN",
+  "notesFrom": "kettle; toy; ass, buttocks",
+  "notesTo": "kettle"
+ },
+ {
+  "lemma": "kari",
+  "pos": "NOUN",
+  "notesFrom": "herd, flock; reef",
+  "notesTo": "herd, flock"
+ },
+ {
+  "lemma": "karjäär",
+  "pos": "NOUN",
+  "notesFrom": "quarry",
+  "notesTo": null
+ },
+ {
+  "lemma": "kepp",
+  "pos": "NOUN",
+  "notesFrom": "penis, sex, fuck, copulation",
+  "notesTo": null
+ },
+ {
+  "lemma": "kile",
+  "pos": "NOUN",
+  "notesFrom": "membrane; plastic film, plastic wrap; shrill",
+  "notesTo": "membrane; plastic film, plastic wrap"
+ },
+ {
+  "lemma": "kink",
+  "pos": "NOUN",
+  "notesFrom": "favour/favor; small mound, knoll",
+  "notesTo": "favour/favor"
+ },
+ {
+  "lemma": "kogus",
+  "pos": "NOUN",
+  "notesFrom": "large, bulky",
+  "notesTo": null
+ },
+ {
+  "lemma": "koha",
+  "pos": "NOUN",
+  "notesFrom": "rustling, the sound of waves or of leaves in the wind.",
+  "notesTo": null
+ },
+ {
+  "lemma": "kohus",
+  "pos": "NOUN",
+  "notesFrom": "duty, requirement",
+  "notesTo": null
+ },
+ {
+  "lemma": "magu",
+  "pos": "NOUN",
+  "notesFrom": "belly; taste, flavour",
+  "notesTo": "belly"
+ },
+ {
+  "lemma": "maht",
+  "pos": "NOUN",
+  "notesFrom": "time, spare time, opportunity; possibility, opportunity",
+  "notesTo": null
+ },
+ {
+  "lemma": "maks",
+  "pos": "NOUN",
+  "notesFrom": "tax, payment",
+  "notesTo": null
+ },
+ {
+  "lemma": "matt",
+  "pos": "NOUN",
+  "notesFrom": "matte; checkmate",
+  "notesTo": null
+ },
+ {
+  "lemma": "niit",
+  "pos": "NOUN",
+  "notesFrom": "meadow, lea; mowing",
+  "notesTo": null
+ },
+ {
+  "lemma": "nimetus",
+  "pos": "NOUN",
+  "notesFrom": "appointment, designation; namelessness",
+  "notesTo": "appointment, designation"
+ },
+ {
+  "lemma": "paat",
+  "pos": "NOUN",
+  "notesFrom": "primrose, fawn",
+  "notesTo": null
+ },
+ {
+  "lemma": "parkima",
+  "pos": "VERB",
+  "notesFrom": "to park",
+  "notesTo": null
+ },
+ {
+  "lemma": "pind",
+  "pos": "NOUN",
+  "notesFrom": "splinter",
+  "notesTo": null
+ },
+ {
+  "lemma": "plekk",
+  "pos": "NOUN",
+  "notesFrom": "any kind of spot, such as a bruise; stain; sheet metal",
+  "notesTo": "any kind of spot, such as a bruise; stain"
+ },
+ {
+  "lemma": "raba",
+  "pos": "NOUN",
+  "notesFrom": "sediment left over after the creation of beer or kvass",
+  "notesTo": null
+ },
+ {
+  "lemma": "saadik",
+  "pos": "NOUN",
+  "notesFrom": "let alone, not to mention; since; up to something, until a certain limit",
+  "notesTo": null
+ },
+ {
+  "lemma": "sulg",
+  "pos": "NOUN",
+  "notesFrom": "pen; bracket",
+  "notesTo": "pen"
+ },
+ {
+  "lemma": "tamm",
+  "pos": "NOUN",
+  "notesFrom": "dam; embankment; levee, dyke",
+  "notesTo": null
+ },
+ {
+  "lemma": "till",
+  "pos": "NOUN",
+  "notesFrom": "penis; ding, tinkle",
+  "notesTo": null
+ },
+ {
+  "lemma": "toll",
+  "pos": "NOUN",
+  "notesFrom": "customs; inch",
+  "notesTo": "customs"
+ },
+ {
+  "lemma": "vedel",
+  "pos": "ADJECTIVE",
+  "notesFrom": "loose, slack; sluggish; inept, lazy, weak-willed; timid; troll",
+  "notesTo": "loose, slack; sluggish; inept, lazy, weak-willed; timid"
+ },
+ {
+  "lemma": "vill",
+  "pos": "NOUN",
+  "notesFrom": "blister, boil",
+  "notesTo": null
+ },
+ {
+  "lemma": "voor",
+  "pos": "NOUN",
+  "notesFrom": "a row of trucks or any other vehicle carrying a load; row; phase, stage, round, e.g. in a competition",
+  "notesTo": null
+ },
+ {
+  "lemma": "andur",
+  "pos": "NOUN",
+  "notesFrom": "sensor",
+  "notesTo": null
+ },
+ {
+  "lemma": "ehe",
+  "pos": "ADJECTIVE",
+  "notesFrom": "decoration, ornament",
+  "notesTo": null
+ },
+ {
+  "lemma": "kaste",
+  "pos": "NOUN",
+  "notesFrom": "sauce",
+  "notesTo": null
+ },
+ {
+  "lemma": "kruus",
+  "pos": "NOUN",
+  "notesFrom": "mug, cup",
+  "notesTo": null
+ },
+ {
+  "lemma": "käärima",
+  "pos": "VERB",
+  "notesFrom": "to sheave (fabric), to skein; to wrap, to roll; to tuck up, to roll up or down",
+  "notesTo": null
+ },
+ {
+  "lemma": "laik",
+  "pos": "NOUN",
+  "notesFrom": "spot, stain, blemish; like",
+  "notesTo": "spot, stain, blemish"
+ },
+ {
+  "lemma": "leer",
+  "pos": "NOUN",
+  "notesFrom": "A side; A (protestant) confirmation into the faithful community.",
+  "notesTo": "A side"
+ },
+ {
+  "lemma": "leid",
+  "pos": "NOUN",
+  "notesFrom": "breeching",
+  "notesTo": null
+ },
+ {
+  "lemma": "loode",
+  "pos": "NOUN",
+  "notesFrom": "sunset",
+  "notesTo": null
+ },
+ {
+  "lemma": "lõhe",
+  "pos": "NOUN",
+  "notesFrom": "crack, fissure; split, gap",
+  "notesTo": null
+ },
+ {
+  "lemma": "lõks",
+  "pos": "NOUN",
+  "notesFrom": "trap; latch; with a click",
+  "notesTo": "trap; latch"
+ },
+ {
+  "lemma": "maine",
+  "pos": "NOUN",
+  "notesFrom": "prestige, renown, fame; earthly, worldly",
+  "notesTo": "prestige, renown, fame"
+ },
+ {
+  "lemma": "meene",
+  "pos": "NOUN",
+  "notesFrom": "covered with honey",
+  "notesTo": null
+ },
+ {
+  "lemma": "mutt",
+  "pos": "NOUN",
+  "notesFrom": "old woman; hag; A traditional fishing net used to catch small fish.",
+  "notesTo": null
+ },
+ {
+  "lemma": "münt",
+  "pos": "NOUN",
+  "notesFrom": "coin",
+  "notesTo": null
+ },
+ {
+  "lemma": "noot",
+  "pos": "NOUN",
+  "notesFrom": "note",
+  "notesTo": null
+ },
+ {
+  "lemma": "pada",
+  "pos": "NOUN",
+  "notesFrom": "spades",
+  "notesTo": null
+ },
+ {
+  "lemma": "parv",
+  "pos": "NOUN",
+  "notesFrom": "a large unorganised group of people; a large group of objects; raft",
+  "notesTo": "a large unorganised group of people; a large group of objects"
+ },
+ {
+  "lemma": "patt",
+  "pos": "NOUN",
+  "notesFrom": "stalemate - position where a player has no legal moves, but the king is not mate, resulting in a remis",
+  "notesTo": null
+ },
+ {
+  "lemma": "pull",
+  "pos": "NOUN",
+  "notesFrom": "any male animal, especially a moose; bubble; funny, strange",
+  "notesTo": "any male animal, especially a moose"
+ },
+ {
+  "lemma": "rakk",
+  "pos": "NOUN",
+  "notesFrom": "blister; The nest of a hornet or a wasp.; parrel",
+  "notesTo": "blister; The nest of a hornet or a wasp."
+ },
+ {
+  "lemma": "roog",
+  "pos": "NOUN",
+  "notesFrom": "dish, course, meal; reed, cane",
+  "notesTo": "dish, course, meal"
+ },
+ {
+  "lemma": "rutiin",
+  "pos": "NOUN",
+  "notesFrom": "rutin",
+  "notesTo": null
+ },
+ {
+  "lemma": "salk",
+  "pos": "NOUN",
+  "notesFrom": "squad, platoon, troop; a small tuft of hair",
+  "notesTo": "squad, platoon, troop"
+ },
+ {
+  "lemma": "tall",
+  "pos": "NOUN",
+  "notesFrom": "horse stable",
+  "notesTo": null
+ },
+ {
+  "lemma": "vaht",
+  "pos": "NOUN",
+  "notesFrom": "guard",
+  "notesTo": null
+ },
+ {
+  "lemma": "vaik",
+  "pos": "NOUN",
+  "notesFrom": "earwax; quiet",
+  "notesTo": "earwax"
+ },
+ {
+  "lemma": "võru",
+  "pos": "NOUN",
+  "notesFrom": "Võro",
+  "notesTo": null
+ },
+ {
+  "lemma": "äss",
+  "pos": "NOUN",
+  "notesFrom": "attack! get 'em!",
+  "notesTo": null
+ },
+ {
+  "lemma": "temp",
+  "pos": "NOUN",
+  "notesFrom": "trick; a porridge-like dish containing crushed hemp seeds; temperature",
+  "notesTo": "trick"
+ },
+ {
+  "lemma": "aru",
+  "pos": "NOUN",
+  "notesFrom": "understanding; a kind of dry temperate grassland",
+  "notesTo": "understanding"
+ },
+ {
+  "lemma": "džinn",
+  "pos": "NOUN",
+  "notesFrom": "genie; jinni",
+  "notesTo": null
+ },
+ {
+  "lemma": "eos",
+  "pos": "NOUN",
+  "notesFrom": "precursor, origin; at an early stage",
+  "notesTo": "precursor, origin"
+ },
+ {
+  "lemma": "frank",
+  "pos": "NOUN",
+  "notesFrom": "Frank",
+  "notesTo": null
+ },
+ {
+  "lemma": "granaat",
+  "pos": "NOUN",
+  "notesFrom": "garnet",
+  "notesTo": null
+ },
+ {
+  "lemma": "hui",
+  "pos": "NOUN",
+  "notesFrom": "cock, dick, penis",
+  "notesTo": null
+ },
+ {
+  "lemma": "jobi",
+  "pos": "NOUN",
+  "notesFrom": "jerk, douchebag, asshole; job",
+  "notesTo": "jerk, douchebag, asshole"
+ },
+ {
+  "lemma": "kakk",
+  "pos": "NOUN",
+  "notesFrom": "loaf of bread or white bread",
+  "notesTo": null
+ },
+ {
+  "lemma": "lood",
+  "pos": "NOUN",
+  "notesFrom": "sounding line; lot; alvar",
+  "notesTo": "sounding line; alvar; islet"
+ },
+ {
+  "lemma": "maare",
+  "pos": "NOUN",
+  "notesFrom": "grain",
+  "notesTo": null
+ },
+ {
+  "lemma": "mink",
+  "pos": "NOUN",
+  "notesFrom": "makeup, cosmetics",
+  "notesTo": null
+ },
+ {
+  "lemma": "ohe",
+  "pos": "NOUN",
+  "notesFrom": "awn, beard",
+  "notesTo": null
+ },
+ {
+  "lemma": "padu",
+  "pos": "NOUN",
+  "notesFrom": "heavy rain; very, extremely, really",
+  "notesTo": "heavy rain"
+ },
+ {
+  "lemma": "papp",
+  "pos": "NOUN",
+  "notesFrom": "money; Orthodox priest; pastor",
+  "notesTo": null
+ },
+ {
+  "lemma": "porr",
+  "pos": "NOUN",
+  "notesFrom": "porn, pornography",
+  "notesTo": null
+ },
+ {
+  "lemma": "puss",
+  "pos": "NOUN",
+  "notesFrom": "prank, practical joke; poot",
+  "notesTo": "poot"
+ },
+ {
+  "lemma": "pütt",
+  "pos": "NOUN",
+  "notesFrom": "a former unit of volume used primarily to measure fish and grains; grebe",
+  "notesTo": "a former unit of volume used primarily to measure fish and grains"
+ },
+ {
+  "lemma": "raisk",
+  "pos": "NOUN",
+  "notesFrom": "rubbish, garbage; Used as an intensifier to represent displeasure or anger, approximately translates to fuck, but not quite as severe; but also to represent wonder.; waste",
+  "notesTo": "rubbish, garbage; Used as an intensifier to represent displeasure or anger, approximately translates to fuck, but not quite as severe; but also to represent wonder."
+ },
+ {
+  "lemma": "ruun",
+  "pos": "NOUN",
+  "notesFrom": "a rune",
+  "notesTo": null
+ },
+ {
+  "lemma": "rüsa",
+  "pos": "NOUN",
+  "notesFrom": "wreck, jalopy",
+  "notesTo": null
+ },
+ {
+  "lemma": "somm",
+  "pos": "NOUN",
+  "notesFrom": "som",
+  "notesTo": null
+ },
+ {
+  "lemma": "sott",
+  "pos": "NOUN",
+  "notesFrom": "hundred",
+  "notesTo": null
+ },
+ {
+  "lemma": "šeik",
+  "pos": "NOUN",
+  "notesFrom": "the shake",
+  "notesTo": null
+ },
+ {
+  "lemma": "tint",
+  "pos": "NOUN",
+  "notesFrom": "ink",
+  "notesTo": null
+ },
+ {
+  "lemma": "uim",
+  "pos": "NOUN",
+  "notesFrom": "dizziness, stupor; drunkenness, intoxication",
+  "notesTo": null
+ },
+ {
+  "lemma": "vint",
+  "pos": "NOUN",
+  "notesFrom": "screw; propeller; rifle",
+  "notesTo": null
+ },
+ {
+  "lemma": "ätt",
+  "pos": "NOUN",
+  "notesFrom": "at sign",
+  "notesTo": null
+ }
+]
