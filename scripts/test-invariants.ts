@@ -21595,6 +21595,35 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("whatever says whether Anu answers, or on what, reads her own chain", () => {
+  /*
+    Anu's chain is Gemini and then Groq and nothing else, and the general
+    chain is every configured key in another order. Settings drew her section
+    off the general one, so it named a model she never answers on and, with
+    only a paid key set, printed "Connected" over a tutor the route refuses
+    with "No AI key set up yet"; the dictionary offered her a question on the
+    same reading. The shell and /tutor had already learned this. So a prop that
+    says whether she is there, and the Settings section that says what she runs
+    on, are held to the purpose chain: the file has to build it, and the prop
+    may not be computed off the head of the general chain.
+  */
+  const offenders: string[] = [];
+  let props = 0;
+  for (const file of APP) {
+    const src = code(file);
+    for (const m of src.matchAll(/\b(tutorReady|configured)=\{([^}]*)\}/g)) {
+      // A bare name is a prop handed on from a parent, which is where it was decided.
+      if (/^\s*[\w.]+\s*$/.test(m[2]!)) continue;
+      props += 1;
+      if (/resolveProvider\(\)/.test(m[2]!) || !/purpose:\s*"tutor"/.test(src)) offenders.push(`${file} (${m[1]})`);
+    }
+  }
+  const settings = code(join("app", "(app)", "settings", "page.tsx"));
+  if (/resolveProvider\(\)/.test(settings) || !/purpose:\s*"tutor"/.test(settings)) offenders.push("app/(app)/settings/page.tsx (the Anu section)");
+  assert.ok(props >= 3, `found only ${props} availability props, so the sweep has stopped reading what it should`);
+  assert.ok(offenders.length === 0, `reads the general chain to say something about Anu: ${offenders.join(", ")}`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
