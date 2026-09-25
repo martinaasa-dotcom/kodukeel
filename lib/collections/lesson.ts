@@ -255,6 +255,12 @@ export interface GapStep extends StepBase {
   full: string;
   /** What the whole sentence means, for the reveal. Null until one is asked for. */
   en: string | null;
+  /**
+   * The word's other forms, handed to `checkAnswer` so another ending one
+   * keystroke away (`toast` for `toas`) is the wrong form, not a slip that
+   * is logged as a recall.
+   */
+  rivals: readonly string[];
 }
 export interface BuildStep extends StepBase {
   kind: "build";
@@ -291,6 +297,12 @@ export interface CaseStep extends StepBase {
   caseName: string;
   question: string;
   answer: string;
+  /**
+   * The word's other forms, handed to `checkAnswer` so another ending one
+   * keystroke away (`toast` for `toas`) is the wrong form, not a slip that
+   * is logged as a recall.
+   */
+  rivals: readonly string[];
 }
 export interface GovernStep extends StepBase {
   kind: "govern";
@@ -658,6 +670,7 @@ function gapStep(word: LessonWord, id: string, rules: LessonRules): GapStep | nu
       id, kind: "gap", lexemeId: word.lexemeId, lemma: word.lemma, gloss: word.gloss,
       cue: gapCue(word, cloze.answer),
       text: cloze.text, answer: cloze.answer, full: cloze.full, en: sentence.en,
+      rivals: forms.filter((form) => form !== cloze.answer.toLowerCase()),
     };
     // The full cue is the test rather than the lemma, because the meaning
     // gives an answer away as completely as the word does: `saun` is glossed
@@ -726,6 +739,7 @@ function caseStep(
       // a `kes`, and `kus?` names two cases at once. See `caseQuestionFor`.
       caseKey: key, caseName: spec.et, question: caseQuestionFor(spec, subject),
       answer: found.accepted.join(PARTS),
+      rivals: knownForms(word).filter((form) => !found.accepted.some((a) => a.toLowerCase() === form)),
     };
   }
   return null;

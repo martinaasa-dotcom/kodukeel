@@ -549,6 +549,13 @@ model ExamAttempt {
   startedAt  DateTime @default(now())
   finishedAt DateTime @default(now())
 
+  /// When this row came back from a backup file rather than being written here.
+  /// A backup carries the marks but not the answers or the paper, so nothing
+  /// can mark it again: it stays in the history and is never read as evidence
+  /// (ADR-022, "a result anybody can type is not a measurement"). Null is a row
+  /// this deployment wrote itself. Always set on restore, whatever the file says.
+  restoredAt DateTime?
+
   @@index([ownerId, finishedAt])
   @@index([ownerId, level])
 }
@@ -713,6 +720,13 @@ model Assessment {
 
   /// JSON: the per band breakdown, for the detail view and the next comparison.
   detail String @default("{}")
+
+  /// When this row came back from a backup file rather than being written here.
+  /// A backup carries the marks but not the answers or the paper, so nothing
+  /// can mark it again: it stays in the history and is never read as evidence
+  /// (ADR-022, "a result anybody can type is not a measurement"). Null is a row
+  /// this deployment wrote itself. Always set on restore, whatever the file says.
+  restoredAt DateTime?
 
   @@index([ownerId, takenAt])
 }
