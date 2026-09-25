@@ -367,6 +367,28 @@ check("a small group names nobody by subtraction, to a member", () => {
     "the class-wide weakest cases are shown to a student, who in a small class can subtract their own");
 });
 
+// ── Never ship a credential to the client ────────────────────────────────────
+
+check("a mock paper is rebuilt the same way it was sat, and every figure on the hub says what it rests on", () => {
+  /*
+    Three ways the sitting and the marking, or the figure and its basis, came
+    apart. The pool's forms were ordered on a column the seed leaves at 0, so
+    which form a dictation asked for was the plan's choice, at the sitting and
+    again at the marking. The sitting page took any seed, and the hand-in
+    takes one string of up to 64. And the per-level rings printed a
+    percentage with the only tier text on another section.
+  */
+  const pool = code("lib/progress/exam.ts");
+  assert.match(pool, /forms: \{ orderBy: \[\{ orderIndex: "asc" \}, \{ id: "asc" \}\] \}/,
+    "the exam pool reads a word's forms in an order that ties, so a paper can be marked against another form");
+  const sit = code("app/(app)/exam/[level]/page.tsx");
+  assert.match(sit, /first && first\.length <= 64/,
+    "the sitting page accepts a seed the hand-in refuses, so a paper can be sat and never handed in");
+  const hub = code("app/(app)/exam/page.tsx");
+  assert.match(hub, /EVIDENCE_LABEL\[readiness\.evidence\]/,
+    "the hub prints a confidence ring per level with no evidence tier beside it");
+});
+
 check("no secret carries a NEXT_PUBLIC_ prefix", () => {
   const secrets = /NEXT_PUBLIC_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD)/g;
   for (const file of [...ALL, "middleware.ts", "next.config.ts", ".env.example"]) {
