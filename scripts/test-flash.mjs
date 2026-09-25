@@ -128,7 +128,21 @@ async function mainText(wanted, budgetMs = 8000) {
  * which is the shape of waiver this repository has learned to distrust.
  */
 async function question() {
-  const text = await mainText(/^your (answer|sentence)$/im);
+  /*
+    And presses through a briefing that turns up late. `startRound` looks for
+    one for about a second and a half and then assumes the round is exempt,
+    which on a loaded two-core runner is shorter than a reload takes to put the
+    briefing on screen: CI read the briefing for eight seconds, found no word
+    on it and reported the round as having forgotten its question.
+  */
+  const until = Date.now() + 8000;
+  let text = "";
+  do {
+    if (await page.locator("[data-briefing-start]").count()) await startRound(page);
+    text = await page.locator("main").innerText().catch(() => "");
+    if (/^your (answer|sentence)$/im.test(text)) break;
+    await page.waitForTimeout(150);
+  } while (Date.now() < until);
   return { text, hasBox: (await page.locator("#answer").count()) > 0 };
 }
 

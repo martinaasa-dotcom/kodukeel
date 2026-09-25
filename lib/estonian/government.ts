@@ -54,8 +54,15 @@ const BY_NAME = CASES
  * Does this text name a case at all? Used only to decide whether the seed's
  * head is informative, or whether the whole string has to be read because the
  * entry came from Ekilex and names its cases in brackets further along.
+ *
+ * Bounded on both sides, because the case names are ordinary English words
+ * without it: "essive" is a substring of "excessive" and "elative" of
+ * "relative", both of which are words a gloss or a note can carry. Unlike the
+ * Estonian this file is careful never to bound with `\b` elsewhere, these
+ * names are ASCII, so a word boundary is the right tool rather than the wrong
+ * one.
  */
-const EARLIEST_CASE_NAME = new RegExp(BY_NAME.map((c) => c.en).join("|"));
+const EARLIEST_CASE_NAME = new RegExp(`\\b(?:${BY_NAME.map((c) => c.en).join("|")})\\b`);
 
 /**
  * The separator between the case name and the example in a stored government
@@ -69,6 +76,11 @@ const EARLIEST_CASE_NAME = new RegExp(BY_NAME.map((c) => c.en).join("|"));
  */
 const GOVERNMENT_SEPARATOR = /[\u2014\u2013-]/;
 
+/** A boundary character for `namedCases`: not present inside any case name. */
+function isCaseNameChar(ch: string | undefined): boolean {
+  return ch !== undefined && /[a-z]/i.test(ch);
+}
+
 /**
  * Every case a government string names, in the order it names them.
  *
@@ -78,6 +90,16 @@ const GOVERNMENT_SEPARATOR = /[\u2014\u2013-]/;
  * cases the entry never mentioned. `hakkama` is "kelleks (translative) ·
  * kellel (adessive)", and a naive scan reads a third government out of it that
  * does not exist.
+ *
+ * **And it is bounded on both sides**, which a scan over case names alone does
+ * not fix: `excessive` holds `essive` and `relative` holds `elative`, both of
+ * them ordinary English words a gloss or a note can carry rather than another
+ * case's name. Without the boundary a match right up against another letter
+ * is accepted the same as one standing on its own, so an entry's own English
+ * prose could invent a government the word does not have. Case names are
+ * ASCII, so a plain letter check either side is the right guard here, unlike
+ * `\b` over Estonian text elsewhere in this file, which cannot see a
+ * diacritic as a boundary at all.
  *
  * The first entry is the primary government, which is what `parseGovernment`
  * has always returned: the front for the seed shape, and the first-listed for
@@ -89,7 +111,12 @@ function namedCases(text: string): (typeof BY_NAME)[number][] {
   const found: (typeof BY_NAME)[number][] = [];
   let i = 0;
   while (i < text.length) {
-    const hit = BY_NAME.find((c) => text.startsWith(c.en, i));
+    const hit = BY_NAME.find(
+      (c) =>
+        text.startsWith(c.en, i)
+        && !isCaseNameChar(text[i - 1])
+        && !isCaseNameChar(text[i + c.en.length]),
+    );
     if (!hit) { i++; continue; }
     if (!found.some((f) => f.key === hit.key)) found.push(hit);
     i += hit.en.length;
@@ -284,6 +311,33 @@ const FALLBACK: readonly CaseKey[] = [
     (k) => !["PARTITIVE", "ALLATIVE", "ELATIVE", "COMITATIVE", "ADESSIVE", "GENITIVE"].includes(k),
   ),
 ];
+
+/**
+ * The cue a government question may print before it is answered, or null.
+ *
+ * `maskExample` hides a word by its position, which is only safe on the one
+ * kind of sentence that position was promised for: the example a government
+ * entry carries in its own column, written with the complement last. Anything
+ * else put through it is a sentence whose last word is whatever the writer
+ * ended on. Measured over the shipped dictionary, no governed verb carries an
+ * example of its own, so every question the government drill asked went down
+ * the other path: the page fell back to an attested usage and masked its last
+ * word, which was often the verb itself (`Tule …` for `tulema`) and left the
+ * complement standing in the case being asked about (`Tuul viis mütsi …` over
+ * a question whose answer is the partitive). The cue printed the answer.
+ *
+ * An experiencer construction is refused for the same reason from the other
+ * end: its governed word leads (`mulle meeldib see`), so hiding the last word
+ * leaves the allative on screen. And a one-word example has nothing to hide.
+ */
+export function governmentCue(
+  government: Pick<Government, "example" | "experiencer">,
+): string | null {
+  if (government.experiencer) return null;
+  const example = government.example?.trim();
+  if (!example || example.split(/\s+/).length < 2) return null;
+  return maskExample(example);
+}
 
 /**
  * Blanks the governed word in the example so it can be shown as a cue without
