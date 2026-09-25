@@ -28,7 +28,7 @@ import { dirname, join } from "node:path";
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "::1", "[::1]"]);
 
 /** The escape hatch, for the rare case of pointing these at a scratch server. */
-const OVERRIDE = "KODUKEEL_ALLOW_REMOTE_DB";
+export const OVERRIDE = "KODUKEEL_ALLOW_REMOTE_DB";
 
 /** Mirrors Prisma's own precedence: the environment wins, `.env` is the fallback. */
 export function resolveDatabaseUrl() {

@@ -94,7 +94,7 @@ export const ERRANDS: readonly Errand[] = [
   { id: "family", says: "Tell a colleague or a neighbor one thing about your family.", where: "Work, the stairwell", unit: "inimesed", scene: "trepikoda" },
   { id: "day", says: "Tell somebody what you did today, in three sentences.", where: "Home, a friend", unit: "iga-paev" },
   { id: "number", says: "Give your phone number in Estonian, digit by digit, and have it read back.", where: "A form, a friend", unit: "arvud" },
-  { id: "clothes", says: "Ask for a size or a color in a shop.", where: "A clothes shop", unit: "riided" },
+  { id: "clothes", says: "Ask for a size or a color in a shop.", where: "A clothes shop", unit: "riided", scene: "riidepood" },
   { id: "call", says: "Make one phone call in Estonian, even a short one.", where: "The phone", unit: "suhtlemine", scene: "helistamine" },
   { id: "appointment", says: "Book or ask about an appointment in Estonian, and hold the line if they switch.", where: "A health center, a salon", unit: "keha-ja-tervis", scene: "arsti-aeg" },
   { id: "plan", says: "Arrange to meet somebody, with a day and a time.", where: "Work, a friend", unit: "plaanid" },

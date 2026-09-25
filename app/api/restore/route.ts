@@ -5,6 +5,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { reportError } from "@/lib/observability/report";
+import { NO_STORE } from "@/lib/security/headers";
 
 /**
  * Restoring a backup, as a Route Handler rather than a Server Action.
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
           "That file is larger than this app will read, and nothing was changed. " +
           "If it really is a Kodukeel backup, whoever runs this installation can raise the limit.",
       },
-      { status: 413 },
+      { headers: NO_STORE, status: 413 },
     );
   }
 
@@ -106,19 +107,19 @@ export async function POST(request: NextRequest) {
     if (json.length > MAX_BACKUP_BYTES) {
       return NextResponse.json(
         { ok: false, error: "That file is larger than this app will read, and nothing was changed." },
-        { status: 413 },
+        { headers: NO_STORE, status: 413 },
       );
     }
   } catch (cause) {
     await reportError(cause, { at: "api/restore", extra: { stage: "read" } });
     return NextResponse.json(
       { ok: false, error: "The upload did not finish, and nothing was changed. Try again." },
-      { status: 400 },
+      { headers: NO_STORE, status: 400 },
     );
   }
 
   if (!json.trim()) {
-    return NextResponse.json({ ok: false, error: "That file was empty." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "That file was empty." }, { headers: NO_STORE, status: 400 });
   }
 
   /*
@@ -151,13 +152,13 @@ export async function POST(request: NextRequest) {
           "and it stops mid-way rather than at the end. Nothing was changed and your file is " +
           "untouched. This is a limit on the upload rather than anything wrong with the backup.",
       },
-      { status: 413 },
+      { headers: NO_STORE, status: 413 },
     );
   }
 
   try {
     const result = mode === "inspect" ? await inspectBackup(json) : await restoreBackup(json, mode);
-    return NextResponse.json(result, { status: result.ok ? 200 : 400 });
+    return NextResponse.json(result, { headers: NO_STORE, status: result.ok ? 200 : 400 });
   } catch (cause) {
     // requireUserId throws for a signed-out caller; everything else is real.
     await reportError(cause, { at: "api/restore", extra: { stage: "restore", bytes: json.length } });
@@ -167,7 +168,7 @@ export async function POST(request: NextRequest) {
         error:
           "The restore did not finish, and nothing was changed. Your backup file is untouched, so it is safe to try again.",
       },
-      { status: 500 },
+      { headers: NO_STORE, status: 500 },
     );
   }
 }

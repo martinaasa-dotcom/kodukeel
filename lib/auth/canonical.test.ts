@@ -21,6 +21,12 @@ describe("canonicalOrigin", () => {
 });
 
 describe("canonicalRedirect", () => {
+  it("leaves a path the scheduler calls on whatever host it arrived at, since cron does not follow a redirect", () => {
+    expect(canonicalRedirect("kodukeel.vercel.app", "/api/email/send", { NEXT_PUBLIC_SITE_URL: SITE })).toBeNull();
+    expect(canonicalRedirect("kodukeel.vercel.app", "/api/email/sender", { NEXT_PUBLIC_SITE_URL: SITE }))
+      .toBe("https://kodukeel.ee/api/email/sender");
+  });
+
   it("sends the platform's own name to the domain, keeping the path and the query", () => {
     expect(canonicalRedirect("kodukeel.vercel.app", "/sign-in?next=%2Fprogress", { NEXT_PUBLIC_SITE_URL: SITE }))
       .toBe("https://kodukeel.ee/sign-in?next=%2Fprogress");
