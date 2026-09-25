@@ -532,7 +532,12 @@ export async function ladderReading(
       },
     }),
     prisma.review.count({ where: { ownerId, reviewedAt: { gte: since } } }),
-    prisma.review.count({ where: { ownerId, reviewedAt: { gte: since }, rating: { gte: 2 } } }),
+    /* Good or Easy, which is what every other reading here calls recalled
+       (`lib/stats/history.ts`, `lib/readiness/evidence.ts`, `lib/srs/mastery.ts`).
+       Hard is what a hint, a slip or the right word in the wrong ending is
+       graded, and counting it here read a fortnight of near misses as a
+       fortnight of right answers and handed the next part over on them. */
+    prisma.review.count({ where: { ownerId, reviewedAt: { gte: since }, rating: { gte: 3 } } }),
   ]);
 
   return ladderVerdict({ taught, known, answers, right });
