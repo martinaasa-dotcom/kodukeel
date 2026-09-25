@@ -21,7 +21,7 @@ const LEARNER = "itest-suggest-learner";
 
 async function wipe() {
   const lexemes = await prisma.lexeme.findMany({
-    where: { lemma: { in: [LEMMA, "itest-suggest-uus"] } },
+    where: { lemma: { in: [LEMMA, LEMMA.toUpperCase(), "itest-suggest-uus"] } },
     select: { id: true },
   });
   const ids = lexemes.map((l) => l.id);
@@ -179,6 +179,48 @@ describe("accepting a missing word", () => {
     );
     const after = await prisma.lexeme.findUniqueOrThrow({ where: { id: lexeme.id } });
     expect(after.provenance).toBe("EKILEX");
+  });
+});
+
+describe("a missing-word report for a word the dictionary already has", () => {
+  /*
+    The queue marks such a row blocked and draws no Accept button, and the page
+    is deliberately not revalidated between clicks, so a page loaded before the
+    word arrived still offers the button. The write has to refuse on its own
+    reading of the dictionary, or a stale page overwrites the gloss everybody
+    reads with whatever the learner typed into a report.
+  */
+  it("refuses, and leaves the existing entry's gloss as it was", async () => {
+    const lexeme = await seedWord();
+    const outcome = await applyPatch(
+      { kind: "CREATE_WORD", lemma: LEMMA, pos: "NOUN", translation: "a thing I saw once", forms: {} },
+      REVIEWER,
+    );
+    expect(outcome).toMatchObject({ ok: false });
+    const after = await prisma.lexeme.findUniqueOrThrow({ where: { id: lexeme.id } });
+    expect(after.translation).toBe("room");
+    expect(after.editedBy).toBeNull();
+  });
+
+  it("refuses whatever the case of the lemma, as the queue reads it", async () => {
+    const lexeme = await seedWord();
+    const outcome = await applyPatch(
+      { kind: "CREATE_WORD", lemma: LEMMA.toUpperCase(), pos: "NOUN", translation: "hall", forms: {} },
+      REVIEWER,
+    );
+    expect(outcome).toMatchObject({ ok: false });
+    expect(await prisma.lexeme.count({ where: { lemma: { equals: LEMMA, mode: "insensitive" } } })).toBe(1);
+    const after = await prisma.lexeme.findUniqueOrThrow({ where: { id: lexeme.id } });
+    expect(after.translation).toBe("room");
+  });
+
+  it("still adds the word under another part of speech, which is a different entry", async () => {
+    await seedWord();
+    const outcome = await applyPatch(
+      { kind: "CREATE_WORD", lemma: LEMMA, pos: "ADJECTIVE", translation: "roomy", forms: {} },
+      REVIEWER,
+    );
+    expect(outcome).toMatchObject({ ok: true, changed: true });
   });
 });
 
