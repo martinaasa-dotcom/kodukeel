@@ -80,3 +80,18 @@ describe("tokenise", () => {
     expect(tokenise("õun ja päev").filter((t) => t.word).map((t) => t.text)).toEqual(["õun", "ja", "päev"]);
   });
 });
+
+describe("a letter sent in two pieces", () => {
+  const decomposed = "Sõna on õige";
+
+  it("is read back composed, as the dictionary holds it", () => {
+    const [title] = parseHeadlines(`<rss><item><title>${decomposed}</title></item></rss>`);
+    expect(title).toBe("Sõna on õige");
+  });
+
+  it("is never split into two words", () => {
+    const words = tokenise(decomposed).filter((t) => t.word).map((t) => t.text);
+    expect(words).toEqual(["Sõna", "on", "õige"]);
+    expect(tokenise(decomposed).map((t) => t.text).join("")).toBe(decomposed);
+  });
+});

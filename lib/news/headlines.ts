@@ -44,7 +44,7 @@ const MAX_HEADLINES = 60;
 const SENTENCE_BREAK = /[.:!?…]+/u;
 
 /** Any run of characters that is not a letter separates two words. */
-const WORD_BREAK = /[^\p{L}]+/u;
+const WORD_BREAK = /[^\p{L}\p{M}]+/u;
 
 const ENTITIES: Record<string, string> = {
   amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
@@ -85,7 +85,11 @@ export function parseHeadlines(xml: string): string[] {
     if (!title?.[1]) continue;
     const text = decodeEntities(
       title[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1"),
-    ).trim();
+    ).trim()
+      // One spelling of each letter. A feed that sends `õ` as `o` plus a
+      // combining tilde matches no dictionary row, which holds the composed
+      // form, and reads as a word nobody could vouch for.
+      .normalize("NFC");
     if (text) out.push(text);
     if (out.length >= MAX_HEADLINES) break;
   }
@@ -148,7 +152,9 @@ export interface HeadlineToken {
 
 export function tokenise(headline: string): HeadlineToken[] {
   const out: HeadlineToken[] = [];
-  for (const match of headline.matchAll(/\p{L}+|[^\p{L}]+/gu)) {
+  // A combining mark belongs to the letter before it: split on it and a
+  // decomposed `sõna` is two words, `so` and `na`, each looked up alone.
+  for (const match of headline.matchAll(/[\p{L}\p{M}]+|[^\p{L}\p{M}]+/gu)) {
     const text = match[0];
     out.push({ text, word: /\p{L}/u.test(text) });
   }
