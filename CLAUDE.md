@@ -4619,8 +4619,11 @@ a screen belongs. And the verdict band was drawn at ten hours a week measured ag
 *optimistic* end of the range while the note under it quoted the distance at five found hours a
 week, so 335 of the 704 combinations a learner could click said "It fits, but only with study
 outside this app" over a sentence putting the date three years out. Both read
-`FOUND_HOURS_PER_WEEK` now, and the band sits at the pessimistic end, which makes those two
-sentences the same claim rather than two answers to one question. A deadline already gone is its
+`FOUND_HOURS_PER_WEEK` now, and the band and the note are drawn against one `found`, which makes
+those two sentences the same claim rather than two answers to one question. The band sits at the
+near end of the distance, on purpose and after first sitting at the far one: a learner who reached
+the last level in the fewer hours is the one who reaches the next in the fewer, so "it fits" means
+the near end of the range lands inside the date, and the note prints the whole range under it. A deadline already gone is its
 own verdict rather than a division by no time: it used to floor at one week and print "in 0 weeks
 your daily goal puts in about 0.4 of those hours" over a note asking for 1 099 hours a week. Two
 invariants and an exhaustive sweep of every combination in `plan.test.ts` hold all three.
