@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { buildRecord, redact, safeMessage } from "./report";
 
 describe("redact", () => {
@@ -127,5 +129,62 @@ describe("safeMessage", () => {
   it("survives something that is not an Error at all", () => {
     expect(safeMessage(undefined)).toBe("");
     expect(safeMessage("plain string")).toBe("plain string");
+  });
+});
+
+/*
+  THE SAME SHAPES CI GREPS THE CLIENT BUNDLE FOR, WHICH IT WAS NOT.
+
+  `redact` says of itself that it scrubs the shapes `scripts/check-secrets.mjs`
+  looks for, and the two lists are typed separately, so the claim was only as
+  true as the last person who remembered both. It had drifted by five: a
+  Supabase secret key, a Supabase access token, a Resend key, an AWS key and a
+  GitHub token were all things the build refuses to ship to a browser and all
+  things the error log would have written to the webhook whole. The mailer and
+  the service-role client are the two places this app holds keys of those
+  shapes, and a provider quoting a rejected key back in an error is ordinary.
+
+  A script cannot be imported from `lib/`, so the pairing is by name: every
+  pattern the build scan names has a sample here, and a pattern added there
+  without one fails this test until somebody decides what it looks like.
+*/
+describe("redact covers every shape the bundle scan refuses", () => {
+  const SAMPLES: Record<string, string> = {
+    "OpenAI / OpenRouter secret key": "sk-or-v1-AAAAAAAAAAAAAAAAAAAAAAAA",
+    "Anthropic API key": "sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAA",
+    "AWS access key id": "AKIAABCDEFGHIJKLMNOP",
+    "Google API key": "AIzaSyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "Groq API key": "gsk_AAAAAAAAAAAAAAAAAAAAAAAA",
+    "Supabase secret key": "sb_secret_AAAAAAAAAAAAAAAAAAAA",
+    "Supabase personal access token": "sbp_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "GitHub token": "ghp_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "GitHub fine-grained token": "github_pat_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "Resend API key": "re_AAAAAAAAAAAAAAAAAAAA",
+    "Postgres connection string with a password": "postgresql://app:hunter2hunter2@db.example.com:5432/x",
+    "Ekilex API key assignment": "EKILEX_API_KEY=abcdefgh12345678",
+    "private key block": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASC\n-----END PRIVATE KEY-----",
+  };
+  /** The secret part of each sample: what may not survive. */
+  const secretOf = (name: string, sample: string): string =>
+    name === "Postgres connection string with a password" ? "hunter2hunter2"
+      : name === "Ekilex API key assignment" ? "abcdefgh12345678"
+      : name === "private key block" ? "MIIEvQIBADANBgkqhkiG9w0BAQEFAASC"
+      : sample;
+
+  const scanned = [...readFileSync(join(process.cwd(), "scripts/check-secrets.mjs"), "utf8")
+    .matchAll(/\{\s*name:\s*"([^"]+)"/g)].map((m) => m[1] as string);
+
+  it("reads the scan's own list, not a copy of it", () => {
+    expect(scanned.length).toBeGreaterThanOrEqual(13);
+  });
+
+  it("has a sample for every pattern the scan names", () => {
+    expect(scanned.filter((name) => !(name in SAMPLES))).toEqual([]);
+  });
+
+  it.each(Object.entries(SAMPLES))("scrubs a %s from a message", (name, sample) => {
+    const out = String(redact(`upstream said: ${sample} was rejected`));
+    expect(out).not.toContain(secretOf(name, sample));
+    expect(out).toContain("[redacted]");
   });
 });

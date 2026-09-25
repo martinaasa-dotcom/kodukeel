@@ -35,6 +35,7 @@ import { requeue } from "@/lib/srs/queue";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
+import { choiceIsRight } from "@/lib/questions/caseChoices";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -704,10 +705,18 @@ export function ReviewSession({
     `lib/questions/hints.ts` on why the caller hands over what it has rather
     than picking.
   */
+  const answerLanguage = card?.cardType === "RECOGNITION" ? "en" : "et";
+  /*
+    The option that is the answer, which is not always the back as a string:
+    a back can hold two spellings and an option holds one. See `choiceIsRight`.
+  */
+  const rightChoice = card
+    ? card.choices?.find((c) => choiceIsRight(c, card.back, answerLanguage)) ?? card.back
+    : "";
   const ladder = !card
     ? []
     : ask === "choice"
-      ? narrowLadder(card.choices ?? [], card.back)
+      ? narrowLadder(card.choices ?? [], rightChoice)
       : ask === "type"
         ? hintLadder({
           answer: card.back,
@@ -731,7 +740,7 @@ export function ReviewSession({
     lapses: card?.scheduling.lapses ?? 0,
   });
   const struck = ask === "choice" && card
-    ? struckOptions(card.choices ?? [], card.back, hints.taken)
+    ? struckOptions(card.choices ?? [], rightChoice, hints.taken)
     : [];
   /*
     The line that says being unable to answer is the ordinary state, on a word
@@ -911,7 +920,7 @@ export function ReviewSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
     producedAt.current = null;
-  }, [card, queue, index]);
+  }, [card, queue]);
 
   const submit = useCallback(async (asked: RatingValue) => {
     if (!card || busy) return;
@@ -1095,7 +1104,7 @@ export function ReviewSession({
     if (!card || chosen) return;
     setChosen(choice);
     setRevealed(true);
-    const right = choice === card.back;
+    const right = choiceIsRight(choice, card.back, answerLanguage);
     cheer(right);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
     // Nothing grades itself here any more: the tile turns and a button
@@ -1103,7 +1112,7 @@ export function ReviewSession({
     // A pick is final the instant it is made, right or wrong, so this stops
     // the clock here rather than at whenever the button is finally pressed.
     producedAt.current = Date.now();
-  }, [card, chosen, cheer]);
+  }, [card, chosen, cheer, answerLanguage]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1205,7 +1214,7 @@ export function ReviewSession({
         // advance key is the button under the card.
         if (ask === "type" && verdict) { if (!needsRetype) void submit(verdict.suggestedRating); return; }
         // Both a right and a wrong pick wait for the same button now.
-        if (ask === "choice") { if (chosen) void submit(chosen === card?.back ? 3 : 1); return; }
+        if (ask === "choice") { if (chosen) void submit(card && choiceIsRight(chosen, card.back, answerLanguage) ? 3 : 1); return; }
         if (!revealed) setRevealed(true);
         else void submit(3);
         return;
@@ -1232,7 +1241,7 @@ export function ReviewSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look]);
+  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look, answerLanguage]);
 
   if (wasEmptyAtStart) {
     return (
@@ -1689,7 +1698,7 @@ export function ReviewSession({
           {ask === "choice" && chosen && (
             <div className="mt-2 grid w-full max-w-md gap-2">
               {card.choices?.map((choice) => {
-                const state = optionState(choice === card.back, choice === chosen);
+                const state = optionState(choiceIsRight(choice, card.back, answerLanguage), choice === chosen);
                 return (
                   <div
                     key={choice}
@@ -1843,7 +1852,7 @@ export function ReviewSession({
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
               Pick the meaning · keys 1 to {card.choices?.length ?? 4}
             </p>
-          ) : ask === "choice" && chosen === card.back ? (
+          ) : ask === "choice" && chosen !== null && choiceIsRight(chosen, card.back, answerLanguage) ? (
             /* Right, and waiting: the tile has already turned mint, so the
                button only has to say what happens next. */
             <Button variant="primary" size="lg" className="w-full" onClick={() => void submit(3)} disabled={busy}>

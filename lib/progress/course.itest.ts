@@ -160,6 +160,21 @@ async function tick(dayId: string, stepIds: readonly string[], at: Date) {
   }
 }
 
+/** Answers as the grading path writes them: the device's moment and the server's. */
+async function received(n: number, answeredAt: Date, receivedAt: Date) {
+  const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+  for (let i = 0; i < n; i += 1) {
+    await prisma.review.create({
+      data: {
+        ownerId: OWNER, cardId: card!.id, lexemeId: card!.lexemeId,
+        rating: 3, durationMs: 4000,
+        reviewedAt: new Date(answeredAt.getTime() + i * 1000),
+        receivedAt: new Date(receivedAt.getTime() + i * 1000),
+      },
+    });
+  }
+}
+
 async function review(n: number, at: Date) {
   const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
   for (let i = 0; i < n; i += 1) {
@@ -246,6 +261,38 @@ describe("which day is current", () => {
 
     const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.day.index).toBe(1);
+    expect(reading.current?.next?.id).toBe(REVIEW_STEP);
+  });
+
+  it("closes the evening on a device whose clock runs slow", async () => {
+    /*
+      The tick is the server's time and the answer's `reviewedAt` is the
+      device's. Ten minutes slow, every closing answer is dated before the tick
+      that opened the round, and the step, which nobody can press, never ticks.
+    */
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    // Cards still due, so the round is not closed by having nothing left to ask.
+    await reviewable(CLOSING_REVIEW);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+    await received(CLOSING_REVIEW, new Date(at.getTime() - 10 * 60_000), new Date(at.getTime() + 60_000));
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.finishedToday).toBe(true);
+  });
+
+  it("does not count an answer the server received before the round opened, whatever the device says", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    const at = EVENING;
+    // A device clock running fast dates these after the tick; they arrived before it.
+    await received(CLOSING_REVIEW, new Date(at.getTime() + 10 * 60_000), new Date(at.getTime() - 60_000));
+    await tick(one.id, ticked(one), at);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.next?.id).toBe(REVIEW_STEP);
   });
 });
@@ -408,6 +455,24 @@ describe("the day an action may write about", () => {
     expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[4]!)).toBe(false);
     expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days.at(-1)!)).toBe(false);
   });
+
+  /*
+    AND THE PROGRAMME HAS TO BE THE ONE THEY ARE FOLLOWING. The day id is not
+    the only thing off the wire: the programme id is too, and a part nobody has
+    opened has no ticks, so its first two evenings read as "reached" by the
+    rule above. Without this a call naming the last part of C1 builds a
+    beginner's deck out of its words, which is the forged call the guard's own
+    header says it closes.
+  */
+  it("refuses a day of a programme they are not following", async () => {
+    const elsewhere = PROGRAMMES.at(-1)!;
+    expect(elsewhere.id).not.toBe(PROGRAMME.id);
+    await deck(PROGRAMME.days[0]!.words, 1);
+    expect(await dayIsInPlay(OWNER, elsewhere, elsewhere.days[0]!)).toBe(false);
+    expect(await dayIsInPlay(OWNER, elsewhere, elsewhere.days[1]!)).toBe(false);
+    // The one they are following is still open, which is what the UI hands over.
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[0]!)).toBe(true);
+  });
 });
 
 describe("the closing round's own counter", () => {
@@ -492,6 +557,30 @@ describe("the closing round's own counter", () => {
 
     expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW)).toEqual({ graded: 0, needed: 0 });
     expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
+  });
+
+  /*
+    AND THE LINE ASKS WHAT THE STEP IS FINISHED AGAINST, WHILE ANOTHER STEP
+    IS STILL OPEN.
+
+    The reading settles for what the round can give only once the closing
+    round is the one step left; until then it wants five. The line settled
+    early, so it read "2 of 2 answers in" over a step that was not finished.
+  */
+  it("asks for five while another step of the evening is still open", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const two = await reviewable(2);
+    const manual = ticked(one);
+    expect(manual.length, "the first evening has no step a learner ticks").toBeGreaterThan(0);
+    await tick(one.id, manual.slice(0, -1), EVENING);
+    await review(2, new Date(EVENING.getTime() + 60_000));
+    await scheduleAway(two);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(1);
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
+      .toEqual({ graded: 2, needed: CLOSING_REVIEW });
   });
 
   /* Two cards left is two answers, and then the evening is over. */

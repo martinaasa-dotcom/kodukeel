@@ -41,6 +41,7 @@ import { DEFAULT_VOICE } from "@/lib/audio/voice";
 import { glossSentences } from "@/lib/dict/glossed";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { NO_STORE } from "@/lib/security/headers";
 
 /**
  * One line of one turn, walked up the ladder.
@@ -106,7 +107,6 @@ const MAX_CONTEXT_CHARS = 600;
 const MAX_CONTEXT_TURNS = 6;
 /** Per instance, and not the thing that bounds cost: the ledger is (§16). */
 const PER_MINUTE = 30;
-const NO_STORE = { "cache-control": "no-store" };
 
 export async function POST(request: Request) {
   const ownerId = await requireUserId();
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
     : null;
   const scene = row ? sceneById(row.sceneId) : null;
   if (!scene) {
-    return Response.json({ error: "That is not a turn in a scene." }, { status: 400 });
+    return Response.json({ error: "That is not a turn in a scene." }, { headers: NO_STORE, status: 400 });
   }
 
   /*
@@ -161,7 +161,7 @@ export async function POST(request: Request) {
 
   const context = await sceneContext(scene.id, level);
   if (!context) {
-    return Response.json({ error: "That scene could not be built." }, { status: 400 });
+    return Response.json({ error: "That scene could not be built." }, { headers: NO_STORE, status: 400 });
   }
 
   const persona = personaOf(row!.transcript);
@@ -233,12 +233,22 @@ export async function POST(request: Request) {
     happen is a grade: a conceded requirement writes no row (`gradesFor`), so
     nothing a model decided reaches the append-only log.
   */
+  /*
+    AND THE BEAT JUDGED IS THE ONE THE TURN WAS AIMED AT, READ OFF THE STATE
+    BEFORE IT. This read the state after the turn, and two ordinary turns put a
+    different beat there: the miss that spends the last try moves the pointer
+    on, and a miss that met a beat further along appends that beat's row after
+    its own. Either way the last row named another beat than the pointer, and
+    the judge was never asked, which on a beat with patience one, or with the
+    brisk persona on nearly every beat, is every miss.
+  */
   const lastSent = turns[turns.length - 1];
-  const lastRead = state.turns[state.turns.length - 1];
-  const judged = state.hurdle ? hurdleBeat(state.hurdle) : currentBeat(scene, state);
+  const before = replay(marking, draw, turns.slice(0, -1)).state;
+  const lastRead = before.turns.length < state.turns.length ? state.turns[before.turns.length] : undefined;
+  const judged = before.hurdle ? hurdleBeat(before.hurdle) : currentBeat(scene, before);
   const JUDGED_READINGS = new Set(["offtarget", "incomplete", "english", "unrecognised", "fragment"]);
   const judgeable = Boolean(
-    lastSent && lastRead && judged && !isOver(scene, state) && !lastSent.conceded
+    lastSent && lastRead && judged && !isOver(scene, before) && !lastSent.conceded
       && lastRead.beatId === judged.id
       && JUDGED_READINGS.has(lastRead.reading)
       && /\p{L}/u.test(lastSent.said)
@@ -420,8 +430,17 @@ export async function POST(request: Request) {
   const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
   const heard = last?.heard ?? null;
 
+  /*
+    Bounded like the turns are, since it arrives off the wire the same way:
+    the other side says at most a few lines a turn, and a line long enough to
+    be past any the bank holds can only ever fail to match one.
+  */
   const used = new Set(
-    Array.isArray(body.used) ? body.used.filter((v): v is string => typeof v === "string") : [],
+    Array.isArray(body.used)
+      ? body.used
+        .slice(0, MAX_TURNS * 4)
+        .filter((v): v is string => typeof v === "string" && v.length <= MAX_TURN_CHARS * 4)
+      : [],
   );
 
   /*
@@ -560,7 +579,7 @@ export async function POST(request: Request) {
       them onto the turn and the next request carries them (ADR-025 amendment
       2). Null where the dictionary read the turn for itself.
     */
-    conceded: last?.conceded ?? null,
+    conceded: turns[turns.length - 1]?.conceded ?? null,
     /* Beats further along the judge said this turn met, for the client to echo like `conceded`. */
     alsoDone: turns[turns.length - 1]?.alsoDone ?? null,
     chosen,
