@@ -9,7 +9,7 @@
  * question they answered two turns ago. Vouching is about vocabulary, and
  * neither of those is a vocabulary fault.
  *
- * `docs/19-situations.md` §2. Never shown with a caveat: a caveat still puts a
+ * `docs/21-situations.md` §2. Never shown with a caveat: a caveat still puts a
  * wrong form in front of somebody trying to learn one, which is the same rule
  * `lib/tutor/verify.ts` follows about a grader's note. What the learner sees
  * instead is the fallback, which is somebody who did not catch what they said.
