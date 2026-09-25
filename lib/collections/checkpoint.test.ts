@@ -106,6 +106,7 @@ describe("buildCheckpoint", () => {
 
   it("falls back to production for a word with no sentence", () => {
     const bare = buildCheckpoint(WORDS.filter((w) => w.examples.length === 0), 8, 3);
+    expect(bare.length).toBeGreaterThan(0);
     expect(bare.every((q) => q.kind === "type")).toBe(true);
     for (const q of bare) expect(q.answer).toBe(q.lemma);
   });

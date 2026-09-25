@@ -166,6 +166,7 @@ describe("the scene prompt held on Google's side", () => {
       return new Response("data: [DONE]\n\n", { headers: { "content-type": "text/event-stream" } });
     });
     await openWithFallback([chain[0]!], "SYSTEM", [{ role: "user", content: "hi" }]);
+    expect(calls.length).toBeGreaterThan(0);
     expect(calls.every((c) => c.url.includes("/openai/chat/completions"))).toBe(true);
   });
 });

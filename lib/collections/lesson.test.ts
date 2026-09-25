@@ -435,6 +435,7 @@ describe("what a step is built from", () => {
       words: verbs, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 2, wordOrder,
     });
     const govern = steps.filter((s) => s.kind === "govern");
+    expect(govern.length).toBeGreaterThan(0);
     for (const step of govern) expect(step.lemma).toBe("aitama");
   });
 });
