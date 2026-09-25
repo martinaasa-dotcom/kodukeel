@@ -5339,8 +5339,9 @@ over, which is also the right thing to vary: meeting a word is the one part of a
 scales with how far in you are. `MINUTES_PER_WORD` falls from 1.1 at A1 to 0.7 at C1, because a C1
 learner meeting `hoolimata` has the stem, the case and the register already, so the same fifteen
 minutes carries five new words at A1 and seven at C1. Five is also the Learn ladder's own batch, so a
-beginner's evening is one lap of it. Measured over all 273 evenings: thirteen to sixteen minutes,
-median fourteen, 67 hours from nothing to C1.
+beginner's evening is one lap of it. Measured over the 273 evenings the ladder had when the model
+was set: thirteen to sixteen minutes, median fourteen, 67 hours from nothing to C1. `course.test.ts`
+holds every evening the ladder has now to the same fifteen minutes.
 
 **A conversation replaces the reading and both rounds rather than joining them**, which is what keeps
 the evening fifteen minutes on the night it happens: `TALK_MINUTES` is defined as exactly what it
@@ -5694,7 +5695,7 @@ opening. So `rounds` takes what the evening before dealt and passes over it on t
 preferred rather than refused, since early in a level the supported rounds may be one. And a unit of
 verbs that pins the table on one evening does not meet it on the rotation the next, now that A1
 carries the table on its rotation: the drill after it stands in. Both asserted, and the rule that no
-pair repeats where the words allow another stands over all 289 evenings unchanged.
+pair repeats where the words allow another stands over every evening of the ladder unchanged.
 
 **And then the same rule was asked of every evening of every level, because a beginner is not the
 only person who can be handed something nobody told them.** A2's first evening dealt a case sprint
@@ -5730,7 +5731,7 @@ The board waits for six pictured nouns, the board's own size, since inside
 the module its top-up is the taught words and five of them is the empty state; the first board falls
 on `kodu`. The sprint tops up from any met word, as Match and Listening do, so an evening with
 nothing due and nothing lapsed is not an empty sprint. `course.test.ts` rebuilds the ledger from the
-syllabus and the readings as a second opinion and walks all 289 evenings against it.
+syllabus and the readings as a second opinion and walks every evening against it.
 
 **And the second pass over the same evenings found four more, which is the argument for walking
 them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the
@@ -6735,6 +6736,17 @@ they are, since they are what gates `b`, and they are no longer what makes this 
 **Every mode grades through `gradeCard`.** Sprint, Listening and Match are not side games with their
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)
+
+**And a round the server marks is graded once, however often it arrives.** `gradeCard` mints a
+review id per call, which is right for the one answer a session has just shown and wrong for a
+round the server rebuilds and marks: Sõnad, the crossword and a finished conversation each wrote a
+second set of recalls whenever the same round arrived again, and the screens send a round again by
+design, since they mark it sent only once the server has answered. So those grade through
+`gradeOnce` with an id `stableReviewId` derives from what the grade is about (the day and the card
+for Sõnad and the crossword, the run and the grade's place in it for a conversation), and an
+invariant fails on any other export reaching for `gradeCard`. And a run is closed once: `finishRun`
+closes it with a compare-and-set on `endedAt`, driven four times at once against a real database,
+so two presses of the finish grade one set rather than two.
 
 **And a round that grades in bulk sends the round once, not a request per card.** `gradeCard` is a
 Server Action, so every call is a POST, a session read, a card lookup, a write and a
@@ -8251,8 +8263,9 @@ Measured over the catalog: six of the eight `ask` beats have no recorded questio
 their topic words, because a lexicographer writes a usage to illustrate a word rather than to ask
 about one, and six of the thirteen other beats have no usage at all. So on a keyless deployment, or
 one whose allowance has gone, more than half of every conversation was the desk claiming not to
-have understood a turn that was fine. `wayOut` in `lib/scenes/line.ts` is the one function that
-decides between the two, and it takes the turn's *reading* rather than a boolean, so the decision
+have understood a turn that was fine. `wayOut` in `lib/scenes/line.ts` was the one function that
+decided between the two (it is `replyFor` in `lib/scenes/reply.ts` now, and the English rung went
+with the next paragraph), and it takes the turn's *reading* rather than a boolean, so the decision
 cannot be made by a caller that has not marked the turn: `unrecognised` and `offtarget` get the
 repair phrase in character, and everything else gets a fourth rung. That rung is **English and not
 in character**: the other side made their move and we could not put it into Estonian, so the screen
@@ -10364,8 +10377,12 @@ OpenAI behind the same budget gate. That order replaced "free first", and the fu
 comment says why: a free model is throttled upstream by design, so preferring one spends the
 learner's wait to save a hundredth of a cent. Do not collapse either kind to one provider.
 `openWithFallback` walks past a provider that is throttled or having a bad
-minute, and never past a rejected key or a model that does not exist, since every provider would
-answer those the same way and trying them all turns one clear message into a slower one. A
+minute. A rejected key is walked past only to a different provider, since the next link of the
+same provider carries the same key and trying it turns one clear message into a slower one; a
+model that does not exist is walked past either way, since every link names its own. That used to
+read "never past a rejected key or a missing model, since every provider would answer those the
+same way", which was true of one shared model and false of a purpose chain: Groq backs up Gemini,
+and a revoked Gemini key took Anu down with the Groq key beside it working. A
 provider is only ever walked past **before it has said anything**: once text is reaching the
 learner a failure stays a failure, because a second answer appended to half of a first one is two
 teachers talking over each other. `withRetry` is patient only on the last link of the chain, which
@@ -10793,7 +10810,12 @@ pass that took the disclaimers off. What actually holds it is `vouchable` in `li
 which refuses `provenance: "AI"` outright, so such a row is never a scanned page's answer, never a
 headline's headword, never the word of the day, never lent a sentence and never what the chat guard
 clears its own Estonian against. It is behaviour rather than copy, so it cannot be removed by a copy
-pass, and it goes away by itself the moment Ekilex answers. **A claim in prose about a mark on a
+pass, and it goes away by itself the moment Ekilex answers. **`vouchable` guards what goes through
+`matchEstonianForm`, and `VOUCHED_ROW` is the same refusal as a query** for the two pickers that never
+did: the word of the day read the whole dictionary by gloss and fell back to any row, and the exam
+pool admits unbanded entries from B1. And `createLexeme` sets the band and the part of speech itself,
+since it is a public endpoint and used to take both off the wire, which let any account file an
+invented word as an A1 noun for every banded picker to hand to other learners. **A claim in prose about a mark on a
 screen is checked against the screen**, or the next pass reasons from it.
 
 **And the average is the level, because the minimum was reporting a stranger three bands under
@@ -11253,6 +11275,12 @@ no grid", which reads as the compiler being broken and sends the reader into `li
 It cost an hour of looking in the wrong file. The precondition is asked once now, against
 `SEED_SET_SIZE`, and fails in 93 milliseconds naming both the state and the command that fixes it.
 
+**And a script that deletes rows refuses a database that is not local.** `scripts/lib/local-db.mjs`
+is the refusal, because Prisma reads the environment's `DATABASE_URL` before `.env` and a shell
+carrying hosted credentials points a test at production with nothing in the output to say so. An
+invariant finds every script that deletes by shape and holds it to the guard, `audit-decks.ts`
+exempt by name since it is the production audit and reports before it removes anything.
+
 **A suite states its preconditions; it does not inherit them.** `letterBar` is a
 stored preference that decides whether a control is drawn at all, so a database
 where any earlier suite walked through first run and answered "I have them
@@ -11437,8 +11465,9 @@ suite that presses the flip and knows no other shape, and on the helper learning
 ordinary afternoon of working on this, said `export produced a backup (0 KB)` and stopped. The
 export was working perfectly. That line sends whoever reads it to the one part of the app the
 suite exists to protect, and the answer was the clock. It reads the 429 now and says the
-allowance is spent and that restarting the server clears it, since the limiter is per instance
-and in memory. Still a failure rather than a waiver: a run that could not take a backup has not
+allowance is spent. It used to add that restarting the server clears it, which stopped being true
+when the export's cap moved into Postgres (`checkSharedRateLimit`), so it says to wait or empty the
+local `RateLimit` table instead. Still a failure rather than a waiver: a run that could not take a backup has not
 checked backup and restore.
 
 **And a counter the app prints in two places was read in one, so finishing a session read as an app

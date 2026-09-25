@@ -51,6 +51,7 @@ import {
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
+import { clip } from "@/lib/copy/clip";
 
 /**
  * The units that supply the machinery every scene's marker needs.
@@ -1172,14 +1173,24 @@ export async function finishRun(input: {
   const grades = gradesFor(scene, state, draw?.card ?? null, context.lexicon);
   const review = reviewOf(scene, state);
 
-  await prisma.sceneRun.update({
-    where: { id: row.id },
+  /*
+    Closed only if it is still open, in the one statement that closes it. The
+    read above is a courtesy that saves the replay on an ordinary second
+    press; it is not the guard, because two presses arriving together both
+    read an open run, and both would have written it and both handed
+    `finishScene` a set of grades, which is every turn recorded twice in the
+    table that is never repaired. A conditional update is a compare-and-set,
+    so exactly one of them closes the run and the rest are told it is not open.
+  */
+  const closed = await prisma.sceneRun.updateMany({
+    where: { id: row.id, endedAt: null },
     data: {
       transcript: JSON.stringify({ ...(draw ?? {}), turns: state.turns }),
       outcome: JSON.stringify({ ...objectives, hurdles: state.hurdles, outcome: outcome?.id ?? null }),
       endedAt: new Date(),
     },
   });
+  if (closed.count === 0) return null;
 
   const stalled = stalledWords(scene, state);
   /*
@@ -1330,8 +1341,8 @@ export function replay(
     elsewhere = 0;
     const beat = currentBeat(context.scene, state);
     if (!beat) break;
-    const said = String(sent.said ?? "").slice(0, MAX_TURN_CHARS);
-    const heardNow = String(sent.heard ?? previous).slice(0, MAX_TURN_CHARS);
+    const said = clip(String(sent.said ?? ""), MAX_TURN_CHARS);
+    const heardNow = clip(String(sent.heard ?? previous), MAX_TURN_CHARS);
     const marker = { ...context.marker, data, dataLemmas, previous: heardNow };
 
     /*

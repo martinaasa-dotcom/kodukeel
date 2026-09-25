@@ -36,7 +36,7 @@ afterAll(async () => {
 
 describe("createLexeme pressed twice at once", () => {
   it("makes one entry and answers both presses with it", async () => {
-    const add = () => createLexeme({ lemma: LEMMA, translation: "a race", pos: "NOUN" });
+    const add = () => createLexeme({ lemma: LEMMA, translation: "a race" });
     const settled = await Promise.allSettled([add(), add(), add(), add()]);
 
     const rows = await prisma.lexeme.findMany({ where: { lemma: LEMMA } });

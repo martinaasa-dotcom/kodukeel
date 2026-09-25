@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { currentIdentity } from "@/lib/auth/session";
+import { isAllowedEmail } from "@/lib/auth/access";
 import { LOCAL_USER_ID, supabaseConfigured } from "@/lib/auth/mode";
 
 /**
@@ -92,6 +93,8 @@ export const isAdmin = cache(async (): Promise<boolean> => {
   */
   const who = await currentIdentity();
   if (who.state !== "in") return false;
+  // Off the allowlist is off the app, reviewers included.
+  if (!isAllowedEmail(who.learner.email)) return false;
   return isAdminEmail(who.learner.email, admins);
 });
 
@@ -107,6 +110,7 @@ export async function requireAdminId(): Promise<string> {
   if (!supabaseConfigured()) return LOCAL_USER_ID;
   const who = await currentIdentity();
   if (who.state !== "in") throw new Error("Not signed in.");
+  if (!isAllowedEmail(who.learner.email)) throw new Error("Not allowed.");
   if (!isAdminEmail(who.learner.email, adminEmails())) {
     throw new Error("That account does not review suggestions.");
   }

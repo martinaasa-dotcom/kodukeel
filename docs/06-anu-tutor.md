@@ -61,7 +61,7 @@ for. See `13-mvp-status.md` §2 for the decision; what matters here is what it m
 | Walk past a bad minute, never past a bad key | `openWithFallback` moves on from a throttle or a hiccup and stops at a rejected key or a model that does not exist, because every provider would answer those the same way and trying them all turns one clear message into a slower one |
 | Never walk past a first token | Once text is reaching the learner a failure stays a failure: a second answer appended to half of a first one is two teachers talking over each other |
 | Streaming | A grammar explanation is long enough that non-streaming reads as a hang |
-| `cache_control` on the static prompt, where the provider has one | The Estonian prompt is identical every turn, so on the Anthropic path it is paid once per session rather than once per turn |
+| `cache_control` on the static prompt, where the provider has one | The Estonian prompt is identical every turn, so on Gemini it is held as one `cachedContents` entry (`lib/tutor/geminiCache.ts`) and on an Anthropic path it sits behind a breakpoint, paid once rather than once per turn |
 | The learner's own context **after** that breakpoint | Volatile content before a breakpoint invalidates the cache every turn, which is the classic silent cache killer. `lib/progress/tutorContext.ts` builds it from the learner's own log, and the route reads no level from the request at all |
 | Which model answered travels with the answer | `x-model-provider` and `x-model-id` are response headers, set after the handshake and before the first token, so the line under the conversation says "Will ask" until a reply arrives and "Answered by" after. Never the head of the chain: a screen naming the wrong model is worse than one naming none |
 

@@ -83,6 +83,7 @@ import {
   DEFAULT_PROGRAMME, MODULE_HOME, PROGRAMMES, continueHref, dayById, programmeById,
 } from "@/lib/course";
 import { dayIsInPlay } from "@/lib/progress/course";
+import { clip } from "@/lib/copy/clip";
 
 /**
  * The part of the ladder a level starts on, for first run.
@@ -493,7 +494,10 @@ async function gradeFor(
  * the same answer reported twice and is done rather than failed. `repeat` says
  * so, so a caller counting new grades does not count it again.
  */
-async function gradeOnce(ownerId: string, cardId: string, rating: RatingValue, reviewId: string) {
+async function gradeOnce(
+  ownerId: string, cardId: string, rating: RatingValue, reviewId: string,
+  slots: { practisedSlot?: string; reachedSlot?: string } = {},
+) {
   /*
     Asked first rather than only caught, so the answer does not depend on how
     `writeGrade` treats an id it has already written: a repeat that is read
@@ -502,7 +506,7 @@ async function gradeOnce(ownerId: string, cardId: string, rating: RatingValue, r
   const seen = await prisma.review.findUnique({ where: { id: reviewId }, select: { id: true } });
   if (seen) return { ok: true as const, repeat: true };
   try {
-    const result = await gradeFor(ownerId, cardId, rating, 0, { reviewId });
+    const result = await gradeFor(ownerId, cardId, rating, 0, { ...slots, reviewId });
     return { ...result, repeat: false };
   } catch (error) {
     if (isRepeatedReview(error)) return { ok: true as const, repeat: true };
@@ -774,7 +778,7 @@ const CLASS_NAME_MAX = 60;
  * call sites at once.
  */
 const capped = (value: unknown, max: number): string =>
-  text(value).trim().slice(0, max);
+  clip(text(value).trim(), max);
 
 /**
  * An argument that is supposed to be a string, as a string.
@@ -842,9 +846,7 @@ const entryLevelFrom = (value: unknown): string | null | undefined => {
  * it" is the assumption that turns a gap in the middleware into a data breach.
  * It also establishes who to attribute the entry to.
  */
-export async function createLexeme(input: {
-  lemma: string; translation: string; pos: string; cefr?: string;
-}) {
+export async function createLexeme(input: { lemma: string; translation: string }) {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "editDictionary");
@@ -855,11 +857,18 @@ export async function createLexeme(input: {
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
-  const pos = posFrom(input.pos);
-  const cefr = entryLevelFrom(input.cefr);
-  if (!pos) return { ok: false as const, error: "That is not a part of speech." };
-  if (cefr === undefined) return { ok: false as const, error: "That is not a level." };
-
+  /*
+    NO BAND AND NO PART OF SPEECH FROM THE CALLER, because every export of this
+    file is a public endpoint and both are claims about Estonian nobody has
+    checked. This took `pos` and `cefr` off the wire and wrote them onto a row
+    in the shared dictionary, so any signed-in account could file an invented
+    word as an A1 noun, and the pickers that read a band would hand it to other
+    learners as a lesson's decoy, a Sõnad answer or an examination question.
+    The one caller sent neither a band nor a real part of speech. A model's
+    suggestion is `OTHER` and unbanded until Ekilex answers for it, which is
+    what `enrichFromEkilex` then writes.
+  */
+  const pos = "OTHER";
   const existing = await prisma.lexeme.findUnique({
     where: { lemma_pos: { lemma, pos } },
   });
@@ -877,7 +886,7 @@ export async function createLexeme(input: {
     skipDuplicates: true,
     data: [{
       lemma, translation, pos,
-      cefr,
+      cefr: null,
       /*
         AI, NOT USER, BECAUSE A MODEL SUGGESTED IT AND NOBODY HAS CHECKED IT.
 
@@ -1544,9 +1553,9 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
         const row = (one ?? {}) as Record<string, unknown>;
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: text(row.said).slice(0, MAX_TURN_CHARS),
+          said: clip(text(row.said), MAX_TURN_CHARS),
           helped: row.helped === true,
-          heard: text(row.heard).slice(0, MAX_TURN_CHARS),
+          heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
         };
@@ -1631,9 +1640,9 @@ export async function finishScene(input: {
         const row = (turn ?? {}) as Record<string, unknown>;
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: text(row.said).slice(0, MAX_TURN_CHARS),
+          said: clip(text(row.said), MAX_TURN_CHARS),
           helped: row.helped === true,
-          heard: text(row.heard).slice(0, MAX_TURN_CHARS),
+          heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
         };
@@ -1688,11 +1697,20 @@ export async function finishScene(input: {
       on a card. `writeGrade` checks both against the closed list rather than
       trusting them, which is what it does for every other caller.
     */
-    const result = await gradeCard(
-      cardId, grade.rating, 0, undefined,
-      grade.grammCase ?? undefined, grade.reachedCase ?? undefined,
+    /*
+      Named by the run and the grade's place in it, so a finish arriving twice
+      is graded once. `finishRun` closes a run once and a second finish gets
+      nothing to grade; the id is the second lock on the same door.
+    */
+    const result = await gradeOnce(
+      ownerId, cardId, grade.rating as RatingValue,
+      stableReviewId("scene", ownerId, finished.runId, String(index)),
+      {
+        ...(grade.grammCase ? { practisedSlot: grade.grammCase } : {}),
+        ...(grade.reachedCase ? { reachedSlot: grade.reachedCase } : {}),
+      },
     );
-    if (result.ok) graded += 1;
+    if (result.ok && !result.repeat) graded += 1;
   }
 
   revalidatePath("/situations");
@@ -2699,11 +2717,14 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
   const busy = throttleAction(ownerId, "assignUnit");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    // An archived class takes no more work, which the page says and the action now does.
-    where: { id: classroomId, ownerId, archived: false },
-    select: { id: true, name: true },
+    where: { id: classroomId, ownerId },
+    select: { id: true, name: true, archived: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
+  // The screen hides this for an archived class; the action is a public
+  // endpoint and has to refuse it too, or work lands in members' lists for a
+  // class its teacher has closed.
+  if (classroom.archived) return { ok: false as const, error: "That class is archived." };
 
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "That unit does not exist." };
@@ -2752,11 +2773,14 @@ export async function assignHomework(
   const busy = throttleAction(ownerId, "assignHomework");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    // An archived class takes no more work, which the page says and the action now does.
-    where: { id: classroomId, ownerId, archived: false },
-    select: { id: true, name: true },
+    where: { id: classroomId, ownerId },
+    select: { id: true, name: true, archived: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
+  // The screen hides this for an archived class; the action is a public
+  // endpoint and has to refuse it too, or work lands in members' lists for a
+  // class its teacher has closed.
+  if (classroom.archived) return { ok: false as const, error: "That class is archived." };
 
   // On every member's Today, so cleaned like a name rather than trimmed.
   const cleanTitle = visibleLine(title, LIMITS.taskTitle);
@@ -2892,7 +2916,7 @@ export async function addStudyEvent(input: {
   const ownerId = await requireUserId();
   input = fieldsOf(input);
 
-  const title = text(input.title).trim().slice(0, 120);
+  const title = clip(text(input.title).trim(), 120);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const weekdays = [...new Set(Array.isArray(input.weekdays) ? input.weekdays : [])]
@@ -2911,7 +2935,7 @@ export async function addStudyEvent(input: {
     data: {
       ownerId,
       title,
-      notes: text(input.notes).trim().slice(0, 500) || null,
+      notes: clip(text(input.notes).trim(), 500) || null,
       kind: kindFrom(input.kind),
       startMinute: clamp(Math.round(input.startMinute), 0, 1439),
       durationMinutes: clamp(Math.round(input.durationMinutes), 5, 12 * 60),
@@ -2946,7 +2970,7 @@ export async function deleteStudyEvent(id: string) {
 export async function addReminder(input: { title: string; notes?: string; dueAt?: string | null }) {
   const ownerId = await requireUserId();
   input = fieldsOf(input);
-  const title = text(input.title).trim().slice(0, 200);
+  const title = clip(text(input.title).trim(), 200);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const key = dayKeyOrNull(input.dueAt);
@@ -2954,7 +2978,7 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
     data: {
       ownerId,
       title,
-      notes: text(input.notes).trim().slice(0, 500) || null,
+      notes: clip(text(input.notes).trim(), 500) || null,
       tag: "HOMEWORK",
       // Stored at midnight UTC, which is what `<input type="date">` sends and
       // what `bucketFor` already expects: it counts whole days on the learner's
@@ -3023,7 +3047,7 @@ export async function buildClozeFromText(passageIn: string) {
 
   const busy = throttleAction(ownerId, "buildCloze");
   if (busy) return busy;
-  const passage = raw.slice(0, MAX_PASSAGE_CHARS);
+  const passage = clip(raw, MAX_PASSAGE_CHARS);
   if (!passage.trim()) return { ok: false as const, error: "Paste some Estonian first." };
 
   // Ordered, because past the cap which of somebody's words could be blanked
@@ -3683,7 +3707,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         (backup.decks ?? []).flatMap((raw) => {
           const data = revive(raw, ["createdAt"]);
           const id = String(data.id ?? "");
-          const name = String(data.name ?? "").trim().slice(0, 60);
+          const name = clip(String(data.name ?? "").trim(), 60);
           if (!id || !name) return [];
           return [{ id, ownerId, name, ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}) }];
         }),

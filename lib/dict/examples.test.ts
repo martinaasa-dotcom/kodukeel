@@ -452,3 +452,33 @@ describe("sentenceEnglish", () => {
     expect(sentenceEnglish([own(shipped[0], null, true)], shipped[0])).toBeNull();
   });
 });
+
+describe("usableExamples keeps the shared dictionary the lexicographer's", () => {
+  /*
+    `Lexeme.examples` is read by everybody, and one learner's typed sentences
+    were once able to push every attested usage off a word. CLAUDE.md states
+    the rule (attested first, at most two typed per word) and nothing tested
+    it. Every sentence below is short, so shortest-first alone would put the
+    typed ones in front.
+  */
+  const typed = (et: string): Example => ({ et, source: "USER" });
+  const pool = [
+    ek("Ta joob hommikul alati kohvi piimaga."),
+    ek("Kohvik on nurga taga lahti."),
+    typed("Ma joon kohvi."),
+    typed("Sa jood kohvi."),
+    typed("Me joome kohvi."),
+    typed("Te joote kohvi."),
+  ];
+
+  it("leads with every attested sentence, however long", () => {
+    const out = usableExamples(pool);
+    expect(out.slice(0, 2).every((e) => e.source === "EKILEX")).toBe(true);
+  });
+
+  it("lets one learner occupy at most two of a word's sentences", () => {
+    const out = usableExamples(pool);
+    expect(out.filter((e) => e.source === "USER")).toHaveLength(2);
+    expect(out).toHaveLength(4);
+  });
+});

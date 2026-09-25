@@ -34,7 +34,7 @@ function candidate(over: Partial<Candidate> = {}): Candidate {
     sentThisWeek: 0,
     lastReviewAt: daysAgo(1),
     onboardedAt: daysAgo(30),
-    hasProgramme: true,
+    startedCourse: true,
     finishedToday: false,
     stage: "settled",
     conversations: 0,
@@ -71,7 +71,7 @@ describe("the evening nudge", () => {
   });
 
   it("says nothing to somebody with no course to be reminded about", () => {
-    expect(letterOwed(candidate({ hasProgramme: false }), NOW)).toBeNull();
+    expect(letterOwed(candidate({ startedCourse: false }), NOW)).toBeNull();
   });
 
   it("does not send twice when two runs overlap", () => {

@@ -49,6 +49,9 @@ describe("caseFormChoices", () => {
     const options = caseFormChoices({
       stems: room, accepted: ["toas"], answer: "toas", rng: fixed,
     })!.filter((o) => o !== "toas");
+    // Non-empty first: `every` on nothing is true, which would pass this
+    // having offered no rival at all.
+    expect(options.length).toBeGreaterThan(0);
     expect(options.every((o) => o.startsWith("toa"))).toBe(true);
   });
 
