@@ -8,6 +8,10 @@
  * that measures it instead, so a later change to the floor can be argued from
  * a number rather than from a feeling. Re-run it before moving the constant.
  *
+ * It also counts the pairs one inserted or dropped letter apart, the half of
+ * the rule that keeps the four-letter floor, because that half rested on a
+ * claim nobody had measured and it was false.
+ *
  * It walks every accepted answer the shipped dictionary can produce, the
  * same corpus `answer.test.ts` reads (`expanded.json`'s lemmas and
  * translations, `harvested.ts`'s lemmas and glosses, put through
@@ -71,6 +75,34 @@ function report(language: "et" | "en"): void {
     }
     if (count === 0) continue;
     console.log(`  length ${len}: ${count} same-length 1-substitution pairs — e.g. ${examples.join(", ")}`);
+  }
+
+  /*
+    AND THE OTHER HALF OF THE RULE, WHICH WAS NEVER MEASURED.
+
+    `checkAnswer` forgives a letter inserted or dropped from four letters up,
+    on the stated grounds that such a slip "does not spell a coincidental
+    second word the way a swapped one does". It does: `kuulma` and `kuulama`,
+    `õpetama` and `lõpetama`, `hall` and `all`. So this counts the answers of
+    each length that are one insertion or deletion from another accepted
+    answer, which is exactly the set the four-letter floor forgives as a slip.
+  */
+  console.log(`  ${language}: answers one inserted or dropped letter from another accepted answer`);
+  for (const len of lengths) {
+    if (len < 4) continue;
+    const near = [...(byLength.get(len - 1) ?? []), ...(byLength.get(len + 1) ?? [])];
+    const examples: string[] = [];
+    let count = 0;
+    for (const answer of byLength.get(len)!) {
+      for (const other of near) {
+        if (editDistance(answer, other, 1) === 1) {
+          count++;
+          if (examples.length < EXAMPLES_PER_LENGTH) examples.push(`${answer}/${other}`);
+        }
+      }
+    }
+    if (count === 0) continue;
+    console.log(`  length ${len}: ${count} insert-or-drop pairs, e.g. ${examples.join(", ")}`);
   }
 }
 
