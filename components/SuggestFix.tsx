@@ -358,6 +358,15 @@ export function SuggestFix({
           className="field w-full text-sm"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />
+        {/*
+          Somebody on the team reads this box, so it says so before anything is
+          typed. That is an assurance rather than an explanation, which is why
+          it is a line on the screen and not behind a press, and it is the
+          sentence the DPIA's R13 mitigation promises the learner is told.
+        */}
+        <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+          A person on the team reads this, so leave out anything private about you or anybody else.
+        </p>
       </div>
 
       {error && (

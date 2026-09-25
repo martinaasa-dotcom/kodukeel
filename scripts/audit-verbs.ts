@@ -17,6 +17,7 @@
  * Ekilex nothing, and a source that will not answer is reported as unchecked
  * rather than written down as a miss.
  */
+import { PARTS } from "../lib/copy/values";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -177,7 +178,7 @@ async function main() {
   if (disagreements.length) {
     console.log(`\n${disagreements.length} disagreements:`);
     for (const d of disagreements) {
-      console.log(`  ${d.lemma.padEnd(18)} ${d.code.padEnd(10)} derived ${d.derived.padEnd(22)} ekilex ${d.ekilex.join(" / ")}`);
+      console.log(`  ${d.lemma.padEnd(18)} ${d.code.padEnd(10)} derived ${d.derived.padEnd(22)} ekilex ${d.ekilex.join(PARTS)}`);
     }
     process.exitCode = 1;
   } else if (unreachable * 2 > checked + unreachable) {
