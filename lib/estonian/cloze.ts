@@ -185,6 +185,32 @@ export function sentenceTiles(sentence: string): string[] {
   return [...sentence.trim().matchAll(ESTONIAN_WORD)].map((m) => m[0]);
 }
 
+/**
+ * The tiles as a learner sees them, with the capital the recording opens on
+ * taken off where it belongs to the position rather than to the word.
+ *
+ * A sentence's first word is capitalised because it is first, and a tile that
+ * keeps that capital says which tile goes first: over the shipped dictionary,
+ * 9,441 of the 9,463 sentences the builder can set open on one, so every one of
+ * those rounds handed over its first move. The capital comes off only where
+ * the caller has said the opener is an ordinary word (`openerIsWord`, decided
+ * on the server against the forms list), because a name keeps its capital
+ * wherever it stands and `Kaisa` written as `kaisa` would be this app
+ * misspelling a person. Nothing about the marking moves: `sentenceMatches`
+ * already compares without case. Only the first letter is touched, and only
+ * the first tile holding the opener, since a sentence can say the word twice.
+ */
+export function tileFaces(tiles: readonly string[], opener: string, openerIsWord: boolean): string[] {
+  const out = [...tiles];
+  if (!openerIsWord || !opener) return out;
+  const at = out.indexOf(opener);
+  if (at < 0) return out;
+  const first = opener[0] ?? "";
+  if (first === first.toLowerCase()) return out;
+  out[at] = first.toLowerCase() + opener.slice(1);
+  return out;
+}
+
 /** Compares a built sentence with the original, ignoring punctuation and case. */
 export function sentenceMatches(built: readonly string[], original: string): boolean {
   const target = sentenceTiles(original).map((w) => w.toLowerCase());

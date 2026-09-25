@@ -30,7 +30,7 @@ import { ASK_ENGLISH, LOST } from "./catalogue";
 import { casualBye, casualHello } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import type { CaseKey } from "@/lib/estonian/types";
-import { words, type Lexicon } from "./lexicon";
+import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
 import { numberFromText, timeFromText, type SlotKind } from "./props";
@@ -1285,7 +1285,7 @@ function negatedIn(
   */
   const spelled = new Set([hit.word, ...(hit.slip ? words(hit.slip.said) : [])].map((w) => w.toLowerCase()));
   // A sentence ends a clause as surely as a comma does: "Ei. Mul on valu." is a no and then a yes.
-  for (const clause of text.split(/[,;:.!?]/)) {
+  for (const clause of clausesOf(text)) {
     const said = words(clause);
     const at = said.findIndex((word) => spelled.has(word));
     if (at < 0) continue;

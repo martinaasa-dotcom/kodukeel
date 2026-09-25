@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
+import { switchOff } from "@/lib/email/prefs";
+import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { OPTIONAL_KINDS } from "@/lib/email/letter";
 import { mailSecret } from "@/lib/email/unsubscribe";
 import { readDelivery, undeliverableValue, verifyDelivery, webhookSecret } from "@/lib/email/webhook";
@@ -8,6 +9,7 @@ import { bucketForOwner } from "@/lib/security/rateLimit";
 import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { writeSettingsWhileMailed } from "@/lib/mailer/mailedSetting";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+import { readCapped } from "@/lib/security/body";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +42,9 @@ export const dynamic = "force-dynamic";
   is the one refusal, because that is not the provider.
 */
 
+/** A provider's delivery event is a few kilobytes; this is room to spare and no more. */
+const MAX_DELIVERY_BYTES = 256 * 1024;
+
 /** Accepted and dropped. The provider is told nothing about what we did. */
 const ok = () => new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
 
@@ -54,7 +59,8 @@ export async function POST(request: Request) {
   if (!secret) return new Response("Not found", { status: 404 });
 
   /* The bytes, before anything reads them as JSON. See the header. */
-  const raw = await request.text().catch(() => null);
+  // Read only so far: this runs before anything about the caller is checked.
+  const raw = await readCapped(request, MAX_DELIVERY_BYTES);
   if (raw === null) return ok();
 
   const verified = verifyDelivery(
@@ -126,15 +132,8 @@ export async function POST(request: Request) {
         address-blind, because what they said is about our mail rather than
         about a mailbox.
       */
-      const existing = await prisma.setting.findUnique({
-        where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff } },
-        select: { value: true },
-      });
-      const value = emailPrefsTo(switchOff(emailPrefsFrom(existing?.value), OPTIONAL_KINDS));
-      // Through the same guard as the link: the send was found a moment ago,
-      // and an account erased in between must not be written back.
-      await writeSettingsWhileMailed(sent.ownerId, [{ key: SETTING_KEYS.emailsOff, value }]);
-      forgetSettings(sent.ownerId);
+      // Under the learner's lock, for the reason `lib/progress/emailPrefs.ts` gives.
+      await changeEmailPrefs(sent.ownerId, (current) => switchOff(current, OPTIONAL_KINDS));
       return ok();
     }
 

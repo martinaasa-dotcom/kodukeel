@@ -1,13 +1,15 @@
-import { prisma } from "@/lib/db";
-import { emailOptInTo, emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
+import { switchOff } from "@/lib/email/prefs";
+import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { kindsInScope, mailSecret, readUnsubscribe } from "@/lib/email/unsubscribe";
 import { esc } from "@/lib/email/html";
 import { PALETTE as P } from "@/lib/email/palette";
-import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { writeSettingsWhileMailed } from "@/lib/mailer/mailedSetting";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+import { readCapped } from "@/lib/security/body";
+
+/** The one-click body RFC 8058 names and our own form's three fields, with room to spare. */
+const MAX_FORM_BYTES = 8 * 1024;
 
 export const dynamic = "force-dynamic";
 
@@ -114,12 +116,8 @@ export async function POST(request: Request) {
     the query first and the body second covers both without either knowing
     about the other.
   */
-  let body: URLSearchParams;
-  try {
-    body = new URLSearchParams(await request.text());
-  } catch {
-    body = new URLSearchParams();
-  }
+  // A one-click body is one short field; anything longer is not a mail client.
+  const body = new URLSearchParams((await readCapped(request, MAX_FORM_BYTES)) ?? "");
   const param = (key: string) => url.searchParams.get(key) ?? body.get(key);
 
   const secret = mailSecret();
@@ -146,57 +144,15 @@ export async function POST(request: Request) {
   if (!allowed.ok) return page(DONE, "That is already being dealt with.");
 
   try {
-    const existing = await prisma.setting.findMany({
-      where: {
-        ownerId: read.ownerId,
-        key: { in: [SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn] },
-      },
-      select: { key: true, value: true },
-    });
-    const rowFor = (key: string) => existing.find((row) => row.key === key)?.value ?? null;
-    const next = switchOff(
-      emailPrefsFrom(rowFor(SETTING_KEYS.emailsOff), rowFor(SETTING_KEYS.emailsOn)),
-      kindsInScope(read.scope),
-    );
-    const value = emailPrefsTo(next);
     /*
-      AND THE OPT-IN ROW IS WITHDRAWN WITH IT.
-
-      `switchOff` already drops a kind from the asked-for set, and writing only
-      the refusal row would leave the old request standing on disk: harmless
-      today, because `wants` reads the refusal first, and exactly the kind of
-      contradiction that gets resolved the wrong way by whoever next changes
-      which row wins. Somebody who pressed unsubscribe did not leave a standing
-      request behind.
+      Through the one locked read-and-write, because this route and the
+      Settings switch can land together and the second of two unlocked writes
+      puts back what the first switched off (`lib/progress/emailPrefs.ts`).
+      `switchOff` drops the kinds from the asked-for set too, so somebody who
+      pressed unsubscribe does not leave a standing request behind, and the
+      store is told, because the write went round `writeSetting`.
     */
-    const optIn = emailOptInTo(next);
-
-    /*
-      Written directly rather than through `writeSetting`, which memoises per
-      request for a signed-in learner. There is no session here and the owner
-      is whoever the token names, so the helper's cache would be keyed on the
-      wrong person.
-
-      AND ONLY FOR SOMEBODY STILL HERE. A letter outlives the account it was
-      sent to, so this link is pressed after "delete everything" as readily as
-      before it, and an upsert would recreate rows keyed on a person every
-      table had just been emptied of. `writeSettingsWhileMailed` writes nothing
-      where this deployment holds no letter to them, and the page below says
-      the same thing either way, because a route that answered differently for
-      somebody who has left would be a way to find out who has.
-    */
-    await writeSettingsWhileMailed(read.ownerId, [
-      { key: SETTING_KEYS.emailsOff, value },
-      { key: SETTING_KEYS.emailsOn, value: optIn },
-    ]);
-    /*
-      And the store is told, because a request holds one memoised read of a
-      learner's settings and a write it does not know about is a value the rest
-      of that request cannot see. Nothing else in this request reads them
-      today, which is exactly the argument for doing it anyway: the day
-      somebody adds a line below this that does, the bug is silent.
-    */
-    forgetSettings(read.ownerId);
+    await changeEmailPrefs(read.ownerId, (current) => switchOff(current, kindsInScope(read.scope)));
   } catch (error) {
     reportError(error, { at: "api/email/unsubscribe", ownerId: read.ownerId });
     /*

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dayClock } from "@/lib/time/day";
-import { agenda, bucketFor, classworkMarker, isClasswork, overdueCount } from "./agenda";
+import { DUE_DATE_FORMAT, agenda, bucketFor, classworkMarker, dueDayKey, isClasswork, overdueCount } from "./agenda";
 
 // Tallinn, because the whole point of taking a clock is that the answer is the
 // learner's and not the process's. In August that is UTC+3.
@@ -11,14 +11,30 @@ const at = (iso: string) => new Date(iso);
 const byDue = (row: { dueAt: Date | null }) => row.dueAt;
 
 describe("bucketFor", () => {
-  it("reads a date against the learner's midnight, not the server's", () => {
+  it("reads today against the learner's midnight, not the server's", () => {
     /*
-      22:00 UTC on the first is 01:00 on the second in Tallinn, so this is due
-      tomorrow for the person reading it and today for a server running in UTC.
-      That difference is the entire reason this function takes a clock.
+      22:00 UTC on the first is already the second in Tallinn, so a task due on
+      the second is due today for the person reading it and tomorrow for a
+      server running in UTC. That difference is why this function takes a clock.
     */
-    expect(bucketFor(at("2026-09-01T22:00:00Z"), clock, now)).toBe("tomorrow");
-    expect(bucketFor(at("2026-09-01T22:00:00Z"), dayClock("UTC"), now)).toBe("today");
+    const late = new Date("2026-09-01T22:00:00Z");
+    expect(bucketFor(at("2026-09-02T00:00:00Z"), clock, late)).toBe("today");
+    expect(bucketFor(at("2026-09-02T00:00:00Z"), dayClock("UTC"), late)).toBe("tomorrow");
+  });
+
+  it("reads a due date as the day it names, west of Greenwich too", () => {
+    /*
+      Stored at midnight UTC, which in Los Angeles is five in the afternoon of
+      the day before. Read as an instant, homework due on the first was "Late"
+      all of the first and printed as due on the thirty-first.
+    */
+    const la = dayClock("America/Los_Angeles");
+    const morning = new Date("2026-09-01T16:00:00Z"); // 09:00 on the first
+    expect(bucketFor(at("2026-09-01T00:00:00Z"), la, morning)).toBe("today");
+    expect(bucketFor(at("2026-09-02T00:00:00Z"), la, morning)).toBe("tomorrow");
+    expect(bucketFor(at("2026-08-31T00:00:00Z"), la, morning)).toBe("overdue");
+    expect(dueDayKey(at("2026-09-01T00:00:00Z"))).toBe("2026-09-01");
+    expect(new Intl.DateTimeFormat("en-GB", DUE_DATE_FORMAT).format(at("2026-09-01T00:00:00Z"))).toBe("1 Sept");
   });
 
   it("sorts the near future into headings somebody would use", () => {
@@ -40,8 +56,7 @@ describe("bucketFor", () => {
       read "Overdue" from three in the morning in Tallinn onwards.
     */
     expect(bucketFor(at("2026-09-01T00:00:00Z"), clock, now)).toBe("today");
-    expect(bucketFor(at("2026-09-01T05:00:00Z"), clock, now)).toBe("today");
-    expect(bucketFor(at("2026-08-31T23:00:00Z"), clock, now)).toBe("today");
+    expect(bucketFor(at("2026-09-01T00:00:00Z"), clock, new Date("2026-09-01T20:59:00Z"))).toBe("today");
   });
 });
 
