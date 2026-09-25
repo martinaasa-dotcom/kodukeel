@@ -183,6 +183,16 @@ export function LearnSession({
     So the seat holds the card and the rung it is being asked at, and only
     `advance` changes it. Null is the end of the round.
   */
+  /*
+    How many times this round has dealt a question, which is what the hint
+    ladder is keyed on beside the card and the rung. The last word of a batch
+    comes straight back after `requeue`, often on the rung it was asked at, and
+    keyed on those two alone the rungs taken the first time were still taken:
+    hinted once at the gap and then answered right, it was capped at Hard, Hard
+    keeps it at the gap, and it came back capped again for as long as anybody
+    answered it.
+  */
+  const [asking, setAsking] = useState(0);
   const [seat, setSeat] = useState<{ cardId: string; rung: Rung } | null>(() => {
     const first = initial[initialIndex] ?? initial[0];
     return first ? { cardId: first.cardId, rung: first.rung } : null;
@@ -250,7 +260,7 @@ export function LearnSession({
     is what makes it safe on a screen whose every answer is already in the log.
   */
   const look = useLookBack();
-  const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
+  const { pending: outboxPending, refresh: refreshOutbox, drainFirst } = useOffline();
   const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
 
@@ -336,7 +346,7 @@ export function LearnSession({
     word: word?.cardId ?? null,
     // The rung as well as the word, because the two rungs that can be stuck on
     // ask different questions about it and hand over different kinds of help.
-    question: word ? `${word.cardId}:${rung}` : null,
+    question: word ? `${word.cardId}:${rung}:${asking}` : null,
     ladder,
     lapses: word?.scheduling.lapses ?? 0,
   });
@@ -418,6 +428,7 @@ export function LearnSession({
     setRungs(updated);
     setQueue(next);
     setSeat(nowId ? { cardId: nowId, rung: updated[nowId] ?? "meet" } : null);
+    setAsking((n) => n + 1);
     setPhase("ask");
     setResult(null);
     setTyped("");
@@ -446,6 +457,7 @@ export function LearnSession({
     const nowId = rest[0];
     setQueue(rest);
     setSeat(nowId ? { cardId: nowId, rung: rungs[nowId] ?? "meet" } : null);
+    setAsking((n) => n + 1);
     setAside(note);
     setPhase("ask");
     setResult(null);
@@ -475,7 +487,7 @@ export function LearnSession({
     /*
       A HINT IS PAID FOR, AND THIS IS WHERE IT IS PAID.
 
-      `hintCeiling` is 3 with nothing taken, which is no ceiling at all, so a
+      `hintCeiling` is 4 with nothing taken, which is no ceiling at all, so a
       round nobody asked for help in grades exactly as it always did. Once a
       rung has been taken the grade cannot rise above Hard, and once the answer
       itself has been shown it cannot rise above Again. Written as a floor under
@@ -499,13 +511,16 @@ export function LearnSession({
     */
     let after: LearnScheduling;
     try {
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
     try {
-      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt);
+      await drainFirst();
+      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt, undefined, undefined, reviewId);
       if (!res.ok) throw new Error(res.error);
       after = res.scheduling;
     } catch {
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: reviewId,
         cardId: word.cardId,
         rating,
         durationMs,
@@ -554,7 +569,7 @@ export function LearnSession({
     } finally {
       setBusy(false);
     }
-  }, [word, busy, rungs, advance, refreshOutbox, hints]);
+  }, [word, busy, rungs, advance, refreshOutbox, drainFirst, hints]);
 
   /** The meeting writes nothing. The word comes back a lap later as a question. */
   const met = useCallback(() => {

@@ -186,7 +186,7 @@ function bandScores(items: readonly ItemRef[], responses: readonly Response[]): 
  * `writingItems` raises every gap to A2 for the same reason the reading gaps
  * are raised. Starting the count at `pre-A1` regardless then read a failed A2
  * as "below A1" on the strength of a band nobody had been asked about, and
- * since the overall level follows the *weakest* skill, that put "below A1" on
+ * since the overall level then followed the *weakest* skill, that put "below A1" on
  * the result of anybody whose writing was not yet A2. Measured on the shipped
  * dictionary, writing comes out A1:0 at every seed, so it was not an edge
  * case, it was most sittings. The most a failed A2 supports is A1, and saying

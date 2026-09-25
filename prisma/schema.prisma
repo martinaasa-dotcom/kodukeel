@@ -377,6 +377,14 @@ model Setting {
   value   String
 
   @@id([ownerId, key])
+  /// Three reads ask about one key across the whole deployment: who finished
+  /// first run this fortnight (the mailer, counted and then paged, hourly) and
+  /// who opted out of the research export. The primary key leads with the
+  /// owner, so it cannot serve a filter on the key alone, and each was a
+  /// sequential scan of every setting of every learner. Measured over 5,000
+  /// learners at twelve settings each: the count went from 4.4ms and 407
+  /// buffers to 0.24ms and 51, the opt-out read from 3.3ms to 0.07ms.
+  @@index([key, value])
 }
 
 /// A badge the learner has earned. Append-mostly: a key is written once, the
