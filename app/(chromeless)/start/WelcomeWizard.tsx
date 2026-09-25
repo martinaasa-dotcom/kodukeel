@@ -10,7 +10,7 @@ import { ResultPanel } from "@/components/assessment/ResultPanel";
 import { Button } from "@/components/Button";
 import { LetterBarScope, LetterSample } from "@/components/DiacriticBar";
 import { Mascot } from "@/components/brand";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { Chip, Meter, Note, SectionTitle } from "@/components/ui";
 import { DEADLINES, REASONS, TARGETS, deadlineFrom, firstSceneFor, impliedTarget, reasonsToStored, type Goals } from "@/lib/assessment/goals";
@@ -165,7 +165,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   parts: CoursePart[];
   suggestedName: string;
   /** The level check, built server side. Empty when the dictionary cannot fill one. */
-  paper: { items: Item[]; missing: string[] };
+  paper: { items: Item[]; missing: string[]; seed: number; builtAt: number };
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -326,6 +326,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           <AssessmentRunner
           items={paper.items}
           missing={paper.missing}
+          seed={paper.seed}
+          builtAt={paper.builtAt}
           /*
             Back to the level step, not past it.
 
@@ -628,13 +630,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               className="mt-6 grid gap-3 sm:grid-cols-2"
             >
               {REASONS.map((r) => {
-                const Icon = icon(r.icon);
                 return (
                   <ChoiceCard
                     key={r.id}
                     selected={reasons.includes(r.id)}
                     onSelect={() => toggleReason(r.id)}
-                    icon={<Icon size={18} aria-hidden />}
+                    icon={<NamedIcon name={r.icon} size={18} aria-hidden />}
                     title={r.label}
                     detail={r.detail}
                   />
@@ -839,14 +840,13 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             */}
             <ul className="mt-5 flex flex-col gap-2">
               {deck.units.map((u) => {
-                const Icon = icon(u.icon);
                 return (
                   <li
                     key={u.id}
                     className="flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3"
                     style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
                   >
-                    <Icon size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
+                    <NamedIcon name={u.icon} size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
                     <div className="min-w-0">
                       <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
                         {u.title}

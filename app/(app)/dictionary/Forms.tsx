@@ -9,7 +9,7 @@ import { CaseQuestion } from "@/components/CaseQuestion";
 import { caseFromMorphCode, VERB_GROUP_LABELS, verbSlot, type VerbSlot } from "@/lib/estonian/morph";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { Speak } from "@/components/Speak";
-import { NO_VALUE } from "@/lib/copy/values";
+import { NO_VALUE, PARTS } from "@/lib/copy/values";
 import { Explain } from "@/components/Explain";
 
 export interface WordForm {
@@ -73,7 +73,7 @@ function Cell({ values }: { values: string[] }) {
   return (
     <span className="inline-flex items-center gap-1.5">
       <span lang="et" className="text-base" style={{ color: "var(--ink)" }}>
-        {values.join(" / ")}
+        {values.join(PARTS)}
       </span>
       <Speak text={values[0]!} size={13} />
     </span>
@@ -303,7 +303,7 @@ function OtherForms({ forms, used }: { forms: WordForm[]; used: Set<string> }) {
             <li key={r.code} className="flex items-baseline justify-between gap-3 text-xs">
               <span lang="et" style={{ color: "var(--ink-3)" }}>{r.name}</span>
               <span lang="et" className="text-sm" style={{ color: "var(--ink-2)" }}>
-                {r.values.join(" / ")}
+                {r.values.join(PARTS)}
               </span>
             </li>
           ))}

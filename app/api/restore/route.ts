@@ -42,6 +42,15 @@ import { reportError } from "@/lib/observability/report";
  */
 const MAX_BACKUP_BYTES = 128 * 1024 * 1024;
 
+/*
+  Above the restore's own transaction, which is allowed a hundred and twenty
+  seconds. With nothing declared the route took the platform's default, which
+  on several of them is ten, so a large restore was ended by the platform
+  rather than by its own limit, and "nothing was changed" never reached the
+  person whose backup it was.
+*/
+export const maxDuration = 150;
+
 export async function POST(request: NextRequest) {
   /*
     Charged to the learner, and charged for `inspect` too.

@@ -34,7 +34,7 @@ comment on every model that needs one; what belongs here is the map and the reas
 | `StudyEvent` | A class, a study slot or a one-off in the learner's own week. Wall-clock minutes rather than instants, so a Monday class stays at 18:00 across a daylight saving change. |
 | `Message` | A turn of a conversation with Anu. |
 | `Setting` | The learner's own answers, one key at a time, through `lib/settings/store.ts`. |
-| `Achievement` | A badge, written the moment its condition is first met and never removed. |
+| `Achievement` | A badge somebody earned before badges were withdrawn. Nothing earns one now; the rows stay because they are the learner's, and a backup puts them back. |
 | `Assessment` | One sitting of the level check. Append-only. |
 | `ExamAttempt` | One sitting of a mock state examination, with the seed its paper was built from. Append-only. |
 | `Scan` | One photographed page, as the words somebody confirmed. **Never the picture.** |
@@ -69,14 +69,18 @@ paper, a marking target or a scanned word the app vouches for. `lib/srs`, `lib/e
 ## The values a string column may take
 
 Postgres enums are not used, for the portability ADR-002 asks for, so these live as strings with the
-allowed values in a comment beside them. Three of the four are named in more than one place and the
-invariant checks they agree.
+allowed values in a comment beside them or a list in the code. Every line below is checked against
+the list that decides it, because a value added in the code and not here is the kind of drift nobody
+notices until a contributor writes a row the app then refuses.
 
 ```
 CardType    RECOGNITION PRODUCTION CASE_FORM GRADATION GOVERNMENT CLOZE CONJUGATION
-CardSource  MANUAL DICTIONARY TUTOR IMPORT SCAN ALMANAC SCENE
-SceneGap    ASKED STALLED  (the help button, and a beat that could not be met)
-DeferReason WEEKS BAND  (a few weeks, or it waits for a band: lib/srs/defer.ts)
+CardSource  COURSE FREQUENCY SCENE LOOKUP MANUAL TUTOR IMPORT SCAN ALMANAC SENTENCE DICTIONARY
+            (declared in CARD_SOURCES, lib/srs/sources.ts)
+SceneGap    ASKED STALLED REACHED  (the help button, a beat that could not be met,
+            and a word said in English)
+DeferReason SOON BAND  (a few days, or it waits for a band: lib/srs/defer.ts;
+            rows older than the three-day wait say WEEKS and are read as SOON)
 TaskTag     HOMEWORK VOCABULARY  (declared in TASK_TAGS, lib/ux/agenda.ts)
 FormType    NOM_SG GEN_SG PART_SG ILL_SG_SHORT NOM_PL PART_PL GEN_PL
             INF_MA INF_DA PRES_1SG PAST_1SG PART_TUD
@@ -91,11 +95,11 @@ GrammCase   NOMINATIVE GENITIVE PARTITIVE ILLATIVE INESSIVE ELATIVE
 
 ## Notes on three deliberate choices
 
-**Derived forms are not stored.** Only principal parts live in `Form`, drawn from the eleven
-`FormType` values: six for a nominal and five for a verb. The sixth nominal part, `GEN_PL`, is what
-opens the plural oblique cases, and `ILL_SG_SHORT` is the short illative, which is the one case no
-rule reaches; both are present on a word only where the dictionary holds them, so a seeded entry
-has three or four and an enriched one more. The ten regular cases and the verb's present, negative,
+**Derived forms are not stored.** Only principal parts live in `Form`, drawn from the twelve
+`FormType` values: seven for a nominal and five for a verb. `GEN_PL` is what opens the plural
+oblique cases, `NOM_PL` is stored because no ending reaches a pronoun's plural, and `ILL_SG_SHORT`
+is the short illative, which is the one case no rule reaches; each is present on a word only where
+the dictionary holds it, so a seeded entry has three to six and an enriched one more. The ten regular cases and the verb's present, negative,
 conditional and imperative are worked out at render time from the genitive stem and the stored
 first person. Storing them would create a second source of truth that goes stale the moment a stem
 is corrected.
@@ -103,20 +107,22 @@ is corrected.
 A form Ekilex retrieved is kept under its own slot, `EKILEX:<morphCode>`, so a retrieved form and a
 derived one fill the same row of a table and an attested one always answers first.
 
-**`Review` is append-only.** No update path, no delete path. It is the one table whose loss cannot
+**`Review` is append-only.** No update path, and the one delete is somebody erasing their own account. It is the one table whose loss cannot
 be recovered by re-fetching from anywhere, and it is the input to future FSRS optimization.
 
-**Audio is cached and is not a table.** A clip is content-addressed on the text, the voice and the
-speed, so the same word asked for from a dictionary entry and from a flashcard is one file. It lives
-on disk beside the route that fetched it and in the service worker's own bounded cache, which is
-where a file belongs: `lib/audio/clip.ts` is the one place that key is built.
+**Audio is cached and is not a table.** A clip is content-addressed on the text and the voice, so
+the same word asked for from a dictionary entry and from a flashcard is one file. A slower play is
+not a second file: the browser stretches the one it has (`lib/audio/stretch.ts`). It lives on disk
+beside the route that fetched it and in the service worker's own bounded cache, which is where a
+file belongs: `lib/audio/clip.ts` is the one place that key is built.
 
 **`Assessment` is the second append-only table, and the third exception to "progress is derived".**
 A sitting of the level check is a measurement of answers to questions that were never cards and
 were never scheduled, made at one moment against a paper assembled for it. Nothing in the review log
 can reconstruct it, so it is stored rather than computed, and it is written once and never edited:
 a later check is another row, which is what makes the history a history instead of a number that
-moved. It holds the per skill levels, the overall (the weakest measured skill), the confidence, how
+moved. It holds the per skill levels, the overall (the average of the measured skills, floored, and recomputed from
+those columns when it is read), the confidence, how
 many scored questions it came from, the learner's own speaking rating, and the band breakdown as
 JSON. See ADR-020.
 

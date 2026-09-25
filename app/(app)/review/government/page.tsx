@@ -6,7 +6,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { courseLevelFor } from "@/lib/progress/level";
 import { bandsAround } from "@/lib/collections/levels";
-import { buildOptions, maskExample, parseGovernment } from "@/lib/estonian/government";
+import { buildOptions, governmentCue, parseGovernment } from "@/lib/estonian/government";
 import { parseExamples, sentenceContaining, usableExamples } from "@/lib/dict/examples";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -184,7 +184,10 @@ export default async function GovernmentPage({
       alsoGoverned: [...g.alsoGoverned],
       example: exampleFor(v, g, reach),
       exampleEn: g.example ? null : exampleEnFor(v, exampleFor(v, g, reach)),
-      maskedExample: maskExample(exampleFor(v, g, reach)),
+      // The government's own example, masked, or nothing: an attested usage
+      // is printed in full after the answer, never masked by position before
+      // it, since its last word is not the complement (see governmentCue).
+      maskedExample: governmentCue(g),
       // Only a sentence that actually lives on the lexeme's own examples can be
       // translated and kept there: `government.example` is a fixed string the
       // seed carries inside the government column itself, which `translateExample`
