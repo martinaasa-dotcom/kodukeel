@@ -383,8 +383,12 @@ export default async function CoursePage({
             columns "New words" has about 80px to work with at 360px, and
             `overflow-wrap: anywhere` (deliberately global, see globals.css)
             breaks it mid-word rather than at the space.
+
+            And by the room the tiles have rather than the window: at 768
+            `sm:grid-cols-3` split a 368px column three ways, and "Left
+            tonight" had 66px of the 74 "tonight" needs.
           */}
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-3">
             <StatTile value={day.words.length} label="New words" tone="mint" />
             <StatTile
               value={standing.complete ? "0" : `${standing.minutesLeft}m`}

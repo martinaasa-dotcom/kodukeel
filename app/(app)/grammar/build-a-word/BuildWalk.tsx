@@ -296,7 +296,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
         unrelated switches and cost three tab stops. It is the argument
         `components/Choice.tsx` makes at the top of its own file.
       */}
-      <ChoiceGroup ariaLabel="Which of the three to explain" select="one" className="grid gap-2 sm:grid-cols-3">
+      <ChoiceGroup ariaLabel="Which of the three to explain" select="one" className="choice-grid">
         {word.principal.map((form, n) => {
           const ref = caseReference(form.key);
           const isStem = form.value === word.genitive;
@@ -906,7 +906,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         <ChoiceGroup
           ariaLabel="Which ending"
           select="one"
-          className="mt-4 grid gap-2 sm:grid-cols-2"
+          className="choice-grid mt-4"
         >
           {options.map((option, i) => {
             const isAnswer = option.suffix === form.suffix;
