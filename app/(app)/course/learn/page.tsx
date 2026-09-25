@@ -33,19 +33,18 @@ export const dynamic = "force-dynamic";
  */
 export default async function CourseLearnPage() {
   const ownerId = await requireUserId();
-  const programme = await programmeFor(ownerId);
+  // Asked at once: the clock does not need the programme.
+  const [programme, clock] = await Promise.all([programmeFor(ownerId), learnerDayClock(ownerId)]);
   if (!programme) redirect("/course");
 
-  const clock = await learnerDayClock(ownerId);
   const reading = await courseReading(ownerId, programme, clock);
   if (!reading.current) redirect("/course");
 
   const day = reading.current.day;
 
-  const [settings, level, counts, courseSpellings] = await Promise.all([
+  const lookups = Promise.all([
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
     courseLevelFor(ownerId),
-    learnCounts(ownerId),
     /*
       Every spelling of every course word. Which of them this learner has been
       taught is `taughtThrough` below; this is a fact about the shared
@@ -54,34 +53,41 @@ export default async function CourseLearnPage() {
     courseFormsByLemma(),
   ]);
 
-  const words = await learnBatch(
-    ownerId,
-    level,
-    glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]),
-    day.words.length,
-    {
-      only: day.words,
-      /*
-        WHAT THE MODULE HAS TAUGHT, THROUGH THE DAY THEY ARE ON.
+  /*
+    The counts and the batch need nothing from each other, so they are asked
+    at once. The batch waited on the counts for a figure it never reads.
+  */
+  const [counts, words] = await Promise.all([
+    learnCounts(ownerId),
+    lookups.then(([settings, level, courseSpellings]) => learnBatch(
+      ownerId,
+      level,
+      glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]),
+      day.words.length,
+      {
+        only: day.words,
+        /*
+          WHAT THE MODULE HAS TAUGHT, THROUGH THE DAY THEY ARE ON.
 
-        The gap rung cuts a sentence a lexicographer wrote, and at A1 most of
-        those carry words from further up the course: the module's own first
-        evening would have gapped a sentence holding five words nobody had
-        shown. `taughtThrough` is what the ladder has given them, which is a
-        different question from what their deck holds, and the right one here:
-        somebody who skipped a round still met the words. The ladder rather
-        than `wordsThrough`, which answers about one part of seventeen: on the
-        first evening of a1.5 that is eight words where the learner has been
-        handed 394, and drawn against it the rule refuses nearly every sentence
-        somebody deep in A1 can read.
+          The gap rung cuts a sentence a lexicographer wrote, and at A1 most of
+          those carry words from further up the course: the module's own first
+          evening would have gapped a sentence holding five words nobody had
+          shown. `taughtThrough` is what the ladder has given them, which is a
+          different question from what their deck holds, and the right one here:
+          somebody who skipped a round still met the words. The ladder rather
+          than `wordsThrough`, which answers about one part of seventeen: on the
+          first evening of a1.5 that is eight words where the learner has been
+          handed 394, and drawn against it the rule refuses nearly every sentence
+          somebody deep in A1 can read.
 
-        Standalone Learn passes nothing and is untouched, because a learner
-        who went there themselves is choosing their own difficulty. This is
-        the module, which chose for them.
-      */
-      taughtWords: spellingsOf(courseSpellings, taughtThrough(programme, day.index)),
-    },
-  );
+          Standalone Learn passes nothing and is untouched, because a learner
+          who went there themselves is choosing their own difficulty. This is
+          the module, which chose for them.
+        */
+        taughtWords: spellingsOf(courseSpellings, taughtThrough(programme, day.index)),
+      },
+    )),
+  ]);
 
   return (
     <LearnSession

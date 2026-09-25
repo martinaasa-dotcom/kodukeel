@@ -301,7 +301,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                     <span className="block text-xs">{questionInEnglish(spec?.question)}</span>
                     <span lang="et" className="block text-xs" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
                   </span>
-                  {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-hidden />}
+                  {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label="Right" />}
                 </button>
               );
             })}
@@ -320,7 +320,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         </div>
 
         {revealed && (
-          <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
+          <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             {question.example && (
               <div className="flex flex-wrap items-center gap-2">
                 <p lang="et" className="text-lg font-semibold" style={{ color: "var(--accent-deep)" }}>
@@ -391,6 +391,20 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
       </div>
       )}
 
+      {/*
+        The verdict in words, in a region that is on the page before there is
+        anything to say. The panel under the card used to carry `aria-live`
+        itself and arrived with the reveal, so its first words were never read
+        out; and what it said, the example and the rule, never said whether
+        the pick was right.
+      */}
+      <p className="sr-only" role="status">
+        {revealed && question && (
+          picked === question.answer
+            ? "Right."
+            : <>Not this time. <span lang="et">{question.lemma}</span> takes <span lang="et">{caseLabel(question.answer)?.question}</span>.</>
+        )}
+      </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>{correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 4 to answer</span>
         <LookBackButton {...look.button} disabled={look.looking} />

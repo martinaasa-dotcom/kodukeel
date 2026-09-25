@@ -81,6 +81,22 @@ export type PropSpec =
        * exemption list is the parking space that list becomes.
        */
       readonly means?: Readonly<Record<string, string>>;
+      /**
+       * A PLACE, SO A PLACE NAME THE LEARNER WRITES IS ONE THEY CHOSE.
+       *
+       * The words a slot can deal are common nouns, the station, the
+       * hospital, the city centre, and at a bus station the first thing
+       * anybody says is a town: `Tartusse`. The forms list holds no
+       * capitalised word on purpose, so a town was read as a word nobody
+       * could place and answered "sorry?", to a learner who had said exactly
+       * where they were going. On a slot marked as a place, a capitalised
+       * word the app cannot account for as anything else is that learner
+       * changing the fact on their card (ADR-025 amendment 3), which the
+       * route adopts like any other chosen value. Its ending is not checked
+       * and it is never said back or graded, since nothing here can vouch
+       * for a spelling the dictionary does not hold (ADR-005).
+       */
+      readonly places?: true;
     }
   /**
    * A time of day, on the hour or the half hour, inside a window.
@@ -340,6 +356,30 @@ export function drawProp(
   }
 }
 
+/**
+ * A drawn prop with a value the learner chose in place of the dealt one, in
+ * the shape `drawProp` deals that kind of prop, or null where the prop is not
+ * one of the kinds whose value is a figure. Beside the builders on purpose: a
+ * copy of their literal and lemma rules written elsewhere is how a floor the
+ * learner moved to `5` stopped hearing `viis`.
+ */
+export function restated(prop: DrawnProp, value: string): DrawnProp | null {
+  const { english: _english, ...rest } = prop;
+  if (TIME.test(prop.value)) {
+    return TIME.test(value) ? { ...rest, value, lemmas: [], literal: timeLiterals(value), shown: [value] } : null;
+  }
+  if (/^\d+$/.test(prop.value)) {
+    if (!/^\d+$/.test(value)) return null;
+    return { ...rest, value, literal: [value], lemmas: numberWords(value), shown: [prop.price ? `${value} €` : value] };
+  }
+  if (prop.value.startsWith("KK-")) {
+    return { ...rest, value, lemmas: [], literal: value.startsWith("KK-") ? [value, value.slice(3)] : [value], shown: [value] };
+  }
+  return null;
+}
+
+const TIME = /^\d{1,2}:\d{2}$/;
+
 /** The whole card for one run. */
 export function drawCard(
   you: string,
@@ -596,7 +636,7 @@ export function timeLiterals(value: string): string[] {
  * beat reads for itself.
  */
 export type SlotKind =
-  | { readonly kind: "word" | "weekday"; readonly oneOf: readonly string[]; readonly theirs?: true }
+  | { readonly kind: "word" | "weekday"; readonly oneOf: readonly string[]; readonly theirs?: true; readonly places?: true }
   | { readonly kind: "time"; readonly from: number; readonly to: number; readonly theirs?: true }
   | { readonly kind: "number" | "price"; readonly min: number; readonly max: number; readonly theirs?: true }
   | { readonly kind: "code" };
@@ -607,7 +647,7 @@ export function slotKinds(specs: readonly PropSpec[]): Map<string, SlotKind> {
   for (const spec of specs) {
     switch (spec.kind) {
       case "word":
-        out.set(spec.slot, { kind: "word", oneOf: spec.oneOf });
+        out.set(spec.slot, { kind: "word", oneOf: spec.oneOf, ...(spec.places ? { places: true as const } : {}) });
         break;
       case "weekday":
         out.set(spec.slot, { kind: "weekday", oneOf: spec.oneOf, ...(spec.theirs ? { theirs: true as const } : {}) });

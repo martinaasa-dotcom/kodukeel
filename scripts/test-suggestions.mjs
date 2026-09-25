@@ -72,8 +72,8 @@ check(
   "the form already knows what it is about",
   (await page.content()).includes("A word that should be in the dictionary"),
 );
-await page.locator("#suggest-meaning").fill(MEANING);
-await page.locator("#suggest-note").fill(NOTE);
+await page.locator(`[name="suggest-meaning"]`).fill(MEANING);
+await page.locator(`[name="suggest-note"]`).fill(NOTE);
 await page.getByRole("button", { name: /Send it/i }).click();
 check(
   "sending it says where it went, not thank you",
@@ -108,8 +108,8 @@ check("and the entry offers a correction of its own", entry.includes("Suggest a 
 
 // ── Correcting a meaning, which is the other half ──────────────────────────
 await page.getByRole("button", { name: /Suggest a correction/i }).first().click();
-await page.locator("#suggest-gloss").fill(CORRECTED);
-await page.locator("#suggest-note").fill(NOTE);
+await page.locator(`[name="suggest-gloss"]`).fill(CORRECTED);
+await page.locator(`[name="suggest-note"]`).fill(NOTE);
 await page.getByRole("button", { name: /Send it/i }).click();
 check(
   "a correction can be sent from the entry itself",

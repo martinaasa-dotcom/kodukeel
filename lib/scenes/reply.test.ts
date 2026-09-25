@@ -763,7 +763,7 @@ describe("a line off the card", () => {
     }],
   };
   const lexicon: Lexicon = {
-    forms: new Set(), spoken: [], byLemma: new Map(), posOf: new Map(), byCase: new Map(),
+    forms: new Set(), spoken: [], byLemma: new Map(), byCase: new Map(),
     caseForm: new Map([[caseKeyFor("teisipäev", "ADESSIVE"), "teisipäeval"]]),
     folded: new Map(), infinitives: new Map(), persons: new Map(),
   };
@@ -958,6 +958,25 @@ describe("the card with a fact the learner changed", () => {
     expect(propBySlot(seen!, "to")).toMatchObject({ value: "haigla", lemmas: ["haigla"], shown: ["hospital"], english: "hospital" });
     expect(propBySlot(seen!, "time")).toMatchObject({ value: "09:30", shown: ["09:30"], literal: ["09:30", "09.30", "9:30", "9.30"] });
     expect(propBySlot(card, "to")?.value).toBe("jaam");
+  });
+
+  /*
+    A number the learner changed is still a number. It was rebuilt by hand
+    with no words behind it, so a floor they moved to `5` stopped hearing
+    `viis`; and a floor said in words arrived carrying its lemma and took the
+    word's branch, so the card's floor became the string `kolm` with no digit
+    left to read back. It is the dealt shape again now, off `restated`.
+  */
+  it("keeps a changed number a number, in digits and in words", () => {
+    const floor = { you: "You.", props: [{ slot: "floor", card: "Your floor.", literal: ["4"], lemmas: ["neli", "neljas"], shown: ["4"], value: "4" }] };
+    for (const chose of [{ slot: "floor", value: "3", lemma: "kolm" }, { slot: "floor", value: "3" }]) {
+      const seen = propBySlot(cardChosen(floor, [{ chose: [chose] }])!, "floor");
+      expect(seen).toMatchObject({ value: "3", literal: ["3"], shown: ["3"] });
+      expect(seen?.lemmas).toContain("kolm");
+    }
+    const price = { you: "You.", props: [{ slot: "price", card: "What it costs.", literal: ["5"], lemmas: ["viis", "viies"], shown: ["5 €"], value: "5", price: true as const }] };
+    expect(propBySlot(cardChosen(price, [{ chose: [{ slot: "price", value: "6" }] }])!, "price"))
+      .toMatchObject({ value: "6", shown: ["6 €"], price: true });
   });
 
   it("leaves the card alone where nothing was changed, and the other side's facts always", () => {

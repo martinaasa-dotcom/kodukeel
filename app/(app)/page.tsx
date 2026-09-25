@@ -124,7 +124,7 @@ export default async function TodayPage() {
   // with a deck or a finished setup never sees it again.
   if (!settings[SETTING_KEYS.onboardedAt] && snapshot.totalCards === 0) redirect("/start");
 
-  const [summary, units, tasks, openTasks, lateTasks, events, weekReviews, learner, pace, programme] = await Promise.all([
+  const [summary, units, tasks, openTasks, lateTasks, events, weekReviews, learner, pace, [programme, courseNow]] = await Promise.all([
     dailySummary(ownerId, now, clock),
     pathWithProgress(ownerId, snapshot),
     /*
@@ -175,8 +175,17 @@ export default async function TodayPage() {
       this page leads with. In this batch rather than after it because it needs
       nothing from anything else here, and a second round trip to answer a
       question the hero depends on is a round trip paid on every morning.
+
+      AND THE READING OF IT, CHAINED ON RATHER THAN WAITED FOR. The module is
+      the hero and `courseReading` needs nothing but the programme, the clock
+      and the instant, so it starts the moment the programme is known instead
+      of after the word of the day has been fetched: two to four round trips
+      that used to sit at the end of the page now run beside the batch.
     */
-    programmeFor(ownerId),
+    programmeFor(ownerId).then(async (programme) => [
+      programme,
+      programme ? await courseReading(ownerId, programme, clock, now) : null,
+    ] as const),
   ]);
 
   const stage = stageOf({ totalCards: snapshot.totalCards, reviewsAllTime: summary.reviewsAllTime });
@@ -199,13 +208,25 @@ export default async function TodayPage() {
   */
   const featured = gameOn(weekdayOf(summary.dayKey));
   const questDay = featured.href === "/quest" && shows(stage, "quest");
-  const [word, collection, weakest, outside] = await Promise.all([
+  const [word, collection, weakest, outside, ladder] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement) : null,
     shows(stage, "word") ? wordOfDayCollection(ownerId, now, clock) : { kept: 0, streak: 0 },
     questDay ? weakestCase(ownerId, now) : null,
     // Whether the day's question has been answered, and the month behind it,
     // off one read rather than one for each.
     errand ? outThereToday(ownerId, clock, now) : null,
+    /*
+      Held to `starting` rather than drawn from the first minute, for the
+      reason the disclosure rule gives about every other figure computed from
+      an empty log: a bar at nought percent under a heading about a target is
+      not information, it is the app reporting that nothing has happened yet,
+      which the learner knows. The query is only run where it is drawn, and it
+      is asked in this batch because it needs the stage and the settings and
+      nothing the other four return.
+    */
+    shows(stage, "streak")
+      ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
+      : null,
   ]);
 
   const today = dateLine(now, clock.zone);
@@ -423,27 +444,6 @@ export default async function TodayPage() {
     the point of a course that ends: the ordinary card comes back, saying there
     is nothing due, which is true and is the right thing to be told.
   */
-  /*
-    ASKED AT ONCE, BECAUSE NEITHER NEEDS THE OTHER'S ANSWER. The module is the
-    hero at the top of this page and the climb is a card most of the way down
-    it, and they were two `await`s four hundred lines apart: on a database in
-    another region that is two round trips one after the other for two reads
-    that share nothing but the learner. Both depend only on what the batch
-    above already fetched.
-  */
-  const [courseNow, ladder] = await Promise.all([
-    programme ? courseReading(ownerId, programme, clock, now) : null,
-    /*
-      Held to `starting` rather than drawn from the first minute, for the
-      reason the disclosure rule gives about every other figure computed from
-      an empty log: a bar at nought percent under a heading about a target is
-      not information, it is the app reporting that nothing has happened yet,
-      which the learner knows. The query is only run where it is drawn.
-    */
-    shows(stage, "streak")
-      ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
-      : null,
-  ]);
   const courseDay = courseNow?.current ?? null;
   const courseStep = courseDay?.next ?? null;
   /* An evening still to do, which is one condition and was written out twice:

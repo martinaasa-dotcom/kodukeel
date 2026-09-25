@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Mascot } from "@/components/brand";
 
@@ -38,6 +38,10 @@ export function AnuFab({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  // Where the caret goes when she closes. The press that opens the panel
+  // unmounts this button, so the element that had focus is gone by then and
+  // the button drawn again in its place is what a keyboard is handed back to.
+  const button = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -56,6 +60,8 @@ export function AnuFab({
         <div hidden={!open}>
           <Suspense fallback={null}>
             <AnuPanel
+              open={open}
+              returnTo={button}
               configured={configured}
               readerCanConfigure={readerCanConfigure}
               onClose={() => setOpen(false)}
@@ -65,6 +71,7 @@ export function AnuFab({
       )}
       {!open && (
         <button
+          ref={button}
           type="button"
           onClick={() => { setLoaded(true); setOpen(true); }}
           aria-label="Ask Anu"

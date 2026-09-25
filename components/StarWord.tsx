@@ -28,7 +28,7 @@ import { toggleStar } from "@/app/actions";
  *
  * AND THE HUE IS NOT THE ONLY THING SAYING WHICH STATE IT IS IN. The star is
  * filled when it is on and outlined when it is not, it carries `aria-pressed`,
- * and its label says what pressing it will do.
+ * which is where the state is said, under a name that does not change.
  *
  * NOT QUEUED WHEN THE NETWORK IS GONE. A grade is an answer and goes into the
  * outbox because losing one loses evidence (ADR-015); a star is a bookmark,
@@ -77,12 +77,21 @@ export function StarWord({
   return (
     <button
       type="button"
+      /*
+        ONE NAME, AND THE STATE IN `aria-pressed`. A toggle whose name also
+        changed with its state was read out twice, "Remove tuba from your
+        favorites, pressed", and a screen reader told a name change is told
+        nothing about the press. And not `disabled` while the write is out:
+        the press is what starts it, and a browser drops focus off a control
+        it has just disabled. A second press waits for the first instead.
+      */
       aria-pressed={on}
-      aria-label={on ? `Remove ${label} from your favorites` : `Add ${label} to your favorites`}
-      disabled={pending}
+      aria-label={`Favorite ${label}`}
+      aria-busy={pending || undefined}
       className="tap-tint flex h-9 w-9 items-center justify-center rounded-full"
       style={{ color: on ? "var(--accent-deep)" : "var(--ink-3)" }}
       onClick={() => {
+        if (pending) return;
         // Optimistic, because the point of a star in a corner is that it costs
         // nothing to press mid-card. Put back where it was if it did not land.
         const next = !on;

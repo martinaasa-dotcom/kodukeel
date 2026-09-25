@@ -131,12 +131,6 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
   const [played, setPlayed] = useState(!item.heard);
   const [silent, setSilent] = useState(false);
 
-  useEffect(() => {
-    setPicked(null);
-    setPlayed(!item.heard);
-    setSilent(false);
-  }, [item.id, item.heard]);
-
   const choose = (index: number) => {
     if (picked !== null) return;
     setPicked(index);
@@ -228,19 +222,24 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
         })}
       </div>
 
-      {picked !== null && (
-        /*
-          A MARKED ANSWER SAYS SO OUT LOUD.
+      {/*
+        A MARKED ANSWER SAYS SO OUT LOUD.
 
-          The panel that appears here is the whole of what a learner gets back
-          from the check: whether they were right, and why. Focus moves to
-          "Next question" with `autoFocus`, so a screen reader announced the
-          button and nothing else, and somebody sitting a fifteen-minute
-          placement check heard "Next question" fifteen times and never once
-          heard whether they had got it right. `role="status"` is polite, so
-          it waits for the focus move rather than interrupting it.
-        */
-        <div className="pop-in mt-5" role="status">
+        The panel that appears here is the whole of what a learner gets back
+        from the check: whether they were right, and why. Focus moves to
+        "Next question" with `autoFocus`, so a screen reader announced the
+        button and nothing else, and somebody sitting a fifteen-minute
+        placement check heard "Next question" fifteen times and never once
+        heard whether they had got it right. `role="status"` is polite, so
+        it waits for the focus move rather than interrupting it.
+
+        The region is on the page before the pick and only its contents
+        change, because one that arrives already holding its sentence may
+        never be read out.
+      */}
+      <div className={picked !== null ? "pop-in mt-5" : undefined} role="status">
+        {picked !== null && (
+        <>
           <Chip tone={right ? "good" : "again"}>{right ? "Right" : "Not this time"}</Chip>
           {/*
             Not marked lang="et": this line is English prose with an Estonian
@@ -258,8 +257,9 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
           >
             Next question
           </Button>
-        </div>
-      )}
+        </>
+        )}
+      </div>
     </div>
   );
 }
@@ -274,8 +274,6 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
   const [typed, setTyped] = useState("");
   const [mark, setMark] = useState<ReturnType<typeof gradeDictation> | null>(null);
   const [silent, setSilent] = useState(false);
-
-  useEffect(() => { setTyped(""); setMark(null); setSilent(false); }, [item.id]);
 
   return (
     <div>
@@ -315,7 +313,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
         </div>
       )}
 
-      {mark === null ? (
+      {mark === null && (
         <div className="mt-6">
           <EstonianInput
             value={typed}
@@ -339,8 +337,11 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
             </Button>
           </div>
         </div>
-      ) : (
-        <div className="pop-in mt-6" role="status">
+      )}
+      {/* Mounted before the check, and only its contents change. */}
+      <div className={mark ? "pop-in mt-6" : undefined} role="status">
+        {mark && (
+        <>
           {/* The panel rather than a chip, for the reason `WriteQuestion` gives
               below: a chip uppercases, and these notes are sentences. And the
               verdict through `verdictOfDictation` rather than the same
@@ -396,8 +397,9 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text: typed })}>
             Next question
           </Button>
-        </div>
-      )}
+        </>
+        )}
+      </div>
     </div>
   );
 }
@@ -407,8 +409,6 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
 export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (answer: Answer) => void }) {
   const [text, setText] = useState("");
   const [mark, setMark] = useState<ReturnType<typeof gradeWrite> | null>(null);
-
-  useEffect(() => { setText(""); setMark(null); }, [item.id]);
 
   return (
     <div>
@@ -427,7 +427,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
 
       <EstonianPrompt text={item.sentence} />
 
-      {mark === null ? (
+      {mark === null && (
         <div className="mt-6">
           <EstonianInput
             value={text}
@@ -444,8 +444,11 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             </Button>
           </div>
         </div>
-      ) : (
-        <div className="pop-in mt-6" role="status">
+      )}
+      {/* Mounted before the check, and only its contents change. */}
+      <div className={mark ? "pop-in mt-6" : undefined} role="status">
+        {mark && (
+        <>
           {/*
             THE VERDICT IS A PANEL, NOT A CHIP. A chip is `label-xs`, which
             uppercases, so a whole sentence in one arrived as a block of
@@ -470,8 +473,9 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text })}>
             Next question
           </Button>
-        </div>
-      )}
+        </>
+        )}
+      </div>
     </div>
   );
 }

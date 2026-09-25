@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Check, MessageSquareWarning, X } from "lucide-react";
 import { submitSuggestion } from "@/app/actions";
 import { Button } from "@/components/Button";
@@ -92,6 +92,38 @@ export function SuggestFix({
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
+  /*
+    ITS OWN IDS, BECAUSE IT IS NEVER THE ONLY ONE ON THE PAGE. Anu's panel
+    mounts one on any screen, beside whichever one the screen draws, and two
+    fields called `suggest-note` point both labels at the first. The field's
+    `name` keeps the plain word, for anything that has to find it.
+  */
+  const uid = useId();
+  const idFor = (field: string) => `suggest-${uid}-${field}`;
+
+  /*
+    THE CARET FOLLOWS WHAT THE PRESS OPENED OR CLOSED. The button that opens
+    the form goes away as the form arrives, and the two that close it go away
+    as it leaves, so every press used to drop focus on the body. Opening lands
+    on the first field; closing goes back to the button that opened it; a sent
+    report lands on the sentence saying it arrived, which is also read out.
+    Only after a press: `opened` starts false and the first render moves
+    nothing.
+  */
+  const panel = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLButtonElement>(null);
+  const thanks = useRef<HTMLParagraphElement>(null);
+  const opened = useRef(false);
+  useEffect(() => {
+    if (open) {
+      opened.current = true;
+      panel.current?.querySelector<HTMLElement>("select, input, textarea")?.focus();
+    } else if (opened.current) {
+      opener.current?.focus();
+    }
+  }, [open]);
+  useEffect(() => { if (sent) thanks.current?.focus(); }, [sent]);
+
   // The proposal fields. Which of them is shown is decided by `kind`, so
   // changing the category changes the question rather than the form.
   const [word, setWord] = useState(lemma ?? "");
@@ -128,6 +160,7 @@ export function SuggestFix({
   };
 
   const send = () => {
+    if (pending) return;
     setError(null);
     start(async () => {
       /*
@@ -165,7 +198,10 @@ export function SuggestFix({
   if (sent) {
     return (
       <p
-        className="flex items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm"
+        ref={thanks}
+        tabIndex={-1}
+        role="status"
+        className="flex items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm outline-none"
         style={{ background: "var(--good-soft)", color: "var(--good-ink)" }}
       >
         <Check size={15} aria-hidden className="mt-0.5 shrink-0" />
@@ -177,6 +213,7 @@ export function SuggestFix({
   if (!open) {
     return (
       <Button
+        ref={opener}
         variant={tone === "loud" ? "secondary" : "ghost"}
         size={tone === "loud" ? "md" : "sm"}
         onClick={() => setOpen(true)}
@@ -189,6 +226,7 @@ export function SuggestFix({
 
   return (
     <div
+      ref={panel}
       className="w-full rounded-[var(--r-lg)] border p-5 text-left"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
     >
@@ -217,11 +255,11 @@ export function SuggestFix({
 
       {choices && (
         <div className="mt-4">
-          <label htmlFor="suggest-kind" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+          <label htmlFor={idFor("kind")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
             What kind of problem
           </label>
           <select
-            id="suggest-kind"
+            id={idFor("kind")} name="suggest-kind"
             value={kind}
             onChange={(e) => setKind(e.target.value as SuggestionCategory)}
             className="field w-full text-sm"
@@ -237,18 +275,18 @@ export function SuggestFix({
       {kind === "MISSING_WORD" && (
         <div className="mt-4 flex flex-col gap-3">
           <div>
-            <label htmlFor="suggest-word" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+            <label htmlFor={idFor("word")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
               The Estonian word
             </label>
-            <EstonianInput id="suggest-word" value={word} onChange={setWord} ariaLabel="The Estonian word" />
+            <EstonianInput id={idFor("word")} value={word} onChange={setWord} ariaLabel="The Estonian word" />
           </div>
           <div className="flex flex-wrap gap-3">
             <div className="flex-1">
-              <label htmlFor="suggest-meaning" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+              <label htmlFor={idFor("meaning")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
                 What it means in English
               </label>
               <input
-                id="suggest-meaning"
+                id={idFor("meaning")} name="suggest-meaning"
                 value={meaning}
                 onChange={(e) => setMeaning(e.target.value)}
                 className="field w-full text-sm"
@@ -256,11 +294,11 @@ export function SuggestFix({
               />
             </div>
             <div>
-              <label htmlFor="suggest-pos" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+              <label htmlFor={idFor("pos")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
                 Kind of word
               </label>
               <select
-                id="suggest-pos"
+                id={idFor("pos")} name="suggest-pos"
                 value={pos}
                 onChange={(e) => setPos(e.target.value)}
                 className="rounded-[var(--r)] border px-3 py-2.5 text-sm"
@@ -277,11 +315,11 @@ export function SuggestFix({
 
       {kind === "WRONG_MEANING" && (
         <div className="mt-4">
-          <label htmlFor="suggest-gloss" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+          <label htmlFor={idFor("gloss")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
             What it should say in English
           </label>
           <input
-            id="suggest-gloss"
+            id={idFor("gloss")} name="suggest-gloss"
             value={meaning}
             onChange={(e) => setMeaning(e.target.value)}
             className="field w-full text-sm"
@@ -297,11 +335,11 @@ export function SuggestFix({
       {kind === "WRONG_FORM" && formTypes && formTypes.length > 0 && (
         <div className="mt-4 flex flex-col gap-3">
           <div>
-            <label htmlFor="suggest-formtype" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+            <label htmlFor={idFor("formtype")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
               Which form
             </label>
             <select
-              id="suggest-formtype"
+              id={idFor("formtype")} name="suggest-formtype"
               value={formType}
               onChange={(e) => {
                 setFormType(e.target.value);
@@ -316,21 +354,21 @@ export function SuggestFix({
             </select>
           </div>
           <div>
-            <label htmlFor="suggest-form" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+            <label htmlFor={idFor("form")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
               What it should be
             </label>
-            <EstonianInput id="suggest-form" value={formValue} onChange={setFormValue} ariaLabel="The correct form" />
+            <EstonianInput id={idFor("form")} value={formValue} onChange={setFormValue} ariaLabel="The correct form" />
           </div>
         </div>
       )}
 
       {(kind === "WRONG_EXAMPLE" || kind === "WRONG_TRANSLATION") && examples && examples.length > 0 && (
         <div className="mt-4">
-          <label htmlFor="suggest-sentence" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+          <label htmlFor={idFor("sentence")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
             Which sentence
           </label>
           <select
-            id="suggest-sentence"
+            id={idFor("sentence")} name="suggest-sentence"
             value={sentence}
             onChange={(e) => setSentence(e.target.value)}
             lang="et"
@@ -345,11 +383,11 @@ export function SuggestFix({
       )}
 
       <div className="mt-4">
-        <label htmlFor="suggest-note" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+        <label htmlFor={idFor("note")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
           Anything else worth knowing, optional
         </label>
         <textarea
-          id="suggest-note"
+          id={idFor("note")} name="suggest-note"
           value={note}
           maxLength={SUGGESTION_LIMITS.note}
           onChange={(e) => setNote(e.target.value)}
@@ -370,14 +408,16 @@ export function SuggestFix({
       </div>
 
       {error && (
-        <p className="mt-3 rounded-[var(--r)] px-3 py-2 text-sm" style={{ background: "var(--again-soft)", color: "var(--again-ink)" }}>
+        <p role="alert" className="mt-3 rounded-[var(--r)] px-3 py-2 text-sm" style={{ background: "var(--again-soft)", color: "var(--again-ink)" }}>
           {error}
         </p>
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button variant="ghost" onClick={() => setOpen(false)}>Not now</Button>
-        <Button variant="primary" onClick={send} disabled={pending}>
+        {/* Not `disabled` while it sends: the press is what starts it, and a
+            control disabled under the caret drops focus onto the body. */}
+        <Button variant="primary" onClick={send} aria-disabled={pending || undefined} className="aria-disabled:opacity-45">
           {pending ? "Sending…" : "Send it"}
         </Button>
       </div>

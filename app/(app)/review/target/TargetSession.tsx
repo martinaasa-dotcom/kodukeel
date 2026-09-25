@@ -258,8 +258,16 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         })}
       </div>
 
-      {answered && question.caseEt && (
-        <p className="mt-4 text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
+      {/* Mounted before there is anything to say and only its words change:
+          a status region that arrives with its sentence already in it is one
+          a screen reader may never read out. */}
+      <p
+        className={answered && question.caseEt ? "mt-4 text-center text-sm" : "sr-only"}
+        role="status"
+        style={answered && question.caseEt ? { color: "var(--ink-2)" } : undefined}
+      >
+        {answered && question.caseEt && (
+        <>
           <span lang="et" className="font-semibold">{question.options[question.answer]}</span>
           {" is the "}
           <span lang="et" className="font-semibold">{question.caseEt}</span>
@@ -269,8 +277,9 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
               {questionInEnglish(question.question) && <> ({questionInEnglish(question.question)})</>}
             </>
           )}
-        </p>
-      )}
+        </>
+        )}
+      </p>
     </div>
   );
 }

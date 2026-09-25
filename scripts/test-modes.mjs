@@ -846,12 +846,12 @@ check("and finds Sõnad typed without the diacritic",
 await page.getByLabel("Search commands and words").fill("ristsona");
 await page.waitForTimeout(250);
 check("and finds Ristsõna typed without the diacritic",
-  (await page.getByRole("button", { name: /Ristsõna/ }).count()) > 0);
+  (await page.getByRole("option", { name: /Ristsõna/ }).count()) > 0);
 
 await page.getByLabel("Search commands and words").fill("crossword");
 await page.waitForTimeout(250);
 check("and still finds it under the English name it is described by",
-  (await page.getByRole("button", { name: /Ristsõna/ }).count()) > 0);
+  (await page.getByRole("option", { name: /Ristsõna/ }).count()) > 0);
 await page.keyboard.press("Escape");
 
 // 8 — The app is installable

@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { prisma } from "@/lib/db";
 import { CASE_SLOTS, caseAsked } from "@/lib/srs/slots";
 
@@ -38,10 +40,26 @@ import { CASE_SLOTS, caseAsked } from "@/lib/srs/slots";
 const WINDOW_DAYS = 182;
 const CAP = 5000;
 
-export async function caseReviewsFor(
+export function caseReviewsFor(
   ownerId: string,
   now: Date = new Date(),
 ): Promise<{ targetCase: string | null; rating: number }[]> {
+  return caseReviewsAt(ownerId, now.getTime());
+}
+
+/*
+  MEMOISED FOR THE RENDER, KEYED ON THE INSTANT AS A NUMBER. Progress asks this
+  for its weakest-case panel and `readinessPicture` asks it again for the rungs,
+  with the same `now`, and that was the widest read on the page run twice. A
+  caller that hands in no instant gets its own and so reads afresh, which is
+  the behavior it always had. React's `cache` compares by identity, so the Date
+  travels as its milliseconds.
+*/
+const caseReviewsAt = cache(async (
+  ownerId: string,
+  nowMs: number,
+): Promise<{ targetCase: string | null; rating: number }[]> => {
+  const now = new Date(nowMs);
   const rows = await prisma.review.findMany({
     where: {
       ownerId,
@@ -54,4 +72,4 @@ export async function caseReviewsFor(
     take: CAP,
   });
   return rows.map((row) => ({ targetCase: caseAsked(row), rating: row.rating }));
-}
+});

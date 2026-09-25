@@ -202,7 +202,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "aga", gloss: "but", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 155181,
-    ekilexPos: ["konj", "adv"],
+    ekilexPos: ["adv", "konj"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -1522,7 +1522,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "ega", gloss: "nor", pos: "ADVERB", cefr: "A2",
     ekilexWordId: 162700,
-    ekilexPos: ["konj", "adv"],
+    ekilexPos: ["adv", "konj"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -2014,7 +2014,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "esimene", gloss: "first", pos: "ADJECTIVE", cefr: "A1",
     ekilexWordId: 164968,
-    ekilexPos: ["num", "adj"],
+    ekilexPos: ["adj", "num"],
     parts: { NOM_SG: "esimene", GEN_SG: "esimese", PART_SG: "esimest", ILL_SG_SHORT: "esimesse", NOM_PL: "esimesed", PART_PL: "esimesi", GEN_PL: "esimeste" },
     extraForms: [],
     government: null,
@@ -3586,7 +3586,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "juust", gloss: "cheese", pos: "NOUN", cefr: "A1",
     ekilexWordId: 174817,
-    ekilexPos: ["s", "adj"],
+    ekilexPos: ["adj", "s"],
     parts: { NOM_SG: "juust", GEN_SG: "juustu", PART_SG: "juustu", ILL_SG_SHORT: "juustu", NOM_PL: "juustud", PART_PL: "juuste", GEN_PL: "juustude" },
     extraForms: [],
     government: null,
@@ -5290,7 +5290,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "koer", gloss: "dog", pos: "NOUN", cefr: "A1",
     ekilexWordId: 183007,
-    ekilexPos: ["s", "adj"],
+    ekilexPos: ["adj", "s"],
     parts: { NOM_SG: "koer", GEN_SG: "koera", PART_SG: "koera", ILL_SG_SHORT: "koera", NOM_PL: "koerad", PART_PL: "koeri", GEN_PL: "koerade" },
     extraForms: [],
     government: null,
@@ -5338,7 +5338,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "kohal", gloss: "above, over", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 183185,
-    ekilexPos: ["postp", "adv"],
+    ekilexPos: ["adv", "postp"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -6118,7 +6118,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "kui", gloss: "how, as, if, than", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 187052,
-    ekilexPos: ["konj", "adv"],
+    ekilexPos: ["adv", "konj"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -6250,7 +6250,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "kuna", gloss: "since, because", pos: "ADVERB", cefr: "B1",
     ekilexWordId: 187756,
-    ekilexPos: ["konj", "adv"],
+    ekilexPos: ["adv", "konj"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -6274,7 +6274,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "kuni", gloss: "until", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 187768,
-    ekilexPos: ["konj", "adv", "prep"],
+    ekilexPos: ["adv", "konj", "prep"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -6766,7 +6766,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "kättesaadavus", gloss: "availability", pos: "NOUN", cefr: "B2",
     ekilexWordId: 190518,
-    ekilexPos: ["s", "adj"],
+    ekilexPos: ["adj", "s"],
     parts: { NOM_SG: "kättesaadavus", GEN_SG: "kättesaadavuse", PART_SG: "kättesaadavust", ILL_SG_SHORT: "kättesaadavusse", NOM_PL: "kättesaadavused", PART_PL: "kättesaadavusi", GEN_PL: "kättesaadavuste" },
     extraForms: [],
     government: null,
@@ -7354,7 +7354,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "ligi", gloss: "nearly (with a number)", pos: "ADVERB", cefr: "B1",
     ekilexWordId: 194477,
-    ekilexPos: ["postp", "adv", "prep"],
+    ekilexPos: ["adv", "postp", "prep"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -7870,7 +7870,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "läbi", gloss: "through", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 197930,
-    ekilexPos: ["adv", "prep", "postp"],
+    ekilexPos: ["adv", "postp", "prep"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -9286,7 +9286,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "mööda", gloss: "along", pos: "ADVERB", cefr: "A2",
     ekilexWordId: 206277,
-    ekilexPos: ["postp", "prep", "adv", "adj"],
+    ekilexPos: ["adj", "adv", "postp", "prep"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -9346,7 +9346,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "nagu", gloss: "like, as", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 206858,
-    ekilexPos: ["konj", "adv"],
+    ekilexPos: ["adv", "konj"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -9622,7 +9622,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "null", gloss: "zero", pos: "NOUN", cefr: "A1",
     ekilexWordId: 209191,
-    ekilexPos: ["s", "num"],
+    ekilexPos: ["num", "s"],
     parts: { NOM_SG: "null", GEN_SG: "nulli", PART_SG: "nulli", ILL_SG_SHORT: "nulli", NOM_PL: "nullid", PART_PL: "nulle", GEN_PL: "nullide" },
     extraForms: [],
     government: null,
@@ -10042,7 +10042,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "oma", gloss: "one's own", pos: "PRONOUN", cefr: "A1",
     ekilexWordId: 211037,
-    ekilexPos: ["pron", "s", "adj"],
+    ekilexPos: ["adj", "pron", "s"],
     parts: { NOM_SG: "oma", GEN_SG: "oma", PART_SG: "oma", NOM_PL: "omad", PART_PL: "omi", GEN_PL: "omade" },
     extraForms: [],
     government: null,
@@ -11506,7 +11506,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "pärast", gloss: "after", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 223630,
-    ekilexPos: ["postp", "prep", "adv"],
+    ekilexPos: ["adv", "postp", "prep"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -11518,7 +11518,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "päris", gloss: "quite, fairly", pos: "ADVERB", cefr: "B1",
     ekilexWordId: 223703,
-    ekilexPos: ["adv", "adj"],
+    ekilexPos: ["adj", "adv"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -13030,7 +13030,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "sidusus", gloss: "cohesion", pos: "NOUN", cefr: "B2",
     ekilexWordId: 233078,
-    ekilexPos: ["s", "adj"],
+    ekilexPos: ["adj", "s"],
     parts: { NOM_SG: "sidusus", GEN_SG: "sidususe", PART_SG: "sidusust", ILL_SG_SHORT: "sidususse", NOM_PL: "sidusused", PART_PL: "sidususi", GEN_PL: "sidususte" },
     extraForms: [],
     government: null,
@@ -15010,7 +15010,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "terve", gloss: "healthy, whole", pos: "ADJECTIVE", cefr: "A1",
     ekilexWordId: 244350,
-    ekilexPos: ["adj", "s", "pron"],
+    ekilexPos: ["adj", "pron", "s"],
     parts: { NOM_SG: "terve", GEN_SG: "terve", PART_SG: "tervet", NOM_PL: "terved", PART_PL: "terveid", GEN_PL: "tervete" },
     extraForms: [],
     government: null,
@@ -15238,7 +15238,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "torm", gloss: "storm", pos: "NOUN", cefr: "A2",
     ekilexWordId: 245964,
-    ekilexPos: ["s", "adj"],
+    ekilexPos: ["adj", "s"],
     parts: { NOM_SG: "torm", GEN_SG: "tormi", PART_SG: "tormi", ILL_SG_SHORT: "tormi", NOM_PL: "tormid", PART_PL: "torme", GEN_PL: "tormide" },
     extraForms: [],
     government: null,
@@ -15860,16 +15860,16 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["совсем", "окончательно"], ukr: ["повністю", "цілком"],
   },
   {
-    lemma: "täis", gloss: "full", pos: "ADJECTIVE", cefr: null,
-    ekilexWordId: 249537,
-    ekilexPos: ["adj", "s"],
-    parts: { NOM_SG: "täis", GEN_SG: "täie", PART_SG: "täit", ILL_SG_SHORT: "täide", NOM_PL: "täied", PART_PL: "täisi", GEN_PL: "täite" },
+    lemma: "täis", gloss: "full", pos: "ADVERB", cefr: "A2",
+    ekilexWordId: 249536,
+    ekilexPos: ["adj", "adv"],
+    parts: {  },
     extraForms: [],
     government: null,
-    usages: ["Ta lebas täies riides voodis.", "On ta ikka täie aruga?", "Talle pole vaja täit palka maksta.", "Ülesanne nõudis õpilastelt täit tähelepanu."],
-    note: "kogu, terve",
-    semanticTypes: ["omadus_kval"],
-    rus: ["полный", "весь"], ukr: ["повний", "весь"],
+    usages: ["Korv on seeni täis.", "Täis klaas.", "Rong sai juba Tallinnas puupüsti täis.", "Silmad valgusid vett täis."],
+    note: "midagi nii palju sisaldav(aks), kui kuhugi (anumasse, ruumi vm) mahub",
+    semanticTypes: ["omadus_füüs"],
+    rus: ["полный", "заполненный"], ukr: ["повний", "повен"],
   },
   {
     lemma: "täitma", gloss: "to fill in, to fulfill", pos: "VERB", cefr: "A2",
@@ -16114,7 +16114,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "udu", gloss: "fog", pos: "NOUN", cefr: "B1",
     ekilexWordId: 250759,
-    ekilexPos: ["s", "adj"],
+    ekilexPos: ["adj", "s"],
     parts: { NOM_SG: "udu", GEN_SG: "udu", PART_SG: "udu", ILL_SG_SHORT: "uttu", NOM_PL: "udud", PART_PL: "udusid", GEN_PL: "udude" },
     extraForms: [],
     government: null,
@@ -16882,7 +16882,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "vastu", gloss: "against, for (a pain)", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 254685,
-    ekilexPos: ["adv", "prep", "postp"],
+    ekilexPos: ["adv", "postp", "prep"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -17170,7 +17170,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "viha", gloss: "anger", pos: "NOUN", cefr: "A2",
     ekilexWordId: 256315,
-    ekilexPos: ["s", "adj"],
+    ekilexPos: ["adj", "s"],
     parts: { NOM_SG: "viha", GEN_SG: "viha", PART_SG: "viha", NOM_PL: "vihad", PART_PL: "vihasid", GEN_PL: "vihade" },
     extraForms: [],
     government: null,
@@ -17422,7 +17422,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "või", gloss: "or", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 258019,
-    ekilexPos: ["konj", "adv"],
+    ekilexPos: ["adv", "konj"],
     parts: {  },
     extraForms: [],
     government: null,
@@ -18550,7 +18550,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
   {
     lemma: "üle", gloss: "over, across", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 263104,
-    ekilexPos: ["adv", "prep", "postp"],
+    ekilexPos: ["adv", "postp", "prep"],
     parts: {  },
     extraForms: [],
     government: null,
