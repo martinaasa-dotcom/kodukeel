@@ -74,8 +74,11 @@ export async function learnerDays(
   excluded: readonly string[],
 ): Promise<LearnerActivity[]> {
   const rows = await prisma.$queryRaw<{ ownerId: string; day: string }[]>`
+    -- The column is a naive timestamp holding UTC wall time, so TO_CHAR on it
+    -- is the UTC day. Converting it first gave a timestamptz, which TO_CHAR
+    -- renders in the session's zone: the day before on a non-UTC server.
     SELECT DISTINCT r."ownerId" AS "ownerId",
-           TO_CHAR(r."reviewedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS day
+           TO_CHAR(r."reviewedAt", 'YYYY-MM-DD') AS day
     FROM "Review" r
     WHERE r."reviewedAt" >= ${since}
     ${excluding(Prisma.sql`r."ownerId"`, excluded)}

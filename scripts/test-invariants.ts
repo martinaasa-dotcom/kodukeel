@@ -11708,6 +11708,28 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("a day or a month read in SQL does not depend on the session's zone", () => {
+  /*
+    Prisma stores a DateTime as a naive timestamp holding UTC wall time. One
+    \`AT TIME ZONE 'UTC'\` turns it into a timestamptz, and TO_CHAR renders a
+    timestamptz in the session's zone, so the impact report and the research
+    export put a review made at 02:00 UTC on the day before wherever the
+    database was not set to UTC. Either TO_CHAR the naive value, which is the
+    UTC day, or convert twice to the learner's zone as \`lib/progress/summary.ts\` does.
+  */
+  let seen = 0;
+  for (const file of ALL) {
+    const src = code(file);
+    for (const m of src.matchAll(/TO_CHAR\(\s*\(?([^,]*?)\)?\s*,\s*'YYYY-MM/g)) {
+      seen += 1;
+      const arg = m[1] ?? "";
+      const conversions = (arg.match(/AT TIME ZONE/g) ?? []).length;
+      assert.notEqual(conversions, 1, `${file} renders a day in the session's zone: TO_CHAR(${arg.trim()}, ...)`);
+    }
+  }
+  assert.ok(seen >= 3, `only ${seen} TO_CHAR day readings found; the sweep is not finding them`);
+});
+
 check("a confidence figure carries its evidence, on every screen that prints one", () => {
   /*
     ADR-022's headline rule: a percentage whose basis is not stated is the one
