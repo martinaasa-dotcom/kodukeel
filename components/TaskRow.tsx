@@ -3,12 +3,9 @@
 import { useTransition } from "react";
 import { Check } from "lucide-react";
 import { toggleTask } from "@/app/actions";
-import { TASK_TAGS, bucketFor } from "@/lib/ux/agenda";
+import { DUE_DATE_FORMAT, TASK_TAGS, bucketFor } from "@/lib/ux/agenda";
 import { dayClock } from "@/lib/time/day";
 import { LocalDate, stableDate } from "@/components/LocalDate";
-
-/** How a due date is written: the day and the short month, in the reader's own order. */
-const DUE_SHAPE: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
 
 export interface TaskView {
   id: string;
@@ -75,7 +72,16 @@ export function TaskRow({ task }: { task: TaskView }) {
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
               {overdue ? "Overdue · " : "Due "}
-              <LocalDate iso={due.toISOString()} fallback={stableDate(due, DUE_SHAPE)} options={DUE_SHAPE} />
+              {/* A day stored at midnight UTC, so written in UTC: the reader's own
+                  zone named the day before anywhere west of Greenwich. Through
+                  LocalDate, and pinned to one locale until it has mounted, since
+                  this renders on the server first and the two have to agree. */}
+              <LocalDate
+                iso={due.toISOString()}
+                zone="UTC"
+                options={DUE_DATE_FORMAT}
+                fallback={stableDate(due, DUE_DATE_FORMAT)}
+              />
             </span>
           )}
         </div>

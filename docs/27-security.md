@@ -515,7 +515,9 @@ somebody from `ALLOWED_EMAILS` takes effect on their next request.
 spread across cold starts meets an empty map. No route relies on it alone: speech, the share card,
 the export and the restore are counted across instances by `lib/usage/sharedLimit.ts`, and the routes
 that cost money are bounded by the Postgres ledger. What is left is the moment the database cannot
-answer, when the shared count falls back to the per-instance map rather than failing open or closed.
+answer, when the shared count falls back to the per-instance map rather than failing open or closed,
+and the Server Action throttles in `lib/security/actionLimits.ts`, which `throttleAction` counts in
+that map alone, so their allowance is per warm instance rather than per learner.
 
 ## 7. How to verify any of this yourself
 
