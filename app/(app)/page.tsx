@@ -7,7 +7,7 @@ import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
-import { minutesForCards } from "@/lib/stats/pace";
+import { minutesForCards, ownCardsPerMinute } from "@/lib/stats/pace";
 import { wordOfDay, wordOfDayCollection } from "@/lib/progress/wordOfDay";
 import { outThereToday } from "@/lib/progress/outThere";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -925,7 +925,7 @@ export default async function TodayPage() {
       title={name ? `${greeting(clock, now, placement)}, ${name}` : greeting(clock, now, placement)}
       lead={courseNow && (moduleTonight || courseNow.finishedToday)
         ? courseLead(toReview, courseNow.finishedToday)
-        : lead(stage, toReview, toLearn, pace?.cardsPerMinute ?? null)}
+        : lead(stage, toReview, toLearn, ownCardsPerMinute(pace))}
     >
       {/*
         ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.
