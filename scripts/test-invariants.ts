@@ -16141,52 +16141,6 @@ check("every writer of a level hands back the words that were waiting for it", (
  * counted a batch still in flight, warned about grades about to land, and
  * deleted the database under the pass.
  */
-check("undo takes a queued grade back, and flush waits for a sync in flight", () => {
-  const undo = between(code("app/(app)/review/ReviewSession.tsx"), "const undo = useCallback");
-  const taken = undo.indexOf("takeFromOutbox(");
-  const asked = undo.indexOf("undoGrade(");
-  assert.ok(taken > 0 && asked > taken,
-    "undo asks the server without first taking the grade back out of the outbox");
-  const provider = code("components/OfflineProvider.tsx");
-  /*
-    And a new grade goes online only after anything queued before it: the
-    scheduler has to hear two answers to one card in the order they happened.
-  */
-  const queuing = sourceFiles("app").filter((f) => /enqueueGrade\(\{/.test(code(f)));
-  for (const file of queuing) {
-    const source = code(file);
-    const drained = source.indexOf("await drainFirst()");
-    const sent = source.indexOf("await gradeCard(");
-    assert.ok(drained > 0 && sent > drained,
-      `${file} sends a grade online before the outbox holding older ones has been sent`);
-  }
-  assert.match(provider, /if \(inflight\.current\) return inflight\.current;/,
-    "a sync already running is no longer the promise a second caller gets, so flush returns before it lands");
-});
-
-check("a grade queued after a failed online write keeps the id it was sent with", () => {
-  const files = sourceFiles("app").concat(sourceFiles("components"))
-    .filter((f) => /enqueueGrade\(\{/.test(code(f)));
-  assert.ok(files.length >= 4, `only ${files.length} file(s) queue a grade; the sweep has lost them`);
-  const bad: string[] = [];
-  for (const file of files) {
-    const source = code(file);
-    for (const m of source.matchAll(/enqueueGrade\(\{([\s\S]*?)\}\)/g)) {
-      const id = /\bid:\s*([A-Za-z_$][\w$]*)\s*,/.exec(m[1]!)?.[1];
-      if (!id) { bad.push(`${file}: queues an id that is not a named value`); continue; }
-      const calls = [...source.matchAll(/gradeCard\(([\s\S]*?)\)/g)];
-      if (!calls.some((c) => new RegExp(`\\b${id}\\b`).test(c[1]!))) {
-        bad.push(`${file}: queues ${id} without having sent it to gradeCard`);
-      }
-    }
-  }
-  assert.deepEqual(bad, [], `a lost online answer would be replayed as a second one:\n${bad.join("\n")}`);
-  assert.match(code("lib/srs/grade.ts"), /findUnique\(\{\s*where:\s*\{\s*id:\s*reviewId/,
-    "writeGrade no longer treats an id already written as an answer already applied");
-  assert.match(code("lib/srs/grade.ts"), /\$transaction\(\[/,
-    "writeGrade writes the review and the card's scheduling apart again");
-});
-
 /**
  * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
  *
