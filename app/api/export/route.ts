@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+import { PRIVATE_NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -227,8 +228,7 @@ export async function GET() {
         a default TTL for a 200 would have been free to hand it to the next
         request. `private, no-store` and a `Cookie` vary say who it belongs to.
       */
-      "cache-control": "private, no-store",
-      vary: "Cookie",
+      ...PRIVATE_NO_STORE,
     },
   });
 }
