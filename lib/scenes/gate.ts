@@ -905,9 +905,11 @@ function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boole
  * Measured before it shipped rather than reasoned about. `npm run eval:scene`
  * builds a labeled set out of attested lines and the same lines with one
  * nominal moved into a case the verb does not govern. `npm run eval:scene
- * --part-b` on 2026-09-22: 29.4% of real errors withheld and 0.4% of good
+ * --part-b` on 2026-09-25: 27.2% of real errors withheld and 0.4% of good
  * lines, over 500 pairs, so §2's condition is met. A check that fires on
- * honest output is a check somebody waives.
+ * honest output is a check somebody waives. It was 29.4% until the harness
+ * built a governed verb the way the route does (`governedWord`): the set was
+ * scoring lines the app never withholds, so the lower figure is the app's.
  *
  * The figures here were 44.3% and 8.3% long after the object-case rule below
  * had moved them, which is a header disagreeing with a comment eighty lines
