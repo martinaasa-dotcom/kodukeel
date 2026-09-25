@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
+import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { deleteOwnReminder } from "@/lib/progress/reminders";
@@ -4423,33 +4424,14 @@ export async function submitSuggestion(input: unknown) {
     on Monday and again on Thursday is one voice, not two, and the count beside
     a group in the review queue is only worth reading while that is true: the
     number is there to say "this many people", and clicks would make it say
-    "this many clicks" while looking identical.
-
-    The later report wins the note and the proposal, because it is the one they
-    wrote after seeing more of the problem.
+    "this many clicks" while looking identical. Two sends landing together are
+    held to that too, under a lock: see `lib/suggestions/record.ts`.
   */
-  const mine = await prisma.suggestion.findFirst({
-    where: { ownerId, groupKey, status: "OPEN" },
-    select: { id: true },
+  const { repeat } = await recordSuggestion(ownerId, {
+    category, groupKey, note, context, trigger, lemma, lexemeId,
+    patch: patch ? JSON.stringify(patch) : "{}",
   });
-
-  if (mine) {
-    await prisma.suggestion.update({
-      where: { id: mine.id },
-      data: {
-        note, context, trigger, lemma, lexemeId,
-        patch: patch ? JSON.stringify(patch) : "{}",
-      },
-    });
-    return { ok: true as const, repeat: true, message: acknowledgement(category) };
-  }
-
-  await prisma.suggestion.create({
-    data: {
-      ownerId, category, groupKey, note, context, trigger, lemma, lexemeId,
-      patch: patch ? JSON.stringify(patch) : "{}",
-    },
-  });
+  if (repeat) return { ok: true as const, repeat: true, message: acknowledgement(category) };
 
   revalidatePath("/suggestions");
   return { ok: true as const, repeat: false, message: acknowledgement(category) };
