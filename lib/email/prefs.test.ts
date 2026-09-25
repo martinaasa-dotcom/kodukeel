@@ -50,6 +50,14 @@ describe("what a learner has switched off", () => {
     expect(none.kind).toBe("all-off");
   });
 
+  it("reads unticking every ticked box as all off, since a box that was never ticked has nothing to press", () => {
+    const ticked = OPTIONAL_KINDS.filter((k) => !DEFAULT_OFF.includes(k));
+    expect(switchOff(emailPrefsFrom(null), ticked).kind).toBe("all-off");
+    // And one they asked for has to be unticked as well.
+    const asked = switchOn(emailPrefsFrom(null), DEFAULT_OFF[0]!);
+    expect(switchOff(asked, ticked).kind).toBe("some-off");
+  });
+
   it("expands `all` when one is switched back on", () => {
     const back = switchOn(emailPrefsFrom(ALL_OFF), "weekly");
     expect(wants(back, "weekly")).toBe(true);

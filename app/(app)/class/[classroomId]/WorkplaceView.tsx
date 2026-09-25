@@ -64,7 +64,7 @@ export function WorkplaceView({ summary, sponsor }: {
         ) : (
           <ul className="flex flex-col gap-1.5">
             {summary.members.map((member) => {
-              const quiet = member.daysSinceLastReview === null || member.daysSinceLastReview > QUIET_DAYS;
+              const quiet = member.daysSinceLastReview === null || member.daysSinceLastReview >= QUIET_DAYS;
               return (
                 <li
                   key={member.ownerId}

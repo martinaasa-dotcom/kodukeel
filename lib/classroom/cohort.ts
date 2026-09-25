@@ -1,5 +1,6 @@
 import { CLOSE_PCT, LIKELY_PCT, type Evidence, type Readiness } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
+import { caseAccuracy } from "@/lib/stats/history";
 
 /**
  * A GROUP SEEN BY WHOEVER IS PAYING FOR IT, WHICH IS NOT THE SAME SEAT AS A
@@ -206,7 +207,7 @@ export function summariseCohort(input: CohortInput[], level: ExamLevel): CohortS
     level,
     members,
     counts,
-    active: members.filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview <= QUIET_DAYS).length,
+    active: members.filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview < QUIET_DAYS).length,
     evidence,
   };
 }
@@ -245,9 +246,52 @@ export function withoutMember(summary: CohortSummary, ownerId: string): CohortSu
     counts,
     active: summary.members
       .filter((m) => m.ownerId !== ownerId)
-      .filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview <= QUIET_DAYS).length,
+      .filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview < QUIET_DAYS).length,
     evidence: members.reduce<Evidence>((worst, member) => (
       EVIDENCE_RANK[member.evidence] < EVIDENCE_RANK[worst] ? member.evidence : worst
     ), members.length > 0 ? "good" : "thin"),
   };
+}
+
+/**
+ * HOW MANY STUDENTS A CASE HAS TO BE ABOUT BEFORE A LETTER MAY CALL IT THE
+ * CLASS'S.
+ *
+ * The screen's "what to teach next" is behind a sign-in and beside a column
+ * that already names each student's own weakest case, so a figure there that
+ * rests on one student says nothing the page does not. A letter is archived,
+ * forwarded and read over a shoulder, and the rule for it is that it may not
+ * carry a member's field: a class of a teacher and one student read "the
+ * class is weakest at the osastav", which was that student's own weakest case
+ * leaving by email. Three is the smallest group a figure can be averaged over
+ * without a reader who knows their own share being able to subtract it and
+ * name the other.
+ */
+export const MIN_CASE_CONTRIBUTORS = 3;
+
+/**
+ * The class's weakest cases, for a letter: each case counted only where at
+ * least `MIN_CASE_CONTRIBUTORS` students answered it, and with the person the
+ * letter is going to left out, since a teacher who holds a member row is not
+ * one of the class the letter describes.
+ */
+export function classWideCases(
+  reviews: readonly { ownerId: string; targetCase: string | null; rating: number }[],
+  leaveOut: string | null,
+  minPeople = MIN_CASE_CONTRIBUTORS,
+): { grammCase: string; accuracy: number; total: number }[] {
+  const people = new Map<string, Set<string>>();
+  const kept = reviews.filter((r) => r.ownerId !== leaveOut);
+  for (const r of kept) {
+    if (!r.targetCase) continue;
+    const set = people.get(r.targetCase) ?? new Set<string>();
+    set.add(r.ownerId);
+    people.set(r.targetCase, set);
+  }
+  return caseAccuracy(
+    kept
+      .filter((r) => r.targetCase !== null && (people.get(r.targetCase)?.size ?? 0) >= minPeople)
+      .map((r) => ({ targetCase: r.targetCase, rating: r.rating })),
+    10,
+  ).slice(0, 5);
 }
