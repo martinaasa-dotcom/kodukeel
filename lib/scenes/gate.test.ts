@@ -908,3 +908,25 @@ describe("the gate reads Estonian punctuation and counts words, not repeats", ()
     expect(runGate(line, beat({ move: "ask" }), ctx).failed).not.toContain("stretch");
   });
 });
+
+describe("a verb whose first person arrived under Ekilex's own code", () => {
+  /*
+    `pres1sgFrom` reads the first person off either shape a row is in, the
+    seed's `PRES_1SG` or a live fetch's `IndPrSg1`, and the lexicon read the
+    first alone: an entry holding the code and not the part derived no person
+    at all, so `helistab` was a word the scene could not vouch for.
+  */
+  const helistama: DictEntry = {
+    lemma: "helistama", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "helistama", INF_DA: "helistada" },
+    extraForms: [{ code: "IndPrSg1", value: "helistan" }],
+  };
+
+  it("derives the persons off it, exactly as off the seeded part", () => {
+    const lexicon = buildLexicon([helistama]);
+    for (const form of ["helistab", "helistad", "helistame", "helista"]) {
+      expect(lexicon.forms.has(form), form).toBe(true);
+    }
+    expect([...(lexicon.persons.get("helistama")?.values() ?? [])]).toContain("helistab");
+  });
+});
