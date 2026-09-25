@@ -41,11 +41,13 @@ import type { CaseKey } from "../lib/estonian/types";
 import { SCENES } from "../lib/scenes/catalogue";
 import { formsOf, words, type Lexicon } from "../lib/scenes/lexicon";
 import { CHECKS, governmentSuspect, runGate, type Check } from "../lib/scenes/gate";
-import { retryNote } from "../lib/scenes/line";
+import { MAX_COMPOSE_ATTEMPTS, retryNote, whyWithheld } from "../lib/scenes/line";
+import { scriptedFor } from "../lib/scenes/scripted";
+import { stageFor } from "../lib/scenes/reply";
 import { SYLLABUS } from "../lib/collections/syllabus";
 import { lemmasOfForm } from "../lib/dict/forms";
 import {
-  ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneEntries, sceneLemmas, sceneLexicon,
+  ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, HARNESS_LEVEL, askLine, chain, gateContext, sceneEntries, sceneLemmas, sceneLexicon,
   routeGate, wrongRegisterForms, type Allowlist,
 } from "./lib/sceneDraft";
 
@@ -123,8 +125,35 @@ async function partA() {
     let sceneAsked = 0, sceneWithheld = 0;
 
     for (const beat of scene.beats) {
+      /*
+        THROUGH THE ROUTE'S PROMPT, NOT THE DRAFTER'S. This composed with
+        `compose` from sceneDraft, which is the prompt `draft:lines` banks lines
+        with: it hands the model the learner's `goal`, which is the thing §32
+        found makes a model write the learner's line, and it is not what
+        `app/api/scene/route.ts` sends. So every withheld rate this printed was
+        a rate for drafting the bank rather than for composing live. The route's
+        request is built here field for field as `play:scenes` builds it, with
+        no conversation in front of it: `composeSystem` for the scene, and
+        `composeLive` with this beat's stage direction, the scene's other lines
+        for tone and this beat's own banked lines to rephrase.
+      */
+      const routeCompose = (avoid: readonly string[] = [], because?: string) => askLine(CHAIN, {
+        move: beat.move,
+        they: stageFor(beat, null),
+        reading: "",
+        because,
+        examples: scene.beats
+          .filter((other) => other.id !== beat.id)
+          .flatMap((other) => scriptedFor(scene, other, HARNESS_LEVEL).slice(0, 1))
+          .slice(0, 6),
+        asked: scriptedFor(scene, beat, HARNESS_LEVEL).slice(0, 2),
+        avoid,
+      }, {
+        scene: scene.title, place: scene.place, level: HARNESS_LEVEL, persona: "",
+        situation: scene.role, register: scene.register, words: lexicon.spoken,
+      }, []);
       for (let i = 0; i < LINES; i++) {
-        const line = (await compose(scene, beat, lemmas))?.text;
+        const line = await routeCompose();
         if (!line) { refused++; continue; }
         asked++; sceneAsked++;
         /*
@@ -173,19 +202,27 @@ async function partA() {
         if (first.failed.length === 0) { firstPass++; continue; }
 
         /*
-          The one retry, told what the route would tell it. §6. `retryNote` is
-          the app's own rule and the reason it is not `first.unknown` is in its
-          header: a word that is not Estonian is dropped, and a line that
-          reached too far is asked for fewer new words rather than sent hunting
-          for a synonym that is equally new.
+          THE ROUTE'S RETRIES, AS MANY AS IT MAKES AND TOLD WHAT IT TELLS THEM.
+          This retried once with `retryNote` alone, where the route makes up to
+          `MAX_COMPOSE_ATTEMPTS` attempts and tells each retry both `retryNote`
+          and `whyWithheld` of the last (`sceneLine`), so the rate it printed
+          was a ceiling on what a learner sees rather than the number.
         */
-        const second = (await compose(scene, beat, lemmas, retryNote(first)))?.text;
-        const after = second ? runGate(second, beat, await routeGate(scene, beat, lexicon, base, second)) : null;
-        if (after && after.failed.length === 0) { rescued++; continue; }
+        let last = first;
+        let shown = line;
+        let rescuedHere = false;
+        for (let attempt = 1; attempt < MAX_COMPOSE_ATTEMPTS; attempt += 1) {
+          const again = await routeCompose(retryNote(last), whyWithheld(last));
+          if (!again) continue;
+          const verdict = runGate(again, beat, await routeGate(scene, beat, lexicon, base, again));
+          shown = again;
+          last = verdict;
+          if (verdict.failed.length === 0) { rescuedHere = true; break; }
+        }
+        if (rescuedHere) { rescued++; continue; }
 
         withheld++; sceneWithheld++;
-        const shown = second ?? line;
-        const why = after ?? first;
+        const why = last;
         for (const check of why.failed) tally.set(check, (tally.get(check) ?? 0) + 1);
         if (examples.length < 12) {
           const reason = why.failed.join(", ")

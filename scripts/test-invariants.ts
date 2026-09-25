@@ -14064,6 +14064,15 @@ check("the scene gate has one implementation, and a line says where it came from
     /function runGate\(/,
     "scripts/eval-scene.ts has its own gate again. There is one, in lib/scenes/gate.ts.",
   );
+  // The rate is only the route's if the question is the route's: the prompt
+  // `askLine` builds, and the retries the route makes with the reason it gives.
+  assert.match(evalScript, /askLine\(/, "scripts/eval-scene.ts composes through something other than the route's prompt");
+  assert.doesNotMatch(evalScript, /\bcompose\(/, "scripts/eval-scene.ts asks a model with a prompt of its own again");
+  assert.match(
+    evalScript,
+    /MAX_COMPOSE_ATTEMPTS[\s\S]{0,400}whyWithheld\(/,
+    "scripts/eval-scene.ts no longer retries the way the route does, as many times and told why",
+  );
 
   const line = code("lib/scenes/line.ts");
   assert.match(
