@@ -4974,6 +4974,26 @@ check("the app does not talk about itself the way a brochure would", () => {
 
 // ── The browser suites, and the two ways one can lie ─────────────────────────
 
+/*
+  A UNIT TEST STATES ITS MACHINE, AND THE ZONE IS PART OF THE MACHINE.
+
+  CI runs in UTC. Three clock tests built their dates with `Date.UTC` and read
+  them back through formatters that honour the reader's zone, so they passed
+  in CI and failed on `npm test` in Tallinn, which is where this suite is run.
+  The unit config pins a zone that is neither UTC nor anybody's, so an
+  assumption about the zone fails everywhere rather than only off CI. Removing
+  the line or pinning UTC would put the suite back to measuring its host.
+*/
+check("the unit suite runs in a fixed zone that is not UTC", () => {
+  const config = code("vitest.config.mts");
+  const zone = /process\.env\.TZ\s*=\s*["']([^"']+)["']/.exec(config)?.[1];
+  assert.ok(zone, "vitest.config.mts no longer pins a time zone, so the unit suite measures whatever zone its host is in");
+  assert.ok(
+    !/^(UTC|GMT|Etc\/(UTC|GMT)|Europe\/London|Africa\/Abidjan)$/.test(zone!),
+    `vitest.config.mts pins ${zone}, which is CI's own zone: a test that assumes UTC would pass there and fail on a laptop in Tallinn`,
+  );
+});
+
 check("no browser suite hardcodes one machine's Chromium", () => {
   /*
     Every one of these was written inside a sandbox that ships Chromium at a
