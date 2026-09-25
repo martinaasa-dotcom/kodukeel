@@ -7326,7 +7326,13 @@ check("every dead end in the app offers a way to report it", () => {
       "a search that found nothing",
     ],
     [
-      "app/error.tsx",
+      /*
+        The drawing of a screen that threw, which is a component now for the
+        404's reason: the root boundary wraps it in a `main` and the one inside
+        the signed-in group does not. The sentence and the button both live
+        here, so this is the file that has to keep both.
+      */
+      "components/ScreenFailed.tsx",
       /didn&rsquo;t load|did not load/,
       "a screen that threw",
     ],
@@ -7469,6 +7475,28 @@ check("a not-found boundary draws a main only where its layout does not", () => 
     code("app/(app)/layout.tsx"),
     /<main/,
     "the signed-in layout no longer draws a main, so the boundary below it has to",
+  );
+});
+
+check("a signed-in page that throws keeps the shell, and the error screen has one main", () => {
+  /*
+    `app/error.tsx` was the only error boundary, and a boundary replaces
+    everything under the layout it sits in. The root layout draws nothing, so a
+    signed-in page that threw took the rail, the phone bar and the palette with
+    it: one failing screen out of forty and the learner had no way to any of the
+    other thirty-nine but "Back to Today". `app/(app)/error.tsx` keeps the shell.
+
+    The rule is the 404's, pointed at the other boundary: both draw the one
+    component, the root one draws the `main` and the one under the signed-in
+    layout may not, since that layout already has one.
+  */
+  for (const file of ["app/error.tsx", "app/(app)/error.tsx"]) {
+    assert.match(code(file), /<ScreenFailed\b/, `${file} no longer draws components/ScreenFailed.tsx`);
+  }
+  assert.match(code("app/error.tsx"), /<main/, "the root error boundary draws no main, and the root layout has none");
+  assert.ok(
+    !/<main/.test(code("app/(app)/error.tsx")),
+    "app/(app)/error.tsx draws its own main inside the one app/(app)/layout.tsx already draws",
   );
 });
 
