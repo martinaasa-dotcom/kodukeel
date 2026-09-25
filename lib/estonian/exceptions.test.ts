@@ -230,6 +230,24 @@ describe("the notes", () => {
   });
 
   /*
+    AND THE COPY HOLDS NO ESTONIAN LETTER, WHICH CLAUDE.md SAID WAS ASSERTED.
+
+    It was asserted of `grammar.ts` and of nothing here. The module itself needs
+    the letters, since `VOWELS` is how it tells a vowel from a consonant, so a
+    sweep over the file is the wrong check; what the rule protects is the prose
+    a learner reads, which is these two tables. A form typed into a note is a
+    form with no source, which is the fault the rest of this module refuses.
+  */
+  it("writes its notes and headings without an Estonian letter", () => {
+    const prose = [
+      ...EXCEPTION_KINDS.flatMap((kind) => [KIND_NOTES[kind].title, KIND_NOTES[kind].what]),
+      ...Object.values(FAMILY_TITLES),
+    ];
+    expect(prose.length).toBeGreaterThan(EXCEPTION_KINDS.length);
+    for (const line of prose) expect(line, line).not.toMatch(/[õäöüšž]/i);
+  });
+
+  /*
     AND THE NOTES NAME NO VERB, WHICH IS THE CHECK THAT WAS MISSING.
 
     The `da`-infinitive's note read "the form after tahan, saan and pean", and

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { advance, startScene, type SceneState } from "./state";
-import { gradesFor, offerFor, stalledWords } from "./grades";
+import { cardsForGrades, gradesFor, offerFor, stalledWords } from "./grades";
 import type { Evidence, TurnReading } from "./turn";
 import { buildLexicon } from "./lexicon";
 import type { RoleCard } from "./props";
@@ -44,7 +44,7 @@ function evidence(
   reading: TurnReading,
   met: readonly boolean[],
   slips: Evidence["slips"] = [],
-  satisfiedBy: readonly string[] = met.some(Boolean) ? ["x"] : [],
+  satisfiedBy: readonly string[] = met.some(Boolean) ? ["valu"] : [],
 ): Evidence {
   return { reading, met, missing: met.flatMap((ok, i) => (ok ? [] : [i])), words: [], matched: [], satisfiedBy, slips, asked: null, substituted: [], wantsEnglish: false };
 }
@@ -64,9 +64,21 @@ function play(
   return state;
 }
 
+/*
+  The fixture's first beat names two words, which is the ordinary shape: 60 of
+  the catalogue's 61 `lemma` requirements do. So the rating tests hand over a lexicon
+  and a real word, the way the route does, or the beat grades nothing and the
+  rating is a question about a row nobody wrote.
+*/
+const LEXICON = buildLexicon([
+  { lemma: "valu", pos: "NOUN", cefr: "A1", usages: [], parts: { NOM_SG: "valu", GEN_SG: "valu", PART_SG: "valu" } },
+  { lemma: "haigus", pos: "NOUN", cefr: "A1", usages: [], parts: { NOM_SG: "haigus", GEN_SG: "haiguse", PART_SG: "haigust" } },
+  { lemma: "pea", pos: "NOUN", cefr: "A1", usages: [], parts: { NOM_SG: "pea", GEN_SG: "pea", PART_SG: "pead" } },
+]);
+
 describe("what a conversation writes into the review log", () => {
   it("grades a word the beat asked for, Good on the first attempt", () => {
-    const grades = gradesFor(SCENE, play([{ reading: "complete", met: [true] }]));
+    const grades = gradesFor(SCENE, play([{ reading: "complete", met: [true] }]), null, LEXICON);
     expect(grades).toEqual([
       { lemma: "valu", grammCase: null, reachedCase: null, rating: 3, beatId: "reason" },
     ]);
@@ -76,7 +88,7 @@ describe("what a conversation writes into the review log", () => {
     const grades = gradesFor(SCENE, play([
       { reading: "incomplete", met: [false] },
       { reading: "complete", met: [true] },
-    ]));
+    ]), null, LEXICON);
     expect(grades[0]?.rating, "a conversation cannot tell easy from lucky").toBe(2);
     for (const grade of grades) expect(grade.rating).toBeLessThan(4);
   });
@@ -90,7 +102,7 @@ describe("what a conversation writes into the review log", () => {
     const grades = gradesFor(SCENE, play([{
       reading: "complete", met: [true],
       slips: [{ kind: "case", said: "valu", form: "valus", lemma: "valu", grammCase: "INESSIVE" }],
-    }]));
+    }]), null, LEXICON);
     expect(grades[0]?.rating).toBe(2);
   });
 
@@ -103,12 +115,12 @@ describe("what a conversation writes into the review log", () => {
     const grades = gradesFor(SCENE, play([
       { reading: "lost", met: [false] },
       { reading: "complete", met: [true] },
-    ]));
+    ]), null, LEXICON);
     expect(grades[0]?.rating).toBe(1);
   });
 
   it("grades Again where the app had to supply the word", () => {
-    const grades = gradesFor(SCENE, play([{ reading: "complete", met: [true], helped: true }]));
+    const grades = gradesFor(SCENE, play([{ reading: "complete", met: [true], helped: true }]), null, LEXICON);
     expect(grades[0]?.rating).toBe(1);
   });
 
@@ -122,7 +134,7 @@ describe("what a conversation writes into the review log", () => {
       { reading: "fragment", met: [false] },
       { reading: "echo", met: [false] },
       { reading: "complete", met: [true] },
-    ]));
+    ]), null, LEXICON);
     expect(grades[0]?.rating).toBe(3);
   });
 
@@ -162,7 +174,7 @@ describe("what a conversation writes into the review log", () => {
     }
     // `close` asks for a question mark, which is a thing they did and not a
     // word they hold a card for.
-    expect(gradesFor(SCENE, state).map((g) => g.beatId)).toEqual(["reason", "where"]);
+    expect(gradesFor(SCENE, state, null, LEXICON).map((g) => g.beatId)).toEqual(["reason", "where"]);
   });
 
   /*
@@ -183,10 +195,41 @@ describe("what a conversation writes into the review log", () => {
     expect(grades, "an abandoned scene wrote to the review log").toEqual([]);
   });
 
+  /*
+    AND THE ROW NAMES THE WORD THEY WROTE, which is the whole of what made the
+    first candidate wrong. The health centre's beat names ten body parts, so
+    `oneOf[0]` told the scheduler somebody had recalled `pea` when they had
+    written `Mu selg valutab`, into the table nothing repairs.
+  */
+  it("names the word the turn actually wrote, not the beat's first", () => {
+    const grades = gradesFor(
+      SCENE,
+      play([{ reading: "complete", met: [true], satisfiedBy: ["haigust"] }]),
+      null,
+      LEXICON,
+    );
+    expect(grades.map((g) => g.lemma)).toEqual(["haigus"]);
+  });
+
+  /*
+    And nothing where the words settle it on neither, which is the direction to
+    err in: a row not written costs a schedule nothing, and a wrong one is
+    never repaired. The same rule the card's own slot has always taken.
+  */
+  it("writes nothing where the words cannot say which of the two it was", () => {
+    const grades = gradesFor(
+      SCENE,
+      play([{ reading: "complete", met: [true], satisfiedBy: ["midagi"] }]),
+      null,
+      LEXICON,
+    );
+    expect(grades.map((g) => g.lemma)).toEqual([]);
+  });
+
   it("grades one row per requirement, not one per word it would have taken", () => {
-    // `oneOf` is a choice and the turn does not say which was taken, so a row
-    // per candidate would credit a word nobody used.
-    const grades = gradesFor(SCENE, play([{ reading: "complete", met: [true] }]));
+    // `oneOf` is a choice, so a row per candidate would credit a word nobody
+    // used: one row, naming the one they wrote.
+    const grades = gradesFor(SCENE, play([{ reading: "complete", met: [true] }]), null, LEXICON);
     expect(grades).toHaveLength(1);
   });
 });
@@ -442,5 +485,48 @@ describe("the word the other side offers", () => {
   it("and falls back to the walk where the caller knows nothing about the turn", () => {
     expect(offerFor(SCENE.beats[1]!, null, new Set(), [])).toBe("pea");
     expect(offerFor(SCENE.beats[1]!, null, new Set(), [true])).toBe("pea");
+  });
+});
+
+describe("which card each grade lands on", () => {
+  /*
+    `finishScene` looked each grade's card up with its own `findFirst`, one
+    round trip per grade before a single write, on the screen that says how a
+    conversation went. It reads the candidates once now and this is the match,
+    which has to choose exactly as the per-grade query did: the case card for
+    the case the beat asked, the production card otherwise, and the lowest id
+    where a learner holds two, since that query ordered on the id.
+  */
+  const grade = (lemma: string, grammCase: "INESSIVE" | "PARTITIVE" | null) =>
+    ({ lemma, grammCase, reachedCase: null, rating: 3 as const, beat: "b" });
+  const card = (id: string, lemma: string, cardType: string, targetCase: string | null = null) =>
+    ({ id, cardType, targetCase, lexeme: { lemma } });
+
+  it("takes the case card for a case and the production card otherwise", () => {
+    const found = cardsForGrades(
+      [grade("pood", "INESSIVE"), grade("piim", null)],
+      [card("c1", "pood", "CASE_FORM", "INESSIVE"), card("c2", "pood", "PRODUCTION"), card("c3", "piim", "PRODUCTION")],
+    );
+    expect(found).toEqual(["c1", "c3"]);
+  });
+
+  it("never lands a case grade on another case's card, or on the production card", () => {
+    const found = cardsForGrades(
+      [grade("pood", "INESSIVE")],
+      [card("c1", "pood", "CASE_FORM", "PARTITIVE"), card("c2", "pood", "PRODUCTION")],
+    );
+    expect(found).toEqual([null]);
+  });
+
+  it("takes the lowest id where two cards would do, as the query it replaced did", () => {
+    const found = cardsForGrades(
+      [grade("piim", null)],
+      [card("b", "piim", "PRODUCTION"), card("a", "piim", "PRODUCTION")],
+    );
+    expect(found).toEqual(["a"]);
+  });
+
+  it("answers null for a word the learner holds no card for", () => {
+    expect(cardsForGrades([grade("kass", null)], [card("c", "koer", "PRODUCTION")])).toEqual([null]);
   });
 });

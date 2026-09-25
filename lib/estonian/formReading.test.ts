@@ -123,8 +123,32 @@ describe("readForm", () => {
       { formType: "PART_PL", value: "xurras", morphCode: null },
     ];
     const made = word({ lemma: "xurr", gloss: "widget", forms });
-    expect(readForm({ formType: "EKILEX:SgIn" }, made, "xurras").reading).toBe("in the widget");
+    /*
+      A spelling that is the seesütlev singular and the osastav plural is two
+      cases, so the index reports it as shared and neither row is framed.
+      This read "in the widget" off the singular row until the index learned
+      that a plural is a case too (`caseIndex`).
+    */
+    expect(readForm({ formType: "EKILEX:SgIn" }, made, "xurras").reading).toBeNull();
     expect(readForm({ formType: "PART_PL" }, made, "xurras").reading).toBeNull();
+
+    /*
+      Where the plural is the *same* case as the singular it is spelled like,
+      the index still names that case, and the number guard is what keeps a
+      singular frame off the plural row. A genitive plural spelled like the
+      genitive singular puts one spelling in both seesütlevs.
+    */
+    const same = word({
+      lemma: "xurr", gloss: "widget",
+      forms: [
+        { formType: "NOM_SG", value: "xurr", morphCode: null },
+        { formType: "GEN_SG", value: "xurra", morphCode: null },
+        { formType: "PART_SG", value: "xurrat", morphCode: null },
+        { formType: "GEN_PL", value: "xurra", morphCode: null },
+      ],
+    });
+    expect(readForm({ formType: "EKILEX:SgIn" }, same, "xurras").reading).toBe("in the widget");
+    expect(readForm({ formType: "EKILEX:PlIn" }, same, "xurras").reading).toBeNull();
   });
 
   /*
