@@ -267,7 +267,9 @@ describe("a value the learner names themselves", () => {
   });
 
   it("accepts a chosen time in every spelling a dealt one is", () => {
-    expect(timeLiterals("08:00")).toEqual(["08:00", "08.00", "8:00", "08", "8"]);
-    expect(timeLiterals("14:30")).toEqual(["14:30", "14.30", "14:30"]);
+    expect(timeLiterals("08:00")).toEqual(["08:00", "08.00", "8:00", "8.00", "08", "8"]);
+    // A leading zero is dropped with the dot as well as with the colon: `9.30`.
+    expect(timeLiterals("09:30")).toContain("9.30");
+    expect(timeLiterals("14:30")).toEqual(["14:30", "14.30", "14:30", "14.30"]);
   });
 });
