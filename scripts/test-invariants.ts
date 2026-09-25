@@ -24772,6 +24772,46 @@ check("a server page asks two reads that do not need each other at once", () => 
   assert.deepEqual(found, [], `${found.join("; ")}. Neither needs the other: ask them in one Promise.all`);
 });
 
+check("the Enter that submits a field does not also move the round on", () => {
+  /*
+    A field that submits on Enter (`onEnter=`) marks the answer inside
+    React's own keydown handler, and React flushes that discrete update and
+    its effects before the same event reaches `window`. So a window listener
+    re-registered with the answer marked sees the very Enter that marked it
+    and, reading it as "next", moves past a verdict nobody has seen: measured
+    against React 19 in a browser, one Enter in the dictation box went from
+    "0:none" to "1:none", marked and skipped in a single press. The
+    conjugation table and the review card each worked this out and stand
+    down for a key from a field; dictation did not, and nor did the unit
+    lesson, whose `Continue` mounts on the render that marks a typed step. So in every round whose
+    field submits on Enter, the window listener either returns early for a
+    key from a text box, or asks `inEditable` beside every advance.
+  */
+  const rounds = [...APP, ...COMPONENTS].filter((f) =>
+    /\bonEnter=/.test(code(f)) && /addEventListener\("keydown", onKey\)/.test(code(f)));
+  assert.ok(rounds.length >= 6, `only ${rounds.length} rounds submit a field on Enter; the sweep has lost its haystack`);
+  const offenders: string[] = [];
+  for (const file of rounds) {
+    const src = code(file);
+    for (const m of src.matchAll(/const onKey = \(e: KeyboardEvent\) => \{([\s\S]*?)\n\s*window\.addEventListener\("keydown", onKey/g)) {
+      const body = m[1]!;
+      const first = body.search(/isAdvanceKey\(e\)/);
+      if (first < 0) continue;
+      const before = body.slice(0, first);
+      const earlyReturn = /(?:inEditable\(e\.target\)|e\.target instanceof HTMLInputElement|tagName === "INPUT")[^;\n]*\)\s*return;/.test(before);
+      if (earlyReturn) continue;
+      const at = m.index! + m[0].indexOf(body);
+      for (const a of body.matchAll(/isAdvanceKey\(e\)((?:[^()]|\([^()]*\))*)\)\s*(\{\s*[^;]*;)?/g)) {
+        const alongside = /!inEditable\(e\.target\)|!typing/.test(a[1]!);
+        const inside = /^\{\s*if \((?:typing|inEditable\(e\.target\))\) return;/.test(a[2] ?? "");
+        if (!alongside && !inside) offenders.push(`${file}:${src.slice(0, at + a.index!).split("\n").length}`);
+      }
+    }
+  }
+  assert.deepEqual(offenders, [],
+    `${offenders.join(", ")} advances on an Enter that came from the answer field, which is the Enter that just submitted it`);
+});
+
 check("every action that writes a grade tells Today it changed", () => {
   /*
     A grade moves a card's due date, and Today counts what is due. Batching
