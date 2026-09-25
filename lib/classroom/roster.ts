@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/db";
 import { computeStreak } from "@/lib/stats/streak";
-import { caseAccuracy } from "@/lib/stats/history";
+import { caseAccuracy, matureRecall } from "@/lib/stats/history";
 import { dayClock } from "@/lib/time/day";
 import { SETTING_KEYS } from "@/lib/settings/store";
 import { assessReadiness, type PastAttempt, type ReadinessSignals } from "@/lib/exam/readiness";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import {
-  ATTEMPT_WINDOW, MATURE_STATE, partPercentages, skillEvidenceFrom,
+  ATTEMPT_WINDOW, partPercentages, skillEvidenceFrom,
 } from "@/lib/progress/exam";
 import { knownLemmasFrom } from "@/lib/progress/summary";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
@@ -344,16 +344,15 @@ export async function workplaceRoster(
       if (known.has(row.lemma)) vocabulary[row.cefr as ExamLevel].known += 1;
     }
 
-    const mature = ownReviews.filter((r) => r.stateBefore >= MATURE_STATE);
-    const recalled = mature.filter((r) => r.rating >= 3).length;
+    const mature = matureRecall(ownReviews);
     const placement = placementBy.get(member.ownerId);
     const last = lastBy.get(member.ownerId) ?? null;
 
     const signals: ReadinessSignals = {
       vocabulary,
       accuracy: {
-        pct: mature.length === 0 ? 0 : Math.round((recalled / mature.length) * 100),
-        reviews: mature.length,
+        pct: mature.pct,
+        reviews: mature.reviews,
       },
       // Empty, and not because there is nothing to put here. See the header.
       cases: [],

@@ -13166,6 +13166,51 @@ check("the research export counts a right answer the way the rest of the app doe
 });
 
 /**
+ * A mature review is one asked of a card in the Review state, and nothing
+ * else, wherever the app reads one.
+ *
+ * `retentionReading` and the research export both count `stateBefore` equal
+ * to the Review state and say in so many words that learning and relearning
+ * answers are excluded. The exam hub's recall figure and the class roster's
+ * copy of it read `>= MATURE_STATE`, which takes in Relearning as well, so one
+ * learner could read 100 percent retention on Progress and 50 percent recall
+ * on the exam hub, over the same reviews, on the same day: ten Good answers on
+ * cards in Review beside ten Again answers on cards being relearned. The
+ * comparison has to be an equality everywhere it is written.
+ */
+check("a mature review is the Review state and nothing past it, in every reader", () => {
+  const offenders: string[] = [];
+  for (const file of ALL) {
+    const src = code(file);
+    if (/stateBefore\s*>=?\s*(MATURE_STATE|REVIEW_STATE|2\b)/.test(src)) offenders.push(file);
+    if (/stateBefore:\s*\{\s*gte?:\s*(MATURE_STATE|REVIEW_STATE|2\b)/.test(src)) offenders.push(file);
+  }
+  assert.deepEqual(offenders, [], `${offenders.join(", ")} counts a relearning answer as mature, where retentionReading does not`);
+});
+
+/**
+ * A tile counting the deck counts the deck, not the rows a capped read drew.
+ *
+ * My words reads at most 400 cards for its table and printed `rows.length` in
+ * the tile labelled "Cards", beside New, Learning and Known tiles counted over
+ * the whole deck and a line under the table saying "Showing the 400 cards due
+ * soonest, of 982". First run builds 982 cards, so the page said 400 in one
+ * place and 982 in another about the same deck. A page that caps a read may
+ * not print that read's length as a total.
+ */
+check("no page prints the length of a capped read as a count", () => {
+  const offenders: string[] = [];
+  for (const file of APP) {
+    const src = code(file);
+    if (!/\btake:\s*\d/.test(src)) continue;
+    for (const m of src.matchAll(/<(?:StatTile|Stat)\b[^>]*\bvalue=\{\s*([A-Za-z_.]+)\.length\s*\}/g)) {
+      offenders.push(`${file}: ${m[1]}.length`);
+    }
+  }
+  assert.deepEqual(offenders, [], `${offenders.join("; ")} is printed as a total by a page that caps the read it came from`);
+});
+
+/**
  * Every secret the app reads is marked in the build CI greps.
  *
  * The second of two checks on that list, and the pair is deliberate rather
