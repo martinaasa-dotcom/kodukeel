@@ -68,9 +68,8 @@ export async function GET(request: NextRequest) {
     looking at itself. The impact block is the one meant to be quoted outside,
     so it honors the research opt-out and reads the list first.
   */
-  const learners = await learnerDays(since, []);
-
-  const [words, cards] = await Promise.all([
+  const [learners, words, cards] = await Promise.all([
+    learnerDays(since, []),
     prisma.lexeme.count(),
     // "Known" is the scheduler's own opinion: a card it has stopped treating as
     // new and is not relearning. Derived, never stored (ADR-014).
