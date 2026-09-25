@@ -774,9 +774,11 @@ likely. A failed send therefore spends the slot: somebody misses one evening's l
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
 is what people unsubscribe over.
 
-**A letter says how long is left, not how many days were missed.** `daysAway` is read by the
-scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
-than theirs to be handed.
+**A letter says how long is left, not how many days were missed.** The days away are read by the
+scheduler (`letterOwed`, against `AWAY_DAYS`) and never handed to a letter at all: the figure is
+the guilt, and it is ours to decide with rather than theirs to be handed. `ComebackInput` used to
+carry it as `daysAway` under a comment saying it pitched the first line, and nothing read it; a
+field a letter takes is now one the letter reads, asserted, so the figure has no door to a page.
 
 **And the run could not get past the door, so no letter ever went out on a hosted deployment.**
 `/api/email/send` was left off the gate's public list on the argument that it gates itself, which
@@ -4709,8 +4711,11 @@ a screen belongs. And the verdict band was drawn at ten hours a week measured ag
 *optimistic* end of the range while the note under it quoted the distance at five found hours a
 week, so 335 of the 704 combinations a learner could click said "It fits, but only with study
 outside this app" over a sentence putting the date three years out. Both read
-`FOUND_HOURS_PER_WEEK` now, and the band sits at the pessimistic end, which makes those two
-sentences the same claim rather than two answers to one question. A deadline already gone is its
+`FOUND_HOURS_PER_WEEK` now, and the band and the note are drawn against one `found`, which makes
+those two sentences the same claim rather than two answers to one question. The band sits at the
+near end of the distance, on purpose and after first sitting at the far one: a learner who reached
+the last level in the fewer hours is the one who reaches the next in the fewer, so "it fits" means
+the near end of the range lands inside the date, and the note prints the whole range under it. A deadline already gone is its
 own verdict rather than a division by no time: it used to floor at one week and print "in 0 weeks
 your daily goal puts in about 0.4 of those hours" over a note asking for 1 099 hours a week. Two
 invariants and an exhaustive sweep of every combination in `plan.test.ts` hold all three.
@@ -5545,7 +5550,10 @@ which is what made that sentence reachable on the first evening alone.
 take a day id from their caller, which is JSON off the wire whatever the type says, and neither
 checked it: a forged tick would have moved the whole course onto a day two hundred evenings ahead,
 and `startCourseDay` would have built a deck out of that day's words. `dayIsInPlay` is the guard on
-both, the day reached or the one it opens on to, and it is asserted. It leans in turn on every day
+both, and it is asserted: a day at or before the day reached, or the next one once the day reached
+is finished. That last condition is the half that was missing. Every tick moves the day reached, so
+"or the next one" alone let a caller tick tomorrow, then the day after, and walk the programme one
+request at a time with nothing done. It leans in turn on every day
 having at least one step the log cannot prove, which `course.test.ts` checks over all 273 evenings:
 a day of nothing but a meet and a review would finish itself the moment its words were met
 somewhere else and walk the learner through the programme.
@@ -6477,8 +6485,9 @@ neighbour.
 
 **How long is decided by the word's own band and there are two answers.** A word at or below the
 learner's level goes back three days: a bad evening is a bad evening. A word above it did not
-arrive late, it arrived early, so it waits for the band it belongs to, and `recordCourseLevel` is
-where it comes back, since that is the one writer of a level and a level moves about twice a year.
+arrive late, it arrived early, so it waits for the band it belongs to, and it comes back where
+a level is written, `recordCourseLevel` and a level check's `saveResult` both, and a level moves
+about twice a year.
 The date behind that is a backstop and is **deliberately shorter than a band actually takes**:
 `lib/assessment/plan.ts` puts a band at 180 hours and up, which at five found hours a week is most
 of a year, and a backstop that honest is a word deleted with extra steps. A term, and if it comes
@@ -9712,6 +9721,13 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   the server: `undefined` as a locale means the deployment's, so on a machine set to en-US Today's
   greeting line read "Sunday, August 30" to somebody in Tartu who writes "pühapäev, 30. august".
   `components/LocalDate.tsx` renders what the server wrote and lets the browser replace it on mount.
+  **And a client component is not exempt, because its first render is on the server too.** Four
+  client files formatted a date in render, and on Today a browser set to Estonian wrote "24. sept"
+  over the server's "Sep 24" during hydration: React 19 reported error #418 and rebuilt the page on
+  the client, for the readers this app is for. Found by opening every route with an Estonian locale.
+  A client file hands the date to `LocalDate`, or to `useReaderDate` where it has to be a string,
+  and both write `stableDate` until mount; the invariant that used to skip client files now holds
+  them to that.
   A separate rule from the day boundary above, because the fix is different: a zone can be stored and
   handed to the server, and a locale is a list of preferences only the browser has.
 - **And a date written on a server is written in the learner's zone, not the deployment's.**
@@ -10583,6 +10599,19 @@ from `lib/assessment/`. A learner meeting this app for the first time cannot tel
 is the one that is confused, so the machine is never the judge. The overall level is the **average**
 of the measured skills, floored (ADR-020 amendment 2).
 
+**And the browser marks for the feedback and the server marks for the record.** `recordAssessment`
+took a credit, a skill and a band per answer from the browser and believed all three, so a hand-made
+request could post full credit everywhere or call an A1 question C1, and that level reached Today,
+the plan and a sponsor's cohort view. It takes the paper's seed, when it was built, and what was
+done with each question now: the option picked by its text, the words typed, the rating given.
+`markSitting` builds the same paper again, takes the skill and band off each item, counts an item
+once, refuses an id the paper does not hold, and marks through `responseFor`, which is the function
+the runner marks with. A skip counts on listening alone. The deck is read as it stood when the paper
+was built, because a card added mid-sitting takes its word out of the pool and the rebuilt paper
+would hold different questions. Which questions were asked stays the browser's call, since a band
+nobody was asked is not scored. That is ADR-022's rule for the mock exam, applied to the check that
+sets the level.
+
 **And the claim is kept in the code rather than printed under every question.** Each item used to
 carry an `ItemSource` and each answered question ended in "A recorded sentence. No Estonian on this
 screen was written by this app or by an AI." Eighty times a paper, under a screen that had already
@@ -10871,6 +10900,16 @@ merging anything that adds one, build and run the whole thing against main
 rather than against the branch. `npm run audit:merge` reads the other side's
 added lines and cannot see this at all, since nothing was reverted: what says so
 is `npm run build` and `npm run test:invariants` on main itself.
+
+**A new invariant goes in a file of its own under `scripts/invariants/`.** Every check used to be
+appended above the summary at the foot of `scripts/test-invariants.ts`, so two branches that each
+added one conflicted on the same lines whatever they were about: on 2026-09-25 that was nearly
+every open pull request against nearly every other. A file there exports one named function that
+is handed the suite's own helpers (`scripts/lib/invariantKit.ts`) and registers its checks through
+them, so a new check touches a new file and collides with nobody. The loader sits beside `code()`
+rather than at the foot, and it fails a file that registers no check, because an empty or misnamed
+export reads exactly like a file whose checks all passed. The checks already in the big file stay
+where they are; moving 424 of them would be one enormous conflict to end the small ones.
 
 When somebody else's work overlaps yours, one of them has to go. Keep the one
 that is safer or more precise and **delete the other outright** rather than

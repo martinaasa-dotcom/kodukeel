@@ -387,9 +387,9 @@ model Setting {
   @@index([key, value])
 }
 
-/// A badge the learner has earned. Append-mostly: a key is written once, the
-/// moment its condition is first met, and never removed — losing a badge you
-/// already earned would be a worse surprise than never having shown it.
+/// A badge the learner earned before badges were withdrawn. Nothing earns one
+/// now and no screen draws one. The rows stay because they are the learner's:
+/// they are in the export, in the erasure, and a restore puts them back.
 model Achievement {
   ownerId  String
   key      String

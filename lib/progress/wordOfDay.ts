@@ -224,7 +224,7 @@ async function pickThemed(
     shared dictionary rather than about this learner, so it is asked beside the
     read that filters their own met words rather than after it.
   */
-  const [fresh, reach] = await Promise.all([withoutReviewed(ownerId, rows), sentenceReach()]);
+  const [fresh, reach] = await Promise.all([withoutReviewed(ownerId, rows, dayStart), sentenceReach()]);
   if (fresh.length === 0) return null;
 
   // The layers in the almanac's own order: a named day beats a number, a
@@ -296,7 +296,7 @@ async function pickAny(ownerId: string, day: DayKey, dayStart: Date, level: Leve
       under it, fell out of the learner's band over a single stale word.
     */
     const [candidates, reach] = await Promise.all([
-      withoutReviewed(ownerId, rows), sentenceReach(),
+      withoutReviewed(ownerId, rows, dayStart), sentenceReach(),
     ]);
     const chosen = candidates[0];
     if (chosen) return build(chosen, null, reach);
@@ -318,7 +318,8 @@ const WINDOW = 8;
 function unmet(ownerId: string, dayStart: Date) {
   return {
     cards: { none: { ownerId, createdAt: { lt: dayStart } } },
-    stars: { none: { ownerId } },
+    // And a star, which the card offers too, for the same reason.
+    stars: { none: { ownerId, createdAt: { lt: dayStart } } },
   };
 }
 
@@ -330,10 +331,13 @@ function unmet(ownerId: string, dayStart: Date) {
  * deleted a month ago has no card and has certainly been met. One query
  * against the candidates rather than a join.
  */
-async function withoutReviewed(ownerId: string, rows: Candidate[]): Promise<Candidate[]> {
+async function withoutReviewed(ownerId: string, rows: Candidate[], dayStart: Date): Promise<Candidate[]> {
   if (rows.length === 0) return rows;
   const seen = await prisma.review.findMany({
-    where: { ownerId, lexemeId: { in: rows.map((r) => r.id) } },
+    // Before today, like the card and the star above: a word added from the
+    // panel and then answered this evening was met today, and the panel
+    // would otherwise swap under the learner the moment they reviewed it.
+    where: { ownerId, lexemeId: { in: rows.map((r) => r.id) }, reviewedAt: { lt: dayStart } },
     select: { lexemeId: true },
     distinct: ["lexemeId"],
   });

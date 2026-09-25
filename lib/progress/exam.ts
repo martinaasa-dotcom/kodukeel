@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
 import { caseByKey } from "@/lib/estonian/cases";
-import { caseAccuracy } from "@/lib/stats/history";
+import { caseAccuracy, matureRecall, REVIEW_STATE } from "@/lib/stats/history";
 import { buildPaper, type PoolWord, type Paper } from "@/lib/exam/paper";
 import { drawPool, eligibleFor, eligibleLevels } from "@/lib/exam/pool";
 import type { ExamResult } from "@/lib/exam/score";
@@ -166,8 +166,11 @@ export async function paperFor(
 
 // ── The signals behind the confidence figure ─────────────────────────────────
 
-/** Cards past the learning phase, whose recall is worth reading anything into. */
-export const MATURE_STATE = 2;
+/**
+ * Cards past the learning phase, whose recall is worth reading anything into.
+ * The Review state exactly, as `retentionReading` reads it: see `isMatureReview`.
+ */
+export const MATURE_STATE = REVIEW_STATE;
 
 /** Past papers one learner's readiness model looks at, however many they have sat. */
 export const ATTEMPT_WINDOW = 12;
@@ -218,8 +221,8 @@ export async function readinessSignals(
         already indexed, which is what makes the ordering free.
       */
       prisma.review.findMany({
-        where: { ownerId, stateBefore: { gte: MATURE_STATE } },
-        select: { rating: true },
+        where: { ownerId, stateBefore: MATURE_STATE },
+        select: { rating: true, stateBefore: true },
         orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
         take: 20_000,
       }),
@@ -255,11 +258,8 @@ export async function readinessSignals(
     if (snapshot.knownLemmas.has(row.lemma)) vocabulary[row.cefr as ExamLevel].known += 1;
   }
 
-  const recalled = matureReviews.filter((r: { rating: number }) => r.rating >= 3).length;
-  const accuracy = {
-    pct: matureReviews.length === 0 ? 0 : Math.round((recalled / matureReviews.length) * 100),
-    reviews: matureReviews.length,
-  };
+  const { pct, reviews } = matureRecall(matureReviews);
+  const accuracy = { pct, reviews };
 
   const cases = caseAccuracy(caseReviews).map((row) => ({
     caseKey: row.grammCase,

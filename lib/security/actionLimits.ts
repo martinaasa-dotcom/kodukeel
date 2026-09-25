@@ -78,15 +78,6 @@ export const ACTION_LIMITS = {
    * allowance as `saveScan`, which is the press before it on the same screen.
    */
   addScanToDeck: { perMinute: 15 },
-  /**
-   * Handing in a mock paper.
-   *
-   * The expensive part is the rebuild, as it is for `finishScene`: the client
-   * never sends a mark (ADR-022), so the server draws the pool again, a few
-   * thousand ids and then five hundred entries with their forms, and marks
-   * against that. Nobody hands in six papers a minute.
-   */
-  submitExam: { perMinute: 6 },
   /** Writes a lexeme and its principal parts into the shared dictionary. */
   editDictionary: { perMinute: 30 },
   /** Resolves a confirmed page against the dictionary and builds cards. */
