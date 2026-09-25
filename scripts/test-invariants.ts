@@ -7247,6 +7247,29 @@ function ownerScopedModels(): string[] {
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
 
+check("the weakest case is read off the case that was asked, on every screen that reads one", () => {
+  /*
+    `Review.targetCase` is the case the card is about and `Review.slot` is what
+    was asked. The flash round asks a word in a case on its production card,
+    whose \`targetCase\` is null, so every one of those answers was missing from
+    the weakest-case figure on Progress, Practice, Today, the grammar index,
+    Anu's briefing and the class roster; and a round that asks one case on a card
+    of another counted it under the card's. `caseAsked` is the one reading, and
+    both queries that feed `caseAccuracy` select the slot and go through it.
+  */
+  for (const file of ["lib/progress/cases.ts", "lib/classroom/roster.ts"]) {
+    const src = code(file);
+    assert.match(src, /\bcaseAsked\(/, `${file} reads the weakest case off the card rather than off what was asked`);
+    assert.match(src, /slot: true/, `${file} no longer selects the slot the answer was asked in`);
+  }
+  assert.doesNotMatch(code("lib/classroom/roster.ts"), /targetCase: r(?:eview)?\.targetCase/,
+    "the roster hands caseAccuracy the card's case again");
+  // The weekly letter's class-wide cases are the same figure behind a floor,
+  // so they are read the same way, or the letter and the board disagree.
+  assert.doesNotMatch(code("lib/classroom/roster.ts"), /classWideCases\(reviews\b/,
+    "the letter's class-wide cases read the card's case rather than the one asked");
+});
+
 check("a day argument is asked whether it is a string before its shape is", () => {
   /*
     `RegExp.test` converts its argument, so a one-element array passes a
