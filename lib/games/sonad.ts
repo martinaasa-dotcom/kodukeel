@@ -136,21 +136,31 @@ export function solvedAt(guesses: readonly string[], answer: string): number | n
  *
  * The first two guesses are recall: the player has the part of speech, the band
  * and a handful of letters, which is a harder question than the production card
- * asks. Three or four is the game working, which is a real answer with help.
- * Past that the clues have started arriving, so five, six, seven or a loss is
- * the board having told them, and `Again` is what the scheduler should hear
- * about that. The line sits where it does because it is drawn on what the
- * player was *given* rather than on how many rows are left: adding a seventh
- * try did not make guess five a better recall than it was.
+ * asks. After that, up to the first clue, is the game working, which is a real
+ * answer. A solve once a clue is on the screen is a recall with help, `Hard`,
+ * which is the ceiling a hint that narrows sets everywhere else in this app
+ * (`lib/questions/hints.ts`), and a loss is `Again`.
+ *
+ * The line is drawn on what the player was *given* rather than on a count of
+ * rows. It used to be a count, and the comment above it said the fifth guess
+ * on was `Again` while the code said `Hard`, and the fourth guess, which is
+ * typed with the category already printed beside the board, was graded `Good`
+ * as though nothing had been shown. `hasCategory` is there because a word the
+ * dictionary gives no category has no clue at that row, and its fourth guess
+ * was nobody's help.
  */
-export function ratingFor(guesses: readonly string[], answer: string): 1 | 2 | 3 | 4 | null {
+export function ratingFor(
+  guesses: readonly string[], answer: string, hasCategory: boolean,
+): 1 | 2 | 3 | 4 | null {
   const outcome = outcomeOf(guesses, answer);
   if (outcome === "playing") return null;
   const at = solvedAt(guesses, answer);
   if (at === null) return 1;
   if (at <= 2) return 4;
-  if (at <= 4) return 3;
-  return 2;
+  // Guess n is typed with `cluesAt(n - 1)` on screen.
+  const clues = cluesAt(at - 1);
+  const helped = clues.vowels || (hasCategory && clues.category);
+  return helped ? 2 : 3;
 }
 
 /**

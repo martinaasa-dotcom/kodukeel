@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { lengthAtPace, QUEST_SECONDS } from "@/lib/ux/roundClock";
 import { redirect } from "next/navigation";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { ArrowRight, Flame, Shield, Target } from "lucide-react";
@@ -7,7 +8,7 @@ import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
-import { minutesForCards } from "@/lib/stats/pace";
+import { minutesForCards, ownCardsPerMinute } from "@/lib/stats/pace";
 import { wordOfDay, wordOfDayCollection } from "@/lib/progress/wordOfDay";
 import { outThereToday } from "@/lib/progress/outThere";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -23,7 +24,7 @@ import { shows, stageOf, TODAY_CARDS } from "@/lib/ux/disclosure";
 import { orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { modeAt } from "@/lib/ux/modes";
 import { ButtonLink } from "@/components/Button";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { Card, Columns, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { LocalDate } from "@/components/LocalDate";
 import { dateLine } from "@/lib/time/estonianDate";
@@ -34,7 +35,8 @@ import { featuredTitle, gameAfter, gameOn } from "@/lib/ux/weekGames";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
-import { errandForDay, startedUnits } from "@/lib/collections/errands";
+import { errandForDay } from "@/lib/collections/errands";
+import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
@@ -107,7 +109,7 @@ export default async function TodayPage() {
     deckSnapshot(ownerId, now),
     readSettings(ownerId, [
       SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName, SETTING_KEYS.cefrPlacement,
-      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget,
+      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget, SETTING_KEYS.roundPace,
     ]),
     /*
       Which level the course opens at. It was read last, after everything else
@@ -122,7 +124,7 @@ export default async function TodayPage() {
   // with a deck or a finished setup never sees it again.
   if (!settings[SETTING_KEYS.onboardedAt] && snapshot.totalCards === 0) redirect("/start");
 
-  const [summary, units, tasks, events, weekReviews, learner, pace, programme] = await Promise.all([
+  const [summary, units, tasks, openTasks, lateTasks, events, weekReviews, learner, pace, programme] = await Promise.all([
     dailySummary(ownerId, now, clock),
     pathWithProgress(ownerId, snapshot),
     /*
@@ -137,6 +139,14 @@ export default async function TodayPage() {
       orderBy: [{ dueAt: "asc" }, { createdAt: "desc" }],
       take: 12,
     }),
+    /*
+      And how many there are, which the twelve cannot say: the panel's hint
+      read its count off the rows it drew, so twenty waiting read as twelve
+      left. Late is a due date before the learner's own midnight, which is
+      `bucketFor`'s "overdue" asked of the table rather than of the rows.
+    */
+    prisma.task.count({ where: { ownerId, completed: false } }),
+    prisma.task.count({ where: { ownerId, completed: false, dueAt: { lt: clock.startOfDay(now) } } }),
     /*
       The learner's own calendar. In this batch for the same reason the tasks
       are: it is one indexed read on a small table, and a second round trip to
@@ -641,7 +651,7 @@ export default async function TodayPage() {
      drawn when there is something in it: the manual homework list is gone, so
      a learner studying alone has nothing to put here and no reason to see it. */
   const planCard = shows(stage, "tasks") && tasks.length > 0 ? (
-    <TodayPlan tasks={tasks.map(taskView)} clock={clock} now={now} />
+    <TodayPlan tasks={tasks.map(taskView)} open={openTasks} late={lateTasks} clock={clock} now={now} />
   ) : null;
 
   /*
@@ -714,6 +724,10 @@ export default async function TodayPage() {
      is the "does this say something true and useful on an empty log" test, and
      this one fails it where the word of the day passes.
   */
+  // The quest's length at this learner's pace, which is what the round runs
+  // for: "two minutes" was the standard figure printed to somebody who had
+  // asked for five.
+  const questLength = lengthAtPace(QUEST_SECONDS, settings[SETTING_KEYS.roundPace]);
   const questCard = questDay ? (
     <Card tone="accent">
       {/* No "two minutes" hint: the line under this says it, and a figure
@@ -728,10 +742,10 @@ export default async function TodayPage() {
             <span lang="et" className="font-semibold">
               {grammarTerm(weakest.grammCase)?.et ?? weakest.grammCase.toLowerCase()}
             </span>{" "}
-            is at {weakest.accuracy}%. Two minutes on it.
+            is at {weakest.accuracy}%. {questLength} on it.
           </>
         ) : (
-          "Two minutes on the cards you get wrong most often."
+          `${questLength} on the cards you get wrong most often.`
         )}
       </p>
       <div className="mt-3">
@@ -925,7 +939,7 @@ export default async function TodayPage() {
       title={name ? `${greeting(clock, now, placement)}, ${name}` : greeting(clock, now, placement)}
       lead={courseNow && (moduleTonight || courseNow.finishedToday)
         ? courseLead(toReview, courseNow.finishedToday)
-        : lead(stage, toReview, toLearn, pace?.cardsPerMinute ?? null)}
+        : lead(stage, toReview, toLearn, ownCardsPerMinute(pace))}
     >
       {/*
         ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.
@@ -979,13 +993,12 @@ export default async function TodayPage() {
 }
 
 function NextUnitIcon({ name }: { name: string }) {
-  const Icon = icon(name);
   return (
     <span
       className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
       style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
     >
-      <Icon size={20} aria-hidden />
+      <NamedIcon name={name} size={20} aria-hidden />
     </span>
   );
 }

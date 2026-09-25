@@ -3,6 +3,7 @@ import {
   FORM_TYPE_CODES, formLabel, formName, morphCodeFor, morphCodeOf, numberFromMorphCode,
   slotCodeOf,
 } from "./morph";
+import { PRINCIPAL_FORM_TYPES } from "./types";
 
 /**
  * NAMING A FORM, ON THE ROWS THE SEED ACTUALLY WROTE.
@@ -141,7 +142,10 @@ describe("the two tables that name a verb's present", () => {
 */
 describe("a principal part and its Ekilex code are one slot", () => {
   it("names the same form whichever way the row spells it", () => {
-    expect(FORM_TYPE_CODES.length).toBeGreaterThanOrEqual(12);
+    // The floor is the list's own length rather than a number typed here:
+    // this check can only ever ask about what is already in the map, so a
+    // thirteenth principal part with no code beside it has to fail somewhere.
+    expect(FORM_TYPE_CODES.length).toBe(PRINCIPAL_FORM_TYPES.length);
     for (const [formType, code] of FORM_TYPE_CODES) {
       const stored = formName({ formType });
       const retrieved = formName({ formType: `EKILEX:${code}` });

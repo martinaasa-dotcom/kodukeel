@@ -208640,14 +208640,10 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "d : ∅",
   "government": null,
-  "notes": "plank on the side of a boat.; side of a boat.; board, starboard",
+  "notes": null,
   "examples": [
    {
-    "et": "Saarnaki laid.",
-    "en": null
-   },
-   {
-    "et": "Meri on täis pikitud pisikesi maalilisi laide.",
+    "et": "Kurrutatud seelik õmmeldi kokku poolvillase kanga neljast laiast.",
     "en": null
    }
   ],
@@ -208658,31 +208654,32 @@
    },
    {
     "formType": "GEN_SG",
-    "value": "laiu"
+    "value": "laia"
    },
    {
     "formType": "PART_SG",
-    "value": "laidu"
+    "value": "laida"
    },
    {
     "formType": "ILL_SG_SHORT",
-    "value": "laidu"
-   },
-   {
-    "formType": "GEN_PL",
-    "value": "laidude"
+    "value": "laida"
    },
    {
     "formType": "NOM_PL",
-    "value": "laiud"
+    "value": "laiad"
+   },
+   {
+    "formType": "GEN_PL",
+    "value": "laidade"
    },
    {
     "formType": "PART_PL",
-    "value": "laide"
+    "value": "laidu"
    }
   ],
-  "ekilexWordId": 192288,
-  "semanticTypes": "koht_ala"
+  "ekilexWordId": 192289,
+  "semanticTypes": "ese_riie",
+  "definition": "rõivaks vm õmblustooteks vajalikus pikkuses tükk kangast (hrl selle kanga laiuses)"
  },
  {
   "lemma": "laineline",

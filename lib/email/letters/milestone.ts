@@ -32,7 +32,6 @@ import { meter } from "../art";
 import type { Block, Letter } from "../letter";
 
 export interface MilestoneInput {
-  readonly name: string | null;
   readonly origin: string;
   readonly level: {
     /** A1, A2 and so on. The thing being announced. */

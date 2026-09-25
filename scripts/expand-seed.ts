@@ -31,7 +31,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { dirname } from "node:path";
 
-import { fetchEkilexDetails, searchEkilex } from "../lib/ekilex/client";
+import { fetchEkilexDetails, searchEkilexAnswered } from "../lib/ekilex/client";
 import { mapEkilexDetails } from "../lib/ekilex/mapper";
 import { extractEstonianEntries, furtherSenses, type EstonianSense } from "../lib/dict/wiktionary";
 import { resolvePos } from "../lib/dict/pos";
@@ -246,12 +246,21 @@ function unreachableForms(
  * back is a set of forms this app would have to guess at, which it may not do.
  */
 async function build(lemma: string, pos: string): Promise<ExpandedEntry | null> {
-  const hits = await searchEkilex(lemma);
+  /*
+    Ekilex refusing or timing out throws rather than returning null, which is
+    the rule `englishEntries` states for Wiktionary below and which the Ekilex
+    side had never been given: `searchEkilex` folds a 403, a 429 and a timeout
+    into an empty list, so a minute Ekilex would not answer was cached as
+    "this word has no entry" and never asked about again.
+  */
+  const hits = await searchEkilexAnswered(lemma);
+  if (!hits) throw new Error(`Ekilex did not answer a search for ${lemma}`);
   const exact = hits.find((h) => h.wordValue === lemma) ?? hits[0];
   if (!exact) return null;
 
+  // A word id Ekilex has just returned from a search is one it holds, so no details is a failed request.
   const details = await fetchEkilexDetails(exact.wordId);
-  if (!details) return null;
+  if (!details) throw new Error(`Ekilex did not answer for word ${exact.wordId} (${lemma})`);
 
   const mapped = mapEkilexDetails(details);
   if (!mapped) return null;

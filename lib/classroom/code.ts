@@ -37,7 +37,14 @@ export function generateCode(random: () => number = Math.random): string {
  */
 export function normaliseCode(input: unknown): string {
   if (typeof input !== "string") return "";
-  return input.trim().toUpperCase().replace(/[\s-]/g, "").slice(0, CODE_LENGTH);
+  /*
+    Never cut to the code's length. A seventh character is a mistyped code,
+    and dropping it is a guess about which six were meant: `ABCDEF3` joined
+    class `ABCDEF`. Kept whole, it fails `isValidCode` and the student is told
+    the code was not found, which is this file's rule. The slice is only a
+    bound on what is looked at.
+  */
+  return input.slice(0, 64).trim().toUpperCase().replace(/[\s-]/g, "");
 }
 
 export function isValidCode(input: unknown): boolean {

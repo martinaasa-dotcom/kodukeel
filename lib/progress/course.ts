@@ -1,6 +1,7 @@
 import { cache } from "react";
 
 import { prisma } from "@/lib/db";
+import { deferredWordIds } from "@/lib/progress/deferrals";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { courseLevelFor, courseStandingFor } from "@/lib/progress/level";
 import { LEVELS, LEVEL_INFO, levelIndex, type Level } from "@/lib/collections/syllabus";
@@ -235,13 +236,36 @@ export const moduleReached = cache(async (
 });
 
 export async function dayIsInPlay(
-  ownerId: string, programme: Programme, day: CourseDay,
+  ownerId: string, programme: Programme, day: CourseDay, now = new Date(),
 ): Promise<boolean> {
+  /*
+    THE PROGRAMME IS OFF THE WIRE TOO, NOT ONLY THE DAY. A part nobody has
+    opened carries no ticks, so the rule below reads its first two evenings as
+    reached, and a call naming the last part of C1 built a beginner's deck out
+    of its words: the forged call the header above says this closes. The one
+    they are following is `programmeFor`'s answer, which is the programme every
+    screen that draws a step hands over, so an honest press never meets this.
+  */
+  const followed = await programmeFor(ownerId);
+  if (followed?.id !== programme.id) return false;
   const ticks = await ticksFor(ownerId, programme);
   const reached = dayReached(programme, new Set(ticks.byDay.keys()));
-  /* The day after the one reached is in play too: finishing an evening is what
-     opens the next, and nothing is ticked on it until somebody starts. */
-  return day.index <= reached.index + 1;
+  if (day.index <= reached.index) return true;
+  if (day.index > reached.index + 1) return false;
+  /*
+    THE DAY AFTER THE ONE REACHED IS IN PLAY ONCE THE ONE REACHED IS FINISHED,
+    and not before. Finishing an evening is what opens the next, and nothing is
+    ticked on it until somebody starts. Allowing it unconditionally was a
+    ladder somebody could climb without doing anything: a tick on the next day
+    makes it the day reached, so a tick on the day after that is allowed, and
+    repeated calls walked the whole programme one evening per request. Read
+    through the same function the screen reads, so an evening the list shows
+    as finished is the evening this opens the next one after.
+  */
+  const done = await withDerivedSteps(
+    ownerId, programme, ticks, reached, ticks.byDay.get(reached.id) ?? new Set<string>(), now,
+  );
+  return reached.steps.every((step) => done.has(step.id));
 }
 
 /**
@@ -260,14 +284,26 @@ export async function dayIsInPlay(
  */
 async function metWords(ownerId: string, words: readonly string[]): Promise<boolean> {
   if (words.length === 0) return true;
-  const cards = await prisma.card.findMany({
-    where: {
-      ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
-      lexeme: { lemma: { in: [...words] } },
-    },
-    select: { state: true },
-  });
-  if (cards.length > 0) return cards.every((c) => c.state !== 0);
+  const [cards, aside] = await Promise.all([
+    prisma.card.findMany({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
+        lexeme: { lemma: { in: [...words] } },
+      },
+      select: { state: true, lexemeId: true },
+    }),
+    deferredWordIds(ownerId),
+  ]);
+  /*
+    AND A WORD PUT ASIDE IS NOT A WORD STILL TO MEET. The meet rung offers
+    "too complicated", which moves the card's date and leaves it New, and the
+    ladder serves only what is due, so the word never came back while this
+    went on waiting for it to leave New: the evening stopped with no press
+    anywhere that could move it, since this step is derived and neither course
+    action may write a row for it. The learner said not tonight; the step
+    takes them at their word, and the word returns when its wait ends.
+  */
+  if (cards.length > 0) return cards.every((c) => c.state !== 0 || (c.lexemeId !== null && aside.has(c.lexemeId)));
   /*
     AND A DAY WHOSE WORDS THIS DEPLOYMENT'S DICTIONARY HOLDS NONE OF IS MET.
 
@@ -336,6 +372,47 @@ function onlyClosingLeft(day: CourseDay, done: ReadonlySet<string>): boolean {
   return day.steps.every((step) => step.id === REVIEW_STEP || done.has(step.id));
 }
 
+/**
+ * A day's finished steps, the ticked ones and the two the review log proves.
+ *
+ * One function because two callers ask it and they may not disagree: the
+ * reading that draws the screen, and `dayIsInPlay`, which decides whether the
+ * day after the one reached may be written about yet.
+ */
+async function withDerivedSteps(
+  ownerId: string, programme: Programme, ticks: Ticks, day: CourseDay,
+  ticked: ReadonlySet<string>, now: Date,
+): Promise<Set<string>> {
+  const [met, graded] = await Promise.all([
+    ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words),
+    ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day.id),
+  ]);
+
+  const withDerived = new Set(ticked);
+  if (met) withDerived.add(MEET_STEP);
+  /*
+    FIVE ANSWERS, OR EVERY ANSWER THE ROUND HAS LEFT TO GIVE.
+
+    The first is the standing ask and used to be the only one, which is what
+    left an evening whose closing round had nothing to offer stuck at three
+    quarters for ever: the step is derived, so nothing a learner can press
+    ticks it, and the round behind it said nothing was due. See
+    `closingNeeded`.
+
+    Asked only where it is the last thing standing, which is both the honest
+    reading and the cheap one. Until then there is an evening's worth of
+    steps in front of it and the question is not yet "can this be finished",
+    it is "what is next"; and Today would be paying two queries a render to
+    answer something nobody was asking.
+  */
+  if (graded >= CLOSING_REVIEW) withDerived.add(REVIEW_STEP);
+  else if (onlyClosingLeft(day, withDerived)
+    && graded >= await closingNeeded(ownerId, programme, day, graded, now)) {
+    withDerived.add(REVIEW_STEP);
+  }
+  return withDerived;
+}
+
 export interface CourseReading extends ProgrammeStanding {
   /** True where the current day's last step was finished today. */
   finishedToday: boolean;
@@ -391,34 +468,9 @@ export async function courseReading(
     const day = standing.current?.day;
     if (!day) break;
 
-    const ticked = done.get(day.id) ?? new Set<string>();
-    const [met, graded] = await Promise.all([
-      ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words),
-      ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day.id),
-    ]);
-
-    const withDerived = new Set(ticked);
-    if (met) withDerived.add(MEET_STEP);
-    /*
-      FIVE ANSWERS, OR EVERY ANSWER THE ROUND HAS LEFT TO GIVE.
-
-      The first is the standing ask and used to be the only one, which is what
-      left an evening whose closing round had nothing to offer stuck at three
-      quarters for ever: the step is derived, so nothing a learner can press
-      ticks it, and the round behind it said nothing was due. See
-      `closingNeeded`.
-
-      Asked only where it is the last thing standing, which is both the honest
-      reading and the cheap one. Until then there is an evening's worth of
-      steps in front of it and the question is not yet "can this be finished",
-      it is "what is next"; and Today would be paying two queries a render to
-      answer something nobody was asking.
-    */
-    if (graded >= CLOSING_REVIEW) withDerived.add(REVIEW_STEP);
-    else if (onlyClosingLeft(day, withDerived)
-      && graded >= await closingNeeded(ownerId, programme, day, graded, now)) {
-      withDerived.add(REVIEW_STEP);
-    }
+    const withDerived = await withDerivedSteps(
+      ownerId, programme, ticks, day, done.get(day.id) ?? new Set<string>(), now,
+    );
     done.set(day.id, withDerived);
     standing = programmeStanding(programme, done);
 
@@ -467,8 +519,21 @@ export async function closingProgress(
   const day = dayById(programme, dayId);
   const graded = await closingGraded(ownerId, ticks, dayId);
   /* The same number the step itself is finished against, or the list would
-     promise five answers while the reading behind it settles for two. */
-  const needed = day && ticks.byDay.has(dayId)
+     promise five answers while the reading behind it settles for two. That
+     includes the reading's condition: it settles for less only once the
+     closing round is the one step left, so the line does too, or it reads
+     "2 of 2 answers in" over a step that is not finished. The meet step is
+     proved off the deck, so it is asked the same way the reading asks it, and
+     only where it is the one thing between this and the closing round. */
+  const ticked = ticks.byDay.get(dayId);
+  let lastStanding = false;
+  if (day && ticked) {
+    const done = new Set(ticked);
+    if (onlyClosingLeft(day, new Set([...done, MEET_STEP]))) {
+      lastStanding = done.has(MEET_STEP) || await metWords(ownerId, day.words);
+    }
+  }
+  const needed = day && lastStanding
     ? await closingNeeded(ownerId, programme, day, graded, now)
     : CLOSING_REVIEW;
   return { graded: Math.min(needed, graded), needed };
@@ -532,7 +597,12 @@ export async function ladderReading(
       },
     }),
     prisma.review.count({ where: { ownerId, reviewedAt: { gte: since } } }),
-    prisma.review.count({ where: { ownerId, reviewedAt: { gte: since }, rating: { gte: 2 } } }),
+    /* Good or Easy, which is what every other reading here calls recalled
+       (`lib/stats/history.ts`, `lib/readiness/evidence.ts`, `lib/srs/mastery.ts`).
+       Hard is what a hint, a slip or the right word in the wrong ending is
+       graded, and counting it here read a fortnight of near misses as a
+       fortnight of right answers and handed the next part over on them. */
+    prisma.review.count({ where: { ownerId, reviewedAt: { gte: since }, rating: { gte: 3 } } }),
   ]);
 
   return ladderVerdict({ taught, known, answers, right });
