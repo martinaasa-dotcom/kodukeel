@@ -7,9 +7,10 @@ import { wordsAtLevel } from "@/lib/collections/syllabus";
 import { buildPaper, type Paper, type WordRow } from "@/lib/assessment/items";
 import { normaliseGoals, type Goals } from "@/lib/assessment/goals";
 import { BANDS, type Band, type Level, type Placement, type SkillResult } from "@/lib/assessment/types";
-import { overallFrom, type Overall } from "@/lib/assessment/score";
+import { overallFrom, placement, responsesFrom, type Answered, type Overall } from "@/lib/assessment/score";
 import { GOAL_KEYS, numberSetting, readSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 import { DEFAULT_DAYS_PER_WEEK } from "@/lib/assessment/goals";
+import { wakeForLevel } from "@/lib/progress/deferrals";
 
 /**
  * The database half of the placement check.
@@ -72,19 +73,38 @@ function toRow(lexeme: {
   };
 }
 
+/** A paper, and what it takes to build the same paper again. */
+export interface PlacementPaper extends Paper {
+  seed: number;
+  /** When it was built, in milliseconds. The deck is read as it stood then. */
+  builtAt: number;
+}
+
 /**
  * Builds a paper for this learner.
  *
  * The seed decides which questions come up, and it is the caller's: a page
  * passes a fresh one so two sittings differ, and a test passes a fixed one so
  * the paper does not.
+ *
+ * **And the same seed and the same `builtAt` build the same paper**, which is
+ * what lets `recordAssessment` mark a sitting itself rather than take a mark
+ * from the browser. The deck is the one input a learner changes while sitting
+ * it, since a card added in another tab moves a word out of the pool, so it is
+ * read as it stood when the paper was built. A word added to the dictionary
+ * can still move the fallback window, which is the same cost the mock exam
+ * pays and says so.
  */
-export async function paperFor(ownerId: string, seed: number): Promise<Paper> {
+export async function paperFor(
+  ownerId: string,
+  seed: number,
+  builtAt: number = Date.now(),
+): Promise<PlacementPaper> {
   // Ordered, because this function promises to be a function of its seed. Past
   // the cap, which cards counted as owned was the plan's choice, so the same
   // seed could build a different paper.
   const owned = await prisma.card.findMany({
-    where: { ownerId, lexemeId: { not: null } },
+    where: { ownerId, lexemeId: { not: null }, createdAt: { lte: new Date(builtAt) } },
     select: { lexemeId: true },
     distinct: ["lexemeId"],
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
@@ -170,7 +190,28 @@ export async function paperFor(ownerId: string, seed: number): Promise<Paper> {
 
   // The whole dictionary's meanings, so a listening question's wrong answers
   // are checked against every word in the recording and not only the pool's.
-  return buildPaper(words, seed, heard);
+  return { ...buildPaper(words, seed, heard), seed, builtAt };
+}
+
+/**
+ * A sitting marked on the server, against the paper rebuilt from its seed.
+ *
+ * The browser sends which paper and what was done with each question, never a
+ * mark, a skill or a band: those come off the rebuilt item. Null when an answer
+ * names a question this paper does not hold, which means it is not the paper
+ * that was sat. Which questions were asked stays the browser's call, since the
+ * session stops a skill early, and a band nobody was asked is not scored.
+ */
+export async function markSitting(
+  ownerId: string,
+  seed: number,
+  builtAt: number,
+  answers: readonly Answered[],
+): Promise<Placement | null> {
+  const paper = await paperFor(ownerId, seed, builtAt);
+  const responses = responsesFrom(paper.items, answers);
+  if (!responses) return null;
+  return placement(paper.items.map(({ id, skill, band }) => ({ id, skill, band })), responses);
 }
 
 /** A stored result, in the shape the result screen and the history read. */
@@ -269,7 +310,16 @@ export async function saveResult(ownerId: string, placement: Placement): Promise
       detail: JSON.stringify(placement.skills),
     },
   });
-  return withOverall({ ...row, skills: placement.skills });
+  const stored = withOverall({ ...row, skills: placement.skills });
+  /*
+    A measured level is a level: `courseLevelFor` reads it, and it is often the
+    newer answer. So the words put aside until the learner got here come back
+    now, exactly as they do when a level is written through
+    `recordCourseLevel`. Only that path woke them, so somebody measured at B1
+    kept the B1 word they had put aside at A2 for the whole of its term.
+  */
+  if (stored.overall) await wakeForLevel(ownerId, stored.overall, row.takenAt);
+  return stored;
 }
 
 export async function historyFor(

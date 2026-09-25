@@ -54,6 +54,33 @@ async function reportedBy(count: number, lexemeId: string, translation = "chambe
 }
 
 describe("readQueue", () => {
+  /*
+    The rows behind a page are read newest first under one cap across every
+    group on it, so a group reported often and recently took the whole cap
+    and every quieter group on the same page came back with no row at all.
+    The page said twenty-five groups and drew one.
+  */
+  it("draws every group on the page however loud one of them is", async () => {
+    const lexeme = await seedWord();
+    const quiet = await reportedBy(1, lexeme.id, "chamber");
+    const loudPatch = { kind: "SET_TRANSLATION" as const, lexemeId: lexeme.id, translation: "hall" };
+    const loud = groupKeyFor({ category: "WRONG_FORM", lexemeId: lexeme.id, lemma: LEMMA, patch: loudPatch });
+    for (let i = 0; i < 12; i += 1) {
+      await prisma.suggestion.create({
+        data: {
+          ownerId: OWNERS[i % OWNERS.length]!, category: "WRONG_FORM", groupKey: loud,
+          lemma: LEMMA, lexemeId: lexeme.id, note: `loud ${i}`,
+          patch: JSON.stringify(loudPatch),
+        },
+      });
+    }
+
+    const queue = await readQueue({ status: "OPEN", category: null, page: 0 });
+    const keys = queue.rows.map((r) => r.groupKey);
+    expect(keys).toContain(loud);
+    expect(keys).toContain(quiet);
+  });
+
   it("shows one line for a thing many people reported, and counts them", async () => {
     const lexeme = await seedWord();
     await reportedBy(4, lexeme.id);
