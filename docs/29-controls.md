@@ -47,7 +47,7 @@ of a small SaaS actually asks about, rather than reproducing the list.
 | 5.1 Policies for information security | This document, `docs/27-security.md`, `docs/28-incident-response.md` and `SECURITY.md`. Written down and in version control. There is no separate signed corporate ISMS policy set. | `docs/`, `SECURITY.md` | Partial |
 | 5.2 Roles and responsibilities | Stated in the incident plan, honestly: one lead, whoever has production access, one external voice. No rota, no on-call. | `docs/28-incident-response.md` section 2 | Partial |
 | 5.7 Threat intelligence | `npm audit` in CI as a blocking gate plus GitHub advisories. No commercial feed and no active monitoring. | `.github/workflows/ci.yml` | Partial |
-| 5.8 Information security in project management | Security rules are asserted in CI rather than reviewed by hand. A rule with no assertion is treated as a comment. Every invariant runs on every push. | `scripts/test-invariants.ts` | Implemented |
+| 5.8 Information security in project management | Security rules are asserted in CI rather than reviewed by hand. A rule with no assertion is treated as a comment. The whole invariant suite runs on every push and prints its own total. | `scripts/test-invariants.ts` | Implemented |
 | 5.9 Inventory of assets | Ranked asset list, in a design document rather than a maintained register. | `docs/27-security.md` section 3 | Partial |
 | 5.10 Acceptable use | Terms of service on the deployment. | `/terms` | Implemented |
 | 5.12 Classification of information | Four categories with different handling: the review log, free text a learner wrote, identity, and reference data. Handling differs in code. | `docs/27-security.md` section 3 | Partial |
@@ -96,7 +96,7 @@ This is the theme where the work actually is, so it is the longest.
 | 8.1 User endpoint devices | Nothing enforced. Learners use their own browsers, which is the point of a web app. What the app does about a shared device is under 8.12. | | Not applicable |
 | 8.2 Privileged access rights | Reviewer status is an environment variable of exact addresses and cannot be granted by any request, because a privilege a request can grant is one a forged request can grant. Provider consoles are behind those providers' own MFA. | `lib/auth/admin.ts` | Implemented |
 | 8.3 Information access restriction | Every owner scoped query filters on an owner the server resolved. Class and workplace rosters expose effort and never contents. | `lib/auth/session.ts`, `lib/classroom/roster.ts` | Implemented |
-| 8.4 Access to source code | Public repository, protected default branch, CI required. | GitHub | Implemented |
+| 8.4 Access to source code | Public repository; only collaborators can push. CI runs on every push, and the default branch is not protected, so nothing stops a collaborator merging past a red run. | GitHub | Implemented |
 | 8.5 Secure authentication | Token verified against cached signing keys, under a 2,500ms deadline, with three states so an unreachable auth service is not read as a sign-out. Login CSRF defence on the mailed link. | `lib/auth/identity.ts`, `app/auth/callback/route.ts` | Implemented |
 | 8.6 Capacity management | Three spend limits with no off switch, per learner rate limits on routes and actions, and a published cost model. | `lib/usage/quota.ts`, `lib/security/actionLimits.ts`, `/funding` | Implemented |
 | 8.7 Protection against malware | No file execution and no user uploads that are stored. A scanned photograph is decoded in a Route Handler and dropped; `Scan` has no column an image could go in, asserted. | `app/api/scan/` | Implemented |
@@ -112,17 +112,17 @@ This is the theme where the work actually is, so it is the longest.
 | 8.17 Clock synchronisation | Platform time, UTC. Day boundaries are computed in the learner's own zone rather than the server's, which is a correctness rule with its own module. | `lib/time/day.ts` | Implemented |
 | 8.18 Use of privileged utility programs | The one workflow that maps a repository secret is the manual dictionary reseed, `workflow_dispatch` only, behind a typed confirmation, and it never pushes the schema. The deck audit workflow is written to the same rules and reports before it will delete anything. | `.github/workflows/seed-production.yml`, `audit-decks.yml` | Implemented |
 | 8.19 Software on operational systems | Deployment is a git push to the default branch through CI. Nothing installed by hand. | | Implemented |
-| 8.20 to 8.22 Network security and segregation | The application has one network boundary and no internal network of its own. Third parties reachable only from the server, enforced by the CSP naming no third party in `connect-src` and by an invariant. | `lib/security/headers.ts` | Implemented |
+| 8.20 to 8.22 Network security and segregation | The application has one network boundary and no internal network of its own. Third parties reachable only from the server, enforced by the CSP naming none of them in `connect-src` (the only origins in it are this one and the deployment's own Supabase project) and by an invariant. | `lib/security/headers.ts` | Implemented |
 | 8.23 Web filtering | Not applicable to a hosted web app with no outbound user-controlled fetching. The scan and news paths fetch from fixed hosts. | | Not applicable |
 | 8.24 Use of cryptography | TLS everywhere, HSTS preloaded. Bearer tokens compared with `timingSafeEqual` after a length check. No cryptography implemented here beyond that; sessions and password handling are Supabase's. | `app/api/metrics/route.ts`, `lib/security/headers.ts` | Partial |
-| 8.25 Secure development lifecycle | TypeScript strict with `noUncheckedIndexedAccess`, lint in the build rather than only in CI, a hermetic unit suite gating every commit, the invariant suite, and browser suites covering every route. | `next.config.ts`, `.github/workflows/ci.yml` | Implemented |
+| 8.25 Secure development lifecycle | TypeScript strict with `noUncheckedIndexedAccess`, lint in the build rather than only in CI, a hermetic unit suite gating every commit, the invariant suite (`npm run test:invariants`, which prints its own total), and browser suites covering every route. | `next.config.ts`, `.github/workflows/ci.yml` | Implemented |
 | 8.26 Application security requirements | Written down and asserted rather than described: never ship a credential to the client, every mutation through the forged request gate, no owner id from a caller, AI spending always metered, append-only tables. | `CLAUDE.md`, `scripts/test-invariants.ts` | Implemented |
 | 8.27 Secure system architecture | Trust boundaries documented, keyed services server only, defence in depth on CSRF, spend metered under a lock rather than by check-then-act. | `docs/27-security.md` section 2 | Implemented |
 | 8.28 Secure coding | Enforced by the invariant suite and the type system rather than by a style guide. A required field is used as the enforcement where a rule can be made unrepresentable. | `scripts/test-invariants.ts` | Implemented |
 | 8.29 Security testing | Automated: invariants, credential scan, dependency gates, browser suites including offline, restore, sign-in and accessibility. **No penetration test.** | `.github/workflows/ci.yml` | Partial |
 | 8.30 Outsourced development | None. | | Not applicable |
 | 8.31 Separation of environments | Preview deployments are disabled for agent branches so the deployment cap is spent on production. Browser suites build into their own output directory. Local mode is keyed on absent configuration and a configured deployment cannot be talked into it. | `vercel.json`, `next.config.ts`, `lib/auth/mode.ts` | Implemented |
-| 8.32 Change management | Pull requests, CI required, protected default branch. No formal change advisory board, which would be one person approving their own work. | GitHub | Partial |
+| 8.32 Change management | Pull requests with CI on every push. The default branch is not protected, so CI is not enforced at merge. No formal change advisory board, which would be one person approving their own work. | GitHub | Partial |
 | 8.33 Test information | Test fixtures are generated, never copied from production. The end-to-end suite and the demo fixture refuse to run against anything but a local database and say so rather than proceeding. | `scripts/demo-data.ts` | Implemented |
 | 8.34 Protection during audit testing | Not applicable. No audit has been run. | | Not applicable |
 
@@ -142,7 +142,7 @@ been performed, there is no Type I and no Type II report, and no service auditor
 | CC5 Control activities | Controls implemented in code and asserted, rather than described in a manual. | Implemented |
 | CC6 Logical and physical access | Authentication, authorisation, credential handling, device forgetting on sign-out, and privileged access that cannot be granted at runtime. Physical is inherited from Vercel and Supabase. | Implemented for logical, Inherited for physical |
 | CC7 System operations | Detection described honestly, incident response with runbooks per incident type, and a review step that asks why nothing caught it. Detection itself is weak: no continuous monitoring. | Partial |
-| CC8 Change management | CI-gated pull requests to a protected branch. No separate approval body. | Partial |
+| CC8 Change management | Pull requests with CI on every push, to a default branch that is not protected. No separate approval body. | Partial |
 | CC9 Risk mitigation | Spend caps that fail closed, rate limits, append-only tables that cannot be edited away, and a restore path that cannot rewrite the shared dictionary. Vendor risk is not formally assessed. | Partial |
 
 ### Availability
@@ -219,6 +219,10 @@ this before SOC 2, because the buyers who ask us for one ask for this one.
 
 *SOC 2 Type II* is what a North American enterprise buyer asks for. Trigger: a customer in that
 market whose contract value covers the observation window and the examination.
+
+`docs/33-certification-readiness.md` is the backlog under all four of those: the rows above that
+say Partial or Not done, with what would close it, how long it takes, what it costs, and the
+artifact an auditor would be shown. Twelve of its items need a decision and no budget at all.
 
 We would rather tell you the number and the trigger than imply a roadmap. If a certificate is a
 condition of your purchase and the purchase would fund it, that is a conversation worth having, and

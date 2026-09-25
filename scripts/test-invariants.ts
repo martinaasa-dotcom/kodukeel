@@ -18,7 +18,7 @@ import { GAP_MARKS, GAP_WITHOUT_MEANING, NEVER_SAYS_WHAT_IT_MEANS } from "../lib
  */
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { basename, dirname, join, normalize } from "node:path";
 import { ACTIVITIES } from "@/lib/course/types";
 
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
@@ -301,6 +301,75 @@ check("the keyed services are only ever reached from the server", () => {
     const hit = call.exec(read(file));
     assert.equal(hit, null, `${file} calls ${hit?.[2]} from the browser`);
   }
+});
+
+/*
+  THE SUPABASE BROWSER CLIENT IS FETCHED WHEN SOMEBODY SIGNS IN OR OUT.
+
+  The rail on every signed-in page imported it at the top of the file for its
+  Sign out button, so every page downloaded 254 KB of `@supabase/supabase-js`
+  and the Buffer polyfill it brings for a press most visits never make. The
+  sign-in form is the one screen whose job is the client, so it may import it;
+  everything else asks for it with `import()` at the moment it is needed.
+*/
+check("only the sign-in form imports the Supabase browser client up front", () => {
+  const STATIC = /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["'](?:@\/lib\/supabase\/client|@supabase\/(?:ssr|supabase-js))["']/;
+  const ALLOWED = ["app/(chromeless)/sign-in/SignInForm.tsx"];
+  const offenders = CLIENT.filter((file) => !ALLOWED.includes(file) && STATIC.test(code(file)));
+  assert.deepEqual(
+    offenders, [],
+    `a client file imports the Supabase browser client at the top, so every page that renders it downloads 254 KB for it: ${offenders.join(", ")}`,
+  );
+  for (const file of ALLOWED) {
+    assert.ok(STATIC.test(code(file)), `${file} is allowed the client and no longer imports it; take it off the list`);
+  }
+  const lazy = CLIENT.filter((file) => /\bimport\(\s*["']@\/lib\/supabase\/client["']\s*\)/.test(code(file)));
+  assert.ok(lazy.length >= 2, `only ${lazy.length} files fetch the client on demand, so this has lost the ones it was about`);
+});
+
+/*
+  THE COURSE HARVEST IS A SERVER FILE, AND ONE IMPORT PUT IT ON EVERY PAGE.
+
+  The signed-in shell mounts `components/course/ModuleScope.tsx`, which took
+  three small helpers from the `lib/course` barrel. The barrel re-exports
+  `build.ts`, which imports `prisma/data/harvested.ts`, and it runs
+  `buildProgrammes()` when it loads. A side effect at the top of a module is
+  the one thing tree-shaking cannot drop, so every signed-in page downloaded
+  916 KB of forms, usages and Russian and Ukrainian glosses and built all 289
+  evenings of the course on the main thread. Measured: about 2 MB of script on
+  Today, 1 MB once the three imports named the modules they needed.
+
+  Two halves. A client file names `lib/course/focus`, `types` or `plan`
+  directly and never the barrel, which is the cause and is cheap to see here.
+  And the effect is asked of the bundle, by `scripts/check-bundle-data.mjs`,
+  after the build in the secrets job, because which module reaches the browser
+  is the bundler's decision and not something a source check can answer.
+*/
+check("no client file imports the course barrel, and the bundle is checked for the data", () => {
+  // An `import type` is erased before the bundler sees it, so only a runtime
+  // import can carry the barrel's side effect into the browser.
+  const barrel = /(?:^|\n)\s*(?:import|export)\s+(?!type\b)[^;]*?\bfrom\s+["']@\/lib\/course["']/;
+  const offenders = CLIENT.filter((file) => barrel.test(code(file)));
+  assert.deepEqual(
+    offenders, [],
+    `a client file imports @/lib/course, which builds the whole course from the harvest when it loads: ${offenders.join(", ")}`,
+  );
+  assert.ok(
+    CLIENT.some((file) => /\bfrom\s+["']@\/lib\/course\/(focus|types|plan)["']/.test(code(file))),
+    "no client file names a lib/course module directly any more, so this check has lost what it was guarding",
+  );
+  assert.match(
+    code("lib/course/index.ts"), /buildProgrammes\(\)/,
+    "lib/course/index.ts no longer builds the course when it loads; if that is deliberate, this check can go",
+  );
+
+  const ci = read(".github/workflows/ci.yml");
+  const job = ci.slice(ci.indexOf("\n  secrets:"), ci.indexOf("\n  build:"));
+  const built = job.indexOf("npx next build");
+  const checked = job.indexOf("npm run check:bundle");
+  assert.ok(built > 0, "the secrets job no longer builds, so nothing is there to check the bundle of");
+  assert.ok(checked > built, "the secrets job does not run npm run check:bundle after its build");
+  assert.match(read("package.json"), /"check:bundle":\s*"node scripts\/check-bundle-data\.mjs"/);
 });
 
 // ── Never write Estonian, never generate morphology (ADR-005, ADR-017) ───────
@@ -2701,10 +2770,30 @@ check("the paper's pool is drawn from its own seed, not from what was read last"
     pool, /export async function examPool\([^)]*seed[^)]*\)/,
     "examPool no longer takes the paper's seed, so the pool is not a function of it",
   );
+  /*
+    The draw lives in `lib/exam/pool.ts` so a measurement can use it: the first
+    `measure:exam-volume` handed buildPaper the whole dictionary at every level
+    and reported an A1 paper full of C1 words. So the app draws through the
+    rule, the rule shuffles on the seed, and the script draws through the same
+    rule rather than a copy of it.
+  */
   assert.match(
-    pool, /shuffle\(/,
-    "the exam pool no longer draws with the seed",
+    pool, /drawPool\(ids, level, seed\)/,
+    "the exam pool no longer draws through lib/exam/pool.ts with the paper's seed",
   );
+  assert.match(pool, /eligibleLevels\(level\)/, "the exam pool decides its own bands again");
+  assert.match(
+    pool, /eligibleFor\(level, null\)/,
+    "the exam pool decides for itself whether an ungraded entry is in, so the app and the measurement can disagree",
+  );
+  const rule = code("lib/exam/pool.ts");
+  assert.match(
+    rule, /shuffle\(\[\.\.\.orderedIds\], rng\(seedFrom\(`pool:\$\{level\}:\$\{seed\}`\)\)\)/,
+    "the pool rule no longer shuffles on the paper's own seed",
+  );
+  const measure = code("scripts/measure-exam-volume.ts");
+  assert.match(measure, /drawPool\(/, "measure:exam-volume builds a pool the app does not draw");
+  assert.match(measure, /eligibleFor\(level/, "measure:exam-volume stopped filtering the pool to the level");
 });
 
 check("a mock exam writes to the same review log as every other mode", () => {
@@ -3615,6 +3704,27 @@ check("there is one shuffle, and the sort-comparator kind is not a shuffle at al
       + `ranges happen not to overlap.`,
     );
   }
+
+  /*
+    AND THE FOURTH SHAPE, WHICH HAS NO NAME AT ALL.
+
+    The two arms above catch a function called `shuffle` and a random key
+    sorted on, and neither can see Fisher-Yates written straight into a
+    `useMemo`: no function, no key, just the draw that is the whole algorithm.
+    The sentence round's tiles were shuffled that way, a ninth copy, under a
+    rule this file says is asserted both ways. The draw is the tell, a random
+    index scaled to one past the loop counter, and it is read in every file.
+  */
+  const inline = ALL.filter((file) => file !== SHUFFLE_HOME && file !== EXCEPTION)
+    .filter((file) => /\brandom\(\)\s*\*\s*\(\s*\w+\s*\+\s*1\s*\)/.test(code(file)));
+  assert.deepEqual(
+    inline, [],
+    `a Fisher-Yates written inline rather than called. Use shuffle() from ${SHUFFLE_HOME}.`,
+  );
+  assert.match(
+    code(SHUFFLE_HOME), /\brandom\(\)\s*\*\s*\(\s*\w+\s*\+\s*1\s*\)/,
+    "the one shuffle no longer draws the way this check looks for, so the inline arm checks nothing",
+  );
 
   // And the exception carries its reason, so nobody reads it as an oversight.
   assert.match(
@@ -4974,6 +5084,37 @@ check("the app does not talk about itself the way a brochure would", () => {
 
 // ── The browser suites, and the two ways one can lie ─────────────────────────
 
+/*
+  A UNIT TEST STATES ITS MACHINE, AND THE ZONE IS PART OF THE MACHINE.
+
+  CI runs in UTC. Three clock tests built their dates with `Date.UTC` and read
+  them back through formatters that honour the reader's zone, so they passed
+  in CI and failed on `npm test` in Tallinn, which is where this suite is run.
+  The unit config pins a zone that is neither UTC nor anybody's, so an
+  assumption about the zone fails everywhere rather than only off CI. Removing
+  the line or pinning UTC would put the suite back to measuring its host.
+*/
+check("the unit suite runs in a fixed zone that is not UTC, and a locale that is not English", () => {
+  const config = code("vitest.config.mts");
+  const zone = /process\.env\.TZ\s*=\s*["']([^"']+)["']/.exec(config)?.[1];
+  assert.ok(zone, "vitest.config.mts no longer pins a time zone, so the unit suite measures whatever zone its host is in");
+  assert.ok(
+    !/^(UTC|GMT|Etc\/(UTC|GMT)|Europe\/London|Africa\/Abidjan)$/.test(zone!),
+    `vitest.config.mts pins ${zone}, which is CI's own zone: a test that assumes UTC would pass there and fail on a laptop in Tallinn`,
+  );
+  /*
+    And the locale, which is the same fault one setting over: `nextCardLine`
+    took its weekday from the host and wrote "comes back on laupäev" in
+    Tallinn while CI, in English, passed.
+  */
+  const lang = /process\.env\.LC_ALL\s*=\s*["']([^"']+)["']/.exec(config)?.[1];
+  assert.ok(lang, "vitest.config.mts no longer pins LC_ALL, so a formatter handed no locale reads whatever the host speaks");
+  assert.ok(
+    !/^(C|POSIX|en)([_.-]|$)/i.test(lang!),
+    `vitest.config.mts pins ${lang}, which is CI's own language: a string that forgets to say it is English passes there`,
+  );
+});
+
 check("no browser suite hardcodes one machine's Chromium", () => {
   /*
     Every one of these was written inside a sandbox that ships Chromium at a
@@ -5114,6 +5255,128 @@ check("a check a state cannot reach is waived by number, never by a printed word
       assert.match((waiver[1] ?? "").trim(), /^[1-9]\d*$/, `${file} waives a count that is not a positive number`);
     }
   }
+});
+
+check("a check over a list says the list was there", () => {
+  /*
+    `EVERY` ON NOTHING IS TRUE, AND THE CHECK BESIDE IT IS WHAT HIDES THAT.
+
+    Three suites had the same shape and it was found one file at a time.
+    `test-edit.mjs` asserted that a rename left an attested sentence exactly as
+    recorded, over a list of gap-fill cards that has always been empty, and
+    printed PASS with "0 gap-fill card(s)" beside it on every run there has
+    ever been. Its own header says so. And two checks below the fix the same
+    array was read the same way again, so a rename that failed outright still
+    reported that scheduling had survived it. `test-flash.mjs` had four of
+    them: a round that logged nothing failed one check about the log and
+    passed the four behind it, two vacuously and two through a disjunction.
+
+    What makes it worth a rule rather than a reading is the pairing. In every
+    case the suite already knew the list could be empty, because a check
+    somewhere above it asserts the length, and that check failing is exactly
+    the run where the ones below it stop meaning anything. One reported
+    failure, several unlooked things, which is the sentence
+    `scripts/lib/checks.mjs` opens with, arriving inside a check rather than
+    behind a gate.
+
+    So the haystack is narrow on purpose: a bare `.every()` on a name that the
+    same file elsewhere asks the length of. An `.every()` over an array
+    literal cannot be empty, and one over a name nobody counts is a name
+    nothing has raised a question about. Drawn any wider this would fire on
+    honest code, which is how a check stops being read.
+
+    AND THE COUNT HAS TO BE IN THE CONDITION, NOT ANYWHERE IN THE CALL, which
+    is how the first version of this missed the line it was written for.
+    `test-edit.mjs` printed the length in its *detail* string, the "0 cards"
+    that was the visible half of the bug, and a rule reading the whole call
+    took that label for a guard and waved the check through. A count beside
+    the verdict says how many there were; only a count inside the verdict
+    decides it.
+  */
+  const files = sourceFiles("scripts", /^test-.*\.mjs$|^e2e\.mjs$|^smoke-.*\.mjs$/);
+  assert.ok(files.length > 10, `only ${files.length} suites found, so this check stopped looking`);
+
+  let looked = 0;
+  for (const file of files) {
+    const source = code(file);
+    // Every `check(...)` call in the file, by paren depth, in order.
+    const calls: { at: number; body: string }[] = [];
+    for (const found of source.matchAll(/\bcheck\(/g)) {
+      let depth = 1;
+      let i = found.index + found[0].length;
+      for (; i < source.length && depth > 0; i += 1) {
+        if (source[i] === "(") depth += 1;
+        else if (source[i] === ")") depth -= 1;
+      }
+      calls.push({ at: found.index, body: source.slice(found.index, i) });
+    }
+
+    /*
+      The verdict, which is the second argument. Split at depth zero and
+      outside a string, since a label routinely carries a comma and a
+      condition routinely carries one inside a callback.
+    */
+    const verdict = (body: string) => {
+      const args: string[] = [];
+      let depth = 0;
+      let start = body.indexOf("(") + 1;
+      let quote = "";
+      for (let i = start; i < body.length - 1; i += 1) {
+        const c = body[i]!;
+        if (quote) {
+          if (c === "\\") i += 1;
+          else if (c === quote) quote = "";
+          continue;
+        }
+        if (c === '"' || c === "'" || c === "`") { quote = c; continue; }
+        if ("([{".includes(c)) depth += 1;
+        else if (")]}".includes(c)) depth -= 1;
+        else if (c === "," && depth === 0) { args.push(body.slice(start, i)); start = i + 1; }
+      }
+      args.push(body.slice(start, body.length - 1));
+      return args[1] ?? "";
+    };
+
+    for (const [n, call] of calls.entries()) {
+      const condition = verdict(call.body);
+      /*
+        A name, or a name spread into an array first: `[...sizes.keys()].every(`
+        is the same pass over nothing as `sizes.every(`, and the first version
+        of this only read the second, so the design suite's type floor went
+        through it.
+      */
+      const receivers = /(?:^|[^.\w)\]])([A-Za-z_$][\w$]*)\.every\(|\[\.\.\.([A-Za-z_$][\w$]*)(?:\.(?:keys|values|entries)\(\))?\]\.every\(/g;
+      for (const use of condition.matchAll(receivers)) {
+        const name = (use[1] ?? use[2])!;
+        looked += 1;
+        // Said in the same breath, in the verdict rather than beside it.
+        if (new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(condition)) continue;
+        /*
+          A `some` in the verdict says there was at least one, but only when
+          nothing is joined to it by `||`: `x.some(p) || x.every(q)` is still
+          true of an empty list, and read as a guard it waved exactly that shape
+          through.
+        */
+        if (new RegExp(`\\b${name}\\.some\\(`).test(condition) && !condition.includes("||")) continue;
+        /*
+          Counted by any other check in the file, before or after, which is the
+          file saying it can be empty. Only above was read at first, and a
+          length asked two checks further down says the same thing:
+          `strikes.every(...)` in the hint suite passed over an empty list with
+          `strikes.length` checked after it.
+        */
+        const counted = calls
+          .some((other, m) => m !== n && new RegExp(`\\b${name}\\.(?:length|size)\\b`).test(other.body));
+        if (!counted) continue;
+        assert.fail(
+          `${file}:${source.slice(0, call.at).split("\n").length} holds every ${name} to something, `
+          + `and another check asks how many ${name} there are. On the run where that one fails `
+          + `this passes over nothing: say \`${name}.length > 0 &&\` here, or waive it with absent().`,
+        );
+      }
+    }
+  }
+  assert.ok(looked > 8, `only ${looked} list checks found, so this check stopped looking`);
 });
 
 check("a rating key works wherever a rating button is drawn", () => {
@@ -6124,6 +6387,180 @@ check("every settings panel is on the settings screen", () => {
       `none of them, so whatever it does is unreachable. Render it, or delete the file.`,
     );
   }
+});
+
+/**
+ * AND THE HAYSTACK IS THE FILESYSTEM, BECAUSE THE NEXT ORPHAN IS NOT IN THAT
+ * FOLDER.
+ *
+ * The check above is right and it is one folder wide. `DangerZone.tsx` and
+ * `UsagePanel.tsx` happened to be in `app/(app)/settings/`, which is a fact
+ * about where that fault landed rather than about what it was: a component
+ * nobody draws looks exactly like a component nobody has pressed, anywhere in
+ * the tree, and the 162 component files outside that folder had nothing asking
+ * the question at all. A list is a thing somebody has to remember to extend,
+ * which is the argument every other sweep here makes about itself.
+ *
+ * Two arms, because either alone passes on the broken shape, and they fail on
+ * different halves of what went wrong:
+ *
+ *   The file is REACHED. Walk the imports from Next's own entry points, the
+ *   route files plus `middleware.ts` and `next.config.ts`, and a component file
+ *   the walk never arrives at is one the router cannot get to. That is
+ *   `DangerZone.tsx` exactly: complete, correct, imported by nothing, so no
+ *   amount of reading it says whether a learner could reach it.
+ *
+ *   The file is DRAWN. Something else in the tree uses one of its exports as an
+ *   element. Reachability alone cannot see a module that is imported and then
+ *   never rendered, which is the same silence one line later, and the element
+ *   rather than the import is the distinction the check above already draws: an
+ *   unused import is what a lint rule catches, a rendered-nowhere component is
+ *   what nothing did.
+ *
+ * A route file is its own entry point and is exempt by construction rather than
+ * by name: Next renders `page.tsx` because of where it sits, so nothing imports
+ * it and nothing draws it. A file exporting no component is not a component
+ * file and is not asked, which is what keeps the table in `icons.tsx` and the
+ * constants beside a panel out of it. Both arms carry the floor every sweep
+ * here carries, since a detector that stopped matching would assert nothing
+ * about 162 files and say so in the same words as a tree that is entirely fine.
+ */
+check("every component is reachable from a route and drawn by something", () => {
+  const ROUTE_FILE =
+    /^(page|layout|loading|error|not-found|global-error|template|default|route|opengraph-image|icon|apple-icon|sitemap|robots|manifest)$/;
+  const isRoute = (file: string) =>
+    ROUTE_FILE.test(basename(file).replace(/\.tsx?$/, ""));
+
+  const searched = [...ALL, "middleware.ts", "next.config.ts"];
+  const known = new Set(searched);
+  const body = new Map(searched.map((f) => [f, code(f)]));
+  /*
+    What the drawn arms read: the code with every string literal emptied. `code()`
+    strips comments and leaves strings, so `"<DeadPanel />"` in a label or a test
+    fixture read as the component being drawn, and an orphan passed on it. Made to
+    fail on exactly that before this went in. A single-quoted string is emptied
+    only where an expression starts, since `don't` in JSX text is an apostrophe,
+    and a template literal the same way and on one line, since one holding `${` is
+    not a string this can pair and a stray backtick would swallow the markup.
+    Imports are strings, which is why `body` keeps them and this is a second map.
+  */
+  const markup = new Map([...body].map(([f, src]) => [f, src
+    .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
+    .replace(/(?<=[=(,:[?{]\s*)`(?:[^`\\$\n]|\\.)*`/g, "``")
+    .replace(/(?<=[=(,:[?{]\s*)'(?:[^'\\\n]|\\.)*'/g, "''")]));
+  /*
+    What may count as drawing a component is what a learner can be shown. A
+    test renders a component to check it, which says nothing about whether any
+    screen does, so a component drawn only inside a `*.test.tsx` is drawn
+    nowhere. Made to fail on exactly that shape.
+  */
+  const drawers = searched.filter((f) => !/\.i?test\.tsx?$/.test(f));
+
+  /*
+    Next's own path aliases, which is `@/` off the repository root and the
+    ordinary relative import. A bare specifier is a package and leaves the tree.
+  */
+  const resolve = (from: string, spec: string): string | null => {
+    let base: string;
+    if (spec.startsWith("@/")) base = spec.slice(2);
+    else if (spec.startsWith(".")) base = normalize(join(dirname(from), spec));
+    else return null;
+    for (const ext of ["", ".tsx", ".ts", "/index.tsx", "/index.ts"]) {
+      if (known.has(base + ext)) return base + ext;
+    }
+    return null;
+  };
+
+  const imports = new Map<string, string[]>();
+  for (const [file, source] of body) {
+    const out = new Set<string>();
+    for (const m of source.matchAll(/(?:from\s+|import\s*\(\s*)["'`]([^"'`]+)["'`]/g)) {
+      const hit = resolve(file, m[1]!);
+      if (hit) out.add(hit);
+    }
+    imports.set(file, [...out]);
+  }
+
+  const reached = new Set<string>();
+  const stack = searched.filter(
+    (f) => isRoute(f) || f === "middleware.ts" || f === "next.config.ts",
+  );
+  assert.ok(stack.length >= 105, `only found ${stack.length} entry points, so this walk stopped looking`);
+  while (stack.length) {
+    const file = stack.pop()!;
+    if (reached.has(file)) continue;
+    reached.add(file);
+    for (const next of imports.get(file) ?? []) stack.push(next);
+  }
+
+  /*
+    A component name is capitalised and is not the SCREAMING_CASE a constant
+    beside it takes, which is what tells `RUNG_CHIP` from `Rung`.
+  */
+  const isComponent = (name: string) => /^[A-Z]/.test(name) && /[a-z]/.test(name);
+  let asked = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx") || isRoute(file)) continue;
+    const source = body.get(file)!;
+    const exported = [
+      ...source.matchAll(/export\s+(?:async\s+)?(?:function|const)\s+([A-Z]\w*)/g),
+    ].map((m) => m[1]!).filter(isComponent);
+    const fallback =
+      source.match(/export\s+default\s+(?:async\s+)?function\s+([A-Z]\w*)/) ??
+      source.match(/export\s+default\s+([A-Z]\w*)\s*[;\n]/);
+    if (fallback && isComponent(fallback[1]!)) exported.push(fallback[1]!);
+    if (!exported.length) continue;
+    asked += 1;
+
+    assert.ok(
+      reached.has(file),
+      `${file} exports ${exported.join(", ")} and no route imports it, directly or through ` +
+      `anything a route imports, so the router cannot reach it. Whatever it does, nobody has. ` +
+      `Wire it to a screen, or delete the file.`,
+    );
+    /*
+      A `<` right after an identifier or a closing bracket is a type argument,
+      not an element: `useState<Foo>` and `Array<Foo>` end in `>`, which the
+      class accepts, so a component imported and rendered nowhere passed this
+      arm the moment its name appeared once as a type. Made to fail on exactly
+      that shape before the lookbehind went in.
+    */
+    /*
+      Drawn by a file that imports this one, not by any file at all. A name is
+      not unique across the tree: four files draw a local `Row`, so an
+      orphaned component exporting `Row` passed on their say-so. Made to fail
+      on exactly that before the import went in.
+    */
+    const importsThis = (other: string) => (imports.get(other) ?? []).includes(file);
+    assert.ok(
+      exported.some((name) =>
+        drawers.some((other) =>
+          other !== file && importsThis(other) &&
+          new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(markup.get(other)!)),
+      ),
+      `${file} exports ${exported.join(", ")} and nothing in the tree draws any of them as an ` +
+      `element, so it is imported and rendered nowhere, which is the same silence one line later. ` +
+      `Draw it, or delete the file.`,
+    );
+    /*
+      And every one of them, not just one: a file whose first component is on
+      a screen and whose second is drawn nowhere passes the arm above, which
+      reads the file rather than the export. Its own file counts here, since a
+      part drawn only inside the component beside it is drawn.
+    */
+    const undrawn = exported.filter(
+      (name) => !drawers.some((other) =>
+        (other === file || importsThis(other)) &&
+        new RegExp(`(?<![\\w$.)\\]])<${name}[\\s/>]`).test(markup.get(other)!)),
+    );
+    assert.deepEqual(
+      undrawn,
+      [],
+      `${file} exports ${undrawn.join(", ")} and nothing in the tree draws it as an element, ` +
+      `while the file's other export is on a screen. Draw it, or delete it.`,
+    );
+  }
+  assert.ok(asked >= 150, `only found ${asked} component files, so this sweep stopped looking`);
 });
 
 /**
@@ -10103,6 +10540,26 @@ check("a date is written in the reader's own locale, not the server's", () => {
   );
 });
 
+check("the exam date a learner set is printed with its year", () => {
+  /*
+    A goal date is not today's date. First run lets a learner put it a year or
+    more out, and the countdown card on the examination hub printed it as a day
+    and a month: "Your date: September 22" over a deadline in the following
+    September reads as this week. Both halves are read, the `LocalDate` options
+    and the server's fallback, because the fallback is what a reader sees until
+    the browser takes over and a year on one of them is a year on neither.
+  */
+  const source = code("components/ExamCountdown.tsx");
+  const options = source.match(/<LocalDate[\s\S]*?\/>/)?.[0] ?? "";
+  assert.ok(options.length > 0, "ExamCountdown no longer draws the goal date through LocalDate");
+  const yearNamed = options.match(/year: "numeric"/g) ?? [];
+  assert.equal(
+    yearNamed.length, 2,
+    "ExamCountdown prints the goal date without its year in the LocalDate options or its fallback, "
+    + "so a deadline a year out reads as this week",
+  );
+});
+
 /*
   A CONTROL LOOKS LIKE A CONTROL, AND A CHOSEN ONE LOOKS CHOSEN.
 
@@ -13268,6 +13725,62 @@ check("a wrong answer records the form it reached for, and only between forms", 
   }
 });
 
+check("asking Anu with no connection is refused where the question is sent, and said on every surface", () => {
+  /*
+    docs/08-ux-ia-a11y.md §4 lists "Anu needs a connection" as a state of its
+    own, and asking offline used to type the question, wait on a fetch that
+    could never land, and only then read that the connection was lost
+    mid-answer. The first repair gated the send buttons on the page at
+    /tutor and left two doors open: the "check this sentence" send on that
+    same page, and the whole of the panel in the corner of every signed-in
+    screen, which is where most questions are asked.
+
+    So the refusal lives in `useAnuChat`'s own `send`, which every door calls,
+    and the sentence saying why is one drawing in AnuParts that every surface
+    holding the hook renders. Read for the call and the element rather than
+    the import, since a file that imports the notice and never draws it is the
+    same silence.
+  */
+  const hook = code("components/anu/useAnuChat.ts");
+  assert.match(hook, /useOffline\(\)/, "useAnuChat no longer reads the connection");
+  const sendAt = hook.indexOf("const send = ");
+  assert.ok(sendAt >= 0, "useAnuChat no longer defines send, so this check is looking in the wrong place");
+  const sendHead = hook.slice(sendAt, hook.indexOf("fetch(", sendAt));
+  assert.match(sendHead, /!\s*online/, "useAnuChat's send reaches the network without asking whether there is one");
+
+  const surfaces = sourceFiles("app", /\.tsx$/)
+    .concat(sourceFiles("components", /\.tsx$/))
+    .filter((file) => /\buseAnuChat\(/.test(code(file)));
+  assert.ok(surfaces.length >= 2, `only ${surfaces.length} surface(s) hold useAnuChat; the page and the panel both should`);
+  const silent = surfaces.filter((file) => !/<AnuOffline\b/.test(code(file)));
+  assert.deepEqual(silent, [], `a surface asks Anu without saying she needs a connection: ${silent.join(", ")}`);
+
+  /*
+    And a door that empties a box asks whether the question was taken first.
+    Every one of them used to call send and clear in the next statement, so
+    pressing Enter offline deleted the question with nothing sent. Guarding
+    each door on `online` fixed that case and left the other: send also
+    refuses while Anu is still answering, and Enter on the next question typed
+    mid-answer still cleared it. So send says whether it took the question,
+    and a door reads that answer rather than guessing why it might say no.
+    `void send(` is the shape that throws the answer away, and every other
+    call has to be the condition of an `if`. That covers the sentence check,
+    which sends `sentenceCheckPrompt(...)` and then empties two boxes, as
+    well as the question box.
+  */
+  assert.match(
+    hook.slice(sendAt, hook.indexOf("=>", sendAt) + 2),
+    /\):\s*boolean\s*=>/,
+    "useAnuChat's send no longer says whether it took the question, so a door cannot know whether to clear",
+  );
+  const doors = surfaces.flatMap((file) =>
+    [...code(file).matchAll(/([^\n]{0,8})\bsend\(/g)].map((m) => ({ file, before: m[1]! })),
+  );
+  assert.ok(doors.length >= 6, `only ${doors.length} send door(s) found on the page and the panel; the pattern moved`);
+  const blind = doors.filter((d) => !/\bif \(!?$/.test(d.before)).map((d) => `${d.file} (${d.before.trim()}send()`);
+  assert.deepEqual(blind, [], `a door sends without reading whether the question was taken: ${blind.join(", ")}`);
+});
+
 /**
  * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
  *
@@ -13743,15 +14256,45 @@ check("each routed purpose asks for its own chain", () => {
  * checks in this file are.
  */
 check("a metered route asks the ledger before offering a last resort", () => {
-  const routes = [
-    "app/api/scene/route.ts",
-    "app/api/scan/route.ts",
-    "app/api/write/route.ts",
-    "app/api/describe/route.ts",
-    "app/api/exam/write/route.ts",
-  ];
-  for (const file of routes) {
-    const src = code(join(...file.split("/")));
+  /*
+    THE HAYSTACK IS THE FILESYSTEM, BECAUSE THE LIST WAS SHORT AND NOBODY COULD
+    SEE IT.
+
+    This named five routes, and the fifth grader was not one of them:
+    `lib/tutor/translate.ts` is the dictionary's translation fallback, metered
+    as a GRADER call like the other four, and it built its chain *before*
+    `authoriseCall` and never rebuilt it. So `allowFallback` took its default
+    of true and the dear tail was on the chain whatever the ledger said, on the
+    one metered path a stranger reaches from the search box. Nothing failed,
+    which is the whole shape of it: the answer arrives either way and the only
+    symptom is a day of Groq being down becoming a day of Anthropic billing.
+
+    So the rule is asked of every file that spends: one that calls
+    `authoriseCall` and builds a provider chain has to hand the ledger's own
+    verdict to the chain. A file added later is in the haystack by existing,
+    which is the thing a list cannot do.
+  */
+  const BUILDS_CHAIN = /(resolveProviders|sceneProviders|visionProviders)\s*\(/;
+  const spenders = ALL.filter((file) => {
+    const src = code(file);
+    return /\bauthoriseCall\s*\(/.test(src) && BUILDS_CHAIN.test(src);
+  });
+  // A floor, because a sweep that matches nothing passes in silence.
+  assert.ok(
+    spenders.length >= 6,
+    `only ${spenders.length} metered chain-builders found; the sweep has stopped seeing them.`,
+  );
+  for (const file of spenders) {
+    const src = code(file);
+    /*
+      Anu is the one exemption and it is a property of the file rather than its
+      name: her purpose refuses the fallback inside `resolveProviders`, so there
+      is no verdict for her route to pass on. A file that builds any other chain
+      loses the exemption by doing so.
+    */
+    const tutorOnly = [...src.matchAll(/(resolveProviders|sceneProviders|visionProviders)\s*\(([^)]*)/g)]
+      .every((m) => /purpose:\s*"tutor"/.test(m[2] ?? ""));
+    if (tutorOnly) continue;
     assert.match(
       src,
       /allowFallback:\s*decision\.fallbackAllowed/,
@@ -13760,6 +14303,34 @@ check("a metered route asks the ledger before offering a last resort", () => {
       "a day of Groq being down becomes a day of Anthropic billing.",
     );
   }
+
+  /*
+    Per call rather than per file, because a file that passes the verdict once
+    satisfies the match above however many chains it builds. The scene route
+    asks the ledger three times and builds a chain after each, so a fourth build
+    written without the verdict would sit behind the three that have it and
+    pass. Every build after the file's first ledger call has to carry it, unless
+    it is only asking whether anything is configured, which is what `.length`
+    and a head read for its name are; a head that is then called is a chain,
+    and is what the verdict exists to bound.
+  */
+  const unguarded: string[] = [];
+  for (const file of spenders) {
+    const src = code(file);
+    const firstAsk = src.search(/\bauthoriseCall\s*\(/);
+    for (const m of src.matchAll(/(resolveProviders|sceneProviders|visionProviders)\s*\(([^)]*)\)(\s*(?:\.length|\[0\]))?/g)) {
+      if (m.index! < firstAsk) continue;
+      if (/purpose:\s*"tutor"/.test(m[2] ?? "")) continue;
+      if (m[3]) continue;
+      if (/allowFallback:\s*decision\.fallbackAllowed/.test(m[2] ?? "")) continue;
+      unguarded.push(`${file}:${src.slice(0, m.index).split("\n").length}`);
+    }
+  }
+  assert.deepEqual(
+    unguarded,
+    [],
+    `a chain built after asking the ledger does not carry its verdict: ${unguarded.join(", ")}`,
+  );
 
   /*
     And Anu never gets one. Anthropic is her primary, so the only thing behind
@@ -13885,6 +14456,170 @@ check("every free provider the app would ask, a measuring script can ask too", (
       "write Estonian rather than as a harness that would not let it finish.",
     );
   }
+
+});
+
+check("the route and every harness build a governed verb the same way", () => {
+  /*
+    The route built its table of governed verbs in lib/progress/scene.ts and
+    the harness built its own in scripts/lib/sceneDraft.ts, and the harness's
+    had lost the place cases and the derived persons: `Minge otse edasi ja
+    siis vasakule.` was withheld in every measurement while the route passed
+    it. Both go through `governedWord` now, and neither may read a government
+    for itself.
+  */
+  for (const file of ["lib/progress/scene.ts", "scripts/lib/sceneDraft.ts"]) {
+    const src = code(file);
+    assert.match(src, /\bgovernedWord\(\{/, `${file} no longer builds its governed verbs through governedWord`);
+    assert.doesNotMatch(src, /\bparseGovernment\(/, `${file} reads a government for itself again, beside governedWord`);
+  }
+});
+
+check("a measurement sends what the route sends, and reads what it reads", () => {
+  /*
+    AND NO HARNESS SENDS A TEMPERATURE, BECAUSE THE APP NAMES THE FIELD ON NO
+    PATH. `callOpenAiCompatible` and `geminiCachedReply` are every socket the
+    app opens to a model and neither names it, so every line a learner reads
+    is composed at the provider's own default. Two harnesses named it anyway:
+    `sceneDraft.ts` composed at 0.8 on both call sites, and `play-scene.ts`
+    judged at 0. Neither is a knob somebody swept and pinned.
+
+    It is the `max_tokens` fault one field over and it fails in the flattering
+    direction, which is what makes it a check rather than a comment: a cooler
+    composer reaches outside the scene's word list less often, so the gate
+    withholds less than it does live and `eval:scene` reports a rate the
+    deployment does not have. The sharpest statement of it was inside
+    `askLine`, whose own comment says "Same function, same shape": its Gemini
+    branch goes through the app's `geminiCachedReply` and sent none, and the
+    branch under it sent 0.8.
+
+    Asked of every harness that opens its own socket, rather than of the two
+    that were wrong, because `eval:composers` and `eval:thinking` are right
+    today and a rule that names only the offenders is one the next harness is
+    written outside of.
+  */
+  /*
+    The haystack is every script, not the four that call a model today. The
+    paragraph above argues exactly that and the first version was a list of
+    four, so a fifth harness was outside the rule by being new. Nothing in
+    scripts/ has a reason to name the field, and a harness that does not open
+    a model socket passes by not naming it.
+  */
+  const harnesses = sourceFiles("scripts", /\.(ts|mjs)$/).filter((f) => f !== "scripts/test-invariants.ts");
+  assert.ok(harnesses.length >= 40, `only ${harnesses.length} scripts found, so this sweep stopped looking`);
+  for (const file of harnesses) {
+    assert.doesNotMatch(
+      code(file),
+      /temperature:/,
+      `${file} sends a temperature of its own. The app names the field on no path, so a ` +
+      "line composed or judged with one is measured at a setting no learner meets, and the " +
+      "bias is toward the flattering answer: a cooler composer reaches outside the word " +
+      "list less often and the gate withholds less than it does live.",
+    );
+  }
+
+  /*
+    AND A HARNESS TELLS A RETRY WHAT THE ROUTE TELLS IT, WHICH IS `retryNote`.
+    (What it tells, not how often: the harnesses retry once where the route
+    tries up to `MAX_COMPOSE_ATTEMPTS` times and adds `whyWithheld`.)
+
+    `vouching` and `stretch` had one word-set between them until the split gave
+    them one each, and the app grew `retryNote` to choose: a word nothing can
+    vouch for is dropped, and a line that reached too far is asked for fewer
+    new words rather than sent hunting for a synonym that is equally new. Both
+    harnesses kept reading the pre-split field. `eval:scene` passed `unknown`
+    flat, which after the split is empty on nearly every withheld line, so the
+    retry was told nothing; `draft:lines` retried only where `unknown` was
+    non-empty, so a line withheld for `stretch` was never retried at all and
+    the bank was drafted without the rescue the route gives it.
+  */
+  for (const file of ["scripts/eval-scene.ts", "scripts/draft-lines.ts"]) {
+    const text = code(file);
+    assert.match(
+      text,
+      /retryNote\(/,
+      `${file} no longer asks retryNote what to tell a retry, so it names a set of its own ` +
+      "and measures a retry the route does not make.",
+    );
+    assert.doesNotMatch(
+      text,
+      /compose\([^)]*\bverdict\.unknown\b|compose\([^)]*\bfirst\.unknown\b/,
+      `${file} retries on the raw unknown set. Since the vouching split that is "not ` +
+      'Estonian at all" rather than "off the list", so it is empty on nearly every ' +
+      "withheld line and the retry is told nothing.",
+    );
+  }
+
+  /*
+    AND A COMPOSED LINE IS GATED THE WAY THE ROUTE GATES IT, WHICH IS THREE
+    THINGS. The route hands the gate `gateFor` (so the register curveball is
+    not judged by the one check it cannot pass), the beat's own `topic` (the
+    check that withholds most live lines), and a `vouched` reader backed by the
+    forms list (so `vouching` asks whether a spelling is Estonian rather than
+    whether this scene teaches it). `eval:composers` had none of the three and
+    ranked two models two and a half times apart that the real gate puts level;
+    `eval:thinking` had none of them either and switched vouching off outright
+    with `vouched: () => true`, on the measurement the thinking-off decision in
+    CLAUDE.md was made on. Asked of every harness that gates a line a model
+    composed, since a harness gated its own way measures a gate the app does
+    not run. The banked-line tools are not in the list: a line drafted ahead is
+    held to the scene's own list on purpose, and `bank.test.ts` asks that.
+  */
+  /*
+    AND THROUGH ONE FUNCTION, `routeGate`, because the three had drifted three
+    ways. The first version of this arm asked each file for the pieces by
+    name, and `eval-scene.ts` passed it with its own local function called
+    `gateFor`, which skipped the register switch the library's applies: the
+    name satisfied the check and the behaviour did not. And no harness passed
+    `answers`, so `giveaway` was off in every measurement of the composer. So
+    the pieces are asked of `routeGate` once, and every `runGate` in a harness
+    has to go through it.
+  */
+  const helper = between(code("scripts/lib/sceneDraft.ts"), "export async function routeGate(");
+  for (const [piece, why] of [
+    [/return gateFor\(beat\.id,/, "the register switch, so the register curveball is judged by the one check it cannot pass"],
+    [/topic:\s*new Set\(\[\.\.\.topicForms\(beat, lexicon\), \.\.\.bankTopic\(scene, beat\)\]\)/,
+      "the route's topic (the beat's lemmas and its banked lines' words, lib/progress/scene.ts), so it counts topic refusals the app never makes"],
+    [/answers:\s*answerForms\(beat, lexicon\)/, "the forms the beat is about to ask for, so `giveaway` never fires"],
+    [/await vouchOf\(lexicon, words\(text\)\)/, "the forms list behind vouching"],
+    [/vouched:\s*\(word: string\) => vouched\.has\(word\)/, "the forms list behind vouching"],
+  ] as const) {
+    assert.match(helper, piece, `routeGate in scripts/lib/sceneDraft.ts no longer hands the gate ${why}`);
+  }
+  for (const file of ["scripts/eval-scene.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts"]) {
+    const text = code(file);
+    const gates = [...text.matchAll(/runGate\(/g)].length;
+    assert.ok(gates >= 1, `${file} no longer calls runGate, so this stopped reading it`);
+    assert.equal(
+      [...text.matchAll(/runGate\([^;]*?\brouteGate\(/g)].length, gates,
+      `${file} gates a composed line without routeGate, so it measures a gate the app does not run`,
+    );
+    assert.doesNotMatch(text, /\bconst\s+(?:gateFor|routeGate)\s*=/, `${file} defines its own gate builder, which is how the last one lost the register switch`);
+    assert.doesNotMatch(text, /vouched:\s*\(\)\s*=>\s*true/, `${file} switches vouching off, so it measures a gate with one check missing`);
+  }
+
+  /*
+    AND THE RANKED LIST RANKS WHAT ITS OWN CAPTION SAYS. `eval:scene` prints
+    the words a model reached for that the scene could not vouch for, and
+    CLAUDE.md says to read that list rather than the rate: it is the
+    instrument that found the missing connectives unit. It counted `unknown`,
+    which the split turned into "not a word in the language", so real Estonian
+    the course does not teach stopped reaching it and the commonest thing that
+    did was a model leaking its English deliberation into `content`. Measured
+    on the run that found this: one line of 276 leaked, and that one line was
+    the whole list, `yes 40  wait 17  words 17  the 16`, every entry starred
+    as a word the syllabus ought to teach.
+  */
+  {
+    const evalScene = code("scripts/eval-scene.ts");
+    assert.match(
+      evalScene,
+      /for \(const word of first\.stretched\)/,
+      "scripts/eval-scene.ts no longer ranks `stretched`. `unknown` is what nothing could " +
+      "vouch for as Estonian, so a list built from it ranks hallucinations and leaked " +
+      "reasoning rather than the vocabulary gap the caption under it promises.",
+    );
+  }
 });
 
 check("the scene gate has one implementation, and a line says where it came from", () => {
@@ -13899,6 +14634,15 @@ check("the scene gate has one implementation, and a line says where it came from
     evalScript,
     /function runGate\(/,
     "scripts/eval-scene.ts has its own gate again. There is one, in lib/scenes/gate.ts.",
+  );
+  // The rate is only the route's if the question is the route's: the prompt
+  // `askLine` builds, and the retries the route makes with the reason it gives.
+  assert.match(evalScript, /askLine\(/, "scripts/eval-scene.ts composes through something other than the route's prompt");
+  assert.doesNotMatch(evalScript, /\bcompose\(/, "scripts/eval-scene.ts asks a model with a prompt of its own again");
+  assert.match(
+    evalScript,
+    /MAX_COMPOSE_ATTEMPTS[\s\S]{0,400}whyWithheld\(/,
+    "scripts/eval-scene.ts no longer retries the way the route does, as many times and told why",
   );
 
   const line = code("lib/scenes/line.ts");
@@ -15006,13 +15750,29 @@ check("a value off the card is graded, and only where which word is certain", ()
     "a value off the card writes no review row again, so a scene made of card values grades nothing",
   );
   assert.match(
-    grades, /if \(!prop \|\| prop\.lemmas\.length === 0\) return null;/,
+    grades, /if \(lemmas\.length === 0\) return null;/,
     "a slot holding a clock time or a code is graded as a word, which nobody holds a card for",
   );
   assert.match(
     grades, /return wrote\.length === 1 \? wrote\[0\]! : null;/,
-    "a slot naming two words no longer has to resolve to one, so the log can claim a recall of a "
-    + "word the learner never wrote",
+    "a candidate list naming two words no longer has to resolve to one, so the log can claim a "
+    + "recall of a word the learner never wrote",
+  );
+  /*
+    AND THE BEAT'S OWN WORDS TAKE THE SAME RULE, which for a year they did not.
+    The `lemma` branch wrote `oneOf[0]` under a comment saying the turn does
+    not say which was taken. It does, and `satisfiedBy` is where: 60 of the
+    catalogue's 61 `lemma` requirements name more than one word and the health
+    centre's names ten, so a learner who wrote `Mu selg valutab` had `pea`
+    written into the append-only log as a recall. Both branches read one
+    resolver now, anchored on the call rather than on the helper, because a
+    branch that keeps its own first-candidate line satisfies any check that
+    only greps for the function.
+  */
+  assert.match(
+    grades, /oneOfProduced\(need\.oneOf, producedFor\(index\), lexicon\)/,
+    "a beat naming several words credits the first of them again, so the review log claims a "
+    + "recall of a word the learner never wrote",
   );
   /*
     And the caller hands over both, which is where the whole fault lived: the
@@ -17898,19 +18658,45 @@ check("an option is one control, and the number that picks it is one cap", () =>
   more are exempt by name and both are a decision rather than an omission.
 */
 check("a control says what it does under a pointer", () => {
-  /* The scrim behind the phone sheet is a close target rather than a control
-     with a label, and the palette's rows are painted from `active`, which the
-     arrow keys move too: a CSS hover there would let the pointer and the
-     keyboard disagree about which row is next. */
-  const EXEMPT = new Set(["components/Sidebar.tsx", "components/CommandPalette.tsx"]);
+  /*
+    Two controls are exempt, and they are exempt as controls rather than as
+    files.
+
+    The scrim behind the phone sheet is a close target rather than a control
+    with a label, and the palette's rows are painted from `active`, which the
+    arrow keys move too: a CSS hover there would let the pointer and the
+    keyboard disagree about which row is next. Both of those are arguments
+    about one button, and this was written as a `Set` of the two filenames, so
+    what it actually excused was every control in `Sidebar.tsx` and
+    `CommandPalette.tsx`: the rail's own cells, both crosses on the sheet, and
+    the icon button at the foot of the column. Nothing is wrong in either file
+    today, which is the state a file-wide exemption is invisible in: it costs
+    nothing until somebody adds a control to one of them, and then it costs
+    that control silently. It is the `only` list `lib/ekilex/client.ts` gets
+    from the phrase rule, which excuses one key rather than a whole file.
+
+    And it is checked for staleness in both directions, because an exemption
+    naming a control that has gone is the parking space the next person puts
+    their own button in.
+  */
+  const EXEMPT = new Map([
+    ["components/Sidebar.tsx", /className="flex-1"/],
+    ["components/CommandPalette.tsx", /tabIndex=\{-1\}/],
+  ]);
   const answers = /press|tap-tint|choice-btn|hover:|nav-cell|letter-key|underline|group/;
   const button = /<button\b((?:[^>{]|\{[^{}]*\}|\{\{[^{}]*\}\})*?)>/gs;
   let drawn = 0;
+  const excused = new Map([...EXEMPT.keys()].map((f) => [f, 0]));
   for (const file of [...APP, ...COMPONENTS]) {
-    if (EXEMPT.has(file)) continue;
     const source = code(file);
+    const only = EXEMPT.get(file);
     for (const match of source.matchAll(button)) {
-      const className = /className="([^"]*)"/.exec(match[1] ?? "");
+      const attributes = match[1] ?? "";
+      if (only?.test(attributes)) {
+        excused.set(file, (excused.get(file) ?? 0) + 1);
+        continue;
+      }
+      const className = /className="([^"]*)"/.exec(attributes);
       if (!className) continue;
       drawn += 1;
       assert.match(
@@ -17920,6 +18706,14 @@ check("a control says what it does under a pointer", () => {
           + "`.tap-tint` for a bare row or an icon button, `.choice-btn` for a box.",
       );
     }
+  }
+  for (const [file, hits] of excused) {
+    assert.equal(
+      hits, 1,
+      `${file} is excused one control from the pointer rule and ${hits} match the exemption. `
+        + "One means the argument still has its subject; none means it is stale and the next "
+        + "button added there inherits a waiver nobody wrote for it.",
+    );
   }
   assert.ok(drawn >= 25, `only ${drawn} hand-drawn controls found; the sweep has stopped seeing them`);
 });
