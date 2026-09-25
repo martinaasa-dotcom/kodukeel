@@ -215,6 +215,50 @@ describe("complementary suppression", () => {
     expect(forwards).not.toContain("B1");
     expect(forwards).toContain("A2");
   });
+
+  it("hides a second mature figure when a group hid exactly one", () => {
+    /*
+      The mature column is a table of its own with the same totals problem.
+      The `case` section publishes the partitive's mature answers, so a row of
+      `case_by_level` publishing every level's mature figure but one hands the
+      missing one back by subtraction: here that is B1's, which rests on two
+      people. The whole cells all pass, so the pass over `all` never fires.
+    */
+    const mature = (level: string, people: number, each: number, maturePeople: number) =>
+      group(level, people, each).map((r, i) => ({
+        ...r,
+        matureReviews: i < maturePeople ? each : 0,
+        matureCorrect: i < maturePeople ? each : 0,
+      }));
+    const section = buildSection(CROSSTAB, [
+      ...mature("A1", 40, 20, 40),
+      ...mature("A2", 30, 20, 30),
+      ...mature("B1", 20, 10, 2), // mature half withheld: two people
+    ]);
+    expect(section.cells).toHaveLength(3);
+    const withheld = section.cells.filter((c) => c.mature === null).map((c) => c.keys[1]);
+    expect(withheld).toHaveLength(2);
+    expect(withheld).toContain("B1");
+    // The smaller of the two that stood up goes, by the unrounded mature count.
+    expect(withheld).toContain("A2");
+  });
+
+  it("leaves the mature figures alone when two were already missing", () => {
+    const mature = (level: string, people: number, each: number, maturePeople: number) =>
+      group(level, people, each).map((r, i) => ({
+        ...r,
+        matureReviews: i < maturePeople ? each : 0,
+        matureCorrect: i < maturePeople ? each : 0,
+      }));
+    const section = buildSection(CROSSTAB, [
+      ...mature("A1", 40, 20, 40),
+      ...mature("A2", 30, 20, 1),
+      ...mature("B1", 20, 10, 2),
+    ]);
+    expect(section.cells.filter((c) => c.mature === null).map((c) => c.keys[1]).sort()).toEqual([
+      "A2", "B1",
+    ]);
+  });
 });
 
 describe("the shape of a section", () => {
