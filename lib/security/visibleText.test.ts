@@ -3,11 +3,11 @@ import { visibleLine, visibleProse } from "./visibleText";
 
 describe("visibleLine", () => {
   it("refuses a name made of nothing but zero-width spaces", () => {
-    expect(visibleLine("​​", 60)).toBe("");
+    expect(visibleLine("\u200B\u200B", 60)).toBe("");
   });
 
   it("takes the direction override out rather than letting it reorder the row", () => {
-    expect(visibleLine("Mari‮aks", 32)).toBe("Mariaks");
+    expect(visibleLine("Mari\u202Eaks", 32)).toBe("Mariaks");
   });
 
   it("refuses a row of punctuation", () => {
@@ -41,11 +41,11 @@ describe("visibleProse", () => {
   });
 
   it("takes format characters out of the middle of a note", () => {
-    expect(visibleProse("Due ‮Friday​", 200)).toBe("Due Friday");
+    expect(visibleProse("Due \u202EFriday\u200B", 200)).toBe("Due Friday");
   });
 
   it("may be empty, since a note is optional", () => {
-    expect(visibleProse("​", 200)).toBe("");
+    expect(visibleProse("\u200B", 200)).toBe("");
   });
 
   it("never cuts a character in half", () => {
