@@ -1,7 +1,7 @@
 import { plainPhrase } from "@/lib/copy/values";
 import { buildCloze, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
-import { numberFromMorphCode } from "@/lib/estonian/morph";
+import { ekilexCodeOf, numberFromMorphCode } from "@/lib/estonian/morph";
 import { usableExamples, type Example, type Rank } from "@/lib/dict/examples";
 
 /**
@@ -144,7 +144,7 @@ function untaughtPlurals(word: WorksheetWord): Set<string> {
     word.forms
       .filter((f) =>
         UNTAUGHT_PRINCIPAL_PARTS.includes(f.formType)
-        || numberFromMorphCode(f.morphCode) === "PLURAL")
+        || numberFromMorphCode(ekilexCodeOf(f)) === "PLURAL")
       .map((f) => f.value.trim().toLowerCase()),
   );
 }

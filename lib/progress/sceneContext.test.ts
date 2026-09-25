@@ -34,3 +34,24 @@ describe("the governed words a scene's gate can see", () => {
     expect(cases("elama")).toEqual([]);
   });
 });
+
+/*
+  "NOT MILK BUT COFFEE" IS NOT MILK. `negatedIn` refuses a word a clause says
+  no about, and it knew one negator: `mitte piima, vaid kohvi` met a beat
+  wanting milk, and the other side took the milk the learner had just turned
+  down. `ega` is deliberately not a negator here, because `Ega sa tea, kus pood
+  on?` opens a question with it and reading that as a no would refuse a turn
+  that asked exactly what the beat wanted.
+*/
+describe("what a scene reads as a no", () => {
+  const word = (lemma: string): Row => ({
+    id: lemma, lemma, pos: "ADVERB", cefr: "A1", parts: {}, extraForms: [], usages: [], government: null, gloss: "not",
+  });
+
+  it("reads mitte beside ei and leaves ega alone", () => {
+    const ctx = contextFromRows(sceneById("kohvikus")!, [word("ei"), word("mitte"), word("ega")]);
+    expect(ctx.marker.negators.has("ei")).toBe(true);
+    expect(ctx.marker.negators.has("mitte")).toBe(true);
+    expect(ctx.marker.negators.has("ega")).toBe(false);
+  });
+});

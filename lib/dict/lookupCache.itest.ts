@@ -136,3 +136,30 @@ describe("two renders of the same word at once", () => {
     expect(searchEkilex).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("a word pinned to one Ekilex homonym", () => {
+  it("is enriched from the word it names, never from the first search match", async () => {
+    /*
+      Ekilex numbers its homonyms and the harvest pins the right one. Searching
+      the spelling again hands back whichever homonym Ekilex lists first, which
+      for a pinned word is the one the pin exists to avoid, and the forms that
+      came back replaced the entry's own for everybody.
+    */
+    const { enrichFromEkilex } = await import("./lookup");
+    const lexeme = await prisma.lexeme.create({
+      data: {
+        lemma: LEMMA, pos: "NOUN", translation: "a test word", provenance: "SEED",
+        ekilexWordId: 283694,
+        forms: { create: [{ formType: "GEN_SG", value: "itestpinnedgen" }] },
+      },
+    });
+    searchEkilex.mockResolvedValue([{ wordId: 1, wordValue: LEMMA, homonymNr: 1, lang: "est" }]);
+    fetchEkilexDetails.mockResolvedValue(null);
+
+    await enrichFromEkilex(lexeme.id);
+    expect(searchEkilex).not.toHaveBeenCalled();
+    expect(fetchEkilexDetails).toHaveBeenCalledWith(283694);
+    const forms = await prisma.form.findMany({ where: { lexemeId: lexeme.id }, select: { value: true } });
+    expect(forms.map((f) => f.value)).toEqual(["itestpinnedgen"]);
+  });
+});

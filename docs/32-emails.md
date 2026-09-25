@@ -176,8 +176,8 @@ statement behind it gets relitigated by whoever is next in the file.
   in somebody's inbox.
 - It may not put a number at risk that is not genuinely at risk. The streak is not: this app banks
   shields and its own rules say a day without study is never punished.
-- It may not count the days somebody was away. `daysAway` is read by the scheduler and printed by
-  nothing. The figure is the guilt, and it is ours to decide with rather than theirs to be handed.
+- It may not count the days somebody was away. The scheduler reads them and no letter is handed
+  them. The figure is the guilt, and it is ours to decide with rather than theirs to be handed.
 - It may not praise in adjectives. "Six days in a row" is the warm sentence, because it is about
   them and it required us to have been paying attention.
 - It may not report a number this app cannot derive. See "words held" below.

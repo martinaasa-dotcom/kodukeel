@@ -49,12 +49,60 @@ describe("computeStreakWithShields", () => {
   });
 
   it("can bridge two consecutive missed days if two shields are in stock", () => {
-    // Reviewed today and four days ago — missed the three days between.
+    // Reviewed today and three days ago: missed the two days between, and two
+    // shields cover both, so the run is unbroken.
+    const dates = [day(0), day(-3)];
+    const r = computeStreakWithShields(dates, 2);
+    expect(r.streak).toBe(4);
+    expect(r.newlyShieldedDates).toEqual([dayKey(-1), dayKey(-2)]);
+    expect(r.shieldsRemaining).toBe(0);
+  });
+
+  /*
+    A SHIELD IS SPENT ONLY WHERE IT KEEPS THE STREAK ALIVE.
+
+    This case used to be asserted the other way: three missed days and two
+    shields, the two spent on the nearest two, the walk breaking on the third
+    anyway, and a streak of 3 reported made of today and two days nobody
+    studied on. The learner lost the run and the shields both, and the shield
+    letter then told them a shield had covered a day, which it had not in any
+    sense that mattered. A gap the shields in stock cannot bridge whole is left
+    alone, and the shields stay banked for a gap they can.
+  */
+  it("spends nothing on a gap the shields in stock cannot bridge whole", () => {
+    // Reviewed today and four days ago: three missed days, two shields.
     const dates = [day(0), day(-4)];
     const r = computeStreakWithShields(dates, 2);
-    // Only 2 of the 3 missing days can be covered, so the streak stops there.
+    expect(r.streak).toBe(1);
+    expect(r.newlyShieldedDates).toEqual([]);
+    expect(r.shieldsRemaining).toBe(2);
+  });
+
+  it("keeps a shield rather than spend it on one day of a three-day gap", () => {
+    const dates = [day(-1), day(-5)];
+    const r = computeStreakWithShields(dates, 1);
+    // Today is not yet studied, which is not a miss: the run from yesterday is 1.
+    expect(r.streak).toBe(1);
+    expect(r.newlyShieldedDates).toEqual([]);
+    expect(r.shieldsRemaining).toBe(1);
+  });
+
+  it("bridges a nearer gap and then keeps what cannot bridge a further one", () => {
+    // Missed day -2 (bridgeable) and days -4..-6 (not, with one shield left).
+    const dates = [day(0), day(-1), day(-3), day(-7)];
+    const r = computeStreakWithShields(dates, 2);
+    expect(r.streak).toBe(4);
+    expect(r.newlyShieldedDates).toEqual([dayKey(-2)]);
+    expect(r.shieldsRemaining).toBe(1);
+  });
+
+  it("does not count today, not yet studied, as a missed day", () => {
+    // Studied yesterday and three days ago; one shield covers day -2 and today
+    // costs nothing.
+    const dates = [day(-1), day(-3)];
+    const r = computeStreakWithShields(dates, 1);
     expect(r.streak).toBe(3);
-    expect(r.newlyShieldedDates).toEqual([dayKey(-1), dayKey(-2)]);
+    expect(r.newlyShieldedDates).toEqual([dayKey(-2)]);
     expect(r.shieldsRemaining).toBe(0);
   });
 

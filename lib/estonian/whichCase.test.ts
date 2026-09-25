@@ -70,6 +70,36 @@ describe("caseIndex", () => {
     expect(readCase(caseIndex(aadress), "aadressisse")).toEqual({ kind: "one", key: "ILLATIVE" });
   });
 
+  it("reports a singular spelling that is also a plural of another case as shared", () => {
+    /*
+      The strict rule is about cases, and a plural is a case too. The index
+      used to hold the singular alone, so a spelling a principal part shares
+      with a plural read as one case: 164 spellings in the shipped dictionary,
+      the partitive plural of `käsi` spelled like its nominative and the
+      nominative plural of `pea` spelled like its partitive. Named as the
+      singular case, a plural subject was reported as an object.
+    */
+    const kasi = stemsFromParts({
+      NOM_SG: "käsi", GEN_SG: "käe", PART_SG: "kätt", ILL_SG_SHORT: "kätte",
+      NOM_PL: "käed", PART_PL: "käsi", GEN_PL: "käte",
+    });
+    const hand = readCase(caseIndex(kasi), "käsi");
+    expect(hand.kind).toBe("shared");
+    if (hand.kind === "shared") expect([...hand.keys].sort()).toEqual(["NOMINATIVE", "PARTITIVE"]);
+
+    const pea = stemsFromParts({
+      NOM_SG: "pea", GEN_SG: "pea", PART_SG: "pead", ILL_SG_SHORT: "pähe",
+      NOM_PL: "pead", PART_PL: "päid", GEN_PL: "peade",
+    });
+    const heads = readCase(caseIndex(pea), "pead");
+    expect(heads.kind).toBe("shared");
+    if (heads.kind === "shared") expect([...heads.keys].sort()).toEqual(["NOMINATIVE", "PARTITIVE"]);
+
+    // A plural nobody else spells is still not claimed, so nothing new is named.
+    expect(readCase(caseIndex(kasi), "kätega")).toEqual({ kind: "unknown" });
+    expect(readCase(caseIndex(kasi), "käes")).toEqual({ kind: "one", key: "INESSIVE" });
+  });
+
   it("builds nothing from a word with no genitive stem", () => {
     const index = caseIndex(stemsFromParts({ NOM_SG: "aitäh" }));
     expect(readCase(index, "aitähis")).toEqual({ kind: "unknown" });
