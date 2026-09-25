@@ -919,7 +919,7 @@ describe("a verb whose first person arrived under Ekilex's own code", () => {
   const helistama: DictEntry = {
     lemma: "helistama", pos: "VERB", cefr: "A1",
     parts: { INF_MA: "helistama", INF_DA: "helistada" },
-    extraForms: [{ code: "IndPrSg1", value: "helistan" }],
+    extraForms: [{ code: "IndPrSg1", value: "helistan" }], usages: [],
   };
 
   it("derives the persons off it, exactly as off the seeded part", () => {

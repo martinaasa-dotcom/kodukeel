@@ -37,7 +37,7 @@ import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
-import { propBySlot, timeLiterals, type DrawnProp, type RoleCard } from "./props";
+import { propBySlot, restated, type DrawnProp, type RoleCard } from "./props";
 import { CURVEBALLS, curveballById } from "./curveballs";
 import type { Response, SceneState, TurnRecord } from "./state";
 import type { TurnReading } from "./turn";
@@ -339,15 +339,15 @@ export function cardChosen(
       const pick = chosen.get(prop.slot);
       if (!pick || prop.theirs) return prop;
       const { value, lemma } = pick;
+      // A figure first: a floor said in words carries its lemma and is still a floor.
+      const figure = restated(prop, value);
+      if (figure) return figure;
       const { english: _english, ...rest } = prop;
       if (lemma) {
         const said = gloss(lemma);
         return { ...rest, value: lemma, lemmas: [lemma], literal: [], shown: said ? [said] : [], ...(said ? { english: said } : {}) };
       }
-      if (/^\d{1,2}:\d{2}$/.test(value)) {
-        return { ...rest, value, lemmas: [], literal: timeLiterals(value), shown: [value] };
-      }
-      return { ...rest, value, lemmas: [], literal: [value], shown: prop.price ? [`${value} €`] : [value] };
+      return { ...rest, value, lemmas: [], literal: [value], shown: [value] };
     }),
   };
 }

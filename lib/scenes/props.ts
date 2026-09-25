@@ -340,6 +340,30 @@ export function drawProp(
   }
 }
 
+/**
+ * A drawn prop with a value the learner chose in place of the dealt one, in
+ * the shape `drawProp` deals that kind of prop, or null where the prop is not
+ * one of the kinds whose value is a figure. Beside the builders on purpose: a
+ * copy of their literal and lemma rules written elsewhere is how a floor the
+ * learner moved to `5` stopped hearing `viis`.
+ */
+export function restated(prop: DrawnProp, value: string): DrawnProp | null {
+  const { english: _english, ...rest } = prop;
+  if (TIME.test(prop.value)) {
+    return TIME.test(value) ? { ...rest, value, lemmas: [], literal: timeLiterals(value), shown: [value] } : null;
+  }
+  if (/^\d+$/.test(prop.value)) {
+    if (!/^\d+$/.test(value)) return null;
+    return { ...rest, value, literal: [value], lemmas: numberWords(value), shown: [prop.price ? `${value} €` : value] };
+  }
+  if (prop.value.startsWith("KK-")) {
+    return { ...rest, value, lemmas: [], literal: value.startsWith("KK-") ? [value, value.slice(3)] : [value], shown: [value] };
+  }
+  return null;
+}
+
+const TIME = /^\d{1,2}:\d{2}$/;
+
 /** The whole card for one run. */
 export function drawCard(
   you: string,
