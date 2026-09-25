@@ -674,6 +674,12 @@ model Deferral {
   wokenAt DateTime?
 
   /// Where they were standing when they pressed it: "/review", "/learn/new".
+  /// Each card's due before this wait moved it, by card id, as ISO strings.
+  /// A give-back returns a card to that date or to now, whichever is later, so
+  /// a card the scheduler had due in two days is not handed back tonight.
+  /// Null on a row written before the column, which gives back to now.
+  priorDues Json?
+
   context String?
 
   createdAt DateTime @default(now())
