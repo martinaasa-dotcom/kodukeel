@@ -109,6 +109,32 @@ export function isValidPending(value: unknown): value is PendingGrade {
   );
 }
 
+/**
+ * An id a device may choose for its own Review row.
+ *
+ * Every one this app writes is `crypto.randomUUID()`, and the online door
+ * takes the id the device picked so that a lost answer and its retry are one
+ * row (`writeGrade`). It becomes a primary key in the one table that is never
+ * repaired, so a caller gets a short run of hex and hyphens and nothing else.
+ */
+export function isClientReviewId(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9A-Za-z-]{8,64}$/.test(value);
+}
+
+/**
+ * What an undo did, given where the grade it takes back had got to.
+ *
+ * A grade still in the outbox never reached the server, so taking it out is
+ * the whole undo and the server's answer does not matter: offline it cannot
+ * give one. A grade already sent is undone only if the server says so. The
+ * fault this replaces was the opposite: undo asked the server alone, so a
+ * queued grade it "took back" offline was replayed later anyway, and the
+ * learner who pressed Undo had the answer they withdrew applied regardless.
+ */
+export function undoOutcome(takenFromOutbox: boolean, serverUndid: boolean): "undone" | "kept" {
+  return takenFromOutbox || serverUndid ? "undone" : "kept";
+}
+
 /** Batches so one failure costs a small retry rather than the whole backlog. */
 export const REPLAY_BATCH = 50;
 

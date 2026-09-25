@@ -76,49 +76,46 @@ const config = [
       "react/no-unescaped-entities": "error",
 
       /*
-       * THE REACT COMPILER'S RULES, WHICH ARRIVED TURNED UP RATHER THAN BEING
-       * TURNED UP HERE.
+       * THE REACT COMPILER'S RULES, AND WHY THREE OF THEM ARE OFF.
        *
-       * `eslint-config-next` 16 brings `eslint-plugin-react-hooks` 7 with it and
-       * enables sixteen `react-hooks/*` rules as errors, eleven of which did not
-       * exist in 15. Eleven hold in this tree already and stay errors, so none of
-       * them can regress quietly. Five do not: 117 findings over 50 files,
-       * listed here with their counts, because a warning nobody has counted
-       * is a warning nobody reads.
+       * `eslint-config-next` 16 brings `eslint-plugin-react-hooks` 7, which
+       * enables sixteen `react-hooks/*` rules as errors. Thirteen hold in this
+       * tree and stay errors, including `static-components` and `immutability`,
+       * whose findings were real and were fixed rather than tolerated: eight
+       * `<Icon />`s chosen during render now go through `NamedIcon`, and three
+       * callbacks that read a variable declared after them no longer do.
        *
-       *   purity              48  (46 are `Date.now()` read during render)
-       *   set-state-in-effect 33
-       *   refs                25
-       *   static-components    8
-       *   immutability         3
+       * Three are off, and they are off rather than warning, because a warning
+       * nobody acts on is 106 lines of noise in every lint run, which is how a
+       * real warning beside them goes unread. Each exists to keep a component
+       * compilable by the React Compiler, which this app does not run
+       * (`next.config.ts` sets no `reactCompiler`), and what each objects to
+       * here is deliberate:
        *
-       * These are a backlog rather than a bar being lowered, and the difference
-       * is worth being exact about, because `.github/workflows/ci.yml` says of
-       * its own audit gate: do not lower a number. That rule is about a gate this
-       * code used to pass and would stop passing. Nothing here used to pass. The
-       * rules are a new opinion arriving with a new major, and much of what they
-       * object to is deliberate: `lib/layout/navMarker.ts` writes a ref during
-       * render on purpose and CLAUDE.md argues it at length, and a page deciding
-       * what is due now reads the clock.
+       *   purity              `Date.now()` read during render: a page deciding
+       *                       what is due now reads the clock, and a round
+       *                       stamps when a card was shown.
+       *   refs                a ref read or written during render, which is
+       *                       what `lib/layout/navMarker.ts` does on purpose
+       *                       and what CLAUDE.md argues at length.
+       *   set-state-in-effect state reset in an effect when a question
+       *                       changes, the shape every round's reset takes.
        *
-       * So they warn, which is the shape `no-explicit-any` two rules up already
-       * takes and for the reason written there: a prompt to justify rather than a
-       * block. Each goes back to "error" as it empties, and the table is what
-       * says how far that has got. What may not happen is this block growing a
-       * rule that was never measured, or a count here drifting from what
-       * `npm run lint` prints.
+       * If the compiler is ever switched on, these come back on first, and the
+       * findings are the list of what it cannot optimise. Until then, lint runs
+       * with `--max-warnings 0`, so anything that does warn is a failure rather
+       * than a line in a list.
        */
-      "react-hooks/purity": "warn",
-      // Both at nought, so both are errors: a button navigating by assigning
+      "react-hooks/purity": "off",
+      "react-hooks/refs": "off",
+      "react-hooks/set-state-in-effect": "off",
+      // At nought, and errors rather than left to the max-warnings gate, so
+      // a rule cannot be quietly downgraded: a button navigating by assigning
       // `window.location` is a link that cannot be middle-clicked or
       // prefetched, and the two full loads that are deliberate say why beside
       // a scoped disable.
       "@next/next/no-location-assign-relative-destination": "error",
       "react-hooks/exhaustive-deps": "error",
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/refs": "warn",
-      "react-hooks/static-components": "warn",
-      "react-hooks/immutability": "warn",
     },
   },
 

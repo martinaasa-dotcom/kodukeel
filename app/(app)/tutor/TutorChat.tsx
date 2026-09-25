@@ -8,7 +8,7 @@ import { Card, Empty } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { useAnuChat, type Msg } from "@/components/anu/useAnuChat";
 import { useStickToBottom } from "@/components/anu/useStickToBottom";
-import { AnuFailure, Bubble, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
+import { AnuFailure, AnuOffline, Bubble, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
 
 export function TutorChat({
   configured, readerCanConfigure, plannedLabel, history, initialQuestion,
@@ -27,7 +27,7 @@ export function TutorChat({
   /** A question handed over from elsewhere: written into the box, not sent. */
   initialQuestion?: string;
 }) {
-  const { messages, streaming, answeredBy, failure, send } = useAnuChat(history);
+  const { messages, streaming, answeredBy, failure, send, online } = useAnuChat(history);
   const [input, setInput] = useState(initialQuestion ?? "");
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkEt, setCheckEt] = useState("");
@@ -102,12 +102,14 @@ export function TutorChat({
         estonian={checkEt}
         meaning={checkEn}
         streaming={streaming}
+        online={online}
         onOpen={() => setCheckOpen(true)}
         onClose={() => setCheckOpen(false)}
         onEstonian={setCheckEt}
         onMeaning={setCheckEn}
         onSubmit={() => {
-          void send(sentenceCheckPrompt(checkEt, checkEn));
+          // Cleared only once it was sent: offline or mid-answer, send refuses.
+          if (!send(sentenceCheckPrompt(checkEt, checkEn))) return;
           setCheckEt("");
           setCheckEn("");
           setCheckOpen(false);
@@ -116,12 +118,18 @@ export function TutorChat({
 
       <Starters onPick={setInput} />
 
+      {/*
+        Said before the question is typed rather than after it fails; the
+        refusal itself is in useAnuChat's send, which every door here calls.
+      */}
+      <AnuOffline online={online} />
+
       <div className="flex flex-col gap-3 md:flex-row md:items-start">
         <div className="flex-1">
           <EstonianInput
             value={input}
             onChange={setInput}
-            onEnter={() => { void send(input); setInput(""); }}
+            onEnter={() => { if (send(input)) setInput(""); }}
             placeholder="Why is it raamatut and not raamatu?"
             ariaLabel="Ask Anu a question"
             autoFocus={Boolean(initialQuestion)}
@@ -130,8 +138,8 @@ export function TutorChat({
         <Button
           variant="primary"
           size="lg"
-          onClick={() => { void send(input); setInput(""); }}
-          disabled={streaming || !input.trim()}
+          onClick={() => { if (send(input)) setInput(""); }}
+          disabled={streaming || !input.trim() || !online}
         >
           <Send size={15} aria-hidden /> {streaming ? "Thinking…" : "Ask"}
         </Button>

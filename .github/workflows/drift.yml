@@ -61,10 +61,8 @@ jobs:
       # Carried between weeks, because a whole pass does not fit in one run.
       #
       # Wiktionary starts refusing part way through five thousand pages however
-      # politely they are asked, and where it stops is not a constant: about
-      # 3,800 pages once, then 1,500 and 500 on the two runs of 2026-09-24,
-      # which is the argument for carrying the cache rather than for any
-      # number. The script caches every page as it arrives and picks up
+      # politely they are asked: measured at about 3,800 before a batch would
+      # not come back. The script caches every page as it arrives and picks up
       # where it stopped, so with the cache restored each week gets further and
       # a cold start does not throw away the last run's work. Without this the
       # job would be red every week for a fact about Wiktionary rather than a
@@ -73,18 +71,15 @@ jobs:
       # `restore-keys` rather than an exact match, because the useful cache is
       # the most recent one whatever week wrote it.
       #
-      # Restored here and saved in a step of its own after the audit, with
-      # `if: always()`, because this job is red by design until the cache has
-      # carried it past half the dictionary, and actions/cache's own post step
-      # skips saving once an earlier step has failed. `save-always: true` was
-      # the first answer to that and it did nothing: the action's own log calls
-      # it deprecated and says it "does not work as intended", and run 4
-      # (2026-09-24) fetched 1,500 pages, failed, and went straight from the
-      # error to checkout's cleanup with no cache step between, so every page
-      # was thrown away and the next week would have started at zero again.
-      # The split is GitHub's documented shape for this, and
-      # `scripts/test-invariants.ts` refuses the flag.
-      - name: Restore the Wiktionary pages earlier weeks fetched
+      # Restored here and saved in a step of its own at the end, because this
+      # job is red by design until the cache has carried it past half the
+      # dictionary and actions/cache's post step saves only on success. This
+      # used `save-always: true` to get round that and the input does nothing:
+      # v6 says in the log that it "does not work as intended", and the post
+      # job section of every scheduled run holds no cache step at all. The
+      # first run read 2,500 pages and the second started from nothing and
+      # read 1,000, which is the whole feature not working in plain sight.
+      - name: Wiktionary pages, from the last run
         uses: actions/cache/restore@v6
         with:
           path: prisma/data/.cache
@@ -103,10 +98,12 @@ jobs:
       # repository: sense order is the page's own, and which sense a learner
       # needs is explicitly not a judgement this pipeline makes.
       - run: npm run audit:glosses
-      # Whatever this run fetched, kept even though the audit above is red,
-      # so next week carries on from where this one stopped.
-      - name: Keep what this run fetched, pass or fail
-        if: always()
+      # Whatever the audit said, what it fetched is kept for next week, which
+      # is the half `save-always` promised and never did. `!cancelled()` rather
+      # than `always()`, so a run somebody stopped by hand does not write a
+      # half-copied cache over a good one.
+      - name: Wiktionary pages, for the next run
+        if: ${{ !cancelled() }}
         uses: actions/cache/save@v6
         with:
           path: prisma/data/.cache

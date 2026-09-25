@@ -19,7 +19,7 @@
  * second one; B2 is how you speak to any adult; C1 is how you speak to a
  * colleague. Two thirds of that is in how the model is briefed and the rest is
  * a smaller target for the count and the reach. The gate is untouched: none of
- * its twelve checks reads this, `MAX_COMPOSED_WORDS` and `NEW_WORDS` stay the
+ * the checks in `CHECKS` reads this, `MAX_COMPOSED_WORDS` and `NEW_WORDS` stay the
  * ceilings for every band, and the per-band figures here sit under them,
  * asserted. A band asks for less room than the gate allows and never more.
  *

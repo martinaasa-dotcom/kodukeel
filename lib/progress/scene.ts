@@ -19,22 +19,20 @@
  */
 import { prisma } from "@/lib/db";
 import { unitById } from "@/lib/collections/syllabus";
-import { parseGovernment } from "@/lib/estonian/government";
 import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import type { CaseKey } from "@/lib/estonian/types";
-import { CASES } from "@/lib/estonian/cases";
 import { FALLBACK_PHRASE, FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
 import { bankTopic, sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { Level } from "@/lib/collections/syllabus/types";
 import type { LineMode } from "@/lib/scenes/line";
-import { NEW_WORDS, type GateContext, type GovernedWord } from "@/lib/scenes/gate";
+import { NEW_WORDS, governedWord, type GateContext, type GovernedWord } from "@/lib/scenes/gate";
 import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
 import { topicForms, type Line } from "@/lib/scenes/retrieval";
 import type { TurnContext } from "@/lib/scenes/turn";
 import {
   CLOCK_LEMMA, HOUR_LEMMAS, NUMBER_LEMMAS, dealtHours, numberWords, slotKinds, timeWords, type RoleCard,
 } from "@/lib/scenes/props";
-import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
+import { leafNeeds, type BeatSpec, type SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms } from "@/lib/dict/facts";
 import { substitutes } from "@/lib/dict/acceptFacts";
@@ -68,14 +66,16 @@ import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
  */
 const QUESTION_UNIT = "kusisonad";
 /**
- * The negator, and the pronoun each register expects.
+ * The negators, and the pronoun each register expects. `mitte` is one because
+ * "mitte piima, vaid kohvi" turns the milk down; `ega` is not, because
+ * `Ega sa tea?` opens a question with it.
  *
  * Named as lemmas rather than as units, because `vastused` teaches five words
  * and only one of them is the negator, and `asesonad` teaches the six persons
  * of which exactly one is the register in question. A unit would make "did
  * they say no" true of `jah`.
  */
-const NEGATOR = "ei";
+const NEGATORS = ["ei", "mitte"] as const;
 const REGISTER_PRONOUN = { teie: "teie", sina: "sina" } as const;
 
 export interface SceneContext {
@@ -473,7 +473,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     // What each slot on the card holds, so a datum can take a value the learner chose (ADR-025 amendment 3).
     slots: slotKinds(scene.props),
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
-    negators: formsOfLemmas(rows, [NEGATOR]),
+    negators: formsOfLemmas(rows, NEGATORS),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
     hasFiniteVerb,
   };
@@ -629,41 +629,16 @@ function formsOfUnit(rows: readonly Row[], unit: string): ReadonlySet<string> {
 function governedIn(rows: readonly Row[]): GovernedWord[] {
   const out: GovernedWord[] = [];
   for (const row of rows) {
-    if (row.pos !== "VERB") continue;
-    const government = parseGovernment(row.government ?? null);
-    if (!government) continue;
-    const forms = new Set<string>([row.lemma.toLowerCase()]);
-    for (const value of Object.values(row.parts)) forms.add(value.toLowerCase());
-    for (const form of row.extraForms ?? []) forms.add(form.value.toLowerCase());
-    for (const derived of derivedVerbForms({ lemma: row.lemma, pres1sg: row.parts.PRES_1SG })) {
-      forms.add(derived.value.toLowerCase());
-    }
-    out.push({
+    const word = governedWord({
       lemma: row.lemma,
-      forms,
-      cases: new Set([government.caseKey, ...government.alsoGoverned, ...placeCases(row.government ?? "")]),
+      pos: row.pos,
+      government: row.government,
+      forms: [...Object.values(row.parts), ...(row.extraForms ?? []).map((form) => form.value)],
+      pres1sg: row.parts.PRES_1SG,
     });
+    if (word) out.push(word);
   }
   return out;
-}
-
-/**
- * THE CASES THAT ANSWER A PLACE QUESTION A GOVERNMENT NAMES.
- *
- * Ekilex records `sõitma` as "kuhu (direction) · millega (comitative)", and
- * `parseGovernment` names a case for the second and none for the first, since
- * `kuhu` is not a case. So the gate held `sõitma` to the comitative alone and
- * withheld `Buss sõidab jaama kell kaks`, three times running, on the one
- * beat that had to say where the bus goes. `kuhu` is answered by the
- * sisseütlev and the alaleütlev, `kus` and `kust` by their pairs, which is
- * what `CASES` already records as `asksWhere`, so a government naming a place
- * question governs every case that answers it. Read off the table rather
- * than typed, for the reason the question words themselves are.
- */
-function placeCases(government: string): CaseKey[] {
-  const asked = new Set((government.toLowerCase().match(/\b(kuhu|kus|kust)\b/g) ?? []).map((w) => `${w}?`));
-  if (asked.size === 0) return [];
-  return CASES.filter((spec) => spec.asksWhere && asked.has(spec.asksWhere)).map((spec) => spec.key);
 }
 
 /** `lemma|CASE` inverted into `form -> cases`, which is what the gate asks. */
@@ -1001,7 +976,7 @@ export interface Briefing {
  * purpose. Ordered, so which one leads is the app's answer rather than the
  * plan's.
  */
-async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
+export async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
   const lemmas = [...new Set(run.card.props.flatMap((prop) => prop.lemmas))];
   if (lemmas.length === 0) return new Map();
   const rows = await prisma.lexeme.findMany({
@@ -1012,6 +987,22 @@ async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
   const out = new Map<string, string>();
   for (const row of rows) if (!out.has(row.lemma)) out.set(row.lemma, row.translation);
   return out;
+}
+
+/**
+ * The card as a run stores it: every drawn word with its English beside it,
+ * for `stageFor`. One function because a harness that opens a run its own way
+ * fuzzes a card the app never deals, which is how `npm run fuzz:scenes`
+ * reported a landlord offering "esmaspäev" inside an English sentence.
+ */
+export function glossCard(card: RoleCard, glosses: ReadonlyMap<string, string>): RoleCard {
+  return {
+    ...card,
+    props: card.props.map((prop) => {
+      const english = prop.lemmas[0] ? glosses.get(prop.lemmas[0]) : undefined;
+      return english ? { ...prop, english } : prop;
+    }),
+  };
 }
 
 function briefingOf(run: SceneRunPlan, glosses: ReadonlyMap<string, string>): Briefing {
@@ -1097,13 +1088,7 @@ export async function beginRun(input: {
     is what a reload and the debrief read back.
   */
   const glosses = await glossesFor(run);
-  const card: RoleCard = {
-    ...run.card,
-    props: run.card.props.map((prop) => {
-      const english = prop.lemmas[0] ? glosses.get(prop.lemmas[0]) : undefined;
-      return english ? { ...prop, english } : prop;
-    }),
-  };
+  const card = glossCard(run.card, glosses);
   const draw: StoredDraw = {
     persona: run.persona.id,
     card,
@@ -1221,19 +1206,6 @@ export async function finishRun(input: {
       .filter((slip) => slip.kind === "english")
       .map((slip) => slip.lemma),
   )].filter((lemma) => context.lexicon.byLemma.has(lemma));
-  const gaps = [
-    ...declared.slice(0, MAX_GAPS).map((one) => ({
-      kind: "ASKED", lemma: one.lemma, lexemeId: one.lexemeId,
-    })),
-    ...reached.slice(0, MAX_GAPS).map((lemma) => ({ kind: "REACHED", lemma, lexemeId: null })),
-    ...stalled.map((lemma) => ({ kind: "STALLED", lemma, lexemeId: null })),
-  ];
-  if (gaps.length > 0) {
-    await prisma.sceneGap.createMany({
-      data: gaps.map((gap) => ({ ...gap, ownerId: input.ownerId, runId: row.id })),
-    });
-  }
-
   const wanted = [...new Set([...declared.map((a) => a.lemma), ...reached, ...stalled])];
   const known = wanted.length === 0 ? [] : await prisma.lexeme.findMany({
     where: { lemma: { in: wanted } },
@@ -1248,6 +1220,23 @@ export async function finishRun(input: {
   });
   const byLemma = new Map<string, string>();
   for (const entry of known) if (!byLemma.has(entry.lemma)) byLemma.set(entry.lemma, entry.id);
+  /*
+    The entry is the server's to find, off the lemma it has just checked. The
+    id beside a lemma arrives off the wire like the lemma does and nothing
+    checked it, so a client could write any string into the column.
+  */
+  const gaps = [
+    ...declared.slice(0, MAX_GAPS).map((one) => ({
+      kind: "ASKED", lemma: one.lemma, lexemeId: byLemma.get(one.lemma) ?? null,
+    })),
+    ...reached.slice(0, MAX_GAPS).map((lemma) => ({ kind: "REACHED", lemma, lexemeId: null })),
+    ...stalled.map((lemma) => ({ kind: "STALLED", lemma, lexemeId: null })),
+  ];
+  if (gaps.length > 0) {
+    await prisma.sceneGap.createMany({
+      data: gaps.map((gap) => ({ ...gap, ownerId: input.ownerId, runId: row.id })),
+    });
+  }
 
   return {
     runId: row.id,
@@ -1382,7 +1371,14 @@ export function replay(
     if (closeBeat && beat.move !== "close") {
       const bye = readTurn(said, closeBeat, marker);
       const here = readTurn(said, beat, marker);
-      if (bye.reading === "complete" && here.reading !== "complete") {
+      /*
+        A beat that takes any reply at all is complete for every turn, so read
+        on its own it credited the goodbye as the answer: `Nägemist` said to
+        "Täna on ilus ilm" was listed on the debrief as a reply about the
+        weather. On such a beat a goodbye is leaving, like anywhere else.
+      */
+      const takesAnything = leafNeeds(beat.needs).every(({ need }) => need.kind === "any");
+      if (bye.reading === "complete" && (here.reading !== "complete" || takesAnything)) {
         state = { ...state, beat: closeAt, patience: patienceAt(context.scene, state, closeAt), hurdle: null };
         ({ state, response } = advance(context.scene, state, bye, said, false, heardNow));
         previous = heardNow;
@@ -1432,6 +1428,16 @@ export function replay(
       if (state.hurdle || response === "moveOn") break;
       const next = currentBeat(context.scene, state);
       if (!next) break;
+      /*
+        AN OFFER IS MADE BY THE OTHER SIDE ON ITS OWN BEAT, SO THE CASCADE STOPS
+        IN FRONT OF IT, for the reason the look-ahead below passes over one. The
+        guard was written there and not here: answering "since when?" with
+        `neljapäevast. Kas homme sobib?` walked on into the offer beat, the
+        `sobib` accepted an appointment the receptionist had not proposed, and
+        the next line read a time back to somebody who had never been offered
+        one. The offer is said, and the learner's yes is read against it then.
+      */
+      if (next.move === "offer") break;
       const read = readTurn(said, next, marker);
       /*
         A judge may have said this same turn met the next beat too, in a word

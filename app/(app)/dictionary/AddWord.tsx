@@ -142,7 +142,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
         framework cannot drop is worth more here than staying in the SPA. The
         destination is `force-dynamic`, so it renders fresh on arrival.
       */
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a full load on purpose, argued above
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a document load on purpose, argued above
       window.location.assign(`/dictionary?q=${encodeURIComponent(result.lemma)}`);
     });
   };

@@ -9,7 +9,7 @@ import { Empty } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { useAnuChat } from "./useAnuChat";
 import { useStickToBottom } from "./useStickToBottom";
-import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "./AnuParts";
+import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, sentenceCheckPrompt, AnuOffline } from "./AnuParts";
 
 /**
  * The open panel `AnuFab` shows once somebody has pressed the button, loaded
@@ -24,7 +24,7 @@ export function AnuPanel({
   onClose: () => void;
 }) {
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  const { messages, setMessages, streaming, answeredBy, failure, send } = useAnuChat([]);
+  const { messages, setMessages, streaming, answeredBy, failure, send, online } = useAnuChat([]);
   const [input, setInput] = useState("");
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkEt, setCheckEt] = useState("");
@@ -188,12 +188,14 @@ export function AnuPanel({
                 estonian={checkEt}
                 meaning={checkEn}
                 streaming={streaming}
+                online={online}
                 onOpen={() => setCheckOpen(true)}
                 onClose={() => setCheckOpen(false)}
                 onEstonian={setCheckEt}
                 onMeaning={setCheckEn}
                 onSubmit={() => {
-                  void send(sentenceCheckPrompt(checkEt, checkEn));
+                  // Cleared only once it was sent: offline or mid-answer, send refuses.
+                  if (!send(sentenceCheckPrompt(checkEt, checkEn))) return;
                   setCheckEt("");
                   setCheckEn("");
                   setCheckOpen(false);
@@ -226,13 +228,14 @@ export function AnuPanel({
 
       {configured && (
         <div className="flex flex-col gap-3 border-t px-5 py-4" style={{ borderColor: "var(--rule)" }}>
+          <AnuOffline online={online} compact />
           <div className="flex items-start gap-2.5">
             <div className="flex-1">
               <EstonianInput
                 compact
                 value={input}
                 onChange={setInput}
-                onEnter={() => { void send(input); setInput(""); }}
+                onEnter={() => { if (send(input)) setInput(""); }}
                 placeholder="Why raamatut and not raamatu?"
                 ariaLabel="Ask Anu a question"
                 inputRef={boxRef}
@@ -240,8 +243,8 @@ export function AnuPanel({
             </div>
             <Button
               variant="primary"
-              onClick={() => { void send(input); setInput(""); }}
-              disabled={streaming || !input.trim()}
+              onClick={() => { if (send(input)) setInput(""); }}
+              disabled={streaming || !input.trim() || !online}
               aria-label={streaming ? "Anu is thinking" : "Ask"}
             >
               {streaming ? "…" : "Ask"}

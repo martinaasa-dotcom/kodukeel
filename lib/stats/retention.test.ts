@@ -52,6 +52,22 @@ describe("cohortRetention", () => {
     expect(rows[0]?.rates.d7).toBe(100);
   });
 
+  it("waits for the window's last day to end before it reports", () => {
+    /*
+      Cohort week of Monday 2026-09-14. Four joined early in the week and came
+      back the next day; one joined on the Sunday and still has Monday 21st to
+      come back in. At half past midnight on the 21st the window is open.
+    */
+    const learners = [
+      ...["2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17"].map((d) => learner(d, [1])),
+      ...Array.from({ length: MIN_COHORT }, () => learner("2026-09-20", [])),
+    ];
+    const open = cohortRetention(learners, new Date("2026-09-21T00:30:00Z"));
+    expect(open[0]?.rates.d1).toBeNull();
+    const closed = cohortRetention(learners, new Date("2026-09-22T00:30:00Z"));
+    expect(closed[0]?.rates.d1).not.toBeNull();
+  });
+
   it("does not count a return outside the bracket", () => {
     const rows = cohortRetention(cohort("2026-01-05", 10, [12]), NOW);
     expect(rows[0]?.rates.d7).toBe(0);
