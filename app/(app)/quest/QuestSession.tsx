@@ -21,7 +21,7 @@ import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
@@ -252,6 +252,8 @@ export function QuestSession({
   useEffect(() => {
     if (phase !== "running") return;
     const onKey = (e: KeyboardEvent) => {
+      // A key typed into the answer box is the box's: its Enter marks the card.
+      if (inEditable(e.target)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       /*
         1 to 4 pick an option where there are options, which is the same key
