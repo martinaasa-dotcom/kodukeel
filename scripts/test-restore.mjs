@@ -29,7 +29,7 @@ const prisma = newPrismaClient(requireLocalDatabase("delete every word, card, ta
   twelfth arrived with the export narrowing to the learner's own words. The 429
   branch below exits before any of them and does not count.
 */
-const { check, done } = suite("Backup and restore", { floor: 12 });
+const { check, done } = suite("Backup and restore", { floor: 13 });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext()).newPage();
@@ -178,10 +178,24 @@ check("every scanned page came back", after.scans === before.scans, `${after.sca
   stand-in for "the whole dictionary" and would now pass on a backup carrying
   nothing at all, since a fixture deck of thirty words has a few hundred forms.
 */
+/*
+  The principal parts, and only those. A restore creates a word as the
+  learner's own and carries what a hand edit could have supplied
+  (`lib/dict/restoredEntry.ts`), so a form filed as `EKILEX:<morphCode>` is
+  the Institute's claim and stays out: a backup file is a document anybody
+  can write. Every stored form that is not one of those is a principal part.
+*/
 const formsBack = await prisma.form.count();
-const formsInFile = parsed.lexemes.reduce((n, l) => n + (l.forms?.length ?? 0), 0);
-check("forms came back with their words", formsBack === formsInFile && formsBack > 0,
+const formsInFile = parsed.lexemes.reduce(
+  (n, l) => n + new Set((l.forms ?? [])
+    .filter((f) => !String(f.formType).startsWith("EKILEX:"))
+    .map((f) => `${f.formType}\u0000${f.value}`)).size,
+  0,
+);
+check("the principal parts came back with their words", formsBack === formsInFile && formsBack > 0,
   `${formsBack}/${formsInFile} forms`);
+const forged = await prisma.form.count({ where: { formType: { startsWith: "EKILEX:" } } });
+check("no restored form claims to be Ekilex's", forged === 0, `${forged} forms`);
 
 // Scheduling state must survive, or the restore silently resets everyone's progress.
 const scheduled = await prisma.card.findFirst({ where: { state: 2 }, orderBy: { due: "desc" } });

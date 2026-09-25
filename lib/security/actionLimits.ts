@@ -78,6 +78,14 @@ export const ACTION_LIMITS = {
    * allowance as `saveScan`, which is the press before it on the same screen.
    */
   addScanToDeck: { perMinute: 15 },
+  /**
+   * Finishing a level check, which appends an `Assessment` row.
+   *
+   * That table is append-only like `Review`, so a loop of calls is a history
+   * nobody can repair rather than a cost that passes. The check takes a quarter
+   * of an hour, so six a minute is a double press with room to spare.
+   */
+  recordAssessment: { perMinute: 6 },
   /** Writes a lexeme and its principal parts into the shared dictionary. */
   editDictionary: { perMinute: 30 },
   /** Resolves a confirmed page against the dictionary and builds cards. */

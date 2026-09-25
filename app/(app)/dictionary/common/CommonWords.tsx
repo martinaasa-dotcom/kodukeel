@@ -8,6 +8,7 @@ import { Card, Chip, SectionTitle } from "@/components/ui";
 import { commonGroup } from "@/lib/collections/commonGroups";
 import type { CommonSection } from "@/lib/progress/common";
 import { addCommonWords } from "@/app/actions";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * THE HUNDRED YOU GET THE MOST OUT OF LEARNING FIRST, IN FOUR LISTS.
@@ -54,8 +55,8 @@ function GroupCard({ section }: { section: CommonSection }) {
 
   function add() {
     start(async () => {
-      const result = await addCommonWords(section.group);
-      if (!result.ok) { setNote(result.error); return; }
+      const result = await addCommonWords(section.group).catch(() => null);
+      if (!result || !result.ok) { setNote(result ? result.error : NOT_REACHED); return; }
       setKept(section.found);
       setNote(result.added === 0
         ? "Those were already in your deck."

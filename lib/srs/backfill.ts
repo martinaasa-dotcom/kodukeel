@@ -3,6 +3,8 @@ import { generateCards, type LexemeForCards } from "@/lib/srs/cards";
 import { lockDeck } from "@/lib/srs/deck";
 import { courseAsksFor } from "@/lib/collections/syllabus";
 import { emptyScheduling } from "@/lib/srs/scheduler";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { deferredDues } from "@/lib/progress/deferrals";
 
 /**
@@ -55,7 +57,15 @@ export async function backfillClozeCards(
      no gap wants none however many sentences arrive. */
   if (!courseAsksFor(lexeme.lemma, "CLOZE")) return 0;
 
-  const generated = generateCards(lexeme as LexemeForCards, ["CLOZE"]);
+  /*
+    Cut from the word's plainest sentence where it is a beginner's word, which
+    is what every other builder of this card does (`addCardsFor`,
+    `lib/srs/deck.ts`). This one read the whole row with `include` and was the
+    one builder the plainness sweep could not see, so an A2 word's gap-fill
+    arriving here was cut from its shortest sentence instead.
+  */
+  const plainest = plainerFirst(lexeme.cefr, await sentenceReach());
+  const generated = generateCards({ ...(lexeme as LexemeForCards), plainest }, ["CLOZE"]);
   if (generated.length === 0) return 0;
 
   /*
