@@ -21761,6 +21761,20 @@ check("every workflow runs on a Node the shipped dependencies accept", () => {
     }
   }
   assert.ok(seen >= 10, `found only ${seen} node-version lines across the workflows`);
+
+  /*
+    And the repository says so itself. A workflow pins CI; the deployment's
+    Node is the host's own setting and a contributor's is whatever they have,
+    and neither reads a workflow. `engines` is what Vercel and npm both read,
+    so its lowest version has to satisfy every range above too, or the one
+    runtime nobody pinned is the one the app ships on.
+  */
+  const pkg = JSON.parse(read("package.json")) as { engines?: { node?: string } };
+  const floor = /^>=\s*(\d+)(?:\.(\d+))?(?:\.(\d+))?$/.exec(pkg.engines?.node ?? "");
+  assert.ok(floor, `package.json declares engines.node as ${JSON.stringify(pkg.engines?.node)}, not a ">=" floor`);
+  const lowest = `${floor[1]}.${floor[2] ?? 0}.${floor[3] ?? 0}`;
+  const refused = ranges.filter(([, r]) => !semver.satisfies(lowest, r)).map(([n, r]) => `${n} ${r}`);
+  assert.deepEqual(refused, [], `package.json allows Node ${lowest}, which ${refused.join(", ")} refuse`);
 });
 
 console.log(
