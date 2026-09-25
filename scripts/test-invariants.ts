@@ -16091,7 +16091,7 @@ check("a case is named only when one case claims the spelling", () => {
 /**
  * NO MODEL DECIDES WHETHER A LEARNER WAS UNDERSTOOD.
  *
- * `docs/19-situations.md` §18 names the first way this module could fail: a
+ * `docs/21-situations.md` §18 names the first way this module could fail: a
  * chatbot in a costume. The guard is a type rather than a rule anybody has to
  * remember. `readTurn` is the only producer of `Evidence` and `advance` is its
  * only consumer, so a caller holding a model's opinion about a turn cannot
@@ -16129,7 +16129,7 @@ check("a case is named only when one case claims the spelling", () => {
 /**
  * A CLASS SEES EFFORT, NEVER A TRANSCRIPT.
  *
- * ADR-019 stands unchanged and `docs/19-situations.md` §18 names the way this
+ * ADR-019 stands unchanged and `docs/21-situations.md` §18 names the way this
  * module would break it: a roster row may say how many conversations somebody
  * finished, and the class panel may say which objective the group most often
  * misses, and a transcript belongs to one person. A `SceneRun` holds every turn
@@ -16203,7 +16203,7 @@ check("a class cannot read a conversation", () => {
       src,
       /prisma\.sceneRun\.(findMany|findFirst|findUnique)/,
       `${file} reads a scene transcript. A class sees effort and aggregate, never ` +
-      "one learner's turns (ADR-019, docs/19-situations.md §18).",
+      "one learner's turns (ADR-019, docs/21-situations.md §18).",
     );
     assert.doesNotMatch(
       src,
@@ -18811,7 +18811,7 @@ check("nothing but the dictionary can advance a scene", () => {
     state,
     /export function advance\(\s*scene: SceneSpec,\s*state: SceneState,\s*evidence: Evidence,/,
     "advance no longer takes Evidence. A caller holding a model's opinion must not be able " +
-    "to satisfy it: that is the whole guard on this module (docs/19-situations.md §8).",
+    "to satisfy it: that is the whole guard on this module (docs/21-situations.md §8).",
   );
 
   /*
@@ -24810,6 +24810,44 @@ check("the Enter that submits a field does not also move the round on", () => {
   }
   assert.deepEqual(offenders, [],
     `${offenders.join(", ")} advances on an Enter that came from the answer field, which is the Enter that just submitted it`);
+});
+
+check("every design document the repository cites is one that exists", () => {
+  /*
+    A path to a design doc is how a comment says where its argument lives,
+    and the argument is what the next reader needs before changing the code.
+    The situations design was cited sixteen times as document 19 across the
+    scene module, the schema, the data model and this file after it had
+    become document 21, so every one of those pointers led to nothing, or
+    to the research export, which is what 19 is now. The section numbers had
+    not moved, which is why nobody noticed: the claim was right and the
+    address was wrong. Read raw rather than through `code()`, because the
+    citations are in comments.
+  */
+  const haystack = [
+    ...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), "prisma/schema.prisma",
+    "CLAUDE.md", "README.md", ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => `docs/${f}`),
+  ];
+  let cited = 0;
+  const missing = new Set<string>();
+  for (const file of haystack) {
+    const text = read(file);
+    for (const m of text.matchAll(/docs\/\d{2}-[a-z0-9-]+\.md/g)) {
+      cited += 1;
+      /*
+        A backlog may name the file a piece of work will produce, which is a
+        citation of something that does not exist yet on purpose. It says so
+        in words beside the path, so the reader is not sent looking for it,
+        and that is what lets it through; the same words on a file that does
+        exist are refused, since then the note is the stale half.
+      */
+      const planned = /^`?\s*\(to be written\)/.test(text.slice(m.index! + m[0].length));
+      if (planned && existsSync(m[0])) missing.add(`${m[0]} is marked to be written and exists (in ${file})`);
+      if (!planned && !existsSync(m[0])) missing.add(`${m[0]} (in ${file})`);
+    }
+  }
+  assert.ok(cited >= 200, `found only ${cited} citations of a design doc, so the sweep has stopped reading what it should`);
+  assert.ok(missing.size === 0, `cites a design doc that does not exist: ${[...missing].join(", ")}`);
 });
 
 check("every action that writes a grade tells Today it changed", () => {
