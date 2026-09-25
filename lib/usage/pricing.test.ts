@@ -4,9 +4,29 @@ import {
   CACHE_READ_RATE,
   CACHE_WRITE_RATE,
   estimateCostMicros,
+  PRICED_MODELS,
   priceFor,
   cacheStorageAsInputTokens,
 } from "./pricing";
+
+/*
+  A ZERO IN THE TABLE IS THE SPEND CAP SWITCHED OFF FOR THAT MODEL, SILENTLY.
+  A model the table does not name prices at the dearest row, so an omission
+  fails expensive and a zero fails silently, which is the whole argument for
+  never writing one. "Free" is a property of an account, not of a model, and
+  the one slug that is genuinely free says so itself (`:free`) and never needs
+  a row. `groq/compound-mini` sat here at zero on the general Groq chain.
+*/
+describe("the price table", () => {
+  it("prices every model it names above zero, both ways", () => {
+    expect(PRICED_MODELS.length).toBeGreaterThan(10);
+    for (const model of PRICED_MODELS) {
+      const price = priceFor(model);
+      expect(price.inputPerMTok, `${model} input`).toBeGreaterThan(0);
+      expect(price.outputPerMTok, `${model} output`).toBeGreaterThan(0);
+    }
+  });
+});
 
 /**
  * What a cached token costs, and why the split has to reach the price.

@@ -37,8 +37,8 @@ export function NextPart({ programmeId, label, quiet = false }: {
         onClick={() => {
           setFailed(false);
           start(async () => {
-            const result = await setProgramme(programmeId);
-            if (!result.ok) { setFailed(true); return; }
+            const result = await setProgramme(programmeId).catch(() => null);
+            if (!result || !result.ok) { setFailed(true); return; }
             router.refresh();
           });
         }}
