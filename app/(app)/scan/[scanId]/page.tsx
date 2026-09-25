@@ -136,7 +136,11 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
         {inDeck > 0 && (
           <section>
             <SectionTitle>Practice this page</SectionTitle>
-            <div className="grid gap-3 sm:grid-cols-3">
+            {/* Three across by the room the tiles have, not the window's: at
+                768 `sm:grid-cols-3` gave each title 25px and "Match" was drawn
+                across three lines. */}
+            <div className="@container">
+            <div className="grid gap-3 @xl:grid-cols-3">
               <PractiseTile
                 href={`/review?scan=${scan.id}`}
                 tone="accent"
@@ -155,6 +159,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                 title="Sprint"
                 body={`${sprintLength}. The fastest way to find out which of these has not stuck.`}
               />
+            </div>
             </div>
           </section>
         )}

@@ -282,8 +282,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           </p>
         </div>
 
-        <div className="px-4 pb-4">
-          <div className="grid gap-2 sm:grid-cols-2">
+        {/* Two across by the room the options have, not the window's: at 768
+            two options gave "seitsetteist" 101px of the 115 it needs. */}
+        <div className="@container px-4 pb-4">
+          <div className="grid gap-2 @md:grid-cols-2">
             {question.options.map((option, i) => {
               const isAnswer = option.value.toLowerCase() === question.heard.toLowerCase();
               const isPicked = option.value === picked;

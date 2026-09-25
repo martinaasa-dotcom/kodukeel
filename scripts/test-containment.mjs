@@ -357,14 +357,10 @@ const SPARSE = new Map([
 // through the scanned page's drill now (see `wordAboveA1`), and a run with the
 // stub key CI starts its server with reaches all 1580. The floor is that.
 //
-// The broken-word question adds one check a pass. Run against a production
-// build here it asked 274 of them over 1644 checks, on a database whose other
-// checks came to 1370 against the 1300 above, so the fixture this floor was set
-// on reaches about 258. It rose by 250, keeping a margin under that,
-// because the count is a property of which screens a fixture can reach and the
-// margin is what stops one missing row reading as a deleted block.
-// On top of main's 1580, whose passes number about 313 at five checks each,
-// the fifth question adds 300.
+// The broken-word question adds one check a pass. Measured on a production
+// build over main's own code: 1872 checks with the shelf's 20 waived, of which
+// 312 were this question, so a run that reaches the shelf comes to about 1896.
+// 1880 keeps a margin under that without letting a deleted block through.
 const { check, absent, done } = suite("Containment", { floor: 1880 });
 
 /**

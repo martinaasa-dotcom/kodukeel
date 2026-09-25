@@ -29,10 +29,14 @@ export function WorkplaceView({ summary, sponsor }: {
 
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatTile value={summary.members.length} label="People" tone="sky" />
-        <StatTile value={summary.active} label={`Practiced in ${QUIET_DAYS} days`} tone="mint" />
-        <StatTile value={counts.likely} label={`On track for ${summary.level}`} tone="accent" />
+      {/* Three across by the room the tiles have, not the window's: at 768
+          `sm:grid-cols-3` left "Practiced" 83px of the 94 it needs. */}
+      <div className="@container">
+        <div className="grid gap-3 @lg:grid-cols-3">
+          <StatTile value={summary.members.length} label="People" tone="sky" />
+          <StatTile value={summary.active} label={`Practiced in ${QUIET_DAYS} days`} tone="mint" />
+          <StatTile value={counts.likely} label={`On track for ${summary.level}`} tone="accent" />
+        </div>
       </div>
 
       {/*

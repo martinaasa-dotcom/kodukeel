@@ -97,10 +97,14 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
         <Prompt ask={ask} />
       </p>
 
+      {/* Two across by the room the options have rather than the window's:
+          on a reading page at 768 that is a 368px column, and two options
+          gave "armastust" 89px of the 103 it needs, drawn across two lines. */}
+      <div className="@container mt-4">
       <ChoiceGroup
         ariaLabel="Which form"
         select="one"
-        className="mt-4 grid gap-2 sm:grid-cols-2"
+        className="grid gap-2 @md:grid-cols-2"
       >
         {ask.options.map((option, i) => {
           const state = picked === null ? null : optionState(option === ask.answer, option === picked);
@@ -120,6 +124,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
           );
         })}
       </ChoiceGroup>
+      </div>
 
       <p role="status" aria-live="polite" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>
         {picked === null ? "" : (
