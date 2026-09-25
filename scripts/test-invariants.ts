@@ -13312,6 +13312,36 @@ check("a workplace group is a narrower query, never a hidden column", () => {
   assert.match(page, /workplaceRoster\(/, "the class page never runs the narrower read");
 });
 
+check("a teacher's roster is never read for a workplace group", () => {
+  /*
+    The check above holds the class page to choosing its read by the group's
+    kind. The progress page's board is the other caller, and it asked for the
+    learner's newest membership of any kind and ran `classRoster` over it, so a
+    workplace group was drawn as a league table of colleagues ranked by their
+    week, with a trophy on the first row, on every member's Progress page and
+    on the sponsor's. That is the ranking the workplace view exists to refuse.
+
+    So every caller of the teacher's read outside the module has to have asked
+    what kind of group it is holding, by `cohortKind` or by filtering the kind
+    in its query, before it reads.
+  */
+  const callers = [...APP, ...LIB].filter(
+    (file) =>
+      !file.endsWith(".test.ts") &&
+      !file.endsWith(".itest.ts") &&
+      file !== "lib/classroom/roster.ts" &&
+      /\bclassRoster\(/.test(code(file)),
+  );
+  assert.ok(callers.length >= 3, `found ${callers.length} callers of classRoster; this check has stopped finding them`);
+  for (const file of callers) {
+    assert.match(
+      code(file),
+      /cohortKind\(|kind:\s*\{\s*not:\s*"WORKPLACE"/,
+      `${file} runs classRoster without asking whether the group is a workplace`,
+    );
+  }
+});
+
 check("what the learner has kept is counted, never stored", () => {
   /*
     ADR-014 over the newest number on Today. The word of the day panel says how
