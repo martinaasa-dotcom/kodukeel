@@ -1,8 +1,5 @@
 import { prisma } from "@/lib/db";
-import { CASES } from "@/lib/estonian/cases";
-import { askedCase } from "@/lib/srs/slots";
-
-const CASE_SLOTS = CASES.map((c) => c.key as string);
+import { CASE_SLOTS, caseAsked } from "@/lib/srs/slots";
 
 /**
  * The reviews a learner's weakest case is worked out from.
@@ -41,20 +38,20 @@ const CASE_SLOTS = CASES.map((c) => c.key as string);
 const WINDOW_DAYS = 182;
 const CAP = 5000;
 
-export function caseReviewsFor(
+export async function caseReviewsFor(
   ownerId: string,
   now: Date = new Date(),
 ): Promise<{ targetCase: string | null; rating: number }[]> {
-  return prisma.review.findMany({
+  const rows = await prisma.review.findMany({
     where: {
       ownerId,
-      OR: [{ targetCase: { not: null } }, { slot: { in: CASE_SLOTS } }],
+      // A card about a case, or an answer asked in one: see `caseAsked`.
+      OR: [{ targetCase: { not: null } }, { slot: { in: [...CASE_SLOTS] } }],
       reviewedAt: { gte: new Date(now.getTime() - WINDOW_DAYS * 86_400_000) },
     },
     select: { targetCase: true, slot: true, rating: true },
     orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
     take: CAP,
-  }).then((rows) => rows
-    .map((row) => ({ targetCase: askedCase(row), rating: row.rating }))
-    .filter((row) => row.targetCase !== null));
+  });
+  return rows.map((row) => ({ targetCase: caseAsked(row), rating: row.rating }));
 }

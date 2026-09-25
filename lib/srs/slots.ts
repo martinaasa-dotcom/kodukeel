@@ -122,20 +122,26 @@ export function isKnownSlot(slot: string): boolean {
   return CASE_KEYS.has(slot) || CONJUGATION_CODES.has(slot) || MEANING_SLOTS.includes(slot);
 }
 
+/** Every case key, for a query that has to ask the database which rows name one. */
+export const CASE_SLOTS: readonly string[] = [...CASE_KEYS];
+
 /**
- * The case an answer was about, for everything that tallies cases.
+ * THE CASE AN ANSWER WAS ABOUT, WHICH IS THE CASE IT WAS ASKED IN.
  *
- * `Review.targetCase` is the case of the *card*; `Review.slot` is what the
- * round asked. They are the same on an ordinary case card and different where
- * a round asks one card for another case, which the writing round and Target
- * both do: asked for the sisseütlev on a card about the seesütlev, a miss was
- * charted as a miss at the seesütlev, on the panel that then sent the learner
- * back to drill the case they had not been asked. The slot wins where it is a
- * case, and a morph code or a card type falls back to the card's own, which
- * is what every row written before the slot existed reads as.
+ * `Review.targetCase` is the case the *card* is about and `Review.slot` is what
+ * was actually asked, and they differ exactly where a round asks one word in a
+ * case its card is not about: the flash round asks `tuba` in the seesütlev on
+ * the word's production card, whose `targetCase` is null, so the answer never
+ * reached the weakest-case figure at all, and a writing or aim-and-hit answer
+ * about the kaasaütlev graded on an inessive card counted as an inessive one.
+ * So the slot answers where it names a case, a slot that names something else
+ * (a meaning, a part of a verb) is not a case answer whatever its card is, and
+ * a row written before the slot existed keeps the card's case, which is the
+ * reading it always had.
  */
-export function askedCase(row: { targetCase: string | null; slot?: string | null }): string | null {
-  return row.slot && CASE_KEYS.has(row.slot) ? row.slot : row.targetCase;
+export function caseAsked(row: { targetCase: string | null; slot?: string | null }): string | null {
+  if (row.slot == null) return row.targetCase;
+  return CASE_KEYS.has(row.slot) ? row.slot : null;
 }
 
 /** Whether a slot is a grammatical form rather than a question about meaning. */

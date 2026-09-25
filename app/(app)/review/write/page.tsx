@@ -10,7 +10,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 import { CASES } from "@/lib/estonian/cases";
-import { askedCase } from "@/lib/srs/slots";
+import { caseAsked } from "@/lib/srs/slots";
 
 export const metadata = { title: "Writing" };
 
@@ -81,7 +81,7 @@ export default async function WritePage({
 
   // The cases this learner has slipped on most, so the round targets weakness
   // rather than sampling evenly.
-  // Grouped on the pair and folded through `askedCase`, so a miss counts at
+  // Grouped on the pair and folded through `caseAsked`, so a miss counts at
   // the case the round asked rather than at the card's own.
   const weak = await prisma.review.groupBy({
     by: ["targetCase", "slot"],
@@ -90,7 +90,7 @@ export default async function WritePage({
   });
   const missesByCase = new Map<string, number>();
   for (const w of weak) {
-    const key = askedCase(w);
+    const key = caseAsked(w);
     if (key) missesByCase.set(key, (missesByCase.get(key) ?? 0) + w._count._all);
   }
   const weakCases = new Set(
