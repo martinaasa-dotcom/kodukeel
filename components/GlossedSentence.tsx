@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, Check, Loader2, Plus, Underline, X } from "lucide-react";
 import { addToDeck, setWordGloss } from "@/app/actions";
@@ -76,11 +76,33 @@ export function GlossedSentence({ tokens, sentence, speak }: {
   */
   const [dismissed, setDismissed] = useState(false);
   const chosen = open === null || dismissed ? null : tokens[open] ?? null;
+  /*
+    WHERE THE CARET GOES WHEN THE THING HOLDING IT GOES. Closing the panel
+    unmounts the close button under the caret, and turning the underlines off
+    turns every word button into plain text, so both used to leave focus on the
+    body. Closing hands it back to the word the panel was about, and turning
+    off hands it to the sentence itself, which is what is still there.
+    `returning` stops the word's own focus handler reopening the panel it has
+    just been handed back from.
+  */
+  const words = useRef(new Map<number, HTMLButtonElement>());
+  const line = useRef<HTMLParagraphElement>(null);
+  const returning = useRef(false);
+  const close = () => {
+    const word = open === null ? undefined : words.current.get(open);
+    setOpen(null);
+    if (word) {
+      returning.current = true;
+      word.focus();
+      returning.current = false;
+    }
+  };
+  useEffect(() => { if (dismissed) line.current?.focus(); }, [dismissed]);
 
   return (
     <div className="w-full">
       <div className="flex items-start gap-2">
-        <p lang="et" className="flex-1 text-lg font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+        <p ref={line} tabIndex={-1} lang="et" className="flex-1 text-lg font-semibold leading-snug outline-none" style={{ color: "var(--ink)" }}>
           {tokens.map((token, i) => {
             if (token.taught) {
               return (
@@ -94,6 +116,10 @@ export function GlossedSentence({ tokens, sentence, speak }: {
             return (
               <button
                 key={i}
+                ref={(el) => {
+                  if (el) words.current.set(i, el);
+                  else words.current.delete(i);
+                }}
                 type="button"
                 /* An inline word in a sentence is deliberately not padded up to
                    the 44px floor: vertical padding on an inline box grows the
@@ -126,7 +152,7 @@ export function GlossedSentence({ tokens, sentence, speak }: {
                 aria-expanded={showing}
                 aria-controls={panelId}
                 onPointerEnter={(e) => { if (e.pointerType === "mouse") setOpen(i); }}
-                onFocus={() => setOpen(i)}
+                onFocus={() => { if (!returning.current) setOpen(i); }}
                 /* Always opens, never toggles. A mouse arriving on the word
                    has already opened it, so a click that toggled would close
                    the panel of the word the pointer is sitting on, which is
@@ -152,7 +178,7 @@ export function GlossedSentence({ tokens, sentence, speak }: {
             key={`${chosen.entry.lexemeId}:${chosen.text}`}
             spelling={chosen.text}
             entry={chosen.entry}
-            onClose={() => setOpen(null)}
+            onClose={close}
             onTurnOff={() => setDismissed(true)}
           />
         )}

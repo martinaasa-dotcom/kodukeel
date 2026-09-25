@@ -23,16 +23,6 @@ function openingTags(src: string) {
 
 const lineOf = (src: string, at: number) => src.slice(0, at).split("\n").length;
 
-/*
-  Two files outside this pass hold a live region that arrives with its
-  sentence. Named rather than excused silently, and checked for staleness so a
-  fix there takes the line out.
-*/
-const NOT_YET: Readonly<Record<string, string>> = {
-  "app/(app)/review/cloze/ClozeSession.tsx": "its feedback panel mounts with the verdict; outside the pass that wrote this check",
-  "app/(app)/review/common/DeepenButton.tsx": "its note mounts with the answer to a press; outside the pass that wrote this check",
-};
-
 export default function verdictsAreAnnounced({ check, APP, COMPONENTS, code }: InvariantKit) {
   const haystack = [...APP, ...COMPONENTS].filter(
     (f) => f.endsWith(".tsx") && (f.startsWith("app/(app)/review/") || f.startsWith("components/assessment/")),
@@ -41,7 +31,6 @@ export default function verdictsAreAnnounced({ check, APP, COMPONENTS, code }: I
   check("a live region on a marking screen is mounted before its sentence and never keyed", () => {
     let regions = 0;
     const offenders: string[] = [];
-    const stillBroken = new Set<string>();
     for (const f of haystack) {
       const src = code(f);
       for (const { attrs, at } of openingTags(src)) {
@@ -52,14 +41,11 @@ export default function verdictsAreAnnounced({ check, APP, COMPONENTS, code }: I
         const conditional = /(&&|\?|:)\s*\(?$/.test(before);
         const keyed = /\bkey=/.test(attrs);
         if (!conditional && !keyed) continue;
-        if (f in NOT_YET) { stillBroken.add(f); continue; }
         offenders.push(`${f}:${lineOf(src, at)} ${keyed ? "is keyed" : "is mounted with its sentence"}`);
       }
     }
     assert.ok(regions >= 20, `found only ${regions} live regions on marking screens, so this check stopped looking`);
     assert.deepEqual(offenders, [], `a live region here would not be read out:\n  ${offenders.join("\n  ")}`);
-    const stale = Object.keys(NOT_YET).filter((f) => !stillBroken.has(f));
-    assert.deepEqual(stale, [], `these are fixed now, take them off NOT_YET: ${stale.join(", ")}`);
   });
 
   check("an option painted with a verdict is a button, so it keeps the focus it had", () => {

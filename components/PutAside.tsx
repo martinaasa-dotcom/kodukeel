@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Card, Chip, SectionTitle } from "@/components/ui";
 import { Button } from "@/components/Button";
@@ -31,8 +31,19 @@ import type { DeferredWord } from "@/lib/progress/deferrals";
 export function PutAside({ words }: { words: readonly DeferredWord[] }) {
   const [gone, setGone] = useState<ReadonlySet<string>>(new Set());
   const [pending, start] = useTransition();
+  /*
+    WHAT THE LAST PRESS DID, SAID OUT LOUD AND ON THE PAGE.
+    The row vanished on a yes and nothing happened on a no, so a screen reader
+    heard neither and a sighted reader saw nothing after a failure. The line
+    stays mounted, so the region is there before its text changes.
+  */
+  const [said, setSaid] = useState<{ ok: boolean; text: string } | null>(null);
+  const buttons = useRef(new Map<string, HTMLButtonElement>());
   const showing = words.filter((word) => !gone.has(word.lexemeId));
-  if (showing.length === 0) return null;
+  if (showing.length === 0) {
+    // The last word came back: the list is gone, the sentence saying so is not.
+    return said ? <p role="status" className="text-sm" style={{ color: "var(--ink-3)" }}>{said.text}</p> : null;
+  }
 
   return (
     <Card>
@@ -74,13 +85,34 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
             </span>
             <Button
               size="sm"
-              disabled={pending}
+              ref={(el) => {
+                if (el) buttons.current.set(word.lexemeId, el);
+                else buttons.current.delete(word.lexemeId);
+              }}
+              // Every row's button says the same two words, so the name says
+              // which word; and it is not `disabled` while the write is out,
+              // because that drops the caret off the button that was pressed.
+              aria-label={`Bring ${word.lemma} back`}
+              aria-disabled={pending || undefined}
+              className="aria-disabled:opacity-45"
               onClick={() => {
+                if (pending) return;
+                const at = showing.findIndex((w) => w.lexemeId === word.lexemeId);
+                const next = showing[at + 1] ?? showing[at - 1];
                 start(async () => {
                   const result = await bringWordBack(word.lexemeId).catch(() => null);
                   // Only on a yes. A row that vanished on a failed write would
                   // tell somebody a word is back when the deck disagrees.
-                  if (result?.ok) setGone((set) => new Set(set).add(word.lexemeId));
+                  if (!result?.ok) {
+                    setSaid({ ok: false, text: `${word.lemma} could not be brought back. Try again in a moment.` });
+                    return;
+                  }
+                  setSaid({ ok: true, text: `${word.lemma} is back in your reviews.` });
+                  setGone((set) => new Set(set).add(word.lexemeId));
+                  // The pressed row is about to go, and its button with it: hand
+                  // the caret to the neighbouring row's. The last word leaves
+                  // only the sentence saying it came back, which is announced.
+                  if (next) buttons.current.get(next.lexemeId)?.focus();
                 });
               }}
             >
@@ -89,6 +121,13 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
           </li>
         ))}
       </ul>
+      <p
+        role="status"
+        className={said ? "mt-3 text-sm" : "sr-only"}
+        style={{ color: said && !said.ok ? "var(--again-ink)" : "var(--ink-3)" }}
+      >
+        {said?.text ?? ""}
+      </p>
     </Card>
   );
 }

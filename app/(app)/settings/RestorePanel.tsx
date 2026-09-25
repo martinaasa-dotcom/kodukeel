@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { AlertTriangle, Upload } from "lucide-react";
 import { type RestoreSummary } from "@/app/actions";
 import { Button } from "@/components/Button";
@@ -23,6 +23,14 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const doneRef = useRef<HTMLParagraphElement>(null);
+  /*
+    A RESTORE THAT FINISHED TAKES ITS OWN BUTTON AWAY: the summary it sat in
+    is cleared, so the caret the press left there would land on the body. It
+    goes to the sentence saying what happened, which is also what a screen
+    reader then reads. Only ever after a press, since `done` starts empty.
+  */
+  useEffect(() => { if (done) doneRef.current?.focus(); }, [done]);
 
   /*
     Every call here is wrapped, because the failure that mattered was the one
@@ -56,7 +64,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
   };
 
   const submit = () => {
-    if (!json) return;
+    if (!json || pending || replaceBlocked) return;
     setError(null);
     start(async () => {
       /*
@@ -193,7 +201,12 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
             <Button
               variant={mode === "replace" ? "danger" : "primary"}
               onClick={submit}
-              disabled={pending || replaceBlocked}
+              // Not `disabled` while it runs: the press starts the run, and a
+              // control disabled under the caret drops focus onto the body.
+              disabled={replaceBlocked}
+              aria-disabled={pending || undefined}
+              aria-busy={pending || undefined}
+              className="aria-disabled:opacity-45"
             >
               <Upload size={15} aria-hidden />
               {pending ? "Restoring…" : mode === "merge" ? "Merge this backup in" : "Replace everything"}
@@ -202,8 +215,12 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
         </div>
       )}
 
-      {error && <p className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>}
-      {done && <p className="mt-3 text-sm" style={{ color: "var(--good-ink)" }}>{done}</p>}
+      {error && <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>}
+      {done && (
+        <p ref={doneRef} tabIndex={-1} role="status" className="mt-3 text-sm outline-none" style={{ color: "var(--good-ink)" }}>
+          {done}
+        </p>
+      )}
     </div>
   );
 }

@@ -136,18 +136,35 @@ export function Speak({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoplay, wanted, disabled, text, slow, voice, condition?.id, pace.id]);
 
-  if (state === "gone") return null;
+  /*
+    A BUTTON THAT HAS GONE SAYS SO, TO THE ONE READER WHO CANNOT SEE IT GO.
+    Taking it away is deliberate (a dead speaker is worse than none), and a
+    sighted reader sees the gap. A screen reader whose focus was on it is left
+    on the page with nothing said, so a quiet status stands where it was.
+  */
+  if (state === "gone") return <span role="status" className="sr-only">No audio for this one.</span>;
+
+  const loading = state === "loading";
 
   return (
     <button
       type="button"
-      onClick={() => void play()}
-      disabled={disabled || state === "loading"}
+      /*
+        NOT `disabled` WHILE ITS OWN CLIP LOADS. The press is what starts the
+        load, and a browser moves focus off a control the moment it is
+        disabled, so every press dropped the caret on the body. It says it is
+        busy instead and ignores a second press. `disabled` is the caller's,
+        for a pause or a spent budget, which is not a press of this button.
+      */
+      onClick={() => { if (!loading) void play(); }}
+      disabled={disabled}
+      aria-disabled={loading || undefined}
+      aria-busy={loading || undefined}
       aria-label={label ?? `Hear "${text}"${slow ? " slowly" : ""} in Estonian`}
       className={className ?? "press inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"}
       style={{ color: "var(--ink-3)", opacity: disabled ? 0.4 : undefined, ...style }}
     >
-      {state === "loading"
+      {loading
         ? <Loader2 size={size} className="animate-spin" aria-hidden />
         : children ?? <Volume2 size={size} strokeWidth={2} aria-hidden />}
     </button>
@@ -188,7 +205,7 @@ export function SpeakPair({
   autoplay?: boolean;
 }) {
   const [gone, setGone] = useState(false);
-  if (gone) return null;
+  if (gone) return <span role="status" className="sr-only">No audio for this one.</span>;
 
   const lost = () => {
     setGone(true);

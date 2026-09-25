@@ -48,9 +48,8 @@ export function DeepenButton({ group, label }: {
         <Plus size={15} aria-hidden />
         {pending ? "Adding" : label ?? `Add the next ${COMMON_BATCH}`}
       </Button>
-      {note && (
-        <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">{note}</p>
-      )}
+      {/* Always mounted, so the answer to the press is read out when it arrives. */}
+      <p className={note ? "text-sm" : "sr-only"} style={{ color: "var(--ink-2)" }} role="status">{note}</p>
     </div>
   );
 }
