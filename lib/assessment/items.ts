@@ -554,10 +554,22 @@ function meansLine(lemma: string, translation: string): string {
   return sameSpelling(lemma, translation) ? SAME_SPELLING : `${lemma} is ${translation}.`;
 }
 
-export function readingItems(words: readonly WordRow[], rng: () => number): ChoiceItem[] {
+export function readingItems(
+  words: readonly WordRow[],
+  rng: () => number,
+  /**
+   * What every spelling in the dictionary means. The listening word question
+   * learned to rule out every entry its spelling belongs to (`meie` is also
+   * the genitive plural of `mina`), and this one prints the same spelling and
+   * had not: "I, me" stood among the wrong answers for `meie`. Optional for
+   * the reason `listeningItems` gives.
+   */
+  heard: HeardIndex = new Map(),
+): ChoiceItem[] {
   const pool = usableWords(words);
   const glosses = pool.map(glossFor);
   const out: ChoiceItem[] = [];
+  const inPool = heardIndex(pool);
 
   for (const word of shuffle(pool, rng)) {
     /*
@@ -574,7 +586,8 @@ export function readingItems(words: readonly WordRow[], rng: () => number): Choi
     const band = bandOf(word.cefr)!;
     const set = pickOptions({
       answer: glossFor(word), candidates: glosses, rng,
-      distinct: meaningTest(word, pool), nearness: glossNearness,
+      distinct: meaningTest(word, pool, meaningsHeard(word.lemma, inPool, heard)),
+      nearness: glossNearness,
     });
     if (!set) continue;
     out.push({
@@ -909,8 +922,10 @@ export function speakingItems(words: readonly WordRow[], rng: () => number): Spe
  * spending them on listening (6/6/3) placed 83% and on reading (9/3/3) placed
  * 82%.
  *
- * **The overall level is the weakest of three skills (ADR-020), so noise in
- * any one of them lands on the result.** That is why raising reading alone was
+ * **The overall level was then the weakest of three skills (ADR-020), so
+ * noise in any one of them landed on the result.** It is their average now
+ * (amendment 2, `overallFrom`), and the figures here were measured under the
+ * old rule. That is why raising reading alone was
  * not enough: 7/2/2 took the placement from 43% to 52% and left a genuine C1
  * being told A1 more often than C1.
  *
@@ -1010,7 +1025,7 @@ export function buildPaper(words: readonly WordRow[], seed: number, heard: Heard
     return first.length > 0 ? first : assemble(candidates, limit);
   };
 
-  const reading = section(interleave(readingItems(words, rng)), BLUEPRINT.reading);
+  const reading = section(interleave(readingItems(words, rng, heard)), BLUEPRINT.reading);
   const listening = section(interleave(listeningItems(words, rng, heard)), BLUEPRINT.listening);
   const writing = section(writingItems(words, rng), BLUEPRINT.writing);
   const speaking = section(speakingItems(words, rng), BLUEPRINT.speaking);

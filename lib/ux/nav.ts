@@ -72,8 +72,6 @@ export interface Destination {
    *     marked "Ask Anu" was a second door onto a room whose door is always
    *     open. The page stays a destination because the grammar pages, the leech
    *     clinic and a review card all link to it with a question already written.
-   *   - `/week` — the week you are in leads the Tasks page now, which is where
-   *     the homework filed under it already was.
    *   - `/scan` — a way of getting words *in*, which is what the dictionary is
    *     for. It sat under "Look it up", which is not what it does.
    *   - `/dictionary/common` — the commonest words are a way *into* the

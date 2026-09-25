@@ -6,7 +6,13 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { deleteMyAccount } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { Card, SectionTitle } from "@/components/ui";
-import { createClient } from "@/lib/supabase/client";
+/*
+  Fetched when it is needed rather than imported: the Supabase browser client
+  is 254 KB with its Buffer polyfill, and Settings only needs it after an
+  account has been deleted. See components/Sidebar.tsx.
+*/
+const signOutOfSupabase = () =>
+  import("@/lib/supabase/client").then(({ createClient }) => createClient().auth.signOut());
 import { forgetThisDevice } from "@/lib/offline/forget";
 
 /**
@@ -50,7 +56,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
       // would show a stranger's-eye view of an empty app rather than a sign-in.
       // The device forgets too, or the cached pages would outlive the account.
       await forgetThisDevice();
-      await createClient().auth.signOut().catch(() => {});
+      await signOutOfSupabase().catch(() => {});
       router.push("/sign-in");
       router.refresh();
     } catch {
@@ -85,7 +91,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
             <div className="mt-3">
               <Button
                 onClick={() => {
-                  void forgetThisDevice().then(() => createClient().auth.signOut()).catch(() => {});
+                  void forgetThisDevice().then(signOutOfSupabase).catch(() => {});
                   router.push("/sign-in");
                   router.refresh();
                 }}

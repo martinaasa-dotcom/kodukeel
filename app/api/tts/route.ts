@@ -7,9 +7,10 @@ import { type AudioSource, readAudio, writeAudio } from "@/lib/audio/store";
 import { singleFlightTagged } from "@/lib/cache/singleFlight";
 import { recordUsage, authoriseCall, releaseReservation } from "@/lib/usage/ledger";
 import { DEFAULT_VOICE, voiceFrom, VOICES } from "@/lib/audio/voice";
-import { prepareClip, WavError } from "@/lib/audio/wav";
+import { clipForStore } from "@/lib/audio/wav";
 import { spokenText } from "@/lib/audio/say";
 import { reportError } from "@/lib/observability/report";
+import { NO_STORE } from "@/lib/security/headers";
 
 const TARTU_NLP = "https://api.tartunlp.ai/text-to-speech/v2";
 const MAX_CHARS = 400;
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
     */
     const body = (await request.json()) as { text?: unknown; voice?: unknown };
     if (typeof body.text !== "string" || !body.text.trim()) {
-      return NextResponse.json({ error: "Nothing to say." }, { status: 400 });
+      return NextResponse.json({ error: "Nothing to say." }, { headers: NO_STORE, status: 400 });
     }
     /*
       Finished, rather than as typed. TartuNLP reads sentences, and a bare
@@ -134,7 +135,7 @@ export async function POST(request: Request) {
     */
     if (typeof body.voice === "string" && VOICES.some((v) => v.id === body.voice)) voice = voiceFrom(body.voice);
   } catch {
-    return NextResponse.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return NextResponse.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
 
   const speaker = voice ?? voiceFrom(process.env.TTS_SPEAKER ?? DEFAULT_VOICE);
@@ -174,7 +175,7 @@ export async function POST(request: Request) {
   if (!ownerId) {
     return Response.json(
       { error: "That clip is not stored yet, and we could not tell who is asking. Try again in a moment." },
-      { status: 503, headers: { "retry-after": "30" } },
+      { status: 503, headers: { ...NO_STORE, "retry-after": "30" } },
     );
   }
   const decision = await authoriseCall(ownerId, "TTS");
@@ -183,9 +184,10 @@ export async function POST(request: Request) {
       { error: decision.message, reason: decision.reason },
       {
         status: 429,
-        headers: decision.retryAfterSeconds
-          ? { "retry-after": String(decision.retryAfterSeconds) }
-          : undefined,
+        headers: {
+          ...NO_STORE,
+          ...(decision.retryAfterSeconds ? { "retry-after": String(decision.retryAfterSeconds) } : {}),
+        },
       },
     );
   }
@@ -231,7 +233,7 @@ export async function POST(request: Request) {
     const status = error instanceof SpeechError ? error.status : 503;
     const message =
       status === 502 ? "Speech service could not read that." : "Speech service unreachable.";
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json({ error: message }, { headers: NO_STORE, status });
   }
 }
 
@@ -262,27 +264,17 @@ async function speak(
   if (!upstream.ok) throw new SpeechError(502);
 
   const raw = new Uint8Array(await upstream.arrayBuffer());
-  const audio = Buffer.from(prepare(raw));
-  await writeAudio(hash, audio); // Never throws: a failed cache write is a slower next play.
-  return audio;
-}
-
-/**
- * Trimmed, leveled and written as 16-bit before it is kept; see lib/audio/wav.ts.
- * A response this cannot read is kept as it came, reported, and still spoken,
- * because an untrimmed clip is better than none and the report is how anybody
- * learns the service changed its format.
- */
-function prepare(raw: Uint8Array): Uint8Array {
-  try {
-    return prepareClip(raw);
-  } catch (error) {
-    if (error instanceof WavError) {
-      reportError(error, { at: "tts/prepare", extra: { bytes: raw.byteLength } });
-      return raw;
-    }
-    throw error;
+  // Nothing to play is a failed answer, not a clip; the booking goes back.
+  if (raw.byteLength === 0) throw new SpeechError(502);
+  const prepared = clipForStore(raw);
+  if (prepared.error) {
+    reportError(prepared.error, { at: "tts/prepare", extra: { bytes: raw.byteLength } });
   }
+  const audio = Buffer.from(prepared.audio);
+  // Never throws: a failed cache write is a slower next play. And only a clip
+  // this route could read is kept, since the store answers before the service.
+  if (prepared.keep) await writeAudio(hash, audio);
+  return audio;
 }
 
 /**
@@ -323,7 +315,7 @@ function wav(body: Buffer, cache: AudioSource | "joined") {
   return new NextResponse(new Uint8Array(body), {
     headers: {
       "content-type": "audio/wav",
-      "cache-control": "no-store",
+      ...NO_STORE,
       // Which of the three caches answered, for the offline smoke test and for
       // anybody wondering whether the disk store is doing its job.
       "x-tts-cache": cache,
