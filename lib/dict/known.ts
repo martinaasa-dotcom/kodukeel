@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { fold, FOLD_FROM, FOLD_TO } from "@/lib/estonian/fold";
 import { isKnownForm, lemmasOfForm } from "./forms";
+import { likeLiteral } from "./search";
 
 /**
  * IS THAT AN ESTONIAN WORD?
@@ -41,11 +42,14 @@ const SUGGESTIONS = 3;
 /**
  * How many candidates a suggestion is chosen from.
  *
- * The prefix index makes this a seek rather than a scan, and the cap is what
- * stops a two-letter prefix like `ka` reading several thousand rows to rank
- * three. Ordered, because it is a `take`.
+ * The prefix index makes this a seek rather than a scan, and the length window
+ * in `didYouMean` is what keeps the draw small. The cap sits above the largest
+ * window the built word list has, measured at 4,227 rows (`ka` at ten letters,
+ * give or take two), so it bounds the read without ever deciding which words
+ * are suggestible. It was 800 over the whole prefix, and that cap did decide:
+ * see `didYouMean`. Ordered, because it is a `take`.
  */
-const CANDIDATES = 800;
+const CANDIDATES = 5_000;
 
 /**
  * Whether the spelling is an Estonian word at all, and which headwords it is
@@ -93,6 +97,16 @@ export async function isKnownWord(query: string): Promise<boolean> {
  * a 24-letter compound never was one. The lemma still ends the order, so the
  * cut is stable rather than the plan's choice.
  *
+ * AND SHORTEST FIRST MOVED THE HOLE RATHER THAN CLOSING IT. The cap still cut
+ * each big prefix in half, only at the other end: `raamatukogu` is 1,751st of
+ * the 3,111 `ra` headwords by length and `kartulisalat` 5,107th of the 6,947
+ * `ka` ones, so `raamatukgu` and `kartulisalt` came back with nothing, and the
+ * same 77,402 words could never be offered, now the long ones. What makes a
+ * candidate worth ranking is its length *relative to the query*, since
+ * `nearest` throws away anything more than `MAX_DISTANCE` letters longer or
+ * shorter before it measures a thing. So the draw is that window, nearest
+ * length first, and the cap sits above the largest window there is.
+ *
  * And the folding table is `lib/estonian/fold.ts`'s, not a fourth copy of the
  * six letters: that module exists because a marker and a search box that
  * disagreed about `ž` would mark somebody wrong for a spelling the dictionary
@@ -104,11 +118,13 @@ export async function didYouMean(query: string): Promise<string[]> {
 
   // Two characters rather than three: a missing second letter is common, and
   // three would rule out the correction for it.
-  const prefix = folded.slice(0, 2);
+  const prefix = likeLiteral(folded.slice(0, 2));
+  const length = [...folded].length;
   const rows = await prisma.$queryRaw<{ lemma: string }[]>`
     SELECT lemma FROM "KnownWord"
-    WHERE translate(lower(lemma), ${FOLD_FROM}, ${FOLD_TO}) LIKE ${`${prefix}%`}
-    ORDER BY length(lemma) ASC, lemma ASC
+    WHERE translate(lower(lemma), ${FOLD_FROM}, ${FOLD_TO}) LIKE ${`${prefix}%`} ESCAPE '\\'
+      AND char_length(lemma) BETWEEN ${length - MAX_DISTANCE} AND ${length + MAX_DISTANCE}
+    ORDER BY abs(char_length(lemma) - ${length}) ASC, lemma ASC
     LIMIT ${CANDIDATES}
   `;
   return nearest(folded, rows.map((r) => r.lemma));

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEADLINES, REASONS, TARGETS, countdownPhrase, daysUntil, deadlineFrom, describeSituation, firstSceneFor, impliedTarget, normaliseGoals, reasonById, reasonsFor, reasonsToStored, targetByBand, weeksUntil } from "./goals";
+import { DEADLINES, REASONS, TARGETS, countdownPhrase, daysUntil, deadlineFrom, describeSituation, firstSceneFor, impliedTarget, normaliseGoals, reasonById, reasonsFor, reasonsToStored, targetByBand, weeksUntil, exactWeeksUntil } from "./goals";
 import { BANDS } from "./types";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { dayClock } from "@/lib/time/day";
@@ -95,6 +95,10 @@ describe("deadlines", () => {
     expect(weeksUntil("2025-01-01T10:00:00Z", now)).toBe(0);
     expect(weeksUntil(null, now)).toBeNull();
     expect(weeksUntil("not a date", now)).toBeNull();
+    // The window a letter is sent in reads the unrounded figure, where 24.6 days is not four weeks.
+    const inDays = (d: number) => new Date(now.getTime() + d * 86_400_000).toISOString();
+    expect(weeksUntil(inDays(24.6), now)).toBe(4);
+    expect(exactWeeksUntil(inDays(24.6), now)).toBeCloseTo(24.6 / 7);
   });
 });
 
