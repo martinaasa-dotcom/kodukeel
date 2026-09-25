@@ -371,11 +371,20 @@ export const ERRORS = {
  *
  * The ids are keys of the app's own price table in `lib/usage/pricing.ts`, and
  * the cost comes from `reserveMicros` against that table, so this page cannot
- * quote a rate the running app does not also charge. A free model is
- * deliberately not among the options: the point of funding this is that Anu
- * stops being the cheapest thing that answers.
+ * quote a rate the running app does not also charge.
+ *
+ * The first option is the model Anu actually answers on (`TUTOR_MODEL` in
+ * `lib/tutor/provider.ts`), and it is where the page starts. The Claude models
+ * were once the whole list, on the argument that funding this is what moves
+ * Anu off the cheapest thing that answers; that argument did not survive
+ * measurement: `claude-sonnet-5` missed one of six grammar questions at $12.44
+ * per thousand answers, and `npm run eval:anu` put `gemini-3.1-flash-lite` at
+ * 86 of 87 facts at about $0.33 per thousand with its prompt held. They stay as choices, since what a funder can buy is still a
+ * real question, and a projection that starts on a model the app does not run
+ * would be a bill nobody receives.
  */
 export const TUTOR_MODELS: readonly { readonly id: string; readonly name: string }[] = [
+  { id: "gemini-3.1-flash-lite", name: "Gemini Flash-Lite" },
   { id: "claude-haiku-4-5", name: "Haiku" },
   { id: "claude-sonnet-5", name: "Sonnet" },
   { id: "claude-opus-5", name: "Opus" },
@@ -570,6 +579,6 @@ export const DEFAULT_SHAPE: Shape = {
   reviewsPerSession: 15,
   audio: true,
   tutor: "paid",
-  tutorModel: "claude-opus-5",
+  tutorModel: "gemini-3.1-flash-lite",
   years: 1,
 };
