@@ -1553,6 +1553,9 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     "lib/progress/grammarExamples.ts": "looks one named sentence up to read its English back, picks none",
     "app/(app)/review/sprint/page.tsx": "reads back the English of the card's own sentence, picks none",
     "lib/progress/quest.ts": "reads back the English of the card's own sentence, picks none",
+    // Asks which cases a word can build a card for at all, as a set. No
+    // sentence it could pick reaches a screen, only whether one exists.
+    "lib/srs/retire.ts": "asks which cases a word can build, as a set, and picks no sentence",
   };
 
   /* The pure builders, which take the rank as a field rather than reading it. */
@@ -1562,7 +1565,11 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
 
   const readsExamples = [...sourceFiles("app"), ...sourceFiles("lib")]
     .filter((file) => !file.includes(".test.") && !file.includes(".itest."))
-    .filter((file) => /examples:\s*true|parseExamples\(/.test(code(file)));
+    // And every caller of the card builder, which is handed a whole row read
+    // with `include` rather than a selected column: `lib/srs/backfill.ts` did
+    // exactly that and cut a beginner's gap-fill from the shortest sentence
+    // with this sweep green.
+    .filter((file) => /examples:\s*true|parseExamples\(|\bgenerateCards\(/.test(code(file)));
 
   const unhandled = readsExamples.filter(
     (file) => !EXEMPT[file] && !BY_FIELD.includes(file)
