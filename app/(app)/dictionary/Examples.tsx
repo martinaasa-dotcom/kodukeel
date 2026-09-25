@@ -8,6 +8,7 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * Example sentences on a dictionary entry.
@@ -157,9 +158,9 @@ function AddExample({ lexemeId, onAdded, onCancel }: {
   const save = () => {
     setError(null);
     start(async () => {
-      const result = await addExample(lexemeId, et, en);
-      if (result.ok) onAdded({ et: et.trim(), en: en.trim() || null, source: "USER" });
-      else setError(result.error);
+      const result = await addExample(lexemeId, et, en).catch(() => null);
+      if (result?.ok) onAdded({ et: et.trim(), en: en.trim() || null, source: "USER" });
+      else setError(result ? result.error : NOT_REACHED);
     });
   };
 

@@ -1,6 +1,6 @@
 import { CASES } from "@/lib/estonian/cases";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
-import { caseAnswer, stemsFromParts } from "@/lib/estonian/derive";
+import { caseAnswer, stemsFrom, stemsFromParts } from "@/lib/estonian/derive";
 import { caseFromMorphCode, ekilexCodeOf, numberFromMorphCode } from "@/lib/estonian/morph";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -111,11 +111,28 @@ export function gapForms(word: GapWord): Map<string, CaseKey | null> {
       .map((k) => parts[k]?.trim().toLowerCase())
       .filter((v): v is string => !!v),
   );
+  /*
+    AND THE ROWS ARE READ WHOLE BEFORE ANY OF THEM IS LABELED. First writer
+    wins below, so a label decided row by row was a label decided by the order
+    the database returned the rows in: an enriched `arst` stores `arsti` again
+    as `EKILEX:SgAdt`, which names the short illative on its own, and the
+    spelling was an illative when that row came first and nothing when the
+    genitive did. Every reading a stored row gives a spelling is gathered
+    first, the same code twice being one reading, and a case is named only
+    where there is exactly one and a principal part is not among them.
+  */
+  const readings = new Map<string, Set<string>>();
   for (const form of word.forms) {
-    const named = form.formType === "ILL_SG_SHORT"
-      ? (principalValues.has(form.value.trim().toLowerCase()) ? null : "ILLATIVE" as const)
-      : singularCaseOf(ekilexCodeOf(form));
-    add(form.value, named);
+    const clean = form.value.trim().toLowerCase();
+    if (!clean) continue;
+    const reading = form.formType === "ILL_SG_SHORT" ? "SgAdt" : ekilexCodeOf(form) ?? form.formType;
+    readings.set(clean, (readings.get(clean) ?? new Set()).add(reading));
+  }
+  for (const form of word.forms) {
+    const clean = form.value.trim().toLowerCase();
+    const read = readings.get(clean);
+    const only = read && read.size === 1 ? [...read][0]! : null;
+    add(form.value, only && !principalValues.has(clean) ? singularCaseOf(only) : null);
   }
   add(word.lemma, null);
 
@@ -160,4 +177,35 @@ export function gapFormsFromParts(word: {
     pos: word.pos,
     forms: Object.entries(word.parts).map(([formType, value]) => ({ formType, value })),
   });
+}
+
+/**
+ * Every spelling that is the same form of the word as `answer`, itself included.
+ *
+ * Estonian has genuine parallel forms, and the dictionary stores both: 2,016
+ * shipped entries carry two partitive plurals (`aegu`, `aegasid`) and an
+ * enriched entry holds both illatives. A gap cut for one of them has the other
+ * as a true answer, and the two gap-choice builders excluded only the exact
+ * spelling from their wrong options, so the twin, which is the nearest form
+ * the ranking can find, was the likeliest option to be offered as wrong.
+ *
+ * A twin is a stored form under the same slot as a row spelled like the
+ * answer, or the other half of a case's accepted pair. It errs toward too
+ * many: a spelling that is two cases at once takes both slots' twins, which
+ * costs a builder a distractor and can never mark a right answer wrong.
+ */
+export function twinsOf(word: GapWord, answer: string): Set<string> {
+  const wanted = answer.trim().toLowerCase();
+  const out = new Set<string>([wanted]);
+  const slotOf = (f: GapWord["forms"][number]) => f.morphCode || f.formType;
+  const slots = new Set(word.forms.filter((f) => f.value.trim().toLowerCase() === wanted).map(slotOf));
+  for (const form of word.forms) {
+    if (slots.has(slotOf(form))) out.add(form.value.trim().toLowerCase());
+  }
+  const stems = stemsFrom(word.forms);
+  for (const spec of CASES) {
+    const accepted = (caseAnswer(stems, spec.key)?.accepted ?? []).map((a) => a.toLowerCase());
+    if (accepted.includes(wanted)) for (const a of accepted) out.add(a);
+  }
+  return out;
 }

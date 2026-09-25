@@ -81,6 +81,13 @@ personal data rather than a word or a phrase. `lib/mailer/` posts, `lib/email/` 
 pure, and every letter carries a way out of it signed with `EMAIL_TOKEN_SECRET`. It appears on the
 generated recipients list whenever `RESEND_API_KEY` is set.
 
+**Browser to Google, where a deployment sets `NEXT_PUBLIC_GOOGLE_CLIENT_ID`.** The sign-in page then
+loads Google Identity Services from `accounts.google.com` (`GSI_SCRIPT_SRC` in
+`lib/auth/googleIdentity.ts`), the one third-party script this app loads in a browser, and renders
+Google's button in an iframe from the same origin. The CSP adds that one origin to `script-src` and
+`frame-src` and only when the client ID is set (`googleIdentitySrc`). The ID token that comes back
+is handed to Supabase with `signInWithIdToken`.
+
 ## 3. What is worth taking
 
 Ranked, because a threat model that treats every asset the same has not been thought about.
@@ -315,6 +322,7 @@ and Gemini were.
 The CSP is the other half: `connect-src` names no third party but the deployment's own Supabase
 project, which the browser needs for sign-in, so a client that tried to call Ekilex or TartuNLP
 directly would be refused by the browser as well as by an invariant.
+`lib/security/headers.test.ts` pins the whole directive rather than listing what it may not contain.
 
 ### 4.10 An error message carrying a connection string
 
@@ -411,7 +419,7 @@ being trusted.
 
 | Area | Control | Where |
 | --- | --- | --- |
-| Authentication | Supabase Auth, Google OAuth and mailed links | `lib/supabase/`, `app/auth/callback/route.ts` |
+| Authentication | Supabase Auth: Google (through Google Identity Services where a client ID is set), mailed links, and SAML SSO for domains in `SSO_DOMAINS` | `lib/supabase/`, `lib/auth/googleIdentity.ts`, `lib/auth/sso.ts`, `app/auth/callback/route.ts` |
 | Authentication | Token verified locally against cached signing keys, no round trip | `lib/auth/identity.ts` |
 | Authentication | 2,500ms deadline on every auth call, recorded per transport | `lib/auth/identity.ts` |
 | Authentication | Three state identity, so "we could not tell" is not "signed out" | `lib/auth/identity.ts` |
@@ -439,7 +447,7 @@ being trusted.
 | Secrets | Nothing carries `NEXT_PUBLIC_` but the anon key, asserted | `scripts/test-invariants.ts` |
 | Secrets | CI builds with a marked value per server variable and greps the client bundle | `.github/workflows/ci.yml` |
 | Secrets | Every built file scanned for credential shapes, service role JWT told apart by role claim | `scripts/check-secrets.mjs` |
-| Secrets | Keyed services reachable only from the server, asserted and enforced by CSP | `lib/security/headers.ts` |
+| Secrets | Keyed services reachable only from the server, asserted, and `connect-src` limited to `'self'` and the Supabase project | `lib/security/headers.ts` |
 | Spend | Reserve, settle and release in an append-only ledger under an advisory lock | `lib/usage/ledger.ts` |
 | Spend | Burst, per learner daily and global daily spend caps, with no off switch | `lib/usage/quota.ts` |
 | Spend | Unknown model priced at the dearest rate | `lib/usage/pricing.ts` |
@@ -502,8 +510,12 @@ Adding RLS as a second layer is on the list and has not been done.
 `lib/security/headers.ts`: the app shell is prerendered and CDN cached, and Next stamps a nonce only
 on markup it renders per request, so a fresh nonce against cached inline Flight scripts means the
 page never hydrates. A nonce would also silently disable `'unsafe-inline'` for the theme script.
-This is the weakest line in the policy and it is a real residual risk against an injected script. The
-rest of the policy is as tight as the app allows.
+This is the weakest line in the policy and it is a real residual risk against an injected script. In
+full, `script-src` is `'self' 'unsafe-inline'`, plus `https://accounts.google.com` where a Google
+client ID is set and `'unsafe-eval'` in development only, so a deployment with Google sign-in trusts
+Google's own script as well. `style-src` also carries `'unsafe-inline'`, and `img-src` takes any
+`https:` host because a Google avatar is served from whichever host that account is on. The rest of
+the policy is as tight as the app allows.
 
 **Session freshness is traded for speed.** With asymmetric signing keys the access token is verified
 locally, so a session revoked elsewhere survives until that token expires, an hour by default. The
@@ -514,7 +526,9 @@ somebody from `ALLOWED_EMAILS` takes effect on their next request.
 spread across cold starts meets an empty map. No route relies on it alone: speech, the share card,
 the export and the restore are counted across instances by `lib/usage/sharedLimit.ts`, and the routes
 that cost money are bounded by the Postgres ledger. What is left is the moment the database cannot
-answer, when the shared count falls back to the per-instance map rather than failing open or closed.
+answer, when the shared count falls back to the per-instance map rather than failing open or closed,
+and the Server Action throttles in `lib/security/actionLimits.ts`, which `throttleAction` counts in
+that map alone, so their allowance is per warm instance rather than per learner.
 
 ## 7. How to verify any of this yourself
 
