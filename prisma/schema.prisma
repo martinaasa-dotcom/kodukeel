@@ -306,8 +306,21 @@ model Review {
   /// the direction, which `lib/stats/confusions.ts` merges and a later pass
   /// could split. Closed-list checked in `writeGrade`, like `slot`.
   reachedSlot String?
+  /// When the server wrote the row, which `reviewedAt` is not: that is the
+  /// moment the device says the answer was given, so a grade taken on a train
+  /// and replayed later keeps the time it happened (ADR-015). Every comparison
+  /// against a row the *server* timestamped, which is a `CourseStep` tick, reads
+  /// this instead, or a device clock ten minutes slow dates the evening's
+  /// closing answers before the tick that opened the round and the evening can
+  /// never be finished. Null on every row written before this column and on a
+  /// restored one, which were not received now; `lib/progress/course.ts` reads
+  /// those by `reviewedAt`, which is what they always had. No default, on
+  /// purpose: a default would stamp the whole existing log with the moment of
+  /// the migration and count a year of answers towards tonight's round.
+  receivedAt  DateTime?
 
   @@index([ownerId, reviewedAt])
+  @@index([ownerId, receivedAt])
   @@index([ownerId, targetCase])
   @@index([cardId])
   @@index([reviewedAt])
@@ -377,11 +390,19 @@ model Setting {
   value   String
 
   @@id([ownerId, key])
+  /// Three reads ask about one key across the whole deployment: who finished
+  /// first run this fortnight (the mailer, counted and then paged, hourly) and
+  /// who opted out of the research export. The primary key leads with the
+  /// owner, so it cannot serve a filter on the key alone, and each was a
+  /// sequential scan of every setting of every learner. Measured over 5,000
+  /// learners at twelve settings each: the count went from 4.4ms and 407
+  /// buffers to 0.24ms and 51, the opt-out read from 3.3ms to 0.07ms.
+  @@index([key, value])
 }
 
-/// A badge the learner has earned. Append-mostly: a key is written once, the
-/// moment its condition is first met, and never removed — losing a badge you
-/// already earned would be a worse surprise than never having shown it.
+/// A badge the learner earned before badges were withdrawn. Nothing earns one
+/// now and no screen draws one. The rows stay because they are the learner's:
+/// they are in the export, in the erasure, and a restore puts them back.
 model Achievement {
   ownerId  String
   key      String
@@ -542,7 +563,7 @@ model ExamAttempt {
 /// kept. `lib/estonian/passage.ts` treats a pasted reading the same way.
 ///
 /// Words are held as lemmas rather than as copies of dictionary rows, exactly
-/// as a learning-path unit is (lib/collections/path.ts). A page is a *reference*
+/// as a course unit is (lib/collections/syllabus/). A page is a *reference*
 /// to vocabulary, so correcting a word in the shared dictionary corrects it on
 /// every page it appears on, and a page can never drift out of step.
 model Scan {
@@ -775,7 +796,7 @@ model Suggestion {
 /// row, and there is no update path.
 ///
 /// NOTHING IN HERE IS TRUE ABOUT THE LEARNER. The role card is fiction
-/// (docs/19-situations.md §3), which is a marking rule and a legal one: a
+/// (docs/21-situations.md §3), which is a marking rule and a legal one: a
 /// health-centre scene where somebody typed about their own symptoms would be
 /// Article 9 special category data, and no scene asks for a real document
 /// number either.

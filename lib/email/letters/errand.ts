@@ -60,7 +60,6 @@ import { wordCard } from "../art";
 import type { Block, Letter } from "../letter";
 
 export interface ErrandInput {
-  readonly name: string | null;
   readonly origin: string;
   readonly errand: {
     /** English. The thing to do, in the errand's own words. */

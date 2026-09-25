@@ -7,10 +7,11 @@
   them rather than with a stub that agrees with the implementation.
 */
 import { createHash, createHmac } from "node:crypto";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import {
   addressDigest,
+  undeliverableValue,
   BLOCKED_ANY,
   blocks,
   readDelivery,
@@ -205,6 +206,12 @@ describe("reading a delivery", () => {
   });
 });
 
+const MAIL_KEY = "a-mail-secret-long-enough";
+const OTHER_MAIL_KEY = "another-mail-secret-entirely";
+function bareHash(address: string): string {
+  return createHash("sha256").update(address.trim().toLowerCase()).digest("hex").slice(0, 32);
+}
+
 describe("which address a block is about", () => {
   it("blocks the address that bounced and lets a new one through", () => {
     /*
@@ -212,20 +219,20 @@ describe("which address a block is about", () => {
       address means somebody whose old address bounced changes it in their
       account and never hears from this app again, silently, for ever.
     */
-    const stored = addressDigest("old@example.ee");
-    expect(blocks(stored, "old@example.ee")).toBe(true);
-    expect(blocks(stored, "new@example.ee")).toBe(false);
+    const stored = addressDigest("old@example.ee", MAIL_KEY);
+    expect(blocks(stored, "old@example.ee", MAIL_KEY)).toBe(true);
+    expect(blocks(stored, "new@example.ee", MAIL_KEY)).toBe(false);
   });
 
   it("ignores case and surrounding space, which the provider may echo back", () => {
-    const stored = addressDigest("Mari@Example.EE");
-    expect(blocks(stored, "  mari@example.ee ")).toBe(true);
+    const stored = addressDigest("Mari@Example.EE", MAIL_KEY);
+    expect(blocks(stored, "  mari@example.ee ", MAIL_KEY)).toBe(true);
   });
 
   it("blocks every address where the payload named none", () => {
     // The conservative answer to not knowing, and what this app did before any
     // of this existed.
-    expect(blocks(BLOCKED_ANY, "anything@example.ee")).toBe(true);
+    expect(blocks(BLOCKED_ANY, "anything@example.ee", MAIL_KEY)).toBe(true);
   });
 
   it("still reads the row the synchronous path used to write", () => {
@@ -234,42 +241,59 @@ describe("which address a block is about", () => {
       own refusal handling. Reading one as "not blocked" would start writing to
       every address that had already bounced.
     */
-    expect(blocks("1", "anything@example.ee")).toBe(true);
+    expect(blocks("1", "anything@example.ee", MAIL_KEY)).toBe(true);
   });
 
   it("blocks nobody where nothing is stored", () => {
     for (const stored of [null, undefined, "", "   "]) {
-      expect(blocks(stored, "mari@example.ee")).toBe(false);
+      expect(blocks(stored, "mari@example.ee", MAIL_KEY)).toBe(false);
     }
   });
 
   it("keeps no address, only something that tells two apart", () => {
-    const digest = addressDigest("mari@example.ee");
+    const digest = addressDigest("mari@example.ee", MAIL_KEY);
     expect(digest).not.toContain("mari");
     expect(digest).not.toContain("@");
     expect(digest).toMatch(/^[0-9a-f]{32}$/);
-    expect(digest).not.toBe(addressDigest("teet@example.ee"));
+    expect(digest).not.toBe(addressDigest("teet@example.ee", MAIL_KEY));
   });
 
-  it("cannot be recomputed from an address without the deployment's key", () => {
-    // A plain SHA-256 of the address is the same everywhere, so a copy of the
-    // settings table and a roster confirmed who had bounced.
-    const plain = createHash("sha256").update("mari@example.ee").digest("hex").slice(0, 32);
-    const keyed = addressDigest("mari@example.ee", "a-secret-of-sixteen+");
-    expect(keyed).not.toBe(plain);
-    expect(keyed).not.toBe(addressDigest("mari@example.ee", "another-secret-16+"));
-    expect(keyed).toMatch(/^[0-9a-f]{32}$/);
+  /*
+    KEYED, OR IT CAN BE READ BACK. An unkeyed hash of an address is undone by
+    anybody holding a guess: hash the guess and compare. Keyed on a secret the
+    deployment holds, the guess is worth nothing without the secret.
+  */
+  it("is not the bare hash of the address, which anybody with a guess can recompute", () => {
+    expect(addressDigest("mari@example.ee", MAIL_KEY)).not.toBe(bareHash("mari@example.ee"));
   });
 
-  it("still reads a block written before the digest was keyed", () => {
-    vi.stubEnv("EMAIL_TOKEN_SECRET", "a-secret-of-sixteen+");
-    try {
-      const legacy = addressDigest("mari@example.ee", null);
-      expect(blocks(legacy, "mari@example.ee")).toBe(true);
-      expect(blocks(addressDigest("mari@example.ee"), "mari@example.ee")).toBe(true);
-      expect(blocks(legacy, "teet@example.ee")).toBe(false);
-    } finally {
-      vi.unstubAllEnvs();
-    }
+  it("depends on the key, so a digest from one deployment says nothing about another", () => {
+    expect(addressDigest("mari@example.ee", MAIL_KEY)).not.toBe(addressDigest("mari@example.ee", OTHER_MAIL_KEY));
+  });
+
+  it("still blocks an address stored as the old unkeyed digest", () => {
+    /*
+      Rows written before the digest was keyed hold the bare hash. Reading one
+      as "not blocked" would write again to every address that had already
+      bounced, which is what costs a sender its reputation.
+    */
+    const legacy = bareHash("old@example.ee");
+    expect(blocks(legacy, "old@example.ee", MAIL_KEY)).toBe(true);
+    expect(blocks(legacy, "new@example.ee", MAIL_KEY)).toBe(false);
+  });
+
+  it("writes the keyed digest when an address bounces", () => {
+    const key = createHmac("sha256", MAIL_KEY).update("address-digest").digest();
+    const keyed = createHmac("sha256", key).update("mari@example.ee").digest("hex").slice(0, 32);
+    const written = undeliverableValue(" Mari@Example.EE ", MAIL_KEY);
+    expect(written).toBe(keyed);
+    expect(written).not.toBe(bareHash("mari@example.ee"));
+    expect(blocks(written, "mari@example.ee", MAIL_KEY)).toBe(true);
+    expect(undeliverableValue(null, MAIL_KEY)).toBe(BLOCKED_ANY);
+  });
+
+  it("writes the unkeyed digest only where there is no key, and still reads it", () => {
+    expect(addressDigest("mari@example.ee", null)).toBe(bareHash("mari@example.ee"));
+    expect(blocks(addressDigest("mari@example.ee", null), "mari@example.ee", null)).toBe(true);
   });
 });

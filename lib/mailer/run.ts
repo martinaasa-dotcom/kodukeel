@@ -61,9 +61,11 @@ import { mailerConfig, send } from "./transport";
  *
  * A ceiling on the run rather than on the audience, so a deployment that grows
  * spreads its evening over several invocations instead of asking one function
- * to hold four thousand sends inside a platform timeout. The schedule fires
- * hourly, the evening window is four hours wide, and a learner who is owed a
- * letter and does not get one this hour gets it the next.
+ * to hold four thousand sends inside a platform timeout. The schedule this
+ * wants is hourly, where the evening window is four hours wide and a learner
+ * owed a letter this hour gets it the next; the schedule a Hobby plan allows
+ * is once a day (`vercel.json`, README), where one not sent today is owed
+ * again tomorrow.
  */
 export const MAX_PER_RUN = 200;
 
@@ -187,7 +189,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
         would report it. The comparison lives here because this is the only
         layer allowed to hold an address at all.
       */
-      const blocked = email ? blocks(await undeliverableRow(ownerId), email) : false;
+      const blocked = email ? blocks(await undeliverableRow(ownerId), email, secret) : false;
       const decision = letterOwed({ ...who, email, undeliverable: blocked }, now);
       if (!decision || !email) continue;
 
@@ -287,7 +289,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
             The same shape the webhook writes, so one reader answers both: the
             address that was refused, rather than the learner who held it.
           */
-          await writeSetting(ownerId, SETTING_KEYS.emailUndeliverable, addressDigest(email));
+          await writeSetting(ownerId, SETTING_KEYS.emailUndeliverable, addressDigest(email, secret));
         }
         reportError(new Error(`mailout: ${result.reason}`), { at: "mailer/run", ownerId });
       }

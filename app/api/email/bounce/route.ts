@@ -1,11 +1,14 @@
 import { prisma } from "@/lib/db";
-import { emailOptInTo, emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
+import { switchOff } from "@/lib/email/prefs";
+import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { OPTIONAL_KINDS } from "@/lib/email/letter";
-import { addressDigest, BLOCKED_ANY, readDelivery, verifyDelivery, webhookSecret } from "@/lib/email/webhook";
+import { mailSecret } from "@/lib/email/unsubscribe";
+import { readDelivery, undeliverableValue, verifyDelivery, webhookSecret } from "@/lib/email/webhook";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
-import { forgetSettings, SETTING_KEYS, writeSettings } from "@/lib/settings/store";
+import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+import { readCapped } from "@/lib/security/body";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +41,9 @@ export const dynamic = "force-dynamic";
   is the one refusal, because that is not the provider.
 */
 
+/** A provider's delivery event is a few kilobytes; this is room to spare and no more. */
+const MAX_DELIVERY_BYTES = 256 * 1024;
+
 /** Accepted and dropped. The provider is told nothing about what we did. */
 const ok = () => new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
 
@@ -52,7 +58,8 @@ export async function POST(request: Request) {
   if (!secret) return new Response("Not found", { status: 404 });
 
   /* The bytes, before anything reads them as JSON. See the header. */
-  const raw = await request.text().catch(() => null);
+  // Read only so far: this runs before anything about the caller is checked.
+  const raw = await readCapped(request, MAX_DELIVERY_BYTES);
   if (raw === null) return ok();
 
   const verified = verifyDelivery(
@@ -124,26 +131,8 @@ export async function POST(request: Request) {
         address-blind, because what they said is about our mail rather than
         about a mailbox.
       */
-      /*
-        Both rows, the way the unsubscribe route writes them: a complaint that
-        left the opt-in row standing left a request on disk beside a refusal,
-        the contradiction that gets resolved the wrong way by whoever next
-        changes which row wins.
-      */
-      const existing = await prisma.setting.findMany({
-        where: { ownerId: sent.ownerId, key: { in: [SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn] } },
-        select: { key: true, value: true },
-      });
-      const rowFor = (key: string) => existing.find((row) => row.key === key)?.value ?? null;
-      const next = switchOff(
-        emailPrefsFrom(rowFor(SETTING_KEYS.emailsOff), rowFor(SETTING_KEYS.emailsOn)),
-        OPTIONAL_KINDS,
-      );
-      await writeSettings(sent.ownerId, [
-        [SETTING_KEYS.emailsOff, emailPrefsTo(next)],
-        [SETTING_KEYS.emailsOn, emailOptInTo(next)],
-      ]);
-      forgetSettings(sent.ownerId);
+      // Under the learner's lock, for the reason `lib/progress/emailPrefs.ts` gives.
+      await changeEmailPrefs(sent.ownerId, (current) => switchOff(current, OPTIONAL_KINDS));
       return ok();
     }
 
@@ -162,9 +151,10 @@ export async function POST(request: Request) {
       Which address failed, rather than which learner. Somebody whose old
       address bounced and who then changes it in their account has to be able
       to hear from this app again, and a row about the person can never say
-      that. `lib/email/webhook.ts` argues it at length.
+      that. `lib/email/webhook.ts` argues it at length. Keyed on the mail
+      secret, which is the key the send path reads it back with.
     */
-    const value = event.address ? addressDigest(event.address) : BLOCKED_ANY;
+    const value = undeliverableValue(event.address, mailSecret());
     await prisma.setting.upsert({
       where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailUndeliverable } },
       create: { ownerId: sent.ownerId, key: SETTING_KEYS.emailUndeliverable, value },
