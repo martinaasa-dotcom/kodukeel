@@ -187,7 +187,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
         would report it. The comparison lives here because this is the only
         layer allowed to hold an address at all.
       */
-      const blocked = email ? blocks(await undeliverableRow(ownerId), email) : false;
+      const blocked = email ? blocks(await undeliverableRow(ownerId), email, secret) : false;
       const decision = letterOwed({ ...who, email, undeliverable: blocked }, now);
       if (!decision || !email) continue;
 
@@ -280,7 +280,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
             The same shape the webhook writes, so one reader answers both: the
             address that was refused, rather than the learner who held it.
           */
-          await writeSetting(ownerId, SETTING_KEYS.emailUndeliverable, addressDigest(email));
+          await writeSetting(ownerId, SETTING_KEYS.emailUndeliverable, addressDigest(email, secret));
         }
         reportError(new Error(`mailout: ${result.reason}`), { at: "mailer/run", ownerId });
       }
