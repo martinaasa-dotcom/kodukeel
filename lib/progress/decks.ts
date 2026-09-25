@@ -63,12 +63,22 @@ export async function createDeck(
   const clean = cleanName(name);
   if (!clean) return { ok: false, error: "Give the deck a name first." };
 
-  const existing = await prisma.deck.count({ where: { ownerId } });
-  if (existing >= MAX_DECKS) {
-    return { ok: false, error: `That is as many decks as one learner needs. You already have ${existing}.` };
+  /*
+    Counting and creating is check-then-act: eight presses at once each saw
+    thirty-nine shelves and each made the fortieth, so the cap held nothing.
+    Counted and created under a per-learner lock, the shape `lockDeck` takes.
+  */
+  const outcome = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SET LOCAL lock_timeout = '3s'`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`shelves:${ownerId}`}, 0))`;
+    const existing = await tx.deck.count({ where: { ownerId } });
+    if (existing >= MAX_DECKS) return { existing, deck: null };
+    return { existing, deck: await tx.deck.create({ data: { ownerId, name: clean } }) };
+  });
+  if (!outcome.deck) {
+    return { ok: false, error: `That is as many decks as one learner needs. You already have ${outcome.existing}.` };
   }
-
-  const deck = await prisma.deck.create({ data: { ownerId, name: clean } });
+  const { deck } = outcome;
   return { ok: true, deck: { id: deck.id, name: deck.name, createdAt: deck.createdAt.toISOString(), wordCount: 0 } };
 }
 
