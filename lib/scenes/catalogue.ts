@@ -1063,7 +1063,16 @@ const DIRECTIONS: SceneSpec = {
       answeredNext: true,
       move: "ask",
       topic: ["aitama", "otsima", "koht"],
-      needs: [{ kind: "question" }, { kind: "datum", slot: "place" }],
+      /*
+        "I'm looking for the station" is how a stranger is asked the way as
+        often as "where is the station?", and the beat already names
+        `otsima` for exactly that. Held to a question alone, it read that turn
+        as a learner who had not finished.
+      */
+      needs: [
+        { kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["otsima"] }] },
+        { kind: "datum", slot: "place" },
+      ],
       required: true,
       patience: 3,
       shape: "sentence",
