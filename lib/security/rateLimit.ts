@@ -161,8 +161,9 @@ export function windowStartMs(now: number, windowMs: number): number {
  *
  * The key is `tts:o:<uuid>`, so it carries an owner id, and a table of those
  * is a record of who was awake and when that nothing needs and nobody asked
- * for. A digest tells two callers apart, which is the whole job, and cannot be
- * read back into a person.
+ * for. A digest tells two callers apart, which is the whole job, and does not
+ * hold the id. It is not anonymous: anybody holding the list of user ids can
+ * hash each and match, and an IPv4 bucket can be recovered by trying them all.
  *
  * Unsalted on purpose. A salt defends against somebody who has the table and
  * wants to confirm a guess, and anybody who has this table has the rows it was

@@ -30,7 +30,7 @@ import { ASK_ENGLISH, LOST } from "./catalogue";
 import { casualBye, casualHello } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import type { CaseKey } from "@/lib/estonian/types";
-import { words, type Lexicon } from "./lexicon";
+import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
 import { numberFromText, timeFromText, type SlotKind } from "./props";
@@ -226,6 +226,13 @@ export interface TurnContext {
   readonly lexicon: Lexicon;
   /** Every form of the question words the course teaches. */
   readonly questionWords: ReadonlySet<string>;
+  /**
+   * Every form of the verbs that name the act of asking, `küsima` and
+   * `otsima`, where the scene's own units teach them. Required rather than
+   * optional, for the reason `illSgShort` is: a caller that has not thought
+   * about it refuses `Ma tahan palga kohta küsida` as a question.
+   */
+  readonly askingForms: ReadonlySet<string>;
   /** Every form of the negator. */
   readonly negators: ReadonlySet<string>;
   /** Every form of the pronoun this scene's register expects. */
@@ -1155,8 +1162,20 @@ function satisfies(
       seventeenth pass added for the words between the words: before it, "did
       they ask a question" was not a question the dictionary could answer.
     */
+    /*
+      And a turn that names the act of asking is one. `Ma tahan palga kohta
+      küsida` is the polite way to raise the pay at an interview and
+      `Vabandust, ma otsin panka` is how anybody stops a stranger to ask the
+      way, and neither holds a question word or a mark: both were read as a
+      turn that had not asked yet, and the other side waited for a question
+      the learner had just put. The verbs are course lemmas the scene's own
+      units teach, resolved by the caller, so nothing here names Estonian.
+      It over-accepts `ma küsisin` on a beat that wanted a question, which is
+      a report of asking in the place a question belongs; refusing the two
+      sentences above is the fault this module is built against.
+    */
     case "question":
-      return text.includes("?") || exact(context.questionWords) ? YES : null;
+      return text.includes("?") || exact(context.questionWords) || exact(context.askingForms) ? YES : null;
     case "negation":
       return exact(context.negators) ? YES : null;
     case "register":
@@ -1285,7 +1304,7 @@ function negatedIn(
   */
   const spelled = new Set([hit.word, ...(hit.slip ? words(hit.slip.said) : [])].map((w) => w.toLowerCase()));
   // A sentence ends a clause as surely as a comma does: "Ei. Mul on valu." is a no and then a yes.
-  for (const clause of text.split(/[,;:.!?]/)) {
+  for (const clause of clausesOf(text)) {
     const said = words(clause);
     const at = said.findIndex((word) => spelled.has(word));
     if (at < 0) continue;

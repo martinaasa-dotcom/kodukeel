@@ -40,20 +40,56 @@ export function sentenceKey(text: string): string {
 }
 
 /**
+ * The two-letter words a short Estonian sentence is made of. The dictionary
+ * lookup behind `vouched` never asks about them (`questionWords` in
+ * `lib/tutor/words.ts` takes three letters and up), so "Ma on koolis" came
+ * back as a run of one and a real correction under it was dropped as stray.
+ * A closed list of pronouns, the copula, the negator and the commonest
+ * joiners, read only to count a run and never shown or stored, like
+ * `DA_ONLY_VERBS` in the scene gate.
+ */
+const SHORT_WORDS = new Set(["ma", "sa", "ta", "me", "te", "on", "ei", "ja", "ka", "et"]);
+
+/**
+ * The two of those that are also English words. A stretch whose only short
+ * words are these ("show me on kaart") is an English question with one
+ * Estonian word in it, so it counts no more than it did before.
+ */
+const ENGLISH_TOO = new Set(["me", "on"]);
+
+/**
  * The longest run of consecutive Estonian words in the learner's message,
  * given the spellings the dictionary vouched for in it.
+ *
+ * A short word from `SHORT_WORDS` counts inside a stretch that holds at least
+ * one vouched word and at least one short word English does not also have,
+ * so "Ma on koolis" is three and "Can you show me on kaart?" is still one.
  */
 export function sentenceRun(learnerMessage: string, vouched: Iterable<string>): number {
   const known = new Set([...vouched].map((w) => w.toLowerCase()));
   const tokens = learnerMessage.split(/[^\p{L}\p{M}-]+/u).filter(Boolean);
   const isKnown = (t: string | undefined) => t !== undefined && known.has(t.toLowerCase());
+  const inRun = tokens.map((token, i) =>
+    isKnown(token) || (/^\p{Lu}/u.test(token) && (isKnown(tokens[i - 1]) || isKnown(tokens[i + 1]))));
+  const isShort = (t: string) => SHORT_WORDS.has(t.toLowerCase());
   let best = 0;
   let run = 0;
-  tokens.forEach((token, i) => {
-    const inRun = isKnown(token) || (/^\p{Lu}/u.test(token) && (isKnown(tokens[i - 1]) || isKnown(tokens[i + 1])));
-    run = inRun ? run + 1 : 0;
+  inRun.forEach((yes) => {
+    run = yes ? run + 1 : 0;
     if (run > best) best = run;
   });
+  // The same walk again with the short words let in, where the stretch earns them.
+  let start = 0;
+  while (start < tokens.length) {
+    if (!(inRun[start] || isShort(tokens[start]!))) { start++; continue; }
+    let end = start;
+    while (end < tokens.length && (inRun[end] || isShort(tokens[end]!))) end++;
+    const stretch = tokens.slice(start, end);
+    const hasVouched = inRun.slice(start, end).some(Boolean);
+    const plainlyEstonian = stretch.some((t) => isShort(t) && !ENGLISH_TOO.has(t.toLowerCase()));
+    if (hasVouched && plainlyEstonian) best = Math.max(best, stretch.length);
+    start = end;
+  }
   return best;
 }
 

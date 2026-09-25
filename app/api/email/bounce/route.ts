@@ -7,6 +7,7 @@ import { readDelivery, undeliverableValue, verifyDelivery, webhookSecret } from 
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
 import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { writeSettingsWhileMailed } from "@/lib/mailer/mailedSetting";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { readCapped } from "@/lib/security/body";
 
@@ -155,11 +156,7 @@ export async function POST(request: Request) {
       secret, which is the key the send path reads it back with.
     */
     const value = undeliverableValue(event.address, mailSecret());
-    await prisma.setting.upsert({
-      where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailUndeliverable } },
-      create: { ownerId: sent.ownerId, key: SETTING_KEYS.emailUndeliverable, value },
-      update: { value },
-    });
+    await writeSettingsWhileMailed(sent.ownerId, [{ key: SETTING_KEYS.emailUndeliverable, value }]);
     forgetSettings(sent.ownerId);
   } catch (error) {
     /*

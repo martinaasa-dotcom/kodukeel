@@ -51,7 +51,7 @@ import { classroomLetter } from "@/lib/email/letters/classroom";
 import { worddayLetter } from "@/lib/email/letters/wordday";
 import { candidateFor, letterInputFor, mailoutRoster, undeliverableRow } from "@/lib/progress/mailout";
 import { addressDigest, blocks } from "@/lib/email/webhook";
-import { writeSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { writeSetting, SETTING_KEYS, type SettingKey } from "@/lib/settings/store";
 import { resolveOperator } from "@/lib/legal/operator";
 import { adminClient, addressFor } from "./audience";
 import { mailerConfig, send } from "./transport";
@@ -250,8 +250,15 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
           at a level somebody passes once: this is the only place that knows
           the message actually went.
         */
+        /*
+          AFTER A SEND, A FAILED WRITE IS NOT A FAILED SEND. The letter is in
+          somebody's inbox, so this counts it sent and reports the write on its
+          own. The mark is tried twice, because losing it means announcing the
+          same level again on a later morning, and the send log's own key does
+          not stop that: tomorrow is a different day.
+        */
         if ("remember" in built) {
-          await writeSetting(ownerId, built.remember.key, built.remember.value);
+          await rememberAfterSend(ownerId, built.remember.key, built.remember.value);
         }
         if (result.messageId) {
           /*
@@ -266,7 +273,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
           await prisma.emailSend.update({
             where: { id: booking.id },
             data: { messageId: result.messageId },
-          });
+          }).catch((error: unknown) => reportError(error, { at: "mailer/run: stamping a sent letter", ownerId }));
         }
       } else {
         report.failed += 1;
@@ -293,4 +300,16 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
   }
 
   return report;
+}
+
+/** Writes a high-water mark after a letter went, twice if once fails, and never throws. */
+async function rememberAfterSend(ownerId: string, key: SettingKey, value: string): Promise<void> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await writeSetting(ownerId, key, value);
+      return;
+    } catch (error) {
+      if (attempt === 1) reportError(error, { at: "mailer/run: remembering a sent letter", ownerId });
+    }
+  }
 }
