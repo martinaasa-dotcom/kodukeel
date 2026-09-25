@@ -37,7 +37,8 @@ export default async function AssessPage({
   if (take) {
     // A different seed every sitting, so a second attempt is a second test
     // rather than the same paper with the answers remembered.
-    const paper = await paperFor(ownerId, Date.now() % 1_000_000);
+    const seed = Date.now() % 1_000_000;
+    const paper = await paperFor(ownerId, seed);
     if (paper.items.length === 0) {
       return (
         <Page title="Level check" lead="Reading, listening, writing and speaking, all checked against the dictionary.">
@@ -49,7 +50,7 @@ export default async function AssessPage({
         </Page>
       );
     }
-    return <AssessmentRunner items={paper.items} missing={paper.missing} />;
+    return <AssessmentRunner items={paper.items} seed={seed} missing={paper.missing} />;
   }
 
   /*

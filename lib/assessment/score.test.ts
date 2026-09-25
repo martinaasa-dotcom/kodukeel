@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { confidenceFrom, decisiveItems, gradeChoice, gradeDictation, gradeWrite, levelFrom, overallFrom, placement } from "./score";
+import { confidenceFrom, decisiveItems, gradeChoice, gradeDictation, gradeWrite, levelFrom, overallFrom, placement, remark } from "./score";
 import type { Band, ChoiceItem, DictationItem, Item, Response, WriteItem } from "./types";
 
 const choice = (over: Partial<ChoiceItem> = {}): ChoiceItem => ({
@@ -353,5 +353,38 @@ describe("overallFrom", () => {
 
   it("has no level to report when nothing was measured", () => {
     expect(overallFrom([])).toEqual({ level: null, nearly: null });
+  });
+});
+
+describe("remark", () => {
+  const items: Item[] = [choice(), write, dictation];
+
+  it("marks what was given against the paper, never the credit a caller claims", () => {
+    const marked = remark(items, [
+      { itemId: "c1", given: 2, ms: 1_000 },
+      { itemId: "w1", given: "toas", ms: 1_000 },
+      { itemId: "d1", given: "Ma olen praegu toas.", ms: 1_000 },
+    ]);
+    expect(marked.map((r) => r.credit)).toEqual([0, 1, 1]);
+    expect(marked[1]).toMatchObject({ skill: "writing", band: "A2" });
+  });
+
+  it("does not let an answer vote for an item the paper does not have, or vote twice", () => {
+    const marked = remark(items, [
+      { itemId: "c1", given: 0, ms: 5 },
+      { itemId: "c1", given: 0, ms: 5 },
+      { itemId: "made-up", given: 0, ms: 5 },
+    ]);
+    expect(marked).toHaveLength(1);
+  });
+
+  it("takes a skip on a listening question only", () => {
+    const marked = remark(items, [
+      { itemId: "d1", skipped: true, ms: 0 },
+      { itemId: "c1", skipped: true, given: 0, ms: 0 },
+    ]);
+    expect(marked[0]).toMatchObject({ skipped: true, credit: 0 });
+    expect(marked[1]?.skipped).toBeUndefined();
+    expect(marked[1]?.credit).toBe(1);
   });
 });

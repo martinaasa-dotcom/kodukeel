@@ -32,6 +32,8 @@ export interface Answer {
   credit: number;
   selfRating?: number;
   skipped?: boolean;
+  /** The option picked or the text typed, which the server marks again. */
+  given?: number | string;
 }
 
 const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
@@ -252,7 +254,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             size="lg"
             className="mt-5"
             autoFocus
-            onClick={() => onAnswer({ credit: gradeChoice(item, picked) })}
+            onClick={() => onAnswer({ credit: gradeChoice(item, picked), given: picked })}
           >
             Next question
           </Button>
@@ -391,7 +393,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
             })}
           </div>
           <p lang="et" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{item.et}</p>
-          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit })}>
+          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit, given: typed })}>
             Next question
           </Button>
         </div>
@@ -465,7 +467,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
           {mark.credit < 1 && item.because && (
             <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.because}</p>
           )}
-          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit })}>
+          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ credit: mark.credit, given: text })}>
             Next question
           </Button>
         </div>

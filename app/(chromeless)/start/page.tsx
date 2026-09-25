@@ -97,7 +97,8 @@ export default async function WelcomePage() {
     instant start on the step that matters most. A learner who estimates
     instead has cost the deployment five reads of the dictionary once, ever.
   */
-  const paper = await paperFor(ownerId, Date.now() % 1_000_000);
+  const seed = Date.now() % 1_000_000;
+  const paper = { ...(await paperFor(ownerId, seed)), seed };
 
   return (
     <WelcomeWizard

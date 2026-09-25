@@ -2,7 +2,7 @@ import { checkDictation, type DictationResult } from "@/lib/estonian/dictation";
 import { checkAnswer } from "@/lib/estonian/answer";
 import {
   BANDS, PRE_A1, type Band, type BandScore, type ChoiceItem, type Confidence,
-  type DictationItem, type ItemRef, type Level, type Placement, type Response,
+  type DictationItem, type Item, type ItemRef, type Level, type Placement, type Response,
   type Skill, type SkillResult, type WriteItem,
 } from "./types";
 
@@ -294,6 +294,65 @@ export function decisiveItems(responses: readonly Response[], level: Level | nul
   return responses.filter(
     (r) => !r.skipped && r.skill !== "speaking" && decisive.has(r.band),
   ).length;
+}
+
+/** What arrives for one question: what was given, never what it was worth. */
+export interface GivenAnswer {
+  itemId: string;
+  given?: number | string;
+  selfRating?: number;
+  skipped?: boolean;
+  ms: number;
+}
+
+/**
+ * Marks a sitting against the paper the server built, from what was given.
+ *
+ * The browser marks as it goes, because feedback has to arrive the instant a
+ * question is answered and a check has to work on a train. What it may not do
+ * is decide what is stored: the level is read by the hub, the course and a
+ * sponsor's roster, and a credit off the wire is a level anybody can type.
+ * So each answer is marked again here with the very functions the browser
+ * used, against the item the server holds, and an answer naming no item on
+ * the paper does not vote. A skip counts only on a listening question, which
+ * is the one way out the runner offers (audio that will not play); anywhere
+ * else the flag is ignored and what was given is marked. A self-rating counts only on a speaking question and
+ * scores nothing, which is ADR-018 unchanged.
+ */
+export function remark(items: readonly Item[], answers: readonly GivenAnswer[]): Response[] {
+  const byId = new Map(items.map((item) => [item.id, item]));
+  const seen = new Set<string>();
+  const out: Response[] = [];
+  for (const answer of answers) {
+    const item = byId.get(answer.itemId);
+    if (!item || seen.has(item.id)) continue;
+    seen.add(item.id);
+    const skipped = answer.skipped === true && item.skill === "listening";
+    const text = typeof answer.given === "string" ? answer.given : "";
+    let credit = 0;
+    if (!skipped) {
+      if (item.kind === "choice") {
+        credit = typeof answer.given === "number" && Number.isInteger(answer.given) ? gradeChoice(item, answer.given) : 0;
+      } else if (item.kind === "dictation") {
+        credit = gradeDictation(item, text).credit;
+      } else if (item.kind === "write") {
+        credit = gradeWrite(item, text).credit;
+      }
+    }
+    const selfRating = item.kind === "speak" && typeof answer.selfRating === "number"
+      && Number.isInteger(answer.selfRating) && answer.selfRating >= 1 && answer.selfRating <= 4
+      ? answer.selfRating : undefined;
+    out.push({
+      itemId: item.id,
+      skill: item.skill,
+      band: item.band,
+      credit,
+      ms: Number.isFinite(answer.ms) ? Math.min(Math.max(Math.round(answer.ms), 0), 3_600_000) : 0,
+      ...(selfRating === undefined ? {} : { selfRating }),
+      ...(skipped ? { skipped: true } : {}),
+    });
+  }
+  return out;
 }
 
 /**

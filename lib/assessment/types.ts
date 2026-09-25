@@ -149,6 +149,12 @@ export interface Response {
   ms: number;
   /** Was the answer skipped rather than attempted. */
   skipped?: boolean;
+  /**
+   * What was actually given: the option picked, or the text typed. The server
+   * marks this against the paper it rebuilds, so a credit that arrives off the
+   * wire is never what a stored level is made of.
+   */
+  given?: number | string;
 }
 
 export interface BandScore {

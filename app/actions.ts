@@ -95,10 +95,10 @@ import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
-import { placement } from "@/lib/assessment/score";
+import { placement, remark } from "@/lib/assessment/score";
 import { PAPER_SIZE } from "@/lib/assessment/items";
-import type { Band, ItemRef, Response } from "@/lib/assessment/types";
-import { goalsFor, saveGoals, saveResult } from "@/lib/progress/assessment";
+import type { Band, ItemRef } from "@/lib/assessment/types";
+import { goalsFor, paperFor as assessmentPaperFor, saveGoals, saveResult } from "@/lib/progress/assessment";
 import { recordCourseLevel } from "@/lib/progress/level";
 import { REPLAY_BATCH } from "@/lib/offline/outbox";
 import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
@@ -3954,8 +3954,6 @@ function revive(row: Record<string, unknown>, dateFields: string[]): Record<stri
 
 // ───────────────────────────── Placement check ─────────────────────────────
 
-const BAND = z.enum(["A1", "A2", "B1", "B2", "C1"]);
-const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
 
 /**
  * One sitting of the level check, as it comes back from the browser.
@@ -3963,14 +3961,11 @@ const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
  * The paper is marked in the browser, because it has to be: the answers are in
  * it, feedback appears the instant a question is answered, and a placement
  * check that needed a round trip per question would be unusable on a train.
- * Nothing is at stake in it either. It sets nobody's rank, it is not on the
- * class roster (`lib/classroom/roster.ts` shares effort, never contents), and
- * the only person a forged result misleads is the person who forged it.
- *
- * What the server does *not* delegate is the rule that turns marks into a
- * level. The credits arrive, `placement()` runs here, and the level comes out
- * of the same function the tests cover, so a stale browser or a hand-made
- * request cannot invent its own scale.
+ * What the server does *not* delegate is the mark. A workplace roster reads
+ * the stored skill levels into the band a sponsor sees, so the answers arrive
+ * and the server marks them against the paper it rebuilds from the seed, with
+ * the same functions the runner used, and `placement()` turns those marks
+ * into a level here.
  */
 /*
   Bounded by the paper rather than by a number typed here.
@@ -3984,12 +3979,10 @@ const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
   the one that was wrong was the one nobody looks at.
 */
 const ASSESSMENT = z.object({
-  items: z.array(z.object({ id: z.string().min(1).max(120), skill: SKILL, band: BAND })).min(1).max(PAPER_SIZE),
+  seed: z.number().int().min(0).max(999_999),
   responses: z.array(z.object({
     itemId: z.string().min(1).max(120),
-    skill: SKILL,
-    band: BAND,
-    credit: z.number().min(0).max(1),
+    given: z.union([z.number().int().min(0).max(20), z.string().max(400)]).optional(),
     selfRating: z.number().int().min(1).max(4).optional(),
     ms: z.number().int().min(0).max(3_600_000),
     skipped: z.boolean().optional(),
@@ -4002,12 +3995,18 @@ export async function recordAssessment(input: unknown) {
   if (!parsed.success) return { ok: false as const, error: "That result could not be read." };
 
   /*
-    Only the three fields the scale is computed from are carried across, so a
-    response naming an item the paper does not contain cannot vote.
+    MARKED HERE, AGAINST THE PAPER THE SEED BUILDS, FROM WHAT WAS GIVEN.
+
+    The runner marks as it goes and shows that, which is right for feedback.
+    What is stored used to be the runner's own credits, so a hand-made request
+    of eighteen C1 items at full credit stored C1 in every skill, and a
+    sponsor's roster reads those levels. The paper is a function of its seed
+    (\`paperFor\`), so it is rebuilt and every answer marked with the functions
+    the runner used; an answer naming no item on it does not vote.
   */
-  const items: ItemRef[] = parsed.data.items;
-  const known = new Set(items.map((i) => i.id));
-  const responses = parsed.data.responses.filter((r) => known.has(r.itemId)) as Response[];
+  const paper = await assessmentPaperFor(ownerId, parsed.data.seed);
+  const items: ItemRef[] = paper.items.map(({ id, skill, band }) => ({ id, skill, band }));
+  const responses = remark(paper.items, parsed.data.responses);
 
   const result = placement(items, responses);
   const stored = await saveResult(ownerId, result);

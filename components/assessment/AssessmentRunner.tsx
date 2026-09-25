@@ -68,8 +68,10 @@ const SECTIONS: Record<Skill, { icon: typeof Compass; title: string; body: strin
   },
 };
 
-export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
+export function AssessmentRunner({ items: initialItems, seed, missing, onFinish }: {
   items: Item[];
+  /** The seed the server built this paper from, so it can build it again to mark it. */
+  seed: number;
   /** Sections the dictionary could not fill, named rather than hidden. */
   missing: string[];
   /** Set by the first-run wizard, which shows its own summary afterwards. */
@@ -101,10 +103,7 @@ export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
     setResult(computed);
     setSaving(true);
     try {
-      const saved = await recordAssessment({
-        items: refs,
-        responses: all,
-      });
+      const saved = await recordAssessment({ seed, responses: all });
       if (!saved.ok) setSaveFailed(true);
     } catch {
       // Offline, or the write failed. The result is still worth showing: it was
@@ -113,7 +112,7 @@ export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
     }
     setSaving(false);
     onFinish?.(computed);
-  }, [refs, onFinish]);
+  }, [refs, seed, onFinish]);
 
   const answer = useCallback((given: Answer) => {
     if (!item) return;
@@ -125,6 +124,7 @@ export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
       ms: Date.now() - shownAt.current,
       ...(given.selfRating === undefined ? {} : { selfRating: given.selfRating }),
       ...(given.skipped ? { skipped: true } : {}),
+      ...(given.given === undefined ? {} : { given: given.given }),
     };
     shownAt.current = Date.now();
     const all = [...responses, response];

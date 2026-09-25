@@ -12169,7 +12169,14 @@ check("a finished sitting is bounded by the paper, not by a number typed twice",
     caps.includes("PAPER_SIZE"),
     "the posted paper is not bounded by PAPER_SIZE",
   );
-  for (const array of ["items:", "responses:"]) {
+  /*
+    The items are no longer posted at all: the server rebuilds the paper from
+    its seed and marks it (\`remark\`), so the one posted array is the answers,
+    and a schema that took items back would be a paper the caller chose.
+  */
+  assert.doesNotMatch(body, /\n  items:/, "the sitting schema takes the paper's items from the caller again");
+  assert.match(actions, /remark\(paper\.items, parsed\.data\.responses\)/, "recordAssessment no longer marks the answers itself");
+  for (const array of ["responses:"]) {
     const at = body.indexOf(array);
     assert.ok(at >= 0, `the sitting schema no longer names ${array}`);
     const rest = body.slice(at);
