@@ -258,6 +258,23 @@ function metadataRoutes(): { file: string; path: string }[] {
 const SCHEMA = read("prisma/schema.prisma");
 const CSS = read("app/globals.css");
 
+/*
+  EVERY MODEL IN THE SCHEMA, READ TO THE BRACE THAT CLOSES IT.
+
+  A model closes on a `}` at the start of a line and on nothing else. The
+  obvious `model (\w+) \{([^}]*)\}` stops at the first `}` anywhere, and the
+  schema is full of them before that: `@default("{}")` on four columns and a
+  `[{ et, en }]` in two doc comments. So `Scan` was read as far as its `items`
+  comment and no further, and "the photograph is never stored" was asserted of
+  the three columns above it: an `image` column added at the bottom, which is
+  where anybody adds one, passed. Read to the line that closes the model, which
+  is the shape the primary-key lookup further down already used.
+*/
+function schemaModels(): { name: string; body: string }[] {
+  return [...SCHEMA.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)]
+    .map(([, name, body]) => ({ name: name!, body: body! }));
+}
+
 /** Files that run in the browser, by their own declaration. */
 const CLIENT = ALL.filter((f) => /^["']use client["']/m.test(read(f).trimStart()));
 
@@ -3067,7 +3084,23 @@ check("a session never lets its questions change under the learner", () => {
     // snapshotted. The name list after it is the older spelling, kept for the
     // sessions that predate the convention — and `steps` had to be added to it
     // after the lesson runner slipped through both arms of this check.
-    const props = source.match(/export function \w+\(\{([^}]*)\}/)?.[1] ?? "";
+    /*
+      Every exported function's destructured props, read to the brace that
+      closes them. `\(\{([^}]*)\}` stopped at the first `}`, so a default such as
+      `rivals = {}` or a template `${...}` in front of `initialCards` hid the
+      list prop and the file was skipped as though it took none; and it read the
+      first export only, so a helper exported above the session answered for it.
+    */
+    const props = [...source.matchAll(/export (?:default )?function \w+\(\{/g)].map((m) => {
+      let depth = 1;
+      let at = m.index! + m[0].length;
+      while (at < source.length && depth > 0) {
+        if (source[at] === "{") depth += 1;
+        else if (source[at] === "}") depth -= 1;
+        at += 1;
+      }
+      return source.slice(m.index! + m[0].length, at - 1);
+    }).join("\n");
     const listProp = /\binitial[A-Z]\w*/.test(props)
       || /\b(cards|prompts|questions|items|gaps|pairs|steps|paper)\b/.test(props);
     if (!listProp) continue;
@@ -4258,8 +4291,9 @@ check("the photograph itself is never stored", () => {
     exercise makes the same promise about a pasted passage. Keeping it is a
     property of the schema and of the route, not a habit.
   */
-  const scanModel = /model Scan \{[^}]*\}/.exec(SCHEMA)?.[0] ?? "";
+  const scanModel = schemaModels().find((m) => m.name === "Scan")?.body ?? "";
   assert.ok(scanModel, "the Scan model is gone, so this check is watching nothing");
+  assert.ok(/\bcreatedAt\b/.test(scanModel), "the Scan model was read short of its last column");
   assert.equal(
     /image|photo|base64|dataUrl/i.test(scanModel),
     false,
@@ -7030,9 +7064,9 @@ check("a Prisma client is built in one place, with its adapter", () => {
 
 /** Every model in the schema carrying an `ownerId`: one person's own data. */
 function ownerScopedModels(): string[] {
-  const owned = [...SCHEMA.matchAll(/model (\w+) \{([^}]*)\}/g)]
-    .filter(([, , body]) => /^\s*ownerId\s/m.test(body ?? ""))
-    .map(([, name]) => name!);
+  const owned = schemaModels()
+    .filter(({ body }) => /^\s*ownerId\s/m.test(body))
+    .map(({ name }) => name);
   assert.ok(owned.length >= 12, `expected the owner-scoped models, found ${owned.length}`);
   return owned;
 }
@@ -7824,6 +7858,8 @@ check("the other side talks at the run's band, and every composer says which ban
     band back would be a second answer to how the other side talks.
   */
   const spec = /export interface SceneSpec \{[\s\S]*?\n\}/.exec(code("lib/scenes/types.ts"))?.[0] ?? "";
+  // An empty slice passes the next line whatever SceneSpec holds, so its absence is a failure.
+  assert.ok(spec, "SceneSpec is no longer an interface in lib/scenes/types.ts, so the band check reads nothing");
   assert.doesNotMatch(spec, /\blevel\b/, "SceneSpec carries a band again");
   assert.doesNotMatch(code("lib/scenes/catalogue.ts"), /^\s*level: "/m, "a scene in the catalogue names a band");
   assert.match(
@@ -12925,7 +12961,14 @@ check("Sonad decides nothing on the client but what to type", () => {
     `gradeCard(card.id, rating, 0)` inside, so the check fired on honest code,
     which is how a check becomes one people waive.
   */
-  const signature = /export async function recordSonad\(([^)]*)\)/.exec(code("app/actions.ts"))?.[1] ?? "";
+  /*
+    Read to the `{` that opens the body rather than to the first `)`: a default
+    such as `= parse()` or a type such as `Parameters<typeof f>` closes a paren
+    inside the list, and the rest of it would go unread. And a signature that
+    cannot be found fails, since an empty one passes the check below.
+  */
+  const signature = /export async function recordSonad\(([\s\S]*?)\)\s*(?::[^{]*)?\{/.exec(code("app/actions.ts"))?.[1] ?? "";
+  assert.ok(signature, "recordSonad is not an exported async function in app/actions.ts any more, so this reads nothing");
   assert.doesNotMatch(
     signature, /rating|score|grade/i,
     "recordSonad takes a rating from its caller, which is a score anybody can type",
@@ -19071,7 +19114,11 @@ check("a verdict is one size, and never below the body step", () => {
     for (const tag of body.match(/<[A-Za-z][^<]*?(?<!=)>/gs) ?? []) {
       if (!/VERDICT_INK/.test(tag)) continue;
       const classes = tag.match(/className=(?:"([^"]*)"|\{`([^`]*)`\})/);
-      const names = classes?.[1] ?? classes?.[2] ?? "";
+      /*
+        A class list this cannot read as a literal (`cn(...)`, a `.join(" ")`)
+        is read as the whole tag rather than as nothing, since nothing passes.
+      */
+      const names = classes?.[1] ?? classes?.[2] ?? tag;
       assert.doesNotMatch(
         names, small,
         `${file} writes a verdict in the verdict ink and sets it below the body step: ${names}`,
