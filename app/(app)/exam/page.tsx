@@ -345,6 +345,15 @@ export default async function ExamPage() {
             we made it like the A2 paper but a little easier, so your first attempt is one you can
             pass.
           </li>
+          <li>
+            <ArrowRight size={13} className="mr-1 inline" aria-hidden />
+            How to register for the real one, what to bring on the day and what happens if you
+            fail are on{" "}
+            <Link href="/state-exam" className="font-semibold underline underline-offset-4">
+              the state examination
+            </Link>
+            , read off the Board&apos;s own pages, with its free preparation material.
+          </li>
         </ul>
       </Card>
     </Page>

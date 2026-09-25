@@ -1211,6 +1211,7 @@ function Footer() {
               <li><Link href="/funding" className="underline underline-offset-4 transition-opacity hover:opacity-70">What it costs to run</Link></li>
               <li><Link href="/trust" className="underline underline-offset-4 transition-opacity hover:opacity-70">Security and trust</Link></li>
               <li><Link href="/accessibility" className="underline underline-offset-4 transition-opacity hover:opacity-70">Accessibility</Link></li>
+              <li><Link href="/state-exam" className="underline underline-offset-4 transition-opacity hover:opacity-70">The state examination</Link></li>
               <li><Link href="/sign-in" className="underline underline-offset-4 transition-opacity hover:opacity-70">Sign in</Link></li>
             </ul>
           </div>
