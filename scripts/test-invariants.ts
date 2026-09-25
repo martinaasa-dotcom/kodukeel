@@ -10675,10 +10675,6 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
       now happens.
     */
     join("lib", "progress", "learn.ts"),
-    /*
-      The lesson page reads them and hands the planner and the session a
-      gloss already chosen, so neither of those two names the columns.
-    */
     join("app", "(app)", "learn", "[unitId]", "lesson", "page.tsx"),
   ]);
 
