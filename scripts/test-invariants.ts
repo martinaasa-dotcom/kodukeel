@@ -6244,6 +6244,25 @@ check("the actions that do real work per call are throttled", () => {
   }
 });
 
+check("every variable the app reads is one .env.example tells an operator about", () => {
+  /*
+    `.env.example` is the file an installer copies, and the whole letters
+    feature (six variables, two of them secrets) was documented in the README
+    and absent from it, along with the default voice and the two development
+    switches. A variable an operator cannot find is a feature that looks
+    missing on their deployment. So every `process.env.NAME` read in the app is
+    named there, except the ones the platform or Node sets and nobody writes.
+  */
+  const PLATFORM = new Set(["NODE_ENV", "NEXT_RUNTIME", "VERCEL", "VERCEL_GIT_COMMIT_SHA", "VERCEL_ENV", "VERCEL_URL", "CI"]);
+  const example = read(".env.example");
+  const files = [...ALL.filter((f) => !/\.test\.tsx?$/.test(f)), "middleware.ts", "next.config.ts"];
+  const read_ = new Set<string>();
+  for (const f of files) for (const [, name] of code(f).matchAll(/process\.env\.([A-Z_][A-Z0-9_]*)/g)) read_.add(name!);
+  assert.ok(read_.size >= 30, `expected the app's environment, found ${read_.size} variables`);
+  const missing = [...read_].filter((name) => !PLATFORM.has(name) && !new RegExp(`\\b${name}\\b`).test(example));
+  assert.deepEqual(missing.sort(), [], `the app reads these and .env.example never mentions them: ${missing.join(", ")}`);
+});
+
 check("every dead end in the app offers a way to report it", () => {
   /*
     THE RULE: nothing here may tell somebody it cannot help them and then
