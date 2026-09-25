@@ -44,15 +44,18 @@ export function useGrade() {
       reachedSlot?: string,
     ): Promise<boolean> => {
       const answeredAt = new Date().toISOString();
+      // One id for this answer, sent with it and queued with it, so a write
+      // that committed and lost its answer is settled on replay, not doubled.
+      const reviewId = crypto.randomUUID();
       try {
-        const res = await gradeCard(cardId, rating, durationMs, answeredAt, slot, reachedSlot);
+        const res = await gradeCard(cardId, rating, durationMs, answeredAt, slot, reachedSlot, reviewId);
         if (res.ok) return true;
       } catch {
         // Queued below.
       }
       try {
         await enqueueGrade({
-          id: crypto.randomUUID(),
+          id: reviewId,
           cardId,
           rating,
           durationMs,
