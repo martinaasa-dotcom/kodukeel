@@ -539,11 +539,32 @@ export async function attemptById(ownerId: string, id: string) {
 }
 
 /**
- * Writes a finished sitting.
+ * The sitting a paper already has, or null where it has never been handed in.
+ *
+ * A paper is (level, seed) and is sat once. The seed lives in the URL, so a
+ * reload returns the same paper, which is the point; and a sitting's stored
+ * result carries every expected answer, so a second submission of the same
+ * seed was a pass anybody could copy out of the first and hand in, on the
+ * figure a teacher's and a sponsor's roster read.
+ */
+export async function sittingOf(
+  ownerId: string, level: ExamLevel, seed: string,
+): Promise<{ id: string; pct: number; passed: boolean } | null> {
+  return prisma.examAttempt.findFirst({
+    where: { ownerId, level, seed },
+    orderBy: [{ finishedAt: "asc" }, { id: "asc" }],
+    select: { id: true, pct: true, passed: true },
+  });
+}
+
+/**
+ * Writes a finished sitting, once per paper.
  *
  * Only ever called after a paper is submitted. An abandoned paper leaves no
  * row, which is the same promise every other mode makes (ADR-016) and the
- * reason there is nothing written when one is started.
+ * reason there is nothing written when one is started. The look and the write
+ * are under one lock per paper, so a double-pressed Submit writes one row and
+ * both presses are told the same result.
  */
 export async function recordAttempt(input: {
   ownerId: string;
@@ -551,19 +572,28 @@ export async function recordAttempt(input: {
   seed: string;
   startedAt: Date;
   result: ExamResult;
-}): Promise<string> {
-  const row = await prisma.examAttempt.create({
-    data: {
-      ownerId: input.ownerId,
-      level: input.level,
-      seed: input.seed,
-      pct: input.result.pct,
-      passed: input.result.passed,
-      result: JSON.stringify(input.result),
-      startedAt: input.startedAt,
-      finishedAt: new Date(),
-    },
-    select: { id: true },
+}): Promise<{ id: string; pct: number; passed: boolean }> {
+  return prisma.$transaction(async (tx) => {
+    const key = `exam:${input.ownerId}:${input.level}:${input.seed}`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`;
+    const held = await tx.examAttempt.findFirst({
+      where: { ownerId: input.ownerId, level: input.level, seed: input.seed },
+      orderBy: [{ finishedAt: "asc" }, { id: "asc" }],
+      select: { id: true, pct: true, passed: true },
+    });
+    if (held) return held;
+    return tx.examAttempt.create({
+      data: {
+        ownerId: input.ownerId,
+        level: input.level,
+        seed: input.seed,
+        pct: input.result.pct,
+        passed: input.result.passed,
+        result: JSON.stringify(input.result),
+        startedAt: input.startedAt,
+        finishedAt: new Date(),
+      },
+      select: { id: true, pct: true, passed: true },
+    });
   });
-  return row.id;
 }
