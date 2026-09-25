@@ -89,6 +89,16 @@ describe("summariseCohort", () => {
     expect(summary.level).toBe(level);
   });
 
+  it("does not count a week-old review as active, since the day count is floored", () => {
+    /*
+      Seven and a half days is floored to seven, and "practised in 7 days"
+      beside it read one more than the reviews-this-week column could show.
+    */
+    const summary = summariseCohort([member({ ownerId: "a", daysSinceLastReview: 7 })], level);
+    expect(summary.active).toBe(0);
+    expect(summariseCohort([member({ ownerId: "a", daysSinceLastReview: 6 })], level).active).toBe(1);
+  });
+
   it("gives a member with no history at all no band rather than a bad one", () => {
     const summary = summariseCohort([member({ ownerId: "a" })], level);
     expect(summary.members[0]!.band).toBe("unknown");

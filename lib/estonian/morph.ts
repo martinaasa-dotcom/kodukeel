@@ -1,5 +1,6 @@
 import { caseByKey } from "./cases";
-import type { CaseKey } from "./types";
+import { isPrincipalFormType } from "./types";
+import type { CaseKey, PrincipalFormType } from "./types";
 
 /**
  * Ekilex's morph codes, decoded.
@@ -64,6 +65,29 @@ export function morphCodeOf(form: {
 }
 
 /**
+ * The Ekilex code a retrieved row carries, whichever column it is in, and
+ * nothing for a principal part.
+ *
+ * `morphCodeOf` answers a wider question: it hands a principal part back as
+ * its own `formType`, which is right for naming a form and wrong for asking
+ * about number, since `numberFromMorphCode` reads the `_PL` in `PART_PL` as a
+ * plural. This is the narrower one, and it is the one a reader of the column
+ * meant. `prisma/seed.ts` stores a harvested extra form as
+ * `formType: "EKILEX:<code>"` with no `morphCode` at all, so a reader asking
+ * the column alone answered on a live Ekilex lookup and on no seeded install:
+ * the plural guards in the card builder and the worksheet fired on nothing on
+ * a fresh deployment. Two modules had already written this out for themselves.
+ */
+export function ekilexCodeOf(form: {
+  formType?: string | null;
+  morphCode?: string | null;
+}): string | null {
+  if (form.morphCode) return form.morphCode;
+  const type = form.formType;
+  return type?.startsWith("EKILEX:") ? type.slice("EKILEX:".length) : null;
+}
+
+/**
  * Ekilex's own code for a case, for a caller holding the case rather than the
  * code: the search's suffix branch works out that `toas` is the seesütlev of
  * `tuba` from the ending, and the panel under a sentence then needs the same
@@ -107,8 +131,15 @@ export function morphCodeFor(key: CaseKey, plural = false): string | null {
  * The table is not a second naming of anything: `morph_test` drives every pair
  * through `formName` and fails where the two spellings of one slot do not name
  * the same form, so a wrong pair here cannot sit quietly.
+ *
+ * It is keyed on `PrincipalFormType` rather than on `string`, because the way
+ * this fails is by falling behind: a thirteenth principal part added to
+ * `PRINCIPAL_FORM_TYPES` would get its raw `formType` back from `slotCodeOf`,
+ * `plainAsk` would return null for it, and the placement check's explanation
+ * would quietly drop the clause the header above says this exists to restore.
+ * A missing key is a build error now rather than a screen that says less.
  */
-const CODE_BY_FORM_TYPE: Record<string, string> = {
+const CODE_BY_FORM_TYPE: Record<PrincipalFormType, string> = {
   NOM_SG: "SgN", GEN_SG: "SgG", PART_SG: "SgP", ILL_SG_SHORT: "SgAdt",
   NOM_PL: "PlN", GEN_PL: "PlG", PART_PL: "PlP",
   INF_MA: "Sup", INF_DA: "Inf",
@@ -125,7 +156,7 @@ export function slotCodeOf(form: {
 }): string | null {
   const code = morphCodeOf(form);
   if (!code) return null;
-  return CODE_BY_FORM_TYPE[code] ?? code;
+  return isPrincipalFormType(code) ? CODE_BY_FORM_TYPE[code] : code;
 }
 
 export type MorphNumber = "SINGULAR" | "PLURAL" | null;

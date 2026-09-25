@@ -26,12 +26,12 @@ import { join } from "node:path";
 import { launchChromium } from "./lib/browser.mjs";
 import { completeWithImage, type ProviderConfig } from "../lib/tutor/provider";
 import { SCAN_PROMPT, parseScanReply } from "../lib/scan/extract";
+import { fold } from "../lib/estonian/fold";
 
 type Entry = { lemma: string; translation: string; cefr: string | null; pos: string };
 
 /** The six letters an English keyboard has no key for, which is the whole test. */
 const DIACRITIC = /[õäöüšž]/i;
-const FOLD: Record<string, string> = { "õ":"o","ä":"a","ö":"o","ü":"u","š":"s","ž":"z" };
 
 const entries = JSON.parse(readFileSync("prisma/data/expanded.json", "utf8")) as Entry[];
 const WORDS = entries
@@ -106,7 +106,6 @@ const CANDIDATES: ProviderConfig[] = [
 
 async function main() {
   const dir = mkdtempSync(join(tmpdir(), "scan-"));
-  const fold = (x: string) => [...x.toLowerCase()].map((c) => FOLD[c] ?? c).join("");
 
   for (const mode of ["clean", "hard"] as Condition[]) {
     const ext = mode === "hard" ? "jpg" : "png";
