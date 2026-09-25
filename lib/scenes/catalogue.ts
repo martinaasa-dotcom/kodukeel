@@ -1126,7 +1126,7 @@ const TICKET: SceneSpec = {
   title: "Buying a bus ticket",
   place: "The ticket window at the bus station",
   tests: "reisimine",
-  units: [...COMMON, "ostmine", "reisimine", "kus-ja-kuhu", "omadussonad"],
+  units: [...COMMON, "ostmine", "reisimine", "kus-ja-kuhu", "omadussonad", "abi"],
   register: "teie",
   role: "You need a bus ticket. Your card says where to and when. You are at the window.",
   props: [
@@ -1162,7 +1162,7 @@ const TICKET: SceneSpec = {
       goal: "Tell them you would like a ticket.",
       they: "They ask what you need.",
       move: "ask",
-      topic: ["pilet", "soovima", "ostma"],
+      topic: ["pilet", "soovima", "ostma", "vaja"],
       needs: [{ kind: "lemma", oneOf: ["pilet"] }],
       required: true,
       patience: 3,
