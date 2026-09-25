@@ -14,6 +14,7 @@ import { latestFor } from "./assessment";
 import { deckSnapshot, type DeckSnapshot } from "./summary";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { orderContextFor } from "@/lib/dict/wordOrder";
+import { VOUCHED_ROW } from "@/lib/dict/search";
 
 /**
  * The database half of the mock examination.
@@ -74,11 +75,16 @@ import { orderContextFor } from "@/lib/dict/wordOrder";
 export async function examPool(ownerId: string, level: ExamLevel, seed: string): Promise<PoolWord[]> {
   const levels = eligibleLevels(level);
 
-  // Whether an ungraded entry is in is `eligibleFor`'s to say, the rule the
-  // measurement reads too, rather than a second reading of it here.
+  /*
+    Never a row a model suggested (`VOUCHED_ROW`): such a row is unbanded, and
+    unbanded entries are admitted from B1, so without this an unchecked word
+    could be the answer a candidate is marked against (ADR-005). Whether an
+    ungraded entry is in at all is `eligibleFor`'s to say, the rule the
+    measurement reads too, rather than a second reading of it here.
+  */
   const band = eligibleFor(level, null)
-    ? { OR: [{ cefr: { in: levels } }, { cefr: null }] }
-    : { cefr: { in: levels } };
+    ? { ...VOUCHED_ROW, OR: [{ cefr: { in: levels } }, { cefr: null }] }
+    : { ...VOUCHED_ROW, cefr: { in: levels } };
   /*
     Only what the dictionary held when the paper was first built. A word added
     mid-sitting grew this set by one, the shuffle walks the whole set, and the

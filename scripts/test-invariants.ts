@@ -3723,6 +3723,62 @@ check("a cap is charged to the learner, never to their address alone", () => {
 
 // ── A photograph is read, never believed ─────────────────────────────────────
 
+check("a word a model suggested reaches no learner but the one who kept it", () => {
+  /*
+    CLAUDE.md says a model-suggested row is "never a scanned page's answer,
+    never a headline's headword, never the word of the day, never lent a
+    sentence", and names `vouchable` as the whole of the guard. `vouchable`
+    only stands on the paths through `matchEstonianForm`. The word of the day
+    read the whole dictionary by gloss with no such filter and fell back to
+    any row at all; the mock exam's pool admits unbanded entries from B1; and
+    `createLexeme`, a public Server Action, took the band and the part of
+    speech off the wire, so any account could file an invented word as an A1
+    noun for every banded picker in the app to hand to other learners.
+
+    Three arms. `createLexeme` sets the band and the part of speech itself; a
+    picker that admits an unbanded row excludes AI rows; and the word of the
+    day does, on both of its reads.
+  */
+  const actions = code("app/actions.ts");
+  const create = actions.slice(
+    actions.indexOf("export async function createLexeme"),
+    actions.indexOf("export async function", actions.indexOf("export async function createLexeme") + 10),
+  );
+  assert.ok(create.length > 100, "app/actions.ts no longer has a createLexeme to check");
+  assert.doesNotMatch(create, /input\.(?:pos|cefr)\b/, "createLexeme writes a band or part of speech its caller chose");
+  assert.match(create, /provenance: "AI"/, "createLexeme no longer marks a model's word as one");
+  assert.match(create, /cefr: null/, "createLexeme no longer leaves a model's word unbanded");
+
+  const unbanded = [...ALL].filter((f) => /\{\s*cefr:\s*null\s*\}/.test(code(f)) && /prisma\.lexeme\./.test(code(f)));
+  assert.ok(unbanded.length >= 1, "no picker admits an unbanded row, so this arm checks nothing");
+  // On the expression that admits the unbanded row, not somewhere in the
+  // file: a file that imports the fragment and spreads it into one branch of
+  // a ternary passed the first version of this with the other branch open.
+  const open = unbanded.filter((f) => {
+    const text = code(f);
+    return [...text.matchAll(/\{\s*cefr:\s*null\s*\}/g)]
+      .some((m) => !/\.\.\.VOUCHED_ROW\b/.test(text.slice(Math.max(0, m.index! - 120), m.index)));
+  });
+  assert.deepEqual(open, [], `${open.join(", ")} admits an unbanded dictionary row and never excludes a model's suggestion`);
+
+  const wordOfDay = code("lib/progress/wordOfDay.ts");
+  assert.ok(
+    (wordOfDay.match(/\.\.\.VOUCHED_ROW\b/g) ?? []).length >= 2,
+    "the word of the day reads the dictionary without refusing a model's suggestion on both of its reads",
+  );
+
+  // And the rows written before `createLexeme` stopped taking a band: a
+  // builder fix reaches no deployment already holding one, so the seed clears
+  // them, above `--only-if-empty`'s early return, and touches nothing else.
+  const seed = code("prisma/seed.ts");
+  const cleared = seed.indexOf("clearModelBands(prisma)");
+  assert.ok(cleared >= 0, "the seed never takes the band off a word a model suggested");
+  assert.ok(cleared < seed.indexOf('"--only-if-empty"'), "the band is cleared below --only-if-empty's early return, which a seeded deployment never passes");
+  const repair = /export async function clearModelBands[\s\S]*?\n\}/.exec(code("prisma/repair.ts"));
+  assert.ok(repair, "prisma/repair.ts has no clearModelBands");
+  assert.match(repair[0], /SET cefr = NULL\s+WHERE provenance = 'AI'/, "clearModelBands writes something other than the band, or not only on a model's rows");
+});
+
 check("a word read off a photograph reaches a card only through the dictionary", () => {
   /*
     THIS IS ADR-005 ON THE ONE PATH WHERE A MODEL UNAVOIDABLY READS ESTONIAN.
