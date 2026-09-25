@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+import { PRIVATE_NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -95,20 +96,33 @@ export async function GET() {
   /*
     Which words to carry, asked before the rest so the answer can be used.
 
-    Four tables reference a lexeme and every one of them is the learner's own.
-    `Review` keeps `lexemeId` as a plain column with no relation, deliberately,
-    so it outlives the card it was about: a word they have not had a card for
-    in a year is still a word their history is about, and leaving it out would
-    restore a log pointing at nothing.
+    Every table of the learner's own that points at a word is asked, because a
+    word missing from the file is a row the restore cannot put back anywhere
+    but where the backup was taken. `Review` keeps `lexemeId` as a plain column
+    with no relation, deliberately, so it outlives the card it was about: a
+    word they have not had a card for in a year is still a word their history
+    is about, and leaving it out would restore a log pointing at nothing.
+
+    It was four tables and it is seven, and each of the three it missed can
+    point at a word with no card behind it. A word a conversation needed is
+    usually one the learner has never met, which is the point of keeping it,
+    and a restore onto another deployment kept the gap and lost which word it
+    was. A word refused in a lesson before its cards were built is a deferral
+    with no card. And a shelf outlives a card the learner deletes, where
+    `DeckWord.lexemeId` is a real foreign key, so the restore dropped the
+    entry. The invariant reads the schema, so an eighth cannot be missed.
   */
-  const [cardWords, reviewWords, starWords, reportWords] = await Promise.all([
+  const wordRows = await Promise.all([
     prisma.card.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.review.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.starredWord.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.suggestion.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+    prisma.deckWord.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+    prisma.deferral.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+    prisma.sceneGap.findMany({ where: { ownerId }, select: { lexemeId: true } }),
   ]);
   const mine = new Set<string>();
-  for (const row of [...cardWords, ...reviewWords, ...starWords, ...reportWords]) {
+  for (const row of wordRows.flat()) {
     if (row.lexemeId) mine.add(row.lexemeId);
   }
 
@@ -214,8 +228,7 @@ export async function GET() {
         a default TTL for a 200 would have been free to hand it to the next
         request. `private, no-store` and a `Cookie` vary say who it belongs to.
       */
-      "cache-control": "private, no-store",
-      vary: "Cookie",
+      ...PRIVATE_NO_STORE,
     },
   });
 }

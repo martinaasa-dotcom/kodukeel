@@ -156,7 +156,9 @@ check("a request with no browser headers at all is let through",
 
 // ── What is behind a token stays behind it ───────────────────────────────────
 
-for (const path of ["/api/metrics", "/api/research"]) {
+// The mail run too, which is public to the gate because its caller is a
+// scheduler, and so has to be the thing that refuses everybody else.
+for (const path of ["/api/metrics", "/api/research", "/api/email/send"]) {
   check(`${path} does not exist without the token`, (await status(path)) === 404);
   check(`${path} does not exist with the wrong token`,
     (await status(path, { headers: { authorization: "Bearer not-the-token" } })) === 404);

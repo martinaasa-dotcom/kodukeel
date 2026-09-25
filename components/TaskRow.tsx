@@ -5,6 +5,10 @@ import { Check } from "lucide-react";
 import { toggleTask } from "@/app/actions";
 import { TASK_TAGS, bucketFor } from "@/lib/ux/agenda";
 import { dayClock } from "@/lib/time/day";
+import { LocalDate, stableDate } from "@/components/LocalDate";
+
+/** How a due date is written: the day and the short month, in the reader's own order. */
+const DUE_SHAPE: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
 
 export interface TaskView {
   id: string;
@@ -71,7 +75,7 @@ export function TaskRow({ task }: { task: TaskView }) {
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
               {overdue ? "Overdue · " : "Due "}
-              {due.toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+              <LocalDate iso={due.toISOString()} fallback={stableDate(due, DUE_SHAPE)} options={DUE_SHAPE} />
             </span>
           )}
         </div>

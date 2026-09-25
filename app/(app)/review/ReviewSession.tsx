@@ -26,7 +26,8 @@ import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
-import { dropFromOutbox, enqueueGrade, readOutbox, readStashedSession, stashSession } from "@/lib/offline/db";
+import { enqueueGrade, readStashedSession, stashSession, takeFromOutbox } from "@/lib/offline/db";
+import { undoOutcome } from "@/lib/offline/outbox";
 import { useOffline } from "@/components/OfflineProvider";
 import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
@@ -34,6 +35,7 @@ import { requeue } from "@/lib/srs/queue";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
+import { choiceIsRight } from "@/lib/questions/caseChoices";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -443,12 +445,8 @@ interface Done {
   rating: RatingValue;
   /** The card's scheduling before the grade — everything undo needs. */
   before: ReviewCard["scheduling"];
-  /**
-   * The outbox id, where the grade never reached the server. Undoing that one
-   * is taking it back out of the outbox rather than asking the server to
-   * rewind a grade it has never seen, which left the queued one to replay.
-   */
-  queuedId?: string;
+  /** The id the grade was written, or queued, under, so undo can take a queued one back. */
+  reviewId: string;
 }
 
 export function ReviewSession({
@@ -552,6 +550,15 @@ export function ReviewSession({
   const [retypeOk, setRetypeOk] = useState(false);
   const [retypeNote, setRetypeNote] = useState<string | null>(null);
   const [done, setDone] = useState(0);
+  /*
+    How many times this session has dealt a question, which the hint ladder is
+    keyed on beside the card. A card graded Again goes back through `requeue`,
+    and where the queue is shorter than the gap it is dealt again at once: keyed
+    on the card alone the rungs taken the first time were still taken, so a
+    card whose answer the ladder had spelled out was capped at Again on every
+    asking after and never left the session.
+  */
+  const [asking, setAsking] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState<Done[]>([]);
@@ -601,7 +608,7 @@ export function ReviewSession({
   /** Cards whose word has been met this session and which are now asked properly. */
   const [met, setMet] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingOffline, setPendingOffline] = useState(0);
-  const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
+  const { pending: outboxPending, refresh: refreshOutbox, drainFirst } = useOffline();
   const shownAt = useRef(Date.now());
   /*
     WHEN THE ANSWER WAS ACTUALLY GIVEN, WHICH IS NOT WHEN THE CARD IS FINALLY
@@ -698,10 +705,18 @@ export function ReviewSession({
     `lib/questions/hints.ts` on why the caller hands over what it has rather
     than picking.
   */
+  const answerLanguage = card?.cardType === "RECOGNITION" ? "en" : "et";
+  /*
+    The option that is the answer, which is not always the back as a string:
+    a back can hold two spellings and an option holds one. See `choiceIsRight`.
+  */
+  const rightChoice = card
+    ? card.choices?.find((c) => choiceIsRight(c, card.back, answerLanguage)) ?? card.back
+    : "";
   const ladder = !card
     ? []
     : ask === "choice"
-      ? narrowLadder(card.choices ?? [], card.back)
+      ? narrowLadder(card.choices ?? [], rightChoice)
       : ask === "type"
         ? hintLadder({
           answer: card.back,
@@ -720,12 +735,12 @@ export function ReviewSession({
     word: card ? wordKey(card) : null,
     // The card rather than the word: a deck holds several cards of one word,
     // and two letters of `toas` are not two letters of `toale`.
-    question: card?.id ?? null,
+    question: card ? `${card.id}:${asking}` : null,
     ladder,
     lapses: card?.scheduling.lapses ?? 0,
   });
   const struck = ask === "choice" && card
-    ? struckOptions(card.choices ?? [], card.back, hints.taken)
+    ? struckOptions(card.choices ?? [], rightChoice, hints.taken)
     : [];
   /*
     The line that says being unable to answer is the ordinary state, on a word
@@ -844,6 +859,7 @@ export function ReviewSession({
       const [seen] = next.splice(index, 1);
       return seen ? requeue(next, seen, index) : next;
     });
+    setAsking((n) => n + 1);
     setRevealed(false);
     setTyped("");
     setVerdict(null);
@@ -904,7 +920,7 @@ export function ReviewSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
     producedAt.current = null;
-  }, [card, queue, index]);
+  }, [card, queue]);
 
   const submit = useCallback(async (asked: RatingValue) => {
     if (!card || busy) return;
@@ -942,9 +958,11 @@ export function ReviewSession({
       is what tells them either way.
     */
     try {
-    let queuedId: string | undefined;
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
     try {
-      const result = await gradeCard(card.id, rating, duration, answeredAt);
+      await drainFirst();
+      const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, reviewId);
       if (!result.ok) throw new Error(result.error);
       scheduled.current.set(card.id, result.scheduling);
     } catch {
@@ -952,21 +970,20 @@ export function ReviewSession({
       // something the learner did, so it goes to the durable outbox and is
       // replayed in order with this timestamp once there is a connection —
       // which, because Review is append-only, lands exactly where it would have.
-      const id = crypto.randomUUID();
       await enqueueGrade({
-        id,
+        id: reviewId,
         cardId: card.id,
         rating,
         durationMs: duration,
         reviewedAt: Date.parse(answeredAt),
       });
-      queuedId = id;
       refreshOutbox();
     }
 
     setDone((d) => d + 1);
+    setAsking((n) => n + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
-    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, queuedId }]);
+    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId }]);
     recordSeen(card, false);
 
     // "Again" means it is not learned — put it back near the end of this session.
@@ -991,7 +1008,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, hints, recordSeen]);
+  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen]);
 
   /**
    * Puts the last graded card back.
@@ -1004,31 +1021,24 @@ export function ReviewSession({
     if (!last || busy) return;
     setBusy(true);
     /*
-      THE SAME RULE AS GRADING: THE FLAG COMES OFF WHATEVER HAPPENS.
-
-      The action was awaited bare, so with the network gone the rejection left
-      `busy` set and every control on the card disabled for the rest of the
-      session. And a grade that went to the outbox was never on the server, so
-      rewinding it there did nothing while the queued grade replayed later and
-      put the answer back. That one is taken out of the outbox instead, unless
-      it has already been sent, in which case the server rewind is right.
+      Offline the action throws rather than returning, and without the
+      `finally` the session stayed busy for good: every button on the card
+      disabled, over one press of Undo on a train. Nothing changes on a throw,
+      which is the honest answer to an undo that could not reach the server.
     */
-    let ok = false;
     try {
-      const pending = last.queuedId
-        ? (await readOutbox()).some((g) => g.id === last.queuedId)
-        : false;
-      if (pending && last.queuedId) {
-        await dropFromOutbox([last.queuedId]);
-        refreshOutbox();
-        ok = true;
-      } else {
-        ok = (await undoGrade(last.cardId, last.before)).ok;
-      }
-    } catch {
-      ok = false;
-    }
-    if (ok) {
+    /*
+      A grade still in the outbox never reached the server, so it is taken
+      back here first. Asking the server alone meant a grade undone offline
+      stayed queued and was replayed later: the answer the learner withdrew
+      was applied anyway. The server is still asked, since a sync may have
+      sent the grade a moment ago, and its answer decides only for a grade
+      that was no longer queued.
+    */
+    const taken = await takeFromOutbox(last.reviewId);
+    if (taken) refreshOutbox();
+    const result = await undoGrade(last.cardId, last.before).catch(() => null);
+    if (undoOutcome(taken, result?.ok === true) === "undone") {
       scheduled.current.set(last.cardId, last.before);
       setHistory((h) => h.slice(0, -1));
       // The card is in front of the learner again, so that showing has not
@@ -1048,7 +1058,9 @@ export function ReviewSession({
       });
       setIndex(last.index);
     }
-    setBusy(false);
+    } finally {
+      setBusy(false);
+    }
   }, [history, busy, queue, forget, refreshOutbox]);
 
   const checkTyped = useCallback(() => {
@@ -1092,7 +1104,7 @@ export function ReviewSession({
     if (!card || chosen) return;
     setChosen(choice);
     setRevealed(true);
-    const right = choice === card.back;
+    const right = choiceIsRight(choice, card.back, answerLanguage);
     cheer(right);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
     // Nothing grades itself here any more: the tile turns and a button
@@ -1202,7 +1214,7 @@ export function ReviewSession({
         // advance key is the button under the card.
         if (ask === "type" && verdict) { if (!needsRetype) void submit(verdict.suggestedRating); return; }
         // Both a right and a wrong pick wait for the same button now.
-        if (ask === "choice") { if (chosen) void submit(chosen === card?.back ? 3 : 1); return; }
+        if (ask === "choice") { if (chosen) void submit(card && choiceIsRight(chosen, card.back, answerLanguage) ? 3 : 1); return; }
         if (!revealed) setRevealed(true);
         else void submit(3);
         return;
@@ -1686,7 +1698,7 @@ export function ReviewSession({
           {ask === "choice" && chosen && (
             <div className="mt-2 grid w-full max-w-md gap-2">
               {card.choices?.map((choice) => {
-                const state = optionState(choice === card.back, choice === chosen);
+                const state = optionState(choiceIsRight(choice, card.back, answerLanguage), choice === chosen);
                 return (
                   <div
                     key={choice}
@@ -1787,7 +1799,7 @@ export function ReviewSession({
               question somebody has the moment they first see one, and the
               screen that introduces the form is the obvious place to answer
               it. */}
-          {(revealed || chosen || ask === "intro") && <WhyRow card={card} />}
+          {(answerShown || chosen) && <WhyRow card={card} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -1840,7 +1852,7 @@ export function ReviewSession({
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
               Pick the meaning · keys 1 to {card.choices?.length ?? 4}
             </p>
-          ) : ask === "choice" && chosen === card.back ? (
+          ) : ask === "choice" && chosen !== null && choiceIsRight(chosen, card.back, answerLanguage) ? (
             /* Right, and waiting: the tile has already turned mint, so the
                button only has to say what happens next. */
             <Button variant="primary" size="lg" className="w-full" onClick={() => void submit(3)} disabled={busy}>

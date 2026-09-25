@@ -13,6 +13,7 @@ import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provi
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { courseLevelFor } from "@/lib/progress/level";
+import { NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -52,26 +53,26 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.sceneId !== "string" || typeof body.caseKey !== "string" ||
         typeof body.askLemma !== "string" || typeof body.sentence !== "string") {
-      return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+      return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
     }
     sceneId = body.sceneId;
     caseKey = body.caseKey;
     askLemma = body.askLemma;
     sentence = body.sentence.trim().slice(0, MAX_SENTENCE_CHARS);
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
 
   if (!looksLikeSentence(sentence)) {
     return Response.json(
       { error: "Write a whole sentence, at least three words." },
-      { status: 400 },
+      { headers: NO_STORE, status: 400 },
     );
   }
 
   const rebuilt = await taskById(sceneId, caseKey, askLemma);
   if (!rebuilt) {
-    return Response.json({ error: "That picture is no longer available." }, { status: 404 });
+    return Response.json({ error: "That picture is no longer available." }, { headers: NO_STORE, status: 404 });
   }
   const { task, answer } = rebuilt;
 
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
 
   // The grader's own chain, not the general head (see `PURPOSE_CHAINS`).
   const config = resolveProviders({ purpose: "grader" })[0];
-  if (!config) return Response.json({ mark, reveal, graded: null, aiAvailable: false });
+  if (!config) return Response.json({ mark, reveal, graded: null, aiAvailable: false }, { headers: NO_STORE });
 
   const decision = await authoriseCall(ownerId, "GRADER");
   if (!decision.allowed) {
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
     // failure: the learner is still told whether the case was right.
     return Response.json(
       { mark, reveal, graded: null, aiAvailable: false, quotaMessage: decision.message },
-      { status: 200 },
+      { headers: NO_STORE, status: 200 },
     );
   }
 
@@ -195,7 +196,7 @@ export async function POST(request: Request) {
       reply = verified.graded;
     }
 
-    return Response.json({ mark, reveal, graded: reply, aiAvailable: true, withheld, withheldReason });
+    return Response.json({ mark, reveal, graded: reply, aiAvailable: true, withheld, withheldReason }, { headers: NO_STORE });
   } catch (error) {
     const booking = decision.reservation;
     if (!settled && booking) after(() => releaseReservation(booking));
@@ -203,6 +204,6 @@ export async function POST(request: Request) {
       reportError(error, { at: "api/describe", ownerId, extra: { model: config.model } });
     }
     // Degrades to the mechanical result, which is the important half anyway.
-    return Response.json({ mark, reveal, graded: null, aiAvailable: false });
+    return Response.json({ mark, reveal, graded: null, aiAvailable: false }, { headers: NO_STORE });
   }
 }
