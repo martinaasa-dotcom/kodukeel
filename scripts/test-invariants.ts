@@ -3874,27 +3874,125 @@ check("a `take` beside a `distinct` bounds nothing, so it is scoped to one owner
     of those are honest. It is that the pairing may only ever be owner-scoped:
     an unscoped one reads the whole table however small the number beside it
     looks. Anything deployment-wide counts in Postgres.
+
+    AND "SCOPED" IS A FACT ABOUT THE `where`, NOT ABOUT THE CALL. The first
+    version asked whether the word `ownerId` appeared anywhere in the call, and
+    the commonest deployment-wide use of `distinct` is `distinct: ["ownerId"]`,
+    which satisfies that test on its own. `mailoutRoster` read every `Review`
+    row in a fortnight into the process twice per scheduled run, once to count
+    distinct learners and once to page them, with this check green and a
+    comment above it saying the count was "a real `COUNT(DISTINCT)`". So the
+    top-level `where` of the argument object is read by brace depth, a nested
+    relation's `where` is not it, and the owner has to be a key inside it.
+    Counted, so a change to how `distinct` is written cannot leave it looking
+    at nothing.
   */
+  let looked = 0;
   for (const file of ALL) {
     // Comments out, or this fires on the paragraph in `practice/page.tsx` that
-    // describes the query it stopped making. Which it did, once.
-    const src = read(file).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    // describes the query it stopped making. Which it did, once. Blanked to
+    // their newlines rather than deleted, so the line a failure names is real.
+    const src = read(file)
+      .replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, ""))
+      .replace(/^\s*\/\/.*$/gm, "");
     let at = src.indexOf("distinct: [");
     while (at !== -1) {
-      // The enclosing call: back to the `prisma.` that opened it, forward to
-      // the end of that argument object.
-      const opened = src.lastIndexOf("prisma.", at);
-      const call = src.slice(opened, src.indexOf("})", at) + 2);
+      looked += 1;
+      const line = src.slice(0, at).split("\n").length;
+      const where = topLevelWhere(src, at);
       assert.ok(
-        /ownerId/.test(call),
-        `${file}: a Prisma \`distinct\` with no ownerId in its where. That reads the whole `
-        + `table however small the \`take\` beside it looks, because Prisma emits no LIMIT `
-        + `next to a distinct. Count it in Postgres instead.`,
+        where !== null && /\bownerId\b/.test(where),
+        `${file}:${line}: a Prisma \`distinct\` with no ownerId in its where. That reads the whole `
+        + `table however small the \`take\` beside it looks, because Prisma deduplicates in the `
+        + `client and emits no LIMIT next to a distinct. Count it in Postgres instead.`,
       );
       at = src.indexOf("distinct: [", at + 1);
     }
   }
+  assert.ok(looked >= 7, `only ${looked} Prisma \`distinct\` calls found, so this check stopped looking`);
 });
+
+check("a read of Setting that pins no owner is served by an index led by the key", () => {
+  /*
+    `Setting`'s primary key is `(ownerId, key)`, which serves every read of one
+    learner's preferences and none of the reads that ask about one key across
+    the whole deployment: who finished first run this fortnight, who opted out
+    of research, who reviews by flipping. Five of those existed with no index
+    they could use, so each was a sequential scan of every setting of every
+    learner, one of them hourly. Measured over 5,000 learners the count went
+    from 4.4ms and 407 buffers to 0.24ms and 51 with `@@index([key, value])`.
+
+    Pinning is equality or `in` on the owner. `ownerId: { notIn: [...] }`
+    excludes owners rather than choosing one, and the research count carries
+    exactly that, which is the false positive that let a `distinct` over the
+    whole of `Review` through the check above.
+  */
+  const unpinned: string[] = [];
+  for (const file of ALL) {
+    const src = read(file)
+      .replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, ""))
+      .replace(/^\s*\/\/.*$/gm, "");
+    for (const found of src.matchAll(/\b(?:prisma|tx)\.setting\.(?:findMany|findFirst|count|groupBy|aggregate)\(\{/g)) {
+      const at = found.index + found[0].length;
+      const where = topLevelWhere(src, at);
+      const line = src.slice(0, found.index).split("\n").length;
+      if (where === null) continue;
+      const pinned = /\bownerId\b(?!\s*:\s*\{\s*(?:notIn|not)\b)/.test(where);
+      if (pinned) continue;
+      unpinned.push(`${file}:${line}`);
+      assert.match(
+        where, /\bkey\s*:/,
+        `${file}:${line} reads Setting across every learner without naming a key, so no index can serve it`,
+      );
+    }
+  }
+  assert.ok(unpinned.length >= 5, `only ${unpinned.length} deployment-wide Setting reads found, so this check stopped looking`);
+  const model = /model Setting \{[\s\S]*?\n\}/.exec(SCHEMA)?.[0] ?? "";
+  assert.match(
+    model, /@@index\(\[\s*key\b/,
+    `${unpinned.join(", ")} filter Setting on the key alone, and nothing indexes it: the primary key `
+    + "leads with the owner, so each is a sequential scan of every learner's every setting",
+  );
+});
+
+/**
+ * The `where` of the Prisma argument object enclosing position `at`, by brace
+ * depth: back to the `{` that opens the object `at` sits in at depth one, then
+ * forward to its first key named `where` at that same depth. A relation's own
+ * `where` inside `include` or `select` is one level deeper and is skipped,
+ * which is the whole point, since an owner filter on a relation scopes the
+ * relation and not the rows being read. Null where the object has none.
+ */
+function topLevelWhere(src: string, at: number): string | null {
+  let depth = 0;
+  let open = -1;
+  for (let i = at; i >= 0; i -= 1) {
+    const c = src[i];
+    if (c === "}" || c === "]" || c === ")") depth += 1;
+    else if (c === "{" || c === "[" || c === "(") {
+      if (depth === 0) { if (c === "{") { open = i; break; } return null; }
+      depth -= 1;
+    }
+  }
+  if (open === -1) return null;
+  depth = 0;
+  for (let i = open + 1; i < src.length; i += 1) {
+    const c = src[i];
+    if (c === "{" || c === "[" || c === "(") depth += 1;
+    else if (c === "}" || c === "]" || c === ")") { if (depth === 0) return null; depth -= 1; }
+    else if (depth === 0 && /^\bwhere\s*:/.test(src.slice(i, i + 12)) && !/\w/.test(src[i - 1] ?? "")) {
+      let d = 0;
+      for (let j = src.indexOf(":", i) + 1; j < src.length; j += 1) {
+        const k = src[j];
+        if (k === "{" || k === "[" || k === "(") d += 1;
+        else if (k === "}" || k === "]" || k === ")") { if (d === 0) return src.slice(i, j); d -= 1; }
+        else if (k === "," && d === 0) return src.slice(i, j);
+      }
+      return null;
+    }
+  }
+  return null;
+}
 
 check("which of two entries for one word wins is decided, not left to the rows", () => {
   /*
