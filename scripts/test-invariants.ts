@@ -24952,6 +24952,38 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("every package a document says the app uses is one it depends on", () => {
+  /*
+    The integrations document said the model calls go through
+    `@anthropic-ai/sdk`, streaming with adaptive thinking, and the app has no
+    SDK at all: one HTTP client speaks to every provider. A reader sizing the
+    dependency tree, or auditing what talks to whom, is told about a package
+    that is not there. So a package a document names the way a dependency is
+    named, scoped or quoted with its version, has to be in package.json. The
+    one exception keeps a plan that was not built, and says so.
+  */
+  const NOT_BUILT: Record<string, string> = {
+    "ical.js": "docs/05 §4 keeps the calendar subscription plan, marked as not built",
+  };
+  const pkg = JSON.parse(read("package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
+  const deps = new Set([...Object.keys(pkg.dependencies ?? {}), ...Object.keys(pkg.devDependencies ?? {})]);
+  const docs = [
+    ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => `docs/${f}`),
+    "README.md", "CLAUDE.md",
+  ];
+  const named = new Map<string, string>();
+  for (const file of docs) {
+    const text = read(file);
+    for (const m of text.matchAll(/`([a-z][a-z0-9.-]*)`\s*\((?:[0-9]+\.[0-9]+|MIT|VERIFIED)/g)) named.set(m[1]!, file);
+    for (const m of text.matchAll(/`(@[a-z0-9-]+\/[a-z0-9.-]+)`/g)) named.set(m[1]!, file);
+  }
+  assert.ok(named.size >= 3, `found only ${named.size} packages named, so the sweep has stopped reading what it should`);
+  const missing = [...named].filter(([p]) => !deps.has(p) && !(p in NOT_BUILT)).map(([p, f]) => `${p} (in ${f})`);
+  assert.ok(missing.length === 0, `names a package the app does not depend on: ${missing.join(", ")}`);
+  const stale = Object.keys(NOT_BUILT).filter((p) => deps.has(p) || !named.has(p));
+  assert.ok(stale.length === 0, `an exemption no longer applies: ${stale.join(", ")}`);
+});
+
 /**
  * Two neighbouring `const x = await ...` statements in a server file where the
  * second never names what the first bound: two reads that do not need each
