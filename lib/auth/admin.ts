@@ -39,7 +39,7 @@ export interface AdminEnv {
 
 export function adminEmails(env: AdminEnv = process.env): string[] {
   return (env.ADMIN_EMAILS ?? "")
-    .split(",")
+    .split(/[,\s]+/)
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);
 }
