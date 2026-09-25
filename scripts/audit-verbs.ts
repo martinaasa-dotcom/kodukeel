@@ -180,6 +180,15 @@ async function main() {
       console.log(`  ${d.lemma.padEnd(18)} ${d.code.padEnd(10)} derived ${d.derived.padEnd(22)} ekilex ${d.ekilex.join(" / ")}`);
     }
     process.exitCode = 1;
+  } else if (unreachable * 2 > checked + unreachable) {
+    /*
+      A run that could not read most of what it was asked about is not a pass,
+      which is `audit:glosses`' own rule. With every request refused this
+      printed "No disagreements." over nought checked and exited 0, a clean
+      result nobody earned.
+    */
+    console.log(`\nFewer than half the verbs could be fetched, so this is not a pass either way.`);
+    process.exitCode = 1;
   } else {
     console.log("\nNo disagreements.");
   }
