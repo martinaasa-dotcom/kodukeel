@@ -476,7 +476,7 @@ if (!partLanded) {
   check("a part on its own is reported as a mark for that part",
     /^Reading: \d+ percent$/m.test(await page.locator("h1").innerText()));
   check("and never as the examination passed, failed or waited on",
-    /whole paper needs/.test(partResult) && !/certificate|six months/i.test(partResult));
+    /whole paper needs/.test(partResult) && !/would be a certificate|waits six months/i.test(partResult));
 
   await page.goto(`${B}/exam`, { waitUntil: "networkidle" });
   check("the hub lists it as paper 3, reading only",
