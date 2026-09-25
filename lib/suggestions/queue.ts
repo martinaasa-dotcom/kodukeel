@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { parseExamples } from "@/lib/dict/examples";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import {
-  CATEGORY_KEYS, parsePatch,
+  CATEGORY_KEYS, createWordClash, parsePatch,
   type Patch, type SuggestionCategory, type SuggestionStatus,
 } from "./model";
 
@@ -286,10 +286,14 @@ async function currentValues(
         byLemma.filter((e) => e.lemma.toLowerCase() === patch.lemma.toLowerCase()),
         [patch.lemma],
       )[0] ?? byLemma.find((e) => e.lemma.toLowerCase() === patch.lemma.toLowerCase());
+      // The entry it would write over, where there is one, since that is the
+      // one the reviewer has to go and correct instead.
+      const blocking = createWordClash(patch, byLemma);
+      const shown = blocking ?? clash;
       out.set(item.id, {
-        before: clash ? `${clash.lemma} · ${clash.pos.toLowerCase()} · ${clash.translation}` : null,
-        blocked: clash && clash.pos === patch.pos
-          ? "The dictionary already has this word. Accepting will overwrite what it says."
+        before: shown ? `${shown.lemma} · ${shown.pos.toLowerCase()} · ${shown.translation}` : null,
+        blocked: blocking
+          ? "The dictionary already has this word. Correct its entry instead."
           : null,
       });
       continue;

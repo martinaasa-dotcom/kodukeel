@@ -65,7 +65,7 @@ export function CheckpointSession({
 
   const submit = useCallback(() => {
     if (!question || saving || done) return;
-    const result = checkAnswer(typed, question.answer, "et");
+    const result = checkAnswer(typed, question.answer, "et", question.rivals);
     const ok = countsAsRecalled(result.verdict);
     const tally = correct + (ok ? 1 : 0);
     if (ok) setCorrect(tally);
