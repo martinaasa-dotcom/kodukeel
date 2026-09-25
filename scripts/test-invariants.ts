@@ -21716,6 +21716,32 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+/*
+  THE PRODUCT SPEC READ AS A DESCRIPTION OF THE APP, AND HALF OF IT WAS NOT.
+
+  `docs/01-product-spec.md` is where a reader starts, and it states acceptance
+  criteria in the present tense: an Anki export, iCal feed subscriptions, a
+  task list with linked lexemes, listening and object-case card types, a
+  heatmap, and non-goals (no accounts, no generated forms, no authored course)
+  that were each reversed by an ADR. None of that was marked. The criteria are
+  kept as the record of what was asked; what makes the page honest is that
+  every feature and the non-goals open on a note saying what exists. So each
+  of those sections has to carry one, and a new section added without one
+  fails here.
+*/
+check("every feature section of the product spec says what was built", () => {
+  const doc = read(join("docs", "01-product-spec.md"));
+  const headings = [...doc.matchAll(/^(### 3\.\d+ .*|## 4\. .*)$/gm)];
+  assert.ok(headings.length >= 8, "docs/01-product-spec.md no longer has its feature sections");
+  const missing = headings
+    .filter((h) => {
+      const after = doc.slice(h.index! + h[0].length).trimStart();
+      return !after.startsWith("> **As built:**");
+    })
+    .map((h) => h[1]!);
+  assert.deepEqual(missing, [], "a product spec section does not open on an As built note");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
