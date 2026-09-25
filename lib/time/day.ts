@@ -180,19 +180,92 @@ function partsFormatter(zone: Zone): Intl.DateTimeFormat {
   return made;
 }
 
-interface ZonedParts {
+export interface ZonedParts {
   year: number; month: number; day: number;
   hour: number; minute: number; second: number;
+}
+
+/*
+  THE OFFSET, REMEMBERED PER QUARTER HOUR, BECAUSE THE FORMATTER WAS THE PAGE.
+
+  Memoising the formatter made constructing one free and left the call itself,
+  and a heatmap, a daily load and an hour-of-day reading each ask it once per
+  review. Profiled on /progress over a year of reviews (60,000 rows, about 165
+  a day), `dayKey` and `hourOf` were 1.1 of the page's 1.9 seconds on a local
+  socket, most of it `formatToParts` building parts objects for instants a few
+  seconds apart.
+
+  A zone's offset only changes at a transition, and every transition in the
+  zone database since 1970 falls on a quarter hour of UTC, since offsets are
+  whole quarter hours and clocks change on a local hour. So the offset is read
+  once per UTC quarter hour and the wall clock inside it is arithmetic. That is
+  checked rather than trusted: the offset is read at both ends of the quarter,
+  and a quarter whose two ends disagree is one a transition fell inside, which
+  is never cached and always read the slow way. `day.test.ts` holds the fast
+  path to the slow one across every transition of several zones, minute by
+  minute.
+
+  Bounded, because a cache that never evicts is a leak with a hit rate: a year
+  of sittings is a few thousand quarters, and past the ceiling the map starts
+  again rather than growing.
+*/
+const QUARTER_MS = 15 * 60_000;
+const OFFSET_CEILING = 20_000;
+const offsets = new Map<string, Map<number, number | null>>();
+
+/** Milliseconds `zone`'s wall clock is ahead of UTC at `ms`, read the slow way. */
+function offsetAt(ms: number, zone: Zone): number {
+  const p = slowPartsIn(new Date(ms), zone);
+  return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
+}
+
+/** The offset for the quarter holding `ms`, or null where a transition falls inside it. */
+function quarterOffset(ms: number, zone: Zone): number | null {
+  const key = zone ?? "";
+  let perZone = offsets.get(key);
+  if (!perZone) { perZone = new Map(); offsets.set(key, perZone); }
+  const quarter = Math.floor(ms / QUARTER_MS);
+  const held = perZone.get(quarter);
+  if (held !== undefined) return held;
+  const start = quarter * QUARTER_MS;
+  const first = offsetAt(start, zone);
+  const found = offsetAt(start + QUARTER_MS - 1000, zone) === first ? first : null;
+  if (perZone.size >= OFFSET_CEILING) perZone.clear();
+  perZone.set(quarter, found);
+  return found;
 }
 
 /**
  * The wall clock in `zone` at the instant `date`.
  *
+ * The offset for the quarter hour is remembered and the parts are arithmetic
+ * on it, which is the same answer as `formatToParts` and a fraction of the
+ * cost; a quarter a transition fell inside is read the slow way.
+ */
+export function partsIn(date: Date, zone: Zone): ZonedParts {
+  const ms = date.getTime();
+  if (!Number.isFinite(ms)) return slowPartsIn(date, zone);
+  const offset = quarterOffset(ms, zone);
+  if (offset === null) return slowPartsIn(date, zone);
+  const wall = new Date(ms + offset);
+  return {
+    year: wall.getUTCFullYear(),
+    month: wall.getUTCMonth() + 1,
+    day: wall.getUTCDate(),
+    hour: wall.getUTCHours(),
+    minute: wall.getUTCMinutes(),
+    second: wall.getUTCSeconds(),
+  };
+}
+
+/**
+ * The wall clock in `zone` at the instant `date`, asked of the formatter.
+ *
  * Read through `formatToParts` rather than by formatting and re-parsing a
  * string, because a locale decides what a formatted date looks like and no
  * locale decides what a part is called.
  */
-function partsIn(date: Date, zone: Zone): ZonedParts {
+export function slowPartsIn(date: Date, zone: Zone): ZonedParts {
   const out: Record<string, number> = {};
   for (const part of partsFormatter(zone).formatToParts(date)) {
     if (part.type !== "literal") out[part.type] = Number(part.value);
@@ -356,19 +429,20 @@ export function daysBetween(a: Date, b: Date): number {
  * would be ambiguous, so it says how many days. "Later today" and "tomorrow"
  * are the two the calendar has better words for than a weekday does.
  *
- * The weekday is written in the deployment's locale rather than the reader's,
- * which is the one thing here that is not perfect and is deliberate: this
- * string is built on a server so that it can use the learner's own *zone*,
- * which decides which day it is, and every screen of this app is in English
- * anyway. Getting the zone wrong names the wrong day; getting the locale wrong
- * spells the right one differently.
+ * The weekday is written in English, because the sentence it sits in is
+ * English. This string is built on a server so that it can use the learner's
+ * own *zone*, which decides which day it is, and a server has no reader's
+ * locale to offer. It used to take the deployment's instead, which is English
+ * on Vercel and is anything at all on a machine somebody set up in Tallinn:
+ * "The next card comes back on laupäev." is neither language, and the unit
+ * test for it failed on every non-English host.
  */
 export function nextCardLine(due: Date, now: Date, clock: DayClock): string {
   const days = clock.daysBetween(now, due);
   if (days <= 0) return "The next card comes back later today.";
   if (days === 1) return "The next card comes back tomorrow.";
   if (days < 7) {
-    const weekday = new Intl.DateTimeFormat(undefined, {
+    const weekday = new Intl.DateTimeFormat("en", {
       weekday: "long", timeZone: clock.zoneName,
     }).format(due);
     return `The next card comes back on ${weekday}.`;
