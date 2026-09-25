@@ -1,7 +1,7 @@
 /**
  * What the dictionary found in a learner's turn, and nothing else.
  *
- * This is the half of a scene with no model in it (`docs/19-situations.md` §8),
+ * This is the half of a scene with no model in it (`docs/21-situations.md` §8),
  * and the type system is what keeps it that way: `readTurn` is the only
  * producer of `Evidence` and `advance` is its only consumer, so a caller
  * holding a model's opinion about whether somebody was understood cannot
@@ -30,7 +30,7 @@ import { ASK_ENGLISH, LOST } from "./catalogue";
 import { casualBye, casualHello } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import type { CaseKey } from "@/lib/estonian/types";
-import { words, type Lexicon } from "./lexicon";
+import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
 import { numberFromText, timeFromText, type SlotKind } from "./props";
@@ -226,6 +226,13 @@ export interface TurnContext {
   readonly lexicon: Lexicon;
   /** Every form of the question words the course teaches. */
   readonly questionWords: ReadonlySet<string>;
+  /**
+   * Every form of the verbs that name the act of asking, `küsima` and
+   * `otsima`, where the scene's own units teach them. Required rather than
+   * optional, for the reason `illSgShort` is: a caller that has not thought
+   * about it refuses `Ma tahan palga kohta küsida` as a question.
+   */
+  readonly askingForms: ReadonlySet<string>;
   /** Every form of the negator. */
   readonly negators: ReadonlySet<string>;
   /** Every form of the pronoun this scene's register expects. */
@@ -450,8 +457,19 @@ export function readTurn(
   const questionWord = spoken.find((word) => context.questionWords.has(word)) ?? null;
   const asked = questionWord ?? (text.includes("?") ? "?" : null);
   const wantsEnglish = spoken.includes(ASK_ENGLISH);
-  const shape = (reading: TurnReading): Evidence =>
-    ({ reading, met, missing, words: marked, matched, satisfiedBy, slips, asked, substituted, wantsEnglish, chose });
+  /*
+    THREE COPIES OF THIS LITERAL AND ONE HAD ALREADY DRIFTED. The casual
+    greeting, the casual goodbye and `declined` each wrote all eleven fields
+    out again to override two or three of them, and `declined` hardcoded
+    `asked: null` and `wantsEnglish: false` where the other two pass the
+    computed values. So a learner who declines an offer and asks a question in
+    the same turn (`Ei sobi, kui palju see maksab?`) is owed an answer nobody
+    records, and one who asks for English while declining is not answered in
+    it. An override rather than a fourth literal, so a field added to
+    `Evidence` reaches all four by being added here.
+  */
+  const shape = (reading: TurnReading, over?: Partial<Evidence>): Evidence =>
+    ({ reading, met, missing, words: marked, matched, satisfiedBy, slips, asked, substituted, wantsEnglish, chose, ...over });
 
   /*
     No letters at all is nothing anybody could read, unless the beat wanted a
@@ -526,10 +544,10 @@ export function readTurn(
   const casualGreeting = beat.move === "greet" && missing.length > 0 && !isLost(spoken, context)
     && (caughtSomething(marked) || casualHello(spoken) !== null);
   if (casualGreeting) {
-    return {
-      reading: "complete", met: beat.needs.map(() => true), missing: [],
-      words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [], wantsEnglish, chose: [],
-    };
+    return shape("complete", {
+      met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [], slips: [],
+      substituted: [], chose: [],
+    });
   }
   /*
     AND "TSAU" IS GOODBYE. A close beat names the farewells its units teach,
@@ -548,11 +566,10 @@ export function readTurn(
   */
   const leaving = beat.move === "close" && missing.length > 0 ? casualBye(spoken) : null;
   if (leaving !== null) {
-    return {
-      reading: "complete", met: beat.needs.map(() => true), missing: [],
-      words: marked, matched: [], satisfiedBy: [leaving], slips: [], asked,
-      substituted: beat.needs.map((_, i) => i), wantsEnglish, chose: [],
-    };
+    return shape("complete", {
+      met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [leaving], slips: [],
+      substituted: beat.needs.map((_, i) => i), chose: [],
+    });
   }
 
   /*
@@ -573,11 +590,10 @@ export function readTurn(
     declined is not evidence the learner produced the word the beat wanted.
   */
   if (beat.counter && spoken.some((word) => context.negators.has(word))) {
-    return {
-      reading: "declined", met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
-      words: marked, matched: [], satisfiedBy: [], slips: [], asked: null, substituted: [], wantsEnglish: false,
-      chose: [],
-    };
+    return shape("declined", {
+      met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
+      matched: [], satisfiedBy: [], slips: [], substituted: [], chose: [],
+    });
   }
   /*
     THEY SAID THEY ARE NOT FOLLOWING, AND THAT IS NOT A FAILED TURN.
@@ -999,6 +1015,17 @@ function satisfies(
         };
         const inCase = exact(context.lexicon.byCase.get(key));
         if (inCase) return { word: inCase };
+        /*
+          A compound in the case the beat wanted, for the reason the `case`
+          branch gives: the head carries the ending, so the case is right and
+          there is nothing to recast. This ladder was the `case` branch's with
+          this rung missing, so `bussijaama` at a ticket window was refused
+          against a card value and accepted against a requirement naming the
+          same word, and the gate had already been widened to match the marker
+          on it.
+        */
+        const inCompound = compound(context.lexicon.byCase.get(key));
+        if (inCompound) return { word: inCompound.said };
         // A real form of the word before a slip of the pen, for the reason the `case` branch gives.
         const otherForm = exact(forms);
         if (otherForm) return cased(otherForm);
@@ -1135,8 +1162,20 @@ function satisfies(
       seventeenth pass added for the words between the words: before it, "did
       they ask a question" was not a question the dictionary could answer.
     */
+    /*
+      And a turn that names the act of asking is one. `Ma tahan palga kohta
+      küsida` is the polite way to raise the pay at an interview and
+      `Vabandust, ma otsin panka` is how anybody stops a stranger to ask the
+      way, and neither holds a question word or a mark: both were read as a
+      turn that had not asked yet, and the other side waited for a question
+      the learner had just put. The verbs are course lemmas the scene's own
+      units teach, resolved by the caller, so nothing here names Estonian.
+      It over-accepts `ma küsisin` on a beat that wanted a question, which is
+      a report of asking in the place a question belongs; refusing the two
+      sentences above is the fault this module is built against.
+    */
     case "question":
-      return text.includes("?") || exact(context.questionWords) ? YES : null;
+      return text.includes("?") || exact(context.questionWords) || exact(context.askingForms) ? YES : null;
     case "negation":
       return exact(context.negators) ? YES : null;
     case "register":
@@ -1242,7 +1281,7 @@ function personSlip(
  *
  * Two guards. The clause, because a negator earlier in the sentence is often
  * about something else entirely (`Ma ei tea, kus on pood`), and the boundary is
- * the comma Estonian writes, which is what the gate's agreement check reads.
+ * the comma Estonian writes or the end of a sentence.
  * And **a beat that accepts the negator is never refused by it**: "Kas te
  * soovite piima?" takes `ei` as a whole answer, and reading a no there as a
  * turn that met nothing would be the app refusing the word it asked for.
@@ -1257,9 +1296,17 @@ function negatedIn(
   const takesNo = leafNeeds(beat.needs).some(({ need }) =>
     need.kind === "lemma" && need.oneOf.some((lemma) => context.negators.has(lemma.toLowerCase())));
   if (takesNo) return false;
-  for (const clause of text.split(/[,;:]/)) {
+  /*
+    The learner's own spelling as well as the dictionary's, because a hit
+    that came with a slip carries the form it was read as in `word`: looked
+    for under that alone, `ma ei taha valut` never found its `valu`, and a
+    refusal with one letter wrong met the beat.
+  */
+  const spelled = new Set([hit.word, ...(hit.slip ? words(hit.slip.said) : [])].map((w) => w.toLowerCase()));
+  // A sentence ends a clause as surely as a comma does: "Ei. Mul on valu." is a no and then a yes.
+  for (const clause of clausesOf(text)) {
     const said = words(clause);
-    const at = said.indexOf(hit.word);
+    const at = said.findIndex((word) => spelled.has(word));
     if (at < 0) continue;
     if (said.slice(0, at).some((word) => context.negators.has(word))) return true;
   }

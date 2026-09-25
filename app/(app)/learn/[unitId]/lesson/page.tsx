@@ -12,7 +12,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { taughtSpellings } from "@/lib/progress/lessonWords";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { parseExamples, teachableSentences } from "@/lib/dict/examples";
-import { nominalOpener } from "@/lib/estonian/cloze";
+import { nominalOpener, sentenceTiles, tileFaces } from "@/lib/estonian/cloze";
 import { everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { isPrincipalFormType } from "@/lib/estonian/types";
@@ -23,6 +23,8 @@ import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
+import { ordinaryOpeners } from "@/lib/dict/openers";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
@@ -50,10 +52,10 @@ export default async function LessonPage({
   params, searchParams,
 }: {
   params: Promise<{ unitId: string }>;
-  searchParams: Promise<{ part?: string }>;
+  searchParams: Promise<{ part?: string | string[] }>;
 }) {
   const { unitId } = await params;
-  const { part } = await searchParams;
+  const { part } = firstParams(await searchParams);
   const unit = unitById(unitId);
   if (!unit) notFound();
 
@@ -96,6 +98,13 @@ export default async function LessonPage({
     and for the same reason. Seeded on the unit rather than the part, because a
     unit's decoys being one slice is right and `index` is not known this early;
     which of them each question uses is the per-part seed's job, below.
+
+    AND THE LEMMA IS NOT WHAT IDENTIFIES A ROW, which is the same fault one key
+    short. `Lexeme` is unique on `(lemma, pos)`, so `hall` the noun and `hall`
+    the adjective tie outright, and any word a learner confirms off a
+    photograph makes a second pair for any lemma at all. Ordered by lemma alone
+    the window's two edges fall wherever the plan left those ties, which is the
+    thing the paragraph above says cannot happen. The id ends it.
   */
   const poolSeed = hash(unit.id);
   const [rows, atLevel, settings, reach, courseSpellings, everyday] = await Promise.all([
@@ -128,7 +137,7 @@ export default async function LessonPage({
   const pool = await prisma.lexeme.findMany({
     where: { cefr: unit.level, lemma: { notIn: [...unit.lemmas] } },
     select: { id: true, lemma: true, translation: true, pos: true, semanticTypes: true },
-    orderBy: { lemma: "asc" },
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
     skip: atLevel > DISTRACTOR_POOL ? poolSeed % (atLevel - DISTRACTOR_POOL) : 0,
     take: DISTRACTOR_POOL,
   });
@@ -210,7 +219,7 @@ export default async function LessonPage({
     lessons.slice(0, index + 1).flat().map((w) => w.lemma),
   );
 
-  const steps = planLesson({
+  const planned = planLesson({
     unit,
     words: chosen,
     taughtWords: taught,
@@ -225,6 +234,20 @@ export default async function LessonPage({
     // rather than reshuffling the questions under someone who came back to it.
     seed: hash(`${unit.id}:${index}`),
     wordOrder,
+  });
+
+  /*
+    A build step's tiles lose the capital the sentence opens on, where the
+    opener is an ordinary word, or the capital says which tile goes first. The
+    planner is pure and the forms list is a file read, so it is settled here.
+  */
+  const openers = await ordinaryOpeners(
+    planned.flatMap((step) => (step.kind === "build" ? [step.sentence] : [])),
+  );
+  const steps = planned.map((step) => {
+    if (step.kind !== "build") return step;
+    const opener = sentenceTiles(step.sentence)[0] ?? "";
+    return { ...step, tiles: tileFaces(step.tiles, opener, openers.has(opener)) };
   });
 
   /*

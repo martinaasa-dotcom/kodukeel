@@ -527,3 +527,25 @@ describe("matchEstonianForm — what the dictionary will vouch for", () => {
     expect(matchEstonianForm([suggested, real], "veeta")?.lemma).toBe("veetma");
   });
 });
+
+describe("matchEstonianForm — a spelling English happens to share", () => {
+  /*
+    The English tier returned before the Estonian ones were asked, and the
+    matcher then threw the candidate away because English is no reason to
+    vouch for a word. So an Estonian form spelled like its own entry's gloss
+    was never vouched at all: `sauna` is the stored short illative of `saun`,
+    whose gloss is "sauna", and a photographed page came back with it unknown.
+  */
+  const saun = lexeme("saun", "sauna", "NOUN", [
+    ["NOM_SG", "saun"], ["GEN_SG", "sauna"], ["PART_SG", "sauna"], ["ILL_SG_SHORT", "sauna"],
+  ]);
+
+  it("vouches for a stored form spelled like the entry's own gloss", () => {
+    expect(matchEstonianForm([saun], "sauna")?.lemma).toBe("saun");
+  });
+
+  it("still never vouches for a word on its English alone", () => {
+    const room = lexeme("tuba", "room", "NOUN", [["NOM_SG", "tuba"], ["GEN_SG", "toa"]]);
+    expect(matchEstonianForm([room], "room")).toBe(null);
+  });
+});

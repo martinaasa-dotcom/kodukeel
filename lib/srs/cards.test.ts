@@ -3,12 +3,13 @@ import {
   availableCardTypes, generateCards, inTeachingOrder, teachingRank, type LexemeForCards,
 } from "./cards";
 import { BLANK } from "@/lib/estonian/cloze";
+import { PARTS } from "@/lib/copy/values";
 import { checkAnswer } from "@/lib/estonian/answer";
 
 const tuba: LexemeForCards = {
   lemma: "tuba", translation: "room", pos: "NOUN",
   gradation: "QUALITATIVE", gradationNote: "b : ∅", government: null,
-  semanticTypes: "koht_hoone",
+  semanticTypes: "koht_hoone", examples: null,
   forms: [
     { formType: "NOM_SG", value: "tuba" },
     { formType: "GEN_SG", value: "toa" },
@@ -20,7 +21,7 @@ const aitama: LexemeForCards = {
   lemma: "aitama", translation: "to help", pos: "VERB",
   gradation: "NONE", gradationNote: null,
   government: "partitive — aitan sind",
-  semanticTypes: null,
+  semanticTypes: null, examples: null,
   forms: [{ formType: "INF_MA", value: "aitama" }],
 };
 
@@ -41,7 +42,7 @@ const aitama: LexemeForCards = {
 describe("a prompt more than one word answers", () => {
   const ja: LexemeForCards = {
     lemma: "ja", translation: "and", pos: "ADVERB",
-    gradation: "NONE", gradationNote: null, government: null, semanticTypes: null, forms: [],
+    gradation: "NONE", gradationNote: null, government: null, semanticTypes: null, examples: null, forms: [],
     alsoAccepted: ["ning"],
   };
 
@@ -231,9 +232,28 @@ describe("generateCards — CLOZE", () => {
     expect(asLemma?.hint?.toLowerCase()).not.toContain("kohv");
   });
 
-  it("tags the case, so a gap-fill counts toward the weak-case breakdown", () => {
-    const cards = generateCards(drinking, ["CLOZE"]);
-    expect(cards.some((c) => c.targetCase !== null)).toBe(true);
+  /*
+    THIS USED TO PASS ON A WRONG LABEL. `kohvi` is the genitive and the
+    partitive both, and the first stored row read decided which it was named,
+    so `Jõin tassi kohvi.`, which uses the partitive, was filed as the omastav.
+    A spelling two slots claim names neither (`gapForms`), and a form only one
+    case spells is what carries the tag: `voodis` in a sentence the dictionary
+    records for `voodi`.
+  */
+  it("tags the case where one case spells the gap, so a gap-fill counts toward the weak-case breakdown", () => {
+    expect(generateCards(drinking, ["CLOZE"]).find((c) => c.back.toLowerCase() === "kohvi")?.targetCase).toBeNull();
+    const bed = {
+      ...drinking, lemma: "voodi", translation: "bed",
+      examples: JSON.stringify([{ et: "Tast pole voodis asjagi!", source: "EKILEX" }]),
+      forms: [
+        { formType: "NOM_SG", value: "voodi", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "voodi", morphCode: "SgG" },
+        { formType: "PART_SG", value: "voodit", morphCode: "SgP" },
+      ],
+    };
+    const [card] = generateCards(bed, ["CLOZE"]);
+    expect(card?.back.toLowerCase()).toBe("voodis");
+    expect(card?.targetCase).toBe("INESSIVE");
   });
 
   it("stops at two per word rather than drilling every sentence", () => {
@@ -276,6 +296,27 @@ describe("generateCards — CLOZE", () => {
         { formType: "GEN_SG", value: "toa", morphCode: "SgG" },
         { formType: "PART_SG", value: "tuba", morphCode: "SgP" },
         { formType: "EKILEX:PlKom", value: "tubadega", morphCode: "PlKom" },
+      ],
+    };
+    expect(generateCards(rooms, ["CLOZE"])).toEqual([]);
+  });
+
+  /*
+    AND THE SAME ROW AS THE SEED WRITES IT, WHICH HAS NO morphCode. The test
+    above only ever built the live shape, and `prisma/seed.ts` stores a
+    harvested extra form as `EKILEX:<code>` and nothing else, so the guard read
+    the column, found nothing, and on every fresh install let 56 shipped
+    plural spellings through to be gapped.
+  */
+  it("never gaps a plural stored the way the seed writes it either", () => {
+    const rooms = {
+      ...drinking, lemma: "tuba", translation: "room",
+      examples: JSON.stringify([{ et: "Nad said tubadega hakkama.", source: "EKILEX" }]),
+      forms: [
+        { formType: "NOM_SG", value: "tuba", morphCode: null },
+        { formType: "GEN_SG", value: "toa", morphCode: null },
+        { formType: "PART_SG", value: "tuba", morphCode: null },
+        { formType: "EKILEX:PlKom", value: "tubadega", morphCode: null },
       ],
     };
     expect(generateCards(rooms, ["CLOZE"])).toEqual([]);
@@ -396,6 +437,37 @@ describe("generateCards — CASE_FORM", () => {
   it("is only offered when it can produce something", () => {
     expect(availableCardTypes(bed)).toContain("CASE_FORM");
     expect(availableCardTypes({ ...bed, examples: null })).not.toContain("CASE_FORM");
+  });
+});
+
+/*
+  A HINT MAY NOT PRINT ANY ANSWER THE BACK TAKES, NOT ONLY THE ONE THE SENTENCE
+  HELD. `salv` is glossed "salve, ointment" and its short illative is `salve`,
+  so a gap wanting `salvisse` took `salve` as well and the cue under the
+  question read `salv, salve, ointment`. The builder checked the hint against
+  the sentence's own spelling alone; only the audit asked about the rest.
+*/
+describe("generateCards — a hint and every accepted answer", () => {
+  const salv = {
+    id: "salv", lemma: "salv", translation: "salve, ointment", pos: "NOUN",
+    gradation: "NONE", gradationNote: null, government: null, semanticTypes: "aine",
+    examples: JSON.stringify([{ et: "Ta kastis sõrme salvisse ja määris haava kinni.", source: "EKILEX" }]),
+    forms: [
+      { formType: "NOM_SG", value: "salv", morphCode: null },
+      { formType: "GEN_SG", value: "salvi", morphCode: null },
+      { formType: "PART_SG", value: "salvi", morphCode: null },
+      { formType: "ILL_SG_SHORT", value: "salve", morphCode: null },
+    ],
+  };
+
+  it("never cues a gap with a spelling the back accepts", () => {
+    const cards = generateCards(salv, ["CASE_FORM"]);
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) {
+      for (const answer of card.back.split(PARTS)) {
+        expect(card.hint ?? "", `${card.back} in "${card.hint}"`).not.toMatch(new RegExp(`\\b${answer}\\b`, "i"));
+      }
+    }
   });
 });
 

@@ -248,3 +248,36 @@ describe("a mark this module wrote", () => {
     expect([...milestonesTold(mark)]).toEqual(["A1", "B1"]);
   });
 });
+
+describe("a level is passed when all of its words are, not when the percentage rounds up", () => {
+  /*
+    `pct` is rounded to a whole number, and at a level of several hundred words
+    one missing word is 99.6 percent, which rounds to 100. Reading `passed` off
+    the rounded figure marked the level passed with a word still unlearned, and
+    `passed` is what the milestone letter fires on and what `arrived` reads,
+    whose own sentence says the learner knows every word the level asks for.
+  */
+  it("keeps a level one word short of done as not passed", () => {
+    const words = ladderWordsAt("A1");
+    expect(words).toBeGreaterThan(200);
+    const climb = ladderProgress("A1", { A1: words - 1 }, titles, null);
+    const a1 = stop(climb, "A1");
+    expect(a1.state).not.toBe("passed");
+    expect(a1.pct).toBeLessThan(100);
+    expect(climb.arrived).toBe(false);
+    expect(milestoneOwed(climb.milestones, null)).toBeNull();
+  });
+
+  it("keeps the climb's own figures under a hundred while a word is left", () => {
+    const words = ladderWordsAt("A1");
+    const climb = ladderProgress("A1", { A1: words - 1 }, titles, null);
+    expect(climb.pct).toBeLessThan(100);
+    expect(climb.verifiedPct).toBeLessThan(100);
+  });
+
+  it("passes it once the last word is graduated", () => {
+    const climb = ladderProgress("A1", { A1: ladderWordsAt("A1") }, titles, null);
+    expect(stop(climb, "A1").state).toBe("passed");
+    expect(climb.arrived).toBe(true);
+  });
+});

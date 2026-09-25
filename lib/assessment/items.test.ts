@@ -689,6 +689,24 @@ const FAMILY: WordRow[] = [
     examples: [{ et: "Minu vanaema ja vanaisa elavad maal." }] },
 ];
 
+describe("a parallel form is never offered as a wrong answer", () => {
+  it("does not offer aegasid against a gap that wants aegu", () => {
+    const aeg: WordRow = {
+      id: "aeg", lemma: "aeg", translation: "time", pos: "NOUN", cefr: "A1", government: null,
+      forms: [
+        { formType: "NOM_SG", value: "aeg" }, { formType: "GEN_SG", value: "aja" },
+        { formType: "PART_SG", value: "aega" }, { formType: "NOM_PL", value: "ajad" },
+        { formType: "GEN_PL", value: "aegade" }, { formType: "PART_PL", value: "aegu" },
+        { formType: "PART_PL", value: "aegasid" },
+      ],
+      examples: [{ et: "Need olid rasked aegu kõigile.", en: null }],
+    };
+    const gap = gapFrom(aeg);
+    expect(gap?.answer).toBe("aegu");
+    expect(gap!.siblings.map((f) => f.toLowerCase())).not.toContain("aegasid");
+  });
+});
+
 describe("a wrong answer may be tricky and may not be true", () => {
   const sentence = "Isa ja ema ei olnud kodus.";
 
@@ -760,6 +778,15 @@ describe("a wrong answer may be tricky and may not be true", () => {
       const item = listeningItems(pool, mulberry32(seed)).find((i): i is ChoiceItem => i.id === "l-word-meie");
       expect(item, `seed ${seed} asked nothing about meie`).toBeDefined();
       expect(item!.et).toBe("meie");
+      expect(item!.options).toContain("we, us");
+      expect(item!.options).not.toContain("I, me");
+    }
+  });
+  it("asks the written word the same way, since the reading question prints that spelling", () => {
+    const pool = [...PRONOUNS, ...FAMILY, ...NEIGHBOURS];
+    for (let seed = 1; seed < 40; seed++) {
+      const item = readingItems(pool, mulberry32(seed)).find((i) => i.id === "r-mean-meie");
+      expect(item, `seed ${seed} asked nothing about meie`).toBeDefined();
       expect(item!.options).toContain("we, us");
       expect(item!.options).not.toContain("I, me");
     }

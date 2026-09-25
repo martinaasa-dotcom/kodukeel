@@ -6,6 +6,7 @@ import {
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
 import { PARTS } from "@/lib/copy/values";
+import { checkAnswer } from "@/lib/estonian/answer";
 
 /*
   A lesson built with no dictionary behind it: every sentence keeps the one
@@ -301,9 +302,31 @@ describe("what a step is built from", () => {
 
   it("derives a case question from the genitive, never from thin air", () => {
     const cases = plan().filter((s): s is Extract<LessonStep, { kind: "case" }> => s.kind === "case");
+    expect(cases.length).toBeGreaterThan(0);
     for (const step of cases) {
       const source = WORDS.find((w) => w.lemma === step.lemma)!;
       expect(step.answer.startsWith(source.parts.GEN_SG!)).toBe(true);
+    }
+  });
+
+  /*
+    ANOTHER ENDING ONE KEYSTROKE AWAY IS THE WRONG FORM, NOT A SLIP. Typed
+    steps are marked by `checkAnswer`, whose typo rule forgives one added or
+    dropped letter; without the word's other forms `toast` for `toas` read
+    as "One letter out." and was logged as a recall.
+  */
+  it("carries the word's other forms onto every typed step, and never a right answer among them", () => {
+    const typed = plan().filter((s): s is Extract<LessonStep, { kind: "case" | "gap" }> =>
+      s.kind === "case" || s.kind === "gap");
+    expect(typed.length).toBeGreaterThan(0);
+    for (const step of typed) {
+      expect(step.rivals.length, step.lemma).toBeGreaterThan(0);
+      for (const right of step.answer.split(PARTS)) {
+        expect(checkAnswer(right, step.answer, "et", step.rivals).verdict).toBe("correct");
+      }
+      for (const rival of step.rivals) {
+        expect(checkAnswer(rival, step.answer, "et", step.rivals).verdict, rival).toBe("wrong");
+      }
     }
   });
 
@@ -427,7 +450,7 @@ describe("what a step is built from", () => {
 
   it("asks about government only where Ekilex recorded one", () => {
     const verbs: LessonWord[] = [
-      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "aitama", GEN_SG: "" }, government: "keda" },
+      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "aitama", GEN_SG: "" }, government: "keda/mida* (partitive) · millest (elative)" },
       { lexemeId: "lex-jooksma", lemma: "jooksma", gloss: "to run", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "jooksma" }, government: null },
     ];
     const steps = planLesson({
@@ -435,7 +458,43 @@ describe("what a step is built from", () => {
       words: verbs, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 2, wordOrder,
     });
     const govern = steps.filter((s) => s.kind === "govern");
+    // A loop over an empty list asserts nothing, so the list is counted first.
+    expect(govern.length).toBeGreaterThan(0);
     for (const step of govern) expect(step.lemma).toBe("aitama");
+  });
+
+  it("offers the question each case answers, read off the one parser", () => {
+    /*
+      The stored column is Ekilex's: `keda/mida* (partitive) · millest
+      (elative)`. The step used to print its first comma-separated piece as the
+      right option, asterisk and Latin case name included, beside three bare
+      question words, so the answer was the one option shaped differently. And
+      it refused anything the comma split could not shorten, which on the
+      shipped column's middot separator was most of the dictionary.
+    */
+    const verbs: LessonWord[] = [
+      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "aitama" }, government: "keda/mida* (partitive) · millest (elative)" },
+    ];
+    let seen = 0;
+    for (let seed = 1; seed <= 20; seed++) {
+      const steps = planLesson({
+        unit: { ...unit, cardTypes: [...unit.cardTypes, "GOVERNMENT"] },
+        words: verbs, distractors: DISTRACTORS, taughtWords: TAUGHT, seed, wordOrder,
+      });
+      for (const step of steps) {
+        if (step.kind !== "govern") continue;
+        seen++;
+        expect(step.options[step.answer]).toBe("keda? mida?");
+        for (const option of step.options) {
+          expect(option).not.toMatch(/[*()]/);
+          expect(option).not.toMatch(/partitive|elative/i);
+          // The elative is governed too, so it is never offered as wrong.
+          expect(option).not.toBe("kellest? millest? kust?");
+        }
+        expect(new Set(step.options).size).toBe(step.options.length);
+      }
+    }
+    expect(seen).toBeGreaterThan(0);
   });
 });
 

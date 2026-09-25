@@ -212,11 +212,10 @@ export function resolveOperator(
 }
 
 /**
- * The hosts this project publishes an installation on, for the deploy check.
+ * The hosts this project publishes an installation on.
  *
- * Exported so `scripts/check-deployment.mjs` can say which host a build
- * believes it is and whether that host is one of these, rather than repeating
- * the list and drifting from it.
+ * Exported so the invariant suite can check that every one of them resolves to
+ * a named operator, rather than repeating the list and drifting from it.
  */
 export const IDENTIFIED_DEPLOYMENTS: readonly string[] = Object.keys(KNOWN_DEPLOYMENTS);
 

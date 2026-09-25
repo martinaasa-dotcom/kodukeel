@@ -1,8 +1,9 @@
 import type { Card } from "@prisma/client";
 
+import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { grade, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
-import { isFormSlot, isKnownSlot, slotOfCard } from "@/lib/srs/slots";
+import { isCaseSlot, isFormSlot, isKnownSlot } from "@/lib/srs/slots";
 
 /**
  * Writing one grade down.
@@ -87,9 +88,10 @@ export interface GradeWrite {
   /**
    * The client-generated Review id, on the offline path.
    *
-   * That path is idempotent because the id comes from the device, so a replay
-   * interrupted after the commit re-sends a row that already exists. Online
-   * there is nothing to be idempotent about and the database picks the id.
+   * Both paths are idempotent on it because it comes from the device: a replay
+   * interrupted after the commit re-sends a row that already exists, and an
+   * online write whose answer was lost is retried under the same id. Where
+   * none is given the database picks one.
    */
   reviewId?: string;
 }
@@ -97,26 +99,38 @@ export interface GradeWrite {
 /** Records the grade and returns the scheduling it wrote. */
 export async function writeGrade(ownerId: string, write: GradeWrite): Promise<SchedulingState> {
   const { card, rating, durationMs, reviewId } = write;
-  const at = reviewMoment(write.reviewedAt, card.createdAt, write.now ?? new Date());
+  const received = write.now ?? new Date();
+  const at = reviewMoment(write.reviewedAt, card.createdAt, received);
   const slot = slotFor(card, write.practisedSlot);
 
-  // The Review row goes first: the log is append-only and is the one thing
-  // that cannot be reconstructed, so it must never be lost to a later failure.
-  await prisma.review.create({
-    data: {
-      ...(reviewId ? { id: reviewId } : {}),
-      ownerId,
-      cardId: card.id,
-      lexemeId: card.lexemeId,
-      rating,
-      reviewedAt: at,
-      durationMs: Math.min(Math.max(durationMs, 0), 600_000),
-      stateBefore: card.state,
-      targetCase: card.targetCase,
-      slot,
-      reachedSlot: reachedFor(slot, write.reachedSlot),
-    },
-  });
+  /*
+    ONE ANSWER, WRITTEN ONCE, AND BOTH HALVES OR NEITHER.
+
+    The Review row and the card's new scheduling are one fact and go in one
+    transaction. Two statements left a window where the row existed and the
+    card was never rescheduled: the retry then found the id already written,
+    settled it, and the card sat on its old interval with a review behind it
+    that the scheduler never heard about.
+
+    And an id that is already written is an answer already applied. Online the
+    device picks the id too, before it asks, so a write that committed and
+    whose answer was lost is retried, and then queued, under the same id rather
+    than a fresh one. Without this the outbox replayed it as a second answer:
+    a second permanent row in the one table that is never repaired, and FSRS
+    run twice on one recall. An id that belongs to somebody else is refused
+    outright, never settled, so a guessed id says nothing about their log.
+  */
+  const applied = async (): Promise<SchedulingState | null> => {
+    if (!reviewId) return null;
+    const existing = await prisma.review.findUnique({ where: { id: reviewId }, select: { ownerId: true } });
+    if (!existing) return null;
+    if (existing.ownerId !== ownerId) throw new Error("That grade id is taken.");
+    const current = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    return schedulingOf(current);
+  };
+
+  const already = await applied();
+  if (already) return already;
 
   const next = grade(
     {
@@ -131,17 +145,55 @@ export async function writeGrade(ownerId: string, write: GradeWrite): Promise<Sc
     at,
   );
 
-  await prisma.card.update({
-    where: { id: card.id },
-    data: {
-      due: next.due, stability: next.stability, difficulty: next.difficulty,
-      elapsedDays: next.elapsedDays, scheduledDays: next.scheduledDays,
-      reps: next.reps, lapses: next.lapses, state: next.state,
-      learningSteps: next.learningSteps, lastReview: next.lastReview,
-    },
-  });
+  try {
+    await prisma.$transaction([
+      prisma.review.create({
+        data: {
+          ...(reviewId ? { id: reviewId } : {}),
+          ownerId,
+          cardId: card.id,
+          lexemeId: card.lexemeId,
+          rating,
+          reviewedAt: at,
+          receivedAt: received,
+          // A finite whole number of milliseconds: `Math.min`/`Math.max` pass NaN
+          // straight through and a fraction is refused by the Int column, so a
+          // client sending either got a database error instead of a row.
+          durationMs: Number.isFinite(durationMs) ? Math.round(Math.min(Math.max(durationMs, 0), 600_000)) : 0,
+          stateBefore: card.state,
+          targetCase: knownCase(card.targetCase),
+          slot,
+          reachedSlot: slot ? reachedFor(slot, write.reachedSlot) : null,
+        },
+      }),
+      prisma.card.update({
+        where: { id: card.id },
+        data: {
+          due: next.due, stability: next.stability, difficulty: next.difficulty,
+          elapsedDays: next.elapsedDays, scheduledDays: next.scheduledDays,
+          reps: next.reps, lapses: next.lapses, state: next.state,
+          learningSteps: next.learningSteps, lastReview: next.lastReview,
+        },
+      }),
+    ]);
+  } catch (error) {
+    // Two copies of one id racing: the loser's insert fails on the key and
+    // rolls its card update back with it, and the winner's write is the answer.
+    const won = (error as { code?: string })?.code === "P2002" ? await applied() : null;
+    if (won) return won;
+    throw error;
+  }
 
   return next;
+}
+
+function schedulingOf(card: Card): SchedulingState {
+  return {
+    due: card.due, stability: card.stability, difficulty: card.difficulty,
+    elapsedDays: card.elapsedDays, scheduledDays: card.scheduledDays,
+    reps: card.reps, lapses: card.lapses, state: card.state,
+    lastReview: card.lastReview, learningSteps: card.learningSteps,
+  };
 }
 
 /**
@@ -151,9 +203,23 @@ export async function writeGrade(ownerId: string, write: GradeWrite): Promise<Sc
  * is what the case charts read. This is the narrower question the flash round
  * can answer and an ordinary review cannot: which form was actually asked.
  */
-function slotFor(card: Card, practised: string | null | undefined): string {
+function slotFor(card: Card, practised: string | null | undefined): string | null {
   if (practised && isKnownSlot(practised)) return practised;
-  return slotOfCard(card);
+  /*
+    The card's own columns are checked too, not trusted. A card arrives from a
+    backup exactly as the file wrote it, so `targetCase: "anything"` reached
+    `Review.slot`, the one table that is never repaired, and the case chart
+    printed it. The same order `slotOfCard` reads, taking the first that is on
+    the closed list, and nothing where none is.
+  */
+  return [card.targetCase, card.slot, card.cardType].find(
+    (s): s is string => typeof s === "string" && isKnownSlot(s),
+  ) ?? null;
+}
+
+/** The card's case for `Review.targetCase`, where it is a case at all. */
+function knownCase(value: string | null): string | null {
+  return value !== null && isCaseSlot(value) ? value : null;
 }
 
 /**
@@ -232,5 +298,31 @@ export function boundedRestoredReview(
     // needs a slot on both sides: with no readable asked slot there is nothing
     // for a reached one to be different from.
     reachedSlot: slot ? reachedFor(slot, reached) : null,
+    // A restored row was not received now, and the file does not get to say it
+    // was: read as `receivedAt` it would count a backup's whole history towards
+    // tonight's closing round.
+    receivedAt: null,
   };
+}
+
+/**
+ * A review id that is the same every time the same answer is reported.
+ *
+ * A game graded on the server (Sõnad, the crossword) is sent once from the
+ * board, and a round whose response never arrived is sent again the next time
+ * the board opens. Where the server had in fact written the grade, that resend
+ * was a second recall of the word in a table that is never repaired, and so was
+ * the same day's puzzle finished on a second device. Deriving the id from what
+ * the grade is about makes the second write collide on the primary key, which
+ * `writeGrade` does before it touches the card, so the card is scheduled once.
+ * Shaped like a uuid because every other review id is one.
+ */
+export function stableReviewId(...parts: readonly string[]): string {
+  const hex = createHash("sha256").update(parts.join("\u0000")).digest("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-8${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}
+
+/** Whether an error is the primary key refusing a review id already written. */
+export function isRepeatedReview(error: unknown): boolean {
+  return typeof error === "object" && error !== null && (error as { code?: unknown }).code === "P2002";
 }

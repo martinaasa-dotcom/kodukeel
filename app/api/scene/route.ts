@@ -4,7 +4,8 @@ import { after } from "next/server";
 import { seedFrom } from "@/lib/random/seeded";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { authoriseCall, recordUsage, releaseReservation, type Reservation } from "@/lib/usage/ledger";
+import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
+import { turnBooking, type TurnBooking } from "@/lib/usage/turnBooking";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
 import {
@@ -40,6 +41,7 @@ import { DEFAULT_VOICE } from "@/lib/audio/voice";
 import { glossSentences } from "@/lib/dict/glossed";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { NO_STORE } from "@/lib/security/headers";
 
 /**
  * One line of one turn, walked up the ladder.
@@ -105,7 +107,6 @@ const MAX_CONTEXT_CHARS = 600;
 const MAX_CONTEXT_TURNS = 6;
 /** Per instance, and not the thing that bounds cost: the ledger is (§16). */
 const PER_MINUTE = 30;
-const NO_STORE = { "cache-control": "no-store" };
 
 export async function POST(request: Request) {
   const ownerId = await requireUserId();
@@ -121,8 +122,11 @@ export async function POST(request: Request) {
     return rateLimited(limit, "That was a lot of turns at once. Give it a moment.");
   }
 
-  const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
-  const runId = String(body.runId ?? "").slice(0, 64);
+  // A body that parses to `null` or a number is not a turn, and reading a key
+  // off `null` threw here, which the framework answered with a 500.
+  const parsed: unknown = await request.json().catch(() => null);
+  const body = (typeof parsed === "object" && parsed !== null ? parsed : {}) as Record<string, unknown>;
+  const runId = textField(body.runId, 64);
 
   /*
     THE RUN IS READ, NOT REBUILT, AND NOT SENT. Which scene this is, who is
@@ -139,7 +143,7 @@ export async function POST(request: Request) {
     : null;
   const scene = row ? sceneById(row.sceneId) : null;
   if (!scene) {
-    return Response.json({ error: "That is not a turn in a scene." }, { status: 400 });
+    return Response.json({ error: "That is not a turn in a scene." }, { headers: NO_STORE, status: 400 });
   }
 
   /*
@@ -157,7 +161,7 @@ export async function POST(request: Request) {
 
   const context = await sceneContext(scene.id, level);
   if (!context) {
-    return Response.json({ error: "That scene could not be built." }, { status: 400 });
+    return Response.json({ error: "That scene could not be built." }, { headers: NO_STORE, status: 400 });
   }
 
   const persona = personaOf(row!.transcript);
@@ -177,10 +181,10 @@ export async function POST(request: Request) {
     ? body.turns.slice(0, MAX_TURNS).map((turn) => {
         const one = (turn ?? {}) as Record<string, unknown>;
         return {
-          beatId: String(one.beatId ?? "").slice(0, 64),
-          said: String(one.said ?? "").slice(0, MAX_TURN_CHARS),
+          beatId: textField(one.beatId, 64),
+          said: textField(one.said, MAX_TURN_CHARS),
           helped: one.helped === true,
-          heard: String(one.heard ?? "").slice(0, MAX_TURN_CHARS),
+          heard: textField(one.heard, MAX_TURN_CHARS),
           conceded: concededOf(one.conceded),
           alsoDone: alsoDoneOf(one.alsoDone),
         };
@@ -229,12 +233,22 @@ export async function POST(request: Request) {
     happen is a grade: a conceded requirement writes no row (`gradesFor`), so
     nothing a model decided reaches the append-only log.
   */
+  /*
+    AND THE BEAT JUDGED IS THE ONE THE TURN WAS AIMED AT, READ OFF THE STATE
+    BEFORE IT. This read the state after the turn, and two ordinary turns put a
+    different beat there: the miss that spends the last try moves the pointer
+    on, and a miss that met a beat further along appends that beat's row after
+    its own. Either way the last row named another beat than the pointer, and
+    the judge was never asked, which on a beat with patience one, or with the
+    brisk persona on nearly every beat, is every miss.
+  */
   const lastSent = turns[turns.length - 1];
-  const lastRead = state.turns[state.turns.length - 1];
-  const judged = state.hurdle ? hurdleBeat(state.hurdle) : currentBeat(scene, state);
+  const before = replay(marking, draw, turns.slice(0, -1)).state;
+  const lastRead = before.turns.length < state.turns.length ? state.turns[before.turns.length] : undefined;
+  const judged = before.hurdle ? hurdleBeat(before.hurdle) : currentBeat(scene, before);
   const JUDGED_READINGS = new Set(["offtarget", "incomplete", "english", "unrecognised", "fragment"]);
   const judgeable = Boolean(
-    lastSent && lastRead && judged && !isOver(scene, state) && !lastSent.conceded
+    lastSent && lastRead && judged && !isOver(scene, before) && !lastSent.conceded
       && lastRead.beatId === judged.id
       && JUDGED_READINGS.has(lastRead.reading)
       && /\p{L}/u.test(lastSent.said)
@@ -245,7 +259,8 @@ export async function POST(request: Request) {
       ? await authoriseCall(ownerId, "GRADER")
       : null;
     if (decision?.allowed && decision.reservation) {
-      const booking = decision.reservation;
+      const reserved = decision.reservation;
+      const booking = turnBooking(reserved);
       try {
         const { text, usage, config } = await callChainForJson(
           resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
@@ -266,9 +281,10 @@ export async function POST(request: Request) {
           }),
           JUDGE_REPLY_TOKENS,
         );
+        const settles = booking.settle();
         after(() => recordUsage({
           ownerId, kind: "GRADER", provider: config.name, model: config.model,
-          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: booking,
+          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: settles,
         }));
         const verdict = parseJudgement(text);
         if (verdict?.done) {
@@ -277,7 +293,9 @@ export async function POST(request: Request) {
           ({ state, response, elsewhere } = replay(marking, draw, turns));
         }
       } catch (error) {
-        after(() => releaseReservation(booking));
+        // Handed back only where the judge never answered: a verdict that was
+        // filed and then tripped over is a call somebody was billed for.
+        if (!booking.settled) after(() => releaseReservation(reserved));
         reportError(error, { at: "api/scene/judge", ownerId });
       }
     }
@@ -309,7 +327,8 @@ export async function POST(request: Request) {
   if (askAhead && lastSent && ahead) {
     const decision = await authoriseCall(ownerId, "GRADER");
     if (decision.allowed && decision.reservation) {
-      const booking = decision.reservation;
+      const reserved = decision.reservation;
+      const booking = turnBooking(reserved);
       try {
         const { text, usage, config } = await callChainForJson(
           resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
@@ -325,16 +344,19 @@ export async function POST(request: Request) {
           }),
           JUDGE_REPLY_TOKENS,
         );
+        const settles = booking.settle();
         after(() => recordUsage({
           ownerId, kind: "GRADER", provider: config.name, model: config.model,
-          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: booking,
+          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: settles,
         }));
         if (parseJudgement(text)?.done) {
           turns[turns.length - 1] = { ...lastSent, alsoDone: [...(lastSent.alsoDone ?? []), ahead.id] };
           ({ state, response, elsewhere } = replay(marking, draw, turns));
         }
       } catch (error) {
-        after(() => releaseReservation(booking));
+        // Handed back only where the judge never answered: a verdict that was
+        // filed and then tripped over is a call somebody was billed for.
+        if (!booking.settled) after(() => releaseReservation(reserved));
         reportError(error, { at: "api/scene/judge-ahead", ownerId });
       }
     }
@@ -408,8 +430,17 @@ export async function POST(request: Request) {
   const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
   const heard = last?.heard ?? null;
 
+  /*
+    Bounded like the turns are, since it arrives off the wire the same way:
+    the other side says at most a few lines a turn, and a line long enough to
+    be past any the bank holds can only ever fail to match one.
+  */
   const used = new Set(
-    Array.isArray(body.used) ? body.used.filter((v): v is string => typeof v === "string") : [],
+    Array.isArray(body.used)
+      ? body.used
+        .slice(0, MAX_TURNS * 4)
+        .filter((v): v is string => typeof v === "string" && v.length <= MAX_TURN_CHARS * 4)
+      : [],
   );
 
   /*
@@ -548,7 +579,7 @@ export async function POST(request: Request) {
       them onto the turn and the next request carries them (ADR-025 amendment
       2). Null where the dictionary read the turn for itself.
     */
-    conceded: last?.conceded ?? null,
+    conceded: turns[turns.length - 1]?.conceded ?? null,
     /* Beats further along the judge said this turn met, for the client to echo like `conceded`. */
     alsoDone: turns[turns.length - 1]?.alsoDone ?? null,
     chosen,
@@ -621,7 +652,7 @@ export async function POST(request: Request) {
       the question they were asked.
     */
     offer: (response === "help" || response === "moveOn") && answered
-      ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [])
+      ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
       : null,
     met: state.done.length,
     /*
@@ -707,7 +738,20 @@ export async function POST(request: Request) {
       the other side understood. See lib/ux/wordGloss.ts.
     */
     if (wordGlossFrom(await readSetting(ownerId, SETTING_KEYS.wordGloss)) === "off") return lines;
-    const tokens = await glossSentences(spoken.map((l) => ({ et: l.text, form: null })));
+    /*
+      The dictionary under a line is a help rather than the line, so a read
+      that fails costs the underlines and never the turn: the lines go out
+      bare, which is what a learner who turned the underlines off already
+      sees. It used to throw out of every `answer`, after the turn had been
+      marked and its call booked, as a 500 in place of the other side's reply.
+    */
+    let tokens: Awaited<ReturnType<typeof glossSentences>>;
+    try {
+      tokens = await glossSentences(spoken.map((l) => ({ et: l.text, form: null })));
+    } catch (error) {
+      reportError(error, { at: "api/scene/gloss", ownerId });
+      return lines;
+    }
     const byText = new Map(spoken.map((l, i) => [l.text, tokens[i]]));
     return lines.map((l) => {
       const found = byText.get(l.text);
@@ -778,7 +822,7 @@ export async function POST(request: Request) {
   const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
   /* The word the beat was waiting for, where the other side is letting it go or was asked for help. */
   const handing = (response === "help" || response === "moveOn") && answered
-    ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [])
+    ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
     : null;
 
   /*
@@ -995,6 +1039,14 @@ export async function POST(request: Request) {
   */
   const reservation = decision.reservation;
   /*
+    And the booking the turn's attempts settle, because there may be three of
+    them: `sceneLine` asks again when the gate withholds a line, and every
+    attempt settled against this one booking took the whole reserve off again.
+    The first report settles it and the rest are filed at their whole cost
+    (`lib/usage/turnBooking.ts`).
+  */
+  const booking = turnBooking(reservation);
+  /*
     Anthropic behind Groq only while the day's fallback budget has room. Past
     it the chain is Groq alone, and a Groq that is not answering means the
     ladder falls to its next rung, which is where a keyless deployment lives
@@ -1002,82 +1054,98 @@ export async function POST(request: Request) {
   */
   const chain = sceneProviders({ allowFallback: decision.fallbackAllowed });
 
-  const learnerReading = last?.said ? await readingOf(last.said) : "";
-  const line = await sceneLine({
-    ...shared,
-    // The attested and scripted rungs were already tried and did not answer.
-    pool: [],
-    scripted: [],
-    /*
-      WHETHER THE WORDS ARE ESTONIAN, ASKED OF THE LANGUAGE RATHER THAN OF THE
-      SCENE. The closed list is what the learner has been taught to read and
-      the gate keeps holding the line to it, by a budget rather than by a
-      refusal (`NEW_WORDS`); what may not happen is a made-up word, and that is
-      what this answers, off the course and the forms list.
-    */
-    vouch: (spellings) => sceneVouch(context, spellings),
-    compose: (avoid, because) => compose(chain, {
-      ownerId,
-      reading: learnerReading,
-      facts,
-      because,
-      // The booking this turn was authorised under, so the settlement corrects
-      // it rather than being written down as a second call. See `compose`.
+  /*
+    AND NOTHING BETWEEN THE BOOKING AND THE ANSWER MAY LEAVE IT STANDING. The
+    reading of the learner's turn is a dictionary read and the ladder awaits a
+    provider, the gate and the forms list; any of them can throw, and a throw
+    here went out as a 500 with the reservation still booked, which is a call
+    nobody received counted against the learner's allowance and the budget for
+    the rest of the day. It is answered the way a withheld line is answered.
+  */
+  let line: Awaited<ReturnType<typeof sceneLine>>;
+  try {
+    const learnerReading = last?.said ? await readingOf(last.said) : "";
+    line = await sceneLine({
+      ...shared,
+      // The attested and scripted rungs were already tried and did not answer.
+      pool: [],
+      scripted: [],
       /*
-        Who they are and where this is happening (`ComposeAsk`). Every line of
-        it is on the learner's own briefing screen: a character told none of it
-        is answering a beat rather than playing a part.
+        WHETHER THE WORDS ARE ESTONIAN, ASKED OF THE LANGUAGE RATHER THAN OF THE
+        SCENE. The closed list is what the learner has been taught to read and
+        the gate keeps holding the line to it, by a budget rather than by a
+        refusal (`NEW_WORDS`); what may not happen is a made-up word, and that is
+        what this answers, off the course and the forms list.
       */
-      scene: scene.title,
-      place: scene.place,
-      // The band this run was opened at, which is how the other side talks (`pitchFor`).
-      level,
-      persona: persona?.who ?? "",
-      situation: scene.role,
-      reservation,
-      move: beat.move,
-      they: stageFor(beat, card),
-      register: askRegister,
-      words: context.lexicon.spoken,
-      /*
-        The scene's own banked lines, for tone: a model shown six sentences
-        this receptionist has said writes a seventh in the same register and
-        length, where one shown a word list alone writes a paragraph. They are
-        examples of the voice and never of the answer, since none is for this
-        beat.
-      */
-      examples: [...context.scripted.entries()]
-        .filter(([id]) => id !== beat.id)
-        .flatMap(([, lines]) => lines.slice(0, 1))
-        .slice(0, 6),
-      /*
-        AND THIS BEAT'S OWN, WHICH THE PROMPT ASKS IT TO REPHRASE RATHER THAN
-        COPY. `they` is one sentence of English and a model reads it fluently
-        and still guesses the content: told they ask when the learner could
-        start, it wrote `Kust alustaksite tööd?`, which asks where. The bank
-        holds the same beat asked properly by somebody who read it.
-      */
-      asked: (context.scripted.get(beat.id) ?? []).slice(0, 2),
-      agenda,
-      settled,
-      /*
-        AND WHAT HAPPENED TO THEIR TURN, WHICH IS WHY A MISS IS WORTH A CALL AT
-        ALL. Without it a model asked to compose after a miss writes the
-        question again, which is what the table did for free; with it the
-        character answers the person and then asks. `composeNote` is the one
-        wording, so the route and `npm run play:scenes` tell the model the same
-        thing about the same turn.
-      */
-      note: composeNote(
-        turns.length > 0 ? response : null, progress.reading, elsewhere > 0, askedNow,
-        { offer: handing, answer: anticipated },
-      ),
-      // And what that turn was to this person, so the model feels what the keyless reply feels.
-      feel: feltAt(answered, turns.length > 0 ? response : null),
-      conversation,
-      avoid,
-    }),
-  });
+      vouch: (spellings) => sceneVouch(context, spellings),
+      compose: (avoid, because) => compose(chain, {
+        ownerId,
+        reading: learnerReading,
+        facts,
+        because,
+        // The booking this turn was authorised under, so the settlement corrects
+        // it rather than being written down as a second call. See `compose`.
+        /*
+          Who they are and where this is happening (`ComposeAsk`). Every line of
+          it is on the learner's own briefing screen: a character told none of it
+          is answering a beat rather than playing a part.
+        */
+        scene: scene.title,
+        place: scene.place,
+        // The band this run was opened at, which is how the other side talks (`pitchFor`).
+        level,
+        persona: persona?.who ?? "",
+        situation: scene.role,
+        booking,
+        move: beat.move,
+        they: stageFor(beat, card),
+        register: askRegister,
+        words: context.lexicon.spoken,
+        /*
+          The scene's own banked lines, for tone: a model shown six sentences
+          this receptionist has said writes a seventh in the same register and
+          length, where one shown a word list alone writes a paragraph. They are
+          examples of the voice and never of the answer, since none is for this
+          beat.
+        */
+        examples: [...context.scripted.entries()]
+          .filter(([id]) => id !== beat.id)
+          .flatMap(([, lines]) => lines.slice(0, 1))
+          .slice(0, 6),
+        /*
+          AND THIS BEAT'S OWN, WHICH THE PROMPT ASKS IT TO REPHRASE RATHER THAN
+          COPY. `they` is one sentence of English and a model reads it fluently
+          and still guesses the content: told they ask when the learner could
+          start, it wrote `Kust alustaksite tööd?`, which asks where. The bank
+          holds the same beat asked properly by somebody who read it.
+        */
+        asked: (context.scripted.get(beat.id) ?? []).slice(0, 2),
+        agenda,
+        settled,
+        /*
+          AND WHAT HAPPENED TO THEIR TURN, WHICH IS WHY A MISS IS WORTH A CALL AT
+          ALL. Without it a model asked to compose after a miss writes the
+          question again, which is what the table did for free; with it the
+          character answers the person and then asks. `composeNote` is the one
+          wording, so the route and `npm run play:scenes` tell the model the same
+          thing about the same turn.
+        */
+        note: composeNote(
+          turns.length > 0 ? response : null, progress.reading, elsewhere > 0, askedNow,
+          { offer: handing, answer: anticipated },
+        ),
+        // And what that turn was to this person, so the model feels what the keyless reply feels.
+        feel: feltAt(answered, turns.length > 0 ? response : null),
+        conversation,
+        avoid,
+      }),
+    });
+  } catch (error) {
+    reportError(error, { at: "api/scene/compose", ownerId });
+    if (!booking.settled) after(() => releaseReservation(reservation));
+    if (shrugOwed) aside = shrug(context.lexicon);
+    return answer(reply(move), { composed: false });
+  }
 
   /*
     A booking is handed back where nothing was composed, which is the rule
@@ -1088,7 +1156,10 @@ export async function POST(request: Request) {
   */
   if (line.provenance !== "composed") {
     if (shrugOwed) aside = shrug(context.lexicon);
-    after(() => releaseReservation(reservation));
+    // Only where no attempt reached a provider: a line the gate withheld was
+    // still a call somebody was billed for, and releasing it after it settled
+    // took the reserve off twice.
+    if (!booking.settled) after(() => releaseReservation(reservation));
     /*
       AND THE NET CATCHES IT. The model was asked, and it did not answer or the
       gate withheld what it wrote; the run says the line it would have said with
@@ -1126,6 +1197,19 @@ export async function POST(request: Request) {
   return answer(reply(line), { composed: true });
 }
 
+/**
+ * A field off the wire that ought to be a string, or nothing.
+ *
+ * `String(value)` was the reading and it calls whatever conversion the value
+ * carries: JSON can hand over `{"toString": 1}`, which has none callable, so
+ * `String` throws and the route answered a stranger's odd body with a 500. A
+ * value that is not a string is read as absent, which every caller already
+ * handles, since an empty run id finds no run and an empty turn meets nothing.
+ */
+function textField(value: unknown, max: number): string {
+  return typeof value === "string" ? value.slice(0, max) : "";
+}
+
 /** Who is behind the desk, off the run's own row rather than out of a request. */
 function personaOf(transcript: string): PersonaSpec | undefined {
   try {
@@ -1159,8 +1243,12 @@ async function compose(
      * twice the rate it should, and the deployment budget saw reserve plus
      * actual rather than the difference. Required rather than optional so a
      * caller that has not thought about it does not compile.
+     *
+     * The turn's booking rather than the bare reservation, because this is
+     * called up to three times a turn and only the first report may settle
+     * it (`lib/usage/turnBooking.ts`).
      */
-    reservation: Reservation;
+    booking: TurnBooking;
     /** The scene, the place, the character and why the learner is here (`ComposeAsk`). */
     scene: string;
     place: string;
@@ -1237,6 +1325,12 @@ async function compose(
           response is sent and does not guarantee a pending promise runs, and a
           settlement that never lands leaves the scene's reservation standing.
         */
+        /*
+          Read now rather than inside `after`, because the order the reports
+          arrive in is the order the attempts were made, and only the first of
+          them settles the booking (`lib/usage/turnBooking.ts`).
+        */
+        const settles = input.booking.settle();
         after(() => recordUsage({
           ownerId: input.ownerId,
           kind: "SCENE",
@@ -1247,7 +1341,7 @@ async function compose(
           // Priced at the cache rates where the provider reported a split.
           cachedInputTokens: usage.cachedInputTokens,
           cacheWriteTokens: usage.cacheWriteTokens,
-          reservation: input.reservation,
+          reservation: settles,
         }));
       },
       live,

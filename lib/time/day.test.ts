@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { dayClock, isTimeZone, nextCardLine, normaliseZone } from "./day";
+import {
+  canonicalZone, dayClock, earliestStartOf, isTimeZone, nextCardLine, normaliseZone, partsIn, slowPartsIn, zoneToSend,
+} from "./day";
 
 /*
   The bug these exist for, stated once.
@@ -105,6 +107,34 @@ describe("stepping days survives a clock change", () => {
     ]);
   });
 
+  /*
+    The day after a change is where it went wrong, because stepping onto the
+    change day asked for its midnight and got one read in the wrong offset:
+    23:00 on the 28th in spring, 01:00 on the 25th in autumn. A run of days
+    across the spring change then named the 28th twice and skipped the 29th,
+    and a streak over the 29th and the 30th read 1.
+  */
+  it("finds midnight on the day the clocks change, in both directions", () => {
+    const clock = dayClock(TALLINN);
+    expect(clock.startOfDay(new Date("2026-03-29T09:00:00.000Z")).toISOString()).toBe("2026-03-28T22:00:00.000Z");
+    expect(clock.startOfDay(new Date("2026-10-25T10:00:00.000Z")).toISOString()).toBe("2026-10-24T21:00:00.000Z");
+    expect(clock.dayKey(clock.shiftDay(new Date("2026-03-30T09:00:00.000Z"), 1))).toBe("2026-03-29");
+    expect(clock.recentDayKeys(4, new Date("2026-03-30T09:00:00.000Z"))).toEqual([
+      "2026-03-27", "2026-03-28", "2026-03-29", "2026-03-30",
+    ]);
+    expect(dayClock("America/New_York").recentDayKeys(3, new Date("2026-03-09T17:00:00.000Z"))).toEqual([
+      "2026-03-07", "2026-03-08", "2026-03-09",
+    ]);
+  });
+
+  it("keeps the first instant of a day whose midnight does not exist", () => {
+    // Havana springs from 00:00 straight to 01:00 on 8 March 2026.
+    const clock = dayClock("America/Havana");
+    const start = clock.startOfDay(new Date("2026-03-08T18:00:00.000Z"));
+    expect(clock.dayKey(start)).toBe("2026-03-08");
+    expect(start.toISOString()).toBe("2026-03-08T05:00:00.000Z");
+  });
+
   it("counts whole calendar days between instants, not 24-hour blocks", () => {
     const clock = dayClock(TALLINN);
     // 23:00 on the 24th to 01:00 on the 25th is two hours and one day.
@@ -184,5 +214,129 @@ describe("nextCardLine", () => {
       .toBe("The next card comes back tomorrow.");
     expect(nextCardLine(soon, evening, dayClock("Europe/London")))
       .toBe("The next card comes back later today.");
+  });
+});
+
+describe("canonicalZone", () => {
+  it("stores one spelling of a zone whatever casing arrives", () => {
+    expect(canonicalZone("europe/tallinn")).toBe("Europe/Tallinn");
+    expect(canonicalZone("EUROPE/TALLINN")).toBe("Europe/Tallinn");
+    expect(normaliseZone("europe/tallinn")).toBe("Europe/Tallinn");
+    expect(canonicalZone("utc")).toBe("UTC");
+  });
+
+  /*
+    Intl reads "+05:30" as east of Greenwich and Postgres reads it in
+    AT TIME ZONE as west, eleven hours apart (measured on Postgres 16), and
+    a stored zone reaches both. So an offset is not a zone here.
+  */
+  it("refuses a bare offset, which Intl and Postgres read with opposite signs", () => {
+    for (const offset of ["+05:30", "-08:00", "+00:00"]) {
+      expect(canonicalZone(offset)).toBeUndefined();
+      expect(isTimeZone(offset)).toBe(false);
+      expect(normaliseZone(offset)).toBeUndefined();
+    }
+  });
+
+  it("stores the zone database's current name, which every Postgres build carries", () => {
+    expect(canonicalZone("Europe/Kiev")).toBe("Europe/Kyiv");
+    expect(canonicalZone("Europe/Kyiv")).toBe("Europe/Kyiv");
+    expect(canonicalZone("Asia/Calcutta")).toBe("Asia/Kolkata");
+    expect(dayClock("Europe/Kiev").zoneName).toBe("Europe/Kyiv");
+  });
+
+  it("keeps a named zone whose own name carries a sign, since the database names it", () => {
+    expect(canonicalZone("Etc/GMT+5")).toBe("Etc/GMT+5");
+  });
+});
+
+describe("zoneToSend", () => {
+  it("sends nothing when a browser reports the retired name of the zone already stored", () => {
+    // What Chrome reports in Kyiv and Kolkata, against what the server stores.
+    expect(zoneToSend("Europe/Kiev", "Europe/Kyiv")).toBeNull();
+    expect(zoneToSend("Asia/Calcutta", "Asia/Kolkata")).toBeNull();
+  });
+
+  it("sends the canonical name when the stored zone is missing or different", () => {
+    expect(zoneToSend("Europe/Kiev", null)).toBe("Europe/Kyiv");
+    expect(zoneToSend("Europe/Tallinn", "Europe/Helsinki")).toBe("Europe/Tallinn");
+  });
+
+  it("never sends an offset or something that is not a zone", () => {
+    expect(zoneToSend("+05:30", null)).toBeNull();
+    expect(zoneToSend("Not/AZone", null)).toBeNull();
+    expect(zoneToSend(undefined, null)).toBeNull();
+  });
+});
+
+describe("the wall clock is the formatter's answer, whatever the cache holds", () => {
+  /*
+    `partsIn` remembers each zone's offset per UTC quarter hour and does the
+    rest by arithmetic, which took `dayKey` and `hourOf` from most of /progress
+    to a rounding error. Only worth having if it is the same answer, so it is
+    held to `formatToParts` minute by minute around every transition these
+    zones had in three years, which is where an offset cached one quarter too
+    long would show, and at a spread of ordinary instants besides. The zones
+    are chosen for their offsets: whole hours, a half-hour summer time
+    (Lord Howe), quarter hours (Chatham, Kathmandu), a half hour behind UTC
+    (St John's), and the process's own.
+  */
+  const ZONES = [
+    "Europe/Tallinn", "America/Los_Angeles", "Pacific/Chatham", "Australia/Lord_Howe",
+    "Asia/Kathmandu", "America/St_Johns", undefined,
+  ] as const;
+  const from = Date.UTC(2025, 0, 1);
+  const to = Date.UTC(2028, 0, 1);
+  const offsetOf = (ms: number, zone: string | undefined) => {
+    const p = slowPartsIn(new Date(ms), zone);
+    return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
+  };
+
+  it("agrees minute by minute across every transition, in every zone", () => {
+    let transitions = 0;
+    let compared = 0;
+    for (const zone of ZONES) {
+      let before = offsetOf(from, zone);
+      for (let ms = from + 3_600_000; ms < to; ms += 3_600_000) {
+        const now = offsetOf(ms, zone);
+        if (now === before) continue;
+        before = now;
+        transitions += 1;
+        for (let m = ms - 2 * 3_600_000; m <= ms + 2 * 3_600_000; m += 60_000) {
+          for (const at of [m, m + 999, m + 30_000]) {
+            expect(partsIn(new Date(at), zone)).toEqual(slowPartsIn(new Date(at), zone));
+            compared += 1;
+          }
+        }
+      }
+    }
+    // Five of the six named zones keep a summer time, twice a year for three
+    // years; a count that fell would mean the scan stopped finding them.
+    expect(transitions).toBeGreaterThanOrEqual(24);
+    expect(compared).toBeGreaterThan(10_000);
+  });
+
+  it("agrees at ordinary instants across the range", () => {
+    for (const zone of ZONES) {
+      for (let ms = from; ms < to; ms += 7_777_777) {
+        expect(partsIn(new Date(ms), zone)).toEqual(slowPartsIn(new Date(ms), zone));
+      }
+    }
+  });
+
+  it("hands a date that is not one to the formatter rather than inventing parts for it", () => {
+    // Which throws, exactly as it did before there was a cache in front of it.
+    expect(() => slowPartsIn(new Date(Number.NaN), "Europe/Tallinn")).toThrow(RangeError);
+    expect(() => partsIn(new Date(Number.NaN), "Europe/Tallinn")).toThrow(RangeError);
+  });
+});
+
+describe("earliestStartOf", () => {
+  it("is midnight at UTC+14, which no zone's day begins before", () => {
+    expect(earliestStartOf("2026-09-25").toISOString()).toBe("2026-09-24T10:00:00.000Z");
+    for (const zone of ["Pacific/Kiritimati", "Europe/Tallinn", "UTC", "Pacific/Pago_Pago"]) {
+      const midnight = dayClock(zone).startOfDay(new Date("2026-09-25T12:00:00Z"));
+      expect(midnight.getTime()).toBeGreaterThanOrEqual(earliestStartOf("2026-09-25").getTime());
+    }
   });
 });

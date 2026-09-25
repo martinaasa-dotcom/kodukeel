@@ -31,7 +31,10 @@ npm run dev       # starts the app
 Open **http://localhost:3000** and the setup wizard takes it from there.
 
 `DATABASE_URL` and `DIRECT_URL` in `.env` are the only settings that are not optional. Any Postgres
-will do, a local one, or the free tier of [supabase.com](https://supabase.com).
+will do, a local one, or the free tier of [supabase.com](https://supabase.com). The `.env` that setup
+writes points at `postgres:postgres@127.0.0.1:5432/kodukeel`, so with a Postgres on this machine and a
+database of that name the three commands above run as they are; otherwise change the two URLs and run
+`npm run setup` again.
 
 **Sign-in is optional.** With no Supabase keys configured the app runs in *local mode*: one learner,
 no accounts, everything in the database on your machine. Add `NEXT_PUBLIC_SUPABASE_URL` and
@@ -43,19 +46,20 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
 
 ## What it does
 
-- **Situations.** Seven of them: a café, a bus ticket, a street corner, a health centre, a
-  landlord, a counter, and a friend on the phone. A card says who you are today and what you came
-  for, and the other side speaks first, reacts to what you say, repeats your word back, and asks
+- **Situations.** Fourteen of them: a shop, a health centre, a landlord, a counter, a café, a
+  street corner, a bus ticket, a restaurant table, ringing a shop before you go, a neighbour on the stairs,
+  a pharmacy, the first evening of a language course, a job interview, and taking something back.
+  A card says who you are today and what you came for, and the other side speaks first, reacts to what you say, repeats your word back, and asks
   again when you were not understood. Something goes wrong on the way at every difficulty above the
   easiest, and the debrief says whether you handled it. Every line is a phrase the course teaches
   or a line written for the scene inside its own words and checked word by word before you see it,
-  the screen says which, and all fourteen play without a model key. Whether you were understood is decided by the
+  the screen says which, and all fifteen play without a model key. Whether you were understood is decided by the
   dictionary, never by a model, so you cannot be marked wrong for being right. Difficulty is a
   budget of things that go wrong: the slot you asked for has gone, a queue forms, they switch to
   English. You can walk out. The debrief leads with what happened and never with a score. Where a
   key is set the other side's line is written for this turn, with the conversation so far in front
   of it, so it can pick up something you said three turns ago; where there is none, or the free tier
-  will not answer, the lines written for the scene say it instead, which is why all fourteen still
+  will not answer, the lines written for the scene say it instead, which is why all fifteen still
   play with no key at all.
 - **Say it today.** Each morning, one press to say whether you spoke Estonian to anybody
   yesterday: they understood, they switched to English, not yesterday. Where the answer is no,
@@ -65,7 +69,7 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
 - **Hearing the way people talk.** A word you know well comes back at speed, over café noise, down
   a phone line, from halfway through, in a different voice each time. The words never change; the
   delivery does, because nobody at a counter talks like a clean synthetic voice in a quiet room.
-- **A course.** 89 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
+- **A course.** 92 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
   sitting's worth of words, and the words between the words too: question words, pronouns, the
   postpositions, the months and the adverbs of time have units of their own. Adding a unit builds real flashcards, every form, audio, both
   directions, and a unit only reads as finished when the scheduler agrees the words are retained.
@@ -230,12 +234,12 @@ without saying so.
 
 Everything except the two things that need a model, Anu and reading a photograph of a page:
 
-- **Dictionary**, 6,153 words (A1 to C2) with principal parts, consonant gradation and the
+- **Dictionary**, 6,202 words (A1 to C2) with principal parts, consonant gradation and the
   full case table worked out from the genitive. Search an inflected form you met in class,
   `toas`, `lugesin`, `tubadega`, `helistab`, and it finds the word *and* tells you which form you
   typed.
   Anything missing can be added by hand, principal parts and all.
-- **Audio**, real Estonian speech from the University of Tartu's neural voices, twelve of them to
+- **Audio**, real Estonian speech from the University of Tartu's neural voices, ten of them to
   choose from. A card reads itself aloud when a word is met and when its answer appears, and the
   next card's clip is fetched while you answer this one. No key, no setup.
 - **Flashcards**. FSRS scheduling, 7 card types, typed or flipped, keyboard-only review.
@@ -260,22 +264,24 @@ Everything except the two things that need a model, Anu and reading a photograph
 
 ## Turning on Anu, the tutor
 
-Anu needs one API key, and Situations and scanning a page need a second. Both are free and neither
-asks for a card. **Settings** in the app walks through it, but in short:
+One free key turns on Anu, Situations and scanning a page, and a second free key is the backup
+for all of them. Neither asks for a card. **Settings** in the app walks through it, but in short:
 
-1. Sign in at [console.groq.com](https://console.groq.com), free, no card.
-2. **API Keys** → **Create API Key**. Copy it; you only see it once.
+1. Sign in at [aistudio.google.com](https://aistudio.google.com/apikey), free, no card.
+2. **Create API key**. Copy it.
 3. Open the file `.env` in this folder and fill in:
    ```
-   GROQ_API_KEY="paste-your-key-here"
+   GEMINI_API_KEY="paste-your-key-here"
    ```
 4. Stop the app (Ctrl-C) and run `npm run dev` again.
 
-That is Anu. **Situations** and **Scan a page** compose and read with Gemini, so for those add a
-second key from [aistudio.google.com](https://aistudio.google.com/apikey) (Create API key, free
-tier, no card) on a line of its own:
+That is all three. Anu answers on `gemini-3.1-flash-lite`, scenes compose on `gemini-3.8-flash` and
+scanning reads with `gemini-3.1-flash-lite`. For a backup, add a key from
+[console.groq.com](https://console.groq.com) (**API Keys** → **Create API Key**, free, no card) on
+a line of its own; Groq then answers Anu on `openai/gpt-oss-120b` and scenes on `qwen/qwen3.8-27b`
+whenever Gemini is missing, out of credit or having a bad minute:
    ```
-   GEMINI_API_KEY="paste-your-key-here"
+   GROQ_API_KEY="paste-your-key-here"
    ```
 
 An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is optional and paid: it sits behind the two free keys as
@@ -304,8 +310,8 @@ request for the rest of the day (OpenRouter is no longer in the chain), which is
 and is the argument for the lines written in advance being good rather than for the ladder being
 different.
 
-**Conversations are pinned to `gemini-3.8-flash`, with Groq's `openai/gpt-oss-120b` a fixed second
-link behind it, and no variable moves either.** They compose on Gemini when `GEMINI_API_KEY` is set,
+**Conversations are pinned to `gemini-3.8-flash`, with `gemini-3.1-flash-lite` behind it and Groq's
+`qwen/qwen3.8-27b` a fixed link behind both, and no variable moves any of them.** They compose on Gemini when `GEMINI_API_KEY` is set,
 fall to Groq when it is not or is having a bad minute, and only fall to their recorded and banked
 lines once both are unavailable. Anthropic sits behind both, still only as the gated last resort.
 There is no `SCENE_MODEL` and no `*_SCENE_MODEL` override any more: the first held a Groq model name
@@ -370,6 +376,13 @@ rebuild, documented in `docs/03-architecture.md` ADR-011:
    words (including ones you added by hand, or that Ekilex cached) is left alone, and neither step
    ever touches `Card` or `Review`. To force a reseed after correcting the seed data, run
    `npm run db:seed` against the hosted database yourself.
+
+   Outside Vercel and CI, `npm run build`, `npm run setup` and `npm run db:push` refuse a
+   `DATABASE_URL` or `DIRECT_URL` that is not on this machine (`scripts/schema-guard.mjs`), because
+   a shell carrying the deployment's connection string would otherwise push a branch's schema into
+   production just by checking that it compiles. To check a build, run
+   `npx prisma generate && npx next build`. A self-hosted builder that means it sets
+   `KODUKEEL_SCHEMA_PUSH=1`.
 
 Two things that used to change when hosted have since been fixed. Review works on a train again:
 it is a PWA, grades go to a device-local outbox and replay when the connection returns. And the
@@ -588,10 +601,13 @@ deployed at all. It did: eighteen merges to main between 2026-09-18 and 2026-09-
 and the live site served the commit before the hourly cron was added until somebody went looking
 for why.
 
-The way back to hourly is a Pro plan, or any scheduler outside this repository that can GET that
-URL with `Authorization: Bearer $CRON_SECRET`. If you change the expression, check that the plan
-allows it before merging, because the failure is a deploy that never happens rather than a letter
-that never arrives.
+The way back to hourly is a Pro plan, or any scheduler that can GET that URL with
+`Authorization: Bearer $CRON_SECRET`. `.github/workflows/mailout.yml` is one, and it costs
+nothing: set the repository secret `CRON_SECRET` to the deployment's value and the repository
+variable `MAILOUT_URL` to its origin, and it asks every hour. Until both are set it does nothing
+and says so. If you change the Vercel expression instead, check that the plan allows it before
+merging, because the failure is a deploy that never happens rather than a letter that never
+arrives.
 
 What goes out, to whom and how often is `lib/email/schedule.ts`, which is pure and unit tested.
 What each letter says is `lib/email/letters/`. Both are swept for the voice rules like every
@@ -688,6 +704,7 @@ says what has not been done in the same breath as what has.
 | `docs/27-security.md` | The threat model and control review, with a section for the weaknesses it found. |
 | `docs/28-incident-response.md` | The plan, with the Article 33 clock and runbooks for the incidents this app can actually have. |
 | `docs/29-controls.md` | A control map against ISO 27001 and SOC 2. A self assessment, and it says so first. |
+| `docs/33-certification-readiness.md` | The gap analysis behind that map: every Partial and Not done turned into work with a size, a cost and an artifact. |
 | `docs/23-impact.md` | What may honestly be claimed about usage, and the floors that stop a small number being reported at all. |
 | `docs/30-pilots.md` | What a pilot is, what it costs, and what is not ready. |
 | `docs/31-grant-case.md` | The case a funding application would be adapted from, every figure named with the file or the command behind it, and a list of what it cannot claim. |
@@ -731,7 +748,7 @@ dies halfway is recoverable rather than final.
 
 ## How it is put together
 
-Next.js 15 (App Router) · TypeScript strict · Tailwind v4 · Prisma + Postgres · `ts-fsrs` ·
+Next.js 16 (App Router) · TypeScript strict · Tailwind v4 · Prisma + Postgres · `ts-fsrs` ·
 TartuNLP speech · any OpenAI-compatible or Anthropic model.
 
 ```
@@ -745,12 +762,14 @@ lib/collections/  the course: syllabus, lessons, placement and checkpoints, as r
 lib/classroom/    join codes and the roster a teacher sees, and only that.
 lib/stats/        heatmap, streak, accuracy and answer-time aggregation.
 lib/progress/     the database side of the above, shared by Today, the path and /progress.
-lib/offline/      the queue that lets a review session survive with no network.
+lib/course/       the planned module: which words on which evening, and what it deals beside them.
+lib/scenes/       the conversations: the catalogue, the marker, the gate and the banked lines.
+lib/email/        what a letter says, pure; lib/mailer/ posts it.
 lib/dict/         search.
 lib/tutor/        provider-agnostic chat; keys stay server-side.
-app/(app)/        the signed-in app: Today, the path, review, dictionary, Anu, words, tasks.
+app/(app)/        the signed-in app: Today, the course, review, dictionary, Anu, words, progress.
 app/(chromeless)/ pages that own the whole screen: the landing page, sign-in, first-run setup.
-app/api/          the three server proxies.
+app/api/          the server proxies and the routes a browser posts to.
 components/       ui primitives, the brand mark and the mascot.
 prisma/data/      the built-in dictionary.
 docs/             the full plan and the decisions behind it.
@@ -774,6 +793,12 @@ Four rules the code holds to, all explained in `docs/`:
   database of the Institute of the Estonian Language. CC BY 4.0.
 - English glosses: [English Wiktionary](https://en.wiktionary.org), by its contributors.
   CC BY-SA 4.0.
+- Word frequency counts: [FrequencyWords](https://github.com/hermitdave/FrequencyWords) over the
+  OpenSubtitles corpus. MIT for the code, CC BY-SA 4.0 for the counts.
+- Every spelling of every word, in `prisma/data/forms/`: Ekilex's own inflection tables as published
+  in [Estonian-Wordlist-Enriched-Ekilex](https://github.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex)
+  (CC BY 4.0 for the Institute's data, CC BY-SA 4.0 for the repository), and
+  [Vabamorf](https://github.com/Filosoft/vabamorf), Filosoft's analyser and synthesiser (LGPL).
 - Speech synthesis: [TartuNLP](https://tartunlp.ai), University of Tartu (MIT).
 - The plan this was built from, including the audit of the original spec, is in `docs/`.
 

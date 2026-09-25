@@ -48,7 +48,7 @@ export const dynamic = "force-dynamic";
 export default async function CoursePage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
   const [programme, chosen, level, { next: startNow }] = await Promise.all([
@@ -376,7 +376,15 @@ export default async function CoursePage({
           <p className="mt-2 text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
             {day.canDo}
           </p>
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          {/*
+            Two columns at a phone width, three from `sm:` up, matching the
+            three-tile StatTile rows that already do this (ReviewSession,
+            LearnSession, the dictation and sentence rounds). At a bare three
+            columns "New words" has about 80px to work with at 360px, and
+            `overflow-wrap: anywhere` (deliberately global, see globals.css)
+            breaks it mid-word rather than at the space.
+          */}
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatTile value={day.words.length} label="New words" tone="mint" />
             <StatTile
               value={standing.complete ? "0" : `${standing.minutesLeft}m`}
@@ -461,11 +469,12 @@ export default async function CoursePage({
                   get right. The caption gets its own line, indented under
                   the badge, and wraps instead of clipping.
                 */
-                <li key={d.id} className="flex flex-col gap-0.5 text-sm">
-                  <div className="flex flex-wrap items-center gap-2">
+                <li key={d.id} data-course-day className="flex flex-col gap-0.5 text-sm">
+                  <div className="flex items-start gap-2">
                     <span
                       aria-hidden
-                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
+                      data-course-badge
+                      className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
                       style={{
                         background: state === "done" ? "var(--good-soft)"
                           : state === "now" ? "var(--accent-soft)" : "var(--raised)",
@@ -475,13 +484,22 @@ export default async function CoursePage({
                     >
                       {state === "done" ? <Check size={11} /> : d.index}
                     </span>
-                    <span
-                      lang={uiWantsEnglish(level) ? undefined : "et"}
-                      style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
-                    >
-                      {uiText(level, d.title, d.subtitle)}
+                    {/*
+                      The number is its own column and the title wraps inside
+                      the other one. As one wrapping row, a title longer than
+                      the room beside the badge moved down whole and left the
+                      number alone on the line above it.
+                    */}
+                    <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                      <span
+                        data-course-title
+                        lang={uiWantsEnglish(level) ? undefined : "et"}
+                        style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
+                      >
+                        {uiText(level, d.title, d.subtitle)}
+                      </span>
+                      {state === "now" && <Chip tone="accent">Tonight</Chip>}
                     </span>
-                    {state === "now" && <Chip tone="accent">Tonight</Chip>}
                   </div>
                   {(uiWantsEnglish(level) ? d.part.of > 1 : true) && (
                     <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>
@@ -534,20 +552,26 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>{groupLevel}</p>
             <ul className="mt-1.5 flex flex-col gap-1">
               {PROGRAMMES.filter((p) => p.level === groupLevel).map((p) => (
-                <li key={p.id} className="flex flex-wrap items-baseline gap-x-2 text-sm">
+                <li key={p.id} data-course-day className="flex items-baseline gap-2 text-sm">
+                  {/* The part's number is a column of its own, for the reason
+                      the evening list above gives: in one wrapping row a
+                      title that did not fit beside it left it alone on a line. */}
                   <span
-                    className="tnum font-semibold"
+                    data-course-badge
+                    className="tnum w-9 shrink-0 font-semibold"
                     style={{ color: p.id === here ? "var(--accent-deep)" : "var(--ink-2)" }}
                   >
                     {p.id.toUpperCase()}
                   </span>
-                  <span lang={wantsEnglish ? undefined : "et"} style={{ color: "var(--ink)" }}>
-                    {uiText(learnerLevel, p.title, p.subtitle)}
+                  <span className="flex min-w-0 flex-wrap items-baseline gap-x-2">
+                    <span data-course-title lang={wantsEnglish ? undefined : "et"} style={{ color: "var(--ink)" }}>
+                      {uiText(learnerLevel, p.title, p.subtitle)}
+                    </span>
+                    <span style={{ color: "var(--ink-3)" }}>
+                      {p.days.length} evenings
+                    </span>
+                    {p.id === here && <Chip tone="accent">You are here</Chip>}
                   </span>
-                  <span style={{ color: "var(--ink-3)" }}>
-                    {p.days.length} evenings
-                  </span>
-                  {p.id === here && <Chip tone="accent">You are here</Chip>}
                 </li>
               ))}
             </ul>

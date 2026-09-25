@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { parseExamples } from "@/lib/dict/examples";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import {
-  CATEGORY_KEYS, parsePatch,
+  CATEGORY_KEYS, createWordClash, parsePatch,
   type Patch, type SuggestionCategory, type SuggestionStatus,
 } from "./model";
 
@@ -98,16 +98,35 @@ export async function readQueue(options: {
   const keys = grouped.map((g) => g.groupKey);
 
   /*
-    Every row in the groups on this page, newest first. One query rather than
-    one per group: a page of twenty-five groups is twenty-five round trips
-    otherwise, and the cap on rows read is what stops a group of four hundred
-    dragging four hundred notes into memory to show three of them.
+    The newest few rows OF EACH GROUP on this page, and the cap is per group.
+    It was one cap across the page, `keys.length * 4` rows newest first, which
+    bounds the read and hands the whole of it to whichever group was reported
+    most recently: a group with forty fresh reports filled the cap, every
+    quieter group on the page came back with no row, and the page drew one
+    line under a heading counting twenty-five. Two queries rather than one per
+    group, so the page is still two round trips whatever it holds, and the
+    window function is what stops a group of four hundred dragging four hundred
+    notes into memory to show three of them. `id` settles a tie on the clock,
+    because which report leads a group is what the reviewer acts on.
   */
-  const rows = keys.length
+  const ids = keys.length
+    ? (await prisma.$queryRaw<{ id: string }[]>`
+        SELECT "id" FROM (
+          SELECT "id", ROW_NUMBER() OVER (
+            PARTITION BY "groupKey" ORDER BY "createdAt" DESC, "id" DESC
+          ) AS "n"
+          FROM "Suggestion"
+          WHERE "status" = ${status}
+            AND (${category ?? null}::text IS NULL OR "category" = ${category ?? null})
+            AND "groupKey" = ANY(${keys}::text[])
+        ) AS ranked
+        WHERE "n" <= ${OTHER_VOICES + 1}
+      `).map((row) => row.id)
+    : [];
+  const rows = ids.length
     ? await prisma.suggestion.findMany({
-        where: { ...where, groupKey: { in: keys } },
-        orderBy: { createdAt: "desc" },
-        take: keys.length * (OTHER_VOICES + 1),
+        where: { id: { in: ids } },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       })
     : [];
 
@@ -267,10 +286,14 @@ async function currentValues(
         byLemma.filter((e) => e.lemma.toLowerCase() === patch.lemma.toLowerCase()),
         [patch.lemma],
       )[0] ?? byLemma.find((e) => e.lemma.toLowerCase() === patch.lemma.toLowerCase());
+      // The entry it would write over, where there is one, since that is the
+      // one the reviewer has to go and correct instead.
+      const blocking = createWordClash(patch, byLemma);
+      const shown = blocking ?? clash;
       out.set(item.id, {
-        before: clash ? `${clash.lemma} · ${clash.pos.toLowerCase()} · ${clash.translation}` : null,
-        blocked: clash && clash.pos === patch.pos
-          ? "The dictionary already has this word. Accepting will overwrite what it says."
+        before: shown ? `${shown.lemma} · ${shown.pos.toLowerCase()} · ${shown.translation}` : null,
+        blocked: blocking
+          ? "The dictionary already has this word. Correct its entry instead."
           : null,
       });
       continue;

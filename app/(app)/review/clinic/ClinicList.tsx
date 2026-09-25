@@ -6,6 +6,7 @@ import { deleteCard, setCardSuspended } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, Page } from "@/components/ui";
 import { Speak } from "@/components/Speak";
+import { useReaderDate } from "@/components/LocalDate";
 import { buildClinicQuestion, type Leech } from "@/lib/analysis/leeches";
 import { caseByKey } from "@/lib/estonian/cases";
 
@@ -92,8 +93,8 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                   )}
                   <Button
                     onClick={async () => {
-                      await setCardSuspended(leech.cardId, true);
-                      setHandled((h) => ({ ...h, [leech.cardId]: "suspended" }));
+                      const landed = await setCardSuspended(leech.cardId, true).then(() => true).catch(() => false);
+                      if (landed) setHandled((h) => ({ ...h, [leech.cardId]: "suspended" }));
                     }}
                   >
                     <Pause size={15} aria-hidden /> Park it for now
@@ -101,8 +102,8 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                   <Button
                     variant="danger"
                     onClick={async () => {
-                      await deleteCard(leech.cardId);
-                      setHandled((h) => ({ ...h, [leech.cardId]: "deleted" }));
+                      const landed = await deleteCard(leech.cardId).then(() => true).catch(() => false);
+                      if (landed) setHandled((h) => ({ ...h, [leech.cardId]: "deleted" }));
                     }}
                   >
                     <Trash2 size={15} aria-hidden /> Not worth learning
@@ -150,6 +151,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
  * could not have it too.
  */
 function Timeline({ history }: { history: { rating: number; at: string }[] }) {
+  const readerDate = useReaderDate();
   const shown = history.slice(-24);
   if (shown.length === 0) return null;
   const failures = shown.filter((h) => h.rating <= 2).length;
@@ -162,7 +164,7 @@ function Timeline({ history }: { history: { rating: number; at: string }[] }) {
           return (
             <span
               key={i}
-              title={`${new Date(h.at).toLocaleDateString()} · ${failed ? "failed" : "recalled"}`}
+              title={`${readerDate(new Date(h.at), { day: "numeric", month: "short", year: "numeric" })} · ${failed ? "failed" : "recalled"}`}
               className={`w-2.5 rounded-[2px] ${failed ? "h-2.5" : "h-1"}`}
               style={{ background: failed ? "var(--again)" : "var(--good)" }}
             />

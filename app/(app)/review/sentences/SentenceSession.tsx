@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { shuffle } from "@/lib/random/shuffle";
 import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
 import { gradeCard, translateExample } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -9,7 +10,7 @@ import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
-import { sentenceTiles } from "@/lib/estonian/cloze";
+import { sentenceTiles, tileFaces } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordOrder";
 import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
@@ -38,6 +39,11 @@ export interface SentenceTask {
    * `lib/estonian/wordOrder.ts`, for this round, the lesson and the paper.
    */
   alsoRight: readonly string[];
+  /**
+   * Whether the sentence opens on an ordinary word, so its first tile loses
+   * the capital that would say which tile goes first. See `tileFaces`.
+   */
+  openerIsWord: boolean;
 }
 
 /** How long the sentence is shown before it is scrambled, when there is no English. */
@@ -125,12 +131,9 @@ export function SentenceSession(
   // mid-exercise would move the tile under the learner's finger.
   const tiles = useMemo(() => {
     if (!task || !mounted) return [];
-    const words = sentenceTiles(task.et);
-    const order = words.map((_, i) => i);
-    for (let i = order.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [order[i], order[j]] = [order[j]!, order[i]!];
-    }
+    const recorded = sentenceTiles(task.et);
+    const words = tileFaces(recorded, recorded[0] ?? "", task.openerIsWord);
+    const order = shuffle(words.map((_, i) => i));
     // A shuffle that happens to be the right order is not an exercise.
     if (order.every((v, i) => v === i) && order.length > 1) order.reverse();
     return order.map((i) => ({ index: i, word: words[i]! }));
@@ -140,8 +143,8 @@ export function SentenceSession(
   useEffect(() => {
     const upcoming = tasks.slice(index, index + 3).filter((t) => t.en === null);
     for (const next of upcoming) {
-      void translateExample(next.lexemeId, next.et).then((result) => {
-        if (!result.ok) return;
+      void translateExample(next.lexemeId, next.et).catch(() => null).then((result) => {
+        if (!result?.ok) return;
         setTasks((list) => list.map((t) => (t.et === next.et ? { ...t, en: result.en } : t)));
       });
     }

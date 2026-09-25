@@ -32,9 +32,9 @@
 */
 import { weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
+import { SpelledCount, spelledCount } from "@/lib/copy/values";
 
 export interface ShieldInput {
-  readonly name: string | null;
   readonly origin: string;
   /** The run of days the shield kept alive. */
   readonly streak: number;
@@ -51,8 +51,6 @@ export interface ShieldInput {
   readonly week: readonly { readonly label: string; readonly studied: boolean }[];
 }
 
-const WORDS = ["no", "one", "two", "three"];
-const count = (n: number): string => WORDS[n] ?? String(n);
 
 export function shieldLetter(input: ShieldInput): Letter {
   const blocks: Block[] = [];
@@ -90,7 +88,7 @@ export function shieldLetter(input: ShieldInput): Letter {
     t: "text",
     text:
       input.remaining > 0
-        ? `${count(input.remaining)} left in the bank.`
+        ? `${SpelledCount(input.remaining)} left in the bank.`
         : input.nextAt !== null
           ? `That was your last one. The next arrives at ${input.nextAt} days.`
           : `That was your last one.`,
@@ -108,7 +106,37 @@ export function shieldLetter(input: ShieldInput): Letter {
   return {
     kind: "shield",
     subject: "A shield covered yesterday",
-    preheader: `Your ${input.streak} days are still standing, and ${input.remaining > 0 ? `${count(input.remaining)} shields are left` : "that was the last one"}.`,
+    preheader: `Your ${input.streak} days are still standing, and ${input.remaining > 0 ? `${spelledCount(input.remaining)} shields are left` : "that was the last one"}.`,
     blocks,
   };
+}
+
+/**
+ * The day a shield covered that this letter may be sent about, or null.
+ *
+ * ONLY YESTERDAY, BECAUSE THAT IS WHAT THE LETTER SAYS. Its heading, its
+ * subject and its first sentence are all about yesterday, and the list of
+ * covered days only ever grows, so the latest day nobody has been told about
+ * could be months old: a learner with one shield spent in March was sent "A
+ * shield covered yesterday" in September, beside a run that had since gone
+ * to nought. A shield that covered any other day is left untold, which is the
+ * honest way to be late about one.
+ *
+ * A stored row that will not parse means we know of none, which is said by
+ * saying nothing. Day keys sort as strings, which is what makes "newer than
+ * the last one we told them about" a comparison.
+ */
+export function shieldToTell(stored: string | undefined, told: string, yesterday: string): string | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(stored ?? "[]");
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(parsed)) return null;
+  const latest = parsed
+    .filter((d): d is string => typeof d === "string" && d > told)
+    .sort()
+    .at(-1);
+  return latest === yesterday ? latest : null;
 }

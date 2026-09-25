@@ -66,10 +66,60 @@ export interface AgendaGroup<T> {
   items: T[];
 }
 
+/**
+ * WHETHER A TASK IS A CLASS'S OR THE LEARNER'S, READ OFF THE ROW ITSELF.
+ *
+ * A reminder the learner wrote is theirs to delete and homework a class set is
+ * not. That used to be read off `Task.classWeek`, which the class week wrote
+ * and nothing has written since that page was cut: every row carries null, so
+ * every assignment read as the learner's own, the calendar drew a bin beside
+ * it and `deleteReminder` removed it. On the teacher's own copy that costs
+ * more than a pupil's line of homework, because that copy is the only record
+ * `classworkHistory` has of what the class was ever sent.
+ *
+ * What does mark classwork is the sentence both assigning actions open the
+ * notes with, so it is declared here once and read by the writers, the
+ * calendar and the delete. A learner who opens a note of their own with
+ * "Set by " is read as a class too, which costs them the bin on one row they
+ * wrote in a class's words, and that is the side to err on.
+ */
+export const CLASSWORK_PREFIX = "Set by ";
+
+/** The sentence every classroom-issued task's notes start with. */
+export function classworkMarker(classroomName: string): string {
+  return `${CLASSWORK_PREFIX}${classroomName}.`;
+}
+
+/** True where a class set this task rather than the learner writing it. */
+export function isClasswork(notes: string | null | undefined): boolean {
+  return typeof notes === "string" && notes.startsWith(CLASSWORK_PREFIX);
+}
+
+/**
+ * THE CALENDAR DAY A DUE DATE NAMES, WHICH IS ITS UTC DATE.
+ *
+ * A due date is a day rather than an instant: it is typed into `<input
+ * type="date">` and every writer stores it at midnight UTC of that day
+ * (`assignHomework`, `assignUnit`, `addReminder`). Read as an instant in the
+ * learner's zone it is the right day only east of Greenwich. West of it,
+ * midnight UTC on the first is the evening of the thirty-first, so everything
+ * was filed a day early: "Late" on the day it was due, and printed as due the
+ * day before. The day is read off the stored date itself and compared with the
+ * learner's own today, which is the half that does need a zone.
+ */
+export function dueDayKey(dueAt: Date): string {
+  return dueAt.toISOString().slice(0, 10);
+}
+
+/** Options that print a due date as the day it names, in any reader's zone. */
+export const DUE_DATE_FORMAT: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", timeZone: "UTC" };
+
+const dayNumber = (key: string) => Date.parse(`${key}T00:00:00Z`) / 86_400_000;
+
 /** Which heading one due date belongs under. */
 export function bucketFor(dueAt: Date | null, clock: DayClock, now: Date): Bucket {
   if (!dueAt) return "undated";
-  const days = clock.daysBetween(now, dueAt);
+  const days = dayNumber(dueDayKey(dueAt)) - dayNumber(clock.dayKey(now));
   if (days < 0) return "overdue";
   if (days === 0) return "today";
   if (days === 1) return "tomorrow";

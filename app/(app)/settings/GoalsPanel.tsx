@@ -3,9 +3,10 @@
 import { useState, useTransition } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { saveLearningGoals } from "@/app/actions";
+import { NOT_REACHED } from "@/lib/copy/values";
 import { Button } from "@/components/Button";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { DEADLINES, REASONS, TARGETS, deadlineFrom, reasonsFor, reasonsToStored, weeksUntil, type Goals } from "@/lib/assessment/goals";
 import type { Band } from "@/lib/assessment/types";
 
@@ -27,15 +28,20 @@ export function GoalsPanel({ current }: { current: Goals }) {
   const [days, setDays] = useState(current.daysPerWeek);
   const [note, setNote] = useState(current.note);
   const [saved, setSaved] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [pending, start] = useTransition();
 
   const weeks = weeksUntil(deadline, new Date());
 
   const save = () => {
     setSaved(false);
+    setFailed(false);
     start(async () => {
-      await saveLearningGoals({ reason: reasonsToStored(reasons), target, deadline, daysPerWeek: days, note });
-      setSaved(true);
+      const landed = await saveLearningGoals({ reason: reasonsToStored(reasons), target, deadline, daysPerWeek: days, note })
+        .then(() => true)
+        .catch(() => false);
+      setSaved(landed);
+      if (!landed) setFailed(true);
     });
   };
 
@@ -49,7 +55,6 @@ export function GoalsPanel({ current }: { current: Goals }) {
       */}
       <ChoiceGroup label="Why you are learning" hint="pick as many as are true" select="many">
         {REASONS.map((r) => {
-          const Icon = icon(r.icon);
           const on = reasons.includes(r.id);
           return (
             <ChoiceChip
@@ -58,7 +63,7 @@ export function GoalsPanel({ current }: { current: Goals }) {
               /* Pressing a chosen one again clears it: "none of these" is a
                  real answer, and the plan is honest about having no reason. */
               onSelect={() => setReasons((all) => on ? all.filter((id) => id !== r.id) : [...all, r.id])}
-              icon={<Icon size={14} aria-hidden />}
+              icon={<NamedIcon name={r.icon} size={14} aria-hidden />}
             >
               {r.label}
             </ChoiceChip>
@@ -118,6 +123,9 @@ export function GoalsPanel({ current }: { current: Goals }) {
         <Button variant="primary" onClick={save} disabled={pending}>
           {pending ? <><Loader2 size={14} className="animate-spin" aria-hidden /> Saving</> : "Save goals"}
         </Button>
+        {failed && !pending && (
+          <span role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>{NOT_REACHED}</span>
+        )}
         {saved && !pending && (
           <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--good-ink)" }}>
             <Check size={14} aria-hidden /> Saved

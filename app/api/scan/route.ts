@@ -12,6 +12,7 @@ import { resolveScannedItems } from "@/lib/dict/resolveScan";
 import { summarise } from "@/lib/scan/items";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
+import { NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 90;
@@ -58,20 +59,24 @@ export async function POST(request: Request) {
           "Reading a photo needs an AI key, and this copy of Kodukeel has none yet. " +
           "Everything else (review, the dictionary, typing a word list in by hand) still works.",
       },
-      { status: 503 },
+      { headers: NO_STORE, status: 503 },
     );
   }
 
   let payload: { image?: unknown };
   try {
-    payload = (await request.json()) as { image?: unknown };
+    // A body that parses to `null` is not a picture, and reading its key after
+    // this block had closed threw, which the framework answered with a 500.
+    const parsed: unknown = await request.json();
+    if (typeof parsed !== "object" || parsed === null) throw new TypeError("not an object");
+    payload = parsed as { image?: unknown };
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
 
   const decoded = decodeImageDataUrl(payload.image);
   if (!decoded.image) {
-    return Response.json({ error: imageProblemMessage(decoded.problem) }, { status: 400 });
+    return Response.json({ error: imageProblemMessage(decoded.problem) }, { headers: NO_STORE, status: 400 });
   }
 
   // Checked before the call, and it fails closed. A photograph is the most
@@ -82,9 +87,10 @@ export async function POST(request: Request) {
       { error: decision.message, reason: decision.reason },
       {
         status: 429,
-        headers: decision.retryAfterSeconds
-          ? { "retry-after": String(decision.retryAfterSeconds) }
-          : undefined,
+        headers: {
+          ...NO_STORE,
+          ...(decision.retryAfterSeconds ? { "retry-after": String(decision.retryAfterSeconds) } : {}),
+        },
       },
     );
   }
@@ -112,7 +118,7 @@ export async function POST(request: Request) {
           "at midnight UTC.",
         reason: "KIND_SPEND",
       },
-      { status: 429 },
+      { headers: NO_STORE, status: 429 },
     );
   }
 
@@ -146,17 +152,37 @@ export async function POST(request: Request) {
       ? `${error.message} If the model configured here cannot read images, set a vision model ` +
         "in .env (GEMINI_VISION_MODEL, GROQ_VISION_MODEL, ANTHROPIC_VISION_MODEL or OPENAI_VISION_MODEL)."
       : "That photo could not be read just now.";
-    return Response.json({ error: message }, { status });
+    return Response.json({ error: message }, { headers: NO_STORE, status });
   }
 
   const scanned = parseScanReply(reply.text);
-  const items = await resolveScannedItems(scanned.slice(0, MAX_ITEMS));
+  /*
+    The model has answered and been paid for by now, so what can still fail is
+    the dictionary, which decides what is believed. Left to throw, that was an
+    empty 500, which the screen cannot read as JSON, so its own catch told the
+    learner to check their connection. It says what happened instead, and what
+    the database said goes to the log and never to the screen.
+  */
+  let items;
+  try {
+    items = await resolveScannedItems(scanned.slice(0, MAX_ITEMS));
+  } catch (error) {
+    reportError(error, { at: "api/scan resolve", ownerId });
+    return Response.json(
+      {
+        error:
+          "The page was read, but the dictionary could not be asked about the words " +
+          "just now. Try the photo again in a moment.",
+      },
+      { status: 503, headers: NO_STORE },
+    );
+  }
 
   return Response.json(
     { items, summary: summarise(items) },
     {
       headers: {
-        "cache-control": "no-store",
+        ...NO_STORE,
         // Which model read the page is a fact about the reading, and the same
         // rule the chat follows: never the head of the chain, always the one
         // that answered.

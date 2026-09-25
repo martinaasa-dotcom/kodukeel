@@ -4,6 +4,10 @@ import { useMemo, useState, useTransition } from "react";
 import { EyeOff, Trash2 } from "lucide-react";
 import { deleteCard, setCardSuspended } from "@/app/actions";
 import { Chip } from "@/components/ui";
+import { LocalDate, stableDate } from "@/components/LocalDate";
+
+/** How a due date is written: the day and the short month, in the reader's own order. */
+const DUE_SHAPE: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
 
 export interface CardRow {
   id: string;
@@ -117,7 +121,11 @@ function Row({ row }: { row: CardRow }) {
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-2xs" style={{ color: "var(--ink-3)" }}>
           <span>{row.cardType.toLowerCase().replace("_", " ")}</span>
           <span>{row.stateLabel}</span>
-          <span>{isDue ? "due now" : `due ${dueDate.toLocaleDateString(undefined, { day: "numeric", month: "short" })}`}</span>
+          <span>
+            {isDue ? "due now" : (
+              <>due <LocalDate iso={dueDate.toISOString()} fallback={stableDate(dueDate, DUE_SHAPE)} options={DUE_SHAPE} /></>
+            )}
+          </span>
           {row.lapses > 0 && <span style={{ color: "var(--again-ink)" }}>{row.lapses} lapse{row.lapses === 1 ? "" : "s"}</span>}
         </div>
       </div>
@@ -126,7 +134,10 @@ function Row({ row }: { row: CardRow }) {
 
       <button
         type="button"
-        onClick={() => start(async () => { await setCardSuspended(row.id, !suspended); setSuspended(!suspended); })}
+        onClick={() => start(async () => {
+          const landed = await setCardSuspended(row.id, !suspended).then(() => true).catch(() => false);
+          if (landed) setSuspended(!suspended);
+        })}
         aria-label={suspended ? `Resume "${row.front}"` : `Suspend "${row.front}"`}
         className="tap-tint rounded-md p-1.5"
         style={{ color: suspended ? "var(--accent-deep)" : "var(--ink-3)" }}
@@ -135,7 +146,10 @@ function Row({ row }: { row: CardRow }) {
       </button>
       <button
         type="button"
-        onClick={() => start(async () => { await deleteCard(row.id); setGone(true); })}
+        onClick={() => start(async () => {
+          const landed = await deleteCard(row.id).then(() => true).catch(() => false);
+          if (landed) setGone(true);
+        })}
         aria-label={`Delete card "${row.front}"`}
         className="tap-tint rounded-md p-1.5"
         style={{ color: "var(--ink-3)" }}

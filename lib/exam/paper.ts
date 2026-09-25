@@ -1,11 +1,12 @@
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { buildCloze, ESTONIAN_WORD, isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
+import { buildCloze, ESTONIAN_WORD, isBuildable, naturalSentence, nominalOpener, sentenceTiles } from "@/lib/estonian/cloze";
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
-import { buildOptions, maskExample, parseGovernment } from "@/lib/estonian/government";
+import { buildOptions, governmentCue, parseGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
-import { sameSpelling } from "@/lib/copy/values";
+import { PARTS, sameSpelling } from "@/lib/copy/values";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { writingTasksFor } from "@/lib/estonian/writing";
+import { twinsOf } from "@/lib/estonian/gapForms";
 import {
   blueprintFor, lengthsFor, specFor,
   type ExamLevel, type ExamSpec, type PartSpec, type TaskKind, type TaskSpec,
@@ -168,7 +169,13 @@ export interface CaseFormItem extends BaseItem {
   caseKey: string;
   caseEt: string;
   caseQuestion: string;
+  /** Every spelling that is right, joined on `PARTS`: `tuppa / toasse`. */
   answer: string;
+  /**
+   * The word's other forms, for the marker to tell a slip of the hand from the
+   * wrong ending: `toast` is one keystroke from `toas` and is the elative.
+   */
+  rivals: string[];
   provenance: "ekilex" | "derived";
 }
 
@@ -484,7 +491,7 @@ interface Sentence {
   text: string;
 }
 
-function sentencesFrom(words: readonly PoolWord[]): Sentence[] {
+export function sentencesFrom(words: readonly PoolWord[]): Sentence[] {
   const out: Sentence[] = [];
   for (const word of words) {
     /*
@@ -495,9 +502,14 @@ function sentencesFrom(words: readonly PoolWord[]): Sentence[] {
       with it. One definition in `lib/estonian/cloze.ts`, because two papers
       disagreeing about what counts as a sentence is two answers to one
       question.
+
+      And the label pattern is read through `nominalOpener` rather than a
+      copy of it, because the copy that stood here kept the old exemption,
+      `VERB` alone, after the rule was narrowed to the noun: an interjection,
+      an adverb or a phrase opening its own usage before a comma was refused
+      in this paper and kept by the deck and the placement check.
     */
-    const forms = new Set(formsOf(word).map((f) => f.toLowerCase()));
-    const opener = word.pos === "VERB" ? undefined : (opening: string) => forms.has(opening.toLowerCase());
+    const opener = nominalOpener(word.pos, formsOf(word));
     for (const example of word.examples) {
       const text = example.et.trim().replace(/\s+/g, " ");
       if (text.length < 8 || text.length > 140) continue;
@@ -583,8 +595,10 @@ function buildGapChoice(spec: TaskSpec, ctx: BuildContext): ExamTask {
       [...cloze.text.matchAll(ESTONIAN_WORD)].map((m) => m[0].toLowerCase()),
     );
     const answerLower = cloze.answer.toLowerCase();
+    // Not the answer, and not its twin: `aegasid` is right wherever `aegu` is.
+    const twins = twinsOf(sentence.word, cloze.answer);
     const siblings = forms.filter(
-      (f) => f.toLowerCase() !== answerLower && !inSentence.has(f.toLowerCase()),
+      (f) => !twins.has(f.toLowerCase()) && !inSentence.has(f.toLowerCase()),
     );
     const own = new Set(siblings.map((f) => f.toLowerCase()));
     const strangers = ctx.words
@@ -654,13 +668,27 @@ function buildCaseForm(spec: TaskSpec, ctx: BuildContext): ExamTask {
     if (tasks.length === 0) continue;
     const task = tasks[Math.floor(ctx.random() * tasks.length)] ?? tasks[0]!;
     ctx.spent.add(word.lexemeId);
+    /*
+      Both illatives are right, as they are on every other screen that asks
+      for one: the item carried `targetForm` alone, so a candidate who wrote
+      `toasse` for the illative of `tuba` was marked wrong on a mock state
+      examination. And the word's other forms travel with it, because without
+      them the typo rule reads `toast` for `toas` as one letter out and the
+      grade batch logs the wrong case as a recall.
+    */
+    const right = [task.targetForm, task.alsoRight].filter((f): f is string => Boolean(f));
+    const rivals = [...new Set([
+      ...word.forms.map((f) => f.value),
+      ...tasks.flatMap((t) => [t.targetForm, t.alsoRight]),
+    ])].filter((f): f is string => Boolean(f) && !right.includes(f!));
     items.push({
       ...base(word, `${spec.id}-${items.length}`),
       kind: "case-form",
       caseKey: task.caseKey,
       caseEt: task.caseEt,
       caseQuestion: task.caseQuestion,
-      answer: task.targetForm,
+      answer: right.join(PARTS),
+      rivals,
       provenance: task.provenance,
     });
   }
@@ -703,7 +731,7 @@ function buildGovernment(spec: TaskSpec, ctx: BuildContext): ExamTask {
     items.push({
       ...base(row.word, `${spec.id}-${items.length}`),
       kind: "government",
-      cue: maskExample(row.government.example),
+      cue: governmentCue(row.government),
       options,
       answer: row.government.caseKey,
     });

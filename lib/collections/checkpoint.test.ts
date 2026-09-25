@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildCheckpoint, checkpointPassed, type CheckpointWord } from "./checkpoint";
+import { checkAnswer } from "@/lib/estonian/answer";
 
 const word = (lemma: string, extra: Partial<CheckpointWord> = {}): CheckpointWord => ({
   lemma,
@@ -82,12 +83,32 @@ describe("buildCheckpoint", () => {
 
   it("builds gap questions only from attested sentences", () => {
     const gaps = buildCheckpoint(WORDS, 12, 6).filter((q) => q.kind === "gap");
+    // Some were built, or "only from attested sentences" is true of none.
+    expect(gaps.length).toBeGreaterThan(0);
     for (const gap of gaps) {
       const source = WORDS.find((w) => w.lemma === gap.lemma)!;
       expect(source.examples).toContain(gap.full);
       expect(gap.full).toContain(gap.answer);
       expect(gap.sentence).not.toEqual(gap.full);
     }
+  });
+
+  /*
+    PASSING THIS MOVES A LEARNER UP A LEVEL, SO ANOTHER ENDING IS NOT A SLIP.
+    `toast` is `toas` with one letter added, and without the word's other
+    forms the typo rule read it as "One letter out." and counted it toward the
+    pass. What the screen marks against is what is asserted here.
+  */
+  it("carries the word's other forms, so another case is marked wrong rather than close", () => {
+    const gap = [1, 2, 3, 4, 5, 6, 7, 8]
+      .flatMap((seed) => buildCheckpoint(WORDS, 12, seed))
+      .find((q) => q.lemma === "tuba" && q.kind === "gap");
+    expect(gap).toBeDefined();
+    expect(gap!.answer).toBe("Toas");
+    expect(gap!.rivals).toContain("toast");
+    expect(gap!.rivals).not.toContain("toas");
+    expect(checkAnswer("toast", gap!.answer, "et", gap!.rivals).verdict).toBe("wrong");
+    expect(checkAnswer("toas", gap!.answer, "et", gap!.rivals).verdict).toBe("correct");
   });
 
   /*
@@ -100,12 +121,26 @@ describe("buildCheckpoint", () => {
       examples: ["Oleme ikka sõbrad edasi!"],
       parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
     });
-    const gaps = buildCheckpoint([friend], 1, 1).filter((q) => q.kind === "gap");
+    /*
+      Asked of one word this could not fail. A checkpoint gaps
+      `round(words × GAP_SHARE)` of its questions and one word rounds that to
+      nought, so it never tried to build a gap at all and the loop below ran
+      over nothing: the check passed with the plural rule deleted. Beside words
+      with no sentence the checkpoint has to try every word that has one, and
+      `tuba` is the control that says a gap is really being built, since a
+      version that gapped nothing would pass the plural half as well.
+    */
+    const room = WORDS.find((w) => w.lemma === "tuba")!;
+    const gaps = buildCheckpoint(
+      [friend, room, word("aken"), word("laud"), word("tool"), word("sein")], 6, 1,
+    ).filter((q) => q.kind === "gap");
+    expect(gaps.map((g) => g.lemma)).toEqual(["tuba"]);
     for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
   });
 
   it("falls back to production for a word with no sentence", () => {
     const bare = buildCheckpoint(WORDS.filter((w) => w.examples.length === 0), 8, 3);
+    expect(bare.length).toBeGreaterThan(0);
     expect(bare.every((q) => q.kind === "type")).toBe(true);
     for (const q of bare) expect(q.answer).toBe(q.lemma);
   });

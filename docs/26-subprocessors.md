@@ -3,7 +3,9 @@
 **Controller.** Upthink Solutions OÜ, registry code 16683946, Aiandi tn 8/2-28, Mustamäe linnaosa,
 12915 Tallinn, Harju maakond, Estonia. Contact: privacy@upthink.ee.
 
-**Written 5 September 2026.** Reviewed with `docs/24-dpia.md`.
+**Written 5 September 2026. Revised 22 September 2026**, out of cycle and for the reason the review
+section gives: two recipients had joined the generated list and this page still said neither was on
+it, and a provider had left the chain. Reviewed with `docs/24-dpia.md`.
 
 ## The list is generated, so this page and the app cannot quietly disagree
 
@@ -27,8 +29,9 @@ Two properties of that module are worth stating, because they are what makes the
 
 ## Conditional on configuration
 
-Only two entries below are unconditional. The rest appear when a deployment sets a variable, which
-is why the running app generates its own list rather than inheriting this one.
+One entry below is unconditional. The rest appear when a deployment sets a variable, or in one case
+when the platform sets one about itself, which is why the running app generates its own list rather
+than inheriting this one.
 
 | Recipient | Appears when |
 | --- | --- |
@@ -37,7 +40,9 @@ is why the running app generates its own list rather than inheriting this one.
 | Ekilex | `EKILEX_API_KEY` is set |
 | An AI provider, one entry per provider in the chain | That provider's key is set. With none set the tutor and the page scanner do not exist |
 | Supabase | `NEXT_PUBLIC_SUPABASE_URL` is set. With no Supabase keys the app runs as a single local learner (ADR-013) |
+| Resend | `RESEND_API_KEY` is set. With none, the app sends no letters |
 | An error reporting endpoint | `ERROR_WEBHOOK_URL` is set |
+| Vercel | `VERCEL` is set by the platform itself, so it appears when somebody else owns the machine and not when the operator does |
 
 ## The register
 
@@ -63,12 +68,12 @@ public body deploying this.
 ### The AI provider chain
 
 **Conditional**, on a provider key being set. The chain is resolved by `resolveProviders()` in
-`lib/tutor/provider.ts`, free tiers first, and a recipient entry is generated per distinct provider
-label rather than per model.
+`lib/tutor/provider.ts`: Groq and Google Gemini first, then Anthropic and OpenAI only while the
+day's fallback budget has room. A recipient entry is generated per distinct provider label rather
+than per model.
 
 | Provider | Where established | On the EEA list |
 | --- | --- | --- |
-| OpenRouter | United States | Outside |
 | Groq | United States | Outside |
 | Google Gemini | United States | Outside |
 | Anthropic | United States | Outside |
@@ -79,7 +84,9 @@ the deck, the review history, the tasks and the level checks are never sent to a
 route no longer accepts a level from the client either. The learner's name and email are not sent.
 
 **Where established.** All of them outside the EEA, which is recorded in `PROVIDER_HOME` as a
-judgment about the company rather than about a region setting on somebody's account.
+judgment about the company rather than about a region setting on somebody's account. OpenRouter was
+on this table and is no longer in the chain at all: `PROVIDER_KEY_ENV` in `lib/tutor/provider.ts` is
+the whole list of keys a deployment can hold, and it is the four above.
 
 **Safeguard.** The standard contractual clauses each provider publishes, and nothing else.
 `/privacy` says that, and says protection there is not identical to protection here, and says the
@@ -140,6 +147,39 @@ anywhere, and no audio of a learner is stored (ADR-018).
 
 **Role.** Recipient of a synthesis request.
 
+### Resend, which posts the letters
+
+**Conditional**, on `RESEND_API_KEY`.
+
+**What it processes.** The learner's email address, and whatever a letter says about their own
+course: an evening that is unfinished, a level the scheduler graduated them past, a streak shield
+that was spent, an errand to go and try, or a word a day. `lib/email/` composes and is pure,
+`lib/mailer/` posts, and `EmailSend` records one line per message so the same letter is not sent
+twice.
+
+**Where established.** Resend Inc. is established in the United States. Outside the EEA.
+
+**Safeguard.** Resend's own data processing addendum and the standard contractual clauses it
+publishes. No transfer impact assessment has been carried out, the same open item as the model
+providers.
+
+**Why it is the sharpest entry on this page.** Every other recipient here gets a word, a phrase or a
+photograph with no account attached. This one gets an address and a message addressed to it, which
+is personal data by the plainest reading there is, and it is the only place outside the sign-in
+provider that this deployment's addresses go. It is generated whenever the transport is configured
+rather than whenever a letter is sent, because what a reader is asking is who their address could
+reach rather than who it has reached this week. The way out is in every footer, it is an HMAC over
+the learner and the kind so it works with no session (`EMAIL_TOKEN_SECRET`), and a kind a learner
+has switched off is never sent.
+
+**A second route to the same company.** The README configures Resend as the SMTP server behind
+Supabase's sign-in links. That is set in the Supabase dashboard rather than in this app's
+environment, so the generated list cannot see it: a deployment that sends sign-in links through
+Resend without setting `RESEND_API_KEY` sends addresses to Resend and does not name it on `/privacy`.
+That is a gap and it is stated rather than closed.
+
+**Role.** Processor.
+
 ### The error reporting endpoint
 
 **Conditional**, on `ERROR_WEBHOOK_URL`.
@@ -158,16 +198,45 @@ generated list for that reason.
 
 **Role.** Processor, of the operator's choosing.
 
-### The hosting platform
+### Vercel, the hosting platform
 
-The deployment runs on Vercel, which is established in the United States. It is not on the generated
-recipients list, and that is a gap worth naming rather than hiding: the list is built from the
-services the application code calls, and the platform serving the code is not one of them. What it
-necessarily handles is request metadata, which for a signed-in request includes the session cookie.
-Vercel's own data processing addendum and the standard contractual clauses are the safeguard. An
-operator hosting this elsewhere substitutes their own platform here.
+**Conditional**, on `VERCEL` being `1`, which the platform sets itself. Self-hosted, the operator
+named at the top of `/privacy` is the host and is not listed again.
+
+**What it processes.** Every request while it is answered, and a request log carrying the address it
+came from. For a signed-in request that includes the session cookie.
+
+**Where established.** United States. Outside the EEA. `vercel.json` pins the functions to the
+database's region, which decides where a request is answered and not where the company is.
+
+**Safeguard.** Vercel's own data processing addendum and the standard contractual clauses. An
+operator hosting this elsewhere substitutes their own platform here, and sees no Vercel entry on
+their own privacy page.
 
 **Role.** Processor.
+
+### Google, for sign-in
+
+**Not on the generated list, and that is a gap.** Signing in with Google means the learner's browser
+talks to Google, and where `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set the sign-in page loads Google
+Identity Services from `accounts.google.com` (`GSI_SCRIPT_SRC` in `lib/auth/googleIdentity.ts`),
+which the CSP allows for that one origin (`googleIdentitySrc` in `lib/security/headers.ts`). Loading
+that script sends the visitor's address and browser details to Google on the sign-in page, before
+anybody presses anything. `resolveRecipients` does not name Google in either case.
+
+**What it processes.** The Google account sign-in itself, which is between the learner and Google,
+and the page load described above. The app receives an ID token and passes it to Supabase; no Google
+scope beyond identity is requested.
+
+**Where established.** Not recorded here. Which Google entity answers a request is not readable
+from the app, and this register has not assessed it.
+
+**Role.** Independent controller for the sign-in to the learner's own Google account. Not assessed
+further here.
+
+A deployment that names email domains in `SSO_DOMAINS` sends people on those domains to their own
+organisation's identity provider (`lib/auth/sso.ts`). That provider is the organisation's, chosen
+by it, and it is not on the generated list either.
 
 ## Not on the list, on purpose
 
@@ -177,9 +246,10 @@ operator hosting this elsewhere substitutes their own platform here.
   recipients list did not name it.
 - **No advertising network, no data broker, no enrichment service.** Nothing is sold and nothing is
   used to train a model by us.
-- **No email provider is currently configured for transactional mail.** The README notes that
-  Supabase's built-in sender is for testing and that a deployment telling anybody about itself needs
-  its own. If one is configured, it belongs on this page and on the generated list.
+- **No second email provider.** Resend is the one, above, and it carries both the sign-in links
+  Supabase sends through it and the letters this app composes itself. Supabase's built-in sender is
+  for testing, which the README says, so a deployment that tells anybody about itself is a
+  deployment with `RESEND_API_KEY` set and Resend on its generated list.
 - **Whoever receives a research file.** The output of `/api/research` is anonymous information under
   Recital 26, so its recipient is not a recipient of personal data. `docs/19-research-export.md` is
   what to read before sending one to anybody.

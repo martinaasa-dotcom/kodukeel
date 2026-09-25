@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOptions, maskExample, parseGovernment, readableGovernment } from "./government";
+import { buildOptions, governmentCue, maskExample, parseGovernment, readableGovernment } from "./government";
 import { CASES } from "./cases";
 import type { CaseKey } from "./types";
 
@@ -124,6 +124,20 @@ describe("parseGovernment, on the shape Ekilex writes", () => {
     const g = parseGovernment("mida tegema · kelleks (translative) · millal · kellel (adessive)");
     expect(g?.caseKey).toBe("TRANSLATIVE");
     expect(g?.alsoGoverned).toEqual(["ADESSIVE"]);
+  });
+
+  it("does not read a case out of an ordinary English word that happens to contain one", () => {
+    /*
+      A scan with no word boundary reads a case name out of any English word
+      that contains one as a substring: "excessive" holds "essive" and
+      "relative" holds "elative". Both are ordinary words a gloss or a note
+      can carry, and neither names a case the verb takes. This is the
+      boundary check the test above already exercises against another case
+      name, driven here against plain English prose instead.
+    */
+    const g = parseGovernment("kellele (allative) · an excessive example is not relative");
+    expect(g?.caseKey).toBe("ALLATIVE");
+    expect(g?.alsoGoverned).toEqual([]);
   });
 
   it("leaves the seed shape with one government, because that is all it records", () => {
@@ -283,5 +297,29 @@ describe("the stored string, as a learner should read it", () => {
   it("says nothing about a word with no government", () => {
     expect(readableGovernment(null)).toBe("");
     expect(readableGovernment("")).toBe("");
+  });
+});
+
+describe("governmentCue", () => {
+  it("masks the government's own example, whose complement is last", () => {
+    expect(governmentCue(parseGovernment("partitive — aitan sind (I help you)")!)).toBe("aitan …");
+  });
+
+  it("prints nothing where the entry carries no example of its own", () => {
+    // The shape of every governed verb in the shipped dictionary, whose drill
+    // used to fall back to an attested usage and hide its last word.
+    const g = parseGovernment("keda/mida* (partitive)")!;
+    expect(g.example).toBeNull();
+    expect(governmentCue(g)).toBeNull();
+  });
+
+  it("refuses an experiencer example, whose governed word leads", () => {
+    const g = parseGovernment("allative experiencer — mulle meeldib see (I like it)")!;
+    expect(maskExample(g.example)).toContain("mulle");
+    expect(governmentCue(g)).toBeNull();
+  });
+
+  it("refuses a one-word example, which has no complement to hide", () => {
+    expect(governmentCue({ example: "aitan", experiencer: false })).toBeNull();
   });
 });

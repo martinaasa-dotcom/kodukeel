@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { caseFormChoices } from "./caseChoices";
+import { caseFormChoices, choiceIsRight } from "./caseChoices";
 import { stemsFrom } from "@/lib/estonian/derive";
 
 /** `tuba : toa : tuba`, with the short illative the dictionary records. */
@@ -98,5 +98,26 @@ describe("verbFormChoices", () => {
     expect(slots.get("ei loe")).toBe("IndPrPs_");
     expect(slots.get("loe")).toBe("ImpPrSg2");
     expect(slots.get("lugesin")).toBe("IndIpfSg1");
+  });
+});
+
+describe("choiceIsRight", () => {
+  it("takes either spelling of a back that holds two", () => {
+    expect(choiceIsRight("tuppa", "tuppa / toasse", "et")).toBe(true);
+    expect(choiceIsRight("toasse", "tuppa / toasse", "et")).toBe(true);
+  });
+
+  it("takes an option whatever its case, since the marker folds case", () => {
+    expect(choiceIsRight("eestisse", "Eestisse", "et")).toBe(true);
+  });
+
+  it("refuses another form of the word", () => {
+    expect(choiceIsRight("toas", "tuppa / toasse", "et")).toBe(false);
+    expect(choiceIsRight("toast", "toas", "et")).toBe(false);
+  });
+
+  it("holds a meaning to the whole line, since a meaning is offered whole", () => {
+    expect(choiceIsRight("house, home", "house, home", "en")).toBe(true);
+    expect(choiceIsRight("house", "house, home", "en")).toBe(false);
   });
 });

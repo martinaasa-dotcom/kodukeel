@@ -1,3 +1,4 @@
+import { PARTS } from "@/lib/copy/values";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import type { Metadata } from "next";
 import {
@@ -23,6 +24,7 @@ import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { toneInk } from "@/components/ui";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { Explain } from "@/components/Explain";
+import { SpelledCount, spelledCount } from "@/lib/copy/values";
 
 export const metadata: Metadata = {
   title: { absolute: "Kodukeel. Estonian that finally sticks" },
@@ -133,7 +135,13 @@ function Nav() {
           boxShadow: "var(--shadow-sm)",
         }}
       >
-        <Link href="/welcome" aria-label="Kodukeel, home">
+        {/*
+          44px tall, which is what a thumb is owed and what the 30px wordmark
+          alone did not give it: the floor in app/globals.css reaches a link
+          that is a lone icon, and this one is an icon and a word. The row is
+          already 45px for the button beside it, so the nav does not grow.
+        */}
+        <Link href="/welcome" aria-label="Kodukeel, home" className="flex min-h-11 items-center">
           <Wordmark size={30} />
         </Link>
         {/*
@@ -580,7 +588,7 @@ function Features() {
             tone="accent"
             icon={<BookOpen size={18} aria-hidden />}
             title="Practice that sticks"
-            body={`Look a word up and it becomes a card in one press, every form, audio in twelve voices. Then ${PATH.length} units of them, brought back the day before you would forget, and heard the way people say them: at speed, over café noise, down a phone line.`}
+            body={`Look a word up and it becomes a card in one press, every form, audio in ten voices. Then ${PATH.length} units of them, brought back the day before you would forget, and heard the way people say them: at speed, over café noise, down a phone line.`}
           />
         </Reveal>
         <Reveal>
@@ -698,15 +706,14 @@ const ROWS: readonly { label: string; cells: readonly [Verdict, Verdict, Verdict
  * prose and the rest of this page counts in words. The table is eight rows
  * long, so the list only has to reach as far as the table can.
  */
-const COUNTED = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"] as const;
 const shared = ROWS.filter((row) => row.cells.slice(1).includes("yes")).length;
 /**
  * Capitalized at the source and lowered at the one call site that needs it
  * mid-sentence, rather than the other way about: this is the count of claims
  * in the table and is the kind of thing a second caller wants to open with.
  */
-const CLAIM_COUNT = (COUNTED[ROWS.length] ?? String(ROWS.length)).replace(/^./, (c) => c.toUpperCase());
-const SHARED_ROWS = COUNTED[shared] ?? String(shared);
+const CLAIM_COUNT = SpelledCount(ROWS.length);
+const SHARED_ROWS = spelledCount(shared);
 
 /*
   ONE LINE EACH, AND THE LINE IS WHAT THEY ARE BETTER AT.
@@ -928,7 +935,7 @@ const FAQS = [
       misleads. The shorter answer is main's and is better than what this
       branch had.
     */
-    "It runs A1 to C1, and the parts that stay hard are taught on their own: a card for consonant gradation, a card for the case each verb demands, and a unit and a grammar page for whether an object is whole or partial. There is a level check if you would rather not guess where you are, and a mock state examination paper at A2, B1, B2 and C1.",
+    "It runs A1 to C1, and the parts that stay hard are taught on their own: a card for consonant gradation, a card for the case each verb demands, and a unit and a grammar page for whether an object is whole or partial. There is a level check if you would rather not guess where you are, and a mock state examination paper at A2, B1, B2 and C1. Each paper is assembled fresh from real sentences and marked by rule rather than by a model, apart from the spoken part, which you mark yourself.",
   ],
   [
     "Will it actually get me talking to people?",
@@ -1391,7 +1398,7 @@ function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | nul
       lib/estonian/caseQuestion.ts.
     */
     question: caseQuestionFor(row.spec, subject),
-    singular: shown.length > 0 ? shown.join(" / ") : null,
+    singular: shown.length > 0 ? shown.join(PARTS) : null,
     plural: row.plural ?? null,
     principal: row.spec.principal,
     stored: !row.spec.principal && shown.length > 0 && !regular,

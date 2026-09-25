@@ -75,6 +75,23 @@ export function words(text: string): string[] {
 }
 
 /**
+ * The clauses of a line, as the weakest boundary available without a parser.
+ *
+ * A comma, a semicolon, a colon, and the end of a sentence. The gate's four
+ * clause checks and the turn marker's negation split at the first three only,
+ * so two sentences were one clause to them. `Küsin kohe, mis teil on. Mida te
+ * otsite?` was withheld live because the second sentence's `te` was checked
+ * against the first sentence's `on`; a verbless question borrowed its verb
+ * from the sentence after it; and a learner who wrote `Ei. Mul on valu.` had
+ * the no read into the second sentence and the answer refused. The gate's
+ * shape and government checks already split at the full stop; one boundary
+ * for every reader.
+ */
+export function clausesOf(text: string): string[] {
+  return text.split(/[.!?,;:]+/);
+}
+
+/**
  * Every form of one entry, lowercased.
  *
  * A `PHRASE` has no forms because Ekilex has no headword for it, so what it
@@ -136,6 +153,12 @@ export interface Lexicon {
   readonly spoken: readonly string[];
   /** Lemma to its own forms, so a beat can ask whether its word is present. */
   readonly byLemma: ReadonlyMap<string, ReadonlySet<string>>;
+  /**
+   * Lemma to its part of speech, as the dictionary stores it. A narrowed
+   * question offers two words of one kind (`lib/scenes/choice.ts`), and
+   * "Valu või valutama?" is what it offered while it could not tell.
+   */
+  readonly posOf: ReadonlyMap<string, string>;
   /**
    * `lemma|CASE` to every spelling that counts as that case of that word.
    *
@@ -358,8 +381,10 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
   const infinitives = new Map<string, ReadonlySet<string>>();
   const persons = new Map<string, ReadonlyMap<DerivedVerbCode, string>>();
   const spoken: string[] = [];
+  const posOf = new Map<string, string>();
   for (const entry of entries) {
     spoken.push(spokenForm(entry));
+    if (!posOf.has(entry.lemma)) posOf.set(entry.lemma, entry.pos);
     const own = byLemma.get(entry.lemma) ?? new Set<string>();
     for (const form of formsOf(entry)) {
       forms.add(form);
@@ -406,7 +431,7 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
       if (row.singular && !caseForm.has(key)) caseForm.set(key, row.singular);
     }
   }
-  return { forms, spoken, byLemma, byCase, caseForm, folded, infinitives, persons };
+  return { forms, spoken, byLemma, posOf, byCase, caseForm, folded, infinitives, persons };
 }
 
 /** The eleven derivable cases of one nominal, attested forms leading. */

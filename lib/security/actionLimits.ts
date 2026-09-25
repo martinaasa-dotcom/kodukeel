@@ -36,12 +36,56 @@ export const ACTION_LIMITS = {
    * Deepens a batch of the commonest words into every card type they support.
    *
    * Bounded to `COMMON_BATCH` words a press, so one call is about the size of a
-   * course unit. It is here rather than beside `addCommonWords`, which has no
-   * allowance, because that one writes two cheap cards a word and this one
-   * writes every case a noun has: the same press repeated is the expensive
-   * shape, not the single press.
+   * course unit. It writes every case a noun has where `addCommonWords` writes
+   * two cards a word, so it has its own allowance rather than sharing one.
    */
   deepenCommonWords: { perMinute: 12 },
+  /**
+   * A hundred of the commonest words into the deck, two cards apiece.
+   *
+   * It had no allowance, on the argument that two cards a word is cheap. The
+   * cards are the cheap half. `addPlanToDeck` reads every one of the hundred
+   * words with its sentences, builds their cards and filters them against the
+   * deck under the learner's lock on every press, and the dedupe only decides
+   * what is inserted at the end, so the second press costs what the first did
+   * and writes nothing. There are four lists; twelve a minute is never met.
+   */
+  addCommonWords: { perMinute: 12 },
+  /**
+   * The evening's words into the deck, which is the same bulk build on a day's
+   * words. A press per evening, and a module a learner walks through quickly
+   * is still a handful of presses a minute at most.
+   */
+  startCourseDay: { perMinute: 12 },
+  /**
+   * First run's deck, which is up to `MAX_STARTER_UNITS` units in one build and
+   * a dozen settings written beside it.
+   *
+   * This is the one screen where somebody is waiting and inclined to press
+   * again, so the allowance sits well above a nervous double press and far
+   * under a loop. It is charged before anything is written, so a refusal here
+   * really does mean nothing has changed.
+   */
+  completeOnboarding: { perMinute: 6 },
+  /**
+   * A finished lesson: a card write per word the unit teaches, each under its
+   * own lock, then the grades. A lesson takes minutes to sit, so this is a
+   * ceiling nobody sitting one can reach.
+   */
+  completeLesson: { perMinute: 12 },
+  /**
+   * A confirmed page into the deck, a card write per word on it. The same
+   * allowance as `saveScan`, which is the press before it on the same screen.
+   */
+  addScanToDeck: { perMinute: 15 },
+  /**
+   * Finishing a level check, which appends an `Assessment` row.
+   *
+   * That table is append-only like `Review`, so a loop of calls is a history
+   * nobody can repair rather than a cost that passes. The check takes a quarter
+   * of an hour, so six a minute is a double press with room to spare.
+   */
+  recordAssessment: { perMinute: 6 },
   /** Writes a lexeme and its principal parts into the shared dictionary. */
   editDictionary: { perMinute: 30 },
   /** Resolves a confirmed page against the dictionary and builds cards. */
@@ -58,6 +102,17 @@ export const ACTION_LIMITS = {
   assignUnit: { perMinute: 10 },
   /** Writes a task per member of a class. */
   assignHomework: { perMinute: 10 },
+  /**
+   * Handing in a mock paper, which rebuilds it on the server to mark it.
+   *
+   * The rebuild is the cost: the level's eligible ids, five hundred entries
+   * with their forms and sentences, the word-order reads and the learner's own
+   * cards, because the client never sends a mark (ADR-022). A seed already
+   * handed in writes nothing new, but it still pays for the rebuild, and a seed
+   * the caller invents is a new sitting. A real paper takes the best part of
+   * two hours, so six a minute is a double press with room to spare.
+   */
+  submitExam: { perMinute: 6 },
   /** Parses and writes a whole backup: the most expensive call in the app. */
   restoreBackup: { perMinute: 4 },
   /**
@@ -123,6 +178,18 @@ export const ACTION_LIMITS = {
    * far under anything a loop would reach.
    */
   sceneHelp: { perMinute: 30 },
+  /**
+   * "Too complicated", which is one small write per press and is here for what
+   * it votes on rather than for what it costs.
+   *
+   * A deferral is also a vote: enough learners putting one word aside moves it
+   * a band later for the whole deployment (`lib/progress/hard.ts`). A learner
+   * presses this a few times an evening, so twenty a minute is never met by
+   * anybody using the app, and a script sweeping the dictionary is slowed to a
+   * crawl rather than let through. The count itself is the other half: only a
+   * learner who has graded a card gets a vote at all.
+   */
+  putAside: { perMinute: 20 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;

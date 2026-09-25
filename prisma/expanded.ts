@@ -58,6 +58,26 @@ interface ExpandedEntry {
    */
   semanticTypes: string | null;
   /**
+   * THE INSTITUTE'S OWN RUSSIAN AND UKRAINIAN, FOR THE OTHER FOUR FIFTHS.
+   *
+   * Here for the reason `semanticTypes` above is here: two writers cover
+   * different halves of the dictionary, and a column added to the seed alone
+   * is a column written for the 1,551 course words and for none of the 5,363
+   * the expansion brings. The course harvest reads these out of the response
+   * it was already fetching, so a learner who looked a word up inside the
+   * course was answered in their own language and one who stepped outside it
+   * was not, with nothing on the screen saying why.
+   *
+   * `scripts/harvest-translations.ts` is what fills them, off
+   * `equivalentsFrom` in `lib/ekilex/client.ts`, which is the one reading of
+   * that field for the live lookup, the course harvest and that script alike.
+   * No model may reach these columns: they are the one place in this schema
+   * holding a language the person reviewing this code need not read, which is
+   * what makes ADR-005 stronger here rather than milder.
+   */
+  translationRu: string | null;
+  translationUk: string | null;
+  /**
    * Ekilex's own Estonian explanation of the sense this entry carries.
    *
    * Only the entries a homonym pin re-read from Ekilex have one, which is why
@@ -211,6 +231,41 @@ export async function applyGlossCorrections(prisma: PrismaClient): Promise<numbe
 }
 
 /**
+ * Gives an already-seeded expansion row the Russian and Ukrainian this build
+ * carries.
+ *
+ * The course harvest reseeds these two columns (`prisma/columns.ts` marks them
+ * `reseeded`), and the expansion does not: it loads with `ON CONFLICT DO
+ * NOTHING`, so a deployment seeded before the expansion carried equivalents
+ * would keep a null in both for every word it holds, for ever, while a fresh
+ * one had them. This fills them where the row has neither and nobody has
+ * edited it, which is `applyGlossCorrections`' own `editedBy IS NULL` rule, and
+ * writes nothing else. Idempotent, since a filled row no longer has two nulls.
+ */
+export async function applyExpandedEquivalents(prisma: PrismaClient): Promise<number> {
+  const entries = readExpanded().filter((e) => e.translationRu || e.translationUk);
+  if (entries.length === 0) return 0;
+
+  let filled = 0;
+  for (const batch of chunk(entries, 500)) {
+    const rows = batch.map(
+      (e) => Prisma.sql`(${e.lemma}, ${e.pos}, ${e.translationRu ?? null}::text, ${e.translationUk ?? null}::text)`,
+    );
+    filled += await prisma.$executeRaw`
+      UPDATE "Lexeme" AS l
+      SET "translationRu" = c.ru, "translationUk" = c.uk, "updatedAt" = NOW()
+      FROM (VALUES ${Prisma.join(rows)}) AS c(lemma, pos, ru, uk)
+      WHERE l.lemma = c.lemma
+        AND l.pos = c.pos
+        AND l."translationRu" IS NULL
+        AND l."translationUk" IS NULL
+        AND l."editedBy" IS NULL
+    `;
+  }
+  return filled;
+}
+
+/**
  * Moves an already-seeded row onto the label this build corrected.
  *
  * `pos` is half of `Lexeme`'s conflict key, so a corrected label stops matching
@@ -294,6 +349,7 @@ export async function writeExpanded(
         ${crypto.randomUUID()}, ${e.lemma}, ${e.pos}, ${e.translation},
         ${e.cefr}::text, ${e.gradation}, ${e.gradationNote}::text,
         ${e.government}::text, ${e.notes}::text, ${e.semanticTypes ?? null}::text,
+        ${e.translationRu ?? null}::text, ${e.translationUk ?? null}::text,
         ${e.definition ?? null}::text,
         ${JSON.stringify(withEnglish(e.examples))}::text,
         'EKILEX', ${e.ekilexWordId}, NOW(), NOW()
@@ -305,7 +361,8 @@ export async function writeExpanded(
     const inserted = await prisma.$queryRaw<{ id: string; lemma: string; pos: string }[]>`
       INSERT INTO "Lexeme" (
         id, lemma, pos, translation, cefr, gradation, "gradationNote",
-        government, notes, "semanticTypes", definition, examples, provenance, "ekilexWordId", "fetchedAt", "updatedAt"
+        government, notes, "semanticTypes", "translationRu", "translationUk",
+        definition, examples, provenance, "ekilexWordId", "fetchedAt", "updatedAt"
       )
       VALUES ${Prisma.join(values)}
       ON CONFLICT (lemma, pos) DO NOTHING
@@ -327,4 +384,94 @@ export async function writeExpanded(
   }
 
   return { added, forms: formCount };
+}
+
+const NOTES_CORRECTIONS = "prisma/data/notes-corrections.json";
+
+/**
+ * Notes that held the senses of another word on the same Wiktionary page.
+ *
+ * The builder took the next three senses on the page whatever they belonged
+ * to, so a page holding two words gave each the other's meanings: `tee` the
+ * road kept "tea", `palk` the salary "log, beam", `sina` the pronoun
+ * "blueness". `furtherSenses` keeps the first sense's own etymology now and
+ * `expanded.json` was corrected with it, 117 entries. This file is that
+ * correction written down, because the expansion inserts with ON CONFLICT DO
+ * NOTHING and a deployment seeded before it keeps the old notes otherwise.
+ */
+interface NotesCorrection {
+  lemma: string;
+  pos: string;
+  notesFrom: string;
+  notesTo: string | null;
+}
+
+export function readNotesCorrections(): NotesCorrection[] {
+  if (!existsSync(NOTES_CORRECTIONS)) return [];
+  try {
+    const parsed: unknown = JSON.parse(readFileSync(NOTES_CORRECTIONS, "utf8"));
+    if (!Array.isArray(parsed)) return [];
+    return (parsed as NotesCorrection[]).filter(
+      (c) => c?.lemma && c.pos && c.notesFrom && c.notesFrom !== c.notesTo,
+    );
+  } catch {
+    console.warn(`  ${NOTES_CORRECTIONS} could not be read; leaving existing notes alone.`);
+    return [];
+  }
+}
+
+/**
+ * Applies them where the row still holds exactly the note the file shipped
+ * and nobody has edited it by hand, which is `applyGlossCorrections`'s rule
+ * and for its reason: a note somebody wrote is theirs.
+ */
+export async function applyNotesCorrections(prisma: PrismaClient): Promise<number> {
+  const corrections = readNotesCorrections();
+  if (corrections.length === 0) return 0;
+  let moved = 0;
+  for (const batch of chunk(corrections, 500)) {
+    const rows = batch.map((c) => Prisma.sql`(${c.lemma}, ${c.pos}, ${c.notesFrom}, ${c.notesTo}::text)`);
+    moved += await prisma.$executeRaw`
+      UPDATE "Lexeme" AS l
+      SET notes = c.to_notes, "updatedAt" = NOW()
+      FROM (VALUES ${Prisma.join(rows)}) AS c(lemma, pos, from_notes, to_notes)
+      WHERE l.lemma = c.lemma
+        AND l.pos = c.pos
+        AND l.notes = c.from_notes
+        AND l."editedBy" IS NULL
+    `;
+  }
+  return moved;
+}
+
+const PINS = "prisma/data/homonym-pins.json";
+
+/**
+ * Clears the notes a homonym pin carried over from the other word.
+ *
+ * A pinned entry is one whose Wiktionary page holds more than one word, and
+ * its notes were that page's other senses: `kurk` pinned to the throat said
+ * "cucumber", `maks` the liver "tax, payment", `vaht` the foam "guard", which
+ * the entry prints as further meanings of the word it is about. The file no
+ * longer ships them, and the expansion inserts with ON CONFLICT DO NOTHING, so
+ * a deployment seeded before that keeps them until this runs. On both paths
+ * for `clearDuplicatedNotes`'s reason.
+ *
+ * Exactly the rows the file made: the pinned lemma and part of speech, on the
+ * Ekilex word it is pinned to, and nobody's hand edit, since a note somebody
+ * wrote in is theirs to keep.
+ */
+export async function clearPinnedNotes(prisma: PrismaClient): Promise<void> {
+  const pins = JSON.parse(readFileSync(PINS, "utf8")) as Record<string, number>;
+  let cleared = 0;
+  for (const [key, wordId] of Object.entries(pins)) {
+    const [lemma, pos] = key.split("|");
+    if (!lemma || !pos) continue;
+    cleared += await prisma.$executeRaw`
+      UPDATE "Lexeme" SET notes = NULL
+      WHERE lemma = ${lemma} AND pos = ${pos} AND "ekilexWordId" = ${wordId}
+        AND "editedBy" IS NULL AND notes IS NOT NULL
+    `;
+  }
+  if (cleared > 0) console.log(`Cleared ${cleared} notes a homonym pin carried over from the other word.`);
 }

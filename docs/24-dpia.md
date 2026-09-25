@@ -9,7 +9,9 @@ kodukeel.ee. The identity above is what `lib/legal/operator.ts` resolves for tha
 privacy notice at `/privacy` renders it at request time, so this document and the running app name
 the same controller or neither does.
 
-**Assessment date.** 5 September 2026. **Version 1.**
+**Assessment date.** 5 September 2026. **Version 1.1, 22 September 2026**, revised out of cycle for
+two of the triggers at §7: owner-scoped models had been added that §2.2 did not inventory, and the
+letters feature had put a new recipient on the generated list and a new purpose in §1.3.
 
 **Why this exists.** Article 35 requires an assessment where processing is likely to result in a
 high risk. On the face of it this deployment is under that line: no special category data, no
@@ -58,12 +60,16 @@ not consent, and the service really does need most of this.
 | Show a learner their own deck rather than somebody else's | Email address, user id | 6(1)(b), contract | Without an identity there is no account |
 | Schedule reviews | The append-only review log: grade, moment, duration, which facet was asked | 6(1)(b), contract | The scheduler is the product. An app that forgets how well you know each word is not the app anybody signed up for |
 | Keep tasks, calendar entries, starred words, settings | What the learner typed | 6(1)(b), contract | Each is a feature the learner asked for by using it |
+| Keep named decks, words put aside, and which steps of the course module are ticked | `Deck`, `DeckWord`, `Deferral`, `CourseStep` | 6(1)(b), contract | Each is a press the learner made. A put-aside word is also counted across learners to decide whether a word is taught one band later (`lib/progress/hard.ts`), which reads counts of people and never shows anybody's row |
+| Send the letters a learner can switch off | Email address, and `EmailSend`: which kind, which day, the provider's message id | 6(1)(b), contract | Each kind is switched off from a link in every footer (`lib/email/unsubscribe.ts`), and the daily word is off unless asked for (`DEFAULT_OFF` in `lib/email/letter.ts`). The row is the frequency cap and holds no subject and no body |
+| Rate limit the routes the spending ledger does not price | `RateLimit`: a SHA-256 digest of the caller and endpoint, a window, a count | 6(1)(f), legitimate interest | Speech, the share card, the export and the restore otherwise have no limit shared across instances. §2.1 says what the digest is and is not |
 | Keep level checks and mock exam papers | The sitting, the marked paper, the composition | 6(1)(b), contract | A measurement that cannot be recomputed from the review log, and the reason for sitting one is to compare it with the next |
 | Answer a tutor question, read a photographed page | The message or image, sent to the configured AI provider | 6(1)(b), contract | The learner pressed the button that sends it. Both features are avoidable and using neither means nothing of theirs leaves |
 | Cap AI spending | `UsageEvent`: model, token counts, estimated cost, day | 6(1)(f), legitimate interest | Sign-up is open and the tutor runs on a paid key. A cap that does not count is not a cap. Balanced in §3.3 |
 | Log errors | Message, location, user id, never the email | 6(1)(f), legitimate interest | An app nobody can debug stays broken. Redacted by `redact` in `lib/observability/report.ts` before it is written |
 | Review a report of something wrong | The category, the screen, what the app said, the proposal, anything written | 6(1)(f), legitimate interest, and 6(1)(b) for the reply | A shared dictionary nobody can correct goes wrong quietly. The learner initiated the report |
 | Show a teacher or an employer how a group is doing | The narrow roster described in §3.5 | 6(1)(f), legitimate interest of the school or employer, who is a separate controller for that group | The learner joins with a code after reading what it shares (`app/(app)/class`) |
+| Write to a learner who asked to be written to | Their email address, and what a letter says about their own course, sent through the configured mail provider | 6(1)(b), contract, for the letters about the course somebody signed up for; 6(1)(a), consent, for the one that is not part of it | The course letters are about the evenings they chose and every one carries a way out of it in its footer. `wordday` is not part of the course, so it is the one kind a learner has to switch on: `DEFAULT_OFF` in `lib/email/letter.ts`, stored as a request rather than read out of an absence |
 | Retention statistics | Counts derived from the review log | 6(1)(f), legitimate interest | Totals only, cohorts under five reported as a size with no percentage (`app/api/metrics/route.ts`) |
 | Research corpus | Counts derived from the review log | 6(1)(f) up to the point the output exists, and nothing after it | The published file is not personal data. §3.4 and `docs/19-research-export.md` |
 
@@ -104,13 +110,18 @@ and `lib/exam/score.ts` opens no socket. `/privacy` states this under its own he
 Model by model from `prisma/schema.prisma`. "Export" means the file `/api/export` produces.
 "Erasure" means `deleteMyAccount`, which has no exclusions at all.
 
-### 2.1 Reference data, owned by nobody
+### 2.1 Reference data and counters, owned by nobody
 
 | Model | Personal data | Retention | Export | Erasure |
 | --- | --- | --- | --- | --- |
 | `Lexeme` | The dictionary. Shared by everybody. `editedBy` holds a user id where somebody corrected an entry by hand | Indefinite. It is the app's content | The subset the learner's own rows point at, so a restore works | Not deleted. Attribution in `editedBy` is cleared, so a correction stops being attributed |
 | `Form` | None. Inflected forms of dictionary words | Indefinite | With their lexeme | Not deleted |
 | `KnownWord` | None. 154,995 Estonian headwords, one column | Indefinite | No | No |
+| `RateLimit` | A SHA-256 digest of a caller and an endpoint, a window start, a count. The caller is a user id where one is signed in and an IP address otherwise. The digest is unsalted (`bucketDigest` in `lib/security/rateLimit.ts`), so it does not hold the id or the address, and anybody holding a candidate id or address can confirm a match by hashing it; an IPv4 address can be recovered by trying them all | Until its window has passed, then deleted by the next prune, which runs at most once a minute per instance while a limited route is being called (`lib/usage/sharedLimit.ts`). No scheduled job | No | Not by account. It holds no owner id to delete by, and the window is at most an hour |
+
+`RateLimit` is here because it carries no `ownerId`, not because it holds nothing about a person: a
+digest of a user id is pseudonymous data rather than anonymous data, since the operator holds the ids
+it was made from.
 
 Keeping the dictionary through an erasure is a decision rather than an oversight: other learners
 have cards built on those entries, and there is nothing personal in an Estonian word once the
@@ -138,9 +149,17 @@ are deleted on erasure.
 | `SceneRun` | A finished conversation: persona, role card, every turn. Fiction about a card, not facts about the learner | Until the account is deleted | Yes | Yes |
 | `SceneGap` | Words a conversation needed and they did not have | Until the account is deleted | Yes | Yes |
 | `Encounter` | One of four words about whether they spoke Estonian to anybody yesterday and how it went, and the errand if there was one. Not where, not to whom, not what was said | Until the account is deleted | Yes | Yes |
+| `Deck`, `DeckWord` | Named shelves they made and which words are filed on them. A label over `Card` rather than a copy of it | Until removed by them, or with the account | Yes | Yes |
+| `CourseStep` | Which steps of which evening of the planned module they ticked. The programme, the day and the step, never an answer | Until the account is deleted | Yes | Yes |
+| `Deferral` | Which words they said were too complicated, when each comes back, and how often they have said it. One row per word | Until the account is deleted | Yes | Yes |
+| `EmailSend` | One line per letter sent: the kind and the moment. Never a subject, never a body, and nothing about whether it was opened, because there is no tracking pixel | Until the account is deleted | Yes | Yes |
 | `Suggestion` | A report of something wrong: category, screen, what the app said, their proposal, their note, and a reviewer's decision | Until the account is deleted | Yes | Yes |
-| `Classroom` | A class or workplace group they run: name, join code | Until archived or deleted, or with the owner's account | Yes | Yes |
-| `ClassroomMember` | Which group they joined, when, and the display name they chose for it | Until they leave, or with the account | Yes | Yes |
+| `Classroom` | A class or workplace group they run: name, join code, whether it is archived | Until the owner deletes their account. Archiving (`archiveClassroom` in `app/actions.ts`) stops the code working and keeps the group and its roster; there is no action that deletes a group on its own | Yes | Yes |
+| `ClassroomMember` | Which group they joined, when, and the display name they chose for it | Until they leave, or with their account, or with the group when its owner deletes their account (the relation cascades) | Yes | Yes |
+| `Deck`, `DeckWord` | Names they gave to parts of their deck, and which words are filed under each. A label over `Card`, never a copy of it | Until they delete the deck or remove the word, or with the account | Yes | Yes |
+| `Deferral` | A word they said was too complicated: the word as it stood, its band and their level then, when it comes back, how many times they said it, the screen they were on | Until they bring the word back, which deletes the row (`undoDeferral` in `lib/progress/deferrals.ts`), or with the account. A wait that ends by itself leaves the row, stamped `wokenAt` | Yes | Yes |
+| `CourseStep` | Which steps of the course module they ticked, and when. Append-only | Until the account is deleted | Yes | Yes |
+| `EmailSend` | Append-only. One row per letter sent to them: the kind, their day, the moment, the provider's message id. Never the subject or the body, and nothing about whether it was opened | Until the account is deleted | Yes | Yes |
 | `UsageEvent` | Append-only spending ledger: which model, token counts, estimated cost, the day | The running year. See §2.3 | **No** | Yes |
 
 ### 2.3 The one export exclusion, and why
@@ -311,7 +330,7 @@ relies on is the narrowness of what is collected plus deletion on request. It is
 
 ## 4. Risks to data subjects
 
-Fifteen risks. Likelihood and severity are before mitigation, and each names the code that carries
+Sixteen risks. Likelihood and severity are before mitigation, and each names the code that carries
 the mitigation. Residual is after.
 
 ### R1. One learner reads another learner's deck or history
@@ -533,6 +552,29 @@ shared id with administrator rights, behind a sign-in screen reading as "set up 
 variable that is missing.
 
 **Residual: low.**
+
+### R16. A letter reaches somebody who did not want it, or somebody else
+
+**Likelihood before: medium. Severity: medium.** A letter is the app writing to somebody who is not
+looking at it, at an address a mail provider outside the EEA holds, and it says something about how
+their own studying is going. Getting that wrong is the kind of thing people do not report, they just
+stop trusting the sender.
+
+**Mitigation.** `EMAIL_KINDS` in `lib/email/letter.ts` is a closed list, for the reason `CARD_SOURCES`
+is one: a learner switches off a *kind*, so a letter that is not on the list is a letter nobody has a
+way to stop. The way out is in every footer, it is an HMAC over the learner and the kind
+(`EMAIL_TOKEN_SECRET`) so it works with no session, and `List-Unsubscribe-Post` lets a mail client
+draw its own button. `EmailSend` is append-only and the row is written *before* the send, so a
+process that dies between the provider accepting and the write landing costs one letter rather than
+sending twice. The one kind that is not part of the course is off until it is asked for
+(`DEFAULT_OFF`), stored as a request rather than read out of an absence. No letter carries an image
+and nothing counts who opened one: `EmailSend` may not grow an `openedAt` and an invariant fails on
+either. The one letter about other people carries nobody's name, which is stricter than the class
+screen it is a copy of, and that is asserted in both directions.
+
+**Residual: low**, plus the transfer, which is R5's: the address goes to Resend in the United States
+under its standard contractual clauses, and it is named on the generated recipients list whenever
+the transport is configured.
 
 ### Risks recorded and not separately mitigated
 

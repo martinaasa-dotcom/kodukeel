@@ -4,17 +4,15 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setRoundPace } from "@/app/actions";
 import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
-import { ROUND_PACES, roundLength, secondsFor, type RoundPace } from "@/lib/ux/roundClock";
-
-/** The Case Sprint's own base, which is the one most people meet first. */
-const SPRINT_BASE_S = 60;
+import { ROUND_PACES, roundLength, secondsFor, SPRINT_SECONDS, type RoundPace } from "@/lib/ux/roundClock";
 
 /**
  * How long a timed round runs.
  *
  * Each option says what it does to the sprint as well as what it is, because
  * "five times as long" is a ratio and "five minutes" is the thing somebody is
- * choosing. The quest stretches from its own two minutes by the same figure.
+ * choosing. The quest stretches from its own two minutes by the same figure,
+ * and Target from its eight seconds a question.
  */
 export function RoundPacePanel({ current }: { current: RoundPace }) {
   const [value, setValue] = useState(current);
@@ -24,7 +22,8 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
   const pick = (next: RoundPace) => {
     setValue(next);
     start(async () => {
-      await setRoundPace(next);
+      const landed = await setRoundPace(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
@@ -39,7 +38,7 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
           selected={value === option.id}
           onSelect={() => pick(option.id)}
           title={option.label}
-          detail={`${roundLength(secondsFor(SPRINT_BASE_S, option.id))} in the sprint. ${option.detail}`}
+          detail={`${roundLength(secondsFor(SPRINT_SECONDS, option.id))} in the sprint. ${option.detail}`}
         />
       ))}
     </ChoiceGroup>

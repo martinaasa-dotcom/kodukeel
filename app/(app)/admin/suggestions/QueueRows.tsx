@@ -6,10 +6,12 @@ import { Check, ChevronDown, ChevronRight, TriangleAlert, X } from "lucide-react
 import { reviewSuggestion } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { Card, Chip, Empty } from "@/components/ui";
-import { formatDateTime } from "@/lib/time/clock";
+import { DATE_TIME_SHAPE } from "@/lib/time/clock";
+import { LocalDate, stableDate } from "@/components/LocalDate";
 import { SUGGESTION_CATEGORIES, summarisePatch } from "@/lib/suggestions/model";
 import type { SuggestionStatus } from "@/lib/suggestions/model";
 import type { QueueRow } from "@/lib/suggestions/queue";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * One decision per line, and the decision is the whole line.
@@ -100,9 +102,9 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
   const act = (decision: "ACCEPT" | "DECLINE", apply: boolean) => {
     setError(null);
     start(async () => {
-      const result = await reviewSuggestion({ id: row.id, decision, apply, note });
-      if (!result.ok) {
-        setError(result.error);
+      const result = await reviewSuggestion({ id: row.id, decision, apply, note }).catch(() => null);
+      if (!result || !result.ok) {
+        setError(result ? result.error : NOT_REACHED);
         return;
       }
       const many = result.resolved === 1 ? "1 report" : `${result.resolved} reports`;
@@ -131,7 +133,7 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
             )}
           </div>
           <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            {row.context ?? "somewhere in the app"} · {formatDateTime(new Date(row.createdAt))}
+            {row.context ?? "somewhere in the app"} · <LocalDate iso={new Date(row.createdAt).toISOString()} fallback={stableDate(new Date(row.createdAt), DATE_TIME_SHAPE)} options={DATE_TIME_SHAPE} />
           </p>
         </div>
 

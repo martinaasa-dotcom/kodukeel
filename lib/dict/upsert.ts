@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { classifyGradation, classifyVerbGradation, gradates } from "@/lib/estonian/gradation";
 import { PRINCIPAL_FORM_TYPES, isPrincipalFormType } from "@/lib/estonian/types";
+import { isUniqueViolation, replaceForms } from "./replaceForms";
 
 /**
  * The one write path into the shared dictionary, for a change a person made.
@@ -42,6 +43,25 @@ export interface LexemeWriteResult {
 }
 
 export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeWriteResult> {
+  try {
+    return await writeOnce(input);
+  } catch (error) {
+    /*
+      TWO PEOPLE ADDING ONE NEW WORD AT ONCE BOTH FIND NO ENTRY, AND ONE LOSES.
+
+      `existing` is read and the create follows it, so two adds of the same
+      lemma inside that gap both reach the create and the second is refused on
+      `(lemma, pos)`. That was an error page for somebody who had done nothing
+      wrong. Asked again, the loser finds the entry the winner made and takes
+      the correction path, which is exactly what it would have done arriving a
+      moment later. Once, because a second collision is not this race.
+    */
+    if (!input.id && isUniqueViolation(error)) return writeOnce(input);
+    throw error;
+  }
+}
+
+async function writeOnce(input: LexemeWrite): Promise<LexemeWriteResult> {
   const { lemma, translation, pos } = input;
 
   const forms = Object.entries(input.forms)
@@ -103,8 +123,19 @@ export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeW
       what it did not. The parameter is gone rather than guarded, because a
       parameter nobody passes is not a feature, it is the bug's only door.
     */
-    gradation: gradation.type,
-    gradationNote: gradation.note ?? null,
+    /*
+      A WRITE THAT SUPPLIED NO FORMS HAS NO OPINION ABOUT THEM, which is the
+      rule `cefr` and `government` follow above, one field over. The only
+      caller that does this is an accepted missing-word report (`SuggestFix`
+      sends `forms: {}`), and where the word has arrived since, through a live
+      Ekilex lookup after the queue loaded, reading "none supplied" as "none
+      exist" deleted every principal part of the entry and reset its gradation
+      for everybody. The hand-edit form always sends the citation form, so it
+      never reaches this branch.
+    */
+    ...(existing && !forms.length
+      ? {}
+      : { gradation: gradation.type, gradationNote: gradation.note ?? null }),
     // An entry Ekilex supplied stays marked as Ekilex's after a correction —
     // relabelling it USER would quietly discard where the forms came from.
     ...(existing && (existing.provenance === "SEED" || existing.provenance === "EKILEX")
@@ -121,11 +152,11 @@ export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeW
   // Replace only the principal parts. Deleting every row for the lexeme threw
   // away the forms retrieved from Ekilex — the one thing on an entry that cannot
   // be reconstructed — whenever anybody corrected a typo.
-  await prisma.form.deleteMany({
-    where: { lexemeId: lexeme.id, formType: { in: [...PRINCIPAL_FORM_TYPES] } },
-  });
+  // Under the entry's own row, so two corrections at once cannot leave it with
+  // both genitives. See lib/dict/replaceForms.ts. Only where the write supplied
+  // forms: a write that supplied none has no opinion about them (see above).
   if (forms.length) {
-    await prisma.form.createMany({ data: forms.map((f) => ({ ...f, lexemeId: lexeme.id })) });
+    await replaceForms(lexeme.id, forms, { formType: { in: [...PRINCIPAL_FORM_TYPES] } });
   }
 
   return {

@@ -161,6 +161,15 @@ export interface Reservation {
   kind: UsageKind;
   /** Micro-dollars already charged for this call, awaiting settlement. */
   micros: number;
+  /**
+   * The UTC day the call was booked on, which is the day its settlement or
+   * release is filed under. A call booked at 23:59 and answered at 00:01 is
+   * one call on one day: filed under the day the correction was written, the
+   * booked day kept its CALL and its reserve for ever and the next day carried
+   * a RELEASE and a negative spend it never booked, which is a free call and
+   * a slice of budget nobody gave back.
+   */
+  day: string;
 }
 
 /**
@@ -242,11 +251,11 @@ export async function snapshotUsage(
       coalesce(sum("costMicros"), 0) AS "globalMicros",
       coalesce(sum("costMicros") FILTER (WHERE "kind" = ${kind}), 0) AS "globalKindMicros",
       /*
-        Fallback traffic: Anthropic answering for a purpose whose own provider
-        is Groq. TUTOR is excluded because Anthropic is her primary and her
-        spend is already bounded by her own slice; counting it here would make a
-        busy day of Anu look like a Groq outage and switch off everybody else's
-        last resort.
+        Fallback traffic: Anthropic answering for a purpose whose own links,
+        Gemini and then Groq, have failed. TUTOR is excluded because her chain
+        takes no fallback, so none of her spend is fallback spend, and her own
+        slice already bounds it; counting it here would let a busy day of Anu
+        look like an outage and switch off everybody else's last resort.
 
         A reservation carries the provider "pending" and so counts for nothing
         until it settles, which is the right answer rather than a gap: until the
@@ -382,7 +391,7 @@ export async function authoriseCall(
       return {
         ...decision,
         fallbackAllowed,
-        reservation: { id: row.id, ownerId, kind, micros },
+        reservation: { id: row.id, ownerId, kind, micros, day: utcDay(now) },
       };
     });
   } catch (error) {
@@ -471,7 +480,7 @@ export async function recordUsage(input: {
         // allowed to be: a reservation held against a call that cost nothing
         // would otherwise ration a free deployment against an imaginary bill.
         costMicros: input.reservation ? actual - input.reservation.micros : actual,
-        day: utcDay(now),
+        day: input.reservation?.day ?? utcDay(now),
       },
     });
   } catch (error) {
@@ -514,7 +523,8 @@ export async function releaseReservation(
         // Minus the whole reserve, so the pair comes to nothing spent, and
         // marked `RELEASE` so the counts can leave the pair out as well.
         costMicros: -reservation.micros,
-        day: utcDay(now),
+        day: reservation.day,
+        createdAt: now,
       },
     });
   } catch (error) {

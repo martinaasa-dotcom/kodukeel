@@ -110,7 +110,15 @@ export async function revealAnswer(page, { timeout = 8600 } = {}) {
 export async function retypeMiss(page, { settle = 400 } = {}) {
   const box = page.locator("main").getByLabel(/Type the (answer|word) again/);
   if (!(await box.count())) return false;
-  const answer = (await page.locator("main [data-answer]").first().textContent())?.trim();
+  /*
+    One answer, not the whole back. A card that takes two spellings prints them
+    as "august / lõikuskuu", which is what the screen shows and what the
+    marker splits, and nobody types both with the slash between: the retype
+    refused it, the card never let go, and three suites reported the app as
+    unable to grade offline whenever the deck happened to have such a card due.
+  */
+  const shown = (await page.locator("main [data-answer]").first().textContent())?.trim();
+  const answer = shown?.split(" / ")[0]?.trim();
   if (!answer) return false;
   await box.first().fill(answer);
   await page.keyboard.press("Enter");
