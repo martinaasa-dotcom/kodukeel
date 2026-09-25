@@ -19,21 +19,25 @@ import {
   LEVELS, checkpointFor, levelIndex, unitById, wordsAtLevel,
 } from "@/lib/collections/syllabus";
 import { checkpointPassed } from "@/lib/collections/checkpoint";
-import { generateCode, isValidCode, normaliseCode } from "@/lib/classroom/code";
+import { isValidCode, normaliseCode } from "@/lib/classroom/code";
+import { createWithFreshCode } from "@/lib/classroom/create";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { mergeExamples, parseExamples, serialiseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
-import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
+import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
+import { restoredEntry } from "@/lib/dict/restoredEntry";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
+import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
 import {
-  SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
+  PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory,
 } from "@/lib/suggestions/model";
+import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
 import { NEEDS_TRANSLATION } from "@/lib/copy/values";
 import { resolveOneWord, vouchScanItems } from "@/lib/dict/resolveScan";
@@ -44,12 +48,13 @@ import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { isTimeZone } from "@/lib/time/day";
+import { canonicalZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 import { isEmailKind } from "@/lib/email/letter";
-import { emailPrefsFrom, emailOptInTo, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
+import { switchOff, switchOn } from "@/lib/email/prefs";
+import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { parseReminderTime } from "@/lib/time/reminder";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
@@ -237,7 +242,7 @@ export async function deleteMyDeck(deckId: string) {
 async function addCardsFor(
   owner: string, lexemeId: string, types: CardType[], source: string,
 ) {
-  const [lexeme, borrowed, reach] = await Promise.all([
+  const [lexeme, borrowed, reach, alsoAccepted] = await Promise.all([
     prisma.lexeme.findUnique({
       where: { id: lexemeId },
       include: { forms: true },
@@ -248,6 +253,16 @@ async function addCardsFor(
     // And how a beginner's word orders its own, which is the same kind of
     // fact and cached the same way. See lib/dict/plainness.ts.
     sentenceReach(),
+    /*
+      And which other words answer the same prompt, the fact `lib/srs/deck.ts`
+      reads for a unit. Without it a production card built one word at a time
+      took its own word alone: `pere` added from the dictionary got a back
+      of `pere` where a unit gives it `pere / perekond`, so a learner who wrote
+      `perekond` for "family" was marked wrong on a card that could not tell
+      them apart. The back reads `pere / perekond` now, read off a card
+      added in a browser; the invariant for it was made to fail on this line.
+    */
+    alsoAcceptedByLemma(),
   ]);
   if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
 
@@ -306,6 +321,7 @@ async function addCardsFor(
     const generated = generateCards(
       {
         ...(lexeme as LexemeForCards),
+        alsoAccepted: alsoAccepted.get(`${lexeme.lemma}|${lexeme.pos}`) ?? [],
         borrowed: borrowed.get(lexemeId) ?? [],
         plainest: plainerFirst(lexeme.cefr, reach),
       }, types,
@@ -610,16 +626,23 @@ export async function translateExample(lexemeId: string, sentence: string) {
   }
   const en = answer.text;
 
-  await prisma.lexeme.update({
-    where: { id: lexeme.id },
-    data: {
-      examples: serialiseExamples(
-        examples.map((e) => (e.et === sentence ? { ...e, en } : e)),
-      ),
-    },
+  /*
+    Written against the row as it is now rather than the copy read before the
+    call, which can be seconds old: a reviewer may have refused this line or
+    dropped the sentence meanwhile, and a learner may have added one. See
+    lib/dict/editExamples.ts. A line somebody else filled in the gap wins.
+  */
+  const saved = await editExamples(lexeme.id, (now) => {
+    const current = now.find((e) => e.et === sentence);
+    if (!current || current.enRefused) return { next: null, result: null };
+    if (current.en) return { next: null, result: current.en };
+    return { next: now.map((e) => (e.et === sentence ? { ...e, en } : e)), result: en };
   });
+  if (!saved.found || saved.result === null) {
+    return { ok: false as const, refused: true as const, error: "" };
+  }
   revalidatePath("/dictionary");
-  return { ok: true as const, en };
+  return { ok: true as const, en: saved.result };
 }
 
 /**
@@ -647,19 +670,13 @@ export async function addExample(lexemeId: string, sentence: string, translation
   const et = visibleLine(sentence, LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That is too short to be a sentence." };
 
-  const lexeme = await prisma.lexeme.findUnique({
-    where: { id: lexemeId },
-    select: { id: true, examples: true },
-  });
-  if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
-
-  const merged = mergeExamples(parseExamples(lexeme.examples), [
-    { et, en: visibleLine(translation ?? "", LIMITS.translation) || null, source: "USER" },
-  ]);
-  await prisma.lexeme.update({
-    where: { id: lexeme.id },
-    data: { examples: serialiseExamples(merged), editedBy: ownerId, editedAt: new Date() },
-  });
+  const en = visibleLine(translation ?? "", LIMITS.translation) || null;
+  const saved = await editExamples(
+    typeof lexemeId === "string" ? lexemeId : "",
+    (now) => ({ next: mergeExamples(now, [{ et, en, source: "USER" }]), result: null }),
+    { editedBy: ownerId, editedAt: new Date() },
+  );
+  if (!saved.found) return { ok: false as const, error: "That word no longer exists." };
   revalidatePath("/dictionary");
   return { ok: true as const };
 }
@@ -690,8 +707,16 @@ const DISPLAY_NAME_MAX = 32;
 /** What a class is called on the join screen and the roster. */
 const CLASS_NAME_MAX = 60;
 
-const capped = (value: string | undefined | null, max: number): string =>
-  (value ?? "").trim().slice(0, max);
+/**
+ * A string argument, trimmed and cut to length, whatever actually arrived.
+ *
+ * Through `text()` below, because this is the one helper every caller reaches
+ * for and it called `.trim()` on whatever it was handed: `createLexeme({ lemma:
+ * 42 })` threw the `TypeError` `text()` was written to prevent, from twenty-four
+ * call sites at once.
+ */
+const capped = (value: unknown, max: number): string =>
+  text(value).trim().slice(0, max);
 
 /**
  * An argument that is supposed to be a string, as a string.
@@ -705,6 +730,42 @@ const capped = (value: string | undefined | null, max: number): string =>
  * already has a sentence for nothing.
  */
 const text = (value: unknown): string => (typeof value === "string" ? value : "");
+
+/**
+ * An argument that is supposed to be an object, as one.
+ *
+ * The same off-the-wire rule as `text()`, one shape up: a parameter typed as an
+ * object says what the callers in this tree send and nothing about what
+ * arrives, so `finishScene(null)` threw on `input.runId`. Anything that is not
+ * an object is an empty one, and every field of it then reads as missing,
+ * which each of these paths already has a sentence for. The type is the
+ * caller's, so every field read off the result still goes through `text()`,
+ * `Array.isArray` or a check of its own.
+ */
+const fieldsOf = <T extends object>(value: T): T =>
+  (value !== null && typeof value === "object" ? value : {}) as T;
+
+/**
+ * A part of speech the shared dictionary may hold, or null.
+ *
+ * `Lexeme.pos` is a free string column and half of the entry's unique key, so a
+ * value written here is a row every learner reads: the add-a-word form and the
+ * importer both wrote whatever arrived. The suggestion queue already refuses
+ * anything off `PATCH_POS`, which is the same set every source of the built
+ * dictionary produces, and these are the other two doors into the same table.
+ */
+const posFrom = (value: unknown): string | null =>
+  (PATCH_POS as readonly string[]).includes(text(value)) ? text(value) : null;
+
+/**
+ * A level for a dictionary entry: null for none, the level, or undefined when
+ * what arrived is neither, which the caller refuses. `cefr` is what bands a
+ * word for every learner, so a value off the list is a word no band holds.
+ */
+const entryLevelFrom = (value: unknown): string | null | undefined => {
+  if (value === undefined || value === null || value === "") return null;
+  return (CEFR_LEVELS as readonly string[]).includes(text(value)) ? text(value) : undefined;
+};
 
 
 /**
@@ -722,14 +783,19 @@ export async function createLexeme(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
+  input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
+  const pos = posFrom(input.pos);
+  const cefr = entryLevelFrom(input.cefr);
+  if (!pos) return { ok: false as const, error: "That is not a part of speech." };
+  if (cefr === undefined) return { ok: false as const, error: "That is not a level." };
 
   const existing = await prisma.lexeme.findUnique({
-    where: { lemma_pos: { lemma, pos: input.pos } },
+    where: { lemma_pos: { lemma, pos } },
   });
   if (existing) return { ok: true as const, id: existing.id, existed: true };
 
@@ -744,8 +810,8 @@ export async function createLexeme(input: {
   const written = await prisma.lexeme.createMany({
     skipDuplicates: true,
     data: [{
-      lemma, translation, pos: input.pos,
-      cefr: input.cefr || null,
+      lemma, translation, pos,
+      cefr,
       /*
         AI, NOT USER, BECAUSE A MODEL SUGGESTED IT AND NOBODY HAS CHECKED IT.
 
@@ -771,7 +837,7 @@ export async function createLexeme(input: {
     }],
   });
   const lexeme = await prisma.lexeme.findUniqueOrThrow({
-    where: { lemma_pos: { lemma, pos: input.pos } },
+    where: { lemma_pos: { lemma, pos } },
     select: { id: true },
   });
   if (written.count === 0) return { ok: true as const, id: lexeme.id, existed: true };
@@ -799,21 +865,33 @@ export async function createLexemeWithForms(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
+  input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
+  const pos = posFrom(input.pos);
+  if (!pos) return { ok: false as const, error: "That is not a part of speech." };
+  /*
+    Absent is "leave the level as it is" to the upsert, which is what an edit
+    that did not touch it means, so it stays absent. Anything present is
+    checked: blank clears it and a level sets it.
+  */
+  const level = input.cefr === undefined ? undefined : entryLevelFrom(input.cefr);
+  if (input.cefr !== undefined && level === undefined) {
+    return { ok: false as const, error: "That is not a level." };
+  }
 
   const lexeme = await upsertLexemeWithForms({
-    id: input.id,
+    id: text(input.id) || undefined,
     lemma,
     translation,
-    pos: input.pos,
-    cefr: input.cefr,
+    pos,
+    cefr: level === null ? "" : level,
     government: visibleLine(input.government, LIMITS.government),
     forms: Object.fromEntries(
-      Object.entries(input.forms).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
+      Object.entries(fieldsOf(input.forms)).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
     ),
     editedBy: ownerId,
   });
@@ -969,7 +1047,11 @@ export async function importWords(rows: { lemma: string; translation: string; po
   let created = 0;
   let cards = 0;
   const skipped: string[] = [];
-  const truncated = rows.length > MAX_IMPORT_ROWS;
+  // A paste is a list of rows off the wire, and a row a record: neither is
+  // trusted to be the shape the panel sends, so `importWords(null)` imports
+  // nothing rather than throwing on `.length`.
+  const list = Array.isArray(rows) ? rows : [];
+  const truncated = list.length > MAX_IMPORT_ROWS;
 
   /*
     ASKED ONCE FOR THE WHOLE PASTE, NOT ONCE PER LINE.
@@ -1003,14 +1085,18 @@ export async function importWords(rows: { lemma: string; translation: string; po
   */
   const wanted: { lemma: string; translation: string; pos: string }[] = [];
   const seenKeys = new Set<string>();
-  for (const row of rows.slice(0, MAX_IMPORT_ROWS)) {
+  for (const raw of list.slice(0, MAX_IMPORT_ROWS)) {
+    const row = fieldsOf(raw);
     const lemma = visibleLine(row.lemma, LIMITS.lemma);
     const translation = visibleLine(row.translation, LIMITS.translation);
-    if (!lemma || !translation) continue;
-    const key = `${lemma}|${row.pos}`;
+    // A part of speech off `PATCH_POS` or the row is not written, since these
+    // rows go into the dictionary every learner reads.
+    const pos = posFrom(row.pos);
+    if (!lemma || !translation || !pos) continue;
+    const key = `${lemma}|${pos}`;
     if (seenKeys.has(key)) continue;
     seenKeys.add(key);
-    wanted.push({ lemma, translation, pos: row.pos });
+    wanted.push({ lemma, translation, pos });
   }
 
   const present = new Map(
@@ -1080,6 +1166,9 @@ export async function getTutorHistory() {
 /** Sets the review count that fills the daily-goal ring on Today. */
 export async function setDailyGoal(goal: number) {
   const ownerId = await requireUserId();
+  // `Math.max(5, NaN)` is NaN, so without this "NaN" was stored as somebody's
+  // goal: the fault the comment below records the personal bests having had.
+  if (!Number.isFinite(goal)) return { ok: false as const, error: "That is not a goal." };
   const clamped = Math.min(200, Math.max(5, Math.round(goal)));
   await writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(clamped));
   revalidatePath("/");
@@ -1206,7 +1295,7 @@ export async function recordSonad(day: string, guesses: unknown) {
     ? guesses.filter((g): g is string => typeof g === "string").slice(0, SONAD_GUESSES)
     : [];
   if (played.length === 0) return { ok: false as const, error: "Nothing to record." };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
 
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
@@ -1352,7 +1441,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
  * cost is that `advance` sees the next turn as helped. Nothing is deducted, no
  * objective is withheld, and the word goes on the debrief with a button to keep
  * it. Somebody who asks for four words and finishes has learned more than
- * somebody who gave up with none (`docs/19-situations.md` §12).
+ * somebody who gave up with none (`docs/21-situations.md` §12).
  *
  * The first version of this button recorded the *beat id* as the word needed,
  * so a debrief listed `reason` and `greet` under "words this conversation
@@ -1435,7 +1524,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
  * writes into the review log and a forged one would schedule words nobody said.
  *
  * Nothing in the transcript is true about the learner. The role card is fiction
- * (`docs/19-situations.md` §3), which is what makes a table of somebody's
+ * (`docs/21-situations.md` §3), which is what makes a table of somebody's
  * practice sentences about a doctor's appointment safe to hold at all.
  */
 export async function finishScene(input: {
@@ -1447,6 +1536,7 @@ export async function finishScene(input: {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "finishScene");
   if (busy) return busy;
+  input = fieldsOf(input);
 
   /*
     Off the wire, whatever the types say: every export of this file is a public
@@ -1542,7 +1632,7 @@ export async function finishScene(input: {
 
 export async function recordCrossword(day: string, typed: unknown, helped: unknown) {
   const ownerId = await requireUserId();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
 
   /*
     Off the wire, whatever the types say. A cell index that is not a number and
@@ -1612,9 +1702,12 @@ const MAX_CELLS = 81;
  */
 export async function setTimeZone(zone: string) {
   const ownerId = await requireUserId();
-  if (!isTimeZone(zone)) return { ok: false as const, error: "That is not a timezone." };
-  await writeSetting(ownerId, SETTING_KEYS.timeZone, zone);
-  return { ok: true as const, zone };
+  // Stored in the spelling `Intl` resolves it to, so one zone is one value
+  // whatever casing the caller sent (lib/time/day.ts, `canonicalZone`).
+  const canonical = canonicalZone(zone);
+  if (!canonical) return { ok: false as const, error: "That is not a timezone." };
+  await writeSetting(ownerId, SETTING_KEYS.timeZone, canonical);
+  return { ok: true as const, zone: canonical };
 }
 
 
@@ -1837,6 +1930,7 @@ export async function setResearchParticipation(value: string) {
  */
 export async function setEmailKind(input: { kind: string; on: boolean }) {
   const ownerId = await requireUserId();
+  input = fieldsOf(input);
   if (!isEmailKind(input?.kind) || input.kind === "system") {
     return { ok: false as const, error: "That is not something we send." };
   }
@@ -1854,14 +1948,10 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
     up refused and requested at once, which is the state a single write would
     leave behind if the second one failed.
   */
-  const [off, on] = await Promise.all([
-    readSetting(ownerId, SETTING_KEYS.emailsOff),
-    readSetting(ownerId, SETTING_KEYS.emailsOn),
-  ]);
-  const current = emailPrefsFrom(off, on);
-  const next = input.on ? switchOn(current, input.kind) : switchOff(current, [input.kind]);
-  await writeSetting(ownerId, SETTING_KEYS.emailsOff, emailPrefsTo(next));
-  await writeSetting(ownerId, SETTING_KEYS.emailsOn, emailOptInTo(next));
+  const kind = input.kind;
+  await changeEmailPrefs(ownerId, (current) =>
+    input.on ? switchOn(current, kind) : switchOff(current, [kind]),
+  );
   revalidatePath("/settings");
   return { ok: true as const, on: input.on };
 }
@@ -1948,6 +2038,19 @@ export async function completeOnboarding(input: {
   };
 }) {
   const ownerId = await requireUserId();
+  input = fieldsOf(input);
+  /*
+    CHECKED BEFORE ANYTHING IS WRITTEN, BECAUSE THIS WRITES WHAT SET-UP
+    NEVER ASKS AGAIN. A goal that is not a number came out of `Math.max(5,
+    NaN)` as NaN and was stored as "NaN", and the level went into the two
+    settings `setCourseLevel` refuses to write anything off `LEVELS` into, and
+    into the part of the ladder the course opens on. The wizard sends neither
+    shape; a caller that does is refused rather than trusted.
+  */
+  if (!Number.isFinite(input.dailyGoal)) return { ok: false as const, error: "That is not a goal." };
+  if (!(LEVELS as readonly string[]).includes(text(input.cefr))) {
+    return { ok: false as const, error: "That is not a level." };
+  }
   const busy = throttleAction(ownerId, "completeOnboarding");
   if (busy) return busy;
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
@@ -2004,7 +2107,9 @@ export async function completeOnboarding(input: {
     seconds on the one screen where the app is asking them to trust it. See
     `lib/srs/deck.ts` for the shape.
   */
-  const { added } = await addUnitsToDeck(ownerId, input.unitIds.slice(0, MAX_STARTER_UNITS), "COURSE");
+  const unitIds = (Array.isArray(input.unitIds) ? input.unitIds : [])
+    .filter((id): id is string => typeof id === "string");
+  const { added } = await addUnitsToDeck(ownerId, unitIds.slice(0, MAX_STARTER_UNITS), "COURSE");
 
   revalidatePath("/");
   revalidatePath("/learn");
@@ -2335,7 +2440,7 @@ export async function recordCheckpoint(
     level: z.enum(["A1", "A2", "B1", "B2", "C1"]),
     correct: z.number().int().min(0).max(100),
     total: z.number().int().min(1).max(100),
-  }).safeParse({ level: level.toUpperCase(), correct, total });
+  }).safeParse({ level: text(level).toUpperCase(), correct, total });
   if (!parsed.success || parsed.data.correct > parsed.data.total) {
     return { ok: false as const, error: "That result could not be read." };
   }
@@ -2409,28 +2514,16 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
     ? (targetLevel as ExamLevel)
     : "B1";
 
-  let code = "";
-  for (let attempt = 0; attempt < CODE_ATTEMPTS; attempt++) {
-    const candidate = generateCode();
-    const taken = await prisma.classroom.findUnique({ where: { code: candidate }, select: { id: true } });
-    if (!taken) { code = candidate; break; }
-  }
-  if (!code) return { ok: false as const, error: "Could not allocate a join code. Try again." };
-
+  // The insert claims the code, retried on a collision (lib/classroom/create.ts).
   const displayName = await resolveDisplayName(ownerId);
-  const classroom = await prisma.classroom.create({
-    data: {
-      name: trimmed,
-      code,
-      ownerId,
-      kind: cohort,
-      targetLevel: level,
-      members: { create: { ownerId, role: "TEACHER", displayName } },
-    },
-  });
+  const classroom = await createWithFreshCode(
+    { name: trimmed, ownerId, kind: cohort, targetLevel: level, displayName },
+    CODE_ATTEMPTS,
+  );
+  if (!classroom) return { ok: false as const, error: "Could not allocate a join code. Try again." };
 
   revalidatePath("/class");
-  return { ok: true as const, id: classroom.id, code };
+  return { ok: true as const, id: classroom.id, code: classroom.code };
 }
 
 /**
@@ -2708,11 +2801,13 @@ export async function addStudyEvent(input: {
   onDate?: string | null;
 }) {
   const ownerId = await requireUserId();
+  input = fieldsOf(input);
 
-  const title = input.title.trim().slice(0, 120);
+  const title = text(input.title).trim().slice(0, 120);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
-  const weekdays = [...new Set(input.weekdays)].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
+  const weekdays = [...new Set(Array.isArray(input.weekdays) ? input.weekdays : [])]
+    .filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
   /*
     A one-off needs a day and a repeat must not carry one. Reading a stray
     `onDate` on a repeating event would make `eventsOn` answer two ways about
@@ -2727,7 +2822,7 @@ export async function addStudyEvent(input: {
     data: {
       ownerId,
       title,
-      notes: input.notes?.trim().slice(0, 500) || null,
+      notes: text(input.notes).trim().slice(0, 500) || null,
       kind: kindFrom(input.kind),
       startMinute: clamp(Math.round(input.startMinute), 0, 1439),
       durationMinutes: clamp(Math.round(input.durationMinutes), 5, 12 * 60),
@@ -2760,7 +2855,8 @@ export async function deleteStudyEvent(id: string) {
  */
 export async function addReminder(input: { title: string; notes?: string; dueAt?: string | null }) {
   const ownerId = await requireUserId();
-  const title = input.title.trim().slice(0, 200);
+  input = fieldsOf(input);
+  const title = text(input.title).trim().slice(0, 200);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const key = dayKeyOrNull(input.dueAt);
@@ -2768,7 +2864,7 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
     data: {
       ownerId,
       title,
-      notes: input.notes?.trim().slice(0, 500) || null,
+      notes: text(input.notes).trim().slice(0, 500) || null,
       tag: "HOMEWORK",
       // Stored at midnight UTC, which is what `<input type="date">` sends and
       // what `bucketFor` already expects: it counts whole days on the learner's
@@ -2797,9 +2893,22 @@ export async function deleteReminder(id: string) {
 const clamp = (n: number, lo: number, hi: number) =>
   Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo;
 
+/**
+ * A `YYYY-MM-DD` string, asked about as a string first.
+ *
+ * `RegExp.test` converts its argument, so `["2026-09-24"]` passes the pattern
+ * as readily as the string does, and an argument off the wire is whatever the
+ * caller sent: `recordSonad(["2026-09-24"], ...)` went on to `day.split("-")`
+ * inside the puzzle builder and threw. One check, so the three doors that take
+ * a day cannot disagree about what one is.
+ */
+function isDayKey(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 /** A `YYYY-MM-DD` string, or null for anything that is not one. */
-function dayKeyOrNull(value: string | null | undefined): string | null {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+function dayKeyOrNull(value: unknown): string | null {
+  if (!isDayKey(value)) return null;
   return Number.isNaN(Date.parse(`${value}T00:00:00.000Z`)) ? null : value;
 }
 
@@ -3206,16 +3315,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
 
         So a restore does what the seed does, `ON CONFLICT DO NOTHING`: a word
         the dictionary already holds is left exactly as it is, and a word it
-        does not is created as this learner's own, without the provenance or
-        the Ekilex identifiers that would claim otherwise. Nothing is lost by
-        it, because the cards below point at ids either way.
+        does not is created as this learner's own, carrying only what a hand
+        edit could have supplied (`restoredEntry` says which columns and why).
+        Nothing is lost by it, because the cards below point at ids either way.
       */
-      const live = await restoreLexemes(tx, ownerId, backup.lexemes.map((raw) => {
-        const { forms, ...lex } = raw as Record<string, unknown> & { forms?: unknown[] };
-        return {
-          data: revive(lex, ["createdAt", "updatedAt"]),
-          forms: Array.isArray(forms) ? forms.map((f) => revive(f as Record<string, unknown>, [])) : [],
-        };
+      const live = await restoreLexemes(tx, ownerId, backup.lexemes.flatMap((raw) => {
+        const entry = restoredEntry(raw as Record<string, unknown>, ownerId);
+        return entry ? [{ data: entry.lexeme, forms: entry.forms }] : [];
       }));
       /*
         Every row below that points at a word points at it through `wordOf`,
@@ -3757,6 +3863,7 @@ export async function saveScan(input: {
 
   const busy = throttleAction(ownerId, "saveScan");
   if (busy) return busy;
+  input = fieldsOf(input);
   const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
   if (sent.length === 0) {
     return { ok: false as const, error: "Nothing on that page was ticked." };
@@ -4053,6 +4160,8 @@ export async function recordAssessment(input: unknown) {
   const ownerId = await requireUserId();
   const parsed = ASSESSMENT.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "That result could not be read." };
+  const busy = throttleAction(ownerId, "recordAssessment");
+  if (busy) return busy;
 
   const { seed, builtAt, answers } = parsed.data;
   const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
@@ -4157,9 +4266,6 @@ const ExamSubmissionSchema = z.object({
  */
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
-
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 

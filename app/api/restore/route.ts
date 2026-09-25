@@ -5,6 +5,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { reportError } from "@/lib/observability/report";
+import { NO_STORE } from "@/lib/security/headers";
 
 /**
  * Restoring a backup, as a Route Handler rather than a Server Action.
@@ -26,21 +27,24 @@ import { reportError } from "@/lib/observability/report";
  * changes how the bytes arrive.
  */
 /**
- * The biggest body this route will read.
+ * The biggest body this route will read, which is the proxy's and no larger.
  *
- * A backup carries the shared dictionary as well as the deck, so a real one is
- * already tens of megabytes and grows as the dictionary does. This is set well
- * above that rather than close to it: refusing somebody's genuine backup is a
- * far worse failure than accepting one that is larger than expected, and the
- * whole point of the route is that the person with the longest history is not
- * the first to lose the ability to restore it.
+ * It said 128 MB, on the argument that refusing a genuine backup is worse than
+ * accepting a large one. That argument is right and the number could never be
+ * reached: every request here passes through the middleware, and
+ * `proxyClientMaxBodySize` in `next.config.ts` truncates a body there at 16 MB
+ * rather than refusing it. So a 20 MB backup arrived cut short, passed the
+ * length check below because it was now exactly 16 MB, failed to parse, and the
+ * learner was told their own file did not look like a backup, which is the
+ * failure the comment on that setting records the first time round.
  *
- * What it is for is the other end. `request.text()` read whatever arrived,
- * with no ceiling anywhere in the app, and `inspect` then handed the result to
- * `JSON.parse`. That is one signed-in account away from holding an arbitrary
- * amount of a server's memory, per request, as often as it likes.
+ * The same figure here turns that into the honest refusal: the declared length
+ * is the caller's claim about the whole file and survives the truncation, so
+ * an oversized backup is told it is too large instead of being called
+ * something it is not. Raising one means raising the other, and an invariant
+ * reads both.
  */
-const MAX_BACKUP_BYTES = 128 * 1024 * 1024;
+const MAX_BACKUP_BYTES = 16 * 1024 * 1024;
 
 /*
   Above the restore's own transaction, which is allowed a hundred and twenty
@@ -77,7 +81,7 @@ export async function POST(request: NextRequest) {
           "That file is larger than this app will read, and nothing was changed. " +
           "If it really is a Kodukeel backup, whoever runs this installation can raise the limit.",
       },
-      { status: 413 },
+      { headers: NO_STORE, status: 413 },
     );
   }
 
@@ -103,19 +107,19 @@ export async function POST(request: NextRequest) {
     if (json.length > MAX_BACKUP_BYTES) {
       return NextResponse.json(
         { ok: false, error: "That file is larger than this app will read, and nothing was changed." },
-        { status: 413 },
+        { headers: NO_STORE, status: 413 },
       );
     }
   } catch (cause) {
     await reportError(cause, { at: "api/restore", extra: { stage: "read" } });
     return NextResponse.json(
       { ok: false, error: "The upload did not finish, and nothing was changed. Try again." },
-      { status: 400 },
+      { headers: NO_STORE, status: 400 },
     );
   }
 
   if (!json.trim()) {
-    return NextResponse.json({ ok: false, error: "That file was empty." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "That file was empty." }, { headers: NO_STORE, status: 400 });
   }
 
   /*
@@ -148,13 +152,13 @@ export async function POST(request: NextRequest) {
           "and it stops mid-way rather than at the end. Nothing was changed and your file is " +
           "untouched. This is a limit on the upload rather than anything wrong with the backup.",
       },
-      { status: 413 },
+      { headers: NO_STORE, status: 413 },
     );
   }
 
   try {
     const result = mode === "inspect" ? await inspectBackup(json) : await restoreBackup(json, mode);
-    return NextResponse.json(result, { status: result.ok ? 200 : 400 });
+    return NextResponse.json(result, { headers: NO_STORE, status: result.ok ? 200 : 400 });
   } catch (cause) {
     // requireUserId throws for a signed-out caller; everything else is real.
     await reportError(cause, { at: "api/restore", extra: { stage: "restore", bytes: json.length } });
@@ -164,7 +168,7 @@ export async function POST(request: NextRequest) {
         error:
           "The restore did not finish, and nothing was changed. Your backup file is untouched, so it is safe to try again.",
       },
-      { status: 500 },
+      { headers: NO_STORE, status: 500 },
     );
   }
 }

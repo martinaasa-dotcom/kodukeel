@@ -79,14 +79,13 @@ export const ACTION_LIMITS = {
    */
   addScanToDeck: { perMinute: 15 },
   /**
-   * Handing in a mock paper.
+   * Finishing a level check, which appends an `Assessment` row.
    *
-   * The expensive part is the rebuild, as it is for `finishScene`: the client
-   * never sends a mark (ADR-022), so the server draws the pool again, a few
-   * thousand ids and then five hundred entries with their forms, and marks
-   * against that. Nobody hands in six papers a minute.
+   * That table is append-only like `Review`, so a loop of calls is a history
+   * nobody can repair rather than a cost that passes. The check takes a quarter
+   * of an hour, so six a minute is a double press with room to spare.
    */
-  submitExam: { perMinute: 6 },
+  recordAssessment: { perMinute: 6 },
   /** Writes a lexeme and its principal parts into the shared dictionary. */
   editDictionary: { perMinute: 30 },
   /** Resolves a confirmed page against the dictionary and builds cards. */

@@ -1,8 +1,9 @@
 import { bucketForOwner, checkRateLimit } from "@/lib/security/rateLimit";
+import { editExamples } from "./editExamples";
 import { prisma } from "@/lib/db";
 import { ekilexConfigured, fetchEkilexDetails, searchEkilex } from "@/lib/ekilex/client";
 import { mapEkilexDetails } from "@/lib/ekilex/mapper";
-import { mergeExamples, parseExamples, serialiseExamples } from "./examples";
+import { mergeExamples, serialiseExamples } from "./examples";
 import { fetchEnglishGloss } from "./wiktionary";
 import { isUniqueViolation, replaceForms } from "./replaceForms";
 import { translateWithAnu } from "@/lib/tutor/translate";
@@ -209,9 +210,6 @@ async function runEnrich(lexemeId: string): Promise<boolean> {
         exactly what is being written beside them.
       */
       notes: lexeme.notes && lexeme.notes === mapped.definition ? null : undefined,
-      // Sentences are merged rather than replaced: a translation already
-      // resolved for one survives the refetch, exactly as the gloss does.
-      examples: serialiseExamples(mergeExamples(parseExamples(lexeme.examples), mapped.examples)),
       ekilexWordId: mapped.ekilexWordId,
       provenance: "EKILEX",
       fetchedAt: new Date(),
@@ -219,6 +217,14 @@ async function runEnrich(lexemeId: string): Promise<boolean> {
       lookupMissAt: null,
     },
   });
+  /*
+    Sentences are merged rather than replaced: a translation already resolved
+    for one survives the refetch, exactly as the gloss does. Merged into the
+    row as it is now rather than the copy read before Ekilex was asked, since
+    a translation or a reviewer's refusal can land in that gap. See
+    lib/dict/editExamples.ts.
+  */
+  await editExamples(lexeme.id, (now) => ({ next: mergeExamples(now, mapped.examples), result: null }));
   // Under the entry's own row, since the single flight above is per instance
   // and a live lookup of the same word replaces the same rows. See
   // lib/dict/replaceForms.ts.
@@ -383,16 +389,24 @@ async function storeLookup(
     gradationNote: mapped.gradationNote,
     government: mapped.government,
     definition: mapped.definition,
-    examples: serialiseExamples(mergeExamples(parseExamples(existing?.examples), mapped.examples)),
     ekilexWordId: mapped.ekilexWordId,
     provenance: "EKILEX",
     fetchedAt: new Date(),
     lookupMissAt: null,
   };
 
+  /*
+    A new row takes Ekilex's sentences as they are. An existing one merges them
+    into the row as it is now, not the copy read before Ekilex and the
+    translation were asked, which is seconds in which a translation or a
+    reviewer's refusal can land. See lib/dict/editExamples.ts.
+  */
   const lexeme = existing
     ? await prisma.lexeme.update({ where: { id: existing.id }, data })
-    : await prisma.lexeme.create({ data });
+    : await prisma.lexeme.create({ data: { ...data, examples: serialiseExamples(mergeExamples([], mapped.examples)) } });
+  if (existing) {
+    await editExamples(lexeme.id, (now) => ({ next: mergeExamples(now, mapped.examples), result: null }));
+  }
 
   // Ekilex is authoritative, so its forms replace whatever we held, under the
   // entry's own row. See lib/dict/replaceForms.ts.
