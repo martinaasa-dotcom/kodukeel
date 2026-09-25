@@ -12728,7 +12728,7 @@ check("docs/04-data-model.md names the values each list in the code accepts", ()
   const gapModel = /model SceneGap \{([\s\S]*?)\n\}/.exec(schema)?.[1] ?? "";
   const gapKinds = [...gapModel.matchAll(/`([A-Z]+)`/g)].map((m) => m[1]!);
   assert.ok(gapKinds.length >= 3, "the SceneGap kind comment no longer names its values");
-  assert.deepEqual(sorted(lineOf("SceneGap")), sorted(new Set(gapKinds)), "SceneGap line differs from the schema's kind comment");
+  assert.deepEqual(sorted(lineOf("SceneGap")), sorted([...new Set(gapKinds)]), "SceneGap line differs from the schema's kind comment");
 
   const deferType = /export type DeferReason\s*=([\s\S]*?);/.exec(code("lib/srs/defer.ts"))?.[1] ?? "";
   const reasons = [...deferType.matchAll(/"(\w+)"/g)].map((m) => m[1]!);
