@@ -11662,6 +11662,34 @@ check("no source file holds a control character it could have named", () => {
 });
 
 /*
+  A ROUTE ANYBODY CAN REACH READS ITS BODY ONLY AS FAR AS A CEILING.
+
+  A Route Handler has no body limit of its own, and the two routes past the
+  sign-in gate that read one, the bounce webhook and the unsubscribe form,
+  read it whole before they had checked anything about the caller. On a
+  self-hosted deployment that is as much memory as a stranger chose to send.
+  They go through `readCapped`, and so does any public route that reads a
+  body later, found off the middleware's own public list.
+*/
+check("a route reachable without a session reads its body through a ceiling", () => {
+  const mw = code("middleware.ts");
+  const list = mw.slice(mw.indexOf("const isPublicPath"), mw.indexOf("const signedOut"));
+  assert.ok(list.length > 200, "middleware.ts no longer has a public path list to read");
+  const RAW_BODY = /\brequest\.(?:text|json|formData|arrayBuffer|blob)\(|\breq\.(?:text|json|formData|arrayBuffer|blob)\(/;
+  let reading = 0;
+  for (const file of APP.filter((f) => /^app\/api\/.*\/route\.ts$/.test(f))) {
+    const path = "/" + file.replace(/^app\//, "").replace(/\/route\.ts$/, "");
+    if (!list.includes(`path.startsWith("${path}")`)) continue;
+    const source = code(file);
+    if (!RAW_BODY.test(source) && !/\breadCapped\(/.test(source)) continue;
+    reading += 1;
+    assert.doesNotMatch(source, RAW_BODY, `${file} is public and reads its body with no ceiling; use readCapped`);
+    assert.match(source, /\breadCapped\(/, `${file} is public and reads a body without readCapped`);
+  }
+  assert.ok(reading >= 2, `only ${reading} public routes that read a body were found, so this stopped looking`);
+});
+
+/*
   A `next` read off the address goes through `safeNext` wherever it is read.
 
   The callback applied it, and the sign-in page's Google button signs in with
@@ -24677,7 +24705,8 @@ check("what the provider sends back is verified before it is read", () => {
     and verifies a re-serialised body verifies something else. It fails in the
     direction that looks like the provider's fault, which is why it survives.
   */
-  const readsRaw = route.indexOf("request.text()");
+  // The raw bytes, through the ceiling every public route reads them under.
+  const readsRaw = route.indexOf("readCapped(request");
   const verifies = route.indexOf("verifyDelivery(");
   const parses = route.indexOf("JSON.parse(");
   assert.ok(readsRaw !== -1 && verifies !== -1 && parses !== -1, "the bounce route stopped verifying");
@@ -25070,6 +25099,79 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("a class's join code is claimed by the insert, not by a look before it", () => {
+  /*
+    Looking a code up and then creating the class with it lets two teachers
+    dealt one code both see it free, and the second insert throws on the
+    unique index (`lib/classroom/create.ts`, shown in `create.itest.ts`).
+  */
+  assert.match(code("lib/classroom/create.ts"), /P2002/, "createWithFreshCode no longer retries on a taken code");
+  const creators = ALL.filter(
+    (f) => f !== "lib/classroom/create.ts" && !/\.i?test\.tsx?$/.test(f) && /prisma\.classroom\.create\(/.test(code(f)),
+  );
+  assert.deepEqual(creators, [], `${creators.join(", ")} creates a class outside createWithFreshCode`);
+});
+
+check("which letters a learner gets is changed only under their lock", () => {
+  /*
+    Three doors write the two preference rows, the Settings switch, the
+    unsubscribe link and the complaint webhook, and each is a read, a change
+    and a write. Unlocked, two of them inside that gap lose one opt-out, which
+    is a learner who pressed "stop" and goes on getting mail.
+    `lib/progress/emailPrefs.ts` is the one locked writer and
+    `emailPrefs.itest.ts` is where the race is shown; this holds every other
+    file to going through it.
+  */
+  const helper = code("lib/progress/emailPrefs.ts");
+  assert.match(helper, /pg_advisory_xact_lock/, "lib/progress/emailPrefs.ts stopped taking the learner's lock");
+  const writers = ALL.filter(
+    (f) =>
+      f !== "lib/progress/emailPrefs.ts" &&
+      /writeSetting\([^)]*SETTING_KEYS\.emails(?:Off|On)|ownerId_key:\s*\{[^}]*SETTING_KEYS\.emails(?:Off|On)/.test(code(f)),
+  );
+  assert.deepEqual(writers, [], `${writers.join(", ")} writes the email preferences outside changeEmailPrefs`);
+  for (const file of ["app/actions.ts", "app/api/email/unsubscribe/route.ts", "app/api/email/bounce/route.ts"]) {
+    assert.match(code(file), /changeEmailPrefs\(/, `${file} no longer changes the email preferences through the lock`);
+  }
+});
+
+/*
+  THE DOMAIN MODEL CLAUDE.MD CALLS LOAD-BEARING DESCRIBED A SMALLER ONE.
+
+  `docs/02-estonian-domain.md` is the second file a contributor is sent to, and
+  it opened on "the app never generates Estonian morphology with hand-written
+  rules", which ADR-005 amendment 1 reversed for the regular cases and the
+  present tense. Its table of noun principal parts had six rows while the code
+  stores seven: the genitive plural was said to be derived from the partitive
+  plural, when it is stored because nothing reaches it. It promised the simple
+  past from the first person, whose third person no rule gives, and an amber
+  AI badge no screen draws. So both tables are counted against
+  `PRINCIPAL_FORM_TYPES`, the heading counts what it heads, and the principle
+  names the amendment it now states.
+*/
+check("docs/02-estonian-domain.md tabulates the principal parts the code stores", () => {
+  const doc = read(join("docs", "02-estonian-domain.md"));
+  const parts = [...(/PRINCIPAL_FORM_TYPES\s*=\s*\[([\s\S]*?)\]/.exec(code("lib/estonian/types.ts"))?.[1] ?? "").matchAll(/"(\w+)"/g)].map((m) => m[1]!);
+  const firstVerb = parts.indexOf("INF_MA");
+  assert.ok(firstVerb > 0, "lib/estonian/types.ts no longer lists the nominal parts before the verb ones");
+  const nominal = firstVerb;
+  const verbal = parts.length - firstVerb;
+
+  const rowsIn = (from: string, to: string) =>
+    [...doc.slice(doc.indexOf(from), doc.indexOf(to, doc.indexOf(from))).matchAll(/^\| \d+ \|/gm)].length;
+  assert.equal(rowsIn("### 1.1", "### 1.2"), nominal, "the noun principal parts table has a different number of rows from the code");
+  assert.equal(rowsIn("## 2. Verbs", "## 3."), verbal, "the verb principal parts table has a different number of rows from the code");
+
+  const words = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+  assert.ok(doc.includes(`### 1.1 The ${words[nominal]} noun principal parts`), "the noun heading counts a different number of parts");
+  assert.ok(doc.includes(`## 2. Verbs: ${words[verbal]} principal parts`), "the verb heading counts a different number of parts");
+
+  const principle = /\*\*Design principle\.\*\*([\s\S]*?)\n\n/.exec(doc)?.[1] ?? "";
+  assert.ok(/ADR-005 amendment 1/.test(principle), "the design principle does not state ADR-005 amendment 1");
+  assert.ok(!/never \*generates\*/.test(principle), "the design principle still says no rule ever builds a form");
+  assert.ok(!/AI-generated, verify/.test(doc), "docs/02-estonian-domain.md promises an AI badge no screen draws");
 });
 
 /*

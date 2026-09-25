@@ -19,7 +19,8 @@ import {
   LEVELS, checkpointFor, levelIndex, unitById, wordsAtLevel,
 } from "@/lib/collections/syllabus";
 import { checkpointPassed } from "@/lib/collections/checkpoint";
-import { generateCode, isValidCode, normaliseCode } from "@/lib/classroom/code";
+import { isValidCode, normaliseCode } from "@/lib/classroom/code";
+import { createWithFreshCode } from "@/lib/classroom/create";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
@@ -49,7 +50,8 @@ import {
   DEFAULT_DAILY_GOAL, forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 import { isEmailKind } from "@/lib/email/letter";
-import { emailPrefsFrom, emailOptInTo, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
+import { switchOff, switchOn } from "@/lib/email/prefs";
+import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { parseReminderTime } from "@/lib/time/reminder";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
@@ -1845,14 +1847,10 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
     up refused and requested at once, which is the state a single write would
     leave behind if the second one failed.
   */
-  const [off, on] = await Promise.all([
-    readSetting(ownerId, SETTING_KEYS.emailsOff),
-    readSetting(ownerId, SETTING_KEYS.emailsOn),
-  ]);
-  const current = emailPrefsFrom(off, on);
-  const next = input.on === true ? switchOn(current, input.kind) : switchOff(current, [input.kind]);
-  await writeSetting(ownerId, SETTING_KEYS.emailsOff, emailPrefsTo(next));
-  await writeSetting(ownerId, SETTING_KEYS.emailsOn, emailOptInTo(next));
+  const kind = input.kind;
+  await changeEmailPrefs(ownerId, (current) =>
+    input.on === true ? switchOn(current, kind) : switchOff(current, [kind]),
+  );
   revalidatePath("/settings");
   return { ok: true as const, on: input.on };
 }
@@ -2416,28 +2414,16 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
     ? (targetLevel as ExamLevel)
     : "B1";
 
-  let code = "";
-  for (let attempt = 0; attempt < CODE_ATTEMPTS; attempt++) {
-    const candidate = generateCode();
-    const taken = await prisma.classroom.findUnique({ where: { code: candidate }, select: { id: true } });
-    if (!taken) { code = candidate; break; }
-  }
-  if (!code) return { ok: false as const, error: "Could not allocate a join code. Try again." };
-
+  // The insert claims the code, retried on a collision (lib/classroom/create.ts).
   const displayName = await resolveDisplayName(ownerId);
-  const classroom = await prisma.classroom.create({
-    data: {
-      name: trimmed,
-      code,
-      ownerId,
-      kind: cohort,
-      targetLevel: level,
-      members: { create: { ownerId, role: "TEACHER", displayName } },
-    },
-  });
+  const classroom = await createWithFreshCode(
+    { name: trimmed, ownerId, kind: cohort, targetLevel: level, displayName },
+    CODE_ATTEMPTS,
+  );
+  if (!classroom) return { ok: false as const, error: "Could not allocate a join code. Try again." };
 
   revalidatePath("/class");
-  return { ok: true as const, id: classroom.id, code };
+  return { ok: true as const, id: classroom.id, code: classroom.code };
 }
 
 /**
