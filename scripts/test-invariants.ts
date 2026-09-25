@@ -9058,6 +9058,35 @@ check("nothing is stored on a device that would need asking first", () => {
   );
 });
 
+check("a due date is printed and bucketed as the day it names, never as an instant", () => {
+  /*
+    A due date is typed into `<input type="date">` and stored at midnight UTC,
+    so it is a day rather than an instant. Read in the learner's zone it named
+    the day before anywhere west of Greenwich: homework was "Late" on the day it
+    was due and printed as due the day before. `bucketFor` reads the stored day
+    through `dueDayKey`, and a screen that prints one formats it in UTC through
+    `DUE_DATE_FORMAT`. Asked of every place a due date reaches a formatter.
+  */
+  const agendaSrc = code("lib/ux/agenda.ts");
+  assert.match(agendaSrc, /const days = dayNumber\(dueDayKey\(dueAt\)\) - dayNumber\(clock\.dayKey\(now\)\)/,
+    "bucketFor reads a due date as an instant in the learner's zone again");
+  const bare: string[] = [];
+  let seen = 0;
+  for (const file of [...APP, ...COMPONENTS].filter((f) => f.endsWith(".tsx"))) {
+    const src = code(file);
+    for (const m of src.matchAll(/\b(?:dueAt|due)\??\.toLocale(?:Date)?String\(([^)]*)\)/g)) {
+      seen++;
+      if (!/DUE_DATE_FORMAT/.test(m[1]!)) bare.push(`${file}: ${m[0]}`);
+    }
+    for (const m of src.matchAll(/<LocalDate\b[^>]*iso=\{[^}]*\b(?:dueAt|due)\b[^>]*>/g)) {
+      seen++;
+      if (!/zone="UTC"/.test(m[0]) || !/DUE_DATE_FORMAT/.test(m[0])) bare.push(`${file}: LocalDate over a due date`);
+    }
+  }
+  assert.ok(seen >= 3, `only ${seen} due dates formatted; the pattern has stopped reaching them`);
+  assert.deepEqual(bare, [], `a due date printed in the reader's zone, a day early west of UTC: ${bare.join("; ")}`);
+});
+
 check("browser storage is read and written inside a try, because a blocked store throws", () => {
   /*
     A browser that blocks storage, with every cookie turned off or on a
@@ -14621,7 +14650,9 @@ check("late is decided in one place, against the learner's own day", () => {
     second time, and getting it wrong is the default.
   */
   const agenda = read("lib/ux/agenda.ts");
-  assert.match(agenda, /daysBetween\(/, "the agenda stopped counting in whole days");
+  // Whole calendar days, from the day the date names to the learner's today:
+  // see "a due date is printed and bucketed as the day it names".
+  assert.match(agenda, /dayNumber\(dueDayKey\(dueAt\)\) - dayNumber\(clock\.dayKey\(now\)\)/, "the agenda stopped counting in whole days");
 
   for (const file of ALL) {
     if (file === "lib/ux/agenda.ts") continue;
