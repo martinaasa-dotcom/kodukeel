@@ -22,6 +22,7 @@ import {
 } from "@/lib/tutor/provider";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
+import { NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
   if (chain.length === 0) {
     return Response.json(
       { error: "No AI key set up yet. Add one in .env, or Settings has a two-minute walkthrough." },
-      { status: 503 },
+      { headers: NO_STORE, status: 503 },
     );
   }
 
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { messages?: unknown };
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
-      return Response.json({ error: "Nothing to ask." }, { status: 400 });
+      return Response.json({ error: "Nothing to ask." }, { headers: NO_STORE, status: 400 });
     }
     messages = forTheModel(body.messages
       .filter((m): m is ChatMessage =>
@@ -102,10 +103,10 @@ export async function POST(request: Request) {
         (("role" in m && (m.role === "user" || m.role === "assistant"))) &&
         "content" in m && typeof (m as ChatMessage).content === "string"));
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
   // A transcript of nothing but the app's own failure bubbles is nothing to ask, and books nothing.
-  if (messages.length === 0) return Response.json({ error: "Nothing to ask." }, { status: 400 });
+  if (messages.length === 0) return Response.json({ error: "Nothing to ask." }, { headers: NO_STORE, status: 400 });
 
   const decision = await authoriseCall(ownerId, "TUTOR");
   if (!decision.allowed) {
@@ -113,9 +114,10 @@ export async function POST(request: Request) {
       { error: decision.message, reason: decision.reason },
       {
         status: 429,
-        headers: decision.retryAfterSeconds
-          ? { "retry-after": String(decision.retryAfterSeconds) }
-          : undefined,
+        headers: {
+          ...NO_STORE,
+          ...(decision.retryAfterSeconds ? { "retry-after": String(decision.retryAfterSeconds) } : {}),
+        },
       },
     );
   }
@@ -205,7 +207,7 @@ export async function POST(request: Request) {
     if (booking) after(() => releaseReservation(booking));
     const message = error instanceof TutorError ? error.message : "Anu could not be reached.";
     const status = error instanceof TutorError ? error.status : 502;
-    return Response.json({ error: message }, { status });
+    return Response.json({ error: message }, { headers: NO_STORE, status });
   }
 
   const stream = new ReadableStream({
@@ -271,7 +273,7 @@ export async function POST(request: Request) {
   return new Response(stream, {
     headers: {
       "content-type": "text/plain; charset=utf-8",
-      "cache-control": "no-store",
+      ...NO_STORE,
       "x-model-provider": open.config.label,
       "x-model-id": open.config.model,
     },
