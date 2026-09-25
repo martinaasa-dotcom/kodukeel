@@ -60,7 +60,7 @@ import type { DeadlineInput } from "@/lib/email/letters/deadline";
 import type { ClassroomInput } from "@/lib/email/letters/classroom";
 import type { WorddayInput } from "@/lib/email/letters/wordday";
 import type { MilestoneInput } from "@/lib/email/letters/milestone";
-import type { ShieldInput } from "@/lib/email/letters/shield";
+import { shieldToTell, type ShieldInput } from "@/lib/email/letters/shield";
 
 /** A high-water mark to write once a letter has really gone. */
 export interface Remember {
@@ -427,22 +427,15 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
         ]);
 
         /*
-          A day a shield covered that no letter has mentioned. Day keys sort
-          lexically, which is what makes "newer than the last one we said" a
-          string comparison; a row that will not parse means we know of none,
-          which is said by saying nothing.
+          Yesterday, if a shield covered it and no letter has said so. The
+          letter is about yesterday and nothing older, which `shieldToTell`
+          says at length.
         */
-        let shieldSpent: string | null = null;
-        try {
-          const parsed: unknown = JSON.parse(marks[SETTING_KEYS.streakShieldDates] ?? "[]");
-          const told = marks[SETTING_KEYS.shieldToldFor] ?? "";
-          const days = Array.isArray(parsed)
-            ? parsed.filter((d): d is string => typeof d === "string" && d > told)
-            : [];
-          shieldSpent = days.sort().at(-1) ?? null;
-        } catch {
-          shieldSpent = null;
-        }
+        const shieldSpent = shieldToTell(
+          marks[SETTING_KEYS.streakShieldDates],
+          marks[SETTING_KEYS.shieldToldFor] ?? "",
+          clock.dayKey(clock.shiftDay(now, 1)),
+        );
 
         /*
           AND A LEVEL WHOSE WORDS ARE ALL GRADUATED, WHICH IS FIVE COUNTS AND
@@ -584,14 +577,10 @@ export async function letterInputFor(
     return {
       kind: "welcome",
       input: {
-        name,
         origin,
         reminderAt: settings[SETTING_KEYS.reminderAt] ?? null,
         cardsWaiting: cards,
         opensOn: opening ? { title: opening.title, subtitle: opening.subtitle } : null,
-        target: settings[SETTING_KEYS.cefrGoal]
-          ? { level: settings[SETTING_KEYS.cefrGoal]!, deadline: null }
-          : null,
       },
     };
   }
@@ -641,9 +630,7 @@ export async function letterInputFor(
     return {
       kind: "comeback",
       input: {
-        name,
         origin,
-        daysAway: last ? clock.daysBetween(last.reviewedAt, now) : 0,
         wordsKept: kept,
         shieldUsed,
         streak: summary.streak,
@@ -721,7 +708,6 @@ export async function letterInputFor(
     return {
       kind: "weekly",
       input: {
-        name,
         origin,
         week: weekKeys.map((key) => ({
           label: dayLabel(key),
@@ -796,7 +782,6 @@ export async function letterInputFor(
       return {
         kind: "milestone",
         input: {
-          name,
           origin,
           level: {
             key: reached.level,
@@ -829,16 +814,11 @@ export async function letterInputFor(
     }
 
     const summary = await dailySummary(ownerId, now, clock);
-    let covered: string | null = null;
-    try {
-      const parsed: unknown = JSON.parse(marks[SETTING_KEYS.streakShieldDates] ?? "[]");
-      const told = marks[SETTING_KEYS.shieldToldFor] ?? "";
-      covered = (Array.isArray(parsed) ? parsed.filter((d): d is string => typeof d === "string" && d > told) : [])
-        .sort()
-        .at(-1) ?? null;
-    } catch {
-      covered = null;
-    }
+    const covered = shieldToTell(
+      marks[SETTING_KEYS.streakShieldDates],
+      marks[SETTING_KEYS.shieldToldFor] ?? "",
+      clock.dayKey(clock.shiftDay(now, 1)),
+    );
     if (!covered) return null;
 
     /*
@@ -858,7 +838,6 @@ export async function letterInputFor(
     return {
       kind: "shield",
       input: {
-        name,
         origin,
         streak: summary.streak,
         remaining: summary.shieldsAvailable,
@@ -933,7 +912,6 @@ export async function letterInputFor(
     return {
       kind: "deadline",
       input: {
-        name,
         origin,
         band: countdown.band,
         label: countdown.label,
@@ -1053,7 +1031,7 @@ export async function letterInputFor(
       };
     }
 
-    const roster = await classRoster(group.id, now);
+    const roster = await classRoster(group.id, now, { leaveOut: ownerId });
     return {
       kind: "classroom",
       input: {
@@ -1061,7 +1039,8 @@ export async function letterInputFor(
         groupName: group.name,
         ...headline,
         week,
-        detail: { kind: "CLASS", weakestCases: roster.weakestCases },
+        // Never the screen's figure, which may rest on one student.
+        detail: { kind: "CLASS", weakestCases: roster.sharedCases },
       },
     };
   }
@@ -1122,7 +1101,6 @@ export async function letterInputFor(
     return {
       kind: "errand",
       input: {
-        name,
         origin,
         errand: {
           says: errand.says,

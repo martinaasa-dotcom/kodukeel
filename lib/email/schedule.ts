@@ -406,7 +406,15 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
       the respectful answer and it is also the one that keeps the sign-in links
       landing in an inbox rather than in a spam folder.
     */
-    return allowed(who, "comeback", now)
+    /*
+      Once per absence, which the fortnight gap alone never said: it let the
+      letter out again every fourteen days, so somebody who stayed away got it
+      on day 6, day 20 and day 34 of one absence. A comeback sent after their
+      last review is this absence's, and the answer after it is silence.
+    */
+    const lastComeback = who.lastSent.get("comeback");
+    const toldThisAbsence = lastComeback !== undefined && who.lastReviewAt !== null && lastComeback > who.lastReviewAt;
+    return !toldThisAbsence && allowed(who, "comeback", now)
       ? { kind: "comeback", because: `no review in ${away} days` }
       : worddayOwed(who, now);
   }

@@ -4,6 +4,7 @@ import {
   BLANK_RESPONSE, allMarks, gradesFrom, markItem, markPaper, type Response,
 } from "./score";
 import { PASS_PCT } from "./spec";
+import { REPLAY_BATCH } from "@/lib/offline/outbox";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
 import { orderVariantNote, ORDER_WRONG, PARTS } from "@/lib/copy/values";
 
@@ -337,6 +338,15 @@ describe("what the sitting tells the scheduler", () => {
     const grades = gradesFrom(result);
     expect(grades.length).toBeGreaterThan(0);
     expect(grades.every((g) => g.rating === 3)).toBe(true);
+  });
+
+  it("can earn more grades than one replay batch holds, so the submission may not cut it to one", () => {
+    // A C1 paper sets up to sixty items on a word, each word once. The action
+    // used to slice this to `REPLAY_BATCH`, dropping the reading part's grades.
+    const c1 = buildPaper("C1", pool(200), "grade-seed", WORD_ORDER);
+    const grades = gradesFrom(markPaper(c1, perfect(c1)));
+    expect(grades.length).toBeGreaterThan(REPLAY_BATCH);
+    expect(new Set(grades.map((g) => g.cardId)).size).toBe(grades.length);
   });
 
   it("writes nothing for a question left blank", () => {
