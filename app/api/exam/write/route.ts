@@ -7,6 +7,7 @@ import { verifyVerdict } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
 import { clip } from "@/lib/copy/clip";
+import { NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -43,29 +44,29 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.text !== "string") {
-      return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+      return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
     }
     text = clip(body.text.trim(), MAX_CHARS);
     if (typeof body.level === "string" && /^[ABC][12]$/.test(body.level)) level = body.level;
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
 
   if (text.split(/\s+/).filter(Boolean).length < 5) {
-    return Response.json({ error: "There is not enough here to read." }, { status: 400 });
+    return Response.json({ error: "There is not enough here to read." }, { headers: NO_STORE, status: 400 });
   }
 
   // The grader's own chain, not the general head (see `PURPOSE_CHAINS`).
   const config = resolveProviders({ purpose: "grader" })[0];
   if (!config) {
-    return Response.json({ comment: "", rule: "", aiAvailable: false });
+    return Response.json({ comment: "", rule: "", aiAvailable: false }, { headers: NO_STORE });
   }
 
   const decision = await authoriseCall(ownerId, "GRADER");
   if (!decision.allowed) {
     return Response.json({
       comment: "", rule: "", aiAvailable: false, quotaMessage: decision.message,
-    });
+    }, { headers: NO_STORE });
   }
 
   // As in /api/write: tells a reader that never ran from one that ran and was
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
     }));
     settled = true;
 
-    if (!graded) return Response.json({ comment: "", rule: "", aiAvailable: true });
+    if (!graded) return Response.json({ comment: "", rule: "", aiAvailable: true }, { headers: NO_STORE });
 
     /*
       ADR-005, enforced rather than requested. The allowlist is the learner's own
@@ -118,18 +119,18 @@ export async function POST(request: Request) {
       return Response.json({
         comment: "", rule: "", aiAvailable: true,
         withheld: verified.unverified, withheldReason: verified.reason,
-      });
+      }, { headers: NO_STORE });
     }
 
     return Response.json({
       comment: verified.graded.comment, rule: verified.graded.rule, aiAvailable: true,
-    });
+    }, { headers: NO_STORE });
   } catch (error) {
     const booking = decision.reservation;
     if (!settled && booking) after(() => releaseReservation(booking));
     if (!(error instanceof TutorError)) {
       reportError(error, { at: "api/exam/write", ownerId, extra: { model: config.model } });
     }
-    return Response.json({ comment: "", rule: "", aiAvailable: false });
+    return Response.json({ comment: "", rule: "", aiAvailable: false }, { headers: NO_STORE });
   }
 }

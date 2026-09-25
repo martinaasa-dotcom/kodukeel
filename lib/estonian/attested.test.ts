@@ -112,6 +112,7 @@ describe("the shipped dictionary", () => {
   */
   it("leaves the ten regular cases as suffixes on the genitive stem", () => {
     const sample = WORDS.filter((w) => w.parts.GEN_SG).slice(0, 400);
+    expect(sample).toHaveLength(400);
     for (const w of sample) {
       const stems = stemsFromParts(w.parts);
       expect(caseAnswer(stems, "INESSIVE")?.value).toBe(`${w.parts.GEN_SG}s`);

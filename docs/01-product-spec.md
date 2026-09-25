@@ -2,6 +2,10 @@
 
 Supersedes v4.0. Every change from v4.0 is justified in `00-audit-v4.md`.
 
+> **As built:** this is the specification the app was built from, and much of it was then built differently, on
+> purpose. Each feature below opens with a note saying what exists; the criteria under it are the
+> original ones, kept as the record of what was asked. `docs/13-mvp-status.md` is the current state.
+
 ## 1. The user and the job
 
 > **Amended, September 2026.** The user below is who this was built for and is still the person
@@ -48,6 +52,10 @@ someone other than the implementer.
 
 ### 3.0 Today (NEW: the default route)
 
+> **As built:** the default route, capped at a handful of cards chosen in priority order (`TODAY_CARDS`).
+> The word of the day is chosen by the date (`lib/copy/almanac.ts`) rather than from weak cards, and
+> a teacher's assignments appear as one card; there is no personal task list.
+
 The app's front door. Answers "what now" in one screen.
 
 - Cards due today, with a one-click **Start review**.
@@ -61,6 +69,10 @@ Empty state (nothing due) suggests a concrete alternative action rather than sho
 
 ### 3.1 Tasks (v4.0 Feature 1: kept, extended)
 
+> **As built:** cut (`docs/13-mvp-status.md` §24). A `Task` is now work a teacher assigns or a reminder on
+> the Calendar, tagged `HOMEWORK` or `VOCABULARY`; the CRUD list, filters and linked lexemes were not
+> kept.
+
 - CRUD, completion checkbox, persistent across restarts.
 - Tags: `Grammar`, `Homework`, `Vocabulary`, `Speakly Goal`, `Listening Practice`, plus user-defined.
 - Week number, due date, optional linked lexemes ("this homework covers these 12 words").
@@ -71,6 +83,10 @@ intact. Filter to week 4 + `Grammar` and see only those. Completing a task with 
 to add those words to the deck.
 
 ### 3.2 Dictionary (v4.0 Feature 3: rebuilt, no iframe)
+
+> **As built:** largely as written. Principal parts come from Ekilex or the seeded dictionary, the derived table is
+> marked as worked out, audio is TartuNLP, starring works, and a page once opened is kept by the
+> service worker. There is no recent-searches list.
 
 Native UI over the Ekilex API. Replaces the impossible embed (audit A1).
 
@@ -88,6 +104,10 @@ With the network off, previously viewed entries still open from cache.
 
 ### 3.3 Anu, the AI tutor (v4.0 Feature 4: kept, hardened)
 
+> **As built:** largely as written, on Gemini with Groq behind it (`06-anu-tutor.md`). The spend meter is in Settings
+> and the cap is the ledger in `lib/usage/`. A conversation lasts a day and then starts
+> fresh.
+
 Full design in `06-anu-tutor.md`.
 
 - Streaming chat with an Estonian-specialist system prompt and a defined persona.
@@ -104,6 +124,11 @@ not a stack trace.
 
 ### 3.4 Flashcards / SRS (v4.0 Feature 6: upgraded)
 
+> **As built:** seven card types, but not these seven: listening and the object case are
+> practice rounds and a grammar topic, and the gap-fill and conjugation cards took their place
+> (`07-srs.md` §2). Undo is built. The export is a JSON backup that restores; an Anki export was not
+> built.
+
 Full design in `07-srs.md`. FSRS via `ts-fsrs`, not SM-2.
 
 - Seven card types: recognition, production, **case-form cloze**, **gradation**, **verb government**,
@@ -117,6 +142,9 @@ imports into Anki.
 
 ### 3.5 Calendar (v4.0 Feature 2: kept, moved to Phase 4)
 
+> **As built:** a week view of the learner's own classes, study slots and what is due, entered by hand. No
+> iCal feed subscription was built.
+
 - Month and week views showing task due dates, class times and review load.
 - **Read-only** subscription to one or more iCal URLs (Google/Apple), refreshed on a schedule.
 
@@ -125,6 +153,9 @@ feed removes its events and nothing else. A malformed or unreachable feed shows 
 leaves other feeds working.
 
 ### 3.6 Imports (v4.0 Feature 5: generalized)
+
+> **As built:** a paste importer in Settings: tab, dash, comma or semicolon separated lines, capped at
+> `MAX_IMPORT_ROWS`, each word matched against the dictionary. There is no per-row preview table.
 
 Speakly-specific parsing replaced with a format-agnostic importer (audit A3).
 
@@ -138,6 +169,9 @@ filled in for those Ekilex recognizes, duplicates flagged, and nothing written u
 
 ### 3.7 Progress (NEW)
 
+> **As built:** largely as written. The heatmap became a ranked list of weakest cases (`components/WeakestCases.tsx`),
+> each linking to a drill, beside the retention reading, mastery tiers and readiness rungs.
+
 - Reviews per day, retention rate, cards by FSRS state.
 - **Weak-case heatmap**: accuracy per grammatical case, so the learner can see that their ablative
   is fine and their partitive plural is not.
@@ -147,6 +181,10 @@ filled in for those Ekilex recognizes, duplicates flagged, and nothing written u
 starts a filtered drill session on that case.
 
 ## 4. Explicit non-goals for v1
+
+> **As built:** three of these were reversed. Accounts and classes exist (ADR-013, ADR-019); rules over
+> stored stems generate the regular forms (ADR-005 amendment 1); and the course itself is authored
+> here (`lib/collections/syllabus/`). The rest still hold.
 
 Named so they do not creep in. Each is a real decision, not an omission:
 

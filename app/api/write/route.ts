@@ -12,6 +12,7 @@ import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledg
 import { reportError } from "@/lib/observability/report";
 import type { CaseKey } from "@/lib/estonian/types";
 import { clip } from "@/lib/copy/clip";
+import { NO_STORE } from "@/lib/security/headers";
 import { courseLevelFor } from "@/lib/progress/level";
 
 export const dynamic = "force-dynamic";
@@ -53,19 +54,19 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.lexemeId !== "string" || typeof body.caseKey !== "string" ||
         typeof body.sentence !== "string") {
-      return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+      return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
     }
     lexemeId = body.lexemeId;
     caseKey = body.caseKey as CaseKey;
     sentence = clip(body.sentence.trim(), MAX_SENTENCE_CHARS);
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
 
   if (!looksLikeSentence(sentence)) {
     return Response.json(
       { error: "Write a whole sentence, at least three words." },
-      { status: 400 },
+      { headers: NO_STORE, status: 400 },
     );
   }
 
@@ -73,12 +74,12 @@ export async function POST(request: Request) {
     where: { id: lexemeId },
     include: { forms: true },
   });
-  if (!lexeme) return Response.json({ error: "That word no longer exists." }, { status: 404 });
+  if (!lexeme) return Response.json({ error: "That word no longer exists." }, { headers: NO_STORE, status: 404 });
 
   const tasks = writingTasksFor(lexeme);
   const task = tasks.find((t) => t.caseKey === caseKey);
   if (!task) {
-    return Response.json({ error: "No exercise for that case." }, { status: 400 });
+    return Response.json({ error: "No exercise for that case." }, { headers: NO_STORE, status: 400 });
   }
 
   /**
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
   // note the route is about to refuse (see `PURPOSE_CHAINS`).
   const config = resolveProviders({ purpose: "grader" })[0];
   if (!config) {
-    return Response.json({ formCheck, graded: null, aiAvailable: false });
+    return Response.json({ formCheck, graded: null, aiAvailable: false }, { headers: NO_STORE });
   }
 
   const decision = await authoriseCall(ownerId, "GRADER");
@@ -112,7 +113,7 @@ export async function POST(request: Request) {
     // than a failure — the learner is told whether the form was right.
     return Response.json(
       { formCheck, graded: null, aiAvailable: false, quotaMessage: decision.message },
-      { status: 200 },
+      { headers: NO_STORE, status: 200 },
     );
   }
 
@@ -180,7 +181,7 @@ export async function POST(request: Request) {
       reply = verified.graded;
     }
 
-    return Response.json({ formCheck, graded: reply, aiAvailable: true, withheld, withheldReason });
+    return Response.json({ formCheck, graded: reply, aiAvailable: true, withheld, withheldReason }, { headers: NO_STORE });
   } catch (error) {
     const booking = decision.reservation;
     if (!settled && booking) after(() => releaseReservation(booking));
@@ -188,6 +189,6 @@ export async function POST(request: Request) {
       reportError(error, { at: "api/write", ownerId, extra: { model: config.model } });
     }
     // Degrades to the mechanical result, which is the important half anyway.
-    return Response.json({ formCheck, graded: null, aiAvailable: false });
+    return Response.json({ formCheck, graded: null, aiAvailable: false }, { headers: NO_STORE });
   }
 }

@@ -22,7 +22,7 @@
  *
  * What is decided here is the shape of the thing: where the parts break, how
  * many words an evening carries at each level, which rounds a level rotates
- * through, and which of the fourteen conversations belongs to which unit.
+ * through, and which of the fifteen conversations belongs to which unit.
  *
  * THE ROUNDS ALTERNATE, AND THAT IS LOAD-BEARING. Each level's rotation runs
  * game, drill, game, drill, and an evening takes two neighbours off it, so
@@ -130,13 +130,13 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
 /**
  * Which conversation belongs to which unit, on the last evening of it.
  *
- * All fourteen the app has, each on the unit whose words it needs and none
+ * All fifteen the app has, each on the unit whose words it needs and none
  * before the words exist. A scene declares the units it may draw on, and
  * `course.test.ts` checks that every unit it declares has been taught by the
  * time the programme opens it, which is the whole of what makes a conversation
  * at this point fair rather than a wall.
  *
- * A unit with no entry has no conversation, which is most of them: fourteen
+ * A unit with no entry has no conversation, which is most of them: fifteen
  * scenes over a hundred and eighty evenings is roughly one a fortnight, and
  * that is the right rhythm for the one step that takes six minutes and some
  * nerve.
@@ -156,13 +156,20 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   eluase: "uuri-remont",
   probleemid: "ametiasutus",
   oigus: "kaebus",
+  /*
+    The clothes shop rehearses `riided`, which is A1, and is dealt here
+    because no conversation can open before `korraldused`: every scene
+    declares it, and it is what makes asking for anything possible. This is
+    the first free evening after it that is not already carrying one.
+  */
+  "vaba-aeg": "riidepood",
 };
 
 /**
  * AND WHY THERE IS NO CONVERSATION IN THE WHOLE OF A1, WHICH IS A FINDING
  * RATHER THAN AN OMISSION.
  *
- * Every one of the fourteen scenes declares `korraldused` among the units it
+ * Every one of the fifteen scenes declares `korraldused` among the units it
  * may draw on, which is the unit for asking, telling and offering, and it sits
  * in A2. That is not a mistake in the scenes: you cannot ask anybody for
  * anything without it, so a conversation before it is a conversation the
@@ -174,7 +181,7 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
  * What it changed is where A2 starts. `korraldused` used to sit near the end
  * of A2 and now opens it, because it is the unit that makes a conversation
  * possible and everything after it is better for having it. Ten of the
- * fourteen scenes fall inside A2 as a result, which is the right shape: A1 is
+ * fifteen scenes fall inside A2 as a result, which is the right shape: A1 is
  * where you get the words, A2 is where you start using them on people.
  *
  * A1 is not left without anything to enjoy. Every A1 evening carries a game
@@ -269,12 +276,33 @@ export const PARTS: readonly PartSpec[] = [
   },
   {
     id: "a1.6", level: "A1",
-    title: "Sidesõnad, kuud ja abi", subtitle: "The small words, the calendar, the world, and asking for help",
+    title: "Sidesõnad, kuud ja riigid", subtitle: "The small words, the calendar, and where people are from",
     blurb:
-      "The last of A1: the words that join two sentences or say how sure you are, the months, "
-      + "where people are from, and how to ask somebody for help. At the end you have every "
-      + "word A1 asks for.",
-    units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid", "abi"],
+      "The words that join two sentences or say how sure you are, the months and the holidays, "
+      + "and where people are from. At the end you can put two thoughts together and say when "
+      + "something happens.",
+    units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid"],
+  },
+  {
+    id: "a1.7", level: "A1",
+    title: "Kuidas, kinni ja abi", subtitle: "How something was done, the word that finishes a verb, and asking for help",
+    /*
+      A seventh part rather than two more units inside the sixth, and that is
+      about the day ids rather than about the shape. `CourseStep` rows are
+      keyed on a day id, so inserting a unit into the middle of a part moves
+      every evening after it onto an id somebody else's ticks already point at.
+      Taking the last unit of a1.6 and standing it at the end of a new part
+      moves no evening that anybody has reached: a1.6 keeps its own ids and
+      simply stops earlier.
+
+      The order inside it is the argument. The manner words and the particles
+      are the last of the machinery, and A1 still ends on asking for help,
+      which is where it ended before.
+    */
+    blurb:
+      "The last of A1: how something was done, the little word that finishes a verb, and how to "
+      + "ask somebody for help. At the end you have every word A1 asks for.",
+    units: ["viisisonad", "osakesed", "abi"],
   },
 
   {
@@ -302,7 +330,7 @@ export const PARTS: readonly PartSpec[] = [
       "Comparing two things, talking about what has not happened yet, and saying how you feel "
       + "about either. Five conversations, more than any other part: at the end you can hold a "
       + "whole meal in Estonian, book an appointment and ring somebody about it.",
-    units: ["restoranis", "vordlemine", "plaanid", "suhtlemine", "tunded"],
+    units: ["restoranis", "vordlemine", "plaanid", "suhtlemine", "tunded", "kuivord"],
   },
 
   {

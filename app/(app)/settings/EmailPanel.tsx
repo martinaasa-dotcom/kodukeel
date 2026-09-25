@@ -110,15 +110,18 @@ export function EmailPanel({
       later. A preference is not a graded answer, so there is no outbox here.
     */
     start(() => {
-      void setEmailKind({ kind, on }).then((result) => {
+      void setEmailKind({ kind, on }).catch(() => null).then((result) => {
         if (!result?.ok) setState((s) => ({ ...s, [kind]: !on }));
       });
     });
   };
 
   const pickHour = (at: string) => {
+    const was = hour;
     setHour(at);
-    start(() => { void setReminderHour({ at }); });
+    start(() => {
+      void setReminderHour({ at }).catch(() => setHour(was));
+    });
   };
 
   return (
