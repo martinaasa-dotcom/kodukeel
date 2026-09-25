@@ -110,7 +110,10 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
 
   const rows = await prisma.lexeme.findMany({
     where: { id: { in: drawn } },
-    include: { forms: { orderBy: { orderIndex: "asc" } } },
+    // Ends on the id: seeded forms all carry orderIndex 0, so a tie handed to
+    // the plan decided which form a dictation asked for, at the sitting and
+    // again, differently, at the marking.
+    include: { forms: { orderBy: [{ orderIndex: "asc" }, { id: "asc" }] } },
   });
   // `IN (…)` comes back in whatever order the plan likes, so the draw is put
   // back by hand: the pool's order is part of what the seed decided.
@@ -483,6 +486,16 @@ export function partPercentages(json: string): Partial<Record<SkillKey, number>>
     for (const part of parts) {
       const skill = (part as { skill?: unknown }).skill;
       const pct = (part as { pct?: unknown }).pct;
+      /*
+        A part nothing could be set for is stored with a percentage of nought,
+        because the share of nothing is nothing, and the result page leaves it
+        out of the total. Read back as a figure it was a real 0% sitting: the
+        hub printed "listening predicted at 0" after the speech service was
+        down for a paper, and counted the part as measured. A row written
+        before the column is read as it always was.
+      */
+      const available = (part as { rawAvailable?: unknown }).rawAvailable;
+      if (typeof available === "number" && available <= 0) continue;
       if (typeof skill === "string" && typeof pct === "number" &&
           (SKILLS as readonly string[]).includes(skill)) {
         out[skill as SkillKey] = pct;
