@@ -235,13 +235,26 @@ export const moduleReached = cache(async (
 });
 
 export async function dayIsInPlay(
-  ownerId: string, programme: Programme, day: CourseDay,
+  ownerId: string, programme: Programme, day: CourseDay, now = new Date(),
 ): Promise<boolean> {
   const ticks = await ticksFor(ownerId, programme);
   const reached = dayReached(programme, new Set(ticks.byDay.keys()));
-  /* The day after the one reached is in play too: finishing an evening is what
-     opens the next, and nothing is ticked on it until somebody starts. */
-  return day.index <= reached.index + 1;
+  if (day.index <= reached.index) return true;
+  if (day.index > reached.index + 1) return false;
+  /*
+    THE DAY AFTER THE ONE REACHED IS IN PLAY ONCE THE ONE REACHED IS FINISHED,
+    and not before. Finishing an evening is what opens the next, and nothing is
+    ticked on it until somebody starts. Allowing it unconditionally was a
+    ladder somebody could climb without doing anything: a tick on the next day
+    makes it the day reached, so a tick on the day after that is allowed, and
+    repeated calls walked the whole programme one evening per request. Read
+    through the same function the screen reads, so an evening the list shows
+    as finished is the evening this opens the next one after.
+  */
+  const done = await withDerivedSteps(
+    ownerId, programme, ticks, reached, ticks.byDay.get(reached.id) ?? new Set<string>(), now,
+  );
+  return reached.steps.every((step) => done.has(step.id));
 }
 
 /**
@@ -336,6 +349,47 @@ function onlyClosingLeft(day: CourseDay, done: ReadonlySet<string>): boolean {
   return day.steps.every((step) => step.id === REVIEW_STEP || done.has(step.id));
 }
 
+/**
+ * A day's finished steps, the ticked ones and the two the review log proves.
+ *
+ * One function because two callers ask it and they may not disagree: the
+ * reading that draws the screen, and `dayIsInPlay`, which decides whether the
+ * day after the one reached may be written about yet.
+ */
+async function withDerivedSteps(
+  ownerId: string, programme: Programme, ticks: Ticks, day: CourseDay,
+  ticked: ReadonlySet<string>, now: Date,
+): Promise<Set<string>> {
+  const [met, graded] = await Promise.all([
+    ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words),
+    ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day.id),
+  ]);
+
+  const withDerived = new Set(ticked);
+  if (met) withDerived.add(MEET_STEP);
+  /*
+    FIVE ANSWERS, OR EVERY ANSWER THE ROUND HAS LEFT TO GIVE.
+
+    The first is the standing ask and used to be the only one, which is what
+    left an evening whose closing round had nothing to offer stuck at three
+    quarters for ever: the step is derived, so nothing a learner can press
+    ticks it, and the round behind it said nothing was due. See
+    `closingNeeded`.
+
+    Asked only where it is the last thing standing, which is both the honest
+    reading and the cheap one. Until then there is an evening's worth of
+    steps in front of it and the question is not yet "can this be finished",
+    it is "what is next"; and Today would be paying two queries a render to
+    answer something nobody was asking.
+  */
+  if (graded >= CLOSING_REVIEW) withDerived.add(REVIEW_STEP);
+  else if (onlyClosingLeft(day, withDerived)
+    && graded >= await closingNeeded(ownerId, programme, day, graded, now)) {
+    withDerived.add(REVIEW_STEP);
+  }
+  return withDerived;
+}
+
 export interface CourseReading extends ProgrammeStanding {
   /** True where the current day's last step was finished today. */
   finishedToday: boolean;
@@ -391,34 +445,9 @@ export async function courseReading(
     const day = standing.current?.day;
     if (!day) break;
 
-    const ticked = done.get(day.id) ?? new Set<string>();
-    const [met, graded] = await Promise.all([
-      ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words),
-      ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day.id),
-    ]);
-
-    const withDerived = new Set(ticked);
-    if (met) withDerived.add(MEET_STEP);
-    /*
-      FIVE ANSWERS, OR EVERY ANSWER THE ROUND HAS LEFT TO GIVE.
-
-      The first is the standing ask and used to be the only one, which is what
-      left an evening whose closing round had nothing to offer stuck at three
-      quarters for ever: the step is derived, so nothing a learner can press
-      ticks it, and the round behind it said nothing was due. See
-      `closingNeeded`.
-
-      Asked only where it is the last thing standing, which is both the honest
-      reading and the cheap one. Until then there is an evening's worth of
-      steps in front of it and the question is not yet "can this be finished",
-      it is "what is next"; and Today would be paying two queries a render to
-      answer something nobody was asking.
-    */
-    if (graded >= CLOSING_REVIEW) withDerived.add(REVIEW_STEP);
-    else if (onlyClosingLeft(day, withDerived)
-      && graded >= await closingNeeded(ownerId, programme, day, graded, now)) {
-      withDerived.add(REVIEW_STEP);
-    }
+    const withDerived = await withDerivedSteps(
+      ownerId, programme, ticks, day, done.get(day.id) ?? new Set<string>(), now,
+    );
     done.set(day.id, withDerived);
     standing = programmeStanding(programme, done);
 

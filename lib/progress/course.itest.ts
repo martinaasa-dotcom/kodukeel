@@ -347,10 +347,34 @@ describe("a course that has to survive a midnight", () => {
 });
 
 describe("the day an action may write about", () => {
-  it("takes the day reached, and the one it opens on to", async () => {
-    await deck(PROGRAMME.days[0]!.words, 1);
-    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[0]!)).toBe(true);
-    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[1]!)).toBe(true);
+  it("takes the day reached, and the one it opens on to once it is finished", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, one, NOW)).toBe(true);
+    await tick(one.id, ticked(one), EVENING);
+    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[1]!, NOW)).toBe(true);
+  });
+
+  /*
+    THE LADDER NOBODY HAD TO CLIMB. The day after the one reached used to be in
+    play whatever state the day reached was in, and a tick on it makes it the
+    day reached, so a caller could tick day two, then day three, then every
+    evening of the programme in turn, one request each, having done nothing.
+  */
+  it("does not open the next day while the day reached is unfinished", async () => {
+    const [one, two, three] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!, PROGRAMME.days[2]!];
+    await deck(one.words, 1);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, two, NOW)).toBe(false);
+
+    /* Half an evening is not an evening: one step ticked and the rest not. */
+    await tick(one.id, ticked(one).slice(0, 1), EVENING);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, two, NOW)).toBe(false);
+
+    /* And a forged tick on day two, written past the gate, opens nothing further. */
+    await tick(two.id, ticked(two).slice(0, 1), new Date(EVENING.getTime() + 5 * 60_000));
+    expect(await dayIsInPlay(OWNER, PROGRAMME, three, NOW)).toBe(false);
   });
 
   /*
