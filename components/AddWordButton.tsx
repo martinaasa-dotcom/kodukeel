@@ -6,7 +6,7 @@ import { Check, Loader2, Plus } from "lucide-react";
 import { addToDeck } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
-import { counted } from "@/lib/copy/values";
+import { counted, NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * Puts one dictionary word into the deck, and asks which shelf where there is
@@ -43,8 +43,8 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
   const [result, setResult] = useState<string | null>(null);
 
   const keeper = useKeepWord(lexemeId, async (deckIds, named) => {
-    const r = await addToDeck(lexemeId, ["RECOGNITION", "PRODUCTION"], source, deckIds);
-    if (!r.ok) { setResult(r.error); return; }
+    const r = await addToDeck(lexemeId, ["RECOGNITION", "PRODUCTION"], source, deckIds).catch(() => null);
+    if (!r || !r.ok) { setResult(r ? r.error : NOT_REACHED); return; }
     const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
     setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${counted(r.added, "card")}.${where}`);
     router.refresh();

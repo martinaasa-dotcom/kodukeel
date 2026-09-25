@@ -30,7 +30,8 @@ export function VoicePanel({ current }: { current: string }) {
   const pick = (next: string) => {
     setVoiceState(next);
     start(async () => {
-      await setVoice(next);
+      const landed = await setVoice(next).then(() => true).catch(() => false);
+      if (!landed) { setVoiceState(voice); return; }
       router.refresh();
     });
   };
@@ -78,7 +79,8 @@ export function SpeechPacePanel({ current, fromLevel, level }: { current: Pace; 
   const pick = (next: SpeechPaceId | "auto") => {
     setValue(next);
     start(async () => {
-      await setSpeechPace(next);
+      const landed = await setSpeechPace(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
@@ -145,7 +147,8 @@ export function AutoplayPanel({ current }: { current: Autoplay }) {
   const pick = (next: Autoplay) => {
     setValue(next);
     start(async () => {
-      await setAutoplay(next);
+      const landed = await setAutoplay(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
@@ -193,7 +196,8 @@ export function FeedbackSoundsPanel({ current }: { current: FeedbackSounds }) {
     // Play the sound being chosen, so the choice can be heard rather than read about.
     if (next === "on") playFeedback("right");
     start(async () => {
-      await setFeedbackSounds(next);
+      const landed = await setFeedbackSounds(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
@@ -258,7 +262,8 @@ export function HearingPanel({ current }: { current: Hearing }) {
   const pick = (next: Hearing) => {
     setValue(next);
     start(async () => {
-      await setHearing(next);
+      const landed = await setHearing(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
@@ -325,7 +330,8 @@ export function SupportPanel({ current }: { current: Support }) {
   const pick = (next: Support) => {
     setValue(next);
     start(async () => {
-      await setSupport(next);
+      const landed = await setSupport(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
