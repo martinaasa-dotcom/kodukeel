@@ -304,6 +304,30 @@ check("the keyed services are only ever reached from the server", () => {
 });
 
 /*
+  THE SUPABASE BROWSER CLIENT IS FETCHED WHEN SOMEBODY SIGNS IN OR OUT.
+
+  The rail on every signed-in page imported it at the top of the file for its
+  Sign out button, so every page downloaded 254 KB of `@supabase/supabase-js`
+  and the Buffer polyfill it brings for a press most visits never make. The
+  sign-in form is the one screen whose job is the client, so it may import it;
+  everything else asks for it with `import()` at the moment it is needed.
+*/
+check("only the sign-in form imports the Supabase browser client up front", () => {
+  const STATIC = /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["'](?:@\/lib\/supabase\/client|@supabase\/(?:ssr|supabase-js))["']/;
+  const ALLOWED = ["app/(chromeless)/sign-in/SignInForm.tsx"];
+  const offenders = CLIENT.filter((file) => !ALLOWED.includes(file) && STATIC.test(code(file)));
+  assert.deepEqual(
+    offenders, [],
+    `a client file imports the Supabase browser client at the top, so every page that renders it downloads 254 KB for it: ${offenders.join(", ")}`,
+  );
+  for (const file of ALLOWED) {
+    assert.ok(STATIC.test(code(file)), `${file} is allowed the client and no longer imports it; take it off the list`);
+  }
+  const lazy = CLIENT.filter((file) => /\bimport\(\s*["']@\/lib\/supabase\/client["']\s*\)/.test(code(file)));
+  assert.ok(lazy.length >= 2, `only ${lazy.length} files fetch the client on demand, so this has lost the ones it was about`);
+});
+
+/*
   THE COURSE HARVEST IS A SERVER FILE, AND ONE IMPORT PUT IT ON EVERY PAGE.
 
   The signed-in shell mounts `components/course/ModuleScope.tsx`, which took
