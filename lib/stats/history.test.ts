@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  bestStudyHour, buildHeatmap, caseAccuracy, dailyLoad, ratingBreakdown,
+  bestStudyHour, buildHeatmap, caseAccuracy, dailyLoad, isMatureReview, matureRecall, ratingBreakdown,
   retentionReading, RETENTION_MINIMUM, RETENTION_TARGET, REVIEW_STATE,
 } from "./history";
 import { REQUEST_RETENTION } from "@/lib/srs/scheduler";
@@ -246,5 +246,33 @@ describe("the retention target", () => {
     const reading = retentionReading(mixed);
     expect(reading.reviews).toBe(40);
     expect(reading.retention).toBe(100);
+  });
+});
+
+describe("matureRecall", () => {
+  /*
+    The exam hub's recall figure and the class roster's copy of it read
+    `stateBefore >= 2`, which counts an answer on a card being relearned as
+    mature; retentionReading on Progress reads the Review state alone. Ten
+    Good answers on learned cards beside ten Again answers on relearning ones
+    read 100 on one screen and 50 on the other.
+  */
+  const reviews = [
+    ...Array.from({ length: 10 }, () => ({ rating: 3, stateBefore: 2 })),
+    ...Array.from({ length: 10 }, () => ({ rating: 1, stateBefore: 3 })),
+    ...Array.from({ length: 10 }, () => ({ rating: 1, stateBefore: 1 })),
+  ];
+
+  it("counts the Review state and leaves relearning out, as retentionReading does", () => {
+    expect(matureRecall(reviews)).toEqual({ recalled: 10, reviews: 10, pct: 100 });
+    const retention = retentionReading(reviews, 90, 1);
+    expect(retention.reviews).toBe(10);
+    expect(retention.recalled).toBe(10);
+  });
+
+  it("is the tally both recall readers use", () => {
+    expect(isMatureReview(2)).toBe(true);
+    expect(isMatureReview(3)).toBe(false);
+    expect(isMatureReview(1)).toBe(false);
   });
 });

@@ -114,7 +114,9 @@ function measurable(
   // The last person in a cohort joined on its final day, so the window closes
   // a week later than the cohort's own start.
   const closes = addDays(cohort, 6 + milestone.offset + milestone.windowDays - 1);
-  return toUtc(closes) <= toUtc(today);
+  // Strictly before today: the window's last day is still open while it is today,
+  // and a learner who joined on the cohort's last day may yet come back in it.
+  return toUtc(closes) < toUtc(today);
 }
 
 /**

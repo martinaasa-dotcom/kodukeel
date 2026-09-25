@@ -40,7 +40,6 @@ import { meter } from "../art";
 import type { Block, Letter } from "../letter";
 
 export interface DeadlineInput {
-  readonly name: string | null;
   readonly origin: string;
   /** The band they said they were aiming for. */
   readonly band: string;

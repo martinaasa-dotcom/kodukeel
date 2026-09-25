@@ -129,6 +129,22 @@ export function unitById(id: string): SyllabusUnit | undefined {
   return BY_ID.get(id);
 }
 
+/**
+ * The units a deck has started: any of the unit's words with a card.
+ *
+ * Here rather than beside the errands that ask it, because `errands.ts` is
+ * what Today's errand card renders from, in the browser, and this was the one
+ * thing there that needed the whole syllabus: importing it for this put 80 KB
+ * of course data on the home page for a function only the server calls.
+ */
+export function startedUnits(startedLemmas: ReadonlySet<string>): Set<string> {
+  const out = new Set<string>();
+  for (const unit of SYLLABUS) {
+    if (unit.lemmas.some((l) => startedLemmas.has(l))) out.add(unit.id);
+  }
+  return out;
+}
+
 export function unitsAtLevel(level: Level): readonly SyllabusUnit[] {
   return SYLLABUS.filter((u) => u.level === level);
 }

@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { modeAt } from "@/lib/ux/modes";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 
 /**
  * The drill that belongs on the page you are already standing on.
@@ -27,8 +27,6 @@ export function DrillLink({ href }: { href: string }) {
   // suite is what catches a stale href; a learner should not meet it.
   if (!mode) return null;
 
-  const Icon = icon(mode.icon);
-
   return (
     <Link
       href={mode.href}
@@ -39,7 +37,7 @@ export function DrillLink({ href }: { href: string }) {
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
         style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
       >
-        <Icon size={19} aria-hidden />
+        <NamedIcon name={mode.icon} size={19} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{mode.title}</span>

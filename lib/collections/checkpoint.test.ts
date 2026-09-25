@@ -100,7 +100,20 @@ describe("buildCheckpoint", () => {
       examples: ["Oleme ikka sõbrad edasi!"],
       parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
     });
-    const gaps = buildCheckpoint([friend], 1, 1).filter((q) => q.kind === "gap");
+    /*
+      Asked of one word this could not fail. A checkpoint gaps
+      `round(words × GAP_SHARE)` of its questions and one word rounds that to
+      nought, so it never tried to build a gap at all and the loop below ran
+      over nothing: the check passed with the plural rule deleted. Beside words
+      with no sentence the checkpoint has to try every word that has one, and
+      `tuba` is the control that says a gap is really being built, since a
+      version that gapped nothing would pass the plural half as well.
+    */
+    const room = WORDS.find((w) => w.lemma === "tuba")!;
+    const gaps = buildCheckpoint(
+      [friend, room, word("aken"), word("laud"), word("tool"), word("sein")], 6, 1,
+    ).filter((q) => q.kind === "gap");
+    expect(gaps.map((g) => g.lemma)).toEqual(["tuba"]);
     for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
   });
 

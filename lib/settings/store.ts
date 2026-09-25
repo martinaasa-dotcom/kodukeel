@@ -265,10 +265,10 @@ export const SETTING_KEYS = {
   /**
    * How long a timed round runs, as a pace rather than a number of seconds.
    *
-   * The Case Sprint and the daily quest each had a fixed clock, which is WCAG
-   * 2.2.1 failed twice: a learner who reads slowly or types with one hand was
-   * shut out of both. What is stored is a multiplier over each round's own
-   * base, since the two bases are different on purpose. A missing row is the
+   * The Case Sprint, the daily quest and Target each had a fixed clock, which
+   * is WCAG 2.2.1 failed three times: a learner who reads slowly or types with
+   * one hand was shut out of all of them. What is stored is a multiplier over
+   * each round's own base, since the bases are different on purpose. A missing row is the
    * shipped length, which is what everybody already had. The table and the
    * reasoning live in lib/ux/roundClock.ts; the mock examination's clock is
    * not this setting's business and does not read it.
@@ -379,11 +379,12 @@ export async function writeSetting(ownerId: string, key: SettingKey, value: stri
 /**
  * Drop what this request remembers about a learner's settings.
  *
- * For the three paths that write the table without coming through
- * `writeSetting`: setting the course week to nothing (a delete, which is not a
- * value), restoring a backup, and erasing an account. All three are bulk
- * changes rather than one key, so correcting the held map in place would mean
- * describing the write twice, and all three end the request straight after.
+ * For the paths that write the table without coming through `writeSetting`:
+ * restoring a backup and erasing an account, which are bulk changes rather
+ * than one key, and the unsubscribe and bounce routes, which write a mail
+ * setting with an upsert of their own. Correcting the held map in place would
+ * mean describing each write twice, and every one of them ends the request
+ * straight after.
  */
 export function forgetSettings(ownerId: string): void {
   settingsScope().delete(ownerId);

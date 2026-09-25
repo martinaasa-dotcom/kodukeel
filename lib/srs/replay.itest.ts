@@ -146,6 +146,42 @@ describe("applyGradeBatch", () => {
     expect(reviews[1]?.stateBefore).not.toBe(0);
   });
 
+  it("chains three grades of one card in one batch exactly as three separate grades would", async () => {
+    // The card is read once for the whole batch, so each grade has to read the
+    // scheduling the one before it wrote rather than the row as the batch began.
+    const card = await makeCard();
+    const t0 = GRADED_AT.getTime();
+    const moments = [t0, t0 + 10 * 60_000, t0 + 2 * DAY];
+    const ratings = [3, 1, 3] as const;
+
+    await applyGradeBatch(OWNER, moments.map((reviewedAt, i) => ({
+      id: `c${i}`, cardId: card.id, rating: ratings[i]!, durationMs: 1000, reviewedAt,
+    })));
+
+    let expected = {
+      due: DUE, stability: 0, difficulty: 0,
+      elapsedDays: 0, scheduledDays: 0, reps: 0, lapses: 0, state: 0,
+      lastReview: null as Date | null, learningSteps: 0,
+    };
+    for (const [i, at] of moments.entries()) expected = grade(expected, ratings[i]!, new Date(at));
+
+    const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(after.reps).toBe(3);
+    expect(after.lapses).toBe(expected.lapses);
+    expect(after.state).toBe(expected.state);
+    expect(after.learningSteps).toBe(expected.learningSteps);
+    expect(after.stability).toBeCloseTo(expected.stability, 9);
+    expect(after.difficulty).toBeCloseTo(expected.difficulty, 9);
+    expect(after.due.toISOString()).toBe(expected.due.toISOString());
+    expect(after.lastReview?.toISOString()).toBe(expected.lastReview?.toISOString());
+
+    const reviews = await prisma.review.findMany({
+      where: { ownerId: OWNER }, orderBy: { reviewedAt: "asc" },
+    });
+    expect(reviews.map((r) => r.stateBefore)).toEqual([0, expect.any(Number), expect.any(Number)]);
+    expect(new Set(reviews.map((r) => r.stateBefore)).size).toBeGreaterThan(1);
+  });
+
   it("reproduces exactly the schedule an online grade would have produced", async () => {
     // The whole promise of the offline path: a grade replayed later, with its
     // original timestamp, lands where it would have had the network held.
