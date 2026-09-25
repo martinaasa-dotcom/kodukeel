@@ -35,6 +35,18 @@ import { toggleStar } from "@/app/actions";
  * and the honest thing to do with one that did not land is to put the button
  * back the way it was rather than to promise it later.
  */
+/*
+  WHAT THIS TAB HAS PRESSED, BY WORD.
+
+  The state is reset from the page's own snapshot every time the word changes,
+  and a snapshot taken when the page loaded does not know about a press made
+  since: a word met twice in one session, its recognition card and then its
+  production card, came back drawn as not a favorite a minute after it was
+  made one. This is the answer the server gave to each press this tab made,
+  read before the snapshot; a reload reads the snapshot fresh.
+*/
+const pressed = new Map<string, boolean>();
+
 export function StarWord({
   lexemeId, starred, label,
 }: {
@@ -55,8 +67,9 @@ export function StarWord({
     pattern for a state that a prop supersedes, and it re-renders immediately
     rather than after a paint, so nothing is ever drawn in the stale state.
   */
-  const [shown, setShown] = useState({ lexemeId, starred });
-  if (shown.lexemeId !== lexemeId) setShown({ lexemeId, starred });
+  const known = pressed.get(lexemeId) ?? starred;
+  const [shown, setShown] = useState({ lexemeId, starred: known });
+  if (shown.lexemeId !== lexemeId) setShown({ lexemeId, starred: known });
   const on = shown.starred;
   const setOn = (next: boolean) => setShown({ lexemeId, starred: next });
   const [pending, start] = useTransition();
@@ -76,6 +89,7 @@ export function StarWord({
         setOn(next);
         start(async () => {
           const result = await toggleStar(lexemeId, next).catch(() => null);
+          if (result?.ok) pressed.set(lexemeId, result.starred);
           setOn(result?.ok ? result.starred : !next);
         });
       }}
