@@ -516,7 +516,7 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
 
 export async function setCardSuspended(cardId: string, suspended: boolean) {
   const ownerId = await requireUserId();
-  await prisma.card.updateMany({ where: { id: cardId, ownerId }, data: { suspended } });
+  await prisma.card.updateMany({ where: { id: cardId, ownerId }, data: { suspended: suspended === true } });
   revalidatePath("/words");
   revalidatePath("/progress"); // the sticking-points list lives there
   revalidatePath("/");
@@ -1139,7 +1139,7 @@ export async function recordSonad(day: string, guesses: unknown) {
     ? guesses.filter((g): g is string => typeof g === "string").slice(0, SONAD_GUESSES)
     : [];
   if (played.length === 0) return { ok: false as const, error: "Nothing to record." };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (typeof day !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
 
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
@@ -1470,7 +1470,7 @@ export async function finishScene(input: {
 
 export async function recordCrossword(day: string, typed: unknown, helped: unknown) {
   const ownerId = await requireUserId();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (typeof day !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
 
   /*
     Off the wire, whatever the types say. A cell index that is not a number and
@@ -2749,7 +2749,7 @@ const clamp = (n: number, lo: number, hi: number) =>
 
 /** A `YYYY-MM-DD` string, or null for anything that is not one. */
 function dayKeyOrNull(value: string | null | undefined): string | null {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
   return Number.isNaN(Date.parse(`${value}T00:00:00.000Z`)) ? null : value;
 }
 
