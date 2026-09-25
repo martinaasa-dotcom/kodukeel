@@ -29,9 +29,9 @@ import type { MeasuredPace } from "@/lib/assessment/plan";
  *
  * Ten minutes rather than five, because a learner who reads the correction on
  * a card they missed and thinks about it is still in the session, and rather
- * than thirty, because coming back after lunch is a new one. `perfect_session`
- * in `lib/progress/session.ts` reads the same figure, since a sitting cannot
- * be one length for a badge and another for a plan.
+ * than thirty, because coming back after lunch is a new one.
+ * `lib/progress/impact.ts` reads the same figure for the funder's report,
+ * since a sitting cannot be one length for a plan and another for a report.
  */
 export const SESSION_GAP_MS = 10 * 60 * 1000;
 

@@ -26,7 +26,7 @@
  * sentences. So this runs its second half on any machine and says what it could
  * not do rather than refusing to start.
  *
- * IT TALKS TO THE PROVIDER DIRECTLY, like `scripts/eval-anu.mjs` beside it, and
+ * IT TALKS TO THE PROVIDER DIRECTLY, like `scripts/eval-tutor.ts` beside it, and
  * it does not go through `lib/usage/ledger.ts`. That is not the rule being
  * bent: the ledger rations one learner's share of a deployment's budget, and
  * nobody's allowance is involved when a developer runs a measurement against
