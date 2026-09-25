@@ -464,6 +464,9 @@ function snapshotOf(state: SchedulingState): SchedulingSnapshot {
  */
 export async function replayGrades(batch: ReplayItem[]) {
   const ownerId = await requireUserId();
+  // A batch is an array off the wire or it is nothing: `applyGradeBatch` reads
+  // `.length` and `.filter` off it, and `null` there was a 500.
+  if (!Array.isArray(batch)) return { ok: false as const, error: "Replay failed." };
   const result = await applyGradeBatch(ownerId, batch);
   if (!result.ok) return { ok: false as const, error: result.error ?? "Replay failed." };
   revalidatePath("/");
@@ -496,6 +499,12 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
   const p = parsed.data;
   const due = new Date(p.due);
   if (Number.isNaN(due.getTime())) return { ok: false as const, error: "That card state isn't valid." };
+  // The last review is a date for the same reason `due` is: an unparseable one
+  // reached the update as an Invalid Date and came back as a 500.
+  const lastReview = p.lastReview ? new Date(p.lastReview) : null;
+  if (lastReview && Number.isNaN(lastReview.getTime())) {
+    return { ok: false as const, error: "That card state isn't valid." };
+  }
 
   await prisma.card.update({
     where: { id: cardId },
@@ -509,7 +518,7 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
       lapses: p.lapses,
       state: p.state,
       learningSteps: p.learningSteps,
-      lastReview: p.lastReview ? new Date(p.lastReview) : null,
+      lastReview,
     },
   });
 
@@ -520,6 +529,9 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
 export async function setCardSuspended(cardId: string, suspended: boolean) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
+  // A flag off the wire is a boolean or it is a refusal; `"yes"` reached the
+  // update as a value Prisma rejects, which the framework answers with a 500.
+  if (!cardId || typeof suspended !== "boolean") return { ok: false as const };
   await prisma.card.updateMany({ where: { id: cardId, ownerId }, data: { suspended } });
   revalidatePath("/words");
   revalidatePath("/progress"); // the sticking-points list lives there
@@ -633,7 +645,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
 
-  const et = capped(sentence, LIMITS.example);
+  const et = capped(text(sentence), LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That is too short to be a sentence." };
 
   const lexeme = await prisma.lexeme.findUnique({
@@ -643,7 +655,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
 
   const merged = mergeExamples(parseExamples(lexeme.examples), [
-    { et, en: capped(translation ?? "", LIMITS.translation) || null, source: "USER" },
+    { et, en: capped(text(translation), LIMITS.translation) || null, source: "USER" },
   ]);
   await prisma.lexeme.update({
     where: { id: lexeme.id },
@@ -784,7 +796,9 @@ export async function createLexemeWithForms(input: {
   }
 
   const lexeme = await upsertLexemeWithForms({
-    id: input.id,
+    // An id off the wire or none: an object here reached a `findUnique` as a
+    // filter and came back as a 500.
+    id: text(input.id) || undefined,
     lemma,
     translation,
     pos: input.pos,
@@ -819,16 +833,36 @@ export async function createLexemeWithForms(input: {
   return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null };
 }
 
-export async function toggleStar(lexemeId: string) {
+export async function toggleStar(lexemeId: string, want?: boolean) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
-  const existing = await prisma.starredWord.findUnique({
-    where: { ownerId_lexemeId: { ownerId, lexemeId } },
-  });
-  if (existing) {
-    await prisma.starredWord.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
+  const lexeme = lexemeId
+    ? await prisma.lexeme.findUnique({ where: { id: lexemeId }, select: { id: true } })
+    : null;
+  if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
+
+  /*
+    WHAT THE PRESS ASKED FOR, AND WRITTEN SO TWO PRESSES CANNOT COLLIDE.
+
+    It read the row and then created or deleted it, which is check-then-act:
+    two presses landing together both read "not starred", both created, and
+    the second died on the primary key as a 500. And a toggle is the wrong
+    question for a button drawn from state that can be stale: a second tab
+    still showing the word unstarred pressed to star it and unstarred it
+    instead. The button says which way it wants the word, `createMany` with
+    `skipDuplicates` and `deleteMany` are each one statement that is right
+    whatever is already there, and a caller naming no direction still toggles.
+  */
+  const starred = typeof want === "boolean"
+    ? want
+    : !(await prisma.starredWord.findUnique({
+        where: { ownerId_lexemeId: { ownerId, lexemeId } },
+        select: { ownerId: true },
+      }));
+  if (starred) {
+    await prisma.starredWord.createMany({ data: [{ ownerId, lexemeId }], skipDuplicates: true });
   } else {
-    await prisma.starredWord.create({ data: { ownerId, lexemeId } });
+    await prisma.starredWord.deleteMany({ where: { ownerId, lexemeId } });
   }
   /*
     The dictionary is where a star used to be set from and the only place it
@@ -839,7 +873,7 @@ export async function toggleStar(lexemeId: string) {
   */
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
-  return { ok: true as const, starred: !existing };
+  return { ok: true as const, starred };
 }
 
 /**
@@ -2429,6 +2463,7 @@ export async function joinClassroom(code: string, displayName?: string) {
 export async function leaveClassroom(classroomId: string) {
   classroomId = text(classroomId);
   const ownerId = await requireUserId();
+  if (!classroomId) return { ok: false as const, error: "That class is not here any more." };
   const classroom = await prisma.classroom.findUnique({
     where: { id: classroomId },
     select: { ownerId: true },
@@ -2526,9 +2561,9 @@ export async function assignHomework(classroomId: string, title: string, notes: 
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
 
-  const cleanTitle = capped(title, LIMITS.taskTitle);
+  const cleanTitle = capped(text(title), LIMITS.taskTitle);
   if (!cleanTitle) return { ok: false as const, error: "Give the homework a title." };
-  const cleanNotes = capped(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
+  const cleanNotes = capped(text(notes), LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
 
   const members = await prisma.classroomMember.findMany({
     where: { classroomId: classroom.id },
@@ -3922,7 +3957,7 @@ export async function addScanToDeck(scanId: string) {
 export async function renameScan(scanId: string, title: string) {
   scanId = text(scanId);
   const ownerId = await requireUserId();
-  const trimmed = capped(title, MAX_SCAN_TITLE);
+  const trimmed = capped(text(title), MAX_SCAN_TITLE);
   if (!trimmed) return { ok: false as const, error: "Give the page a name." };
 
   // Scoped by owner in the filter, not only in the lookup: an updateMany that
