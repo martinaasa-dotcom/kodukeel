@@ -23,6 +23,7 @@ import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
@@ -50,10 +51,10 @@ export default async function LessonPage({
   params, searchParams,
 }: {
   params: Promise<{ unitId: string }>;
-  searchParams: Promise<{ part?: string }>;
+  searchParams: Promise<{ part?: string | string[] }>;
 }) {
   const { unitId } = await params;
-  const { part } = await searchParams;
+  const { part } = firstParams(await searchParams);
   const unit = unitById(unitId);
   if (!unit) notFound();
 

@@ -48,7 +48,7 @@ export const dynamic = "force-dynamic";
 export default async function CoursePage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
   const [programme, chosen, level, { next: startNow }] = await Promise.all([
