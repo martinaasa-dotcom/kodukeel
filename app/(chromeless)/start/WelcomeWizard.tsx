@@ -389,10 +389,11 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   return (
     <LetterBarScope value={letters}>
       <main className="relative flex min-h-screen flex-col justify-center px-5 py-10 md:px-8">
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <span className="wash" style={{ background: "var(--wash-1)", width: 560, height: 560, top: -220, left: -160 }} />
-        <span className="wash" style={{ background: "var(--wash-2)", width: 480, height: 480, bottom: -240, right: -160, opacity: 0.6 }} />
-      </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(70% 55% at 0% 0%, var(--wash-1), transparent 72%)" }}
+      />
 
       <div
         ref={card}

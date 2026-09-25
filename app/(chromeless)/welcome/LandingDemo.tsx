@@ -32,6 +32,8 @@ const counted = spelledCount;
 export interface DemoCase {
   et: string;
   question: string;
+  /** What the form means in English, or the English of its question. */
+  english?: string | null;
   /** Every spelling worth printing, joined the way `acceptedAnswers` splits. */
   singular: string | null;
   plural: string | null;

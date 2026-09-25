@@ -100,10 +100,11 @@ export default async function SignInPage({ searchParams }: {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <span className="wash" style={{ background: "var(--wash-1)", width: 520, height: 520, top: -200, left: -120 }} />
-        <span className="wash" style={{ background: "var(--wash-2)", width: 460, height: 460, bottom: -220, right: -140, opacity: 0.65 }} />
-      </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(70% 55% at 0% 0%, var(--wash-1), transparent 72%)" }}
+      />
 
       <div className="relative w-full max-w-[440px]">
         <Link
