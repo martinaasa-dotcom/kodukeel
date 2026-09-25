@@ -539,7 +539,6 @@ export async function courseReading(
     alone still carries a tick, because the round before it was ticked, and a
     day with no ticks cannot finish: every day has a step the log cannot prove.
   */
-  const today = clock.startOfDay(now);
   const lastTick = justFinished ? ticks.lastAt.get(justFinished) : undefined;
   const midnight = clock.startOfDay(now);
   let finishedToday = Boolean(lastTick && lastTick >= midnight);
@@ -580,7 +579,7 @@ export async function courseReading(
   const before = programme.days[programme.days.indexOf(reached) - 1];
   const beforeLast = before ? ticks.lastAt.get(before.id) : undefined;
   const eveningDoneToday = finishedToday
-    || Boolean(beforeLast && beforeLast >= today);
+    || Boolean(beforeLast && beforeLast >= midnight);
 
   return {
     ...standing, finishedToday, eveningDoneToday, started: ticks.byDay.size > 0, eveningsInARow,
