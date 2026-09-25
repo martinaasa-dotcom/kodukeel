@@ -238,6 +238,16 @@ export const moduleReached = cache(async (
 export async function dayIsInPlay(
   ownerId: string, programme: Programme, day: CourseDay, now = new Date(),
 ): Promise<boolean> {
+  /*
+    THE PROGRAMME IS OFF THE WIRE TOO, NOT ONLY THE DAY. A part nobody has
+    opened carries no ticks, so the rule below reads its first two evenings as
+    reached, and a call naming the last part of C1 built a beginner's deck out
+    of its words: the forged call the header above says this closes. The one
+    they are following is `programmeFor`'s answer, which is the programme every
+    screen that draws a step hands over, so an honest press never meets this.
+  */
+  const followed = await programmeFor(ownerId);
+  if (followed?.id !== programme.id) return false;
   const ticks = await ticksFor(ownerId, programme);
   const reached = dayReached(programme, new Set(ticks.byDay.keys()));
   if (day.index <= reached.index) return true;
@@ -509,8 +519,21 @@ export async function closingProgress(
   const day = dayById(programme, dayId);
   const graded = await closingGraded(ownerId, ticks, dayId);
   /* The same number the step itself is finished against, or the list would
-     promise five answers while the reading behind it settles for two. */
-  const needed = day && ticks.byDay.has(dayId)
+     promise five answers while the reading behind it settles for two. That
+     includes the reading's condition: it settles for less only once the
+     closing round is the one step left, so the line does too, or it reads
+     "2 of 2 answers in" over a step that is not finished. The meet step is
+     proved off the deck, so it is asked the same way the reading asks it, and
+     only where it is the one thing between this and the closing round. */
+  const ticked = ticks.byDay.get(dayId);
+  let lastStanding = false;
+  if (day && ticked) {
+    const done = new Set(ticked);
+    if (onlyClosingLeft(day, new Set([...done, MEET_STEP]))) {
+      lastStanding = done.has(MEET_STEP) || await metWords(ownerId, day.words);
+    }
+  }
+  const needed = day && lastStanding
     ? await closingNeeded(ownerId, programme, day, graded, now)
     : CLOSING_REVIEW;
   return { graded: Math.min(needed, graded), needed };

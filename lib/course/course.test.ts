@@ -772,6 +772,14 @@ describe("what a day reads and where it goes", () => {
     expect(cardWithin(b1scope, { ...past, slot: "KndPrSg1" }, spellings)).toBe(true);
   });
 
+  it("reads the part off the front of a verb card built before Card.slot", () => {
+    const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
+    const scope = moduleScopeFrom({ module: `${a2.id}~${a2.days[0]!.id}~do:review~3~5~0` })!;
+    const old = { cardType: "CONJUGATION", targetCase: null, slot: null };
+    expect(cardWithin(scope, { ...old, front: "lugema \u2192 lihtminevik · ma" }, null)).toBe(false);
+    expect(cardWithin(scope, { ...old, front: "lugema \u2192 olevik · ta" }, null)).toBe(true);
+  });
+
   it("conjugates a unit of verbs, and not a grammar unit that happens to hold verbs", () => {
     const verbDay = DAYS.find(({ day }) => day.unitId === "pohiverbid")!;
     expect(verbDay.day.practice).toContain("conjugation");
