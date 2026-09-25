@@ -270,6 +270,22 @@ function align(want: string[], got: string[]): DictationWord[] {
 }
 
 /**
+ * How many spaces one merge or split moved.
+ *
+ * A `spacing` entry always holds exactly one word on one of its two sides, so
+ * what it cost is the other side's word count less one: `Kuipaljukell` for
+ * `Kui palju kell` is two spaces gone rather than one thing gone wrong. Both
+ * notes counted entries, so two spaces dropped in a row were reported to
+ * somebody looking at two of them as "one needs a space moved". The suite's
+ * own case for that merge asserted the alignment and never the sentence.
+ */
+function spacesMoved(word: DictationWord): number {
+  const expected = word.expected?.split(" ").length ?? 1;
+  const typed = word.typed?.split(" ").length ?? 1;
+  return Math.max(expected, typed) - 1;
+}
+
+/**
  * Whether a merged or split entry only lined up once the diacritics were
  * folded away too, i.e. `kuueoue` read as `kuue õue` rather than an exact
  * concatenation of it. The one place this is decided, so `wordNote` and
@@ -325,10 +341,12 @@ function judge(
       };
     }
 
-    const spaceNote = spaced.length === 1 ? "one needs a space moved" : `${spaced.length} need a space moved`;
+    const spaces = spaced.reduce((n, w) => n + spacesMoved(w), 0);
+    const spaceNote = spaces === 1 ? "one space needs moving" : `${spaces} spaces need moving`;
+    // "Word", because after a clause about spaces a bare "one" reads as a space.
     const diacriticsNote = slipped === 1
-      ? "one is missing its Estonian letters"
-      : `${slipped} are missing their Estonian letters`;
+      ? "one word is missing its Estonian letters"
+      : `${slipped} words are missing their Estonian letters`;
     return {
       verdict: "spacing",
       suggestedRating: 2,
@@ -401,9 +419,10 @@ export function wordNote(word: DictationWord): string | null {
   if (word.status === "spacing") {
     // The words in `expected` outnumbering the words in `typed` is a merge
     // (two or more words run together); the other way round is a split.
+    const spaces = spacesMoved(word);
     const spaceIssue = word.expected.split(" ").length > word.typed.split(" ").length
-      ? "missing a space"
-      : "an extra space";
+      ? (spaces === 1 ? "missing a space" : `missing ${spaces} spaces`)
+      : (spaces === 1 ? "an extra space" : `${spaces} extra spaces`);
     // The same slip can lose a diacritic on the way, since folding the
     // diacritics away is what let the merge or split match at all.
     return spacingHasDiacriticsSlip(word) ? `${spaceIssue}, and its Estonian letters` : spaceIssue;
