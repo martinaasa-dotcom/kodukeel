@@ -1,4 +1,4 @@
-import { icon as iconFor } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { sceneryFor } from "@/lib/scenes/scenery";
 
 /**
@@ -16,14 +16,13 @@ import { sceneryFor } from "@/lib/scenes/scenery";
  * app mean something and a café is not "you got it".
  */
 export function SceneMotif({ sceneId }: { sceneId: string }) {
-  const Icon = iconFor(sceneryFor(sceneId).icon);
   return (
     <span
       aria-hidden
       className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
       style={{ background: "var(--surface)", boxShadow: "var(--shadow-sm)", color: "var(--accent-deep)" }}
     >
-      <Icon size={18} aria-hidden />
+      <NamedIcon name={sceneryFor(sceneId).icon} size={18} aria-hidden />
     </span>
   );
 }
