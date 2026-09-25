@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       # `prisma generate` and nothing else, which is the one step this job was
       # missing and the reason it had never run.
@@ -71,18 +71,20 @@ jobs:
       # `restore-keys` rather than an exact match, because the useful cache is
       # the most recent one whatever week wrote it.
       #
-      # `save-always`, because this job is red by design until the cache has
-      # carried it past half the dictionary: actions/cache's post step skips
-      # saving once an earlier step in the job has failed, so without this the
-      # audit below never wrote anything back and every week restarted at
-      # zero. Measured: two runs, two cache misses, the same "1000 of 5363"
-      # both times.
-      - uses: actions/cache@v6
+      # Restored here and saved in a step of its own at the end, because this
+      # job is red by design until the cache has carried it past half the
+      # dictionary and actions/cache's post step saves only on success. This
+      # used `save-always: true` to get round that and the input does nothing:
+      # v6 says in the log that it "does not work as intended", and the post
+      # job section of every scheduled run holds no cache step at all. The
+      # first run read 2,500 pages and the second started from nothing and
+      # read 1,000, which is the whole feature not working in plain sight.
+      - name: Wiktionary pages, from the last run
+        uses: actions/cache/restore@v6
         with:
           path: prisma/data/.cache
           key: wiktionary-pages-${{ github.run_id }}
           restore-keys: wiktionary-pages-
-          save-always: true
       # No database and no key: this reads prisma/data/expanded.json and asks
       # Wiktionary, which is why it is the one drift check that can run here.
       #
@@ -96,3 +98,13 @@ jobs:
       # repository: sense order is the page's own, and which sense a learner
       # needs is explicitly not a judgement this pipeline makes.
       - run: npm run audit:glosses
+      # Whatever the audit said, what it fetched is kept for next week, which
+      # is the half `save-always` promised and never did. `!cancelled()` rather
+      # than `always()`, so a run somebody stopped by hand does not write a
+      # half-copied cache over a good one.
+      - name: Wiktionary pages, for the next run
+        if: ${{ !cancelled() }}
+        uses: actions/cache/save@v6
+        with:
+          path: prisma/data/.cache
+          key: wiktionary-pages-${{ github.run_id }}

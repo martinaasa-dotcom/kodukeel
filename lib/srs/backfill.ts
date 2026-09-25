@@ -3,6 +3,9 @@ import { generateCards, type LexemeForCards } from "@/lib/srs/cards";
 import { lockDeck } from "@/lib/srs/deck";
 import { courseAsksFor } from "@/lib/collections/syllabus";
 import { emptyScheduling } from "@/lib/srs/scheduler";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
+import { deferredDues } from "@/lib/progress/deferrals";
 
 /**
  * Adds gap-fill cards to a word already in the deck, once it has sentences.
@@ -45,7 +48,15 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
      no gap wants none however many sentences arrive. */
   if (!courseAsksFor(lexeme.lemma, "CLOZE")) return 0;
 
-  const generated = generateCards(lexeme as LexemeForCards, ["CLOZE"]);
+  /*
+    Cut from the word's plainest sentence where it is a beginner's word, which
+    is what every other builder of this card does (`addCardsFor`,
+    `lib/srs/deck.ts`). This one read the whole row with `include` and was the
+    one builder the plainness sweep could not see, so an A2 word's gap-fill
+    arriving here was cut from its shortest sentence instead.
+  */
+  const plainest = plainerFirst(lexeme.cefr, await sentenceReach());
+  const generated = generateCards({ ...(lexeme as LexemeForCards), plainest }, ["CLOZE"]);
   if (generated.length === 0) return 0;
 
   /*
@@ -71,7 +82,17 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
   */
   return prisma.$transaction(async (tx) => {
     await lockDeck(tx, ownerId);
-    const already = await tx.card.count({ where: { ownerId, lexemeId, cardType: "CLOZE" } });
+    const [already, held] = await Promise.all([
+      tx.card.count({ where: { ownerId, lexemeId, cardType: "CLOZE" } }),
+      /*
+        A word the learner put aside keeps waiting. Its existing cards were
+        pushed to the date the deferral wrote, and a gap-fill dated now would
+        bring the word back on the next review, from a dictionary render.
+        Dated on the deferral instead, so the undo and the level wake, which
+        both match on that date, take it back with the rest.
+      */
+      deferredDues(tx, ownerId, [lexemeId]),
+    ]);
     if (already > 0) return 0;
     await tx.card.createMany({
     data: generated.map((c) => ({
@@ -84,7 +105,7 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
       targetCase: c.targetCase,
       slot: c.slot,
       source,
-      due: scheduling.due,
+      due: held.get(lexemeId) ?? scheduling.due,
       stability: scheduling.stability,
       difficulty: scheduling.difficulty,
       state: scheduling.state,

@@ -81,6 +81,58 @@ describe("writeGrade", () => {
     });
     expect(await prisma.review.count({ where: { id: "from-the-device" } })).toBe(1);
   });
+
+  /*
+    The online write committed and its answer never reached the device, so the
+    same grade arrives again under the same id, first as a retry and then
+    through the outbox. It is one answer and the scheduler hears it once.
+  */
+  it("applies a grade once however often its id arrives", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    const write = {
+      rating: 3 as const, durationMs: 0, reviewedAt: new Date("2026-08-20T09:00:00Z"),
+      now: new Date("2026-09-02T09:00:00Z"), reviewId: "sent-twice",
+    };
+    const first = await writeGrade(OWNER, { card, ...write });
+    const again = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    const second = await writeGrade(OWNER, { card: again, ...write });
+
+    expect(await prisma.review.count({ where: { cardId: card.id } })).toBe(1);
+    const stored = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(stored.reps).toBe(1);
+    expect(second.due.toISOString()).toBe(first.due.toISOString());
+  });
+
+  it("applies it once when two copies arrive at the same moment", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    const write = {
+      card, rating: 3 as const, durationMs: 0, reviewedAt: new Date("2026-08-20T09:00:00Z"),
+      now: new Date("2026-09-02T09:00:00Z"), reviewId: "raced",
+    };
+    await Promise.all([writeGrade(OWNER, write), writeGrade(OWNER, write)]);
+
+    expect(await prisma.review.count({ where: { cardId: card.id } })).toBe(1);
+    expect((await prisma.card.findUniqueOrThrow({ where: { id: card.id } })).reps).toBe(1);
+  });
+
+  it("never applies a grade whose id belongs to somebody else", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await prisma.review.create({
+      data: {
+        id: "not-yours", ownerId: "itest-someone-else", cardId: "elsewhere", lexemeId: null,
+        rating: 1, reviewedAt: new Date("2026-08-10T09:00:00Z"), durationMs: 0, stateBefore: 0,
+      },
+    });
+    try {
+      await expect(writeGrade(OWNER, {
+        card, rating: 3, durationMs: 0, reviewedAt: new Date("2026-08-20T09:00:00Z"),
+        now: new Date("2026-09-02T09:00:00Z"), reviewId: "not-yours",
+      })).rejects.toThrow();
+      expect((await prisma.card.findUniqueOrThrow({ where: { id: card.id } })).reps).toBe(0);
+    } finally {
+      await prisma.review.deleteMany({ where: { id: "not-yours" } });
+    }
+  });
 });
 
 describe("the replay path takes the same floor", () => {
@@ -144,6 +196,30 @@ describe("the form a learner reached for instead", () => {
     expect(row.reachedSlot).toBe("ELATIVE");
     // And the column the case charts read is untouched by either of them.
     expect(row.targetCase).toBe("INESSIVE");
+  });
+
+  it("records the case the round asked in the slot, whatever card it landed on", async () => {
+    // The flash, writing and target rounds ask one case and grade the nearest
+    // card the learner holds. The slot carries what was asked; `targetCase`
+    // stays the card's own, which is the decision recorded in CLAUDE.md.
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await writeGrade(OWNER, {
+      card, rating: 3, durationMs: 2_000,
+      reviewedAt: new Date("2026-08-20T09:00:00Z"),
+      practisedSlot: "COMITATIVE",
+    });
+    const row = await prisma.review.findFirstOrThrow({ where: { ownerId: OWNER } });
+    expect(row.slot).toBe("COMITATIVE");
+    expect(row.targetCase).toBe("INESSIVE");
+  });
+
+  it("writes a duration it can store whatever number arrives", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await writeGrade(OWNER, { card, rating: 3, durationMs: Number.NaN, reviewedAt: new Date("2026-08-20T09:00:00Z") });
+    const card2 = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await writeGrade(OWNER, { card: card2, rating: 3, durationMs: 4.5, reviewedAt: new Date("2026-08-20T09:00:00Z") });
+    const rows = await prisma.review.findMany({ where: { ownerId: OWNER }, orderBy: { id: "asc" } });
+    expect(rows.map((r) => r.durationMs).sort()).toEqual([0, 5].sort());
   });
 
   it("writes nothing where the learner produced what was asked for", async () => {

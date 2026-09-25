@@ -13,9 +13,10 @@ import { baseUrl, suite } from "./lib/checks.mjs";
  * of what was fixed, and the thing that stops it coming back.
  */
 const B = baseUrl();
-const PAGES = ["/", "/practice", "/grammar", "/grammar/partitive", "/progress", "/learn",
+const PAGES = ["/", "/practice", "/grammar", "/grammar/partitive", "/grammar/build-a-word",
+  "/progress", "/progress/readiness", "/progress/readiness/sook-ja-jook", "/learn",
   "/learn/kodu", "/dictionary?q=tuba", "/words", "/words/mastery", "/settings", "/review",
-  "/review/dictation", "/class", "/tutor", "/scan", "/welcome", "/funding",
+  "/review/dictation", "/class", "/tutor", "/scan", "/welcome", "/funding", "/exam",
   /*
     The one screen in the app that takes the shell off and paints its own
     ground (`components/scene/SceneStage.tsx`). It is measured here for exactly
@@ -286,7 +287,7 @@ check("every text size is on the scale", offScale.length === 0,
     ? offScale.map((size) => `${size} ${where.get(size) ?? ""}`).join(" | ")
     : `${sizes.size} steps in use`);
 check(`nothing is set below the ${FLOOR}px floor`,
-  [...sizes.keys()].every((s) => parseFloat(s) >= FLOOR),
+  sizes.size > 0 && [...sizes.keys()].every((s) => parseFloat(s) >= FLOOR),
   [...sizes.keys()].filter((s) => parseFloat(s) < FLOOR).join(" "));
 check("every run of text clears WCAG AA on its background", contrast.length === 0,
   /*

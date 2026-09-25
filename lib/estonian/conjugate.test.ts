@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  conditional, derivedVerbForms, imperativeSingular, negativePresent, possibleFirstPersons, presentTense,
+  conditional, derivedVerbForms, imperativeSingular, isFiniteVerbCode, negativePresent, possibleFirstPersons, presentTense,
   pres1sgFrom,
 } from "./conjugate";
 
@@ -125,10 +125,29 @@ describe("possibleFirstPersons", () => {
 
   it("reads the first word of a particle verb, which is the one that inflects", () => {
     expect(possibleFirstPersons("loed läbi")).toContain("loen");
+    // And with the particle kept, which is how the dictionary stores the first person.
+    expect(possibleFirstPersons("loed läbi")).toContain("loen läbi");
+    expect(possibleFirstPersons("annab edasi")).toContain("annan edasi");
   });
 
   it("says nothing about something too short to have an ending on it", () => {
     expect(possibleFirstPersons("a")).toEqual([]);
     expect(possibleFirstPersons("  ")).toEqual([]);
+  });
+});
+
+describe("isFiniteVerbCode", () => {
+  it("counts the three moods that head a clause", () => {
+    for (const code of ["IndPrSg3", "IndIpfSg1", "KndPrSg1", "ImpPrSg2"]) expect(isFiniteVerbCode(code)).toBe(true);
+  });
+
+  it("counts neither participle, since `Laste joonistatud pildid.` has no verb in it", () => {
+    for (const code of ["PtsPtIps", "PtsPtPs", "PtsPrPs"]) expect(isFiniteVerbCode(code)).toBe(false);
+  });
+
+  it("fails closed on a code nobody has seen, so a new slot is admitted on purpose", () => {
+    for (const code of ["Sup", "Inf", "Ger", "SgN", "Quot", "", null, undefined]) {
+      expect(isFiniteVerbCode(code)).toBe(false);
+    }
   });
 });

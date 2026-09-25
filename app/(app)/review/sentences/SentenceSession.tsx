@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { shuffle } from "@/lib/random/shuffle";
 import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
 import { gradeCard, translateExample } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -126,11 +127,7 @@ export function SentenceSession(
   const tiles = useMemo(() => {
     if (!task || !mounted) return [];
     const words = sentenceTiles(task.et);
-    const order = words.map((_, i) => i);
-    for (let i = order.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [order[i], order[j]] = [order[j]!, order[i]!];
-    }
+    const order = shuffle(words.map((_, i) => i));
     // A shuffle that happens to be the right order is not an exercise.
     if (order.every((v, i) => v === i) && order.length > 1) order.reverse();
     return order.map((i) => ({ index: i, word: words[i]! }));
@@ -140,8 +137,8 @@ export function SentenceSession(
   useEffect(() => {
     const upcoming = tasks.slice(index, index + 3).filter((t) => t.en === null);
     for (const next of upcoming) {
-      void translateExample(next.lexemeId, next.et).then((result) => {
-        if (!result.ok) return;
+      void translateExample(next.lexemeId, next.et).catch(() => null).then((result) => {
+        if (!result?.ok) return;
         setTasks((list) => list.map((t) => (t.et === next.et ? { ...t, en: result.en } : t)));
       });
     }

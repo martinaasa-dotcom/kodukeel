@@ -7,7 +7,8 @@ import { markCourseStep, startCourseDay } from "@/app/actions";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, Note } from "@/components/ui";
-import { MEET_STEP, focusedSteps, type CourseStep } from "@/lib/course";
+import { MEET_STEP, type CourseStep } from "@/lib/course/types";
+import { focusedSteps } from "@/lib/course/focus";
 
 /**
  * TODAY'S MODULE, AS A LIST YOU WALK DOWN.

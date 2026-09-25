@@ -183,11 +183,15 @@ Which key opens what, so you know how bad it is before you know anything else.
 | --- | --- | --- |
 | `SUPABASE_SERVICE_ROLE_KEY` | Everything in the Supabase project, bypassing row level security. Reads and writes every learner's rows and deletes auth identities. **Always S1.** | Supabase dashboard, API settings |
 | `DATABASE_URL` / `DIRECT_URL` | The whole database, read and write. **Always S1.** | Supabase dashboard, database password |
-| `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY` | Somebody else's spend on our account. No learner data, since prompts go out and nothing comes back that is stored. S3 unless the key is shared with something that does hold data. | The provider's own console |
+| `GROQ_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` | Somebody else's spend on our account. No learner data, since prompts go out and nothing comes back that is stored. S3 unless the key is shared with something that does hold data. | The provider's own console |
 | `EKILEX_API_KEY` | Read access to a free academic dictionary service. Costs the Institute of the Estonian Language politeness rather than money. S4. | ekilex.ee |
 | `METRICS_TOKEN` | Deployment-wide retention aggregates. No individual data. S3. | Redeploy with a new value |
 | `RESEARCH_TOKEN` | The anonymised learner error corpus. Gated four ways before publication, so still no individual data, and it is a whole dataset. S2. | Redeploy with a new value |
 | `ERROR_WEBHOOK_URL` | Wherever errors are posted. The path itself is often the credential. S3. | Regenerate at the receiving end |
+| `RESEND_API_KEY` | Sends mail as this deployment from its verified domain, to anybody, which is a phishing letter nobody can tell from ours. The provider also holds what was sent, and a sent letter carries a learner's address, so treat it as S1 until the provider's log shows the key only sent. | Resend dashboard, API keys |
+| `EMAIL_TOKEN_SECRET` | Signs every unsubscribe link, so whoever holds it can switch any learner's letters off without a session. No data is read, and it is still a control failing, so S2. Rotating it voids every link already mailed, which is the price. | Redeploy with a new value |
+| `RESEND_WEBHOOK_SECRET` | Verifies the bounce and complaint events the provider posts back, so whoever holds it can mark any address as bouncing and stop mail to it. S3. | Resend dashboard, webhook signing secret |
+| `CRON_SECRET` | Lets a caller start the daily letter run. The run keeps its own frequency caps, so the worst is a run at the wrong hour. S4. | Redeploy with a new value, and the scheduler's copy with it |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Nothing on its own. It is public by design and authenticates who is signed in. **Not an incident.** | Not applicable |
 
 Steps:

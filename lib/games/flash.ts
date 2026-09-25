@@ -1,4 +1,4 @@
-import { plainPhrase, sameSpelling } from "@/lib/copy/values";
+import { plainPhrase, sameSpelling, PARTS } from "@/lib/copy/values";
 import { sentenceContaining, type Example } from "@/lib/dict/examples";
 import { checkAnswer } from "@/lib/estonian/answer";
 import { CASES, caseByKey } from "@/lib/estonian/cases";
@@ -603,7 +603,7 @@ export function markForm(task: FormAsk, typed: string): FlashMark {
     return { right: false, rating: 1, wrote: null, wroteSlot: null, note: "Nothing typed." };
   }
 
-  const check = checkAnswer(written, task.accepted.join(" / "), "et");
+  const check = checkAnswer(written, task.accepted.join(PARTS), "et");
   if (check.verdict === "correct") {
     return { right: true, rating: 3, wrote: written, wroteSlot: task.slot, note: "" };
   }

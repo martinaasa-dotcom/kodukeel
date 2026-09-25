@@ -39,10 +39,10 @@ export const dynamic = "force-dynamic";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   /*
     Anu's own chain, because this decides whether her button offers a
-    conversation. A screen may not promise what the route will refuse: since
-    the purpose split, `/api/tutor` asks Anthropic and nothing else, so reading
-    the general chain here would draw a live button on a deployment that has
-    Gemini configured and no Groq key.
+    conversation. A screen may not promise what the route will refuse:
+    `/api/tutor` asks Gemini and then Groq and nothing else, so reading the
+    general chain here would draw a live button on a deployment whose only key
+    is a paid one, which her chain never reaches.
   */
   const chain = resolveProviders({ purpose: "tutor" });
   /*

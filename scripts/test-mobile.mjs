@@ -14,6 +14,8 @@ import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { ensureLetterBar, requireAppShell } from "./lib/prefs.mjs";
 import { startRound } from "./lib/briefing.mjs";
+import { readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 const B = baseUrl();
 
@@ -52,7 +54,14 @@ const browser = await launchChromium();
   that only reads the source, which is what made it worth measuring here
   instead.
 */
-const { check, done } = suite("The phone", { floor: 73 });
+/*
+  129 rather than 73: the 44px pass walks every route under `app/` a fresh
+  install can answer for, and presses through each round's briefing, where it
+  used to ask fourteen chosen routes about the screen in front of the round.
+  That is 71 routes where there were 14, measured against a production build
+  with the demo fixture in place.
+*/
+const { check, done } = suite("The phone", { floor: 129 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -98,6 +107,28 @@ for (const width of [...PHONES, ...WIDE]) {
     return { wider: document.documentElement.scrollWidth > window.innerWidth, x: window.scrollX };
   });
   check(`no horizontal overflow at ${width}`, !over.wider && over.x === 0, JSON.stringify(over));
+  await ctx.close();
+}
+
+// 2b — Every label on the bar holds one line. `overflow-wrap: anywhere` is what
+//      keeps a long word inside its box, and five cells of equal width at 360
+//      left "Dictionary" 64px for a word 70px wide, so every screen in the app
+//      read "Dictionar / y" along the bottom. 320 as well, which is the
+//      narrowest phone still sold and where "Practice" broke the same way. A
+//      label is read off its own text node, since the cell also holds the icon.
+for (const width of [320, ...PHONES]) {
+  const { ctx, page } = await open(width, 844, "/");
+  const cells = await page.evaluate(() =>
+    [...document.querySelectorAll('nav[data-chrome="dock"] .nav-cell')].map((cell) => {
+      const text = [...cell.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+      if (!text) return { label: "(none)", lines: 0 };
+      const range = document.createRange();
+      range.selectNodeContents(text);
+      return { label: text.textContent.trim(), lines: range.getClientRects().length };
+    }));
+  const broken = cells.filter((c) => c.lines !== 1);
+  check(`every label on the bar holds one line at ${width}`, cells.length >= 5 && broken.length === 0,
+    broken.length ? broken.map((c) => `${c.label}: ${c.lines} lines`).join(", ") : `${cells.length} labels`);
   await ctx.close();
 }
 
@@ -188,12 +219,60 @@ for (const width of PHONES) {
 // under them. The talking screen behind it has the tightest row of controls in
 // the app after the rating keys, and is measured by `test-containment.mjs`,
 // which knows how to press through to it.
-for (const path of [
-  "/", "/review", "/dictionary", "/scan", "/assess", "/exam",
-  "/learn", "/learn/kodu", "/learn/kodu/lesson", "/grammar",
-  "/settings", "/practice", "/situations", "/situations/arsti-aeg",
-]) {
+/*
+  EVERY ROUTE, AND THE ROUND BEHIND ITS BRIEFING, RATHER THAN FOURTEEN CHOSEN.
+
+  CLAUDE.md states the floor for every interactive element under a coarse
+  pointer, and this pass asked it of fourteen routes somebody picked, which is
+  the fault the containment and accessibility sweeps each had once: a list
+  that falls behind `app/` is a rule nobody enforces on the screens it
+  missed. Walked over every route, it found the landing page's home link at
+  30px tall, which none of the fourteen was. The routes are read off the
+  filesystem, a dynamic segment filled with a value the app can answer for,
+  and a round is pressed through its briefing, because the controls a thumb
+  hits are on the round and not on the screen that says what it is.
+
+  One exemption, on one axis, and the element says so rather than this file
+  keeping a list: a key marked `data-keyboard-key` is Sõnad's keyboard, twelve
+  keys across a phone, which `SonadSession.tsx` argues for at the point it
+  draws them. It is held to 44px tall and excused only its width.
+*/
+const FILL = {
+  "[unitId]": "kodu", "[situationId]": "sook-ja-jook", "[level]": "A1", "[caseKey]": "partitive",
+  "[kind]": "stem", "[group]": "noun", "[id]": null,
+};
+const ROUTE_ID = { "/grammar/topic/[id]": "/grammar/topic/object", "/situations/[id]": "/situations/arsti-aeg" };
+function everyRoute(dir, prefix = "") {
+  const out = [];
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      if (entry === "api") continue;
+      out.push(...everyRoute(full, prefix + (entry.startsWith("(") ? "" : `/${entry}`)));
+    } else if (entry === "page.tsx") out.push(prefix || "/");
+  }
+  return out;
+}
+/* A segment with no value any fresh install holds (a class, a paper, a scan,
+   a shelf) needs a row made first, which is the containment suite's job. */
+const TARGET_ROUTES = [...new Set(everyRoute(new URL("../app", import.meta.url).pathname))]
+  .map((r) => ROUTE_ID[r] ?? r.replace(/\[[^\]]+\]/g, (m) => FILL[m] ?? "\0"))
+  .filter((r) => !r.includes("\0"))
+  .sort();
+
+for (const path of TARGET_ROUTES) {
   const { ctx, page } = await open(390, 844, path);
+  await startRound(page, { waitMs: 400 }).catch(() => {});
+  /*
+    And measured once the round has arrived rather than while it is arriving: a
+    card that enters on a scale transform reports its controls a fraction under
+    their size, and the first run of this over every route failed a 44px speaker
+    at 43.9 on exactly that frame. Finite animations only, since the landing
+    letters wander for ever and waiting on those would wait for ever.
+  */
+  await page.evaluate(() => Promise.all(document.getAnimations()
+    .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+    .map((a) => a.finished.catch(() => {})))).catch(() => {});
   const small = await page.evaluate(() =>
     // The same set the floor in globals.css covers, which is what a thumb has
     // to hit rather than what is spelled `<button>`: a link drawn as a pill or
@@ -201,7 +280,8 @@ for (const path of [
     [...document.querySelectorAll("button, [role=button], a[role=button], a.pill, a[aria-label]")]
       .filter((el) => el.tagName !== "A" || el.classList.contains("pill") || el.querySelector("svg"))
       .map((el) => ({ el, r: el.getBoundingClientRect() }))
-      .filter(({ r }) => r.width > 0 && (r.height < 44 || r.width < 44))
+      .filter(({ el, r }) => r.width > 0
+        && (r.height < 44 || (r.width < 44 && !el.hasAttribute("data-keyboard-key"))))
       .map(({ el, r }) => `${(el.textContent || el.getAttribute("aria-label") || "?").trim().slice(0, 20)} ${Math.round(r.width)}x${Math.round(r.height)}`),
   );
   check(`every target on ${path} clears 44px`, small.length === 0, small.join(", "));

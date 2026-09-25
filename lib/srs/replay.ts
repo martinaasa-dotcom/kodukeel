@@ -62,8 +62,8 @@ export async function applyGradeBatch(
     pooler, where that quarter costs a great deal more, and this runs on
     reconnect when a learner is waiting to see their streak.
 
-    The read-modify-write below stays per item, because that one *is* what the
-    previous grade left behind.
+    The card's scheduling below is what the previous grade left behind, so it
+    is carried forward from each write rather than read again (see below).
 
     Deduplicated by id first, which was free before and is not now: a batch
     that repeats an id used to work by accident, since the second copy found
@@ -111,6 +111,36 @@ export async function applyGradeBatch(
     })).map((r) => [r.id, r.ownerId]),
   );
 
+  /*
+    THE CARD IS READ ONCE FOR THE BATCH, AND ITS STATE IS STILL PER ITEM.
+
+    The card was a `findFirst` per item, on the argument the review check above
+    already answered: fifty grades were fifty round trips a hosted database
+    pays for over a pooler, on the path a learner is waiting on. Measured with
+    statement logging on a local Postgres, a batch of fifty grades went from 51
+    card reads to 1, which is a third of the batch's round trips.
+
+    What does depend on the grade before is the card's *scheduling*, since two
+    grades of one card in one batch have to see each other. `writeGrade` returns
+    exactly the fields it writes to the row, and nothing else it reads off the
+    card (`createdAt`, `state`, `targetCase`, the slot) is changed by a grade,
+    so folding that return into the copy below is the row as a fresh read would
+    return it. `replay.itest.ts` chains three grades of one card and compares
+    the row with three calls to the scheduler, and fails with the fold removed.
+
+    One case reads differently: a card deleted by another request partway
+    through a batch. A per-item read would have settled it; here the update
+    throws, the batch fails, and the retry finds the reviews it already wrote
+    (settled as already here) and the card gone (settled below). Nothing is
+    lost or doubled, it costs one retry.
+  */
+  const cardIds = [...new Set(wanted.map((i) => i.cardId))];
+  const cards = new Map(
+    (await prisma.card.findMany({ where: { id: { in: cardIds }, ownerId } })).map(
+      (c) => [c.id, c],
+    ),
+  );
+
   // Sequential on purpose. Each grade reads the state the previous one left
   // behind, which is exactly what makes a replay equal to having been online.
   for (const item of wanted) {
@@ -122,10 +152,11 @@ export async function applyGradeBatch(
       continue;
     }
 
-    const card = await prisma.card.findFirst({ where: { id: item.cardId, ownerId } });
+    const card = cards.get(item.cardId);
     if (!card) {
-      // The card was deleted while the device was away. The grade has nowhere to
-      // land; settling it stops the client retrying forever.
+      // The card was deleted while the device was away, or never belonged to
+      // this owner. The grade has nowhere to land; settling it stops the
+      // client retrying forever.
       settled.push(item.id);
       continue;
     }
@@ -134,7 +165,7 @@ export async function applyGradeBatch(
     // about a wrong device clock and knows nothing about the card; `writeGrade`
     // will not let a review predate the card it is about. Flooring is
     // monotonic, so neither can reorder a batch `orderForReplay` has sorted.
-    await writeGrade(ownerId, {
+    const next = await writeGrade(ownerId, {
       card,
       rating: item.rating,
       durationMs: item.durationMs,
@@ -144,6 +175,11 @@ export async function applyGradeBatch(
       practisedSlot: item.slot,
       reachedSlot: item.reachedSlot,
     });
+
+    // What `writeGrade` just wrote to the row, folded into the in-memory copy
+    // so a second grade of this same card later in the batch reads it rather
+    // than the stale one this loop started with.
+    cards.set(item.cardId, { ...card, ...next });
 
     settled.push(item.id);
   }

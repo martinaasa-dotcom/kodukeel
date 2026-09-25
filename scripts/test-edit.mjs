@@ -95,20 +95,33 @@ const attestedCards = renamedCards.filter(c => c.cardType === "CLOZE");
   beside it on every run there has ever been, and the thing it claims to hold,
   that a rename leaves an attested sentence exactly as a lexicographer recorded
   it, was verified by nothing. The deck here is built by the dictionary's own
-  "Add to deck", which offers recognition and production and no more, so this
-  word has never had a gap-fill card to look at. It says so now rather than
-  passing, and names the state that would lift it.
+  "Add to deck", and that panel offered recognition and production and no
+  more, because it asked which cards a word supports without handing over the
+  word's sentences. It hands them over now, so the gap-fill it ticks by
+  default is built and this check has two cards to read. The waiver below is
+  for a dictionary whose entry has no sentence to cut one from.
 */
 if (attestedCards.length > 0) {
   check("and the attested sentence behind a gap-fill was left exactly as recorded",
     attestedCards.every(c => !`${c.front}${c.back}`.includes("kohvjook")),
     `${attestedCards.length} gap-fill card(s)`);
 } else {
-  absent(1, "no gap-fill card for this word: the dictionary's own Add to deck builds recognition "
-    + "and production only, so a deck built from a unit is what would put one here");
+  absent(1, "no gap-fill card for this word: its entry carries no recorded sentence the "
+    + "builder can cut a gap from, so Add to deck had none to offer");
 }
+/*
+  And the same fault two checks down, which the fix above walked past.
+
+  `renamedCards` is filtered on `kohvEntries[0]?.id`, so a rename that failed
+  leaves it empty and `every` on nothing is true: this printed PASS with "0
+  cards" beside it about a correction that had not happened. The check above it
+  already says `renamedCards.length > 0` for exactly this reason. Not an
+  `absent`, because an empty list here is not a state the fixture is missing,
+  it is the rename this suite exists to drive having gone wrong.
+*/
 check("scheduling was not reset by the correction",
-  renamedCards.every(c => typeof c.stability === "number"), `${renamedCards.length} cards`);
+  renamedCards.length > 0 && renamedCards.every(c => typeof c.stability === "number"),
+  `${renamedCards.length} cards`);
 
 check("no page errors while editing", errors.length === 0, errors.join("; "));
 

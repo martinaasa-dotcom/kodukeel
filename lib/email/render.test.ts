@@ -58,17 +58,13 @@ const EVERY: Letter[] = [
     word: { lemma: "pannkook", translation: "pancake", occasion: NASTY },
   }),
   welcomeLetter({
-    name: NASTY,
     origin: CHROME.origin,
     reminderAt: "18:00",
     cardsWaiting: 404,
     opensOn: { title: NASTY, subtitle: "At home" },
-    target: { level: "B1", deadline: "2027-06-01" },
   }),
   comebackLetter({
-    name: NASTY,
     origin: CHROME.origin,
-    daysAway: 9,
     wordsKept: 212,
     shieldUsed: true,
     streak: 7,
@@ -76,7 +72,6 @@ const EVERY: Letter[] = [
     word: { lemma: "lumi", translation: "snow", occasion: null },
   }),
   errandLetter({
-    name: NASTY,
     origin: CHROME.origin,
     errand: {
       says: NASTY,
@@ -88,7 +83,6 @@ const EVERY: Letter[] = [
     word: { lemma: "kohv", translation: "coffee" },
   }),
   milestoneLetter({
-    name: NASTY,
     origin: CHROME.origin,
     level: { key: "A1", title: NASTY, arrival: NASTY, words: 493 },
     pct: 41,
@@ -96,7 +90,6 @@ const EVERY: Letter[] = [
     next: { level: "A2", wordsAway: 118 },
   }),
   shieldLetter({
-    name: NASTY,
     origin: CHROME.origin,
     streak: 12,
     remaining: 1,
@@ -104,7 +97,6 @@ const EVERY: Letter[] = [
     week: ["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({ label, studied: i !== 5 })),
   }),
   weeklyLetter({
-    name: NASTY,
     origin: CHROME.origin,
     week: ["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({ label, studied: i < 5 })),
     reviews: 91,
@@ -114,7 +106,6 @@ const EVERY: Letter[] = [
     part: { title: NASTY, eveningsLeft: 3 },
   }),
   deadlineLetter({
-    name: NASTY,
     origin: CHROME.origin,
     band: "B1",
     label: "Live in the language",
@@ -280,6 +271,23 @@ describe("every letter, whatever it is given", () => {
           expect(text).toContain(block.alt.split("\n")[0]);
         }
       });
+    });
+  }
+});
+
+describe("a subject line", () => {
+  /*
+    A subject is a sentence standing alone at the top of somebody's inbox, so
+    it opens on a capital. The evening letter built its count out of a table
+    of lower-case number words and printed "three steps left in ..." in the
+    one line everybody reads. Two open on something this app did not write and
+    are left as written: the word of the day opens on the Estonian word,
+    spelled as the dictionary spells it, and the register on the group's name,
+    spelled as the teacher typed it.
+  */
+  for (const letter of EVERY.filter((l) => l.kind !== "wordday" && l.kind !== "classroom")) {
+    it(`${letter.kind} opens on a capital or a figure`, () => {
+      expect(letter.subject).toMatch(/^[\p{Lu}\d]/u);
     });
   }
 });

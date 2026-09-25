@@ -106,11 +106,85 @@ describe("gapForms", () => {
     expect(gapForms(TUBA).get("tuppa")).toBe("ILLATIVE");
   });
 
+  /*
+    THE SAME FAULT ARRIVES THROUGH THE RETRIEVED ROWS. An entry enriched from
+    Ekilex stores `arsti` a second time under `EKILEX:SgAdt`, which names the
+    short illative on its own, and the first row read still decided the label:
+    illative when that row came first, nothing when the genitive did. Exactly
+    one slot claims a spelling or none is named, whichever order and whichever
+    column the claims arrived in.
+  */
+  it("names no case for a spelling a retrieved row and a principal part both claim, in either order", () => {
+    const principal = [
+      { formType: "NOM_SG", value: "arst" },
+      { formType: "GEN_SG", value: "arsti" },
+      { formType: "PART_SG", value: "arsti" },
+    ];
+    for (const seeded of [true, false]) {
+      const retrieved = seeded
+        ? { formType: "EKILEX:SgAdt", value: "arsti" }
+        : { formType: "EKILEX:SgAdt", value: "arsti", morphCode: "SgAdt" };
+      for (const forms of [[retrieved, ...principal], [...principal, retrieved]]) {
+        const arst = gapForms({ lemma: "arst", pos: "NOUN", forms });
+        expect(arst.has("arsti")).toBe(true);
+        expect(arst.get("arsti"), `${seeded ? "seeded" : "live"} row, ${forms[0]!.formType} first`).toBeNull();
+      }
+    }
+  });
+
+  it("names no case for a spelling two retrieved rows read two ways", () => {
+    const forms = gapForms({
+      ...TUBA,
+      forms: [
+        ...TUBA.forms,
+        { formType: "EKILEX:SgIn", value: "qqtoas" },
+        { formType: "EKILEX:PlP", value: "qqtoas" },
+      ],
+    });
+    expect(forms.has("qqtoas")).toBe(true);
+    expect(forms.get("qqtoas")).toBeNull();
+  });
+
   it("keeps the slot the dictionary named over the one a rule would guess", () => {
     const forms = gapForms({
       ...TUBA,
       forms: [...TUBA.forms, { formType: "EKILEX:SgIn", value: "toas", morphCode: "SgIn" }],
     });
     expect(forms.get("toas")).toBe("INESSIVE");
+  });
+
+  /*
+    AND THE SEED WRITES THAT ROW WITH NO morphCode AT ALL. `prisma/seed.ts`
+    stores a harvested extra form as `formType: "EKILEX:<code>"` and nothing
+    else, so reading `morphCode` alone named the case on a live Ekilex lookup
+    and on no seeded install: measured over the shipped harvest, 399 spellings
+    across 376 entries had a case one way and none the other. The test above
+    only ever built the live shape, which is why nothing said so.
+  */
+  it("names the same slot whichever shape the row arrived in", () => {
+    const seeded = gapForms({
+      ...TUBA,
+      forms: [...TUBA.forms, { formType: "EKILEX:SgIn", value: "toas" }],
+    });
+    expect(seeded.get("toas")).toBe("INESSIVE");
+  });
+
+  /*
+    And a plural names no case. `caseFromMorphCode` reads `SgKom` and `PlKom`
+    alike as the kaasaütlev, "ignoring number" by its own comment, so a stored
+    plural claimed the singular case beside it and a card cut on it would write
+    that into `Review.slot`. The module's own rule is that exactly one slot
+    claims a spelling or none is named; a plural is still hideable, and still
+    in the map, it just says nothing it cannot back.
+  */
+  it("keeps a plural hideable and names no case for it", () => {
+    for (const morphCode of ["PlKom", null]) {
+      const forms = gapForms({
+        ...TUBA,
+        forms: [...TUBA.forms, { formType: "EKILEX:PlKom", value: "tubadega", morphCode }],
+      });
+      expect(forms.has("tubadega"), `${morphCode ?? "seeded"} dropped the spelling`).toBe(true);
+      expect(forms.get("tubadega"), `${morphCode ?? "seeded"} named a case for a plural`).toBeNull();
+    }
   });
 });

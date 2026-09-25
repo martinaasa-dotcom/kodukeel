@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -25,12 +25,12 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
-import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
+import { ORDER_EXACT, orderVariantNote, ORDER_WRONG, NOT_REACHED } from "@/lib/copy/values";
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import type { SeenCard } from "@/lib/ux/lookBack";
 
@@ -182,9 +182,9 @@ export function LessonSession({
   const submit = useCallback(async () => {
     if (saving || saved) return;
     setSaving(true);
-    const result = await completeLesson(unitId, answers);
+    const result = await completeLesson(unitId, answers).catch(() => null);
     setSaving(false);
-    setSaved(result.ok ? { ok: true } : { ok: false, error: result.error });
+    setSaved(result?.ok ? { ok: true } : { ok: false, error: result ? result.error : NOT_REACHED });
   }, [answers, saved, saving, unitId]);
 
   useEffect(() => {
@@ -272,6 +272,14 @@ function Verdict({ ok, note }: { ok: boolean; note?: string }) {
 function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: string }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      /*
+        A key from the answer box is the box's. This mounts on the render that
+        marks a typed step, and the Enter that marked it reaches the window
+        after React has mounted it, so read here it moved straight on and the
+        verdict was never on the screen. The box stays after the mark, so its
+        own Enter carries on instead, through `checkTyped`.
+      */
+      if (inEditable(e.target)) return;
       if (isAdvanceKey(e)) { e.preventDefault(); onNext(); }
     };
     window.addEventListener("keydown", onKey);
@@ -299,13 +307,15 @@ function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: 
  * under a coarse pointer.
  */
 function Options({
-  options, answer, chosen, onChoose, lang,
+  options, answer, chosen, onChoose, lang, render,
 }: {
   options: readonly string[];
   answer: number;
   chosen: number | null;
   onChoose: (i: number) => void;
   lang: "et" | "en";
+  /** How an option is drawn, where a bare string is not the whole of it. */
+  render?: (option: string) => ReactNode;
 }) {
   useEffect(() => {
     if (chosen !== null) return;
@@ -338,7 +348,7 @@ function Options({
                 so hiding it takes the shortcut away from the one reader who
                 cannot see the option to point at it. */}
             <KeyCap>{i + 1}</KeyCap>
-            {lang === "et" ? <Et>{option}</Et> : <span>{option}</span>}
+            {render ? render(option) : lang === "et" ? <Et>{option}</Et> : <span>{option}</span>}
           </button>
         );
       })}
@@ -412,7 +422,9 @@ function StepCard({
   };
 
   const checkTyped = (expected: string, lemma: string, kind: string) => {
-    if (checked) return;
+    // Once marked, the box's Enter is "carry on": `Continue` leaves a key
+    // from the box alone, because that is also the key that marked it.
+    if (checked) { onNext(); return; }
     const result = checkAnswer(typed, expected, "et");
     const ok = countsAsRecalled(result.verdict);
     setChecked({ ok, note: result.note || (ok ? "Correct." : `It is “${result.expected}”.`) });
@@ -446,7 +458,7 @@ function StepCard({
                         <span lang={point.estonian ? "et" : undefined} className="underline">
                           {point.title}
                         </span>
-                        <span className="text-xs" style={{ opacity: 0.75 }}>{point.english}</span>
+                        <span className="text-xs">{point.english}</span>
                       </Link>
                     </li>
                   );
@@ -533,7 +545,11 @@ function StepCard({
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>Which word is this?</span>
           <p className="text-2xl">{step.gloss}</p>
+          {/* Each option is a case question, and a question word is Estonian a
+              beginner cannot cash in, so it carries what it asks, the way the
+              drill's options do (components/CaseQuestion.tsx). */}
           <Options options={step.options} answer={step.answer} chosen={chosen} lang="et"
+            render={(option) => <CaseQuestion question={option} />}
             onChoose={(i) => choose(i, step.answer, step.lemma, step.kind)} />
           {chosen !== null && <Verdict ok={chosen === step.answer} />}
           {chosen !== null && <Continue onNext={onNext} />}
@@ -739,7 +755,11 @@ function StepCard({
             <Et className="text-3xl">{step.lemma}</Et>
             <span style={{ color: "var(--ink-2)" }}>{step.gloss}</span>
           </div>
+          {/* Each option is a case question, and a question word is Estonian a
+              beginner cannot cash in, so it carries what it asks, the way the
+              drill's options do (components/CaseQuestion.tsx). */}
           <Options options={step.options} answer={step.answer} chosen={chosen} lang="et"
+            render={(option) => <CaseQuestion question={option} />}
             onChoose={(i) => choose(i, step.answer, step.lemma, step.kind)} />
           {chosen !== null && <Verdict ok={chosen === step.answer} />}
           {chosen !== null && <Continue onNext={onNext} />}

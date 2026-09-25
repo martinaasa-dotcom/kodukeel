@@ -10,6 +10,7 @@ import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Speak } from "@/components/Speak";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { Condition } from "@/lib/audio/conditions";
+import { counted, NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * AN ATTESTED SENTENCE YOU CAN READ, RATHER THAN ONE YOU CAN ONLY LOOK AT.
@@ -198,7 +199,10 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
   const turnOff = () => {
     onTurnOff();
     startLeaving(async () => {
-      await setWordGloss("off");
+      // Caught so a dropped connection cannot take the card with it; the
+      // refresh that would put the setting's own answer back is skipped too.
+      const landed = await setWordGloss("off").then(() => true).catch(() => false);
+      if (!landed) return;
       /*
         Re-renders this screen from the setting, so the sentence somebody is
         looking at and the next one they meet agree about it. The optimistic
@@ -217,12 +221,11 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
     write stays here while the shelf question comes from `useKeepWord`: a shared
     press that owned this one would have to carry a flag for it.
   */
-  const keeper = useKeepWord(entry.lexemeId, async (deckIds) => {
-    const r = await addToDeck(entry.lexemeId, ["RECOGNITION", "PRODUCTION"], "SENTENCE", deckIds);
-    if (!r.ok) { setResult(r.error); return; }
-    const named = keeper.choice.decks?.filter((d) => deckIds?.includes(d.id)).map((d) => d.name) ?? [];
+  const keeper = useKeepWord(entry.lexemeId, async (deckIds, named) => {
+    const r = await addToDeck(entry.lexemeId, ["RECOGNITION", "PRODUCTION"], "SENTENCE", deckIds).catch(() => null);
+    if (!r || !r.ok) { setResult(r ? r.error : NOT_REACHED); return; }
     const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
-    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${r.added} cards.${where}`);
+    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${counted(r.added, "card")}.${where}`);
   });
 
   /* The spelling in the sentence and the headword are the same word often
