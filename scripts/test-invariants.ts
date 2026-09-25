@@ -14456,6 +14456,170 @@ check("every free provider the app would ask, a measuring script can ask too", (
       "write Estonian rather than as a harness that would not let it finish.",
     );
   }
+
+});
+
+check("the route and every harness build a governed verb the same way", () => {
+  /*
+    The route built its table of governed verbs in lib/progress/scene.ts and
+    the harness built its own in scripts/lib/sceneDraft.ts, and the harness's
+    had lost the place cases and the derived persons: `Minge otse edasi ja
+    siis vasakule.` was withheld in every measurement while the route passed
+    it. Both go through `governedWord` now, and neither may read a government
+    for itself.
+  */
+  for (const file of ["lib/progress/scene.ts", "scripts/lib/sceneDraft.ts"]) {
+    const src = code(file);
+    assert.match(src, /\bgovernedWord\(\{/, `${file} no longer builds its governed verbs through governedWord`);
+    assert.doesNotMatch(src, /\bparseGovernment\(/, `${file} reads a government for itself again, beside governedWord`);
+  }
+});
+
+check("a measurement sends what the route sends, and reads what it reads", () => {
+  /*
+    AND NO HARNESS SENDS A TEMPERATURE, BECAUSE THE APP NAMES THE FIELD ON NO
+    PATH. `callOpenAiCompatible` and `geminiCachedReply` are every socket the
+    app opens to a model and neither names it, so every line a learner reads
+    is composed at the provider's own default. Two harnesses named it anyway:
+    `sceneDraft.ts` composed at 0.8 on both call sites, and `play-scene.ts`
+    judged at 0. Neither is a knob somebody swept and pinned.
+
+    It is the `max_tokens` fault one field over and it fails in the flattering
+    direction, which is what makes it a check rather than a comment: a cooler
+    composer reaches outside the scene's word list less often, so the gate
+    withholds less than it does live and `eval:scene` reports a rate the
+    deployment does not have. The sharpest statement of it was inside
+    `askLine`, whose own comment says "Same function, same shape": its Gemini
+    branch goes through the app's `geminiCachedReply` and sent none, and the
+    branch under it sent 0.8.
+
+    Asked of every harness that opens its own socket, rather than of the two
+    that were wrong, because `eval:composers` and `eval:thinking` are right
+    today and a rule that names only the offenders is one the next harness is
+    written outside of.
+  */
+  /*
+    The haystack is every script, not the four that call a model today. The
+    paragraph above argues exactly that and the first version was a list of
+    four, so a fifth harness was outside the rule by being new. Nothing in
+    scripts/ has a reason to name the field, and a harness that does not open
+    a model socket passes by not naming it.
+  */
+  const harnesses = sourceFiles("scripts", /\.(ts|mjs)$/).filter((f) => f !== "scripts/test-invariants.ts");
+  assert.ok(harnesses.length >= 40, `only ${harnesses.length} scripts found, so this sweep stopped looking`);
+  for (const file of harnesses) {
+    assert.doesNotMatch(
+      code(file),
+      /temperature:/,
+      `${file} sends a temperature of its own. The app names the field on no path, so a ` +
+      "line composed or judged with one is measured at a setting no learner meets, and the " +
+      "bias is toward the flattering answer: a cooler composer reaches outside the word " +
+      "list less often and the gate withholds less than it does live.",
+    );
+  }
+
+  /*
+    AND A HARNESS TELLS A RETRY WHAT THE ROUTE TELLS IT, WHICH IS `retryNote`.
+    (What it tells, not how often: the harnesses retry once where the route
+    tries up to `MAX_COMPOSE_ATTEMPTS` times and adds `whyWithheld`.)
+
+    `vouching` and `stretch` had one word-set between them until the split gave
+    them one each, and the app grew `retryNote` to choose: a word nothing can
+    vouch for is dropped, and a line that reached too far is asked for fewer
+    new words rather than sent hunting for a synonym that is equally new. Both
+    harnesses kept reading the pre-split field. `eval:scene` passed `unknown`
+    flat, which after the split is empty on nearly every withheld line, so the
+    retry was told nothing; `draft:lines` retried only where `unknown` was
+    non-empty, so a line withheld for `stretch` was never retried at all and
+    the bank was drafted without the rescue the route gives it.
+  */
+  for (const file of ["scripts/eval-scene.ts", "scripts/draft-lines.ts"]) {
+    const text = code(file);
+    assert.match(
+      text,
+      /retryNote\(/,
+      `${file} no longer asks retryNote what to tell a retry, so it names a set of its own ` +
+      "and measures a retry the route does not make.",
+    );
+    assert.doesNotMatch(
+      text,
+      /compose\([^)]*\bverdict\.unknown\b|compose\([^)]*\bfirst\.unknown\b/,
+      `${file} retries on the raw unknown set. Since the vouching split that is "not ` +
+      'Estonian at all" rather than "off the list", so it is empty on nearly every ' +
+      "withheld line and the retry is told nothing.",
+    );
+  }
+
+  /*
+    AND A COMPOSED LINE IS GATED THE WAY THE ROUTE GATES IT, WHICH IS THREE
+    THINGS. The route hands the gate `gateFor` (so the register curveball is
+    not judged by the one check it cannot pass), the beat's own `topic` (the
+    check that withholds most live lines), and a `vouched` reader backed by the
+    forms list (so `vouching` asks whether a spelling is Estonian rather than
+    whether this scene teaches it). `eval:composers` had none of the three and
+    ranked two models two and a half times apart that the real gate puts level;
+    `eval:thinking` had none of them either and switched vouching off outright
+    with `vouched: () => true`, on the measurement the thinking-off decision in
+    CLAUDE.md was made on. Asked of every harness that gates a line a model
+    composed, since a harness gated its own way measures a gate the app does
+    not run. The banked-line tools are not in the list: a line drafted ahead is
+    held to the scene's own list on purpose, and `bank.test.ts` asks that.
+  */
+  /*
+    AND THROUGH ONE FUNCTION, `routeGate`, because the three had drifted three
+    ways. The first version of this arm asked each file for the pieces by
+    name, and `eval-scene.ts` passed it with its own local function called
+    `gateFor`, which skipped the register switch the library's applies: the
+    name satisfied the check and the behaviour did not. And no harness passed
+    `answers`, so `giveaway` was off in every measurement of the composer. So
+    the pieces are asked of `routeGate` once, and every `runGate` in a harness
+    has to go through it.
+  */
+  const helper = between(code("scripts/lib/sceneDraft.ts"), "export async function routeGate(");
+  for (const [piece, why] of [
+    [/return gateFor\(beat\.id,/, "the register switch, so the register curveball is judged by the one check it cannot pass"],
+    [/topic:\s*new Set\(\[\.\.\.topicForms\(beat, lexicon\), \.\.\.bankTopic\(scene, beat\)\]\)/,
+      "the route's topic (the beat's lemmas and its banked lines' words, lib/progress/scene.ts), so it counts topic refusals the app never makes"],
+    [/answers:\s*answerForms\(beat, lexicon\)/, "the forms the beat is about to ask for, so `giveaway` never fires"],
+    [/await vouchOf\(lexicon, words\(text\)\)/, "the forms list behind vouching"],
+    [/vouched:\s*\(word: string\) => vouched\.has\(word\)/, "the forms list behind vouching"],
+  ] as const) {
+    assert.match(helper, piece, `routeGate in scripts/lib/sceneDraft.ts no longer hands the gate ${why}`);
+  }
+  for (const file of ["scripts/eval-scene.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts"]) {
+    const text = code(file);
+    const gates = [...text.matchAll(/runGate\(/g)].length;
+    assert.ok(gates >= 1, `${file} no longer calls runGate, so this stopped reading it`);
+    assert.equal(
+      [...text.matchAll(/runGate\([^;]*?\brouteGate\(/g)].length, gates,
+      `${file} gates a composed line without routeGate, so it measures a gate the app does not run`,
+    );
+    assert.doesNotMatch(text, /\bconst\s+(?:gateFor|routeGate)\s*=/, `${file} defines its own gate builder, which is how the last one lost the register switch`);
+    assert.doesNotMatch(text, /vouched:\s*\(\)\s*=>\s*true/, `${file} switches vouching off, so it measures a gate with one check missing`);
+  }
+
+  /*
+    AND THE RANKED LIST RANKS WHAT ITS OWN CAPTION SAYS. `eval:scene` prints
+    the words a model reached for that the scene could not vouch for, and
+    CLAUDE.md says to read that list rather than the rate: it is the
+    instrument that found the missing connectives unit. It counted `unknown`,
+    which the split turned into "not a word in the language", so real Estonian
+    the course does not teach stopped reaching it and the commonest thing that
+    did was a model leaking its English deliberation into `content`. Measured
+    on the run that found this: one line of 276 leaked, and that one line was
+    the whole list, `yes 40  wait 17  words 17  the 16`, every entry starred
+    as a word the syllabus ought to teach.
+  */
+  {
+    const evalScene = code("scripts/eval-scene.ts");
+    assert.match(
+      evalScene,
+      /for \(const word of first\.stretched\)/,
+      "scripts/eval-scene.ts no longer ranks `stretched`. `unknown` is what nothing could " +
+      "vouch for as Estonian, so a list built from it ranks hallucinations and leaked " +
+      "reasoning rather than the vocabulary gap the caption under it promises.",
+    );
+  }
 });
 
 check("the scene gate has one implementation, and a line says where it came from", () => {
@@ -14470,6 +14634,15 @@ check("the scene gate has one implementation, and a line says where it came from
     evalScript,
     /function runGate\(/,
     "scripts/eval-scene.ts has its own gate again. There is one, in lib/scenes/gate.ts.",
+  );
+  // The rate is only the route's if the question is the route's: the prompt
+  // `askLine` builds, and the retries the route makes with the reason it gives.
+  assert.match(evalScript, /askLine\(/, "scripts/eval-scene.ts composes through something other than the route's prompt");
+  assert.doesNotMatch(evalScript, /\bcompose\(/, "scripts/eval-scene.ts asks a model with a prompt of its own again");
+  assert.match(
+    evalScript,
+    /MAX_COMPOSE_ATTEMPTS[\s\S]{0,400}whyWithheld\(/,
+    "scripts/eval-scene.ts no longer retries the way the route does, as many times and told why",
   );
 
   const line = code("lib/scenes/line.ts");

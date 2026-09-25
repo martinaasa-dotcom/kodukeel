@@ -27,6 +27,9 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
+import { CASES } from "@/lib/estonian/cases";
+import { derivedVerbForms } from "@/lib/estonian/conjugate";
+import { parseGovernment } from "@/lib/estonian/government";
 import type { CaseKey } from "@/lib/estonian/types";
 import {
   DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, words, type Lexicon, type Subject,
@@ -112,6 +115,60 @@ export interface GovernedWord {
   readonly forms: ReadonlySet<string>;
   /** Every case its entry names, never only the primary. */
   readonly cases: ReadonlySet<CaseKey>;
+}
+
+/**
+ * One governed verb as the gate reads it, built the same way for everybody.
+ *
+ * The route built this in `lib/progress/scene.ts` and the harness built its
+ * own table in `scripts/lib/sceneDraft.ts`, and the two had come apart twice.
+ * The harness never added the place cases, so `minema`, `tulema` and `sõitma`
+ * governed the comitative alone and `Minge otse edasi ja siis vasakule.` was
+ * withheld in every measurement while the route passed it; and it took the
+ * stored forms without the persons the rule derives. One function now, so a
+ * line the harness withholds is a line the route withholds.
+ *
+ * `null` for a word with no government this can read, or no verb to hold it.
+ */
+export function governedWord(word: {
+  readonly lemma: string;
+  readonly pos: string;
+  readonly government: string | null | undefined;
+  readonly forms: Iterable<string>;
+  readonly pres1sg?: string | null;
+}): GovernedWord | null {
+  if (word.pos !== "VERB") return null;
+  const government = parseGovernment(word.government ?? null);
+  if (!government) return null;
+  const forms = new Set<string>([word.lemma.toLowerCase()]);
+  for (const form of word.forms) forms.add(form.toLowerCase());
+  for (const derived of derivedVerbForms({ lemma: word.lemma, pres1sg: word.pres1sg ?? undefined })) {
+    forms.add(derived.value.toLowerCase());
+  }
+  return {
+    lemma: word.lemma,
+    forms,
+    cases: new Set([government.caseKey, ...government.alsoGoverned, ...placeCases(word.government ?? "")]),
+  };
+}
+
+/**
+ * THE CASES THAT ANSWER A PLACE QUESTION A GOVERNMENT NAMES.
+ *
+ * Ekilex records `sõitma` as "kuhu (direction) · millega (comitative)", and
+ * `parseGovernment` names a case for the second and none for the first, since
+ * `kuhu` is not a case. So the gate held `sõitma` to the comitative alone and
+ * withheld `Buss sõidab jaama kell kaks`, three times running, on the one
+ * beat that had to say where the bus goes. `kuhu` is answered by the
+ * sisseütlev and the alaleütlev, `kus` and `kust` by their pairs, which is
+ * what `CASES` already records as `asksWhere`, so a government naming a place
+ * question governs every case that answers it. Read off the table rather
+ * than typed, for the reason the question words themselves are.
+ */
+export function placeCases(government: string): CaseKey[] {
+  const asked = new Set((government.toLowerCase().match(/\b(kuhu|kus|kust)\b/g) ?? []).map((w) => `${w}?`));
+  if (asked.size === 0) return [];
+  return CASES.filter((spec) => spec.asksWhere && asked.has(spec.asksWhere)).map((spec) => spec.key);
 }
 
 /**
