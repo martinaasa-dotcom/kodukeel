@@ -1,4 +1,8 @@
 import { prisma } from "@/lib/db";
+import { CASES } from "@/lib/estonian/cases";
+import { askedCase } from "@/lib/srs/slots";
+
+const CASE_SLOTS = CASES.map((c) => c.key as string);
 
 /**
  * The reviews a learner's weakest case is worked out from.
@@ -44,11 +48,13 @@ export function caseReviewsFor(
   return prisma.review.findMany({
     where: {
       ownerId,
-      targetCase: { not: null },
+      OR: [{ targetCase: { not: null } }, { slot: { in: CASE_SLOTS } }],
       reviewedAt: { gte: new Date(now.getTime() - WINDOW_DAYS * 86_400_000) },
     },
-    select: { targetCase: true, rating: true },
+    select: { targetCase: true, slot: true, rating: true },
     orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
     take: CAP,
-  });
+  }).then((rows) => rows
+    .map((row) => ({ targetCase: askedCase(row), rating: row.rating }))
+    .filter((row) => row.targetCase !== null));
 }

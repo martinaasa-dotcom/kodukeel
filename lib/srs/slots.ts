@@ -122,6 +122,22 @@ export function isKnownSlot(slot: string): boolean {
   return CASE_KEYS.has(slot) || CONJUGATION_CODES.has(slot) || MEANING_SLOTS.includes(slot);
 }
 
+/**
+ * The case an answer was about, for everything that tallies cases.
+ *
+ * `Review.targetCase` is the case of the *card*; `Review.slot` is what the
+ * round asked. They are the same on an ordinary case card and different where
+ * a round asks one card for another case, which the writing round and Target
+ * both do: asked for the sisseütlev on a card about the seesütlev, a miss was
+ * charted as a miss at the seesütlev, on the panel that then sent the learner
+ * back to drill the case they had not been asked. The slot wins where it is a
+ * case, and a morph code or a card type falls back to the card's own, which
+ * is what every row written before the slot existed reads as.
+ */
+export function askedCase(row: { targetCase: string | null; slot?: string | null }): string | null {
+  return row.slot && CASE_KEYS.has(row.slot) ? row.slot : row.targetCase;
+}
+
 /** Whether a slot is a grammatical form rather than a question about meaning. */
 export function isFormSlot(slot: string): boolean {
   return CASE_KEYS.has(slot) || CONJUGATION_CODES.has(slot);

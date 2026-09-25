@@ -9,6 +9,8 @@ import { WriteSession, type WritingPrompt } from "./WriteSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import { CASES } from "@/lib/estonian/cases";
+import { askedCase } from "@/lib/srs/slots";
 
 export const metadata = { title: "Writing" };
 
@@ -79,14 +81,21 @@ export default async function WritePage({
 
   // The cases this learner has slipped on most, so the round targets weakness
   // rather than sampling evenly.
+  // Grouped on the pair and folded through `askedCase`, so a miss counts at
+  // the case the round asked rather than at the card's own.
   const weak = await prisma.review.groupBy({
-    by: ["targetCase"],
-    where: { ownerId, targetCase: { not: null }, rating: 1 },
+    by: ["targetCase", "slot"],
+    where: { ownerId, rating: 1, OR: [{ targetCase: { not: null } }, { slot: { in: CASES.map((c) => c.key as string) } }] },
     _count: { _all: true },
-    orderBy: { _count: { targetCase: "desc" } },
-    take: 5,
   });
-  const weakCases = new Set(weak.map((w) => w.targetCase).filter((c): c is string => !!c));
+  const missesByCase = new Map<string, number>();
+  for (const w of weak) {
+    const key = askedCase(w);
+    if (key) missesByCase.set(key, (missesByCase.get(key) ?? 0) + w._count._all);
+  }
+  const weakCases = new Set(
+    [...missesByCase].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 5).map(([key]) => key),
+  );
 
   const pool: Omit<WritingPrompt, "starred">[] = [];
   for (const lexeme of lexemes) {
