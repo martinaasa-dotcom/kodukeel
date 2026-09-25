@@ -75,6 +75,17 @@ export function words(text: string): string[] {
 }
 
 /**
+ * How many sentences a line holds. A sentence ends on a stop followed by the
+ * next one's capital: splitting on every stop and a space counted `3.
+ * korrusel` and `15. mail`, which is how Estonian writes an ordinal and a
+ * date, as two sentences each. The gate and the band's ceiling both count
+ * with this, so a line one passes the other cannot refuse.
+ */
+export function sentenceCount(text: string): number {
+  return text.trim().split(/[.!?]+\s+(?=[\p{Lu}„"«])/u).filter(Boolean).length;
+}
+
+/**
  * The clauses of a line, as the weakest boundary available without a parser.
  *
  * A comma, a semicolon, a colon, and the end of a sentence. The gate's four
