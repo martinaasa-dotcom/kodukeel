@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 
 import { prisma } from "@/lib/db";
-import { learnerDays } from "./impact";
+import { encounterTotals, learnerDays } from "./impact";
 
 /**
  * Integration tests: these need a real Postgres.
@@ -35,6 +35,7 @@ async function withDatabaseZone<T>(zone: string, run: () => Promise<T>): Promise
 
 afterAll(async () => {
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.encounter.deleteMany({ where: { ownerId: OWNER } });
   await prisma.$disconnect();
 });
 
@@ -53,5 +54,23 @@ describe("learnerDays", () => {
     });
 
     expect(days).toEqual([{ firstDay: "2031-01-01", activeDays: ["2031-01-01"] }]);
+  });
+});
+
+describe("encounterTotals", () => {
+  it("counts one report per learner per day, the last one given", async () => {
+    await prisma.encounter.deleteMany({ where: { ownerId: OWNER } });
+    const at = (iso: string) => new Date(iso);
+    await prisma.encounter.createMany({
+      data: [
+        // Three presses on one morning: two tabs, then a change of mind.
+        { ownerId: OWNER, outcome: "BAILED", createdAt: at("2026-09-24T07:00:00Z") },
+        { ownerId: OWNER, outcome: "UNDERSTOOD", createdAt: at("2026-09-24T07:01:00Z") },
+        { ownerId: OWNER, outcome: "UNDERSTOOD", createdAt: at("2026-09-24T07:02:00Z") },
+        { ownerId: OWNER, outcome: "BAILED", createdAt: at("2026-09-25T07:00:00Z") },
+      ],
+    });
+    const mine = (await encounterTotals([])).find((row) => row.learner === OWNER);
+    expect(mine).toEqual({ learner: OWNER, reports: 2, conversations: 1 });
   });
 });

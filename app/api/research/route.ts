@@ -207,9 +207,18 @@ async function tallyEncounters(excluded: readonly string[]): Promise<Contributio
            e."ownerId" AS "learner",
            COUNT(*)::int AS "reviews",
            COUNT(*) FILTER (WHERE e."outcome" <> 'SWITCHED')::int AS "correct"
-    FROM "Encounter" e
+    -- One report per learner per day, the last one given, as the learner's own
+    -- panel reads them; filtered after, so a day answered twice counts as the
+    -- answer that stood rather than as both.
+    FROM (
+      SELECT DISTINCT ON (e."ownerId", date_trunc('day', e."createdAt"))
+             e."ownerId", e."outcome", e."createdAt"
+      FROM "Encounter" e
+      WHERE TRUE
+      ${not}
+      ORDER BY e."ownerId", date_trunc('day', e."createdAt"), e."createdAt" DESC, e."id" DESC
+    ) e
     WHERE e."outcome" IN (${conversations})
-    ${not}
     GROUP BY 1, e."ownerId"
   `;
   return rows.map((row) => ({
