@@ -467,8 +467,21 @@ export async function closingProgress(
   const day = dayById(programme, dayId);
   const graded = await closingGraded(ownerId, ticks, dayId);
   /* The same number the step itself is finished against, or the list would
-     promise five answers while the reading behind it settles for two. */
-  const needed = day && ticks.byDay.has(dayId)
+     promise five answers while the reading behind it settles for two. That
+     includes the reading's condition: it settles for less only once the
+     closing round is the one step left, so the line does too, or it reads
+     "2 of 2 answers in" over a step that is not finished. The meet step is
+     proved off the deck, so it is asked the same way the reading asks it, and
+     only where it is the one thing between this and the closing round. */
+  const ticked = ticks.byDay.get(dayId);
+  let lastStanding = false;
+  if (day && ticked) {
+    const done = new Set(ticked);
+    if (onlyClosingLeft(day, new Set([...done, MEET_STEP]))) {
+      lastStanding = done.has(MEET_STEP) || await metWords(ownerId, day.words);
+    }
+  }
+  const needed = day && lastStanding
     ? await closingNeeded(ownerId, programme, day, graded, now)
     : CLOSING_REVIEW;
   return { graded: Math.min(needed, graded), needed };

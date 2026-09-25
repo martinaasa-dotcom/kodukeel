@@ -449,6 +449,30 @@ describe("the closing round's own counter", () => {
     expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
   });
 
+  /*
+    AND THE LINE ASKS WHAT THE STEP IS FINISHED AGAINST, WHILE ANOTHER STEP
+    IS STILL OPEN.
+
+    The reading settles for what the round can give only once the closing
+    round is the one step left; until then it wants five. The line settled
+    early, so it read "2 of 2 answers in" over a step that was not finished.
+  */
+  it("asks for five while another step of the evening is still open", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const two = await reviewable(2);
+    const manual = ticked(one);
+    expect(manual.length, "the first evening has no step a learner ticks").toBeGreaterThan(0);
+    await tick(one.id, manual.slice(0, -1), EVENING);
+    await review(2, new Date(EVENING.getTime() + 60_000));
+    await scheduleAway(two);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(1);
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
+      .toEqual({ graded: 2, needed: CLOSING_REVIEW });
+  });
+
   /* Two cards left is two answers, and then the evening is over. */
   it("settles for what is there when the round is nearly empty", async () => {
     const one = PROGRAMME.days[0]!;
