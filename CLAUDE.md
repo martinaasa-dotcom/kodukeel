@@ -4909,7 +4909,9 @@ hands in its own generator and a test hands in a fixed one. `lib/exam/paper.ts` 
 exception and its header says why: the server rebuilds a paper from its seed to mark it, so changing
 how that one draws would mis-mark a paper somebody started before a deploy and handed in after.
 Both halves are asserted, because fixing the two wrong copies and leaving eight right ones is how a
-ninth gets written.
+ninth gets written. And a ninth was written, in the one shape the check could not see: Fisher-Yates
+inline in the sentence round's `useMemo`, with no function to name and no key to sort on. The draw
+is the tell, a random index scaled to one past the loop counter, and that is asserted now too.
 
 **A seed is only as fixed as what it is seeded over.** `planLesson` promises the same seed gives the
 same lesson, and the wrong answers came from an unordered sixty of the 478 words at A1 or the 1,302
