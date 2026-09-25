@@ -6870,6 +6870,63 @@ check("the privacy notice carries what Article 13 requires", () => {
   }
 });
 
+/*
+  A TIMED ROUND'S LENGTH IS WRITTEN ONCE, AND WHERE IT IS SHOWN IT IS THE LEARNER'S.
+
+  The Case Sprint's sixty seconds was typed in the round, in the Settings
+  panel describing the pace, and as the tile's "60 seconds" on Practice, which
+  went on saying sixty to a learner who had set five minutes. The bases live in
+  lib/ux/roundClock.ts, the rounds read them, and Practice works the tile out
+  from the learner's own pace.
+*/
+check("a timed round's length is written once and shown at the learner's pace", () => {
+  for (const [file, base] of [
+    ["app/(app)/review/sprint/page.tsx", "SPRINT_SECONDS"],
+    ["app/(app)/quest/page.tsx", "QUEST_SECONDS"],
+    ["app/(app)/settings/RoundPacePanel.tsx", "SPRINT_SECONDS"],
+  ] as const) {
+    const src = code(file);
+    assert.match(src, new RegExp(`secondsFor\\(\\s*${base},`), `${file} does not take its length from ${base}`);
+    assert.doesNotMatch(src, /const \w+ = (60|120);/, `${file} types a round length of its own`);
+  }
+  const practice = code("app/(app)/practice/page.tsx");
+  assert.match(practice, /lengthAtPace\(SPRINT_SECONDS,/, "Practice shows the sprint's length without the learner's pace");
+  const sprintMode = /href: "\/review\/sprint"[^}]*subtitle: "([^"]*)"/.exec(code("lib/ux/modes.ts"))?.[1];
+  assert.ok(sprintMode !== undefined, "the sprint's mode entry was not found");
+  assert.doesNotMatch(sprintMode, /\d/, "the sprint's mode entry states a length the pace can change");
+  assert.match(
+    code("app/(app)/scan/[scanId]/page.tsx"), /lengthAtPace\(SPRINT_SECONDS,/,
+    "the scan page's sprint tile states a length without the learner's pace",
+  );
+  assert.match(
+    code("app/(app)/page.tsx"), /lengthAtPace\(QUEST_SECONDS,/,
+    "Today's quest card states a length without the learner's pace",
+  );
+  /*
+    And no screen types the standard length as words. What a comment says is
+    free; what reaches a reader has to be the length that reader's round runs
+    for, which only the pace can say. The accessibility statement is the one
+    exception, since it describes the defaults and says they are adjustable.
+  */
+  const typed = /["'`][^"'`]*\b(?:sixty|60)[ -]seconds?\b/i;
+  for (const dir of ["app", "components", "lib"]) {
+    for (const file of sourceFiles(dir).filter((f) => !/\.test\./.test(f))) {
+      if (file === "app/accessibility/page.tsx") continue;
+      assert.doesNotMatch(code(file), typed, `${file} prints a round length the learner's pace may have changed`);
+    }
+  }
+  // "Two minutes" is ordinary English elsewhere (a scene, a letter), so the
+  // quest's own entries are named rather than swept.
+  for (const [file, pattern] of [
+    ["lib/ux/modes.ts", /href: "\/quest"[\s\S]*?\},/],
+    ["lib/ux/weekGames.ts", /\{ href: "\/quest"[^}]*\}/],
+  ] as const) {
+    const entry = pattern.exec(code(file))?.[0];
+    assert.ok(entry, `the quest's entry in ${file} was not found`);
+    assert.doesNotMatch(entry!, /two minutes/i, `the quest's entry in ${file} states a length the pace can change`);
+  }
+});
+
 /**
  * THE .env A FRESH CLONE GETS IS LOCAL MODE, AND IT RUNS.
  *
