@@ -2969,11 +2969,6 @@ check("no code path updates a review", () => {
     up by editing history is exactly what must not be learned from, and a
     fixture can always write the row it wants in the first place.
   */
-  /*
-    And the other two ways to rewrite a row: `upsert`, which is an update on
-    the row that exists, and raw SQL, which the client-shaped pattern could
-    not see at all. Either passed the one-spelling version of this.
-  */
   for (const file of ALL) {
     // Every way to change a row, not only the obvious one: an upsert and raw
     // SQL rewrite a review as surely as `review.update` does.
@@ -8176,6 +8171,55 @@ check("a malformed argument to a server action is refused, not thrown or stored"
   );
 });
 
+/**
+ * NO SERVER ACTION TAKES AN OWNER FROM ITS CALLER.
+ *
+ * CLAUDE.md states it as a rule that is not negotiable: every export of a
+ * `"use server"` file is a public endpoint, its arguments are JSON off the wire
+ * whatever the types say, and an owner id taken from one is an owner id anybody
+ * can type. The owner is resolved with `requireUserId()`, and a helper that
+ * needs one as a parameter lives in `lib/`. Nothing held that up: the one check
+ * near it read `advanceCourseStep` alone, so an eighty-ninth action written
+ * `saveNote(ownerId: string, text: string)` passed the whole suite.
+ *
+ * Every exported function and every exported arrow in any file that declares
+ * `"use server"` has its whole parameter list read, balanced on parentheses so
+ * a default value or a callback type does not end it early, and refused where
+ * a parameter or a field of an inline object type names an owner, a user or a
+ * learner.
+ */
+check("no server action takes an owner id from its caller", () => {
+  const files = ALL.filter((f) => /^\s*["']use server["'];?\s*$/m.test(code(f)));
+  assert.ok(files.includes(join("app", "actions.ts")), "app/actions.ts no longer declares \"use server\"");
+  const offenders: string[] = [];
+  let signatures = 0;
+  for (const file of files) {
+    const src = code(file);
+    for (const m of src.matchAll(/export\s+(?:const\s+\w+\s*=\s*)?(?:async\s+)?(?:function\s+(\w+)\s*(?:<[^>(]*>)?)?\(/g)) {
+      if (!m[1] && !/const/.test(m[0])) continue;
+      let depth = 1;
+      let at = m.index! + m[0].length;
+      const from = at;
+      while (at < src.length && depth > 0) {
+        if (src[at] === "(") depth += 1;
+        else if (src[at] === ")") depth -= 1;
+        at += 1;
+      }
+      signatures += 1;
+      const params = src.slice(from, at - 1);
+      if (/\b(owner\w*|user|userId|learnerId|memberId|accountId)\s*[?]?\s*[:,)=]|\b(owner\w*|user|userId|learnerId|memberId|accountId)\s*$/i.test(params)) {
+        offenders.push(`${file}: ${m[1] ?? m[0].trim()}(${params.replace(/\s+/g, " ").slice(0, 80)})`);
+      }
+    }
+  }
+  assert.ok(signatures >= 60, `only read ${signatures} server action signatures, so this check stopped looking`);
+  assert.deepEqual(
+    offenders, [],
+    "a server action takes an owner from its caller, which anybody can type. Resolve it with "
+      + "requireUserId() inside the action, or move the helper that needs one into lib/",
+  );
+});
+
 check("the weakest case is read off the case that was asked, on every screen that reads one", () => {
   /*
     `Review.targetCase` is the case the card is about and `Review.slot` is what
@@ -12350,55 +12394,6 @@ check("a pure layer reaches no database, React or Next, however many imports awa
     "a pure layer reaches the database, React or Next through another module. Its unit tests are "
       + "hermetic only while nothing under it does; move what needs the database into lib/progress/ "
       + "or a route, or take the pure half out of the module that imports it",
-  );
-});
-
-/**
- * NO SERVER ACTION TAKES AN OWNER FROM ITS CALLER.
- *
- * CLAUDE.md states it as a rule that is not negotiable: every export of a
- * `"use server"` file is a public endpoint, its arguments are JSON off the wire
- * whatever the types say, and an owner id taken from one is an owner id anybody
- * can type. The owner is resolved with `requireUserId()`, and a helper that
- * needs one as a parameter lives in `lib/`. Nothing held that up: the one check
- * near it read `advanceCourseStep` alone, so an eighty-ninth action written
- * `saveNote(ownerId: string, text: string)` passed the whole suite.
- *
- * Every exported function and every exported arrow in any file that declares
- * `"use server"` has its whole parameter list read, balanced on parentheses so
- * a default value or a callback type does not end it early, and refused where
- * a parameter or a field of an inline object type names an owner, a user or a
- * learner.
- */
-check("no server action takes an owner id from its caller", () => {
-  const files = ALL.filter((f) => /^\s*["']use server["'];?\s*$/m.test(code(f)));
-  assert.ok(files.includes(join("app", "actions.ts")), "app/actions.ts no longer declares \"use server\"");
-  const offenders: string[] = [];
-  let signatures = 0;
-  for (const file of files) {
-    const src = code(file);
-    for (const m of src.matchAll(/export\s+(?:const\s+\w+\s*=\s*)?(?:async\s+)?(?:function\s+(\w+)\s*(?:<[^>(]*>)?)?\(/g)) {
-      if (!m[1] && !/const/.test(m[0])) continue;
-      let depth = 1;
-      let at = m.index! + m[0].length;
-      const from = at;
-      while (at < src.length && depth > 0) {
-        if (src[at] === "(") depth += 1;
-        else if (src[at] === ")") depth -= 1;
-        at += 1;
-      }
-      signatures += 1;
-      const params = src.slice(from, at - 1);
-      if (/\b(owner\w*|user|userId|learnerId|memberId|accountId)\s*[?]?\s*[:,)=]|\b(owner\w*|user|userId|learnerId|memberId|accountId)\s*$/i.test(params)) {
-        offenders.push(`${file}: ${m[1] ?? m[0].trim()}(${params.replace(/\s+/g, " ").slice(0, 80)})`);
-      }
-    }
-  }
-  assert.ok(signatures >= 60, `only read ${signatures} server action signatures, so this check stopped looking`);
-  assert.deepEqual(
-    offenders, [],
-    "a server action takes an owner from its caller, which anybody can type. Resolve it with "
-      + "requireUserId() inside the action, or move the helper that needs one into lib/",
   );
 });
 
