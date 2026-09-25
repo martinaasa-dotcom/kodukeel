@@ -2,9 +2,9 @@
 
 import { PARTS } from "@/lib/copy/values";
 import { useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { Check, CircleAlert, Loader2 } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -95,6 +95,7 @@ interface Marked {
 export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   prompts: ScenePrompt[]; aiAvailable: boolean;
 }) {
+  const grade = useGrade();
   /*
     Snapshotted once. `gradeCard` is a Server Action and Next re-renders this
     route's Server Component after every call, which would hand down a freshly
@@ -183,12 +184,12 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           one case is spelled that way, and prints it. It was dropped here.
         */
         const reached = result.mark.verdict?.kind === "one" ? result.mark.verdict.key : undefined;
-        void gradeCard(
+        void grade(
           // A hint is paid for: see `lib/questions/hints.ts`. It can only lower
           // what the dictionary's own check already decided.
           prompt.cardId, Math.min(result.mark.rating, hints.ceiling) as 1 | 2 | 3,
-          Date.now() - startedAt.current, undefined, prompt.caseKey, reached,
-        ).catch(() => {});
+          Date.now() - startedAt.current, prompt.caseKey, reached,
+        );
       }
     } catch {
       setError("Marking needs a connection. Your sentence is still here.");

@@ -57,6 +57,18 @@ describe("throttleAction", () => {
     expect(throttleAction("learner-a", "buildCloze")).toBeNull();
   });
 
+  it("throttles putting a word aside, which is a vote on where the word sits for everybody", () => {
+    /*
+      A deferral moves a word a band later for the whole deployment once
+      enough learners press it (`lib/progress/hard.ts`), and sign-up is open,
+      so this press is the one cheap write that has to have a ceiling. A few
+      presses an evening is real use; a sweep of the dictionary is not.
+    */
+    expect(ACTION_LIMITS.putAside.perMinute).toBeGreaterThanOrEqual(10);
+    exhaust("learner-a", "putAside");
+    expect(throttleAction("learner-a", "putAside")).not.toBeNull();
+  });
+
   it("sets every allowance far above what a person could reach", () => {
     /*
       A limit a real learner meets is a bug, not a limit. The floor is four a

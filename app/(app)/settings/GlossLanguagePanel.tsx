@@ -23,24 +23,27 @@ export function GlossLanguagePanel({ current }: { current: GlossLanguage }) {
   const pick = (next: GlossLanguage) => {
     setValue(next);
     start(async () => {
-      await setGlossLanguage(next);
+      const landed = await setGlossLanguage(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
 
   return (
-    <ChoiceGroup ariaLabel="Which language a meaning is given in" className="grid gap-2 sm:grid-cols-3">
-      {GLOSS_LANGUAGES.map((option) => (
-        <ChoiceCard
-          key={option.id}
-          layout="stacked"
-          disabled={pending}
-          selected={value === option.id}
-          onSelect={() => pick(option.id)}
-          title={option.label}
-          detail={option.id === "en" ? "The course's own English meanings" : option.native}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="Which language a meaning is given in" className="grid gap-2 @lg:grid-cols-3">
+        {GLOSS_LANGUAGES.map((option) => (
+          <ChoiceCard
+            key={option.id}
+            layout="stacked"
+            disabled={pending}
+            selected={value === option.id}
+            onSelect={() => pick(option.id)}
+            title={option.label}
+            detail={option.id === "en" ? "The course's own English meanings" : option.native}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }

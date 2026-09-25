@@ -62,7 +62,7 @@ export default async function ClinicPage() {
     prisma.review.findMany({
       where: { ownerId, cardId: { in: cards.map((c) => c.id) } },
       select: { cardId: true, rating: true, reviewedAt: true },
-      orderBy: { reviewedAt: "asc" },
+      orderBy: [{ reviewedAt: "asc" }, { id: "asc" }],
       take: 2000,
     }),
     /*

@@ -504,6 +504,75 @@ describe("the word the other side offers", () => {
   });
 });
 
+/*
+  AN `anyOf` IS ONE REQUIREMENT TO THE MARKER AND SEVERAL WORDS TO EVERYBODY
+  ELSE, AND ONLY ONE OF THEM WAS SAID.
+
+  `leafNeeds` opens a choice into its options, each carrying the index of the
+  choice, and the grades asked `answered(index)` of every option: so a met
+  choice wrote a row for every word in it. At the ticket window, asked whether
+  they are paying by card, a learner who said `jah` had `kaart` and `raha` in
+  the comitative written into the review log as recalls, Good, beside the
+  `jah` they did say; and the landlord's offer, answered `jah`, wrote the
+  weekday off the card as a word they had produced.
+*/
+describe("a choice of requirements", () => {
+  const lexicon = buildLexicon([
+    { lemma: "kaart", pos: "NOUN", cefr: "A1", usages: [], parts: { NOM_SG: "kaart", GEN_SG: "kaardi", PART_SG: "kaarti" } },
+    { lemma: "raha", pos: "NOUN", cefr: "A1", usages: [], parts: { NOM_SG: "raha", GEN_SG: "raha", PART_SG: "raha" } },
+    { lemma: "jah", pos: "ADVERB", cefr: "A1", usages: [], parts: {} },
+    { lemma: "teisipäev", pos: "NOUN", cefr: "A1", usages: [], parts: { NOM_SG: "teisipäev", GEN_SG: "teisipäeva", PART_SG: "teisipäeva" } },
+  ]);
+  const CHOICE: SceneSpec = {
+    ...SCENE,
+    beats: [
+      {
+        id: "pay", goal: "Say how you are paying.", they: "They ask.", move: "ask", topic: ["kaart"],
+        needs: [{ kind: "anyOf", of: [
+          { kind: "case", lemma: "kaart", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "raha", grammCase: "COMITATIVE" },
+          { kind: "lemma", oneOf: ["jah"] },
+        ] }],
+        required: true, patience: 2, shape: "word",
+      },
+      {
+        id: "offer", goal: "Say whether the day works.", they: "They offer a day.", move: "offer", topic: ["päev"],
+        needs: [{ kind: "anyOf", of: [
+          { kind: "datum", slot: "day" },
+          { kind: "lemma", oneOf: ["jah"] },
+        ] }],
+        required: true, patience: 2, shape: "word",
+      },
+    ],
+  };
+  const card: RoleCard = {
+    you: "You.",
+    props: [{ slot: "day", card: "day", literal: [], shown: [], value: "teisipäev", lemmas: ["teisipäev"] }],
+  };
+  const said = (...words: string[]) => {
+    let state = startScene(CHOICE);
+    for (const word of words) {
+      ({ state } = advance(CHOICE, state, evidence("complete", [true], [], [word]), word));
+    }
+    return state;
+  };
+
+  it("grades the one option the learner said, and none of the others", () => {
+    const grades = gradesFor(CHOICE, said("jah", "jah"), card, lexicon);
+    expect(grades.map((g) => `${g.beatId}:${g.lemma}`)).toEqual(["pay:jah", "offer:jah"]);
+  });
+
+  it("and the case they used, where that is the option they took", () => {
+    const grades = gradesFor(CHOICE, said("kaardiga", "teisipäeval"), card, lexicon);
+    expect(grades.map((g) => `${g.beatId}:${g.lemma}:${g.grammCase ?? ""}`))
+      .toEqual(["pay:kaart:COMITATIVE", "offer:teisipäev:"]);
+  });
+
+  it("and nothing for a choice where there is no lexicon to say which option it was", () => {
+    expect(gradesFor(CHOICE, said("jah", "jah"), card)).toEqual([]);
+  });
+});
+
 describe("which card each grade lands on", () => {
   /*
     `finishScene` looked each grade's card up with its own `findFirst`, one

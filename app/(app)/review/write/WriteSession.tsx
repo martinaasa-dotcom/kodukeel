@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { Check, CircleAlert, Loader2, PenLine } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -71,6 +71,7 @@ interface Marked {
 export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   prompts: WritingPrompt[]; aiAvailable: boolean;
 }) {
+  const grade = useGrade();
   /*
     Snapshotted once on mount, never updated from later props. gradeCard() is a
     Server Action and Next refreshes this route's Server Component after every
@@ -149,8 +150,9 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       // sentence still moves nothing, and neither does this: it can only lower
       // what the dictionary's own check already decided.
       const rating = Math.min(writeRating(result.formCheck), hints.ceiling) as 1 | 2 | 3 | 4;
-      void gradeCard(prompt.cardId, rating, Date.now() - startedAt.current)
-        .catch(() => {});
+      // The case the task asked for, which is not always the card it grades: the
+      // slot is what mastery counts, and without it this read as the card's case.
+      void grade(prompt.cardId, rating, Date.now() - startedAt.current, prompt.caseKey);
     } catch {
       setError("Marking needs a connection. Your sentence is still here.");
     } finally {
