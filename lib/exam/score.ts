@@ -489,12 +489,19 @@ function markTask(task: ExamTask, responses: ReadonlyMap<string, Response>): Tas
  * that told them otherwise would be worse than no mock at all.
  */
 export function markPaper(paper: Paper, responses: ReadonlyMap<string, Response>): ExamResult {
+  /*
+    THE VERDICT IS READ OFF EXACT POINTS; ONLY WHAT IS PRINTED IS ROUNDED.
+    Summing parts already rounded to a tenth could carry 59.96 percent over the
+    line to a pass, and a part that scored something rounded to nought and
+    failed the paper on the rule that is about a part that scored nothing.
+  */
+  const exact = new Map<PartResult, number>();
   const parts: PartResult[] = paper.parts.map((part) => {
     const tasks = part.tasks.map((task) => markTask(task, responses));
     const raw = tasks.reduce((sum, t) => sum + t.raw, 0);
     const rawAvailable = tasks.reduce((sum, t) => sum + t.rawAvailable, 0);
     const share = rawAvailable === 0 ? 0 : raw / rawAvailable;
-    return {
+    const result: PartResult = {
       skill: part.spec.skill,
       label: part.spec.label,
       tasks,
@@ -504,13 +511,17 @@ export function markPaper(paper: Paper, responses: ReadonlyMap<string, Response>
       maxPoints: part.spec.points,
       pct: Math.round(share * 100),
     };
+    exact.set(result, share * part.spec.points);
+    return result;
   });
 
   const set = parts.filter((p) => p.rawAvailable > 0);
-  const points = Math.round(set.reduce((sum, p) => sum + p.points, 0) * 10) / 10;
+  const exactPoints = set.reduce((sum, p) => sum + (exact.get(p) ?? 0), 0);
+  const points = Math.round(exactPoints * 10) / 10;
   const maxPoints = set.reduce((sum, p) => sum + p.maxPoints, 0);
-  const pct = maxPoints === 0 ? 0 : Math.floor((points / maxPoints) * 100);
-  const zero = set.find((p) => p.points === 0);
+  // A hair of float error under a whole percent is not a percent missed.
+  const pct = maxPoints === 0 ? 0 : Math.floor((exactPoints / maxPoints) * 100 + 1e-9);
+  const zero = set.find((p) => (exact.get(p) ?? 0) === 0);
 
   return {
     level: paper.level,

@@ -396,3 +396,27 @@ describe("a word order the writer did not choose", () => {
     expect(mark([]).correct).toBe(false);
   });
 });
+
+describe("the verdict comes off exact points", () => {
+  const paper = buildPaper("B1", pool(60), "exact-seed", WORD_ORDER);
+  const all = perfect(paper);
+  const ids = [...all.keys()];
+
+  it("agrees with the exact total and the exact zero on every sitting", () => {
+    // A seeded walk over which questions were answered, so the run is the
+    // same every time and still reaches totals on both sides of the line.
+    let state = 7;
+    const next = () => ((state = (state * 1_103_515_245 + 12_345) % 2_147_483_648) / 2_147_483_648);
+    for (let run = 0; run < 400; run += 1) {
+      const keep = next();
+      const answers = new Map([...all].filter(() => next() < keep));
+      const result = markPaper(paper, answers);
+      const set = result.parts.filter((p) => p.rawAvailable > 0);
+      const exact = set.map((p) => (p.tasks.reduce((sum, t) => sum + t.raw, 0) / p.rawAvailable) * p.maxPoints);
+      const total = exact.reduce((a, b) => a + b, 0);
+      expect(result.pct).toBe(Math.floor((total / result.maxPoints) * 100 + 1e-9));
+      expect(result.zeroPart !== null).toBe(exact.some((x) => x === 0));
+    }
+    expect(ids.length).toBeGreaterThan(20);
+  });
+});
