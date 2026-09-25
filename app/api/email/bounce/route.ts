@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/db";
-import { emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
+import { emailOptInTo, emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
 import { OPTIONAL_KINDS } from "@/lib/email/letter";
 import { addressDigest, BLOCKED_ANY, readDelivery, verifyDelivery, webhookSecret } from "@/lib/email/webhook";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
-import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { forgetSettings, SETTING_KEYS, writeSettings } from "@/lib/settings/store";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 
 export const dynamic = "force-dynamic";
@@ -124,16 +124,25 @@ export async function POST(request: Request) {
         address-blind, because what they said is about our mail rather than
         about a mailbox.
       */
-      const existing = await prisma.setting.findUnique({
-        where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff } },
-        select: { value: true },
+      /*
+        Both rows, the way the unsubscribe route writes them: a complaint that
+        left the opt-in row standing left a request on disk beside a refusal,
+        the contradiction that gets resolved the wrong way by whoever next
+        changes which row wins.
+      */
+      const existing = await prisma.setting.findMany({
+        where: { ownerId: sent.ownerId, key: { in: [SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn] } },
+        select: { key: true, value: true },
       });
-      const value = emailPrefsTo(switchOff(emailPrefsFrom(existing?.value), OPTIONAL_KINDS));
-      await prisma.setting.upsert({
-        where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff } },
-        create: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff, value },
-        update: { value },
-      });
+      const rowFor = (key: string) => existing.find((row) => row.key === key)?.value ?? null;
+      const next = switchOff(
+        emailPrefsFrom(rowFor(SETTING_KEYS.emailsOff), rowFor(SETTING_KEYS.emailsOn)),
+        OPTIONAL_KINDS,
+      );
+      await writeSettings(sent.ownerId, [
+        [SETTING_KEYS.emailsOff, emailPrefsTo(next)],
+        [SETTING_KEYS.emailsOn, emailOptInTo(next)],
+      ]);
       forgetSettings(sent.ownerId);
       return ok();
     }

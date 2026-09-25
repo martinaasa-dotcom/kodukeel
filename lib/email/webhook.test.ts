@@ -6,8 +6,8 @@
   control, and these drive it with signatures built the way the provider builds
   them rather than with a stub that agrees with the implementation.
 */
-import { createHmac } from "node:crypto";
-import { beforeEach, describe, expect, it } from "vitest";
+import { createHash, createHmac } from "node:crypto";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   addressDigest,
@@ -249,5 +249,27 @@ describe("which address a block is about", () => {
     expect(digest).not.toContain("@");
     expect(digest).toMatch(/^[0-9a-f]{32}$/);
     expect(digest).not.toBe(addressDigest("teet@example.ee"));
+  });
+
+  it("cannot be recomputed from an address without the deployment's key", () => {
+    // A plain SHA-256 of the address is the same everywhere, so a copy of the
+    // settings table and a roster confirmed who had bounced.
+    const plain = createHash("sha256").update("mari@example.ee").digest("hex").slice(0, 32);
+    const keyed = addressDigest("mari@example.ee", "a-secret-of-sixteen+");
+    expect(keyed).not.toBe(plain);
+    expect(keyed).not.toBe(addressDigest("mari@example.ee", "another-secret-16+"));
+    expect(keyed).toMatch(/^[0-9a-f]{32}$/);
+  });
+
+  it("still reads a block written before the digest was keyed", () => {
+    vi.stubEnv("EMAIL_TOKEN_SECRET", "a-secret-of-sixteen+");
+    try {
+      const legacy = addressDigest("mari@example.ee", null);
+      expect(blocks(legacy, "mari@example.ee")).toBe(true);
+      expect(blocks(addressDigest("mari@example.ee"), "mari@example.ee")).toBe(true);
+      expect(blocks(legacy, "teet@example.ee")).toBe(false);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

@@ -41,6 +41,7 @@
   Pure, and in `lib/email/` for it: no Prisma, no network, no clock of its own.
 */
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { mailSecret } from "./unsubscribe";
 
 /** How far from now a delivery's own timestamp may be, in seconds. */
 export const TOLERANCE_SECONDS = 5 * 60;
@@ -221,8 +222,19 @@ export function readDelivery(body: unknown): DeliveryEvent | null {
  * in the part that matters and the provider may echo it back differently from
  * how it was sent.
  */
-export function addressDigest(address: string): string {
-  return createHash("sha256").update(address.trim().toLowerCase()).digest("hex").slice(0, 32);
+export function addressDigest(address: string, key: string | null = mailSecret()): string {
+  const folded = address.trim().toLowerCase();
+  /*
+    KEYED, BECAUSE A PLAIN HASH OF AN ADDRESS IS THE ADDRESS TO ANYBODY WITH A
+    LIST. Unsalted SHA-256 of "kadri@kool.ee" is the same everywhere, so a copy
+    of the settings table and a school's roster confirmed which of them had
+    bounced, which is not what "cannot be read back into a person" promised.
+    An HMAC under the deployment's mail secret cannot be recomputed without it.
+    Where no secret is configured the old digest is still what is written,
+    since there is no key to use and a block is worth more than none.
+  */
+  if (!key) return createHash("sha256").update(folded).digest("hex").slice(0, 32);
+  return createHmac("sha256", key).update(`undeliverable\n${folded}`).digest("hex").slice(0, 32);
 }
 
 /**
@@ -253,5 +265,7 @@ export function blocks(stored: string | null | undefined, address: string): bool
     bounced.
   */
   if (value === BLOCKED_ANY || value === "1") return true;
-  return value === addressDigest(address);
+  // A row written before the digest was keyed is still a block; reading it as
+  // nothing would start writing to every address that had already bounced.
+  return value === addressDigest(address) || value === addressDigest(address, null);
 }

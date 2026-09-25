@@ -377,6 +377,24 @@ export async function writeSetting(ownerId: string, key: SettingKey, value: stri
 }
 
 /**
+ * Several keys written in one transaction, so none of them lands without the
+ * others. For pairs that mean something only together, like a letter's
+ * refusal and its request, where a second write failing after the first had
+ * landed left a kind refused and requested at once.
+ */
+export async function writeSettings(
+  ownerId: string, entries: readonly (readonly [SettingKey, string])[],
+): Promise<void> {
+  await prisma.$transaction(entries.map(([key, value]) =>
+    prisma.setting.upsert({
+      where: { ownerId_key: { ownerId, key } },
+      create: { ownerId, key, value },
+      update: { value },
+    })));
+  for (const [key, value] of entries) rememberWrite(ownerId, key, value);
+}
+
+/**
  * Drop what this request remembers about a learner's settings.
  *
  * For the three paths that write the table without coming through

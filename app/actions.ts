@@ -44,7 +44,7 @@ import {
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
 import {
-  forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, writeSettings, type ReviewMode,
 } from "@/lib/settings/store";
 import { isEmailKind } from "@/lib/email/letter";
 import { emailPrefsFrom, emailOptInTo, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
@@ -1779,8 +1779,10 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
   ]);
   const current = emailPrefsFrom(off, on);
   const next = input.on ? switchOn(current, input.kind) : switchOff(current, [input.kind]);
-  await writeSetting(ownerId, SETTING_KEYS.emailsOff, emailPrefsTo(next));
-  await writeSetting(ownerId, SETTING_KEYS.emailsOn, emailOptInTo(next));
+  await writeSettings(ownerId, [
+    [SETTING_KEYS.emailsOff, emailPrefsTo(next)],
+    [SETTING_KEYS.emailsOn, emailOptInTo(next)],
+  ]);
   revalidatePath("/settings");
   return { ok: true as const, on: input.on };
 }

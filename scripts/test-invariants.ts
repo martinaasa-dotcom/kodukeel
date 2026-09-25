@@ -11829,6 +11829,28 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("a letter's refusal and its request are written together, and a complaint withdraws both", () => {
+  /*
+    \`emailsOff\` refuses and \`emailsOn\` requests. Written as two awaits, a
+    second write failing left a kind refused and requested at once; and the
+    complaint webhook wrote the refusal alone, leaving a standing request on
+    disk that the unsubscribe route already takes care to withdraw.
+  */
+  const actions = code("app/actions.ts");
+  const kind = actions.slice(actions.indexOf("export async function setEmailKind"));
+  const body = kind.slice(0, kind.indexOf("\nexport async function", 10));
+  assert.match(body, /writeSettings\(ownerId, \[/, "setEmailKind writes the two rows separately again");
+  assert.doesNotMatch(body, /writeSetting\(ownerId, SETTING_KEYS\.emailsO/, "setEmailKind writes a letter row on its own");
+  const bounce = code("app/api/email/bounce/route.ts");
+  assert.match(bounce, /SETTING_KEYS\.emailsOn, emailOptInTo\(next\)/, "a complaint leaves the opt-in row standing");
+});
+
+check("after a letter is sent, a failed write is reported rather than counted as a failed send", () => {
+  const run = code("lib/mailer/run.ts");
+  assert.match(run, /await rememberAfterSend\(ownerId, built\.remember\.key, built\.remember\.value\)/,
+    "the high-water mark is written bare after a send again, so a failure counts the letter as failed and it can go twice");
+});
+
 check("a confidence figure carries its evidence, on every screen that prints one", () => {
   /*
     ADR-022's headline rule: a percentage whose basis is not stated is the one
