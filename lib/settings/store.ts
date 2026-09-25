@@ -265,10 +265,10 @@ export const SETTING_KEYS = {
   /**
    * How long a timed round runs, as a pace rather than a number of seconds.
    *
-   * The Case Sprint and the daily quest each had a fixed clock, which is WCAG
-   * 2.2.1 failed twice: a learner who reads slowly or types with one hand was
-   * shut out of both. What is stored is a multiplier over each round's own
-   * base, since the two bases are different on purpose. A missing row is the
+   * The Case Sprint, the daily quest and Target each had a fixed clock, which
+   * is WCAG 2.2.1 failed three times: a learner who reads slowly or types with
+   * one hand was shut out of all of them. What is stored is a multiplier over
+   * each round's own base, since the bases are different on purpose. A missing row is the
    * shipped length, which is what everybody already had. The table and the
    * reasoning live in lib/ux/roundClock.ts; the mock examination's clock is
    * not this setting's business and does not read it.

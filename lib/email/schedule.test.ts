@@ -449,6 +449,9 @@ describe("the date they set", () => {
     */
     expect(letterOwed(facing({ deadlineWeeks: DEADLINE_WEEKS_MIN - 1 }), NOW)?.kind).not.toBe("deadline");
     expect(letterOwed(facing({ deadlineWeeks: DEADLINE_WEEKS_MAX + 1 }), NOW)?.kind).not.toBe("deadline");
+    // Unrounded at both edges: 24.6 days is not four weeks, and 16.4 weeks is past sixteen.
+    expect(letterOwed(facing({ deadlineWeeks: 24.6 / 7 }), NOW)?.kind).not.toBe("deadline");
+    expect(letterOwed(facing({ deadlineWeeks: 16.4 }), NOW)?.kind).not.toBe("deadline");
   });
 
   it("gives way to news, which is what the order says", () => {
