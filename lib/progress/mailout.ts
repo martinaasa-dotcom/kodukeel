@@ -284,6 +284,12 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     the afternoon for is not going to be sent the evening letter whatever the
     answer, so the query is skipped and the honest default is that it is not
     finished, which is the state that makes the other gates decide.
+
+    And the same reading says whether there is a course at all. `programmeFor`
+    offers everybody the opening part of their level, so a programme existing
+    is not somebody having chosen an evening: that is a tick, and outside the
+    evening "not started" is as honest a default as "not finished", since
+    nothing else reads it.
   */
   const localHour = clock.hourOf(now);
   const reminderHour = settings[SETTING_KEYS.reminderAt]
@@ -298,10 +304,11 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     localHour >= (reminderHour ?? 18) &&
     localHour < 22;
 
-  const finishedToday =
-    couldBeTonight && programme
-      ? (await courseReading(ownerId, programme, clock, now)).finishedToday
-      : false;
+  const tonight = couldBeTonight && programme
+    ? await courseReading(ownerId, programme, clock, now)
+    : null;
+  const startedCourse = tonight?.started ?? false;
+  const finishedToday = tonight?.eveningDoneToday ?? false;
 
   const onboardedRaw = settings[SETTING_KEYS.onboardedAt];
   const onboardedAt = onboardedRaw ? new Date(onboardedRaw) : null;
@@ -457,7 +464,7 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     sentThisWeek,
     lastReviewAt: lastReview?.reviewedAt ?? null,
     onboardedAt: onboardedAt && !Number.isNaN(onboardedAt.getTime()) ? onboardedAt : null,
-    hasProgramme: programme !== null,
+    startedCourse,
     finishedToday,
     /*
       Outside the errand's own window these say "not now" rather than a guess:
@@ -1115,7 +1122,9 @@ export async function letterInputFor(
     gift(),
   ]);
   const current = reading.current;
-  if (!current) return null;
+  /* The same rule `candidateFor` decides on: an evening nobody chose is not
+     one to write to them about. */
+  if (!current || !reading.started) return null;
 
   const done = current.done;
   /*
