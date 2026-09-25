@@ -72,7 +72,7 @@ import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
-import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
+import { boundedRestoredReview, isRepeatedReview, stableReviewId, writeGrade } from "@/lib/srs/grade";
 import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
