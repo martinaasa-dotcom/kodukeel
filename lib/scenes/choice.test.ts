@@ -39,16 +39,28 @@ describe("narrowing a question to two", () => {
   });
 
   /*
-    A greeting beat names whole phrases, and joined as printed they came out
-    `Tere! või Tere hommikust!?`. The question ends in one mark.
+    A beat's words can carry their own closing mark, and joined as printed they
+    came out `Tere! või Tere hommikust!?`. The question ends in one mark.
+    Greetings no longer reach this, because a greeting is said rather than
+    chosen between (below), so the mark is carried on two nouns instead: the
+    stripping is a rule about the option text, whichever words reach it.
   */
   it("takes each option's own closing mark off before joining them", () => {
+    const lex = buildLexicon([
+      { lemma: "Pood!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
+      { lemma: "Turg!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
+    ]);
+    const where = { ...BEAT, needs: [{ kind: "lemma" as const, oneOf: ["Pood!", "Turg!"] }] };
+    expect(choiceOf({ beat: where, card: CARD, lexicon: lex, roll: 0 })).toBe(`Pood ${CHOICE_WORD} Turg?`);
+  });
+
+  it("offers no choice between two greetings, which are one thing said two ways", () => {
     const lex = buildLexicon([
       { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
       { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
     ]);
     const greet = { ...BEAT, move: "greet" as const, needs: [{ kind: "lemma" as const, oneOf: ["Tere!", "Tere hommikust!"] }] };
-    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBe(`Tere ${CHOICE_WORD} Tere hommikust?`);
+    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBeNull();
   });
 
   /*
