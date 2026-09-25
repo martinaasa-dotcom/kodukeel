@@ -9681,8 +9681,9 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   sentences" and a scrambled order "not the original" were each true of none. Each test now counts
   what it walks inside itself, the crossword compares both directions and asserts it compared
   something, and its cap test uses a pool that places eight when nothing stops it. The invariant
-  reads every unit test for a filtered list walked and never counted, with one written exemption
-  checked both ways.
+  reads every unit test file for a filtered list walked and counted nowhere in that file, with one
+  written exemption checked both ways; it cannot tell which test the count sits in, so a count in a
+  neighbouring test satisfies it, and keeping the count inside the test is the convention it stands for.
 - **A suite that pairs two facts by walking the markup goes blind the day the markup moves, and
   waives itself while it does.** `scripts/test-scene.mjs` asks two questions only a browser can
   answer, that a composed line and a scripted line are each one short sentence saying which rung
