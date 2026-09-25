@@ -6,7 +6,7 @@ import { saveLearningGoals } from "@/app/actions";
 import { NOT_REACHED } from "@/lib/copy/values";
 import { Button } from "@/components/Button";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { DEADLINES, REASONS, TARGETS, deadlineFrom, reasonsFor, reasonsToStored, weeksUntil, type Goals } from "@/lib/assessment/goals";
 import type { Band } from "@/lib/assessment/types";
 
@@ -55,7 +55,6 @@ export function GoalsPanel({ current }: { current: Goals }) {
       */}
       <ChoiceGroup label="Why you are learning" hint="pick as many as are true" select="many">
         {REASONS.map((r) => {
-          const Icon = icon(r.icon);
           const on = reasons.includes(r.id);
           return (
             <ChoiceChip
@@ -64,7 +63,7 @@ export function GoalsPanel({ current }: { current: Goals }) {
               /* Pressing a chosen one again clears it: "none of these" is a
                  real answer, and the plan is honest about having no reason. */
               onSelect={() => setReasons((all) => on ? all.filter((id) => id !== r.id) : [...all, r.id])}
-              icon={<Icon size={14} aria-hidden />}
+              icon={<NamedIcon name={r.icon} size={14} aria-hidden />}
             >
               {r.label}
             </ChoiceChip>

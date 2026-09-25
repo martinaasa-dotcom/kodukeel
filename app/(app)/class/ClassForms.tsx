@@ -6,6 +6,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Check, Copy, LogOut, Plus, Printer } from "lucide-react";
 import { archiveClassroom, assignHomework, assignUnit, createClassroom, joinClassroom, leaveClassroom, setEmailKind } from "@/app/actions";
 import { Button } from "@/components/Button";
+import { COPY_LABEL, useCopy } from "@/components/useCopy";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { CODE_LENGTH } from "@/lib/classroom/code";
 import {
@@ -172,20 +173,16 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
 }
 
 export function CopyCode({ code }: { code: string }) {
-  const [copied, setCopied] = useState(false);
+  const [copied, copy] = useCopy(1600);
   return (
     <button
       type="button"
-      onClick={() => {
-        void navigator.clipboard?.writeText(code).then(() => {
-          setCopied(true);
-          window.setTimeout(() => setCopied(false), 1600);
-        });
-      }}
+      onClick={() => copy(code)}
       className="press inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-ui hover:-translate-y-px"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", color: copied ? "var(--good-ink)" : "var(--ink-2)" }}
+      style={{ borderColor: "var(--rule)", background: "var(--surface)", color: copied === "copied" ? "var(--good-ink)" : "var(--ink-2)" }}
     >
-      {copied ? <><Check size={13} aria-hidden /> Copied</> : <><Copy size={13} aria-hidden /> Copy code</>}
+      {copied === "copied" ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
+      <span aria-live="polite">{copied === "idle" ? "Copy code" : COPY_LABEL[copied]}</span>
     </button>
   );
 }

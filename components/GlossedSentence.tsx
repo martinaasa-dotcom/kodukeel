@@ -10,7 +10,7 @@ import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Speak } from "@/components/Speak";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { Condition } from "@/lib/audio/conditions";
-import { NOT_REACHED } from "@/lib/copy/values";
+import { counted, NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * AN ATTESTED SENTENCE YOU CAN READ, RATHER THAN ONE YOU CAN ONLY LOOK AT.
@@ -221,12 +221,11 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
     write stays here while the shelf question comes from `useKeepWord`: a shared
     press that owned this one would have to carry a flag for it.
   */
-  const keeper = useKeepWord(entry.lexemeId, async (deckIds) => {
+  const keeper = useKeepWord(entry.lexemeId, async (deckIds, named) => {
     const r = await addToDeck(entry.lexemeId, ["RECOGNITION", "PRODUCTION"], "SENTENCE", deckIds).catch(() => null);
     if (!r || !r.ok) { setResult(r ? r.error : NOT_REACHED); return; }
-    const named = keeper.choice.decks?.filter((d) => deckIds?.includes(d.id)).map((d) => d.name) ?? [];
     const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
-    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${r.added} cards.${where}`);
+    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${counted(r.added, "card")}.${where}`);
   });
 
   /* The spelling in the sentence and the headword are the same word often

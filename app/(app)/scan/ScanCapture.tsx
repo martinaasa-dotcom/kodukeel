@@ -207,7 +207,11 @@ export function ScanCapture() {
                 <Camera size={15} aria-hidden />
                 Scan another
               </Button>
-              <Button variant="primary" onClick={() => window.location.assign(`/scan/${saved.id}`)}>
+              <Button
+                variant="primary"
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a document load on purpose, argued above
+                onClick={() => window.location.assign(`/scan/${saved.id}`)}
+              >
                 Open the page
               </Button>
             </div>
@@ -522,7 +526,10 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
             </span>
             <EstonianInput
               value={row.et}
-              onChange={(next) => onChange({ et: next })}
+              onChange={(next) =>
+                // A new spelling is a new question: the match the old one had
+                // is dropped until "Look this up again" asks the dictionary.
+                onChange({ et: next, lexemeId: null, lemma: null, translation: null, matchedAs: null, cefr: null })}
               ariaLabel="Estonian word"
               onEnter={onRecheck}
             />

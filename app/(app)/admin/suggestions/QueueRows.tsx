@@ -6,7 +6,8 @@ import { Check, ChevronDown, ChevronRight, TriangleAlert, X } from "lucide-react
 import { reviewSuggestion } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { Card, Chip, Empty } from "@/components/ui";
-import { formatDateTime } from "@/lib/time/clock";
+import { DATE_TIME_SHAPE } from "@/lib/time/clock";
+import { LocalDate, stableDate } from "@/components/LocalDate";
 import { SUGGESTION_CATEGORIES, summarisePatch } from "@/lib/suggestions/model";
 import type { SuggestionStatus } from "@/lib/suggestions/model";
 import type { QueueRow } from "@/lib/suggestions/queue";
@@ -132,7 +133,7 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
             )}
           </div>
           <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            {row.context ?? "somewhere in the app"} · {formatDateTime(new Date(row.createdAt))}
+            {row.context ?? "somewhere in the app"} · <LocalDate iso={new Date(row.createdAt).toISOString()} fallback={stableDate(new Date(row.createdAt), DATE_TIME_SHAPE)} options={DATE_TIME_SHAPE} />
           </p>
         </div>
 

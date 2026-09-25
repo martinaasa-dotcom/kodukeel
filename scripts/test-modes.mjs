@@ -776,7 +776,9 @@ if ((await featured.count()) === 0) {
   const [a, b] = cols;
   check("and the two columns end level, within one card of each other",
     cols.length === 2 && Math.abs(a.bottom - b.bottom) < Math.max(a.tallest, b.tallest));
-  check("and no card is split across the seam", cols.every((c) => c.whole));
+  // Carrying the count like the check above it: a page that drew no columns
+  // at all has no card split across a seam, which is not the same as passing.
+  check("and no card is split across the seam", cols.length > 0 && cols.every((c) => c.whole));
 }
 
 // 6e — Say what you see: a picture, a case, and the ending you actually wrote

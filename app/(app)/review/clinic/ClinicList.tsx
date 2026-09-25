@@ -6,6 +6,7 @@ import { deleteCard, setCardSuspended } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, Page } from "@/components/ui";
 import { Speak } from "@/components/Speak";
+import { useReaderDate } from "@/components/LocalDate";
 import { buildClinicQuestion, type Leech } from "@/lib/analysis/leeches";
 import { caseByKey } from "@/lib/estonian/cases";
 
@@ -150,6 +151,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
  * could not have it too.
  */
 function Timeline({ history }: { history: { rating: number; at: string }[] }) {
+  const readerDate = useReaderDate();
   const shown = history.slice(-24);
   if (shown.length === 0) return null;
   const failures = shown.filter((h) => h.rating <= 2).length;
@@ -162,7 +164,7 @@ function Timeline({ history }: { history: { rating: number; at: string }[] }) {
           return (
             <span
               key={i}
-              title={`${new Date(h.at).toLocaleDateString()} · ${failed ? "failed" : "recalled"}`}
+              title={`${readerDate(new Date(h.at), { day: "numeric", month: "short", year: "numeric" })} · ${failed ? "failed" : "recalled"}`}
               className={`w-2.5 rounded-[2px] ${failed ? "h-2.5" : "h-1"}`}
               style={{ background: failed ? "var(--again)" : "var(--good)" }}
             />

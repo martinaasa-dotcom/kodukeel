@@ -133,6 +133,24 @@ describe("the streak, counted in the learner's zone", () => {
     expect(spent).toBeNull();
   });
 
+  it("keeps a shield it cannot use to save the streak, and writes no covered day", async () => {
+    // Three missed days and one shield: spending it on one of them used to
+    // leave the streak broken anyway, the shield gone, and a covered day on
+    // record for the shield letter to announce.
+    const now = new Date();
+    const clock = dayClock(TALLINN);
+    await reviewsAt(daysBack(now, [0, 4], TALLINN, 9));
+    await writeSetting(OWNER, SETTING_KEYS.streakShields, "1");
+
+    const result = await resolveStreakFor(OWNER, now, clock);
+    expect(result.streak).toBe(1);
+    expect(result.shieldsAvailable).toBe(1);
+    const spent = await prisma.setting.findUnique({
+      where: { ownerId_key: { ownerId: OWNER, key: SETTING_KEYS.streakShieldDates } },
+    });
+    expect(spent).toBeNull();
+  });
+
   /*
     A SHIELD IS EARNED BY THE STREAK NOW, AND ONLY ONCE.
 
