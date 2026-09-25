@@ -86,8 +86,7 @@ route no longer accepts a level from the client either. The learner's name and e
 **Where established.** All of them outside the EEA, which is recorded in `PROVIDER_HOME` as a
 judgment about the company rather than about a region setting on somebody's account. OpenRouter was
 on this table and is no longer in the chain at all: `PROVIDER_KEY_ENV` in `lib/tutor/provider.ts` is
-the whole list of keys a deployment can hold, and it is the four above. A deployment that still has
-`OPENROUTER_API_KEY` set sends nothing to OpenRouter.
+the whole list of keys a deployment can hold, and it is the four above.
 
 **Safeguard.** The standard contractual clauses each provider publishes, and nothing else.
 `/privacy` says that, and says protection there is not identical to protection here, and says the
