@@ -100,7 +100,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
       <ChoiceGroup
         ariaLabel="Which form"
         select="one"
-        className="mt-4 grid gap-2 sm:grid-cols-2"
+        className="choice-grid mt-4"
       >
         {ask.options.map((option, i) => {
           const state = picked === null ? null : optionState(option === ask.answer, option === picked);

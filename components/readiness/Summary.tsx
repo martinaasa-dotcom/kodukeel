@@ -12,6 +12,15 @@ import { RUNG_TILE } from "./Rung";
  * eye lands on "lead" at the end of the row. Drawn on Progress and at the top
  * of the readiness page from one component, so the two cannot count a level
  * two ways.
+ *
+ * Two columns until `lg`, on both screens. A tile's label is set in
+ * `label-xs`, uppercase, and "started" alone is 72px of it, so five across
+ * needs a tile of about 96px. Five across at every width gave a 25px label box
+ * on a phone and at 768, where the rail appears and the column is at its
+ * narrowest, and `overflow-wrap: anywhere` broke every label into letters
+ * ("NOT STA RTE D") rather than let it overflow, which is why the containment
+ * sweep read it as clean. `sm:` is the wrong breakpoint for the same reason:
+ * 768 is above it.
  */
 export function ReadinessSummary({ summary }: { summary: Summary }) {
   const shown = [...RUNG_ORDER].reverse();

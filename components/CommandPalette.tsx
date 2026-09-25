@@ -279,7 +279,7 @@ export function CommandPalette() {
             className="w-full bg-transparent text-base"
             style={{ color: "var(--ink)" }}
           />
-          <KeyCap>Esc</KeyCap>
+          <KeyCap className="shrink-0">Esc</KeyCap>
         </div>
         <ul className="scroll-host max-h-[52vh] py-1">
           {rows.map(({ command: c, index: i, heading }) => (
@@ -301,7 +301,10 @@ export function CommandPalette() {
                 className="flex w-full items-baseline gap-3 px-4 py-2.5 text-left"
                 style={{ background: i === active ? "var(--accent-soft)" : "transparent" }}
               >
-                <span className="text-base" style={{ color: i === active ? "var(--accent-deep)" : "var(--ink)" }}>
+                {/* The label keeps its width and the hint gives way, which is
+                    what `truncate` on the hint is for. Both shrinking together
+                    left "Practice" 41px at 360, drawn across two lines. */}
+                <span className="max-w-[75%] shrink-0 text-base" style={{ color: i === active ? "var(--accent-deep)" : "var(--ink)" }}>
                   {c.label}
                 </span>
                 <span className="ml-auto truncate text-xs" style={{ color: "var(--ink-3)" }}>{c.hint}</span>
