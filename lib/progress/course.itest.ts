@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
-import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay } from "@/lib/progress/course";
+import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay, ladderReading } from "@/lib/progress/course";
 import { recordCourseLevel } from "@/lib/progress/level";
 import { dayClock } from "@/lib/time/day";
 
@@ -49,6 +49,7 @@ async function wipe() {
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
 }
 
 /**
@@ -159,6 +160,21 @@ async function tick(dayId: string, stepIds: readonly string[], at: Date) {
   }
 }
 
+/** Answers as the grading path writes them: the device's moment and the server's. */
+async function received(n: number, answeredAt: Date, receivedAt: Date) {
+  const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+  for (let i = 0; i < n; i += 1) {
+    await prisma.review.create({
+      data: {
+        ownerId: OWNER, cardId: card!.id, lexemeId: card!.lexemeId,
+        rating: 3, durationMs: 4000,
+        reviewedAt: new Date(answeredAt.getTime() + i * 1000),
+        receivedAt: new Date(receivedAt.getTime() + i * 1000),
+      },
+    });
+  }
+}
+
 async function review(n: number, at: Date) {
   const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
   for (let i = 0; i < n; i += 1) {
@@ -194,6 +210,26 @@ describe("which day is current", () => {
     expect(await prisma.courseStep.count({ where: { ownerId: OWNER } })).toBe(0);
   });
 
+  it("meets a word the learner put aside, since the ladder will not serve it tonight", async () => {
+    /*
+      "Too complicated" on the meet rung moves the card's date and leaves it
+      New, and the ladder serves only what is due, so a step waiting for it
+      to leave New waited for ever and no press could move the evening.
+    */
+    const words = PROGRAMME.days[0]!.words;
+    await deck(words, 1);
+    const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+    await prisma.card.update({ where: { id: card!.id }, data: { state: 0 } });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(false);
+    await prisma.deferral.create({
+      data: {
+        ownerId: OWNER, lexemeId: card!.lexemeId!, lemma: "x", reason: "SOON",
+        untilAt: new Date(Date.now() + 3 * 24 * 3600_000),
+      },
+    });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(true);
+  });
+
   it("does not count a word the learner has never been asked about", async () => {
     await deck(PROGRAMME.days[0]!.words, 0);
     const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
@@ -225,6 +261,38 @@ describe("which day is current", () => {
 
     const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.day.index).toBe(1);
+    expect(reading.current?.next?.id).toBe(REVIEW_STEP);
+  });
+
+  it("closes the evening on a device whose clock runs slow", async () => {
+    /*
+      The tick is the server's time and the answer's `reviewedAt` is the
+      device's. Ten minutes slow, every closing answer is dated before the tick
+      that opened the round, and the step, which nobody can press, never ticks.
+    */
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    // Cards still due, so the round is not closed by having nothing left to ask.
+    await reviewable(CLOSING_REVIEW);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+    await received(CLOSING_REVIEW, new Date(at.getTime() - 10 * 60_000), new Date(at.getTime() + 60_000));
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.finishedToday).toBe(true);
+  });
+
+  it("does not count an answer the server received before the round opened, whatever the device says", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    const at = EVENING;
+    // A device clock running fast dates these after the tick; they arrived before it.
+    await received(CLOSING_REVIEW, new Date(at.getTime() + 10 * 60_000), new Date(at.getTime() - 60_000));
+    await tick(one.id, ticked(one), at);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.next?.id).toBe(REVIEW_STEP);
   });
 });
@@ -347,10 +415,34 @@ describe("a course that has to survive a midnight", () => {
 });
 
 describe("the day an action may write about", () => {
-  it("takes the day reached, and the one it opens on to", async () => {
-    await deck(PROGRAMME.days[0]!.words, 1);
-    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[0]!)).toBe(true);
-    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[1]!)).toBe(true);
+  it("takes the day reached, and the one it opens on to once it is finished", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, one, NOW)).toBe(true);
+    await tick(one.id, ticked(one), EVENING);
+    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[1]!, NOW)).toBe(true);
+  });
+
+  /*
+    THE LADDER NOBODY HAD TO CLIMB. The day after the one reached used to be in
+    play whatever state the day reached was in, and a tick on it makes it the
+    day reached, so a caller could tick day two, then day three, then every
+    evening of the programme in turn, one request each, having done nothing.
+  */
+  it("does not open the next day while the day reached is unfinished", async () => {
+    const [one, two, three] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!, PROGRAMME.days[2]!];
+    await deck(one.words, 1);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, two, NOW)).toBe(false);
+
+    /* Half an evening is not an evening: one step ticked and the rest not. */
+    await tick(one.id, ticked(one).slice(0, 1), EVENING);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, two, NOW)).toBe(false);
+
+    /* And a forged tick on day two, written past the gate, opens nothing further. */
+    await tick(two.id, ticked(two).slice(0, 1), new Date(EVENING.getTime() + 5 * 60_000));
+    expect(await dayIsInPlay(OWNER, PROGRAMME, three, NOW)).toBe(false);
   });
 
   /*
@@ -362,6 +454,24 @@ describe("the day an action may write about", () => {
     await deck(PROGRAMME.days[0]!.words, 1);
     expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[4]!)).toBe(false);
     expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days.at(-1)!)).toBe(false);
+  });
+
+  /*
+    AND THE PROGRAMME HAS TO BE THE ONE THEY ARE FOLLOWING. The day id is not
+    the only thing off the wire: the programme id is too, and a part nobody has
+    opened has no ticks, so its first two evenings read as "reached" by the
+    rule above. Without this a call naming the last part of C1 builds a
+    beginner's deck out of its words, which is the forged call the guard's own
+    header says it closes.
+  */
+  it("refuses a day of a programme they are not following", async () => {
+    const elsewhere = PROGRAMMES.at(-1)!;
+    expect(elsewhere.id).not.toBe(PROGRAMME.id);
+    await deck(PROGRAMME.days[0]!.words, 1);
+    expect(await dayIsInPlay(OWNER, elsewhere, elsewhere.days[0]!)).toBe(false);
+    expect(await dayIsInPlay(OWNER, elsewhere, elsewhere.days[1]!)).toBe(false);
+    // The one they are following is still open, which is what the UI hands over.
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[0]!)).toBe(true);
   });
 });
 
@@ -449,6 +559,30 @@ describe("the closing round's own counter", () => {
     expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
   });
 
+  /*
+    AND THE LINE ASKS WHAT THE STEP IS FINISHED AGAINST, WHILE ANOTHER STEP
+    IS STILL OPEN.
+
+    The reading settles for what the round can give only once the closing
+    round is the one step left; until then it wants five. The line settled
+    early, so it read "2 of 2 answers in" over a step that was not finished.
+  */
+  it("asks for five while another step of the evening is still open", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const two = await reviewable(2);
+    const manual = ticked(one);
+    expect(manual.length, "the first evening has no step a learner ticks").toBeGreaterThan(0);
+    await tick(one.id, manual.slice(0, -1), EVENING);
+    await review(2, new Date(EVENING.getTime() + 60_000));
+    await scheduleAway(two);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(1);
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
+      .toEqual({ graded: 2, needed: CLOSING_REVIEW });
+  });
+
   /* Two cards left is two answers, and then the evening is over. */
   it("settles for what is there when the round is nearly empty", async () => {
     const one = PROGRAMME.days[0]!;
@@ -464,5 +598,28 @@ describe("the closing round's own counter", () => {
     await review(2, new Date(at.getTime() + 60_000));
     await scheduleAway(two);
     expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
+  });
+});
+
+/*
+  "RIGHT" IS WHAT EVERY OTHER READING IN THIS APP CALLS RECALLED, which is Good
+  or Easy. Hard is what a hint, a slip or the right word in the wrong ending is
+  graded, and the hand-off counted it as right, so a fortnight of near misses
+  read as a fortnight of perfect answers and the part was handed on.
+*/
+describe("the reading at the hand-off", () => {
+  it("does not count a Hard answer as right", async () => {
+    await deck(PROGRAMME.days[0]!.words, 2);
+    const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+    for (let i = 0; i < 40; i += 1) {
+      await prisma.review.create({
+        data: {
+          ownerId: OWNER, cardId: card!.id, lexemeId: card!.lexemeId,
+          rating: i < 20 ? 3 : 2, durationMs: 4000, reviewedAt: new Date(EVENING.getTime() + i * 1000),
+        },
+      });
+    }
+    const verdict = await ladderReading(OWNER, PROGRAMME, NOW);
+    expect(verdict).toEqual({ kind: "hold", because: "accuracy", seen: 0.5, bar: 0.7 });
   });
 });
