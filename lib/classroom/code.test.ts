@@ -29,12 +29,15 @@ describe("normaliseCode", () => {
 
   it("never guesses at a mistyped character — a wrong code must not open another class", () => {
     // `0` is not in the alphabet, so this stays invalid rather than becoming `Q`.
-    expect(normaliseCode("ABC0234")).toBe("ABC023");
-    expect(isValidCode("ABC023")).toBe(false);
+    expect(normaliseCode("ABC0234")).toBe("ABC0234");
+    expect(isValidCode("ABC0234")).toBe(false);
   });
 
-  it("does not run past the code length", () => {
-    expect(normaliseCode("ABCDEFGHJK")).toHaveLength(CODE_LENGTH);
+  it("refuses a code with a character too many rather than cutting it", () => {
+    // A seventh character is a mistyped code, and dropping it would join a class.
+    expect(isValidCode("ABCDEF3")).toBe(false);
+    expect(isValidCode("ABCDEFGHJK")).toBe(false);
+    expect(isValidCode("ABC-DEF")).toBe(true);
   });
 });
 
