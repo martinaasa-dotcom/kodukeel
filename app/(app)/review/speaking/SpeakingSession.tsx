@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Mic } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Recorder } from "@/components/Recorder";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
@@ -47,6 +47,7 @@ export interface SpeakingCard {
  * a flipped flashcard asks for, with better evidence to base it on.
  */
 export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[] }) {
+  const grade = useGrade();
   /*
     Snapshotted once on mount. gradeCard refreshes this route's Server
     Component, which would hand down a card list shrinking as graded cards leave the
@@ -84,11 +85,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
     if (!card || busy) return;
     setBusy(true);
     setDone((d) => d + 1);
-    try {
-      await gradeCard(card.cardId, rating, Date.now() - shownAt.current);
-    } catch {
-      // Speaking practice is not worth losing to a failed write.
-    }
+    await grade(card.cardId, rating, Date.now() - shownAt.current);
     /* What was asked and the Estonian it wanted, which is the line a learner
        most often wants to hear once more. */
     look.record({
@@ -103,7 +100,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
     });
     setIndex((i) => i + 1);
     setBusy(false);
-  }, [card, busy, look]);
+  }, [card, busy, look, grade]);
 
   if (cards.length === 0) {
     return (

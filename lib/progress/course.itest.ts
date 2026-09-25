@@ -251,6 +251,41 @@ describe("which day is current", () => {
     expect(reading.eveningsInARow).toBe(1);
   });
 
+  it("says the evening is done today when its closing round finished this morning", async () => {
+    /*
+      The steps were ticked last night and the round was left two answers in.
+      Its last three answers land tonight, so tonight is what finished the
+      evening, and the last tick being yesterday's is not a reason to hand the
+      learner tomorrow's module as though tonight had held none.
+    */
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    const lastNight = new Date(EVENING.getTime() - 24 * 3600_000);
+    await tick(one.id, ticked(one), lastNight);
+    await review(2, new Date(lastNight.getTime() + 60_000));
+    await review(CLOSING_REVIEW - 2, new Date(EVENING.getTime() + 60_000));
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.finishedToday).toBe(true);
+  });
+
+  it("says nothing about today when the whole evening was finished last night", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    const lastNight = new Date(EVENING.getTime() - 24 * 3600_000);
+    await tick(one.id, ticked(one), lastNight);
+    await review(CLOSING_REVIEW, new Date(lastNight.getTime() + 60_000));
+    // Practice this evening is not the evening that finished yesterday's module.
+    await review(3, new Date(EVENING.getTime() + 60_000));
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.finishedToday).toBe(false);
+  });
+
   it("does not count answers given before the evening's rounds", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);

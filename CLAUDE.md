@@ -4,8 +4,9 @@
 
 An Estonian learning app: dictionary, learning path, spaced-repetition review, practice games and a
 grammar tutor. `docs/` holds the plan it was built from; `docs/13-mvp-status.md` says what is built,
-what is deliberately not, and the known limitations. Read that first, and §6 of it especially. That
-is the current state.
+what is deliberately not, and the known limitations. Read that first, starting with its header: it is
+a log of passes in the order they landed, and the latest pass that speaks to a thing is the current
+state of it.
 
 ## Read before writing code
 
@@ -324,7 +325,7 @@ what a live lookup returns is a sentence the shipped table already answers for, 
 and the expansion are where those words are. Four writers, all four asserted: the two halves of the
 seed, the repair for a database seeded before the table existed, and the mapper.
 
-**Nobody has read the 16,036 lines, and a mechanical second opinion was built and thrown away.** The
+**Nobody has read the 16,163 lines, and a mechanical second opinion was built and thrown away.** The
 gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
 from, and there is no equivalent here: a translation has no upstream to be checked against. What was
 tried instead was the dictionary itself, asking whether each English line shares a content word with
@@ -468,7 +469,7 @@ back like `tuppa / toasse` are tried. Three card types rather than one, `CASE_FO
 daily path that the fault was reported from.
 
 **What this does not claim is that the corpus has been read.** Nobody has read the 15,125 sentences
-the dictionary ships or the 16,036 English lines built for them, and this is not a quality filter
+the dictionary ships or the 16,163 English lines built for them, and this is not a quality filter
 over either. A list built by guessing would withhold correct Estonian far more often than it
 withheld anything worth withholding, which is the measured argument the gloss audit already makes
 about a mechanical second opinion. An entry goes in when somebody who speaks the language has read
@@ -772,7 +773,8 @@ and a row written afterwards is a row that is missing exactly when the process d
 provider accepting and the write landing, which is the one case where sending twice is most
 likely. A failed send therefore spends the slot: somebody misses one evening's letter and gets
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
-is what people unsubscribe over.
+is what people unsubscribe over. The one write after it is the provider's message id, stamped on
+the row the booking made and on nothing else, and an invariant holds both orders and that stamp.
 
 **A letter says how long is left, not how many days were missed.** The days away are read by the
 scheduler (`letterOwed`, against `AWAY_DAYS`) and never handed to a letter at all: the figure is
@@ -1734,7 +1736,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,551 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,563 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1961,7 +1963,7 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
 word that inflects less. Asserted on the call in both builders. That is 1,767 forms across 378 of the
-1,551 course words. Four codes are nearly all of it, and the fact that they are the four is the
+1,563 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -5316,6 +5318,17 @@ Prisma maps `DateTime` to `timestamp without time zone`, and on a naive value on
 a `timestamptz` that `TO_CHAR` renders in the *session's* zone: right on a UTC session and a day out
 on any other.
 
+**And the zone is the database's name for it, not whatever `Intl` accepts.** The same string reaches
+`dayClock` in Node and `AT TIME ZONE` in the heatmap's query, and two shapes of it meant different
+things to the two. A bare offset: `Intl` reads `+05:30` east of Greenwich and Postgres reads it
+POSIX-style, west, eleven hours apart. And ICU's canonical names: `Intl` resolves Kyiv to
+`Europe/Kiev`, which the IANA database retired to its `backward` file, and a Postgres built without
+that file answers `AT TIME ZONE 'Europe/Kiev'` with an error, so the query throws for everybody whose
+browser is set there, in an app that glosses in Ukrainian. `canonicalZone` in `lib/time/day.ts` is the
+one reading: offsets refused, any casing folded to one spelling, and the eighteen names ICU keeps and
+the database renamed mapped to the current ones. `lib/time/zone.itest.ts` asks every zone `Intl`
+knows, against whatever Postgres the suite runs on, whether both sides cut the day in the same place.
+
 **Fifteen minutes, every evening, and the word count is what moves.** A day used to be the unit
 sliced into eights and came out at anything from eighteen to thirty minutes. That is the wrong thing
 to hold fixed: what a learner can promise themselves is a quarter of an hour after dinner, every
@@ -6012,6 +6025,19 @@ say so and leave everything as it was. The step still opens with the network gon
 page cache is for, and `scripts/test-module.mjs` pulls the plug and presses on, because what a
 rejection does to a React tree is a fact about the runtime rather than about the source.
 
+**And the module was the only place that knew it, so the rest of the app lost its screen the same
+way.** 77 calls to a Server Action from the browser, in about forty files, awaited the answer with
+nothing to catch a rejection: every Settings panel, the class forms, the deck and scan screens,
+first run's last button, the scene session and the rounds that record a score. Measured on a
+production build with the plug pulled, picking a level on Settings replaced the page with "That
+screen didn't load"; outside a transition the same fault left a busy flag set for good, so a
+conversation or a quest stopped on the card it was on. Every call catches now, puts back whatever it
+changed on the screen, and where there is room says `NOT_REACHED` from `lib/copy/values.ts`, one
+wording rather than forty. The invariant walks every call to an export of `app/actions.ts` from a
+client file and requires a `.catch(`, an enclosing `try`, or a caught `Promise.all`, with a floor on
+calls found; `scripts/test-modes.mjs` presses a level offline and asks that Settings is still on
+the screen and the chip went back. Both were made to fail on the real code first.
+
 **And what reads the module is a leaf, because of where its readers sit.** `WayOut` lives inside
 `Empty`, and `Empty` is drawn on the landing page and on the sign-in screen, which have no signed-in
 shell and no module and never will. With the context living beside the bar, importing the hook
@@ -6362,7 +6388,7 @@ is not the app measures the harness.
 **And the two audits that ask whether a question is answerable read half the dictionary.** Both
 `npm run audit:questions` and `npm run audit:sense` opened `prisma/data/expanded.json` under a
 comment calling it "what the seed loads", and the seed loads that file *and*
-`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,190 entries against the expansion's 5,363,
+`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,202 entries against the expansion's 5,363,
 and 761 of the 1,514 course words are in no expansion row. `dictionaryRows` in
 `scripts/lib/dictionary.ts` is the one adapter both read now, over `shippedDictionary`, so there is
 still one merge: the harvest replaces a hand-typed entry and the expansion defers to one, which is
@@ -6571,7 +6597,11 @@ enough people have put aside is *offered* one band later, for everybody, which r
 places that decide which word somebody is taught next: the new-card ordering on `/review` and the
 ladder's own pick. **Two numbers rather than a head count**, because five people out of the five who
 hold the word is the course being wrong and five out of four hundred is five people having a bad
-week, and the denominator is how many learners hold a card for it. **One band and never more**,
+week, and the denominator is how many learners hold a card for it. **And only somebody who has
+graded a card has a vote**, because sign-up is open and five accounts made for the purpose could
+otherwise move any word few people hold: a fresh account's press still puts the word aside for
+them, and `votesFor` leaves it out of the count, the move and the admin's reading alike. The press
+itself is throttled like any other action that reaches past one learner. **One band and never more**,
 never past C2, and never for a word that carries no band: a word moved once has to earn the next
 step from the learners who meet it where it now sits, which is what stops a feedback loop walking a
 word off the top of the course.
@@ -6806,6 +6836,20 @@ not fire. And `exceptions.ts` was said to hold no Estonian letter while nothing 
 reads what the prose says, and each was made to fail on a planted fault first. When you write
 "asserted" here, open the check and read what it actually asserts.
 
+**And the second half of this file had the same fault, two of them matching nothing at all.** The
+check that a suite invents the word it writes had read string literals since the fixtures moved
+their words into named constants, so it found no fixture and passed on every run, which is how the
+`tuba` fault it was written for could have come back unseen. The merge-ritual check searched
+`scripts/` including the invariants file, which quotes most markers itself, so a marker could leave
+the app and still be found; read as code and as whole words, it named `decoyGlosses`, renamed long
+ago. `spokenText` was said to be asserted over every sentence the app speaks and was asserted over
+seventeen, and a dropped final letter passes the seventeen. The `answerShown`, the gate's stretch
+budget, Today's one round and the per-learner caps were claimed and not asked; the pure layers were
+read one directory deep; the skip rule missed the smoke suites; and the cache rule missed a GET
+answering through `Response.json`. Each was made to fail on a planted fault first, and one widening
+was reverted rather than kept: holding the raw mint and peach to the verdict rule fired on the
+sprint clock and on start screens, which the design system allows.
+
 **A browser refusing to autoplay is a fact about the gesture, and one module knows it.** Every
 browser blocks `HTMLAudioElement.play()` on a page the reader has not touched yet and rejects it
 with a `NotAllowedError`: the clip is in hand, the service answered, and the same call on a press is
@@ -6989,7 +7033,7 @@ with less than `LEAD_MS` in front of its word is padded rather than trusted, whi
 useful shape for a rule that may never fail on any one word: the guarantee no longer depends on what
 the recording contained. 120 ms, since every millisecond of it is a millisecond between the press
 and the word, and the trail stays the longer of the two because a final `s` falls away slowly.
-**Not one sample of the word pays for it**, asserted against the real clips: what is cut is whole
+**Not one sample of the word pays for it**, asserted against a clip shaped the way TartuNLP returns one (`tartuLike`, a padded tone, since no real recording is committed): what is cut is whole
 frames the floor called silence, what is added is zeros, and the ramp at each seam sits on the frame
 *outside* the speech rather than on its first six milliseconds, or this would cause the fault it
 exists to prevent. `lib/audio/stretch.ts` marks the lead and the trail as padding and leaves them
@@ -7040,7 +7084,8 @@ three fetches made one request, and the second and third were served from the br
 *after* everything `forgetThisDevice` clears had been cleared, so signing out on a shared laptop
 left the last person's card one fetch away. `/api/export` and `/api/reminder` sent no freshness
 directive at all, and the export is every review, every conversation with Anu and every exam
-composition somebody has written. Every owner-scoped route says `no-store` now, and the two shapes
+composition somebody has written. Every owner-scoped route that answers a GET says `no-store` now,
+however it builds the body (a POST is cached by nothing unless told to), and the two shapes
 a shared cache would otherwise keep, a download and a picture, say `private` and vary on the
 cookie that chose them. Asserted, because the next such route inherits the same silence.
 
@@ -7072,7 +7117,10 @@ deleted and recreated its forms, taking `lemma`, `provenance`, `editedBy`, `ekil
 `Form` exactly as written: any signed-in learner could rewrite any word every other learner reads,
 forge "retrieved from Ekilex" on their own text, and delete the attested forms underneath. It does
 what the seed does now, `ON CONFLICT DO NOTHING`, and what it creates is marked as the restorer's
-own. `addExample` was the same door one plank narrower: no cap, no throttle, no attribution, and
+own. And it carries only what a hand edit could have supplied (`restoredEntry`): the file's
+sentences come back marked as the learner's and capped at two, only the principal parts come back,
+and no column the Institute fills survives, because a sentence labelled `EKILEX` in a file anybody
+can write was a sentence lent to every other learner's cards. `addExample` was the same door one plank narrower: no cap, no throttle, no attribution, and
 `usableExamples` sorted by length alone, so eight short sentences from one learner pushed every
 Ekilex usage off a word for everybody, including the sentences the mock exam and the level check
 are built from. An attested sentence now outranks a typed one and a learner may occupy at most two.
@@ -7172,8 +7220,9 @@ memory and another in the table.
 
 **The row holds a digest, not the key.** The key is `tts:o:<uuid>`, so a table of those is a record
 of who was awake and when, kept for no reason anybody could state. A digest tells two callers apart,
-which is the whole job, and cannot be read back into a person, so there is nothing in `RateLimit`
-for the export or the erasure to carry. **A database that cannot answer degrades to the Map** rather
+which is the whole job, and does not hold the id or the address, so there is nothing in `RateLimit`
+for the export or the erasure to carry. It is pseudonymous rather than anonymous, since anybody
+holding a candidate id can hash it and confirm a match, which is why a row lives an hour at most. **A database that cannot answer degrades to the Map** rather
 than failing open or closed: closed would turn a bad minute at Postgres into a total outage of four
 routes on an app whose every page reads the same database, open would drop the control exactly when
 somebody has put the database under load, and the Map is the behaviour this app shipped with and was
@@ -8186,7 +8235,7 @@ also carries a person code, which over the shipped dictionary is those two and n
 which stays a command somebody runs rather than something the seed does: every row belongs to a
 learner, and that line was drawn when the first fault was found. What is new is a way to run it
 without a checkout, since the person who can see the bad card is rarely the person with the
-production password: `.github/workflows/audit-decks.yml` is the second of the two workflows that
+production password: `.github/workflows/audit-decks.yml` is one of the three workflows that
 map a secret, written to `seed-production.yml`'s rules, and it prints the list before it will
 delete anything. It removes and never suspends, which the schema makes safe, and it does **not**
 build the right card in its place: adding rows to a stranger's deck is a larger claim than taking
@@ -8430,9 +8479,9 @@ word list is the units a scene declares, and it was also deciding whether a *tur
 all: a bus window that does not declare the shopping unit read `sularahaga` as nothing anybody could
 make out and answered "I did not catch that", to somebody who had said "with cash" in a word the
 course teaches. The marker asks `courseForms`, a fact about the shared dictionary cached beside the
-others, one read a minute per instance; the gate and retrieval keep the scene's own list, asserted,
-because a model composing inside the whole course writes lines the learner has not been taught to
-read. The course rather than the dictionary, 1,400 entries against 6,110, because those are the
+others, one read a minute per instance; retrieval and the gate's `stretch` budget keep the scene's own
+list, asserted, because a model composing inside the whole course writes lines the learner has not
+been taught to read (the gate's vouching has since widened to the forms list, below). The course rather than the dictionary, 1,400 entries against 6,110, because those are the
 words somebody could have been taught. **A real word is never read as a slip of the pen for
 another**: `valutab` is the third person of a verb the course teaches and was read as a typo of
 `valuta`, so the review told a learner the word they got right is said some other way. **A wrong
@@ -9653,7 +9702,12 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   happened to add.
 - Unit tests stay hermetic: no database, no network, no clock you do not control. Anything needing
   Postgres is an `*.itest.ts` under `npm run test:db`. The unit suite gates every commit and must
-  stay fast enough that nobody is tempted to skip it.
+  stay fast enough that nobody is tempted to skip it. **Nor an environment it did not state**:
+  `vitest.config.mts` blanks every variable the app reads, because a real `ERROR_WEBHOOK_URL` in the
+  shell had a unit-test run posting to the live error channel, and an invariant keeps that list
+  whole. And `npm run test:db` writes, so `scripts/itest-guard.ts` refuses a `DATABASE_URL` that is
+  not on loopback, by the rule in `scripts/lib/local-db.mjs` every destructive script already asks,
+  unless the run sets `KODUKEEL_ALLOW_REMOTE_DB=1`.
   **And a zone is a clock.** CI runs in UTC, and three clock tests that built their dates with
   `Date.UTC` passed there and failed on `npm test` in Tallinn, since the formatter reads a time in
   the reader's zone. `vitest.config.mts` pins `Pacific/Chatham`, a quarter-hour offset thirteen
@@ -9968,6 +10022,18 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   production and no more. And the scene suite's report-button check opened `spoken === 0 || ...`,
   which passes when there is nothing on screen to report. Where the subject can honestly be empty,
   say so with `absent` and name what would fill it; where it cannot, assert the claim.
+- **And the unit suite had the same shape, and one of them could not fail at all.** A test that
+  narrows a list with `.filter()` and then walks it with an `expect` asks nothing when the filter
+  keeps nothing. The crossword's "never lays a word alongside another" compiled a grid with one word
+  across, so its loop over across pairs compared nothing; with the compiler's adjacency rule deleted,
+  the file still passed 12 of 12. "Stops at the number a phone can hold" compiled four words
+  against a cap of seven. A case question "never from thin air", a gap "only from attested
+  sentences" and a scrambled order "not the original" were each true of none. Each test now counts
+  what it walks inside itself, the crossword compares both directions and asserts it compared
+  something, and its cap test uses a pool that places eight when nothing stops it. The invariant
+  reads every unit test file for a filtered list walked and counted nowhere in that file, with one
+  written exemption checked both ways; it cannot tell which test the count sits in, so a count in a
+  neighbouring test satisfies it, and keeping the count inside the test is the convention it stands for.
 - **And the third of those was found by reading, which is why it is asserted now.** Reading every
   `.every(` once fixes the instances somebody looked at that afternoon and nothing about the next
   one, and there were six more. The edit suite's own header explains the fault above and two checks
@@ -10296,8 +10362,12 @@ OpenAI behind the same budget gate. That order replaced "free first", and the fu
 comment says why: a free model is throttled upstream by design, so preferring one spends the
 learner's wait to save a hundredth of a cent. Do not collapse either kind to one provider.
 `openWithFallback` walks past a provider that is throttled or having a bad
-minute, and never past a rejected key or a model that does not exist, since every provider would
-answer those the same way and trying them all turns one clear message into a slower one. A
+minute. A rejected key is walked past only to a different provider, since the next link of the
+same provider carries the same key and trying it turns one clear message into a slower one; a
+model that does not exist is walked past either way, since every link names its own. That used to
+read "never past a rejected key or a missing model, since every provider would answer those the
+same way", which was true of one shared model and false of a purpose chain: Groq backs up Gemini,
+and a revoked Gemini key took Anu down with the Groq key beside it working. A
 provider is only ever walked past **before it has said anything**: once text is reaching the
 learner a failure stays a failure, because a second answer appended to half of a first one is two
 teachers talking over each other. `withRetry` is patient only on the last link of the chain, which

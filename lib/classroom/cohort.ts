@@ -1,5 +1,6 @@
 import { CLOSE_PCT, LIKELY_PCT, type Evidence, type Readiness } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
+import { dayClock } from "@/lib/time/day";
 import { caseAccuracy } from "@/lib/stats/history";
 
 /**
@@ -147,6 +148,22 @@ export interface CohortSummary {
 /** How many days without a review before a member reads as having stopped. */
 export const QUIET_DAYS = 7;
 
+/**
+ * HOW BIG A GROUP HAS TO BE BEFORE A MEMBER IS SHOWN ITS COUNTS.
+ *
+ * The tiles a colleague sees name nobody, and in a small group they do not
+ * need to: a member knows their own band and their own week, so in a group of
+ * the sponsor and two colleagues "1 on track" beside their own "not" says who
+ * the other one is. Three others besides the viewer is the smallest group in
+ * which their own share cannot be subtracted down to a person.
+ */
+export const MIN_GROUP_TO_SHARE = 4;
+
+/** Whether a member (not the sponsor) may be shown the group's counts. */
+export function sharesCounts(members: number, sponsor: boolean): boolean {
+  return sponsor || members >= MIN_GROUP_TO_SHARE;
+}
+
 export function summariseCohort(input: CohortInput[], level: ExamLevel): CohortSummary {
   const members: CohortMember[] = input.map((row) => {
     const at = row.readiness?.levels.find((l) => l.level === level);
@@ -235,6 +252,17 @@ export function withoutMember(summary: CohortSummary, ownerId: string): CohortSu
       EVIDENCE_RANK[member.evidence] < EVIDENCE_RANK[worst] ? member.evidence : worst
     ), members.length > 0 ? "good" : "thin"),
   };
+}
+
+/**
+ * Calendar days since somebody last reviewed, on their own clock.
+ *
+ * It was whole 24-hour spans, so a review at 23:00 last night read at 08:00
+ * this morning was "reviewed today" beside a streak, read on the same member's
+ * clock, that knows it was yesterday. Days are the member's, like the streak's.
+ */
+export function daysSince(last: Date | null, now: Date, zone: string | undefined): number | null {
+  return last ? dayClock(zone).daysBetween(last, now) : null;
 }
 
 /**
