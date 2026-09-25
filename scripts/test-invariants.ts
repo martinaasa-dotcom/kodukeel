@@ -17233,8 +17233,12 @@ check("the repair move is only used on a turn nobody understood", () => {
     "lib/scenes/reply.ts lost replyFor, so the reaction and the move are assembled somewhere else",
   );
   assert.match(
-    reply, /reading === "unrecognised"/,
-    "replyFor no longer decides the repair phrase on how the turn was read",
+    reply, /response === "repeat" && \(reading === "unrecognised" \|\| reading === "echo"\) && !composed/,
+    "replyFor no longer decides the repair phrase on how the turn was read, and on those two readings alone",
+  );
+  assert.equal(
+    (reply.match(/fallbackLine\(FALLBACK_PHRASE/g) ?? []).length, 1,
+    "the repair phrase is said from a second place in replyFor, which the reading does not decide",
   );
   assert.doesNotMatch(
     code("lib/scenes/line.ts"), /MOVE_STAGE|wayOut/,
@@ -25142,6 +25146,26 @@ check("a picked option is marked through choiceIsRight, never against the back a
   assert.deepEqual(offenders, [], `${offenders.join(", ")} compares a picked option with the back as a string`);
   assert.match(code("app/(app)/review/ReviewSession.tsx"), /choiceIsRight\(/,
     "ReviewSession no longer marks its options through choiceIsRight");
+});
+
+check("the scene judge is asked about the beat the turn was aimed at", () => {
+  /*
+    The judge read the state after the turn, and the miss that spends the last
+    try moves the pointer on while a miss that meets a beat further along
+    appends that beat's row after its own. Either way the last row named
+    another beat than the pointer and no judge was asked, which on a beat
+    with patience one, or with the brisk persona, is every miss. The beat and
+    the row are read off the state before the turn.
+  */
+  const route = code("app/api/scene/route.ts");
+  assert.match(route, /const before = replay\(marking, draw, turns\.slice\(0, -1\)\)\.state;/,
+    "the scene route no longer replays the run up to the turn it is about to judge");
+  assert.match(route, /const judged = before\.hurdle \? hurdleBeat\(before\.hurdle\) : currentBeat\(scene, before\);/,
+    "the judge is asked about the beat after the turn rather than the one it was aimed at");
+  assert.doesNotMatch(route, /const lastRead = state\.turns\[state\.turns\.length - 1\]/,
+    "the judged row is the last row again, which is another beat's whenever the turn moved the pointer");
+  assert.match(route, /conceded: turns\[turns\.length - 1\]\?\.conceded \?\? null/,
+    "a concession is read back off the last row, which a cascade row after it hides from the client");
 });
 
 console.log(
