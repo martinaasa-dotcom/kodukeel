@@ -763,7 +763,7 @@ describe("a line off the card", () => {
     }],
   };
   const lexicon: Lexicon = {
-    forms: new Set(), spoken: [], byLemma: new Map(), byCase: new Map(),
+    forms: new Set(), spoken: [], byLemma: new Map(), posOf: new Map(), byCase: new Map(),
     caseForm: new Map([[caseKeyFor("teisipäev", "ADESSIVE"), "teisipäeval"]]),
     folded: new Map(), infinitives: new Map(), persons: new Map(),
   };
