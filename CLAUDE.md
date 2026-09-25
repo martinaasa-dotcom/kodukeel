@@ -6946,8 +6946,9 @@ memory and another in the table.
 
 **The row holds a digest, not the key.** The key is `tts:o:<uuid>`, so a table of those is a record
 of who was awake and when, kept for no reason anybody could state. A digest tells two callers apart,
-which is the whole job, and cannot be read back into a person, so there is nothing in `RateLimit`
-for the export or the erasure to carry. **A database that cannot answer degrades to the Map** rather
+which is the whole job, and does not hold the id or the address, so there is nothing in `RateLimit`
+for the export or the erasure to carry. It is pseudonymous rather than anonymous, since anybody
+holding a candidate id can hash it and confirm a match, which is why a row lives an hour at most. **A database that cannot answer degrades to the Map** rather
 than failing open or closed: closed would turn a bad minute at Postgres into a total outage of four
 routes on an app whose every page reads the same database, open would drop the control exactly when
 somebody has put the database under load, and the Map is the behaviour this app shipped with and was
