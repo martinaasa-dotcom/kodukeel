@@ -13,7 +13,7 @@ import { forgetThisDevice } from "@/lib/offline/forget";
 import { BAR, isUnder, LISTED, PLACES, SECTIONS, type Destination, type NavSection } from "@/lib/ux/nav";
 import { NavMarker } from "@/components/NavMarker";
 import { Wordmark } from "@/components/brand";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 
 /**
  * The rail, and the phone bar under it.
@@ -317,7 +317,6 @@ export function Sidebar() {
             44px wide. Measured in `scripts/test-mobile.mjs`.
           */}
           {BAR.map((item) => {
-            const Icon = icon(item.icon);
             const on = active(item.href);
             return (
               <Link
@@ -337,7 +336,7 @@ export function Sidebar() {
                     color: on ? "var(--surface)" : "var(--ink-3)",
                   }}
                 >
-                  <Icon size={16} strokeWidth={2.2} aria-hidden />
+                  <NamedIcon name={item.icon} size={16} strokeWidth={2.2} aria-hidden />
                 </span>
                 {item.label}
               </Link>
@@ -461,7 +460,6 @@ export function Sidebar() {
  * whole app; nothing here goes near it.
  */
 function RailLink({ item, active }: { item: Destination; active: boolean }) {
-  const Icon = icon(item.icon);
   return (
     <Link
       href={item.href}
@@ -483,7 +481,7 @@ function RailLink({ item, active }: { item: Destination; active: boolean }) {
           color: active ? "var(--surface)" : "var(--ink-3)",
         }}
       >
-        <Icon size={14} strokeWidth={2.2} aria-hidden />
+        <NamedIcon name={item.icon} size={14} strokeWidth={2.2} aria-hidden />
       </span>
       {item.label}
     </Link>
@@ -498,7 +496,6 @@ function RailLink({ item, active }: { item: Destination; active: boolean }) {
  * and "Level check" beside "Mock exam" needs a line to tell them apart.
  */
 function SheetLink({ item, active }: { item: Destination; active: boolean }) {
-  const Icon = icon(item.icon);
   return (
     <Link
       href={item.href}
@@ -510,7 +507,7 @@ function SheetLink({ item, active }: { item: Destination; active: boolean }) {
       }}
     >
       <span className="mt-0.5" style={{ color: active ? "var(--accent-deep)" : `var(--${item.tone})` }}>
-        <Icon size={16} strokeWidth={2.2} aria-hidden />
+        <NamedIcon name={item.icon} size={16} strokeWidth={2.2} aria-hidden />
       </span>
       <span className="min-w-0">
         <span className="block text-base font-semibold">{item.label}</span>

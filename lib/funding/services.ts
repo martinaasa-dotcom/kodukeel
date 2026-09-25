@@ -173,13 +173,17 @@ export const SERVICES: readonly Service[] = [
   {
     id: "model",
     name: "The language model",
-    who: "Groq or Google, with Anthropic or OpenAI as a paid fallback",
+    who: "Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu",
     does: "Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.",
     whenItIsGone: "Anu says she cannot reach anybody. Review, the dictionary and every drill are untouched.",
-    setBy: "GROQ_API_KEY",
+    setBy: "GEMINI_API_KEY",
     ref: {
-      source: "https://groq.com/pricing",
-      checked: SPEECH_MARKET.ref.checked,
+      // The page the Gemini rows in lib/usage/pricing.ts were read off, since
+      // the model this line starts on is one of them. Re-read on this date:
+      // gemini-3.1-flash-lite at $0.25 in and $1.50 out per million tokens,
+      // which is the row the ledger prices it at.
+      source: "https://ai.google.dev/gemini-api/docs/pricing",
+      checked: "25 September 2026",
     },
     bill(v: Volume, shape: Shape): ServiceCost {
       if (shape.tutor === "off") {
