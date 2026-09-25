@@ -40,15 +40,18 @@ describe("narrowing a question to two", () => {
 
   /*
     A greeting beat names whole phrases, and joined as printed they came out
-    `Tere! või Tere hommikust!?`. The question ends in one mark.
+    `Tere! või Tere hommikust!?`. Stripping the marks fixed the punctuation and
+    left a question nobody asks: two greetings are one thing said two ways,
+    which is not a choice (#515). So a greeting beat is not narrowed at all,
+    and the marks are still taken off any option that carries one.
   */
-  it("takes each option's own closing mark off before joining them", () => {
+  it("does not narrow a greeting, since two greetings are one thing said two ways", () => {
     const lex = buildLexicon([
       { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
       { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
     ]);
     const greet = { ...BEAT, move: "greet" as const, needs: [{ kind: "lemma" as const, oneOf: ["Tere!", "Tere hommikust!"] }] };
-    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBe(`Tere ${CHOICE_WORD} Tere hommikust?`);
+    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBeNull();
   });
 
   /*
