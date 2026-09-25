@@ -303,6 +303,51 @@ check("the keyed services are only ever reached from the server", () => {
   }
 });
 
+/*
+  THE COURSE HARVEST IS A SERVER FILE, AND ONE IMPORT PUT IT ON EVERY PAGE.
+
+  The signed-in shell mounts `components/course/ModuleScope.tsx`, which took
+  three small helpers from the `lib/course` barrel. The barrel re-exports
+  `build.ts`, which imports `prisma/data/harvested.ts`, and it runs
+  `buildProgrammes()` when it loads. A side effect at the top of a module is
+  the one thing tree-shaking cannot drop, so every signed-in page downloaded
+  916 KB of forms, usages and Russian and Ukrainian glosses and built all 289
+  evenings of the course on the main thread. Measured: about 2 MB of script on
+  Today, 1 MB once the three imports named the modules they needed.
+
+  Two halves. A client file names `lib/course/focus`, `types` or `plan`
+  directly and never the barrel, which is the cause and is cheap to see here.
+  And the effect is asked of the bundle, by `scripts/check-bundle-data.mjs`,
+  after the build in the secrets job, because which module reaches the browser
+  is the bundler's decision and not something a source check can answer.
+*/
+check("no client file imports the course barrel, and the bundle is checked for the data", () => {
+  // An `import type` is erased before the bundler sees it, so only a runtime
+  // import can carry the barrel's side effect into the browser.
+  const barrel = /(?:^|\n)\s*(?:import|export)\s+(?!type\b)[^;]*?\bfrom\s+["']@\/lib\/course["']/;
+  const offenders = CLIENT.filter((file) => barrel.test(code(file)));
+  assert.deepEqual(
+    offenders, [],
+    `a client file imports @/lib/course, which builds the whole course from the harvest when it loads: ${offenders.join(", ")}`,
+  );
+  assert.ok(
+    CLIENT.some((file) => /\bfrom\s+["']@\/lib\/course\/(focus|types|plan)["']/.test(code(file))),
+    "no client file names a lib/course module directly any more, so this check has lost what it was guarding",
+  );
+  assert.match(
+    code("lib/course/index.ts"), /buildProgrammes\(\)/,
+    "lib/course/index.ts no longer builds the course when it loads; if that is deliberate, this check can go",
+  );
+
+  const ci = read(".github/workflows/ci.yml");
+  const job = ci.slice(ci.indexOf("\n  secrets:"), ci.indexOf("\n  build:"));
+  const built = job.indexOf("npx next build");
+  const checked = job.indexOf("npm run check:bundle");
+  assert.ok(built > 0, "the secrets job no longer builds, so nothing is there to check the bundle of");
+  assert.ok(checked > built, "the secrets job does not run npm run check:bundle after its build");
+  assert.match(read("package.json"), /"check:bundle":\s*"node scripts\/check-bundle-data\.mjs"/);
+});
+
 // ── Never write Estonian, never generate morphology (ADR-005, ADR-017) ───────
 
 /*

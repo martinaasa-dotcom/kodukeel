@@ -7117,6 +7117,19 @@ were on ten seconds ago was a fresh render of it, queries and all. Thirty second
 because every mutation in this app is a Server Action and every one of them calls `revalidatePath`,
 which drops the client's copy too.
 
+**And what a page downloads is the other half, and for a while it was the whole course.** The
+signed-in shell mounts `components/course/ModuleScope.tsx`, which took three small helpers from the
+`lib/course` barrel; the barrel re-exports `build.ts`, which imports `prisma/data/harvested.ts`, and
+runs `buildProgrammes()` when it loads. A side effect at the top of a module is the one thing
+tree-shaking cannot drop, so every signed-in page downloaded 916 KB of forms, usages and Russian and
+Ukrainian glosses and built all 289 evenings on the main thread. Measured in a browser: Today went
+from 2,012 KB of script to 1,026, and its main-thread script time from about 150 ms to 110. A client
+file names `lib/course/focus`, `types` or `plan` directly now, asserted, and
+`npm run check:bundle` samples strings that exist only under `prisma/data/` and fails on any in
+`.next/static`, after the secrets job's build. It asks the bundle rather than the imports because
+the bundler decides: the English translations are reachable from fifteen client files and are in no
+chunk.
+
 **Where the app runs is part of this and is the largest single number in it.** `vercel.json` pins
 the functions to the region the database is in. A page is several sequential round trips and a
 reader's own distance is one, so colocation beats proximity by about the number of queries on the
