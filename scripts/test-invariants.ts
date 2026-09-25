@@ -13784,6 +13784,18 @@ check("a day or a month read in SQL does not depend on the session's zone", () =
   assert.ok(seen >= 3, `only ${seen} TO_CHAR day readings found; the sweep is not finding them`);
 });
 
+check("a case is charted at the case the round asked, on every reader that tallies one", () => {
+  /*
+    \`Review.targetCase\` is the card's case and \`Review.slot\` is what was
+    asked. The writing round and Target ask a card for a case other than its
+    own, and every chart read the card's, so a miss was charted at a case the
+    learner was not asked. \`caseAsked\` is the one reading.
+  */
+  for (const file of ["lib/progress/cases.ts", "lib/classroom/roster.ts", "app/(app)/review/write/page.tsx"]) {
+    assert.match(code(file), /caseAsked\(/, `${file} tallies cases off the card's case rather than the asked one`);
+  }
+});
+
 check("a confidence figure carries its evidence, on every screen that prints one", () => {
   /*
     ADR-022's headline rule: a percentage whose basis is not stated is the one
