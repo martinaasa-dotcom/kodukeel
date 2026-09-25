@@ -25,12 +25,34 @@ describe("the bucket", () => {
 
   it("says how long to wait, in real seconds", () => {
     vi.useFakeTimers();
+    // On a window boundary, since a window is floored to its own length.
+    vi.setSystemTime(new Date(Date.UTC(2026, 8, 24, 12, 0, 0)));
     try {
       checkRateLimit("k", 1, 60_000);
       vi.advanceTimersByTime(20_000);
       const refused = checkRateLimit("k", 1, 60_000);
       expect(refused.ok).toBe(false);
       expect(refused.retryAfterSec).toBe(40);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  /*
+    The window is the one the shared table floors to, not one opened at the
+    first request: the shared check asks this one first and takes its refusal,
+    so the two disagreeing refused a caller the table had already moved into
+    a fresh window.
+  */
+  it("starts a window where the shared table starts it", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(Date.UTC(2026, 8, 24, 12, 0, 59)));
+    try {
+      expect(checkRateLimit("edge", 2, 60_000).ok).toBe(true);
+      vi.advanceTimersByTime(500);
+      expect(checkRateLimit("edge", 2, 60_000).ok).toBe(true);
+      vi.advanceTimersByTime(1_500); // 12:01:01, a new floored window
+      expect(checkRateLimit("edge", 2, 60_000).ok).toBe(true);
     } finally {
       vi.useRealTimers();
     }

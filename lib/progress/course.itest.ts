@@ -160,6 +160,21 @@ async function tick(dayId: string, stepIds: readonly string[], at: Date) {
   }
 }
 
+/** Answers as the grading path writes them: the device's moment and the server's. */
+async function received(n: number, answeredAt: Date, receivedAt: Date) {
+  const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+  for (let i = 0; i < n; i += 1) {
+    await prisma.review.create({
+      data: {
+        ownerId: OWNER, cardId: card!.id, lexemeId: card!.lexemeId,
+        rating: 3, durationMs: 4000,
+        reviewedAt: new Date(answeredAt.getTime() + i * 1000),
+        receivedAt: new Date(receivedAt.getTime() + i * 1000),
+      },
+    });
+  }
+}
+
 async function review(n: number, at: Date) {
   const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
   for (let i = 0; i < n; i += 1) {
@@ -246,6 +261,38 @@ describe("which day is current", () => {
 
     const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.day.index).toBe(1);
+    expect(reading.current?.next?.id).toBe(REVIEW_STEP);
+  });
+
+  it("closes the evening on a device whose clock runs slow", async () => {
+    /*
+      The tick is the server's time and the answer's `reviewedAt` is the
+      device's. Ten minutes slow, every closing answer is dated before the tick
+      that opened the round, and the step, which nobody can press, never ticks.
+    */
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    // Cards still due, so the round is not closed by having nothing left to ask.
+    await reviewable(CLOSING_REVIEW);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+    await received(CLOSING_REVIEW, new Date(at.getTime() - 10 * 60_000), new Date(at.getTime() + 60_000));
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.finishedToday).toBe(true);
+  });
+
+  it("does not count an answer the server received before the round opened, whatever the device says", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    const at = EVENING;
+    // A device clock running fast dates these after the tick; they arrived before it.
+    await received(CLOSING_REVIEW, new Date(at.getTime() + 10 * 60_000), new Date(at.getTime() - 60_000));
+    await tick(one.id, ticked(one), at);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.next?.id).toBe(REVIEW_STEP);
   });
 });

@@ -42,6 +42,13 @@
  *   A request with no host at all, which is not a browser, and has nothing to
  *   be sent anywhere.
  *
+ *   A path the platform's scheduler calls (`SCHEDULED_PATHS`). Vercel's cron
+ *   calls the production deployment on its own `*.vercel.app` name and does
+ *   not follow a redirect, so a 308 there is the daily mail run answered with
+ *   nothing and ended, every day, in silence. Those routes check their own
+ *   bearer secret and read no cookie, so which host they arrive on is not a
+ *   question sign-in cares about.
+ *
  * Pure, so the rule is unit tested rather than driven through a deployment.
  */
 
@@ -72,6 +79,13 @@ export function canonicalOrigin(env: CanonicalEnv = process.env): URL | null {
   return new URL(url.origin);
 }
 
+/**
+ * Every path `vercel.json` schedules. Kept in step with that file by an
+ * invariant, because a cron added there and not here would be redirected
+ * and never run.
+ */
+export const SCHEDULED_PATHS: readonly string[] = ["/api/email/send"];
+
 /** Hosts a developer runs the app on, which are never sent to production. */
 function isLoopback(hostname: string): boolean {
   return hostname === "localhost"
@@ -99,6 +113,8 @@ export function canonicalRedirect(
   if (env.VERCEL && env.VERCEL_ENV !== "production") return null;
   const trimmed = host?.trim().toLowerCase();
   if (!trimmed) return null;
+  const pathname = pathAndSearch.split("?")[0] ?? "";
+  if (SCHEDULED_PATHS.includes(pathname)) return null;
   let arrived: URL;
   try {
     arrived = new URL(`${canonical.protocol}//${trimmed}`);

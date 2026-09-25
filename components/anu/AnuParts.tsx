@@ -506,10 +506,10 @@ function VocabRow({ word }: { word: { et: string; en: string } }) {
       // page's answer, a headline's headword or the chat guard's own evidence.
       // It used to be a sentence in `notes`, where nothing read it.
       lemma: word.et, translation: word.en, pos: "OTHER",
-    });
-    if (!created.ok) return;
-    await addToDeck(created.id, ["RECOGNITION", "PRODUCTION"], "TUTOR", deckIds);
-    setAdded(true);
+    }).catch(() => null);
+    if (!created?.ok) return;
+    const result = await addToDeck(created.id, ["RECOGNITION", "PRODUCTION"], "TUTOR", deckIds).catch(() => null);
+    if (result?.ok) setAdded(true);
   });
 
   return (

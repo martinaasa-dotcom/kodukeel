@@ -24,6 +24,7 @@ import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { toneInk } from "@/components/ui";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { Explain } from "@/components/Explain";
+import { SpelledCount, spelledCount } from "@/lib/copy/values";
 
 export const metadata: Metadata = {
   title: { absolute: "Kodukeel. Estonian that finally sticks" },
@@ -134,7 +135,13 @@ function Nav() {
           boxShadow: "var(--shadow-sm)",
         }}
       >
-        <Link href="/welcome" aria-label="Kodukeel, home">
+        {/*
+          44px tall, which is what a thumb is owed and what the 30px wordmark
+          alone did not give it: the floor in app/globals.css reaches a link
+          that is a lone icon, and this one is an icon and a word. The row is
+          already 45px for the button beside it, so the nav does not grow.
+        */}
+        <Link href="/welcome" aria-label="Kodukeel, home" className="flex min-h-11 items-center">
           <Wordmark size={30} />
         </Link>
         {/*
@@ -699,15 +706,14 @@ const ROWS: readonly { label: string; cells: readonly [Verdict, Verdict, Verdict
  * prose and the rest of this page counts in words. The table is eight rows
  * long, so the list only has to reach as far as the table can.
  */
-const COUNTED = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"] as const;
 const shared = ROWS.filter((row) => row.cells.slice(1).includes("yes")).length;
 /**
  * Capitalized at the source and lowered at the one call site that needs it
  * mid-sentence, rather than the other way about: this is the count of claims
  * in the table and is the kind of thing a second caller wants to open with.
  */
-const CLAIM_COUNT = (COUNTED[ROWS.length] ?? String(ROWS.length)).replace(/^./, (c) => c.toUpperCase());
-const SHARED_ROWS = COUNTED[shared] ?? String(shared);
+const CLAIM_COUNT = SpelledCount(ROWS.length);
+const SHARED_ROWS = spelledCount(shared);
 
 /*
   ONE LINE EACH, AND THE LINE IS WHAT THEY ARE BETTER AT.
