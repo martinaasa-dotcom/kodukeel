@@ -8,6 +8,7 @@ import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
 import { computeStreak } from "@/lib/stats/streak";
 import { closingLeft } from "@/lib/progress/closing";
+import { deferredWordIds } from "@/lib/progress/deferrals";
 import { scopeFor } from "@/lib/course/scope";
 import {
   DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, dayById, dayReached, ladderProgress,
@@ -258,16 +259,30 @@ export async function dayIsInPlay(
  * what is counted is the cards that exist against the words the deck actually
  * built. The alternative reads as a learner failing at a gap in Ekilex.
  */
-async function metWords(ownerId: string, words: readonly string[]): Promise<boolean> {
+async function metWords(ownerId: string, words: readonly string[], now: Date): Promise<boolean> {
   if (words.length === 0) return true;
   const cards = await prisma.card.findMany({
     where: {
       ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
       lexeme: { lemma: { in: [...words] } },
     },
-    select: { state: true },
+    select: { state: true, lexemeId: true },
   });
-  if (cards.length > 0) return cards.every((c) => c.state !== 0);
+  if (cards.length > 0) {
+    /*
+      A WORD PUT ASIDE IS NOT A WORD STILL TO MEET.
+
+      "Too complicated" moves the card's due date and nothing else, so a word
+      refused on its first meeting stays New while the ladder never serves it
+      again, and the step read it as unmet: the evening could not be finished
+      by any press for as long as the wait held, which for a word above the
+      learner's band is a term. The learner has answered the question the
+      step asks, which is whether they have seen tonight's words; the
+      deferral is where the app remembers the word.
+    */
+    const aside = await deferredWordIds(ownerId, now);
+    return cards.every((c) => c.state !== 0 || (c.lexemeId !== null && aside.has(c.lexemeId)));
+  }
   /*
     AND A DAY WHOSE WORDS THIS DEPLOYMENT'S DICTIONARY HOLDS NONE OF IS MET.
 
@@ -393,7 +408,7 @@ export async function courseReading(
 
     const ticked = done.get(day.id) ?? new Set<string>();
     const [met, graded] = await Promise.all([
-      ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words),
+      ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words, now),
       ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day.id),
     ]);
 

@@ -47,6 +47,7 @@ const EVENING = new Date(NOW.getTime() - 60 * 60_000);
 async function wipe() {
   await prisma.setting.deleteMany({ where: { ownerId: OWNER } });
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER } });
 }
@@ -198,6 +199,40 @@ describe("which day is current", () => {
     await deck(PROGRAMME.days[0]!.words, 0);
     const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.done.has(MEET_STEP)).toBe(false);
+  });
+
+  /*
+    "Too complicated" on a first meeting moves the card's due date and nothing
+    else, so the card stays New and the ladder never serves it again. Read as
+    unmet, it held the evening's first step open for as long as the wait held.
+  */
+  it("counts a word put aside as met", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const card = await prisma.card.findFirstOrThrow({ where: { ownerId: OWNER }, include: { lexeme: true } });
+    await prisma.card.update({ where: { id: card.id }, data: { state: 0 } });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(false);
+    await prisma.deferral.create({
+      data: {
+        ownerId: OWNER, lexemeId: card.lexemeId!, lemma: card.lexeme!.lemma,
+        reason: "SOON", untilAt: new Date(NOW.getTime() + 3 * 86_400_000),
+      },
+    });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(true);
+  });
+
+  it("does not count a word whose wait has ended", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const card = await prisma.card.findFirstOrThrow({ where: { ownerId: OWNER }, include: { lexeme: true } });
+    await prisma.card.update({ where: { id: card.id }, data: { state: 0 } });
+    await prisma.deferral.create({
+      data: {
+        ownerId: OWNER, lexemeId: card.lexemeId!, lemma: card.lexeme!.lemma,
+        reason: "SOON", untilAt: new Date(NOW.getTime() - 86_400_000),
+      },
+    });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(false);
   });
 
   it("proves the closing round off answers given after the evening's own ticks", async () => {
