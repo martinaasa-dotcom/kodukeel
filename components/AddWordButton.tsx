@@ -42,10 +42,9 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
   const router = useRouter();
   const [result, setResult] = useState<string | null>(null);
 
-  const keeper = useKeepWord(lexemeId, async (deckIds) => {
+  const keeper = useKeepWord(lexemeId, async (deckIds, named) => {
     const r = await addToDeck(lexemeId, ["RECOGNITION", "PRODUCTION"], source, deckIds);
     if (!r.ok) { setResult(r.error); return; }
-    const named = keeper.choice.decks?.filter((d) => deckIds?.includes(d.id)).map((d) => d.name) ?? [];
     const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
     setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${counted(r.added, "card")}.${where}`);
     router.refresh();
