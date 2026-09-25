@@ -209,6 +209,36 @@ export function joinWithAnd(items: readonly string[]): string {
 }
 
 /**
+ * A small count said as a word, the way the prose around it counts.
+ *
+ * Five files kept a table of their own, reaching three, seven, ten and
+ * fourteen, so the shield letter wrote "4 shields" where the evening letter
+ * wrote "four", and a count past the end of one table fell back to a digit
+ * that its neighbour would have spelled. Through twenty, then digits, which is
+ * as far as any caller has needed and far enough that nothing it counts is
+ * read out as a string of words.
+ */
+const SPELLED = [
+  "no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+  "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+  "eighteen", "nineteen", "twenty",
+] as const;
+
+export function spelledCount(n: number): string {
+  return (Number.isInteger(n) && n >= 0 ? SPELLED[n] : undefined) ?? String(n);
+}
+
+/**
+ * The same count opening a sentence, which is where half of them stood: "two
+ * left in the bank." and "three days of the last seven." went out lowercase,
+ * the second as a letter's heading and one of them as a subject line.
+ */
+export function SpelledCount(n: number): string {
+  const word = spelledCount(n);
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+/**
  * The same reading, for a list of alternatives rather than a list of
  * requirements: an errand's `where` is a set of places any one of which
  * would do, and joined on `joinWithAnd` it reads as a place you would have

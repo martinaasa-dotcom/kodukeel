@@ -47,6 +47,7 @@
 */
 import { stepLadder, wordCard, type StepRow } from "../art";
 import type { Block, Letter } from "../letter";
+import { SpelledCount, spelledCount } from "@/lib/copy/values";
 
 export interface TonightInput {
   /** What they asked to be called, or null. */
@@ -93,8 +94,6 @@ function minutesLeft(steps: readonly StepRow[]): number {
  * ten, which is what a glance wants. The line falls at ten because that is
  * where English puts it and because nothing in an evening is ever eleven.
  */
-const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
-const count = (n: number): string => WORDS[n] ?? String(n);
 
 /**
  * The subject, which is most of the work.
@@ -111,9 +110,9 @@ function subjectFor(input: TonightInput): string {
   if (done > 0 && left > 0) {
     return left === 1
       ? `One step left in ${input.day.title}`
-      : `${count(left)} steps left in ${input.day.title}`;
+      : `${SpelledCount(left)} steps left in ${input.day.title}`;
   }
-  return `Tonight is ${count(input.day.newWords)} new words`;
+  return `Tonight is ${spelledCount(input.day.newWords)} new words`;
 }
 
 /**
@@ -152,12 +151,12 @@ export function tonightLetter(input: TonightInput): Letter {
     blocks.push({
       t: "text",
       text:
-        `You are ${count(done)} steps into ${day.title}` +
+        `You are ${spelledCount(done)} steps into ${day.title}` +
         (day.part.of > 1 ? `, part ${day.part.n} of ${day.part.of}` : "") +
         `. The rest is waiting where you left it.`,
     });
   } else {
-    blocks.push({ t: "heading", text: `Tonight is ${count(day.newWords)} new words and ${left} minutes.` });
+    blocks.push({ t: "heading", text: `Tonight is ${spelledCount(day.newWords)} new words and ${left} minutes.` });
     blocks.push({
       t: "text",
       text:
@@ -228,7 +227,7 @@ export function tonightLetter(input: TonightInput): Letter {
     would be inventing a stake the app refuses to have.
   */
   if (input.streak >= 2) {
-    blocks.push({ t: "quiet", text: `${count(input.streak)} days in a row so far.` });
+    blocks.push({ t: "quiet", text: `${SpelledCount(input.streak)} days in a row so far.` });
   }
 
   return {

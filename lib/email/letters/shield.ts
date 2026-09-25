@@ -32,6 +32,7 @@
 */
 import { weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
+import { SpelledCount, spelledCount } from "@/lib/copy/values";
 
 export interface ShieldInput {
   readonly name: string | null;
@@ -51,8 +52,6 @@ export interface ShieldInput {
   readonly week: readonly { readonly label: string; readonly studied: boolean }[];
 }
 
-const WORDS = ["no", "one", "two", "three"];
-const count = (n: number): string => WORDS[n] ?? String(n);
 
 export function shieldLetter(input: ShieldInput): Letter {
   const blocks: Block[] = [];
@@ -90,7 +89,7 @@ export function shieldLetter(input: ShieldInput): Letter {
     t: "text",
     text:
       input.remaining > 0
-        ? `${count(input.remaining)} left in the bank.`
+        ? `${SpelledCount(input.remaining)} left in the bank.`
         : input.nextAt !== null
           ? `That was your last one. The next arrives at ${input.nextAt} days.`
           : `That was your last one.`,
@@ -108,7 +107,7 @@ export function shieldLetter(input: ShieldInput): Letter {
   return {
     kind: "shield",
     subject: "A shield covered yesterday",
-    preheader: `Your ${input.streak} days are still standing, and ${input.remaining > 0 ? `${count(input.remaining)} shields are left` : "that was the last one"}.`,
+    preheader: `Your ${input.streak} days are still standing, and ${input.remaining > 0 ? `${spelledCount(input.remaining)} shields are left` : "that was the last one"}.`,
     blocks,
   };
 }
