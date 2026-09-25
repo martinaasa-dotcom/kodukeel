@@ -81,6 +81,22 @@ describe("createDeck / listDecks / renameDeck / deleteDeck", () => {
     expect(decks).toHaveLength(0);
   });
 
+  it("holds the cap when several decks are created at once", async () => {
+    // One short of the cap, then eight more at the same moment: counting and
+    // creating is check-then-act, and every one of the eight saw room for one.
+    // Open the pool's connections first: a cold pool hands them out one at a
+    // time, which serialises the eight calls and hides the race it is testing.
+    await Promise.all(Array.from({ length: 8 }, () => prisma.$queryRaw`SELECT 1 AS x FROM pg_sleep(0.05)`));
+    await prisma.deck.createMany({
+      data: Array.from({ length: 39 }, (_, i) => ({ ownerId: MINE, name: `Shelf ${i}` })),
+    });
+    const results = await Promise.all(
+      Array.from({ length: 8 }, (_, i) => createDeck(MINE, `Late ${i}`)),
+    );
+    expect(results.filter((r) => r.ok)).toHaveLength(1);
+    expect(await prisma.deck.count({ where: { ownerId: MINE } })).toBe(40);
+  });
+
   it("refuses a blank name rather than storing an empty shelf", async () => {
     const result = await createDeck(MINE, "    ");
     expect(result.ok).toBe(false);

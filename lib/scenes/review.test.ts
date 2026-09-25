@@ -39,6 +39,23 @@ describe("the review of a conversation", () => {
   });
 
   /*
+    HALF AN ANSWER IS NOT AN ANSWER. `play:scenes` ended a run whose second
+    beat was never met, over three turns that each answered part of the
+    question, on "Every one of your 9 turns answered the question. Nothing
+    needed putting right." The count took a turn meeting some of a beat as a
+    turn that answered it, and the flourish rode on that count.
+  */
+  it("counts a turn that answered part of the question as part, not whole", () => {
+    const partial = turn({ reading: "incomplete", met: [true, false] });
+    const lead = reviewOf(SCENE, state([turn(), partial, partial], ["reason"])).lead;
+    expect(lead).not.toMatch(/Every one of/);
+    expect(lead).not.toMatch(/Nothing needed putting right/);
+    expect(lead).toContain("1 of your 3 turns answered the question, and 2 more answered part of it.");
+    const onlyPart = reviewOf(SCENE, state([partial, partial], [])).lead;
+    expect(onlyPart).toContain("2 of your 2 turns answered part of the question.");
+  });
+
+  /*
     Turns that answered something, not turns whose words were recognised. A
     learner who met no beat was told "19 of your 21 turns were understood"
     over a list of six things left undone: their Estonian was read, which is

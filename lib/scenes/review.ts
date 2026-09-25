@@ -139,6 +139,14 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
     had. What counts is a turn the beat took something from.
   */
   const landed = turns.filter((t) => t.reading === "complete" || t.met.some(Boolean));
+  /*
+    AND PART OF AN ANSWER IS COUNTED AS PART. A turn that met some of what a
+    beat needed reads `incomplete`, and counting it as a turn that answered
+    the question printed "Every one of your 9 turns answered the question.
+    Nothing needed putting right" over a run with three half answers and a
+    beat never met, which `play:scenes` showed on the complaint scene.
+  */
+  const partly = landed.filter((t) => t.reading === "incomplete").length;
   const read = turns.filter((t) => t.reading !== "unrecognised" && t.reading !== "english");
   const every = turns.flatMap((t) => t.slips ?? []);
   /*
@@ -167,7 +175,8 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
   return {
     lead: lead({
       turns: turns.length,
-      landed: landed.length,
+      landed: landed.length - partly,
+      partly,
       read: read.length,
       slips: slips.length,
       spellings: slips.filter((s) => s.kind === "spelling").length,
@@ -350,7 +359,8 @@ function covers(count: number): string {
 const WORDS: Record<number, string> = { 3: "three", 4: "four" };
 
 function lead(n: {
-  turns: number; landed: number; read: number; slips: number; spellings: number; notes: number;
+  turns: number; landed: number; partly: number; read: number; slips: number; spellings: number;
+  notes: number;
 }): string {
   if (n.turns === 0) return "Nothing was said this time, which is a fine way to find out what a scene is like.";
 
@@ -360,7 +370,7 @@ function lead(n: {
     The way in goes with it, because a learner who got nowhere needs the
     button rather than a figure.
   */
-  if (n.landed === 0) {
+  if (n.landed + n.partly === 0) {
     const seen = n.read === n.turns
       ? "Your Estonian was understood every time. None of it answered what was being asked. "
       : n.read > 0
@@ -375,7 +385,11 @@ function lead(n: {
     ? n.turns === 1
       ? "The one thing you said answered the question."
       : `Every one of your ${n.turns} turns answered the question.`
-    : `${n.landed} of your ${n.turns} turns answered the question.`;
+    : n.landed === 0
+      ? `${n.partly} of your ${n.turns} turns answered part of the question.`
+      : n.partly > 0
+        ? `${n.landed} of your ${n.turns} turns answered the question, and ${n.partly} more answered part of it.`
+        : `${n.landed} of your ${n.turns} turns answered the question.`;
   /*
     AND THE FLOURISH ONLY WHERE IT IS TRUE OF THE WHOLE RUN. It printed on any
     run with no slips, so "3 of your 4 turns answered what was asked. Nothing

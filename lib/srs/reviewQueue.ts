@@ -80,6 +80,21 @@ export function notOnLadder(ownerId: string): Prisma.CardWhereInput {
   return { OR: [{ state: { not: 0 } }, pastTheLadder(ownerId)] };
 }
 
+/**
+ * A drill of words the learner has just brought in, which may meet them.
+ *
+ * `notOnLadder` is right for a drill of a case or a unit, where the words are
+ * ones the learner already studies. A photographed page is words added a
+ * minute ago, all still on the ladder, and asking it there leaves the drill
+ * empty; asking nothing handed out a case card at `state: 0` as the first
+ * sight of a word whose meaning had never been shown. So the word's own ladder
+ * card stays, which the session introduces as a first meeting, and its other
+ * cards wait until it has left the ladder, exactly as everywhere else.
+ */
+export function meetingFirst(ownerId: string): Prisma.CardWhereInput {
+  return { OR: [notOnLadder(ownerId), { cardType: LADDER_CARD_TYPE }] };
+}
+
 /** How many cards one sitting of the review queue holds at most. */
 export const MAX_SESSION = 60;
 /** How many of those may be words the learner has never seen. */

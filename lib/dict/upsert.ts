@@ -129,6 +129,15 @@ export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeW
       what it did not. The parameter is gone rather than guarded, because a
       parameter nobody passes is not a feature, it is the bug's only door.
     */
+    /*
+      A WRITE THAT SUPPLIED NO FORMS HAS NO OPINION ABOUT THEM, which is the
+      rule `cefr` and `government` follow above, one field over. An accepted
+      missing-word report sends `forms: {}`, and reading "none supplied" as
+      "none exist" reset the gradation for everybody. The gradation is graded
+      off the forms the entry will hold once this lands, the supplied ones and
+      otherwise the ones it already had (`kept` above), so a write naming no
+      form or only some of them grades the entry it leaves behind.
+    */
     gradation: gradation.type,
     gradationNote: gradation.note ?? null,
     // An entry Ekilex supplied stays marked as Ekilex's after a correction —

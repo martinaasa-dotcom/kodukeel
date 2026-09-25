@@ -40,12 +40,27 @@ export type Verdict = "correct" | "diacritics" | "typo" | "wrong";
  * below it is safe, only safer, since `valutama/valetama` and
  * `valutama/vajutama` are both real eight-letter pairs among the 43 — a
  * length floor cannot remove the risk, only push it down to where it stops
- * being the common case. See the comment on the typo check itself for why a
- * substitution needs a stricter floor than an insertion or a deletion does
- * at all. Re-run `npm run measure:typo-collisions` before moving this
- * number; the count is what should move it, not a feeling.
+ * being the common case. Re-run `npm run measure:typo-collisions` before
+ * moving this number; the count is what should move it, not a feeling. It
+ * also reports the insertions and deletions, which the comment on the typo
+ * check itself explains are not the safe half they were taken for.
  */
 const TYPO_SUBSTITUTION_FLOOR = 8;
+
+/**
+ * And the same floor for a letter inserted or dropped, measured the same way.
+ *
+ * It was four, argued on a claim that an inserted or dropped letter does not
+ * spell a second word. `npm run measure:typo-collisions` counts it: 498
+ * Estonian answers of four letters sit one insertion or deletion from another
+ * accepted answer, 303 at five, 134 at six, 80 at seven and 34 at eight. The
+ * substitution floor above accepts 43 such pairs at eight and none of the
+ * hundreds below it, and there is no reason to hold one kind of slip to a
+ * looser standard than the other: a wrong word graded Hard is written into the
+ * append-only log as a recall, while a genuine slip graded Again only brings
+ * the card back sooner, which is the direction the scheduler can afford.
+ */
+const TYPO_LENGTH_CHANGE_FLOOR = 8;
 
 export interface AnswerCheck {
   verdict: Verdict;
@@ -281,13 +296,21 @@ export function checkAnswer(
     word is mina." and graded Hard, telling a learner who named the wrong
     person that they had nearly named the right one. A same-length
     one-letter difference needs TYPO_SUBSTITUTION_FLOOR letters before it is
-    read as a slip rather than as the wrong word; a different-length one
-    keeps the old floor, because an inserted or dropped letter does not
-    spell a coincidental second word the way a swapped one does.
+    read as a slip rather than as the wrong word. A different-length one
+    is held to TYPO_LENGTH_CHANGE_FLOOR.
+
+    THAT HALF WAS ARGUED ON A CLAIM, NOT A COUNT, AND THE CLAIM WAS FALSE.
+    It said an inserted or dropped letter "does not spell a coincidental
+    second word the way a swapped one does", and `kuulama` typed for `kuulma`
+    was graded Hard as a recall of a word the learner did not write. Counted,
+    it collides about as often as a substitution does, so it is held to the
+    same eight letters (TYPO_LENGTH_CHANGE_FLOOR). What that costs is the
+    forgiveness of `tooas` for `toas`: a real slip on a short word is marked
+    wrong and comes back sooner, which is the cheaper of the two mistakes.
   */
   for (const answer of answers) {
     const sameLength = given.length === answer.compared.length;
-    const floor = sameLength ? TYPO_SUBSTITUTION_FLOOR : 4;
+    const floor = sameLength ? TYPO_SUBSTITUTION_FLOOR : TYPO_LENGTH_CHANGE_FLOOR;
     if (answer.compared.length >= floor && editDistance(given, answer.compared, 1) <= 1) {
       return {
         verdict: "typo",
