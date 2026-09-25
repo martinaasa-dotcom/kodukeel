@@ -577,7 +577,7 @@ export function LearnSession({
   const answerGap = useCallback(() => {
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
-    const check = checkAnswer(typed, expected, "et");
+    const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? []);
     setVerdict(check);
     const won = check.verdict === "correct";
     cheer(countsAsRecalled(check.verdict));

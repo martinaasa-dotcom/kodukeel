@@ -87,7 +87,12 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
     return { credit: 0, right: false, usedAnotherForm: false, note: "Nothing typed yet." };
   }
 
-  const check = checkAnswer(answer, item.targetForm, "et");
+  /*
+    The word's other forms go in as rivals, or another ending one keystroke
+    away reads as a slip: `toast` for `toas` was "One letter out." and marked
+    right, so the placement counted the elative as knowing the inessive.
+  */
+  const check = checkAnswer(answer, item.targetForm, "et", item.otherForms);
   if (check.verdict === "correct") {
     return { credit: 1, right: true, usedAnotherForm: false, note: "That is the form the sentence wanted." };
   }
