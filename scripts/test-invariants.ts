@@ -10051,6 +10051,30 @@ check("no source file holds a control character it could have named", () => {
   }
 });
 
+/*
+  A DOCUMENT A COMMENT CITES IS ONE THAT EXISTS.
+
+  The Situations design was renumbered from 19 to 21 when the research export
+  took 19, and sixteen comments across the scenes module, the schema and the
+  data-model doc went on citing the old number by section: a reader
+  following one landed on nothing, or on the research export and a section
+  about something else entirely. A path is checkable where a section number is
+  not, so every cited document has to be there.
+*/
+check("every docs/ file the source and the docs cite exists", () => {
+  const cited = new Map<string, string>();
+  const files = [...ALL, ...sourceFiles("scripts"), ...sourceFiles("prisma"), "CLAUDE.md", "README.md",
+    ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => join("docs", f))];
+  for (const file of files) {
+    for (const [path] of read(file).matchAll(/docs\/[0-9A-Za-z_-]+\.md/g)) {
+      if (!cited.has(path)) cited.set(path, file);
+    }
+  }
+  assert.ok(cited.size >= 15, `only ${cited.size} cited documents found, so this stopped looking`);
+  const missing = [...cited].filter(([path]) => !existsSync(path)).map(([path, file]) => `${path} (cited in ${file})`);
+  assert.deepEqual(missing, [], `these documents are cited and do not exist: ${missing.join(", ")}`);
+});
+
 check("the emoji board is unique by picture as well as by word", () => {
   const file = join("app", "(app)", "review", "emoji", "page.tsx");
   const source = code(file);
@@ -13681,7 +13705,7 @@ check("a case is named only when one case claims the spelling", () => {
 /**
  * NO MODEL DECIDES WHETHER A LEARNER WAS UNDERSTOOD.
  *
- * `docs/19-situations.md` §18 names the first way this module could fail: a
+ * `docs/21-situations.md` §18 names the first way this module could fail: a
  * chatbot in a costume. The guard is a type rather than a rule anybody has to
  * remember. `readTurn` is the only producer of `Evidence` and `advance` is its
  * only consumer, so a caller holding a model's opinion about a turn cannot
@@ -13719,7 +13743,7 @@ check("a case is named only when one case claims the spelling", () => {
 /**
  * A CLASS SEES EFFORT, NEVER A TRANSCRIPT.
  *
- * ADR-019 stands unchanged and `docs/19-situations.md` §18 names the way this
+ * ADR-019 stands unchanged and `docs/21-situations.md` §18 names the way this
  * module would break it: a roster row may say how many conversations somebody
  * finished, and the class panel may say which objective the group most often
  * misses, and a transcript belongs to one person. A `SceneRun` holds every turn
@@ -13738,7 +13762,7 @@ check("a class cannot read a conversation", () => {
       src,
       /prisma\.sceneRun\.(findMany|findFirst|findUnique)/,
       `${file} reads a scene transcript. A class sees effort and aggregate, never ` +
-      "one learner's turns (ADR-019, docs/19-situations.md §18).",
+      "one learner's turns (ADR-019, docs/21-situations.md §18).",
     );
     assert.doesNotMatch(
       src,
@@ -16042,7 +16066,7 @@ check("nothing but the dictionary can advance a scene", () => {
     state,
     /export function advance\(\s*scene: SceneSpec,\s*state: SceneState,\s*evidence: Evidence,/,
     "advance no longer takes Evidence. A caller holding a model's opinion must not be able " +
-    "to satisfy it: that is the whole guard on this module (docs/19-situations.md §8).",
+    "to satisfy it: that is the whole guard on this module (docs/21-situations.md §8).",
   );
 
   /*

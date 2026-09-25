@@ -41,7 +41,7 @@ comment on every model that needs one; what belongs here is the map and the reas
 | `Suggestion` | One thing a learner said was wrong, and what they proposed instead. |
 | `Classroom`, `ClassroomMember` | A class, its join code, and who is in it. A view over what the learners already own. |
 | `UsageEvent` | One metered call to a paid service. Append-only, and the evidence behind the spend cap. |
-| `SceneRun` | One conversation, with the seed it was drawn from and every turn typed in it. Append-only. Nothing in it is true about the learner: the role card is fiction (`docs/19-situations.md` §3). |
+| `SceneRun` | One conversation, with the seed it was drawn from and every turn typed in it. Append-only. Nothing in it is true about the learner: the role card is fiction (`docs/21-situations.md` §3). |
 | `SceneGap` | A word a conversation needed and the learner did not have. A child table so "the words my conversations keep needing" is one indexed query rather than a scan over every transcript. |
 | `Encounter` | One day's answer to whether the learner spoke any Estonian to somebody outside the app and how it went, in one of four words. Names the errand where the report was about one, and nothing where the conversation was the learner's own. Append-only. |
 | `Deferral` | One word one learner said was too complicated, and when it comes back. The one row here that is a judgment about a card rather than about a recall: it moves `Card.due` and writes no `Review`, because a word nobody answered is not an answer. One row per learner per word, which is what makes the deployment-wide count mean people rather than presses. |
