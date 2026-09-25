@@ -356,7 +356,7 @@ async function play(sceneId: string) {
       const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, card));
       const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
       const handing = (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? []) : null;
+        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
       const cheap = await sceneLine({
         beat: spokenFor, lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
@@ -444,7 +444,7 @@ async function play(sceneId: string) {
       acknowledges: persona.acknowledges, echo: last?.matched?.[0] ?? null,
       recast: Boolean(last?.slips?.some((s) => s.form && s.form === last?.matched?.[0])),
       aside, offer: (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? []) : null,
+        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null,
       met: state.done.length,
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,

@@ -420,6 +420,14 @@ describe("the word the other side offers", () => {
     expect(offerFor(beat, null, new Set(["kuhu"]))).toBe("aeg");
   });
 
+  /* `Sõitma?` was handed to a learner stuck on where they were travelling. */
+  it("never points with a bare infinitive", () => {
+    const beat = { ...SCENE.beats[2]!, topic: ["kuhu", "sõitma", "buss"] };
+    expect(offerFor(beat, null, new Set(["kuhu"]), [], new Set(["sõitma"]))).toBe("buss");
+    const verbsOnly = { ...SCENE.beats[2]!, topic: ["sõitma"] };
+    expect(offerFor(verbsOnly, null, new Set(), [], new Set(["sõitma"]))).toBeNull();
+  });
+
   /*
     AND NEVER A WORD THEY HAVE JUST USED CORRECTLY. Asked which floor they live
     on, a learner who wrote `kolmandal korrusel` met the case and missed the

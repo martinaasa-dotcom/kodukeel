@@ -278,6 +278,12 @@ export function offerFor(
    * `beat.needs`. A hint may not be a word the learner has just used.
    */
   met: readonly boolean[] = [],
+  /**
+   * The scene's verbs, so a beat that wants a value off the card is not
+   * pointed at with a bare infinitive (`Lexicon.infinitives` has one key per
+   * verb the dictionary can inflect).
+   */
+  verbs: { has(lemma: string): boolean } = new Set<string>(),
 ): string | null {
   /*
     THE HINT IS FOR WHAT IS STILL MISSING, NEVER FOR WHAT THEY ALREADY SAID.
@@ -324,8 +330,15 @@ export function offerFor(
 
     Never a question word: `Kuhu?` handed to somebody who was just asked
     `Kuhu te sõidate?` is the question said back at them with nothing added.
+
+    And never a verb. A topic lists the verb the question is asked with, and
+    the dictionary form of a verb said as a question is nothing anybody says:
+    a learner stuck on where they were travelling was handed `Sõitma?`, and
+    six beats across the catalogue did the same (`Aitama?`, `Õppima?`,
+    `Alustama?`, `Ostma?`). The thing the question is about is a noun on the
+    same list, `Buss?`, `Koht?`, `Keel?`, `Päev?`.
   */
-  const pointer = beat.topic.find((lemma) => !questionWords.has(lemma));
+  const pointer = beat.topic.find((lemma) => !questionWords.has(lemma) && !verbs.has(lemma));
   return pointer ?? null;
 }
 
