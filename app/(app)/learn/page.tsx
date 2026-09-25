@@ -219,7 +219,7 @@ export default async function LearnPage() {
                   return (
                     <li
                       key={u.unit.id}
-                      className="flex flex-wrap items-center gap-4 rounded-[var(--r-sm)] border p-3"
+                      className="@container flex flex-wrap items-center gap-4 rounded-[var(--r-sm)] border p-3"
                       /*
                         A locked unit is quieter, and the quiet used to be an
                         `opacity: 0.6` on the whole row. That fades the words:
@@ -250,7 +250,12 @@ export default async function LearnPage() {
                       >
                         {locked ? <Lock size={16} aria-hidden /> : complete ? <Check size={18} aria-hidden /> : <NamedIcon name={u.unit.icon} size={17} aria-hidden />}
                       </span>
-                      <span className="min-w-[12rem] flex-1">
+                      {/* Under @md the words take the whole line beside the icon and
+                          the count moves inside them: a count and a button beside
+                          the name left it 115px at 320 and broke "Environment"
+                          and "responsibility" in half. calc is the icon plus
+                          the gap, so the icon never drops onto a line of its own. */}
+                      <span className="min-w-0 flex-1 basis-[calc(100%-3.5rem)] @md:basis-0">
                         <Link
                           href={`/learn/${u.unit.id}`}
                           lang={uiWantsEnglish(placement) ? undefined : "et"}
@@ -262,6 +267,9 @@ export default async function LearnPage() {
                         <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
                           {u.unit.canDo}
                         </span>
+                        <span className="tnum mt-1 block text-xs @md:hidden" style={{ color: "var(--ink-3)" }}>
+                          {u.known}/{u.available}
+                        </span>
                         {locked && (
                           <span className="mt-1 block text-xs" style={{ color: "var(--ink-3)" }}>
                             Builds on {u.unit.requires.map((id) => {
@@ -271,14 +279,18 @@ export default async function LearnPage() {
                           </span>
                         )}
                       </span>
-                      <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+                      <span className="tnum hidden text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
                         {u.known}/{u.available}
                       </span>
+                      {/* Beside the words only where the row has room for both, which
+                          is the row's width rather than the window's: at 768 a
+                          128px button beside the count left the unit's name 59px
+                          and broke every word of it. The row is the container. */}
                       <ButtonLink
                         href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
                         variant={u.state === "learning" ? "primary" : "ghost"}
                         size="sm"
-                        className="w-full justify-center sm:w-32"
+                        className="w-full justify-center @md:w-32"
                       >
                         {complete ? "Revisit" : u.state === "learning" ? "Continue" : "Learn"}
                       </ButtonLink>
@@ -288,10 +300,10 @@ export default async function LearnPage() {
 
                 {checkpoint && (
                   <li
-                    className="flex flex-wrap items-center gap-4 rounded-[var(--r-sm)] border border-dashed p-3"
+                    className="@container flex flex-wrap items-center gap-4 rounded-[var(--r-sm)] border border-dashed p-3"
                     style={{ borderColor: "var(--rule)" }}
                   >
-                    <span className="min-w-[12rem] flex-1">
+                    <span className="min-w-0 flex-1">
                       <span
                         lang={uiWantsEnglish(placement) ? undefined : "et"}
                         className="text-md font-bold"
@@ -307,7 +319,7 @@ export default async function LearnPage() {
                       href={`/learn/checkpoint/${level.toLowerCase()}`}
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-center sm:w-32"
+                      className="w-full justify-center @md:w-32"
                     >
                       Take it
                     </ButtonLink>

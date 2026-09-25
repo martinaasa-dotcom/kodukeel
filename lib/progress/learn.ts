@@ -163,6 +163,12 @@ export interface LearnWord {
      */
     fullEn: string | null;
     /**
+     * The word's other forms, so another ending one keystroke away is marked
+     * as the wrong form: `toast` for `toas` read as "One letter out." and was
+     * logged as a recall, which is what `checkAnswer`'s `rivals` is for.
+     */
+    rivals: readonly string[];
+    /**
      * Which word the gap wants, without saying which spelling.
      *
      * The rung before this one asked what the word means, so the gap is about
@@ -364,6 +370,7 @@ function sentenceAndGap(
         gap: {
           text: cloze.text, answer: cloze.answer, full: cloze.full,
           en, fullEn: example.en ?? null, hint: cue, explanation,
+          rivals: [...hideable.keys()].filter((form) => form !== cloze.answer.toLowerCase()),
           stem: stemsFrom(lexeme.forms).genSg ?? null,
         },
       };

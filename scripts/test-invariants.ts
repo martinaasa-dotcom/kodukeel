@@ -33,6 +33,7 @@ import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
 import { OPENS_WITHOUT_BRIEFING } from "../lib/copy/briefingCoverage";
 import { BRIEFINGS } from "../lib/copy/briefings";
 import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
+import { estonianNotCopied } from "../lib/dict/copiedWords";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
@@ -2852,7 +2853,8 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * one fact: the seventh door, `finishScene`, had to be added to all three or the
  * newest and busiest mode would sit outside a rule that reported itself as held.
  * That is the failure this file exists to catch, so it is not a shape this file
- * may have itself.
+ * may have itself. `useGrade` is on it because it is `gradeCard` with the
+ * outbox behind it, which the check on that hook holds it to.
  *
  * `recordMatchGrades` is the eighth: Match used to grade its board by looping
  * over `pairs` and calling `gradeCard` once each, which is eight sequential
@@ -2861,7 +2863,7 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * and `submitExam`, so it belongs in this list rather than under `gradeCards?`.
  */
 const GRADING_DOORS =
-  /\b(gradeCards?|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
+  /\b(gradeCards?|useGrade|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
 
 /**
  * Sessions that measure rather than practice.
@@ -6321,6 +6323,67 @@ check("nobody opts back out of the wrapping default", () => {
   }
 });
 
+/*
+  A ROW OF STAT TILES IS TWO ACROSS ON A PHONE.
+
+  `overflow-wrap: anywhere` is what keeps a long word inside its box, and the
+  price of it is that a box too narrow for a word breaks the word. Three
+  StatTiles across a 360px screen leave each label about eighty pixels, and
+  `label-xs` is uppercase and tracked, so "ACCURACY" and "ATTEMPTED" came out
+  as ACCURA/CY and ATTEMPT/ED on the letters, listening, sprint, quest and
+  target summaries, measured in a browser; two across, every one of them
+  holds a line. Four rounds had already found this and use
+  `grid-cols-2 … sm:grid-cols-3`, which is why this is a rule rather than a
+  fix: the other five were the same row written before somebody looked.
+*/
+check("a row of stat tiles is two across on a phone, never three", () => {
+  let rows = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx")) continue;
+    const src = code(file);
+    for (const found of src.matchAll(/className="([^"]*)"[^>]*>\s*<StatTile\b/g)) {
+      rows += 1;
+      const classes = found[1]!.split(/\s+/);
+      assert.ok(
+        !classes.includes("grid-cols-3"),
+        `${file}:${src.slice(0, found.index).split("\n").length} lays StatTiles three across at every width; ` +
+        "a label like ACCURACY breaks mid-word at 360px. Use grid-cols-2 sm:grid-cols-3, or " +
+        "grid-cols-2 @sm:grid-cols-3 inside an @container where the row sits in a column narrower than the window.",
+      );
+    }
+  }
+  assert.ok(rows >= 15, `only ${rows} StatTile rows found, so this check stopped looking`);
+});
+
+/*
+  A CONTAINER QUERY NEEDS A CONTAINER, AND WITHOUT ONE IT FAILS IN SILENCE.
+
+  From 768 the rail takes a column and the page is 368px, so a grid that
+  chose its columns by the window laid out two cards of 174 or five tiles of
+  57, and `overflow-wrap: anywhere` broke the words inside them mid-letter.
+  Those grids ask their container now (`@container` beside `@lg:grid-cols-2`),
+  which has one failure a viewport breakpoint does not: a `@lg:` variant with
+  no `@container` above it matches nothing, so the grid is one column at
+  every width and nothing says so. The wrapper is written in the same file as
+  the variant everywhere it is used, which is what this reads: a file using a
+  container variant declares the container too.
+*/
+check("a container query variant has its container in the same file", () => {
+  let files = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx")) continue;
+    const src = code(file);
+    const uses = src.match(/(?:^|[\s"'`])@(?:3xs|2xs|xs|sm|md|lg|xl|[2-7]xl):[a-z][a-z0-9-]*/gm);
+    if (!uses) continue;
+    files += 1;
+    assert.ok(
+      /(?:^|[\s"'`])@container(?:[\s"'`/]|$)/m.test(src),
+      `${file} uses a container variant (${uses[0]!.trim()}) and declares no @container, so it matches nothing`,
+    );
+  }
+  assert.ok(files >= 12, `only ${files} files use a container variant, so this check stopped looking`);
+});
+
 check("an icon is sized by its own size prop, never by a class", () => {
   /*
     A lucide icon writes `width` and `height` onto the svg from its `size`
@@ -6852,6 +6915,51 @@ check("a sat check is never edited, and is deleted only on request", () => {
     /deleteMyAccount[\s\S]*?tx\.assessment\.deleteMany/,
     "account deletion no longer removes the level checks it promises to",
   );
+});
+
+check("a sitting restored from a backup is history and never evidence", () => {
+  /*
+    ADR-022: a result anybody can type is not a measurement. A backup carries a
+    paper's marks and a check's levels and not the answers they came from, so
+    nothing can mark a restored row again, and a hand-edited file could hand
+    itself a C1 pass. The row comes back as written and stamped `restoredAt`,
+    and every reader that treats a sitting as evidence asks for it to be null:
+    the hub's readiness signals, the readiness picture, the level the course
+    opens at (through `latestFor`), and both cohort rosters. Four halves, since
+    any one of them left out is the forged pass reaching a screen.
+  */
+  const actions = code("app/actions.ts");
+  for (const table of ["assessments", "examAttempts"]) {
+    assert.match(
+      actions,
+      new RegExp(`backup\\.${table}[^\\n]*asRestoredMeasurement\\(`),
+      `restoreBackup writes ${table} without stamping them as restored`,
+    );
+  }
+  const exam = code("lib/progress/exam.ts");
+  assert.match(
+    exam,
+    /export async function readinessSignals[\s\S]*?recentAttempts\(ownerId, \{ measured: true \}\)/,
+    "readinessSignals reads restored sittings as evidence",
+  );
+  assert.match(
+    code("lib/progress/readiness.ts"),
+    /recentAttempts\(ownerId, \{ measured: true \}\)/,
+    "the readiness picture reads restored sittings as evidence",
+  );
+  assert.match(
+    code("lib/progress/assessment.ts"),
+    /latestFor = cache\([\s\S]*?historyFor\(ownerId, 1, \{ measured: true \}\)/,
+    "latestFor answers with a restored level check",
+  );
+  const roster = code("lib/classroom/roster.ts");
+  for (const table of ["examAttempt", "assessment"]) {
+    const reads = [...roster.matchAll(new RegExp(`prisma\\.${table}\\.find\\w+\\(\\{\\s*where: ([^\\n]*)`, "g"))];
+    assert.ok(reads.length > 0, `the roster no longer reads ${table}, so this check reads nothing`);
+    for (const r of reads) {
+      assert.match(r[1] ?? "", /restoredAt: null/, `a roster reads restored ${table} rows as evidence`);
+    }
+  }
 });
 
 check("the goal a learner states is stored through the settings store", () => {
@@ -8257,6 +8365,28 @@ check("a not-found boundary draws a main only where its layout does not", () => 
     code("app/(app)/layout.tsx"),
     /<main/,
     "the signed-in layout no longer draws a main, so the boundary below it has to",
+  );
+});
+
+check("a key a caller chose is looked up as an own key, and a duration is a number", () => {
+  /*
+    TWO WAYS A VALUE OFF THE WIRE REACHED A COLUMN IT COULD NOT GO IN.
+
+    `beginScene` checked the difficulty with `chosen in BUDGETS`. `in` walks the
+    prototype, so `constructor`, `toString` and `__proto__` all passed, and
+    `BUDGETS[chosen]` handed the `Object` function to `SceneRun.difficulty`,
+    which is an Int: the action threw where it meant to say "Not a difficulty."
+    And `gradeCard` passed `durationMs` straight through to `writeGrade`, which
+    clamped it with `Math.min` and `Math.max`, both of which return NaN for NaN,
+    so a NaN or a string threw on insert and `1.5` reached an Int column.
+  */
+  const actions = code("app/actions.ts");
+  const walks = actions.match(/!\(\s*\w+\s+in\s+[A-Z][A-Z0-9_]+\s*\)/g) ?? [];
+  assert.deepEqual(walks, [], "a \"use server\" export checks a caller's key with `in`, which walks the prototype");
+  const grade = code("lib/srs/grade.ts");
+  assert.match(
+    grade, /durationMs:\s*Number\.isFinite\(durationMs\)/,
+    "writeGrade writes a duration it has not checked is a number into an Int column",
   );
 });
 
@@ -11946,7 +12076,8 @@ check("a transaction's own time limit fits inside the function that runs it", ()
   const short: string[] = [];
   let reached = 0;
   for (const [name, limitMs] of timed) {
-    const callers = APP.filter((file) => file !== "app/actions.ts"
+    // A test calls the action directly and runs inside no platform function.
+    const callers = APP.filter((file) => file !== "app/actions.ts" && !/\.(?:test|itest)\.tsx?$/.test(file)
       && new RegExp(`import \\{[^}]*\\b${name}\\b[^}]*\\} from "@/app/actions"`).test(read(file)));
     assert.ok(callers.length > 0, `${name} sets a transaction timeout and nothing in app/ calls it`);
     for (const caller of callers) {
@@ -14718,6 +14849,26 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("after a letter is sent, a failed write is reported rather than counted as a failed send", () => {
+  const run = code("lib/mailer/run.ts");
+  assert.match(run, /await rememberAfterSend\(ownerId, built\.remember\.key, built\.remember\.value\)/,
+    "the high-water mark is written bare after a send again, so a failure counts the letter as failed and it can go twice");
+});
+
+
+check("a grade writes a card's case and slot to the log only where they are on the closed list", () => {
+  /*
+    A card restored from a backup carries whatever the file said, and the grade
+    copied its \`targetCase\` and its own slot into \`Review\` unchecked: the one
+    table that is never repaired, which the case charts print.
+  */
+  const grade = code("lib/srs/grade.ts");
+  assert.doesNotMatch(grade, /targetCase: card\.targetCase/, "a grade copies the card's case into the log unchecked");
+  assert.doesNotMatch(grade, /return slotOfCard\(card\)/, "a grade takes the card's own slot unchecked");
+  assert.match(grade, /isKnownSlot\(s\)/, "a grade no longer checks the card's own slot");
+});
+
+
 check("a roster's days since the last review are calendar days on the member's clock", () => {
   /*
     Both rosters print "reviewed today" at nought. Counted in whole 24-hour
@@ -16618,7 +16769,7 @@ check("an answer records which form it was about, from a list nothing can widen"
   );
   assert.match(
     grade,
-    /targetCase:\s*card\.targetCase/,
+    /targetCase:\s*(?:knownCase\()?card\.targetCase/,
     "writeGrade stopped recording the card's own case. That column is what the " +
     "case charts read and it is not the slot's to take over.",
   );
@@ -16684,7 +16835,7 @@ check("a wrong answer records the form it reached for, and only between forms", 
   const grade = code("lib/srs/grade.ts");
   assert.match(
     between(grade, "prisma.review.create"),
-    /reachedSlot:\s*reachedFor\(/,
+    /reachedSlot:\s*(?:slot \? )?reachedFor\(/,
     "writeGrade no longer records the form that came back instead, so the " +
     "confusion panel goes quiet and nothing says why",
   );
@@ -16709,7 +16860,7 @@ check("a wrong answer records the form it reached for, and only between forms", 
   ]) {
     assert.match(
       code(file),
-      /gradeCard\([\s\S]{0,260}reached/,
+      /(?:gradeCard|grade)\([\s\S]{0,260}reached/,
       `${file} works out which form the learner reached for, prints it, and no ` +
       "longer sends it. That was the whole life of the fact before this column.",
     );
@@ -16935,7 +17086,8 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
       stopped short and the check passed against the live bug. Made to fail on
       the real line before being kept.
     */
-    .filter((file) => /gradeCard\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
+    // `grade(` is `useGrade`'s, which is how most rounds reach `gradeCard` now.
+    .filter((file) => /\b(?:gradeCard|grade)\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
   /*
     The half above is only a claim while SESSION_FILES finds the rounds: a
     rename of the Session suffix empties it and the deepEqual passes on nothing.
@@ -16944,7 +17096,7 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
   // A sweep over nothing passes: the rounds that write a duration are the
   // haystack, and a rename that moved them out of SESSION_FILES would leave
   // this asking about no file at all.
-  const grading = SESSION_FILES().filter((file) => /\bgradeCard\(/.test(code(file)));
+  const grading = SESSION_FILES().filter((file) => /\b(?:gradeCard|grade)\(/.test(code(file)));
   assert.ok(grading.length >= 15, `only ${grading.length} round sessions grade through gradeCard, so the sweep is looking in the wrong place`);
   assert.deepEqual(
     averaged, [],
@@ -17499,10 +17651,11 @@ check("a metered route asks the ledger before offering a last resort", () => {
   );
 
   /*
-    And Anu never gets one. Anthropic is her primary, so the only thing behind
-    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
-    "b becomes v" against a dictionary that says b : the consonant going, and
-    inventing a lemma it then emitted as a VOCAB line.
+    And Anu never gets one. Her chain is Gemini and then Groq, both measured
+    on her job by `eval:anu`, and anything past them is a model nobody
+    measured: an older run of that eval caught an unmeasured model calling the
+    tuba : toa gradation "b becomes v" against a dictionary that says b : the
+    consonant going, and inventing a lemma it then emitted as a VOCAB line.
   */
   assert.match(
     code(join("lib", "tutor", "provider.ts")),
@@ -20667,7 +20820,7 @@ check("a verdict is painted once, in the tint and the ink", () => {
   }
 
   // The screens that mark an answer are the ones that call the app's markers.
-  const marks = /\b(gradeCard|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
+  const marks = /\b(gradeCard|useGrade|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
   // Sõnad is not on this list and is not exempt from it: it marks letters with
   // three kinds of object rather than three tints, by a design argued at the
   // top of its own file, and it calls none of the markers above.
@@ -24583,11 +24736,14 @@ check("the shipped translations are English, and there are enough of them to mat
     AND NOT ONE OF THEM IS ESTONIAN. The whole value of the file is that it is
     the other language, and the way a weaker model fails this job is by handing
     the sentence back: `looksLikeEcho` catches an exact echo and the script
-    refuses anything still carrying õ, ä, ö, ü, š or ž. A line of Estonian
-    printed under a heading promising English is worse than no line at all.
+    refuses a line carrying õ, ä, ö, ü, š or ž in a word its sentence did not
+    hold. A name or a quoted word copied through is the sentence rather than
+    the model (`estonianNotCopied`), and refusing those left 137 sentences with
+    a place or a person in them bare. A line of Estonian printed under a
+    heading promising English is worse than no line at all.
   */
   const table: Record<string, string> = JSON.parse(readFileSync("prisma/data/example-english.json", "utf8"));
-  const estonian = Object.entries(table).filter(([, en]) => /[õäöüšž]/i.test(en));
+  const estonian = Object.entries(table).filter(([et, en]) => estonianNotCopied(en, et));
   assert.deepEqual(
     estonian.slice(0, 3), [],
     `${estonian.length} shipped translations still carry Estonian's own letters, so they are not English`,
@@ -25801,6 +25957,47 @@ check("a translation a reviewer refused is never filled in again", () => {
   result, after the call is bought and the file rewritten, which is the wrong
   end to find it from.
 */
+/**
+ * A built entry's notes are its own word's senses, on every path that writes them.
+ *
+ * The builder took the next three senses on the Wiktionary page whatever they
+ * belonged to, so a page holding two words gave each the other's meanings:
+ * `tee` the road kept "tea", `palk` the salary "log, beam". `furtherSenses`
+ * keeps the first sense's etymology. Two scripts write notes, the builder and
+ * the gloss audit's correction, and the seed carries the fix to a deployment
+ * seeded before it, ahead of the early return.
+ */
+check("a built entry's notes come from its own etymology on every writer", () => {
+  for (const file of ["scripts/expand-seed.ts", "scripts/audit-glosses.ts"]) {
+    const source = code(file);
+    assert.match(source, /\bfurtherSenses\(/, `${file} builds notes without furtherSenses`);
+    assert.doesNotMatch(source, /senses\.slice\(1,\s*4\)/, `${file} takes the page's next senses whatever word they belong to`);
+  }
+  const seed = code("prisma/seed.ts");
+  const at = seed.indexOf("applyNotesCorrections(prisma)");
+  const early = seed.indexOf('process.argv.includes("--only-if-empty")');
+  assert.ok(at > 0 && early > 0 && at < early, "the seed does not correct notes before the early return");
+});
+
+/**
+ * A homonym pin takes the other word's notes with it, on every path.
+ *
+ * Pinning re-reads an entry from the Ekilex word it names and kept the notes,
+ * which are the Wiktionary page's other senses: `kurk` the throat kept
+ * "cucumber". `prisma/pinnedNotes.test.ts` holds the shipped file; this holds
+ * the two writers, the script that applies a pin and the seed that repairs a
+ * deployment seeded before it, on both of the seed's paths.
+ */
+check("a homonym pin carries no notes from the other word", () => {
+  const audit = code("scripts/audit-homonyms.ts");
+  const apply = /async function applyPins[\s\S]*?\n}/.exec(audit)?.[0] ?? "";
+  assert.match(apply, /notes: null/, "applyPins keeps the page's other senses on a pinned entry");
+  const seed = code("prisma/seed.ts");
+  assert.equal((seed.match(/\bclearPinnedNotes\(/g) ?? []).length, 2,
+    "the seed does not clear pinned notes on both its paths");
+  assert.match(code("prisma/expanded.ts"), /"editedBy" IS NULL/, "clearPinnedNotes may reach a hand edit");
+});
+
 check("nothing pays a model to translate a sentence nobody may be shown", () => {
   assert.match(
     code("scripts/translate-examples.ts"),
@@ -25921,6 +26118,46 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("a personal best is compared inside the write that keeps it", () => {
+  /*
+    Read, compare, write is check-then-act, and two rounds finishing together
+    let the slower one lower the best (`lib/progress/personalBest.ts`,
+    shown in `personalBest.itest.ts`). ADR-014 stores a best because nothing
+    can rebuild it, so the only writer is the conditional upsert.
+  */
+  const helper = code("lib/progress/personalBest.ts");
+  assert.match(helper, /ON CONFLICT[\s\S]*DO UPDATE[\s\S]*WHERE/, "keepBest no longer compares inside the write");
+  const writers = ALL.filter(
+    (f) =>
+      f !== "lib/progress/personalBest.ts" &&
+      /writeSetting\([^)]*SETTING_KEYS\.(?:sprintBest|matchBest)|ownerId_key:\s*\{[^}]*SETTING_KEYS\.(?:sprintBest|matchBest)/.test(code(f)),
+  );
+  assert.deepEqual(writers, [], `${writers.join(", ")} writes a personal best outside keepBest`);
+});
+
+check("a game graded on the server writes one review however often its round is reported", () => {
+  /*
+    Sõnad and the crossword report a finished round once, and again the next
+    time the board opens if the response was lost, and again from a second
+    device. Each report was a fresh row in the append-only log and a second
+    scheduling of the card. The id is derived from the game, the day and the
+    card (`stableReviewId`), so the second write collides on the key before
+    `writeGrade` touches the card; `gradeOnce` is what reads that as done.
+  */
+  const actions = code("app/actions.ts");
+  for (const [name, game] of [["recordSonad", "sonad"], ["recordCrossword", "crossword"]] as const) {
+    const body = between(actions, `export async function ${name}(`);
+    assert.match(body, new RegExp(`gradeOnce\\([^;]*stableReviewId\\("${game}"`),
+      `${name} grades without an id derived from the round, so a resent round is a second review`);
+    assert.doesNotMatch(body, /\bgradeCard\(|\bgradeFor\(/, `${name} grades through a door that takes no derived id`);
+  }
+  const once = between(actions, "async function gradeOnce(");
+  assert.match(once, /isRepeatedReview\(/, "gradeOnce no longer reads a repeat as done");
+  const card = between(actions, "export async function gradeCard(");
+  assert.match(card, /return gradeFor\([^;]*\breviewId\b/,
+    "gradeCard drops the id the device chose, so a replayed grade is a second review");
 });
 
 check("a word-ordering tile does not say which tile goes first", () => {
@@ -26064,8 +26301,8 @@ check("a round that asks one case says which when it grades", () => {
     fault the flash round's own practisedSlot was added for.
   */
   const rounds: Record<string, RegExp> = {
-    "app/(app)/review/write/WriteSession.tsx": /gradeCard\([^;]{0,200}?prompt\.caseKey/,
-    "app/(app)/review/target/TargetSession.tsx": /gradeCard\([^;]{0,200}?question\.caseKey/,
+    "app/(app)/review/write/WriteSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?prompt\.caseKey/,
+    "app/(app)/review/target/TargetSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?question\.caseKey/,
   };
   for (const [file, pattern] of Object.entries(rounds)) {
     assert.match(code(file).replace(/\s+/g, " "), pattern, `${file} grades without saying which case it asked`);

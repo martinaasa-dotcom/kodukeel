@@ -63,7 +63,7 @@ export function WeakestCases({ cases, empty }: {
             <Link
               href={`/review?case=${c.grammCase}`}
               aria-label={`Drill the ${name}${asks ? `, which asks ${asks}` : ""}, currently ${c.accuracy} percent over ${c.total} reviews`}
-              className="pill tap-tint flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1 rounded-[var(--r)] px-2 py-1.5 text-sm"
+              className="pill tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-1.5 text-sm"
             >
               {/*
                 A width to line the names up at, not a width to hold at any
@@ -72,16 +72,8 @@ export function WeakestCases({ cases, empty }: {
                 this card has inside it at 768, where the rail is drawn and
                 the column is at its narrowest: the row ran 37px past the
                 card's right border, and the page drawn after it was on top
-                of the help link.
-
-                So the row wraps, and what gives way is the meter. Letting the
-                name shrink instead was the first answer and was wrong: with
-                `overflow-wrap: anywhere` a shrinking box has no floor, and on
-                Progress at 768, where this panel is one of two columns, the
-                name was 13px wide and `seesütlev` was drawn a letter or two a
-                line. A name is the thing being read and a meter is a picture
-                of the figure beside it, so the meter drops to a line of its
-                own before the name loses a pixel.
+                of the help link. The case names are one word, so a name that
+                has to give up a few pixels still reads.
               */}
               {/*
                 AND THE QUESTION IT ANSWERS, WHICH A READER COULD NOT SEE.
@@ -103,7 +95,7 @@ export function WeakestCases({ cases, empty }: {
                 column: the comment below records that this row had 37px to
                 give back at 768 and it does not have them now either.
               */}
-              <span className="flex w-24 shrink-0 flex-col leading-tight">
+              <span className="flex w-24 shrink flex-col leading-tight">
                 <span lang="et" style={{ color: "var(--ink-2)" }}>{name}</span>
                 {spec && (
                   <span lang="et" className="text-2xs" style={{ color: "var(--ink-3)" }}>
@@ -111,7 +103,7 @@ export function WeakestCases({ cases, empty }: {
                   </span>
                 )}
               </span>
-              <span className="min-w-[4rem] flex-1">
+              <span className="min-w-0 flex-1">
                 <Meter
                   pct={c.accuracy}
                   label={`${name}${asks ? `, ${asks}` : ""}: ${c.accuracy}%`}

@@ -612,17 +612,13 @@ export default async function SettingsPage() {
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
                     A whole session can be done without touching the mouse.
                   </p>
-                  {/* Keyed on the room the list has rather than the window, and
-                      the key column held to one width: at 768 Settings is two
-                      columns of panels, and `sm:grid-cols-2` there squeezed
-                      each key cap to 8px, so "Enter" was drawn a letter a line. */}
-                  <dl className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-x-6 gap-y-1.5">
+                  <dl className="mt-3 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
                     {SHORTCUTS.map(([keys, what]) => (
-                      <div key={keys} className="flex items-baseline gap-3">
-                        <dt className="w-28 shrink-0">
+                      <div key={keys} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                        <dt>
                           <KeyCap>{keys}</KeyCap>
                         </dt>
-                        <dd className="min-w-0 flex-1 text-xs" style={{ color: "var(--ink-3)" }}>{what}</dd>
+                        <dd className="text-xs" style={{ color: "var(--ink-3)" }}>{what}</dd>
                       </div>
                     ))}
                   </dl>

@@ -915,26 +915,6 @@
   .field:focus, .field-lg:focus { box-shadow: var(--shadow); }
 
   /*
-    A SET OF CHOICE CARDS TAKES AS MANY COLUMNS AS ITS OWN WIDTH HOLDS.
-
-    Eleven groups on Settings were `grid sm:grid-cols-2` or `sm:grid-cols-3`,
-    which asks the window how wide it is. At 768 the window says 768 and the
-    rail, the gutter kept for Anu's button and the page padding leave 368px
-    of it, which Settings then splits into two columns of panels, so a group
-    of three cards was drawn in about 170px: 19px for "Always" and 43px for
-    "English". `overflow-wrap: anywhere` broke every title into letters
-    rather than let it overflow, which is why the containment sweep read the
-    page as clean. The count comes from the room the group actually has:
-    12rem is a card's icon, a two-word title and its tick, and `min(100%,
-    ...)` keeps a single column inside anything narrower than that.
-  */
-  .choice-grid {
-    display: grid;
-    gap: 0.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
-  }
-
-  /*
     THE DAILY QUEST'S THREE MOVEMENTS.
 
     The one round asked to "feel like a game", and the whole of what that means

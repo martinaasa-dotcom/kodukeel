@@ -213,50 +213,54 @@ function ActRail({ act, furthest, onGo }: {
   furthest: number;
   onGo: (n: number) => void;
 }) {
+  // Three across by the walk's own width rather than the window's: at 768 the
+  // window said three and each button held 85px, which broke `raamatut`.
   return (
-    <ChoiceGroup ariaLabel="Which part to read" select="one" className="grid gap-2 sm:grid-cols-3">
-      {ACTS.map((a, n) => {
-        const on = n === act;
-        // Been past rather than merely visited: the part you are standing in
-        // is not one you have finished with.
-        const done = n < furthest;
-        return (
-          <button
-            key={a.title}
-            type="button"
-            role="radio"
-            aria-checked={on}
-            onClick={() => onGo(n)}
-            data-on={on ? "" : undefined}
-            data-state={on ? "here" : done ? "done" : "ahead"}
-            className="choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left"
-          >
-            <span className="flex items-center gap-2">
-              <span
-                className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                /*
-                  `--accent-deep` rather than `--accent`, which is the material
-                  `.choice-chip[data-on]` is painted in one file over: the ink
-                  on a solid accent is measured against the deep one, and a
-                  hue's own `-ink` on its plain fill is the pairing
-                  `scripts/test-invariants.ts` refuses outright.
-                */
-                style={on
-                  ? { background: "var(--accent-deep)", color: "var(--accent-ink)" }
-                  : done
-                    ? { background: "var(--accent-soft)", color: "var(--accent-deep)" }
-                    : { background: "var(--raised)", color: "var(--ink-3)" }}
-                aria-hidden
-              >
-                {done ? <Check size={13} strokeWidth={3} /> : n + 1}
+    <div className="@container">
+      <ChoiceGroup ariaLabel="Which part to read" select="one" className="grid gap-2 @lg:grid-cols-3">
+        {ACTS.map((a, n) => {
+          const on = n === act;
+          // Been past rather than merely visited: the part you are standing in
+          // is not one you have finished with.
+          const done = n < furthest;
+          return (
+            <button
+              key={a.title}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => onGo(n)}
+              data-on={on ? "" : undefined}
+              data-state={on ? "here" : done ? "done" : "ahead"}
+              className="choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left"
+            >
+              <span className="flex items-center gap-2">
+                <span
+                  className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                  /*
+                    `--accent-deep` rather than `--accent`, which is the material
+                    `.choice-chip[data-on]` is painted in one file over: the ink
+                    on a solid accent is measured against the deep one, and a
+                    hue's own `-ink` on its plain fill is the pairing
+                    `scripts/test-invariants.ts` refuses outright.
+                  */
+                  style={on
+                    ? { background: "var(--accent-deep)", color: "var(--accent-ink)" }
+                    : done
+                      ? { background: "var(--accent-soft)", color: "var(--accent-deep)" }
+                      : { background: "var(--raised)", color: "var(--ink-3)" }}
+                  aria-hidden
+                >
+                  {done ? <Check size={13} strokeWidth={3} /> : n + 1}
+                </span>
+                <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{a.title}</span>
               </span>
-              <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{a.title}</span>
-            </span>
-            <span className="text-xs leading-snug" style={{ color: "var(--ink-3)" }}>{a.hint}</span>
-          </button>
-        );
-      })}
-    </ChoiceGroup>
+              <span className="text-xs leading-snug" style={{ color: "var(--ink-3)" }}>{a.hint}</span>
+            </button>
+          );
+        })}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -296,40 +300,42 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
         unrelated switches and cost three tab stops. It is the argument
         `components/Choice.tsx` makes at the top of its own file.
       */}
-      <ChoiceGroup ariaLabel="Which of the three to explain" select="one" className="choice-grid">
-        {word.principal.map((form, n) => {
-          const ref = caseReference(form.key);
-          const isStem = form.value === word.genitive;
-          return (
-            <button
-              key={form.key}
-              type="button"
-              role="radio"
-              aria-checked={n === at}
-              onClick={() => setAt(n)}
-              data-on={n === at ? "" : undefined}
-              className={`choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left ${isStem ? "stem-row" : ""}`}
-            >
-              <span className="flex w-full items-baseline justify-between gap-2">
-                <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                  <span lang="et">{ref?.spec.et}</span>
-                  {" · "}
-                  <CaseQuestion question={form.question} inline />
+      <div className="@container">
+        <ChoiceGroup ariaLabel="Which of the three to explain" select="one" className="grid gap-2 @lg:grid-cols-3">
+          {word.principal.map((form, n) => {
+            const ref = caseReference(form.key);
+            const isStem = form.value === word.genitive;
+            return (
+              <button
+                key={form.key}
+                type="button"
+                role="radio"
+                aria-checked={n === at}
+                onClick={() => setAt(n)}
+                data-on={n === at ? "" : undefined}
+                className={`choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left ${isStem ? "stem-row" : ""}`}
+              >
+                <span className="flex w-full items-baseline justify-between gap-2">
+                  <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+                    <span lang="et">{ref?.spec.et}</span>
+                    {" · "}
+                    <CaseQuestion question={form.question} inline />
+                  </span>
+                  {n === at && <Check size={14} aria-hidden style={{ color: "var(--accent-deep)" }} />}
                 </span>
-                {n === at && <Check size={14} aria-hidden style={{ color: "var(--accent-deep)" }} />}
-              </span>
-              <span lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-                {form.value}
-              </span>
-              {isStem && (
-                <span className="text-2xs font-semibold" style={{ color: "var(--accent-deep)" }}>
-                  the one the endings go on
+                <span lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>
+                  {form.value}
                 </span>
-              )}
-            </button>
-          );
-        })}
-      </ChoiceGroup>
+                {isStem && (
+                  <span className="text-2xs font-semibold" style={{ color: "var(--accent-deep)" }}>
+                    the one the endings go on
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </ChoiceGroup>
+      </div>
 
       {shown && (
         <FormPanel
@@ -906,7 +912,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         <ChoiceGroup
           ariaLabel="Which ending"
           select="one"
-          className="choice-grid mt-4"
+          className="mt-4 grid gap-2 sm:grid-cols-2"
         >
           {options.map((option, i) => {
             const isAnswer = option.suffix === form.suffix;
