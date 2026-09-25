@@ -3,7 +3,8 @@ import type { Evidence, Readiness } from "@/lib/exam/readiness";
 import { CLOSE_PCT, LIKELY_PCT } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
 import {
-  MIN_EVIDENCE_TO_BAND, bandFor, cohortKind, summariseCohort, withoutMember, type CohortInput,
+  MIN_CASE_CONTRIBUTORS, MIN_EVIDENCE_TO_BAND, bandFor, classWideCases, cohortKind, summariseCohort,
+  withoutMember, type CohortInput,
 } from "./cohort";
 
 /** A readiness object carrying one confidence at one level, which is all this reads. */
@@ -214,5 +215,34 @@ describe("the group with its owner taken out", () => {
     const none = withoutMember(one, "hr");
     expect(none.members).toEqual([]);
     expect(none.evidence).toBe("thin");
+  });
+});
+
+describe("classWideCases", () => {
+  const answers = (ownerId: string, targetCase: string, n: number, rating: number) =>
+    Array.from({ length: n }, () => ({ ownerId, targetCase, rating }));
+
+  it("names no case that rests on one student", () => {
+    // A teacher and one student: the student's own weakest case, twelve answers at a third right.
+    const reviews = [...answers("kadri", "PARTITIVE", 12, 1), ...answers("teacher", "PARTITIVE", 4, 3)];
+    expect(classWideCases(reviews, "teacher")).toEqual([]);
+  });
+
+  it("names a case enough students answered, with the reader left out", () => {
+    const reviews = [
+      ...answers("a", "PARTITIVE", 5, 1), ...answers("b", "PARTITIVE", 5, 3),
+      ...answers("c", "PARTITIVE", 5, 1), ...answers("teacher", "PARTITIVE", 50, 3),
+    ];
+    const [worst] = classWideCases(reviews, "teacher");
+    expect(worst?.grammCase).toBe("PARTITIVE");
+    expect(worst?.total).toBe(15);
+  });
+
+  it("does not let the reader count as the third student", () => {
+    const reviews = [
+      ...answers("a", "ELATIVE", 6, 1), ...answers("b", "ELATIVE", 6, 1), ...answers("teacher", "ELATIVE", 6, 1),
+    ];
+    expect(classWideCases(reviews, "teacher")).toEqual([]);
+    expect(classWideCases(reviews, null, MIN_CASE_CONTRIBUTORS).map((c) => c.grammCase)).toEqual(["ELATIVE"]);
   });
 });
