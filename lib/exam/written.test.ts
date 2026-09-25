@@ -29,6 +29,22 @@ function word(lemma: string): RequiredWord {
 }
 
 describe("counting the words of a written answer", () => {
+  /*
+    AND A VERB ENRICHED FROM EKILEX COUNTS, which it did not while this module
+    read `PRES_1SG` off the parts itself. The seed writes the first person
+    under that name and a live lookup writes it under the morph code, so a
+    word the dictionary had only ever been asked about derived no person at
+    all and a candidate who used one was marked as not having used the word.
+  */
+  it("credits a person derived from a first person Ekilex supplied", () => {
+    const word = {
+      lemma: "helistama",
+      pos: "VERB",
+      forms: [{ formType: "EKILEX:IndPrSg1", value: "helistan" }],
+    };
+    expect(usesRequiredWord(word, "Ma helistab sulle homme.")).toBe(true);
+  });
+
   it("ignores the whitespace people actually type", () => {
     expect(wordsOf("  ma   olen\n\nsiin  ")).toEqual(["ma", "olen", "siin"]);
   });
@@ -47,6 +63,18 @@ describe("whether a required word was used", () => {
     expect(usesRequiredWord(word("raamat"), "Ma lugesin raamatust ühe loo.")).toBe(true);
     expect(usesRequiredWord(word("jõgi"), "Me käisime jõel.")).toBe(true);
     expect(usesRequiredWord(word("aeg"), "Mul ei ole aega.")).toBe(true);
+  });
+
+  it("counts a word in a plural case, which is built on the stored genitive plural", () => {
+    /*
+      The plural obliques are a suffix on the genitive plural, so no entry
+      stores them and only the case table reaches them. Reading the accepted
+      spellings off `gapForms` alone, which walks the singular, dropped every
+      one of them, and a candidate who wrote `raamatutes` was marked as not
+      having used `raamat` on a mock state examination.
+    */
+    expect(usesRequiredWord(word("raamat"), "Seda on kirjutatud paljudes raamatutes.")).toBe(true);
+    expect(usesRequiredWord(word("maja"), "Nad elavad suurtes majades.")).toBe(true);
   });
 
   it("counts a case the dictionary stores rather than derives", () => {

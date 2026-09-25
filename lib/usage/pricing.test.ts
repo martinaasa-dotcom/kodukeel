@@ -5,6 +5,7 @@ import {
   CACHE_WRITE_RATE,
   estimateCostMicros,
   priceFor,
+  cacheStorageAsInputTokens,
 } from "./pricing";
 
 /**
@@ -130,5 +131,101 @@ describe("the price of a cached input token", () => {
 
     expect(normaliseModel("claude-sonnet-4-6")).toBe("claude-sonnet-4-6");
     expect(normaliseModel("anthropic/claude-sonnet-5")).toBe("claude-sonnet-5");
+  });
+});
+
+/**
+ * A PRICE WITH AN END DATE ON IT, DRIVEN ACROSS THE DATE.
+ *
+ * Google's page dates the promotional Flash rate: $0.75 and $3.75 through
+ * 31 December 2026, then $1.50 and $7.50. That was written in a comment in the
+ * table and read by nothing, so on 1 January 2027 six figures would have
+ * understated by two with the bill as the only reader. Every other way of
+ * being wrong about a price in that file fails expensive; this one was set to
+ * fail cheap, on a day already known.
+ *
+ * So the date is data and `priceFor` takes a clock. The clock is a parameter
+ * for exactly this: a rule that only fires on a future morning is a rule
+ * nobody can test against the machine's own `new Date()`, which is the state
+ * this check was written from.
+ */
+describe("a rate the vendor has already dated", () => {
+  const BEFORE = new Date("2026-12-31T23:59:59Z");
+  const AFTER = new Date("2027-01-01T00:00:00Z");
+  const DATED = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash"] as const;
+
+  it("charges the promotional rate before the date and the real one from it", () => {
+    for (const model of DATED) {
+      const before = priceFor(model, BEFORE);
+      const after = priceFor(model, AFTER);
+
+      expect(before).toEqual({
+        inputPerMTok: 0.75,
+        outputPerMTok: 3.75,
+        cacheStoragePerMTokHour: 0.5,
+      });
+      expect(after).toEqual({
+        inputPerMTok: 1.5,
+        outputPerMTok: 7.5,
+        cacheStoragePerMTokHour: 1,
+      });
+    }
+  });
+
+  /*
+    The direction is the whole point. A promotion that resolved the other way
+    round, or not at all, would leave the cap sized against half the real rate
+    on the highest-volume path in the app, which is what the zeros this table
+    keeps finding did one order of magnitude worse.
+  */
+  it("never gets cheaper by the date passing", () => {
+    for (const model of DATED) {
+      expect(priceFor(model, AFTER).inputPerMTok).toBeGreaterThan(
+        priceFor(model, BEFORE).inputPerMTok,
+      );
+      expect(priceFor(model, AFTER).outputPerMTok).toBeGreaterThan(
+        priceFor(model, BEFORE).outputPerMTok,
+      );
+    }
+  });
+
+  /*
+    A caller reading a rate off the row itself would read the expired one for
+    ever, which is the fault the `promotion` field could have introduced while
+    fixing the comment. `priceFor` resolves it away, so there is no expired
+    number left on the object for anybody to reach.
+  */
+  it("hands back a rate and never the promotion it resolved", () => {
+    for (const model of DATED) {
+      expect(priceFor(model, BEFORE)).not.toHaveProperty("promotion");
+      expect(priceFor(model, AFTER)).not.toHaveProperty("promotion");
+    }
+  });
+
+  /*
+    And the storage of a held cache entry is unchanged by the flip, which is why
+    writing the storage figure onto all three rows was safe. Both halves double,
+    `cacheStorageAsInputTokens` divides one by the other, so the entry books the
+    same number of base-rate tokens and the arithmetic in the comment above it
+    stays true after 2027.
+  */
+  it("books a held cache entry at the same token equivalent after the flip", () => {
+    for (const model of DATED) {
+      const before = cacheStorageAsInputTokens(model, 1_592, 600, BEFORE);
+      const after = cacheStorageAsInputTokens(model, 1_592, 600, AFTER);
+      expect(before).toBeGreaterThan(0);
+      expect(after).toBe(before);
+    }
+  });
+
+  /*
+    A row with no end date is not quietly given one. The Lite tier and the
+    Anthropic rows are not promotional, and a flip that reached them would be
+    this table inventing a price rise.
+  */
+  it("leaves an undated row exactly where it is", () => {
+    for (const model of ["gemini-3.1-flash-lite", "gemini-3.5-flash", "claude-sonnet-5"]) {
+      expect(priceFor(model, AFTER)).toEqual(priceFor(model, BEFORE));
+    }
   });
 });
