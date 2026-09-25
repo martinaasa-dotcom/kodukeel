@@ -1,3 +1,4 @@
+import { singleFlight } from "@/lib/cache/singleFlight";
 import { prisma } from "@/lib/db";
 
 /**
@@ -71,8 +72,30 @@ async function databaseAnswers(): Promise<boolean> {
   }
 }
 
+/*
+  THE ONE ANONYMOUS ROUTE THAT TOUCHES THE DATABASE, SO ITS COST IS BOUNDED.
+
+  Every other route that reaches Postgres is behind a session or a limiter,
+  and this one is deliberately behind neither: a monitor has no session and
+  must never be refused. So it was a query per request for anybody, and a
+  flood of it was a flood of pooler connections taken from the learners. The
+  answer is remembered for a few seconds and concurrent checks share one
+  query, so however hard it is called an instance asks the database at most
+  once per window. A monitor polling once a minute sees no difference, and an
+  outage is reported at most `FRESH_MS` late.
+*/
+const FRESH_MS = 5_000;
+let lastAnswer: { ok: boolean; at: number } | null = null;
+
+async function databaseAnswersRecently(): Promise<boolean> {
+  if (lastAnswer && Date.now() - lastAnswer.at < FRESH_MS) return lastAnswer.ok;
+  const ok = await singleFlight("health:database", databaseAnswers);
+  lastAnswer = { ok, at: Date.now() };
+  return ok;
+}
+
 export async function GET() {
-  const database = (await databaseAnswers()) ? "ok" : "unreachable";
+  const database = (await databaseAnswersRecently()) ? "ok" : "unreachable";
   const ok = database === "ok";
 
   return new Response(

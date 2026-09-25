@@ -5,6 +5,7 @@ import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { kindFrom, weekOf, type StudyEvent } from "@/lib/ux/schedule";
 import { Page, Stack } from "@/components/ui";
 import { CalendarWeek } from "./CalendarWeek";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Calendar" };
 
@@ -38,10 +39,10 @@ export const dynamic = "force-dynamic";
 export default async function CalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ w?: string }>;
+  searchParams: Promise<{ w?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const { w } = await searchParams;
+  const { w } = firstParams(await searchParams);
 
   // Whole weeks only, and bounded: the query strings that reach a page are
   // whatever somebody types, and a calendar four thousand weeks out is a page

@@ -145,6 +145,39 @@ describe("authoriseCall", () => {
     expect(snapshot.burstCalls).toBe(1);
   });
 
+  it("files a release and a settlement on the day the call was booked", async () => {
+    /*
+      A call booked a moment before midnight UTC and handed back a moment after
+      it. The release used to be filed under the day it was written, so the day
+      the call was booked kept its CALL row and its reserve for ever, and the
+      next day carried a RELEASE and a negative spend it never booked: one free
+      call and a slice of budget nobody had given back. The same shape moved
+      every settlement that landed after midnight.
+    */
+    const before = new Date("2026-03-01T23:59:59.500Z");
+    const after = new Date("2026-03-02T00:00:00.500Z");
+
+    const released = await authoriseCall(MINE, "TUTOR", before);
+    await releaseReservation(released.reservation!, after);
+
+    const settled = await authoriseCall(MINE, "GRADER", before);
+    await recordUsage({
+      ownerId: MINE, kind: "GRADER", provider: "groq", model: "gpt-4o-mini",
+      inputTokens: 400, outputTokens: 60, reservation: settled.reservation, now: after,
+    });
+
+    const { estimateCostMicros } = await import("./pricing");
+    const booked = await snapshotUsage(MINE, "TUTOR", before);
+    expect(booked.dailyCalls).toBe(0);
+    expect(booked.dailyMicros).toBe(estimateCostMicros("gpt-4o-mini", 400, 60));
+
+    // And the next day starts from nothing: a first call on it is a first call.
+    const next = await authoriseCall(MINE, "TUTOR", new Date("2026-03-02T00:00:01.000Z"));
+    const day2 = await snapshotUsage(MINE, "TUTOR", new Date("2026-03-02T00:00:02.000Z"));
+    expect(day2.dailyCalls).toBe(1);
+    expect(day2.dailyMicros).toBe(next.reservation!.micros);
+  });
+
   it("charges nothing at all for a refusal", async () => {
     // A call that was never authorized is not a call. Whatever number the
     // allowance is, the ledger must not grow on the way to saying no.
