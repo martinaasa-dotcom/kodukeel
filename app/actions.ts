@@ -2864,6 +2864,15 @@ export async function deleteMyAccount(confirmation: string) {
       await tx.deckWord.deleteMany({ where: { ownerId } });
       await tx.deck.deleteMany({ where: { ownerId } });
       await tx.achievement.deleteMany({ where: { ownerId } });
+      /*
+        Letters before settings, and the order is load-bearing. The unsubscribe
+        link and the bounce webhook write a setting with no session behind them,
+        and `writeSettingsWhileMailed` holds this person's `EmailSend` row while
+        it does. Deleting that row first makes such a write either wait for this
+        transaction and then find nobody, or finish first and be swept by the
+        next line, so no setting outlives the account.
+      */
+      await tx.emailSend.deleteMany({ where: { ownerId } });
       await tx.setting.deleteMany({ where: { ownerId } });
       forgetSettings(ownerId);
       await tx.usageEvent.deleteMany({ where: { ownerId } });
@@ -2919,12 +2928,10 @@ export async function deleteMyAccount(confirmation: string) {
       await tx.deferral.deleteMany({ where: { ownerId } });
       await tx.courseStep.deleteMany({ where: { ownerId } });
       /*
-        And every record that this deployment wrote to them. It is the row that
-        decides whether they are written to again, so leaving it would be an
-        account that is gone everywhere except in the one table that could put
-        a letter in front of somebody who asked to be forgotten.
+        Every record that this deployment wrote to them went above, before the
+        settings: it is the row that decides whether they are written to again,
+        and the row the mail routes check before they write a setting.
       */
-      await tx.emailSend.deleteMany({ where: { ownerId } });
       await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
       /*
         And the attribution on anything they reviewed, for the same reason the

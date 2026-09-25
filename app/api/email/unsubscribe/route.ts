@@ -4,6 +4,7 @@ import { kindsInScope, mailSecret, readUnsubscribe } from "@/lib/email/unsubscri
 import { esc } from "@/lib/email/html";
 import { PALETTE as P } from "@/lib/email/palette";
 import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { writeSettingsWhileMailed } from "@/lib/mailer/mailedSetting";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
@@ -175,18 +176,18 @@ export async function POST(request: Request) {
       request for a signed-in learner. There is no session here and the owner
       is whoever the token names, so the helper's cache would be keyed on the
       wrong person.
+
+      AND ONLY FOR SOMEBODY STILL HERE. A letter outlives the account it was
+      sent to, so this link is pressed after "delete everything" as readily as
+      before it, and an upsert would recreate rows keyed on a person every
+      table had just been emptied of. `writeSettingsWhileMailed` writes nothing
+      where this deployment holds no letter to them, and the page below says
+      the same thing either way, because a route that answered differently for
+      somebody who has left would be a way to find out who has.
     */
-    await prisma.$transaction([
-      prisma.setting.upsert({
-        where: { ownerId_key: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff } },
-        create: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff, value },
-        update: { value },
-      }),
-      prisma.setting.upsert({
-        where: { ownerId_key: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOn } },
-        create: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOn, value: optIn },
-        update: { value: optIn },
-      }),
+    await writeSettingsWhileMailed(read.ownerId, [
+      { key: SETTING_KEYS.emailsOff, value },
+      { key: SETTING_KEYS.emailsOn, value: optIn },
     ]);
     /*
       And the store is told, because a request holds one memoised read of a

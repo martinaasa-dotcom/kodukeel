@@ -5,6 +5,7 @@ import { addressDigest, BLOCKED_ANY, readDelivery, verifyDelivery, webhookSecret
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
 import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { writeSettingsWhileMailed } from "@/lib/mailer/mailedSetting";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 
 export const dynamic = "force-dynamic";
@@ -129,11 +130,9 @@ export async function POST(request: Request) {
         select: { value: true },
       });
       const value = emailPrefsTo(switchOff(emailPrefsFrom(existing?.value), OPTIONAL_KINDS));
-      await prisma.setting.upsert({
-        where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff } },
-        create: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff, value },
-        update: { value },
-      });
+      // Through the same guard as the link: the send was found a moment ago,
+      // and an account erased in between must not be written back.
+      await writeSettingsWhileMailed(sent.ownerId, [{ key: SETTING_KEYS.emailsOff, value }]);
       forgetSettings(sent.ownerId);
       return ok();
     }
@@ -156,11 +155,7 @@ export async function POST(request: Request) {
       that. `lib/email/webhook.ts` argues it at length.
     */
     const value = event.address ? addressDigest(event.address) : BLOCKED_ANY;
-    await prisma.setting.upsert({
-      where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailUndeliverable } },
-      create: { ownerId: sent.ownerId, key: SETTING_KEYS.emailUndeliverable, value },
-      update: { value },
-    });
+    await writeSettingsWhileMailed(sent.ownerId, [{ key: SETTING_KEYS.emailUndeliverable, value }]);
     forgetSettings(sent.ownerId);
   } catch (error) {
     /*
