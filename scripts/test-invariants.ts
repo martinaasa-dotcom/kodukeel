@@ -192,6 +192,69 @@ function between(source: string, from: string): string {
   const end = rest.indexOf("\nexport ");
   return end < 0 ? rest : rest.slice(0, end);
 }
+/**
+ * What a module imports at runtime, and what those import, and so on.
+ *
+ * Several rules here are about what a module *reaches* rather than what it
+ * names, and reading one file's own import lines is the shape that let
+ * `lib/estonian/passage.ts` pull Prisma in through `lib/dict/search.ts`. A
+ * type-only import is erased before anything runs, so `import type` and
+ * `export type` are not followed; everything else is, including a bare
+ * side-effect import and a dynamic `import()`.
+ */
+const SPECIFIERS = new Map<string, string[]>();
+function runtimeSpecifiers(file: string): string[] {
+  const cached = SPECIFIERS.get(file);
+  if (cached) return cached;
+  const src = code(file);
+  const out: string[] = [];
+  for (const m of src.matchAll(/(?:^|[;\n}])\s*(?:import|export)\s+(?!type\b)[^;"'`]*?\bfrom\s*["']([^"']+)["']/g)) {
+    out.push(m[1]!);
+  }
+  for (const m of src.matchAll(/(?:^|[;\n])\s*import\s*["']([^"']+)["']/g)) out.push(m[1]!);
+  for (const m of src.matchAll(/\bimport\(\s*["']([^"']+)["']\s*\)/g)) out.push(m[1]!);
+  SPECIFIERS.set(file, out);
+  return out;
+}
+
+function resolveLocal(from: string, spec: string): string | null {
+  let base: string;
+  if (spec.startsWith("@/")) base = spec.slice(2);
+  else if (spec.startsWith(".")) base = join(dirname(from), spec);
+  else return null;
+  for (const candidate of [base, `${base}.ts`, `${base}.tsx`, join(base, "index.ts"), join(base, "index.tsx")]) {
+    if (existsSync(candidate) && statSync(candidate).isFile() && /\.tsx?$/.test(candidate)) return candidate;
+  }
+  return null;
+}
+
+const IMPURE_SPECIFIER = /^(@\/lib\/db|@prisma\/client|react|react\/.*|next\/.*|server-only)$/;
+const DATABASE_SPECIFIER = /^(@\/lib\/db|@prisma\/client)$/;
+
+/** The first import chain from `start` to a specifier `banned` matches, if any. */
+function impureChain(start: string, banned: RegExp): { chain: string | null; walked: number } {
+  const seen = new Map<string, string | null>([[start, null]]);
+  const queue = [start];
+  let walked = 0;
+  while (queue.length > 0) {
+    const file = queue.shift()!;
+    walked += 1;
+    for (const spec of runtimeSpecifiers(file)) {
+      const local = resolveLocal(file, spec);
+      if (banned.test(spec) || local === join("lib", "db.ts")) {
+        const chain = [spec, file];
+        for (let at = seen.get(file); at; at = seen.get(at)) chain.push(at);
+        return { chain: chain.reverse().join(" -> "), walked };
+      }
+      if (local && !seen.has(local)) {
+        seen.set(local, file);
+        queue.push(local);
+      }
+    }
+  }
+  return { chain: null, walked };
+}
+
 const SCHEMA = read("prisma/schema.prisma");
 const CSS = read("app/globals.css");
 
@@ -3925,6 +3988,9 @@ check("a word off a news feed reaches the screen only as a word the dictionary h
       false,
       `${file} reaches the database, so the feed could write to it`,
     );
+    // And not one import away, which is the half the line above cannot see.
+    const reached = impureChain(file, DATABASE_SPECIFIER).chain;
+    assert.equal(reached, null, `${file} reaches the database through ${reached}, so the feed could write to it`);
     assert.equal(
       /"use client"/.test(source),
       false,
@@ -9576,6 +9642,50 @@ check("the layers that promise to be pure import no database, React or Next", ()
     }
   }
   assert.ok(looked > 40, `only read ${looked} files in the pure layers, so this check stopped looking`);
+});
+
+/**
+ * AND A LAYER IS AS PURE AS WHAT IT REACHES, NOT AS WHAT IT NAMES.
+ *
+ * Both checks above read each file's own import lines, and CLAUDE.md already
+ * records the fault that shape cannot see: `lib/estonian/passage.ts` took
+ * `fold` from `lib/dict/search.ts`, which imports Prisma, so a layer asserted
+ * free of the database pulled it in one import away while every line of its
+ * own was clean. Nothing stopped a second one. An `import { matchEstonianForm }
+ * from "@/lib/dict/search"` added to any file under `lib/stats/` passed both
+ * checks, and put a database behind four hundred unit tests exactly as the
+ * direct import would have.
+ *
+ * So this walks the runtime import graph from every file in a pure layer and
+ * fails on the first module it reaches that imports the database, Prisma,
+ * React, Next or `server-only`, naming the chain. A type-only import is erased
+ * before anything runs, so it is not followed: `import type` and
+ * `export type` are the two spellings of that and the only ones skipped.
+ */
+check("a pure layer reaches no database, React or Next, however many imports away", () => {
+  const pure = [
+    "assessment", "estonian", "exam", "games", "stats", "collections", "time",
+    "offline", "security", "scan", "questions", "ux", "random", "copy", "funding", "research",
+    "learn", "scenes", "readiness",
+  ];
+  const offenders: string[] = [];
+  let walked = 0;
+  for (const name of pure) {
+    for (const start of sourceFiles(join("lib", name))) {
+      if (/\.(test|itest)\.tsx?$/.test(start)) continue;
+      const found = impureChain(start, IMPURE_SPECIFIER);
+      walked += found.walked;
+      if (found.chain) offenders.push(found.chain);
+    }
+  }
+  assert.ok(walked > 200, `only walked ${walked} modules from the pure layers, so this check stopped looking`);
+  assert.deepEqual(
+    [...new Set(offenders)],
+    [],
+    "a pure layer reaches the database, React or Next through another module. Its unit tests are "
+      + "hermetic only while nothing under it does; move what needs the database into lib/progress/ "
+      + "or a route, or take the pure half out of the module that imports it",
+  );
 });
 
 /**
@@ -21350,7 +21460,13 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
     const source = code(file);
     assert.doesNotMatch(
       source,
-      /<img\b|background-image|\btracking(Pixel|_pixel)\b/i,
+      /*
+        Every way a letter can make a mail client fetch something, not only the
+        tag. `background: url(...)` is the shorthand and loads an image exactly
+        as `background-image` does, and `<picture>`, `<image>` and `srcset` are
+        three more doors onto the same request; the check read the one spelling.
+      */
+      /<img\b|<picture\b|<image\b|\bsrcset\b|background(?:-image)?\s*:[^;"']*\burl\s*\(|\btracking(Pixel|_pixel)\b/i,
       `${file} puts an image in a letter. Nothing is fetched from a Kodukeel email: a pixel would ` +
         "be the tracker /privacy says this app does not have, and a picture would be the hole " +
         "where a picture was for everybody who reads mail with images off.",
@@ -21364,6 +21480,13 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
   */
   const model = read("prisma/schema.prisma").slice(read("prisma/schema.prisma").indexOf("model EmailSend"));
   const fields = model.slice(0, model.indexOf("\n}"));
+  /*
+    Read as a family rather than as two spellings: `firstOpenedAt`, `openCount`
+    and `lastClickAt` are the same column, and matching the exact name let every
+    one of them through.
+  */
+  const tracked = [...fields.matchAll(/^\s+(\w+)\s/gm)].map((m) => m[1]!).filter((f) => /open|click|read(?:At|Count)/i.test(f));
+  assert.deepEqual(tracked, [], `EmailSend has grown ${tracked.join(", ")}, which records what somebody did with a letter`);
   for (const banned of ["subject", "body", "html", "openedAt", "clickedAt"]) {
     assert.ok(
       !new RegExp(`^\\s+${banned}\\b`, "m").test(fields),
