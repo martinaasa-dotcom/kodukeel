@@ -4,16 +4,21 @@ This is the most important document in the repository. Every other feature is a 
 described here. If the domain model is right, the app teaches Estonian; if it is wrong, the app is a
 tab bar with a chat window in it.
 
-**Design principle.** The app never *generates* Estonian morphology with hand-written rules. It
-*retrieves* authoritative forms from Ekilex and *explains* the pattern. Estonian morphophonology is
-too irregular for a rules engine to be trustworthy, and a confidently wrong form is worse than no
-form. Rules are used only to *explain* retrieved data, never to invent it.
+**Design principle.** No model ever supplies an Estonian form. The app *retrieves* the forms that
+cannot be predicted from Ekilex, stores them as principal parts, and builds only what is genuinely a
+fixed ending on one of them: the ten regular cases on the genitive stem, the plural obliques on the
+genitive plural, and the present, negative, conditional and imperative on the stored first person.
+A derivation is wrong the same way for every word that takes the ending, so it is one bug found once,
+and every derived form says on screen that it was worked out (ADR-005 amendment 1). Estonian
+morphophonology is too irregular for anything beyond that, and a confidently wrong form is worse
+than no form, so where no rule reaches, the form is stored or it is not shown.
 
 **Naming principle.** Every table in this document names a form in Estonian first, because that is
 how the language is taught: *ainsuse omastav*, not "genitive singular". The app follows the same
 rule on every screen (ADR-023). A case is identified by its Estonian name and by the question it
-answers, which is the pair a class hears together; the English or Latin name is kept beside it as a
-cross-reference for anyone reading an English grammar, and never as the heading. The verb is named
+answers, which is the pair a class hears together. The Latin name appears on no screen at all; the English
+beside a case is what its question asks, and this document keeps the Latin names in its tables
+only as a cross-reference for anyone reading an English grammar. The verb is named
 by *aeg*, *kõneviis*, *tegumood* and *pööre* rather than by a row of English-shaped tenses, of which
 Estonian inflects for two. `lib/estonian/terms.ts` holds the terms, and holds none for a point where
 a class has no settled one.
@@ -26,7 +31,7 @@ Estonian has 14 cases. Only a handful of forms are unpredictable; the rest are r
 known stem. The unpredictable ones are the **principal parts** (*põhivormid*), and they are the only
 thing worth memorizing.
 
-### 1.1 The six noun principal parts
+### 1.1 The seven noun principal parts
 
 | # | Form | Estonian name | `raamat` (book) | `tuba` (room) | Why it must be stored |
 |---|---|---|---|---|---|
@@ -35,10 +40,11 @@ thing worth memorizing.
 | 3 | Partitive sg | *ainsuse osastav* | raamatut | tuba | Irregular; required for objects, numbers, quantities |
 | 4 | Short illative sg | *lühike sisseütlev* | n/a | tuppa | Exists for some words only; unpredictable |
 | 5 | Nominative pl | *mitmuse nimetav* | raamatud | toad | Suppletive for pronouns; absent for mass nouns |
-| 6 | Partitive pl | *mitmuse osastav* | raamatuid | tube | Highly irregular; stem for the plural |
+| 6 | Partitive pl | *mitmuse osastav* | raamatuid | tube | Highly irregular |
+| 7 | Genitive pl | *mitmuse omastav* | raamatute | tubade | Stem for the plural oblique cases |
 
 v4.0 stored only #1-3. #4 and #6 cannot be derived, so a three-form model silently teaches an
-incomplete set of forms. #4 is nullable, and so is #5.
+incomplete set of forms. #4 is nullable, and so are #5 and #7.
 
 #5 was the last one to arrive and it arrived by measurement. It was written as a rule, genitive
 plus `-d`, and `npm run audit:cases` put that to the Institute of the Estonian Language for every
@@ -66,12 +72,12 @@ genitive and ten cases fall out as regular suffixes.
 | Abessive | *ilmaütlev* | `-ta` | raamatuta | without the book |
 | Comitative | *kaasaütlev* | `-ga` | raamatuga | with the book |
 
-The oblique plural is built on the genitive plural, which is itself derived from the partitive
-plural, which is why #6 is stored. The nominative plural looks like a rule and is not one, which is
+The oblique plural is built on the genitive plural, which no rule reaches either, which is why #7
+is stored; where the dictionary holds none, the plural obliques show a gap rather than a guess. The nominative plural looks like a rule and is not one, which is
 why it is #5 and stored rather than derived: see §1.1.
 
 The dictionary UI renders this as a **generated table clearly marked as derived**, alongside the
-five stored forms marked as authoritative. The learner sees which forms they must memorize and which
+stored forms marked as authoritative. The learner sees which forms they must memorize and which
 they get for free. That framing *is* the pedagogy.
 
 ### 1.2a Two sets of local cases, and which one a word takes
@@ -158,10 +164,15 @@ is in the weak grade and unguessable from the infinitive.
 | 1 | ma-infinitive | *ma-tegevusnimi* | lugema | tulema | Citation form; `-mas/-mast/-maks/-mata` |
 | 2 | da-infinitive | *da-tegevusnimi* | lugeda | tulla | Complement of many verbs; imperative base |
 | 3 | **Present 1sg** | *oleviku ainsuse 1. pööre* | **loen** | **tulen** | The whole present tense |
-| 4 | Past 1sg | *lihtmineviku ainsuse 1. pööre* | lugesin | tulin | The whole simple past |
+| 4 | Past 1sg | *lihtmineviku ainsuse 1. pööre* | lugesin | tulin | The simple past, except its third person |
 | 5 | tud-participle | *umbisikuline mineviku kesksõna* | loetud | tuldud | Passive, perfect, `saama`-passive |
 
 Note `lugema → loen`: `g` disappears and the vowel changes. No rule recovers this. It is stored.
+
+The past third person is not derivable for any verb (`lugesin` goes to `luges` but `tahtsin` to
+`tahtis`), and neither are the polite imperative or the two participles, so the harvest stores those
+per verb as well. `unreachableSlots` in `lib/estonian/conjugate.ts` is the list of what the rule
+cannot reach, and `npm run audit:verbs` checks every derived slot against Ekilex.
 
 ---
 
@@ -218,7 +229,7 @@ feature: the learner must know which forms are authoritative.
 |---|---|---|---|
 | `EKILEX` | Ekilex API form data | Authoritative | Shown plainly |
 | `DERIVED` | Suffix applied to a stored genitive stem | High, mechanical | Shown, labelled "derived" |
-| `AI` | Generated by Anu | **Unverified** | Amber "AI-generated, verify" badge; never silently promoted |
+| `AI` | Suggested by Anu | **Unverified** | Never vouched for: `vouchable` refuses it for a scan, a headline, the word of the day and the chat check, until Ekilex answers for it |
 | `USER` | Typed in by the learner | As reliable as the learner | Editable, marked |
 
 **Hard rule:** an `AI`-provenance form is never written into a flashcard's answer field without an
@@ -233,8 +244,8 @@ supplies. See `06-anu-tutor.md` §5.
 The learner is in a structured class, so the app tracks where they are.
 
 - **CEFR levels** A1, A2, B1, B2, C1 on the profile and, where Ekilex supplies it, per lexeme.
-- Estonian state language exams (*eesti keele tasemeeksam*) are offered at A2, B1, B2 and C1. Deck
-  and progress views can be filtered to a target exam level, which gives the dashboard a goal to
-  organize around rather than an open-ended word list.
-- Vocabulary is additionally tagged by **class week**, linking the deck to the syllabus and joining
-  Feature 1 (tasks) to Feature 6 (cards), the concrete fix for gap D4.
+- Estonian state language exams (*eesti keele tasemeeksam*) are offered at A2, B1, B2 and C1. The
+  target a learner picks in first run is what the plan, the readiness rungs and the mock exam are
+  read against, which gives the app a goal to organize around rather than an open-ended word list.
+- Vocabulary is tied to the syllabus by unit (`lib/collections/syllabus/`) rather than by class
+  week; the class-week tagging this section first proposed went with the task list.
