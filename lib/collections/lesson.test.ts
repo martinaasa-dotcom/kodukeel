@@ -6,6 +6,7 @@ import {
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
 import { PARTS } from "@/lib/copy/values";
+import { checkAnswer } from "@/lib/estonian/answer";
 
 /*
   A lesson built with no dictionary behind it: every sentence keeps the one
@@ -305,6 +306,27 @@ describe("what a step is built from", () => {
     for (const step of cases) {
       const source = WORDS.find((w) => w.lemma === step.lemma)!;
       expect(step.answer.startsWith(source.parts.GEN_SG!)).toBe(true);
+    }
+  });
+
+  /*
+    ANOTHER ENDING ONE KEYSTROKE AWAY IS THE WRONG FORM, NOT A SLIP. Typed
+    steps are marked by `checkAnswer`, whose typo rule forgives one added or
+    dropped letter; without the word's other forms `toast` for `toas` read
+    as "One letter out." and was logged as a recall.
+  */
+  it("carries the word's other forms onto every typed step, and never a right answer among them", () => {
+    const typed = plan().filter((s): s is Extract<LessonStep, { kind: "case" | "gap" }> =>
+      s.kind === "case" || s.kind === "gap");
+    expect(typed.length).toBeGreaterThan(0);
+    for (const step of typed) {
+      expect(step.rivals.length, step.lemma).toBeGreaterThan(0);
+      for (const right of step.answer.split(PARTS)) {
+        expect(checkAnswer(right, step.answer, "et", step.rivals).verdict).toBe("correct");
+      }
+      for (const rival of step.rivals) {
+        expect(checkAnswer(rival, step.answer, "et", step.rivals).verdict, rival).toBe("wrong");
+      }
     }
   });
 

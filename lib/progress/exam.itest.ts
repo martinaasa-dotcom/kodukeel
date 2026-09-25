@@ -34,15 +34,15 @@ const sit = (ownerId: string, seed: string, pct: number) =>
 describe("recordAttempt", () => {
   it("writes one row for one seed however many times it arrives, at once", async () => {
     const ids = await Promise.all(Array.from({ length: 16 }, (_, i) => sit(MINE, "s1", 40 + i)));
-    expect(new Set(ids).size).toBe(1);
+    expect(new Set(ids.map((s) => s.id)).size).toBe(1);
     expect(await prisma.examAttempt.count({ where: { ownerId: MINE } })).toBe(1);
   });
 
   it("keeps the first answer and hands its id back to a later one", async () => {
     const first = await sit(MINE, "s1", 72);
     const again = await sit(MINE, "s1", 10);
-    expect(again).toBe(first);
-    const row = await prisma.examAttempt.findUniqueOrThrow({ where: { id: first } });
+    expect(again).toEqual(first);
+    const row = await prisma.examAttempt.findUniqueOrThrow({ where: { id: first.id } });
     expect(row.pct).toBe(72);
   });
 

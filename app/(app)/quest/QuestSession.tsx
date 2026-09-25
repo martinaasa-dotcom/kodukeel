@@ -361,9 +361,14 @@ export function QuestSession({
                 {aimed.map((c) => (
                   <li key={c.key}>
                     <Chip tone={c.accuracy < 60 ? "again" : "hard"}>
-                      <span lang="et">{c.et}</span>
-                      {c.question && <> · <CaseQuestion question={c.question} inline /></>}
-                      {" "}{c.accuracy}%
+                      {/* One run of text, so it wraps between words. As four
+                          children of the chip's inline-flex they squeezed each
+                          other and broke the case name mid-letter at 360. */}
+                      <span>
+                        <span lang="et">{c.et}</span>
+                        {c.question && <> · <CaseQuestion question={c.question} inline /></>}
+                        {" "}{c.accuracy}%
+                      </span>
                     </Chip>
                   </li>
                 ))}
@@ -402,7 +407,7 @@ export function QuestSession({
     return (
       <Page title="Daily quest" lead="That is where you stand today.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
-          <div className="grid w-full grid-cols-3 gap-3">
+          <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
             <StatTile value={correct} label="Right" tone="mint" />
             <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "mint" : "butter"} />
             <StatTile value={bestStreak} label="Best run" tone="blush" />
