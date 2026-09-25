@@ -1,7 +1,7 @@
 /**
  * The one function that answers "what does the other side say here".
  *
- * `docs/19-situations.md` §2. It works the way `caseAnswer` works: an attested
+ * `docs/21-situations.md` §2. It works the way `caseAnswer` works: an attested
  * sentence ahead of a composed one ahead of the way out, **with the screen
  * saying which it got**. That last clause is the whole of ADR-025's second
  * half, and it is why the return type carries a provenance rather than a
