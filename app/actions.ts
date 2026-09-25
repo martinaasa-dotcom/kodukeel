@@ -4144,6 +4144,8 @@ export async function recordAssessment(input: unknown) {
   const ownerId = await requireUserId();
   const parsed = ASSESSMENT.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "That result could not be read." };
+  const busy = throttleAction(ownerId, "recordAssessment");
+  if (busy) return busy;
 
   const { seed, builtAt, answers } = parsed.data;
   const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
