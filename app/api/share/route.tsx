@@ -5,6 +5,7 @@ import { learnerDayClock } from "@/lib/progress/dayClock";
 import { bucketForOwner, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { PRIVATE_NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -135,7 +136,7 @@ export async function GET() {
         never worth keeping, and the `Cookie` vary says which of those a cache
         in front of the app is looking at.
       */
-      headers: { "cache-control": "private, no-store", vary: "Cookie" },
+      headers: PRIVATE_NO_STORE,
     },
   );
 }

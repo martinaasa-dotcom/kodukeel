@@ -134,7 +134,7 @@ describe("every conversation happens somewhere", () => {
     is the one that goes on arriving as a sentence of English above a question
     in Estonian, silently, and a row for a curveball nobody throws is a drawing
     nobody sees. The silent one is in it on purpose, because a queue forming
-    behind you is the one of the fourteen that is entirely a picture.
+    behind you is the one of the fifteen that is entirely a picture.
   */
   it("has a cue for every curveball", () => {
     for (const one of CURVEBALLS) {

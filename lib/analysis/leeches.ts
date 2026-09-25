@@ -114,7 +114,9 @@ export function rankLeeches(candidates: LeechCandidate[], limit = 8): Leech[] {
   return candidates
     .filter((c) => c.lapses >= LEECH_LAPSES)
     .map(toLeech)
-    .sort((a, b) => b.lapses - a.lapses || b.failRate - a.failRate)
+    // Total, so which eight are shown is not the order the rows arrived in.
+    .sort((a, b) => b.lapses - a.lapses || b.failRate - a.failRate
+      || (a.cardId < b.cardId ? -1 : a.cardId > b.cardId ? 1 : 0))
     .slice(0, limit);
 }
 
