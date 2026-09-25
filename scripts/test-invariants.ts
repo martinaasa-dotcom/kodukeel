@@ -14786,6 +14786,13 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("after a letter is sent, a failed write is reported rather than counted as a failed send", () => {
+  const run = code("lib/mailer/run.ts");
+  assert.match(run, /await rememberAfterSend\(ownerId, built\.remember\.key, built\.remember\.value\)/,
+    "the high-water mark is written bare after a send again, so a failure counts the letter as failed and it can go twice");
+});
+
+
 check("a grade writes a card's case and slot to the log only where they are on the closed list", () => {
   /*
     A card restored from a backup carries whatever the file said, and the grade
