@@ -97,10 +97,9 @@ import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { matchGrades } from "@/lib/srs/matchGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
-import { placement } from "@/lib/assessment/score";
 import { PAPER_SIZE } from "@/lib/assessment/items";
-import type { Band, ItemRef, Response } from "@/lib/assessment/types";
-import { goalsFor, saveGoals, saveResult } from "@/lib/progress/assessment";
+import type { Band } from "@/lib/assessment/types";
+import { goalsFor, markSitting, saveGoals, saveResult } from "@/lib/progress/assessment";
 import { recordCourseLevel } from "@/lib/progress/level";
 import { REPLAY_BATCH, isClientReviewId } from "@/lib/offline/outbox";
 import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
@@ -3951,23 +3950,22 @@ function revive(row: Record<string, unknown>, dateFields: string[]): Record<stri
 
 // ───────────────────────────── Placement check ─────────────────────────────
 
-const BAND = z.enum(["A1", "A2", "B1", "B2", "C1"]);
-const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
-
 /**
  * One sitting of the level check, as it comes back from the browser.
  *
- * The paper is marked in the browser, because it has to be: the answers are in
- * it, feedback appears the instant a question is answered, and a placement
- * check that needed a round trip per question would be unusable on a train.
- * Nothing is at stake in it either. It sets nobody's rank, it is not on the
- * class roster (`lib/classroom/roster.ts` shares effort, never contents), and
- * the only person a forged result misleads is the person who forged it.
+ * The browser marks every answer as it is given, because feedback has to
+ * appear the instant a question is answered and a round trip per question
+ * would be unusable on a train. What it may not do is tell the server the
+ * mark. It used to: each response carried a credit, a skill and a band, and
+ * `placement()` believed all three, so a hand-made request could post full
+ * credit on every question or call an A1 question C1, and that level reached
+ * Today, the plan and a sponsor's cohort view.
  *
- * What the server does *not* delegate is the rule that turns marks into a
- * level. The credits arrive, `placement()` runs here, and the level comes out
- * of the same function the tests cover, so a stale browser or a hand-made
- * request cannot invent its own scale.
+ * So what comes back is the seed, when the paper was built, and what was done
+ * with each question, unmarked. `markSitting` builds the same paper again,
+ * takes the skill and band off each item and marks the answers with
+ * `responseFor`, the function the runner marked them with. That is ADR-022's
+ * rule for the mock exam, applied to the check that sets the level.
  */
 /*
   Bounded by the paper rather than by a number typed here.
@@ -3980,17 +3978,21 @@ const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
   the hub saying nothing had ever been measured. Two numbers for one fact, and
   the one that was wrong was the one nobody looks at.
 */
+const GIVEN = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("picked"), option: z.string().max(400) }),
+  z.object({ kind: z.literal("typed"), text: z.string().max(400) }),
+  z.object({ kind: z.literal("rated"), rating: z.number().int().min(1).max(4) }),
+  z.object({ kind: z.literal("skipped") }),
+]);
+
 const ASSESSMENT = z.object({
-  items: z.array(z.object({ id: z.string().min(1).max(120), skill: SKILL, band: BAND })).min(1).max(PAPER_SIZE),
-  responses: z.array(z.object({
+  seed: z.number().int().min(0).max(1_000_000),
+  builtAt: z.number().int().nonnegative(),
+  answers: z.array(z.object({
     itemId: z.string().min(1).max(120),
-    skill: SKILL,
-    band: BAND,
-    credit: z.number().min(0).max(1),
-    selfRating: z.number().int().min(1).max(4).optional(),
+    given: GIVEN,
     ms: z.number().int().min(0).max(3_600_000),
-    skipped: z.boolean().optional(),
-  })).max(PAPER_SIZE),
+  })).min(1).max(PAPER_SIZE),
 });
 
 export async function recordAssessment(input: unknown) {
@@ -3998,15 +4000,9 @@ export async function recordAssessment(input: unknown) {
   const parsed = ASSESSMENT.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "That result could not be read." };
 
-  /*
-    Only the three fields the scale is computed from are carried across, so a
-    response naming an item the paper does not contain cannot vote.
-  */
-  const items: ItemRef[] = parsed.data.items;
-  const known = new Set(items.map((i) => i.id));
-  const responses = parsed.data.responses.filter((r) => known.has(r.itemId)) as Response[];
-
-  const result = placement(items, responses);
+  const { seed, builtAt, answers } = parsed.data;
+  const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
+  if (!result) return { ok: false as const, error: "That result does not match the paper it was sat on." };
   const stored = await saveResult(ownerId, result);
 
   revalidatePath("/assess");

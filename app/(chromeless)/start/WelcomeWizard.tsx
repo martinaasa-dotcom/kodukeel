@@ -165,7 +165,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   parts: CoursePart[];
   suggestedName: string;
   /** The level check, built server side. Empty when the dictionary cannot fill one. */
-  paper: { items: Item[]; missing: string[] };
+  paper: { items: Item[]; missing: string[]; seed: number; builtAt: number };
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -326,6 +326,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           <AssessmentRunner
           items={paper.items}
           missing={paper.missing}
+          seed={paper.seed}
+          builtAt={paper.builtAt}
           /*
             Back to the level step, not past it.
 

@@ -10594,6 +10594,19 @@ from `lib/assessment/`. A learner meeting this app for the first time cannot tel
 is the one that is confused, so the machine is never the judge. The overall level is the **average**
 of the measured skills, floored (ADR-020 amendment 2).
 
+**And the browser marks for the feedback and the server marks for the record.** `recordAssessment`
+took a credit, a skill and a band per answer from the browser and believed all three, so a hand-made
+request could post full credit everywhere or call an A1 question C1, and that level reached Today,
+the plan and a sponsor's cohort view. It takes the paper's seed, when it was built, and what was
+done with each question now: the option picked by its text, the words typed, the rating given.
+`markSitting` builds the same paper again, takes the skill and band off each item, counts an item
+once, refuses an id the paper does not hold, and marks through `responseFor`, which is the function
+the runner marks with. A skip counts on listening alone. The deck is read as it stood when the paper
+was built, because a card added mid-sitting takes its word out of the pool and the rebuilt paper
+would hold different questions. Which questions were asked stays the browser's call, since a band
+nobody was asked is not scored. That is ADR-022's rule for the mock exam, applied to the check that
+sets the level.
+
 **And the claim is kept in the code rather than printed under every question.** Each item used to
 carry an `ItemSource` and each answered question ended in "A recorded sentence. No Estonian on this
 screen was written by this app or by an AI." Eighty times a paper, under a screen that had already
