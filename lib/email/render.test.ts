@@ -338,3 +338,37 @@ describe("a link that is not a link", () => {
     expect(html).toContain('href="#"');
   });
 });
+
+describe("a sentence opens on a capital", () => {
+  /*
+    Three letters spelled a count from a table of their own and put it first:
+    "two left in the bank.", "five days of the last seven." as a heading, and
+    "three steps left in Kodus" as a subject line, under a comment giving
+    "Two steps left in Kodus" as the example. Every subject, preheader and
+    line of prose is held to it, so a count spelled at the front of the next
+    sentence cannot go out lowercase either.
+  */
+  const counted: Letter[] = [
+    shieldLetter({
+      origin: CHROME.origin,
+      streak: 12,
+      remaining: 2,
+      nextAt: 30,
+      week: ["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({ label, studied: i !== 5 })),
+    }),
+  ];
+
+  it("in every subject, preheader and line of prose", () => {
+    const opening: string[] = [];
+    for (const letter of [...EVERY, ...counted]) {
+      // The word a day opens its subject on the Estonian word itself, spelled
+      // as the dictionary spells it, which is lower case and is right.
+      const lines = letter.kind === "wordday" ? [letter.preheader] : [letter.subject, letter.preheader];
+      for (const block of letter.blocks) {
+        if (block.t === "heading" || block.t === "text" || block.t === "quiet") lines.push(block.text);
+      }
+      for (const line of lines) if (/^[a-zõäöüšž]/.test(line)) opening.push(`${letter.kind}: ${line}`);
+    }
+    expect(opening).toEqual([]);
+  });
+});
