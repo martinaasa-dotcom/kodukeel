@@ -708,6 +708,7 @@ says what has not been done in the same breath as what has.
 | `docs/23-impact.md` | What may honestly be claimed about usage, and the floors that stop a small number being reported at all. |
 | `docs/30-pilots.md` | What a pilot is, what it costs, and what is not ready. |
 | `docs/31-grant-case.md` | The case a funding application would be adapted from, every figure named with the file or the command behind it, and a list of what it cannot claim. |
+| `docs/31-competitors.md` | Three other ways to learn Estonian, read off their own pages on a stated day, against what Kodukeel does, row by row, with what closed each gap. |
 | `SECURITY.md` | Where to send a vulnerability. |
 | `/trust` and `/accessibility` | The same material, on the running app. |
 | `/funding` | What it costs to run, where every figure came from, and what happens when the money stops. |
