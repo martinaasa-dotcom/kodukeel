@@ -11837,7 +11837,7 @@ check("a case is charted at the case the round asked, on every reader that talli
     learner was not asked. \`askedCase\` is the one reading.
   */
   for (const file of ["lib/progress/cases.ts", "lib/classroom/roster.ts", "app/(app)/review/write/page.tsx"]) {
-    assert.match(code(file), /askedCase\(/, \`\${file} tallies cases off the card's case rather than the asked one\`);
+    assert.match(code(file), /askedCase\(/, `${file} tallies cases off the card's case rather than the asked one`);
   }
 });
 
