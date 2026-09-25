@@ -342,8 +342,13 @@ jobs:
               scripts/test-containment.mjs
               scripts/test-polish.mjs
 
+          # And every route again as an Estonian reader in a far zone, which is
+          # the one setting where a date formatted in a client component's
+          # render disagrees with the server's and fails hydration: every other
+          # suite runs in English and UTC, where it cannot.
           - name: the rounds
             suites: >-
+              scripts/test-hydration.mjs
               scripts/e2e.mjs
               scripts/test-modes.mjs
               scripts/test-teaching.mjs

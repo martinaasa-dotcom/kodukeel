@@ -376,7 +376,15 @@ export default async function CoursePage({
           <p className="mt-2 text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
             {day.canDo}
           </p>
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          {/*
+            Two columns at a phone width, three from `sm:` up, matching the
+            three-tile StatTile rows that already do this (ReviewSession,
+            LearnSession, the dictation and sentence rounds). At a bare three
+            columns "New words" has about 80px to work with at 360px, and
+            `overflow-wrap: anywhere` (deliberately global, see globals.css)
+            breaks it mid-word rather than at the space.
+          */}
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatTile value={day.words.length} label="New words" tone="mint" />
             <StatTile
               value={standing.complete ? "0" : `${standing.minutesLeft}m`}
