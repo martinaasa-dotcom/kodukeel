@@ -103,8 +103,19 @@ export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeW
       what it did not. The parameter is gone rather than guarded, because a
       parameter nobody passes is not a feature, it is the bug's only door.
     */
-    gradation: gradation.type,
-    gradationNote: gradation.note ?? null,
+    /*
+      A WRITE THAT SUPPLIED NO FORMS HAS NO OPINION ABOUT THEM, which is the
+      rule `cefr` and `government` follow above, one field over. The only
+      caller that does this is an accepted missing-word report (`SuggestFix`
+      sends `forms: {}`), and where the word has arrived since, through a live
+      Ekilex lookup after the queue loaded, reading "none supplied" as "none
+      exist" deleted every principal part of the entry and reset its gradation
+      for everybody. The hand-edit form always sends the citation form, so it
+      never reaches this branch.
+    */
+    ...(existing && !forms.length
+      ? {}
+      : { gradation: gradation.type, gradationNote: gradation.note ?? null }),
     // An entry Ekilex supplied stays marked as Ekilex's after a correction —
     // relabelling it USER would quietly discard where the forms came from.
     ...(existing && (existing.provenance === "SEED" || existing.provenance === "EKILEX")
@@ -121,10 +132,10 @@ export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeW
   // Replace only the principal parts. Deleting every row for the lexeme threw
   // away the forms retrieved from Ekilex — the one thing on an entry that cannot
   // be reconstructed — whenever anybody corrected a typo.
-  await prisma.form.deleteMany({
-    where: { lexemeId: lexeme.id, formType: { in: [...PRINCIPAL_FORM_TYPES] } },
-  });
   if (forms.length) {
+    await prisma.form.deleteMany({
+      where: { lexemeId: lexeme.id, formType: { in: [...PRINCIPAL_FORM_TYPES] } },
+    });
     await prisma.form.createMany({ data: forms.map((f) => ({ ...f, lexemeId: lexeme.id })) });
   }
 

@@ -200,6 +200,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
 
   const [goal, setGoal] = useState<number>(15);
   const [pending, start] = useTransition();
+  const [failed, setFailed] = useState<string | null>(null);
 
   /** The level everything downstream uses: measured if it was, stated if not. */
   const level: Level | null = measured ? measured.overall : (estimated as Band | null);
@@ -281,8 +282,15 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   const totalEvenings = parts.reduce((n, p) => n + p.days, 0);
 
   const finish = () => {
+    setFailed(null);
     start(async () => {
-      await completeOnboarding({
+      /*
+        Read rather than awaited and forgotten. It can refuse now, when a press
+        is repeated past its allowance, and a press that never reached the
+        server rejects: pushing on to /course after either sends the learner
+        back into first run with nothing saved and nothing said.
+      */
+      const result = await completeOnboarding({
         displayName: name,
         cefr: startBand,
         dailyGoal: goal,
@@ -296,7 +304,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           daysPerWeek: goals.daysPerWeek,
           note: goals.note,
         },
-      });
+      }).catch(() => null);
+      if (!result) { setFailed("That did not reach the server. Nothing has changed, so press it again."); return; }
+      if (!result.ok) { setFailed(result.error); return; }
       /*
         Straight to tonight's module rather than to Today. Somebody who has
         just been told what the evening is wants the evening, and a dashboard
@@ -953,6 +963,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             </Button>
           )}
         </div>
+        <p role="status" className="mt-3 text-right text-sm" style={{ color: "var(--ink-2)" }}>
+          {failed}
+        </p>
 
         {/*
           NO WAY OUT OF SETUP, AND ONE WAY PAST ONE QUESTION.

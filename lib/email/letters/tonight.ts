@@ -95,6 +95,8 @@ function minutesLeft(steps: readonly StepRow[]): number {
  */
 const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const count = (n: number): string => WORDS[n] ?? String(n);
+/** A count that opens a subject line, which is a sentence and starts on a capital. */
+const opening = (word: string): string => word.charAt(0).toUpperCase() + word.slice(1);
 
 /**
  * The subject, which is most of the work.
@@ -111,7 +113,7 @@ function subjectFor(input: TonightInput): string {
   if (done > 0 && left > 0) {
     return left === 1
       ? `One step left in ${input.day.title}`
-      : `${count(left)} steps left in ${input.day.title}`;
+      : `${opening(count(left))} steps left in ${input.day.title}`;
   }
   return `Tonight is ${count(input.day.newWords)} new words`;
 }

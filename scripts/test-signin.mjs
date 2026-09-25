@@ -554,8 +554,11 @@ check("a column that changes width afterwards gets the button drawn again to mat
 check("the script is asked for in the language the rest of the screen is in",
   gsiRequests.length > 0 && gsiRequests.every((url) => url.includes("hl=en")),
   gsiRequests[0] ?? "never requested");
+// Carrying the length, because `every` on nothing is true: a run where the
+// button was never drawn again passed this saying the locale was right on
+// every render there was, which was none.
 check("and the button is told the same language, which is the setting Google reads per button",
-  after.every((call) => call.locale === "en"),
+  after.length > 0 && after.every((call) => call.locale === "en"),
   `${after.map((c) => c.locale).join(", ")}`);
 
 /*
