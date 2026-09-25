@@ -34,7 +34,7 @@ import {
 } from "@/lib/suggestions/model";
 import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
 import { NEEDS_TRANSLATION } from "@/lib/copy/values";
-import { resolveOneWord } from "@/lib/dict/resolveScan";
+import { resolveOneWord, vouchScanItems } from "@/lib/dict/resolveScan";
 import { guessPos, MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
@@ -3704,20 +3704,21 @@ export async function saveScan(input: {
 
   const busy = throttleAction(ownerId, "saveScan");
   if (busy) return busy;
-  const items = sanitiseItems(input.items, SCAN_MAX_ITEMS);
-  if (items.length === 0) {
+  const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
+  if (sent.length === 0) {
     return { ok: false as const, error: "Nothing on that page was ticked." };
   }
+  // What the dictionary says about each spelling, asked again here rather
+  // than taken from the request: see `vouchScanItems`.
+  const items = await vouchScanItems(sent);
 
   const title = capped(input.title, MAX_SCAN_TITLE) || "A page";
 
   /*
-    An id from the client is an id the client chose, and this file is
-    "use server", so every argument is attacker-controllable. Resolving the
-    ids against the dictionary here means a row can only ever point at a
-    Lexeme that exists, and a row whose id has gone stale falls back to being
-    treated as a new word rather than silently attaching cards to whatever now
-    holds that id.
+    Every id here came from `vouchScanItems` rather than from the request.
+    Reading them back still means a row can only ever point at a Lexeme that
+    exists, and a row the dictionary would not vouch for is treated as a new
+    word rather than silently attaching cards to whatever holds some id.
   */
   const claimed = items.map((i) => i.lexemeId).filter((id): id is string => id !== null);
   /*

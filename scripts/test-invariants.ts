@@ -3520,6 +3520,22 @@ check("a word read off a photograph reaches a card only through the dictionary",
     false,
     "saving a scanned page writes a form row",
   );
+
+  /*
+    And the save believes the dictionary rather than the request. The rows come
+    back from the browser carrying the match they were shown, so a spelling
+    corrected in the edit box kept its old word's match and a crafted request
+    could point any word at any row. Every dictionary field is asked again
+    before anything reads an id off a row.
+  */
+  const body = between(code("app/actions.ts"), "export async function saveScan");
+  const vouched = body.indexOf("vouchScanItems(");
+  const firstId = body.indexOf(".lexemeId");
+  assert.ok(vouched > 0 && firstId > vouched,
+    "saveScan reads a lexemeId the client sent before the dictionary has vouched for the row again");
+  assert.match(code("lib/dict/resolveScan.ts"),
+    /export async function vouchScanItems[\s\S]*?resolveScannedItems\(items\.map\(\(item\) => \(\{ et: item\.et, en: item\.en \}\)\)\)/,
+    "vouchScanItems passes something other than the spelling and the page's English to the matcher");
 });
 
 check("every path that adds cards reads and writes under one lock", () => {
