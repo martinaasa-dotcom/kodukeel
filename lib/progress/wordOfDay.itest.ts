@@ -31,6 +31,8 @@ const OWNER = "itest-owner-wordofday";
 */
 const DAY = "2026-03-17" as DayKey;
 const DAY_START = new Date("2026-03-17T00:00:00Z");
+const BEFORE = new Date("2026-03-10T00:00:00Z");
+const DURING = new Date("2026-03-17T18:00:00Z");
 
 /**
  * Two words carrying one meaning, one at each of two bands.
@@ -47,6 +49,8 @@ const EASY = "itestwodaaaaa";
 const HARD = "itestwodbbbbb";
 
 async function wipe() {
+  await prisma.review.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.card.deleteMany({ where: { ownerId: OWNER } });
   await prisma.starredWord.deleteMany({ where: { ownerId: OWNER } });
   await prisma.lexeme.deleteMany({ where: { lemma: { startsWith: "itestwod" } } });
 }
@@ -62,7 +66,9 @@ async function starThemed(except: string[] = []) {
     (row) => !except.includes(row.lemma) && glosses.some((gloss) => matchesGloss(row.translation, gloss)),
   );
   await prisma.starredWord.createMany({
-    data: matched.map((row) => ({ ownerId: OWNER, lexemeId: row.id })),
+    // Starred before the day, which is what puts a word out of reach: a star
+    // made today is the card's own button and leaves the word where it is.
+    data: matched.map((row) => ({ ownerId: OWNER, lexemeId: row.id, createdAt: BEFORE })),
     skipDuplicates: true,
   });
 }
@@ -145,5 +151,38 @@ describe("the word of the day and the learner's level", () => {
     const first = await wordOfDay(OWNER, DAY, DAY_START, "B1");
     const again = await wordOfDay(OWNER, DAY, DAY_START, "B1");
     expect(again?.lemma).toBe(first?.lemma);
+  });
+
+  /*
+    DOING WHAT THE PANEL ASKS DOES NOT MAKE IT SWAP.
+
+    "Met" is measured at the start of the day so the card's own buttons work.
+    That held for the card and not for the two things done with it next: the
+    word answered this evening and the word starred this evening each took it
+    off the panel, which then showed another word under the learner's hand.
+  */
+  it("keeps the word through adding, answering and starring it today", async () => {
+    await starThemed();
+    const first = await wordOfDay(OWNER, DAY, DAY_START, "B1");
+    expect(first).not.toBeNull();
+    const lexemeId = first!.lexemeId;
+    const card = await prisma.card.create({
+      data: { ownerId: OWNER, lexemeId, cardType: "RECOGNITION", front: "x", back: "y", createdAt: DURING },
+    });
+    await prisma.review.create({
+      data: { ownerId: OWNER, cardId: card.id, lexemeId, rating: 3, reviewedAt: DURING },
+    });
+    await prisma.starredWord.create({ data: { ownerId: OWNER, lexemeId, createdAt: DURING } });
+    expect((await wordOfDay(OWNER, DAY, DAY_START, "B1"))?.lemma).toBe(first?.lemma);
+  });
+
+  it("does not offer a word the learner answered before today", async () => {
+    await starThemed();
+    const first = await wordOfDay(OWNER, DAY, DAY_START, "B1");
+    const lexemeId = first!.lexemeId;
+    await prisma.review.create({
+      data: { ownerId: OWNER, cardId: "itest-gone-card", lexemeId, rating: 3, reviewedAt: BEFORE },
+    });
+    expect((await wordOfDay(OWNER, DAY, DAY_START, "B1"))?.lemma).not.toBe(first?.lemma);
   });
 });
