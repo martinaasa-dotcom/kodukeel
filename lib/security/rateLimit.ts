@@ -108,7 +108,14 @@ export function checkRateLimit(key: string, limit: number, windowMs: number): Ra
 
   const bucket = buckets.get(key);
   if (!bucket || now >= bucket.resetAt) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs });
+    /*
+      The window this moment falls in, floored exactly as the shared table
+      floors it. Opened at the first request instead, the two disagreed about
+      where a window starts, and since the shared check asks this one first
+      and takes its refusal, a caller the table had moved into a fresh window
+      was still refused here.
+    */
+    buckets.set(key, { count: 1, resetAt: windowStartMs(now, windowMs) + windowMs });
     return { ok: true };
   }
   if (bucket.count >= limit) {
@@ -154,8 +161,9 @@ export function windowStartMs(now: number, windowMs: number): number {
  *
  * The key is `tts:o:<uuid>`, so it carries an owner id, and a table of those
  * is a record of who was awake and when that nothing needs and nobody asked
- * for. A digest tells two callers apart, which is the whole job, and cannot be
- * read back into a person.
+ * for. A digest tells two callers apart, which is the whole job, and does not
+ * hold the id. It is not anonymous: anybody holding the list of user ids can
+ * hash each and match, and an IPv4 bucket can be recovered by trying them all.
  *
  * Unsalted on purpose. A salt defends against somebody who has the table and
  * wants to confirm a guess, and anybody who has this table has the rows it was

@@ -25,7 +25,7 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
-import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
+import { ORDER_EXACT, orderVariantNote, ORDER_WRONG, NOT_REACHED } from "@/lib/copy/values";
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
@@ -182,9 +182,9 @@ export function LessonSession({
   const submit = useCallback(async () => {
     if (saving || saved) return;
     setSaving(true);
-    const result = await completeLesson(unitId, answers);
+    const result = await completeLesson(unitId, answers).catch(() => null);
     setSaving(false);
-    setSaved(result.ok ? { ok: true } : { ok: false, error: result.error });
+    setSaved(result?.ok ? { ok: true } : { ok: false, error: result ? result.error : NOT_REACHED });
   }, [answers, saved, saving, unitId]);
 
   useEffect(() => {
@@ -421,11 +421,11 @@ function StepCard({
     onAnswer(lemma, kind, i === answer);
   };
 
-  const checkTyped = (expected: string, lemma: string, kind: string) => {
+  const checkTyped = (expected: string, lemma: string, kind: string, rivals: readonly string[] = []) => {
     // Once marked, the box's Enter is "carry on": `Continue` leaves a key
     // from the box alone, because that is also the key that marked it.
     if (checked) { onNext(); return; }
-    const result = checkAnswer(typed, expected, "et");
+    const result = checkAnswer(typed, expected, "et", rivals);
     const ok = countsAsRecalled(result.verdict);
     setChecked({ ok, note: result.note || (ok ? "Correct." : `It is “${result.expected}”.`) });
     // A hint is paid for: see the block above and `lib/questions/hints.ts`.
@@ -458,7 +458,7 @@ function StepCard({
                         <span lang={point.estonian ? "et" : undefined} className="underline">
                           {point.title}
                         </span>
-                        <span className="text-xs" style={{ opacity: 0.75 }}>{point.english}</span>
+                        <span className="text-xs">{point.english}</span>
                       </Link>
                     </li>
                   );
@@ -671,11 +671,11 @@ function StepCard({
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="The missing form"
             placeholder={sizedBlank(BLANK, step.answer)}
-            onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
+            onEnter={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)}
           />
           {hint}
           {!checked && (
-            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)} className="self-start">
               Check
             </Button>
           )}
@@ -732,11 +732,11 @@ function StepCard({
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel={`${step.lemma}, ${plainAskLine(step.caseKey) ?? step.caseName}`}
-            onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
+            onEnter={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)}
           />
           {hint}
           {!checked && (
-            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)} className="self-start">
               Check
             </Button>
           )}
