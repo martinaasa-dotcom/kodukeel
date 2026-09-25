@@ -9519,6 +9519,13 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   the server: `undefined` as a locale means the deployment's, so on a machine set to en-US Today's
   greeting line read "Sunday, August 30" to somebody in Tartu who writes "pühapäev, 30. august".
   `components/LocalDate.tsx` renders what the server wrote and lets the browser replace it on mount.
+  **And a client component is not exempt, because its first render is on the server too.** Four
+  client files formatted a date in render, and on Today a browser set to Estonian wrote "24. sept"
+  over the server's "Sep 24" during hydration: React 19 reported error #418 and rebuilt the page on
+  the client, for the readers this app is for. Found by opening every route with an Estonian locale.
+  A client file hands the date to `LocalDate`, or to `useReaderDate` where it has to be a string,
+  and both write `stableDate` until mount; the invariant that used to skip client files now holds
+  them to that.
   A separate rule from the day boundary above, because the fix is different: a zone can be stored and
   handed to the server, and a locale is a list of preferences only the browser has.
 - **And a date written on a server is written in the learner's zone, not the deployment's.**
