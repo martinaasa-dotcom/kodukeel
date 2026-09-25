@@ -88,11 +88,9 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
   }
 
   /*
-    Marked against the word's other forms, so another case is not a slip.
-    `checkAnswer` reads anything one keystroke out as a typo, and every pair of
-    Estonian cases is one keystroke out: `toast` for `toas` came back as "One
-    letter out." with 0.8 credit on a placement check, which is the wrong
-    ending scored as the right one. It falls through to the near miss below.
+    The word's other forms go in as rivals, or another ending one keystroke
+    away reads as a slip: `toast` for `toas` was "One letter out." and marked
+    right, so the placement counted the elative as knowing the inessive.
   */
   const check = checkAnswer(answer, item.targetForm, "et", item.otherForms);
   if (check.verdict === "correct") {

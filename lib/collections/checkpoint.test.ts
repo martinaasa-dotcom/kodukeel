@@ -94,6 +94,24 @@ describe("buildCheckpoint", () => {
   });
 
   /*
+    PASSING THIS MOVES A LEARNER UP A LEVEL, SO ANOTHER ENDING IS NOT A SLIP.
+    `toast` is `toas` with one letter added, and without the word's other
+    forms the typo rule read it as "One letter out." and counted it toward the
+    pass. What the screen marks against is what is asserted here.
+  */
+  it("carries the word's other forms, so another case is marked wrong rather than close", () => {
+    const gap = [1, 2, 3, 4, 5, 6, 7, 8]
+      .flatMap((seed) => buildCheckpoint(WORDS, 12, seed))
+      .find((q) => q.lemma === "tuba" && q.kind === "gap");
+    expect(gap).toBeDefined();
+    expect(gap!.answer).toBe("Toas");
+    expect(gap!.rivals).toContain("toast");
+    expect(gap!.rivals).not.toContain("toas");
+    expect(checkAnswer("toast", gap!.answer, "et", gap!.rivals).verdict).toBe("wrong");
+    expect(checkAnswer("toas", gap!.answer, "et", gap!.rivals).verdict).toBe("correct");
+  });
+
+  /*
     A CHECKPOINT REVIEWS A LEVEL ALREADY STUDIED, AND NO UNIT AT ANY LEVEL
     TEACHES HOW ESTONIAN FORMS A PLURAL. A gap wanting `sõbrad` for `sõber`
     tests the dictionary rather than the learner.

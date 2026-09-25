@@ -26,7 +26,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
-import { extractEstonianSenses } from "../lib/dict/wiktionary";
+import { extractEstonianEntries, furtherSenses } from "../lib/dict/wiktionary";
 import { readGlossCorrections } from "../prisma/expanded";
 import type { ExpandedEntry } from "./expand-seed";
 import { EXPANDED_PATH, writeExpanded } from "./lib/expandedFile";
@@ -165,7 +165,8 @@ async function main() {
       continue;
     }
 
-    const senses = extractEstonianSenses(wikitext);
+    const entries = extractEstonianEntries(wikitext);
+    const senses = entries.map((s) => s.gloss);
     const short = senses[0];
     // The same floor the builder applies: a flashcard cannot be answered with
     // a full stop.
@@ -177,7 +178,9 @@ async function main() {
     }
     if (usable !== entry.translation) {
       const notesFrom = entry.notes;
-      const notesTo = senses.length > 1 ? senses.slice(1, 4).join("; ") : null;
+      // The builder's own rule, so a correction cannot hand an entry the
+      // senses of the other word on its page (`furtherSenses`).
+      const notesTo = furtherSenses(entries);
       corrected.push({ entry, from: entry.translation, to: usable, notesFrom, notesTo });
       entry.translation = usable;
       entry.notes = notesTo;

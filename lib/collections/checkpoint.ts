@@ -40,11 +40,11 @@ export interface CheckpointQuestion {
   full: string;
   answer: string;
   /**
-   * Every other spelling of the word, so a different form one keystroke away
-   * is marked as the wrong form rather than as a slip and counted as passed.
-   * This is a measurement that moves the learner up a level. See `rivalsOf`.
+   * The word's other forms, handed to `checkAnswer` so another ending one
+   * keystroke away is marked as the wrong form rather than as a slip: `toast`
+   * for `toas` read as "One letter out." and counted toward passing a level.
    */
-  rivals: string[];
+  rivals: readonly string[];
 }
 
 /**

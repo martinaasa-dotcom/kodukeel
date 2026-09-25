@@ -156,7 +156,27 @@ export async function POST(request: Request) {
   }
 
   const scanned = parseScanReply(reply.text);
-  const items = await resolveScannedItems(scanned.slice(0, MAX_ITEMS));
+  /*
+    The model has answered and been paid for by now, so what can still fail is
+    the dictionary, which decides what is believed. Left to throw, that was an
+    empty 500, which the screen cannot read as JSON, so its own catch told the
+    learner to check their connection. It says what happened instead, and what
+    the database said goes to the log and never to the screen.
+  */
+  let items;
+  try {
+    items = await resolveScannedItems(scanned.slice(0, MAX_ITEMS));
+  } catch (error) {
+    reportError(error, { at: "api/scan resolve", ownerId });
+    return Response.json(
+      {
+        error:
+          "The page was read, but the dictionary could not be asked about the words " +
+          "just now. Try the photo again in a moment.",
+      },
+      { status: 503, headers: NO_STORE },
+    );
+  }
 
   return Response.json(
     { items, summary: summarise(items) },

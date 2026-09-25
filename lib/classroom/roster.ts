@@ -11,7 +11,7 @@ import {
 } from "@/lib/progress/exam";
 import { knownLemmasFrom } from "@/lib/progress/summary";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
-import { classWideCases, summariseCohort, type CohortInput, type CohortSummary } from "./cohort";
+import { classWideCases, daysSince, summariseCohort, type CohortInput, type CohortSummary } from "./cohort";
 
 /**
  * What a teacher needs to see about a class, in three queries rather than three
@@ -189,9 +189,7 @@ export async function classRoster(
       reviewsThisWeek: stats.weekCount,
       streak: computeStreak(stats.dates, now, dayClock(zoneByOwner.get(member.ownerId))),
       wordsKnown: knownByOwner.get(member.ownerId) ?? 0,
-      daysSinceLastReview: last
-        ? Math.floor((now.getTime() - last.getTime()) / 86_400_000)
-        : null,
+      daysSinceLastReview: daysSince(last, now, zoneByOwner.get(member.ownerId)),
       weakestCase: weakest ?? null,
     };
   });
@@ -269,7 +267,7 @@ export async function workplaceRoster(
   const weekAgo = new Date(now.getTime() - 7 * 86_400_000);
   const windowStart = new Date(now.getTime() - COHORT_WINDOW_DAYS * 86_400_000);
 
-  const [cards, available, lexemeLevels, reviews, totals, attemptRows, placements] =
+  const [cards, available, lexemeLevels, reviews, totals, attemptRows, placements, zones] =
     await Promise.all([
       prisma.card.findMany({
         where: { ownerId: { in: ids } },
@@ -316,20 +314,28 @@ export async function workplaceRoster(
         _count: true,
         _max: { reviewedAt: true },
       }),
+      // A sitting or a check restored from a backup is history, never evidence:
+      // nothing here marked it (lib/security/restoredMeasurement.ts).
       prisma.examAttempt.findMany({
-        where: { ownerId: { in: ids } },
+        where: { ownerId: { in: ids }, restoredAt: null },
         orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
         select: { ownerId: true, level: true, pct: true, passed: true, finishedAt: true, result: true },
       }),
       prisma.assessment.findMany({
-        where: { ownerId: { in: ids } },
+        where: { ownerId: { in: ids }, restoredAt: null },
         orderBy: [{ takenAt: "desc" }, { id: "asc" }],
         select: {
           ownerId: true, takenAt: true, answered: true,
           reading: true, listening: true, writing: true,
         },
       }),
+      // Each member's own zone, for the same reason the class roster reads it.
+      prisma.setting.findMany({
+        where: { ownerId: { in: ids }, key: SETTING_KEYS.timeZone },
+        select: { ownerId: true, value: true },
+      }),
     ]);
+  const zoneOf = new Map(zones.map((z) => [z.ownerId, z.value]));
 
   const cardsBy = groupBy(cards, (c) => c.ownerId);
   const reviewsBy = groupBy(reviews, (r) => r.ownerId);
@@ -403,9 +409,7 @@ export async function workplaceRoster(
       displayName: member.displayName,
       readiness: signals.totalReviews === 0 ? null : assessReadiness(signals),
       reviewsThisWeek: ownReviews.filter((r) => r.reviewedAt >= weekAgo).length,
-      daysSinceLastReview: last === null
-        ? null
-        : Math.floor((now.getTime() - last.getTime()) / 86_400_000),
+      daysSinceLastReview: daysSince(last ?? null, now, zoneOf.get(member.ownerId)),
     };
   });
 

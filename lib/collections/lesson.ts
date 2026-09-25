@@ -257,7 +257,11 @@ export interface GapStep extends StepBase {
   full: string;
   /** What the whole sentence means, for the reveal. Null until one is asked for. */
   en: string | null;
-  /** Every spelling of the word, so a typed answer is marked against them. See `wordRivals`. */
+  /**
+   * The word's other forms, handed to `checkAnswer` so another ending one
+   * keystroke away (`toast` for `toas`) is the wrong form, not a slip that
+   * is logged as a recall.
+   */
   rivals: readonly string[];
 }
 export interface BuildStep extends StepBase {
@@ -295,7 +299,11 @@ export interface CaseStep extends StepBase {
   caseName: string;
   question: string;
   answer: string;
-  /** Every spelling of the word, so a typed answer is marked against them. See `wordRivals`. */
+  /**
+   * The word's other forms, handed to `checkAnswer` so another ending one
+   * keystroke away (`toast` for `toas`) is the wrong form, not a slip that
+   * is logged as a recall.
+   */
   rivals: readonly string[];
 }
 export interface GovernStep extends StepBase {
@@ -664,7 +672,7 @@ function gapStep(word: LessonWord, id: string, rules: LessonRules): GapStep | nu
       id, kind: "gap", lexemeId: word.lexemeId, lemma: word.lemma, gloss: word.gloss,
       cue: gapCue(word, cloze.answer),
       text: cloze.text, answer: cloze.answer, full: cloze.full, en: sentence.en,
-      rivals: wordRivals(word),
+      rivals: wordRivals(word, cloze.answer),
     };
     // The full cue is the test rather than the lemma, because the meaning
     // gives an answer away as completely as the word does: `saun` is glossed
@@ -681,16 +689,16 @@ function gapStep(word: LessonWord, id: string, rules: LessonRules): GapStep | nu
  *
  * `checkAnswer` reads anything one keystroke out as a typo, and every pair of
  * Estonian cases is one keystroke out, so without these a case step asking
- * for `toas` took `toast` as "So close" and counted it recalled. Over no
- * accepted answer, because `checkAnswer` never treats a spelling the answer
- * itself accepts as a rival, and one list then serves all three typed steps.
+ * for `toas` took `toast` as "So close" and counted it recalled. Over the
+ * step's own answer, so a right answer is never carried among the wrong ones:
+ * the list a step ships says what it is, which is every form but those.
  */
-function wordRivals(word: LessonWord): string[] {
+function wordRivals(word: LessonWord, answer: string): string[] {
   return rivalsOf({
     lemma: word.lemma,
     pos: word.pos,
     forms: Object.entries(word.parts).map(([formType, value]) => ({ formType, value })),
-  }, []);
+  }, answer.split(PARTS));
 }
 
 /** See `GapCue`. A rung is taken only where it does not spell the answer. */
@@ -750,7 +758,7 @@ function caseStep(
       // a `kes`, and `kus?` names two cases at once. See `caseQuestionFor`.
       caseKey: key, caseName: spec.et, question: caseQuestionFor(spec, subject),
       answer: found.accepted.join(PARTS),
-      rivals: wordRivals(word),
+      rivals: wordRivals(word, found.accepted.join(PARTS)),
     };
   }
   return null;
@@ -1024,7 +1032,7 @@ export function planLesson(input: LessonInput): LessonStep[] {
 
   const typeLane = (block: readonly LessonWord[]) => block.map((word): LessonStep => ({
     id: nextId("type"), kind: "type", lemma: word.lemma, gloss: word.gloss,
-    rivals: wordRivals(word),
+    rivals: wordRivals(word, word.lemma),
   }));
 
   // One round per block, plus the rounds the lag needs to drain: the last block

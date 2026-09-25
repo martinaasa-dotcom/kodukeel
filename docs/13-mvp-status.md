@@ -36,9 +36,10 @@ Pinning one paid provider fails that.
 
 | Key in `.env` | Used | Default model |
 |---|---|---|
-| `OPENROUTER_API_KEY` | OpenRouter (OpenAI-compatible) | `z-ai/glm-5.2:free`, genuinely free |
-| `ANTHROPIC_API_KEY` | Anthropic Messages API | `claude-sonnet-5` |
-| `OPENAI_API_KEY` | OpenAI | `gpt-4o-mini` |
+| `GROQ_API_KEY` | Groq (OpenAI-compatible) | `openai/gpt-oss-120b`, then the rest of `FREE_GROQ_MODELS` |
+| `GEMINI_API_KEY` | Google Gemini (OpenAI-compatible) | `gemini-flash-latest`, then the rest of `FREE_GEMINI_MODELS` |
+| `ANTHROPIC_API_KEY` | Anthropic Messages API | `claude-sonnet-5`, gated by the day's fallback budget |
+| `OPENAI_API_KEY` | OpenAI | `gpt-4o-mini`, gated the same way |
 
 **Superseded, 2026-09.** OpenRouter is no longer in the chain, and the table above describes the
 adapter as it was at MVP. `PROVIDER_KEY_ENV` in `lib/tutor/provider.ts` is the list of keys now:

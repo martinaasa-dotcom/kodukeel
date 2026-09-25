@@ -55,13 +55,15 @@ const browser = await launchChromium();
   instead.
 */
 /*
-  129 rather than 73: the 44px pass walks every route under `app/` a fresh
+  171 rather than 73: 129 because the 44px pass walks every route under `app/` a fresh
   install can answer for, and presses through each round's briefing, where it
   used to ask fourteen chosen routes about the screen in front of the round.
   That is 71 routes where there were 14, measured against a production build
-  with the demo fixture in place.
+  with the demo fixture in place, 2 more for the check that every day and
+  part on the course page starts beside its number, and 40 more for the
+  checks that no word breaks mid-letter at 320, 360 and 768.
 */
-const { check, done } = suite("The phone", { floor: 129 });
+const { check, done } = suite("The phone", { floor: 171 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -129,6 +131,80 @@ for (const width of [320, ...PHONES]) {
   const broken = cells.filter((c) => c.lines !== 1);
   check(`every label on the bar holds one line at ${width}`, cells.length >= 5 && broken.length === 0,
     broken.length ? broken.map((c) => `${c.label}: ${c.lines} lines`).join(", ") : `${cells.length} labels`);
+  await ctx.close();
+}
+
+// 2d — No word is broken mid-letter, at 360 or at 768. `overflow-wrap:
+//      anywhere` keeps a long word inside its box by breaking it wherever it
+//      has to, which is the right trade for a word longer than its box and the
+//      wrong answer for a box squeezed narrower than an ordinary word. A sweep
+//      of every route at 360 found six: the readiness tiles five across ("LEAD
+//      / IT"), a section title shrunk by its hint ("INDEPEN / DENT USER"), the
+//      grammar list's case names, the quest's chips, the settings key caps and
+//      a fixed-width admin label. The same sweep at 768 found nine more, and
+//      one cause under most of them: a grid choosing its columns by the
+//      window, where the rail takes a column and the page is 368px, so "two
+//      across" meant two cards of 174 and a unit's own sentence was laid out
+//      0px wide. Those choose by their container now. /welcome's comparison
+//      table is drawn from md up only, so it is asked at 1280 as well. The
+//      app's own chrome is left to the bar's check above. 320 is asked too,
+//      below the 360 the app is built for, because a phone held at 320 is
+//      still a phone somebody owns and a word broken there is the same fault.
+const WORD_SPLIT = [
+  ...["/progress", "/progress/readiness", "/grammar", "/quest", "/settings", "/admin/suggestions",
+    "/exam", "/learn", "/learn/kodu", "/situations", "/course", "/grammar/build-a-word", "/welcome"]
+    .flatMap((path) => [[320, path], [360, path], [768, path]]),
+  [1280, "/welcome"],
+];
+for (const [width, path] of WORD_SPLIT) {
+  const { ctx, page } = await open(width, 844, path);
+  const split = await page.evaluate(() => {
+    const out = new Set();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let words = 0;
+    for (let n; (n = walker.nextNode());) {
+      const el = n.parentElement;
+      if (!el || el.closest("script,style,svg,[aria-hidden=true],[data-chrome],code")) continue;
+      const re = /[\p{L}\p{N}]{4,}/gu;
+      for (let m; (m = re.exec(n.textContent));) {
+        const range = document.createRange();
+        range.setStart(n, m.index);
+        range.setEnd(n, m.index + m[0].length);
+        const rects = [...range.getClientRects()].filter((r) => r.width > 0);
+        if (!rects.length) continue;
+        words += 1;
+        if (new Set(rects.map((r) => Math.round(r.top))).size > 1) out.add(m[0]);
+      }
+    }
+    return { words, split: [...out] };
+  });
+  check(`no word is broken mid-letter on ${path} at ${width}`, split.words > 20 && split.split.length === 0,
+    split.split.length ? split.split.slice(0, 6).join(", ") : `${split.words} words`);
+  await ctx.close();
+}
+
+// 2c — A day on the course's own list, and a part on the ladder under it,
+//      starts beside its number. The row was a
+//      wrapping flex, so a title longer than the room beside the badge moved
+//      down whole and left the number alone on a line above it: at 360,
+//      "To be, this and that, and the six endings" sat under an orphaned 3.
+//      Read off the first line box of each title against its badge.
+for (const width of [320, 360]) {
+  const { ctx, page } = await open(width, 844, "/course");
+  const rows = await page.evaluate(() =>
+    [...document.querySelectorAll("[data-course-day]")].map((row) => {
+      const badge = row.querySelector("[data-course-badge]")?.getBoundingClientRect();
+      const title = row.querySelector("[data-course-title]");
+      if (!badge || !title) return { ok: false, text: "(missing)" };
+      const range = document.createRange();
+      range.selectNodeContents(title);
+      const first = range.getClientRects()[0];
+      return { ok: !!first && first.top < badge.bottom, text: title.textContent.trim() };
+    }));
+  const orphaned = rows.filter((r) => !r.ok);
+  check(`every day and part on the course page starts beside its number at ${width}`,
+    rows.length >= 20 && orphaned.length === 0,
+    orphaned.length ? orphaned.slice(0, 3).map((r) => r.text).join(" | ") : `${rows.length} rows`);
   await ctx.close();
 }
 

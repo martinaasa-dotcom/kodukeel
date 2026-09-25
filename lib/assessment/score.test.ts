@@ -69,19 +69,19 @@ describe("marking", () => {
     expect(near.note).not.toContain("toas");
   });
 
-  it("calls another case one letter away a near miss, not a slip of the hand", () => {
-    /*
-      `toast` is one keystroke from `toas` and is the seestütlev, a different
-      case. Marked against the answer alone it came back as a typo: 0.8 credit,
-      "right", and "One letter out." on a placement check, which is a learner
-      who chose the wrong ending told they had it and slipped. It is the
-      mistake this task exists to find, so it is the near miss above.
-    */
-    const near = gradeWrite(write, "toast");
-    expect(near.right).toBe(false);
-    expect(near.usedAnotherForm).toBe(true);
-    expect(near.credit).toBeLessThan(0.8);
-    expect(near.note).not.toBe("One letter out.");
+  /*
+    ANOTHER ENDING ONE KEYSTROKE AWAY IS NOT A SLIP. `toast` is `toas` with a
+    letter added, and the typo rule read it as "One letter out." and marked it
+    right at 0.8, so a placement counted the elative as knowing the inessive.
+    The item already carries the word's other forms; the marker never passed
+    them to `checkAnswer`, which is #403's fault in the mock exam, here.
+  */
+  it("marks another case one keystroke away as another form, not as a slip", () => {
+    const mark = gradeWrite(write, "toast");
+    expect(mark.right).toBe(false);
+    expect(mark.usedAnotherForm).toBe(true);
+    expect(mark.credit).toBeLessThan(0.8);
+    expect(mark.note).not.toBe("One letter out.");
   });
 
   it("does not tell somebody the dictionary form is a form of itself", () => {

@@ -269,10 +269,11 @@ describe("a chain built for a purpose", () => {
       wrong in a way the learner cannot see is worse than no answer, whoever
       wrote it, so there is nothing worth falling to.
 
-      `npm run eval:anu` now asks the same six questions through the route's own
-      transport, and `openai/gpt-oss-120b` answered all six on three separate
-      runs with no invented form, which is what moved her onto it. The rule
-      underneath is unchanged: one model, measured, and nothing behind it.
+      `npm run eval:anu` now asks thirty-seven questions through the route's
+      own transport, and her chain is the two links that eval measured,
+      `gemini-3.1-flash-lite` and then `openai/gpt-oss-120b` behind it. The
+      rule underneath is unchanged: only measured models, and nothing behind
+      them.
     */
     all();
     expect(resolveProviders({ purpose: "tutor", allowFallback: true }).map((c) => c.name))
@@ -682,21 +683,39 @@ describe("falling back", () => {
     expect(await collect(open)).toBe("Partitive.");
   });
 
-  it("does not walk past a rejected key, because every provider would answer the same", async () => {
+  it("walks past a rejected key to a provider holding another one", async () => {
+    /*
+      A rejected key is one provider's key. The next provider carries its own,
+      and a revoked Gemini key used to take Anu down whole with the Groq key
+      beside it working, which is the backup CLAUDE.md says Groq is.
+    */
     vi.stubEnv("GROQ_API_KEY", "k");
     vi.stubEnv("GROQ_MODEL", "free/one");
     vi.stubEnv("OPENAI_API_KEY", "k");
     const calls: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {
       calls.push(new URL(url).host);
+      return url.includes("groq.com") ? new Response("bad key", { status: 401 }) : sse("Partitive.");
+    });
+
+    const open = await openWithFallback(resolveProviders(), "system", [{ role: "user", content: "why?" }]);
+    expect(calls).toEqual(["api.groq.com", "api.openai.com"]);
+    expect(open.config.name).toBe("openai");
+  });
+
+  it("does not walk past a rejected key to the same provider, which holds the same key", async () => {
+    only("groq");
+    vi.stubEnv("GROQ_MODEL", "free/one, free/two");
+    const models: string[] = [];
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+      models.push(JSON.parse(String(init.body)).model as string);
       return new Response("bad key", { status: 401 });
     });
 
-    await expect(
-      openWithFallback(resolveProviders(), "system", [{ role: "user", content: "why?" }]),
-    ).rejects.toThrow(TutorError);
-    // One clear message beats a slower one that tried everything first.
-    expect(calls).toEqual(["api.groq.com"]);
+    await expect(openWithFallback(resolveProviders(), "s", [{ role: "user", content: "q" }]))
+      .rejects.toMatchObject({ status: 401 });
+    // One clear message beats a slower one that tried the same key twice.
+    expect(models).toEqual(["free/one"]);
   });
 
   it("walks past a key with no credit left, and says so in a sentence", async () => {
@@ -807,19 +826,19 @@ describe("falling back", () => {
     expect(open.config.model).toBe("still/here");
   });
 
-  it("does not walk a missing model across to another provider", async () => {
+  it("walks a missing model across to another provider, which names its own", async () => {
     vi.stubEnv("GROQ_API_KEY", "k");
     vi.stubEnv("OPENAI_API_KEY", "k");
     vi.stubEnv("GROQ_MODEL", "gone/yesterday");
     const calls: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {
       calls.push(new URL(url).host);
-      return new Response("no such model", { status: 404 });
+      return url.includes("groq.com") ? new Response("no such model", { status: 404 }) : sse("Partitive.");
     });
 
-    await expect(openWithFallback(resolveProviders(), "s", [{ role: "user", content: "q" }]))
-      .rejects.toMatchObject({ status: 404 });
-    expect(calls).toEqual(["api.groq.com"]);
+    const open = await openWithFallback(resolveProviders(), "s", [{ role: "user", content: "q" }]);
+    expect(calls).toEqual(["api.groq.com", "api.openai.com"]);
+    expect(open.config.name).toBe("openai");
   });
 
   it("refuses an empty chain rather than pretending it asked", async () => {
@@ -945,7 +964,7 @@ describe("the chain that looks at pictures", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it("stops at a rejected key, because no amount of retrying fixes one", async () => {
+  it("stops at a rejected key where every link left carries it, and moves past it where one does not", async () => {
     vi.stubEnv("GROQ_API_KEY", "k");
     vi.stubEnv("ANTHROPIC_API_KEY", "");
     vi.stubEnv("OPENAI_API_KEY", "k");
@@ -955,8 +974,11 @@ describe("the chain that looks at pictures", () => {
     const fetchMock = vi.fn(async () => new Response("nope", { status: 401 }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(completeWithImage(visionProviders(), "s", "p", IMAGE)).rejects.toBeInstanceOf(TutorError);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const chain = visionProviders();
+    await expect(completeWithImage(chain, "s", "p", IMAGE)).rejects.toBeInstanceOf(TutorError);
+    // One request per provider, never a second on a key already refused.
+    const providers = new Set(chain.map((config) => config.name));
+    expect(fetchMock).toHaveBeenCalledTimes(providers.size);
   });
 
   it("says so plainly when nothing is configured", async () => {
