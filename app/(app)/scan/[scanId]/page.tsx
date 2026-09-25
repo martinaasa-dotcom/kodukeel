@@ -8,7 +8,8 @@ import { unitProgress } from "@/lib/collections/syllabus";
 import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
 import { Speak } from "@/components/Speak";
-import { Card, Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
+import { ButtonLink } from "@/components/Button";
+import { Card, Chip, Empty, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { ScanActions } from "./ScanActions";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
@@ -80,6 +81,24 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   });
 
   const inDeck = progress.started;
+
+  /*
+    A page can be saved with no word the dictionary still points at: every
+    tick lost the race above in saveScan, or the words it matched have since
+    gone. The screen used to draw a ring at "0 of 0 known" over a heading with
+    nothing under it, which reads as a page that failed to load.
+  */
+  if (words.length === 0) {
+    return (
+      <Page eyebrow="From paper" title={scan.title}>
+        <Empty
+          title="No dictionary words on this page"
+          body="Nothing read off it matches an entry now, so there is nothing here to learn."
+          action={<ButtonLink href="/scan" variant="primary">All pages</ButtonLink>}
+        />
+      </Page>
+    );
+  }
 
   return (
     <Page
