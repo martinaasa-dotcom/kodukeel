@@ -1031,7 +1031,7 @@ export async function letterInputFor(
       };
     }
 
-    const roster = await classRoster(group.id, now);
+    const roster = await classRoster(group.id, now, { leaveOut: ownerId });
     return {
       kind: "classroom",
       input: {
@@ -1039,7 +1039,8 @@ export async function letterInputFor(
         groupName: group.name,
         ...headline,
         week,
-        detail: { kind: "CLASS", weakestCases: roster.weakestCases },
+        // Never the screen's figure, which may rest on one student.
+        detail: { kind: "CLASS", weakestCases: roster.sharedCases },
       },
     };
   }
