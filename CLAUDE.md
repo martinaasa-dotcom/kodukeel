@@ -4488,6 +4488,14 @@ nothing on the roster; U+202E reverses what follows it and can make one pupil's 
 another's. `cleanDisplayName` strips `\p{C}`, normalizes to NFC, and requires a letter or a digit.
 The roster is the one screen where a stranger's text is shown to a teacher beside real names.
 
+**And it was one door of four.** The class name a stranger reads on the join screen before deciding
+to join, a homework title on every member's Today and the note a reviewer reads in the report queue
+were each `trim()` and a slice, so two zero-width spaces were a class name that passed its length
+check and drew as nothing. And the one that cleaned cut by UTF-16 unit after cleaning, so a name
+ending in an emoji kept half of it, which is a `\p{C}` character drawn as a box.
+`lib/security/visibleText.ts` is the one cleaning, `visibleLine` for a field and `visibleProse` for a
+note that keeps its line breaks, both cut by code point, and an invariant holds each door to it.
+
 **An argument that is supposed to be a string is not one.** Every export of `app/actions.ts` is a
 public endpoint and its arguments are JSON off the wire whatever the types say, so
 `joinClassroom(42)` reached `.trim()` and threw, which the framework answers with a 500 and a
