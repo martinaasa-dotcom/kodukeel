@@ -17592,7 +17592,7 @@ check("a learner who says they are lost is handed the word, never the question a
     + "every word its own units do not teach",
   );
   assert.match(
-    gate, /!context\.lexicon\.forms\.has\(word\)\);\n  if \(stretched\.length > NEW_WORDS\)/,
+    gate, /!context\.lexicon\.forms\.has\(word\)\)\)\];\n  if \(stretched\.length > NEW_WORDS\)/,
     "the readability budget is gone, so a composed line can be made entirely of words the learner "
     + "has never met",
   );

@@ -956,7 +956,7 @@ describe("the card with a fact the learner changed", () => {
     ];
     const seen = cardChosen(card, turns, (lemma) => (lemma === "haigla" ? "hospital" : undefined));
     expect(propBySlot(seen!, "to")).toMatchObject({ value: "haigla", lemmas: ["haigla"], shown: ["hospital"], english: "hospital" });
-    expect(propBySlot(seen!, "time")).toMatchObject({ value: "09:30", shown: ["09:30"], literal: ["09:30", "09.30", "9:30"] });
+    expect(propBySlot(seen!, "time")).toMatchObject({ value: "09:30", shown: ["09:30"], literal: ["09:30", "09.30", "9:30", "9.30"] });
     expect(propBySlot(card, "to")?.value).toBe("jaam");
   });
 
