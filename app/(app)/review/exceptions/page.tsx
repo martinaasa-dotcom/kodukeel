@@ -17,6 +17,7 @@ import { Empty, Page } from "@/components/ui";
 import { ExceptionsSession } from "./ExceptionsSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { moduleScopeFrom } from "@/lib/course/scope";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Exceptions" };
 
@@ -50,11 +51,11 @@ export const dynamic = "force-dynamic";
 export default async function ExceptionsRoundPage({
   searchParams,
 }: {
-  searchParams: Promise<{ kind?: string; module?: string }>;
+  searchParams: Promise<{ kind?: string | string[]; module?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
   const canTranslate = resolveProvider() !== null;
-  const params = await searchParams;
+  const params = firstParams(await searchParams);
   const { kind } = params;
   // Opened from the module, the words are the taught ones. See lib/course/scope.ts.
   const scope = moduleScopeFrom(params);

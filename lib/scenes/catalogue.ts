@@ -942,7 +942,7 @@ const CAFE: SceneSpec = {
       goal: "Tell them what you would like to drink.",
       they: "They ask what you would like.",
       move: "ask",
-      topic: ["kohv", "tee", "jook", "soovima", "tellima"],
+      topic: ["jook", "kohv", "tee", "soovima", "tellima"],
       needs: [{ kind: "datum", slot: "drink", grammCase: "PARTITIVE" }],
       required: true,
       patience: 3,
@@ -1063,7 +1063,16 @@ const DIRECTIONS: SceneSpec = {
       answeredNext: true,
       move: "ask",
       topic: ["aitama", "otsima", "koht"],
-      needs: [{ kind: "question" }, { kind: "datum", slot: "place" }],
+      /*
+        "I'm looking for the station" is how a stranger is asked the way as
+        often as "where is the station?", and the beat already names
+        `otsima` for exactly that. Held to a question alone, it read that turn
+        as a learner who had not finished.
+      */
+      needs: [
+        { kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["otsima"] }] },
+        { kind: "datum", slot: "place" },
+      ],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -2055,8 +2064,16 @@ const COMPLAINT: SceneSpec = {
       they: "They ask what the matter is.",
       feel: "sorry",
       move: "ask",
-      topic: ["probleem", "viga", "kaebus", "aitama"],
-      needs: [{ kind: "datum", slot: "item" }, { kind: "lemma", oneOf: ["probleem", "viga", "halb", "kahju", "töötama", "vana"] }],
+      topic: ["probleem", "viga", "katki", "kaebus", "aitama"],
+      /*
+        `katki` is how anybody says a thing is broken, and the beat did not
+        take it: `Ma ostsin arvuti ja arvuti on katki` read as incomplete,
+        the clerk asked again, and then offered `Viga või probleem?` to a
+        learner who had just said exactly what was wrong. The composer's
+        `Kuidas telefon teil katki läks?` was withheld as off topic for the
+        same reason.
+      */
+      needs: [{ kind: "datum", slot: "item" }, { kind: "lemma", oneOf: ["probleem", "viga", "katki", "halb", "kahju", "töötama", "vana"] }],
       required: true,
       patience: 3,
       shape: "sentence",

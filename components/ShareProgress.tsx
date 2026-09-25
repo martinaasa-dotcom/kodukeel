@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, Share2 } from "lucide-react";
 import { Button } from "@/components/Button";
+import { shareRefusal } from "@/lib/ux/share";
 
 /**
  * Share the progress card.
@@ -27,9 +28,17 @@ export function ShareProgress() {
       const blob = await response.blob();
       const file = new File([blob], "kodukeel.png", { type: "image/png" });
 
+      let shared = false;
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: "My Estonian progress" });
-      } else {
+        try {
+          await navigator.share({ files: [file], title: "My Estonian progress" });
+          shared = true;
+        } catch (refusal) {
+          // Closing the sheet is a choice; anything else falls through to the tab.
+          if (shareRefusal(refusal) === "cancelled") shared = true;
+        }
+      }
+      if (!shared) {
         /*
           A blob URL rather than a download attribute: some browsers block
           programmatic downloads, and every one of them can open a tab.

@@ -1,5 +1,6 @@
 "use client";
 
+import { PARTS } from "@/lib/copy/values";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { CaseQuestion } from "@/components/CaseQuestion";
@@ -13,7 +14,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
-import type { DescribeMark } from "@/lib/games/describe";
+import { pictureLabel, type DescribeMark } from "@/lib/games/describe";
 import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
 import { CASES } from "@/lib/estonian/cases";
@@ -292,7 +293,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           >
             <span aria-hidden>{prompt.things.map((t) => t.emoji).join(" ")}</span>
             <span className="sr-only">
-              A picture of {prompt.things.map((t) => t.translation.split(",")[0]!.trim()).join(", ")}.
+              {pictureLabel(prompt.things.map((t) => t.translation))}
             </span>
           </p>
 
@@ -425,20 +426,20 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
               You wrote <strong lang="et">{mark.written}</strong>, which is the{" "}
               <span lang="et">{wrote}</span>. The{" "}
               <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(" / ")}</strong>.
+              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>
           ) : mark.written ? (
             // Two cases share that spelling, so naming either would be a guess.
             <>
               <strong lang="et">{mark.written}</strong> is more than one case at once, so it
               cannot be this one. The <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(" / ")}</strong>.
+              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>
           ) : (
             <>
               <strong lang="et">{prompt.askLemma}</strong> is not in that sentence. The{" "}
               <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(" / ")}</strong>.
+              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>
           )}
         </p>

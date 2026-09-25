@@ -425,6 +425,8 @@ export class Ledger {
 
   /** A word handed over, with what the harvest holds for it. */
   teach(lemma: string, pos: string): void {
+    // Read before `lemmas.add` below: a word taught again in a later part is not a second word.
+    const fresh = !this.lemmas.has(lemma);
     if (pos === "VERB") this.verbs = true;
     if (pos === "NOUN" && emojiFor(lemma) !== undefined && !this.lemmas.has(lemma)) this.pictured += 1;
     if (spellable(lemma) && !this.lemmas.has(lemma)) this.spellable += 1;
@@ -433,7 +435,7 @@ export class Ledger {
     const word = this.harvest.get(`${lemma}|${pos}`);
     this.spellings.add(lemma.toLowerCase());
     if (!word) return;
-    if (pos === "VERB" && word.government) this.governed += 1;
+    if (pos === "VERB" && word.government && fresh) this.governed += 1;
     for (const form of Object.values(word.parts)) this.spellings.add(form.toLowerCase());
     for (const extra of word.extraForms) this.spellings.add(extra.value.toLowerCase());
     if (!this.readable) this.pending.push(...word.usages);
