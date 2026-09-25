@@ -137,6 +137,11 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
     setSilent(false);
   }, [item.id, item.heard]);
 
+  const choose = (index: number) => {
+    if (picked !== null) return;
+    setPicked(index);
+  };
+
   useEffect(() => {
     if (picked !== null || !played) return;
     const onKey = (event: KeyboardEvent) => {
@@ -146,11 +151,6 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
-
-  const choose = (index: number) => {
-    if (picked !== null) return;
-    setPicked(index);
-  };
 
   const right = picked === item.answer;
 
