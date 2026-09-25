@@ -6896,6 +6896,8 @@ check("the other side talks at the run's band, and every composer says which ban
     band back would be a second answer to how the other side talks.
   */
   const spec = /export interface SceneSpec \{[\s\S]*?\n\}/.exec(code("lib/scenes/types.ts"))?.[0] ?? "";
+  // An empty slice passes the next line whatever SceneSpec holds, so its absence is a failure.
+  assert.ok(spec, "SceneSpec is no longer an interface in lib/scenes/types.ts, so the band check reads nothing");
   assert.doesNotMatch(spec, /\blevel\b/, "SceneSpec carries a band again");
   assert.doesNotMatch(code("lib/scenes/catalogue.ts"), /^\s*level: "/m, "a scene in the catalogue names a band");
   assert.match(
@@ -11352,7 +11354,14 @@ check("Sonad decides nothing on the client but what to type", () => {
     `gradeCard(card.id, rating, 0)` inside, so the check fired on honest code,
     which is how a check becomes one people waive.
   */
-  const signature = /export async function recordSonad\(([^)]*)\)/.exec(code("app/actions.ts"))?.[1] ?? "";
+  /*
+    Read to the `{` that opens the body rather than to the first `)`: a default
+    such as `= parse()` or a type such as `Parameters<typeof f>` closes a paren
+    inside the list, and the rest of it would go unread. And a signature that
+    cannot be found fails, since an empty one passes the check below.
+  */
+  const signature = /export async function recordSonad\(([\s\S]*?)\)\s*(?::[^{]*)?\{/.exec(code("app/actions.ts"))?.[1] ?? "";
+  assert.ok(signature, "recordSonad is not an exported async function in app/actions.ts any more, so this reads nothing");
   assert.doesNotMatch(
     signature, /rating|score|grade/i,
     "recordSonad takes a rating from its caller, which is a score anybody can type",
@@ -16819,7 +16828,11 @@ check("a verdict is one size, and never below the body step", () => {
     for (const tag of body.match(/<[A-Za-z][^<]*?(?<!=)>/gs) ?? []) {
       if (!/VERDICT_INK/.test(tag)) continue;
       const classes = tag.match(/className=(?:"([^"]*)"|\{`([^`]*)`\})/);
-      const names = classes?.[1] ?? classes?.[2] ?? "";
+      /*
+        A class list this cannot read as a literal (`cn(...)`, a `.join(" ")`)
+        is read as the whole tag rather than as nothing, since nothing passes.
+      */
+      const names = classes?.[1] ?? classes?.[2] ?? tag;
       assert.doesNotMatch(
         names, small,
         `${file} writes a verdict in the verdict ink and sets it below the body step: ${names}`,
