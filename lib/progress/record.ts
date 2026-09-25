@@ -54,7 +54,8 @@ export async function studyRecord(ownerId: string): Promise<StudyRecord> {
     deckSnapshot(ownerId),
     historyFor(ownerId, LISTED, { measured: true }),
     prisma.examAttempt.findMany({
-      where: { ownerId, restoredAt: null },
+      // Whole papers only: one part sat on its own is practice, not a sitting of the paper.
+      where: { ownerId, restoredAt: null, part: null },
       orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
       take: SITTINGS,
       select: { finishedAt: true, level: true, pct: true, passed: true },
