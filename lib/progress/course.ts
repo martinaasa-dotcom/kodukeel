@@ -237,6 +237,16 @@ export const moduleReached = cache(async (
 export async function dayIsInPlay(
   ownerId: string, programme: Programme, day: CourseDay,
 ): Promise<boolean> {
+  /*
+    THE PROGRAMME IS OFF THE WIRE TOO, NOT ONLY THE DAY. A part nobody has
+    opened carries no ticks, so the rule below reads its first two evenings as
+    reached, and a call naming the last part of C1 built a beginner's deck out
+    of its words: the forged call the header above says this closes. The one
+    they are following is `programmeFor`'s answer, which is the programme every
+    screen that draws a step hands over, so an honest press never meets this.
+  */
+  const followed = await programmeFor(ownerId);
+  if (followed?.id !== programme.id) return false;
   const ticks = await ticksFor(ownerId, programme);
   const reached = dayReached(programme, new Set(ticks.byDay.keys()));
   /* The day after the one reached is in play too: finishing an evening is what
