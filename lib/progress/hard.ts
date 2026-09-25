@@ -15,11 +15,12 @@ import { HARD_LEARNERS, tooHardForEveryone } from "@/lib/srs/defer";
  * more than the convenience of keeping two queries beside their cache.
  *
  * TWO QUERIES AND THE SECOND ONE IS THE POINT. The first groups `Deferral`,
- * which holds one row per learner per word, so its count is people. That gives
- * a handful of candidates. The second asks how many learners met each of
- * *those* words, by a card or by having put it aside, which is the
- * denominator `tooHardForEveryone` needs and which is only cheap because the
- * candidate list is short and both tables are indexed on `lexemeId`.
+ * which holds one row per learner per word, so its count is people, and only
+ * people who have graded a card (`votesFor`). That gives a handful of
+ * candidates. The second asks how many learners met each of *those* words, by
+ * a card or by having put it aside, which is the denominator
+ * `tooHardForEveryone` needs and which is only cheap because the candidate
+ * list is short and both tables are indexed on `lexemeId`.
  *
  * AND "SHORT" IS A CAP RATHER THAN A HOPE. The candidate list is whatever
  * `HARD_LEARNERS` lets through, which is a number about people and says
@@ -65,6 +66,41 @@ async function holdersOf(ids: readonly string[]): Promise<Map<string, number>> {
 }
 
 /**
+ * WHO GETS A VOTE, WHICH IS SOMEBODY WHO HAS ANSWERED A CARD.
+ *
+ * A deferral is two things at once: a wait on one learner's own cards, which
+ * every press gets, and a vote on where a word sits for everybody, which only
+ * a learner who has engaged with the course gets. Sign-up is open, so without
+ * this a handful of accounts made for the purpose could put any word held by
+ * few learners aside and move it a band later for the whole deployment, with
+ * nothing on their side but a press each. One graded `Review` is the bar, any
+ * at all: it costs a real learner nothing they had not already done on their
+ * first evening, and it is a row a throwaway account has to go and earn.
+ *
+ * `EXISTS` rather than a join, because the question is whether a row exists
+ * and `Review` is the largest table in the schema: the planner stops at the
+ * first one it finds on `(ownerId, reviewedAt)`. One row per learner per word
+ * in `Deferral` is still what makes the count people.
+ *
+ * Both readings go through here, the move and the admin's table, so the panel
+ * cannot count a vote the move refuses.
+ */
+async function votesFor(
+  atLeast: number,
+  limit: number,
+): Promise<{ lexemeId: string; learners: number }[]> {
+  return prisma.$queryRaw<{ lexemeId: string; learners: number }[]>`
+    SELECT d."lexemeId" AS "lexemeId", COUNT(*)::int AS "learners"
+    FROM "Deferral" d
+    WHERE EXISTS (SELECT 1 FROM "Review" r WHERE r."ownerId" = d."ownerId")
+    GROUP BY d."lexemeId"
+    HAVING COUNT(*) >= ${atLeast}
+    ORDER BY COUNT(*) DESC, d."lexemeId" ASC
+    LIMIT ${limit}
+  `;
+}
+
+/**
  * How many words this may offer a band later, at once.
  *
  * Generous rather than tight, because every one of them is a real finding and
@@ -75,19 +111,13 @@ const MOST_REFUSED = 200;
 
 /** The words this deployment now teaches a band later than the dictionary says. */
 export async function movedWords(): Promise<ReadonlySet<string>> {
-  const candidates = await prisma.deferral.groupBy({
-    by: ["lexemeId"],
-    _count: { _all: true },
-    having: { lexemeId: { _count: { gte: HARD_LEARNERS } } },
-    orderBy: [{ _count: { lexemeId: "desc" } }, { lexemeId: "asc" }],
-    take: MOST_REFUSED,
-  });
+  const candidates = await votesFor(HARD_LEARNERS, MOST_REFUSED);
   if (candidates.length === 0) return new Set<string>();
 
   const holding = await holdersOf(candidates.map((row) => row.lexemeId));
   const moved = new Set<string>();
   for (const row of candidates) {
-    if (tooHardForEveryone({ learners: row._count._all, holders: holding.get(row.lexemeId) ?? 0 })) {
+    if (tooHardForEveryone({ learners: row.learners, holders: holding.get(row.lexemeId) ?? 0 })) {
       moved.add(row.lexemeId);
     }
   }
@@ -111,7 +141,7 @@ export interface HardWordReading {
   lexemeId: string;
   lemma: string;
   cefr: string | null;
-  /** People who put it aside, which is rows, because there is one per person. */
+  /** People who put it aside and have graded a card, one row each (`votesFor`). */
   learners: number;
   /** People holding a card for it, which is who could have. */
   holders: number;
@@ -123,13 +153,7 @@ export interface HardWordReading {
 const WORTH_READING = 2;
 
 export async function hardWordReadings(limit = 40): Promise<HardWordReading[]> {
-  const candidates = await prisma.deferral.groupBy({
-    by: ["lexemeId"],
-    _count: { _all: true },
-    having: { lexemeId: { _count: { gte: WORTH_READING } } },
-    orderBy: [{ _count: { lexemeId: "desc" } }, { lexemeId: "asc" }],
-    take: limit,
-  });
+  const candidates = await votesFor(WORTH_READING, limit);
   if (candidates.length === 0) return [];
 
   const ids = candidates.map((row) => row.lexemeId);
@@ -140,7 +164,7 @@ export async function hardWordReadings(limit = 40): Promise<HardWordReading[]> {
   const byId = new Map(words.map((word) => [word.id, word]));
 
   return candidates.map((row) => {
-    const learners = row._count._all;
+    const learners = row.learners;
     const held = holding.get(row.lexemeId) ?? 0;
     return {
       lexemeId: row.lexemeId,

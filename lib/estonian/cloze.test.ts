@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BLANK, buildCloze, filledSentence, isBuildable, naturalSentence, primaryAnswer, sentenceMatches, sentenceTiles, sizedBlank, mentions } from "./cloze";
+import { BLANK, buildCloze, filledSentence, isBuildable, naturalSentence, primaryAnswer, sentenceMatches, sentenceTiles, sizedBlank, mentions, tileFaces } from "./cloze";
 
 describe("a blank sized to the answer it stands for", () => {
   it("matches the answer's own length", () => {
@@ -235,5 +235,26 @@ describe("filledSentence", () => {
 
   it("leaves a sentence with no blank in it exactly as it is", () => {
     expect(filledSentence("Ma lähen tuppa.", "tuppa")).toBe("Ma lähen tuppa.");
+  });
+});
+
+describe("the tiles a learner is handed", () => {
+  const tiles = ["raamatut", "Ma", "loen"];
+
+  it("takes the capital off an ordinary opener, which would say which tile goes first", () => {
+    expect(tileFaces(tiles, "Ma", true)).toEqual(["raamatut", "ma", "loen"]);
+  });
+
+  it("leaves a name its capital", () => {
+    expect(tileFaces(["on", "Kaisa", "siin"], "Kaisa", false)).toEqual(["on", "Kaisa", "siin"]);
+  });
+
+  it("still marks the lowered tiles right against the recording", () => {
+    expect(sentenceMatches(["ma", "loen", "raamatut"], "Ma loen raamatut.")).toBe(true);
+  });
+
+  it("changes nothing but the first letter of one tile", () => {
+    expect(tileFaces(["Ülle", "Ülle"], "Ülle", true)).toEqual(["ülle", "Ülle"]);
+    expect(tileFaces(tiles, "", true)).toEqual(tiles);
   });
 });

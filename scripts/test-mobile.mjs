@@ -55,14 +55,15 @@ const browser = await launchChromium();
   instead.
 */
 /*
-  169 rather than 73: 129 because the 44px pass walks every route under `app/` a fresh
+  171 rather than 73: 129 because the 44px pass walks every route under `app/` a fresh
   install can answer for, and presses through each round's briefing, where it
   used to ask fourteen chosen routes about the screen in front of the round.
   That is 71 routes where there were 14, measured against a production build
-  with the demo fixture in place, and 40 more for the checks
-  that no word breaks mid-letter at 320, 360 and 768.
+  with the demo fixture in place, 2 more for the check that every day and
+  part on the course page starts beside its number, and 40 more for the
+  checks that no word breaks mid-letter at 320, 360 and 768.
 */
-const { check, done } = suite("The phone", { floor: 169 });
+const { check, done } = suite("The phone", { floor: 171 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -179,6 +180,31 @@ for (const [width, path] of WORD_SPLIT) {
   });
   check(`no word is broken mid-letter on ${path} at ${width}`, split.words > 20 && split.split.length === 0,
     split.split.length ? split.split.slice(0, 6).join(", ") : `${split.words} words`);
+  await ctx.close();
+}
+
+// 2c — A day on the course's own list, and a part on the ladder under it,
+//      starts beside its number. The row was a
+//      wrapping flex, so a title longer than the room beside the badge moved
+//      down whole and left the number alone on a line above it: at 360,
+//      "To be, this and that, and the six endings" sat under an orphaned 3.
+//      Read off the first line box of each title against its badge.
+for (const width of [320, 360]) {
+  const { ctx, page } = await open(width, 844, "/course");
+  const rows = await page.evaluate(() =>
+    [...document.querySelectorAll("[data-course-day]")].map((row) => {
+      const badge = row.querySelector("[data-course-badge]")?.getBoundingClientRect();
+      const title = row.querySelector("[data-course-title]");
+      if (!badge || !title) return { ok: false, text: "(missing)" };
+      const range = document.createRange();
+      range.selectNodeContents(title);
+      const first = range.getClientRects()[0];
+      return { ok: !!first && first.top < badge.bottom, text: title.textContent.trim() };
+    }));
+  const orphaned = rows.filter((r) => !r.ok);
+  check(`every day and part on the course page starts beside its number at ${width}`,
+    rows.length >= 20 && orphaned.length === 0,
+    orphaned.length ? orphaned.slice(0, 3).map((r) => r.text).join(" | ") : `${rows.length} rows`);
   await ctx.close();
 }
 

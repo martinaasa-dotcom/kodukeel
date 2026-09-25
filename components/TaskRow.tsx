@@ -43,7 +43,7 @@ export function TaskRow({ task }: { task: TaskView }) {
     >
       <button
         type="button"
-        onClick={() => start(() => void toggleTask(task.id).catch(() => {}))}
+        onClick={() => start(() => void toggleTask(task.id, !task.completed).catch(() => {}))}
         aria-label={task.completed ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
         className="press flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors"
         style={{
