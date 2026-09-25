@@ -578,17 +578,8 @@ it more often than necessary costs nothing but a few queries.
 **Hourly is what this wants and daily is what a Hobby plan allows, and the cost of getting that
 wrong is not the letters.** A letter has to arrive in the learner's own evening and this app's
 learners are not in one timezone. One firing a day reaches only the learners whose 18:00 to 22:00
-window that hour falls in. 16:00 UTC is 19:00 in Tallinn in summer and 18:00 in winter, which is
-where nearly all of them are, and anybody a couple of hours further off hears nothing.
-
-**And one of the four reminder hours Settings offers is never reached.** The evening letter waits
-for the hour the learner picked (`lib/email/schedule.ts`), and the choices are 08:00, 12:30, 18:00
-and 20:30. The one daily run arrives at 18:00 or 19:00 in Tallinn, so somebody who picked 20:30 is
-never sent it, while the screen says the note is read at that hour on their own clock; somebody who
-picked 08:00 hears at 18:00 or 19:00. The calendar file reads the same hours and is right about all
-four, since a phone raises that alarm itself. Which of hourly runs, a different run hour or a
-different set of choices is the answer is a decision about the plan and the product rather than the
-code, so it is written down here rather than made.
+window that hour falls in. 16:00 UTC is 19:00 in Tallinn, which is where nearly all of them are,
+and anybody a couple of hours further off hears nothing.
 
 That much the first version of this paragraph already said. What it did not say is that **Vercel
 refuses the deployment itself** over a schedule the plan does not allow, with
