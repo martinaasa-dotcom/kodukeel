@@ -24787,6 +24787,20 @@ check("every action that writes a grade tells Today it changed", () => {
     .filter((b) => !/revalidatePath\(\s*"\/"\s*\)/.test(b))
     .map((b) => /^export (?:async )?function (\w+)/.exec(b)?.[1] ?? "?");
   assert.deepEqual(silent, [], `${silent.join(", ")} writes a grade and never revalidates Today`);
+check("a picked option is marked through choiceIsRight, never against the back as a string", () => {
+  /*
+    A back can hold two spellings (`tuppa / toasse`) and an option holds one,
+    so `choice === card.back` marked the right option wrong on every such
+    card, graded it Again and requeued it. `choiceIsRight` in
+    lib/questions/caseChoices.ts reads both through `acceptedAnswers`.
+  */
+  const sessions = ALL.filter((f) => /Session\.tsx$/.test(f));
+  assert.ok(sessions.length >= 15, `found only ${sessions.length} session files`);
+  const offenders = sessions.filter((f) =>
+    /\b(choice|chosen|picked|pick)\s*===\s*card\??\.back\b|\bcard\??\.back\s*===\s*(choice|chosen|picked|pick)\b/.test(code(f)));
+  assert.deepEqual(offenders, [], `${offenders.join(", ")} compares a picked option with the back as a string`);
+  assert.match(code("app/(app)/review/ReviewSession.tsx"), /choiceIsRight\(/,
+    "ReviewSession no longer marks its options through choiceIsRight");
 });
 
 console.log(
