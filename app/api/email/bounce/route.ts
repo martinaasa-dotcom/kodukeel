@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
+import { switchOff } from "@/lib/email/prefs";
+import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { OPTIONAL_KINDS } from "@/lib/email/letter";
 import { addressDigest, BLOCKED_ANY, readDelivery, verifyDelivery, webhookSecret } from "@/lib/email/webhook";
 import { reportError } from "@/lib/observability/report";
@@ -124,17 +125,8 @@ export async function POST(request: Request) {
         address-blind, because what they said is about our mail rather than
         about a mailbox.
       */
-      const existing = await prisma.setting.findUnique({
-        where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff } },
-        select: { value: true },
-      });
-      const value = emailPrefsTo(switchOff(emailPrefsFrom(existing?.value), OPTIONAL_KINDS));
-      await prisma.setting.upsert({
-        where: { ownerId_key: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff } },
-        create: { ownerId: sent.ownerId, key: SETTING_KEYS.emailsOff, value },
-        update: { value },
-      });
-      forgetSettings(sent.ownerId);
+      // Under the learner's lock, for the reason `lib/progress/emailPrefs.ts` gives.
+      await changeEmailPrefs(sent.ownerId, (current) => switchOff(current, OPTIONAL_KINDS));
       return ok();
     }
 

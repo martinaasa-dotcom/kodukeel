@@ -21716,6 +21716,29 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("which letters a learner gets is changed only under their lock", () => {
+  /*
+    Three doors write the two preference rows, the Settings switch, the
+    unsubscribe link and the complaint webhook, and each is a read, a change
+    and a write. Unlocked, two of them inside that gap lose one opt-out, which
+    is a learner who pressed "stop" and goes on getting mail.
+    `lib/progress/emailPrefs.ts` is the one locked writer and
+    `emailPrefs.itest.ts` is where the race is shown; this holds every other
+    file to going through it.
+  */
+  const helper = code("lib/progress/emailPrefs.ts");
+  assert.match(helper, /pg_advisory_xact_lock/, "lib/progress/emailPrefs.ts stopped taking the learner's lock");
+  const writers = ALL.filter(
+    (f) =>
+      f !== "lib/progress/emailPrefs.ts" &&
+      /writeSetting\([^)]*SETTING_KEYS\.emails(?:Off|On)|ownerId_key:\s*\{[^}]*SETTING_KEYS\.emails(?:Off|On)/.test(code(f)),
+  );
+  assert.deepEqual(writers, [], `${writers.join(", ")} writes the email preferences outside changeEmailPrefs`);
+  for (const file of ["app/actions.ts", "app/api/email/unsubscribe/route.ts", "app/api/email/bounce/route.ts"]) {
+    assert.match(code(file), /changeEmailPrefs\(/, `${file} no longer changes the email preferences through the lock`);
+  }
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
