@@ -5,6 +5,7 @@ import { learnBatch, learnCounts, type LearnKind } from "@/lib/progress/learn";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
 import { LearnSession } from "./LearnSession";
+import { firstParam, firstParams } from "@/lib/ux/queryParam";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +13,8 @@ function kindFrom(raw: string | undefined): LearnKind {
   return raw === "phrase" ? "phrase" : "word";
 }
 
-export async function generateMetadata({ searchParams }: { searchParams: Promise<{ kind?: string }> }) {
-  const { kind } = await searchParams;
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ kind?: string | string[] }> }) {
+  const { kind } = firstParams(await searchParams);
   return { title: kindFrom(kind) === "phrase" ? "Learn phrases" : "Learn new words" };
 }
 
@@ -39,10 +40,10 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 export default async function LearnNewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ kind?: string }>;
+  searchParams: Promise<{ kind?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const kind = kindFrom((await searchParams).kind);
+  const kind = kindFrom(firstParam((await searchParams).kind));
 
   /*
     Which language a first meeting gives the meaning in, beside the level and
