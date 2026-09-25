@@ -180,7 +180,7 @@ export interface LexemeForCards {
   gradationNote: string | null;
   government: string | null;
   /** The raw `Lexeme.examples` JSON column; parsed defensively. */
-  examples?: string | null;
+  examples: string | null;
   /**
    * How this word's attested sentences are ordered, where the caller has an
    * opinion. Beginners' words are taught with the plainest sentence rather
