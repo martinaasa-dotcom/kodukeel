@@ -5,6 +5,7 @@ import Script from "next/script";
 import { Button } from "@/components/Button";
 import { Skeleton } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
+import { safeNext } from "@/lib/auth/access";
 import { ssoDomainFor } from "@/lib/auth/sso";
 import { GSI_LOCALE, GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
 
@@ -217,9 +218,16 @@ export function SignInForm({
   /** The provider this address would go to, recomputed as they type. */
   const ssoDomain = sso ? ssoDomainFor(email, ssoPolicy) : null;
 
-  /** The page this browser asked to land on, carried through whichever door. */
+  /**
+   * The page this browser asked to land on, carried through whichever door.
+   *
+   * Through `safeNext`, here and not only in the callback: the Google button's
+   * ID-token path never reaches /auth/callback, it signs in on this page and
+   * navigates itself, so `?next=https://evil.example` sent somebody off-site
+   * with a session freshly minted a second earlier.
+   */
   function nextPath(): string {
-    return new URLSearchParams(window.location.search).get("next") ?? "/";
+    return safeNext(new URLSearchParams(window.location.search).get("next"));
   }
 
   /** Where the provider sends somebody back to, carrying the page they wanted. */

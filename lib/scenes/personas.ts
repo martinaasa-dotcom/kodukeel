@@ -2,7 +2,7 @@
  * Who is behind the desk today.
  *
  * **The persona is the strongest lever in the draw and it is nearly free**
- * (`docs/19-situations.md` §5). A receptionist who wants the queue gone, one
+ * (`docs/21-situations.md` §5). A receptionist who wants the queue gone, one
  * who is thorough and slow, one who is new and unsure, one following a script
  * and not deviating: same beats, same props, four conversations that feel
  * nothing alike. Props change the words. An agenda changes the person.
