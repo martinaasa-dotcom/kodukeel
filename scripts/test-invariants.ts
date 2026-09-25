@@ -11099,6 +11099,106 @@ check("the accessibility sweep runs axe, over both themes", () => {
   const pkg = JSON.parse(read("package.json")) as { devDependencies?: Record<string, string> };
   assert.ok(pkg.devDependencies?.["axe-core"], "axe-core is not a dependency, so CI cannot run it");
 });
+/**
+ * A TIMED PRACTICE ROUND IS ADJUSTED BEFORE IT STARTS, AND EVERY ONE READS THE
+ * ONE SETTING.
+ *
+ * CLAUDE.md states the rule and nothing asserted it, which is how the third
+ * clock was missed: the Case Sprint and the daily quest read the pace from
+ * `lib/ux/roundClock.ts`, and Target gave eight seconds a question falling to
+ * three and a half with all three numbers typed into the session. WCAG 2.2.1,
+ * Timing Adjustable, failed on a practice round, where unlike the examination
+ * there is no argument for the limit being fixed.
+ *
+ * The haystack is the filesystem, read on the shape of a countdown rather than
+ * on a list of round names: a setter stepped towards zero from inside a
+ * `setInterval` or `setTimeout`. That is a limit the learner is racing, where a
+ * stopwatch counting up (Match, the picture board) is not a limit at all. A
+ * session with that shape has to be handed its length by a page that reads the
+ * pace. The examination is the one clock left fixed, on purpose and said so on
+ * /accessibility, and it counts down from stored deadlines rather than in this
+ * shape, so it is not in the haystack to exempt.
+ */
+check("every timed practice round reads the learner's pace", () => {
+  /*
+    TWO SHAPES OF CLOCK, AND THE CALL RATHER THAN THE IMPORT.
+
+    Reconciled with #360, which fixed the same round and asked two things
+    this check did not. It asked for `roundPaceFrom(` to be called on the page,
+    where this asked only that the page import from `roundClock`: a page that
+    imports the module and hands its round a fixed length passed, measured by
+    doing exactly that. And it knew the second shape a countdown takes, a
+    session holding a deadline rather than a setter stepped towards nought,
+    which is how the examination keeps time; a sweep that only knew the first
+    could never see a round written the second way. The examination is exempt
+    by name with its reason, and the exemption is checked both ways so it
+    cannot outlive the clock it is about.
+  */
+  const EXEMPT: Record<string, string> = {
+    "app/(app)/exam/[level]/ExamSession.tsx":
+      "an imitation of a timed state examination, where untimed practice of a timed paper measures "
+      + "something else; /accessibility names it as the one clock deliberately left fixed",
+  };
+  const COUNTDOWN = /set(?:Interval|Timeout)\(\s*\(\)\s*=>\s*set\w+\(\(?\w+\)?\s*=>\s*Math\.max\(0,/;
+  const DEADLINE = /\b(?:deadline|endsAt|remainingMs|msLeft)\b/;
+  const timed = [...APP, ...COMPONENTS].filter(
+    (file) => file.endsWith("Session.tsx") && (COUNTDOWN.test(code(file)) || DEADLINE.test(code(file))),
+  );
+  assert.ok(
+    timed.length >= 4,
+    `only ${timed.length} timed rounds found; the countdown shapes moved and this stopped looking`,
+  );
+  for (const file of timed) {
+    if (file in EXEMPT) continue;
+    const page = join(dirname(file), "page.tsx");
+    assert.ok(existsSync(page), `${file} counts down and has no page beside it to hand it a length`);
+    assert.match(
+      code(page),
+      /\broundPaceFrom\(/,
+      `${file} counts down to a limit its page never reads the learner's pace for. WCAG 2.2.1 `
+      + "asks for the limit to be adjustable before it starts: read roundPaceFrom off the "
+      + "roundPace setting on the page and hand the round its length.",
+    );
+  }
+  for (const [file, why] of Object.entries(EXEMPT)) {
+    assert.ok(why.length > 40, `${file} is exempt with no reason`);
+    assert.ok(timed.includes(file), `${file} is exempt and no longer counts a clock down`);
+  }
+});
+
+/*
+  AND WHAT SETTINGS SAYS THE PACE REACHES IS THE SET OF ROUNDS THAT READ IT.
+
+  Target was made to read the pace and the one sentence a learner reads about
+  the setting went on saying "the sprint and the daily quest run to a clock",
+  so somebody finding Target too fast looked at the control and was told it
+  would not help them. The same sentence on /accessibility had drifted the
+  same way before it was corrected. So both are held to the pages that call
+  `roundPaceFrom`, by the name each page gives itself, which is the name a
+  learner knows the round by: a fourth timed round fails here until the two
+  sentences say it too.
+*/
+check("the copy about the round pace names every round that reads it", () => {
+  const rounds = APP.filter((f) => f.endsWith("/page.tsx") && !f.includes("/settings/"))
+    .filter((f) => /\broundPaceFrom\(/.test(code(f)))
+    .map((f) => {
+      const title = /title:\s*"([^"]+)"/.exec(read(f))?.[1];
+      assert.ok(title, `${f} reads the round pace and has no title to be named by`);
+      return title!;
+    });
+  assert.ok(rounds.length >= 3, `only ${rounds.length} rounds read the pace, so this stopped looking`);
+  const settings = code("app/(app)/settings/page.tsx");
+  const section = settings.slice(settings.indexOf('id="round-pace"'), settings.indexOf("<RoundPacePanel"));
+  assert.ok(section.length > 40, "the round-pace section of Settings has moved, so this checks nothing");
+  const access = read("app/accessibility/page.tsx");
+  const statement = access.slice(access.indexOf("Timing Adjustable") - 200, access.indexOf("Timing Adjustable") + 900);
+  assert.ok(statement.length > 400, "/accessibility no longer carries the 2.2.1 paragraph");
+  const missing = rounds.flatMap((title) => [
+    ...(section.toLowerCase().includes(title.toLowerCase()) ? [] : [`Settings does not name ${title}`]),
+    ...(statement.toLowerCase().includes(title.toLowerCase()) ? [] : [`/accessibility does not name ${title}`]),
+  ]);
+  assert.deepEqual(missing, [], missing.join("; ") + ", though its clock reads the round pace");
+});
 
 /*
   A figure shaped for a screen is never a divisor.

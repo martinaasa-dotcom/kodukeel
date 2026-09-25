@@ -4,6 +4,8 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { TargetSession } from "./TargetSession";
 import { moduleScopeFrom } from "@/lib/course/scope";
+import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 
 export const metadata = { title: "Target" };
 
@@ -30,7 +32,10 @@ export default async function TargetPage({
 }) {
   const ownerId = await requireUserId();
   // Opened from the module, the targets are taught words in taught cases.
-  const questions = await targetRound(ownerId, moduleScopeFrom(await searchParams));
+  const [questions, pace] = await Promise.all([
+    targetRound(ownerId, moduleScopeFrom(await searchParams)),
+    readSetting(ownerId, SETTING_KEYS.roundPace),
+  ]);
 
   if (questions.length === 0) {
     return (
@@ -44,5 +49,11 @@ export default async function TargetPage({
     );
   }
 
-  return <TargetSession questions={questions} />;
+  /*
+    Resolved here and handed down as a number, the way the Case Sprint and the
+    quest take theirs: the session is a client component and has no settings
+    to read, and a round that fetched its own length would start before it
+    knew it. See lib/ux/roundClock.ts.
+  */
+  return <TargetSession questions={questions} multiplier={multiplierFor(roundPaceFrom(pace))} />;
 }
