@@ -18,6 +18,7 @@ const PREFIX = "itest-hard-";
 
 async function wipe() {
   await prisma.deferral.deleteMany({ where: { ownerId: { startsWith: PREFIX } } });
+  await prisma.review.deleteMany({ where: { ownerId: { startsWith: PREFIX } } });
   await prisma.card.deleteMany({ where: { ownerId: { startsWith: PREFIX } } });
   await prisma.lexeme.deleteMany({ where: { lemma: "zzhardword" } });
 }
@@ -25,8 +26,16 @@ async function wipe() {
 beforeEach(wipe);
 afterAll(async () => { await wipe(); await prisma.$disconnect(); });
 
+/**
+ * Each of them has graded a card somewhere, which is the bar a press has to
+ * clear to count as a vote (`votesFor` in `./hard`): without it the fixture
+ * describes accounts made for the purpose, which the move rightly ignores.
+ */
 async function refusedBy(lexemeId: string, owners: readonly string[]) {
   const now = new Date();
+  await prisma.review.createMany({
+    data: owners.map((ownerId) => ({ ownerId, cardId: `${ownerId}-card`, rating: 3 })),
+  });
   await prisma.deferral.createMany({
     data: owners.map((ownerId) => ({
       ownerId, lexemeId, lemma: "zzhardword", untilAt: new Date(now.getTime() + 86_400_000),
@@ -43,6 +52,14 @@ describe("movedWords", () => {
     const word = await aWord();
     await refusedBy(word.id, Array.from({ length: HARD_LEARNERS }, (_, i) => `${PREFIX}${i}`));
     expect((await movedWords()).has(word.id)).toBe(true);
+  });
+
+  it("does not count a press from an account that has never graded a card", async () => {
+    const word = await aWord();
+    const owners = Array.from({ length: HARD_LEARNERS }, (_, i) => `${PREFIX}n${i}`);
+    await refusedBy(word.id, owners);
+    await prisma.review.deleteMany({ where: { ownerId: { in: owners } } });
+    expect((await movedWords()).has(word.id)).toBe(false);
   });
 
   it("does not move a word most of the people who met it are fine with", async () => {
