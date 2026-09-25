@@ -6422,6 +6422,34 @@ check("every dead end in the app offers a way to report it", () => {
   }
 });
 
+check("the report box says a person reads it, as the DPIA promises it does", () => {
+  /*
+    THE MITIGATION WAS A SENTENCE NOBODY HAD WRITTEN.
+
+    `docs/24-dpia.md` names two things as the mitigation for free text reaching
+    a reviewer (R13, and the paragraph on special categories): the box says in
+    as many words that another person reads it, and it asks the learner not to
+    put anything private in it. `components/SuggestFix.tsx` said neither. A
+    risk register whose mitigation is copy that does not exist is the shape of
+    compliance that fails the first audit that opens the app.
+
+    Read off `code()`, so the comment above the line in the component cannot
+    satisfy it, and asked of the DPIA too, so the claim and the box go together
+    or not at all.
+  */
+  const box = code("components/SuggestFix.tsx");
+  const dpia = read("docs/24-dpia.md");
+  const claims = /asks the\s+learner not to put anything private in it/.test(dpia);
+  assert.ok(claims, "the DPIA no longer claims the report box warns anybody, so this check has lost its subject");
+  assert.match(box, /reads this/, "the report box no longer says that a person reads it, which the DPIA's R13 mitigation depends on");
+  assert.match(box, /leave out anything private/, "the report box no longer asks the learner to leave out anything private, which the DPIA says it does");
+  assert.doesNotMatch(
+    box.slice(box.indexOf("leave out anything private") - 400, box.indexOf("leave out anything private")),
+    /<Explain\b/,
+    "the warning moved behind a press; an assurance is read before typing, so it stays on the screen",
+  );
+});
+
 check("a file written for a crawler is a file a crawler can reach", () => {
   /*
     THE ONE MODE THEY EXIST FOR IS THE ONE MODE NOTHING RUNS IN.
