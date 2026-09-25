@@ -182,6 +182,17 @@ export const QUIET_CONVERSATIONS = 2;
 export const DEADLINE_WEEKS_MIN = 4;
 export const DEADLINE_WEEKS_MAX = 16;
 
+/**
+ * The reminder hours Settings offers, which are the ones the calendar file
+ * already offered.
+ *
+ * Here rather than in the panel because a choice on a screen is a promise the
+ * schedule has to keep: `cronReach.test.ts` drives every one of them through
+ * `letterOwed` at the hours `vercel.json` actually fires, and 20:30 was offered
+ * for a long while to learners the one daily run never reached at that hour.
+ */
+export const REMINDER_CHOICES = ["08:00", "12:30", "18:00", "20:30"] as const;
+
 /** What the run knows about one learner when it decides. */
 export interface Candidate {
   readonly ownerId: string;

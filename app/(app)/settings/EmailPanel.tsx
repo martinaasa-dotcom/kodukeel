@@ -7,6 +7,7 @@ import { setEmailKind, setReminderHour } from "@/app/actions";
 import { Explain } from "@/components/Explain";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import type { EmailKind } from "@/lib/email/letter";
+import { REMINDER_CHOICES } from "@/lib/email/schedule";
 
 /**
  * WHAT EACH LETTER IS, IN THE WORDS OF WHAT ARRIVES RATHER THAN OF WHAT IT IS
@@ -77,8 +78,8 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   },
 ];
 
-/** The hours offered, which are the ones the calendar file already offered. */
-const HOURS = ["08:00", "12:30", "18:00", "20:30"];
+/** The hours offered, from the table the reachability test reads. */
+const HOURS = REMINDER_CHOICES;
 
 export function EmailPanel({
   on,

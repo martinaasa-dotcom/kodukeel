@@ -21316,11 +21316,34 @@ check("the scheduled run is the only thing that sends, and it is gated", () => {
     in it is a feature that silently never runs, which looks exactly like a
     feature nobody is using.
   */
-  const vercel = JSON.parse(read("vercel.json")) as { crons?: { path: string }[] };
+  const vercel = JSON.parse(read("vercel.json")) as { crons?: { path: string; schedule: string }[] };
   assert.ok(
     vercel.crons?.some((c) => c.path === "/api/email/send"),
     "vercel.json no longer schedules the mail run, so nothing fires it",
   );
+
+  /*
+    AND EVERY ENTRY IS ONE A HOBBY PLAN WILL DEPLOY.
+
+    A Hobby plan refuses the *deployment* over an expression that runs more
+    than once a day, and the README records the two days of merges that built
+    nothing because of it. What it allows is a hundred entries per project,
+    each once a day, and that is how the run is hourly: twenty-four daily
+    entries, one per hour. So every entry is a fixed minute and a fixed hour on
+    every day, and there are at most a hundred, which is the one shape the plan
+    accepts; `lib/email/cronReach.test.ts` is the half that asks whether those
+    hours reach every letter.
+  */
+  const crons = vercel.crons ?? [];
+  assert.ok(crons.length <= 100, `vercel.json schedules ${crons.length} jobs and a project may have 100`);
+  for (const cron of crons) {
+    assert.match(
+      cron.schedule.trim(),
+      /^\d{1,2} \d{1,2} \* \* \*$/,
+      `vercel.json schedules "${cron.schedule}", which runs more than once a day or on a pattern the ` +
+        "Hobby plan's once-a-day rule is not checked against here; it refuses the whole deployment",
+    );
+  }
 });
 
 /*

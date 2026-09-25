@@ -570,28 +570,29 @@ complains about.
 than in this app's database, which is what lets erasure promise it takes the address with it, so
 the run has to go and ask for them.
 
-`vercel.json` schedules `/api/email/send` once a day, at 16:00 UTC. The route answers 404 to
-anybody without the bearer token and 404 when `CRON_SECRET` is unset, so it fails closed rather
-than open. The run itself is idempotent, capped, and takes a lock across every instance, so firing
-it more often than necessary costs nothing but a few queries.
+`vercel.json` schedules `/api/email/send` every hour, as twenty-four entries that each run once a
+day. The route answers 404 to anybody without the bearer token and 404 when `CRON_SECRET` is unset,
+so it fails closed rather than open. The run itself is idempotent, capped, and takes a lock across
+every instance, so firing it more often than necessary costs nothing but a few queries.
 
-**Hourly is what this wants and daily is what a Hobby plan allows, and the cost of getting that
-wrong is not the letters.** A letter has to arrive in the learner's own evening and this app's
-learners are not in one timezone. One firing a day reaches only the learners whose 18:00 to 22:00
-window that hour falls in. 16:00 UTC is 19:00 in Tallinn, which is where nearly all of them are,
-and anybody a couple of hours further off hears nothing.
+**Hourly is what this needs, and a Hobby plan allows it only one way.** A letter has to arrive in
+the learner's own hour, and every kind has its own: the word of the day and the milestone in the
+morning, the deadline at midday, the evening reminder from the hour they picked. It used to run once
+a day at 16:00 UTC, which is 19:00 in Tallinn in summer and 18:00 in winter, so seven of the ten
+letters were decided, rendered and tested and never sent to anybody, and a reminder asked for at
+08:00, 12:30 or 20:30 arrived at the wrong hour or not at all. `lib/email/cronReach.test.ts` reads
+this file and fails on any letter the schedule cannot reach, in January and in July.
 
-That much the first version of this paragraph already said. What it did not say is that **Vercel
-refuses the deployment itself** over a schedule the plan does not allow, with
+**Vercel refuses the deployment itself** over an expression the plan does not allow, with
 `cron_jobs_limits_reached`. An hourly expression does not degrade to daily, it stops the site being
 deployed at all. It did: eighteen merges to main between 2026-09-18 and 2026-09-19 built nothing,
 and the live site served the commit before the hourly cron was added until somebody went looking
-for why.
-
-The way back to hourly is a Pro plan, or any scheduler outside this repository that can GET that
-URL with `Authorization: Bearer $CRON_SECRET`. If you change the expression, check that the plan
-allows it before merging, because the failure is a deploy that never happens rather than a letter
-that never arrives.
+for why. What a Hobby plan does allow, per Vercel's own table
+([Usage & Pricing for Cron Jobs](https://vercel.com/docs/cron-jobs/usage-and-pricing), read
+2026-09-25), is a hundred cron jobs per project, each once per day and fired somewhere inside its
+hour. Twenty-four entries at `0 0 * * *` to `0 23 * * *` are twenty-four jobs that each run once a
+day. `scripts/test-invariants.ts` holds every entry to that shape and the count to a hundred, so an
+hourly expression fails a check here rather than a deploy there.
 
 What goes out, to whom and how often is `lib/email/schedule.ts`, which is pure and unit tested.
 What each letter says is `lib/email/letters/`. Both are swept for the voice rules like every
