@@ -171,7 +171,9 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
               <li key={lexeme!.id}>
                 <Card as="div" className="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <Speak text={lexeme!.lemma} label={`Say ${lexeme!.lemma}`} />
-                  <Link href={`/dictionary?q=${encodeURIComponent(lexeme!.lemma)}`} className="min-w-0 flex-1">
+                  {/* A basis, so the chips beside it wrap under the word rather
+                      than squeezing it: at 360 "abielu" and "marriage" had 49px. */}
+                  <Link href={`/dictionary?q=${encodeURIComponent(lexeme!.lemma)}`} className="min-w-0 flex-[1_1_9rem]">
                     <span lang="et" className="block text-lg" style={{ color: "var(--ink)" }}>
                       {lexeme!.lemma}
                     </span>
