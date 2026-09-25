@@ -604,7 +604,13 @@ function ThemeToggle({ labelled }: { labelled?: boolean }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("theme");
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem("theme");
+    } catch {
+      // Blocked storage throws on a read as well as on the write below; the
+      // toggle then starts from light, which is what the page painted.
+    }
     if (stored === "light" || stored === "dark") {
       setTheme(stored);
       document.documentElement.dataset.theme = stored;

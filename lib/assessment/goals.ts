@@ -357,11 +357,23 @@ export function countdownPhrase(days: number): string {
 }
 
 export function weeksUntil(deadline: string | null | undefined, now: Date): number | null {
+  const exact = exactWeeksUntil(deadline, now);
+  return exact === null ? null : Math.max(0, Math.round(exact));
+}
+
+/**
+ * The weeks to a deadline, unrounded and signed.
+ *
+ * `weeksUntil` rounds, which is right for a figure on a screen and wrong for a
+ * window with an edge: rounded, 24.6 days is "4 weeks" and clears a floor of
+ * four, and 16.4 weeks clears a ceiling of sixteen. A decision about whether
+ * the date is inside a window reads this one.
+ */
+export function exactWeeksUntil(deadline: string | null | undefined, now: Date): number | null {
   if (!deadline) return null;
   const then = new Date(deadline);
   if (Number.isNaN(then.getTime())) return null;
-  const days = (then.getTime() - now.getTime()) / 86_400_000;
-  return Math.max(0, Math.round(days / 7));
+  return (then.getTime() - now.getTime()) / (7 * 86_400_000);
 }
 
 export interface Goals {
