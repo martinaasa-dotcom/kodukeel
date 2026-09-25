@@ -17499,10 +17499,11 @@ check("a metered route asks the ledger before offering a last resort", () => {
   );
 
   /*
-    And Anu never gets one. Anthropic is her primary, so the only thing behind
-    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
-    "b becomes v" against a dictionary that says b : the consonant going, and
-    inventing a lemma it then emitted as a VOCAB line.
+    And Anu never gets one. Her chain is Gemini and then Groq, both measured
+    on her job by `eval:anu`, and anything past them is a model nobody
+    measured: an older run of that eval caught an unmeasured model calling the
+    tuba : toa gradation "b becomes v" against a dictionary that says b : the
+    consonant going, and inventing a lemma it then emitted as a VOCAB line.
   */
   assert.match(
     code(join("lib", "tutor", "provider.ts")),
