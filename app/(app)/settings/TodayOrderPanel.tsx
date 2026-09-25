@@ -38,10 +38,16 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
   const byId = new Map(TODAY_SLOTS.map((s) => [s.id, s] as const));
 
   const save = (next: readonly TodaySlot[], said: string) => {
+    const was = order;
     setOrder(next);
     setMessage(said);
     start(async () => {
-      await setTodayOrder(serialiseTodayOrder(next));
+      const landed = await setTodayOrder(serialiseTodayOrder(next)).then(() => true).catch(() => false);
+      if (!landed) {
+        setOrder(was);
+        setMessage("That did not reach the server, so the order is as it was.");
+        return;
+      }
       router.refresh();
     });
   };

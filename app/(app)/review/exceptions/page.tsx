@@ -69,17 +69,7 @@ export default async function ExceptionsRoundPage({
       && (!wanted || row.exceptions.some((e) => e.kind === wanted)),
   );
 
-  if (near.length === 0) {
-    return (
-      <Page title="Exceptions" lead="The forms the ending rules do not reach.">
-        <Empty
-          title="Nothing to drill here yet"
-          body="The dictionary has no graded words near your level with this kind of exception."
-          action={<ButtonLink href="/grammar/exceptions" variant="primary">See the exceptions</ButtonLink>}
-        />
-      </Page>
-    );
-  }
+  if (near.length === 0) return <NothingToDrill />;
 
   // Both are asked of the same list and neither needs the other, so they are
   // one round trip.
@@ -162,6 +152,13 @@ export default async function ExceptionsRoundPage({
   });
 
   const tasks = exceptionRound(words);
+  /*
+    Words near the learner's level do not guarantee a round. `pickWords` keeps
+    only the drillable ones, so a kind page or a module whose words are all
+    spelled like a principal part builds no task. Handed to the session, that
+    read "Round complete · Asked 0": a round that claimed to have happened.
+  */
+  if (tasks.length === 0) return <NothingToDrill />;
   return (
     <BeforeYouStart id="exceptions" ready={tasks.length > 0} count={{ n: tasks.length, noun: "word" }}>
       <ExceptionsSession tasks={tasks} />
@@ -187,4 +184,17 @@ function cardFor(
   if (exact) return exact.id;
   const production = mine.find((c) => c.cardType === "PRODUCTION");
   return (production ?? mine[0])?.id ?? null;
+}
+
+/** The one empty state, whichever of the two reasons there is nothing to ask. */
+function NothingToDrill() {
+  return (
+    <Page title="Exceptions" lead="The forms the ending rules do not reach.">
+      <Empty
+        title="Nothing to drill here yet"
+        body="The dictionary has no graded words near your level with this kind of exception."
+        action={<ButtonLink href="/grammar/exceptions" variant="primary">See the exceptions</ButtonLink>}
+      />
+    </Page>
+  );
 }

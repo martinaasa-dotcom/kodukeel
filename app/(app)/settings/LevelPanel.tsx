@@ -44,7 +44,8 @@ export function LevelPanel({ current, measured }: {
     if (next === level) return;
     setLevel(next);
     start(async () => {
-      await setCourseLevel(next);
+      const landed = await setCourseLevel(next).then(() => true).catch(() => false);
+      if (!landed) { setLevel(level); return; }
       router.refresh();
     });
   };
