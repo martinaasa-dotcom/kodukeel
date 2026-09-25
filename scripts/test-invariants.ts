@@ -4678,29 +4678,6 @@ check("where you are is one pane, and it arrives under a pointer", () => {
   );
 });
 
-check("the pure modules stay free of React, Next and Prisma", () => {
-  /*
-    These are the ones with unit tests around them, and a test is only cheap
-    while the module under it can be imported without a framework.
-  */
-  const pure = [
-    "assessment", "collections", "copy", "email", "estonian", "exam", "funding", "games",
-    "learn", "offline", "random", "research", "scan", "security", "stats", "time", "ux",
-  ];
-  for (const file of LIB) {
-    const area = file.split("/")[1];
-    if (!pure.includes(area ?? "")) continue;
-    const source = read(file);
-    for (const forbidden of ["@prisma/client", "next/", "react"]) {
-      assert.equal(
-        new RegExp(`from ["']${forbidden.replace("/", "\\/")}`).test(source),
-        false,
-        `${file} imports ${forbidden}`,
-      );
-    }
-  }
-});
-
 check("color comes from a token, never a raw hex", () => {
   /*
     The five hues carry fixed meanings: mint is "recalled", peach is
@@ -6207,7 +6184,13 @@ check("a placement check never grades a card", () => {
     against cards that do not exist, and would let a level check inflate the
     streak it is supposed to be independent of.
   */
-  for (const file of [...COMPONENTS.filter((f) => f.includes("/assessment/")), ...APP.filter((f) => f.includes("/assess/"))]) {
+  /*
+    A floor under the sweep, because it is the whole of this check: rename
+    either folder and the loop finds nothing, asks nothing, and passes.
+  */
+  const screens = [...COMPONENTS.filter((f) => f.includes("/assessment/")), ...APP.filter((f) => f.includes("/assess/"))];
+  assert.ok(screens.length >= 4, `only ${screens.length} level check files found, so this check stopped looking`);
+  for (const file of screens) {
     assert.equal(/gradeCards?\(/.test(read(file)), false, `${file} grades a card from the level check`);
   }
 });
@@ -8211,6 +8194,7 @@ check("a word the learner went and got is reachable, and the commonest lead", ()
   const srsSource = LIB.filter(
     (f) => f.startsWith("lib/srs/") && f !== "lib/srs/sources.ts" && !/\.i?test\.ts$/.test(f),
   );
+  assert.ok(srsSource.length >= 8, `only ${srsSource.length} files under lib/srs, so this sweep stopped looking`);
   for (const file of srsSource) {
     for (const [, written] of code(file).matchAll(/source:\s*"([A-Z_]{4,})"/g)) {
       assert.ok(
@@ -10113,15 +10097,25 @@ check("the layers that promise to be pure import no database, React or Next", ()
   const pure = [
     "assessment", "estonian", "exam", "games", "stats", "collections", "time",
     "offline", "security", "scan", "questions", "ux", "random", "copy", "funding", "research",
-    "learn", "scenes", "readiness",
+    "learn", "scenes", "readiness", "email",
   ];
+  /*
+    Either quote, since a formatter is not what makes a layer pure. This was
+    once two checks with two lists, and the weaker one was the only thing
+    reading `lib/email/` or any file in a subdirectory.
+  */
   const banned = [
-    [/from "@\/lib\/db"/, "the database"],
-    [/from "@prisma\/client"/, "Prisma"],
-    [/from "react"|from "react\//, "React"],
-    [/from "next\//, "Next"],
-    [/from "server-only"/, "a server-only marker, which is a Next concern"],
+    [/from ["']@\/lib\/db["']/, "the database"],
+    [/from ["']@prisma\/client["']/, "Prisma"],
+    [/from ["']react(?:["'/-])/, "React"],
+    [/from ["']next\//, "Next"],
+    [/from ["']server-only["']/, "a server-only marker, which is a Next concern"],
   ] as const;
+
+  /* `react-dom` is React too, and the check this replaced caught it as a prefix. */
+  for (const probe of [`from "react"`, `from 'react/jsx-runtime'`, `from "react-dom"`]) {
+    assert.ok(banned.some(([pattern]) => pattern.test(probe)), `the React ban no longer catches ${probe}`);
+  }
 
   let looked = 0;
   for (const name of pure) {
@@ -10130,11 +10124,16 @@ check("the layers that promise to be pure import no database, React or Next", ()
       existsSync(dir),
       `lib/${name} is named as a pure layer and is not there. Rename it here or put it back.`,
     );
-    for (const file of readdirSync(dir)) {
-      if (!file.endsWith(".ts") && !file.endsWith(".tsx")) continue;
-      if (file.includes(".test.") || file.includes(".itest.")) continue;
+    /*
+      Recursively. `readdirSync(dir)` read one level, so lib/collections/syllabus/
+      and lib/email/letters/ were outside this check: a Prisma import planted
+      in a syllabus file passed it.
+    */
+    for (const path of sourceFiles(dir)) {
+      if (path.includes(".test.") || path.includes(".itest.")) continue;
       looked += 1;
-      const src = code(join(dir, file));
+      const file = path.slice(dir.length + 1);
+      const src = code(path);
       for (const [pattern, what] of banned) {
         assert.doesNotMatch(
           src,
@@ -14338,6 +14337,11 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
       the real line before being kept.
     */
     .filter((file) => /gradeCard\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
+  /*
+    The half above is only a claim while SESSION_FILES finds the rounds: a
+    rename of the Session suffix empties it and the deepEqual passes on nothing.
+  */
+  assert.ok(SESSION_FILES().length >= 20, `only ${SESSION_FILES().length} round components found, so the sweep stopped looking`);
   assert.deepEqual(
     averaged, [],
     `a round clock divided by the number of answers is being written into ` +
@@ -14675,7 +14679,14 @@ check("text one person types and another person reads is cleaned, not trimmed", 
 });
 
 check("a class cannot read a conversation", () => {
-  for (const file of LIB.filter((f) => f.startsWith("lib/classroom/") && !f.includes(".test."))) {
+  /*
+    Every assertion here is inside the loop, so a rename of lib/classroom/
+    would leave the ADR-019 boundary asserted by nothing. The roster is the
+    file this is about, so its presence is the floor.
+  */
+  const classroom = LIB.filter((f) => f.startsWith("lib/classroom/") && !f.includes(".test."));
+  assert.ok(classroom.includes("lib/classroom/roster.ts"), "lib/classroom/roster.ts is gone, so this check reads nothing");
+  for (const file of classroom) {
     const src = code(file);
     assert.doesNotMatch(
       src,
@@ -17507,6 +17518,8 @@ check("learn teaches a word and practice drills it, never both at once", () => {
   // The card the ladder is kept on is one fact, named once.
   const typed = ALL.filter((f) => f.startsWith("lib/learn/") || f === "lib/progress/learn.ts")
     .filter((f) => /"RECOGNITION"/.test(code(f)));
+  // The one place the literal is allowed is also the proof the sweep still sees lib/learn/.
+  assert.ok(typed.includes("lib/learn/ladder.ts"), "the sweep no longer finds lib/learn/ladder.ts, so it checks nothing");
   assert.deepEqual(
     typed.filter((f) => f !== "lib/learn/ladder.ts"), [],
     "the ladder's card type is typed out again. It is LADDER_CARD_TYPE in lib/learn/ladder.ts.",
