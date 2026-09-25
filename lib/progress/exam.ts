@@ -241,7 +241,7 @@ export async function readinessSignals(
         where: { ownerId },
         select: { id: true, cardType: true },
       }),
-      recentAttempts(ownerId),
+      recentAttempts(ownerId, { measured: true }),
       latestFor(ownerId),
     ]);
 
@@ -434,10 +434,20 @@ export function skillEvidenceFrom(
 
 // ── Sittings ─────────────────────────────────────────────────────────────────
 
-/** Past sittings, most recent first, with each part's percentage. */
-export async function recentAttempts(ownerId: string): Promise<PastAttempt[]> {
+/**
+ * Past sittings, most recent first, with each part's percentage.
+ *
+ * `measured` keeps only the sittings this deployment marked itself. A sitting
+ * that came back from a backup file carries marks nothing here can check
+ * (`lib/security/restoredMeasurement.ts`), so it belongs in the list of what
+ * somebody did and never in a figure about what they can do.
+ */
+export async function recentAttempts(
+  ownerId: string,
+  { measured = false }: { measured?: boolean } = {},
+): Promise<PastAttempt[]> {
   const rows = await prisma.examAttempt.findMany({
-    where: { ownerId },
+    where: measured ? { ownerId, restoredAt: null } : { ownerId },
     orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
     take: ATTEMPT_WINDOW,
     select: { level: true, pct: true, passed: true, finishedAt: true, result: true },

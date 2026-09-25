@@ -64,6 +64,7 @@ import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
 import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
+import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
@@ -3280,8 +3281,14 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         await tx.message.create({ data: data as never });
       }
 
+      /*
+        A level check and a sat paper come back as history and never as
+        evidence: the file carries their marks and not the answers they were
+        marked from, so nothing here can mark them again (ADR-022). See
+        `asRestoredMeasurement`, and every reader that asks `restoredAt: null`.
+      */
       for (const raw of backup.assessments ?? []) {
-        const data = revive(raw, ["takenAt"]);
+        const data = asRestoredMeasurement(revive(raw, ["takenAt"]), restoredAt);
         data.ownerId = ownerId;
         const exists = await tx.assessment.findUnique({ where: { id: String(data.id) }, select: { id: true } });
         if (exists) continue;
@@ -3289,7 +3296,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       }
 
       for (const raw of backup.examAttempts ?? []) {
-        const data = revive(raw, ["startedAt", "finishedAt"]);
+        const data = asRestoredMeasurement(revive(raw, ["startedAt", "finishedAt"]), restoredAt);
         data.ownerId = ownerId;
         const exists = await tx.examAttempt.findUnique({ where: { id: String(data.id) }, select: { id: true } });
         if (exists) continue;

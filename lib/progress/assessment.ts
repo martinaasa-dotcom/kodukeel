@@ -272,9 +272,13 @@ export async function saveResult(ownerId: string, placement: Placement): Promise
   return withOverall({ ...row, skills: placement.skills });
 }
 
-export async function historyFor(ownerId: string, take = 10): Promise<StoredAssessment[]> {
+export async function historyFor(
+  ownerId: string,
+  take = 10,
+  { measured = false }: { measured?: boolean } = {},
+): Promise<StoredAssessment[]> {
   const rows = await prisma.assessment.findMany({
-    where: { ownerId },
+    where: measured ? { ownerId, restoredAt: null } : { ownerId },
     orderBy: [{ takenAt: "desc" }, { id: "asc" }],
     take,
   });
@@ -294,9 +298,14 @@ export async function historyFor(ownerId: string, take = 10): Promise<StoredAsse
  * React's `cache` is request-scoped, so this is one read on a page and no read
  * held between two. Outside a request it does not memoize, which leaves a
  * script and a test exactly as they were.
+ *
+ * A check that came back from a backup file is in `historyFor` and never here:
+ * its levels are what the file says, nothing here can mark it again, and every
+ * reader of this one treats the answer as a measurement
+ * (`lib/security/restoredMeasurement.ts`).
  */
 export const latestFor = cache(async (ownerId: string): Promise<StoredAssessment | null> => {
-  const [first] = await historyFor(ownerId, 1);
+  const [first] = await historyFor(ownerId, 1, { measured: true });
   return first ?? null;
 });
 
