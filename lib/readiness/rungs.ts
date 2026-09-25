@@ -317,7 +317,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
           : "Fast enough to answer a patient person. Leading means reaching for the next word while they are still finishing the last one.",
         blocks: "lead",
         href: "/review/sprint",
-        cta: "Sixty seconds against the clock",
+        cta: "A round against the clock",
       });
     } else if (pace.label === null) {
       leads = false;
