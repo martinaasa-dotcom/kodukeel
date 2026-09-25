@@ -83,6 +83,31 @@ describe("writeGrade", () => {
   });
 });
 
+describe("a card's own columns reach the log only where they are on the list", () => {
+  it("writes no invented case and no invented slot off a card restored from a file", async () => {
+    // A backup is restored as the file wrote it, so a card can carry anything.
+    const card = await prisma.card.create({
+      data: {
+        ownerId: OWNER, cardType: "RECOGNITION", front: "tuba", back: "room",
+        targetCase: "anything", slot: "made-up", due: new Date("2026-08-01T09:00:00Z"),
+        createdAt: new Date("2026-08-01T09:00:00Z"),
+      },
+    });
+    await writeGrade(OWNER, { card, rating: 3, durationMs: 1_000, reviewedAt: new Date("2026-09-02T09:00:00Z"), now: new Date("2026-09-02T09:00:00Z") });
+    const review = await prisma.review.findFirstOrThrow({ where: { ownerId: OWNER } });
+    expect(review.targetCase).toBeNull();
+    expect(review.slot).toBe("RECOGNITION");
+  });
+
+  it("keeps a real case exactly as it was", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await writeGrade(OWNER, { card, rating: 3, durationMs: 1_000, reviewedAt: new Date("2026-09-02T09:00:00Z"), now: new Date("2026-09-02T09:00:00Z") });
+    const review = await prisma.review.findFirstOrThrow({ where: { ownerId: OWNER } });
+    expect(review.targetCase).toBe("INESSIVE");
+    expect(review.slot).toBe("INESSIVE");
+  });
+});
+
 describe("the replay path takes the same floor", () => {
   /*
     THE FIX WAS WRITTEN ON THE DOOR NOBODY WAS COMING THROUGH.

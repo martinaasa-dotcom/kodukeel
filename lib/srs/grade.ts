@@ -2,7 +2,7 @@ import type { Card } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 import { grade, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
-import { isFormSlot, isKnownSlot, slotOfCard } from "@/lib/srs/slots";
+import { isCaseSlot, isFormSlot, isKnownSlot } from "@/lib/srs/slots";
 
 /**
  * Writing one grade down.
@@ -112,9 +112,9 @@ export async function writeGrade(ownerId: string, write: GradeWrite): Promise<Sc
       reviewedAt: at,
       durationMs: Math.min(Math.max(durationMs, 0), 600_000),
       stateBefore: card.state,
-      targetCase: card.targetCase,
+      targetCase: knownCase(card.targetCase),
       slot,
-      reachedSlot: reachedFor(slot, write.reachedSlot),
+      reachedSlot: slot ? reachedFor(slot, write.reachedSlot) : null,
     },
   });
 
@@ -151,9 +151,23 @@ export async function writeGrade(ownerId: string, write: GradeWrite): Promise<Sc
  * is what the case charts read. This is the narrower question the flash round
  * can answer and an ordinary review cannot: which form was actually asked.
  */
-function slotFor(card: Card, practised: string | null | undefined): string {
+function slotFor(card: Card, practised: string | null | undefined): string | null {
   if (practised && isKnownSlot(practised)) return practised;
-  return slotOfCard(card);
+  /*
+    The card's own columns are checked too, not trusted. A card arrives from a
+    backup exactly as the file wrote it, so `targetCase: "anything"` reached
+    `Review.slot`, the one table that is never repaired, and the case chart
+    printed it. The same order `slotOfCard` reads, taking the first that is on
+    the closed list, and nothing where none is.
+  */
+  return [card.targetCase, card.slot, card.cardType].find(
+    (s): s is string => typeof s === "string" && isKnownSlot(s),
+  ) ?? null;
+}
+
+/** The card's case for `Review.targetCase`, where it is a case at all. */
+function knownCase(value: string | null): string | null {
+  return value !== null && isCaseSlot(value) ? value : null;
 }
 
 /**

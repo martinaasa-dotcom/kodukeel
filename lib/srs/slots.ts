@@ -122,6 +122,11 @@ export function isKnownSlot(slot: string): boolean {
   return CASE_KEYS.has(slot) || CONJUGATION_CODES.has(slot) || MEANING_SLOTS.includes(slot);
 }
 
+/** Whether a slot is one of the fourteen cases. */
+export function isCaseSlot(slot: string): boolean {
+  return CASE_KEYS.has(slot);
+}
+
 /** Whether a slot is a grammatical form rather than a question about meaning. */
 export function isFormSlot(slot: string): boolean {
   return CASE_KEYS.has(slot) || CONJUGATION_CODES.has(slot);
