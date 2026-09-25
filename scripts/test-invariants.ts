@@ -15184,6 +15184,31 @@ check("a measurement sends what the route sends, and reads what it reads", () =>
   }
 });
 
+check("the model is told the ceiling the scene gate applies, never a typed copy of it", () => {
+  /*
+    The retry instruction in `whyWithheld` said "at most five sentences and at
+    most fifty-five words" as typed text beside a gate holding `MAX_SENTENCES`
+    and `MAX_COMPOSED_WORDS`. The two agreed on the day it was written; the
+    word ceiling had already moved twice, twenty-two to forty to fifty-five,
+    and the next move would have told a retry one limit and refused its line
+    on another, three attempts running. Read off the code, so this comment
+    does not satisfy it.
+  */
+  for (const file of ["lib/scenes/line.ts", "lib/scenes/prompt.ts"]) {
+    const src = code(file);
+    const typed = src.match(/(?:at most|over|up to)\s+(?:\d+|[a-z]+(?:-[a-z]+)?)\s+(?:sentences|words)\b/i);
+    assert.ok(
+      !typed || /^\S+\s+\$\{/.test(typed[0]),
+      `${file} tells the model a typed limit ("${typed?.[0]}") rather than the gate's constant`,
+    );
+  }
+  assert.match(
+    code("lib/scenes/line.ts"),
+    /\$\{MAX_SENTENCES\} sentences and at most \$\{MAX_COMPOSED_WORDS\} words/,
+    "whyWithheld no longer states the gate's own ceiling",
+  );
+});
+
 check("the scene gate has one implementation, and a line says where it came from", () => {
   const evalScript = code("scripts/eval-scene.ts");
   assert.match(
