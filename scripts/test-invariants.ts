@@ -25,6 +25,7 @@ import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wikti
 import { resolvePos } from "../lib/dict/pos";
 import { wordNote } from "../lib/estonian/dictation";
 import { ACTION_LIMITS } from "../lib/security/actionLimits";
+import { GRADER_MODELS, SCENE_FALLBACK_MODEL, SCENE_MODELS, TUTOR_FALLBACK_MODEL, TUTOR_MODEL, VISION_MODEL } from "../lib/tutor/provider";
 import { DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS } from "../lib/usage/quota";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
 import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
@@ -13762,10 +13763,11 @@ check("a metered route asks the ledger before offering a last resort", () => {
   }
 
   /*
-    And Anu never gets one. Anthropic is her primary, so the only thing behind
-    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
-    "b becomes v" against a dictionary that says b : the consonant going, and
-    inventing a lemma it then emitted as a VOCAB line.
+    And Anu never gets one. Her chain is Gemini and then Groq, both measured
+    on her job by `eval:anu`, and anything past them is a model nobody
+    measured: an older run of that eval caught an unmeasured model calling the
+    tuba : toa gradation "b becomes v" against a dictionary that says b : the
+    consonant going, and inventing a lemma it then emitted as a VOCAB line.
   */
   assert.match(
     code(join("lib", "tutor", "provider.ts")),
@@ -21593,6 +21595,59 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check(".env.example routes each job to the models the code pins it to", () => {
+  /*
+    The routing table in `.env.example` is what an operator reads to learn
+    which provider answers Anu, a scene, a scan and a grader, and it said Anu
+    answers on Groq with a `TUTOR_MODEL` override, two facts that had both
+    stopped being true: she leads on Gemini with Groq behind her, and no
+    variable moves either link. An operator who funded Groq alone on the
+    strength of it would have bought the backup rather than the tutor. So each
+    row has to name every model its purpose is pinned to, read off the
+    constants rather than typed here, so a change to a pin fails until the row
+    says so too.
+  */
+  const text = read(".env.example");
+  const between = (from: string, to: string): string => {
+    const start = text.indexOf(from);
+    assert.ok(start >= 0, `.env.example has no "${from}" row in its routing table`);
+    const end = text.indexOf(to, start + from.length);
+    return text.slice(start, end < 0 ? undefined : end);
+  };
+  const rows: [string, string, readonly string[]][] = [
+    ["Anu", between("Anu (/api/tutor)", "Scene lines"), [TUTOR_MODEL, TUTOR_FALLBACK_MODEL]],
+    ["Scene lines", between("Scene lines (/api/scene)", "Scanning ("), [...SCENE_MODELS, SCENE_FALLBACK_MODEL]],
+    ["Scanning", between("Scanning (/api/scan)", "The graders"), [VISION_MODEL]],
+    ["The graders", between("The graders and the", "\n#\n"), GRADER_MODELS.map((c) => c.model)],
+  ];
+  const wrong = rows.flatMap(([label, row, models]) =>
+    models.filter((m) => !row.includes(m)).map((m) => `${label} does not name ${m}`));
+  assert.ok(wrong.length === 0, `.env.example's routing table has drifted from the pins: ${wrong.join("; ")}`);
+});
+
+check("every environment variable the code reads is one .env.example documents", () => {
+  /*
+    `.env.example` is the one place an operator looks for what can be set,
+    and the six variables that switch on the course reminder letters were in
+    the README alone, beside the default voice and the development switch for
+    the service worker. A variable that exists only in the code is a feature an
+    operator cannot find. So every `process.env` name the app reads directly
+    has to appear there, commented out or set, and the ones a platform sets
+    itself are listed here with that reason.
+  */
+  const PLATFORM = new Set(["NODE_ENV", "NEXT_RUNTIME", "NEXT_DIST_DIR", "VERCEL", "VERCEL_GIT_COMMIT_SHA"]);
+  const example = read(".env.example");
+  const names = new Set<string>();
+  for (const file of [...ALL, "middleware.ts", "next.config.ts"].filter((f) => existsSync(f))) {
+    for (const m of code(file).matchAll(/process\.env\.([A-Z][A-Z0-9_]+)|process\.env\[["']([A-Z][A-Z0-9_]+)["']\]/g)) {
+      names.add((m[1] ?? m[2])!);
+    }
+  }
+  assert.ok(names.size >= 30, `found only ${names.size} variables read, so the sweep has stopped reading what it should`);
+  const missing = [...names].filter((n) => !PLATFORM.has(n) && !new RegExp(`\\b${n}\\b`).test(example)).sort();
+  assert.ok(missing.length === 0, `read by the code and absent from .env.example: ${missing.join(", ")}`);
 });
 
 console.log(

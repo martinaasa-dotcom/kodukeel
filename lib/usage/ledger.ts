@@ -242,11 +242,11 @@ export async function snapshotUsage(
       coalesce(sum("costMicros"), 0) AS "globalMicros",
       coalesce(sum("costMicros") FILTER (WHERE "kind" = ${kind}), 0) AS "globalKindMicros",
       /*
-        Fallback traffic: Anthropic answering for a purpose whose own provider
-        is Groq. TUTOR is excluded because Anthropic is her primary and her
-        spend is already bounded by her own slice; counting it here would make a
-        busy day of Anu look like a Groq outage and switch off everybody else's
-        last resort.
+        Fallback traffic: Anthropic answering for a purpose whose own links,
+        Gemini and then Groq, have failed. TUTOR is excluded because her chain
+        takes no fallback, so none of her spend is fallback spend, and her own
+        slice already bounds it; counting it here would let a busy day of Anu
+        look like an outage and switch off everybody else's last resort.
 
         A reservation carries the provider "pending" and so counts for nothing
         until it settles, which is the right answer rather than a gap: until the

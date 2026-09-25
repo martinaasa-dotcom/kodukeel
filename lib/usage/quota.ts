@@ -36,13 +36,14 @@ export interface QuotaLimits {
   dailyMicrosGlobalForKind: number;
   /**
    * Micro-dollars every user together may spend in a UTC day on *fallback*
-   * traffic: Anthropic answering for a purpose whose own provider is Groq.
+   * traffic: Anthropic or OpenAI answering for a purpose whose own links, Gemini
+   * and then Groq, have all failed.
    *
    * A fourth number rather than a wider slice, because it bounds a different
    * thing. The per-kind slices ask "how much may this feature spend"; this asks
-   * "how much may a bad day at Groq cost the balance Anu runs on", and the
-   * answer has to hold across every feature at once. Anu's own spend is not in
-   * it: Anthropic is her primary, not her fallback.
+   * "how much may a bad day at the cheap providers cost the dear balance", and
+   * the answer has to hold across every feature at once. Anu is never in it:
+   * her chain is Gemini and Groq and takes no fallback at all.
    */
   dailyMicrosFallback: number;
   /**
@@ -59,32 +60,33 @@ export interface QuotaLimits {
  *
  * THE RISK THIS EXISTS TO BOUND is the one the purpose split was praised for
  * removing: with no fallback at all, a scene could never touch the Anthropic
- * balance however badly Groq behaved. Giving every purpose a last resort hands
- * that risk straight back, unless the fallback itself is capped. So it is.
+ * balance however badly the cheap providers behaved. Giving every purpose a
+ * last resort hands that risk straight back, unless the fallback itself is
+ * capped. So it is.
  *
- * THE ARITHMETIC. On a day Groq never answers, every fallback call is priced at
- * Anthropic's rate: a scene turn is $0.0034, a grader note $0.0038, a scanned
- * page $0.0100. $0.05 is therefore about 14 scene turns, or 13 grader notes, or
- * 5 pages, or some mixture — thin, and deliberately so. It is a limp rather
- * than a spare leg: enough that a short Groq wobble is invisible to a learner,
- * not enough that a sustained outage quietly re-routes the app onto the dear
- * provider for a day.
+ * THE ARITHMETIC, priced by `EXPECTED_TOKENS` on claude-sonnet-5. On a day
+ * neither Gemini nor Groq answers, every fallback call is priced at
+ * Anthropic's rate: a scene turn is about $0.0042, a grader note $0.0034, a
+ * scanned page $0.0100. $0.05 is therefore about 12 scene turns, or 15 grader
+ * notes, or 5 pages, or some mixture: thin, and deliberately so. It is a limp
+ * rather than a spare leg: enough that a short wobble at the cheap providers is
+ * invisible to a learner, not enough that a sustained outage quietly re-routes
+ * the app onto the dear provider for a day.
  *
- * WHAT IT COSTS THE BALANCE. Anu is $0.10 a day and is not fallback traffic, so
- * the worst an outage can add is this $0.05, giving $0.15 against the $0.167 a
- * day that makes $5 last a month. Fifty days normally, thirty-three on a day
- * Groq is out from midnight to midnight. Neither is the collapse-to-hours that
- * an ungated fallback would have been: the same outage against uncapped
- * fallback would have run SCENE alone at $2.00 of Anthropic in a day, which is
- * the whole balance inside three days.
+ * WHAT IT COSTS THE BALANCE. This is the whole of what the Anthropic balance
+ * can see in a day, because Anu never reaches it and every other purpose
+ * reaches it only through here: at most $0.05, which is a hundred days of a $5
+ * balance, and nothing at all on a day the cheap providers answer. Uncapped,
+ * the same outage would put SCENE's whole $2.00 slice through Anthropic, which
+ * is the whole balance inside three days.
  *
  * PAST IT, THE PURPOSE DEGRADES RATHER THAN SPENDING. `authoriseCall` stops
- * offering the fallback link, the chain is the purpose's own provider again,
- * that provider is down, and the ladder falls to where it already falls with
- * no key at all: a scene plays off its recorded and banked lines, the grader
- * keeps the verdict it decided by string comparison before any model was asked,
- * and the scanner says so. That is the behaviour this app already ships with,
- * reached by a budget rather than by a missing key.
+ * offering the fallback link, the chain is the purpose's own providers again,
+ * those are down, and the ladder falls to where it already falls with no key at
+ * all: a scene plays off its recorded and banked lines, the grader keeps the
+ * verdict it decided by string comparison before any model was asked, and the
+ * scanner says so. That is the behaviour this app already ships with, reached by
+ * a budget rather than by a missing key.
  */
 export const DEFAULT_FALLBACK_BUDGET = 50_000; // $0.05
 
@@ -133,9 +135,9 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  *
  * ONE CAP CANNOT PROTECT TWO BALANCES. Until the provider split there was one
  * chain, so every path spent out of the same account and a single global figure
- * was the whole truth about the bill. There are two now and they are nothing
- * like each other: Groq bills separately from Anthropic, and a dollar spent on
- * one is not a dollar out of the other.
+ * was the whole truth about the bill. There are three now and they are nothing
+ * like each other: Gemini, Groq and Anthropic each bill separately, and a
+ * dollar spent on one is not a dollar out of another.
  *
  * THE BINDING CONSTRAINT IS A BALANCE, NOT A BILL, and two versions of these
  * numbers were sized against the wrong thing before this one.
@@ -151,59 +153,47 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  * `qwen3.8-27b` in `pricing.ts`: the real figures come off Groq's own
  * `/v1/models`, and everything below is priced with them.
  *
- * WHICH PATHS CAN REACH ANTHROPIC AT ALL, since that is what the $5 constrains:
+ * WHICH PATHS CAN REACH ANTHROPIC AT ALL, since that is the balance a mistake
+ * here drains fastest:
  *
- *   TUTOR   always. It is Anthropic by purpose and has no other chain.
- *   SCENE   never. It is Groq by purpose, and there is no cross-purpose
- *           fallback, so a scene cannot spend the tutor's balance however badly
- *           Groq is behaving.
- *   SCAN    normally not, and sometimes. It is on the general chain, which
- *           leads with Groq, and `qwen3.8-27b` accepts images, so a scan is a
- *           Groq call until Groq fails.
- *   GRADER  the same, for the same reason.
+ *   TUTOR   never. Her chain is Gemini, then Groq, both measured on
+ *           `npm run eval:anu`, and she takes no fallback at all.
+ *   SCENE   only through `DEFAULT_FALLBACK_BUDGET`, behind two Gemini links
+ *           and a Groq one.
+ *   GRADER  the same, behind Gemini and Groq.
+ *   SCAN    the same, behind Gemini and the general chain.
  *
- * So the ceiling that matters is TUTOR plus the two fallbacks, and the numbers
- * below are sized so that even a day when Groq is down from midnight to
- * midnight stays inside it. A cap that only holds while the cheap provider is
- * up is not a cap.
+ * So what the Anthropic balance can see in a day is the fallback budget and
+ * nothing else, however any feature is used, and each slice below bounds the
+ * bill on the providers that actually answer.
  *
- * THE ARITHMETIC, measured against the real prompts (`lib/tutor/prompt.ts`
- * builds a 3,031-token system prompt; the scene route's word list is 714 to 955
- * tokens across the fourteen shipped scenes; the three grader systems in
- * `lib/tutor/grader.ts` are 462, 609 and 717):
+ * THE ARITHMETIC, priced by `EXPECTED_TOKENS` at the base input rate. A prompt
+ * held on Google's side makes a Gemini call cheaper than this
+ * (`docs/21-situations.md` §63), so these are what the cap assumes rather than
+ * what a call costs:
  *
- *   TUTOR   ~3,700 in + ~700 out on claude-sonnet-5 = $0.0144 an answer.
- *           $0.10 a day is 6 answers. It takes the largest share because Anu is
- *           what the Anthropic key was bought for.
- *   SCAN    ~3,000 in of image + ~400 out. $0.0040 on Groq, $0.0100 on
- *           Anthropic. $0.02 a day is 5 scans, or 2 on a day Groq is out. This
- *           is the one that gives up headroom, on the README's own word for it:
- *           a page is photographed once and studied for weeks. Fifteen a day
- *           was asked about and fits in no arrangement, because fifteen scans
- *           on Anthropic is $0.15, which is the whole daily balance with
- *           nothing left for the tutor.
- *   GRADER  ~900 in + ~200 out. $0.0015 on Groq, $0.0038 on Anthropic. $0.04 a
- *           day is 26 notes, or 10 on a day Groq is out.
- *   SCENE   ~1,400 in + ~60 out on Groq = $0.0014 a turn. $2.00 a day is about
- *           1,470 composed turns. It is the one slice with no bearing on the
- *           $5, and it is also $60 a month of Groq if it is ever reached, which
- *           is the number to argue with rather than this arithmetic.
+ *   TUTOR   4,000 in + 700 out. About $0.0021 an answer on
+ *           gemini-3.1-flash-lite and $0.0010 on Groq. $0.10 a day is about 49
+ *           answers on Gemini across the whole deployment.
+ *   SCAN    3,000 in of image + 400 out. About $0.0014 a page on Gemini and
+ *           $0.0100 on Anthropic. $0.02 a day is about 15 pages, or 2 if the
+ *           fallback answers.
+ *   GRADER  700 in + 200 out. About $0.0005 a note on Gemini and $0.0034 on
+ *           Anthropic. $0.04 a day is about 83 notes, or 12 on the fallback.
+ *   SCENE   1,800 in + 60 out. About $0.0016 a turn on gemini-3.8-flash,
+ *           $0.0005 on gemini-3.1-flash-lite and $0.0017 on the Groq link
+ *           behind them. $2.00 a day is about 1,270 turns on the primary, and
+ *           that figure rather than the arithmetic is the one to argue with.
  *
- * WHAT THAT COMES TO. Anthropic sees $0.10 a day in the ordinary case, which is
- * fifty days of the tutor cap being reached every single day, and $0.16 on a day
- * Groq never answers at all, which is 4% under what the balance allows and
- * thirty-one days. Both readings are under it, which is the property worth
- * having: the arithmetic does not depend on a provider behaving.
+ * These are deployment-wide, not per learner. At a pilot's size forty-odd tutor
+ * answers a day is the number to argue with, and the answer to it is raising
+ * `AI_DAILY_USD_TUTOR`, which spends a Gemini balance rather than the Anthropic
+ * one.
  *
- * These are deployment-wide, not per learner. At a pilot's size six answers a
- * day is the number to argue with, and the answer to it is a bigger balance
- * rather than a bigger cap.
- *
- * There is quiet margin under all of it. Anthropic's cache read is a tenth of
- * the input rate and `absorbUsage` counts a cache read as a full input token,
- * so a cached tutor answer is charged here at about 1.6 times what it costs.
- * That over-charge is deliberate elsewhere in this file and is left alone: it
- * makes the cap bind sooner than the balance, which is the safe order.
+ * There is quiet margin under all of it. A reservation books the whole prompt
+ * at the base rate, and the settlement that follows prices a cached read at a
+ * tenth of it (`CacheSplit` in `pricing.ts`), so the cap binds on the booking
+ * before the bill catches up, which is the safe order.
  *
  * TTS is the one metered kind with no slice, and that is not an oversight: it
  * is free, so a budget denominated in money says nothing about it. What rations
@@ -221,13 +211,12 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  * `AI_DAILY_USD_GLOBAL` still bounds the lot.
  */
 export const DEFAULT_KIND_BUDGETS: Readonly<Partial<Record<UsageKind, number>>> = {
-  // Anthropic's balance: $0.10 a day normally, $0.16 if Groq is out all day,
-  // against the $0.167 that makes $5 last a month.
-  TUTOR: 100_000,     // $0.10  =  6 answers
-  SCAN: 20_000,       // $0.02  =  5 scans on Groq, 2 on Anthropic
-  GRADER: 40_000,     // $0.04  =  26 notes on Groq, 10 on Anthropic
-  // Groq's, which is a separate bill and cannot reach the Anthropic balance.
-  SCENE: 2_000_000,   // $2.00  =  1,470 composed turns
+  // At the base rate on the provider that leads each purpose. None of these
+  // reaches Anthropic, which sees only `DEFAULT_FALLBACK_BUDGET`.
+  TUTOR: 100_000,     // $0.10  =  about 49 answers on Gemini
+  SCAN: 20_000,       // $0.02  =  about 15 pages on Gemini, 2 on the fallback
+  GRADER: 40_000,     // $0.04  =  about 83 notes on Gemini, 12 on the fallback
+  SCENE: 2_000_000,   // $2.00  =  about 1,270 turns on gemini-3.8-flash
 };
 
 /** The environment variable that overrides a kind's slice, where it has one. */

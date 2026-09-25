@@ -629,14 +629,16 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
       recorded and banked lines, which is how a keyless deployment plays all
       fourteen of them.
 
-      Anu is the exception and takes no fallback at all. Her provider *is*
-      Anthropic, so there is nothing behind it but Groq, and `npm run
-      eval:anu` measured what Groq does with her questions: it called the
-      tuba : toa gradation "b becomes v" where the dictionary says b : ∅,
-      offered "Mul meeldib" for "Mulle meeldib", and invented `lähema` for
-      `minema` and `kotta` for `koju`, emitting the first as a VOCAB line the
-      app parses. A fallback that answers wrongly is worse than one that does
-      not answer, because the learner cannot tell.
+      Anu is the exception and takes no fallback at all. Her chain is two
+      links, Gemini and then Groq (`TUTOR_MODEL`, `TUTOR_FALLBACK_MODEL`), and
+      both were measured on her own job by `npm run eval:anu` with the words
+      block in front of them. A link past those is a model nobody measured on
+      it, and an older run of the same eval showed what an unmeasured model
+      does with her questions: the tuba : toa gradation called "b becomes v"
+      where the dictionary says b : ∅, "Mul meeldib" offered for "Mulle
+      meeldib", and `lähema` invented for `minema` and emitted as a VOCAB line
+      the app parses. A fallback that answers wrongly is worse than one that
+      does not answer, because the learner cannot tell.
     */
     if (allowFallback && options.purpose !== "tutor" && process.env.ANTHROPIC_API_KEY) {
       if (!chain.some((c) => c.name === "anthropic")) {
