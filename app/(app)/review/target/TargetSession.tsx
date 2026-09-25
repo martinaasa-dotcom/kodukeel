@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { Crosshair, Timer, Trophy } from "lucide-react";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Page, StatTile } from "@/components/ui";
 import { useFeedbackSound } from "@/components/AudioPrefs";
@@ -40,6 +40,7 @@ const STEP_S = 0.25;
  * it yet.
  */
 export function TargetSession({ questions: initialQuestions }: { questions: TargetQuestion[] }) {
+  const grade = useGrade();
   // Snapshotted on mount: `gradeCard` refreshes this route's Server Component,
   // and a round whose questions changed under the player is a different round.
   const [questions] = useState(initialQuestions);
@@ -68,7 +69,7 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
     } else {
       setStreak(0);
     }
-    if (question.cardId) void gradeCard(question.cardId, right ? 3 : 1, Date.now() - shownAt.current);
+    if (question.cardId) void grade(question.cardId, right ? 3 : 1, Date.now() - shownAt.current);
 
     // A hit moves on quickly; a miss holds, because the correction is the one
     // moment in a round worth slowing down for.
@@ -78,7 +79,7 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
       shownAt.current = Date.now();
       setIndex((i) => i + 1);
     }, right ? 480 : 1500);
-  }, [question, picked, sound, hits]);
+  }, [question, picked, sound, hits, grade]);
 
   useEffect(() => {
     if (phase !== "running" || picked !== null) return;

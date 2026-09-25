@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Timer, Trophy, X } from "lucide-react";
-import { gradeCard, recordMatchTime } from "@/app/actions";
+import { recordMatchTime } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Confetti } from "@/components/Confetti";
 import { Empty, Page, Stat } from "@/components/ui";
@@ -39,6 +40,7 @@ interface Tile {
  * abandoning a round writes nothing.
  */
 export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]; best: number }) {
+  const grade = useGrade();
   /*
     Snapshotted once on mount. This round grades every pair at the end, and the
     refresh that follows hands down a smaller `pairs` prop as those cards leave
@@ -102,16 +104,12 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
     */
     for (const pair of pairs) {
       const rating = (missMap[pair.cardId] ?? 0) > 0 ? 2 : 3;
-      try {
-        await gradeCard(pair.cardId, rating, 0);
-      } catch {
-        // A failed write costs this one card's rep, not the round.
-      }
+      await grade(pair.cardId, rating, 0);
     }
 
     const result = await recordMatchTime(finalSeconds);
     setIsNewBest(result.ok && result.isNewBest);
-  }, [pairs]);
+  }, [pairs, grade]);
 
   const pick = (tile: Tile) => {
     if (phase !== "playing" || matched.has(tile.cardId) || wrong) return;
@@ -307,5 +305,4 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
     </div>
   );
 }
-
 

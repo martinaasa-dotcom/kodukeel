@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { Flame, Target, Timer, X } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
@@ -23,7 +23,6 @@ import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
-
 
 export interface AimedCase {
   key: string;
@@ -88,6 +87,7 @@ const isGap = (front: string) => front.includes(BLANK);
 export function QuestSession({
   cards: initialCards, aimed, seconds,
 }: { cards: QuestCard[]; aimed: AimedCase[]; seconds: number }) {
+  const grade = useGrade();
   // Snapshotted once on mount and never updated from later props: `gradeCard`
   // refreshes this route's Server Component on every call, which would hand
   // down a shrinking pool mid-round. See ReviewSession for the same reasoning.
@@ -181,10 +181,10 @@ export function QuestSession({
       cases.
     */
     if (!got) hints.noteMiss();
-    await gradeCard(
+    await grade(
       // A hint is paid for: see `lib/questions/hints.ts`.
       card.id, Math.min(got ? 3 : 1, hints.ceiling) as 1 | 2 | 3,
-      Date.now() - shownAt.current, undefined,
+      Date.now() - shownAt.current,
       card.targetCase ?? undefined, reached ?? undefined,
     );
     setPicked(null);
@@ -192,7 +192,7 @@ export function QuestSession({
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
     setBusy(false);
-  }, [card, busy, sound, hints]);
+  }, [card, busy, sound, hints, grade]);
 
   /*
     A pick marks itself. The option carries what it would mean, so a wrong one

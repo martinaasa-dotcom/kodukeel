@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -78,6 +78,7 @@ const WORD_TONE: Record<WordStatus, { className: string; label: string }> = {
  * blank.
  */
 export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask[] }) {
+  const grade = useGrade();
   /*
     Snapshotted once on mount. gradeCard refreshes this route's Server
     Component, which would hand down a task list shrinking as graded cards leave the
@@ -159,15 +160,11 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       navigator.vibrate?.(60);
     }
     if (marked.verdict === "wrong") hints.noteMiss();
-    try {
-      // A hint is paid for: see `lib/questions/hints.ts`.
-      const rating = Math.min(marked.suggestedRating, hints.ceiling) as RatingValue;
-      await gradeCard(task.cardId, rating, Date.now() - shownAt.current);
-    } catch {
-      // The round still counts on screen; the grade is simply not recorded.
-    }
+    // A hint is paid for: see `lib/questions/hints.ts`.
+    const rating = Math.min(marked.suggestedRating, hints.ceiling) as RatingValue;
+    await grade(task.cardId, rating, Date.now() - shownAt.current);
     setBusy(false);
-  }, [task, busy, result, typed, hints]);
+  }, [task, busy, result, typed, hints, grade]);
 
   const next = useCallback(() => {
     /* What was on the screen: the sentence, and its English where the

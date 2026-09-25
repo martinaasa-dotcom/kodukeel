@@ -2616,10 +2616,11 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * one fact: the seventh door, `finishScene`, had to be added to all three or the
  * newest and busiest mode would sit outside a rule that reported itself as held.
  * That is the failure this file exists to catch, so it is not a shape this file
- * may have itself.
+ * may have itself. `useGrade` is on it because it is `gradeCard` with the
+ * outbox behind it, which the check on that hook holds it to.
  */
 const GRADING_DOORS =
-  /\b(gradeCards?|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene)\b/;
+  /\b(gradeCards?|useGrade|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene)\b/;
 
 /**
  * Sessions that measure rather than practice.
@@ -13382,7 +13383,7 @@ check("a wrong answer records the form it reached for, and only between forms", 
   ]) {
     assert.match(
       code(file),
-      /gradeCard\([\s\S]{0,260}reached/,
+      /(?:gradeCard|grade)\([\s\S]{0,260}reached/,
       `${file} works out which form the learner reached for, prints it, and no ` +
       "longer sends it. That was the whole life of the fact before this column.",
     );
@@ -16781,7 +16782,7 @@ check("a verdict is painted once, in the tint and the ink", () => {
   }
 
   // The screens that mark an answer are the ones that call the app's markers.
-  const marks = /\b(gradeCard|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
+  const marks = /\b(gradeCard|useGrade|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
   // Sõnad is not on this list and is not exempt from it: it marks letters with
   // three kinds of object rather than three tints, by a design argued at the
   // top of its own file, and it calls none of the markers above.
@@ -21714,6 +21715,35 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("a practice round's grade that does not reach the server goes into the outbox", () => {
+  /*
+    Every round grades through `gradeCard` (ADR-016), and nearly every one of
+    them wrote a failed grade off with a comment saying so, while review, the
+    flash round, the exceptions round and the learn ladder queued theirs in
+    the durable outbox (ADR-015). The daily quest did not even catch: a failed
+    grade threw out of the handler before `busy` was set back and the round
+    stopped answering. `components/round/useGrade.ts` is the one path, and a
+    round calls the action directly only where it queues the failure itself.
+  */
+  const hook = code("components/round/useGrade.ts");
+  assert.match(hook, /await gradeCard\(/, "useGrade no longer calls gradeCard");
+  assert.match(hook, /enqueueGrade\(/, "useGrade no longer queues a grade that did not land");
+  const OWN_OUTBOX = new Set([
+    "app/(app)/review/ReviewSession.tsx",
+    "app/(app)/review/flashcards/FlashSession.tsx",
+    "app/(app)/review/exceptions/ExceptionsSession.tsx",
+    "app/(app)/learn/new/LearnSession.tsx",
+  ]);
+  const callers = ALL.filter((f) => /\bgradeCard\(/.test(code(f)) && !f.startsWith("app/actions") && f !== "components/round/useGrade.ts");
+  assert.ok(callers.length >= 4, `only ${callers.length} files call gradeCard directly`);
+  for (const file of callers) {
+    assert.ok(OWN_OUTBOX.has(file), `${file} calls gradeCard directly; a grade there is lost when the request fails. Use useGrade`);
+    assert.match(code(file), /enqueueGrade\(/, `${file} calls gradeCard directly and no longer queues a failed grade`);
+  }
+  const using = ALL.filter((f) => /\buseGrade\(\)/.test(code(f)));
+  assert.ok(using.length >= 15, `only ${using.length} rounds grade through useGrade`);
 });
 
 console.log(

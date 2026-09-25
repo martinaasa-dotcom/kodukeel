@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Blocks, Delete } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -204,6 +204,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
   onSettled: (solved: boolean, misses: number) => void;
   onNext: () => void;
 }) {
+  const grade = useGrade();
   const letters = useMemo(() => lettersOf(word.lemma), [word.lemma]);
   const tiles = word.tiles;
   const [placed, setPlaced] = useState<Tile[]>([]);
@@ -231,13 +232,9 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     }
     onSettled(solved, missCount);
     const duration = shownAt.current === null ? 0 : Date.now() - shownAt.current;
-    try {
-      await gradeCard(word.cardId, rating, duration, undefined, "PRODUCTION");
-    } catch {
-      // The grade did not reach the database; the round still shows the answer.
-    }
+    await grade(word.cardId, rating, duration, "PRODUCTION");
     setBusy(false);
-  }, [word, sound, streak, onSettled]);
+  }, [word, sound, streak, onSettled, grade]);
 
   const check = useCallback((row: Tile[]) => {
     const built = row.map((t) => t.letter).join("");
