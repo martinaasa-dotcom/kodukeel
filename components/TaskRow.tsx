@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { toggleTask } from "@/app/actions";
 import { DUE_DATE_FORMAT, TASK_TAGS, bucketFor } from "@/lib/ux/agenda";
 import { dayClock } from "@/lib/time/day";
+import { LocalDate } from "@/components/LocalDate";
 
 export interface TaskView {
   id: string;
@@ -71,7 +72,16 @@ export function TaskRow({ task }: { task: TaskView }) {
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
               {overdue ? "Overdue · " : "Due "}
-              {due.toLocaleDateString(undefined, DUE_DATE_FORMAT)}
+              {/* A day stored at midnight UTC, so written in UTC: the reader's own
+                  zone named the day before anywhere west of Greenwich. Through
+                  LocalDate, and pinned to one locale until it has mounted, since
+                  this renders on the server first and the two have to agree. */}
+              <LocalDate
+                iso={due.toISOString()}
+                zone="UTC"
+                options={DUE_DATE_FORMAT}
+                fallback={new Intl.DateTimeFormat("en-GB", DUE_DATE_FORMAT).format(due)}
+              />
             </span>
           )}
         </div>
