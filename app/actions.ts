@@ -4107,9 +4107,6 @@ export async function submitExam(input: unknown) {
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 
-  const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
-
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };
   const { level, seed, startedAt, responses } = parsed.data;
