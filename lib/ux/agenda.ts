@@ -66,10 +66,31 @@ export interface AgendaGroup<T> {
   items: T[];
 }
 
+/**
+ * THE CALENDAR DAY A DUE DATE NAMES, WHICH IS ITS UTC DATE.
+ *
+ * A due date is a day rather than an instant: it is typed into `<input
+ * type="date">` and every writer stores it at midnight UTC of that day
+ * (`assignHomework`, `assignUnit`, `addReminder`). Read as an instant in the
+ * learner's zone it is the right day only east of Greenwich. West of it,
+ * midnight UTC on the first is the evening of the thirty-first, so everything
+ * was filed a day early: "Late" on the day it was due, and printed as due the
+ * day before. The day is read off the stored date itself and compared with the
+ * learner's own today, which is the half that does need a zone.
+ */
+export function dueDayKey(dueAt: Date): string {
+  return dueAt.toISOString().slice(0, 10);
+}
+
+/** Options that print a due date as the day it names, in any reader's zone. */
+export const DUE_DATE_FORMAT: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", timeZone: "UTC" };
+
+const dayNumber = (key: string) => Date.parse(`${key}T00:00:00Z`) / 86_400_000;
+
 /** Which heading one due date belongs under. */
 export function bucketFor(dueAt: Date | null, clock: DayClock, now: Date): Bucket {
   if (!dueAt) return "undated";
-  const days = clock.daysBetween(now, dueAt);
+  const days = dayNumber(dueDayKey(dueAt)) - dayNumber(clock.dayKey(now));
   if (days < 0) return "overdue";
   if (days === 0) return "today";
   if (days === 1) return "tomorrow";
