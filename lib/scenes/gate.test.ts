@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, subjectsIn, type DictEntry } from "./lexicon";
-import { NEW_WORDS, disagrees, governedWord, governmentSuspect, passes, runGate, type GateContext } from "./gate";
+import { MAX_COMPOSED_WORDS, NEW_WORDS, disagrees, governedWord, governmentSuspect, passes, runGate, type GateContext } from "./gate";
 import type { BeatSpec } from "./types";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -198,6 +198,8 @@ describe("the gate", () => {
     expect(runGate("Teil on valu. Kus?", beat(), ctx).failed).not.toContain("shape");
     expect(runGate("Teil on valu. Toas on valu. Valu on. Kus?", beat(), ctx).failed)
       .not.toContain("shape");
+    // Five is the limit and five is allowed: the edge the words "at most" draw.
+    expect(runGate(`${"Teil on valu. ".repeat(4)}Kus?`, beat(), ctx).failed).not.toContain("shape");
     const paragraph = `${"Teil on valu. ".repeat(5)}Kus?`;
     expect(runGate(paragraph, beat(), ctx).failed).toContain("shape");
   });
@@ -207,6 +209,9 @@ describe("the gate", () => {
     expect(runGate("Kas teil on valu", beat(), ctx).failed).toContain("shape");
     expect(runGate("**Kas** teil on valu?", beat(), ctx).failed).toContain("shape");
     expect(runGate(`${"valu ".repeat(60)}?`, beat(), ctx).failed).toContain("shape");
+    // Exactly the ceiling is inside it, one over is not.
+    expect(runGate(`${"valu ".repeat(MAX_COMPOSED_WORDS - 1)}valu?`, beat(), ctx).failed).not.toContain("shape");
+    expect(runGate(`${"valu ".repeat(MAX_COMPOSED_WORDS)}valu?`, beat(), ctx).failed).toContain("shape");
     expect(runGate("", beat(), ctx).failed).toContain("shape");
   });
 
@@ -722,6 +727,9 @@ describe("a line that reaches past the scene's own list", () => {
     const verdict = runGate(`Kas teil ${beyond}?`, beat(), language);
     expect(verdict.failed).toContain("stretch");
     expect(verdict.stretched.length).toBeGreaterThan(NEW_WORDS);
+    // And exactly the budget is within it: "at most", not "fewer than".
+    const within = beyond.split(" ").slice(0, NEW_WORDS).join(" ");
+    expect(runGate(`Kas teil ${within}?`, beat(), language).failed).not.toContain("stretch");
   });
 
   it("holds a caller that cannot vouch to the scene's own list, exactly as before", () => {

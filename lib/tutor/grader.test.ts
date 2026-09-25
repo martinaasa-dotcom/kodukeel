@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildGraderSystemPrompt, buildGraderUserPrompt, gradeSentence, parseVerdict } from "./grader";
+import { buildGraderSystemPrompt, buildGraderUserPrompt, callChainForJson, gradeSentence, parseVerdict } from "./grader";
+import { TutorError } from "./provider";
 import { PROVIDER_KEY_ENV, anthropicHeaders, openAiCompatible } from "./provider";
 import type { WritingTask } from "@/lib/estonian/writing";
 
@@ -270,3 +271,57 @@ describe("the headers an Anthropic call carries", () => {
   });
 });
 
+
+/**
+ * A REJECTED KEY STOPS THE GRADER'S CHAIN, AND A THROTTLED LINK DOES NOT.
+ *
+ * CLAUDE.md's rule for every chain in this app: walk past a provider that is
+ * throttled or having a bad minute, never past a rejected key, because walking
+ * turns one clear message into a slower one. `callChainForJson` holds that with
+ * one line, and deleting the line passed the whole suite, since nothing drove
+ * the chain with two links. Both directions now.
+ */
+describe("the grader's chain", () => {
+  const chain = [
+    { name: "groq", model: "m1", label: "Groq" },
+    { name: "gemini", model: "m2", label: "Google Gemini" },
+  ] as const;
+
+  const drive = async (groqStatus: number) => {
+    const before = { groq: process.env.GROQ_API_KEY, gemini: process.env.GEMINI_API_KEY };
+    process.env.GROQ_API_KEY = "g";
+    process.env.GEMINI_API_KEY = "m";
+    const asked: string[] = [];
+    const real = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      asked.push(url.includes("groq") ? "groq" : "gemini");
+      if (url.includes("groq") && groqStatus !== 200) return new Response("{}", { status: groqStatus });
+      return new Response(
+        JSON.stringify({ choices: [{ message: { content: "{}" } }], usage: { prompt_tokens: 1, completion_tokens: 1 } }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }) as typeof fetch;
+    try {
+      const result = await callChainForJson(chain, "s", "u").then((r) => r.config.name, (e: unknown) => e);
+      return { result, asked };
+    } finally {
+      globalThis.fetch = real;
+      if (before.groq === undefined) delete process.env.GROQ_API_KEY; else process.env.GROQ_API_KEY = before.groq;
+      if (before.gemini === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = before.gemini;
+    }
+  };
+
+  it("stops at a rejected key rather than asking the next provider", async () => {
+    const { result, asked } = await drive(401);
+    expect(result).toBeInstanceOf(TutorError);
+    expect((result as TutorError).status).toBe(401);
+    expect(asked).toEqual(["groq"]);
+  });
+
+  it("walks past a throttled provider to the next one", async () => {
+    const { result, asked } = await drive(429);
+    expect(result).toBe("gemini");
+    expect(asked).toEqual(["groq", "gemini"]);
+  });
+});

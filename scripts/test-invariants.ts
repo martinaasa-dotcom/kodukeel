@@ -35,6 +35,7 @@ import { BRIEFINGS } from "../lib/copy/briefings";
 import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
 import { estonianNotCopied } from "../lib/dict/copiedWords";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
+import { SOURCE_CREDITS } from "../lib/legal/credits";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
 import { plainAsk } from "../lib/estonian/plainAsk";
@@ -127,7 +128,19 @@ const APP = sourceFiles("app");
 const LIB = sourceFiles("lib");
 const COMPONENTS = sourceFiles("components");
 const ALL = [...APP, ...LIB, ...COMPONENTS];
-const read = (file: string) => readFileSync(file, "utf8");
+/**
+ * A file's text, which for TypeScript and JavaScript is its code.
+ *
+ * `read` was the raw file and `code` the comment-blind one, and the rule was
+ * that a check reads code. Ninety-four sites still read raw, and a requirement
+ * handed the raw text is met by a comment naming what it requires: the shell's
+ * pull-to-refresh mount, commented out, passed the check that it is mounted.
+ * So the default is now the safe one, and a check that really is about prose
+ * (a generated header, a module that may hold no Estonian even in a comment)
+ * says so by calling `prose`.
+ */
+const prose = (file: string) => readFileSync(file, "utf8");
+const read = (file: string) => (/\.(tsx?|mjs|js)$/.test(file) ? code(file) : prose(file));
 /**
  * A file with its comments removed.
  *
@@ -138,7 +151,7 @@ const read = (file: string) => readFileSync(file, "utf8");
  * compliance with it.
  */
 const code = (file: string) =>
-  read(file)
+  prose(file)
     /*
       A comment is replaced by the newlines it spanned, not by a space. Several
       checks report `file:line` from this, and collapsing a forty-line header
@@ -235,6 +248,106 @@ function between(source: string, from: string): string {
   const end = rest.indexOf("\nexport ");
   return end < 0 ? rest : rest.slice(0, end);
 }
+/**
+ * What a module imports at runtime, and what those import, and so on.
+ *
+ * Several rules here are about what a module *reaches* rather than what it
+ * names, and reading one file's own import lines is the shape that let
+ * `lib/estonian/passage.ts` pull Prisma in through `lib/dict/search.ts`. A
+ * type-only import is erased before anything runs, so `import type` and
+ * `export type` are not followed; everything else is, including a bare
+ * side-effect import and a dynamic `import()`.
+ */
+const SPECIFIERS = new Map<string, string[]>();
+function runtimeSpecifiers(file: string): string[] {
+  const cached = SPECIFIERS.get(file);
+  if (cached) return cached;
+  const src = code(file);
+  const out: string[] = [];
+  for (const m of src.matchAll(/(?:^|[;\n}])\s*(?:import|export)\s+(?!type\b)[^;"'`]*?\bfrom\s*["']([^"']+)["']/g)) {
+    out.push(m[1]!);
+  }
+  for (const m of src.matchAll(/(?:^|[;\n])\s*import\s*["']([^"']+)["']/g)) out.push(m[1]!);
+  for (const m of src.matchAll(/\bimport\(\s*["']([^"']+)["']\s*\)/g)) out.push(m[1]!);
+  SPECIFIERS.set(file, out);
+  return out;
+}
+
+function resolveLocal(from: string, spec: string): string | null {
+  let base: string;
+  if (spec.startsWith("@/")) base = spec.slice(2);
+  else if (spec.startsWith(".")) base = join(dirname(from), spec);
+  else return null;
+  for (const candidate of [base, `${base}.ts`, `${base}.tsx`, join(base, "index.ts"), join(base, "index.tsx")]) {
+    if (existsSync(candidate) && statSync(candidate).isFile() && /\.tsx?$/.test(candidate)) return candidate;
+  }
+  return null;
+}
+
+const IMPURE_SPECIFIER = /^(@\/lib\/db|@prisma\/client|react|react\/.*|next\/.*|server-only)$/;
+const DATABASE_SPECIFIER = /^(@\/lib\/db|@prisma\/client)$/;
+
+/** The first import chain from `start` to a specifier `banned` matches, if any. */
+function impureChain(start: string, banned: RegExp): { chain: string | null; walked: number } {
+  const seen = new Map<string, string | null>([[start, null]]);
+  const queue = [start];
+  let walked = 0;
+  while (queue.length > 0) {
+    const file = queue.shift()!;
+    walked += 1;
+    for (const spec of runtimeSpecifiers(file)) {
+      const local = resolveLocal(file, spec);
+      if (banned.test(spec) || local === join("lib", "db.ts")) {
+        const chain = [spec, file];
+        for (let at = seen.get(file); at; at = seen.get(at)) chain.push(at);
+        return { chain: chain.reverse().join(" -> "), walked };
+      }
+      if (local && !seen.has(local)) {
+        seen.set(local, file);
+        queue.push(local);
+      }
+    }
+  }
+  return { chain: null, walked };
+}
+
+/**
+ * The import chain from a file to a target module, or null where no runtime
+ * import reaches it however many files away. A rule about which side of the
+ * app may read a module is a rule about reaching it, not about naming it on
+ * the first line: a side-effect import, or a helper that reads it, is the
+ * same read.
+ */
+function chainTo(start: string, target: string): string | null {
+  const seen = new Map<string, string | null>([[start, null]]);
+  const queue = [start];
+  while (queue.length > 0) {
+    const file = queue.shift()!;
+    if (file === target && file !== start) {
+      const chain = [file];
+      for (let at = seen.get(file); at; at = seen.get(at)) chain.push(at);
+      return chain.reverse().join(" -> ");
+    }
+    for (const spec of runtimeSpecifiers(file)) {
+      const local = resolveLocal(file, spec);
+      if (local && !seen.has(local)) { seen.set(local, file); queue.push(local); }
+    }
+  }
+  return null;
+}
+
+/**
+ * The layers CLAUDE.md promises are pure: no React, no Next, no database, so
+ * the unit suite can import them hermetically. One list, because three checks
+ * each typed their own and they disagreed with each other and with CLAUDE.md,
+ * which still named `lib/gamification/` a year after it was deleted.
+ */
+const PURE_LAYERS = [
+  "assessment", "collections", "copy", "course", "email", "estonian", "exam", "funding", "games",
+  "learn", "offline", "questions", "random", "readiness", "research", "scan", "scenes", "security",
+  "stats", "time", "ux",
+] as const;
+
 /**
  * The files a Next metadata convention serves from the root of `app/`, and the
  * path each one answers on. Read off the filesystem so a new one is found by
@@ -513,6 +626,51 @@ check("no client file imports the course barrel, and the bundle is checked for t
   assert.ok(built > 0, "the secrets job no longer builds, so nothing is there to check the bundle of");
   assert.ok(checked > built, "the secrets job does not run npm run check:bundle after its build");
   assert.match(read("package.json"), /"check:bundle":\s*"node scripts\/check-bundle-data\.mjs"/);
+});
+
+check("every source LICENSE asks a credit for is credited on every surface that owes it", () => {
+  /*
+    `LICENSE` names the sources this app is built on and says which ask for a
+    credit, and CLAUDE.md says each is credited on sign-in, in the landing
+    footer and on /terms as well. Nothing compared the four, so when the forms
+    list arrived with three sources, the one that is a repository in its own
+    right (`KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex`, CC BY-SA 4.0)
+    reached `LICENSE` and /terms and neither of the other two.
+
+    The sources are read out of `LICENSE` rather than typed here, because a list
+    in the check is the second copy that falls behind. A block needs a credit
+    where it names a licence that asks for one; TartuNLP's says it is fetched
+    and not redistributed, and asks for none.
+  */
+  const licence = readFileSync("LICENSE", "utf8");
+  const start = licence.indexOf("terms set by the people who made it:");
+  const end = licence.indexOf("`prisma/data/expanded.json` is a build product");
+  assert.ok(start > 0 && end > start, "LICENSE no longer has the list of sources this check reads");
+  const blocks = licence.slice(start, end).split(/\n\s*\n/);
+  const owed = blocks
+    .filter((block) => /CC BY|LGPL|Attribution required/.test(block))
+    .flatMap((block) => block.match(/https:\/\/\S+/g) ?? [])
+    .map((url) => url.replace(/\/$/, ""));
+  assert.ok(owed.length >= 5, `read ${owed.length} credited sources out of LICENSE, expected at least 5`);
+
+  const hrefs = new Set(SOURCE_CREDITS.map((c) => c.href));
+  const terms = code("app/terms/page.tsx");
+  const signIn = code("app/(chromeless)/sign-in/page.tsx");
+  for (const url of owed) {
+    assert.ok(hrefs.has(url), `LICENSE credits ${url} and lib/legal/credits.ts, which the landing footer draws, does not`);
+    assert.ok(terms.includes(url), `LICENSE credits ${url} and /terms does not link it`);
+    const credit = SOURCE_CREDITS.find((c) => c.href === url);
+    if (credit) assert.ok(signIn.includes(credit.name), `LICENSE credits ${credit.name} and the sign-in page does not name it`);
+  }
+  // The other direction: a licensed row in the table that LICENSE never
+  // mentions is a credit on screen for terms nobody wrote down.
+  for (const credit of SOURCE_CREDITS) {
+    if (credit.licence) assert.ok(licence.includes(credit.href), `${credit.name} is credited on screen as ${credit.licence} and LICENSE does not name it`);
+  }
+  // The footer has to draw the table rather than a list of its own, or the
+  // table is the second copy.
+  const landing = code("app/(chromeless)/welcome/page.tsx");
+  assert.match(landing, /SOURCE_CREDITS\.map\(/, "the landing footer stopped drawing lib/legal/credits.ts");
 });
 
 // ── Never write Estonian, never generate morphology (ADR-005, ADR-017) ───────
@@ -1781,7 +1939,7 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // it has a gate of its own: see lib/scenes/retrieval.ts.
     "lib/progress/scene.ts": "picks a line for a beat, through the scene gate",
     // These two open the column to read back the English of the sentence the
-    // card already carries (`translationOf`, an exact match on the sentence a
+    // card already carries (`sentenceEnglish`, an exact match on the sentence a
     // gap was cut from). The card's front decided which sentence that is, when
     // it was built, and a rank here would be ranking a list of one.
     // The grammar reference's pins name one sentence each, by its text, and
@@ -2639,7 +2797,7 @@ check("Anu's worked examples are sourced from a table the dictionary checks", ()
     hand-verified. Naming the list here, imported rather than retyped, is what
     stops a sixth word joining it silently.
   */
-  const prompt = read("lib/tutor/prompt.ts");
+  const prompt = code("lib/tutor/prompt.ts");
   const table = between(prompt, "export const WORKED_FORMS");
   assert.ok(table, "WORKED_FORMS is gone; the worked examples are typed loose again");
   const outside = prompt.replace(table, "");
@@ -2682,7 +2840,7 @@ check("the model may never supply a form that becomes a card", () => {
     "AI" and tagged in the UI, and `lib/tutor/translate.ts` is the only path
     from a model to the dictionary at all.
   */
-  const translate = read("lib/tutor/translate.ts");
+  const translate = code("lib/tutor/translate.ts");
   // The direction is the rule: the model turns Estonian into English, never
   // the other way. Both prompts hand it the Estonian and ask for English.
   assert.match(translate, /English translation of the Estonian/, "the word prompt changed direction");
@@ -2739,7 +2897,7 @@ check("a withheld note claims Estonian only when it caught Estonian", () => {
     );
   }
 
-  const verify = read("lib/tutor/verify.ts");
+  const verify = code("lib/tutor/verify.ts");
   assert.match(
     code("lib/tutor/verify.ts"),
     /graded:\s*\{\s*\.\.\.graded,\s*comment:\s*"",\s*rule:\s*""\s*\}/,
@@ -2814,7 +2972,7 @@ check("no code path updates a review", () => {
   for (const file of ALL) {
     // Every way to change a row, not only the obvious one: an upsert and raw
     // SQL rewrite a review as surely as `review.update` does.
-    assert.equal(/review\.(update|upsert)|UPDATE\s+"Review"/.test(code(file)), false, `${file} updates a review`);
+    assert.equal(/review\.(update|upsert)|\bUPDATE\s+"Review"/i.test(code(file)), false, `${file} updates a review`);
   }
 });
 
@@ -2830,10 +2988,10 @@ check("a review is only ever deleted by something the learner asked for", () => 
   */
   const deleters = ALL
     .filter((f) => !/\.(test|itest)\.tsx?$/.test(f))
-    .filter((f) => /review\.delete/.test(read(f)));
+    .filter((f) => /review\.delete|\bDELETE\s+FROM\s+"Review"|\bTRUNCATE\b[^;`]*"Review"/i.test(read(f)));
   assert.deepEqual(deleters, ["app/actions.ts"], "a review is deleted outside the paths that may");
 
-  const actions = read("app/actions.ts");
+  const actions = code("app/actions.ts");
   assert.match(
     actions,
     // Coerced first, because the argument is JSON off the wire: see "a malformed
@@ -2881,7 +3039,9 @@ check("no counter column exists for anything the review log can reconstruct", ()
     are the two values no log can reconstruct: a personal best, and which days
     a shield has already covered.
   */
-  const counters = /^\s*(xp|totalXp|level|streak|currentStreak|cardsKnown|accuracy)\s+Int/im;
+  // Any number type, and the family rather than the six names: `streakDays`,
+  // `wordsKnown` or an `accuracy Float` is the same stored score.
+  const counters = /^\s*(xp\w*|totalXp|level|streak\w*|currentStreak|\w*Known|accuracy|reviewCount)\s+(Int|Float|Decimal|BigInt)\b/im;
   const hit = counters.exec(SCHEMA);
   assert.equal(hit, null, `the schema stores ${hit?.[1]}, which the review log already answers`);
 });
@@ -3063,7 +3223,7 @@ check("a mock exam is marked by the server, never by the client", () => {
     false,
     "the exam session marks its own paper",
   );
-  const action = read("app/actions.ts");
+  const action = code("app/actions.ts");
   assert.match(action, /markPaper\(/, "submitExam no longer marks the paper on the server");
   /*
     The rule is that the paper is rebuilt on the server from its seed, not the
@@ -3154,7 +3314,7 @@ check("a mock exam writes to the same review log as every other mode", () => {
     `applyGradeBatch`, which is the path the offline outbox already uses, rather
     than writing Review rows of its own.
   */
-  const action = read("app/actions.ts");
+  const action = code("app/actions.ts");
   const submit = action.slice(action.indexOf("export async function submitExam"));
   assert.match(submit, /applyGradeBatch\(/, "submitExam does not grade through the shared batch");
   assert.equal(
@@ -3191,7 +3351,7 @@ check("nothing about the mock exam decides an answer with a model", () => {
     note carries no marks, which is why the route that asks her lives apart from
     the marking entirely.
   */
-  const score = read("lib/exam/score.ts");
+  const score = code("lib/exam/score.ts");
   for (const forbidden of ["@/lib/tutor/provider", "@/lib/tutor/grader", "fetch("]) {
     assert.equal(
       score.includes(forbidden),
@@ -3199,7 +3359,7 @@ check("nothing about the mock exam decides an answer with a model", () => {
       `lib/exam/score.ts reaches for ${forbidden}, so a model can move a mark`,
     );
   }
-  const reader = read("app/api/exam/write/route.ts");
+  const reader = code("app/api/exam/write/route.ts");
   // Either verifier: what the rule asks is that the model's Estonian is checked
   // before it reaches a candidate, not which function does it.
   assert.match(reader, /verify(Comment|Verdict)\(/, "the composition reader skips the form check");
@@ -3294,7 +3454,7 @@ check("a backup arrives as a request body, never as an action argument", () => {
     not call the restore or inspect actions directly, whatever they end up
     being named.
   */
-  const panel = read("app/(app)/settings/RestorePanel.tsx");
+  const panel = code("app/(app)/settings/RestorePanel.tsx");
   assert.match(panel, /\/api\/restore/, "RestorePanel no longer posts the backup to a route");
   assert.doesNotMatch(
     panel,
@@ -3314,7 +3474,7 @@ check("nothing about an individual survives into the metrics", () => {
     Asserting the shape rather than one field name: whatever the numbers grow
     into, the pure module must not learn who anybody is.
   */
-  const retention = read("lib/stats/retention.ts");
+  const retention = code("lib/stats/retention.ts");
   assert.doesNotMatch(retention, /ownerId|email|userId/, "the retention module learned who somebody is");
 
   const route = code("app/api/metrics/route.ts");
@@ -3336,7 +3496,7 @@ check("nothing can turn auth off on a deployment that has it", () => {
     disable the gate would be one environment variable away from serving every
     learner's deck to anybody.
   */
-  const mode = read("lib/auth/mode.ts");
+  const mode = code("lib/auth/mode.ts");
   assert.match(mode, /NEXT_PUBLIC_SUPABASE_URL/, "mode.ts no longer decides on the configuration");
   const flags = /(DISABLE_AUTH|SKIP_AUTH|AUTH_DISABLED|NO_AUTH|ALLOW_ANONYMOUS)/;
   for (const file of [...ALL, "middleware.ts", "next.config.ts"]) {
@@ -3346,7 +3506,7 @@ check("nothing can turn auth off on a deployment that has it", () => {
 });
 
 check("the public path allowlist is the only way past the gate", () => {
-  const middleware = read("middleware.ts");
+  const middleware = code("middleware.ts");
   assert.match(middleware, /isPublicPath/, "the allowlist is gone");
   for (const path of ["/sign-in", "/welcome", "/auth/callback", "/offline"]) {
     assert.ok(middleware.includes(path), `${path} is no longer in the allowlist`);
@@ -3374,7 +3534,7 @@ check("a page a stranger may read is a page the landing page links to", () => {
     the three /api/ paths are not pages.
   */
   const middleware = code("middleware.ts");
-  const landing = read("app/(chromeless)/welcome/page.tsx");
+  const landing = code("app/(chromeless)/welcome/page.tsx");
   const notAPage = [
     "/sign-in", "/auth/callback", "/offline", "/api/",
     // Generated metadata routes: read by a crawler, a link preview or a phone
@@ -3424,7 +3584,7 @@ check("nothing on the request path waits on the auth service without a deadline"
       `${file} has a bounded transport it does not hand to the client`,
     );
   }
-  const identity = read("lib/auth/identity.ts");
+  const identity = code("lib/auth/identity.ts");
   assert.match(identity, /AUTH_TIMEOUT_MS/, "the deadline is no longer a named number");
   assert.match(identity, /signal/, "the bounded transport stopped putting a signal on the request");
 });
@@ -3443,7 +3603,7 @@ check("a public page does not pay for an identity it never reads", () => {
     button. So the check is positional: the early return for the rest has to
     come before a client is built, or it is not saving anything.
   */
-  const middleware = read("middleware.ts");
+  const middleware = code("middleware.ts");
   const skip = middleware.indexOf("isPublicPath && !path.startsWith(\"/sign-in\")");
   const cookie = middleware.indexOf("hasSessionCookie(");
   const client = middleware.indexOf("createServerClient(");
@@ -3468,11 +3628,11 @@ check("an auth service that did not answer is not a sign-out", () => {
     `!== "in"` is the shape that breaks this, and it is the natural thing to
     write. The middleware has to key its refusals on the positive answer.
   */
-  const identity = read("lib/auth/identity.ts");
+  const identity = code("lib/auth/identity.ts");
   for (const state of ["\"in\"", "\"out\"", "\"unreachable\""]) {
     assert.ok(identity.includes(state), `the ${state} answer is gone from Identity`);
   }
-  const middleware = read("middleware.ts");
+  const middleware = code("middleware.ts");
   assert.match(
     middleware,
     /identity\.state === "out"/,
@@ -3495,7 +3655,7 @@ check("the forged-request gate runs before anything else looks at the request", 
     refusing after one would hand a forged mutation on to be refused a request
     later instead of here.
   */
-  const middleware = read("middleware.ts");
+  const middleware = code("middleware.ts");
   const gate = middleware.indexOf("isSameOriginMutation(request)");
   const auth = middleware.indexOf("if (!supabaseConfigured())");
   assert.ok(gate > 0, "the forged-request gate is gone from the middleware");
@@ -3555,7 +3715,7 @@ check("every response carries a policy", () => {
     returns cookie arrays, and matching those would be matching a shape rather
     than a rule.
   */
-  const middleware = read("middleware.ts");
+  const middleware = code("middleware.ts");
   // Without `withCsp`'s own definition: the `return response` inside it is the
   // helper doing its job, not a branch skipping it.
   const body = middleware.replace(/const withCsp[\s\S]*?\n  \};\n/, "");
@@ -3794,13 +3954,13 @@ check("a word read off a photograph reaches a card only through the dictionary",
     confident match (`matchEstonianForm`, at `VOUCHED_SCORE`) carries a
     lexeme id. Nothing else may mint one.
   */
-  const route = read("app/api/scan/route.ts");
+  const route = code("app/api/scan/route.ts");
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
 
   const resolver = code("lib/dict/resolveScan.ts");
   assert.match(resolver, /matchEstonianForm\(/, "the resolver stopped using the vouched matcher");
 
-  const search = read("lib/dict/search.ts");
+  const search = code("lib/dict/search.ts");
   assert.match(
     search,
     /scored\.score\s*<\s*VOUCHED_SCORE/,
@@ -3812,7 +3972,7 @@ check("a word read off a photograph reaches a card only through the dictionary",
     A page's own entries are principal-part-free by construction, which is why
     they can only ever produce a recognition and a production card.
   */
-  const saveScan = between(read("app/actions.ts"), "export async function saveScan");
+  const saveScan = between(code("app/actions.ts"), "export async function saveScan");
   assert.equal(
     /prisma\.form\.(create|createMany|upsert|update)/.test(saveScan),
     false,
@@ -4219,7 +4379,7 @@ check("there is one shuffle, and the sort-comparator kind is not a shuffle at al
 
   // And the exception carries its reason, so nobody reads it as an oversight.
   assert.match(
-    read(EXCEPTION),
+    prose(EXCEPTION),
     /rebuilds the paper from that seed to mark it/,
     `${EXCEPTION} keeps its own shuffle and its header stopped saying why`,
   );
@@ -4449,7 +4609,7 @@ check("which of two entries for one word wins is decided, not left to the rows",
     of a flashcard had the same fault in different words: one sorted, the other
     kept whichever candidate the array listed first.
   */
-  const search = read("lib/dict/search.ts");
+  const search = code("lib/dict/search.ts");
 
   assert.match(
     search,
@@ -4511,12 +4671,37 @@ check("the photograph itself is never stored", () => {
     "the Scan model has grown somewhere to keep the picture",
   );
 
-  const route = read("app/api/scan/route.ts");
-  assert.equal(
-    /prisma\.\w+\.(create|createMany|update|upsert)/.test(route),
-    false,
-    "the scan route writes to the database, which is where the picture would land",
+  /*
+    Asked of everything the route reaches, not of the route's own lines. It
+    was a regex over `app/api/scan/route.ts` for `prisma.x.create`, which an
+    aliased import walked straight past, and so would the likeliest shape of
+    the fault: a helper in lib/ that saves what it was handed. The route books
+    its model call in the ledger, so `UsageEvent` is the one table it may
+    write, and `RateLimit` beside it for the shared limiter; neither has a
+    column a picture could go in.
+  */
+  const WRITE = /\.(\w+)\.(?:create|createMany|update|updateMany|upsert)\s*\(|\$executeRaw[\s\S]{0,120}?(?:INSERT\s+INTO|UPDATE)\s+"?(\w+)/g;
+  const MAY_WRITE = new Set(["usageEvent", "UsageEvent", "rateLimit", "RateLimit"]);
+  const reached = new Set(["app/api/scan/route.ts"]);
+  const queue = ["app/api/scan/route.ts"];
+  const writes: string[] = [];
+  while (queue.length > 0) {
+    const file = queue.shift()!;
+    for (const m of code(file).matchAll(WRITE)) {
+      const table = m[1] ?? m[2]!;
+      if (!MAY_WRITE.has(table)) writes.push(`${file} writes ${table}`);
+    }
+    for (const spec of runtimeSpecifiers(file)) {
+      const local = resolveLocal(file, spec);
+      if (local && !reached.has(local)) { reached.add(local); queue.push(local); }
+    }
+  }
+  assert.ok(reached.size > 10, `walked ${reached.size} modules from the scan route, so the walk stopped resolving imports`);
+  assert.ok(
+    [...reached].includes(join("lib", "usage", "ledger.ts")),
+    "the scan route no longer reaches the ledger, so the one allowed write is not the one being checked",
   );
+  assert.deepEqual(writes, [], `the scan route reaches a database write, which is where the picture would land: ${writes.join("; ")}`);
 });
 
 // ── A headline is read, never believed ───────────────────────────────────────
@@ -4533,7 +4718,7 @@ check("a word off a news feed reaches the screen only as a word the dictionary h
     the dictionary's own headword rather than the spelling the headline used.
     A feed could carry anything and the worst case is a shorter row.
   */
-  const suggest = read("lib/dict/suggest.ts");
+  const suggest = code("lib/dict/suggest.ts");
   const vouching = between(suggest, "async function vouchNews");
   assert.match(vouching, /matchEstonianForm\(/, "news words no longer go through the vouched matcher");
   assert.match(
@@ -4560,6 +4745,9 @@ check("a word off a news feed reaches the screen only as a word the dictionary h
       false,
       `${file} reaches the database, so the feed could write to it`,
     );
+    // And not one import away, which is the half the line above cannot see.
+    const reached = impureChain(file, DATABASE_SPECIFIER).chain;
+    assert.equal(reached, null, `${file} reaches the database through ${reached}, so the feed could write to it`);
     assert.equal(
       /"use client"/.test(source),
       false,
@@ -4595,7 +4783,7 @@ check("nothing is suggested that the dictionary has not graded", () => {
     that must constrain neither: it is looking for the entries the filters would
     have hidden.
   */
-  const suggest = read("lib/dict/suggest.ts");
+  const suggest = code("lib/dict/suggest.ts");
   assert.match(suggest, /const POS = \[/, "the suggestion row stopped naming which parts of speech it offers");
 
   const gate = between(suggest, "export async function withATable");
@@ -4631,7 +4819,7 @@ check("the seasonal row names units of the course, never words of its own", () =
     `topical.test.ts` checks every id is a real unit; this checks the table
     has not started carrying words instead.
   */
-  const topical = read("lib/collections/topical.ts");
+  const topical = code("lib/collections/topical.ts");
   const table = between(topical, "export const THEMES");
   for (const units of table.matchAll(/units: \[([^\]]*)\]/g)) {
     for (const id of units[1]!.split(",")) {
@@ -4659,12 +4847,12 @@ check("the chat says which model actually replied", () => {
     configured first may not have written a word of what is on screen. A
     screen naming the wrong model is worse than one naming none.
   */
-  const route = read("app/api/tutor/route.ts");
+  const route = code("app/api/tutor/route.ts");
   assert.match(route, /x-model-provider/, "the reply no longer carries which model wrote it");
   assert.match(route, /open\.config/, "the header names something other than the run that answered");
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // read it from the one place that actually asks the response for it.
-  const chat = read("components/anu/useAnuChat.ts");
+  const chat = code("components/anu/useAnuChat.ts");
   assert.match(chat, /x-model-provider/, "the chat no longer reads it back");
 });
 
@@ -5257,14 +5445,14 @@ check("an Estonian text input gets the letter bar, from one list", () => {
     rather than that there was one list. A seventh letter added to one of them
     would have passed.
   */
-  const letters = read("lib/ux/letterBar.ts");
+  const letters = code("lib/ux/letterBar.ts");
   for (const letter of ["õ", "ä", "ö", "ü", "š", "ž"]) {
     assert.ok(letters.includes(letter), `lib/ux/letterBar.ts no longer offers ${letter}`);
   }
 
   // And there is one bar. Anything drawing the row has to be the shared
   // component, whose letters come from the module above.
-  const bar = read("components/DiacriticBar.tsx");
+  const bar = code("components/DiacriticBar.tsx");
   assert.match(bar, /ESTONIAN_LETTERS/, "the bar no longer reads the shared list of letters");
   const drawers = ALL.filter((f) => /className="letter-bar|className={`letter-bar/.test(read(f)));
   assert.deepEqual(
@@ -5347,7 +5535,7 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   // Published for every signed-in screen, from the setting, in the render
   // rather than from an effect: an attribute written after hydration shows the
   // bar for a frame to everybody who asked for it to be gone.
-  const layout = read("app/(app)/layout.tsx");
+  const layout = code("app/(app)/layout.tsx");
   assert.match(layout, /SETTING_KEYS\.letterBar/, "the app shell no longer reads the answer");
   assert.match(layout, /<LetterBarScope/, "the app shell no longer publishes the answer");
   assert.match(
@@ -5717,7 +5905,18 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     block sent after the static prompt so the cached part stays cached.
   */
   const tutorRoute = code("app/api/tutor/route.ts");
-  assert.doesNotMatch(tutorRoute, /body\.level/, "the tutor route reads a level from the client again");
+  /*
+    Read as any way a level comes off the request, not only `body.level`: a
+    destructure (`const { messages, level } = await request.json()`) or an
+    index put the client's number back just as surely and passed the old
+    pattern. The one `level` the route may name is the learner context's own,
+    and the fallback it uses when that cannot be read.
+  */
+  assert.doesNotMatch(
+    tutorRoute,
+    /(?<!\blearner|UNKNOWN_LEARNER)\.level\b|[{,]\s*level\s*[,}=]|\[\s*["'`]level["'`]\s*\]/,
+    "the tutor route reads a level from the client again",
+  );
   assert.match(tutorRoute, /learnerContextFor\(ownerId\)/, "the tutor route no longer asks who is asking");
   assert.match(tutorRoute, /learnerNote\(learner\)/, "the tutor route no longer hands Anu the learner note");
   /*
@@ -5769,7 +5968,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     what a rule decays into: it covers the screens somebody was looking at on
     the day they wrote it and nothing added since.
   */
-  const sweep = read("lib/copy/readerCopy.test.ts");
+  const sweep = code("lib/copy/readerCopy.test.ts");
   assert.match(sweep, /FILES[\s\S]{0,300}findTells/, "hand-written copy is no longer swept for tells");
   assert.match(sweep, /FILES[\s\S]{0,300}EMOJI/, "the emoji rule no longer runs over the tree");
 
@@ -6688,7 +6887,7 @@ check("a question never fills itself with free eliminations", () => {
 
   // And the ranking may not become a filter. A question the dictionary can
   // fill has to stay askable, which is what keeps a thin section honest.
-  const distractors = read("lib/questions/distractors.ts");
+  const distractors = code("lib/questions/distractors.ts");
   assert.match(distractors, /wrong\.length < WRONG/, "the picker stopped refusing what it cannot fill");
 });
 
@@ -6719,7 +6918,7 @@ check("a placement question is answered in Estonian, not about it", () => {
     "never names the case" test in `lib/assessment/items.test.ts` builds every
     gap explanation off its fixture words and reads each one for every name.
   */
-  const source = read("lib/assessment/items.ts");
+  const source = code("lib/assessment/items.ts");
   const questions = [...source.matchAll(/^\s*question:\s*(.+?),?$/gm)].map((m) => m[1] ?? "");
   assert.ok(questions.length >= 5, `expected the item questions, found ${questions.length}`);
 
@@ -6943,7 +7142,7 @@ check("a recording never moves a level", () => {
     theirs. A number invented on top of a recognizer that does not handle
     Estonian would be believed, which is what makes it worse than silence.
   */
-  const score = read("lib/assessment/score.ts");
+  const score = code("lib/assessment/score.ts");
   const scored = /SCORED_SKILLS[^=]*=\s*\[([^\]]*)\]/.exec(score)?.[1] ?? "";
   assert.ok(scored.includes("reading"), "the scored skills list moved or was renamed");
   assert.equal(scored.includes("speaking"), false, "speaking counts toward the level");
@@ -7064,7 +7263,7 @@ check("the goal a learner states is stored through the settings store", () => {
     literals scattered through a wizard is one typo away from a goal that
     silently reverts to nothing for ever.
   */
-  const store = read("lib/settings/store.ts");
+  const store = code("lib/settings/store.ts");
   for (const key of ["goalReason", "goalTarget", "goalDeadline", "goalDays", "goalNote"]) {
     assert.match(store, new RegExp(`${key}:`), `${key} is not declared in the settings store`);
   }
@@ -7271,7 +7470,7 @@ check("the privacy notice carries what Article 13 requires", () => {
     reader is entitled to be told, and each was missing. A page that describes
     what is stored and stops is the shape this one had.
   */
-  const privacy = read("app/privacy/page.tsx");
+  const privacy = code("app/privacy/page.tsx");
   const required: [RegExp, string][] = [
     [/SUPERVISORY_AUTHORITY/, "who to complain to (13(2)(d))"],
     [/transfersOutsideEea|leavesTheUnion/, "whether anything leaves the EEA (13(1)(f))"],
@@ -7569,7 +7768,7 @@ check("a deletion that leaves something behind says so", () => {
     left rather than shown a success. A button that reports a deletion it did
     not entirely do is worse than one that refuses.
   */
-  const actions = read("app/actions.ts");
+  const actions = code("app/actions.ts");
   assert.match(
     actions,
     /deleteMyAccount[\s\S]*?eraseAuthIdentity/,
@@ -7580,7 +7779,7 @@ check("a deletion that leaves something behind says so", () => {
     /deleteMyAccount[\s\S]*?remainingIdentityNote/,
     "account deletion no longer reports what it could not reach",
   );
-  const danger = read("app/(app)/settings/DangerZone.tsx");
+  const danger = code("app/(app)/settings/DangerZone.tsx");
   assert.match(danger, /result\.remaining/, "the screen ignores what the deletion left behind");
 });
 
@@ -7972,34 +8171,53 @@ check("a malformed argument to a server action is refused, not thrown or stored"
   );
 });
 
+/**
+ * NO SERVER ACTION TAKES AN OWNER FROM ITS CALLER.
+ *
+ * CLAUDE.md states it as a rule that is not negotiable: every export of a
+ * `"use server"` file is a public endpoint, its arguments are JSON off the wire
+ * whatever the types say, and an owner id taken from one is an owner id anybody
+ * can type. The owner is resolved with `requireUserId()`, and a helper that
+ * needs one as a parameter lives in `lib/`. Nothing held that up: the one check
+ * near it read `advanceCourseStep` alone, so an eighty-ninth action written
+ * `saveNote(ownerId: string, text: string)` passed the whole suite.
+ *
+ * Every exported function and every exported arrow in any file that declares
+ * `"use server"` has its whole parameter list read, balanced on parentheses so
+ * a default value or a callback type does not end it early, and refused where
+ * a parameter or a field of an inline object type names an owner, a user or a
+ * learner.
+ */
 check("no server action takes an owner id from its caller", () => {
-  /*
-    CLAUDE.md: nothing in a \`"use server"\` file may take an owner id from its
-    caller. Every export there is a public endpoint whose arguments are JSON
-    anybody can send, so an action shaped \`(ownerId, ...)\` acts on whichever
-    learner the caller names. The throttle check below asserts this for the
-    actions it knows about; this is the rule for every export, whatever it
-    does, read off every file that carries the directive. A helper that needs
-    an owner lives in \`lib/\`, and the action resolves it with
-    \`requireUserId()\` and hands it over, which is \`addCardsFor\`'s shape.
-  */
-  const files = ALL.filter((f) => /^\s*["']use server["']/m.test(read(f)));
-  assert.ok(files.length >= 1, "no \"use server\" file found, so this check stopped looking");
-  const OWNERISH = /^(?:ownerId|userId|owner|user|learnerId|memberId|accountId)$/;
+  const files = ALL.filter((f) => /^\s*["']use server["'];?\s*$/m.test(code(f)));
+  assert.ok(files.includes(join("app", "actions.ts")), "app/actions.ts no longer declares \"use server\"");
   const offenders: string[] = [];
-  let exported = 0;
+  let signatures = 0;
   for (const file of files) {
     const src = code(file);
-    for (const m of src.matchAll(/^export\s+async\s+function\s+(\w+)\s*\(([^)]*)\)/gm)) {
-      exported++;
-      for (const param of m[2]!.split(",")) {
-        const name = /^\s*(\w+)/.exec(param)?.[1];
-        if (name && OWNERISH.test(name)) offenders.push(`${file}: ${m[1]}(${name})`);
+    for (const m of src.matchAll(/export\s+(?:const\s+\w+\s*=\s*)?(?:async\s+)?(?:function\s+(\w+)\s*(?:<[^>(]*>)?)?\(/g)) {
+      if (!m[1] && !/const/.test(m[0])) continue;
+      let depth = 1;
+      let at = m.index! + m[0].length;
+      const from = at;
+      while (at < src.length && depth > 0) {
+        if (src[at] === "(") depth += 1;
+        else if (src[at] === ")") depth -= 1;
+        at += 1;
+      }
+      signatures += 1;
+      const params = src.slice(from, at - 1);
+      if (/\b(owner\w*|user|userId|learnerId|memberId|accountId)\s*[?]?\s*[:,)=]|\b(owner\w*|user|userId|learnerId|memberId|accountId)\s*$/i.test(params)) {
+        offenders.push(`${file}: ${m[1] ?? m[0].trim()}(${params.replace(/\s+/g, " ").slice(0, 80)})`);
       }
     }
   }
-  assert.ok(exported >= 80, `only ${exported} exported actions found; the pattern stopped reaching them`);
-  assert.deepEqual(offenders, [], `server actions taking an owner id from the caller: ${offenders.join("; ")}`);
+  assert.ok(signatures >= 60, `only read ${signatures} server action signatures, so this check stopped looking`);
+  assert.deepEqual(
+    offenders, [],
+    "a server action takes an owner from its caller, which anybody can type. Resolve it with "
+      + "requireUserId() inside the action, or move the helper that needs one into lib/",
+  );
 });
 
 check("the weakest case is read off the case that was asked, on every screen that reads one", () => {
@@ -8549,7 +8767,7 @@ check("pushing a change through the queue is gated on more than being signed in"
     back to "anybody signed in" on an open sign-up would be the same hole with
     a friendlier shape.
   */
-  const review = between(read("app/actions.ts"), "export async function reviewSuggestion");
+  const review = between(code("app/actions.ts"), "export async function reviewSuggestion");
   assert.match(review, /requireAdminId\(\)/, "the review action does not establish who is reviewing");
   assert.doesNotMatch(
     review,
@@ -8557,7 +8775,7 @@ check("pushing a change through the queue is gated on more than being signed in"
     "the review action settles for a signed-in user where it needs a reviewer",
   );
 
-  const admin = read("lib/auth/admin.ts");
+  const admin = code("lib/auth/admin.ts");
   assert.match(
     admin,
     /admins\.length === 0\) return false/,
@@ -8586,7 +8804,7 @@ check("nothing a model wrote can reach the dictionary through the queue", () => 
       `${file} can reach a model, and this path writes Estonian into the shared dictionary`,
     );
   }
-  const apply = read("lib/suggestions/apply.ts");
+  const apply = code("lib/suggestions/apply.ts");
   assert.match(
     apply,
     /isPrincipalFormType\(/,
@@ -8799,9 +9017,10 @@ check("lint has no warnings, and the React Compiler rules that are off are the a
     ["react-hooks/purity", "react-hooks/refs", "react-hooks/set-state-in-effect"],
     "the React Compiler rules switched off are not the three the config argues for",
   );
-  const prose = read("eslint.config.mjs");
+  // Raw, because the reasons are the comment: `read` strips it for code files.
+  const why = prose("eslint.config.mjs");
   for (const rule of off) {
-    assert.match(prose, new RegExp(`\\*\\s{3}${rule.replace("react-hooks/", "")}\\s`), `${rule} is off with no reason written beside it`);
+    assert.match(why, new RegExp(`\\*\\s{3}${rule.replace("react-hooks/", "")}\\s`), `${rule} is off with no reason written beside it`);
   }
   assert.ok(!off.includes("react-hooks/rules-of-hooks"), "rules-of-hooks was switched off; its failures are real every time");
   assert.doesNotMatch(
@@ -9138,7 +9357,7 @@ check("nothing reaches a paid provider without going through the ledger", () => 
     outcome rather than an error, and a booking left standing there rations a
     learner over a line nobody was shown.
   */
-  const scene = read("app/api/scene/route.ts");
+  const scene = code("app/api/scene/route.ts");
   assert.match(
     scene, /releaseReservation\(/,
     "the scene books a turn it may not compose and never hands the booking back",
@@ -9213,7 +9432,7 @@ check("an export holds every category the account holds", () => {
     carry a written reason, so appending a model name is no longer a way to
     make this pass. UsageEvent is the one that earns it.
   */
-  const route = read("app/api/export/route.ts");
+  const route = code("app/api/export/route.ts");
   for (const model of ownerScopedModels()) {
     if (Object.hasOwn(NOT_EXPORTED, model)) continue;
     assert.match(
@@ -9258,7 +9477,7 @@ check("erasure has no exemptions at all", () => {
     a transaction that named ten tables. So the one category of long-form
     writing in the whole app survived its author asking for it to be gone.
   */
-  const action = between(read("app/actions.ts"), "export async function deleteMyAccount");
+  const action = between(code("app/actions.ts"), "export async function deleteMyAccount");
   for (const model of ownerScopedModels()) {
     assert.match(
       action,
@@ -9923,13 +10142,47 @@ check("signing out forgets the device", () => {
     exception, since it signs out a session it refused rather than a person
     leaving a device, and runs on a server with no device to forget.
   */
-  const forget = read("lib/offline/forget.ts");
+  const forget = code("lib/offline/forget.ts");
   const leavers = ALL.filter((f) => /auth\.signOut\(/.test(code(f)))
     .filter((f) => f !== "app/auth/callback/route.ts");
   assert.ok(leavers.length >= 2, "no client signs anybody out any more");
+  /*
+    Asked of every sign-out rather than every file. `DangerZone.tsx` signs out
+    on two paths, after an account is deleted and after a partial deletion, so
+    a file-level match was satisfied by either one: taking the forget off the
+    deletion path left the cached pages of an account that no longer exists on
+    the device, and this stayed green. The forget sits in the same handler as
+    the sign-out, before it or after it (the rail forgets after, so a sign-out
+    that could not reach the service loses nothing), which is what the window
+    either side of each call reads.
+  */
+  /*
+    And a sign-out wrapped in a function is signed out wherever the function is
+    used, not where it is defined. The Supabase client is fetched on demand
+    (#470), so `DangerZone.tsx` holds `auth.signOut()` in a module-level
+    `signOutOfSupabase` and calls that from its handlers, once as a call and
+    once handed to `.then`. Read at the definition, the window saw an import
+    and no handler at all.
+  */
+  let signOuts = 0;
   for (const file of leavers) {
-    assert.match(code(file), /forgetThisDevice/, `${file} signs out without forgetting the device`);
+    const source = code(file);
+    const wrappers = [...source.matchAll(/const\s+(\w+)\s*=\s*\([^)]*\)\s*=>[^;]*?auth\.signOut\(/g)]
+      .map((m) => ({ name: m[1]!, start: m.index!, end: m.index! + m[0].length }));
+    const sites = [
+      ...[...source.matchAll(/auth\.signOut\(/g)]
+        .filter((m) => !wrappers.some((w) => m.index! >= w.start && m.index! < w.end)),
+      ...wrappers.flatMap((w) => [...source.matchAll(new RegExp(`\\b${w.name}\\b(?!\\s*=)`, "g"))]
+        .filter((m) => m.index! !== w.start + source.slice(w.start).indexOf(w.name))),
+    ];
+    for (const call of sites) {
+      signOuts += 1;
+      const around = source.slice(Math.max(0, call.index! - 300), call.index! + 300);
+      const line = source.slice(0, call.index!).split("\n").length;
+      assert.match(around, /forgetThisDevice\(/, `${file}:${line} signs out without forgetting the device`);
+    }
   }
+  assert.ok(signOuts >= 3, `found ${signOuts} sign-outs, so this stopped reading them`);
   // The outbox goes first, because a grade still queued is the one thing the
   // device cannot keep and must not quietly drop.
   const rail = code("components/Sidebar.tsx");
@@ -9974,7 +10227,7 @@ check("a source that will not answer is written down as a miss", () => {
     paper.
   */
   assert.match(SCHEMA, /lookupMissAt\s+DateTime\?/, "the miss marker is gone from the schema");
-  const lookup = read("lib/dict/lookup.ts");
+  const lookup = code("lib/dict/lookup.ts");
   assert.match(lookup, /lookupMissAt: new Date\(\)/, "a miss is no longer recorded");
   assert.match(lookup, /lookupMissAt: null/, "an answer no longer clears an earlier miss");
   assert.equal(
@@ -11120,7 +11373,7 @@ check("first run is exercised, which means two suites run before the fixture", (
  * now fails here until its key is marked.
  */
 check("every provider key the chain can hold is marked in the credential canary", () => {
-  const chain = read(join("lib", "tutor", "provider.ts"));
+  const chain = code(join("lib", "tutor", "provider.ts"));
   const listed = chain.match(/export const PROVIDER_KEY_ENV = \[([\s\S]*?)\] as const;/);
   assert.ok(listed, "PROVIDER_KEY_ENV is not where this check expects it");
   const keys = [...listed![1]!.matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]!);
@@ -11627,7 +11880,7 @@ check("the funding model prices a call the way the ledger prices one", () => {
  * whose entire claim is that its numbers can be checked.
  */
 check("every price the funding page quotes links to where it came from", () => {
-  const page = read(join("app", "funding", "page.tsx"));
+  const page = code(join("app", "funding", "page.tsx"));
   const facts = readFileSync(join("lib", "funding", "facts.ts"), "utf8");
 
   const sources = [...facts.matchAll(/source:\s*"(https:\/\/[^"]+)"/g)].map((m) => m[1]!);
@@ -11719,7 +11972,7 @@ check("every variable the funding page names is one the app actually reads", () 
     ...ALL, join("middleware.ts"), join("next.config.ts"), join("prisma", "schema.prisma"),
   ].map((f) => read(f)).join("\n");
 
-  const named = [...read(join("lib", "funding", "services.ts")).matchAll(/setBy:\s*"([A-Z_0-9]+)"/g)]
+  const named = [...code(join("lib", "funding", "services.ts")).matchAll(/setBy:\s*"([A-Z_0-9]+)"/g)]
     .map((m) => m[1]!);
   assert.ok(named.length >= 4, `only found ${named.length} named variables, so this check stopped looking`);
 
@@ -11783,7 +12036,7 @@ check("the funding bill is generated from the registry rather than a list beside
     the vendor names, because the page is allowed to *write about* Vercel in a
     sentence and is not allowed to single it out in the arithmetic.
   */
-  const ids = [...read(join("lib", "funding", "services.ts")).matchAll(/^\s{4}id: "([a-z]+)",$/gm)]
+  const ids = [...code(join("lib", "funding", "services.ts")).matchAll(/^\s{4}id: "([a-z]+)",$/gm)]
     .map((m) => m[1]!);
   assert.ok(ids.length >= 6, `only found ${ids.length} services, so this check stopped looking`);
 
@@ -11940,16 +12193,7 @@ check("what is given to this app is credited rather than added to the bill", () 
  * nothing.
  */
 check("the layers that promise to be pure import no database, React or Next", () => {
-  const pure = [
-    "assessment", "estonian", "exam", "games", "stats", "collections", "time",
-    "offline", "security", "scan", "questions", "ux", "random", "copy", "funding", "research",
-    "learn", "scenes", "readiness", "email",
-  ];
-  /*
-    Either quote, since a formatter is not what makes a layer pure. This was
-    once two checks with two lists, and the weaker one was the only thing
-    reading `lib/email/` or any file in a subdirectory.
-  */
+  const pure = PURE_LAYERS;
   const banned = [
     [/from ["']@\/lib\/db["']|from ["'](?:\.\.\/)+db["']/, "the database"],
     [/from ["']@prisma\/client["']/, "Prisma"],
@@ -11994,6 +12238,166 @@ check("the layers that promise to be pure import no database, React or Next", ()
 });
 
 /**
+ * AND A LAYER IS AS PURE AS WHAT IT REACHES, NOT AS WHAT IT NAMES.
+ *
+ * Both checks above read each file's own import lines, and CLAUDE.md already
+ * records the fault that shape cannot see: `lib/estonian/passage.ts` took
+ * `fold` from `lib/dict/search.ts`, which imports Prisma, so a layer asserted
+ * free of the database pulled it in one import away while every line of its
+ * own was clean. Nothing stopped a second one. An `import { matchEstonianForm }
+ * from "@/lib/dict/search"` added to any file under `lib/stats/` passed both
+ * checks, and put a database behind four hundred unit tests exactly as the
+ * direct import would have.
+ *
+ * So this walks the runtime import graph from every file in a pure layer and
+ * fails on the first module it reaches that imports the database, Prisma,
+ * React, Next or `server-only`, naming the chain. A type-only import is erased
+ * before anything runs, so it is not followed: `import type` and
+ * `export type` are the two spellings of that and the only ones skipped.
+ */
+/**
+ * A PATH THE DOCUMENTATION NAMES IS A PATH THAT EXISTS.
+ *
+ * The data model page sent a reader to `docs/19-situations.md` for why a role
+ * card is fiction, and that file is `docs/21-situations.md`; the research export
+ * note named `lib/estonian/gradation`, which is a file with an extension. Both
+ * read as fine until somebody followed them. A backticked path is a claim a
+ * machine can check, so it is.
+ *
+ * A path that is named because it is gone (a deleted directory that may not come
+ * back, a code block a page used to show) is exempt by name with the reason, and
+ * the exemption is checked for staleness both ways: a path that exists again, or
+ * that no page names any more, fails until the line comes out.
+ */
+const GONE_ON_PURPOSE: Record<string, string> = {
+  "components/PracticeModes.tsx": "CLAUDE.md records it being deleted as the seventh copy of the practice modes",
+  "components/achievements/": "CLAUDE.md says it may not come back, with the badges",
+  "lib/achievements/": "CLAUDE.md says it may not come back, with the badges",
+  "lib/gamification/": "CLAUDE.md says it may not come back, with XP and the quests",
+  "lib/anu/client.ts": "docs/06-anu-tutor.md says the page used to show it and why it stopped",
+  "lib/copy/tour.ts": "CLAUDE.md records it going with /guide",
+};
+
+check("every path the documentation names exists, or is named because it is gone", () => {
+  const pages = ["CLAUDE.md", "README.md", "SECURITY.md", ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => join("docs", f))]
+    .filter((f) => existsSync(f));
+  const missing = new Map<string, string>();
+  const named = new Set<string>();
+  for (const page of pages) {
+    const text = prose(page);
+    for (const m of text.matchAll(/`((?:app|lib|components|scripts|prisma|docs|public)\/[^`\s*]+)`/g)) {
+      const path = m[1]!.replace(/[:#].*$/, "");
+      named.add(path);
+      // A module named the way an import names it, with no extension, is the
+      // file the import would find.
+      const found = ["", ".ts", ".tsx", ".mjs", "/index.ts"].some((ext) => existsSync(path + ext));
+      // "(to be written)" after the path is a plan, which the design-doc
+      // citation check reads the same way; it fails there once the file exists.
+      const planned = /^\s*\(to be written\)/.test(text.slice(m.index! + m[0].length));
+      if (!found && !planned && !(path in GONE_ON_PURPOSE)) missing.set(path, page);
+    }
+  }
+  assert.ok(named.size > 300, `only ${named.size} paths found in the documentation, so this stopped reading it`);
+  const stale = [...missing].map(([path, page]) => `${page} names ${path}`);
+  assert.deepEqual(stale, [], `the documentation names a path that does not exist: ${stale.join("; ")}`);
+  for (const path of Object.keys(GONE_ON_PURPOSE)) {
+    assert.ok(!existsSync(path), `${path} is exempt as gone and exists again; take it off GONE_ON_PURPOSE`);
+    assert.ok(named.has(path), `${path} is exempt as gone and no page names it any more; take it off GONE_ON_PURPOSE`);
+  }
+});
+
+/*
+  AN EXPORT NOTHING READS IS A FEATURE NOBODY HAS, OR NOTHING AT ALL.
+
+  Seven were sitting in the tree: a drawing of the build-a-word arithmetic for
+  a letter no letter drew, an icon "the index page uses" that the index page
+  did not, a count of reviewed bank lines, and four helpers whose callers had
+  gone. Each read like something the app did, which is the fault CLAUDE.md
+  records `DangerZone.tsx` having had one room over. What is refused is a name
+  exported and read nowhere: not by another file, test or script included, and
+  not even inside its own file. A constant exported and used where it is
+  declared is fine; so is a name only a test reads, since a test hook is a
+  reason. The Next.js names a route or a page exports for the framework are
+  read by the framework and are skipped.
+*/
+check("every export is read by something", () => {
+  const FRAMEWORK = new Set([
+    "metadata", "viewport", "dynamic", "revalidate", "maxDuration", "runtime", "fetchCache",
+    "preferredRegion", "dynamicParams", "generateMetadata", "generateStaticParams", "generateViewport",
+    "config", "middleware", "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS",
+  ]);
+  const haystack = [...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs|js)$/), ...sourceFiles("prisma")];
+  const texts = new Map(haystack.map((f) => [f, code(f)]));
+  const unread: string[] = [];
+  let exports = 0;
+  for (const file of ALL) {
+    if (/\.(test|itest)\.tsx?$/.test(file)) continue;
+    const source = texts.get(file)!;
+    for (const m of source.matchAll(/^export\s+(?:async\s+)?(?:function|const|class)\s+([A-Za-z_$][\w$]*)/gm)) {
+      const name = m[1]!;
+      if (FRAMEWORK.has(name)) continue;
+      exports += 1;
+      const word = new RegExp(`(?<![\\w$])${name.replace(/\$/g, "\\$")}(?![\\w$])`, "g");
+      if ((source.match(word) ?? []).length > 1) continue;
+      const elsewhere = haystack.some((other) => other !== file && word.test(texts.get(other)!));
+      word.lastIndex = 0;
+      if (!elsewhere) unread.push(`${file} ${name}`);
+    }
+  }
+  assert.ok(exports > 1500, `read only ${exports} exports, so this stopped reading the tree`);
+  assert.deepEqual(unread, [], `exported and read by nothing, anywhere: ${unread.join("; ")}`);
+});
+
+check("every npm command the documentation names is one package.json has", () => {
+  // The same class as a stale path: a command a contributor is told to run
+  // and cannot. Clean when this was written, which is the moment to hold it.
+  const scripts = (JSON.parse(prose("package.json")) as { scripts: Record<string, string> }).scripts;
+  const pages = ["CLAUDE.md", "README.md", ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => join("docs", f))];
+  const unknown: string[] = [];
+  let named = 0;
+  for (const page of pages) {
+    for (const m of prose(page).matchAll(/npm run ([a-z][\w:-]*)/g)) {
+      named += 1;
+      if (!(m[1]! in scripts)) unknown.push(`${page}: npm run ${m[1]}`);
+    }
+  }
+  assert.ok(named > 100, `only ${named} npm commands found in the documentation, so this stopped reading it`);
+  assert.deepEqual(unknown, [], `the documentation names a command package.json does not have: ${unknown.join("; ")}`);
+});
+
+check("CLAUDE.md names the pure layers the checks hold", () => {
+  const claude = read("CLAUDE.md");
+  const start = claude.indexOf("- `lib/assessment/`");
+  assert.ok(start >= 0, "CLAUDE.md's list of pure layers moved; point this at it");
+  const bullet = claude.slice(start, claude.indexOf("stay free of", start));
+  const named = [...bullet.matchAll(/`lib\/([a-z]+)\/`/g)].map((m) => m[1]!).sort();
+  assert.deepEqual(named, [...PURE_LAYERS].sort(), "CLAUDE.md and PURE_LAYERS name different pure layers");
+  for (const layer of PURE_LAYERS) assert.ok(existsSync(join("lib", layer)), `lib/${layer} is named pure and is not there`);
+});
+
+check("a pure layer reaches no database, React or Next, however many imports away", () => {
+  const pure = PURE_LAYERS;
+  const offenders: string[] = [];
+  let walked = 0;
+  for (const name of pure) {
+    for (const start of sourceFiles(join("lib", name))) {
+      if (/\.(test|itest)\.tsx?$/.test(start)) continue;
+      const found = impureChain(start, IMPURE_SPECIFIER);
+      walked += found.walked;
+      if (found.chain) offenders.push(found.chain);
+    }
+  }
+  assert.ok(walked > 200, `only walked ${walked} modules from the pure layers, so this check stopped looking`);
+  assert.deepEqual(
+    [...new Set(offenders)],
+    [],
+    "a pure layer reaches the database, React or Next through another module. Its unit tests are "
+      + "hermetic only while nothing under it does; move what needs the database into lib/progress/ "
+      + "or a route, or take the pure half out of the module that imports it",
+  );
+});
+
+/**
  * Nothing hands a raw error message back to a browser.
  *
  * `restoreBackup` and `deleteMyAccount` both end in "and nothing was changed"
@@ -12020,28 +12424,37 @@ check("no server action returns an error message it has not redacted", () => {
   assert.match(actions, /"use server"/, "app/actions.ts is not a server action file any more");
 
   /*
-    Every file that is a public endpoint by its first line, and whatever name a
-    `catch` binds. The first version read one file for a variable spelled
-    `error`, so `catch (e) { return { error: e.message } }` passed, and so did
-    the same thing in a second `"use server"` module the day one is written.
+    AND THE RULE IS ABOUT WHAT WAS CAUGHT, NOT ABOUT ONE VARIABLE'S NAME.
+
+    This read `error.message` and nothing else, in one file. `catch (e)` and
+    `e.message`, `(err as Error).message`, `String(err)` and `${err}` all hand
+    the browser the same Prisma sentence with the same connection string in
+    it, and all passed; so would any second `"use server"` file, which the
+    comment above calls every such export and the check never opened. So every
+    `"use server"` file is read, the names a `catch` or a `.catch(` binds are
+    collected per file, and each of those is refused wherever it is turned
+    into text. `safeMessage(e)` and `reportError(e, ...)` hand the whole error
+    to a function that redacts it, so they are not a read of it.
   */
-  const servers = [...APP, ...LIB, ...COMPONENTS]
-    .filter((f) => /^\s*["']use server["']/.test(code(f)));
-  assert.ok(servers.includes(join("app", "actions.ts")), "the sweep for server action files found none");
-  for (const file of servers) {
+  const serverFiles = [...APP, ...LIB, ...COMPONENTS].filter((f) => /^\s*["']use server["']/m.test(read(f)));
+  assert.ok(serverFiles.includes(join("app", "actions.ts")), "the sweep for server action files stopped finding app/actions.ts");
+  for (const file of serverFiles) {
     const source = code(file);
-    const names = new Set(["error"]);
-    for (const [, name] of source.matchAll(/catch\s*\(\s*(\w+)/g)) names.add(name!);
-    for (const name of names) {
-      const reach = new RegExp(
-        `\\(\\s*${name}\\s+as\\s+\\w+\\s*\\)\\.message\\b|` +
-        `\\b${name}(?:\\s+instanceof\\s+Error\\s*\\?)?\\s*\\??\\.message\\b`,
+    const caught = new Set(["error"]);
+    for (const m of source.matchAll(/\bcatch\s*\(\s*(\w+)/g)) caught.add(m[1]!);
+    for (const m of source.matchAll(/\.catch\(\s*(?:async\s*)?\(?\s*(\w+)\s*(?::[^)=]*)?\)?\s*=>/g)) caught.add(m[1]!);
+    for (const name of caught) {
+      const reads = new RegExp(
+        `\\b${name}(?:\\s+instanceof\\s+Error\\s*\\?)?\\s*\\.message\\b` +
+        `|\\(\\s*${name}\\s+as\\s+[^)]*\\)\\s*\\.message\\b` +
+        `|\\bString\\(\\s*${name}\\s*\\)` +
+        `|\\$\\{\\s*${name}\\s*\\}`,
         "g",
       );
-      for (const found of source.matchAll(reach)) {
+      for (const found of source.matchAll(reads)) {
         const line = source.slice(0, found.index).split("\n").length;
         assert.fail(
-          `${file}:${line} puts an error's own message into a value the browser reads. ` +
+          `${file}:${line} puts a caught error's own text into a value the browser reads. ` +
           "Use safeMessage from lib/observability/report: a Prisma failure can name the " +
           "deployment's database host, user and password.",
         );
@@ -12449,7 +12862,7 @@ check("a practice round has a heading, not only its empty and finished screens",
 */
 check("the research note names the gradation values the classifier assigns", () => {
   const classifier = code(join("lib", "estonian", "gradation.ts"));
-  const note = read(join("lib", "research", "sections.ts"));
+  const note = code(join("lib", "research", "sections.ts"));
   const assigns = /type:\s*"QUANTITATIVE"/.test(classifier);
   const saysNoRowHasIt = /no row carries it/.test(note);
   assert.equal(
@@ -12515,7 +12928,7 @@ check("no source file holds a control character it could have named", () => {
 
   for (const file of [...ALL, ...sourceFiles("scripts"), ...sourceFiles("prisma")]) {
     if (EXCUSED.has(file)) continue;
-    const raw = read(file);
+    const raw = prose(file);
     const at = raw.search(NAMED);
     if (at < 0) continue;
     const code = raw.charCodeAt(at);
@@ -12893,7 +13306,7 @@ check("an option a learner picks is a control, not a label in a button", () => {
   }
 
   // And the primitive still has the three things that make it one.
-  const choice = read("components/Choice.tsx");
+  const choice = code("components/Choice.tsx");
   assert.match(choice, /role: "radio"/, "the single-select group stopped being a radio group");
   assert.match(choice, /"aria-pressed"/, "the multi-select group stopped being toggle buttons");
   assert.match(choice, /tabIndex = r === stop \? 0 : -1/, "the radio group lost its roving tab stop");
@@ -13196,14 +13609,14 @@ check("the copy about the round pace names every round that reads it", () => {
   rounding at all and the panel does some.
 */
 check("the plan is arithmetic on exact figures, rounded only on its way to a screen", () => {
-  const plan = read("lib/assessment/plan.ts");
+  const plan = code("lib/assessment/plan.ts");
   const projectBody = plan.slice(plan.indexOf("export function project("));
   assert.doesNotMatch(
     projectBody.slice(0, projectBody.indexOf("\nexport function weeksNeeded")),
     /Math\.round\(/,
     "project() rounds a figure it goes on to divide by, which is the fault this rule exists for",
   );
-  const panel = read("components/assessment/PlanPanel.tsx");
+  const panel = code("components/assessment/PlanPanel.tsx");
   assert.match(
     panel, /Math\.round\(n \* 10\) \/ 10/,
     "PlanPanel no longer rounds, so an exact projection reaches a tile with every decimal it has",
@@ -13227,7 +13640,7 @@ check("the plan is arithmetic on exact figures, rounded only on its way to a scr
   made for.
 */
 check("the verdict band and the found-hours sentence read one figure", () => {
-  const plan = read("lib/assessment/plan.ts");
+  const plan = code("lib/assessment/plan.ts");
   assert.match(
     plan, /export const FOUND_HOURS_PER_WEEK/,
     "the baseline found-hours figure has stopped being a named constant",
@@ -13570,6 +13983,9 @@ check("every upper-case name CLAUDE.md gives is one the code still has", () => {
     AI_TAG:
       "named as a past fault of this suite, an assertion that matched its own import line, "
       + "in the paragraph about reading code rather than prose; the constant went with the chip",
+    PURE_LAYERS:
+      "the list CLAUDE.md's pure-layer paragraph is read back against, which lives in this file "
+      + "because the check comparing the two is here, and this file is out of the haystack",
   };
   const claude = read("CLAUDE.md");
   const names = [...new Set([...claude.matchAll(/`([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)`/g)].map((m) => m[1]!))];
@@ -13990,7 +14406,7 @@ check("a finished scene reads the cards it grades once, not one query per grade"
   than showing it, and everything else has to go through the formatter.
 */
 check("the plan reads a duration through the one module that units it", () => {
-  const panel = read("components/assessment/PlanPanel.tsx");
+  const panel = code("components/assessment/PlanPanel.tsx");
   assert.match(
     panel, /from "@\/lib\/time\/duration"/,
     "PlanPanel no longer reads the duration module, so it is spelling a unit itself",
@@ -14164,7 +14580,7 @@ check("every custom property a screen reads is one something sets", () => {
     for (const match of read(file).matchAll(/["'`](--[\w-]+)["'`]\s*[,:)]/g)) add(match[1]);
   }
   // next/font declares its own variable on <html> rather than in a stylesheet.
-  for (const match of read("app/layout.tsx").matchAll(/variable:\s*"(--[\w-]+)"/g)) add(match[1]);
+  for (const match of code("app/layout.tsx").matchAll(/variable:\s*"(--[\w-]+)"/g)) add(match[1]);
 
   const missing = new Map<string, string>();
   for (const file of [...ALL, ...sourceFiles("app", /\.css$/)]) {
@@ -14263,7 +14679,7 @@ check("the almanac asks for a meaning and never supplies a word", () => {
     on the card came from Ekilex or the built expansion. The English gloss is
     the only authored column, which is exactly the latitude the syllabus takes.
   */
-  const almanac = read("lib/copy/almanac.ts");
+  const almanac = code("lib/copy/almanac.ts");
   const estonianLetters = /[õäöüšž]/i;
   const offenders = almanac.split("\n").filter((line) => estonianLetters.test(line));
   assert.deepEqual(offenders, [], "an Estonian word was typed into the almanac");
@@ -14563,7 +14979,7 @@ check("Sonad decides nothing on the client but what to type", () => {
   // the built dictionary or the headword table, either of which refuses a
   // real word every round.
   assert.match(
-    code("lib/dict/facts.ts"), /guessableWords[\s\S]{0,600}formsOfLength\(/,
+    code("lib/dict/acceptFacts.ts"), /guessableWords[\s\S]{0,600}formsOfLength\(/,
     "the guess list is no longer read from the forms list",
   );
 
@@ -14609,8 +15025,9 @@ check("the forms list is an accept list and never an answer", () => {
   const forbidden = ["lib/srs", "lib/exam", "lib/assessment", "lib/scan", "lib/tutor"]
     .flatMap((dir) => sourceFiles(dir))
     .concat(["lib/dict/resolveScan.ts", "lib/dict/search.ts", "lib/dict/upsert.ts"])
-    .filter((file) => /from "(@\/lib\/dict\/forms|\.\/forms)"/.test(code(file)));
-  assert.deepEqual(forbidden, [], "a module on the answer side reads the forms list");
+    .map((file) => chainTo(file, join("lib", "dict", "forms.ts")))
+    .filter((chain): chain is string => chain !== null);
+  assert.deepEqual(forbidden, [], `a module on the answer side reaches the forms list, however many imports away: ${forbidden.join("; ")}`);
 
   // And the reader is a file read, never a table: six million rows in Postgres
   // is half a gigabyte on the ladder /funding measures, for a yes or no.
@@ -14636,12 +15053,14 @@ check("the forms list is an accept list and never an answer", () => {
     "the forms list is not traced into the deployment, so a hosted Sõnad refuses every guess",
   );
 
-  // Every source is credited where the others are.
-  for (const file of ["LICENSE", "app/(chromeless)/sign-in/page.tsx", "app/(chromeless)/welcome/page.tsx", "app/terms/page.tsx"]) {
-    // Read as code where it is code: a comment saying the page credits the
-    // source is not the page crediting it.
-    assert.match(file.endsWith(".tsx") ? code(file) : read(file), /Vabamorf/, `${file} does not credit Vabamorf`);
-  }
+  /*
+    Whether every source is credited where the others are is asked by "every
+    source LICENSE asks a credit for is credited on every surface that owes
+    it", which reads the sources out of LICENSE. This used to say it asked it
+    and checked one of the three: Vabamorf was credited everywhere, and the
+    Enriched-Ekilex repository, the list's other licensed source, reached
+    LICENSE and /terms and neither of the other two, with this check green.
+  */
 });
 
 check("a crossword clue has one answer and says what kind of word it wants", () => {
@@ -14746,7 +15165,7 @@ check("the commonest words are counted, gated, and never written down twice", ()
     gets built into a deck. A group name indexes a table in the repository and
     can name nothing else.
   */
-  const table = read("lib/collections/frequency.ts");
+  const table = code("lib/collections/frequency.ts");
   assert.doesNotMatch(
     table, /translation|gloss:/,
     "the frequency table carries English, which is a second copy of the dictionary that will go stale",
@@ -15076,7 +15495,7 @@ check("a confidence figure carries its evidence, on every screen that prints one
     what this asserts is that every screen printing a confidence reads them from
     there rather than phrasing its own.
   */
-  const readiness = read("lib/exam/readiness.ts");
+  const readiness = code("lib/exam/readiness.ts");
   assert.match(readiness, /export const EVIDENCE_NOTE/, "the tier's own copy has left the module that owns the tier");
   assert.match(readiness, /export const EVIDENCE_LABEL/, "the short form a card prints beside a number is gone");
 
@@ -15657,10 +16076,16 @@ check("nothing caches a learner's own rows in the dictionary's cache", () => {
     and `cache()` from React, which is scoped to the one request, is where a
     per-learner memo goes instead (see `latestFor` and the settings store).
   */
-  const src = code("lib/dict/facts.ts");
+  const src = code("lib/dict/facts.ts") + code("lib/dict/acceptFacts.ts");
+  /*
+    Every name a person arrives under, not only the column's. A cached
+    function taking a `userId` and handing it to a helper from lib/progress/
+    never spells `ownerId` in this file and is exactly the fault above, and
+    the one-word check let it through.
+  */
   assert.ok(
-    !/ownerId/.test(src),
-    "lib/dict/facts.ts names an ownerId. It caches across requests and across "
+    !/\bownerId\b|\buserId\b|\blearnerId\b|\bowner\b|requireUserId|currentLearner/.test(src),
+    "lib/dict/facts.ts names a learner. It caches across requests and across "
     + "learners, so anything scoped to a person served from here is served to "
     + "everybody. Use cache() from react, which is scoped to one request.",
   );
@@ -16237,7 +16662,7 @@ check("every command the README and CLAUDE.md name is a script that exists", () 
   ].filter((f) => existsSync(f) && f !== "scripts/test-invariants.ts");
   const named = new Map<string, string>();
   for (const file of sources) {
-    for (const m of read(file).matchAll(/npm run ([\w:-]+)/g)) {
+    for (const m of prose(file).matchAll(/npm run ([\w:-]+)/g)) {
       if (!m[1]!.startsWith("-") && !named.has(m[1]!)) named.set(m[1]!, file);
     }
   }
@@ -16248,7 +16673,7 @@ check("every command the README and CLAUDE.md name is a script that exists", () 
 });
 
 check("the README's dictionary size is the seed's own count", () => {
-  const size = /words:\s*([\d_]+)/.exec(read(join("lib", "collections", "seedSize.ts")))?.[1];
+  const size = /words:\s*([\d_]+)/.exec(code(join("lib", "collections", "seedSize.ts")))?.[1];
   assert.ok(size, "lib/collections/seedSize.ts no longer states the word count the usual way");
   const words = Number(size.replaceAll("_", ""));
   const printed = words.toLocaleString("en-GB");
@@ -18447,7 +18872,7 @@ check("the scene prompt is served off a cache entry, by one module, on the route
 });
 
 check("a scripted line is drafted by a script, said after a recorded one, and marks nothing", () => {
-  const bank = read("lib/scenes/bank.ts");
+  const bank = prose("lib/scenes/bank.ts");
   assert.match(bank, /^\/\* GENERATED by scripts\/draft-lines\.ts/, "lib/scenes/bank.ts no longer says it is generated");
   assert.match(
     code("scripts/draft-lines.ts"),
@@ -19686,6 +20111,14 @@ check("a learner who says they are lost is handed the word, never the question a
       .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts"])
       .filter((file) => /substitutesFrom|\bsubstitutes\(|context\.substitutes/.test(code(file)));
     assert.deepEqual(readers, [], "a module on the answer side reads the substitution relation");
+    // And none of them reaches the module, which a helper in between would
+    // otherwise carry past the name check above.
+    const reach = ["lib/srs", "lib/exam", "lib/assessment", "lib/scan", "lib/tutor", "lib/games"]
+      .flatMap((dir) => sourceFiles(dir))
+      .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts"])
+      .map((file) => chainTo(file, synonyms))
+      .filter((chain): chain is string => chain !== null);
+    assert.deepEqual(reach, [], `a module on the answer side reaches the substitution relation: ${reach.join("; ")}`);
   }
   /*
     And a substitution is never graded as the word the beat named. The learner
@@ -23235,7 +23668,7 @@ check("a planned course day names words rather than writing any", () => {
     "lib/course/plan.ts grew a word list. A part names units; the units name the words (ADR-005)",
   );
 
-  const tests = read("lib/course/course.test.ts");
+  const tests = code("lib/course/course.test.ts");
   assert.match(
     tests, /teaches only words its own unit teaches/,
     "the check that a day may not introduce vocabulary is gone",
@@ -24570,7 +25003,7 @@ check("a screen showing an attested sentence says what it means", () => {
 });
 
 check("the one drawing of a sentence cannot be called without its English", () => {
-  const sentence = read("components/EstonianSentence.tsx");
+  const sentence = code("components/EstonianSentence.tsx");
   /*
     `en` and `canTranslate` are required, for the reason `illSgShort` is
     required on `NounStems`: a caller that has not thought about this does not
@@ -25001,8 +25434,8 @@ check("the English of a shipped sentence is built once and read in one place", (
       "scripts/test-invariants.ts",
       /*
         And the one runtime reader, which is a *screen's* read of a fact the
-        column cannot carry. `translationOf` answers off one entry's own
-        examples, and `lib/dict/borrow.ts` lends a sentence recorded under one
+        column cannot carry. A card's own entry
+        holds only its own examples, and `lib/dict/borrow.ts` lends a sentence recorded under one
         headword to a card built for another, so a borrowed sentence matched
         nothing and a learner read it with no English under it and then an
         error naming this app's own storage. An English line is a fact about
@@ -25918,7 +26351,13 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
     const source = code(file);
     assert.doesNotMatch(
       source,
-      /<img\b|background-image|\btracking(Pixel|_pixel)\b/i,
+      /*
+        Every way a letter can make a mail client fetch something, not only the
+        tag. `background: url(...)` is the shorthand and loads an image exactly
+        as `background-image` does, and `<picture>`, `<image>` and `srcset` are
+        three more doors onto the same request; the check read the one spelling.
+      */
+      /<img\b|<picture\b|<image\b|\bsrcset\b|background(?:-image)?\s*:[^;"']*\burl\s*\(|\btracking(Pixel|_pixel)\b/i,
       `${file} puts an image in a letter. Nothing is fetched from a Kodukeel email: a pixel would ` +
         "be the tracker /privacy says this app does not have, and a picture would be the hole " +
         "where a picture was for everybody who reads mail with images off.",
@@ -25935,6 +26374,13 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
   assert.ok(modelAt >= 0, "prisma/schema.prisma has no EmailSend model for this check to read");
   const model = schema.slice(modelAt);
   const fields = model.slice(0, model.indexOf("\n}"));
+  /*
+    Read as a family rather than as two spellings: `firstOpenedAt`, `openCount`
+    and `lastClickAt` are the same column, and matching the exact name let every
+    one of them through.
+  */
+  const tracked = [...fields.matchAll(/^\s+(\w+)\s/gm)].map((m) => m[1]!).filter((f) => /open|click|read(?:At|Count)/i.test(f));
+  assert.deepEqual(tracked, [], `EmailSend has grown ${tracked.join(", ")}, which records what somebody did with a letter`);
   assert.match(fields, /^\s+ownerId\b/m, "the EmailSend fields this check reads are not the model's own");
   for (const banned of ["subject", "body", "html", "openedAt", "clickedAt"]) {
     assert.ok(
@@ -26224,9 +26670,18 @@ check("a refused sentence is refused at every door it could come back through", 
     this app deciding what Estonian is, at a false-positive rate nothing has
     measured, which is the fault the whole module argues against.
   */
-  const refused = code("lib/dict/refused.ts");
+  /*
+    Every way a pattern is written, not the two it was first written in. A
+    regex literal in an entry, or `.exec`, `.search`, `.matchAll`, or a prefix
+    or suffix rule, is a predicate over the corpus exactly as `.test` is, and
+    each walked past the first version. The one regex the file may hold is the
+    whitespace collapse in `key`, which normalises a spelling rather than
+    deciding anything about it, and it is named so that nothing else is.
+  */
+  const refused = code("lib/dict/refused.ts").replace('.replace(/\\s+/g, " ")', "");
+  assert.match(code("lib/dict/refused.ts"), /\.replace\(\/\\s\+\/g, " "\)/, "the key's whitespace collapse moved; re-read what this check allows");
   assert.ok(
-    !/\bRegExp\b|\.test\(|\.match\(/.test(refused),
+    !/\bRegExp\b|\.(?:test|match|matchAll|exec|search|startsWith|endsWith|includes)\(|(?<![\w)\]])\/(?![/*\s])(?:\\.|[^/\n])+\/[dgimsuy]*/.test(refused),
     "lib/dict/refused.ts has grown a pattern over sentences. It is a list of judgements somebody "
       + "made, not a filter over the corpus: a rule here withholds correct Estonian",
   );
@@ -27390,7 +27845,7 @@ check("the places nav.ts says live inside another place are the ones its table s
     names has an entry there, and that entry carries a \`within\`. Read raw,
     because the list is a comment and the table is code in the same file.
   */
-  const src = read("lib/ux/nav.ts");
+  const src = prose("lib/ux/nav.ts");
   const listed = [...src.matchAll(/^\s*\*\s+- `(\/[^`]*)`/gm)].map((m) => m[1]!);
   assert.ok(listed.length >= 4, `found only ${listed.length} routes in the within list, so the list has moved or this has stopped reading it`);
   const entries = new Map<string, string>();
@@ -27439,13 +27894,14 @@ check("every source file a comment in the code cites is one that exists", () => 
     "components/PracticeModes.tsx": "the second copy of the practice menu, named where its deletion is recorded",
     "lib/copy/tour.ts": "the first-run tour's screen list, named where its deletion is recorded",
     "scripts/x.mjs": "a placeholder standing for any suite in a sentence about how CI names them",
+    "lib/anu/client.ts": "the documentation-path check's own list of paths named because they are gone",
   };
   const haystack = [...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), "prisma/schema.prisma"];
   let cited = 0;
   const missing = new Map<string, string>();
   const seen = new Set<string>();
   for (const file of haystack) {
-    for (const m of read(file).matchAll(/(?<![\w/.-])((?:app|lib|components|scripts|prisma)\/[A-Za-z0-9_./()\[\]-]+\.(?:tsx|ts|mjs|json|css|prisma))(?!\w)/g)) {
+    for (const m of prose(file).matchAll(/(?<![\w/.-])((?:app|lib|components|scripts|prisma)\/[A-Za-z0-9_./()\[\]-]+\.(?:tsx|ts|mjs|json|css|prisma))(?!\w)/g)) {
       const path = m[1]!;
       if (path.includes(".cache/")) continue;
       cited += 1;

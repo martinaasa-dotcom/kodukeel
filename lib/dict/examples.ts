@@ -227,27 +227,9 @@ export function mergeExamples(existing: Example[], incoming: Example[]): Example
 }
 
 /**
- * The English already stored against one exact sentence of a word, or null.
- *
- * The one reader of "does the dictionary already say what this line means",
- * asked by every screen that puts a recorded sentence in front of a learner:
- * the review card and the daily quest reconstruct a gap card's sentence by
- * putting the answer back and look it up here, and the grammar pages and the
- * word of the day hand over the sentence they chose. Matched on the exact
- * spelling, because a translation belongs to the sentence it was made of and
- * a near miss is a different line.
- *
- * Null is "not yet", never "no": `SentenceTranslation` is what turns one into
- * the other, once per sentence per deployment.
- */
-export function translationOf(examples: Example[], sentence: string): string | null {
-  return examples.find((e) => e.et === sentence)?.en ?? null;
-}
-
-/**
  * WHAT A SENTENCE MEANS, WHICHEVER ENTRY IT IS FILED UNDER.
  *
- * `translationOf` answers off one entry's own examples, which is every
+ * Answered off one entry's own examples alone, this was every
  * sentence a card was cut from until `lib/dict/borrow.ts` existed: a word may
  * now be drilled in a sentence recorded under another headword, and for those
  * the match found nothing. The screen then had no line to print and asked a
@@ -280,6 +262,13 @@ export function translationOf(examples: Example[], sentence: string): string | n
  * the entry that owns it and *borrowed* by another: this cannot see that row,
  * so it prints the shipped line. That needs a reviewer's refusal, on a
  * sentence another word borrows, on a card cut from it.
+ *
+ * The one reader of "does the dictionary already say what this line means":
+ * the review card, the sprint and the daily quest reconstruct a gap card's
+ * sentence by putting the answer back and look it up here. Matched on the
+ * exact spelling, because a translation belongs to the sentence it was made
+ * of and a near miss is a different line. Null is "not yet", never "no":
+ * `SentenceTranslation` is what turns one into the other.
  */
 export function sentenceEnglish(examples: Example[], sentence: string): string | null {
   const held = examples.find((e) => e.et === sentence);

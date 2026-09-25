@@ -73,6 +73,8 @@ it is CC BY-NC. It is deliberately not used: no charge today is not a promise
 of no charge ever, and a non-commercial clause is the one licence a project
 cannot walk itself back out of later.
 
-All three attributions are rendered in the running app, on the sign-in page,
-in the landing page footer and on /terms, which is where a licence of this
-shape expects to find them rather than in a file only a developer opens.
+Every source above whose terms ask for a credit is credited in the running
+app, on the sign-in page, in the landing page footer and on /terms, which is
+where a licence of this shape expects to find them rather than in a file only
+a developer opens. `scripts/test-invariants.ts` reads this list and fails on a
+source one of those three does not name.

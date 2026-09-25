@@ -90,10 +90,6 @@ export function levelsTo(target: Level): Level[] {
   return LEVELS.filter((l) => levelIndex(l) <= levelIndex(target));
 }
 
-/** Words the whole climb to a target asks for. */
-export const ladderWordsTo = (target: Level): number =>
-  levelsTo(target).reduce((n, l) => n + ladderWordsAt(l), 0);
-
 /**
  * What a stop is, and the four are not two pairs.
  *

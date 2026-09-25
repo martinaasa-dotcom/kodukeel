@@ -24,9 +24,6 @@ export function UiLanguageProvider({ level, children }: { level: Level; children
   return <Context.Provider value={uiWantsEnglish(level)}>{children}</Context.Provider>;
 }
 
-/** True once this learner's level puts the UI's own chrome in English. */
-export const useUiWantsEnglish = () => useContext(Context);
-
 /** Pick the Estonian or the English chrome string, read off the shell's own level. */
 export function useUiText(): (et: string, en: string) => string {
   const english = useContext(Context);

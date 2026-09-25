@@ -109,6 +109,13 @@ const config = [
       "react-hooks/purity": "off",
       "react-hooks/refs": "off",
       "react-hooks/set-state-in-effect": "off",
+      // At nought, and errors rather than left to the max-warnings gate, so
+      // a rule cannot be quietly downgraded: a button navigating by assigning
+      // `window.location` is a link that cannot be middle-clicked or
+      // prefetched, and the two full loads that are deliberate say why beside
+      // a scoped disable.
+      "@next/next/no-location-assign-relative-destination": "error",
+      "react-hooks/exhaustive-deps": "error",
     },
   },
 

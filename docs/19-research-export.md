@@ -36,7 +36,7 @@ answered correctly, and the same percentage over mature reviews alone.
 `case_by_gradation` is the one this app can draw that a general-purpose flashcard tool cannot. The
 useful finding about Estonian case endings is not that a case is hard, it is that a case is hard
 *on a stem that changes under it*: somebody comfortable with the osastav of `raamat` can miss it
-every time on `tuba`. `lib/estonian/gradation` classifies every stem, from the principal parts the
+every time on `tuba`. `lib/estonian/gradation.ts` classifies every stem, from the principal parts the
 Institute records, so the crosstab is available for free. `lib/analysis/diagnosis.ts` already makes
 the same cut for one learner, on their own Progress page.
 

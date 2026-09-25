@@ -24,6 +24,7 @@ import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { toneInk } from "@/components/ui";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { Explain } from "@/components/Explain";
+import { SOURCE_CREDITS } from "@/lib/legal/credits";
 import { SpelledCount, spelledCount } from "@/lib/copy/values";
 
 export const metadata: Metadata = {
@@ -1155,44 +1156,6 @@ function FinalCta() {
  * screen can afford. The rule still sits well clear of the closing panel, so
  * the credits read as the end of the page and not as part of the card above.
  */
-const SOURCES = [
-  {
-    name: "Ekilex",
-    href: "https://ekilex.ee",
-    by: "Institute of the Estonian Language",
-    gives: "every form and example sentence",
-    licence: "CC BY 4.0",
-  },
-  {
-    name: "Wiktionary",
-    href: "https://en.wiktionary.org",
-    by: null,
-    gives: "the English translations",
-    licence: "CC BY-SA 4.0",
-  },
-  {
-    name: "FrequencyWords",
-    href: "https://github.com/hermitdave/FrequencyWords",
-    by: "over OpenSubtitles",
-    gives: "the word counts",
-    licence: "CC BY-SA 4.0",
-  },
-  {
-    name: "Vabamorf",
-    href: "https://github.com/Filosoft/vabamorf",
-    by: "Filosoft",
-    gives: "every spelling of every word",
-    licence: "LGPL",
-  },
-  {
-    name: "TartuNLP",
-    href: "https://tartunlp.ai",
-    by: "University of Tartu",
-    gives: "the speech",
-    licence: null,
-  },
-] as const;
-
 function Footer() {
   return (
     <footer className="landing-foot relative px-5 pb-14 md:px-8 md:pb-20">
@@ -1209,7 +1172,7 @@ function Footer() {
           <div>
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>Built on</p>
             <ul className="mt-4 flex flex-col gap-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {SOURCES.map((src) => (
+              {SOURCE_CREDITS.map((src) => (
                 <li key={src.name} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                   <span className="font-semibold" style={{ color: "var(--ink)" }}>
                     <a href={src.href} target="_blank" rel="noreferrer" className="underline underline-offset-4 transition-opacity hover:opacity-70">

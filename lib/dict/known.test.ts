@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { nearest } from "./known";
 
 /*
-  Only the ranking is tested here. `isKnownWord` and `didYouMean` are two SQL
-  statements each and belong to the integration suite; what has logic worth
+  Only the ranking is tested here. `didYouMean` is two SQL
+  statements and belongs to the integration suite; what has logic worth
   pinning is which of a candidate list is offered, and that is pure.
 */
 describe("nearest", () => {
@@ -21,7 +21,7 @@ describe("nearest", () => {
   it("does not offer a word that differs only by its diacritics", () => {
     /*
       `roomus` folds to exactly `rõõmus`, so it is not a near miss, it is the
-      word typed without diacritics. `isKnownWord` folds both sides and has
+      word typed without diacritics. `isKnownForm` folds both sides and has
       already said yes by the time this is asked, and offering "did you mean
       rõõmus" to somebody who just found rõõmus reads as the app not listening.
     */

@@ -99,6 +99,13 @@ describe("the letter after a gap", () => {
     expect(letterOwed(away, NOW)?.kind).toBe("comeback");
   });
 
+  it("counts the day it names as away, and the day before as not yet", () => {
+    // The flip of `>=` to `>` passed the whole suite, since the only case
+    // tested was a day past the threshold.
+    expect(letterOwed(candidate({ lastReviewAt: daysAgo(AWAY_DAYS) }), NOW)?.kind).toBe("comeback");
+    expect(letterOwed(candidate({ lastReviewAt: daysAgo(AWAY_DAYS - 1) }), NOW)?.kind).not.toBe("comeback");
+  });
+
   it("outranks both routine letters, so nobody gets two in a morning", () => {
     /*
       Somebody back from a fortnight away whose Sunday summary is also due.
@@ -502,6 +509,14 @@ describe("the date they set", () => {
     // Unrounded at both edges: 24.6 days is not four weeks, and 16.4 weeks is past sixteen.
     expect(letterOwed(facing({ deadlineWeeks: 24.6 / 7 }), NOW)?.kind).not.toBe("deadline");
     expect(letterOwed(facing({ deadlineWeeks: 16.4 }), NOW)?.kind).not.toBe("deadline");
+  });
+
+  it("counts both ends of the window as inside it", () => {
+    // "Inside four weeks" is out and four weeks is in; "past sixteen" is out
+    // and sixteen is in. Only a week either side was tested, so moving either
+    // bound by one passed.
+    expect(letterOwed(facing({ deadlineWeeks: DEADLINE_WEEKS_MIN }), NOW)?.kind).toBe("deadline");
+    expect(letterOwed(facing({ deadlineWeeks: DEADLINE_WEEKS_MAX }), NOW)?.kind).toBe("deadline");
   });
 
   it("gives way to news, which is what the order says", () => {

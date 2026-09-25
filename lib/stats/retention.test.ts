@@ -109,6 +109,11 @@ describe("cohortRetention", () => {
     expect(rows[0]?.suppressed).toBe(true);
   });
 
+  it("reports a cohort of exactly the floor, which is the smallest it promises to", () => {
+    const rows = cohortRetention(cohort("2026-01-05", MIN_COHORT, [1, 7, 30]), NOW);
+    expect(rows[0]?.suppressed).toBe(false);
+  });
+
   it("still reports the size of a suppressed cohort, so the totals do not lie", () => {
     const rows = cohortRetention(cohort("2026-01-05", 2, [1]), NOW);
     expect(rows[0]?.learners).toBe(2);

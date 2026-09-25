@@ -16,6 +16,14 @@ const right = (c: string | null = null, at?: number) => r(4, c, at);
 const wrong = (c: string | null = null, at?: number) => r(1, c, at);
 
 describe("masteryOf", () => {
+  it("judges accuracy from the fourth answer, and struggling is under sixty percent, not at it", () => {
+    // Four answers, half right: enough to judge, and struggling.
+    expect(masteryOf([right(), right(), wrong(), wrong()]).mastery).toBe("struggling");
+    // Five answers, three right: sixty percent is not under sixty, and three
+    // correct is where "almost" begins.
+    expect(masteryOf([right(), right(), right(), wrong(), wrong()]).mastery).toBe("almost");
+  });
+
   it("says nothing about a word with no answers behind it", () => {
     expect(masteryOf([])).toEqual({
       mastery: "learning", correct: 0, total: 0, slots: 0, slotsNeeded: MASTERY_SLOTS,

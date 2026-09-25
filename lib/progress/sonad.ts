@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { bandsAround } from "@/lib/collections/levels";
 import type { Level } from "@/lib/collections/syllabus/types";
-import { guessableWords } from "@/lib/dict/facts";
+import { guessableWords } from "@/lib/dict/acceptFacts";
 import { dayIndex } from "@/lib/random/dayHash";
 import { SONAD_LENGTH } from "@/lib/games/sonad";
 import { semanticCategory } from "@/lib/estonian/semantics";

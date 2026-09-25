@@ -246,6 +246,27 @@ describe("thin evidence caps the rung", () => {
     expect(r.struggles[0]?.id).toBe("evidence");
   });
 
+  it("lifts each cap at exactly the count it names", () => {
+    // "Under a dozen" and "under forty": twelve answers is not under a dozen
+    // and forty is not under forty. Only the counts either side were tested,
+    // so moving either line by one passed the suite.
+    const six = new Set(HOME.lemmas.slice(0, 6));
+    const twelve = new Map<string, WordEvidence>();
+    for (const lemma of six) twelve.set(lemma, word({ prod: 2, forms: 0 }));
+    const fair = readSituation(HOME, context({ evidence: twelve, available: six }));
+    expect(fair.answers).toBe(ANSWERS_FAIR);
+    expect(fair.uncapped).toBe("takePart");
+    expect(fair.rung).toBe("takePart");
+
+    const five = new Set(HOME.lemmas.slice(0, 5));
+    const forty = new Map<string, WordEvidence>();
+    for (const lemma of five) forty.set(lemma, word({ prod: 8, forms: 2 }));
+    const good = readSituation(HOME, { ...leadReady(HOME), evidence: forty, available: five });
+    expect(good.answers).toBe(ANSWERS_GOOD);
+    expect(good.uncapped).toBe("lead");
+    expect(good.rung).toBe("lead");
+  });
+
   it("never lowers the rung when answers are added", () => {
     // Monotone in the count: the same standing on more answers is never read
     // as less, which is what makes "come back in a week" a promise.

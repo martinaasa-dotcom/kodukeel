@@ -20,6 +20,8 @@ describe("whether the log supports the next part", () => {
     /* Terrible on both readings, and still unmeasured: nobody has watched. */
     const thin = ladderVerdict(evidence({ known: 0, right: 0, answers: MIN_EVIDENCE - 1 }));
     expect(thin.kind).toBe("unmeasured");
+    // And exactly the floor is evidence: "under" is the word that decides it.
+    expect(ladderVerdict(evidence({ known: 0, right: 0, answers: MIN_EVIDENCE })).kind).not.toBe("unmeasured");
   });
 
   it("lets somebody on when both readings hold", () => {
@@ -79,9 +81,16 @@ describe("what it says", () => {
   it("never tells anybody to start again", () => {
     for (const verdict of [hold({ taught: 80, known: 20 }), hold({ right: 80, answers: 200 })]) {
       const said = `${holdReason(verdict)} ${holdAdvice(verdict)}`.toLowerCase();
-      expect(said).not.toContain("start again");
-      expect(said).not.toContain("repeat");
-      expect(said).not.toContain("redo");
+      /*
+        The meaning rather than three spellings of it. This forbade "start
+        again", "repeat" and "redo", and "Start the part again from its first
+        evening", "Go back to the first evening of this part" and "Begin this
+        part over" all passed: none of them is one of those strings, and every
+        one of them is the advice this exists to refuse.
+      */
+      expect(said).not.toMatch(
+        /\b(again|once more|over|back to|restart|repeat|redo|from the (first|start|beginning))\b/,
+      );
       expect(said.length).toBeGreaterThan(40);
     }
   });

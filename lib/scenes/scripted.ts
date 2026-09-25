@@ -149,11 +149,6 @@ export function scriptedFor(scene: SceneSpec, beat: BeatSpec, level?: Level): re
   ].map((row) => row.text);
 }
 
-/** Whether a native speaker has read a given line. */
-export function isReviewed(text: string): boolean {
-  return BANK.some((row) => row.text === text && row.reviewed);
-}
-
 /**
  * Every beat a scene can carry a line for: its own, and one per curveball it
  * admits that has a move to make. A curveball's beat is `hurdle:<id>`, which

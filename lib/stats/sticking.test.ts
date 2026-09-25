@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  LAPSE_THRESHOLD, MIN_REVIEWS_FOR_ACCURACY, POOR_ACCURACY,
+  LAPSE_THRESHOLD, MIN_REPS, MIN_REVIEWS_FOR_ACCURACY, POOR_ACCURACY,
   stickingNote, stickingPoints, type StickingInput,
 } from "./sticking";
 
@@ -22,6 +22,11 @@ const log = (cardId: string, n: number, recalled: number) =>
   Array.from({ length: n }, (_, i) => ({ cardId, rating: i < recalled ? 3 : 1 }));
 
 describe("stickingPoints", () => {
+  it("counts a card with exactly the floor of repetitions, and exactly the poor share, as sticking", () => {
+    const at = stickingPoints([card({ reps: MIN_REPS })], log("c1", 10, POOR_ACCURACY / 10));
+    expect(at.map((p) => p.reason)).toEqual(["accuracy"]);
+  });
+
   it("flags a card that has been learned and forgotten too often", () => {
     const points = stickingPoints([card({ lapses: LAPSE_THRESHOLD })], log("c1", 10, 6));
     expect(points).toHaveLength(1);
