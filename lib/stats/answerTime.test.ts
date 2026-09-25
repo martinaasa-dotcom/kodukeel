@@ -26,6 +26,14 @@ describe("median", () => {
 });
 
 describe("answerTimeReading", () => {
+  it("names a slow slot right exactly the fluent share of the time, which is what 'at least' says", () => {
+    const reading = answerTimeReading([
+      ...timed("NOMINATIVE", 20, 20, 1000),
+      ...timed("TRANSLATIVE", 10, (FLUENT_ACCURACY / 100) * 10, 1000 * SLOW_RATIO * 3),
+    ]);
+    expect(reading.slow.map((s) => s.slot)).toEqual(["TRANSLATIVE"]);
+  });
+
   it("reads a slot the learner is timed on", () => {
     const reading = answerTimeReading(timed("INESSIVE", MIN_TIMED, MIN_TIMED, 2000));
     expect(reading.slots).toHaveLength(1);

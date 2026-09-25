@@ -186,6 +186,14 @@ describe("levelFrom", () => {
       { band: "A1", items: 6, credit: 6, ratio: 1 },
       { band: "A2", items: 6, credit: 3.2, ratio: 0.533 },
     ])).toBe("A1");
+    // Exactly half is a near miss rather than under it, which on a band of
+    // six is three answers right: the case the words "under half" decide,
+    // and the one a band size of six makes common.
+    expect(levelFrom([
+      { band: "A1", items: 6, credit: 6, ratio: 1 },
+      { band: "A2", items: 6, credit: 3, ratio: 0.5 },
+      { band: "B1", items: 6, credit: 6, ratio: 1 },
+    ])).toBe("B1");
     // Under half is not a near miss, whatever the band above did.
     expect(levelFrom([
       { band: "A1", items: 6, credit: 6, ratio: 1 },

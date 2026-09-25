@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   BAND_DAYS, DEFER_DAYS, HARD_LEARNERS,
-  awayIn, bandReached, daysBetween, deferralFor, deferralNote, inForce, offeredBand, tooHardForEveryone,
+  awayIn, bandReached, daysBetween, deferralFor, deferralNote, inForce, offeredBand, tooHardForEveryone, HARD_SHARE,
 } from "./defer";
 import { raiseBand } from "@/lib/collections/levels";
 
@@ -114,6 +114,10 @@ describe("whether a deferral is still holding", () => {
  * wrong, and five out of four hundred is five people having a bad week.
  */
 describe("when enough people have said it", () => {
+  it("moves a word at exactly the share, which is 'enough', not 'more than enough'", () => {
+    expect(tooHardForEveryone({ learners: HARD_LEARNERS, holders: HARD_LEARNERS / HARD_SHARE })).toBe(true);
+  });
+
   it("needs the floor as well as the share", () => {
     expect(tooHardForEveryone({ learners: HARD_LEARNERS - 1, holders: HARD_LEARNERS - 1 })).toBe(false);
     expect(tooHardForEveryone({ learners: HARD_LEARNERS, holders: HARD_LEARNERS })).toBe(true);
