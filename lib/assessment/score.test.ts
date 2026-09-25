@@ -69,6 +69,20 @@ describe("marking", () => {
     expect(near.note).not.toContain("toas");
   });
 
+  /*
+    ANOTHER ENDING ONE KEYSTROKE AWAY IS NOT A SLIP. `toast` is `toas` with a
+    letter added, and the typo rule read it as "One letter out." and marked it
+    right at 0.8, so a placement counted the elative as knowing the inessive.
+    The item already carries the word's other forms; the marker never passed
+    them to `checkAnswer`, which is #403's fault in the mock exam, here.
+  */
+  it("marks another case one keystroke away as another form, not as a slip", () => {
+    const mark = gradeWrite(write, "toast");
+    expect(mark.right).toBe(false);
+    expect(mark.usedAnotherForm).toBe(true);
+    expect(mark.credit).toBeLessThan(0.8);
+  });
+
   it("does not tell somebody the dictionary form is a form of itself", () => {
     /*
       The commonest wrong answer on this task is the lemma, because the screen

@@ -1,8 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
-import { paperFor } from "@/lib/progress/exam";
+import { paperFor, sittingOf } from "@/lib/progress/exam";
 import { isExamLevel } from "@/lib/exam/spec";
 import { fillRate } from "@/lib/exam/paper";
+import { freshSeed } from "@/lib/exam/seed";
 import { ExamSession } from "./ExamSession";
 import { firstParams } from "@/lib/ux/queryParam";
 
@@ -36,13 +37,18 @@ export default async function ExamLevelPage({ params, searchParams }: {
   if (!isExamLevel(upper)) notFound();
 
   if (!seed) {
-    // Base 36 of a random draw: short enough to read out, long enough that two
-    // learners sitting at once do not get the same paper.
-    const fresh = Math.random().toString(36).slice(2, 10);
+    // A random draw in base 36, short enough to read out and long enough that
+    // two learners sitting at once do not get the same paper, then the moment
+    // the paper was built, which pins its pool (see lib/exam/seed.ts).
+    const fresh = freshSeed();
     redirect(`/exam/${upper}?seed=${fresh}`);
   }
 
   const ownerId = await requireUserId();
+  // A paper already handed in opens on its result: sitting it again with the
+  // answers in hand would be copying rather than sitting.
+  const sat = await sittingOf(ownerId, upper, seed);
+  if (sat) redirect(`/exam/result/${sat.id}`);
   const paper = await paperFor(ownerId, upper, seed);
 
   return <ExamSession paper={paper} fillRate={fillRate(paper)} />;

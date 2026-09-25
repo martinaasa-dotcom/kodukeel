@@ -433,7 +433,8 @@ export function decoyOptions(): Promise<DecoyOption[]> {
  * for: the answer is the same for every learner and the same on the next
  * request, and a deck build would otherwise ask it once per word. The result is
  * small even though the query is not, because only a prompt more than one entry
- * answers is kept: 372 groups out of 6,083 entries, nearly all of them pairs.
+ * answers is kept: 358 groups out of 6,153 entries (measured 2026-09-25),
+ * nearly all of them pairs.
  *
  * Keyed `lemma|pos`, which is what `Lexeme` is unique on, because a lemma alone
  * would merge the noun `hall` meaning frost with the adjective meaning gray.

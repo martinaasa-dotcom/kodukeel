@@ -6,7 +6,7 @@ import { createLexemeWithForms } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/ui";
 import { DiacriticBar } from "@/components/DiacriticBar";
-import { NO_VALUE } from "@/lib/copy/values";
+import { NO_VALUE, NOT_REACHED } from "@/lib/copy/values";
 import { hasNoFields } from "@/lib/dict/pos";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -114,8 +114,8 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
 
       const result = await createLexemeWithForms({
         id: edit?.id, lemma, translation, pos, cefr, government, forms: filled,
-      });
-      if (!result.ok) { setError(result.error); return; }
+      }).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       setOpen(false);
       if (!edit) { setForms({}); setTranslation(""); }
 

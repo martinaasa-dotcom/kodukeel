@@ -89,6 +89,18 @@ export interface EstonianSense {
    * a page disagreeing.
    */
   stems: readonly [string, string] | null;
+  /**
+   * Which `===Etymology N===` block the definition sits under, or 0 on a page
+   * that has one word and so no such heading.
+   *
+   * THIS IS WHAT SAYS WHICH WORD A SENSE BELONGS TO. A page is headed by a
+   * spelling, and Wiktionary puts two words that share one under two
+   * etymologies: `sina` is the pronoun and a noun meaning blueness, `palk` is
+   * a salary and a log. The part of speech cannot tell them apart, since
+   * `teine` is second and other on one etymology under two headings, and
+   * neither can the stems, which most blocks never declare.
+   */
+  etymology: number;
 }
 
 /**
@@ -193,9 +205,12 @@ export function extractEstonianEntries(wikitext: string): EstonianSense[] {
   let pos: string | null = null;
   let headword: string | null = null;
   let stems: readonly [string, string] | null = null;
+  let etymology = 0;
   for (const line of section[1].split("\n")) {
     const heading = HEADING.exec(line);
     if (heading) {
+      const etym = /^etymology\s*(\d*)$/i.exec(heading[2]!);
+      if (etym) etymology = Number(etym[1] || "1");
       pos = POS_HEADINGS[heading[2]!.toLowerCase()] ?? null;
       // A new block, so the previous block's headword no longer describes
       // anything below this line.
@@ -214,7 +229,7 @@ export function extractEstonianEntries(wikitext: string): EstonianSense[] {
     if (NOT_A_DEFINITION.test(raw)) continue;
     const cleaned = cleanWikitext(raw);
     if (cleaned && !senses.some((s) => s.gloss === cleaned)) {
-      senses.push({ gloss: cleaned, pos, headword, stems });
+      senses.push({ gloss: cleaned, pos, headword, stems, etymology });
     }
     if (senses.length >= 5) break;
   }
@@ -228,6 +243,23 @@ export function extractEstonianEntries(wikitext: string): EstonianSense[] {
  * facts stay one parse: a caller that only needs the English does not have to
  * know a heading exists, and there is still only one reader of this markup.
  */
+/**
+ * The further senses a built entry keeps as its English notes.
+ *
+ * The senses after the first, from the first's own etymology, at most three.
+ * It took the next three on the page whatever they belonged to, so a page
+ * holding two words gave each the other's meanings: `tee` the road kept
+ * "tea", `palk` the salary "log, beam", `sina` the pronoun "blueness", and
+ * `oktoober` "hard hat". The entry prints `notes` as the word's other
+ * meanings, so those read as senses of the word on the card.
+ */
+export function furtherSenses(senses: readonly EstonianSense[]): string | null {
+  const first = senses[0];
+  if (!first) return null;
+  const kept = senses.slice(1).filter((s) => s.etymology === first.etymology).slice(0, 3);
+  return kept.length > 0 ? kept.map((s) => s.gloss).join("; ") : null;
+}
+
 export function extractEstonianSenses(wikitext: string): string[] {
   return extractEstonianEntries(wikitext).map((s) => s.gloss);
 }
