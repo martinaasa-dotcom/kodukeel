@@ -971,7 +971,7 @@ check("a word is asked for finished, in one place, and the two clip versions agr
   const route = code("app/api/tts/route.ts");
   assert.match(
     route,
-    /text = spokenText\(body\.text\.trim\(\)\.slice\(0, MAX_CHARS\)\)/,
+    /text = spokenText\(clip\(body\.text\.trim\(\), MAX_CHARS\)\)/,
     "the speech route asks the service for the text as typed rather than as a finished utterance",
   );
   assert.match(
@@ -7843,7 +7843,7 @@ check("a malformed argument to a server action is refused, not thrown or stored"
   const source = code("app/actions.ts");
 
   assert.match(
-    source, /const capped = \(value: unknown, max: number\): string =>\s*text\(value\)/,
+    source, /const capped = \(value: unknown, max: number\): string =>\s*(?:clip\()?text\(value\)/,
     "`capped` calls a string method on whatever it is handed, so every caller of it throws on a non-string",
   );
 

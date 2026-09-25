@@ -8,6 +8,7 @@
  */
 
 import { MAX_EN_CHARS, MAX_ET_CHARS, looksTranscribed } from "./extract";
+import { clip } from "@/lib/copy/clip";
 
 export interface ResolvedItem {
   /** The Estonian exactly as it was read off the page. */
@@ -81,13 +82,13 @@ export function sanitiseItems(input: unknown, max: number): ResolvedItem[] {
     seen.add(key);
 
     out.push({
-      et: et.slice(0, MAX_ET_CHARS),
-      en: typeof raw.en === "string" ? raw.en.trim().slice(0, MAX_EN_CHARS) : "",
+      et: clip(et, MAX_ET_CHARS),
+      en: typeof raw.en === "string" ? clip(raw.en.trim(), MAX_EN_CHARS) : "",
       lexemeId: typeof raw.lexemeId === "string" && raw.lexemeId ? raw.lexemeId : null,
-      lemma: typeof raw.lemma === "string" && raw.lemma ? raw.lemma.slice(0, MAX_ET_CHARS) : null,
+      lemma: typeof raw.lemma === "string" && raw.lemma ? clip(raw.lemma, MAX_ET_CHARS) : null,
       translation:
         typeof raw.translation === "string" && raw.translation
-          ? raw.translation.slice(0, MAX_EN_CHARS)
+          ? clip(raw.translation, MAX_EN_CHARS)
           : null,
       matchedAs:
         typeof raw.matchedAs === "string" && raw.matchedAs ? raw.matchedAs.slice(0, 80) : null,
