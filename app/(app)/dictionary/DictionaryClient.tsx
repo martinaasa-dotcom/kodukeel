@@ -992,10 +992,24 @@ function AddToDeck({ entry }: { entry: EntryView }) {
   const [open, setOpen] = useState(false);
   const [added, setAdded] = useState(entry.inDeck);
   const [pending, start] = useTransition();
+  /*
+    THE SENTENCES GO IN WITH THE WORD, OR NO SENTENCE CARD IS EVER OFFERED.
+
+    A case card and a gap-fill card are both cut from a sentence the
+    dictionary recorded, and `availableCardTypes` asks the builder, which
+    cannot cut one from nothing. This call used to leave `examples` out,
+    which the type allowed while the field was optional, so the panel offered
+    recognition and production on every word in the dictionary and nothing
+    else: `kohv` has six recorded sentences and was offered no gap-fill.
+    The field is required now. What the entry shows is what it has here; the
+    sentences a word borrows from other entries are the server's to add when
+    it builds, so this can only under-offer, never offer a card nothing makes.
+  */
   const available = availableCardTypes({
     lemma: entry.lemma, translation: entry.translation, pos: entry.pos,
     gradation: entry.gradation, gradationNote: entry.gradationNote,
     government: entry.government, semanticTypes: entry.semanticTypes, forms: entry.forms,
+    examples: JSON.stringify(entry.examples),
   });
   const [selected, setSelected] = useState<CardType[]>(
     CARD_TYPES.filter((t) => t.defaultOn && available.includes(t.type)).map((t) => t.type),
@@ -1062,8 +1076,8 @@ function AddToDeck({ entry }: { entry: EntryView }) {
         every shelf exactly as it is, an empty list is "take it off all of
         them", and a learner who never saw a deck section asked for neither.
       */
-      const result = await addToDeck(entry.id, selected, undefined, choice.argument);
-      if (result.ok) { setAdded(true); setOpen(false); }
+      const result = await addToDeck(entry.id, selected, undefined, choice.argument).catch(() => null);
+      if (result?.ok) { setAdded(true); setOpen(false); }
     });
   };
 

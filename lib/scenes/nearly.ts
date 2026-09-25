@@ -227,6 +227,13 @@ function sharedPrefix(a: string, b: string): number {
  * whole spelling has to be one the app can vouch for as Estonian, which is what
  * `prisma/data/forms/` answers: without it `xyzzypilet` would be a ticket, and
  * a learner could meet any beat by gluing letters to its word.
+ *
+ * FOLDED ON BOTH SIDES, like every other rule in this file. The forms list
+ * answers folded (`lemmasOfForm`), so `sisekorv` is vouched as the spelling of
+ * `sisekõrv`, and a raw `endsWith` then refused it against `kõrv`: the one
+ * slip this module calls unambiguous, a keyboard with no õ, was the one this
+ * rule could not see. `fold` maps one letter to one, so the lengths the two
+ * guards measure are the same either way.
  */
 export const COMPOUND_MODIFIER = 3;
 
@@ -237,10 +244,11 @@ export function compoundOf(
 ): string | null {
   if (!forms || said.length <= COMPOUND_MODIFIER) return null;
   if (!isWord(said)) return null;
+  const flat = fold(said);
   for (const form of forms) {
     if (form.length < 2 || form.length >= said.length) continue;
     if (said.length - form.length < COMPOUND_MODIFIER) continue;
-    if (said.endsWith(form)) return form;
+    if (flat.endsWith(fold(form))) return form;
   }
   return null;
 }
