@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Check, CircleAlert, Loader2, ScissorsLineDashed } from "lucide-react";
-import { buildClozeFromText, gradeCard } from "@/app/actions";
+import { buildClozeFromText } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -24,6 +25,7 @@ type Gap = ClozeItem & { cardId: string | null };
 type Phase = "paste" | "drill" | "done";
 
 export function ClozeSession() {
+  const grade = useGrade();
   const [phase, setPhase] = useState<Phase>("paste");
   const [text, setText] = useState("");
   const [items, setItems] = useState<Gap[]>([]);
@@ -106,9 +108,9 @@ export function ClozeSession() {
     if (item.cardId) {
       const earned = right ? 3 : isDiacriticSlip(attempt, item.answer) ? 2 : 1;
       // A hint is paid for: see `lib/questions/hints.ts`.
-      void gradeCard(item.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, 0).catch(() => {});
+      void grade(item.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, 0);
     }
-  }, [item, checked, attempt, hints]);
+  }, [item, checked, attempt, hints, grade]);
 
   useEffect(() => {
     if (phase !== "drill") return;

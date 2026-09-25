@@ -132,9 +132,11 @@ function googleIdentitySrc(): string[] {
  *   whichever googleusercontent host that account happens to be on.
  * - `media-src` takes `blob:` because a recording in speaking practice never
  *   leaves the device, and a blob URL is how it is played back.
- * - `connect-src` needs no third party at all: Ekilex, Wiktionary and the
- *   TartuNLP speech service are only ever reached from the server, which is
- *   the same rule that keeps their keys off the client.
+ * - `connect-src` is this origin and, where Supabase is configured, that one
+ *   project's origin and websocket, which the browser's sign-in client needs.
+ *   Ekilex, Wiktionary and the TartuNLP speech service are only ever reached
+ *   from the server, which is the same rule that keeps their keys off the
+ *   client, and the test pins the whole directive.
  * - `frame-ancestors` is `'none'`. Nothing here is meant to be embedded
  *   anywhere (docs/00-audit-v4.md section A). `frame-src` is `'none'` for
  *   the same reason, except that Google Identity Services renders its own

@@ -115,7 +115,7 @@ export default async function SuggestionsQueuePage({
       <div className="mb-6 flex flex-col gap-3">
         {CATEGORY_GROUPS.map((group) => (
           <div key={group} className="flex flex-wrap items-center gap-2">
-            <span className="label-xs w-20 shrink-0" style={{ color: "var(--ink-3)" }}>{group}</span>
+            <span className="label-xs min-w-20 shrink-0" style={{ color: "var(--ink-3)" }}>{group}</span>
             {categoriesInGroup(group).map((c) => (
               <Link key={c} href={href({ category: category === c ? null : c, page: 0 })}>
                 <span

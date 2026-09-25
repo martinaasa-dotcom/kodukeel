@@ -30,7 +30,8 @@ export function VoicePanel({ current }: { current: string }) {
   const pick = (next: string) => {
     setVoiceState(next);
     start(async () => {
-      await setVoice(next);
+      const landed = await setVoice(next).then(() => true).catch(() => false);
+      if (!landed) { setVoiceState(voice); return; }
       router.refresh();
     });
   };
@@ -78,37 +79,43 @@ export function SpeechPacePanel({ current, fromLevel, level }: { current: Pace; 
   const pick = (next: SpeechPaceId | "auto") => {
     setValue(next);
     start(async () => {
-      await setSpeechPace(next);
+      const landed = await setSpeechPace(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
 
   const levelPace = SPEECH_PACES.find((p) => p.id === fromLevel.id);
 
+  // Two across by the card's width rather than the window's. A settings card is
+  // 318px at 768, where the rail takes a column, and every choice here that
+  // asked the window broke its title mid-letter there.
   return (
-    <ChoiceGroup ariaLabel="How fast Estonian is read aloud" className="grid gap-2 sm:grid-cols-2">
-      <ChoiceCard
-        layout="stacked"
-        disabled={pending}
-        selected={value === "auto"}
-        onSelect={() => pick("auto")}
-        icon={<Gauge size={16} aria-hidden />}
-        title="Follow my level"
-        detail={`At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`}
-      />
-      {SPEECH_PACES.map((p) => (
+    <div className="@container">
+      <ChoiceGroup ariaLabel="How fast Estonian is read aloud" className="grid gap-2 @md:grid-cols-2">
         <ChoiceCard
-          key={p.id}
           layout="stacked"
           disabled={pending}
-          selected={value === p.id}
-          onSelect={() => pick(p.id)}
+          selected={value === "auto"}
+          onSelect={() => pick("auto")}
           icon={<Gauge size={16} aria-hidden />}
-          title={p.label}
-          detail={p.detail}
+          title="Follow my level"
+          detail={`At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`}
         />
-      ))}
-    </ChoiceGroup>
+        {SPEECH_PACES.map((p) => (
+          <ChoiceCard
+            key={p.id}
+            layout="stacked"
+            disabled={pending}
+            selected={value === p.id}
+            onSelect={() => pick(p.id)}
+            icon={<Gauge size={16} aria-hidden />}
+            title={p.label}
+            detail={p.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -145,26 +152,29 @@ export function AutoplayPanel({ current }: { current: Autoplay }) {
   const pick = (next: Autoplay) => {
     setValue(next);
     start(async () => {
-      await setAutoplay(next);
+      const landed = await setAutoplay(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
 
   return (
-    <ChoiceGroup ariaLabel="When Estonian is read aloud" className="grid gap-2 sm:grid-cols-2">
-      {AUTOPLAY.map((o) => (
-        <ChoiceCard
-          key={o.value}
-          layout="stacked"
-          disabled={pending}
-          selected={value === o.value}
-          onSelect={() => pick(o.value)}
-          icon={<o.icon size={16} aria-hidden />}
-          title={o.label}
-          detail={o.detail}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="When Estonian is read aloud" className="grid gap-2 @md:grid-cols-2">
+        {AUTOPLAY.map((o) => (
+          <ChoiceCard
+            key={o.value}
+            layout="stacked"
+            disabled={pending}
+            selected={value === o.value}
+            onSelect={() => pick(o.value)}
+            icon={<o.icon size={16} aria-hidden />}
+            title={o.label}
+            detail={o.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -193,26 +203,29 @@ export function FeedbackSoundsPanel({ current }: { current: FeedbackSounds }) {
     // Play the sound being chosen, so the choice can be heard rather than read about.
     if (next === "on") playFeedback("right");
     start(async () => {
-      await setFeedbackSounds(next);
+      const landed = await setFeedbackSounds(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
 
   return (
-    <ChoiceGroup ariaLabel="Whether answers make a sound" className="grid gap-2 sm:grid-cols-2">
-      {SOUNDS.map((o) => (
-        <ChoiceCard
-          key={o.value}
-          layout="stacked"
-          disabled={pending}
-          selected={value === o.value}
-          onSelect={() => pick(o.value)}
-          icon={<o.icon size={16} aria-hidden />}
-          title={o.label}
-          detail={o.detail}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="Whether answers make a sound" className="grid gap-2 @md:grid-cols-2">
+        {SOUNDS.map((o) => (
+          <ChoiceCard
+            key={o.value}
+            layout="stacked"
+            disabled={pending}
+            selected={value === o.value}
+            onSelect={() => pick(o.value)}
+            icon={<o.icon size={16} aria-hidden />}
+            title={o.label}
+            detail={o.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -258,26 +271,29 @@ export function HearingPanel({ current }: { current: Hearing }) {
   const pick = (next: Hearing) => {
     setValue(next);
     start(async () => {
-      await setHearing(next);
+      const landed = await setHearing(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
 
   return (
-    <ChoiceGroup ariaLabel="How the listening rounds sound" className="grid gap-2 sm:grid-cols-2">
-      {HEARING.map((o) => (
-        <ChoiceCard
-          key={o.value}
-          layout="stacked"
-          disabled={pending}
-          selected={value === o.value}
-          onSelect={() => pick(o.value)}
-          icon={<o.icon size={16} aria-hidden />}
-          title={o.label}
-          detail={o.detail}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="How the listening rounds sound" className="grid gap-2 @md:grid-cols-2">
+        {HEARING.map((o) => (
+          <ChoiceCard
+            key={o.value}
+            layout="stacked"
+            disabled={pending}
+            selected={value === o.value}
+            onSelect={() => pick(o.value)}
+            icon={<o.icon size={16} aria-hidden />}
+            title={o.label}
+            detail={o.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -325,26 +341,29 @@ export function SupportPanel({ current }: { current: Support }) {
   const pick = (next: Support) => {
     setValue(next);
     start(async () => {
-      await setSupport(next);
+      const landed = await setSupport(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
 
   return (
-    <ChoiceGroup ariaLabel="How much the app helps in a conversation" className="grid gap-2 sm:grid-cols-3">
-      {SUPPORT_LEVELS.map((o) => (
-        <ChoiceCard
-          key={o.value}
-          layout="stacked"
-          disabled={pending}
-          selected={value === o.value}
-          onSelect={() => pick(o.value)}
-          icon={<o.icon size={16} aria-hidden />}
-          title={o.label}
-          detail={o.detail}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="How much the app helps in a conversation" className="grid gap-2 @lg:grid-cols-3">
+        {SUPPORT_LEVELS.map((o) => (
+          <ChoiceCard
+            key={o.value}
+            layout="stacked"
+            disabled={pending}
+            selected={value === o.value}
+            onSelect={() => pick(o.value)}
+            icon={<o.icon size={16} aria-hidden />}
+            title={o.label}
+            detail={o.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
