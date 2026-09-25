@@ -109,10 +109,23 @@ async function call<T>(path: string): Promise<T | null> {
 }
 
 export async function searchEkilex(query: string): Promise<EkilexWordSummary[]> {
+  return (await searchEkilexAnswered(query)) ?? [];
+}
+
+/**
+ * The same search, with "Ekilex did not answer" kept apart from "Ekilex holds
+ * nothing". `searchEkilex` folds both into an empty list, which is right for a
+ * search box falling back to the local dictionary and wrong for anything that
+ * reports what Ekilex holds: `npm run audit:homonyms`, run with no key or
+ * against a refusal, printed "no Ekilex homonym has those parts, so the page
+ * is the one that is wrong" about `laid`, whose homonym 192289 has exactly
+ * the page's parts. A refusal is not a miss.
+ */
+export async function searchEkilexAnswered(query: string): Promise<EkilexWordSummary[] | null> {
   const data = await call<{ words?: EkilexWordSummary[] }>(
     `/word/search/${encodeURIComponent(query)}/${DATASETS}`,
   );
-  return (data?.words ?? []).filter((w) => w.lang === "est");
+  return data ? (data.words ?? []).filter((w) => w.lang === "est") : null;
 }
 
 /**

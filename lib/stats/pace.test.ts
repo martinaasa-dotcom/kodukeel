@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_CARDS_PER_MINUTE, MAX_CARDS_PER_MINUTE, MIN_CARDS_PER_MINUTE, measuredPace, minutesForCards, SESSION_GAP_MS, studyHours } from "./pace";
+import { DEFAULT_CARDS_PER_MINUTE, MAX_CARDS_PER_MINUTE, MIN_CARDS_PER_MINUTE, measuredPace, minutesForCards, ownCardsPerMinute, SESSION_GAP_MS, studyHours } from "./pace";
 import { dayClock } from "@/lib/time/day";
 
 const MIN = 60_000;
@@ -124,5 +124,21 @@ describe("minutes for a number of cards", () => {
   it("never promises less than a minute", () => {
     expect(minutesForCards(1, 10)).toBe(1);
     expect(minutesForCards(0)).toBe(1);
+  });
+});
+
+describe("ownCardsPerMinute", () => {
+  const pace = (weeks: number, cardsPerMinute: number | null) => ({
+    hoursPerWeek: 1, daysPerWeek: 3, weeks, cardsPerMinute,
+  });
+
+  it("is the log's rate only once the log is a fortnight long, which is when the plan trusts it", () => {
+    // One evening of Match on the first day reads as six cards a minute, and
+    // Today promised half the minutes the plan was budgeting for the same cards.
+    expect(ownCardsPerMinute(pace(0.2, 6))).toBeNull();
+    expect(minutesForCards(30, ownCardsPerMinute(pace(0.2, 6)))).toBe(10);
+    expect(ownCardsPerMinute(pace(2, 6))).toBe(6);
+    expect(ownCardsPerMinute(pace(3, null))).toBeNull();
+    expect(ownCardsPerMinute(null)).toBeNull();
   });
 });

@@ -34,9 +34,10 @@ export function useResumeCard(initialCards: readonly { id: string }[]) {
   );
   const [initialIndex] = useState(() => {
     if (!resumeKey || typeof window === "undefined") return 0;
-    /* Reading `sessionStorage` throws where site data is blocked, and this
-       runs inside the round's first render. Where it cannot be read, the
-       round starts at the top, which is what it did before this existed. */
+    // Reading storage throws outright, rather than returning null, where the
+    // browser blocks it: every cookie turned off, or a locked-down profile.
+    // This runs during render, so an uncaught throw here is the review round
+    // itself failing to draw. A position nobody could remember is round one.
     try {
       return resumeIndex(initialCards, window.sessionStorage.getItem(resumeKey));
     } catch {
@@ -52,7 +53,7 @@ export function useResumeCard(initialCards: readonly { id: string }[]) {
         if (current) window.sessionStorage.setItem(resumeKey, current.id);
         else window.sessionStorage.removeItem(resumeKey);
       } catch {
-        // Storage blocked or full: nothing is remembered, and the round goes on.
+        // Blocked or full: the round goes on and simply is not remembered.
       }
     },
     [resumeKey],

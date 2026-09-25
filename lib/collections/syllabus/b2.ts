@@ -487,6 +487,9 @@ export const B2 = [
       ["seetõttu", "therefore", "ADVERB"],
       ["seevastu", "by contrast, whereas", "ADVERB"],
       ["ometi", "nevertheless", "ADVERB"],
+      // A literary "but", commoner in an essay than in speech, which is why it is
+      // taught here rather than beside aga: Ekilex bands it B2.
+      ["ent", "but, however", "ADVERB"],
       ["eeldama", "to presuppose"],
       ["üldistama", "to generalize"],
       ["ümber lükkama", "to refute", "VERB"],

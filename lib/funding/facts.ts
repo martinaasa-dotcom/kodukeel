@@ -36,8 +36,20 @@
 import { SEED_SET_SIZE } from "@/lib/collections/seedSize";
 import type { PlanTier, PriceRef, Shape } from "./types";
 
-/** The day the vendor pricing pages below were read. */
-export const PRICES_CHECKED = "2 September 2026";
+/**
+ * The day the vendor pricing pages below were read.
+ *
+ * Re-read in full on 22 September 2026: Vercel's Pro base and all four overage
+ * meters, Supabase's Pro base and all four overages and its compute credit, the
+ * whole ten-rung compute ladder with its memory and pooler figures, Resend's
+ * Pro tier and its overage, Sentry's Team tier, Polly's neural rate and the .ee
+ * registry fee were every one of them unchanged from the first reading. What
+ * moved is the exchange rate, which is the only figure here that moves daily.
+ *
+ * `DEVTOOLS` carries its own date and says why: it is the one price on this
+ * page a reader cannot re-derive from the page it cites.
+ */
+export const PRICES_CHECKED = "22 September 2026";
 
 /** The day the measurements below were taken. */
 export const MEASURED_ON = "2 September 2026";
@@ -163,7 +175,16 @@ export const FX = {
     source: "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-usd.en.html",
     checked: PRICES_CHECKED,
   } satisfies PriceRef,
-  usdPerEur: 1.1578,
+  /*
+    The ECB's reference rate published on 21 September 2026, which is the most
+    recent one on the day above. It was 1.1578 when this page was written three
+    weeks earlier, and the difference is worth about a dollar and a half a month
+    against a floor of three hundred: below the noise of everything else here,
+    which is the argument for quoting the rate with its date rather than
+    pretending it holds. Two lines are billed in euros and this is what turns
+    them into the currency the rest of the model runs in.
+  */
+  usdPerEur: 1.149,
 } as const;
 
 /** A euro price in dollars, which is the currency the rest of the model runs in. */
@@ -316,9 +337,21 @@ export const DOMAIN = {
  * Billed in euros and quoted net of VAT, like every other price here.
  */
 export const DEVTOOLS = {
+  /*
+    THE ONE PRICE ON THIS PAGE A READER CANNOT CHECK OFF THE PAGE IT CITES.
+
+    Every other figure here was re-read on PRICES_CHECKED and matched. This one
+    cannot be: the page quotes the plans in dollars and per seat, and what the
+    operator is billed is a euro consumer subscription, so the link is where the
+    plan is named rather than where this number can be found. It carries the day
+    it was last confirmed against the invoice rather than PRICES_CHECKED, so a
+    reader is not told a page confirmed something it does not say. Everything
+    else on this page errs toward being checkable; this line says out loud that
+    it is the exception.
+  */
   ref: {
     source: "https://claude.com/pricing",
-    checked: PRICES_CHECKED,
+    checked: "2 September 2026",
   } satisfies PriceRef,
   plan: "Claude Max, 20x",
   eurPerMonth: 180,
