@@ -4,7 +4,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { measuredPaceFor } from "@/lib/progress/plan";
 import { examCountdown } from "@/lib/progress/countdown";
 import { readinessSignals, recentAttempts } from "@/lib/progress/exam";
-import { EVIDENCE_NOTE, assessReadiness } from "@/lib/exam/readiness";
+import { EVIDENCE_LABEL, EVIDENCE_NOTE, assessReadiness } from "@/lib/exam/readiness";
 import {
   OFFICIAL_LEVELS, PASS_PCT, bandFor, specFor, writtenMinutes,
 } from "@/lib/exam/spec";
@@ -139,89 +139,96 @@ export default async function ExamPage() {
         <SectionTitle hint={`${PASS_PCT} percent to pass, and no part can be a zero`}>
           Every paper, and how likely you are to pass it
         </SectionTitle>
-        {/* Columns by the room the list has rather than by the window. At
-            768 `md:grid-cols-2` split a 368px column in two, which left the
-            summary 52px and "Listening" 55px, both drawn a few letters a
-            line. 18rem is two cards at 1024 and one at 768. */}
-        <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
-          {readiness.levels.map((level) => {
-            const spec = specFor(level.level);
-            const official = (OFFICIAL_LEVELS as readonly string[]).includes(level.level);
-            const band = bandFor(level.expectedTotal);
-            return (
-              <Card as="li" key={level.level} hover>
-                <div className="flex items-start justify-between gap-3">
-                  {/* `min-w-0` so the level's own column can give: without it
-                      the three chips below set a floor the card cannot meet at
-                      768, where the rail is drawn and the card is at its
-                      narrowest, and they were 11px over its border. */}
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
-                        {level.level}
+        {/* Two papers across once the section can hold two, which the window
+            said it could at 768 and the column did not: 176px a card, with
+            "examined" broken across two lines under every level. */}
+        <div className="@container">
+          <ul className="grid gap-4 @xl:grid-cols-2">
+            {readiness.levels.map((level) => {
+              const spec = specFor(level.level);
+              const official = (OFFICIAL_LEVELS as readonly string[]).includes(level.level);
+              const band = bandFor(level.expectedTotal);
+              return (
+                <Card as="li" key={level.level} hover>
+                  <div className="flex items-start justify-between gap-3">
+                    {/* `min-w-0` so the level's own column can give: without it
+                        the three chips below set a floor the card cannot meet at
+                        768, where the rail is drawn and the card is at its
+                        narrowest, and they were 11px over its border. */}
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
+                          {level.level}
+                        </span>
+                        {official
+                          ? <Chip tone="sky"><BadgeCheck size={12} aria-hidden /> State exam</Chip>
+                          : <Chip tone="neutral">Not examined</Chip>}
+                        {level.measured && <Chip tone="accent">Sat</Chip>}
+                      </div>
+                      <p className="mt-2 max-w-[44ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                        {spec.summary}
+                      </p>
+                    </div>
+                    <Ring
+                      pct={level.confidence}
+                      size={62}
+                      tone={level.confidence >= PASS_PCT ? "var(--mint)" : "var(--accent)"}
+                      label={`${level.confidence} percent likely to pass ${level.level}`}
+                    >
+                      <span className="tnum text-md font-bold" style={{ color: "var(--ink)" }}>
+                        {level.confidence}%
                       </span>
-                      {official
-                        ? <Chip tone="sky"><BadgeCheck size={12} aria-hidden /> State exam</Chip>
-                        : <Chip tone="neutral">Not examined</Chip>}
-                      {level.measured && <Chip tone="accent">Sat</Chip>}
-                    </div>
-                    <p className="mt-2 max-w-[44ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                      {spec.summary}
-                    </p>
+                    </Ring>
                   </div>
-                  <Ring
-                    pct={level.confidence}
-                    size={62}
-                    tone={level.confidence >= PASS_PCT ? "var(--mint)" : "var(--accent)"}
-                    label={`${level.confidence} percent likely to pass ${level.level}`}
-                  >
-                    <span className="tnum text-md font-bold" style={{ color: "var(--ink)" }}>
-                      {level.confidence}%
+
+                  <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{level.verdict}</p>
+                  {/* The tier beside every figure (ADR-022), per level: a sat level
+                      can read up to 85 while the page's evidence is still thin,
+                      so the section's one hint could not speak for this ring. */}
+                  <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
+                    {level.measured ? "Resting on a paper you sat." : `That figure is ${EVIDENCE_LABEL[readiness.evidence]}.`}
+                  </p>
+
+                  <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
+                    {SKILLS.map((skill) => (
+                      <div key={skill}>
+                        <dt className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
+                          {SKILL_LABEL[skill]}
+                        </dt>
+                        <dd>
+                          {level.seen[skill] ? (
+                            <Meter
+                              pct={level.expected[skill]}
+                              label={`${SKILL_LABEL[skill]} predicted at ${level.expected[skill]} percent`}
+                              tone={level.expected[skill] >= PASS_PCT ? "var(--mint)" : "var(--peach)"}
+                              height={6}
+                            />
+                          ) : (
+                            <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+                              nothing measured yet
+                            </span>
+                          )}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                    <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+                      <Clock size={12} className="mr-1 inline" aria-hidden />
+                      {writtenMinutes(spec)} minutes written, then {spec.parts[3]?.minutes ?? 15} speaking
+                      {" · "}
+                      predicted {level.expectedTotal} percent, {band.label}
                     </span>
-                  </Ring>
-                </div>
-
-                <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{level.verdict}</p>
-
-                <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
-                  {SKILLS.map((skill) => (
-                    <div key={skill}>
-                      <dt className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-                        {SKILL_LABEL[skill]}
-                      </dt>
-                      <dd>
-                        {level.seen[skill] ? (
-                          <Meter
-                            pct={level.expected[skill]}
-                            label={`${SKILL_LABEL[skill]} predicted at ${level.expected[skill]} percent`}
-                            tone={level.expected[skill] >= PASS_PCT ? "var(--mint)" : "var(--peach)"}
-                            height={6}
-                          />
-                        ) : (
-                          <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                            nothing measured yet
-                          </span>
-                        )}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                  <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    <Clock size={12} className="mr-1 inline" aria-hidden />
-                    {writtenMinutes(spec)} minutes written, then {spec.parts[3]?.minutes ?? 15} speaking
-                    {" · "}
-                    predicted {level.expectedTotal} percent, {band.label}
-                  </span>
-                  <ButtonLink href={`/exam/${level.level}`} variant="secondary" size="sm">
-                    Sit it <ArrowRight size={14} aria-hidden />
-                  </ButtonLink>
-                </div>
-              </Card>
-            );
-          })}
-        </ul>
+                    <ButtonLink href={`/exam/${level.level}`} variant="secondary" size="sm">
+                      Sit it <ArrowRight size={14} aria-hidden />
+                    </ButtonLink>
+                  </div>
+                </Card>
+              );
+            })}
+          </ul>
+        </div>
       </section>
 
       <div className="mb-10 grid gap-6 md:grid-cols-2">

@@ -799,18 +799,24 @@ export function resolveProvider(): ProviderConfig | null {
  * Is this worth asking somebody else about?
  *
  * A throttled or broken-down provider is: another key would answer. A
- * rejected key or a model name that does not exist is not, because every
- * provider in the chain would give the same answer for its own reasons and
- * trying them all just turns one clear message into a slower one.
+ * rejected key or a model name that does not exist is fatal WITHIN one
+ * provider, where the next link carries the same key, and is not fatal
+ * ACROSS providers, where it carries a different key and a different model.
+ * That used to read "every provider would give the same answer", which was
+ * true of one shared model and is not true of a purpose chain: Groq backs up
+ * Gemini on the tutor and the scenes, and a revoked Gemini key took Anu down
+ * whole with the Groq key beside it working.
  */
 function worthFallingBackFrom(error: unknown, sameProviderNext = false): boolean {
   if (!(error instanceof TutorError)) return true;
-  // A model that does not exist is fatal across providers, for the reason
-  // above, and is exactly what to walk past within one: the defaults here are
-  // free models, and a free model is retired the moment it stops being worth
-  // somebody's money. Reaching the next one costs a request; refusing costs
-  // the learner their answer over a slug that went stale in a constant.
-  if (error.status === 404) return sameProviderNext;
+  if (error.status === 401) return !sameProviderNext;
+  // A model that does not exist is worth walking past in both directions:
+  // within one provider the next link names another model, since a free model
+  // is retired the moment it stops being worth somebody's money, and across
+  // providers the next link names another model entirely. Reaching the next
+  // one costs a request; refusing costs the learner their answer over a slug
+  // that went stale in a constant.
+  if (error.status === 404) return true;
   // 402 belongs here for the same reason as 429: one provider being out of
   // credit says nothing about the next one's balance, so falling through costs
   // a request and keeps the tutor answering.
@@ -1086,6 +1092,11 @@ async function cachedGeminiStream(
     }
     return { config, chunks: one() };
   } catch (error) {
+    /*
+      A rejected key is not something the plain transport to the same
+      provider can fix, so it is thrown to the walk, which decides whether the
+      next link is somebody else's key.
+    */
     if (error instanceof TutorError && error.status === 401) throw error;
     return null;
   }
@@ -1625,8 +1636,10 @@ export async function completeWithImage(
       return reply;
     } catch (error) {
       last = error;
-      const fatal = error instanceof TutorError && error.status === 401;
-      if (fatal || i === chain.length - 1) throw error;
+      // A rejected key is fatal only where the next link carries the same one.
+      const next = chain[i + 1];
+      const fatal = error instanceof TutorError && error.status === 401 && next?.name === config.name;
+      if (fatal || !next) throw error;
     }
   }
 

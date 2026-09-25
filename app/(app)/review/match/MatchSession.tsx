@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQueueGrades } from "@/components/round/useGrade";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Timer, Trophy, X } from "lucide-react";
 import { recordMatchGrades, recordMatchTime } from "@/app/actions";
+import { useOffline } from "@/components/OfflineProvider";
 import { Button, ButtonLink } from "@/components/Button";
 import { Confetti } from "@/components/Confetti";
 import { Empty, Page, Stat } from "@/components/ui";
@@ -39,6 +41,8 @@ interface Tile {
  * abandoning a round writes nothing.
  */
 export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]; best: number }) {
+  const queueGrades = useQueueGrades();
+  const { drainFirst } = useOffline();
   /*
     Snapshotted once on mount. This round grades every pair at the end, and the
     refresh that follows hands down a smaller `pairs` prop as those cards leave
@@ -110,23 +114,43 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       settles rather than failing the batch, so one stale pair costs nothing
       the loop would not also have shrugged off.
     */
+    const board = pairs.map((pair) => ({
+      // Generated per pair so a retried call settles rather than
+      // double-counting, the same property the offline outbox relies on.
+      id: typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${pair.cardId}-${Date.now()}`,
+      cardId: pair.cardId,
+      missed: (missMap[pair.cardId] ?? 0) > 0,
+    }));
+    const answeredAt = Date.now();
+    let landed = false;
     try {
-      await recordMatchGrades(pairs.map((pair) => ({
-        // Generated per pair so a retried call settles rather than
-        // double-counting, the same property the offline outbox relies on.
-        id: typeof crypto !== "undefined" && crypto.randomUUID
-          ? crypto.randomUUID()
-          : `${pair.cardId}-${Date.now()}`,
-        cardId: pair.cardId,
-        missed: (missMap[pair.cardId] ?? 0) > 0,
-      })));
+      // Older queued grades go first, so the log hears answers in order.
+      await drainFirst();
+      landed = (await recordMatchGrades(board)).ok;
     } catch {
-      // A failed write costs this round's rep, not the finish screen.
+      // Queued below.
+    }
+    if (!landed) {
+      /*
+        A board that did not land goes into the outbox rather than being
+        written off: the round was played and the scheduler is owed it
+        (ADR-015). Same ids, so a batch that did land and only lost its answer
+        is settled on replay rather than counted twice.
+      */
+      await queueGrades(board.map((b) => ({
+        id: b.id,
+        cardId: b.cardId,
+        rating: b.missed ? 2 : 3,
+        durationMs: 0,
+        reviewedAt: answeredAt,
+      })));
     }
 
     const result = await recordMatchTime(finalSeconds).catch(() => null);
     setIsNewBest(!!result?.ok && result.isNewBest);
-  }, [pairs]);
+  }, [pairs, queueGrades, drainFirst]);
 
   const pick = (tile: Tile) => {
     if (phase !== "playing" || matched.has(tile.cardId) || wrong) return;
@@ -322,5 +346,4 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
     </div>
   );
 }
-
 

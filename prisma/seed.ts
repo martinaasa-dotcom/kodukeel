@@ -7,7 +7,7 @@ import { ADVANCED_ADJECTIVES, ADVANCED_NOUNS, ADVANCED_VERBS } from "./data/adva
 import { HARVESTED } from "./data/harvested";
 import { type SeedEntry } from "./columns";
 import { writeSeedEntries, key } from "./seedWrite";
-import { applyExpandedEquivalents, applyGlossCorrections, applyPosCorrections, writeExpanded } from "./expanded";
+import { applyExpandedEquivalents, applyGlossCorrections, applyNotesCorrections, applyPosCorrections, clearPinnedNotes, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
@@ -75,6 +75,13 @@ async function main() {
   const reglossed = await applyGlossCorrections(prisma);
   if (reglossed > 0) {
     console.log(`Corrected the gloss on ${reglossed} entries.`);
+  }
+
+  // After the glosses, since a gloss correction can set the very note this
+  // then corrects. Before the early return, for the reason the line above is.
+  const renoted = await applyNotesCorrections(prisma);
+  if (renoted > 0) {
+    console.log(`Took another word's senses out of the notes on ${renoted} entries.`);
   }
 
   /*
@@ -177,6 +184,7 @@ async function main() {
     if (existing > 0) {
       console.log(`Dictionary already has ${existing} entries. Leaving it alone.`);
       await clearDuplicatedNotes(prisma);
+      await clearPinnedNotes(prisma);
       return;
     }
     console.log("Dictionary is empty. Seeding it.");
@@ -348,6 +356,7 @@ async function main() {
   }
 
   await clearDuplicatedNotes(prisma);
+  await clearPinnedNotes(prisma);
 }
 
 /**

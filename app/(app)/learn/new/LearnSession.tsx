@@ -446,7 +446,7 @@ export function LearnSession({
    * "I already know this one" and "too complicated" are the two things a
    * learner can say at a first meeting that are not answers, and the meet rung
    * is where both are said: one graduates the word and the other sends it away
-   * for a few weeks. Neither is graded, and this one writes nothing at all
+   * for a few days or until its band. Neither is graded, and this one writes nothing at all
    * here, because `putWordAside` has already moved every card of the word.
    *
    * The seat always holds `queue[0]`, so dropping the head is the whole of it.
@@ -592,7 +592,7 @@ export function LearnSession({
   const answerGap = useCallback(() => {
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
-    const check = checkAnswer(typed, expected, "et");
+    const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? []);
     setVerdict(check);
     const won = check.verdict === "correct";
     cheer(countsAsRecalled(check.verdict));
