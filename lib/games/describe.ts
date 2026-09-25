@@ -199,3 +199,26 @@ export function markDescription(task: DescribeTask, sentence: string): DescribeM
     rating: rightCase ? 3 : used[task.askIndex] ? 2 : 1,
   };
 }
+
+/**
+ * What a screen reader is told the picture shows.
+ *
+ * The emoji carry the scene to a sighted reader and this sentence carries it
+ * to everybody else, so it has to name what is drawn. It took each gloss's
+ * first sense, and a gloss lists senses in the dictionary's order rather than
+ * the picture's: the ribbon was read out as "tape" and the rock as "cliff".
+ * Two senses, joined the way a person says either, reach the drawn one for
+ * both of those without turning a line into a list: 26 of the 169 pictured
+ * words carry more than one sense, and none needs a third to be named.
+ */
+export function pictureLabel(glosses: readonly string[]): string {
+  const things = glosses.map((gloss) => {
+    const senses = gloss.split(/[,;]/).map((s) => s.trim()).filter(Boolean).slice(0, 2);
+    return senses.length === 2 ? `${senses[0]} or ${senses[1]}` : senses[0] ?? "";
+  }).filter(Boolean);
+  if (things.length === 0) return "";
+  const list = things.length === 1
+    ? things[0]!
+    : `${things.slice(0, -1).join(", ")} and ${things[things.length - 1]}`;
+  return `A picture of ${list}.`;
+}

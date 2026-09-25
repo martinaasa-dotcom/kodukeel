@@ -774,9 +774,11 @@ likely. A failed send therefore spends the slot: somebody misses one evening's l
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
 is what people unsubscribe over.
 
-**A letter says how long is left, not how many days were missed.** `daysAway` is read by the
-scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
-than theirs to be handed.
+**A letter says how long is left, not how many days were missed.** The days away are read by the
+scheduler (`letterOwed`, against `AWAY_DAYS`) and never handed to a letter at all: the figure is
+the guilt, and it is ours to decide with rather than theirs to be handed. `ComebackInput` used to
+carry it as `daysAway` under a comment saying it pitched the first line, and nothing read it; a
+field a letter takes is now one the letter reads, asserted, so the figure has no door to a page.
 
 **And the run could not get past the door, so no letter ever went out on a hosted deployment.**
 `/api/email/send` was left off the gate's public list on the argument that it gates itself, which
@@ -4709,8 +4711,11 @@ a screen belongs. And the verdict band was drawn at ten hours a week measured ag
 *optimistic* end of the range while the note under it quoted the distance at five found hours a
 week, so 335 of the 704 combinations a learner could click said "It fits, but only with study
 outside this app" over a sentence putting the date three years out. Both read
-`FOUND_HOURS_PER_WEEK` now, and the band sits at the pessimistic end, which makes those two
-sentences the same claim rather than two answers to one question. A deadline already gone is its
+`FOUND_HOURS_PER_WEEK` now, and the band and the note are drawn against one `found`, which makes
+those two sentences the same claim rather than two answers to one question. The band sits at the
+near end of the distance, on purpose and after first sitting at the far one: a learner who reached
+the last level in the fewer hours is the one who reaches the next in the fewer, so "it fits" means
+the near end of the range lands inside the date, and the note prints the whole range under it. A deadline already gone is its
 own verdict rather than a division by no time: it used to floor at one week and print "in 0 weeks
 your daily goal puts in about 0.4 of those hours" over a note asking for 1 099 hours a week. Two
 invariants and an exhaustive sweep of every combination in `plan.test.ts` hold all three.
@@ -10593,6 +10598,19 @@ comparison against a form the dictionary vouches for, in that order, and no prov
 from `lib/assessment/`. A learner meeting this app for the first time cannot tell when the machine
 is the one that is confused, so the machine is never the judge. The overall level is the **average**
 of the measured skills, floored (ADR-020 amendment 2).
+
+**And the browser marks for the feedback and the server marks for the record.** `recordAssessment`
+took a credit, a skill and a band per answer from the browser and believed all three, so a hand-made
+request could post full credit everywhere or call an A1 question C1, and that level reached Today,
+the plan and a sponsor's cohort view. It takes the paper's seed, when it was built, and what was
+done with each question now: the option picked by its text, the words typed, the rating given.
+`markSitting` builds the same paper again, takes the skill and band off each item, counts an item
+once, refuses an id the paper does not hold, and marks through `responseFor`, which is the function
+the runner marks with. A skip counts on listening alone. The deck is read as it stood when the paper
+was built, because a card added mid-sitting takes its word out of the pool and the rebuilt paper
+would hold different questions. Which questions were asked stays the browser's call, since a band
+nobody was asked is not scored. That is ADR-022's rule for the mock exam, applied to the check that
+sets the level.
 
 **And the claim is kept in the code rather than printed under every question.** Each item used to
 carry an `ItemSource` and each answered question ended in "A recorded sentence. No Estonian on this

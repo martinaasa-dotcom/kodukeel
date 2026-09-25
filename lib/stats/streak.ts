@@ -45,7 +45,7 @@ export function computeStreak(
 
 export interface StreakShieldResult {
   streak: number;
-  /** Gap days bridged by a shield on *this* call — the caller persists these. */
+  /** Gap days bridged by a shield on *this* call; the caller persists these. */
   newlyShieldedDates: string[];
   /** Shields left after this call's newly-shielded days are spent. */
   shieldsRemaining: number;
@@ -53,9 +53,11 @@ export interface StreakShieldResult {
 
 /**
  * Like computeStreak, but a missed day is bridged by a streak shield instead
- * of breaking the streak — Duolingo's "streak freeze". Each shield covers
- * exactly one missed day; with several in stock, several missed days —
- * even consecutive ones — can each be bridged, until shields run out.
+ * of breaking the streak, which is Duolingo's "streak freeze". Each shield covers
+ * exactly one missed day, and a run of missed days is bridged only whole: where
+ * the shields in stock cannot cover every day of a gap, none of them is spent
+ * and the streak ends there, because a shield that does not keep the streak
+ * alive has bought the learner nothing.
  *
  * `previouslyShieldedDates` are days a shield has already covered on an
  * earlier call; they count toward the streak like a real review and never
@@ -91,14 +93,35 @@ export function computeStreakWithShields(
     if (earliestKnownDay === null || day < earliestKnownDay) break;
     if (reviewed.has(day) || shielded.has(day)) {
       streak++;
-    } else if (shieldsLeft > 0) {
-      shieldsLeft--;
-      newlyShieldedDates.push(day);
-      streak++;
-    } else {
-      break;
+      cursor = clock.shiftDay(cursor, 1);
+      continue;
     }
-    cursor = clock.shiftDay(cursor, 1);
+    /*
+      A SHIELD IS SPENT ONLY WHERE IT KEEPS THE STREAK ALIVE.
+
+      The whole gap is measured before any of it is paid for. Spending shields
+      one missed day at a time bridged the nearest days of a gap too wide to
+      cross, broke on the next, and left the learner with neither the run nor
+      the shields, while the covered days went on record for the shield letter
+      to announce. A gap the shields in stock cannot cover whole is left alone
+      and the shields stay banked for one they can. The walk only ever reaches
+      a missed day above the earliest known one, so every gap it measures ends
+      on a day somebody studied or a shield already covered.
+    */
+    const gap: string[] = [];
+    let probe = cursor;
+    for (;;) {
+      const missed = clock.dayKey(probe);
+      if (missed < earliestKnownDay || reviewed.has(missed) || shielded.has(missed)) break;
+      gap.push(missed);
+      probe = clock.shiftDay(probe, 1);
+    }
+    const landsOnKnownDay = clock.dayKey(probe) >= earliestKnownDay;
+    if (!landsOnKnownDay || gap.length > shieldsLeft) break;
+    shieldsLeft -= gap.length;
+    newlyShieldedDates.push(...gap);
+    streak += gap.length;
+    cursor = probe;
   }
 
   return { streak, newlyShieldedDates, shieldsRemaining: shieldsLeft };
