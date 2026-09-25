@@ -312,7 +312,14 @@ export function offerFor(
         drew one of the beat's own words, that is the word.
       */
       const drawn = card?.props.flatMap((prop) => prop.lemmas).find((lemma) => need.oneOf.includes(lemma));
-      return drawn ?? need.oneOf[0] ?? null;
+      /*
+        And a word a person could say on its own. Every word on the list meets
+        the beat, so the first one that is not a verb is as much an answer as
+        the first one, and `Sobima?`, `Täitma?` and `Maksma?` were handed over
+        where `Jah?`, `Allkiri?` and `Raha?` stood beside them. A list of
+        nothing but verbs keeps its first, since the word is still the answer.
+      */
+      return drawn ?? need.oneOf.find((lemma) => !verbs.has(lemma)) ?? need.oneOf[0] ?? null;
     }
     if (need.kind === "case") return need.lemma;
   }
