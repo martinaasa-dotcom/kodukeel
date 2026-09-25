@@ -62,6 +62,35 @@ export const STATIC_SECURITY_HEADERS: { key: string; value: string }[] = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
 ];
 
+/**
+ * What a response built out of one learner's own rows says about itself.
+ *
+ * THE FRAMEWORK'S SILENCE IS NOT A CACHE POLICY. `ImageResponse` stamps
+ * `public, immutable, max-age=31536000` on anything that does not say
+ * otherwise, and a Route Handler that says nothing gets whatever the platform
+ * and whatever is in front of it decide. Neither of those knows the body was
+ * assembled for one account.
+ *
+ * Two shapes, because two things are being said. `NO_STORE` is "do not keep
+ * this", which is all a JSON answer to a POST needs. `PRIVATE_NO_STORE` adds
+ * "and this belongs to one reader": it is for a download or a picture, the two
+ * shapes a shared cache in front of the app would otherwise be free to keep
+ * and hand on, and it varies on the cookie that chose the body so a keyed
+ * cache cannot serve one learner's copy to the next.
+ *
+ * Here rather than spelled out in each route, because four routes had written
+ * the string for themselves and four more had written nothing at all, and the
+ * check that was supposed to notice could only see the ones that happened to
+ * build their response with `new Response(`.
+ */
+export const NO_STORE = { "cache-control": "no-store" } as const;
+
+/** @see NO_STORE. For a download or a picture. */
+export const PRIVATE_NO_STORE = {
+  "cache-control": "private, no-store",
+  vary: "Cookie",
+} as const;
+
 /** The Supabase project this deployment talks to, if it has one. */
 function supabaseConnectSrc(): string[] {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
