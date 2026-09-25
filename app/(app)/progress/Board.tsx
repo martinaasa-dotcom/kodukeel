@@ -44,8 +44,15 @@ export async function Board({ ownerId, now }: { ownerId: string; now: Date }) {
     three. The relation in `where` stays, because a relation *filter* compiles
     into this statement rather than another one.
   */
+  /*
+    A class, never a workplace group. What this panel draws is colleagues
+    ranked by their week with a trophy on the first row, which is exactly the
+    league table the workplace view exists to refuse: an employer reading who
+    did most homework. `cohortKind` reads anything but "WORKPLACE" as a class,
+    so the filter is the same reading.
+  */
   const membership = await prisma.classroomMember.findFirst({
-    where: { ownerId, classroom: { archived: false } },
+    where: { ownerId, classroom: { archived: false, kind: { not: "WORKPLACE" } } },
     select: { classroomId: true },
     orderBy: { joinedAt: "desc" },
   });

@@ -182,6 +182,34 @@ describe("accepting a missing word", () => {
   });
 });
 
+describe("a missing-word report for a word the dictionary has since gained", () => {
+  /*
+    `SuggestFix` sends every missing-word report with `forms: {}`, and the
+    queue page is deliberately not revalidated between clicks, so a word a
+    live Ekilex lookup stored after the page loaded is accepted over. That
+    report supplied no forms, so it may not take any away: the principal
+    parts and the gradation stay as the entry had them.
+  */
+  it("leaves the principal parts and the gradation alone when it supplied none", async () => {
+    const lexeme = await seedWord();
+    await prisma.lexeme.update({
+      where: { id: lexeme.id },
+      data: { gradation: "QUALITATIVE", gradationNote: "b : ∅" },
+    });
+    await applyPatch(
+      { kind: "CREATE_WORD", lemma: LEMMA, pos: "NOUN", translation: "room", forms: {} },
+      REVIEWER,
+    );
+    const after = await prisma.lexeme.findUniqueOrThrow({
+      where: { id: lexeme.id },
+      include: { forms: true },
+    });
+    expect(after.forms.map((f) => f.formType).sort()).toEqual(["EKILEX:SgIn", "GEN_SG", "NOM_SG"]);
+    expect(after.gradation).toBe("QUALITATIVE");
+    expect(after.gradationNote).toBe("b : ∅");
+  });
+});
+
 describe("a report with nothing to apply", () => {
   it("changes nothing and says why", async () => {
     const outcome = await applyPatch(null, REVIEWER);
