@@ -183,7 +183,7 @@ Which key opens what, so you know how bad it is before you know anything else.
 | --- | --- | --- |
 | `SUPABASE_SERVICE_ROLE_KEY` | Everything in the Supabase project, bypassing row level security. Reads and writes every learner's rows and deletes auth identities. **Always S1.** | Supabase dashboard, API settings |
 | `DATABASE_URL` / `DIRECT_URL` | The whole database, read and write. **Always S1.** | Supabase dashboard, database password |
-| `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY` | Somebody else's spend on our account. No learner data, since prompts go out and nothing comes back that is stored. S3 unless the key is shared with something that does hold data. | The provider's own console |
+| `GROQ_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` | Somebody else's spend on our account. No learner data, since prompts go out and nothing comes back that is stored. S3 unless the key is shared with something that does hold data. | The provider's own console |
 | `EKILEX_API_KEY` | Read access to a free academic dictionary service. Costs the Institute of the Estonian Language politeness rather than money. S4. | ekilex.ee |
 | `METRICS_TOKEN` | Deployment-wide retention aggregates. No individual data. S3. | Redeploy with a new value |
 | `RESEARCH_TOKEN` | The anonymised learner error corpus. Gated four ways before publication, so still no individual data, and it is a whole dataset. S2. | Redeploy with a new value |
