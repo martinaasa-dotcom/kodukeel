@@ -68,8 +68,9 @@ public body deploying this.
 ### The AI provider chain
 
 **Conditional**, on a provider key being set. The chain is resolved by `resolveProviders()` in
-`lib/tutor/provider.ts`, free tiers first, and a recipient entry is generated per distinct provider
-label rather than per model.
+`lib/tutor/provider.ts`: Groq and Google Gemini first, then Anthropic and OpenAI only while the
+day's fallback budget has room. A recipient entry is generated per distinct provider label rather
+than per model.
 
 | Provider | Where established | On the EEA list |
 | --- | --- | --- |
@@ -159,7 +160,8 @@ twice.
 **Where established.** Resend Inc. is established in the United States. Outside the EEA.
 
 **Safeguard.** Resend's own data processing addendum and the standard contractual clauses it
-publishes.
+publishes. No transfer impact assessment has been carried out, the same open item as the model
+providers.
 
 **Why it is the sharpest entry on this page.** Every other recipient here gets a word, a phrase or a
 photograph with no account attached. This one gets an address and a message addressed to it, which
@@ -169,6 +171,12 @@ rather than whenever a letter is sent, because what a reader is asking is who th
 reach rather than who it has reached this week. The way out is in every footer, it is an HMAC over
 the learner and the kind so it works with no session (`EMAIL_TOKEN_SECRET`), and a kind a learner
 has switched off is never sent.
+
+**A second route to the same company.** The README configures Resend as the SMTP server behind
+Supabase's sign-in links. That is set in the Supabase dashboard rather than in this app's
+environment, so the generated list cannot see it: a deployment that sends sign-in links through
+Resend without setting `RESEND_API_KEY` sends addresses to Resend and does not name it on `/privacy`.
+That is a gap and it is stated rather than closed.
 
 **Role.** Processor.
 
@@ -190,24 +198,45 @@ generated list for that reason.
 
 **Role.** Processor, of the operator's choosing.
 
-### The hosting platform
+### Vercel, the hosting platform
 
-**Conditional**, on `VERCEL`, which the platform sets itself.
+**Conditional**, on `VERCEL` being `1`, which the platform sets itself. Self-hosted, the operator
+named at the top of `/privacy` is the host and is not listed again.
 
-The deployment runs on Vercel, which is established in the United States. It was for a while the one
-recipient this page named and the generated list could not see: the list was built by asking the code
-which services it was configured to call, and the machine the code runs on is not one of those. It is
-generated now, and only where somebody else owns the machine, because self-hosted the operator named
-at the top of `/privacy` is the host and listing them as a recipient of their own data is noise.
+**What it processes.** Every request while it is answered, and a request log carrying the address it
+came from. For a signed-in request that includes the session cookie.
 
-What it necessarily handles is every request while it is being answered, which for a signed-in
-request includes the session cookie, and a request log with an address in it. Named by company
-rather than by region: `vercel.json` pins the functions beside the database, so a European
-deployment is answered in Europe, and that is not the question Article 44 asks. Vercel's own data
-processing addendum and the standard contractual clauses are the safeguard. An operator hosting this
-elsewhere substitutes their own platform here, and sees no Vercel entry on their own privacy page.
+**Where established.** United States. Outside the EEA. `vercel.json` pins the functions to the
+database's region, which decides where a request is answered and not where the company is.
+
+**Safeguard.** Vercel's own data processing addendum and the standard contractual clauses. An
+operator hosting this elsewhere substitutes their own platform here, and sees no Vercel entry on
+their own privacy page.
 
 **Role.** Processor.
+
+### Google, for sign-in
+
+**Not on the generated list, and that is a gap.** Signing in with Google means the learner's browser
+talks to Google, and where `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set the sign-in page loads Google
+Identity Services from `accounts.google.com` (`GSI_SCRIPT_SRC` in `lib/auth/googleIdentity.ts`),
+which the CSP allows for that one origin (`googleIdentitySrc` in `lib/security/headers.ts`). Loading
+that script sends the visitor's address and browser details to Google on the sign-in page, before
+anybody presses anything. `resolveRecipients` does not name Google in either case.
+
+**What it processes.** The Google account sign-in itself, which is between the learner and Google,
+and the page load described above. The app receives an ID token and passes it to Supabase; no Google
+scope beyond identity is requested.
+
+**Where established.** Not recorded here. Which Google entity answers a request is not readable
+from the app, and this register has not assessed it.
+
+**Role.** Independent controller for the sign-in to the learner's own Google account. Not assessed
+further here.
+
+A deployment that names email domains in `SSO_DOMAINS` sends people on those domains to their own
+organisation's identity provider (`lib/auth/sso.ts`). That provider is the organisation's, chosen
+by it, and it is not on the generated list either.
 
 ## Not on the list, on purpose
 
