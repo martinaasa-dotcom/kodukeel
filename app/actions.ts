@@ -17,6 +17,7 @@ import {
 import { checkpointPassed } from "@/lib/collections/checkpoint";
 import { generateCode, isValidCode, normaliseCode } from "@/lib/classroom/code";
 import { cohortKind } from "@/lib/classroom/cohort";
+import { cleanGroupName } from "@/lib/classroom/groupName";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { mergeExamples, parseExamples, serialiseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
@@ -2325,7 +2326,7 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
 
   const busy = throttleAction(ownerId, "createClassroom");
   if (busy) return busy;
-  const trimmed = text(name).trim().slice(0, 60);
+  const trimmed = cleanGroupName(text(name));
   if (trimmed.length < 2) return { ok: false as const, error: "Give the class a name." };
 
   /*

@@ -60,6 +60,7 @@ import type { ClassroomInput } from "@/lib/email/letters/classroom";
 import type { WorddayInput } from "@/lib/email/letters/wordday";
 import type { MilestoneInput } from "@/lib/email/letters/milestone";
 import type { ShieldInput } from "@/lib/email/letters/shield";
+import { cleanGroupName } from "@/lib/classroom/groupName";
 
 /** A high-water mark to write once a letter has really gone. */
 export interface Remember {
@@ -1008,7 +1009,7 @@ export async function letterInputFor(
         kind: "classroom",
         input: {
           origin,
-          groupName: group.name,
+          groupName: cleanGroupName(group.name) || "Your class",
           ...headline,
           week,
           detail: {
@@ -1029,7 +1030,7 @@ export async function letterInputFor(
       kind: "classroom",
       input: {
         origin,
-        groupName: group.name,
+        groupName: cleanGroupName(group.name) || "Your class",
         ...headline,
         week,
         detail: { kind: "CLASS", weakestCases: roster.weakestCases },

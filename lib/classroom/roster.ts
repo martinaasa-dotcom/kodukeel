@@ -10,6 +10,7 @@ import {
 } from "@/lib/progress/exam";
 import { knownLemmasFrom } from "@/lib/progress/summary";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
+import { classWeakestCases } from "./classCases";
 import { summariseCohort, type CohortInput, type CohortSummary } from "./cohort";
 
 /**
@@ -186,10 +187,9 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
     entries,
     // The class-wide picture, for a lesson plan. entries[].weakestCase is the
     // per-student one, for who to sit next to during it.
-    weakestCases: caseAccuracy(
-      reviews.map((r) => ({ targetCase: r.targetCase, rating: r.rating })),
-      10,
-    ).slice(0, 5),
+    // Never named on fewer than MIN_CLASS_CASE_STUDENTS students, or the
+    // aggregate is one student's weak case under the class's name.
+    weakestCases: classWeakestCases(reviews),
     totalReviewsThisWeek: entries.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
     activeThisWeek: entries.filter((e) => e.reviewsThisWeek > 0).length,
   };
