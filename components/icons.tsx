@@ -9,8 +9,9 @@ import {
   Minimize2, Moon, Mountain, Network, Newspaper, Paintbrush, Palette, PenLine, Plane, Plus, Puzzle, Quote,
   Repeat, Rocket, Scale, School, ScissorsLineDashed, ScrollText, Settings, Shirt, ShoppingBag, Shuffle,
   SlidersHorizontal, Smile, Sparkles, Stamp, Stethoscope, Sun, Sunrise, Swords, Target, Trees, TrendingUp,
-  TriangleAlert, Trophy, Users, UserX, Utensils, Vote, WifiOff, Zap, type LucideIcon,
+  TriangleAlert, Trophy, Users, UserX, Utensils, Vote, WifiOff, Zap, type LucideIcon, type LucideProps,
 } from "lucide-react";
+import { createElement } from "react";
 
 /**
  * One place where an icon *name* — stored in framework-free data like
@@ -37,3 +38,19 @@ export const ICONS: Record<string, LucideIcon> = {
 export function icon(name: string): LucideIcon {
   return ICONS[name] ?? Sparkles;
 }
+
+/**
+ * The icon a name stands for, drawn.
+ *
+ * Every caller used to write `const Icon = icon(name)` and then `<Icon />`,
+ * which is a component chosen during render as far as any static reader can
+ * tell: `react-hooks/static-components` cannot see that `ICONS` is a constant
+ * table and every entry in it is a module-level lucide component, so it
+ * reported eight of them as components created on every render. The lookup is
+ * the same lookup; `createElement` hands React the stable component itself,
+ * and the names stay the only thing a data module ever carries.
+ */
+export function NamedIcon({ name, ...props }: { name: string } & LucideProps) {
+  return createElement(icon(name), props);
+}
+

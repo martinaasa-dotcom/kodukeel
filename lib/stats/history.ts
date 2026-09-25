@@ -233,14 +233,35 @@ export interface RetentionReading {
   advice: string;
 }
 
+/**
+ * Whether a review was asked of a card the scheduler had learned.
+ *
+ * The Review state and nothing past it: Relearning is a card that lapsed and
+ * is being taught again, so an answer there is a learning step, and counting
+ * it put the exam hub's recall figure and the class roster's copy of it on a
+ * different footing from this file's retention and the research export.
+ */
+export const isMatureReview = (stateBefore: number): boolean => stateBefore === REVIEW_STATE;
+
+/** Recalled of the mature reviews, the one tally every recall figure reads. */
+export function matureRecall(reviews: { rating: number; stateBefore: number }[]): {
+  recalled: number; reviews: number; pct: number;
+} {
+  const mature = reviews.filter((r) => isMatureReview(r.stateBefore));
+  const recalled = mature.filter((r) => r.rating >= 3).length;
+  return {
+    recalled,
+    reviews: mature.length,
+    pct: mature.length === 0 ? 0 : Math.round((recalled / mature.length) * 100),
+  };
+}
+
 export function retentionReading(
   reviews: { rating: number; stateBefore: number }[],
   target = RETENTION_TARGET,
   minimum = RETENTION_MINIMUM,
 ): RetentionReading {
-  const mature = reviews.filter((r) => r.stateBefore === REVIEW_STATE);
-  const recalled = mature.filter((r) => r.rating >= 3).length;
-  const count = mature.length;
+  const { recalled, reviews: count } = matureRecall(reviews);
 
   if (count < minimum) {
     return {

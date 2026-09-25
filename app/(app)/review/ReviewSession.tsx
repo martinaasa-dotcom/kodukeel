@@ -26,7 +26,8 @@ import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
-import { enqueueGrade, readStashedSession, stashSession } from "@/lib/offline/db";
+import { enqueueGrade, readStashedSession, stashSession, takeFromOutbox } from "@/lib/offline/db";
+import { undoOutcome } from "@/lib/offline/outbox";
 import { useOffline } from "@/components/OfflineProvider";
 import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
@@ -444,6 +445,8 @@ interface Done {
   rating: RatingValue;
   /** The card's scheduling before the grade — everything undo needs. */
   before: ReviewCard["scheduling"];
+  /** The id the grade was written, or queued, under, so undo can take a queued one back. */
+  reviewId: string;
 }
 
 export function ReviewSession({
@@ -547,6 +550,15 @@ export function ReviewSession({
   const [retypeOk, setRetypeOk] = useState(false);
   const [retypeNote, setRetypeNote] = useState<string | null>(null);
   const [done, setDone] = useState(0);
+  /*
+    How many times this session has dealt a question, which the hint ladder is
+    keyed on beside the card. A card graded Again goes back through `requeue`,
+    and where the queue is shorter than the gap it is dealt again at once: keyed
+    on the card alone the rungs taken the first time were still taken, so a
+    card whose answer the ladder had spelled out was capped at Again on every
+    asking after and never left the session.
+  */
+  const [asking, setAsking] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState<Done[]>([]);
@@ -596,7 +608,7 @@ export function ReviewSession({
   /** Cards whose word has been met this session and which are now asked properly. */
   const [met, setMet] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingOffline, setPendingOffline] = useState(0);
-  const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
+  const { pending: outboxPending, refresh: refreshOutbox, drainFirst } = useOffline();
   const shownAt = useRef(Date.now());
   /*
     WHEN THE ANSWER WAS ACTUALLY GIVEN, WHICH IS NOT WHEN THE CARD IS FINALLY
@@ -723,7 +735,7 @@ export function ReviewSession({
     word: card ? wordKey(card) : null,
     // The card rather than the word: a deck holds several cards of one word,
     // and two letters of `toas` are not two letters of `toale`.
-    question: card?.id ?? null,
+    question: card ? `${card.id}:${asking}` : null,
     ladder,
     lapses: card?.scheduling.lapses ?? 0,
   });
@@ -847,6 +859,7 @@ export function ReviewSession({
       const [seen] = next.splice(index, 1);
       return seen ? requeue(next, seen, index) : next;
     });
+    setAsking((n) => n + 1);
     setRevealed(false);
     setTyped("");
     setVerdict(null);
@@ -907,7 +920,7 @@ export function ReviewSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
     producedAt.current = null;
-  }, [card, queue, index]);
+  }, [card, queue]);
 
   const submit = useCallback(async (asked: RatingValue) => {
     if (!card || busy) return;
@@ -945,8 +958,11 @@ export function ReviewSession({
       is what tells them either way.
     */
     try {
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
     try {
-      const result = await gradeCard(card.id, rating, duration, answeredAt);
+      await drainFirst();
+      const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, reviewId);
       if (!result.ok) throw new Error(result.error);
       scheduled.current.set(card.id, result.scheduling);
     } catch {
@@ -955,7 +971,7 @@ export function ReviewSession({
       // replayed in order with this timestamp once there is a connection —
       // which, because Review is append-only, lands exactly where it would have.
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: reviewId,
         cardId: card.id,
         rating,
         durationMs: duration,
@@ -965,8 +981,9 @@ export function ReviewSession({
     }
 
     setDone((d) => d + 1);
+    setAsking((n) => n + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
-    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before }]);
+    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId }]);
     recordSeen(card, false);
 
     // "Again" means it is not learned — put it back near the end of this session.
@@ -991,7 +1008,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, hints, recordSeen]);
+  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen]);
 
   /**
    * Puts the last graded card back.
@@ -1003,8 +1020,25 @@ export function ReviewSession({
     const last = history[history.length - 1];
     if (!last || busy) return;
     setBusy(true);
-    const result = await undoGrade(last.cardId, last.before);
-    if (result.ok) {
+    /*
+      Offline the action throws rather than returning, and without the
+      `finally` the session stayed busy for good: every button on the card
+      disabled, over one press of Undo on a train. Nothing changes on a throw,
+      which is the honest answer to an undo that could not reach the server.
+    */
+    try {
+    /*
+      A grade still in the outbox never reached the server, so it is taken
+      back here first. Asking the server alone meant a grade undone offline
+      stayed queued and was replayed later: the answer the learner withdrew
+      was applied anyway. The server is still asked, since a sync may have
+      sent the grade a moment ago, and its answer decides only for a grade
+      that was no longer queued.
+    */
+    const taken = await takeFromOutbox(last.reviewId);
+    if (taken) refreshOutbox();
+    const result = await undoGrade(last.cardId, last.before).catch(() => null);
+    if (undoOutcome(taken, result?.ok === true) === "undone") {
       scheduled.current.set(last.cardId, last.before);
       setHistory((h) => h.slice(0, -1));
       // The card is in front of the learner again, so that showing has not
@@ -1024,8 +1058,10 @@ export function ReviewSession({
       });
       setIndex(last.index);
     }
-    setBusy(false);
-  }, [history, busy, queue, forget]);
+    } finally {
+      setBusy(false);
+    }
+  }, [history, busy, queue, forget, refreshOutbox]);
 
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
@@ -1763,7 +1799,7 @@ export function ReviewSession({
               question somebody has the moment they first see one, and the
               screen that introduces the form is the obvious place to answer
               it. */}
-          {(revealed || chosen || ask === "intro") && <WhyRow card={card} />}
+          {(answerShown || chosen) && <WhyRow card={card} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
