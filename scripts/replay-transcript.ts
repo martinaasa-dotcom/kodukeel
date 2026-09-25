@@ -128,7 +128,7 @@ async function main() {
       const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, inPlay));
       const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, inPlay) : null;
       const handing = (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? []) : null;
+        ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
       const facts = (inPlay?.props ?? []).map((prop) => {
         const value = prop.english ?? prop.shown[0] ?? prop.value;
         return `${prop.card.replace(/\.$/, "")}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
@@ -170,7 +170,7 @@ async function main() {
       recast: Boolean(last?.slips?.some((s) => s.form && s.form === last?.matched?.[0])),
       aside, landed: elsewhere > 0,
       offer: (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? []) : null,
+        ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null,
       met: state.done.length,
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,

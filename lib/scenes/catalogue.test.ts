@@ -567,6 +567,32 @@ describe("the scene catalog", () => {
   });
 
   /*
+    THE HINT ON A BEAT THAT WANTS A VALUE OFF THE CARD NAMES THE KIND OF THING,
+    NEVER ONE OF THE THINGS. `offerFor` hands a stuck learner the first
+    non-question lemma of the beat's topic, and at the café that was `kohv`: a
+    learner whose card said tea was pointed at coffee, which is the hint
+    contradicting the card it exists to help with. Topic order is read nowhere
+    else, so the rule is on the order.
+  */
+  it("points a stuck learner at the kind of value a beat wants, never at a value the card could deal", () => {
+    const questions = new Set(unitById("kusisonad")!.lemmas);
+    let checked = 0;
+    for (const scene of SCENES) {
+      for (const beat of scene.beats) {
+        const leaves = leafNeeds(beat.needs).map(({ need }) => need);
+        if (leaves.some((need) => need.kind !== "datum")) continue;
+        const slots = new Set(leaves.flatMap((need) => (need.kind === "datum" ? [need.slot] : [])));
+        const dealable = new Set(scene.props.flatMap((prop) => (slots.has(prop.slot) && "oneOf" in prop ? prop.oneOf : [])));
+        const pointer = beat.topic.find((lemma) => !questions.has(lemma));
+        checked += 1;
+        expect(dealable.has(pointer ?? ""), `${scene.id}/${beat.id} hints ${pointer}, which the card may not have dealt`)
+          .toBe(false);
+      }
+    }
+    expect(checked).toBeGreaterThan(15);
+  });
+
+  /*
     And a word prop names words the scene teaches, which is what makes the
     gloss reachable at all: the briefing looks the drawn lemma up, and a lemma
     no unit of this scene declares comes back with nothing to print, which is
@@ -675,5 +701,20 @@ describe("the scene catalog", () => {
         }
       }
     });
+  });
+});
+
+/*
+  A beat asking what is wrong with a thing takes the word anybody uses for it.
+  `Ma ostsin arvuti ja arvuti on katki` read as incomplete on the complaint
+  scene, and the clerk offered `Viga või probleem?` to a learner who had just
+  said exactly what was wrong.
+*/
+describe("a beat asking what is wrong", () => {
+  it("takes katki, both as an answer and as its topic", () => {
+    const beat = sceneById("kaebus")!.beats.find((one) => one.id === "problem")!;
+    const answers = leafNeeds(beat.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : []));
+    expect(answers).toContain("katki");
+    expect(beat.topic).toContain("katki");
   });
 });

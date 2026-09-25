@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { getTutorHistory } from "@/app/actions";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Empty } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -164,7 +164,7 @@ export function AnuPanel({
               ? "Everything else works without one. Settings has a walkthrough for a free key."
               : "Everything else here works without her."}
             action={readerCanConfigure && (
-              <Button onClick={() => { window.location.href = "/settings"; }}>Open Settings</Button>
+              <ButtonLink href="/settings">Open Settings</ButtonLink>
             )}
           />
         ) : !asked ? (

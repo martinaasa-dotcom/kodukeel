@@ -387,9 +387,9 @@ model Setting {
   @@index([key, value])
 }
 
-/// A badge the learner has earned. Append-mostly: a key is written once, the
-/// moment its condition is first met, and never removed — losing a badge you
-/// already earned would be a worse surprise than never having shown it.
+/// A badge the learner earned before badges were withdrawn. Nothing earns one
+/// now and no screen draws one. The rows stay because they are the learner's:
+/// they are in the export, in the erasure, and a restore puts them back.
 model Achievement {
   ownerId  String
   key      String
@@ -550,7 +550,7 @@ model ExamAttempt {
 /// kept. `lib/estonian/passage.ts` treats a pasted reading the same way.
 ///
 /// Words are held as lemmas rather than as copies of dictionary rows, exactly
-/// as a learning-path unit is (lib/collections/path.ts). A page is a *reference*
+/// as a course unit is (lib/collections/syllabus/). A page is a *reference*
 /// to vocabulary, so correcting a word in the shared dictionary corrects it on
 /// every page it appears on, and a page can never drift out of step.
 model Scan {
@@ -783,7 +783,7 @@ model Suggestion {
 /// row, and there is no update path.
 ///
 /// NOTHING IN HERE IS TRUE ABOUT THE LEARNER. The role card is fiction
-/// (docs/19-situations.md §3), which is a marking rule and a legal one: a
+/// (docs/21-situations.md §3), which is a marking rule and a legal one: a
 /// health-centre scene where somebody typed about their own symptoms would be
 /// Article 9 special category data, and no scene asks for a real document
 /// number either.

@@ -438,6 +438,37 @@ describe("a scene against the dictionary", () => {
     expect(asked!.lexemeId, "the entry was never resolved").toBeTruthy();
   });
 
+  it("never stores an entry id the client chose", async () => {
+    /*
+      The lemma was checked against the scene and the id beside it was not, so
+      a client could write any string into `SceneGap.lexemeId`: an entry the
+      scene never needed, or no entry at all. The id is the server's to find.
+    */
+    const context = await sceneContext(DOCTOR.id);
+    const needed = DOCTOR.beats.flatMap((beat) => beat.topic)
+      .find((lemma) => context!.lexicon.byLemma.has(lemma))!;
+    const opened = await beginRun({
+      ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",
+      lines: "scripted",
+    });
+    const finished = await finishRun({
+      ownerId: OWNER,
+      runId: opened!.runId,
+      walkedOut: false,
+      asked: [{ lemma: needed, lexemeId: "forged-by-the-client" }],
+      turns: [{ beatId: "greet", said: "Tere!", helped: false }],
+    });
+    const gap = await prisma.sceneGap.findFirst({
+      where: { ownerId: OWNER, runId: finished!.runId, kind: "ASKED" },
+      orderBy: { id: "asc" },
+    });
+    expect(gap?.lexemeId).not.toBe("forged-by-the-client");
+    const real = await prisma.lexeme.findFirst({
+      where: { lemma: needed }, orderBy: [{ lemma: "asc" }, { id: "asc" }], select: { id: true },
+    });
+    expect(gap?.lexemeId).toBe(real?.id);
+  });
+
   it("keeps only the words the scene actually has", async () => {
     /*
       `asked` arrives off the wire, and every export of `app/actions.ts` is a

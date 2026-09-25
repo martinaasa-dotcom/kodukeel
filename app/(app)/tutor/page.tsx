@@ -17,8 +17,8 @@ export default async function TutorPage({ searchParams }: {
   const { q } = firstParams(await searchParams);
   const ownerId = await requireUserId();
   // Anu's own chain, for the reason the shell reads it that way: this draws
-  // either a text box or the setup walkthrough, and `/api/tutor` is Anthropic
-  // only since the purpose split.
+  // either a text box or the setup walkthrough, and `/api/tutor` asks Gemini
+  // and then Groq and nothing else.
   const chain = resolveProviders({ purpose: "tutor" });
   const history = await loadRecentMessages(ownerId);
 

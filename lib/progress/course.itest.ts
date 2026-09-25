@@ -49,6 +49,7 @@ async function wipe() {
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
 }
 
 /**
@@ -192,6 +193,26 @@ describe("which day is current", () => {
     expect(reading.current?.done.has(MEET_STEP)).toBe(true);
     /* Nothing was ticked, so nothing was written: the log is the proof. */
     expect(await prisma.courseStep.count({ where: { ownerId: OWNER } })).toBe(0);
+  });
+
+  it("meets a word the learner put aside, since the ladder will not serve it tonight", async () => {
+    /*
+      "Too complicated" on the meet rung moves the card's date and leaves it
+      New, and the ladder serves only what is due, so a step waiting for it
+      to leave New waited for ever and no press could move the evening.
+    */
+    const words = PROGRAMME.days[0]!.words;
+    await deck(words, 1);
+    const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+    await prisma.card.update({ where: { id: card!.id }, data: { state: 0 } });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(false);
+    await prisma.deferral.create({
+      data: {
+        ownerId: OWNER, lexemeId: card!.lexemeId!, lemma: "x", reason: "SOON",
+        untilAt: new Date(Date.now() + 3 * 24 * 3600_000),
+      },
+    });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(true);
   });
 
   it("does not count a word the learner has never been asked about", async () => {
@@ -387,6 +408,24 @@ describe("the day an action may write about", () => {
     expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[4]!)).toBe(false);
     expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days.at(-1)!)).toBe(false);
   });
+
+  /*
+    AND THE PROGRAMME HAS TO BE THE ONE THEY ARE FOLLOWING. The day id is not
+    the only thing off the wire: the programme id is too, and a part nobody has
+    opened has no ticks, so its first two evenings read as "reached" by the
+    rule above. Without this a call naming the last part of C1 builds a
+    beginner's deck out of its words, which is the forged call the guard's own
+    header says it closes.
+  */
+  it("refuses a day of a programme they are not following", async () => {
+    const elsewhere = PROGRAMMES.at(-1)!;
+    expect(elsewhere.id).not.toBe(PROGRAMME.id);
+    await deck(PROGRAMME.days[0]!.words, 1);
+    expect(await dayIsInPlay(OWNER, elsewhere, elsewhere.days[0]!)).toBe(false);
+    expect(await dayIsInPlay(OWNER, elsewhere, elsewhere.days[1]!)).toBe(false);
+    // The one they are following is still open, which is what the UI hands over.
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[0]!)).toBe(true);
+  });
 });
 
 describe("the closing round's own counter", () => {
@@ -471,6 +510,30 @@ describe("the closing round's own counter", () => {
 
     expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW)).toEqual({ graded: 0, needed: 0 });
     expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
+  });
+
+  /*
+    AND THE LINE ASKS WHAT THE STEP IS FINISHED AGAINST, WHILE ANOTHER STEP
+    IS STILL OPEN.
+
+    The reading settles for what the round can give only once the closing
+    round is the one step left; until then it wants five. The line settled
+    early, so it read "2 of 2 answers in" over a step that was not finished.
+  */
+  it("asks for five while another step of the evening is still open", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const two = await reviewable(2);
+    const manual = ticked(one);
+    expect(manual.length, "the first evening has no step a learner ticks").toBeGreaterThan(0);
+    await tick(one.id, manual.slice(0, -1), EVENING);
+    await review(2, new Date(EVENING.getTime() + 60_000));
+    await scheduleAway(two);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(1);
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
+      .toEqual({ graded: 2, needed: CLOSING_REVIEW });
   });
 
   /* Two cards left is two answers, and then the evening is over. */
