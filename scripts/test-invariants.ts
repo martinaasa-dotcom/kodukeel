@@ -13563,6 +13563,62 @@ check("a wrong answer records the form it reached for, and only between forms", 
   }
 });
 
+check("asking Anu with no connection is refused where the question is sent, and said on every surface", () => {
+  /*
+    docs/08-ux-ia-a11y.md §4 lists "Anu needs a connection" as a state of its
+    own, and asking offline used to type the question, wait on a fetch that
+    could never land, and only then read that the connection was lost
+    mid-answer. The first repair gated the send buttons on the page at
+    /tutor and left two doors open: the "check this sentence" send on that
+    same page, and the whole of the panel in the corner of every signed-in
+    screen, which is where most questions are asked.
+
+    So the refusal lives in `useAnuChat`'s own `send`, which every door calls,
+    and the sentence saying why is one drawing in AnuParts that every surface
+    holding the hook renders. Read for the call and the element rather than
+    the import, since a file that imports the notice and never draws it is the
+    same silence.
+  */
+  const hook = code("components/anu/useAnuChat.ts");
+  assert.match(hook, /useOffline\(\)/, "useAnuChat no longer reads the connection");
+  const sendAt = hook.indexOf("const send = ");
+  assert.ok(sendAt >= 0, "useAnuChat no longer defines send, so this check is looking in the wrong place");
+  const sendHead = hook.slice(sendAt, hook.indexOf("fetch(", sendAt));
+  assert.match(sendHead, /!\s*online/, "useAnuChat's send reaches the network without asking whether there is one");
+
+  const surfaces = sourceFiles("app", /\.tsx$/)
+    .concat(sourceFiles("components", /\.tsx$/))
+    .filter((file) => /\buseAnuChat\(/.test(code(file)));
+  assert.ok(surfaces.length >= 2, `only ${surfaces.length} surface(s) hold useAnuChat; the page and the panel both should`);
+  const silent = surfaces.filter((file) => !/<AnuOffline\b/.test(code(file)));
+  assert.deepEqual(silent, [], `a surface asks Anu without saying she needs a connection: ${silent.join(", ")}`);
+
+  /*
+    And a door that empties a box asks whether the question was taken first.
+    Every one of them used to call send and clear in the next statement, so
+    pressing Enter offline deleted the question with nothing sent. Guarding
+    each door on `online` fixed that case and left the other: send also
+    refuses while Anu is still answering, and Enter on the next question typed
+    mid-answer still cleared it. So send says whether it took the question,
+    and a door reads that answer rather than guessing why it might say no.
+    `void send(` is the shape that throws the answer away, and every other
+    call has to be the condition of an `if`. That covers the sentence check,
+    which sends `sentenceCheckPrompt(...)` and then empties two boxes, as
+    well as the question box.
+  */
+  assert.match(
+    hook.slice(sendAt, hook.indexOf("=>", sendAt) + 2),
+    /\):\s*boolean\s*=>/,
+    "useAnuChat's send no longer says whether it took the question, so a door cannot know whether to clear",
+  );
+  const doors = surfaces.flatMap((file) =>
+    [...code(file).matchAll(/([^\n]{0,8})\bsend\(/g)].map((m) => ({ file, before: m[1]! })),
+  );
+  assert.ok(doors.length >= 6, `only ${doors.length} send door(s) found on the page and the panel; the pattern moved`);
+  const blind = doors.filter((d) => !/\bif \(!?$/.test(d.before)).map((d) => `${d.file} (${d.before.trim()}send()`);
+  assert.deepEqual(blind, [], `a door sends without reading whether the question was taken: ${blind.join(", ")}`);
+});
+
 /**
  * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
  *
