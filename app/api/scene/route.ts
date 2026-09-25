@@ -4,7 +4,8 @@ import { after } from "next/server";
 import { seedFrom } from "@/lib/random/seeded";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { authoriseCall, recordUsage, releaseReservation, type Reservation } from "@/lib/usage/ledger";
+import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
+import { turnBooking, type TurnBooking } from "@/lib/usage/turnBooking";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
 import {
@@ -248,7 +249,8 @@ export async function POST(request: Request) {
       ? await authoriseCall(ownerId, "GRADER")
       : null;
     if (decision?.allowed && decision.reservation) {
-      const booking = decision.reservation;
+      const reserved = decision.reservation;
+      const booking = turnBooking(reserved);
       try {
         const { text, usage, config } = await callChainForJson(
           resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
@@ -269,9 +271,10 @@ export async function POST(request: Request) {
           }),
           JUDGE_REPLY_TOKENS,
         );
+        const settles = booking.settle();
         after(() => recordUsage({
           ownerId, kind: "GRADER", provider: config.name, model: config.model,
-          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: booking,
+          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: settles,
         }));
         const verdict = parseJudgement(text);
         if (verdict?.done) {
@@ -280,7 +283,9 @@ export async function POST(request: Request) {
           ({ state, response, elsewhere } = replay(marking, draw, turns));
         }
       } catch (error) {
-        after(() => releaseReservation(booking));
+        // Handed back only where the judge never answered: a verdict that was
+        // filed and then tripped over is a call somebody was billed for.
+        if (!booking.settled) after(() => releaseReservation(reserved));
         reportError(error, { at: "api/scene/judge", ownerId });
       }
     }
@@ -312,7 +317,8 @@ export async function POST(request: Request) {
   if (askAhead && lastSent && ahead) {
     const decision = await authoriseCall(ownerId, "GRADER");
     if (decision.allowed && decision.reservation) {
-      const booking = decision.reservation;
+      const reserved = decision.reservation;
+      const booking = turnBooking(reserved);
       try {
         const { text, usage, config } = await callChainForJson(
           resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
@@ -328,16 +334,19 @@ export async function POST(request: Request) {
           }),
           JUDGE_REPLY_TOKENS,
         );
+        const settles = booking.settle();
         after(() => recordUsage({
           ownerId, kind: "GRADER", provider: config.name, model: config.model,
-          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: booking,
+          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: settles,
         }));
         if (parseJudgement(text)?.done) {
           turns[turns.length - 1] = { ...lastSent, alsoDone: [...(lastSent.alsoDone ?? []), ahead.id] };
           ({ state, response, elsewhere } = replay(marking, draw, turns));
         }
       } catch (error) {
-        after(() => releaseReservation(booking));
+        // Handed back only where the judge never answered: a verdict that was
+        // filed and then tripped over is a call somebody was billed for.
+        if (!booking.settled) after(() => releaseReservation(reserved));
         reportError(error, { at: "api/scene/judge-ahead", ownerId });
       }
     }
@@ -998,6 +1007,14 @@ export async function POST(request: Request) {
   */
   const reservation = decision.reservation;
   /*
+    And the booking the turn's attempts settle, because there may be three of
+    them: `sceneLine` asks again when the gate withholds a line, and every
+    attempt settled against this one booking took the whole reserve off again.
+    The first report settles it and the rest are filed at their whole cost
+    (`lib/usage/turnBooking.ts`).
+  */
+  const booking = turnBooking(reservation);
+  /*
     Anthropic behind Groq only while the day's fallback budget has room. Past
     it the chain is Groq alone, and a Groq that is not answering means the
     ladder falls to its next rung, which is where a keyless deployment lives
@@ -1037,7 +1054,7 @@ export async function POST(request: Request) {
       level,
       persona: persona?.who ?? "",
       situation: scene.role,
-      reservation,
+      booking,
       move: beat.move,
       they: stageFor(beat, card),
       register: askRegister,
@@ -1091,7 +1108,10 @@ export async function POST(request: Request) {
   */
   if (line.provenance !== "composed") {
     if (shrugOwed) aside = shrug(context.lexicon);
-    after(() => releaseReservation(reservation));
+    // Only where no attempt reached a provider: a line the gate withheld was
+    // still a call somebody was billed for, and releasing it after it settled
+    // took the reserve off twice.
+    if (!booking.settled) after(() => releaseReservation(reservation));
     /*
       AND THE NET CATCHES IT. The model was asked, and it did not answer or the
       gate withheld what it wrote; the run says the line it would have said with
@@ -1162,8 +1182,12 @@ async function compose(
      * twice the rate it should, and the deployment budget saw reserve plus
      * actual rather than the difference. Required rather than optional so a
      * caller that has not thought about it does not compile.
+     *
+     * The turn's booking rather than the bare reservation, because this is
+     * called up to three times a turn and only the first report may settle
+     * it (`lib/usage/turnBooking.ts`).
      */
-    reservation: Reservation;
+    booking: TurnBooking;
     /** The scene, the place, the character and why the learner is here (`ComposeAsk`). */
     scene: string;
     place: string;
@@ -1240,6 +1264,12 @@ async function compose(
           response is sent and does not guarantee a pending promise runs, and a
           settlement that never lands leaves the scene's reservation standing.
         */
+        /*
+          Read now rather than inside `after`, because the order the reports
+          arrive in is the order the attempts were made, and only the first of
+          them settles the booking (`lib/usage/turnBooking.ts`).
+        */
+        const settles = input.booking.settle();
         after(() => recordUsage({
           ownerId: input.ownerId,
           kind: "SCENE",
@@ -1250,7 +1280,7 @@ async function compose(
           // Priced at the cache rates where the provider reported a split.
           cachedInputTokens: usage.cachedInputTokens,
           cacheWriteTokens: usage.cacheWriteTokens,
-          reservation: input.reservation,
+          reservation: settles,
         }));
       },
       live,

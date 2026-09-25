@@ -8177,6 +8177,40 @@ check("nothing reaches a paid provider without going through the ledger", () => 
       `the scene leaves ${call} to a promise nobody is holding`,
     );
   }
+
+  /*
+    AND A TURN THAT ASKS THREE TIMES SETTLES ITS BOOKING ONCE.
+
+    `sceneLine` asks the composer up to `MAX_COMPOSE_ATTEMPTS` times under the
+    one booking, and every attempt filed its settlement against that booking,
+    so each took the whole reserve off again; where the gate withheld all
+    three, the route released the booking on top. A turn that made three
+    billed calls came out as money handed back, on the global budget that is
+    the one hard ceiling on the bill. `lib/usage/turnBooking.ts` settles the
+    booking on the first report and nothing after, and a settled booking is
+    never released. Asserted on the route, because the fault was in how the
+    route wired an ordinary helper, and on every settlement and release there.
+  */
+  const sceneCode = code("app/api/scene/route.ts");
+  assert.match(sceneCode, /turnBooking\(/, "the scene settles a turn's several model calls against one booking without `turnBooking`, so each takes the whole reserve off again");
+  const settlements = [...sceneCode.matchAll(/recordUsage\(\{[\s\S]*?\}\)/g)].map((m) => m[0]);
+  assert.ok(settlements.length >= 3, `only ${settlements.length} settlements found in the scene route, so this check stopped looking`);
+  for (const settlement of settlements) {
+    assert.match(
+      settlement, /reservation: settles,/,
+      `a scene settlement files against a raw reservation rather than its turn booking: ${settlement.slice(0, 80)}`,
+    );
+  }
+  assert.equal(
+    [...sceneCode.matchAll(/const settles = [\w.]+\.settle\(\);\s*after\(\(\) => recordUsage\(/g)].length,
+    settlements.length,
+    "a scene settlement's `settles` is not read off the turn booking just before it is filed",
+  );
+  const releases = [...sceneCode.matchAll(/(.{0,60})after\(\(\) => releaseReservation\(/g)].map((m) => m[1]!);
+  assert.ok(releases.length >= 3, `only ${releases.length} releases found in the scene route, so this check stopped looking`);
+  for (const before of releases) {
+    assert.match(before, /!\w+\.settled/, `a scene booking is released without asking whether a call already settled it: ${before.trim()}`);
+  }
 });
 
 check("an export holds every category the account holds", () => {
