@@ -50,6 +50,7 @@ import {
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
+import { clip } from "@/lib/copy/clip";
 
 /**
  * The units that supply the machinery every scene's marker needs.
@@ -1329,8 +1330,8 @@ export function replay(
     elsewhere = 0;
     const beat = currentBeat(context.scene, state);
     if (!beat) break;
-    const said = String(sent.said ?? "").slice(0, MAX_TURN_CHARS);
-    const heardNow = String(sent.heard ?? previous).slice(0, MAX_TURN_CHARS);
+    const said = clip(String(sent.said ?? ""), MAX_TURN_CHARS);
+    const heardNow = clip(String(sent.heard ?? previous), MAX_TURN_CHARS);
     const marker = { ...context.marker, data, dataLemmas, previous: heardNow };
 
     /*

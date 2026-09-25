@@ -351,6 +351,44 @@ check("no server component calls a function it imported from a client module", (
 
 // ── Never ship a credential to the client ────────────────────────────────────
 
+check("a small group names nobody by subtraction, to a member", () => {
+  /*
+    The counts a colleague sees name nobody, and in a group of three the
+    member's own band beside "1 on track" names the other person. The class
+    page's lesson plan is the same arithmetic in a class of two. So a member
+    sees the workplace counts only through `sharesCounts`, and the class-wide
+    cases are the teacher's.
+  */
+  const view = code("app/(app)/class/[classroomId]/WorkplaceView.tsx");
+  assert.match(view, /sharesCounts\(summary\.members\.length, sponsor\)/,
+    "the workplace tiles are shown to a member of a group small enough to subtract a colleague from");
+  const page = code("app/(app)/class/[classroomId]/page.tsx");
+  assert.match(page, /isTeacher && roster\.weakestCases\.length > 0/,
+    "the class-wide weakest cases are shown to a student, who in a small class can subtract their own");
+});
+
+// ── Never ship a credential to the client ────────────────────────────────────
+
+check("a mock paper is rebuilt the same way it was sat, and every figure on the hub says what it rests on", () => {
+  /*
+    Three ways the sitting and the marking, or the figure and its basis, came
+    apart. The pool's forms were ordered on a column the seed leaves at 0, so
+    which form a dictation asked for was the plan's choice, at the sitting and
+    again at the marking. The sitting page took any seed, and the hand-in
+    takes one string of up to 64. And the per-level rings printed a
+    percentage with the only tier text on another section.
+  */
+  const pool = code("lib/progress/exam.ts");
+  assert.match(pool, /forms: \{ orderBy: \[\{ orderIndex: "asc" \}, \{ id: "asc" \}\] \}/,
+    "the exam pool reads a word's forms in an order that ties, so a paper can be marked against another form");
+  const sit = code("app/(app)/exam/[level]/page.tsx");
+  assert.match(sit, /first && first\.length <= 64/,
+    "the sitting page accepts a seed the hand-in refuses, so a paper can be sat and never handed in");
+  const hub = code("app/(app)/exam/page.tsx");
+  assert.match(hub, /EVIDENCE_LABEL\[readiness\.evidence\]/,
+    "the hub prints a confidence ring per level with no evidence tier beside it");
+});
+
 check("no secret carries a NEXT_PUBLIC_ prefix", () => {
   const secrets = /NEXT_PUBLIC_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD)/g;
   for (const file of [...ALL, "middleware.ts", "next.config.ts", ".env.example"]) {
@@ -933,7 +971,7 @@ check("a word is asked for finished, in one place, and the two clip versions agr
   const route = code("app/api/tts/route.ts");
   assert.match(
     route,
-    /text = spokenText\(body\.text\.trim\(\)\.slice\(0, MAX_CHARS\)\)/,
+    /text = spokenText\(clip\(body\.text\.trim\(\), MAX_CHARS\)\)/,
     "the speech route asks the service for the text as typed rather than as a finished utterance",
   );
   assert.match(
@@ -3688,6 +3726,62 @@ check("a cap is charged to the learner, never to their address alone", () => {
 });
 
 // ── A photograph is read, never believed ─────────────────────────────────────
+
+check("a word a model suggested reaches no learner but the one who kept it", () => {
+  /*
+    CLAUDE.md says a model-suggested row is "never a scanned page's answer,
+    never a headline's headword, never the word of the day, never lent a
+    sentence", and names `vouchable` as the whole of the guard. `vouchable`
+    only stands on the paths through `matchEstonianForm`. The word of the day
+    read the whole dictionary by gloss with no such filter and fell back to
+    any row at all; the mock exam's pool admits unbanded entries from B1; and
+    `createLexeme`, a public Server Action, took the band and the part of
+    speech off the wire, so any account could file an invented word as an A1
+    noun for every banded picker in the app to hand to other learners.
+
+    Three arms. `createLexeme` sets the band and the part of speech itself; a
+    picker that admits an unbanded row excludes AI rows; and the word of the
+    day does, on both of its reads.
+  */
+  const actions = code("app/actions.ts");
+  const create = actions.slice(
+    actions.indexOf("export async function createLexeme"),
+    actions.indexOf("export async function", actions.indexOf("export async function createLexeme") + 10),
+  );
+  assert.ok(create.length > 100, "app/actions.ts no longer has a createLexeme to check");
+  assert.doesNotMatch(create, /input\.(?:pos|cefr)\b/, "createLexeme writes a band or part of speech its caller chose");
+  assert.match(create, /provenance: "AI"/, "createLexeme no longer marks a model's word as one");
+  assert.match(create, /cefr: null/, "createLexeme no longer leaves a model's word unbanded");
+
+  const unbanded = [...ALL].filter((f) => /\{\s*cefr:\s*null\s*\}/.test(code(f)) && /prisma\.lexeme\./.test(code(f)));
+  assert.ok(unbanded.length >= 1, "no picker admits an unbanded row, so this arm checks nothing");
+  // On the expression that admits the unbanded row, not somewhere in the
+  // file: a file that imports the fragment and spreads it into one branch of
+  // a ternary passed the first version of this with the other branch open.
+  const open = unbanded.filter((f) => {
+    const text = code(f);
+    return [...text.matchAll(/\{\s*cefr:\s*null\s*\}/g)]
+      .some((m) => !/\.\.\.VOUCHED_ROW\b/.test(text.slice(Math.max(0, m.index! - 120), m.index)));
+  });
+  assert.deepEqual(open, [], `${open.join(", ")} admits an unbanded dictionary row and never excludes a model's suggestion`);
+
+  const wordOfDay = code("lib/progress/wordOfDay.ts");
+  assert.ok(
+    (wordOfDay.match(/\.\.\.VOUCHED_ROW\b/g) ?? []).length >= 2,
+    "the word of the day reads the dictionary without refusing a model's suggestion on both of its reads",
+  );
+
+  // And the rows written before `createLexeme` stopped taking a band: a
+  // builder fix reaches no deployment already holding one, so the seed clears
+  // them, above `--only-if-empty`'s early return, and touches nothing else.
+  const seed = code("prisma/seed.ts");
+  const cleared = seed.indexOf("clearModelBands(prisma)");
+  assert.ok(cleared >= 0, "the seed never takes the band off a word a model suggested");
+  assert.ok(cleared < seed.indexOf('"--only-if-empty"'), "the band is cleared below --only-if-empty's early return, which a seeded deployment never passes");
+  const repair = /export async function clearModelBands[\s\S]*?\n\}/.exec(code("prisma/repair.ts"));
+  assert.ok(repair, "prisma/repair.ts has no clearModelBands");
+  assert.match(repair[0], /SET cefr = NULL\s+WHERE provenance = 'AI'/, "clearModelBands writes something other than the band, or not only on a model's rows");
+});
 
 check("a word read off a photograph reaches a card only through the dictionary", () => {
   /*
@@ -7807,7 +7901,7 @@ check("a malformed argument to a server action is refused, not thrown or stored"
   const source = code("app/actions.ts");
 
   assert.match(
-    source, /const capped = \(value: unknown, max: number\): string =>\s*text\(value\)/,
+    source, /const capped = \(value: unknown, max: number\): string =>\s*(?:clip\()?text\(value\)/,
     "`capped` calls a string method on whatever it is handed, so every caller of it throws on a non-string",
   );
 
@@ -22550,11 +22644,25 @@ check("putting a word aside moves a date and grades nothing", () => {
     const next = defer.indexOf("\nexport ", from + 1);
     const body = defer.slice(from, next === -1 ? undefined : next);
     assert.match(
-      body, /due: row\.untilAt/,
-      `${what} pulls cards forward without matching the date the deferral wrote, `
-      + "so a card FSRS had honestly put further out comes back early.",
+      body, /\bgiveBack\(tx,/,
+      `${what} gives cards back without going through giveBack, which is the one place `
+      + "that matches the date the deferral wrote and returns each card to where the wait found it.",
     );
   }
+  /*
+    And the one way back matches that date, and puts a card no earlier than the
+    date it had before the push: a card due in two days that the wait moved
+    comes back in two days rather than tonight.
+  */
+  const back = defer.slice(defer.indexOf("async function giveBack"));
+  assert.match(
+    back.slice(0, 2500), /due: row\.untilAt/,
+    "giveBack reaches cards the wait did not put on its date, so a card FSRS had put further out comes back early",
+  );
+  assert.match(
+    back.slice(0, 2500), /readPriorDues\(row\.priorDues\)/,
+    "giveBack sets every card it moved to now, so a card due after tonight comes back early",
+  );
 
   /*
     AND A SECOND PRESS MAY NOT SHORTEN A WAIT, which is the same rule read
