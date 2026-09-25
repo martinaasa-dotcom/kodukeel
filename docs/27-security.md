@@ -553,6 +553,7 @@ grep the client bundle:
 ```
 CI_CANARY=canary-CI_CANARY-must-not-ship \
 GROQ_API_KEY=canary-GROQ_API_KEY-must-not-ship \
+GEMINI_API_KEY=canary-GEMINI_API_KEY-must-not-ship \
 SUPABASE_SERVICE_ROLE_KEY=canary-SUPABASE_SERVICE_ROLE_KEY-must-not-ship \
 npx next build
 grep -rEho "canary-[A-Z_]+-must-not-ship" .next/static   # must print nothing
