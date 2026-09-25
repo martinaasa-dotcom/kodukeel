@@ -774,9 +774,11 @@ likely. A failed send therefore spends the slot: somebody misses one evening's l
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
 is what people unsubscribe over.
 
-**A letter says how long is left, not how many days were missed.** `daysAway` is read by the
-scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
-than theirs to be handed.
+**A letter says how long is left, not how many days were missed.** The days away are read by the
+scheduler (`letterOwed`, against `AWAY_DAYS`) and never handed to a letter at all: the figure is
+the guilt, and it is ours to decide with rather than theirs to be handed. `ComebackInput` used to
+carry it as `daysAway` under a comment saying it pitched the first line, and nothing read it; a
+field a letter takes is now one the letter reads, asserted, so the figure has no door to a page.
 
 **And the run could not get past the door, so no letter ever went out on a hosted deployment.**
 `/api/email/send` was left off the gate's public list on the argument that it gates itself, which
@@ -822,10 +824,10 @@ answers rather than a second name. `lib/estonian/terms.ts` is the one table of w
 called, and it is **deliberately partial**: a point is in it only where there is a term a class
 actually uses, and `grammarTerm()` returning nothing is the honest answer for `irony` rather than a
 cue to invent one. `grammar.ts` still holds no Estonian and its tripwire is unchanged, which is why
-the terms live next door rather than in the prose. The invariant is that every case and every part
-of the verb carries the name a class uses, anchored on a member access rather than on the word,
-because a file declaring `caseEt: string` in an interface and never rendering it satisfied the
-first version of it. **A verb point keeps its `alsoCalled`** and a case has none: "the conditional"
+the terms live next door rather than in the prose. The invariant is that the table is total, that every case and every part
+of the verb carries the name a class uses, and it asks the table rather than any screen: its first
+version read screens for a `caseEt` field and was satisfied by a file declaring one in an interface
+and never rendering it. Whether the name reaches a screen is the Latin-name sweeps' question, below. **A verb point keeps its `alsoCalled`** and a case has none: "the conditional"
 and "the past participle" are categories an English speaker has a concept for and can look up,
 where "the inessive" is a translation of a translation to somebody who has met neither.
 
@@ -906,8 +908,10 @@ interpolates a value into the same run is the stated residual**. Made to fail th
 string label, on a run of JSX text and on a heading array.
 
 **Two modules are exempt and the reason is a standing invariant rather than an oversight.**
-`lib/estonian/grammar.ts` and `lib/estonian/exceptions.ts` explain a case at length and are asserted
-to hold no Estonian letter, which is what stops this app inventing a form inside a sentence about
+`lib/estonian/grammar.ts` and the notes in `lib/estonian/exceptions.ts` explain a case at length
+and are asserted to hold no Estonian letter (the second only since this was found to be prose and no
+check: the module needs the letters in `VOWELS`, so the test reads `KIND_NOTES` and `FAMILY_TITLES`
+rather than the file), which is what stops this app inventing a form inside a sentence about
 forms. The tripwire is `[õäöüšž]`, so `omastav` and `osastav` would slip past it while breaking what
 it is for, and would name five cases one way and the nine `-ütlev` ones the other on one page. The
 way out is to describe the case rather than name it, "the partial object form" for `osastav`, which
@@ -4075,10 +4079,17 @@ holds the worst of it by an order of magnitude, 2,295 such pairs, and five, six 
 stay in the same range as each other, 187, 149, 136, `istuma` and `astuma`, `hammas` and `lammas`,
 `ehitama` and `esitama`. Eight letters is where the count first drops by more than three times, to
 43, so a same-length substitution needs eight letters before it is read as a slip rather than as the
-wrong word; a letter inserted or dropped keeps the old floor of four, because it does not spell a
-coincidental second word the way a swapped one does. Eight is safer rather than safe: `valutama`
+wrong word. Eight is safer rather than safe: `valutama`
 and `valetama` are both real Estonian verbs at exactly that length, and a length floor can only push
-the risk down to where it stops being the common case, not remove it.
+the risk down to where it stops being the common case, not remove it. **A letter inserted or dropped
+is held to the same eight**, which it was not: it kept a floor of four on the claim that such a slip
+does not spell a coincidental second word, and the same script counts that claim false, 498
+four-letter answers one insertion or deletion from another, 303 at five, 134 at six, 80 at seven and
+34 at eight, `kuulma` and `kuulama`, `õpetaja` and `lõpetaja`. The substitution floor already accepts
+43 pairs at eight and refuses the hundreds below, so the two kinds of slip are held to one standard
+(`TYPO_LENGTH_CHANGE_FLOOR`). What it costs is `tooas` forgiven for `toas`: a real slip on a short
+word is marked wrong and comes back sooner, which is the cheaper of the two mistakes, since a wrong
+word graded Hard is a recall written into the one table that is never repaired.
 
 **Two faults in it were invisible to every unit test and turned up in the first rounds anybody
 drove**, which is the argument for `scripts/test-flash.mjs` rather than for more unit tests. The
@@ -4700,8 +4711,11 @@ a screen belongs. And the verdict band was drawn at ten hours a week measured ag
 *optimistic* end of the range while the note under it quoted the distance at five found hours a
 week, so 335 of the 704 combinations a learner could click said "It fits, but only with study
 outside this app" over a sentence putting the date three years out. Both read
-`FOUND_HOURS_PER_WEEK` now, and the band sits at the pessimistic end, which makes those two
-sentences the same claim rather than two answers to one question. A deadline already gone is its
+`FOUND_HOURS_PER_WEEK` now, and the band and the note are drawn against one `found`, which makes
+those two sentences the same claim rather than two answers to one question. The band sits at the
+near end of the distance, on purpose and after first sitting at the far one: a learner who reached
+the last level in the fewer hours is the one who reaches the next in the fewer, so "it fits" means
+the near end of the range lands inside the date, and the note prints the whole range under it. A deadline already gone is its
 own verdict rather than a division by no time: it used to floor at one week and print "in 0 weeks
 your daily goal puts in about 0.4 of those hours" over a note asking for 1 099 hours a week. Two
 invariants and an exhaustive sweep of every combination in `plan.test.ts` hold all three.
@@ -4952,8 +4966,11 @@ loops were measured against a real database rather than reasoned about, and they
 the same answer. The offline replay asked "have I seen this grade before" once per item, which is
 the one query in it that does not depend on what the previous grade did: a `Review` id is generated
 on the client and the only rows that loop writes are its own, so the answer for a whole batch is one
-read. The rest of it stays per item, because that part genuinely is what the grade before left
-behind. The word importer asked the dictionary about every pasted row on its own, five hundred of
+read. The card it grades is read once for the batch too, and what the grade before left behind is
+carried forward rather than read again: `writeGrade` returns exactly the scheduling it wrote, so the
+copy in hand after each write is the row a fresh read would return, and `replay.itest.ts` chains
+three grades of one card against three calls to the scheduler. Fifty grades went from 51 card reads
+to 1; the writes stay per item, because they are the grades. The word importer asked the dictionary about every pasted row on its own, five hundred of
 them at the cap, and `@@unique` on `(lemma, pos)` means one `IN` answers all of it; what is left per
 word is `addCardsFor`, which takes a lock and is half the cost, and collapsing that would mean a
 second path that writes cards. And `addUnitToDeck` was measured and left alone: twenty words and
@@ -5533,7 +5550,10 @@ which is what made that sentence reachable on the first evening alone.
 take a day id from their caller, which is JSON off the wire whatever the type says, and neither
 checked it: a forged tick would have moved the whole course onto a day two hundred evenings ahead,
 and `startCourseDay` would have built a deck out of that day's words. `dayIsInPlay` is the guard on
-both, the day reached or the one it opens on to, and it is asserted. It leans in turn on every day
+both, and it is asserted: a day at or before the day reached, or the next one once the day reached
+is finished. That last condition is the half that was missing. Every tick moves the day reached, so
+"or the next one" alone let a caller tick tomorrow, then the day after, and walk the programme one
+request at a time with nothing done. It leans in turn on every day
 having at least one step the log cannot prove, which `course.test.ts` checks over all 273 evenings:
 a day of nothing but a meet and a review would finish itself the moment its words were met
 somewhere else and walk the learner through the programme.
@@ -6465,8 +6485,9 @@ neighbour.
 
 **How long is decided by the word's own band and there are two answers.** A word at or below the
 learner's level goes back three days: a bad evening is a bad evening. A word above it did not
-arrive late, it arrived early, so it waits for the band it belongs to, and `recordCourseLevel` is
-where it comes back, since that is the one writer of a level and a level moves about twice a year.
+arrive late, it arrived early, so it waits for the band it belongs to, and it comes back where
+a level is written, `recordCourseLevel` and a level check's `saveResult` both, and a level moves
+about twice a year.
 The date behind that is a backstop and is **deliberately shorter than a band actually takes**:
 `lib/assessment/plan.ts` puts a band at 180 hours and up, which at five found hours a week is most
 of a year, and a backstop that honest is a word deleted with extra steps. A term, and if it comes
@@ -6724,6 +6745,17 @@ watching them at all, `test-restore.mjs` among them. The source of truth is the 
 `scripts/*.mjs` that declares a suite is one CI runs, and anything else is named in
 `scripts/lib/suites.mjs` with a written reason: a suite that needs a live key CI deliberately does
 not carry, or one another job runs against a fixture of its own.
+
+**And a check narrower than the sentence describing it is a claim nobody is checking.** Read against
+the checks it describes, this file named seven that asserted less than it said. The card-insert count
+summed two files while a third inserter sat in `lib/srs/backfill.ts`, locked but unseen. The
+`safeMessage` sweep knew one variable name and one file, so `catch (e)` and a second `"use server"`
+module both passed. One frequency list title was held to its table and three were not. The exam
+distance rule read a single line, and the plan panel builds its sentence over two. The errand's
+`stageOf` rule matched one field name. The course gate sliced before it looked, so its guard could
+not fire. And `exceptions.ts` was said to hold no Estonian letter while nothing asked. Each now
+reads what the prose says, and each was made to fail on a planted fault first. When you write
+"asserted" here, open the check and read what it actually asserts.
 
 **A browser refusing to autoplay is a fact about the gesture, and one module knows it.** Every
 browser blocks `HTMLAudioElement.play()` on a page the reader has not touched yet and rejects it
@@ -9689,6 +9721,13 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   the server: `undefined` as a locale means the deployment's, so on a machine set to en-US Today's
   greeting line read "Sunday, August 30" to somebody in Tartu who writes "pühapäev, 30. august".
   `components/LocalDate.tsx` renders what the server wrote and lets the browser replace it on mount.
+  **And a client component is not exempt, because its first render is on the server too.** Four
+  client files formatted a date in render, and on Today a browser set to Estonian wrote "24. sept"
+  over the server's "Sep 24" during hydration: React 19 reported error #418 and rebuilt the page on
+  the client, for the readers this app is for. Found by opening every route with an Estonian locale.
+  A client file hands the date to `LocalDate`, or to `useReaderDate` where it has to be a string,
+  and both write `stableDate` until mount; the invariant that used to skip client files now holds
+  them to that.
   A separate rule from the day boundary above, because the fix is different: a zone can be stored and
   handed to the server, and a locale is a list of preferences only the browser has.
 - **And a date written on a server is written in the learner's zone, not the deployment's.**
@@ -10146,6 +10185,16 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   keeps its clock**, and that limitation stays on the statement with its reasoning: the paper is
   imitating a timed state examination and untimed practice of a timed paper measures something
   else (`docs/16-exam.md`).
+- **And there were three clocks, not two, and nothing was counting them.** Target gave eight seconds
+  a question falling to three and a half, all three typed into the session, so the rule above held
+  for two rounds and the third was the same WCAG 2.2.1 failure, on a practice round where nothing
+  argues for the limit being fixed. Its allowance is a fraction of a second, which `secondsFor`
+  would round away, so `lib/games/target.ts` multiplies the whole allowance by `multiplierFor`
+  instead, and the start, the step and the floor keep their shape at every pace. The rule is
+  asserted now, off the shape of a countdown rather than a list of rounds: a session stepping a
+  setter to zero from a timer has to be handed its length by a page that reads the pace. Made to
+  fail on Target first. A stopwatch counting up, which is Match and the picture board, is not a
+  limit and is not asked.
 
 ## Model configuration
 
@@ -10550,6 +10599,19 @@ from `lib/assessment/`. A learner meeting this app for the first time cannot tel
 is the one that is confused, so the machine is never the judge. The overall level is the **average**
 of the measured skills, floored (ADR-020 amendment 2).
 
+**And the browser marks for the feedback and the server marks for the record.** `recordAssessment`
+took a credit, a skill and a band per answer from the browser and believed all three, so a hand-made
+request could post full credit everywhere or call an A1 question C1, and that level reached Today,
+the plan and a sponsor's cohort view. It takes the paper's seed, when it was built, and what was
+done with each question now: the option picked by its text, the words typed, the rating given.
+`markSitting` builds the same paper again, takes the skill and band off each item, counts an item
+once, refuses an id the paper does not hold, and marks through `responseFor`, which is the function
+the runner marks with. A skip counts on listening alone. The deck is read as it stood when the paper
+was built, because a card added mid-sitting takes its word out of the pool and the rebuilt paper
+would hold different questions. Which questions were asked stays the browser's call, since a band
+nobody was asked is not scored. That is ADR-022's rule for the mock exam, applied to the check that
+sets the level.
+
 **And the claim is kept in the code rather than printed under every question.** Each item used to
 carry an `ItemSource` and each answered question ended in "A recorded sentence. No Estonian on this
 screen was written by this app or by an AI." Eighty times a paper, under a screen that had already
@@ -10773,8 +10835,11 @@ builds off those: the ten regular cases from the genitive stem, or the present, 
 imperative from the stored first person (ADR-005 amendment 1). Nothing is written; `written.ts`
 stays pure because both derivation modules are, which is what lets the marker and the screen agree
 on which spellings count without either reaching a database. The rule is stricter and had to be checked for
-being *too* strict: the thinnest entry in the dictionary accepts ten spellings and none accepts only
-its headword, which is asserted rather than remembered.
+being *too* strict: every entry with principal parts accepts at least ten spellings, over the whole
+dictionary the seed writes, and an adverb or a phrase, which does not inflect, accepts its own. That
+is asserted rather than remembered, and it was not: the test asked for more than one, over the
+expansion alone, so the commit that dropped the plural cases took the thinnest entry from ten to three
+and passed. It asks for ten over all 6,153 now, and fails on that commit.
 
 **A confidence figure carries the evidence behind it.** `lib/exam/readiness.ts` predicts a score per
 part and then a chance of clearing sixty percent, as a logistic whose spread widens as the evidence
@@ -10831,6 +10896,16 @@ rather than against the branch. `npm run audit:merge` reads the other side's
 added lines and cannot see this at all, since nothing was reverted: what says so
 is `npm run build` and `npm run test:invariants` on main itself.
 
+**A new invariant goes in a file of its own under `scripts/invariants/`.** Every check used to be
+appended above the summary at the foot of `scripts/test-invariants.ts`, so two branches that each
+added one conflicted on the same lines whatever they were about: on 2026-09-25 that was nearly
+every open pull request against nearly every other. A file there exports one named function that
+is handed the suite's own helpers (`scripts/lib/invariantKit.ts`) and registers its checks through
+them, so a new check touches a new file and collides with nobody. The loader sits beside `code()`
+rather than at the foot, and it fails a file that registers no check, because an empty or misnamed
+export reads exactly like a file whose checks all passed. The checks already in the big file stay
+where they are; moving 424 of them would be one enormous conflict to end the small ones.
+
 When somebody else's work overlaps yours, one of them has to go. Keep the one
 that is safer or more precise and **delete the other outright** rather than
 leaving both: their fixture entry reaches four lapses in twelve reviews and
@@ -10873,7 +10948,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `splitOnForm`, `inTeachingOrder`, `SELF_GRADES`, `DrillLink`, `lockDeck`, `caseReviewsFor`,
 `alsoRight`, `shownForms`, `spellingFor`, `repairCardSpelling`, `ALWAYS_CAPITAL`, `SIDES`,
 `PARTS`,
-`PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyGlosses`, `forgetSettings`,
+`PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyOptions`, `forgetSettings`,
 `staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `--text-2xs`, `--landing-nav`, `derivedVerbForms`,
 `conjugatedForms`, `pres1sgFrom`, `useAudioPrefs`, `fetchClip`, `playFeedback`, `VOICES`,
 `nomPl`, `EMOJI_LEMMAS`, `acceptedUses`, `markDescription`, `prepareClip`, `SPEECH_PACES`, `paceFrom`,

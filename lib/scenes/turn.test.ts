@@ -1010,6 +1010,32 @@ describe("a word the learner negated", () => {
   });
 
   /*
+    A full stop ends a clause as surely as a comma does. Split on the comma
+    alone, a no in the sentence before cancelled the yes in this one, and a
+    learner who wrote "Ei. Mul on valu." was answered as though they had said
+    nothing.
+  */
+  it("meets it where the no is a sentence of its own before the yes", () => {
+    for (const text of ["Ei. Mul on valu.", "Ei! Mul on valu", "Ma ei tea. Mul on valu."]) {
+      expect(readTurn(text, beat({ shape: "sentence" }), ctx).reading, text).toBe("complete");
+    }
+  });
+
+  /*
+    And a refusal with a letter wrong is still a refusal. The marker reads
+    `valut` as `valu` understood anyway, and the negation was looked for under
+    the dictionary's spelling rather than the learner's, so it was never found:
+    the no met the beat and went into the log as the word produced.
+  */
+  it("does not meet it where the negated word was misspelled", () => {
+    for (const text of ["ma ei taha valut", "ma ei taha valuu"]) {
+      const seen = readTurn(text, beat(), ctx);
+      expect(seen.reading, text).not.toBe("complete");
+      expect(seen.satisfiedBy, text).toEqual([]);
+    }
+  });
+
+  /*
     And a beat that takes a no is never refused by one: "Kas te soovite piima?"
     accepts `ei` as the whole answer, and reading that as a turn which met
     nothing would be the app refusing the word it asked for.
@@ -1069,5 +1095,40 @@ describe("answering a yes-or-no question in its own words", () => {
     expect(seen.reading).toBe("complete");
     const still = readTurn("valu on", beat({ needs: [{ kind: "lemma", oneOf: ["palavik"] }] }), context({ previous: "Valu on." }));
     expect(still.reading).toBe("echo");
+  });
+});
+
+/*
+  "I'M LOOKING FOR IT" ASKS THE WAY.
+
+  Somebody stopping a stranger says they are looking for the station as often
+  as they ask where it is, and the street corner's own `where` beat names
+  `otsima` among its topic words for that turn. Held to a question alone, the
+  marker read it as a learner who had not finished and gave them a look and a
+  wait for the most ordinary sentence in the scene. Read against the real beat
+  and the harvest's own entries, so a catalogue edit that drops the second way
+  of asking fails here.
+*/
+describe("the way is asked for by saying what you are looking for", () => {
+  it("meets the street corner's question beat", async () => {
+    const { sceneById } = await import("./catalogue");
+    const { HARVESTED } = await import("@/prisma/data/harvested");
+    const scene = sceneById("tee-kusimine")!;
+    const where = scene.beats.find((b) => b.id === "where")!;
+    const entries: DictEntry[] = HARVESTED
+      .filter((w) => w.lemma === "otsima" || w.lemma === "pank" || w.lemma === "kus")
+      .map((w) => ({
+        lemma: w.lemma, pos: w.pos, cefr: w.cefr ?? null, parts: w.parts,
+        extraForms: w.extraForms ?? [], usages: [],
+      }));
+    const lexicon = buildLexicon(entries);
+    const bank = HARVESTED.find((w) => w.lemma === "pank")!;
+    const seen = context({
+      lexicon,
+      data: new Map([["place", new Set([bank.lemma, bank.parts.PART_SG!, bank.parts.GEN_SG!])]]),
+    });
+    expect(readTurn("ma otsin panka", where, seen).reading).toBe("complete");
+    // And a question still does, which is the half that was already right.
+    expect(readTurn("kus on pank?", where, seen).reading).toBe("complete");
   });
 });

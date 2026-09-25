@@ -455,7 +455,8 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     arrives underlined with the dictionary under it, so the cost of one is a
     word to notice rather than a word that stops the conversation.
   */
-  const stretched = tokens.filter((word) => !context.lexicon.forms.has(word));
+  // Counted as different words: a line saying one new word twice holds one.
+  const stretched = [...new Set(tokens.filter((word) => !context.lexicon.forms.has(word)))];
   if (stretched.length > NEW_WORDS) failed.push("stretch");
 
   if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");
@@ -818,7 +819,7 @@ export function disagrees(text: string, context: GateContext): boolean {
  * a model asked for a role-play line writes a role-play line, and that the
  * learner reads every word of it with the dictionary underneath.
  */
-const MAX_SENTENCES = 5;
+export const MAX_SENTENCES = 5;
 
 /**
  * How long a composed line may be, which is not how long a recorded one may be.
@@ -865,10 +866,16 @@ export const MAX_COMPOSED_WORDS = 55;
  */
 function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boolean {
   const trimmed = text.trim();
-  const sentences = trimmed.split(/[.!?]+\s+/).filter(Boolean).length;
+  /*
+    A sentence ends on a stop followed by the next one's capital. Splitting on
+    every stop and a space counted `3. korrusel` and `15. mail`, which is how
+    Estonian writes an ordinal and a date, as two sentences each.
+  */
+  const sentences = trimmed.split(/[.!?]+\s+(?=[\p{Lu}„"«])/u).filter(Boolean).length;
   const shape = QUESTION_SHAPE[beat.move];
   return sentences >= 1 && sentences <= MAX_SENTENCES
-    && /[.!?]"?$/.test(trimmed)
+    // A closing quote may follow the stop, Estonian's own `“` included.
+    && /[.!?]["“”»]?$/.test(trimmed)
     && !/[*_`#[\]]/.test(text)
     && tokens.length > 0
     && tokens.length <= MAX_COMPOSED_WORDS

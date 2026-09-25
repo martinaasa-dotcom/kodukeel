@@ -39,6 +39,9 @@ describe("estonianTokens", () => {
 
   it("handles curly quotes", () => {
     expect(estonianTokens("Use ‘toas’ instead")).toContain("toas");
+    // English puts the stop or the comma inside the closing quote, and the word is still being presented as a form.
+    expect(estonianTokens('Use "raamatusse." here.')).toContain("raamatusse");
+    expect(estonianTokens("The form is 'raamatusse,' not raamat.")).toContain("raamatusse");
   });
 
   it("ignores plain English prose", () => {

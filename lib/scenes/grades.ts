@@ -230,6 +230,46 @@ export function gradesFor(
   return out;
 }
 
+/** A card that could carry a scene's grade, as `finishScene` reads it. */
+export interface GradeableCard {
+  readonly id: string;
+  readonly cardType: string;
+  readonly targetCase: string | null;
+  readonly lexeme: { readonly lemma: string } | null;
+}
+
+/**
+ * Which of the learner's cards each grade lands on, or null where they hold
+ * none: the case card for the case the beat asked, the production card
+ * otherwise, and the lowest id where two would do.
+ *
+ * `finishScene` asked this one grade at a time, a `findFirst` per grade
+ * ordered on the id, so a conversation that met ten requirements made ten
+ * round trips before its first write, on the screen that says how it went.
+ * It reads every candidate once now and this is the match, pure so the choice
+ * is tested rather than trusted to a query that no longer exists. The lowest
+ * id is what that query's `orderBy` chose, so a learner holding two cards for
+ * one word has the same one graded as before.
+ */
+export function cardsForGrades(
+  grades: readonly Pick<SceneGrade, "lemma" | "grammCase">[],
+  cards: readonly GradeableCard[],
+): (string | null)[] {
+  const key = (lemma: string, grammCase: string | null) =>
+    grammCase ? `${lemma}\u0000CASE_FORM\u0000${grammCase}` : `${lemma}\u0000PRODUCTION`;
+  const lowest = new Map<string, string>();
+  for (const card of cards) {
+    if (!card.lexeme) continue;
+    const k = card.cardType === "CASE_FORM" && card.targetCase
+      ? key(card.lexeme.lemma, card.targetCase)
+      : card.cardType === "PRODUCTION" ? key(card.lexeme.lemma, null) : null;
+    if (k === null) continue;
+    const held = lowest.get(k);
+    if (held === undefined || card.id < held) lowest.set(k, card.id);
+  }
+  return grades.map((grade) => lowest.get(key(grade.lemma, grade.grammCase)) ?? null);
+}
+
 /**
  * The words this run needed and the learner did not have.
  *
@@ -294,6 +334,12 @@ export function offerFor(
    * `beat.needs`. A hint may not be a word the learner has just used.
    */
   met: readonly boolean[] = [],
+  /**
+   * The scene's verbs, so a beat that wants a value off the card is not
+   * pointed at with a bare infinitive (`Lexicon.infinitives` has one key per
+   * verb the dictionary can inflect).
+   */
+  verbs: { has(lemma: string): boolean } = new Set<string>(),
 ): string | null {
   /*
     THE HINT IS FOR WHAT IS STILL MISSING, NEVER FOR WHAT THEY ALREADY SAID.
@@ -322,7 +368,14 @@ export function offerFor(
         drew one of the beat's own words, that is the word.
       */
       const drawn = card?.props.flatMap((prop) => prop.lemmas).find((lemma) => need.oneOf.includes(lemma));
-      return drawn ?? need.oneOf[0] ?? null;
+      /*
+        And a word a person could say on its own. Every word on the list meets
+        the beat, so the first one that is not a verb is as much an answer as
+        the first one, and `Sobima?`, `Täitma?` and `Maksma?` were handed over
+        where `Jah?`, `Allkiri?` and `Raha?` stood beside them. A list of
+        nothing but verbs keeps its first, since the word is still the answer.
+      */
+      return drawn ?? need.oneOf.find((lemma) => !verbs.has(lemma)) ?? need.oneOf[0] ?? null;
     }
     if (need.kind === "case") return need.lemma;
   }
@@ -340,8 +393,15 @@ export function offerFor(
 
     Never a question word: `Kuhu?` handed to somebody who was just asked
     `Kuhu te sõidate?` is the question said back at them with nothing added.
+
+    And never a verb. A topic lists the verb the question is asked with, and
+    the dictionary form of a verb said as a question is nothing anybody says:
+    a learner stuck on where they were travelling was handed `Sõitma?`, and
+    six beats across the catalogue did the same (`Aitama?`, `Õppima?`,
+    `Alustama?`, `Ostma?`). The thing the question is about is a noun on the
+    same list, `Buss?`, `Koht?`, `Keel?`, `Päev?`.
   */
-  const pointer = beat.topic.find((lemma) => !questionWords.has(lemma));
+  const pointer = beat.topic.find((lemma) => !questionWords.has(lemma) && !verbs.has(lemma));
   return pointer ?? null;
 }
 
