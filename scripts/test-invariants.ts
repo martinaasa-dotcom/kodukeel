@@ -1186,6 +1186,28 @@ check("Ekilex's Estonian explanation has a column of its own", () => {
   );
 });
 
+check("a full reseed replaces only principal parts, and never a hand-corrected entry", () => {
+  /*
+    `npm run db:seed` without `--only-if-empty` is what the production reload
+    workflow runs, and it deleted every form on every row it matched: the
+    table a live Ekilex lookup had retrieved went with it, and a row somebody
+    corrected by hand had its gloss and principal parts put back to the seed's.
+    The same rule `lib/dict/upsert.ts` keeps for a hand edit. Driven against a
+    database in `prisma/seedWrite.itest.ts`; this holds the two lines.
+  */
+  const write = code("prisma/seedWrite.ts");
+  const deletes = [...write.matchAll(/form\.deleteMany\(\{[\s\S]*?\}\s*\)/g)].map((m) => m[0]);
+  assert.ok(deletes.length > 0, "prisma/seedWrite.ts no longer deletes the forms it replaces; the check is looking at the wrong file");
+  for (const d of deletes) {
+    assert.match(d, /formType:\s*\{\s*in:\s*\[\.\.\.PRINCIPAL_FORM_TYPES\]/,
+      "the seed deletes forms beyond the principal parts, which takes the forms a live Ekilex lookup retrieved");
+  }
+  assert.match(write, /ON CONFLICT \(lemma, pos\) DO UPDATE SET[\s\S]*?WHERE "Lexeme"\."editedBy" IS NULL[\s\S]*?RETURNING/,
+    "the seed's upsert overwrites an entry somebody corrected by hand");
+  assert.doesNotMatch(code("prisma/seed.ts"), /form\.deleteMany/,
+    "prisma/seed.ts deletes forms itself rather than through writeSeedEntries");
+});
+
 check("a principal part is one form, whatever Ekilex sends", () => {
   const mapper = code("lib/ekilex/mapper.ts");
   assert.match(
@@ -10025,6 +10047,9 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     join("prisma", "schema.prisma"),
     join("prisma", "seed.ts"),
     join("prisma", "columns.ts"),
+    // The seed's write, split out of seed.ts so a test can drive it, and that
+    // test, whose fixtures write null into both: no model is upstream of either.
+    join("prisma", "seedWrite.itest.ts"),
     // Read here: the choice of language, and the four screens that print it.
     join("lib", "collections", "glossLanguage.ts"),
     join("lib", "collections", "glossLanguage.test.ts"),
