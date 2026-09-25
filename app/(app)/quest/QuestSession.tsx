@@ -201,45 +201,15 @@ export function QuestSession({
       cases.
     */
     if (!got) hints.noteMiss();
-    // A hint is paid for: see `lib/questions/hints.ts`.
-    const grade = Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3;
-    const duration = Date.now() - shownAt.current;
-    const answeredAt = new Date().toISOString();
-    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
-    const reviewId = crypto.randomUUID();
-    /*
-      A GRADE THAT CANNOT REACH THE SERVER IS QUEUED, AND THE ROUND GOES ON.
-
-      This awaited the action bare, so with the network gone the rejection left
-      `busy` set and the index where it was: the round froze on the card with
-      every control disabled, and the answer was lost. Every other round
-      catches it; this one goes to the same outbox with the time it was
-      answered, which is what ADR-015 promises the daily path.
-    */
-    try {
-      // Anything queued earlier goes first, so the scheduler hears the answers in order.
-      await drainFirst();
-      const res = await gradeCard(
-        card.id, grade, duration, answeredAt,
-        card.targetCase ?? undefined, reached ?? undefined, reviewId,
-      );
-      if (!res.ok) throw new Error(res.error);
-    } catch {
-      try {
-        await enqueueGrade({
-          id: reviewId,
-          cardId: card.id,
-          rating: grade,
-          durationMs: duration,
-          reviewedAt: Date.parse(answeredAt),
-          slot: card.targetCase ?? undefined,
-          reachedSlot: reached ?? undefined,
-        });
-        refreshOutbox();
-      } catch {
-        // No IndexedDB either: the answer is lost, and the round still goes on.
-      }
-    }
+    await gradeCard(
+      // A hint is paid for: see `lib/questions/hints.ts`.
+      card.id, Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3,
+      Date.now() - shownAt.current, undefined,
+      card.targetCase ?? undefined, reached ?? undefined,
+    ).catch(() => {
+      // A grade that did not reach the server costs this one card's rep, not
+      // the round: uncaught, the round stopped on this card for good.
+    });
     setPicked(null);
     setRevealed(false);
     setTyped("");

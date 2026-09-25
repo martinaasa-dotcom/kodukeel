@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { addScanToDeck, deleteScan, renameScan } from "@/app/actions";
 import { Button } from "@/components/Button";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * The three things you can do to a saved page: add its words, rename it, or
@@ -29,7 +30,8 @@ export function ScanActions({ scanId, title, pending }: {
 
   const add = () => {
     start(async () => {
-      const result = await addScanToDeck(scanId);
+      const result = await addScanToDeck(scanId).catch(() => null);
+      if (!result) { setMessage(NOT_REACHED); return; }
       setMessage(
         !result.ok
           ? result.error
@@ -43,9 +45,9 @@ export function ScanActions({ scanId, title, pending }: {
 
   const rename = () => {
     start(async () => {
-      const result = await renameScan(scanId, draft);
-      if (!result.ok) {
-        setMessage(result.error);
+      const result = await renameScan(scanId, draft).catch(() => null);
+      if (!result || !result.ok) {
+        setMessage(result ? result.error : NOT_REACHED);
         return;
       }
       setRenaming(false);
@@ -55,9 +57,9 @@ export function ScanActions({ scanId, title, pending }: {
 
   const remove = () => {
     start(async () => {
-      const result = await deleteScan(scanId);
-      if (!result.ok) {
-        setMessage(result.error);
+      const result = await deleteScan(scanId).catch(() => null);
+      if (!result || !result.ok) {
+        setMessage(result ? result.error : NOT_REACHED);
         return;
       }
       router.push("/scan");

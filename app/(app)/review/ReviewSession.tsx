@@ -1112,7 +1112,7 @@ export function ReviewSession({
     // A pick is final the instant it is made, right or wrong, so this stops
     // the clock here rather than at whenever the button is finally pressed.
     producedAt.current = Date.now();
-  }, [card, chosen, cheer]);
+  }, [card, chosen, cheer, answerLanguage]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1241,7 +1241,7 @@ export function ReviewSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look]);
+  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look, answerLanguage]);
 
   if (wasEmptyAtStart) {
     return (

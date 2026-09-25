@@ -11,6 +11,7 @@ import {
   removeMyDeckWord, renameMyDeck,
 } from "@/app/actions";
 import type { DeckSummary, DeckWordRow } from "@/lib/progress/decks";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * CREATING, RENAMING, REMOVING A SHELF, AND SEEING WHAT IS ON IT.
@@ -61,8 +62,8 @@ function NewDeck({ onCreated }: { onCreated: (deck: DeckSummary) => void }) {
   const submit = () => {
     if (!name.trim() || pending) return;
     start(async () => {
-      const result = await createMyDeck(name);
-      if (!result.ok) { setError(result.error); return; }
+      const result = await createMyDeck(name).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       setError(null);
       setName("");
       onCreated(result.deck);
@@ -125,8 +126,8 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
     if (pending) return; // a blur chasing an Enter submit must not fire this twice
     if (!name.trim() || name === deck.name) { setEditing(false); setName(deck.name); return; }
     start(async () => {
-      const result = await renameMyDeck(deck.id, name);
-      if (!result.ok) { setError(result.error); return; }
+      const result = await renameMyDeck(deck.id, name).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       setError(null);
       setEditing(false);
       onRenamed(name.trim());
@@ -141,8 +142,8 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
 
   const remove = () => {
     start(async () => {
-      const result = await deleteMyDeck(deck.id);
-      if (!result.ok) { setError(result.error); return; }
+      const result = await deleteMyDeck(deck.id).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       onDeleted();
       router.refresh();
     });
