@@ -1,7 +1,7 @@
 /**
  * The role card, which is not a decoration.
  *
- * **The learner never plays themselves** (`docs/19-situations.md` §3). They are
+ * **The learner never plays themselves** (`docs/21-situations.md` §3). They are
  * handed a card: you are a patient, your throat has hurt since Tuesday, you can
  * come any afternoon except Wednesday. Two reasons, and the second is the one
  * that matters legally.
@@ -562,8 +562,8 @@ export function dealtNumbers(card: RoleCard | null): ReadonlySet<string> {
 }
 
 /**
- * Every spelling a clock time on a card is accepted in: `14:00`, `14.00`, and
- * on the hour `14` and `2`. One builder, because the card and a time the
+ * Every spelling a clock time on a card is accepted in: `14:00`, `14.00`,
+ * `9:30` and `9.30` without the zero, and on the hour `14` and `2`. One builder, because the card and a time the
  * learner named themselves (`timeFromText`) have to be accepted the same way.
  */
 export function timeLiterals(value: string): string[] {
@@ -571,6 +571,9 @@ export function timeLiterals(value: string): string[] {
     value,
     value.replace(":", "."),
     stripLeadingZero(value),
+    // And the dot without the zero, `9.30`, which is how the time is written
+    // here as often as with a colon: a card dealing 09:30 refused it.
+    stripLeadingZero(value.replace(":", ".")),
     ...(value.endsWith(":00") ? [value.slice(0, 2), stripLeadingZero(value.slice(0, 2))] : []),
   ];
 }

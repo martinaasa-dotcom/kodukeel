@@ -37,12 +37,24 @@ export const MAX_MESSAGE_CHARS = 8_000;
 /** The warning mark the chat hook puts in front of a failure it writes into the transcript. */
 export const FAILURE_MARK = "⚠";
 
-/** A reply with the dictionary's trailing note taken off, and a failure taken out whole. */
+/**
+ * A reply with the dictionary's trailing note taken off, and a failure taken out whole.
+ *
+ * A warning can also arrive UNDER text she did write: the route appends one
+ * when a reply hits its ceiling or the stream breaks, and the chat hook
+ * appends one when the connection drops mid-answer. Those are trailing lines
+ * opening on the mark, so they go with the dictionary's note, in whichever
+ * order the two landed. A mark inside a line of her own prose is hers.
+ */
 export function saidByAnu(content: string): string | null {
   const trimmed = content.trim();
   if (!trimmed || trimmed.startsWith(FAILURE_MARK)) return null;
   const lines = trimmed.split("\n");
-  while (lines.length > 0 && /^UNVERIFIED:/.test(lines[lines.length - 1]!.trim())) lines.pop();
+  const appWrote = (line: string) => {
+    const at = line.trim();
+    return at === "" || /^UNVERIFIED:/.test(at) || at.startsWith(FAILURE_MARK);
+  };
+  while (lines.length > 0 && appWrote(lines[lines.length - 1]!)) lines.pop();
   const kept = lines.join("\n").trim();
   return kept || null;
 }

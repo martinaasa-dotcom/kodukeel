@@ -1,16 +1,17 @@
+import { caseAsked } from "@/lib/srs/slots";
 import { prisma } from "@/lib/db";
 import { computeStreak } from "@/lib/stats/streak";
-import { caseAccuracy } from "@/lib/stats/history";
+import { caseAccuracy, matureRecall } from "@/lib/stats/history";
 import { dayClock } from "@/lib/time/day";
 import { SETTING_KEYS } from "@/lib/settings/store";
 import { assessReadiness, type PastAttempt, type ReadinessSignals } from "@/lib/exam/readiness";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import {
-  ATTEMPT_WINDOW, MATURE_STATE, partPercentages, skillEvidenceFrom,
+  ATTEMPT_WINDOW, partPercentages, skillEvidenceFrom,
 } from "@/lib/progress/exam";
 import { knownLemmasFrom } from "@/lib/progress/summary";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
-import { daysSince, summariseCohort, type CohortInput, type CohortSummary } from "./cohort";
+import { classWideCases, daysSince, summariseCohort, type CohortInput, type CohortSummary } from "./cohort";
 
 /**
  * What a teacher needs to see about a class, in three queries rather than three
@@ -73,27 +74,35 @@ export interface ClassSummary {
   entries: RosterEntry[];
   /** Cases the class as a whole is weakest at — what to teach next week. */
   weakestCases: { grammCase: string; accuracy: number; total: number }[];
+  /**
+   * The same question for a letter, which may carry no member's figure:
+   * counted only over cases enough students answered (`classWideCases`), with
+   * the reader left out. The screen reads `weakestCases`.
+   */
+  sharedCases: { grammCase: string; accuracy: number; total: number }[];
   totalReviewsThisWeek: number;
   activeThisWeek: number;
 }
 
-export async function classRoster(classroomId: string, now = new Date()): Promise<ClassSummary> {
+export async function classRoster(
+  classroomId: string, now = new Date(), opts: { leaveOut?: string } = {},
+): Promise<ClassSummary> {
   const members = await prisma.classroomMember.findMany({
     where: { classroomId },
     orderBy: { joinedAt: "asc" },
   });
   if (members.length === 0) {
-    return { entries: [], weakestCases: [], totalReviewsThisWeek: 0, activeThisWeek: 0 };
+    return { entries: [], weakestCases: [], sharedCases: [], totalReviewsThisWeek: 0, activeThisWeek: 0 };
   }
 
   const ids = members.map((m) => m.ownerId);
   const weekAgo = new Date(now.getTime() - 7 * 86_400_000);
   const historyStart = new Date(now.getTime() - HISTORY_DAYS * 86_400_000);
 
-  const [reviews, known, zones] = await Promise.all([
+  const [reviews, known, zones, lasts] = await Promise.all([
     prisma.review.findMany({
       where: { reviewedAt: { gte: historyStart }, ownerId: { in: ids } },
-      select: { reviewedAt: true, rating: true, targetCase: true, ownerId: true },
+      select: { reviewedAt: true, rating: true, targetCase: true, slot: true, ownerId: true },
     }),
     /*
       WORDS, NOT CARDS, WHICH IS WHAT THE COLUMN SAYS.
@@ -128,7 +137,19 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
       where: { ownerId: { in: ids }, key: SETTING_KEYS.timeZone },
       select: { ownerId: true, value: true },
     }),
+    /*
+      THE LAST REVIEW EVER, NOT THE LAST ONE INSIDE THE WINDOW. The history
+      above is read over `HISTORY_DAYS`, so a student who last reviewed 121
+      days ago had no row in it and was shown as never having reviewed at
+      all, which is the fault `workplaceRoster` below reads all time to avoid.
+    */
+    prisma.review.groupBy({
+      by: ["ownerId"],
+      where: { ownerId: { in: ids } },
+      _max: { reviewedAt: true },
+    }),
   ]);
+  const lastByOwner = new Map(lasts.map((row) => [row.ownerId, row._max.reviewedAt]));
 
   const cardsByOwner = new Map<string, { state: number; lemma: string | null }[]>();
   for (const card of known) {
@@ -151,13 +172,14 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
     const entry = byOwner.get(review.ownerId);
     if (!entry) continue;
     entry.dates.push(review.reviewedAt);
-    entry.caseReviews.push({ targetCase: review.targetCase, rating: review.rating });
+    // The case asked, as every learner's own panel reads it (`caseAsked`).
+    entry.caseReviews.push({ targetCase: caseAsked(review), rating: review.rating });
     if (review.reviewedAt >= weekAgo) entry.weekCount++;
   }
 
   const entries: RosterEntry[] = members.map((member) => {
     const stats = byOwner.get(member.ownerId)!;
-    const last = stats.dates.reduce<Date | null>((a, b) => (!a || b > a ? b : a), null);
+    const last = lastByOwner.get(member.ownerId) ?? null;
     const weakest = caseAccuracy(stats.caseReviews, MIN_STUDENT_CASE_REVIEWS)[0];
     return {
       ownerId: member.ownerId,
@@ -180,14 +202,15 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
   */
   entries.sort((a, b) => b.reviewsThisWeek - a.reviewsThisWeek || a.displayName.localeCompare(b.displayName));
 
+  // Each answer under the case it asked, read once for the board and the letter,
+  // so the two cannot name different cases as the class's weakest.
+  const asked = reviews.map((r) => ({ ownerId: r.ownerId, targetCase: caseAsked(r), rating: r.rating }));
   return {
     entries,
     // The class-wide picture, for a lesson plan. entries[].weakestCase is the
     // per-student one, for who to sit next to during it.
-    weakestCases: caseAccuracy(
-      reviews.map((r) => ({ targetCase: r.targetCase, rating: r.rating })),
-      10,
-    ).slice(0, 5),
+    weakestCases: caseAccuracy(asked, 10).slice(0, 5),
+    sharedCases: classWideCases(asked, opts.leaveOut ?? null),
     totalReviewsThisWeek: entries.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
     activeThisWeek: entries.filter((e) => e.reviewsThisWeek > 0).length,
   };
@@ -348,16 +371,15 @@ export async function workplaceRoster(
       if (known.has(row.lemma)) vocabulary[row.cefr as ExamLevel].known += 1;
     }
 
-    const mature = ownReviews.filter((r) => r.stateBefore >= MATURE_STATE);
-    const recalled = mature.filter((r) => r.rating >= 3).length;
+    const mature = matureRecall(ownReviews);
     const placement = placementBy.get(member.ownerId);
     const last = lastBy.get(member.ownerId) ?? null;
 
     const signals: ReadinessSignals = {
       vocabulary,
       accuracy: {
-        pct: mature.length === 0 ? 0 : Math.round((recalled / mature.length) * 100),
-        reviews: mature.length,
+        pct: mature.pct,
+        reviews: mature.reviews,
       },
       // Empty, and not because there is nothing to put here. See the header.
       cases: [],
