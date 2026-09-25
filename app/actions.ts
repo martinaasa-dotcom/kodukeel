@@ -4119,9 +4119,18 @@ export async function submitExam(input: unknown) {
   );
   const result = markPaper(paper, answered);
 
-  const grades = gradesFrom(result).slice(0, REPLAY_BATCH);
-  if (grades.length > 0) {
-    const now = Date.now();
+  /*
+    IN PIECES, NOT THE FIRST PIECE.
+
+    `applyGradeBatch` takes at most `REPLAY_BATCH` grades, and this used to
+    meet that by slicing the paper's grades to fifty. A B2 paper carries up to
+    54 items on a card and a C1 paper 60, so for a learner who held those words
+    the last of them, which is the reading part since the marks are flattened
+    in the order the parts are sat, never reached the log at all.
+  */
+  const grades = gradesFrom(result);
+  const now = Date.now();
+  for (let at = 0; at < grades.length; at += REPLAY_BATCH) {
     /*
       AN ID THAT IS STABLE ACROSS A RESUBMIT, WHICH IS WHAT MAKES THE BATCH
       IDEMPOTENT AT ALL.
@@ -4135,7 +4144,7 @@ export async function submitExam(input: unknown) {
       the sitting was taken at, so seed and card together name the grade.
     */
     const stable = (cardId: string) => `exam:${seed}:${cardId}`;
-    await applyGradeBatch(ownerId, grades.map((g) => ({
+    await applyGradeBatch(ownerId, grades.slice(at, at + REPLAY_BATCH).map((g) => ({
       id: stable(g.cardId),
       cardId: g.cardId,
       rating: g.rating as RatingValue,
