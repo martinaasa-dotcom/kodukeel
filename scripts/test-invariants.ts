@@ -5279,8 +5279,15 @@ check("a check a state cannot reach is waived by number, never by a printed word
     );
     // A waiver with no number, or with a zero, is a comment wearing a
     // function's clothes: it would leave the target where it was.
+    // A named count is read through to the positive literal the same file
+    // binds it to, so a constant shared by the checks it waives is still a
+    // number the tally can subtract, and one bound to nothing is not.
     for (const waiver of source.matchAll(/\babsent\(\s*([^,]+),/g)) {
-      assert.match((waiver[1] ?? "").trim(), /^[1-9]\d*$/, `${file} waives a count that is not a positive number`);
+      let count = (waiver[1] ?? "").trim();
+      if (/^[A-Z_][A-Z0-9_]*$/.test(count)) {
+        count = source.match(new RegExp(`\\bconst\\s+${count}\\s*=\\s*(\\d+)\\s*;`))?.[1] ?? count;
+      }
+      assert.match(count, /^[1-9]\d*$/, `${file} waives a count that is not a positive number`);
     }
   }
 });
