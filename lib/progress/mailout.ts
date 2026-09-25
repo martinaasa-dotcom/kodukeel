@@ -60,7 +60,7 @@ import type { DeadlineInput } from "@/lib/email/letters/deadline";
 import type { ClassroomInput } from "@/lib/email/letters/classroom";
 import type { WorddayInput } from "@/lib/email/letters/wordday";
 import type { MilestoneInput } from "@/lib/email/letters/milestone";
-import type { ShieldInput } from "@/lib/email/letters/shield";
+import { shieldToTell, type ShieldInput } from "@/lib/email/letters/shield";
 
 /** A high-water mark to write once a letter has really gone. */
 export interface Remember {
@@ -427,22 +427,15 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
         ]);
 
         /*
-          A day a shield covered that no letter has mentioned. Day keys sort
-          lexically, which is what makes "newer than the last one we said" a
-          string comparison; a row that will not parse means we know of none,
-          which is said by saying nothing.
+          Yesterday, if a shield covered it and no letter has said so. The
+          letter is about yesterday and nothing older, which `shieldToTell`
+          says at length.
         */
-        let shieldSpent: string | null = null;
-        try {
-          const parsed: unknown = JSON.parse(marks[SETTING_KEYS.streakShieldDates] ?? "[]");
-          const told = marks[SETTING_KEYS.shieldToldFor] ?? "";
-          const days = Array.isArray(parsed)
-            ? parsed.filter((d): d is string => typeof d === "string" && d > told)
-            : [];
-          shieldSpent = days.sort().at(-1) ?? null;
-        } catch {
-          shieldSpent = null;
-        }
+        const shieldSpent = shieldToTell(
+          marks[SETTING_KEYS.streakShieldDates],
+          marks[SETTING_KEYS.shieldToldFor] ?? "",
+          clock.dayKey(clock.shiftDay(now, 1)),
+        );
 
         /*
           AND A LEVEL WHOSE WORDS ARE ALL GRADUATED, WHICH IS FIVE COUNTS AND
@@ -821,16 +814,11 @@ export async function letterInputFor(
     }
 
     const summary = await dailySummary(ownerId, now, clock);
-    let covered: string | null = null;
-    try {
-      const parsed: unknown = JSON.parse(marks[SETTING_KEYS.streakShieldDates] ?? "[]");
-      const told = marks[SETTING_KEYS.shieldToldFor] ?? "";
-      covered = (Array.isArray(parsed) ? parsed.filter((d): d is string => typeof d === "string" && d > told) : [])
-        .sort()
-        .at(-1) ?? null;
-    } catch {
-      covered = null;
-    }
+    const covered = shieldToTell(
+      marks[SETTING_KEYS.streakShieldDates],
+      marks[SETTING_KEYS.shieldToldFor] ?? "",
+      clock.dayKey(clock.shiftDay(now, 1)),
+    );
     if (!covered) return null;
 
     /*
