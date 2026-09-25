@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { COPY_LABEL, useCopy } from "@/components/useCopy";
 import { Explain } from "@/components/Explain";
 
 const STEPS = [
@@ -24,7 +24,7 @@ const UNLOCKS = [
 ];
 
 export function EkilexSetupGuide() {
-  const [copied, setCopied] = useState(false);
+  const [copied, copy] = useCopy();
   // Empty on purpose, matching .env.example: the value is never rendered
   // whole, since the assignment shape "EKILEX_API_KEY=<8+ chars>" is exactly
   // what CI's credential scan watches for on this key. Ekilex keys carry no
@@ -82,15 +82,12 @@ export function EkilexSetupGuide() {
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>.env</span>
           <button
             type="button"
-            onClick={() => {
-              void navigator.clipboard.writeText(snippet);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
+            onClick={() => copy(snippet)}
             className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
-            style={{ color: copied ? "var(--good-ink)" : "var(--ink-3)" }}
+            style={{ color: copied === "copied" ? "var(--good-ink)" : "var(--ink-3)" }}
           >
-            {copied ? <><Check size={13} aria-hidden /> Copied</> : <><Copy size={13} aria-hidden /> Copy</>}
+            {copied === "copied" ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
+            <span aria-live="polite">{copied === "idle" ? "Copy" : COPY_LABEL[copied]}</span>
           </button>
         </div>
         {/*

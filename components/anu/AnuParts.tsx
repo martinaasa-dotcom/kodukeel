@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { CheckCheck, Plus } from "lucide-react";
+import { CheckCheck, CloudOff, Plus } from "lucide-react";
 import { createLexeme, addToDeck } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button } from "@/components/Button";
@@ -145,6 +145,42 @@ export function Starters({ compact = false, lead, onPick }: {
           {compact ? c.short : c.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+/**
+ * Anu needs a connection, said before a question is typed rather than after it
+ * fails. The conversation already on screen is stored with the page and needs
+ * nothing from the network, so only asking again is blocked; `useAnuChat`'s
+ * `send` is what refuses, and this is the sentence saying why, drawn by every
+ * surface that holds the hook.
+ */
+export function AnuOffline({ online, compact = false }: { online: boolean; compact?: boolean }) {
+  /*
+    The status region is mounted whether or not there is anything to say. A
+    live region inserted into the page already holding its text is announced
+    by some screen readers and not others, and the network going mid-
+    conversation is exactly when a person using one needs to hear it, so the
+    region waits empty and the notice is what changes inside it.
+  */
+  return (
+    <div role="status">
+      {!online && (
+        <Card tone="sky">
+          <div className="flex items-start gap-3">
+            <CloudOff size={18} aria-hidden style={{ color: "var(--sky-ink)" }} />
+            <div>
+              <p className="font-semibold" style={{ color: "var(--ink)" }}>Anu needs a connection.</p>
+              {!compact && (
+                <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+                  What she has already said stays here. Ask her again once you are back online.
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
@@ -360,12 +396,17 @@ export function CheckStarter({ compact = false, onOpen }: { compact?: boolean; o
 }
 
 export function SentenceCheck({
-  open, estonian, meaning, streaming, compact = false, onOpen, onClose, onEstonian, onMeaning, onSubmit,
+  open, estonian, meaning, streaming, online, compact = false, onOpen, onClose, onEstonian, onMeaning, onSubmit,
 }: {
   open: boolean;
   estonian: string;
   meaning: string;
   streaming: boolean;
+  /**
+   * Required, because `send` refuses offline: a Check button left enabled
+   * would look live and do nothing, which is the fault `AnuOffline` exists for.
+   */
+  online: boolean;
   compact?: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -414,7 +455,7 @@ export function SentenceCheck({
           variant="primary"
           className="shrink-0"
           onClick={onSubmit}
-          disabled={streaming || estonian.trim().length < 3}
+          disabled={streaming || !online || estonian.trim().length < 3}
         >
           <CheckCheck size={15} aria-hidden /> Check it
         </Button>

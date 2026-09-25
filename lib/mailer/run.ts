@@ -61,9 +61,11 @@ import { mailerConfig, send } from "./transport";
  *
  * A ceiling on the run rather than on the audience, so a deployment that grows
  * spreads its evening over several invocations instead of asking one function
- * to hold four thousand sends inside a platform timeout. The schedule fires
- * hourly, the evening window is four hours wide, and a learner who is owed a
- * letter and does not get one this hour gets it the next.
+ * to hold four thousand sends inside a platform timeout. The schedule this
+ * wants is hourly, where the evening window is four hours wide and a learner
+ * owed a letter this hour gets it the next; the schedule a Hobby plan allows
+ * is once a day (`vercel.json`, README), where one not sent today is owed
+ * again tomorrow.
  */
 export const MAX_PER_RUN = 200;
 

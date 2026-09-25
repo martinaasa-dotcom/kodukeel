@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
-import { candidatesFor, resolveOneWord, resolveScannedItems } from "./resolveScan";
+import { candidatesFor, resolveOneWord, resolveScannedItems, vouchScanItems } from "./resolveScan";
 
 /**
  * The gate between a photograph and the deck, run against a real dictionary.
@@ -157,5 +157,32 @@ describe("candidatesFor", () => {
 
   it("asks nothing of the database for an empty page", async () => {
     expect(await candidatesFor([])).toEqual([]);
+  });
+});
+
+describe("vouchScanItems", () => {
+  /*
+    What a saved page says about the dictionary is asked again rather than
+    taken from the request: a row corrected to another spelling, or a request
+    pointing a word at any id it likes, gets the match its own spelling earns.
+  */
+  it("keeps none of the dictionary fields the client sent", async () => {
+    const decoy = await prisma.lexeme.findFirstOrThrow({ where: { lemma: DECOY } });
+    const [kept, stranger] = await vouchScanItems([
+      {
+        et: "itest-scan-toas", en: "", lexemeId: decoy.id, lemma: DECOY,
+        translation: "decoy", matchedAs: "made up", cefr: "C1",
+      },
+      {
+        et: "itest-scan-nothing-like-it", en: "the page's own", lexemeId: decoy.id,
+        lemma: DECOY, translation: "decoy", matchedAs: null, cefr: "A1",
+      },
+    ]);
+    expect(kept?.lemma).toBe(LEMMA);
+    expect(kept?.lexemeId).not.toBe(decoy.id);
+    expect(kept?.cefr).toBe("A1");
+    expect(stranger?.lexemeId).toBeNull();
+    expect(stranger?.lemma).toBeNull();
+    expect(stranger?.en).toBe("the page's own");
   });
 });

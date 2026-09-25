@@ -24,6 +24,7 @@ import {
   unseenWhere,
 } from "@/lib/srs/reviewQueue";
 import { include, withChoices, type CardRow } from "./cards";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Review" };
 
@@ -39,10 +40,10 @@ export const dynamic = "force-dynamic";
 export default async function ReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ case?: string; unit?: string; scan?: string; module?: string }>;
+  searchParams: Promise<{ case?: string | string[]; unit?: string | string[]; scan?: string | string[]; module?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const params = await searchParams;
+  const params = firstParams(await searchParams);
   const { case: targetCase, unit: unitId, scan: scanId } = params;
   /*
     THE MODULE'S CLOSING ROUND INTRODUCES NOTHING THE MODULE HAS NOT TAUGHT.
