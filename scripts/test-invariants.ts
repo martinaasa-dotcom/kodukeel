@@ -7811,12 +7811,21 @@ check("nothing reaches a paid provider without going through the ledger", () => 
     the meter inside `ask()` a fix rather than a patch: every future caller of
     it inherits the meter instead of having to remember it.
   */
-  const entryPoints = /\b(openWithFallback|completeWithImage)\s*\(/;
+  /*
+    The grader's own chain is an entry point too. `callChainForJson` walks the
+    provider list itself rather than through `openWithFallback`, and the three
+    graders built on it are metered by whoever calls them, so a new caller of
+    any of the four is a path to a paid model that this check could not see.
+    All of today's callers comply; the widening is for the next one.
+  */
+  const entryPoints =
+    /\b(openWithFallback|completeWithImage|callChainForJson|gradeSentence|gradeComposition|gradeDescription)\s*\(/;
   const callers = ALL.filter(
     (f) =>
       !/\.(test|itest)\.tsx?$/.test(f) &&
       f !== "lib/tutor/provider.ts" &&
-      entryPoints.test(read(f)),
+      f !== "lib/tutor/grader.ts" &&
+      entryPoints.test(code(f)),
   );
   assert.ok(callers.length >= 3, `expected the provider callers, found ${callers.length}`);
 
