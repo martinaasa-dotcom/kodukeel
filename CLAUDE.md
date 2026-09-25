@@ -5339,8 +5339,9 @@ over, which is also the right thing to vary: meeting a word is the one part of a
 scales with how far in you are. `MINUTES_PER_WORD` falls from 1.1 at A1 to 0.7 at C1, because a C1
 learner meeting `hoolimata` has the stem, the case and the register already, so the same fifteen
 minutes carries five new words at A1 and seven at C1. Five is also the Learn ladder's own batch, so a
-beginner's evening is one lap of it. Measured over all 273 evenings: thirteen to sixteen minutes,
-median fourteen, 67 hours from nothing to C1.
+beginner's evening is one lap of it. Measured over the 273 evenings the ladder had when the model
+was set: thirteen to sixteen minutes, median fourteen, 67 hours from nothing to C1. `course.test.ts`
+holds every evening the ladder has now to the same fifteen minutes.
 
 **A conversation replaces the reading and both rounds rather than joining them**, which is what keeps
 the evening fifteen minutes on the night it happens: `TALK_MINUTES` is defined as exactly what it
@@ -5694,7 +5695,7 @@ opening. So `rounds` takes what the evening before dealt and passes over it on t
 preferred rather than refused, since early in a level the supported rounds may be one. And a unit of
 verbs that pins the table on one evening does not meet it on the rotation the next, now that A1
 carries the table on its rotation: the drill after it stands in. Both asserted, and the rule that no
-pair repeats where the words allow another stands over all 289 evenings unchanged.
+pair repeats where the words allow another stands over every evening of the ladder unchanged.
 
 **And then the same rule was asked of every evening of every level, because a beginner is not the
 only person who can be handed something nobody told them.** A2's first evening dealt a case sprint
@@ -5730,7 +5731,7 @@ The board waits for six pictured nouns, the board's own size, since inside
 the module its top-up is the taught words and five of them is the empty state; the first board falls
 on `kodu`. The sprint tops up from any met word, as Match and Listening do, so an evening with
 nothing due and nothing lapsed is not an empty sprint. `course.test.ts` rebuilds the ledger from the
-syllabus and the readings as a second opinion and walks all 289 evenings against it.
+syllabus and the readings as a second opinion and walks every evening against it.
 
 **And the second pass over the same evenings found four more, which is the argument for walking
 them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the
@@ -8251,8 +8252,9 @@ Measured over the catalog: six of the eight `ask` beats have no recorded questio
 their topic words, because a lexicographer writes a usage to illustrate a word rather than to ask
 about one, and six of the thirteen other beats have no usage at all. So on a keyless deployment, or
 one whose allowance has gone, more than half of every conversation was the desk claiming not to
-have understood a turn that was fine. `wayOut` in `lib/scenes/line.ts` is the one function that
-decides between the two, and it takes the turn's *reading* rather than a boolean, so the decision
+have understood a turn that was fine. `wayOut` in `lib/scenes/line.ts` was the one function that
+decided between the two (it is `replyFor` in `lib/scenes/reply.ts` now, and the English rung went
+with the next paragraph), and it takes the turn's *reading* rather than a boolean, so the decision
 cannot be made by a caller that has not marked the turn: `unrecognised` and `offtarget` get the
 repair phrase in character, and everything else gets a fourth rung. That rung is **English and not
 in character**: the other side made their move and we could not put it into Estonian, so the screen
@@ -11444,8 +11446,9 @@ suite that presses the flip and knows no other shape, and on the helper learning
 ordinary afternoon of working on this, said `export produced a backup (0 KB)` and stopped. The
 export was working perfectly. That line sends whoever reads it to the one part of the app the
 suite exists to protect, and the answer was the clock. It reads the 429 now and says the
-allowance is spent and that restarting the server clears it, since the limiter is per instance
-and in memory. Still a failure rather than a waiver: a run that could not take a backup has not
+allowance is spent. It used to add that restarting the server clears it, which stopped being true
+when the export's cap moved into Postgres (`checkSharedRateLimit`), so it says to wait or empty the
+local `RateLimit` table instead. Still a failure rather than a waiver: a run that could not take a backup has not
 checked backup and restore.
 
 **And a counter the app prints in two places was read in one, so finishing a session read as an app

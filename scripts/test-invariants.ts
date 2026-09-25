@@ -2812,7 +2812,9 @@ check("no code path updates a review", () => {
     fixture can always write the row it wants in the first place.
   */
   for (const file of ALL) {
-    assert.equal(/review\.update/.test(code(file)), false, `${file} updates a review`);
+    // Every way to change a row, not only the obvious one: an upsert and raw
+    // SQL rewrite a review as surely as `review.update` does.
+    assert.equal(/review\.(update|upsert)|UPDATE\s+"Review"/.test(code(file)), false, `${file} updates a review`);
   }
 });
 
@@ -2853,18 +2855,20 @@ check("a grade made offline keeps the time it was actually answered", () => {
     reviews all happened at breakfast, which is worse than losing them: FSRS
     would fit its intervals to a history that never happened.
   */
-  assert.match(code("lib/offline/outbox.ts"), /reviewedAt/, "the queue no longer records when a grade was made");
+  // Comment-blind: the outbox's own notes name both of these.
+  const outbox = code("lib/offline/outbox.ts");
+  assert.match(outbox, /reviewedAt/, "the queue no longer records when a grade was made");
   // Clamped in *both* directions: a device clock set ahead would schedule a card
   // into the past, and one set years back would blow up the card's stability.
-  assert.match(code("lib/offline/outbox.ts"), /clampReviewedAt/, "the queue no longer clamps a device clock");
+  assert.match(outbox, /clampReviewedAt\(/, "the queue no longer clamps a device clock");
 
-  const replay = read("lib/srs/replay.ts");
+  const replay = code("lib/srs/replay.ts");
   assert.equal(
     /reviewedAt:\s*new Date\(\)/.test(replay),
     false,
     "the replay re-stamps a grade",
   );
-  assert.match(code("lib/srs/replay.ts"), /orderForReplay/, "the replay no longer applies grades in the order they happened");
+  assert.match(replay, /orderForReplay\(/, "the replay no longer applies grades in the order they happened");
 });
 
 // ── Progress is derived, never stored (ADR-014) ──────────────────────────────
@@ -3313,7 +3317,7 @@ check("nothing about an individual survives into the metrics", () => {
   const retention = read("lib/stats/retention.ts");
   assert.doesNotMatch(retention, /ownerId|email|userId/, "the retention module learned who somebody is");
 
-  const route = read("app/api/metrics/route.ts");
+  const route = code("app/api/metrics/route.ts");
   // The route groups by owner and must, so what is checked is that it never
   // hands one onward: the grouped rows are reduced to activity before use.
   assert.match(code("app/api/metrics/route.ts"), /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
@@ -3793,7 +3797,8 @@ check("a word read off a photograph reaches a card only through the dictionary",
   const route = read("app/api/scan/route.ts");
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
 
-  assert.match(code("lib/dict/resolveScan.ts"), /matchEstonianForm/, "the resolver stopped using the vouched matcher");
+  const resolver = code("lib/dict/resolveScan.ts");
+  assert.match(resolver, /matchEstonianForm\(/, "the resolver stopped using the vouched matcher");
 
   const search = read("lib/dict/search.ts");
   assert.match(
@@ -4664,9 +4669,6 @@ check("the chat says which model actually replied", () => {
 });
 
 check("Anu's prose is cleaned on its way to the learner", () => {
-  assert.match(code("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
-  // Anchored on the construction in code, not the word: the route's own
-  // comment names ProseStream, and that alone satisfied the first version.
   assert.match(code("app/api/tutor/route.ts"), /new ProseStream\(/, "the humanize pass is gone");
 });
 
@@ -4731,7 +4733,7 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
     exactly this kind of question, which is the whole argument for a check
     here rather than a stronger request in the prompt.
   */
-  const route = read("app/api/tutor/route.ts");
+  const route = code("app/api/tutor/route.ts");
   assert.match(route, /chatEstonianTokens\(/, "the chat route no longer extracts candidate Estonian tokens");
   assert.match(route, /matchEstonianForm\(/, "the chat route no longer checks tokens against the dictionary");
   assert.match(code("app/api/tutor/route.ts"), /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
@@ -9076,10 +9078,10 @@ check("nothing reaches a paid provider without going through the ledger", () => 
       f !== "lib/tutor/grader.ts" &&
       entryPoints.test(code(f)),
   );
-  assert.ok(callers.length >= 3, `expected the provider callers, found ${callers.length}`);
+  assert.ok(callers.length >= 6, `expected the provider callers, found ${callers.length}`);
 
   for (const file of callers) {
-    const source = read(file);
+    const source = code(file);
     /*
       AUTHORIZED IN THE SAME FILE, WITHOUT EXCEPTION.
 
@@ -9699,13 +9701,13 @@ check("a call is booked only once the request is worth answering", () => {
     four of that learner's ten for the day. Every paid route validates first.
   */
   /*
-    Asked as the rule is stated rather than as a way round it. The first
-    version passed a refusal after the booking whenever `releaseReservation(`
-    appeared anywhere later in the file, and every paid route releases on its
-    provider-failure path, so a 400 moved below the booking without a release
-    of its own passed on all seven. It also asserted that the text before the
-    booking was not empty, which every file with an import satisfies. So a
-    refusal of the request itself may not come after the booking at all.
+    Read as an order, not as a presence. The first version passed whenever a
+    `releaseReservation(` appeared anywhere after the booking, which every
+    paid route has on its failure path, and whenever the file had anything in
+    front of the booking, which its imports always are: moving the tutor's
+    booking above its body check, the exact fault above, left both passing.
+    So a refusal of the request itself (400, 413, 422) may only come before
+    the first booking.
   */
   const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f))
     .map((file) => ({ file, src: code(file) }))
@@ -11109,7 +11111,7 @@ check("first run is exercised, which means two suites run before the fixture", (
  * `.next/static` for it, which is the check CLAUDE.md leads with. It is only
  * as good as the list of variables it marks, and that list was seven names
  * somebody typed: `GROQ_API_KEY` and `GEMINI_API_KEY` joined the provider
- * chain, `PROVIDER_KEY_ENV` grew to five, and the canary stayed at three of
+ * chain, `PROVIDER_KEY_ENV` grew, and the canary stayed at three of
  * them. A key nothing marks is a key the grep cannot find, so the check would
  * have passed over exactly the two the default free chain holds.
  *
@@ -11146,6 +11148,21 @@ check("every provider key the chain can hold is marked in the credential canary"
     "a variable's canary marker does not carry its own name, so a failure cannot say which leaked",
   );
   assert.ok(assigned.length >= 10, `only ${assigned.length} variables are marked, so this stopped looking`);
+
+  /*
+    And the recipe the security document hands a reader for reproducing this
+    marks variables CI marks. It marked `OPENROUTER_API_KEY` for months after
+    OpenRouter left every chain, so a reader following it proved that a
+    variable nothing reads does not leak, which is a check that cannot fail.
+  */
+  const marked = new Set(assigned.map(([, variable]) => variable));
+  const recipe = [...read(join("docs", "27-security.md")).matchAll(/^([A-Z_]+)=canary-\1-must-not-ship/gm)]
+    .map((m) => m[1]!);
+  assert.ok(recipe.length >= 2, `the security document's canary recipe names ${recipe.length} variables, so this stopped looking`);
+  assert.deepEqual(
+    recipe.filter((v) => !marked.has(v)), [],
+    "docs/27-security.md tells a reader to mark a variable CI's canary does not, so reproducing it proves nothing",
+  );
 });
 
 /**
@@ -11967,7 +11984,7 @@ check("the layers that promise to be pure import no database, React or Next", ()
         assert.doesNotMatch(
           src,
           pattern,
-          `lib/${name}/${file} imports ${what}. That layer is unit tested hermetically, ` +
+          `${file} imports ${what}. That layer is unit tested hermetically, ` +
           "so anything needing the database belongs in lib/progress/ or a route.",
         );
       }
@@ -16620,6 +16637,16 @@ check("the research opt-out is applied in the query, and is where the page says"
     /const not = [\s\S]{0,60}Prisma\.sql`AND e\."ownerId" NOT IN/,
     "the reported conversations no longer exclude anybody, so somebody who asked to be left out is published in the errand table",
   );
+  /*
+    And each clause reaches its query. The three checks above ask that the
+    exclusion is *built*; deleting the `${not}` it is spliced in through left
+    all three passing, with the clause sitting in a variable nothing read.
+  */
+  const built = route.split(/\bconst not = /).slice(1);
+  assert.ok(built.length >= 2, `only ${built.length} exclusion clauses found, so this stopped looking`);
+  for (const [i, after] of built.entries()) {
+    assert.match(after, /\$\{not\}/, `exclusion clause ${i + 1} is built and never spliced into its query`);
+  }
 
   const label = "Anonymous statistics";
   for (const file of ["app/privacy/page.tsx", "app/(app)/settings/page.tsx"]) {
@@ -17480,6 +17507,130 @@ check("a case is named only when one case claims the spelling", () => {
  * nothing in it may name the table at all: a count is a `count`, and a count
  * cannot leak a sentence.
  */
+check("no export of a \"use server\" file takes an owner id from its caller", () => {
+  /*
+    CLAUDE.md: "Nothing in a `\"use server\"` file may take an owner id from its
+    caller." Every export of such a file is a public endpoint and its
+    arguments are JSON off the wire, so an `ownerId` parameter is a way to act
+    as anybody. It was prose, and one action (`advanceCourseStep`) was checked
+    by name. Read off every file that opens with the directive, and every
+    exported function's parameter list, so the next action is held to it too.
+  */
+  const servers = ALL.filter((f) => /^\s*["']use server["']/.test(read(f)));
+  assert.ok(servers.length >= 1, "no \"use server\" file found, so this stopped looking");
+  let exported = 0;
+  for (const file of servers) {
+    const src = code(file);
+    const params = [
+      ...src.matchAll(/export\s+(?:async\s+)?function\s+(\w+)\s*\(([^)]*)\)/g),
+      ...src.matchAll(/export\s+const\s+(\w+)\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>/g),
+    ];
+    for (const [, name, list] of params) {
+      exported += 1;
+      assert.doesNotMatch(
+        list!, /\b(ownerId|userId|learnerId|ownerID)\b/,
+        `${file}: ${name} takes an owner id from its caller. Resolve it with requireUserId() instead`,
+      );
+    }
+  }
+  assert.ok(exported >= 60, `only ${exported} server exports read, so this stopped looking`);
+});
+
+check("every design document a file cites is a document that exists", () => {
+  /*
+    The situations design was cited as number 19 from fourteen files, the
+    schema and this one among them, after it had been renumbered to
+    `docs/21-situations.md`; `docs/19-research-export.md` is a different
+    document, so a reader following the pointer landed on the research export
+    and the section numbers made no sense there. Read across source, scripts
+    and the prose, so a rename fails here rather than in somebody's afternoon.
+  */
+  const citing = [
+    ...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), ...sourceFiles("docs", /\.md$/),
+    "CLAUDE.md", "README.md", "prisma/schema.prisma",
+  ];
+  let cited = 0;
+  for (const file of citing) {
+    for (const [doc] of read(file).matchAll(/docs\/[A-Za-z0-9._-]+\.md/g)) {
+      cited += 1;
+      assert.ok(existsSync(doc), `${file} cites ${doc}, which does not exist`);
+    }
+  }
+  assert.ok(cited >= 100, `only ${cited} citations of a design document found, so this stopped looking`);
+});
+
+check("a mailed sign-in link never changes who is signed in without saying so", () => {
+  /*
+    Login CSRF, stated in CLAUDE.md and held by nothing: the `token_hash`
+    branch of the callback is not tied to the browser that asked, so an
+    attacker's own mailed link opened by a signed-in learner would land them
+    in the attacker's account. The callback ends an existing session and sends
+    them to sign in with `switched=1`, and drops `next`. Read in order: the
+    session check before the verification, the sign-out and the switched
+    redirect inside it, and `next` nowhere in that block.
+  */
+  const cb = code("app/auth/callback/route.ts");
+  const branch = cb.slice(cb.indexOf("tokenHash && type"));
+  assert.ok(branch.length > 0 && cb.includes("tokenHash && type"), "the callback no longer has a token_hash branch this can read");
+  const guard = branch.indexOf("hasSessionCookie(");
+  const verify = branch.indexOf("verifyOtp(");
+  assert.ok(guard >= 0 && verify > guard, "a mailed link is verified before the callback asks whether somebody is already signed in");
+  const block = branch.slice(guard, verify);
+  assert.match(block, /signOut\(/, "a mailed link opened in a signed-in browser no longer ends that session");
+  assert.match(block, /switched=1/, "a mailed link that ends a session no longer says so on the sign-in screen");
+  assert.doesNotMatch(block, /\bnext\b/, "a refused mailed link still follows the next its author chose");
+});
+
+check("every gate that hands out a signed-in identity asks the allowlist", () => {
+  /*
+    REVOKING ACCESS IS IMMEDIATE, AND THE MIDDLEWARE IS NOT THE ONLY READER.
+
+    The middleware signs out an address that has come off the allowlist, and
+    it also lets an "unknown" identity through, because a bad minute at the
+    auth service is not a sign-out. The page, action or route behind it then
+    resolves its own owner, and that read can come back "in" for the address
+    the list no longer names. So every function in `lib/auth/` that accepts a
+    signed-in identity asks the allowlist itself. Read per function, so a new
+    gate that reads the identity has to ask as well.
+  */
+  const gates = ["lib/auth/session.ts", "lib/auth/admin.ts"];
+  let seen = 0;
+  for (const file of gates) {
+    const src = code(file);
+    for (const body of src.split(/\nexport (?:const|async function|function) /).slice(1)) {
+      if (!/who\.state !== "in"/.test(body)) continue;
+      seen += 1;
+      const name = body.slice(0, body.search(/[ (=]/));
+      assert.match(body, /isAllowedEmail\(who\.learner\.email\)/, `${file}: ${name} accepts a signed-in identity without asking the allowlist`);
+    }
+  }
+  assert.ok(seen >= 4, `only ${seen} identity gates found, so this stopped looking`);
+});
+
+check("an archived class is refused by every action that writes to its members", () => {
+  /*
+    ARCHIVING IS A PROMISE THE SCREEN KEPT AND THE ACTIONS DID NOT.
+
+    The class page hides "assign" once a class is archived, and `assignUnit`
+    and `assignHomework` are public endpoints that read the class by id and
+    owner alone, so a teacher's stale tab, or anybody holding the id, could go
+    on writing tasks into every member's list for a class that had been
+    closed. Read off the actions rather than a list of two, so a third action
+    that fans out to a class's members has to decide about archiving too.
+  */
+  const actions = code("app/actions.ts");
+  const bodies = actions.split(/\nexport async function /).slice(1);
+  const fanOut = bodies.filter((b) => /classroomMember\.findMany/.test(b) && /\.createMany\(/.test(b));
+  assert.ok(fanOut.length >= 2, `only ${fanOut.length} actions write to a class's members, so this stopped looking`);
+  for (const body of fanOut) {
+    const name = body.slice(0, body.indexOf("("));
+    assert.match(
+      body, /\.archived\)/,
+      `${name} writes to every member of a class without refusing an archived one`,
+    );
+  }
+});
+
 check("text one person types and another person reads is cleaned, not trimmed", () => {
   /*
     `cleanDisplayName` was written for the roster and reached one of the four
@@ -17555,21 +17706,20 @@ check("a class cannot read a conversation", () => {
 /**
  * A ROUTED PURPOSE ASKS FOR ITS OWN CHAIN, AND NOTHING FAILS IF IT STOPS.
  *
- * Two paid keys are configured for two different reasons: Anu asks Anthropic
- * because Sonnet was the best of everything tested on real Estonian, and scene
- * composition asks Groq because `qwen/qwen3.8-27b` answered 24 of 24 with a
- * finite verb every time at a quarter-second median, for a fortieth of the
- * price, on a path that makes calls by the dozen.
+ * Each purpose was measured for its own job and pinned to what won: Anu on
+ * `TUTOR_MODEL`, scenes on `SCENE_MODELS`, the graders on `GRADER_MODELS`
+ * (see `PURPOSE_CHAINS` for the figures). The models have moved since this
+ * was written and will move again; what this check holds is the split.
  *
  * `resolveProviders()` with no argument is still the whole chain, deliberately,
  * because twenty-odd callers mean "is a model configured at all" by it and none
  * of them is choosing where to send anything. That is also what makes this
  * regression invisible: a route that dropped its `purpose` still compiles,
  * still answers, and still names the model that wrote it in a header nobody
- * watches. What it stops doing is the split. Anu's question gets answered by a
- * model ranked on fourteen-word constrained sentences, or every scene line in
- * every conversation gets billed at Sonnet's rate against a $5 balance, and
- * a Groq outage starts taking Anu down with it.
+ * watches. What it stops doing is the split: Anu's question gets answered by a
+ * model nobody ranked on grammar questions, or every scene line is billed at
+ * whatever the general chain's head costs, and one provider's outage starts
+ * taking the other purposes down with it.
  *
  * Anchored on the call rather than on the import, for the reason five other
  * checks in this file are: a file can import the right function and go on

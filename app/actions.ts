@@ -2705,11 +2705,14 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
   const busy = throttleAction(ownerId, "assignUnit");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    // An archived class takes no more work, which the page says and the action now does.
-    where: { id: classroomId, ownerId, archived: false },
-    select: { id: true, name: true },
+    where: { id: classroomId, ownerId },
+    select: { id: true, name: true, archived: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
+  // The screen hides this for an archived class; the action is a public
+  // endpoint and has to refuse it too, or work lands in members' lists for a
+  // class its teacher has closed.
+  if (classroom.archived) return { ok: false as const, error: "That class is archived." };
 
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "That unit does not exist." };
@@ -2758,11 +2761,14 @@ export async function assignHomework(
   const busy = throttleAction(ownerId, "assignHomework");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    // An archived class takes no more work, which the page says and the action now does.
-    where: { id: classroomId, ownerId, archived: false },
-    select: { id: true, name: true },
+    where: { id: classroomId, ownerId },
+    select: { id: true, name: true, archived: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
+  // The screen hides this for an archived class; the action is a public
+  // endpoint and has to refuse it too, or work lands in members' lists for a
+  // class its teacher has closed.
+  if (classroom.archived) return { ok: false as const, error: "That class is archived." };
 
   // On every member's Today, so cleaned like a name rather than trimmed.
   const cleanTitle = visibleLine(title, LIMITS.taskTitle);

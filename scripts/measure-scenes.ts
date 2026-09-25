@@ -261,7 +261,7 @@ console.log(`  ${filledFloor} fillable if the course also taught the ${TOP} comm
 const perScene = beatsAll / SCENES.filter((s) => !onlyScene || s.id === onlyScene).length;
 const composed = Math.round(((beatsAll - filledFloor) / beatsAll) * perScene);
 console.log(
-  `  so one scene of ${perScene} beats needs about ${composed} composed lines, each one metered and past the gate`,
+  `  so one scene of ${perScene.toFixed(1)} beats on average needs about ${composed} composed lines, each one metered and past the gate`,
 );
 console.log("\nWhat this says");
 console.log(

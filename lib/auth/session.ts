@@ -2,6 +2,7 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { LOCAL_USER_ID, supabaseConfigured } from "@/lib/auth/mode";
 import { boundedTransport, readIdentity, type Identity, type Learner } from "@/lib/auth/identity";
+import { isAllowedEmail } from "@/lib/auth/access";
 
 export type { Learner } from "@/lib/auth/identity";
 
@@ -62,6 +63,15 @@ export const requireUserId = cache(async (): Promise<string> => {
   if (!supabaseConfigured()) return LOCAL_USER_ID;
   const who = await identity();
   if (who.state !== "in") throw new Error("Not signed in.");
+  /*
+    The allowlist is asked here as well as in the middleware, because the
+    middleware lets an "unknown" identity through (a bad minute at the auth
+    service is not a sign-out), and the page's own read a moment later can
+    come back "in" for an address that has since been taken off the list.
+    Revocation is meant to be immediate, and this is the one place every
+    page, action and route resolves its owner through.
+  */
+  if (!isAllowedEmail(who.learner.email)) throw new Error("Not allowed.");
   return who.learner.id;
 });
 
@@ -72,5 +82,6 @@ export const currentLearner = cache(async (): Promise<Learner> => {
   }
   const who = await identity();
   if (who.state !== "in") throw new Error("Not signed in.");
+  if (!isAllowedEmail(who.learner.email)) throw new Error("Not allowed.");
   return who.learner;
 });
