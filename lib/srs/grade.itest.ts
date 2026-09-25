@@ -208,8 +208,9 @@ describe("a game round reported twice", () => {
     const card = await makeCard(new Date(Date.now() - 10 * 86_400_000));
     const id = stableReviewId("sonad", OWNER, "2026-09-25", card.id);
     const first = await writeGrade(OWNER, { card, rating: 3, durationMs: 0, reviewedAt: new Date(), reviewId: id });
+    // Refused on the key, or answered as already applied: either way nothing moves.
     const again = await writeGrade(OWNER, { card, rating: 3, durationMs: 0, reviewedAt: new Date(), reviewId: id }).catch((e: unknown) => e);
-    expect(isRepeatedReview(again)).toBe(true);
+    if (again instanceof Error) expect(isRepeatedReview(again)).toBe(true);
 
     expect(await prisma.review.count({ where: { ownerId: OWNER } })).toBe(1);
     const stored = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });

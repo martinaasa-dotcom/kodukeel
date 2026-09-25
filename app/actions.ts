@@ -454,6 +454,13 @@ async function gradeFor(
  * so, so a caller counting new grades does not count it again.
  */
 async function gradeOnce(ownerId: string, cardId: string, rating: RatingValue, reviewId: string) {
+  /*
+    Asked first rather than only caught, so the answer does not depend on how
+    `writeGrade` treats an id it has already written: a repeat that is read
+    here never reaches it, and the catch below is the two reports racing.
+  */
+  const seen = await prisma.review.findUnique({ where: { id: reviewId }, select: { id: true } });
+  if (seen) return { ok: true as const, repeat: true };
   try {
     const result = await gradeFor(ownerId, cardId, rating, 0, { reviewId });
     return { ...result, repeat: false };
