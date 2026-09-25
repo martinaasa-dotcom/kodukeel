@@ -21357,6 +21357,25 @@ check("a route that checks its own bearer token is past the sign-in gate", () =>
   }
 });
 
+/**
+ * AND PAST THE CANONICAL-HOST REDIRECT, WHICH COMES FIRST.
+ *
+ * Vercel's cron calls the production deployment on its own `*.vercel.app`
+ * name and does not follow a redirect, so a scheduled path the canonical
+ * redirect catches is a run answered 308 and ended. Every path `vercel.json`
+ * schedules has to be in `SCHEDULED_PATHS`, and the exemption has to be read.
+ */
+check("every path the scheduler calls is exempt from the canonical-host redirect", () => {
+  const crons = (JSON.parse(read("vercel.json")) as { crons?: { path: string }[] }).crons ?? [];
+  assert.ok(crons.length >= 1, "vercel.json schedules nothing, so this stopped looking");
+  const canonical = code("lib/auth/canonical.ts");
+  const list = canonical.slice(canonical.indexOf("SCHEDULED_PATHS"), canonical.indexOf("];", canonical.indexOf("SCHEDULED_PATHS")));
+  for (const { path } of crons) {
+    assert.ok(list.includes(`"${path}"`), `vercel.json schedules ${path} and lib/auth/canonical.ts does not exempt it, so the cron is redirected and never runs`);
+  }
+  assert.ok(/SCHEDULED_PATHS\.includes\(/.test(canonical), "canonicalRedirect no longer reads SCHEDULED_PATHS");
+});
+
 /*
   A SENTENCE SOMEBODY HAS REFUSED REACHES NO SCREEN, AND NO RUN PUTS IT BACK.
 
