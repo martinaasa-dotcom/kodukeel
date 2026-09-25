@@ -3480,6 +3480,17 @@ check("every path that adds cards reads and writes under one lock", () => {
       read: "card.findMany",
       write: "card.createMany",
     },
+    /*
+      The third inserter, which the count below could not see because it
+      counted two files: the gap-fill a dictionary entry adds for a word
+      already in the deck. It took the lock all along; nothing said so.
+    */
+    {
+      what: "backfillClozeCards",
+      body: /export async function backfillClozeCards\(([\s\S]*?)\n\}/.exec(code("lib/srs/backfill.ts"))?.[1] ?? "",
+      read: "card.count",
+      write: "card.createMany",
+    },
   ];
 
   for (const { what, body, read: readCall, write } of lockedPaths) {
@@ -3509,8 +3520,14 @@ check("every path that adds cards reads and writes under one lock", () => {
     every insert is covered, and a fifth written anywhere else fails here
     whatever it is called.
   */
-  const inserts = (text: string) => [...text.matchAll(/card\.createMany/g)].length;
-  const everywhere = inserts(code("app/actions.ts")) + inserts(code("lib/srs/deck.ts"));
+  // Every file rather than the two that held the inserts when this was
+  // written, which is how a third inserter sat outside the count: a sum over
+  // named files catches a fifth call in those files and nowhere else.
+  const inserts = (text: string) => [...text.matchAll(/card\.create(Many)?\(/g)].length;
+  const everywhere = [...APP, ...LIB]
+    .filter((f) => !/\.(test|itest)\.tsx?$/.test(f))
+    .reduce((sum, f) => sum + inserts(code(f)), 0);
+  assert.ok(everywhere >= 3, `only ${everywhere} card inserts found, so this check stopped looking`);
   const locked = lockedPaths.reduce((sum, path) => sum + inserts(path.body), 0);
   assert.equal(
     everywhere, locked,
@@ -4490,6 +4507,26 @@ check("how much of the app a screen leads with is decided in one place", () => {
       `${file} sets its own threshold for a new learner instead of calling stageOf`,
     );
   }
+
+  /*
+    And the errand letter reads it, which CLAUDE.md says is "its rule and an
+    invariant" and which the sweep above could not see: it fires only on a
+    literal compared with a field named `reviewsAllTime`, so a gate on a count
+    called anything else passed. What is asserted instead is the positive half,
+    that the branch choosing the errand is gated on the stage and that the stage
+    it reads is `stageOf`'s.
+  */
+  const schedule = code("lib/email/schedule.ts");
+  const errandAt = schedule.indexOf('kind: "errand"');
+  assert.ok(errandAt >= 0, "the errand letter is no longer chosen in lib/email/schedule.ts");
+  assert.match(
+    schedule.slice(Math.max(0, errandAt - 600), errandAt), /\.stage === "settled"/,
+    "the errand letter is no longer held to a settled learner, so it can reach somebody thirty words in",
+  );
+  assert.match(
+    code("lib/progress/mailout.ts"), /stage:\s*stageOf\(/,
+    "the stage the letters read is no longer stageOf's, which is a second answer to has this learner started",
+  );
 });
 
 check("where a screen lives is decided in one table", () => {
@@ -10173,14 +10210,34 @@ check("no server action returns an error message it has not redacted", () => {
   const actions = code(join("app", "actions.ts"));
   assert.match(actions, /"use server"/, "app/actions.ts is not a server action file any more");
 
-  const raw = [...actions.matchAll(/\berror(?:\s+instanceof\s+Error\s*\?)?\s*\.?message\b/g)];
-  for (const found of raw) {
-    const line = actions.slice(0, found.index).split("\n").length;
-    assert.fail(
-      `app/actions.ts:${line} puts an error's own message into a value the browser reads. ` +
-      "Use safeMessage from lib/observability/report: a Prisma failure can name the " +
-      "deployment's database host, user and password.",
-    );
+  /*
+    Every file that is a public endpoint by its first line, and whatever name a
+    `catch` binds. The first version read one file for a variable spelled
+    `error`, so `catch (e) { return { error: e.message } }` passed, and so did
+    the same thing in a second `"use server"` module the day one is written.
+  */
+  const servers = [...APP, ...LIB, ...COMPONENTS]
+    .filter((f) => /^\s*["']use server["']/.test(code(f)));
+  assert.ok(servers.includes(join("app", "actions.ts")), "the sweep for server action files found none");
+  for (const file of servers) {
+    const source = code(file);
+    const names = new Set(["error"]);
+    for (const [, name] of source.matchAll(/catch\s*\(\s*(\w+)/g)) names.add(name!);
+    for (const name of names) {
+      const reach = new RegExp(
+        `\\(\\s*${name}\\s+as\\s+\\w+\\s*\\)\\.message\\b|` +
+        `\\b${name}(?:\\s+instanceof\\s+Error\\s*\\?)?\\s*\\??\\.message\\b`,
+        "g",
+      );
+      for (const found of source.matchAll(reach)) {
+        const line = source.slice(0, found.index).split("\n").length;
+        assert.fail(
+          `${file}:${line} puts an error's own message into a value the browser reads. ` +
+          "Use safeMessage from lib/observability/report: a Prisma failure can name the " +
+          "deployment's database host, user and password.",
+        );
+      }
+    }
   }
 
   assert.match(
@@ -11257,11 +11314,31 @@ check("the exam hub prints the plan's distance off the plan's own projection", (
     code("app/(app)/page.tsx"), /ExamCountdownCard/,
     "the exam forecast is back on Today, which is a screen for what to do in the next ten minutes",
   );
-  // Nobody phrases the distance for a screen by hand: the sentence is the plan's.
-  const rephrased = ALL.filter((f) =>
-    f !== "lib/assessment/plan.ts" && !/\.(i)?test\.ts$/.test(f)
-    && /weeksWithFound[^\n]*weeks (away|off)/.test(code(f)));
-  assert.deepEqual(rephrased, [], "a screen writes its own sentence over weeksWithFound rather than reading distanceLine");
+  /*
+    Nobody phrases the distance for a screen by hand: the sentence is the plan's.
+
+    The first version asked for `weeksWithFound` and "weeks away" on one line,
+    so a sentence built over two lines, or worded any other way, passed: the
+    plan panel does exactly that and was never seen. So anything reading the
+    figure either reads `distanceLine` too or is named here with the reason.
+  */
+  const readsDistance: Record<string, string> = {
+    // The plan's own screen. Its note under the verdict is the long form of
+    // the sentence `distanceLine` shortens for Today and the hub, over the same
+    // projection's `found` and `weeksWithFound`, with the way out spelled out.
+    "components/assessment/PlanPanel.tsx": "the plan's own panel",
+  };
+  const readers = ALL.filter((f) =>
+    f !== "lib/assessment/plan.ts" && !/\.(i)?test\.tsx?$/.test(f)
+    && /\.weeksWithFound\b/.test(code(f)));
+  assert.ok(readers.length >= 1, "nothing reads weeksWithFound any more, so this check stopped looking");
+  assert.deepEqual(
+    readers.filter((f) => !readsDistance[f] && !code(f).includes("distanceLine(")), [],
+    "a screen writes its own sentence over weeksWithFound rather than reading distanceLine",
+  );
+  for (const f of Object.keys(readsDistance)) {
+    assert.ok(readers.includes(f), `${f} no longer reads weeksWithFound, so its exemption is a parking space`);
+  }
 });
 
 /*
@@ -12522,15 +12599,34 @@ check("a frequency list is named once, asked one way, and never built by a rende
     would never see it because they click. The add is a Server Action behind a
     press, and these two pages may not reach a deck write at all.
   */
-  const label = "Describing words";
-  // `code()`, not `read()`: this is the oldest recurring mistake in this
-  // repository's own checks, and the comment in `CommonWords.tsx` explaining
-  // why the label moved out of that file names the label to do it.
-  const naming = [...APP, ...LIB, ...COMPONENTS].filter((f) => code(f).includes(label));
-  assert.deepEqual(
-    naming, ["lib/collections/commonGroups.ts"],
-    `"${label}" is written down somewhere other than the one table of what a list is called`,
-  );
+  /*
+    Every title and every blurb, read off the table rather than one label typed
+    here, which is what this was: "Describing words" alone, so "Small words" or
+    a blurb could be written out again on any of the four screens unwatched.
+    A one-word title ("Verbs", "Nouns") is an ordinary English word the grammar
+    pages use too, so those are held to the screens that print the lists.
+  */
+  const table = code("lib/collections/commonGroups.ts");
+  const strings = [...table.matchAll(/^\s*(title|blurb):\s*"([^"]+)"/gm)].map(([, , text]) => text!);
+  assert.ok(strings.length >= 8, `only ${strings.length} titles and blurbs read off the table, so this check stopped looking`);
+  const listScreens = [...APP, ...COMPONENTS].filter((f) =>
+    f.includes("/common/") || /COMMON_GROUPS|commonGroup\(/.test(code(f)));
+  assert.ok(listScreens.length >= 3, `only ${listScreens.length} screens print the lists, so this check stopped looking`);
+  for (const label of strings) {
+    // `code()`, not `read()`: this is the oldest recurring mistake in this
+    // repository's own checks, and the comment in `CommonWords.tsx` explaining
+    // why the label moved out of that file names the label to do it.
+    const haystack = /\s/.test(label) ? [...APP, ...LIB, ...COMPONENTS] : listScreens;
+    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // As a string, a template, or a run of JSX text.
+    const written = new RegExp(`["'\`]${escaped}["'\`]|>\\s*${escaped}\\s*<`);
+    const naming = haystack.filter((f) =>
+      f !== "lib/collections/commonGroups.ts" && written.test(code(f)));
+    assert.deepEqual(
+      naming, [],
+      `"${label}" is written down somewhere other than the one table of what a list is called`,
+    );
+  }
 
   /*
     THE FREQUENCY ROUND ASKS ONE PLACE WHICH CARD OF A WORD TO PUT UP.
@@ -20457,8 +20553,12 @@ check("the ladder warns about the next part and never blocks it", () => {
   );
 
   const page = code("app/(app)/course/page.tsx");
-  const hold = page.slice(page.indexOf('verdict.kind === "hold" ? ('));
-  assert.ok(hold.length > 0, "the course screen no longer draws the hold verdict at all");
+  // Located before it is sliced: `slice(-1)` is the file's last character, so a
+  // length test after the slice could never fire and a vanished branch was
+  // reported as a missing button instead.
+  const holdAt = page.indexOf('verdict.kind === "hold" ? (');
+  assert.ok(holdAt >= 0, "the course screen no longer draws the hold verdict at all");
+  const hold = page.slice(holdAt);
   assert.match(
     hold.slice(0, 2500), /<NextPart[\s\S]*?anyway/,
     "the warning no longer carries a way past it. Saying so and hiding the button is the app not meaning it",
