@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { COMMON_BATCH } from "@/lib/collections/commonGroups";
 import type { FrequencyGroup } from "@/lib/collections/frequency";
 import { deepenCommonWords } from "@/app/actions";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * ONE PRESS, THE NEXT TWENTY WORDS OF A LIST, BUILT OUT PROPERLY.
@@ -32,8 +33,8 @@ export function DeepenButton({ group, label }: {
 
   function add() {
     start(async () => {
-      const result = await deepenCommonWords(group);
-      if (!result.ok) { setNote(result.error); return; }
+      const result = await deepenCommonWords(group).catch(() => null);
+      if (!result || !result.ok) { setNote(result ? result.error : NOT_REACHED); return; }
       setNote(result.added === 0
         ? "Every word on this list is already built out."
         : `${result.words} ${result.words === 1 ? "word" : "words"}, `

@@ -232,9 +232,28 @@ describe("generateCards — CLOZE", () => {
     expect(asLemma?.hint?.toLowerCase()).not.toContain("kohv");
   });
 
-  it("tags the case, so a gap-fill counts toward the weak-case breakdown", () => {
-    const cards = generateCards(drinking, ["CLOZE"]);
-    expect(cards.some((c) => c.targetCase !== null)).toBe(true);
+  /*
+    THIS USED TO PASS ON A WRONG LABEL. `kohvi` is the genitive and the
+    partitive both, and the first stored row read decided which it was named,
+    so `Jõin tassi kohvi.`, which uses the partitive, was filed as the omastav.
+    A spelling two slots claim names neither (`gapForms`), and a form only one
+    case spells is what carries the tag: `voodis` in a sentence the dictionary
+    records for `voodi`.
+  */
+  it("tags the case where one case spells the gap, so a gap-fill counts toward the weak-case breakdown", () => {
+    expect(generateCards(drinking, ["CLOZE"]).find((c) => c.back.toLowerCase() === "kohvi")?.targetCase).toBeNull();
+    const bed = {
+      ...drinking, lemma: "voodi", translation: "bed",
+      examples: JSON.stringify([{ et: "Tast pole voodis asjagi!", source: "EKILEX" }]),
+      forms: [
+        { formType: "NOM_SG", value: "voodi", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "voodi", morphCode: "SgG" },
+        { formType: "PART_SG", value: "voodit", morphCode: "SgP" },
+      ],
+    };
+    const [card] = generateCards(bed, ["CLOZE"]);
+    expect(card?.back.toLowerCase()).toBe("voodis");
+    expect(card?.targetCase).toBe("INESSIVE");
   });
 
   it("stops at two per word rather than drilling every sentence", () => {
