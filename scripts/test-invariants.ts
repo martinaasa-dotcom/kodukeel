@@ -8073,6 +8073,49 @@ check("nothing is stored on a device that would need asking first", () => {
   );
 });
 
+check("browser storage is read and written inside a try, because a blocked store throws", () => {
+  /*
+    A browser that blocks storage, with every cookie turned off or on a
+    locked-down school profile, does not hand back null: reading
+    `window.localStorage` or calling `getItem` throws a SecurityError, and a
+    full store throws on `setItem`. Every door onto storage here was already
+    wrapped but three. One of them was a `useState` initializer in
+    `useResumeCard`, which runs during render, so the review round, the learn
+    ladder, dictation, speaking and the sentence builder each failed to draw
+    at all for that reader. Asked of every call rather than of a list of
+    files, and lexically: the call has to sit inside an open `try` block.
+    `app/layout.tsx` is a string the browser runs and carries its own try.
+  */
+  const call = /\b(?:window\.)?(?:localStorage|sessionStorage)\b(?:\s*\.\s*(?:getItem|setItem|removeItem|key|clear)\b|\s*;)/g;
+  let seen = 0;
+  const bare: string[] = [];
+  for (const file of ALL.filter((f) => !/\.(test|itest)\.tsx?$/.test(f) && f !== "app/layout.tsx")) {
+    const src = code(file);
+    for (const m of src.matchAll(call)) {
+      seen++;
+      const before = src.slice(0, m.index);
+      // Walk back over the braces to the innermost block still open at the
+      // call, and ask whether any open block was opened by a `try`.
+      let depth = 0;
+      let guarded = false;
+      for (let i = before.length - 1; i >= 0; i--) {
+        const c = before[i];
+        if (c === "}") depth++;
+        else if (c === "{") {
+          if (depth > 0) depth--;
+          else if (/\btry\s*$/.test(before.slice(Math.max(0, i - 8), i))) {
+            guarded = true;
+            break;
+          }
+        }
+      }
+      if (!guarded) bare.push(`${file}:${before.split("\n").length}`);
+    }
+  }
+  assert.ok(seen >= 20, `only ${seen} storage calls found; the pattern has stopped reaching them`);
+  assert.deepEqual(bare, [], `storage reached outside a try, which throws where the browser blocks it: ${bare.join(", ")}`);
+});
+
 check("a headline is read through the dictionary's gate, and the feed writes nothing down", () => {
   /*
     The front page is the most ordinary Estonian this app can put in front of
