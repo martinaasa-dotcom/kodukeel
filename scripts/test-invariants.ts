@@ -3150,10 +3150,10 @@ check("a session never lets its questions change under the learner", () => {
     if (!listProp) continue;
     /*
       Either spelling of the snapshot. `useState(initialCards)` is the plain
-      one; `useState<T>(() => plan(initialCards))` is the lazy one, which the
-      review session needs because it expands its cards into a queue of steps
-      (lib/srs/learn.ts) and doing that work on every render to throw it away
-      is not free.
+      one; `useState<T>(() => layOut(initialPairs))` is the lazy one, which the
+      picture board uses because it lays its pairs out into tiles
+      (app/(app)/review/emoji/EmojiSession.tsx) and doing that work on every
+      render to throw it away is not free.
 
       The property is the same and the lazy form is the stronger of the two: the
       initializer runs once on mount and never again, so a refreshed prop cannot
@@ -6896,6 +6896,48 @@ check("every npm script that pushes a schema asks the schema guard first", () =>
   assert.match(guard, /isLocal\(/, "the guard stopped sharing local-db.mjs's reading of local");
 });
 
+/**
+ * A PUBLIC PATH IS A PREFIX, SO NO SIGNED-IN ROUTE MAY SHARE ITS LETTERS.
+ *
+ * `isPublicPath` in `middleware.ts` is a list of `path.startsWith(...)`, which
+ * is right for `/privacy` and everything under it and also admits every path
+ * that merely begins with the same letters: a route added at `/termsheet`,
+ * `/offline-deck` or `/api/metrics-admin` would be served to anybody with no
+ * session, and nothing would say so. Rewriting the list as segment matches is
+ * the stronger fix and several open changes are editing that list at once, so
+ * this holds the property instead: every route the filesystem has is either
+ * under a public prefix as a whole segment, or shares no prefix with one.
+ */
+check("no route begins with a public path's letters without being under it", () => {
+  const mw = code("middleware.ts");
+  const block = mw.slice(mw.indexOf("const isPublicPath"), mw.indexOf(";", mw.indexOf("const isPublicPath")));
+  const prefixes = [...block.matchAll(/path\.startsWith\("([^"]+)"\)/g)].map((m) => m[1]!);
+  assert.ok(prefixes.length >= 12, `only ${prefixes.length} public prefixes read, so this stopped looking`);
+
+  const routes: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/^(page|route)\.tsx?$/.test(entry.name) || /^(opengraph-image|icon|apple-icon|robots|sitemap|manifest)\./.test(entry.name)) {
+        const url = "/" + full.slice("app/".length).split("/").slice(0, -1)
+          .filter((seg) => !/^\(.*\)$/.test(seg)).join("/");
+        const leaf = /^(page|route)\./.test(entry.name) ? "" : "/" + entry.name.replace(/\.[a-z]+$/, "");
+        routes.push((url === "/" ? "" : url) + leaf || "/");
+      }
+    }
+  };
+  walk("app");
+  assert.ok(routes.length >= 60, `only ${routes.length} routes found, so this stopped looking`);
+
+  const loose = routes.flatMap((route) =>
+    prefixes
+      .filter((p) => route.startsWith(p) && route !== p && !route.startsWith(p.endsWith("/") ? p : p + "/")
+        && !/\.[a-z]+$/.test(p))
+      .map((p) => `${route} (public through "${p}")`));
+  assert.deepEqual(loose, [], `a route is public by accident: ${loose.join(", ")}`);
+});
+
 check("a deletion that leaves something behind says so", () => {
   /*
     `deleteMyAccount` empties every table this app owns. The identity is not in
@@ -7233,6 +7275,29 @@ check("no server action takes an owner id from its caller", () => {
   }
   assert.ok(exported >= 80, `only ${exported} exported actions found; the pattern stopped reaching them`);
   assert.deepEqual(offenders, [], `server actions taking an owner id from the caller: ${offenders.join("; ")}`);
+});
+
+check("the weakest case is read off the case that was asked, on every screen that reads one", () => {
+  /*
+    `Review.targetCase` is the case the card is about and `Review.slot` is what
+    was asked. The flash round asks a word in a case on its production card,
+    whose \`targetCase\` is null, so every one of those answers was missing from
+    the weakest-case figure on Progress, Practice, Today, the grammar index,
+    Anu's briefing and the class roster; and a round that asks one case on a card
+    of another counted it under the card's. `caseAsked` is the one reading, and
+    both queries that feed `caseAccuracy` select the slot and go through it.
+  */
+  for (const file of ["lib/progress/cases.ts", "lib/classroom/roster.ts"]) {
+    const src = code(file);
+    assert.match(src, /\bcaseAsked\(/, `${file} reads the weakest case off the card rather than off what was asked`);
+    assert.match(src, /slot: true/, `${file} no longer selects the slot the answer was asked in`);
+  }
+  assert.doesNotMatch(code("lib/classroom/roster.ts"), /targetCase: r(?:eview)?\.targetCase/,
+    "the roster hands caseAccuracy the card's case again");
+  // The weekly letter's class-wide cases are the same figure behind a floor,
+  // so they are read the same way, or the letter and the board disagree.
+  assert.doesNotMatch(code("lib/classroom/roster.ts"), /classWideCases\(reviews\b/,
+    "the letter's class-wide cases read the card's case rather than the one asked");
 });
 
 check("a day argument is asked whether it is a string before its shape is", () => {
@@ -19716,17 +19781,20 @@ check("a verdict is one size, and never below the body step", () => {
     the body step, which is what the five rounds had before this.
   */
   const small = /\btext-(?:2xs|xs|sm)\b|\blabel-xs\b|\btext-\[(?:[0-9]|1[0-4])(?:\.\d+)?px\]/;
+  let panels = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const body = code(file);
     if (!/VERDICT_CLASS/.test(body)) continue;
     for (const literal of body.match(/`[^`]*`/g) ?? []) {
       if (!/VERDICT_CLASS/.test(literal)) continue;
+      panels++;
       assert.doesNotMatch(
         literal, small,
         `${file} sets a verdict below the body step: ${literal.replace(/\s+/g, " ").slice(0, 90)}`,
       );
     }
   }
+  assert.ok(panels >= 20, `read ${panels} verdict panels; the class-list sweep has stopped finding them`);
 
   /*
     The other shape a verdict takes is a run of text with nothing behind it,
@@ -19740,6 +19808,7 @@ check("a verdict is one size, and never below the body step", () => {
     the 13px tick that carry the same ink are left alone: what is refused is a
     caption class on the element the ink is written on.
   */
+  let inked = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const body = code(file);
     if (!/VERDICT_INK/.test(body)) continue;
@@ -19751,12 +19820,14 @@ check("a verdict is one size, and never below the body step", () => {
         is read as the whole tag rather than as nothing, since nothing passes.
       */
       const names = classes?.[1] ?? classes?.[2] ?? tag;
+      if (names) inked++;
       assert.doesNotMatch(
         names, small,
         `${file} writes a verdict in the verdict ink and sets it below the body step: ${names}`,
       );
     }
   }
+  assert.ok(inked >= 1, "read no element written in the verdict ink; the tag sweep has stopped finding them");
 });
 
 /*
@@ -20494,9 +20565,11 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     "the room takes a className again, which is a second answer to how big it is and loses to its "
     + "own class list wherever the two disagree",
   );
+  let rooms = 0;
   for (const file of COMPONENTS) {
     const source = code(file);
     for (const match of source.matchAll(/<SceneVignette([^>]*)>/g)) {
+      rooms++;
       const call = match[1] ?? "";
       assert.ok(
         !/className/.test(call),
@@ -20504,6 +20577,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
       );
     }
   }
+  assert.ok(rooms >= 5, `found ${rooms} rooms drawn; the tag this sweep reads has moved`);
 
   /*
     AND THE DEBRIEF IS READ IN THE ROOM IT HAPPENED IN.
@@ -21184,7 +21258,11 @@ check("putting a word aside moves a date and grades nothing", () => {
     a button that promised not to touch it.
   */
   for (const [what, where] of [["an undo", "undoDeferral"], ["the level wake", "wakeForLevel"]]) {
-    const body = defer.slice(defer.indexOf(`export async function ${where}`));
+    const from = defer.indexOf(`export async function ${where}`);
+    assert.ok(from >= 0, `lib/progress/deferrals.ts no longer exports ${where}`);
+    // Bounded at the next export, or one function's line answers for the other.
+    const next = defer.indexOf("\nexport ", from + 1);
+    const body = defer.slice(from, next === -1 ? undefined : next);
     assert.match(
       body, /due: row\.untilAt/,
       `${what} pulls cards forward without matching the date the deferral wrote, `
@@ -21837,7 +21915,9 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
     reads rather than on a count, because adding it to the started one is the
     silent regression: the learner keeps meeting words and never finishes one.
   */
-  const started = learn.slice(learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1"));
+  const startedAt = learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1");
+  assert.ok(startedAt >= 0, "the started read moved; this check is anchored on its where clause");
+  const started = learn.slice(startedAt);
   assert.doesNotMatch(
     started.slice(0, 200), /introducible/,
     "a word part way up the ladder is being held back by the module, which strands it mid-word",
@@ -22266,23 +22346,29 @@ check("an order the writer did not choose is not a wrong order", () => {
     reach the screen as `ETTE`. It is `Chip`'s `caseSensitive` rule one screen
     over, and the one that put `-SSE` on a grammar card.
   */
-  for (const file of markers) {
+  /*
+    Asked of the two elements that actually print the note, named here by the
+    text that fills them. The first version walked back from each
+    `orderVariantNote(` call to the nearest `<p` and skipped the call when it
+    found none or found one without `label-xs`, which on the screens as they
+    are is every call: the lesson stores the note in state and prints it in
+    `Verdict`, the sentence round prints it in a plain `<p>`, and the paper has
+    no markup at all. It asserted nothing. So each printing site has to be
+    found, and its element has to be one that keeps the word's case.
+  */
+  const printed: [string, RegExp][] = [
+    ["app/(app)/review/sentences/SentenceSession.tsx", /orderVariantNote\(/],
+    ["app/(app)/learn/[unitId]/lesson/LessonSession.tsx", /\{note \?\? \(ok/],
+  ];
+  for (const [file, anchor] of printed) {
     const body = code(file);
-    /*
-      The element the note is printed in, which is the window from the run of
-      markup before it. A sweep of the whole file would answer about whichever
-      other caption came first, which is what the first version of this did.
-    */
-    for (const at of [...body.matchAll(/orderVariantNote\(/g)].map((m) => m.index)) {
-      const around = body.slice(Math.max(0, at - 600), at);
-      const opened = around.lastIndexOf("<p");
-      if (opened < 0) continue;
-      const tag = around.slice(opened);
-      if (!/\blabel-xs\b/.test(tag)) continue;
-      assert.match(
-        tag, /textTransform/,
-        `${file} prints the word a learner moved in a class that uppercases it`,
-      );
+    const at = body.search(anchor);
+    assert.ok(at >= 0, `${file} no longer prints the word-order note where this check looks for it`);
+    const tags = [...body.slice(Math.max(0, at - 600), at).matchAll(/<[a-z][\w.]*\b[^<>]*>/g)];
+    const tag = tags.at(-1)?.[0];
+    assert.ok(tag, `${file}: found no element around the word-order note`);
+    if (/\b(?:label-xs|uppercase)\b/.test(tag)) {
+      assert.match(tag, /textTransform/, `${file} prints the word a learner moved in a class that uppercases it`);
     }
   }
 
@@ -23605,6 +23691,7 @@ check("a round that draws a hint pays for it in the grade it sends", () => {
   const drawing = HINT_SWEPT_DIRS
     .flatMap((dir) => sourceFiles(dir, /Session\.tsx$/))
     .filter((f) => /<HintLadder\b/.test(code(f)));
+  assert.ok(drawing.length >= 12, `found ${drawing.length} rounds drawing a hint; the sweep has stopped finding them`);
   const free = drawing.filter((f) => !/\.ceiling\b/.test(code(f)));
   assert.deepEqual(
     free.map((f) => f.replace(/\\/g, "/")), [],
@@ -23628,6 +23715,7 @@ check("the hint's state is one hook rather than a copy per round", () => {
   // Both sweeps below are empty-list passes if the ladder is renamed, so the
   // haystack has to be there first. Fourteen rounds draw it today.
   assert.ok(drawing.length >= 10, `expected the rounds that draw the hint ladder, found ${drawing.length}`);
+  assert.ok(new Set(drawing).size >= 12, `found ${new Set(drawing).size} rounds drawing a hint; the sweep has stopped finding them`);
   const rolled = drawing.filter((f) => !/\buseHints\(/.test(code(f)));
   assert.deepEqual(
     [...new Set(rolled.map((f) => f.replace(/\\/g, "/")))], [],
@@ -23932,7 +24020,7 @@ check("the grammar examples carry the hook the browser suite finds them by", () 
     "PointExamples no longer marks itself for the suite that drives it",
   );
   assert.ok(
-    /data-point-examples/.test(read("scripts/test-teaching.mjs")),
+    /locator\("\[data-point-examples\]"\)/.test(code("scripts/test-teaching.mjs")),
     "the teaching suite no longer checks that a claim is shown rather than stated",
   );
 });
@@ -24337,8 +24425,12 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
     the subject or the body would be a copy of somebody's letter sitting in a
     table, and an `openedAt` would be the pixel arriving through the schema.
   */
-  const model = read("prisma/schema.prisma").slice(read("prisma/schema.prisma").indexOf("model EmailSend"));
+  const schema = read("prisma/schema.prisma");
+  const modelAt = schema.indexOf("model EmailSend {");
+  assert.ok(modelAt >= 0, "prisma/schema.prisma has no EmailSend model for this check to read");
+  const model = schema.slice(modelAt);
   const fields = model.slice(0, model.indexOf("\n}"));
+  assert.match(fields, /^\s+ownerId\b/m, "the EmailSend fields this check reads are not the model's own");
   for (const banned of ["subject", "body", "html", "openedAt", "clickedAt"]) {
     assert.ok(
       !new RegExp(`^\\s+${banned}\\b`, "m").test(fields),
@@ -24954,6 +25046,49 @@ check("Today's homework panel counts what is waiting, not the rows it drew", () 
   const today = code("app/(app)/page.tsx");
   assert.match(today, /prisma\.task\.count\(/,
     "Today does not count the open tasks, so the panel can only report the rows it drew");
+});
+
+check("every source file a comment in the code cites is one that exists", () => {
+  /*
+    A comment that names a file is a pointer somebody follows, and eight of
+    them pointed at nothing: the offline outbox under a name it no longer has,
+    a schema note naming the course's old home, a harness compared to an eval
+    script since renamed, a deploy check that was never written, and a pace
+    figure said to be shared with a badge that had been withdrawn. Each sent a
+    reader to a file that does not exist, and two of them to a reason that was
+    no longer true. So a cited path has to resolve, from the repository root
+    or from the citing file's own folder, which is how \`scripts/lib\` names
+    its neighbours. Read raw, because comments are where the citations live.
+
+    A file named only to say it is gone is honest, and each of those is listed
+    with the sentence it lives in. The list is checked both ways: an entry
+    whose file came back, or that nothing cites any more, fails until it is
+    taken out.
+  */
+  const GONE: Record<string, string> = {
+    "lib/achievements/badges.ts": "lib/stats/streak.ts says the streak outlived the badges file it lived in",
+    "components/PracticeModes.tsx": "the second copy of the practice menu, named where its deletion is recorded",
+    "lib/copy/tour.ts": "the first-run tour's screen list, named where its deletion is recorded",
+    "scripts/x.mjs": "a placeholder standing for any suite in a sentence about how CI names them",
+  };
+  const haystack = [...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), "prisma/schema.prisma"];
+  let cited = 0;
+  const missing = new Map<string, string>();
+  const seen = new Set<string>();
+  for (const file of haystack) {
+    for (const m of read(file).matchAll(/(?<![\w/.-])((?:app|lib|components|scripts|prisma)\/[A-Za-z0-9_./()\[\]-]+\.(?:tsx|ts|mjs|json|css|prisma))(?!\w)/g)) {
+      const path = m[1]!;
+      if (path.includes(".cache/")) continue;
+      cited += 1;
+      if (existsSync(path) || existsSync(join(dirname(file), path)) || existsSync(join(dirname(file), "..", path))) continue;
+      seen.add(path);
+      if (!(path in GONE)) missing.set(path, file);
+    }
+  }
+  assert.ok(cited >= 400, `found only ${cited} cited paths, so the sweep has stopped reading what it should`);
+  assert.ok(missing.size === 0, `cites a file that does not exist: ${[...missing].map(([p, f]) => `${p} (in ${f})`).join(", ")}`);
+  const stale = Object.keys(GONE).filter((p) => existsSync(p) || !seen.has(p));
+  assert.ok(stale.length === 0, `an exemption no longer applies, because the file exists or nothing cites it: ${stale.join(", ")}`);
 });
 
 check("every action that writes a grade tells Today it changed", () => {

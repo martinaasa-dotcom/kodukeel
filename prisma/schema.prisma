@@ -550,7 +550,7 @@ model ExamAttempt {
 /// kept. `lib/estonian/passage.ts` treats a pasted reading the same way.
 ///
 /// Words are held as lemmas rather than as copies of dictionary rows, exactly
-/// as a learning-path unit is (lib/collections/path.ts). A page is a *reference*
+/// as a course unit is (lib/collections/syllabus/). A page is a *reference*
 /// to vocabulary, so correcting a word in the shared dictionary corrects it on
 /// every page it appears on, and a page can never drift out of step.
 model Scan {
