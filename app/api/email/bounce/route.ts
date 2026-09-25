@@ -133,7 +133,7 @@ export async function POST(request: Request) {
         about a mailbox.
       */
       // Under the learner's lock, for the reason `lib/progress/emailPrefs.ts` gives.
-      await changeEmailPrefs(sent.ownerId, (current) => switchOff(current, OPTIONAL_KINDS));
+      await changeEmailPrefs(sent.ownerId, (current) => switchOff(current, OPTIONAL_KINDS), { whileMailed: true });
       return ok();
     }
 

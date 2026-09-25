@@ -152,7 +152,7 @@ export async function POST(request: Request) {
       pressed unsubscribe does not leave a standing request behind, and the
       store is told, because the write went round `writeSetting`.
     */
-    await changeEmailPrefs(read.ownerId, (current) => switchOff(current, kindsInScope(read.scope)));
+    await changeEmailPrefs(read.ownerId, (current) => switchOff(current, kindsInScope(read.scope)), { whileMailed: true });
   } catch (error) {
     reportError(error, { at: "api/email/unsubscribe", ownerId: read.ownerId });
     /*

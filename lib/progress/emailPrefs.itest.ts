@@ -15,6 +15,7 @@ const KINDS = EMAIL_KINDS.filter((kind) => kind !== "system");
 
 async function wipe() {
   await prisma.setting.deleteMany({ where: { ownerId: MINE } });
+  await prisma.emailSend.deleteMany({ where: { ownerId: MINE } });
 }
 
 async function stored() {
@@ -53,5 +54,24 @@ describe("changeEmailPrefs", () => {
       const prefs = await stored();
       expect(KINDS.filter((kind) => wants(prefs, kind))).toEqual(["wordday"]);
     }
+  });
+
+  /*
+    The two doors with no session behind them, the unsubscribe link and the
+    complaint webhook, write only for somebody this deployment has written to
+    and who has not left, since both keep arriving after an erasure.
+  */
+  it("writes nothing for a learner with no letter on record, when asked to", async () => {
+    const wrote = await changeEmailPrefs(MINE, (p) => switchOff(p, KINDS), { whileMailed: true });
+    expect(wrote).toBeNull();
+    expect(await prisma.setting.count({ where: { ownerId: MINE } })).toBe(0);
+  });
+
+  it("switches the letters off for a learner who was written to", async () => {
+    await prisma.emailSend.create({ data: { ownerId: MINE, kind: "weekly", dayKey: "2026-09-20" } });
+    const wrote = await changeEmailPrefs(MINE, (p) => switchOff(p, KINDS), { whileMailed: true });
+    expect(wrote).not.toBeNull();
+    const prefs = await stored();
+    expect(KINDS.filter((kind) => wants(prefs, kind))).toEqual([]);
   });
 });
