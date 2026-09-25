@@ -25740,6 +25740,23 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a round that asks one case says which when it grades", () => {
+  /*
+    The writing round and the aim-and-hit round ask a word in one case and
+    grade the nearest card the learner holds, and neither said what it had
+    asked. The slot then fell back to the card's own, so an answer about the
+    kaasaütlev counted toward the mastery of whatever case that card was, the
+    fault the flash round's own practisedSlot was added for.
+  */
+  const rounds: Record<string, RegExp> = {
+    "app/(app)/review/write/WriteSession.tsx": /gradeCard\([^;]{0,200}?prompt\.caseKey/,
+    "app/(app)/review/target/TargetSession.tsx": /gradeCard\([^;]{0,200}?question\.caseKey/,
+  };
+  for (const [file, pattern] of Object.entries(rounds)) {
+    assert.match(code(file).replace(/\s+/g, " "), pattern, `${file} grades without saying which case it asked`);
+  }
+});
+
 check("a Server Action called from the browser is caught, so a dropped connection keeps the screen", () => {
   /*
     A Server Action does not return a refusal when the network is gone: it
