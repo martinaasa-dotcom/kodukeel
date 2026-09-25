@@ -3,8 +3,9 @@
 **Controller.** Upthink Solutions OÜ, registry code 16683946, Aiandi tn 8/2-28, Mustamäe linnaosa,
 12915 Tallinn, Harju maakond, Estonia. Contact: privacy@upthink.ee.
 
-**Written 5 September 2026.** Reviewed with `docs/24-dpia.md`, on the same schedule and for the same
-triggers.
+**Written 5 September 2026. Revised 22 September 2026**, out of cycle: two owner-scoped models had
+been added and this schedule named neither, and the one table with a genuine expiry was on no row.
+Reviewed with `docs/24-dpia.md`, on the same schedule and for the same triggers.
 
 ## What this document is honest about first
 
@@ -46,9 +47,11 @@ check.
 | Confirmed word lists off a photograph (`Scan`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Conversation runs (`SceneRun`) and the words they needed (`SceneGap`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Reports of real conversations (`Encounter`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
+| Where a learner is in the planned module (`CourseStep`) | Until the account is deleted. Append-only, and one row per step a learner ticked: the programme, the day and the step, never an answer. Which day they are on is derived from it rather than stored | Erasure | `deleteMyAccount` |
+| Words put aside (`Deferral`) | Until the account is deleted. One row per learner per word, updated rather than appended when they say it again, and a wait ended early is stamped rather than removed | Erasure | `deleteMyAccount` |
 | Reports of something wrong (`Suggestion`) | Until the account is deleted, whatever the review status | Erasure | `deleteMyAccount` |
 | Group ownership and membership (`Classroom`, `ClassroomMember`) | Membership until the learner leaves. A group until its owner archives or deletes it, or deletes their account | Leaving, archiving, erasure | `leaveClassroom`, `deleteMyAccount` |
-| A bounced address (`Setting`, `emailUndeliverable`) | Until the account is deleted, or until the learner changes their address, which stops it applying | Erasure, or a new address | `deleteMyAccount`. It holds a digest of the address that failed rather than the address, so there is nothing in it to read back into a person, and it names the address rather than the learner so that changing one is a way out of it |
+| A bounced address (`Setting`, `emailUndeliverable`) | Until the account is deleted, or until the learner changes their address, which stops it applying | Erasure, or a new address | `deleteMyAccount`. It holds a digest of the address that failed rather than the address, keyed on the deployment's mail secret so that nobody without that secret can test a guessed address against it (rows written before that change hold an unkeyed digest until the account goes), and it names the address rather than the learner so that changing one is a way out of it |
 | Letters sent (`EmailSend`) | Until the account is deleted. Append-only, and it is one line per message: the kind and the moment, on the learner's own clock. Never the subject, never the body, and nothing about whether it was opened, because there is no tracking pixel in this app. It is kept because it is what stops a second copy of the same letter: the per-kind gap, the weekly ceiling and "have they had one today" are all read from it | Erasure | `deleteMyAccount` in `app/actions.ts`. Deleting it with the account is the half that matters, since it is the row that decides whether somebody is written to again |
 | Spending ledger (`UsageEvent`) | The running year, since the caps it enforces are daily. Append-only within that | The year turning over, and erasure | `deleteMyAccount` for the account's own rows. See the note below |
 
@@ -58,6 +61,12 @@ reads a day at a time (`lib/usage/quota.ts`), so nothing older than the current 
 app for any purpose. Pruning last year's rows is an operator task rather than something the app does
 on a schedule, and this document does not claim a job runs. What the app guarantees is the erasure:
 an account's ledger rows go with the account, immediately, like everything else.
+
+### Counted rather than owned
+
+| Category | Kept for | Trigger for deletion | Enforced by |
+| --- | --- | --- | --- |
+| Request counters (`RateLimit`) | Until the window it counts stops meaning anything. This is the one table in the app with a real expiry rather than an event | `expiresAt`, pruned opportunistically as the limiter writes | `lib/usage/sharedLimit.ts`. It holds a SHA-256 digest of the caller-and-endpoint key rather than the key, so there is nothing in it to read back into a person, which is why it is in no export and no erasure |
 
 ### Reference data, owned by nobody
 
@@ -122,8 +131,8 @@ download, is theirs to keep or delete and this app holds no copy of it.
 - **The learner signs out.** Everything on the device, above.
 - **A different account signs in on the same browser.** The same clearing, without a sign-out.
 - **A group owner archives or deletes a group.** The group, and its memberships with it.
-- **The operator prunes the ledger.** The one thing on this page with a period rather than an event,
-  and the one thing not automated.
+- **The operator prunes the ledger.** The one deletion on this page that nothing automates. The
+  request counters expire on their own, and everything else waits for an event.
 
 ## Where retention is currently open, and stated as such
 

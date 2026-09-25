@@ -1,126 +1,80 @@
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
-import { PROGRAMMES } from "@/lib/course";
-import { CLOSING_REVIEW } from "@/lib/progress/course";
-import { candidateFor } from "@/lib/progress/mailout";
-import { letterOwed } from "@/lib/email/schedule";
-import { SETTING_KEYS } from "@/lib/settings/store";
+import { LOOK_BACK_DAYS, mailoutRoster, rosterPage } from "./mailout";
 
 /**
- * WHO THE EVENING LETTER IS FOR, AGAINST A REAL DATABASE.
+ * Who the daily run considers, against a database, because the fault this
+ * guards was in the SQL rather than in the arithmetic.
  *
- * `lib/email/schedule.ts` is unit tested on a `Candidate` somebody already
- * built, so it cannot see the two faults this file is about, which are both
- * in how the candidate is built.
+ * The roster used to deduplicate `Review` by owner through Prisma's
+ * `distinct`, which is done in the client: the database was sent the whole
+ * window of reviews with no DISTINCT and no LIMIT, twice a run. What that
+ * returned was right and what it cost grew with every answer anybody gave, so
+ * a test of the answer alone could not have told the two apart. This pins the
+ * answer, so the SQL that replaced it is held to the same one: distinct
+ * learners, in owner order, paged without skipping or repeating anybody.
  *
- * THE FIRST IS WHO HAS A COURSE. `programmeFor` answers for everybody: a
- * learner who never opened the module is offered `openingPart` off their
- * level, which is an offer rather than a record, and the letter read it as a
- * course they were following. So somebody who had never pressed a step was
- * told "Tonight is five new words" every evening, about an evening they never
- * chose. A tick is the learner saying they follow the module, which is
- * `moduleReached`'s own rule.
- *
- * THE SECOND IS AN EVENING ALREADY DONE. Finishing tonight's module and then
- * pressing "start the next one now" ticks a step of tomorrow's, so the reading
- * stands on tomorrow's day, unfinished, and the letter asked somebody who had
- * just done their evening to go and do it.
+ * The clock is set in 2090, because the roster is deployment-wide and other
+ * suites share this database: inside a 45-day window that far out, the only
+ * reviews are the ones written here.
  */
 
-const OWNER = "itest-owner-mailout-evening";
-const PROGRAMME = PROGRAMMES[0]!;
-/** 21:00 in Tallinn on a Wednesday: inside the evening window, past 18:00. */
-const NOW = new Date("2026-05-13T18:00:00Z");
-const EVENING = new Date(NOW.getTime() - 2 * 60 * 60_000);
+const NOW = new Date("2090-03-01T12:00:00.000Z");
+const DAY = 86_400_000;
+const OWNERS = ["itest-mail-a", "itest-mail-b", "itest-mail-c", "itest-mail-d", "itest-mail-e"];
+const STALE = "itest-mail-stale";
 
 async function wipe() {
-  await prisma.setting.deleteMany({ where: { ownerId: OWNER } });
-  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
-  await prisma.review.deleteMany({ where: { ownerId: OWNER } });
-  await prisma.card.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.review.deleteMany({ where: { ownerId: { in: [...OWNERS, STALE] } } });
 }
 
-async function zone() {
-  await prisma.setting.create({
-    data: { ownerId: OWNER, key: SETTING_KEYS.timeZone, value: "Europe/Tallinn" },
+beforeAll(async () => {
+  await wipe();
+  const rows = OWNERS.flatMap((ownerId, i) =>
+    // Several reviews apiece, so deduplication is what the answer turns on.
+    Array.from({ length: i + 2 }, (_, n) => ({
+      ownerId, cardId: `itest-mail-card-${i}-${n}`, rating: 3,
+      reviewedAt: new Date(NOW.getTime() - (n + 1) * DAY),
+    })),
+  );
+  // One learner who answered only before the window, who must not appear.
+  rows.push({
+    ownerId: STALE, cardId: "itest-mail-card-stale", rating: 3,
+    reviewedAt: new Date(NOW.getTime() - (LOOK_BACK_DAYS + 5) * DAY),
   });
-}
+  await prisma.review.createMany({ data: rows });
+});
 
-/** The day's words, met, so the "meet the words" step is proved off the log. */
-async function deck(words: readonly string[]) {
-  const lexemes = await prisma.lexeme.findMany({
-    where: { lemma: { in: [...new Set(words)] } }, select: { id: true },
-  });
-  expect(lexemes.length, "run `npm run db:seed`: the dictionary cannot supply the day's words")
-    .toBeGreaterThan(0);
-  for (const lexeme of lexemes) {
-    await prisma.card.create({
-      data: {
-        ownerId: OWNER, lexemeId: lexeme.id, cardType: "RECOGNITION",
-        front: "x", back: "y", state: 1,
-        due: new Date(NOW.getTime() + 24 * 3600_000), stability: 0, difficulty: 0,
-        elapsedDays: 0, scheduledDays: 0, reps: 1, lapses: 0, learningSteps: 0,
-      },
-    });
-  }
-}
+afterAll(async () => {
+  await wipe();
+});
 
-async function tick(dayId: string, stepIds: readonly string[], at: Date) {
-  for (const [n, stepId] of stepIds.entries()) {
-    await prisma.courseStep.create({
-      data: {
-        ownerId: OWNER, programmeId: PROGRAMME.id, dayId, stepId,
-        createdAt: new Date(at.getTime() + n * 1000),
-      },
-    });
-  }
-}
-
-async function review(n: number, at: Date) {
-  const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
-  for (let i = 0; i < n; i += 1) {
-    await prisma.review.create({
-      data: {
-        ownerId: OWNER, cardId: card!.id, lexemeId: card!.lexemeId,
-        rating: 3, durationMs: 4000, reviewedAt: new Date(at.getTime() + i * 1000),
-      },
-    });
-  }
-}
-
-const ticked = (day: (typeof PROGRAMME.days)[number]) =>
-  day.steps.filter((s) => !s.derived).map((s) => s.id);
-
-async function owed() {
-  const who = await candidateFor(OWNER, NOW);
-  return letterOwed({ ...who, email: "learner@example.test" }, NOW)?.kind ?? null;
-}
-
-beforeEach(wipe);
-afterAll(async () => { await wipe(); await prisma.$disconnect(); });
-
-describe("the evening letter", () => {
-  it("is not sent to somebody who has never started the module", async () => {
-    await zone();
-    expect(await owed()).not.toBe("tonight");
+describe("mailoutRoster", () => {
+  it("names every learner in the window once, and nobody from before it", async () => {
+    const roster = await mailoutRoster(NOW, 100);
+    expect(roster).toEqual([...OWNERS].sort());
   });
 
-  it("is sent to somebody who started it and has not done tonight", async () => {
-    const [one] = PROGRAMME.days;
-    await zone();
-    await deck(one!.words);
-    await tick(one!.id, ticked(one!).slice(0, 1), new Date(NOW.getTime() - 24 * 3600_000));
-    expect(await owed()).toBe("tonight");
+  it("pages in owner order and covers everybody without repeating anybody", async () => {
+    const limit = 2;
+    const pages = Math.ceil(OWNERS.length / limit);
+    const seen: string[] = [];
+    // `rosterPage` keys on the day plus the hour of the day, so inside one day
+    // one hour apart is one page apart. `rosterPage.test.ts` drives the daily
+    // cadence the deployment actually has; this drives the SQL.
+    for (let hour = 0; hour < pages; hour += 1) {
+      const at = new Date(NOW.getTime() + hour * 3_600_000);
+      const page = await mailoutRoster(at, limit);
+      expect(page.length).toBeLessThanOrEqual(limit);
+      expect([...page].sort()).toEqual(page);
+      seen.push(...page);
+    }
+    expect(new Set(seen).size).toBe(seen.length);
+    expect([...seen].sort()).toEqual([...OWNERS].sort());
   });
 
-  it("is not sent after tonight's module was finished and the next one started", async () => {
-    const [one, two] = PROGRAMME.days;
-    await zone();
-    await deck([...one!.words, ...two!.words]);
-    await tick(one!.id, ticked(one!), EVENING);
-    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
-    // "Start the next one now", pressed straight after.
-    await tick(two!.id, ticked(two!).slice(0, 1), new Date(EVENING.getTime() + 10 * 60_000));
-    expect(await owed()).not.toBe("tonight");
+  it("starts each page where rosterPage says", () => {
+    expect(rosterPage(NOW, 5, 2) % 2).toBe(0);
+    expect(rosterPage(NOW, 1, 2)).toBe(0);
   });
 });
