@@ -6179,10 +6179,12 @@ check("a placement question is answered in Estonian, not about it", () => {
     and the comitative, and a learner who knew the comitative was marked wrong
     for it.
 
-    So: a case name may appear in the explanation after an answer, where it is
-    a cross-reference for somebody who is also taking a course, and it may not
-    appear in a question. Anchored on the question strings the builders write,
-    because that is the thing a learner has to answer.
+    So a case name may not appear in a question. Anchored on the question
+    strings the builders write, because that is the thing a learner has to
+    answer. The explanation after an answer names no case either, and that is
+    asserted where it can be asked of what a builder actually returns: the
+    "never names the case" test in `lib/assessment/items.test.ts` builds every
+    gap explanation off its fixture words and reads each one for every name.
   */
   const source = read("lib/assessment/items.ts");
   const questions = [...source.matchAll(/^\s*question:\s*(.+?),?$/gm)].map((m) => m[1] ?? "");
@@ -16245,6 +16247,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
   assert.match(tutorRoute, /after\(\(\) => persist\(/, "the tutor route no longer hands the write that forgets yesterday to after()");
   assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
   assert.match(read("docs/25-data-retention.md"), /Tutor conversation \(`Message`\) \| 24 hours/, "the retention schedule no longer says a tutor conversation lasts a day");
+  assert.match(read("docs/24-dpia.md"), /\| `Message` \| What they typed to the tutor and what came back \| 24 hours/, "the DPIA's register no longer says a tutor conversation lasts a day");
   assert.match(read("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
 });
 
@@ -19965,7 +19968,13 @@ check("every round reads the key that moves forward through isAdvanceKey", () =>
     source.split("\n").forEach((line, i) => {
       if (!bare.test(line)) return;
       if (/metaKey|ctrlKey/.test(line)) return;
-      if (/isAdvanceKey/.test(source) && /!==\s*"Enter"/.test(line) && /check/i.test(source)) return;
+      // Enter submitting a typed answer is the field's gesture rather than the
+      // card's, so a bare `!== "Enter"` is allowed where the lines under it
+      // hand the key to the round's own marker and nothing else.
+      if (/!==\s*"Enter"\)\s*return;/.test(line)) {
+        const after = source.split("\n").slice(i + 1, i + 4).join("\n");
+        if (/\bvoid check\(\);|\bcheck\(\);|\bsubmit\(\);/.test(after)) return;
+      }
       assert.fail(`${file}:${i + 1} compares against Enter or Space by hand. Read isAdvanceKey() from lib/ux/advanceKey.ts.`);
     });
   }
