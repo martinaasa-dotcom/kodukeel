@@ -11333,6 +11333,147 @@ check("every marker the merge ritual names is still somewhere in the tree", () =
   );
 });
 
+check("every upper-case name CLAUDE.md gives is one the code still has", () => {
+  /*
+    A NAME IN THIS FILE IS AN INSTRUCTION, AND A NAME NOTHING READS IS AN
+    INSTRUCTION TO DO NOTHING.
+
+    The model section told an operator that `OPENROUTER_VISION_MODEL` points the
+    scanner at a model that can see, for months after OpenRouter left the chain
+    and the variables that do it became `GEMINI_VISION_MODEL` and friends. An
+    operator who set it got a variable that is read by nothing, which looks
+    exactly like one that works. The merge ritual above has a check like this
+    for its own list; nothing held the rest of the file.
+
+    Upper-case with an underscore only, because that is how this repository
+    spells an environment variable and a constant, and both are the kind of
+    name somebody types into a dashboard or a search box on the strength of
+    this page. The haystack is the code and `.env.example` and never `docs/`,
+    which describes as readily as this file does.
+  */
+  const EXEMPT: Record<string, string> = {
+    AI_TAG:
+      "named as a past fault of this suite, an assertion that matched its own import line, "
+      + "in the paragraph about reading code rather than prose; the constant went with the chip",
+  };
+  const claude = read("CLAUDE.md");
+  const names = [...new Set([...claude.matchAll(/`([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)`/g)].map((m) => m[1]!))];
+  assert.ok(names.length >= 100, `only ${names.length} upper-case names parsed out of CLAUDE.md; the pattern moved`);
+  const haystack = [
+    ...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/), ...sourceFiles("prisma"),
+    ...sourceFiles(".github", /\.ya?ml$/),
+    "middleware.ts", "next.config.ts", ".env.example",
+  ].filter((f) => existsSync(f) && f !== "scripts/test-invariants.ts").map(read).join("\n");
+  const gone = names.filter((n) => !(n in EXEMPT) && !haystack.includes(n));
+  assert.deepEqual(gone, [], `CLAUDE.md names ${gone.join(", ")} and nothing in the code has it`);
+  for (const [name, why] of Object.entries(EXEMPT)) {
+    assert.ok(why.length > 40, `${name} is exempt with no reason`);
+    assert.ok(names.includes(name), `${name} is exempt and CLAUDE.md no longer names it`);
+    assert.ok(!haystack.includes(name), `${name} is exempt and the code has it again`);
+  }
+});
+
+check("every provider variable CLAUDE.md's model configuration names is one the app reads", () => {
+  /*
+    Stricter than the check above for the one section where a name is an
+    instruction to an operator: there, being in the code is not enough, it has
+    to be read from the environment. `OPENROUTER_VISION_MODEL` sat in this
+    section months after OpenRouter left the chain, so an operator who set it
+    changed nothing. Written first in #341, folded in here with the rewrite of
+    the section it reads.
+  */
+  const everywhere = [
+    ...ALL, "middleware.ts", "next.config.ts", join("prisma", "schema.prisma"),
+  ].map((f) => read(f)).join("\n");
+
+  const doc = read("CLAUDE.md");
+  const start = doc.indexOf("\n## Model configuration");
+  assert.ok(start >= 0, "CLAUDE.md has no \"## Model configuration\" section, so this check stopped looking");
+  const end = doc.indexOf("\n## ", start + 1);
+  const section = doc.slice(start, end < 0 ? undefined : end);
+
+  const named = [...new Set(
+    [...section.matchAll(/`([A-Z][A-Z0-9_]*_(?:API_KEY|MODEL))`/g)].map((m) => m[1]!),
+  )];
+  assert.ok(named.length >= 4, `only found ${named.length} named variables, so this check stopped looking`);
+
+  for (const key of named) {
+    // A name the code declares is a pinned constant (`VISION_MODEL`), which the
+    // section names on purpose; it has to exist, and it is not a variable.
+    if (new RegExp(`export const ${key}\\b`).test(everywhere)) continue;
+    assert.ok(
+      new RegExp(`process\\.env\\.${key}\\b|process\\.env\\["${key}"\\]|\\benv\\.${key}\\b`).test(everywhere),
+      `CLAUDE.md's model configuration tells an operator ${key} configures the chain, and nothing reads it.`,
+    );
+  }
+});
+
+check("a value CLAUDE.md states for a constant is the value the code holds", () => {
+  /*
+    TWO PARAGRAPHS OF THIS FILE GAVE THE SCENE COMPOSER'S LIMITS, BOTH IN THE
+    PRESENT TENSE, AND NEITHER WAS THE CODE.
+
+    One said `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` twenty-two; the
+    other, written when the leash came off, said five and forty; `gate.ts` holds
+    five and fifty-five. A number in prose beside a constant is a second copy of
+    the constant, and it is the copy nobody's editor jumps to when the first one
+    moves.
+
+    Read as "`NAME` is N", digits or a number word, and compared only where the
+    code declares that name once as a plain numeric literal. A name declared in
+    several files, or to anything but a literal, is somebody else's question.
+  */
+  /*
+    Any number word, compounds included, which is the parser #353 wrote for
+    the same check. A list of the words that happened to be in the file would
+    miss the next one somebody types.
+  */
+  const UNITS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  const TENS: Record<string, number> = {
+    twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90,
+  };
+  const numberFrom = (raw: string): number | undefined => {
+    const word = raw.toLowerCase().replace(/[,_]/g, "");
+    if (/^\d+(\.\d+)?$/.test(word)) return Number(word);
+    if (word === "a hundred") return 100;
+    if (UNITS.includes(word)) return UNITS.indexOf(word);
+    if (word in TENS) return TENS[word]!;
+    const [ten, unit] = word.split("-");
+    if (ten && unit && ten in TENS && UNITS.indexOf(unit) > 0 && UNITS.indexOf(unit) < 10) {
+      return TENS[ten]! + UNITS.indexOf(unit);
+    }
+    return undefined;
+  };
+  const declared = new Map<string, string[]>();
+  for (const file of [...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/), ...sourceFiles("prisma")]) {
+    if (/\.i?test\.tsx?$/.test(file) || file === "scripts/test-invariants.ts") continue;
+    for (const m of code(file).matchAll(/\bconst ([A-Z][A-Z0-9_]+)(?:\s*:\s*\w+)?\s*=\s*(\d[\d_]*(?:\.\d+)?)\s*;/g)) {
+      declared.set(m[1]!, [...(declared.get(m[1]!) ?? []), m[2]!.replace(/_/g, "")]);
+    }
+  }
+  const prose = read("CLAUDE.md");
+  const claims = [...prose.matchAll(
+    /`([A-Z][A-Z0-9_]{2,})` (?:is|are) (\d[\d,_]*(?:\.\d+)?|a hundred|[a-z]+(?:-[a-z]+)?)\b/g,
+  )];
+  const wrong: string[] = [];
+  let compared = 0;
+  for (const claim of claims) {
+    const [, name, said] = claim;
+    const values = declared.get(name!);
+    if (!values || new Set(values).size !== 1) continue;
+    const stated = numberFrom(said!);
+    if (stated === undefined) continue;
+    compared += 1;
+    if (stated !== Number(values[0])) {
+      const line = prose.slice(0, claim.index).split("\n").length;
+      wrong.push(`line ${line}: ${name} is ${said} in CLAUDE.md and ${values[0]} in the code`);
+    }
+  }
+  assert.ok(compared >= 6, `only ${compared} stated values compared; the phrasing or the declarations moved`);
+  assert.deepEqual(wrong, [], wrong.join("; "));
+});
+
 check("every script a workflow runs is a script that exists", () => {
   /*
     The invariants already assert that a browser suite CI can run is one CI does
@@ -13406,18 +13547,40 @@ check("the card types are the same seven wherever they are written down", () => 
   documented would be a rule to write filler.
 */
 check("every command the README and CLAUDE.md name is a script that exists", () => {
+  /*
+    AND EVERY COMMAND A COMMENT NAMES, WHICH IS WHERE MOST OF THEM ARE.
+
+    The measurement behind a pinned model is cited in the code beside the pin,
+    not in this file: `provider.ts` says the scanner leads with Gemini because
+    of `npm run eval:scan`, and the grader's chain because of `npm run
+    eval:grader`. Neither was a script. Both instruments existed under
+    `scripts/`, so a reader who doubted a pin and typed the command they were
+    given got "missing script" and no way to re-run the number. The grammar
+    pins' own test sent readers to `audit:grammar-pins`, which is `audit:pins`.
+    This check read the README and CLAUDE.md alone, so none of it was asked.
+
+    This file is out of the haystack, since it names commands in order to
+    describe faults (`npm run test:whatever`), and a flag after `npm run` is
+    not a script name.
+  */
   const scripts = new Set(
     Object.keys(JSON.parse(read("package.json")).scripts as Record<string, string>),
   );
-  const named = new Set(
-    ["README.md", "CLAUDE.md"]
-      .flatMap((file) => [...read(file).matchAll(/npm run ([\w:-]+)/g)])
-      .map((m) => m[1]!),
-  );
-  assert.ok(named.size > 10, "the documentation stopped naming its commands the usual way");
+  const sources = [
+    "README.md", "CLAUDE.md", ...sourceFiles("docs", /\.md$/),
+    ...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), ...sourceFiles("prisma"),
+    ...sourceFiles(".github", /\.ya?ml$/),
+  ].filter((f) => existsSync(f) && f !== "scripts/test-invariants.ts");
+  const named = new Map<string, string>();
+  for (const file of sources) {
+    for (const m of read(file).matchAll(/npm run ([\w:-]+)/g)) {
+      if (!m[1]!.startsWith("-") && !named.has(m[1]!)) named.set(m[1]!, file);
+    }
+  }
+  assert.ok(named.size > 40, `only ${named.size} commands named across the tree; the sweep stopped looking`);
 
-  const missing = [...named].filter((name) => !scripts.has(name)).sort();
-  assert.deepEqual(missing, [], "the documentation names an npm script package.json does not have");
+  const missing = [...named].filter(([name]) => !scripts.has(name)).map(([name, file]) => `${name} (${file})`).sort();
+  assert.deepEqual(missing, [], `named and not in package.json: ${missing.join(", ")}`);
 });
 
 check("the README's dictionary size is the seed's own count", () => {
