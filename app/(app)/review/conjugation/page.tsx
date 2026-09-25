@@ -9,7 +9,7 @@ import { Empty, Page } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { ConjugationSession, type ConjugationQuestion, type Shape, type Tense } from "./ConjugationSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { moduleScopeFrom } from "@/lib/course/scope";
+import { moduleScopeFrom, slotWithin } from "@/lib/course/scope";
 
 export const metadata = { title: "Conjugation" };
 
@@ -133,13 +133,11 @@ export default async function ConjugationPage({
   ];
 
   // The conditional is a B1 point. Below that a round is the present only.
-  // Inside the module, once the conditional's own page has been read: it is
-  // the third unit of B1, and the first evening of B1 is not it.
-  // Inside the module: from B1, once the conditional's own page has been read,
-  // since A2's request unit reads the same page to soften a request and is
-  // not asking anybody to conjugate it.
+  // Inside the module it is whatever `slotWithin` says of a conditional slot,
+  // which is the one answer: from B1, once the conditional's own page has been
+  // read, since A2's request unit reads the same page to soften a request.
   const conditionalToo = scope
-    ? !["A1", "A2"].includes(scope.programme.level) && scope.topics.includes("conditional")
+    ? slotWithin(scope, "KndPrSg1")
     : level !== "A1" && level !== "A2";
 
   const questions: Omit<ConjugationQuestion, "starred" | "shape">[] = [];

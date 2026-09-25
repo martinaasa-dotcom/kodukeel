@@ -1,5 +1,5 @@
 import type { DayClock } from "@/lib/time/day";
-import type { MeasuredPace } from "@/lib/assessment/plan";
+import { MIN_PACE_WEEKS, type MeasuredPace } from "@/lib/assessment/plan";
 
 /**
  * HOW MUCH OF THIS APP A LEARNER ACTUALLY DOES, READ OFF THE LOG.
@@ -74,6 +74,20 @@ export function minutesForCards(cards: number, cardsPerMinute: number | null = n
     ? Math.min(MAX_CARDS_PER_MINUTE, Math.max(MIN_CARDS_PER_MINUTE, cardsPerMinute))
     : DEFAULT_CARDS_PER_MINUTE;
   return Math.max(1, Math.round(Math.max(0, cards) / rate));
+}
+
+/**
+ * The learner's own cards a minute, once the log is long enough to be theirs.
+ *
+ * The plan waits for `MIN_PACE_WEEKS` before it believes the log over what the
+ * learner said, and this is that same threshold for the rate: read raw on the
+ * first day, one evening of Match graded a card every couple of seconds and
+ * the morning promised half the minutes the plan was budgeting for the same
+ * cards. Null below it, which `minutesForCards` reads as the shared default.
+ */
+export function ownCardsPerMinute(pace: MeasuredPace | null): number | null {
+  if (!pace || pace.weeks < MIN_PACE_WEEKS) return null;
+  return pace.cardsPerMinute;
 }
 
 /**

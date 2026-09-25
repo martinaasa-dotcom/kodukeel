@@ -190,7 +190,7 @@ export function summariseCohort(input: CohortInput[], level: ExamLevel): CohortS
     level,
     members,
     counts,
-    active: members.filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview <= QUIET_DAYS).length,
+    active: members.filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview < QUIET_DAYS).length,
     evidence,
   };
 }
@@ -229,7 +229,7 @@ export function withoutMember(summary: CohortSummary, ownerId: string): CohortSu
     counts,
     active: summary.members
       .filter((m) => m.ownerId !== ownerId)
-      .filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview <= QUIET_DAYS).length,
+      .filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview < QUIET_DAYS).length,
     evidence: members.reduce<Evidence>((worst, member) => (
       EVIDENCE_RANK[member.evidence] < EVIDENCE_RANK[worst] ? member.evidence : worst
     ), members.length > 0 ? "good" : "thin"),
