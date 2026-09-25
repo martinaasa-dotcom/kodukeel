@@ -9618,27 +9618,6 @@ check("every cache the service worker writes to is bounded, except the one that 
   }
 });
 
-/**
- * A route that spends something is a route with a ceiling in front of it.
- *
- * `lib/security/rateLimit.ts` opened by saying "three of them do" and naming
- * three, and there were five by then. That drift is exactly how `/api/write`
- * ended up without one: it is `/api/exam/write` with a different prompt, its
- * twin has been throttled since the day it landed, and the only difference
- * between them was which had been written first. Meanwhile `/api/restore` read
- * a body of any size the caller liked and handed it to `JSON.parse` before
- * anything had counted the request.
- *
- * The ledger is what actually bounds the spend, and this is not a second
- * ledger. It is the thing that refuses an obvious loop before it makes a
- * database round trip per attempt, and the only ceiling at all on the routes
- * the ledger does not price: speech, the share card, the export and the
- * restore.
- *
- * Read from the routes rather than from the prose, on the shape of the ledger
- * check above and for the same reason: a paragraph kept four of these honest
- * and did not catch the fifth.
- */
 check("a transaction's own time limit fits inside the function that runs it", () => {
   /*
     `deleteMyAccount` and `restoreBackup` each give their transaction a hundred
@@ -9695,6 +9674,27 @@ check("a transaction's own time limit fits inside the function that runs it", ()
   assert.deepEqual(short, [], `a transaction outlives the function it runs in: ${short.join("; ")}`);
 });
 
+/**
+ * A route that spends something is a route with a ceiling in front of it.
+ *
+ * `lib/security/rateLimit.ts` opened by saying "three of them do" and naming
+ * three, and there were five by then. That drift is exactly how `/api/write`
+ * ended up without one: it is `/api/exam/write` with a different prompt, its
+ * twin has been throttled since the day it landed, and the only difference
+ * between them was which had been written first. Meanwhile `/api/restore` read
+ * a body of any size the caller liked and handed it to `JSON.parse` before
+ * anything had counted the request.
+ *
+ * The ledger is what actually bounds the spend, and this is not a second
+ * ledger. It is the thing that refuses an obvious loop before it makes a
+ * database round trip per attempt, and the only ceiling at all on the routes
+ * the ledger does not price: speech, the share card, the export and the
+ * restore.
+ *
+ * Read from the routes rather than from the prose, on the shape of the ledger
+ * check above and for the same reason: a paragraph kept four of these honest
+ * and did not catch the fifth.
+ */
 check("a route that spends something is throttled", () => {
   const routes = APP.filter((file) => /[\\/]api[\\/].*route\.tsx?$/.test(file));
   assert.ok(routes.length >= 8, `only found ${routes.length} route handlers, so this check stopped looking`);
