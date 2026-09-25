@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, type DictEntry } from "./lexicon";
-import type { GateContext } from "./gate";
+import { CHECKS, type GateContext } from "./gate";
 import { MAX_COMPOSE_ATTEMPTS, pickAttested, sceneLine, whyWithheld, type LineRequest } from "./line";
 import { topicForms } from "./retrieval";
 import type { BeatSpec } from "./types";
@@ -352,6 +352,14 @@ describe("what a retry is told", () => {
     expect(whyWithheld({ failed: ["facts", "giveaway"], unknown: [], stretched: [] })).toMatch(/hand them the answer/);
     // Words are the retry note's job; the reason says nothing about them.
     expect(whyWithheld({ failed: ["vouching"], unknown: ["blorp"], stretched: [] })).toBeUndefined();
+  });
+
+  it("has a reason for every check but the two the word note speaks for", () => {
+    for (const check of CHECKS) {
+      const why = whyWithheld({ failed: [check], unknown: [], stretched: [] });
+      if (check === "vouching" || check === "stretch") expect(why).toBeUndefined();
+      else expect(why, check).toMatch(/\w{3,}/);
+    }
   });
 
   it("reaches the composer beside the words, so a number nobody dealt is not written three times", async () => {
