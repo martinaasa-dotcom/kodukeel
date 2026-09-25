@@ -93,6 +93,35 @@ describe("correcting a shared dictionary entry", () => {
     expect(survivors.map((f) => f.value).sort()).toEqual(["toas", "tubadega"]);
   });
 
+  it("leaves alone the principal parts the correction did not name", async () => {
+    /*
+      Accepting a "this word is missing" report for a word the dictionary
+      already holds passes a gloss and whatever forms the reporter typed. Every
+      principal part used to be deleted and only those written back, so the
+      entry lost its genitive and its partitive for everybody.
+    */
+    const lexeme = await seedWord();
+    await upsertLexemeWithForms({
+      lemma: LEMMA, pos: "NOUN", translation: "room", forms: {}, editedBy: MINE,
+    });
+    const forms = await prisma.form.findMany({ where: { lexemeId: lexeme.id } });
+    expect(forms.map((f) => `${f.formType}=${f.value}`).sort()).toEqual([
+      "EKILEX:PlKom=tubadega", "EKILEX:SgIn=toas", "GEN_SG=toa", "NOM_SG=tuba", "PART_SG=tuba",
+    ]);
+    const after = await prisma.lexeme.findUniqueOrThrow({ where: { id: lexeme.id } });
+    expect(after.gradation).not.toBe("NONE");
+  });
+
+  it("clears a principal part the correction named empty", async () => {
+    const lexeme = await seedWord();
+    await upsertLexemeWithForms({
+      id: lexeme.id, lemma: LEMMA, pos: "NOUN", translation: "room",
+      forms: { NOM_SG: "tuba", GEN_SG: "toa", PART_SG: "" }, editedBy: MINE,
+    });
+    const forms = await prisma.form.findMany({ where: { lexemeId: lexeme.id, isPrincipal: true } });
+    expect(forms.map((f) => f.formType).sort()).toEqual(["GEN_SG", "NOM_SG"]);
+  });
+
   it("leaves alone the columns the correction did not supply", async () => {
     /*
       `upsertLexemeWithForms` took a `notes` parameter and wrote

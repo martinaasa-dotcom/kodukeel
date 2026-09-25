@@ -269,10 +269,11 @@ describe("a chain built for a purpose", () => {
       wrong in a way the learner cannot see is worse than no answer, whoever
       wrote it, so there is nothing worth falling to.
 
-      `npm run eval:anu` now asks the same six questions through the route's own
-      transport, and `openai/gpt-oss-120b` answered all six on three separate
-      runs with no invented form, which is what moved her onto it. The rule
-      underneath is unchanged: one model, measured, and nothing behind it.
+      `npm run eval:anu` now asks thirty-seven questions through the route's
+      own transport, and her chain is the two links that eval measured,
+      `gemini-3.1-flash-lite` and then `openai/gpt-oss-120b` behind it. The
+      rule underneath is unchanged: only measured models, and nothing behind
+      them.
     */
     all();
     expect(resolveProviders({ purpose: "tutor", allowFallback: true }).map((c) => c.name))

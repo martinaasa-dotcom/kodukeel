@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/db";
 import { editExamples } from "@/lib/dict/editExamples";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
+import { replaceForms } from "@/lib/dict/replaceForms";
 import { isPrincipalFormType } from "@/lib/estonian/types";
-import type { Patch } from "./model";
+import { createWordClash, type Patch } from "./model";
 
 /**
  * Pushing an accepted change into the shared dictionary.
@@ -45,6 +46,24 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
 
   switch (patch.kind) {
     case "CREATE_WORD": {
+      /*
+        REFUSED WHERE THE WORD IS ALREADY HERE, on this read rather than on the
+        queue's. The queue draws no Accept button for such a row, and its page
+        is not revalidated between clicks, so a page loaded before the word
+        arrived still offers one; writing through it replaced the gloss every
+        learner reads with whatever the reporter typed. A correction to an
+        entry that exists is a different report with a different patch.
+      */
+      const existing = await prisma.lexeme.findMany({
+        where: { lemma: { equals: patch.lemma, mode: "insensitive" }, pos: patch.pos },
+        select: { lemma: true, pos: true },
+      });
+      if (createWordClash(patch, existing)) {
+        return {
+          ok: false,
+          error: `The dictionary already has ${patch.lemma}, so nothing was written. Correct its entry instead.`,
+        };
+      }
       const written = await upsertLexemeWithForms({
         lemma: patch.lemma,
         translation: patch.translation,
@@ -95,10 +114,14 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
       if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };
 
-      await prisma.form.deleteMany({ where: { lexemeId: lexeme.id, formType: patch.formType } });
-      await prisma.form.create({
-        data: { lexemeId: lexeme.id, formType: patch.formType, value: patch.value, isPrincipal: true },
-      });
+      // Under the entry's own row: two reviewers accepting two corrections to
+      // one slot at once otherwise leave both values standing, since the value
+      // is part of the unique key. See lib/dict/replaceForms.ts.
+      await replaceForms(
+        lexeme.id,
+        [{ formType: patch.formType, value: patch.value, isPrincipal: true }],
+        { formType: patch.formType },
+      );
       await prisma.lexeme.update({
         where: { id: lexeme.id },
         data: { editedBy: reviewerId, editedAt: new Date() },

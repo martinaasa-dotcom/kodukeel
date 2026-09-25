@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
-import { paperFor } from "@/lib/progress/exam";
+import { paperFor, sittingOf } from "@/lib/progress/exam";
 import { isExamLevel } from "@/lib/exam/spec";
 import { fillRate } from "@/lib/exam/paper";
 import { freshSeed } from "@/lib/exam/seed";
@@ -32,7 +32,13 @@ export default async function ExamLevelPage({ params, searchParams }: {
   searchParams: Promise<{ seed?: string | string[] }>;
 }) {
   const { level } = await params;
-  const { seed } = firstParams(await searchParams);
+  const first = firstParams(await searchParams).seed;
+  /*
+    Only a seed the hand-in will take. `submitExam` refuses anything longer
+    than 64 characters, and an over-long parameter built a paper that could be
+    sat for three hours and never handed in. Anything else is a fresh paper.
+  */
+  const seed = first && first.length <= 64 ? first : undefined;
   const upper = level.toUpperCase();
   if (!isExamLevel(upper)) notFound();
 
@@ -45,6 +51,10 @@ export default async function ExamLevelPage({ params, searchParams }: {
   }
 
   const ownerId = await requireUserId();
+  // A paper already handed in opens on its result: sitting it again with the
+  // answers in hand would be copying rather than sitting.
+  const sat = await sittingOf(ownerId, upper, seed);
+  if (sat) redirect(`/exam/result/${sat.id}`);
   const paper = await paperFor(ownerId, upper, seed);
 
   return <ExamSession paper={paper} fillRate={fillRate(paper)} />;

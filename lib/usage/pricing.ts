@@ -238,6 +238,9 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
 };
 
 /** Charged when the model is not in the table. Deliberately the dearest rate. */
+/** Every model the table prices, so a test can hold each row above zero. */
+export const PRICED_MODELS: readonly string[] = Object.keys(PRICES);
+
 export const UNKNOWN_MODEL: ModelPrice = { inputPerMTok: 10, outputPerMTok: 50 };
 
 /**

@@ -116,7 +116,7 @@ export const SECTIONS: NavSection[] = [
     items: [
       {
         href: "/", label: "Today", blurb: "Due cards, your goal, the streak", icon: "Sun", tone: "butter",
-        keywords: "home dashboard streak quests goal xp", bar: true,
+        keywords: "home dashboard streak quest goal errand word of the day", bar: true,
       },
       /*
         WHERE THE "REVIEW" ROW USED TO BE, AND WHY IT IS NOT THAT ANY MORE.
