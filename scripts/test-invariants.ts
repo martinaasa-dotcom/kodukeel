@@ -2577,8 +2577,15 @@ check("no code path updates a review", () => {
     up by editing history is exactly what must not be learned from, and a
     fixture can always write the row it wants in the first place.
   */
+  /*
+    And the other two ways to rewrite a row: `upsert`, which is an update on
+    the row that exists, and raw SQL, which the client-shaped pattern could
+    not see at all. Either passed the one-spelling version of this.
+  */
   for (const file of ALL) {
-    assert.equal(/review\.update/.test(code(file)), false, `${file} updates a review`);
+    assert.equal(
+      /review\.(update|upsert)|\bUPDATE\s+"Review"/i.test(code(file)), false, `${file} updates a review`,
+    );
   }
 });
 
@@ -2594,7 +2601,7 @@ check("a review is only ever deleted by something the learner asked for", () => 
   */
   const deleters = ALL
     .filter((f) => !/\.(test|itest)\.tsx?$/.test(f))
-    .filter((f) => /review\.delete/.test(read(f)));
+    .filter((f) => /review\.delete|\bDELETE\s+FROM\s+"Review"|\bTRUNCATE\b[^;`]*"Review"/i.test(read(f)));
   assert.deepEqual(deleters, ["app/actions.ts"], "a review is deleted outside the paths that may");
 
   const actions = read("app/actions.ts");
@@ -2642,7 +2649,9 @@ check("no counter column exists for anything the review log can reconstruct", ()
     are the two values no log can reconstruct: a personal best, and which days
     a shield has already covered.
   */
-  const counters = /^\s*(xp|totalXp|level|streak|currentStreak|cardsKnown|accuracy)\s+Int/im;
+  // Any number type, and the family rather than the six names: `streakDays`,
+  // `wordsKnown` or an `accuracy Float` is the same stored score.
+  const counters = /^\s*(xp\w*|totalXp|level|streak\w*|currentStreak|\w*Known|accuracy|reviewCount)\s+(Int|Float|Decimal|BigInt)\b/im;
   const hit = counters.exec(SCHEMA);
   assert.equal(hit, null, `the schema stores ${hit?.[1]}, which the review log already answers`);
 });
