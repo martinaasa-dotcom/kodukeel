@@ -52,6 +52,7 @@ function context(over: Partial<TurnContext> = {}): TurnContext {
   return {
     lexicon: LEX,
     questionWords: new Set(["kus", "millal"]),
+    askingForms: new Set(["küsida", "küsin", "otsin"]),
     negators: new Set(["ei"]),
     registerForms: new Set(["teie", "teil", "teile"]),
     hasFiniteVerb: (word: string) => word === "on",
@@ -340,6 +341,21 @@ describe("reading a turn", () => {
     expect(readTurn("Kus?", asks, context()).reading).toBe("complete");
     expect(readTurn("Kus see on", asks, context()).reading).toBe("complete");
     expect(readTurn("valu", asks, context()).reading).not.toBe("complete");
+  });
+
+  /*
+    Naming the act of asking is asking. `probe:turns` read `Ma otsin panka` on
+    the way to a bank and `Ma tahan palga kohta küsida` at an interview as a
+    turn that had not asked yet, and the other side waited for a question the
+    learner had just put.
+  */
+  it("takes a turn that names the act of asking as a question", () => {
+    const asks = beat({ needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["valu"] }] });
+    expect(readTurn("ma otsin valu", asks, context()).reading).toBe("complete");
+    expect(readTurn("valu kohta küsida", asks, context()).reading).toBe("complete");
+    expect(readTurn("valu", asks, context()).reading).not.toBe("complete");
+    // Where the scene's units teach neither verb, nothing is read into them.
+    expect(readTurn("ma otsin valu", asks, context({ askingForms: new Set() })).reading).not.toBe("complete");
   });
 
   /*
