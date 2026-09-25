@@ -91,19 +91,18 @@ export function buildReport(result: ExamResult): ExamReport {
   const set = ordered.filter((p) => p.rawAvailable > 0);
   const best = set[set.length - 1];
 
-  const headline = result.passed
+  const [headline, consequence] = result.part ? partSentences(result) : [result.passed
     ? `${result.points} of ${result.maxPoints} points, ${result.pct} percent. That is a pass at ${result.level}.`
     : result.zeroPart
       ? `${result.pct} percent overall, but ${SKILL_LABEL[result.zeroPart].toLowerCase()} scored nothing, and a zero in one part fails the paper.`
-      : `${result.points} of ${result.maxPoints} points, ${result.pct} percent. A pass is ${PASS_PCT}.`;
-
-  const consequence = result.passed
+      : `${result.points} of ${result.maxPoints} points, ${result.pct} percent. A pass is ${PASS_PCT}.`,
+  result.passed
     ? "On a real sitting this would be a certificate."
     : result.waitBeforeResit
       ? `Under ${RETAKE_WAIT_PCT} percent, a real candidate waits six months before sitting again. Worth knowing before booking one.`
       : result.zeroPart
         ? zeroPartConsequence(result.pct, SKILL_LABEL[result.zeroPart].toLowerCase())
-        : `You are ${PASS_PCT - result.pct} points of percentage short. That is one part, not four.`;
+        : `You are ${PASS_PCT - result.pct} points of percentage short. That is one part, not four.`];
 
   const gaps: Feedback[] = [];
   if (result.absentParts.length > 0) {
@@ -125,7 +124,9 @@ export function buildReport(result: ExamResult): ExamReport {
       id: `part-${part.skill}`,
       title: `${part.label} scored ${part.points} of ${part.maxPoints}`,
       detail: part.points === 0
-        ? "Nothing at all, which fails the paper on its own however the rest went."
+        ? result.part
+          ? "Nothing at all. On the day a part at nought fails the paper however the rest went."
+          : "Nothing at all, which fails the paper on its own however the rest went."
         : `${part.pct} percent of the marks on offer. ${taskDetail(part)}`,
       href: where.href,
       cta: where.cta,
@@ -202,4 +203,22 @@ function taskDetail(part: PartResult): string {
   if (!weakest) return "";
   const pct = Math.round((weakest.raw / weakest.rawAvailable) * 100);
   return `Most of it went on "${weakest.title}", at ${pct} percent.`;
+}
+
+/*
+  ONE PART ON ITS OWN IS NOT A SITTING, AND THE TWO SENTENCES SAY SO.
+
+  The real examination is four parts on one day, marked together, with the rule
+  that no part may score nothing. A reading sat alone at 70 percent is a good
+  reading and nothing more: calling it a pass would be the flattering
+  measurement this feature exists to avoid, and saying a candidate would wait
+  six months would be a rule about a sitting nobody sat.
+*/
+function partSentences(result: ExamResult): [string, string] {
+  const label = SKILL_LABEL[result.part!];
+  const headline = `${label} on its own: ${result.points} of ${result.maxPoints} points, ${result.pct} percent.`;
+  const consequence = result.pct >= PASS_PCT
+    ? `At or above the ${PASS_PCT} percent the whole paper needs. The examination marks all four parts together, so sit the whole paper to know where you stand.`
+    : `Under the ${PASS_PCT} percent the whole paper needs. On the day the other parts can make up for it, as long as none of them scores nothing.`;
+  return [headline, consequence];
 }

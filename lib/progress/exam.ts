@@ -3,9 +3,10 @@ import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseAccuracy, matureRecall, REVIEW_STATE } from "@/lib/stats/history";
-import { buildPaper, type PoolWord, type Paper } from "@/lib/exam/paper";
-import { drawPool, eligibleFor, eligibleLevels } from "@/lib/exam/pool";
-import { seedIssuedAt } from "@/lib/exam/seed";
+import { type PoolWord, type Paper } from "@/lib/exam/paper";
+import { assemblePaper } from "@/lib/exam/assemble";
+import { eligibleFor, eligibleLevels, poolForSeed } from "@/lib/exam/pool";
+import { numberedOf, seedIssuedAt } from "@/lib/exam/seed";
 import type { ExamResult } from "@/lib/exam/score";
 import type { ExamLevel } from "@/lib/exam/spec";
 import type { PastAttempt, ReadinessSignals, SkillEvidence } from "@/lib/exam/readiness";
@@ -100,11 +101,11 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
     entries, and every other column here is written by a lookup. One narrow
     read of a few thousand ids, twice per sitting.
   */
-  const ids = (await prisma.lexeme.findMany({
+  const ids = await prisma.lexeme.findMany({
     where: eligible,
-    select: { id: true },
+    select: { id: true, cefr: true },
     orderBy: { id: "asc" },
-  })).map((row) => row.id);
+  });
 
   /*
     The app's one shuffle, handed the paper's own seed. A seed of its own
@@ -112,7 +113,7 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
     of the questions inside it are not the same walk; `lib/exam/paper.ts` is
     the one module that keeps a private shuffle, and this is not it.
   */
-  const drawn = drawPool(ids, level, seed);
+  const drawn = poolForSeed(ids, level, seed);
 
   const rows = await prisma.lexeme.findMany({
     where: { id: { in: drawn } },
@@ -174,7 +175,7 @@ export async function paperFor(
     from the same words.
   */
   const wordOrder = await orderContextFor(pool.flatMap((w) => w.examples.map((e) => e.et)));
-  return buildPaper(level, pool, seed, wordOrder);
+  return assemblePaper(level, pool, seed, wordOrder);
 }
 
 // ── The signals behind the confidence figure ─────────────────────────────────
@@ -467,7 +468,7 @@ export async function recentAttempts(
     where: measured ? { ownerId, restoredAt: null } : { ownerId },
     orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
     take: ATTEMPT_WINDOW,
-    select: { level: true, pct: true, passed: true, finishedAt: true, result: true },
+    select: { level: true, pct: true, passed: true, finishedAt: true, result: true, part: true, seed: true },
   });
 
   return rows.map((row) => ({
@@ -476,6 +477,9 @@ export async function recentAttempts(
     passed: row.passed,
     at: row.finishedAt.toISOString(),
     parts: partPercentages(row.result),
+    whole: row.part === null,
+    number: numberedOf(row.seed)?.number ?? null,
+    part: (row.part as SkillKey | null) ?? null,
   }));
 }
 
@@ -532,9 +536,12 @@ export async function previousAttempt(
   ownerId: string,
   level: ExamLevel,
   before: Date,
+  part: SkillKey | null = null,
 ): Promise<{ pct: number; passed: boolean; at: Date } | null> {
+  // Like with like: a reading sat on its own is compared with readings sat on
+  // their own, never with a whole paper, whose percentage is of four parts.
   const row = await prisma.examAttempt.findFirst({
-    where: { ownerId, level, finishedAt: { lt: before } },
+    where: { ownerId, level, part, finishedAt: { lt: before } },
     orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
     select: { pct: true, passed: true, finishedAt: true },
   });
@@ -553,10 +560,11 @@ export async function bestAt(
   ownerId: string,
   level: ExamLevel,
   before: Date,
+  part: SkillKey | null = null,
 ): Promise<number | null> {
   const row = await prisma.examAttempt.findFirst({
-    where: { ownerId, level, finishedAt: { lt: before } },
-    orderBy: { pct: "desc" },
+    where: { ownerId, level, part, finishedAt: { lt: before } },
+    orderBy: [{ pct: "desc" }, { id: "asc" }],
     select: { pct: true },
   });
   return row?.pct ?? null;
@@ -649,9 +657,56 @@ async function createAttempt(
       pct: input.result.pct,
       passed: input.result.passed,
       result: JSON.stringify(input.result),
+      part: input.result.part ?? null,
       startedAt: input.startedAt,
       finishedAt: new Date(),
     },
     select: { id: true, pct: true, passed: true },
   });
+}
+
+/** What one learner has done with one numbered paper. */
+export interface NumberedPaperRecord {
+  readonly number: number;
+  /** The last time the whole paper was sat, or null. */
+  readonly whole: { id: string; pct: number; passed: boolean } | null;
+  /** The last sitting of each part sat alone. */
+  readonly parts: Partial<Record<SkillKey, { id: string; pct: number }>>;
+}
+
+/**
+ * Every numbered paper at a level, with what this learner has done with each.
+ *
+ * Derived from the sittings on every render (ADR-014): nothing stores which
+ * paper somebody has reached. The read is bounded by the sittings a person can
+ * make, and ordered newest first so the first one seen per paper and part is
+ * the latest.
+ */
+export async function numberedPapers(
+  ownerId: string, level: ExamLevel, count: number,
+): Promise<NumberedPaperRecord[]> {
+  const rows = await prisma.examAttempt.findMany({
+    where: { ownerId, level, seed: { startsWith: "p" } },
+    orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
+    take: 2_000,
+    select: { id: true, seed: true, pct: true, passed: true, part: true },
+  });
+
+  const records = Array.from({ length: count }, (_, i) => ({
+    number: i + 1,
+    whole: null as NumberedPaperRecord["whole"],
+    parts: {} as Record<string, { id: string; pct: number }>,
+  }));
+  for (const row of rows) {
+    const numbered = numberedOf(row.seed);
+    if (!numbered) continue;
+    const record = records[numbered.number - 1];
+    if (!record) continue;
+    if (row.part === null) {
+      record.whole ??= { id: row.id, pct: row.pct, passed: row.passed };
+    } else if (!record.parts[row.part]) {
+      record.parts[row.part] = { id: row.id, pct: row.pct };
+    }
+  }
+  return records;
 }

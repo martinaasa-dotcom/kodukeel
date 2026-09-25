@@ -39,8 +39,11 @@ page.on("console", (m) => {
   What the paper cannot check here is the one thing that needs a clock nobody
   will sit through: a part closing when its time runs out. The shortest part on
   the shortest paper is twelve minutes.
+
+  And 66 rather than 58: the numbered papers and one part sat on its own are
+  eight checks more, all of them reached on the state CI seeds.
 */
-const { check, absent, done } = suite("The mock examination", { floor: 58 });
+const { check, absent, done } = suite("The mock examination", { floor: 66 });
 
 // ── The hub ──────────────────────────────────────────────────────────────────
 
@@ -429,6 +432,59 @@ if (!landed) {
   check("the sitting shows up on the hub afterwards",
     /Papers you have sat/i.test(await page.locator("body").innerText()) &&
     (await page.getByText(/percent, (pass|not a pass)/).count()) > 0);
+}
+
+// ── A numbered paper, one part at a time ─────────────────────────────────────
+
+/*
+  The numbered set exists so a learner can work through papers the way a
+  workbook is worked through: sit paper 3's reading tonight, the same reading
+  again next week, and never have one part read as the examination passed.
+  All of that is a claim about what a screen and a stored row say, so it is
+  asked here rather than of the source.
+*/
+await page.goto(`${B}/exam/A2/papers`, { waitUntil: "networkidle" });
+const papersBody = await page.locator("body").innerText();
+check("the numbered papers list twenty five papers",
+  (papersBody.match(/Paper \d+/g) ?? []).length >= 25 && /Paper 25/.test(papersBody));
+
+const questionText = async () => {
+  await page.getByRole("button", { name: "Start the clock" }).click();
+  await page.waitForTimeout(500);
+  return (await page.locator("fieldset").first().innerText()).replace(/\d+:\d+/g, "");
+};
+
+await page.goto(`${B}/exam/A2?paper=3&part=reading`, { waitUntil: "networkidle" });
+check("asking for paper 3's reading opens a numbered seed for it",
+  /seed=p3r-/.test(page.url()), page.url());
+check("its briefing names the paper and the part, and says it is one part on its own",
+  /paper 3, reading only/i.test(await page.locator("h1").innerText()) &&
+  /One part on its own/i.test(await page.locator("body").innerText()));
+check("its briefing sets that one part and no other",
+  (await page.getByText(/^Part 2$/).count()) === 0);
+const firstSitting = await questionText();
+
+await page.getByRole("button", { name: /^Hand in$/ }).click();
+await page.waitForTimeout(500);
+const blankQuery = page.getByRole("button", { name: /Hand in anyway/ });
+if (await blankQuery.count()) await blankQuery.click();
+const partLanded = await eventually(async () => /\/exam\/result\//.test(page.url()), { timeoutMs: 25_000 });
+if (!partLanded) {
+  absent(4, "the one-part result, because handing it in did not land");
+} else {
+  const partResult = await page.locator("body").innerText();
+  check("a part on its own is reported as a mark for that part",
+    /^Reading: \d+ percent$/m.test(await page.locator("h1").innerText()));
+  check("and never as the examination passed, failed or waited on",
+    /whole paper needs/.test(partResult) && !/would be a certificate|waits six months/i.test(partResult));
+
+  await page.goto(`${B}/exam`, { waitUntil: "networkidle" });
+  check("the hub lists it as paper 3, reading only",
+    /Paper 3, reading only/.test(await page.locator("body").innerText()));
+
+  await page.goto(`${B}/exam/A2?paper=3&part=reading`, { waitUntil: "networkidle" });
+  check("sitting it again is the same questions, not a fresh draw",
+    (await questionText()) === firstSitting);
 }
 
 // ── Not losing three hours of work ───────────────────────────────────────────

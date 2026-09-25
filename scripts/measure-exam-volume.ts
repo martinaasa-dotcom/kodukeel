@@ -22,8 +22,10 @@
  * exactly as audit-questions.ts does.
  */
 import { dictionaryRows } from "./lib/dictionary";
-import { buildPaper, fillRate, type PoolWord } from "../lib/exam/paper";
-import { POOL_SIZE, drawPool, eligibleFor } from "../lib/exam/pool";
+import { fillRate, type PoolWord } from "../lib/exam/paper";
+import { assemblePaper } from "../lib/exam/assemble";
+import { numberedSeed, PAPERS_PER_LEVEL } from "../lib/exam/seed";
+import { POOL_SIZE, eligibleFor, poolForSeed } from "../lib/exam/pool";
 import { usableExamples } from "../lib/dict/examples";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { EXAM_LEVELS } from "../lib/exam/spec";
@@ -51,12 +53,29 @@ const asPool = (e: (typeof entries)[number]): PoolWord => ({
 const ordered = [...entries].sort((a, b) =>
   `${a.lemma}|${a.pos}` < `${b.lemma}|${b.pos}` ? -1 : `${a.lemma}|${a.pos}` > `${b.lemma}|${b.pos}` ? 1 : 0);
 const WORD_ORDER = orderContextFrom(entries);
+const byKey = new Map<string, (typeof entries)[number]>(entries.map((e) => [`${e.lemma}|${e.pos}`, e] as const));
 const poolFor = (level: (typeof EXAM_LEVELS)[number], seed: string): PoolWord[] =>
-  drawPool(ordered.filter((e) => eligibleFor(level, e.cefr ?? null)), level, seed).map(asPool);
+  poolForSeed(
+    ordered.filter((e) => eligibleFor(level, e.cefr ?? null)).map((e) => ({ id: `${e.lemma}|${e.pos}`, cefr: e.cefr ?? null })),
+    level, seed,
+  ).map((id) => asPool(byKey.get(id)!));
 
-const SEEDS = Number(process.argv.find((a) => a.startsWith("--seeds="))?.split("=")[1] ?? 100);
+/*
+  THE NUMBERED SET IS WHAT A LEARNER IS OFFERED, SO `--numbered` MEASURES THAT.
 
-console.log(`Dictionary: ${entries.length} entries. Seeds per level: ${SEEDS}.\n`);
+  `PAPERS_PER_LEVEL` papers per level, drawn exactly as `/exam/[level]/papers`
+  draws them: on the number, through the stable pool. Without the flag it
+  measures random seeds, which is what "Sit it" on the hub draws.
+*/
+const NUMBERED = process.argv.includes("--numbered");
+const SEEDS = NUMBERED
+  ? PAPERS_PER_LEVEL
+  : Number(process.argv.find((a) => a.startsWith("--seeds="))?.split("=")[1] ?? 100);
+const MOMENT = new Date("2026-09-25T12:00:00Z");
+const seedAt = (s: number) => (NUMBERED ? numberedSeed(s + 1, null, MOMENT) : `vol-${s}`);
+const bandOf = new Map<string, string | null>(entries.map((e) => [`${e.lemma}|${e.pos}`, e.cefr ?? null] as const));
+
+console.log(`Dictionary: ${entries.length} entries. ${NUMBERED ? "The numbered set" : "Random seeds"}: ${SEEDS} per level.\n`);
 
 for (const level of EXAM_LEVELS) {
   const rates: number[] = [];
@@ -66,10 +85,14 @@ for (const level of EXAM_LEVELS) {
   const asked: Set<string>[] = [];
   let overlapSum = 0;
   let worstOverlap = 0;
+  let atLevel = 0;
+  let questionsSeen = 0;
+  const perPaper: number[] = [];
+  const perPaperTotal: number[] = [];
 
   for (let s = 0; s < SEEDS; s++) {
-    const seed = `vol-${s}`;
-    const paper = buildPaper(level, poolFor(level, seed), seed, WORD_ORDER);
+    const seed = seedAt(s);
+    const paper = assemblePaper(level, poolFor(level, seed), seed, WORD_ORDER);
     const rate = fillRate(paper);
     rates.push(rate);
     if (paper.thin) thin++;
@@ -89,6 +112,13 @@ for (const level of EXAM_LEVELS) {
       worstOverlap = Math.max(worstOverlap, nearest);
     }
     asked.push(words);
+    for (const w of words) {
+      const band = bandOf.get(w as string) ?? null;
+      if (band === level) atLevel++;
+      questionsSeen++;
+      perPaper[s] = (perPaper[s] ?? 0) + (band === level ? 1 : 0);
+      perPaperTotal[s] = (perPaperTotal[s] ?? 0) + 1;
+    }
 
     for (const part of paper.parts) {
       for (const task of part.tasks) {
@@ -115,6 +145,18 @@ for (const level of EXAM_LEVELS) {
       `  words shared with the closest earlier paper: mean ${pct(overlapSum / (SEEDS - 1))}, worst ${pct(worstOverlap)}`,
     );
   }
+  /*
+    DRIFTING EASY. A paper at a level draws from that band and every band below
+    it, so what share of its words are at the level itself is the figure that
+    says whether the paper is a paper of that level. Printed over the set and as
+    the lowest single paper, because a set whose average is fine can still hold
+    one paper that is mostly the level below.
+  */
+  const shares = perPaper.map((n, i) => (perPaperTotal[i] ? n / perPaperTotal[i]! : 0));
+  console.log(
+    `  words at ${level} itself: ${Math.round((atLevel / Math.max(1, questionsSeen)) * 100)}% over the set, ` +
+    `lowest paper ${Math.round(Math.min(...shares) * 100)}%, highest ${Math.round(Math.max(...shares) * 100)}%`,
+  );
   if (shortfallByTask.size > 0) {
     console.log(`  shortfall by task (total marks missed across ${SEEDS} papers):`);
     for (const [k, v] of [...shortfallByTask.entries()].sort((a, b) => b[1] - a[1])) {
