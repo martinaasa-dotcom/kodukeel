@@ -282,7 +282,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         </div>
 
         <div className="px-4 pb-4">
-          <div className="grid gap-2 sm:grid-cols-2">
+          {/* `choice-grid` rather than `sm:grid-cols-2`: at 768 two columns
+              gave "seitsetteist" 101px of the 115 it needs, drawn across two
+              lines. See the class in app/globals.css. */}
+          <div className="choice-grid">
             {question.options.map((option, i) => {
               const isAnswer = option.value.toLowerCase() === question.heard.toLowerCase();
               const isPicked = option.value === picked;

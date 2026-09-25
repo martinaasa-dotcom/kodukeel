@@ -263,7 +263,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         </div>
 
         <div className="px-4 pb-4">
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="choice-grid">
             {question.options.map((option, i) => {
               const spec = caseLabel(option);
               const isAnswer = option === question.answer;

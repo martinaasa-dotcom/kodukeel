@@ -321,7 +321,7 @@ function Options({
   }, [chosen, onChoose, options.length]);
 
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
+    <div className="choice-grid">
       {options.map((option, i) => {
         const isAnswer = i === answer;
         const picked = chosen === i;
