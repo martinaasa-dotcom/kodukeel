@@ -4,8 +4,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
+import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
+import { setTaskDone } from "@/lib/progress/tasks";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
+import { keepBest } from "@/lib/progress/personalBest";
 import { deleteOwnReminder } from "@/lib/progress/reminders";
 import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
@@ -70,7 +73,8 @@ import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
-import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
+import { boundedRestoredReview, isRepeatedReview, stableReviewId, writeGrade } from "@/lib/srs/grade";
+import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
@@ -109,7 +113,7 @@ import type { Band } from "@/lib/assessment/types";
 import { goalsFor, markSitting, saveGoals, saveResult } from "@/lib/progress/assessment";
 import { recordCourseLevel } from "@/lib/progress/level";
 import { REPLAY_BATCH, isClientReviewId } from "@/lib/offline/outbox";
-import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
+import { paperFor as examPaperFor, recordAttempt, sittingOf } from "@/lib/progress/exam";
 import { gradesFrom, markPaper, type Response as ExamResponse } from "@/lib/exam/score";
 import { isExamLevel } from "@/lib/exam/spec";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -413,6 +417,25 @@ export async function gradeCard(
 ) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
+  if (reviewId !== undefined && !isClientReviewId(reviewId)) {
+    return { ok: false as const, error: "That is not a grade id." };
+  }
+  return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId });
+}
+
+/**
+ * `gradeCard` for a caller that has already resolved the owner, which is every
+ * mode graded on the server. `reviewId` is for the games that report a round
+ * once and may report it again (`stableReviewId`): it is never taken from the
+ * caller of a public action, only derived here from what the grade is about.
+ * A second write of it throws on the primary key; `gradeOnce` is the caller
+ * that reads that as the same answer arriving twice.
+ */
+async function gradeFor(
+  ownerId: string, cardId: string, rating: RatingValue, durationMs: number,
+  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string } = {},
+) {
+  const { reviewedAt, practisedSlot, reachedSlot, reviewId } = options;
 
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
     return { ok: false as const, error: "That is not a grade id." };
@@ -463,6 +486,28 @@ export async function gradeCard(
     had and sending a card they had just failed away on its old interval.
   */
   return { ok: true as const, due: next.due, scheduling: snapshotOf(next) };
+}
+
+/**
+ * `gradeFor` with an id derived from what the grade is about, where a repeat is
+ * the same answer reported twice and is done rather than failed. `repeat` says
+ * so, so a caller counting new grades does not count it again.
+ */
+async function gradeOnce(ownerId: string, cardId: string, rating: RatingValue, reviewId: string) {
+  /*
+    Asked first rather than only caught, so the answer does not depend on how
+    `writeGrade` treats an id it has already written: a repeat that is read
+    here never reaches it, and the catch below is the two reports racing.
+  */
+  const seen = await prisma.review.findUnique({ where: { id: reviewId }, select: { id: true } });
+  if (seen) return { ok: true as const, repeat: true };
+  try {
+    const result = await gradeFor(ownerId, cardId, rating, 0, { reviewId });
+    return { ...result, repeat: false };
+  } catch (error) {
+    if (isRepeatedReview(error)) return { ok: true as const, repeat: true };
+    throw error;
+  }
 }
 
 /** A scheduling state in the shape that crosses the wire, which `undoGrade` takes back. */
@@ -820,8 +865,17 @@ export async function createLexeme(input: {
   });
   if (existing) return { ok: true as const, id: existing.id, existed: true };
 
-  const lexeme = await prisma.lexeme.create({
-    data: {
+  /*
+    `createMany` with `skipDuplicates` rather than `create`, because the read
+    above is not a guard: two presses in two tabs, or two learners keeping the
+    same word Anu offered, both find nothing and the second `create` was
+    refused on `(lemma, pos)` with an error. Here the loser writes nothing and
+    reads back the entry the winner made, which is what the read above would
+    have told it a moment later.
+  */
+  const written = await prisma.lexeme.createMany({
+    skipDuplicates: true,
+    data: [{
       lemma, translation, pos,
       cefr,
       /*
@@ -846,8 +900,13 @@ export async function createLexeme(input: {
       provenance: "AI",
       editedBy: ownerId,
       editedAt: new Date(),
-    },
+    }],
   });
+  const lexeme = await prisma.lexeme.findUniqueOrThrow({
+    where: { lemma_pos: { lemma, pos } },
+    select: { id: true },
+  });
+  if (written.count === 0) return { ok: true as const, id: lexeme.id, existed: true };
   revalidatePath("/dictionary");
   return { ok: true as const, id: lexeme.id, existed: false };
 }
@@ -988,6 +1047,8 @@ export async function toggleStar(lexemeId: unknown, starred?: unknown) {
 export async function putWordAside(lexemeId: string, context: string) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "putAside");
+  if (busy) return busy;
   const id = text(lexemeId).slice(0, 64);
   if (!id) return { ok: false as const, error: "No word was named." };
 
@@ -1219,10 +1280,13 @@ export async function recordSprintScore(score: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(score)) return { ok: false as const, error: "That is not a score." };
   const clamped = Math.min(MAX_SPRINT_SCORE, Math.max(0, Math.round(score)));
-  const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.sprintBest), 0);
-  const isNewBest = clamped > best;
-  if (isNewBest) await writeSetting(ownerId, SETTING_KEYS.sprintBest, String(clamped));
-  return { ok: true as const, best: Math.max(clamped, best), isNewBest };
+  // A round of nothing beats no stored best and writes no row, as before.
+  if (clamped === 0) {
+    const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.sprintBest), 0);
+    return { ok: true as const, best, isNewBest: false };
+  }
+  // Compared inside the write, so a slower round cannot lower it (lib/progress/personalBest.ts).
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.sprintBest, clamped, "higher")) };
 }
 
 /**
@@ -1271,10 +1335,7 @@ export async function recordMatchTime(seconds: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(seconds)) return { ok: false as const, error: "That is not a time." };
   const rounded = Math.min(MAX_MATCH_SECONDS, Math.max(1, Math.round(seconds)));
-  const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.matchBest), 0);
-  const isNewBest = best === 0 || rounded < best;
-  if (isNewBest) await writeSetting(ownerId, SETTING_KEYS.matchBest, String(rounded));
-  return { ok: true as const, best: isNewBest ? rounded : best, isNewBest };
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.matchBest, rounded, "lower")) };
 }
 
 /**
@@ -1327,7 +1388,12 @@ export async function recordSonad(day: string, guesses: unknown) {
   });
   if (!card) return { ok: true as const, graded: false };
 
-  const result = await gradeCard(card.id, rating, 0);
+  /*
+    Once per day and card, whatever the client does: a round whose response
+    was lost is sent again the next time the board opens, and the same day's
+    puzzle can be finished on a second device. See `stableReviewId`.
+  */
+  const result = await gradeOnce(ownerId, card.id, rating, stableReviewId("sonad", ownerId, day, card.id));
   return result.ok ? { ok: true as const, graded: true } : result;
 }
 
@@ -1374,7 +1440,9 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   const scene = sceneById(text(sceneId).slice(0, 64));
   if (!scene) return { ok: false as const, error: "No scene by that name." };
   const chosen = text(difficulty);
-  if (!(chosen in BUDGETS)) return { ok: false as const, error: "Not a difficulty." };
+  // `in` walks the prototype, so `constructor` and `toString` passed it and
+  // reached a SceneRun.difficulty Int column as a function. Own keys only.
+  if (!Object.hasOwn(BUDGETS, chosen)) return { ok: false as const, error: "Not a difficulty." };
   /*
     THE BAND THE OTHER SIDE TALKS AT IS THE LEARNER'S, UNLESS THEY MOVED IT. A
     scene carries no level of its own: the selector on the briefing defaults
@@ -1682,8 +1750,9 @@ export async function recordCrossword(day: string, typed: unknown, helped: unkno
     if (!cardId) continue;
     // Shown is not solved. A learner who pressed the button read the answer,
     // which is worth telling the scheduler about and is not worth a Good.
-    const result = await gradeCard(cardId, shown.has(index) ? 1 : 3, 0);
-    if (result.ok) graded += 1;
+    // Once per day and card, for the reason `recordSonad` gives.
+    const result = await gradeOnce(ownerId, cardId, shown.has(index) ? 1 : 3, stableReviewId("crossword", ownerId, day, cardId));
+    if (result.ok && !result.repeat) graded += 1;
   }
   return { ok: true as const, graded };
 }
@@ -2776,15 +2845,21 @@ async function resolveDisplayName(ownerId: string): Promise<string> {
  * Ticks a task a teacher assigned. The manual homework list is gone, so this
  * is the one thing a learner does to a task: the row on Today, done or not.
  */
-export async function toggleTask(id: string) {
-  id = text(id);
+export async function toggleTask(id: string, done?: boolean) {
   const ownerId = await requireUserId();
-  const task = await prisma.task.findFirst({ where: { id, ownerId }, select: { completed: true } });
-  if (!task) return { ok: false as const };
-  await prisma.task.update({
-    where: { id },
-    data: { completed: !task.completed, completedAt: task.completed ? null : new Date() },
-  });
+  const taskId = text(id);
+  /*
+    The row says which state it wants, for the reason `setTaskDone` gives. A
+    tab still on the bundle from before this sends none and gets the toggle it
+    was written against.
+  */
+  let want = done;
+  if (typeof want !== "boolean") {
+    const task = await prisma.task.findFirst({ where: { id: taskId, ownerId }, select: { completed: true } });
+    if (!task) return { ok: false as const };
+    want = !task.completed;
+  }
+  if (!(await setTaskDone(ownerId, taskId, want))) return { ok: false as const };
   revalidatePath("/");
   return { ok: true as const };
 }
@@ -3060,6 +3135,15 @@ export async function deleteMyAccount(confirmation: string) {
       await tx.deckWord.deleteMany({ where: { ownerId } });
       await tx.deck.deleteMany({ where: { ownerId } });
       await tx.achievement.deleteMany({ where: { ownerId } });
+      /*
+        Letters before settings, and the order is load-bearing. The unsubscribe
+        link and the bounce webhook write a setting with no session behind them,
+        and `writeSettingsWhileMailed` holds this person's `EmailSend` row while
+        it does. Deleting that row first makes such a write either wait for this
+        transaction and then find nobody, or finish first and be swept by the
+        next line, so no setting outlives the account.
+      */
+      await tx.emailSend.deleteMany({ where: { ownerId } });
       await tx.setting.deleteMany({ where: { ownerId } });
       forgetSettings(ownerId);
       await tx.usageEvent.deleteMany({ where: { ownerId } });
@@ -3115,12 +3199,10 @@ export async function deleteMyAccount(confirmation: string) {
       await tx.deferral.deleteMany({ where: { ownerId } });
       await tx.courseStep.deleteMany({ where: { ownerId } });
       /*
-        And every record that this deployment wrote to them. It is the row that
-        decides whether they are written to again, so leaving it would be an
-        account that is gone everywhere except in the one table that could put
-        a letter in front of somebody who asked to be forgotten.
+        Every record that this deployment wrote to them went above, before the
+        settings: it is the row that decides whether they are written to again,
+        and the row the mail routes check before they write a setting.
       */
-      await tx.emailSend.deleteMany({ where: { ownerId } });
       await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
       /*
         And the attribution on anything they reviewed, for the same reason the
@@ -3479,13 +3561,19 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         (chunk) => tx.message.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
+      /*
+        A level check and a sat paper come back as history and never as
+        evidence: the file carries their marks and not the answers they were
+        marked from, so nothing here can mark them again (ADR-022). See
+        `asRestoredMeasurement`, and every reader that asks `restoredAt: null`.
+      */
       await createAbsent(
-        (backup.assessments ?? []).map((raw) => ({ ...revive(raw, ["takenAt"]), ownerId })),
+        (backup.assessments ?? []).map((raw) => ({ ...asRestoredMeasurement(revive(raw, ["takenAt"]), restoredAt), ownerId })),
         (chunk) => tx.assessment.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
       await createAbsent(
-        (backup.examAttempts ?? []).map((raw) => ({ ...revive(raw, ["startedAt", "finishedAt"]), ownerId })),
+        (backup.examAttempts ?? []).map((raw) => ({ ...asRestoredMeasurement(revive(raw, ["startedAt", "finishedAt"]), restoredAt), ownerId })),
         (chunk) => tx.examAttempt.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
@@ -4310,6 +4398,11 @@ export async function submitExam(input: unknown) {
   const { level, seed, startedAt, responses } = parsed.data;
   if (!isExamLevel(level)) return { ok: false as const, error: "No paper at that level." };
 
+  // A paper handed in once is answered with its own result, whatever arrives
+  // the second time (`sittingOf`).
+  const sat = await sittingOf(ownerId, level, seed);
+  if (sat) return { ok: true as const, id: sat.id, pct: sat.pct, passed: sat.passed };
+
   const paper = await examPaperFor(ownerId, level, seed);
   const answered = new Map<string, ExamResponse>(
     Object.entries(responses) as [string, ExamResponse][],
@@ -4351,11 +4444,11 @@ export async function submitExam(input: unknown) {
   }
 
   const began = new Date(Math.min(startedAt, Date.now()));
-  const id = await recordAttempt({ ownerId, level, seed, startedAt: began, result });
+  const sitting = await recordAttempt({ ownerId, level, seed, startedAt: began, result });
 
   revalidatePath("/exam");
   revalidatePath("/");
-  return { ok: true as const, id, pct: result.pct, passed: result.passed };
+  return { ok: true as const, id: sitting.id, pct: sitting.pct, passed: sitting.passed };
 }
 
 // ───────────────────────── Suggested fixes ─────────────────────────────────
@@ -4423,33 +4516,14 @@ export async function submitSuggestion(input: unknown) {
     on Monday and again on Thursday is one voice, not two, and the count beside
     a group in the review queue is only worth reading while that is true: the
     number is there to say "this many people", and clicks would make it say
-    "this many clicks" while looking identical.
-
-    The later report wins the note and the proposal, because it is the one they
-    wrote after seeing more of the problem.
+    "this many clicks" while looking identical. Two sends landing together are
+    held to that too, under a lock: see `lib/suggestions/record.ts`.
   */
-  const mine = await prisma.suggestion.findFirst({
-    where: { ownerId, groupKey, status: "OPEN" },
-    select: { id: true },
+  const { repeat } = await recordSuggestion(ownerId, {
+    category, groupKey, note, context, trigger, lemma, lexemeId,
+    patch: patch ? JSON.stringify(patch) : "{}",
   });
-
-  if (mine) {
-    await prisma.suggestion.update({
-      where: { id: mine.id },
-      data: {
-        note, context, trigger, lemma, lexemeId,
-        patch: patch ? JSON.stringify(patch) : "{}",
-      },
-    });
-    return { ok: true as const, repeat: true, message: acknowledgement(category) };
-  }
-
-  await prisma.suggestion.create({
-    data: {
-      ownerId, category, groupKey, note, context, trigger, lemma, lexemeId,
-      patch: patch ? JSON.stringify(patch) : "{}",
-    },
-  });
+  if (repeat) return { ok: true as const, repeat: true, message: acknowledgement(category) };
 
   revalidatePath("/suggestions");
   return { ok: true as const, repeat: false, message: acknowledgement(category) };

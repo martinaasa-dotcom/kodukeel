@@ -298,6 +298,15 @@ async function applyPins(pins: Record<string, number>): Promise<number> {
       gradationNote: mapped.gradationNote,
       government: mapped.government,
       definition: mapped.definition,
+      /*
+        The notes go, because they are the page's other senses and a pinned
+        page is by definition one holding more than one word: `kurk` pinned
+        to the throat kept "cucumber", `maks` the liver kept "tax, payment",
+        and the entry printed them as further senses of the word it pinned.
+        Which of them belong to the pinned word is not something this script
+        can tell, and a sense of another word is worse than no note.
+      */
+      notes: null,
       semanticTypes: mapped.semanticTypes,
       /*
         The Russian and the Ukrainian belong to the homonym too. They were

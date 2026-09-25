@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CATEGORY_GROUPS, CATEGORY_KEYS, SUGGESTION_CATEGORIES, SUGGESTION_LIMITS,
-  acknowledgement, categoriesInGroup, groupKeyFor, isCategory, isStatus,
+  acknowledgement, categoriesInGroup, createWordClash, groupKeyFor, isCategory, isStatus,
   parsePatch, parsePatchValue, patchFitsCategory, summarisePatch,
 } from "./model";
 
@@ -210,5 +210,25 @@ describe("acknowledgement", () => {
   it("promises a dictionary change only where accepting is one", () => {
     expect(acknowledgement("MISSING_WORD")).toMatch(/dictionary/);
     expect(acknowledgement("BROKEN")).not.toMatch(/dictionary/);
+  });
+});
+
+describe("createWordClash", () => {
+  const entries = [
+    { lemma: "hall", pos: "ADJECTIVE" },
+    { lemma: "Tuba", pos: "NOUN" },
+  ];
+
+  it("finds the entry a missing-word report would write over, whatever the case", () => {
+    expect(createWordClash({ lemma: "tuba", pos: "NOUN" }, entries)).toEqual(entries[1]);
+  });
+
+  it("finds it when another entry of the lemma is the one the app leads with", () => {
+    expect(createWordClash({ lemma: "hall", pos: "NOUN" }, [...entries, { lemma: "hall", pos: "NOUN" }]))
+      .toEqual({ lemma: "hall", pos: "NOUN" });
+  });
+
+  it("leaves a different part of speech alone, which is a different entry", () => {
+    expect(createWordClash({ lemma: "hall", pos: "NOUN" }, entries)).toBeUndefined();
   });
 });

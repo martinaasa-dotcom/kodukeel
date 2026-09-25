@@ -56,6 +56,7 @@ import { join } from "node:path";
 
 import { HARVESTED } from "../prisma/data/harvested";
 import { readSentenceTranslation, sentenceInstruction } from "../lib/tutor/translate";
+import { estonianNotCopied } from "../lib/dict/copiedWords";
 import { openWithFallback, resolveProviders } from "../lib/tutor/provider";
 import { readExpanded } from "./lib/expandedFile";
 import { isRefusedSentence } from "../lib/dict/refused";
@@ -72,8 +73,6 @@ interface ExpandedRow { examples?: { et: string; en: string | null }[] | null }
 
 const CACHE = ".translate-cache";
 const OUT = "prisma/data/example-english.json";
-/** Estonian's own letters. An answer carrying one is not English. */
-const ESTONIAN_LETTER = /[õäöüšž]/i;
 /** The two characters `lib/copy/voice.ts` bans in anything a person reads. */
 const DASH = /[\u2013\u2014]/;
 
@@ -82,8 +81,9 @@ const DASH = /[\u2013\u2014]/;
  * reading already refuses.
  *
  * Two things, and both are about this file being read by a learner rather than
- * by a machine. An answer still carrying õ, ä, ö, ü, š or ž is Estonian that
- * came back in English's place, and a line of Estonian under a heading
+ * by a machine. An answer carrying õ, ä, ö, ü, š or ž in a word its sentence did
+ * not hold is Estonian that came back in English's place (a name or a quoted
+ * word copied through is not, which is `estonianNotCopied`), and a line of Estonian under a heading
  * promising English is worse than no line at all. And a dash used as a clause
  * break is the loudest single tell that a sentence was generated, which is the
  * one thing `lib/copy/voice.ts` says no screen here may do; a dash the
@@ -94,7 +94,7 @@ const DASH = /[\u2013\u2014]/;
  * without a line and the voice rule true of every line that is there.
  */
 function acceptable(en: string, et: string): boolean {
-  if (ESTONIAN_LETTER.test(en)) return false;
+  if (estonianNotCopied(en, et)) return false;
   if (DASH.test(en) && !DASH.test(et)) return false;
   // And a quote mark it lost on the way. A model translating a sentence that
   // quotes somebody sometimes drops the opening one and keeps the closing one,
