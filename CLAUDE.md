@@ -9989,8 +9989,12 @@ it cannot find the rail, which was the `A || !A` shape one check over.
 **Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` returns every
 key in `.env` in order, free first: OpenRouter (default), Anthropic, then OpenAI. Do not re-pin a
 single provider. `openWithFallback` walks past a provider that is throttled or having a bad
-minute, and never past a rejected key or a model that does not exist, since every provider would
-answer those the same way and trying them all turns one clear message into a slower one. A
+minute. A rejected key is walked past only to a different provider, since the next link of the
+same provider carries the same key and trying it turns one clear message into a slower one; a
+model that does not exist is walked past either way, since every link names its own. That used to
+read "never past a rejected key or a missing model, since every provider would answer those the
+same way", which was true of one shared model and false of a purpose chain: Groq backs up Gemini,
+and a revoked Gemini key took Anu down with the Groq key beside it working. A
 provider is only ever walked past **before it has said anything**: once text is reaching the
 learner a failure stays a failure, because a second answer appended to half of a first one is two
 teachers talking over each other. `withRetry` is patient only on the last link of the chain, which
