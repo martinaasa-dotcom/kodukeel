@@ -19,7 +19,7 @@ import { weeksToLearn, type Standing } from "@/lib/assessment/plan";
 import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/assessment/types";
 import { DEFAULT_LETTER_BAR, LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
 import { counted, NOT_REACHED } from "@/lib/copy/values";
-import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course";
+import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course/types";
 import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
