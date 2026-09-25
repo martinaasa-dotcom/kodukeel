@@ -6854,6 +6854,51 @@ check("a sat check is never edited, and is deleted only on request", () => {
   );
 });
 
+check("a sitting restored from a backup is history and never evidence", () => {
+  /*
+    ADR-022: a result anybody can type is not a measurement. A backup carries a
+    paper's marks and a check's levels and not the answers they came from, so
+    nothing can mark a restored row again, and a hand-edited file could hand
+    itself a C1 pass. The row comes back as written and stamped `restoredAt`,
+    and every reader that treats a sitting as evidence asks for it to be null:
+    the hub's readiness signals, the readiness picture, the level the course
+    opens at (through `latestFor`), and both cohort rosters. Four halves, since
+    any one of them left out is the forged pass reaching a screen.
+  */
+  const actions = code("app/actions.ts");
+  for (const table of ["assessments", "examAttempts"]) {
+    assert.match(
+      actions,
+      new RegExp(`backup\\.${table}[^\\n]*asRestoredMeasurement\\(`),
+      `restoreBackup writes ${table} without stamping them as restored`,
+    );
+  }
+  const exam = code("lib/progress/exam.ts");
+  assert.match(
+    exam,
+    /export async function readinessSignals[\s\S]*?recentAttempts\(ownerId, \{ measured: true \}\)/,
+    "readinessSignals reads restored sittings as evidence",
+  );
+  assert.match(
+    code("lib/progress/readiness.ts"),
+    /recentAttempts\(ownerId, \{ measured: true \}\)/,
+    "the readiness picture reads restored sittings as evidence",
+  );
+  assert.match(
+    code("lib/progress/assessment.ts"),
+    /latestFor = cache\([\s\S]*?historyFor\(ownerId, 1, \{ measured: true \}\)/,
+    "latestFor answers with a restored level check",
+  );
+  const roster = code("lib/classroom/roster.ts");
+  for (const table of ["examAttempt", "assessment"]) {
+    const reads = [...roster.matchAll(new RegExp(`prisma\\.${table}\\.find\\w+\\(\\{\\s*where: ([^\\n]*)`, "g"))];
+    assert.ok(reads.length > 0, `the roster no longer reads ${table}, so this check reads nothing`);
+    for (const r of reads) {
+      assert.match(r[1] ?? "", /restoredAt: null/, `a roster reads restored ${table} rows as evidence`);
+    }
+  }
+});
+
 check("the goal a learner states is stored through the settings store", () => {
   /*
     Settings go through lib/settings/store.ts, keys included. Five string
@@ -11946,7 +11991,8 @@ check("a transaction's own time limit fits inside the function that runs it", ()
   const short: string[] = [];
   let reached = 0;
   for (const [name, limitMs] of timed) {
-    const callers = APP.filter((file) => file !== "app/actions.ts"
+    // A test calls the action directly and runs inside no platform function.
+    const callers = APP.filter((file) => file !== "app/actions.ts" && !/\.(?:test|itest)\.tsx?$/.test(file)
       && new RegExp(`import \\{[^}]*\\b${name}\\b[^}]*\\} from "@/app/actions"`).test(read(file)));
     assert.ok(callers.length > 0, `${name} sets a transaction timeout and nothing in app/ calls it`);
     for (const caller of callers) {

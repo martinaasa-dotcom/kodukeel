@@ -73,6 +73,7 @@ import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
 import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
+import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
@@ -3503,13 +3504,19 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         (chunk) => tx.message.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
+      /*
+        A level check and a sat paper come back as history and never as
+        evidence: the file carries their marks and not the answers they were
+        marked from, so nothing here can mark them again (ADR-022). See
+        `asRestoredMeasurement`, and every reader that asks `restoredAt: null`.
+      */
       await createAbsent(
-        (backup.assessments ?? []).map((raw) => ({ ...revive(raw, ["takenAt"]), ownerId })),
+        (backup.assessments ?? []).map((raw) => ({ ...asRestoredMeasurement(revive(raw, ["takenAt"]), restoredAt), ownerId })),
         (chunk) => tx.assessment.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
       await createAbsent(
-        (backup.examAttempts ?? []).map((raw) => ({ ...revive(raw, ["startedAt", "finishedAt"]), ownerId })),
+        (backup.examAttempts ?? []).map((raw) => ({ ...asRestoredMeasurement(revive(raw, ["startedAt", "finishedAt"]), restoredAt), ownerId })),
         (chunk) => tx.examAttempt.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
