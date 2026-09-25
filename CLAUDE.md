@@ -301,7 +301,7 @@ what a live lookup returns is a sentence the shipped table already answers for, 
 and the expansion are where those words are. Four writers, all four asserted: the two halves of the
 seed, the repair for a database seeded before the table existed, and the mapper.
 
-**Nobody has read the 16,162 lines, and a mechanical second opinion was built and thrown away.** The
+**Nobody has read the 16,163 lines, and a mechanical second opinion was built and thrown away.** The
 gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
 from, and there is no equivalent here: a translation has no upstream to be checked against. What was
 tried instead was the dictionary itself, asking whether each English line shares a content word with
@@ -445,7 +445,7 @@ back like `tuppa / toasse` are tried. Three card types rather than one, `CASE_FO
 daily path that the fault was reported from.
 
 **What this does not claim is that the corpus has been read.** Nobody has read the 15,125 sentences
-the dictionary ships or the 16,162 English lines built for them, and this is not a quality filter
+the dictionary ships or the 16,163 English lines built for them, and this is not a quality filter
 over either. A list built by guessing would withhold correct Estonian far more often than it
 withheld anything worth withholding, which is the measured argument the gloss audit already makes
 about a mechanical second opinion. An entry goes in when somebody who speaks the language has read
