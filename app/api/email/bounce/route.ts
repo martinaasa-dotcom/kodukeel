@@ -7,6 +7,7 @@ import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
 import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+import { readCapped } from "@/lib/security/body";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,9 @@ export const dynamic = "force-dynamic";
   is the one refusal, because that is not the provider.
 */
 
+/** A provider's delivery event is a few kilobytes; this is room to spare and no more. */
+const MAX_DELIVERY_BYTES = 256 * 1024;
+
 /** Accepted and dropped. The provider is told nothing about what we did. */
 const ok = () => new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
 
@@ -53,7 +57,8 @@ export async function POST(request: Request) {
   if (!secret) return new Response("Not found", { status: 404 });
 
   /* The bytes, before anything reads them as JSON. See the header. */
-  const raw = await request.text().catch(() => null);
+  // Read only so far: this runs before anything about the caller is checked.
+  const raw = await readCapped(request, MAX_DELIVERY_BYTES);
   if (raw === null) return ok();
 
   const verified = verifyDelivery(

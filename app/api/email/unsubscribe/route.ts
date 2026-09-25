@@ -7,6 +7,10 @@ import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+import { readCapped } from "@/lib/security/body";
+
+/** The one-click body RFC 8058 names and our own form's three fields, with room to spare. */
+const MAX_FORM_BYTES = 8 * 1024;
 
 export const dynamic = "force-dynamic";
 
@@ -113,12 +117,8 @@ export async function POST(request: Request) {
     the query first and the body second covers both without either knowing
     about the other.
   */
-  let body: URLSearchParams;
-  try {
-    body = new URLSearchParams(await request.text());
-  } catch {
-    body = new URLSearchParams();
-  }
+  // A one-click body is one short field; anything longer is not a mail client.
+  const body = new URLSearchParams((await readCapped(request, MAX_FORM_BYTES)) ?? "");
   const param = (key: string) => url.searchParams.get(key) ?? body.get(key);
 
   const secret = mailSecret();
