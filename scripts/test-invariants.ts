@@ -16894,7 +16894,6 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
   assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
   assert.match(read("docs/25-data-retention.md"), /Tutor conversation \(`Message`\) \| 24 hours/, "the retention schedule no longer says a tutor conversation lasts a day");
   assert.match(read("docs/24-dpia.md"), /\| `Message` \| What they typed to the tutor and what came back \| 24 hours/, "the DPIA's register no longer says a tutor conversation lasts a day");
-  assert.match(read("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
   assert.match(code("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
 });
 
