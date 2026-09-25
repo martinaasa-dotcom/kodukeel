@@ -746,3 +746,17 @@ describe("a choice a scene names", () => {
     }
   });
 });
+
+/*
+  "What do you need?" is what anybody at a ticket window says first, and the
+  composer wrote it, `Mis teil vaja on?`, and had it withheld as off topic,
+  because the beat's topic named what the learner wants and not the word for
+  needing it. `vaja` is taught in `abi`, at A1, which the scene now declares.
+*/
+describe("a window asking what you need", () => {
+  it("takes vaja as its topic, from a unit the scene declares", () => {
+    const scene = sceneById("bussipilet")!;
+    expect(scene.beats.find((one) => one.id === "want")!.topic).toContain("vaja");
+    expect(scene.units).toContain("abi");
+  });
+});

@@ -338,6 +338,33 @@ describe("matchEstonianForm", () => {
     expect(match?.matchedAs).toContain("seesütlev");
   });
 
+  describe("a diacritic somebody typed is a letter they meant", () => {
+    /*
+      `lähed` is "you go", the second word of `Kuhu sa lähed?`, and folded it
+      is `lahed`, the plural of `laht`, a bay. Folding is how a query with no
+      õ key finds its word; a query that carries the ä has already said which
+      word it is, so a form spelled without one cannot answer it.
+    */
+    const dict = [
+      lexeme("laht", "bay", "NOUN", [["NOM_SG", "laht"], ["GEN_SG", "lahe"], ["PART_SG", "lahte"], ["NOM_PL", "lahed"]]),
+      lexeme("minema", "to go", "VERB", [["INF_MA", "minema"], ["INF_DA", "minna"], ["PRES_1SG", "lähen"]]),
+      lexeme("pärast", "after", "ADVERB", []),
+    ];
+
+    it("reads the ä that was typed rather than folding it into another word", () => {
+      expect(matchEstonianForm(dict, "lähed")?.lemma).toBe("minema");
+    });
+
+    it("still finds the word spelled without it", () => {
+      expect(matchEstonianForm(dict, "lahed")?.lemma).toBe("laht");
+    });
+
+    it("still repairs a query that dropped the diacritic", () => {
+      expect(matchEstonianForm(dict, "lahen")?.lemma).toBe("minema");
+      expect(matchEstonianForm(dict, "parast")?.lemma).toBe("pärast");
+    });
+  });
+
   it("refuses a prefix, however plausible", () => {
     // "raama" would rank in a search box. Handing somebody a card for `raamat`
     // because a camera dropped the last letter is the failure this exists for.
