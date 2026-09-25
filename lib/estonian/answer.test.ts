@@ -67,9 +67,9 @@ describe("checkAnswer — Estonian", () => {
   });
 
   it("forgives one slipped keystroke", () => {
-    const r = checkAnswer("raamtu", "raamatu");
+    const r = checkAnswer("raamtus", "raamatus");
     expect(r.verdict).toBe("typo");
-    expect(r.expected).toBe("raamatu");
+    expect(r.expected).toBe("raamatus");
     expect(r.suggestedRating).toBe(2);
   });
 
@@ -106,8 +106,16 @@ describe("checkAnswer — Estonian", () => {
     expect(checkAnswer("kasjtama", "kasutama").verdict).toBe("typo");
   });
 
-  it("still forgives an inserted letter on a short word", () => {
-    expect(checkAnswer("tooas", "toas").verdict).toBe("typo");
+  it("forgives an inserted letter once the word is long enough", () => {
+    expect(checkAnswer("raamatuus", "raamatus").verdict).toBe("typo");
+  });
+
+  it("does not forgive an inserted or dropped letter below eight, where it is often another word", () => {
+    // `kuulma` (to hear) and `kuulama` (to listen) are both real; typing one
+    // for the other is the wrong word, not a slip, and was graded as a recall.
+    expect(checkAnswer("kuulama", "kuulma").verdict).toBe("wrong");
+    expect(checkAnswer("lõpetaja", "õpetaja").verdict).toBe("wrong");
+    expect(checkAnswer("tooas", "toas").verdict).toBe("wrong");
   });
 
   it("marks a genuinely different word wrong, and says what was wanted", () => {
@@ -170,9 +178,9 @@ describe("the correction shows the stored spelling", () => {
   });
 
   it("shows the stored spelling on a typo too", () => {
-    const r = checkAnswer("Eest", "Eesti");
+    const r = checkAnswer("Eestmaa", "Eestimaa");
     expect(r.verdict).toBe("typo");
-    expect(r.expected).toBe("Eesti");
+    expect(r.expected).toBe("Eestimaa");
   });
 
   it("names the letter on a diacritic slip and still shows the stored spelling", () => {
@@ -256,7 +264,7 @@ describe("checkAnswer — another form of the same word", () => {
   });
 
   it("still calls a real slip a slip", () => {
-    expect(checkAnswer("tooas", "toas", "et", rivals).verdict).toBe("typo");
+    expect(checkAnswer("raamatuus", "raamatus", "et", ["raamatust", "raamatule"]).verdict).toBe("typo");
   });
 
   it("never treats a second right spelling as a rival", () => {
@@ -269,7 +277,7 @@ describe("checkAnswer — another form of the same word", () => {
   });
 
   it("behaves exactly as before when no forms are supplied", () => {
-    expect(checkAnswer("toast", "toas", "et").verdict).toBe("typo");
+    expect(checkAnswer("raamatust", "raamatus", "et").verdict).toBe("typo");
   });
 });
 
@@ -294,9 +302,9 @@ describe("a note names the form, or names what it could not", () => {
   });
 
   it("names the answer on a near miss, which is the yellow box", () => {
-    const r = checkAnswer("tooas", "toas");
+    const r = checkAnswer("raamatuus", "raamatus");
     expect(r.verdict).toBe("typo");
-    expect(r.note).toContain("toas");
+    expect(r.note).toContain("raamatus");
   });
 
   it("names the answer when another form of the same word was written", () => {

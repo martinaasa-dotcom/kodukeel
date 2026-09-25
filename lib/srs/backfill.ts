@@ -3,6 +3,7 @@ import { generateCards, type LexemeForCards } from "@/lib/srs/cards";
 import { lockDeck } from "@/lib/srs/deck";
 import { courseAsksFor } from "@/lib/collections/syllabus";
 import { emptyScheduling } from "@/lib/srs/scheduler";
+import { deferredDues } from "@/lib/progress/deferrals";
 
 /**
  * Adds gap-fill cards to a word already in the deck, once it has sentences.
@@ -71,7 +72,17 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
   */
   return prisma.$transaction(async (tx) => {
     await lockDeck(tx, ownerId);
-    const already = await tx.card.count({ where: { ownerId, lexemeId, cardType: "CLOZE" } });
+    const [already, held] = await Promise.all([
+      tx.card.count({ where: { ownerId, lexemeId, cardType: "CLOZE" } }),
+      /*
+        A word the learner put aside keeps waiting. Its existing cards were
+        pushed to the date the deferral wrote, and a gap-fill dated now would
+        bring the word back on the next review, from a dictionary render.
+        Dated on the deferral instead, so the undo and the level wake, which
+        both match on that date, take it back with the rest.
+      */
+      deferredDues(tx, ownerId, [lexemeId]),
+    ]);
     if (already > 0) return 0;
     await tx.card.createMany({
     data: generated.map((c) => ({
@@ -84,7 +95,7 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
       targetCase: c.targetCase,
       slot: c.slot,
       source,
-      due: scheduling.due,
+      due: held.get(lexemeId) ?? scheduling.due,
       stability: scheduling.stability,
       difficulty: scheduling.difficulty,
       state: scheduling.state,

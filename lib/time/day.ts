@@ -69,7 +69,9 @@ export function normaliseZone(value: unknown): Zone {
   a busy learner's chart is thousands of rows. Constructing an
   `Intl.DateTimeFormat` is the expensive part; formatting with one is not. The
   map is keyed on the zone name and there is one entry per zone a process ever
-  sees, which is one on a server and one on a phone.
+  sees: one on a phone, and on a server one per zone its learners live in,
+  which the IANA list bounds, since a name that is not a zone throws inside
+  the constructor before anything is stored.
 */
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -246,20 +248,41 @@ export function dayClock(zone?: unknown): DayClock {
   };
 
   /*
-    Local midnight as an instant, found by subtracting the wall clock's own
-    time of day. It never has to name the zone's offset, which is what keeps
-    it right across a DST change: the offset that applies is the one in force
-    at `date`, and reading the wall clock there is how you get it.
+    Local midnight as an instant. The first guess subtracts the wall clock's
+    own time of day, which is right on every day but the two a year when the
+    offset changed between midnight and `date`: the time of day is read in the
+    offset at `date`, and midnight was in the other one. In Tallinn on the
+    spring change that guess lands at 23:00 the day before, so the day fell
+    out of every walk built on this (a streak over the 29th and the 30th of
+    March read 1), and on the autumn change it lands at 01:00.
 
-    On a spring-forward day midnight itself may not exist in some zones; this
-    lands on the first instant that does, which is what a day boundary means
-    there anyway.
+    So the guess is read again where it landed and corrected in the wall
+    clock's own terms: on the previous day it steps forward to the midnight
+    after, and still inside the day it steps back by what the clock says is
+    left. Two steps settle both changes. Where midnight itself does not exist,
+    because a zone jumps from 23:59 to 01:00, stepping back would leave the
+    day, so the first instant that does exist is kept, which is what a day
+    boundary means there.
   */
-  const startOf = (date: Date): Date => {
+  const timeOfDay = (date: Date): number => {
     const p = partsIn(date, tz);
-    const intoDay =
-      p.hour * 3_600_000 + p.minute * 60_000 + p.second * 1000 + date.getMilliseconds();
-    return new Date(date.getTime() - intoDay);
+    return p.hour * 3_600_000 + p.minute * 60_000 + p.second * 1000 + date.getMilliseconds();
+  };
+  const startOf = (date: Date): Date => {
+    const key = keyOf(date);
+    let at = new Date(date.getTime() - timeOfDay(date));
+    for (let step = 0; step < 3; step++) {
+      if (keyOf(at) !== key) {
+        at = new Date(at.getTime() + (86_400_000 - timeOfDay(at)));
+        continue;
+      }
+      const left = timeOfDay(at);
+      if (left === 0) break;
+      const back = new Date(at.getTime() - left);
+      if (keyOf(back) !== key) break;
+      at = back;
+    }
+    return at;
   };
 
   /*
@@ -314,6 +337,21 @@ export function shiftDay(from: Date, n: number): Date {
 /** Midnight at the start of the local day `date` falls in. */
 export function startOfDay(date: Date = new Date()): Date {
   return processClock.startOfDay(date);
+}
+
+/**
+ * The first instant of the calendar day `day` anywhere on Earth.
+ *
+ * A day begins earliest at UTC+14, so this is that day's midnight in UTC less
+ * fourteen hours. It needs no zone, which is the point: a daily puzzle is keyed
+ * on the learner's own day and rebuilt on the server from that key alone to be
+ * marked, so "what the dictionary held when this day began" has to be one
+ * instant the key decides by itself. Anything stored after it is stored during
+ * somebody's day, and nothing a learner does inside their day comes before it.
+ */
+export function earliestStartOf(day: DayKey): Date {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y!, m! - 1, d!) - 14 * 60 * 60 * 1000);
 }
 
 /** Local day keys from `days - 1` days ago up to today, oldest first. */

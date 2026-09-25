@@ -12,9 +12,10 @@ import { isBuildable } from "@/lib/estonian/cloze";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { GAMES, QUICK_MODES, modeAt, type PracticeMode } from "@/lib/ux/modes";
+import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { WeakestCases } from "@/components/WeakestCases";
 import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 
@@ -32,7 +33,7 @@ export default async function PracticePage() {
   const ownerId = await requireUserId();
   const [snapshot, settings, caseReviews, sentenceReady, words, decks] = await Promise.all([
     deckSnapshot(ownerId),
-    readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest]),
+    readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest, SETTING_KEYS.roundPace]),
     // The one reader, so Practice and Progress cannot disagree about which case
     // a learner is worst at. See lib/progress/cases.ts.
     caseReviewsFor(ownerId),
@@ -51,10 +52,16 @@ export default async function PracticePage() {
       a real `LIMIT` and the join happens once. Two thousand is past any deck
       somebody has actually built, and ordered, so a learner who does get there
       is told the same number twice rather than a different one each load.
+
+      Ordered to the end, since the lemma is not what identifies a row here:
+      `Lexeme` is unique on `(lemma, pos)`, so two entries sharing a lemma tie,
+      and past the cap it is the tie at the two thousandth row that decides
+      which words the count is built from. That is the sentence above being
+      true rather than nearly true.
     */
     prisma.lexeme.findMany({
       where: { cards: { some: { ownerId, suspended: false } } },
-      orderBy: { lemma: "asc" },
+      orderBy: [{ lemma: "asc" }, { id: "asc" }],
       take: 2000,
       select: { examples: true },
     }),
@@ -134,6 +141,14 @@ export default async function PracticePage() {
     "/review/dictation": dictationCount > 0 ? `${dictationCount} ready` : undefined,
   };
   const metaFor = (mode: PracticeMode) => live[mode.href] ?? mode.note;
+  /*
+    The one tile whose subtitle is a length, and the length is the learner's:
+    the sprint runs to whatever pace they set in Settings, so a fixed "60
+    seconds" here was wrong for everybody who had asked for longer.
+  */
+  const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace]);
+  const withLength = (mode: PracticeMode): PracticeMode =>
+    mode.href === "/review/sprint" ? { ...mode, subtitle: sprintLength } : mode;
 
   return (
     <Page title="Practice" lead="Words you have already learned, asked every way there is.">
@@ -266,7 +281,7 @@ export default async function PracticePage() {
             <SectionTitle hint="a few minutes each">Rounds</SectionTitle>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {QUICK_MODES.map((m) => (
-                <ModeTile key={m.href} mode={m} meta={metaFor(m)} />
+                <ModeTile key={m.href} mode={withLength(m)} meta={metaFor(m)} />
               ))}
             </div>
           </section>
@@ -290,7 +305,7 @@ export default async function PracticePage() {
               <SectionTitle hint="for the fun of it">Games</SectionTitle>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {GAMES.map((m) => (
-                  <ModeTile key={m.href} mode={m} meta={metaFor(m)} />
+                  <ModeTile key={m.href} mode={withLength(m)} meta={metaFor(m)} />
                 ))}
               </div>
             </section>
@@ -357,7 +372,6 @@ export default async function PracticePage() {
  * place eleven times over on the page you press.
  */
 function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
-  const Icon = icon(mode.icon);
   return (
     <Link
       href={mode.href}
@@ -368,7 +382,7 @@ function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
         style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
       >
-        <Icon size={18} aria-hidden />
+        <NamedIcon name={mode.icon} size={18} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-base font-bold" style={{ color: "var(--ink)" }}>{mode.title}</span>
@@ -540,7 +554,6 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
   meta: string;
   primary?: boolean;
 }) {
-  const Icon = icon(iconName);
   return (
     <Link
       href={href}
@@ -556,7 +569,7 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
           className="flex h-11 w-11 items-center justify-center rounded-full"
           style={{ background: `var(--${tone})`, color: "var(--surface)" }}
         >
-          <Icon size={19} aria-hidden />
+          <NamedIcon name={iconName} size={19} aria-hidden />
         </span>
         <span className="min-w-0">
           <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{title}</span>
