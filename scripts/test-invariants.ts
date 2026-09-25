@@ -11086,14 +11086,29 @@ check("a date is written in the reader's own locale, not the server's", () => {
       /toLocale(?:Date|Time)?String\(\s*(?:undefined|\))|\bformat(?:DateTime|Time)\(|new Intl\.DateTimeFormat\(\s*undefined/;
     if (!LEFT_TO_THE_RUNTIME.test(source)) continue;
     /*
-      A client component is the reader's own machine, so there is nothing to
-      get wrong there. Anywhere else the call has to be handed to one, which
-      is what `LocalDate` is: a server rendering that a browser replaces with
-      its own on mount. A file that formats on the server AND mounts a
-      LocalDate is the shape of that fix, since the server's rendering is the
-      fallback.
+      A CLIENT COMPONENT IS RENDERED ON THE SERVER FIRST.
+
+      This used to skip them, on the argument that a client component is the
+      reader's own machine so there is nothing to get wrong. Its first render
+      is on the server, and the browser's render has to match it: a due date
+      formatted in render came out "Sep 24" on the server and "24. sept" in a
+      browser set to Estonian, and React 19 reported error #418 on Today and
+      rebuilt the page on the client, for exactly the readers this app is for.
+      Found by opening every route in a browser with an Estonian locale. So in
+      a client file the call belongs to `components/LocalDate.tsx` alone, which
+      formats inside an effect, and everything else hands it a date.
     */
-    if (/^\s*"use client"/m.test(read(file))) continue;
+    if (/^\s*"use client"/m.test(read(file))) {
+      if (file === join("components", "LocalDate.tsx")) continue;
+      const hit = LEFT_TO_THE_RUNTIME.exec(source);
+      assert.equal(
+        hit, null,
+        `${file}: formats with the runtime's locale in a client component, which renders on the `
+        + `server first and fails hydration for any reader whose browser writes it differently. `
+        + `Use <LocalDate> or useReaderDate from components/LocalDate.tsx.`,
+      );
+      continue;
+    }
     /*
       EVERY SUCH CALL, NOT THE FILE.
 
