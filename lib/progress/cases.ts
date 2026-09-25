@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { CASE_SLOTS, caseAsked } from "@/lib/srs/slots";
 
 /**
  * The reviews a learner's weakest case is worked out from.
@@ -37,18 +38,20 @@ import { prisma } from "@/lib/db";
 const WINDOW_DAYS = 182;
 const CAP = 5000;
 
-export function caseReviewsFor(
+export async function caseReviewsFor(
   ownerId: string,
   now: Date = new Date(),
 ): Promise<{ targetCase: string | null; rating: number }[]> {
-  return prisma.review.findMany({
+  const rows = await prisma.review.findMany({
     where: {
       ownerId,
-      targetCase: { not: null },
+      // A card about a case, or an answer asked in one: see `caseAsked`.
+      OR: [{ targetCase: { not: null } }, { slot: { in: [...CASE_SLOTS] } }],
       reviewedAt: { gte: new Date(now.getTime() - WINDOW_DAYS * 86_400_000) },
     },
-    select: { targetCase: true, rating: true },
+    select: { targetCase: true, slot: true, rating: true },
     orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
     take: CAP,
   });
+  return rows.map((row) => ({ targetCase: caseAsked(row), rating: row.rating }));
 }
