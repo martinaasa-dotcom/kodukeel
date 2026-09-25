@@ -8617,7 +8617,8 @@ none refused.
 **And the leash came off, because the leash was never what was holding the line together.** A
 learner asked why the limits are that tight at all, and they were right: some of these moments need
 explaining, and what is missing from a form and what to do about it is three sentences from
-anybody. `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` is twenty-two. The middle step is the
+anybody. `MAX_SENTENCES` went to three and `MAX_COMPOSED_WORDS` to twenty-two at this step, and
+they are five and fifty-five now (the paragraph on the leash above). The middle step is the
 one worth knowing: the ceiling was raised to eighteen once, `Tere! Mis needus täna aitama saan?`
 came back, and it was put down again on the argument that the only thing keeping a composed line
 honest is how little room it has to reach. That argument is wrong in a way the line itself shows,
