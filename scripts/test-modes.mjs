@@ -40,7 +40,7 @@ page.on("console", (m) => {
 // behind the panel not answering the key the panel names, which two of the
 // fifteen rounds drawing it did: 60, and one for the round's own undo standing
 // down beside the panel the way its key already did: 61.
-const { check, absent, done } = suite("Practice modes", { floor: 63 });
+const { check, absent, done } = suite("Practice modes", { floor: 65 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -520,6 +520,30 @@ for (let i = 0; i < 20 && stillQueued !== 0; i++) {
   stillQueued = await queuedGrades();
 }
 check("the queue is sent once the connection is back", stillQueued === 0, `${stillQueued} left`);
+
+/*
+  6b — A SETTING PRESSED WITH THE NETWORK GONE KEEPS THE SCREEN.
+
+  A Server Action throws rather than answering when it never reached the
+  server, and awaited uncaught inside a transition that rejection renders the
+  error page in place of Settings: measured, picking a level offline read
+  "That screen didn't load". The invariant holds every call to a catch; this
+  is the half no source check can see, what the runtime does with it. The
+  chip has to go back as well, or the screen claims a level nothing stored.
+*/
+await page.goto(`${B}/settings`, { waitUntil: "load" });
+const levels = page.locator('main [role="radiogroup"][aria-label="Your level"] [role="radio"]');
+await levels.first().waitFor({ timeout: 15_000 });
+const before = await levels.evaluateAll((els) => els.map((el) => el.getAttribute("aria-checked")));
+const pick = before.findIndex((v) => v !== "true");
+await ctx.setOffline(true);
+await levels.nth(pick).click();
+await page.waitForTimeout(2500);
+const heading = (await page.locator("h1").allInnerTexts()).join(" ");
+check("a setting pressed offline leaves Settings on the screen", /Settings/.test(heading), heading);
+const after = await levels.evaluateAll((els) => els.map((el) => el.getAttribute("aria-checked")));
+check("and the chip goes back to what the server holds", after.join() === before.join(), `${before.join()} -> ${after.join()}`);
+await ctx.setOffline(false);
 
 /*
   5b — THE SCREEN THAT SAYS WHAT A ROUND IS DOES NOT SWALLOW THE WEBSITE'S KEYS.

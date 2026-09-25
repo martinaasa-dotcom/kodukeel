@@ -209,6 +209,36 @@ export function joinWithAnd(items: readonly string[]): string {
 }
 
 /**
+ * A small count said as a word, the way the prose around it counts.
+ *
+ * Five files kept a table of their own, reaching three, seven, ten and
+ * fourteen, so the shield letter wrote "4 shields" where the evening letter
+ * wrote "four", and a count past the end of one table fell back to a digit
+ * that its neighbour would have spelled. Through twenty, then digits, which is
+ * as far as any caller has needed and far enough that nothing it counts is
+ * read out as a string of words.
+ */
+const SPELLED = [
+  "no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+  "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+  "eighteen", "nineteen", "twenty",
+] as const;
+
+export function spelledCount(n: number): string {
+  return (Number.isInteger(n) && n >= 0 ? SPELLED[n] : undefined) ?? String(n);
+}
+
+/**
+ * The same count opening a sentence, which is where half of them stood: "two
+ * left in the bank." and "three days of the last seven." went out lowercase,
+ * the second as a letter's heading and one of them as a subject line.
+ */
+export function SpelledCount(n: number): string {
+  const word = spelledCount(n);
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+/**
  * The same reading, for a list of alternatives rather than a list of
  * requirements: an errand's `where` is a set of places any one of which
  * would do, and joined on `joinWithAnd` it reads as a place you would have
@@ -303,3 +333,17 @@ export function orderVariantNote(moved: string | null, writerPut: "earlier" | "l
  * second one quietly becomes 140.
  */
 export const CAPTION_MAX = 110;
+
+/**
+ * WHAT A PRESS SAYS WHEN THE SERVER NEVER ANSWERED IT.
+ *
+ * A Server Action does not return a refusal when the network is gone, the
+ * deployment is restarting or the tab has been asleep: it throws. Uncaught
+ * inside a transition that rejection renders the error page in place of the
+ * screen, which was measured on Settings with the plug pulled. So every call
+ * catches it, puts back whatever it changed on the screen, and where there is
+ * room for a sentence says this one. One wording, because forty screens each
+ * explaining a dropped connection their own way is forty chances to blame the
+ * learner for it.
+ */
+export const NOT_REACHED = "That did not reach the server. Try it again in a moment.";

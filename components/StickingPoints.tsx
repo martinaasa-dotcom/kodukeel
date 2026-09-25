@@ -43,7 +43,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
   const toggle = (id: string, next: boolean) => {
     setSuspended((s) => ({ ...s, [id]: next }));
     start(async () => {
-      const result = await setCardSuspended(id, next);
+      const result = await setCardSuspended(id, next).catch(() => null);
       // Put the row back the way it was if the write did not land.
       if (!result?.ok) setSuspended((s) => ({ ...s, [id]: !next }));
     });
