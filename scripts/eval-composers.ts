@@ -49,7 +49,7 @@ import type { BeatSpec, SceneSpec } from "../lib/scenes/types";
 import {
   FREE_GEMINI_MODELS, FREE_GROQ_MODELS, SCENE_REPLY_TOKENS,
 } from "../lib/tutor/provider";
-import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
+import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb, routeGate } from "./lib/sceneDraft";
 
 const arg = (name: string, fallback: string) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -189,6 +189,14 @@ interface Row {
   /** How long this call spent waiting out a 429, and how many it hit. */
   waited: number; rateLimits: number;
   failed: Check[]; unknown: string[];
+  /*
+    What the line reached past the scene's list for, which is the column §61
+    has been inferring from `passed` instead. `unknown` went near-always empty
+    at the vouching split (it is now "not Estonian at all"), so without this
+    the transcript no longer carries the thing it is read for, and the file
+    exists precisely so a reading costs no second run of 120 calls.
+  */
+  stretched: string[];
   english: string[]; markdown: boolean; sentences: number; translated: boolean;
   noFiniteVerb: boolean; wordCount: number;
 }
@@ -339,12 +347,30 @@ async function main() {
         for (let sample = 0; sample < SAMPLES; sample++) {
           const { status, text, ms, waited, rateLimits } = await ask(link, system, user);
           await sleep(PACE_MS || DEFAULT_PACE[link.provider] || 2_000);
-          const verdict = text ? runGate(text, beat, gate) : null;
+          /*
+            GATED THE WAY THE ROUTE GATES, which this was not. Two fields were
+            missing and they pull in opposite directions, so the column that
+            ranks the models was wrong in a direction nobody could predict.
+
+            `topic` is the beat's own, which the route hands in for a composed
+            line: without it the check that withholds most live lines is never
+            run here at all. And `vouched` is the forms list, so `vouching`
+            asks whether a spelling is Estonian rather than whether this scene
+            teaches it. Without that second one every word of real Estonian the
+            scene does not declare came back as `vouching`, so a model was
+            marked down for reaching rather than for being wrong: measured over
+            this run's own transcript, qwen scores 9 of 40 gated the old way
+            and 24 of 40 gated the way production gates, where gpt-oss-120b
+            goes 20 to 24. The old column had them two and a half times apart
+            and they are level.
+          */
+          const verdict = text ? runGate(text, beat, await routeGate(scene, beat, lexicon, gate, text)) : null;
           const row: Row = {
             provider: link.provider, model: link.model, scene: scene.id, beat: beat.id, sample,
             status, ms, text, waited, rateLimits,
             failed: verdict ? [...verdict.failed] : [],
             unknown: verdict ? [...verdict.unknown] : [],
+            stretched: verdict ? [...verdict.stretched] : [],
             english: drifted(text), markdown: markdown(text), sentences: sentences(text),
             translated: translated(text),
             noFiniteVerb: text ? lacksFiniteVerb(text, beat) : false,

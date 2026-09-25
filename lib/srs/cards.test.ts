@@ -280,6 +280,27 @@ describe("generateCards — CLOZE", () => {
     };
     expect(generateCards(rooms, ["CLOZE"])).toEqual([]);
   });
+
+  /*
+    AND THE SAME ROW AS THE SEED WRITES IT, WHICH HAS NO morphCode. The test
+    above only ever built the live shape, and `prisma/seed.ts` stores a
+    harvested extra form as `EKILEX:<code>` and nothing else, so the guard read
+    the column, found nothing, and on every fresh install let 56 shipped
+    plural spellings through to be gapped.
+  */
+  it("never gaps a plural stored the way the seed writes it either", () => {
+    const rooms = {
+      ...drinking, lemma: "tuba", translation: "room",
+      examples: JSON.stringify([{ et: "Nad said tubadega hakkama.", source: "EKILEX" }]),
+      forms: [
+        { formType: "NOM_SG", value: "tuba", morphCode: null },
+        { formType: "GEN_SG", value: "toa", morphCode: null },
+        { formType: "PART_SG", value: "tuba", morphCode: null },
+        { formType: "EKILEX:PlKom", value: "tubadega", morphCode: null },
+      ],
+    };
+    expect(generateCards(rooms, ["CLOZE"])).toEqual([]);
+  });
 });
 
 describe("generateCards — CASE_FORM", () => {

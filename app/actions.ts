@@ -4,9 +4,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
+import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
+import { cardsForGrades } from "@/lib/scenes/grades";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
@@ -36,12 +38,10 @@ import { resolveOneWord } from "@/lib/dict/resolveScan";
 import { guessPos, MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
-import { resolveStreakFor } from "@/lib/progress/summary";
 import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
@@ -93,6 +93,7 @@ import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
 import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
+import { matchGrades } from "@/lib/srs/matchGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
 import { placement } from "@/lib/assessment/score";
@@ -256,9 +257,8 @@ async function addCardsFor(
     see an empty deck and both insert. Measured against a real database, firing
     the same shape concurrently: two adds gave two cards, four gave four, and
     eight gave fourteen where two is right. A learner meets it by
-    double-tapping "Add to deck", and `addUnitToDeck` walks this once per word
-    with no throttle in front of it, so one impatient second on a nineteen-word
-    unit is the worst case rather than the unlikely one.
+    double-tapping "Add to deck", which is the worst case rather than the
+    unlikely one.
 
     The answer is `lib/usage/ledger.ts`'s, for the reasons its own header gives:
     a *transaction* advisory lock, so a connection pooler cannot strand it, and
@@ -626,7 +626,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
 
-  const et = capped(sentence, LIMITS.example);
+  const et = visibleLine(sentence, LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That is too short to be a sentence." };
 
   const lexeme = await prisma.lexeme.findUnique({
@@ -636,7 +636,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
 
   const merged = mergeExamples(parseExamples(lexeme.examples), [
-    { et, en: capped(translation ?? "", LIMITS.translation) || null, source: "USER" },
+    { et, en: visibleLine(translation ?? "", LIMITS.translation) || null, source: "USER" },
   ]);
   await prisma.lexeme.update({
     where: { id: lexeme.id },
@@ -666,6 +666,11 @@ const LIMITS = {
   taskTitle: 200,
   taskNotes: 2000,
 } as const;
+
+/** What a class member is called on the roster. */
+const DISPLAY_NAME_MAX = 32;
+/** What a class is called on the join screen and the roster. */
+const CLASS_NAME_MAX = 60;
 
 const capped = (value: string | undefined | null, max: number): string =>
   (value ?? "").trim().slice(0, max);
@@ -697,8 +702,8 @@ export async function createLexeme(input: { lemma: string; translation: string }
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
-  const lemma = capped(input.lemma, LIMITS.lemma);
-  const translation = capped(input.translation, LIMITS.translation);
+  const lemma = visibleLine(input.lemma, LIMITS.lemma);
+  const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
@@ -772,8 +777,8 @@ export async function createLexemeWithForms(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
-  const lemma = capped(input.lemma, LIMITS.lemma);
-  const translation = capped(input.translation, LIMITS.translation);
+  const lemma = visibleLine(input.lemma, LIMITS.lemma);
+  const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
@@ -784,9 +789,9 @@ export async function createLexemeWithForms(input: {
     translation,
     pos: input.pos,
     cefr: input.cefr,
-    government: capped(input.government, LIMITS.government),
+    government: visibleLine(input.government, LIMITS.government),
     forms: Object.fromEntries(
-      Object.entries(input.forms).map(([type, value]) => [type, capped(value, LIMITS.form)]),
+      Object.entries(input.forms).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
     ),
     editedBy: ownerId,
   });
@@ -962,8 +967,8 @@ export async function importWords(rows: { lemma: string; translation: string; po
   const wanted: { lemma: string; translation: string; pos: string }[] = [];
   const seenKeys = new Set<string>();
   for (const row of rows.slice(0, MAX_IMPORT_ROWS)) {
-    const lemma = capped(row.lemma, LIMITS.lemma);
-    const translation = capped(row.translation, LIMITS.translation);
+    const lemma = visibleLine(row.lemma, LIMITS.lemma);
+    const translation = visibleLine(row.translation, LIMITS.translation);
     if (!lemma || !translation) continue;
     const key = `${lemma}|${row.pos}`;
     if (seenKeys.has(key)) continue;
@@ -1021,23 +1026,6 @@ export async function importWords(rows: { lemma: string; translation: string; po
   return { ok: true as const, created, cards, skipped, truncated, limit: MAX_IMPORT_ROWS };
 }
 
-// ────────────────────────────── Achievements ───────────────────────────────
-
-/**
- * Resolves the current streak for whoever is signed in, applying any banked
- * streak shields (Duolingo's "streak freeze") to bridge missed days.
- *
- * The logic lives in lib/progress/summary.ts so a Server Component can reach it
- * without importing this whole action module. This wrapper takes no owner id on
- * purpose: an exported Server Action is a public endpoint, and one that read a
- * streak for any id passed to it would happily report on someone else's.
- */
-export async function resolveStreak() {
-  const ownerId = await requireUserId();
-  const result = await resolveStreakFor(ownerId, new Date(), await learnerDayClock(ownerId));
-  return { ok: true as const, ...result };
-}
-
 /**
  * A learner's recent turns with Anu, for the floating Anu button.
  *
@@ -1086,6 +1074,8 @@ export async function setDailyGoal(goal: number) {
 /** A round of this app is a minute long; nothing honest reaches these. */
 const MAX_SPRINT_SCORE = 500;
 const MAX_MATCH_SECONDS = 3_600;
+/** Twice the board's own size (see PAIRS in the round's page.tsx). A ceiling, not a pace. */
+const MAX_MATCH_PAIRS = 16;
 
 /** Records a Case Sprint score, keeping only the personal best. */
 export async function recordSprintScore(score: number) {
@@ -1099,10 +1089,45 @@ export async function recordSprintScore(score: number) {
 }
 
 /**
+ * Records a finished match round in the review log, one write rather than
+ * one per pair.
+ *
+ * MatchSession used to grade this by looping over its pairs and calling
+ * gradeCard once each, which for an eight-pair board is eight sequential
+ * Server Action round trips before the finish screen could show, each its
+ * own requireUserId, its own card lookup and its own revalidatePath. That is
+ * the shape completeLesson and submitExam already fixed for their own
+ * rounds: the client sends what happened, and the whole batch lands through
+ * one call to applyGradeBatch (ADR-016).
+ *
+ * What each pair is worth is `matchGrades`, pure and unit tested. The id per
+ * grade is minted on the client at finish, so a doubled request settles
+ * rather than doubling the count, which is exactly what applyGradeBatch is
+ * built to do with a repeated id.
+ */
+export async function recordMatchGrades(grades: unknown) {
+  const ownerId = await requireUserId();
+
+  const batch = matchGrades(grades, MAX_MATCH_PAIRS, Date.now());
+  if (batch.length === 0) return { ok: false as const, error: "Nothing to record." };
+
+  const result = await applyGradeBatch(ownerId, batch);
+  if (!result.ok) return { ok: false as const, error: result.error ?? "Could not record the round." };
+  /*
+    Every pair used to go through `gradeCard`, which revalidates Today; the
+    batch does not, so Today would show the old due count for as long as the
+    router cache holds it.
+  */
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, graded: result.settled.length };
+}
+
+/**
  * Records a finished match round, keeping the fastest time.
  *
- * Lower is better here, which is the opposite of every other score in the app —
- * hence the explicit "0 means never played" rather than a plain `Math.min`,
+ * Lower is better here, which is the opposite of every other score in the app,
+ * hence the explicit "0 means never played" rather than a plain Math.min,
  * which would leave a first-ever round competing against zero and always losing.
  */
 export async function recordMatchTime(seconds: number) {
@@ -1432,20 +1457,25 @@ export async function finishScene(input: {
     fails under pressure lands in the same weak-case charts as the case they
     fail on a card.
   */
+  /*
+    Every candidate card read once, and matched in `cardsForGrades`. This was a
+    `findFirst` per grade inside the loop below, so a conversation that met ten
+    requirements made ten round trips before its first write, on the screen
+    that says how it went. Bounded by this learner's own cards for the words
+    the run graded.
+  */
+  const lemmas = [...new Set(finished.grades.map((grade) => grade.lemma))];
+  const candidates = lemmas.length === 0 ? [] : await prisma.card.findMany({
+    where: { ownerId, lexeme: { lemma: { in: lemmas } }, cardType: { in: ["CASE_FORM", "PRODUCTION"] } },
+    select: { id: true, cardType: true, targetCase: true, lexeme: { select: { lemma: true } } },
+    orderBy: { id: "asc" },
+  });
+  const cardIds = cardsForGrades(finished.grades, candidates);
+
   let graded = 0;
-  for (const grade of finished.grades) {
-    const card = await prisma.card.findFirst({
-      where: {
-        ownerId,
-        lexeme: { lemma: grade.lemma },
-        ...(grade.grammCase
-          ? { cardType: "CASE_FORM", targetCase: grade.grammCase }
-          : { cardType: "PRODUCTION" }),
-      },
-      orderBy: { id: "asc" },
-      select: { id: true },
-    });
-    if (!card) continue;
+  for (const [index, grade] of finished.grades.entries()) {
+    const cardId = cardIds[index];
+    if (!cardId) continue;
     /*
       The case that came back instead travels with the grade, so the pair
       somebody mixes up at a counter is counted beside the pair they mix up
@@ -1453,7 +1483,7 @@ export async function finishScene(input: {
       trusting them, which is what it does for every other caller.
     */
     const result = await gradeCard(
-      card.id, grade.rating, 0, undefined,
+      cardId, grade.rating, 0, undefined,
       grade.grammCase ?? undefined, grade.reachedCase ?? undefined,
     );
     if (result.ok) graded += 1;
@@ -1877,6 +1907,8 @@ export async function completeOnboarding(input: {
   };
 }) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "completeOnboarding");
+  if (busy) return busy;
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
   await Promise.all([
@@ -1939,12 +1971,6 @@ export async function completeOnboarding(input: {
 }
 
 /**
- * Adds every word of a path unit to the deck, with the card types that unit is
- * actually about — the rektsioon unit adds government cards, a noun unit adds
- * case-form cards. Already-present cards are skipped, so re-adding a unit after
- * finishing half of it costs nothing and loses no scheduling.
- */
-/**
  * The hundred commonest words of one kind, into the deck.
  *
  * The group rather than a list of words, and that is the point: every export
@@ -1960,6 +1986,8 @@ export async function completeOnboarding(input: {
  */
 export async function addCommonWords(group: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "addCommonWords");
+  if (busy) return busy;
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "That list does not exist." };
   }
@@ -2024,19 +2052,6 @@ export async function deepenCommonWords(group: string) {
 
   revalidatePath("/review/common");
   revalidatePath("/practice");
-  revalidatePath("/words");
-  revalidatePath("/");
-  return { ok: true as const, added, words };
-}
-
-export async function addUnitToDeck(unitId: string) {
-  const ownerId = await requireUserId();
-  const unit = unitById(unitId);
-  if (!unit) return { ok: false as const, error: "That unit does not exist." };
-
-  const { added, words } = await addUnitsToDeck(ownerId, [unitId], "COURSE");
-
-  revalidatePath("/learn");
   revalidatePath("/words");
   revalidatePath("/");
   return { ok: true as const, added, words };
@@ -2171,6 +2186,8 @@ export async function completeLesson(
   results: z.input<typeof LessonResultSchema>[],
 ) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "completeLesson");
+  if (busy) return busy;
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "That unit does not exist." };
 
@@ -2335,7 +2352,9 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
 
   const busy = throttleAction(ownerId, "createClassroom");
   if (busy) return busy;
-  const trimmed = text(name).trim().slice(0, 60);
+  // Shown to everybody who is handed the code, on the screen they read before
+  // they decide to join, so it is cleaned like a name rather than trimmed.
+  const trimmed = visibleLine(name, CLASS_NAME_MAX);
   if (trimmed.length < 2) return { ok: false as const, error: "Give the class a name." };
 
   /*
@@ -2511,9 +2530,10 @@ export async function assignHomework(classroomId: string, title: string, notes: 
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
 
-  const cleanTitle = capped(title, LIMITS.taskTitle);
+  // On every member's Today, so cleaned like a name rather than trimmed.
+  const cleanTitle = visibleLine(title, LIMITS.taskTitle);
   if (!cleanTitle) return { ok: false as const, error: "Give the homework a title." };
-  const cleanNotes = capped(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
+  const cleanNotes = visibleProse(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
 
   const members = await prisma.classroomMember.findMany({
     where: { classroomId },
@@ -2575,27 +2595,10 @@ export async function classworkHistory(classroomId: string) {
 }
 
 /**
- * A name a class is going to see, cleaned.
- *
- * `trim().slice(0, 32)` was the whole of it, and `String.prototype.trim` does
- * not remove U+200B: two zero-width spaces are a two-character string that
- * passes the `!name` check and renders as nothing on the roster, so a member
- * could sit in a class with no name at all. U+202E is worse, because it
- * reverses what follows it and can be used to make one pupil's row read as
- * another's. The roster is the one screen in this app where a stranger's text
- * is shown to a teacher beside real pupils' names.
- *
- * `\p{C}` is every control, format and unassigned code point, which is the
- * category both of those are in, and NFC first so a name is compared and
- * stored in one normalization. At least one letter or digit, because a row
- * of punctuation is the same "renders as nothing" fault wearing a visible
- * character.
+ * A name a class is going to see, cleaned. `lib/security/visibleText.ts` says
+ * what that means and why `trim()` was not it.
  */
-function cleanDisplayName(value: unknown): string {
-  if (typeof value !== "string") return "";
-  const cleaned = value.normalize("NFC").replace(/\p{C}/gu, "").replace(/\s+/g, " ").trim().slice(0, 32);
-  return /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : "";
-}
+const cleanDisplayName = (value: unknown): string => visibleLine(value, DISPLAY_NAME_MAX);
 
 /** The name to show in a class: their chosen one, else their account's. */
 async function resolveDisplayName(ownerId: string): Promise<string> {
@@ -3511,6 +3514,8 @@ const COURSE_DAY_CARDS = ["RECOGNITION", "PRODUCTION"] as const;
  */
 export async function startCourseDay(programmeId: string, dayId: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "startCourseDay");
+  if (busy) return busy;
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) {
@@ -3761,7 +3766,7 @@ export async function saveScan(input: {
   // hold it. `(lemma, pos)` is `Lexeme`'s own unique key, so this is the same
   // question the loop below asks and the same one the write below settles.
   const keyOf = (et: string) => {
-    const lemma = capped(et, LIMITS.lemma);
+    const lemma = visibleLine(et, LIMITS.lemma);
     const pos = guessPos(lemma);
     return { lemma, pos, key: `${lemma}|${pos}` };
   };
@@ -3785,7 +3790,7 @@ export async function saveScan(input: {
         data: missing.map(([, w]) => ({
           lemma: w.lemma,
           pos: w.pos,
-          translation: capped(w.en, LIMITS.translation) || NEEDS_TRANSLATION,
+          translation: visibleLine(w.en, LIMITS.translation) || NEEDS_TRANSLATION,
           provenance: "USER" as const,
           editedBy: ownerId,
           editedAt: new Date(),
@@ -3845,6 +3850,8 @@ export async function saveScan(input: {
 /** Adds every word on a saved page that is not in the deck yet. */
 export async function addScanToDeck(scanId: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "addScanToDeck");
+  if (busy) return busy;
   const scan = await prisma.scan.findFirst({
     where: { id: scanId, ownerId },
     select: { items: true },
@@ -3937,7 +3944,7 @@ export async function deleteScan(scanId: string) {
  */
 export async function resolveScannedWord(word: string) {
   const ownerId = await requireUserId();
-  const trimmed = capped(word, LIMITS.lemma);
+  const trimmed = visibleLine(word, LIMITS.lemma);
   if (!trimmed) return { ok: false as const, error: "Type the word first." };
 
   const local = await resolveOneWord(trimmed);
@@ -4117,6 +4124,11 @@ const ExamSubmissionSchema = z.object({
  */
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "submitExam");
+  if (busy) return busy;
+
+  const busy = throttleAction(ownerId, "submitExam");
+  if (busy) return busy;
 
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };
@@ -4213,11 +4225,12 @@ export async function submitSuggestion(input: unknown) {
     return { ok: false as const, error: "That correction does not match the kind of problem chosen." };
   }
 
-  const note = capped(raw.note, SUGGESTION_LIMITS.note);
-  const lemma = capped(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
+  // Read by a reviewer, which is somebody other than the person who typed it.
+  const note = visibleProse(raw.note, SUGGESTION_LIMITS.note);
+  const lemma = visibleLine(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
   const lexemeId = capped(raw.lexemeId, 64) || null;
-  const context = capped(raw.context, SUGGESTION_LIMITS.context) || null;
-  const trigger = capped(raw.trigger, SUGGESTION_LIMITS.trigger) || null;
+  const context = visibleProse(raw.context, SUGGESTION_LIMITS.context) || null;
+  const trigger = visibleLine(raw.trigger, SUGGESTION_LIMITS.trigger) || null;
 
   const groupKey = groupKeyFor({ category, lexemeId, lemma, context, trigger, patch });
 
@@ -4313,7 +4326,7 @@ export async function reviewSuggestion(input: unknown) {
       status: decision === "ACCEPT" ? "ACCEPTED" : "DECLINED",
       reviewedBy: reviewerId,
       reviewedAt: new Date(),
-      decision: capped(parsed.data.note, SUGGESTION_LIMITS.decision) || null,
+      decision: visibleProse(parsed.data.note, SUGGESTION_LIMITS.decision) || null,
     },
   });
 

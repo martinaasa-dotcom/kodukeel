@@ -5,7 +5,7 @@ import { BLANK, buildCloze, mentions, naturalSentence, nominalOpener } from "@/l
 import { readableGovernment } from "@/lib/estonian/government";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { gapForms } from "@/lib/estonian/gapForms";
-import { numberFromMorphCode } from "@/lib/estonian/morph";
+import { ekilexCodeOf, numberFromMorphCode } from "@/lib/estonian/morph";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
@@ -699,7 +699,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         */
         const plural = new Set(
           lex.forms
-            .filter((f) => numberFromMorphCode(f.morphCode) === "PLURAL")
+            .filter((f) => numberFromMorphCode(ekilexCodeOf(f)) === "PLURAL")
             .map((f) => f.value.trim().toLowerCase()),
         );
         const clozeForms = [...byValue.keys()].filter((f) => !plural.has(f));

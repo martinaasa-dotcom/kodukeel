@@ -69,6 +69,7 @@
  * Pure and framework-free: no React, no Prisma, no clock. The page resolves the
  * dictionary rows and hands them in.
  */
+import { PARTS } from "@/lib/copy/values";
 import { buildCloze, isBuildable, mentions, sentenceTiles } from "@/lib/estonian/cloze";
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { gapFormsFromParts } from "@/lib/estonian/gapForms";
@@ -746,7 +747,7 @@ function caseStep(
       // The question this word answers, not the case's whole name: a horse is
       // a `kes`, and `kus?` names two cases at once. See `caseQuestionFor`.
       caseKey: key, caseName: spec.et, question: caseQuestionFor(spec, subject),
-      answer: found.accepted.join(" / "),
+      answer: found.accepted.join(PARTS),
     };
   }
   return null;

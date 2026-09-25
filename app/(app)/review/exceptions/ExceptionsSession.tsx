@@ -1,5 +1,6 @@
 "use client";
 
+import { PARTS } from "@/lib/copy/values";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, TriangleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -359,7 +360,7 @@ function Meeting({ task }: { task: ExceptionTask }) {
         >
           <div className="flex flex-wrap items-center gap-2">
             <p lang="et" className="text-2xl font-semibold leading-tight" style={{ color: "var(--ink)" }}>
-              {task.accepted.join(" / ")}
+              {task.accepted.join(PARTS)}
             </p>
             {/* This is the round's own "meet" rung, the same moment
                 WordIntro exists for: the first time a form is met is the
@@ -559,7 +560,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
           className="text-xl font-semibold leading-tight"
           style={{ color: "var(--ink)" }}
         >
-          {task.accepted.join(" / ")}
+          {task.accepted.join(PARTS)}
         </p>
         <p lang="et" className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
           {task.label}
