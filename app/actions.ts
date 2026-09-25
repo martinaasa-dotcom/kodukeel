@@ -90,7 +90,7 @@ import { courseLevelFor } from "@/lib/progress/level";
 import type { DayKey } from "@/lib/time/day";
 import { FREQUENCY_GROUPS, type FrequencyGroup } from "@/lib/collections/frequency";
 import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
-import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
+import { readOnboardingInput } from "@/lib/settings/onboarding";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
@@ -1867,11 +1867,13 @@ export async function completeOnboarding(input: {
   };
 }) {
   const ownerId = await requireUserId();
-  const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
+  const read = readOnboardingInput(input ?? {});
+  if (!read.ok) return { ok: false as const, error: read.error };
+  const { level, dailyGoal: goal, unitIds } = read;
 
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.displayName, cleanDisplayName(input?.displayName) || "A learner"),
-    writeSetting(ownerId, SETTING_KEYS.cefrGoal, input.cefr),
+    writeSetting(ownerId, SETTING_KEYS.cefrGoal, level),
     /*
       The level somebody declares at sign-up is the best guess available until
       they take the placement test, and the course needs *some* starting point
@@ -1884,7 +1886,7 @@ export async function completeOnboarding(input: {
       it must never outrank the check sat on the next screen of this same
       wizard. The blank clears a stamp left by an earlier life of the account.
     */
-    writeSetting(ownerId, SETTING_KEYS.cefrPlacement, input.cefr),
+    writeSetting(ownerId, SETTING_KEYS.cefrPlacement, level),
     writeSetting(ownerId, SETTING_KEYS.cefrPlacementAt, ""),
     writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(goal)),
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
@@ -1900,7 +1902,7 @@ export async function completeOnboarding(input: {
       Writing it at the end of first run pins where they actually started, and
       finishing a part is the only thing that moves it.
     */
-    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(input.cefr)),
+    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(level)),
     input.goals
       ? saveGoals(ownerId, normaliseGoals({
           reason: input.goals.reason ?? null,
@@ -1921,7 +1923,7 @@ export async function completeOnboarding(input: {
     seconds on the one screen where the app is asking them to trust it. See
     `lib/srs/deck.ts` for the shape.
   */
-  const { added } = await addUnitsToDeck(ownerId, input.unitIds.slice(0, MAX_STARTER_UNITS), "COURSE");
+  const { added } = await addUnitsToDeck(ownerId, unitIds, "COURSE");
 
   revalidatePath("/");
   revalidatePath("/learn");
