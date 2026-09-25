@@ -52,7 +52,7 @@ const browser = await launchChromium();
   that only reads the source, which is what made it worth measuring here
   instead.
 */
-const { check, done } = suite("The phone", { floor: 73 });
+const { check, done } = suite("The phone", { floor: 79 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -98,6 +98,41 @@ for (const width of [...PHONES, ...WIDE]) {
     return { wider: document.documentElement.scrollWidth > window.innerWidth, x: window.scrollX };
   });
   check(`no horizontal overflow at ${width}`, !over.wider && over.x === 0, JSON.stringify(over));
+  await ctx.close();
+}
+
+// 2d — No word is broken mid-letter at 360. `overflow-wrap: anywhere` keeps a
+//      long word inside its box by breaking it wherever it has to, which is the
+//      right trade for a word longer than its box and the wrong answer for a
+//      box squeezed narrower than an ordinary word. A sweep of every route at
+//      360 found six: the readiness tiles five across ("LEAD / IT"), a section
+//      title shrunk by its hint ("INDEPEN / DENT USER"), the grammar list's
+//      case names, the quest's chips, the settings key caps and a fixed-width
+//      admin label. The app's own chrome is left to the bar's check above.
+for (const path of ["/progress", "/progress/readiness", "/grammar", "/quest", "/settings", "/admin/suggestions"]) {
+  const { ctx, page } = await open(360, 844, path);
+  const split = await page.evaluate(() => {
+    const out = new Set();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let words = 0;
+    for (let n; (n = walker.nextNode());) {
+      const el = n.parentElement;
+      if (!el || el.closest("script,style,svg,[aria-hidden=true],[data-chrome],code")) continue;
+      const re = /[\p{L}\p{N}]{4,}/gu;
+      for (let m; (m = re.exec(n.textContent));) {
+        const range = document.createRange();
+        range.setStart(n, m.index);
+        range.setEnd(n, m.index + m[0].length);
+        const rects = [...range.getClientRects()].filter((r) => r.width > 0);
+        if (!rects.length) continue;
+        words += 1;
+        if (new Set(rects.map((r) => Math.round(r.top))).size > 1) out.add(m[0]);
+      }
+    }
+    return { words, split: [...out] };
+  });
+  check(`no word is broken mid-letter on ${path} at 360`, split.words > 20 && split.split.length === 0,
+    split.split.length ? split.split.slice(0, 6).join(", ") : `${split.words} words`);
   await ctx.close();
 }
 

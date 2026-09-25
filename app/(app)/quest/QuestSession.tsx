@@ -275,9 +275,14 @@ export function QuestSession({
                 {aimed.map((c) => (
                   <li key={c.key}>
                     <Chip tone={c.accuracy < 60 ? "again" : "hard"}>
-                      <span lang="et">{c.et}</span>
-                      {c.question && <> · <CaseQuestion question={c.question} inline /></>}
-                      {" "}{c.accuracy}%
+                      {/* One run of text, so it wraps between words. As four
+                          children of the chip's inline-flex they squeezed each
+                          other and broke the case name mid-letter at 360. */}
+                      <span>
+                        <span lang="et">{c.et}</span>
+                        {c.question && <> · <CaseQuestion question={c.question} inline /></>}
+                        {" "}{c.accuracy}%
+                      </span>
                     </Chip>
                   </li>
                 ))}

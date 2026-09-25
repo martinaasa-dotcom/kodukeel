@@ -13,12 +13,12 @@ import { RUNG_TILE } from "./Rung";
  * of the readiness page from one component, so the two cannot count a level
  * two ways.
  */
-export function ReadinessSummary({ summary, compact = false }: { summary: Summary; compact?: boolean }) {
+export function ReadinessSummary({ summary }: { summary: Summary }) {
   const shown = [...RUNG_ORDER].reverse();
   return (
     <>
       <p className="text-base" style={{ color: "var(--ink)" }}>{headline(summary)}</p>
-      <div className={`mt-4 grid gap-2 ${compact ? "grid-cols-5" : "grid-cols-2 sm:grid-cols-5"}`}>
+      <div className={`mt-4 grid gap-2 grid-cols-2 sm:grid-cols-5`}>
         {shown.map((rung) => (
           <StatTile key={rung} value={summary.counts[rung]} label={RUNG_LABEL[rung]} tone={RUNG_TILE[rung]} />
         ))}
@@ -51,7 +51,7 @@ export function ReadinessPanel({ summary }: { summary: Summary }) {
     <section>
       <SectionTitle hint={`at ${summary.level} · counted in situations`}>In real life</SectionTitle>
       <Card>
-        <ReadinessSummary summary={summary} compact />
+        <ReadinessSummary summary={summary} />
         <div className="mt-4">
           <CardLink href="/progress/readiness">Every situation, and where each would go wrong</CardLink>
         </div>

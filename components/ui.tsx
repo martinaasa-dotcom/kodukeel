@@ -165,7 +165,7 @@ export function Columns({ children, className = "" }: { children: ReactNode; cla
 
 export function SectionTitle({ children, hint }: { children: ReactNode; hint?: ReactNode }) {
   return (
-    <div className="mb-3 flex items-baseline justify-between gap-3">
+    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
       <h2 className="label-xs" style={{ color: "var(--ink-3)" }}>{children}</h2>
       {hint && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint}</span>}
     </div>

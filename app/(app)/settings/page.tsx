@@ -601,7 +601,7 @@ export default async function SettingsPage() {
                   </p>
                   <dl className="mt-3 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
                     {SHORTCUTS.map(([keys, what]) => (
-                      <div key={keys} className="flex items-baseline gap-3">
+                      <div key={keys} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                         <dt>
                           <KeyCap>{keys}</KeyCap>
                         </dt>
