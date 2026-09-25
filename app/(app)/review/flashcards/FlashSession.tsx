@@ -69,7 +69,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const sound = useFeedbackSound();
-  const { refresh: refreshOutbox } = useOffline();
+  const { refresh: refreshOutbox, drainFirst } = useOffline();
 
   const task = prompts[index];
   const finished = !task;
@@ -152,9 +152,12 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     const reached = result.wroteSlot && result.wroteSlot !== task.slot
       ? result.wroteSlot
       : undefined;
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
     try {
+      await drainFirst();
       const res = await gradeCard(
-        task.cardId, result.rating, duration, answeredAt, task.slot, reached,
+        task.cardId, result.rating, duration, answeredAt, task.slot, reached, reviewId,
       );
       if (!res.ok) throw new Error(res.error);
     } catch {
@@ -163,7 +166,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       // answer about the kaasaütlev would go down as an answer about whatever
       // the card happens to be.
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: reviewId,
         cardId: task.cardId,
         rating: result.rating,
         durationMs: duration,
@@ -173,7 +176,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       });
       refreshOutbox();
     }
-  }, [task, typed, mark, sound, streak, refreshOutbox, hints]);
+  }, [task, typed, mark, sound, streak, refreshOutbox, drainFirst, hints]);
 
   const next = useCallback(() => {
     /*
