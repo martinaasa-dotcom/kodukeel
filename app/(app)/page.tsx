@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { roundLength, roundPaceFrom, secondsFor, QUEST_SECONDS } from "@/lib/ux/roundClock";
 import { redirect } from "next/navigation";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { ArrowRight, Flame, Shield, Target } from "lucide-react";
@@ -107,7 +108,7 @@ export default async function TodayPage() {
     deckSnapshot(ownerId, now),
     readSettings(ownerId, [
       SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName, SETTING_KEYS.cefrPlacement,
-      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget,
+      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget, SETTING_KEYS.roundPace,
     ]),
     /*
       Which level the course opens at. It was read last, after everything else
@@ -714,6 +715,11 @@ export default async function TodayPage() {
      is the "does this say something true and useful on an empty log" test, and
      this one fails it where the word of the day passes.
   */
+  // The quest's length at this learner's pace, which is what the round runs
+  // for: "two minutes" was the standard figure printed to somebody who had
+  // asked for five.
+  const questSeconds = roundLength(secondsFor(QUEST_SECONDS, roundPaceFrom(settings[SETTING_KEYS.roundPace])));
+  const questLength = `${questSeconds[0]!.toUpperCase()}${questSeconds.slice(1)}`;
   const questCard = questDay ? (
     <Card tone="accent">
       {/* No "two minutes" hint: the line under this says it, and a figure
@@ -728,10 +734,10 @@ export default async function TodayPage() {
             <span lang="et" className="font-semibold">
               {grammarTerm(weakest.grammCase)?.et ?? weakest.grammCase.toLowerCase()}
             </span>{" "}
-            is at {weakest.accuracy}%. Two minutes on it.
+            is at {weakest.accuracy}%. {questLength} on it.
           </>
         ) : (
-          "Two minutes on the cards you get wrong most often."
+          `${questLength} on the cards you get wrong most often.`
         )}
       </p>
       <div className="mt-3">
