@@ -206,6 +206,10 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/robots.txt") ||
     path.startsWith("/sitemap.xml") ||
     path.startsWith("/opengraph-image") ||
+    // The home-screen icon, drawn the same for everybody. A phone fetches it
+    // with no session when somebody adds the site to their home screen, and
+    // it has no extension for the matcher to skip.
+    path.startsWith("/apple-icon") ||
     // Aggregate metrics carry their own bearer token and are read by whoever
     // runs the deployment, not by a signed-in learner. Past this gate it
     // authenticates itself, and with no token configured it 404s.
@@ -292,6 +296,21 @@ export async function middleware(request: NextRequest) {
 
   const identity = await readIdentity(supabase, transport);
 
+  /*
+    Every answer after this line carries what reading the session wrote.
+    Verifying can rotate the tokens, and a refresh that fails clears them; both
+    arrive through the adapter above, which rebuilds `response`, so a branch
+    returning a fresh redirect threw them away. That was fixed for the refusal
+    alone and left on the other two: somebody signed in who opened /sign-in
+    lost the rotated pair, and a dead session was never cleared, so every
+    gated request after it asked the auth service again. One helper, so a
+    fourth branch cannot forget.
+  */
+  const carrying = (answer: NextResponse): NextResponse => {
+    for (const cookie of response.cookies.getAll()) answer.cookies.set(cookie);
+    return withCsp(answer);
+  };
+
   // A signed-in address that is no longer on the allowlist is signed out here
   // rather than only in the OAuth callback, so revoking access takes effect on
   // the next request somebody makes instead of whenever their session expires.
@@ -303,7 +322,6 @@ export async function middleware(request: NextRequest) {
     denied.pathname = "/sign-in";
     denied.search = "";
     denied.searchParams.set("denied", "1");
-    const refusal = NextResponse.redirect(denied);
     /*
       The cleared cookies have to be copied onto the redirect, and were not.
       `signOut` writes them through the adapter above, which rebuilds
@@ -311,11 +329,10 @@ export async function middleware(request: NextRequest) {
       survived every refusal and the same person was signed out again on every
       request they made for as long as the token lasted.
     */
-    for (const cookie of response.cookies.getAll()) refusal.cookies.set(cookie);
-    return withCsp(refusal);
+    return carrying(NextResponse.redirect(denied));
   }
 
-  if (identity.state === "out" && !isPublicPath) return withCsp(signedOut());
+  if (identity.state === "out" && !isPublicPath) return carrying(signedOut());
 
   // /welcome stays reachable when signed in: it is a page you might want to
   // show someone. Only the sign-in form itself is pointless once you are in.
@@ -323,7 +340,7 @@ export async function middleware(request: NextRequest) {
     const home = request.nextUrl.clone();
     home.pathname = "/";
     home.search = "";
-    return withCsp(NextResponse.redirect(home));
+    return carrying(NextResponse.redirect(home));
   }
 
   /*

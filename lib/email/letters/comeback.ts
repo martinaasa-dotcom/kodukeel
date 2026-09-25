@@ -33,17 +33,7 @@ import { wordCard } from "../art";
 import type { Block, Letter } from "../letter";
 
 export interface ComebackInput {
-  readonly name: string | null;
   readonly origin: string;
-  /**
-   * How many days since their last review.
-   *
-   * Read, and deliberately never printed. It decides whether this letter is
-   * sent at all and how the first line is pitched, and the learner is told
-   * none of it: the figure is the guilt, and the decision is ours to make with
-   * it rather than theirs to be handed.
-   */
-  readonly daysAway: number;
   /** Words the scheduler says they still hold, which is the reassuring number. */
   readonly wordsKept: number;
   /** A shield covered a day, where one was banked. Their streak survived. */

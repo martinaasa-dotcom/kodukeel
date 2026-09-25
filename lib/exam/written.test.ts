@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { acceptedUses, usesRequiredWord, wordsOf, type RequiredWord } from "./written";
+import { shippedDictionary } from "@/scripts/lib/dictionary";
 
 /*
   These functions are shared between the marking and the screen somebody is
@@ -130,15 +131,52 @@ describe("whether a required word was used", () => {
 
 describe("the forms behind the marking", () => {
   it("gives every shipped word more than its headword to be recognized by", () => {
-    // A set of one would mark somebody down for writing the word in a sentence
-    // rather than in the nominative, which is the opposite fault to the one
-    // this replaced. Measured: the thinnest entry in the dictionary has ten.
+    /*
+      A set of one would mark somebody down for writing the word in a sentence
+      rather than in the nominative, which is the opposite fault to the one
+      this replaced.
+
+      THE FLOOR IS WHAT WAS MEASURED, AND IT WAS ONE. The comment said the
+      thinnest entry has ten and the assertion asked for more than one, so a
+      change that took every noun down to three spellings passed. One did:
+      moving this module onto `gapForms` dropped the plural cases, the thinnest
+      entry fell from ten to three (`lugemisprillid`, which has no singular),
+      a candidate who wrote `raamatutes` was marked as not having used
+      `raamat`, and this printed PASS. It was caught by somebody reading the
+      diff. At ten it fails on that commit.
+
+      AND OVER THE DICTIONARY THE SEED WRITES, NOT HALF OF IT. This read
+      `expanded.json` alone, which is 5,363 of the 6,153 entries: none of the
+      course harvest, which is where the words a paper is built from mostly
+      come from. `shippedDictionary` is the merge the seed makes. Over all of
+      it every entry with principal parts accepts at least ten, and the 156
+      that accept fewer are adverbs and phrases, which do not inflect and so
+      accept their own spelling and whatever extra form was stored. That they
+      accept at least that is asserted too, since a word accepting nothing
+      would be a word nobody could use.
+    */
+    const THINNEST = 10;
     let thinnest = Number.POSITIVE_INFINITY;
-    for (const entry of EXPANDED) {
-      const size = acceptedUses({ lemma: entry.lemma, pos: entry.pos, forms: entry.forms }).size;
-      if (size < thinnest) thinnest = size;
+    let thinnestWord = "";
+    let checked = 0;
+    for (const entry of shippedDictionary()) {
+      const forms = [
+        ...Object.entries(entry.parts).map(([formType, value]) => ({ formType, value: value as string })),
+        ...entry.extraForms.map((f) => ({ formType: `EKILEX:${f.code}`, value: f.value })),
+      ];
+      const accepted = acceptedUses({ lemma: entry.lemma, pos: entry.pos, forms });
+      // Principal parts are what every other form is built from, so an entry
+      // without them does not inflect here: an adverb such as `liiga` carries
+      // one stored extra form and accepts two, which is all it has.
+      if (Object.keys(entry.parts).length === 0) {
+        expect(accepted.size, `${entry.lemma} accepts nothing, not even itself`).toBeGreaterThan(0);
+        continue;
+      }
+      checked += 1;
+      if (accepted.size < thinnest) { thinnest = accepted.size; thinnestWord = entry.lemma; }
     }
-    expect(thinnest).toBeGreaterThan(1);
+    expect(checked, "the sweep stopped finding entries with principal parts").toBeGreaterThan(5_000);
+    expect(thinnest, `${thinnestWord} is the thinnest entry with principal parts`).toBeGreaterThanOrEqual(THINNEST);
   });
 
   it("writes no Estonian of its own: every form comes from the entry or a suffix rule", () => {

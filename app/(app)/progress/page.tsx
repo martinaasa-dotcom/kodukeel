@@ -28,7 +28,7 @@ import { Board, BoardSkeleton } from "./Board";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lemmasByCardLexeme } from "@/lib/dict/facts";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
-import { NO_VALUE } from "@/lib/copy/values";
+import { NO_VALUE, counted } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
 import { Explain } from "@/components/Explain";
 
@@ -310,7 +310,7 @@ export default async function ProgressPage() {
           <Card>
             <div className="flex h-28 items-end gap-[3px]">
               {trend.map((d) => (
-                <div key={d.day} className="flex flex-1 flex-col justify-end" title={`${d.day}: ${d.reviews} reviews${d.accuracy === null ? "" : `, ${d.accuracy}% recalled`}`}>
+                <div key={d.day} className="flex flex-1 flex-col justify-end" title={`${d.day}: ${counted(d.reviews, "review")}${d.accuracy === null ? "" : `, ${d.accuracy}% recalled`}`}>
                   <span
                     className="w-full rounded-t-[2px]"
                     style={{

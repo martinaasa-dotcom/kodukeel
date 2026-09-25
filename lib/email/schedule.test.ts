@@ -149,6 +149,38 @@ describe("the letter after a gap", () => {
     expect(letterOwed(away, NOW)).toBeNull();
     expect(MIN_GAP_HOURS.comeback).toBeGreaterThanOrEqual(24 * 14);
   });
+
+  it("goes once per absence, however long the absence runs", () => {
+    /*
+      The gap alone let it out again every fortnight, so somebody who stayed
+      away got it on day 6, day 20 and day 34 of one absence. What decides it
+      is whether one already went out since their last review.
+    */
+    const sent = new Map<EmailKind, Date>([["comeback", daysAgo(30)]]);
+    const stillAway = candidate({ lastReviewAt: daysAgo(40), lastSent: sent });
+    expect(letterOwed(stillAway, NOW)).toBeNull();
+  });
+
+  it("goes again after they came back and then left again", () => {
+    const sent = new Map<EmailKind, Date>([["comeback", daysAgo(60)]]);
+    const awayAgain = candidate({ lastReviewAt: daysAgo(AWAY_DAYS + 1), lastSent: sent });
+    expect(letterOwed(awayAgain, NOW)?.kind).toBe("comeback");
+  });
+
+  it("is sent at most once over a whole absence, driven hour by hour", () => {
+    let sent = new Map<EmailKind, Date>();
+    let count = 0;
+    const lastReviewAt = daysAgo(60);
+    for (let h = 0; h < 60 * 24; h++) {
+      const now = new Date(lastReviewAt.getTime() + h * 3_600_000);
+      const decision = letterOwed(candidate({ lastReviewAt, lastSent: sent, localHour: now.getUTCHours() }), now);
+      if (decision?.kind === "comeback") {
+        count++;
+        sent = new Map(sent).set("comeback", now);
+      }
+    }
+    expect(count).toBe(1);
+  });
 });
 
 describe("the Sunday summary", () => {
@@ -467,6 +499,9 @@ describe("the date they set", () => {
     */
     expect(letterOwed(facing({ deadlineWeeks: DEADLINE_WEEKS_MIN - 1 }), NOW)?.kind).not.toBe("deadline");
     expect(letterOwed(facing({ deadlineWeeks: DEADLINE_WEEKS_MAX + 1 }), NOW)?.kind).not.toBe("deadline");
+    // Unrounded at both edges: 24.6 days is not four weeks, and 16.4 weeks is past sixteen.
+    expect(letterOwed(facing({ deadlineWeeks: 24.6 / 7 }), NOW)?.kind).not.toBe("deadline");
+    expect(letterOwed(facing({ deadlineWeeks: 16.4 }), NOW)?.kind).not.toBe("deadline");
   });
 
   it("gives way to news, which is what the order says", () => {

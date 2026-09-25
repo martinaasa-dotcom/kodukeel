@@ -278,7 +278,7 @@ export interface Candidate {
    */
   readonly runsGroup: boolean;
   /**
-   * Whole weeks until the date they set themselves, or null where they set
+   * Weeks until the date they set themselves, unrounded, or null where they set
    * none or it has already passed.
    *
    * Past is null rather than negative, because a deadline already gone is its
@@ -427,9 +427,16 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
       send it, which is as often as not the middle of the night. The evening
       they used to study in is the hour a letter about coming back to it is
       read in, so it takes the evening nudge's own window.
+
+      And once per absence, which the fortnight gap alone never said: it let the
+      letter out again every fourteen days, so somebody who stayed away got it
+      on day 6, day 20 and day 34 of one absence. A comeback sent after their
+      last review is this absence's, and the answer after it is silence.
     */
     const evening = who.localHour >= (who.reminderHour ?? 18) && who.localHour < 22;
-    return evening && allowed(who, "comeback", now)
+    const lastComeback = who.lastSent.get("comeback");
+    const toldThisAbsence = lastComeback !== undefined && who.lastReviewAt !== null && lastComeback > who.lastReviewAt;
+    return evening && !toldThisAbsence && allowed(who, "comeback", now)
       ? { kind: "comeback", because: `no review in ${away} days` }
       : worddayOwed(who, now);
   }
@@ -503,7 +510,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     who.localHour < 15 &&
     allowed(who, "deadline", now)
   ) {
-    return { kind: "deadline", because: `${who.deadlineWeeks} weeks until the date they set` };
+    return { kind: "deadline", because: `${Math.round(who.deadlineWeeks)} weeks until the date they set` };
   }
 
   /*
