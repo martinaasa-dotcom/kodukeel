@@ -74,6 +74,18 @@ export interface HarvestPlanInput<T extends Keyed> {
   readonly previous: readonly T[];
   /** Every word this run asked Ekilex about, by `rowKey`. */
   readonly asked: ReadonlySet<string>;
+  /**
+   * Every word the course requests today, by `rowKey`, whether or not this run
+   * asked about it.
+   *
+   * A row whose key the course no longer names leaves, even on an `--only` run
+   * that did not ask about it. Without this, a word whose part of speech or
+   * homonym changed kept its old row beside the new one for as long as nobody
+   * ran the whole harvest: `täis` came back as "full" under ADVERB and the old
+   * ADJECTIVE row, carrying the forms and sentences of the homonym meaning
+   * "whole", stayed in the file, which the seed then writes as a second entry.
+   */
+  readonly wanted: ReadonlySet<string>;
   /** What came back with forms, this run. */
   readonly harvested: readonly T[];
   /** Words asked that Ekilex never answered for, by `rowKey`. Kept, never dropped. */
@@ -92,7 +104,8 @@ export type HarvestPlan<T extends Keyed> =
  * Whether to write, and what. The rows are the previous file with this run's
  * answers stood in: a word asked and answered takes its new row, a word asked
  * and not answered keeps its old one, a word not asked (`--only`) keeps its old
- * one, and a word asked and genuinely dropped by Ekilex leaves.
+ * one, a word asked and genuinely dropped by Ekilex leaves, and a word the
+ * course no longer requests leaves whether or not it was asked.
  */
 export function planHarvestWrite<T extends Keyed>(input: HarvestPlanInput<T>): HarvestPlan<T> {
   const refusedTotal = [...input.refused.values()].reduce((a, b) => a + b, 0);
@@ -116,6 +129,8 @@ export function planHarvestWrite<T extends Keyed>(input: HarvestPlanInput<T>): H
   let kept = 0;
   for (const row of input.previous) {
     const key = rowKey(row);
+    // No longer part of the course: it leaves, whichever words this run asked.
+    if (!input.wanted.has(key)) continue;
     if (!input.asked.has(key) || input.unanswered.has(key)) {
       rows.push(row);
       kept += 1;

@@ -192,6 +192,23 @@ export interface BeatSpec {
    * which is most of them: a ticket window hearing "Tartu" is not moved.
    */
   readonly feel?: Feel;
+  /**
+   * THE TWO THINGS THE OTHER SIDE NARROWS THE QUESTION TO, WHERE A PERSON WOULD.
+   *
+   * A beat's list names every word that answers it, and two words that answer
+   * one question are usually one answer said two ways: the list was taken as
+   * the source of a choice, and it offered `Probleem või viga?`, `Palk või
+   * raha?` and `Arve või raha?`. Measured over the catalogue, fifteen of the
+   * twenty-three pairs it could build were that, and no rule over a lemma
+   * list tells `Valu või palavik?` from `Probleem või viga?`, because the
+   * difference is whether a receptionist would ever say it. So a scene says
+   * so: two lemmas of this beat's own list, of one part of speech, that are
+   * two different things the learner could have meant. Absent, and a beat is
+   * narrowed on nothing, which falls to the app's own hint. A value off the
+   * card still narrows by itself, since two values a slot could have dealt
+   * are two different things by construction (`lib/scenes/choice.ts`).
+   */
+  readonly choice?: readonly [string, string];
   readonly move: MoveKind;
   /**
    * What the other side's line is about, as lemmas.

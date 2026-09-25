@@ -30,6 +30,7 @@ import { whereWhole } from "@/lib/estonian/cloze";
 import { ASK_ENGLISH, LOST } from "./catalogue";
 import { casualBye, casualHello } from "./casual";
 import { fold } from "@/lib/estonian/fold";
+import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import type { CaseKey } from "@/lib/estonian/types";
 import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
@@ -270,6 +271,16 @@ export interface TurnContext {
    */
   readonly known?: (word: string) => boolean;
   /**
+   * Whether the course teaches a spelling, which `known` also answers yes to
+   * once it is widened to the forms list. Separate because one reader needs
+   * the difference: a capitalised word the course teaches at the front of a
+   * sentence (`Homme`) is that word, while one only the forms list holds
+   * (`Tartusse`, which Vabamorf knows as a town) may be a place name
+   * (`placeName`). Absent on a caller that has not resolved it, and then only
+   * the scene's own list rules a word out.
+   */
+  readonly course?: (word: string) => boolean;
+  /**
    * WHAT ELSE THE LEARNER COULD HAVE SAID AND MEANT THE SAME THING.
    *
    * A beat names the words that meet it and may name only words the scene's
@@ -431,7 +442,7 @@ export function readTurn(
   */
   const matched = found.flatMap((hit, i) => {
     const need = beat.needs[i];
-    if (!hit || hit === YES || !need) return [];
+    if (!hit || hit === YES || !need || hit.quiet) return [];
     if ((need.kind === "lemma" || need.kind === "anyOf") && beat.shape !== "word") return [];
     return [hit.slip?.form ?? hit.word];
   });
@@ -699,7 +710,9 @@ export function readTurn(
     of them is still the repair phrase, because at that point there really was
     nothing to go on. The greeting rule above deliberately reads
     `caughtSomething` rather than this, so a single unreadable word cannot tick
-    an objective.
+    an objective. On a slot marked as a place the town is the answer rather
+    than a word nobody could place (`placeName`), so this is what a town gets
+    only where the beat was asking for something else.
   */
   const tried = caughtSomething(marked) || spoken.length === 1;
   return shape(tried ? "offtarget" : "unrecognised");
@@ -732,6 +745,8 @@ interface Hit {
   readonly stoodIn?: true;
   /** Met by a value of the slot's kind that the card did not deal (`Evidence.chose`). */
   readonly chose?: Chosen;
+  /** Met, and not a word this app may say back: a place name nothing vouches for. */
+  readonly quiet?: true;
 }
 
 /**
@@ -1142,6 +1157,10 @@ function satisfies(
             const near = folded(forms) ?? nearly(forms);
             if (near) return chosen(lemma, { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma } });
           }
+          if (kind.kind === "word" && kind.places) {
+            const place = placeName(text, context);
+            if (place) return { word: place.toLowerCase(), quiet: true, chose: { slot: need.slot, value: place } };
+          }
         }
         if (kind.kind === "time") {
           const value = timeFromText(text, kind);
@@ -1342,6 +1361,29 @@ function isLost(spoken: readonly string[], context: TurnContext): boolean {
     const negated = context.lexicon.persons.get(lemma)?.get("IndPrPs_");
     return negated !== undefined && said.has(negated);
   });
+}
+
+/**
+ * A place name in the turn, as written: a capitalised word of three letters or
+ * more that is a real spelling of the language, and is not a word the scene or
+ * the course teaches, which is what keeps `Palun`, `Tere` and `Homme` at the
+ * front of a sentence out of it. The forms list is built with Vabamorf, which
+ * holds the country's towns, so `Tartusse`, `Pärnusse` and `Haapsallu` are all
+ * spellings it vouches for and `Blorp` is not. Nothing about which case it is
+ * is claimed, which is why the hit that carries it is `quiet`.
+ */
+const PLACE_NAME = /^\p{Lu}\p{Ll}{2,}$/u;
+function placeName(text: string, context: TurnContext): string | null {
+  for (const token of text.match(ESTONIAN_WORD) ?? []) {
+    if (!PLACE_NAME.test(token)) continue;
+    const word = token.toLowerCase();
+    if (ENGLISH.has(word)) continue;
+    if (context.lexicon.forms.has(word) || context.lexicon.folded.has(fold(word))) continue;
+    if (context.course?.(word)) continue;
+    if (context.known && !context.known(word)) continue;
+    return token;
+  }
+  return null;
 }
 
 /**

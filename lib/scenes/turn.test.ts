@@ -630,6 +630,35 @@ describe("a fact the learner changed on their own card", () => {
     expect(readTurn("12", beat({ needs: [{ kind: "datum", slot: "floor" }] }), ctx()).reading).not.toBe("complete");
   });
 
+  /*
+    A town is where anybody at a bus station is going, and the forms list
+    holds no capitalised word, so `Tartusse` was answered "sorry?". On a slot
+    marked as a place it is the fact they chose; nothing about its ending is
+    claimed, so it is never said back.
+  */
+  it("takes a place name on a slot that is a place, and never says it back", () => {
+    const towns = new Map(slots);
+    towns.set("to", { kind: "word", oneOf: ["tuba"], places: true });
+    const at = () => ({ ...ctx(), slots: towns, data: new Map([...ctx().data, ["to", new Set(["tuppa"])]]) });
+    const asks = beat({ needs: [{ kind: "datum", slot: "to", grammCase: "ILLATIVE" }] });
+    const seen = readTurn("Tartusse", asks, at());
+    expect(seen.reading).toBe("complete");
+    expect(seen.chose).toEqual([{ slot: "to", value: "Tartusse" }]);
+    expect(seen.matched).toEqual([]);
+    expect(readTurn("Ma sõidan Tartusse", asks, at()).chose).toEqual([{ slot: "to", value: "Tartusse" }]);
+    // A capitalised word the app knows is that word rather than a town.
+    expect(readTurn("Valu", asks, at()).chose ?? []).toEqual([]);
+    // A course word at the front of a sentence is that word, and a spelling the language does not hold is no town.
+    const real = () => ({ ...at(), known: (w: string) => w === "tartusse" || w === "homme", course: (w: string) => w === "homme" });
+    expect(readTurn("Tartusse", asks, real()).chose).toEqual([{ slot: "to", value: "Tartusse" }]);
+    expect(readTurn("Homme", asks, real()).chose ?? []).toEqual([]);
+    expect(readTurn("Blorpsse", asks, real()).chose ?? []).toEqual([]);
+    // Lower case is not a name, and a slot that is not a place takes none.
+    expect(readTurn("tartusse", asks, at()).reading).not.toBe("complete");
+    expect(readTurn("Tartusse", beat({ needs: [{ kind: "datum", slot: "place", grammCase: "ILLATIVE" }] }), ctx()).reading)
+      .not.toBe("complete");
+  });
+
   it("never changes a fact that belongs to the other side", () => {
     const seen = readTurn("kell 9", beat({ needs: [{ kind: "datum", slot: "offered" }] }), ctx());
     expect(seen.reading).not.toBe("complete");
