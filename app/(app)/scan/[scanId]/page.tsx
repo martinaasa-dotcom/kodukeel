@@ -8,8 +8,11 @@ import { unitProgress } from "@/lib/collections/syllabus";
 import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
 import { Speak } from "@/components/Speak";
-import { Card, Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
+import { ButtonLink } from "@/components/Button";
+import { Card, Chip, Empty, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { ScanActions } from "./ScanActions";
+import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +50,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   const summary = summarise(items);
   const ids = items.map((i) => i.lexemeId).filter((id): id is string => id !== null);
 
-  const [snapshot, lexemes] = await Promise.all([
+  const [snapshot, lexemes, settings] = await Promise.all([
     deckSnapshot(ownerId),
     ids.length
       ? prisma.lexeme.findMany({
@@ -58,7 +61,11 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
           },
         })
       : Promise.resolve([]),
+    readSettings(ownerId, [SETTING_KEYS.roundPace]),
   ]);
+  // The sprint's length at this learner's pace, the figure the round itself
+  // runs for, rather than the standard minute typed into a sentence.
+  const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace]);
 
   const byId = new Map(lexemes.map((l) => [l.id, l]));
   // The page's own order, which is the order it is printed in. A learner
@@ -74,6 +81,24 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   });
 
   const inDeck = progress.started;
+
+  /*
+    A page can be saved with no word the dictionary still points at: every
+    tick lost the race above in saveScan, or the words it matched have since
+    gone. The screen used to draw a ring at "0 of 0 known" over a heading with
+    nothing under it, which reads as a page that failed to load.
+  */
+  if (words.length === 0) {
+    return (
+      <Page eyebrow="From paper" title={scan.title}>
+        <Empty
+          title="No dictionary words on this page"
+          body="Nothing read off it matches an entry now, so there is nothing here to learn."
+          action={<ButtonLink href="/scan" variant="primary">All pages</ButtonLink>}
+        />
+      </Page>
+    );
+  }
 
   return (
     <Page
@@ -131,7 +156,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                 href="/review/sprint"
                 tone="peach"
                 title="Sprint"
-                body="Sixty seconds. The fastest way to find out which of these has not stuck."
+                body={`${sprintLength}. The fastest way to find out which of these has not stuck.`}
               />
             </div>
           </section>

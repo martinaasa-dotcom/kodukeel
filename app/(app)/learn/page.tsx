@@ -46,8 +46,11 @@ export default async function LearnPage() {
     courseLevelFor(ownerId),
     learnerModuleScope(ownerId),
   ]);
-  const counts = await learnCounts(ownerId, undefined, taught?.lemmas ?? null);
-  const units = await pathWithProgress(ownerId, snapshot);
+  // Neither needs the other's answer, so they are one round trip.
+  const [counts, units] = await Promise.all([
+    learnCounts(ownerId, undefined, taught?.lemmas ?? null),
+    pathWithProgress(ownerId, snapshot),
+  ]);
 
   const doneIds = new Set(units.filter((u) => u.state === "done").map((u) => u.unit.id));
   const startedIds = new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id));

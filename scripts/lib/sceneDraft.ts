@@ -9,7 +9,7 @@
  * on one and a bank drafted with the other would be a rate for nothing. So it
  * lives here once.
  *
- * THIS TALKS TO A PROVIDER DIRECTLY, like `scripts/eval-anu.mjs`, and goes
+ * THIS TALKS TO A PROVIDER DIRECTLY, like `scripts/eval-tutor.ts`, and goes
  * nowhere near `lib/usage/ledger.ts`: the ledger rations one learner's share
  * of a deployment's budget, and nobody's allowance is involved when a
  * developer runs a script against their own key. It imports the model chain

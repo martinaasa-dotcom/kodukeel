@@ -4,7 +4,7 @@ import { Download, Keyboard, Smartphone } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { supabaseConfigured } from "@/lib/auth/mode";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { resolveProviders } from "@/lib/tutor/provider";
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { dailyGoalFrom, readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { letterBarFrom } from "@/lib/ux/letterBar";
@@ -107,8 +107,16 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 
 export default async function SettingsPage() {
   const ownerId = await requireUserId();
-  const provider = resolveProvider();
-  const resilience = providerResilience();
+  /*
+    Anu's own chain, not the general one. The general chain leads with Groq
+    and includes the paid keys, and Anu's is Gemini then Groq and nothing
+    else, so reading the general one here named a model she never answers on
+    and, with only a paid key set, said "Connected" over a tutor the route
+    refuses. The shell and /tutor already read it this way.
+  */
+  const tutorChain = resolveProviders({ purpose: "tutor" });
+  const provider = tutorChain[0] ?? null;
+  const resilience = providerResilience(tutorChain);
   const hosted = supabaseConfigured();
   const ekilexOn = ekilexConfigured();
 
@@ -519,9 +527,10 @@ export default async function SettingsPage() {
                       Everything above runs through {resilience.providers[0]}, on one account. If
                       that key stops answering, whether it runs out of credit or just has a bad
                       minute, Anu stops with it.
-                      Adding <code className="text-xs">GROQ_API_KEY</code> or{" "}
-                      <code className="text-xs">GEMINI_API_KEY</code> to <code className="text-xs">.env</code>{" "}
-                      gives Anu somewhere else to turn. Both are free and neither asks for a card.
+                      Adding{" "}
+                      <code className="text-xs">{resilience.providers[0] === "Groq" ? "GEMINI_API_KEY" : "GROQ_API_KEY"}</code>{" "}
+                      to <code className="text-xs">.env</code> gives Anu somewhere else to turn. It
+                      is free and asks for no card.
                       Read the note beside them in{" "}
                       <code className="text-xs">.env.example</code> first: free usually means the
                       provider may look at what goes through it.
