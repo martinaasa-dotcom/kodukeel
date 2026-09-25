@@ -35,6 +35,17 @@ describe("the hint the app gives", () => {
     expect(said).not.toContain("poodi");
   });
 
+  /*
+    It said "The word is right" too, and it is asked about a beat rather than a
+    turn, so it said so to a learner who had typed nothing like the word. And
+    the question it names is said in English beside the Estonian.
+  */
+  it("claims nothing about a turn it never saw, and says what the question asks", () => {
+    const said = coachFor(BEAT, null)!;
+    expect(said).not.toMatch(/word is right/i);
+    expect(said).toContain("where to?");
+  });
+
   it("names the word where any form of it would do", () => {
     const said = coachFor({ ...BEAT, needs: [{ kind: "lemma", oneOf: ["pilet"] }] }, null);
     expect(said).toContain("pilet");

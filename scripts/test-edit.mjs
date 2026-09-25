@@ -107,8 +107,19 @@ if (attestedCards.length > 0) {
   absent(1, "no gap-fill card for this word: the dictionary's own Add to deck builds recognition "
     + "and production only, so a deck built from a unit is what would put one here");
 }
+/*
+  And the same fault two checks down, which the fix above walked past.
+
+  `renamedCards` is filtered on `kohvEntries[0]?.id`, so a rename that failed
+  leaves it empty and `every` on nothing is true: this printed PASS with "0
+  cards" beside it about a correction that had not happened. The check above it
+  already says `renamedCards.length > 0` for exactly this reason. Not an
+  `absent`, because an empty list here is not a state the fixture is missing,
+  it is the rename this suite exists to drive having gone wrong.
+*/
 check("scheduling was not reset by the correction",
-  renamedCards.every(c => typeof c.stability === "number"), `${renamedCards.length} cards`);
+  renamedCards.length > 0 && renamedCards.every(c => typeof c.stability === "number"),
+  `${renamedCards.length} cards`);
 
 check("no page errors while editing", errors.length === 0, errors.join("; "));
 
