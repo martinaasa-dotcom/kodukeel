@@ -350,7 +350,9 @@ function extractLexemeData(detail: RawDetails | null) {
     .sort((a, b) => CEFR_ORDER.indexOf(a) - CEFR_ORDER.indexOf(b));
   return {
     cefr: graded[0] ?? null,
-    ekilexPos: posCodes,
+    // Sorted, because nothing reads the order and a set written in the order the
+    // response arrived in is a file every re-harvest rewrites.
+    ekilexPos: [...posCodes].sort(),
     governments,
     usages: usages.slice(0, MAX_USAGES),
     definition: definitions[0] ?? null,
@@ -770,6 +772,12 @@ async function main() {
   // Phrases are the one part of speech that is not a headword, so Ekilex has no
   // forms for them. They stay in the hand-checked built-in list.
   let requests = courseWords().filter((w) => w.pos !== "PHRASE");
+  // Every key the course asks for today, so an `--only` run still drops a row
+  // the course has stopped naming. See `HarvestPlanInput.wanted`.
+  const wanted = new Set([
+    ...requests.map(rowKey),
+    ...RETIRED_WORDS.map((w) => `${w[0]}|${inferPos(w[0], w[2])}`),
+  ]);
   if (ONLY) {
     requests = requests.filter((w) => w.units.includes(ONLY));
   } else {
@@ -821,6 +829,7 @@ async function main() {
   const plan = planHarvestWrite<Harvested>({
     previous: HARVESTED as readonly Harvested[],
     asked: new Set(requests.map(rowKey)),
+    wanted,
     harvested: ok,
     unanswered: new Set(unanswered.map(rowKey)),
     refused: REFUSED,

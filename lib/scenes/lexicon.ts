@@ -26,7 +26,7 @@
  * Pure: takes entries, returns sets. No React, no Next, no Prisma.
  */
 import { buildCaseTable, stemsFrom } from "@/lib/estonian/derive";
-import { derivedVerbForms, type DerivedVerbCode } from "@/lib/estonian/conjugate";
+import { derivedVerbForms, pres1sgFrom, type DerivedVerbCode } from "@/lib/estonian/conjugate";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import { fold } from "@/lib/estonian/fold";
 import { CASES } from "@/lib/estonian/cases";
@@ -75,6 +75,17 @@ export function words(text: string): string[] {
 }
 
 /**
+ * How many sentences a line holds. A sentence ends on a stop followed by the
+ * next one's capital: splitting on every stop and a space counted `3.
+ * korrusel` and `15. mail`, which is how Estonian writes an ordinal and a
+ * date, as two sentences each. The gate and the band's ceiling both count
+ * with this, so a line one passes the other cannot refuse.
+ */
+export function sentenceCount(text: string): number {
+  return text.trim().split(/[.!?]+\s+(?=[\p{Lu}„"«])/u).filter(Boolean).length;
+}
+
+/**
  * The clauses of a line, as the weakest boundary available without a parser.
  *
  * A comma, a semicolon, a colon, and the end of a sentence. The gate's four
@@ -108,7 +119,7 @@ export function formsOf(entry: DictEntry): string[] {
   for (const form of extra) for (const w of words(form.value)) out.add(w);
 
   if (entry.pos === "VERB") {
-    for (const form of derivedVerbForms({ lemma: entry.lemma, pres1sg: entry.parts.PRES_1SG })) {
+    for (const form of derivedVerbForms({ lemma: entry.lemma, pres1sg: firstPersonOf(entry) })) {
       for (const w of words(form.value)) out.add(w);
     }
   } else if (entry.parts.GEN_SG) {
@@ -153,12 +164,6 @@ export interface Lexicon {
   readonly spoken: readonly string[];
   /** Lemma to its own forms, so a beat can ask whether its word is present. */
   readonly byLemma: ReadonlyMap<string, ReadonlySet<string>>;
-  /**
-   * Lemma to its part of speech, as the dictionary stores it. A narrowed
-   * question offers two words of one kind (`lib/scenes/choice.ts`), and
-   * "Valu või valutama?" is what it offered while it could not tell.
-   */
-  readonly posOf: ReadonlyMap<string, string>;
   /**
    * `lemma|CASE` to every spelling that counts as that case of that word.
    *
@@ -381,10 +386,8 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
   const infinitives = new Map<string, ReadonlySet<string>>();
   const persons = new Map<string, ReadonlyMap<DerivedVerbCode, string>>();
   const spoken: string[] = [];
-  const posOf = new Map<string, string>();
   for (const entry of entries) {
     spoken.push(spokenForm(entry));
-    if (!posOf.has(entry.lemma)) posOf.set(entry.lemma, entry.pos);
     const own = byLemma.get(entry.lemma) ?? new Set<string>();
     for (const form of formsOf(entry)) {
       forms.add(form);
@@ -399,7 +402,7 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
       if (entry.parts.INF_MA) for (const w of words(entry.parts.INF_MA)) inf.add(w);
       if (inf.size > 0) infinitives.set(entry.lemma, inf);
       const table = new Map<DerivedVerbCode, string>();
-      for (const form of derivedVerbForms({ lemma: entry.lemma, pres1sg: entry.parts.PRES_1SG })) {
+      for (const form of derivedVerbForms({ lemma: entry.lemma, pres1sg: firstPersonOf(entry) })) {
         table.set(form.morphCode, form.value);
       }
       /*
@@ -431,15 +434,28 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
       if (row.singular && !caseForm.has(key)) caseForm.set(key, row.singular);
     }
   }
-  return { forms, spoken, byLemma, posOf, byCase, caseForm, folded, infinitives, persons };
+  return { forms, spoken, byLemma, byCase, caseForm, folded, infinitives, persons };
+}
+
+/**
+ * The stored first person, off whichever shape the row is in. `pres1sgFrom`
+ * decides that for every reader, so this one cannot read the seed's part and
+ * miss a live fetch's `IndPrSg1`.
+ */
+function firstPersonOf(entry: DictEntry): string | undefined {
+  return pres1sgFrom(formRows(entry)) ?? undefined;
+}
+
+function formRows(entry: DictEntry): { formType: string; value: string }[] {
+  return [
+    ...Object.entries(entry.parts).map(([formType, value]) => ({ formType, value })),
+    ...(entry.extraForms ?? []).map((f) => ({ formType: `EKILEX:${f.code}`, value: f.value })),
+  ];
 }
 
 /** The eleven derivable cases of one nominal, attested forms leading. */
 function caseTableOf(entry: DictEntry) {
-  return buildCaseTable(stemsFrom([
-    ...Object.entries(entry.parts).map(([formType, value]) => ({ formType, value })),
-    ...(entry.extraForms ?? []).map((f) => ({ formType: `EKILEX:${f.code}`, value: f.value })),
-  ]));
+  return buildCaseTable(stemsFrom(formRows(entry)));
 }
 
 /**

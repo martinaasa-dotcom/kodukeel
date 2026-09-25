@@ -163,6 +163,7 @@ export async function sceneContext(sceneId: string, level?: Level): Promise<Scen
     marker: {
       ...context.marker,
       known: (word: string) => known.has(word),
+      course: (word: string) => known.has(word),
       ...acceptWith(rows, wanted, standRows),
     },
   };

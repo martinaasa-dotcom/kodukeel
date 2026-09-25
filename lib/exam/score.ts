@@ -1,7 +1,7 @@
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
 import { orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
-import { checkDictation } from "@/lib/estonian/dictation";
+import { checkDictation, type DictationWord } from "@/lib/estonian/dictation";
 import { usesRequiredWord, wordsOf } from "./written";
 import { bandFor, PASS_PCT, RETAKE_WAIT_PCT, speakingCriteria, type Band, type ExamLevel } from "./spec";
 import type { ExamItem, ExamTask, Paper } from "./paper";
@@ -99,12 +99,33 @@ export interface ItemMark {
  *
  * The specification says in as many words that spelling and grammar mistakes
  * which do not stop the answer being understood are not counted in the
- * listening gap task. So a missed diacritic and a single slipped keystroke take
- * the mark here. They are still reported as slips, because a learner who never
- * sees them never fixes them.
+ * listening gap task. So a missed diacritic, a moved space and a single slipped
+ * keystroke in a word long enough not to spell another one take the mark here.
+ * They are still reported as slips, because a learner who never sees them
+ * never fixes them.
  */
 function acceptsSlips(kind: ExamItem["kind"]): boolean {
   return kind === "dictation";
+}
+
+/**
+ * Every word heard, and every word that is not exactly right is a slip the
+ * spec does not count: its Estonian letters dropped, a space moved, or one
+ * keystroke out.
+ *
+ * The keystroke is held to the review card's own rule rather than to
+ * dictation's looser one, because what a slip is has to be one answer across
+ * the app. Dictation calls `lammas` for `hammas` a typo, since the ending
+ * survives; the marker does not forgive a one-letter change under eight
+ * letters, because at that length it usually spells another word, and a
+ * candidate who wrote a sheep for a tooth has not been understood.
+ */
+function slipsOnly(words: readonly DictationWord[]): boolean {
+  return words.every((w) => {
+    if (w.status === "right" || w.status === "diacritics" || w.status === "spacing") return true;
+    if (w.status !== "typo" || w.typed === null || w.expected === null) return false;
+    return countsAsRecalled(checkAnswer(w.typed, w.expected, "et").verdict);
+  });
 }
 
 function markTyped(
@@ -292,6 +313,7 @@ export function markItem(
       // for a slip that is not counted: `kuuekuup` is not a wrong sentence.
       const correct = acceptsSlips("dictation")
         ? result.verdict === "correct" || result.verdict === "diacritics" || result.verdict === "spacing"
+          || slipsOnly(result.words)
         : result.verdict === "correct";
       return scale({
         itemId: item.id, scored: correct ? 1 : 0, available: 1, correct,
