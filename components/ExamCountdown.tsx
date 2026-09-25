@@ -96,13 +96,21 @@ export function ExamCountdownCard({ countdown, zone, className }: {
             browser knows. Rendered on a server, `undefined` as a locale is the
             deployment's, so this read "October 15" to somebody in Tartu who
             writes "15. oktoober".
+
+            AND THE YEAR, because this is a goal date rather than today's own:
+            a learner can set one a year or more out (`DEADLINE_WEEKS_MAX` in
+            `lib/email/schedule.ts` bounds the reminder letter, not the goal
+            itself), and "Your date: September 22" with no year reads as
+            today or next week regardless of how far off it actually is. The
+            "N weeks off" sentence lower on the card disambiguates it, but the
+            headline date should not need that sentence to be read correctly.
           */}
           <LocalDate
             iso={countdown.deadline}
             zone={zone}
-            options={{ day: "numeric", month: "long" }}
+            options={{ day: "numeric", month: "long", year: "numeric" }}
             fallback={new Intl.DateTimeFormat(undefined, {
-              timeZone: zone, day: "numeric", month: "long",
+              timeZone: zone, day: "numeric", month: "long", year: "numeric",
             }).format(new Date(countdown.deadline))}
           />
         </p>
