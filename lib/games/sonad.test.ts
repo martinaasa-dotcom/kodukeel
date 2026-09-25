@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  cluesAt, letterMarks, nextClue, outcomeOf, ratingFor, scoreGuess, solvedAt,
+  CATEGORY_AFTER, cluesAt, letterMarks, nextClue, outcomeOf, ratingFor, scoreGuess, solvedAt,
   SONAD_GUESSES, SONAD_KEY_ROWS, SONAD_KEYS, SONAD_LENGTH, SONAD_LETTERS,
   vowelCount, wellFormed,
 } from "./sonad";
@@ -102,19 +102,35 @@ describe("outcomeOf", () => {
 });
 
 describe("ratingFor", () => {
+  const miss = (n: number) => Array.from({ length: n }, () => "xxxxxx");
+
   it("says nothing while the round is unfinished", () => {
-    expect(ratingFor(["xxxxxx"], "abcdef")).toBeNull();
+    expect(ratingFor(["xxxxxx"], "abcdef", true)).toBeNull();
   });
 
-  it("reads an early solve as recall and a late one as help", () => {
-    expect(ratingFor(["abcdef"], "abcdef")).toBe(4);
-    expect(ratingFor(["xxxxxx", "abcdef"], "abcdef")).toBe(4);
-    expect(ratingFor(["xxxxxx", "xxxxxx", "abcdef"], "abcdef")).toBe(3);
-    expect(ratingFor(["xxxxxx", "xxxxxx", "xxxxxx", "xxxxxx", "abcdef"], "abcdef")).toBe(2);
+  it("reads an early solve as recall and one before any clue as the game working", () => {
+    expect(ratingFor(["abcdef"], "abcdef", true)).toBe(4);
+    expect(ratingFor([...miss(1), "abcdef"], "abcdef", true)).toBe(4);
+    expect(ratingFor([...miss(2), "abcdef"], "abcdef", true)).toBe(3);
+  });
+
+  /*
+    The fourth guess is typed with the category printed beside the board, so a
+    solve there has had help, and a narrowing hint caps the grade at Hard
+    wherever else it is given.
+  */
+  it("caps a solve made with a clue on screen at Hard", () => {
+    expect(ratingFor([...miss(CATEGORY_AFTER), "abcdef"], "abcdef", true)).toBe(2);
+    expect(ratingFor([...miss(SONAD_GUESSES - 1), "abcdef"], "abcdef", true)).toBe(2);
+  });
+
+  it("does not count a category clue the word never had", () => {
+    expect(ratingFor([...miss(CATEGORY_AFTER), "abcdef"], "abcdef", false)).toBe(3);
+    expect(ratingFor([...miss(SONAD_GUESSES - 1), "abcdef"], "abcdef", false)).toBe(2);
   });
 
   it("reads a loss as Again, which is what the scheduler should hear", () => {
-    expect(ratingFor(Array.from({ length: SONAD_GUESSES }, () => "xxxxxx"), "abcdef")).toBe(1);
+    expect(ratingFor(miss(SONAD_GUESSES), "abcdef", true)).toBe(1);
   });
 });
 

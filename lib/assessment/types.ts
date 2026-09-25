@@ -120,9 +120,8 @@ export type Item = ChoiceItem | DictationItem | WriteItem | SpeakItem;
  * As much of an item as the scale needs.
  *
  * Marking needs the whole question; turning marks into a level needs only which
- * skill it tested and how hard it was. Naming that narrower shape is what lets
- * the server recompute a level from a result posted by a browser without
- * trusting, or rebuilding, the paper itself.
+ * skill it tested and how hard it was. The server reads both off the paper it
+ * rebuilds from the seed (`markSitting`), never off what a browser posted.
  */
 export type ItemRef = Pick<Item, "id" | "skill" | "band">;
 
