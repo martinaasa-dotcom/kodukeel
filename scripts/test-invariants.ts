@@ -6894,6 +6894,9 @@ check("every npm script that pushes a schema asks the schema guard first", () =>
   const guard = code("scripts/schema-guard.mjs");
   assert.match(guard, /process\.exit\(1\)/, "the guard no longer refuses anything");
   assert.match(guard, /isLocal\(/, "the guard stopped sharing local-db.mjs's reading of local");
+});
+
+/**
  * A PUBLIC PATH IS A PREFIX, SO NO SIGNED-IN ROUTE MAY SHARE ITS LETTERS.
  *
  * `isPublicPath` in `middleware.ts` is a list of `path.startsWith(...)`, which
