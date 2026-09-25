@@ -74,8 +74,11 @@ export async function learnerDays(
   excluded: readonly string[],
 ): Promise<LearnerActivity[]> {
   const rows = await prisma.$queryRaw<{ ownerId: string; day: string }[]>`
+    -- The column is a naive timestamp holding UTC wall time, so TO_CHAR on it
+    -- is the UTC day. Converting it first gave a timestamptz, which TO_CHAR
+    -- renders in the session's zone: the day before on a non-UTC server.
     SELECT DISTINCT r."ownerId" AS "ownerId",
-           TO_CHAR(r."reviewedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS day
+           TO_CHAR(r."reviewedAt", 'YYYY-MM-DD') AS day
     FROM "Review" r
     WHERE r."reviewedAt" >= ${since}
     ${excluding(Prisma.sql`r."ownerId"`, excluded)}
@@ -96,6 +99,39 @@ export async function learnerDays(
     learners.push({ firstDay, activeDays: days });
   }
   return learners;
+}
+
+/**
+ * Reports and conversations per learner, one report per learner per day.
+ *
+ * Out here rather than inline so an integration test can read the counts
+ * before the disclosure gate decides what the report may print.
+ */
+export async function encounterTotals(
+  excluded: readonly string[],
+): Promise<{ learner: string; reports: number; conversations: number }[]> {
+  return prisma.$queryRaw<
+    { learner: string; reports: number; conversations: number }[]
+  >`
+    SELECT e."ownerId" AS "learner",
+           COUNT(*)::int AS "reports",
+           COUNT(*) FILTER (
+             WHERE e."outcome" IN (${Prisma.join([...CONVERSATION_OUTCOMES])})
+           )::int AS "conversations"
+    -- One report per learner per day, the last one given, which is how the
+    -- learner's own panel reads them (lib/progress/outThere.ts). Counting rows
+    -- let a second tab, or one account pressing ten thousand times, make one
+    -- learner the whole of the figure, which the dominance rule then hides.
+    FROM (
+      SELECT DISTINCT ON (e."ownerId", date_trunc('day', e."createdAt"))
+             e."ownerId", e."outcome"
+      FROM "Encounter" e
+      WHERE TRUE
+      ${excluding(Prisma.sql`e."ownerId"`, excluded)}
+      ORDER BY e."ownerId", date_trunc('day', e."createdAt"), e."createdAt" DESC, e."id" DESC
+    ) e
+    GROUP BY e."ownerId"
+  `;
 }
 
 /** Who asked to be left out of research. Read before anything else is read. */
@@ -180,19 +216,7 @@ export async function gatherImpact(
     reports are every day somebody answered the question, and the conversations
     are the answers `isConversation` reads as one.
   */
-  const encounters = await prisma.$queryRaw<
-    { learner: string; reports: number; conversations: number }[]
-  >`
-    SELECT e."ownerId" AS "learner",
-           COUNT(*)::int AS "reports",
-           COUNT(*) FILTER (
-             WHERE e."outcome" IN (${Prisma.join([...CONVERSATION_OUTCOMES])})
-           )::int AS "conversations"
-    FROM "Encounter" e
-    WHERE TRUE
-    ${excluding(Prisma.sql`e."ownerId"`, excluded)}
-    GROUP BY e."ownerId"
-  `;
+  const encounters = await encounterTotals(excluded);
 
   const wordsBy = new Map(known.map((row) => [row.learner, row.words]));
   const learners: LearnerTotals[] = totals.map((row) => ({
