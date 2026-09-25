@@ -14786,6 +14786,19 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("a grade writes a card's case and slot to the log only where they are on the closed list", () => {
+  /*
+    A card restored from a backup carries whatever the file said, and the grade
+    copied its \`targetCase\` and its own slot into \`Review\` unchecked: the one
+    table that is never repaired, which the case charts print.
+  */
+  const grade = code("lib/srs/grade.ts");
+  assert.doesNotMatch(grade, /targetCase: card\.targetCase/, "a grade copies the card's case into the log unchecked");
+  assert.doesNotMatch(grade, /return slotOfCard\(card\)/, "a grade takes the card's own slot unchecked");
+  assert.match(grade, /isKnownSlot\(s\)/, "a grade no longer checks the card's own slot");
+});
+
+
 check("a roster's days since the last review are calendar days on the member's clock", () => {
   /*
     Both rosters print "reviewed today" at nought. Counted in whole 24-hour
@@ -16686,7 +16699,7 @@ check("an answer records which form it was about, from a list nothing can widen"
   );
   assert.match(
     grade,
-    /targetCase:\s*card\.targetCase/,
+    /targetCase:\s*(?:knownCase\()?card\.targetCase/,
     "writeGrade stopped recording the card's own case. That column is what the " +
     "case charts read and it is not the slot's to take over.",
   );
@@ -16752,7 +16765,7 @@ check("a wrong answer records the form it reached for, and only between forms", 
   const grade = code("lib/srs/grade.ts");
   assert.match(
     between(grade, "prisma.review.create"),
-    /reachedSlot:\s*reachedFor\(/,
+    /reachedSlot:\s*(?:slot \? )?reachedFor\(/,
     "writeGrade no longer records the form that came back instead, so the " +
     "confusion panel goes quiet and nothing says why",
   );
