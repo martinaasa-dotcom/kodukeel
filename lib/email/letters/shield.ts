@@ -34,7 +34,6 @@ import { weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
 
 export interface ShieldInput {
-  readonly name: string | null;
   readonly origin: string;
   /** The run of days the shield kept alive. */
   readonly streak: number;
