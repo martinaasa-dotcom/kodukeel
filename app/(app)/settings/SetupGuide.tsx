@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { COPY_LABEL, useCopy } from "@/components/useCopy";
 
 const STEPS = [
   { text: "Go to ", link: { href: "https://aistudio.google.com/apikey", label: "aistudio.google.com" }, after: " and sign in. It's free and takes no card." },
@@ -21,7 +21,7 @@ const STEPS = [
 const SNIPPET = 'GEMINI_API_KEY="paste-your-key-here"';
 
 export function SetupGuide() {
-  const [copied, setCopied] = useState(false);
+  const [copied, copy] = useCopy();
 
   return (
     <div>
@@ -64,15 +64,12 @@ export function SetupGuide() {
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>.env</span>
           <button
             type="button"
-            onClick={() => {
-              void navigator.clipboard.writeText(SNIPPET);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
+            onClick={() => copy(SNIPPET)}
             className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
-            style={{ color: copied ? "var(--good-ink)" : "var(--ink-3)" }}
+            style={{ color: copied === "copied" ? "var(--good-ink)" : "var(--ink-3)" }}
           >
-            {copied ? <><Check size={13} aria-hidden /> Copied</> : <><Copy size={13} aria-hidden /> Copy</>}
+            {copied === "copied" ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
+            <span aria-live="polite">{copied === "idle" ? "Copy" : COPY_LABEL[copied]}</span>
           </button>
         </div>
         {/*
