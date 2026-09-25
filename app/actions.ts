@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
+import { deleteOwnReminder } from "@/lib/progress/reminders";
+import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { cardsForGrades } from "@/lib/scenes/grades";
@@ -97,10 +99,9 @@ import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { matchGrades } from "@/lib/srs/matchGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
-import { placement } from "@/lib/assessment/score";
 import { PAPER_SIZE } from "@/lib/assessment/items";
-import type { Band, ItemRef, Response } from "@/lib/assessment/types";
-import { goalsFor, saveGoals, saveResult } from "@/lib/progress/assessment";
+import type { Band } from "@/lib/assessment/types";
+import { goalsFor, markSitting, saveGoals, saveResult } from "@/lib/progress/assessment";
 import { recordCourseLevel } from "@/lib/progress/level";
 import { REPLAY_BATCH, isClientReviewId } from "@/lib/offline/outbox";
 import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
@@ -477,6 +478,7 @@ function snapshotOf(state: SchedulingState): SchedulingSnapshot {
  */
 export async function replayGrades(batch: ReplayItem[]) {
   const ownerId = await requireUserId();
+  if (!Array.isArray(batch)) return { ok: false as const, error: "Replay failed." };
   const result = await applyGradeBatch(ownerId, batch);
   if (!result.ok) return { ok: false as const, error: result.error ?? "Replay failed." };
   revalidatePath("/");
@@ -531,7 +533,8 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
 
 export async function setCardSuspended(cardId: string, suspended: boolean) {
   const ownerId = await requireUserId();
-  await prisma.card.updateMany({ where: { id: cardId, ownerId }, data: { suspended } });
+  if (typeof suspended !== "boolean") return { ok: false as const, error: "That is not a yes or a no." };
+  await prisma.card.updateMany({ where: { id: text(cardId), ownerId }, data: { suspended } });
   revalidatePath("/words");
   revalidatePath("/progress"); // the sticking-points list lives there
   revalidatePath("/");
@@ -824,15 +827,30 @@ export async function createLexemeWithForms(input: {
   return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null };
 }
 
-export async function toggleStar(lexemeId: string) {
+/**
+ * Sets a star to the state the learner pressed for, rather than flipping it.
+ *
+ * A flip is a guess about what the button showed. A word met twice in one
+ * session, recognition then production, was starred on the first card and
+ * then drawn unstarred on the second from the page's own snapshot, so the
+ * press meaning "keep this" deleted it. `starred` is what the press asked
+ * for; a caller that sends none gets the old flip.
+ */
+export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   const ownerId = await requireUserId();
-  const existing = await prisma.starredWord.findUnique({
-    where: { ownerId_lexemeId: { ownerId, lexemeId } },
-  });
-  if (existing) {
-    await prisma.starredWord.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
-  } else {
-    await prisma.starredWord.create({ data: { ownerId, lexemeId } });
+  const id = text(lexemeId).slice(0, 64);
+  if (!id) return { ok: false as const, error: "That is not a word." };
+  const exists = await prisma.lexeme.findUnique({ where: { id }, select: { id: true } });
+  if (!exists) return { ok: false as const, error: "That word is not in the dictionary." };
+
+  const key = { ownerId_lexemeId: { ownerId, lexemeId: id } };
+  const existing = await prisma.starredWord.findUnique({ where: key });
+  const want = typeof starred === "boolean" ? starred : !existing;
+  if (want && !existing) {
+    // A second tab pressing at the same moment has already written it.
+    await prisma.starredWord.createMany({ data: [{ ownerId, lexemeId: id }], skipDuplicates: true });
+  } else if (!want && existing) {
+    await prisma.starredWord.deleteMany({ where: { ownerId, lexemeId: id } });
   }
   /*
     The dictionary is where a star used to be set from and the only place it
@@ -843,7 +861,7 @@ export async function toggleStar(lexemeId: string) {
   */
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
-  return { ok: true as const, starred: !existing };
+  return { ok: true as const, starred: want };
 }
 
 /**
@@ -1179,7 +1197,7 @@ export async function recordSonad(day: string, guesses: unknown) {
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
 
-  const rating = ratingFor(played, puzzle.answer);
+  const rating = ratingFor(played, puzzle.answer, puzzle.category !== null);
   if (rating === null) return { ok: false as const, error: "That round is not over." };
   if (!puzzle.inDeck) return { ok: true as const, graded: false };
 
@@ -1807,6 +1825,10 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
   const ownerId = await requireUserId();
   if (!isEmailKind(input?.kind) || input.kind === "system") {
     return { ok: false as const, error: "That is not something we send." };
+  }
+  // A string "false" is truthy, so anything but a real boolean was read as on.
+  if (typeof input.on !== "boolean") {
+    return { ok: false as const, error: "That is not a yes or a no." };
   }
 
   /*
@@ -2440,8 +2462,10 @@ export async function joinClassroom(code: string, displayName?: string) {
 }
 
 /** Leaves a class. Removes the membership row and nothing else — no deck, no history. */
-export async function leaveClassroom(classroomId: string) {
+export async function leaveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return { ok: false as const, error: "That is not a class." };
   const classroom = await prisma.classroom.findUnique({
     where: { id: classroomId },
     select: { ownerId: true },
@@ -2455,8 +2479,10 @@ export async function leaveClassroom(classroomId: string) {
 }
 
 /** Archives a class the caller teaches: the code stops working, the data stays. */
-export async function archiveClassroom(classroomId: string) {
+export async function archiveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return { ok: false as const, error: "That is not a class." };
   const updated = await prisma.classroom.updateMany({
     where: { id: classroomId, ownerId },
     data: { archived: true },
@@ -2474,13 +2500,18 @@ export async function archiveClassroom(classroomId: string) {
  * they owe lives, and homework from class belongs in it. Nobody's deck is
  * touched — the task says what to do, the student decides when.
  */
-export async function assignUnit(classroomId: string, unitId: string, dueAt?: string) {
+export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, rawDueAt?: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const unitId = text(rawUnitId).slice(0, 64);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "That is not your class." };
 
   const busy = throttleAction(ownerId, "assignUnit");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    where: { id: classroomId, ownerId },
+    // An archived class takes no more work, which the page says and the action now does.
+    where: { id: classroomId, ownerId, archived: false },
     select: { id: true, name: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
@@ -2498,7 +2529,7 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
     data: members.map((m) => ({
       ownerId: m.ownerId,
       title: `${unit.title}, ${unit.subtitle}`,
-      notes: `Set by ${classroom.name}. Open the unit on the learning path, add its words and review them.`,
+      notes: `${classworkMarker(classroom.name)} Open the unit on the learning path, add its words and review them.`,
       tag: "VOCABULARY",
       dueAt: due && !Number.isNaN(due.getTime()) ? due : null,
     })),
@@ -2506,11 +2537,6 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
 
   revalidatePath("/class");
   return { ok: true as const, assigned: members.length };
-}
-
-/** The marker every classroom-issued task's `notes` starts with, teacher and student alike. */
-function classworkMarker(classroomName: string): string {
-  return `Set by ${classroomName}.`;
 }
 
 /**
@@ -2524,13 +2550,21 @@ function classworkMarker(classroomName: string): string {
  * touched, the teacher's own copy of the task (they are a member too) is what
  * lets the class page read its own history back without a table to hold it.
  */
-export async function assignHomework(classroomId: string, title: string, notes: string, dueAt?: string) {
+export async function assignHomework(
+  rawClassroomId: unknown, rawTitle: unknown, rawNotes: unknown, rawDueAt?: unknown,
+) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const title = text(rawTitle);
+  const notes = text(rawNotes);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "That is not your class." };
 
   const busy = throttleAction(ownerId, "assignHomework");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    where: { id: classroomId, ownerId },
+    // An archived class takes no more work, which the page says and the action now does.
+    where: { id: classroomId, ownerId, archived: false },
     select: { id: true, name: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
@@ -2575,8 +2609,10 @@ export async function assignHomework(classroomId: string, title: string, notes: 
  * teacher with the exact same name would share a marker. Rare enough, and
  * visible enough if it happens, not to be worth a schema change over.
  */
-export async function classworkHistory(classroomId: string) {
+export async function classworkHistory(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return [];
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { name: true },
@@ -2731,11 +2767,14 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
   return { ok: true as const };
 }
 
-/** Removes a reminder the learner wrote. A teacher's assignment is theirs to remove. */
+/**
+ * Removes a reminder the learner wrote. Homework a class set is not theirs to
+ * remove, and what says which is `isClasswork` in lib/ux/agenda.ts.
+ */
 export async function deleteReminder(id: string) {
   const ownerId = await requireUserId();
-  const { count } = await prisma.task.deleteMany({ where: { id, ownerId, classWeek: null } });
-  if (count === 0) return { ok: false as const };
+  if (typeof id !== "string") return { ok: false as const };
+  if (!(await deleteOwnReminder(ownerId, id))) return { ok: false as const };
   revalidatePath("/calendar");
   revalidatePath("/");
   return { ok: true as const };
@@ -2862,7 +2901,7 @@ export async function buildClozeFromText(passageIn: string) {
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  if (confirmation.trim().toLowerCase() !== "delete") {
+  if (text(confirmation).trim().toLowerCase() !== "delete") {
     return { ok: false as const, error: 'Type "delete" to confirm.' };
   }
 
@@ -3951,23 +3990,22 @@ function revive(row: Record<string, unknown>, dateFields: string[]): Record<stri
 
 // ───────────────────────────── Placement check ─────────────────────────────
 
-const BAND = z.enum(["A1", "A2", "B1", "B2", "C1"]);
-const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
-
 /**
  * One sitting of the level check, as it comes back from the browser.
  *
- * The paper is marked in the browser, because it has to be: the answers are in
- * it, feedback appears the instant a question is answered, and a placement
- * check that needed a round trip per question would be unusable on a train.
- * Nothing is at stake in it either. It sets nobody's rank, it is not on the
- * class roster (`lib/classroom/roster.ts` shares effort, never contents), and
- * the only person a forged result misleads is the person who forged it.
+ * The browser marks every answer as it is given, because feedback has to
+ * appear the instant a question is answered and a round trip per question
+ * would be unusable on a train. What it may not do is tell the server the
+ * mark. It used to: each response carried a credit, a skill and a band, and
+ * `placement()` believed all three, so a hand-made request could post full
+ * credit on every question or call an A1 question C1, and that level reached
+ * Today, the plan and a sponsor's cohort view.
  *
- * What the server does *not* delegate is the rule that turns marks into a
- * level. The credits arrive, `placement()` runs here, and the level comes out
- * of the same function the tests cover, so a stale browser or a hand-made
- * request cannot invent its own scale.
+ * So what comes back is the seed, when the paper was built, and what was done
+ * with each question, unmarked. `markSitting` builds the same paper again,
+ * takes the skill and band off each item and marks the answers with
+ * `responseFor`, the function the runner marked them with. That is ADR-022's
+ * rule for the mock exam, applied to the check that sets the level.
  */
 /*
   Bounded by the paper rather than by a number typed here.
@@ -3980,17 +4018,21 @@ const SKILL = z.enum(["reading", "listening", "writing", "speaking"]);
   the hub saying nothing had ever been measured. Two numbers for one fact, and
   the one that was wrong was the one nobody looks at.
 */
+const GIVEN = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("picked"), option: z.string().max(400) }),
+  z.object({ kind: z.literal("typed"), text: z.string().max(400) }),
+  z.object({ kind: z.literal("rated"), rating: z.number().int().min(1).max(4) }),
+  z.object({ kind: z.literal("skipped") }),
+]);
+
 const ASSESSMENT = z.object({
-  items: z.array(z.object({ id: z.string().min(1).max(120), skill: SKILL, band: BAND })).min(1).max(PAPER_SIZE),
-  responses: z.array(z.object({
+  seed: z.number().int().min(0).max(1_000_000),
+  builtAt: z.number().int().nonnegative(),
+  answers: z.array(z.object({
     itemId: z.string().min(1).max(120),
-    skill: SKILL,
-    band: BAND,
-    credit: z.number().min(0).max(1),
-    selfRating: z.number().int().min(1).max(4).optional(),
+    given: GIVEN,
     ms: z.number().int().min(0).max(3_600_000),
-    skipped: z.boolean().optional(),
-  })).max(PAPER_SIZE),
+  })).min(1).max(PAPER_SIZE),
 });
 
 export async function recordAssessment(input: unknown) {
@@ -3998,15 +4040,9 @@ export async function recordAssessment(input: unknown) {
   const parsed = ASSESSMENT.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "That result could not be read." };
 
-  /*
-    Only the three fields the scale is computed from are carried across, so a
-    response naming an item the paper does not contain cannot vote.
-  */
-  const items: ItemRef[] = parsed.data.items;
-  const known = new Set(items.map((i) => i.id));
-  const responses = parsed.data.responses.filter((r) => known.has(r.itemId)) as Response[];
-
-  const result = placement(items, responses);
+  const { seed, builtAt, answers } = parsed.data;
+  const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
+  if (!result) return { ok: false as const, error: "That result does not match the paper it was sat on." };
   const stored = await saveResult(ownerId, result);
 
   revalidatePath("/assess");
@@ -4078,6 +4114,9 @@ const ExamResponseSchema = z.union([
   z.object({ kind: z.literal("blank") }),
 ]);
 
+/** More answers than any paper holds questions, by a long way. */
+const MAX_EXAM_RESPONSES = 1_000;
+
 const ExamSubmissionSchema = z.object({
   level: z.string().regex(/^[ABC][12]$/),
   seed: z.string().min(1).max(64),
@@ -4107,6 +4146,15 @@ export async function submitExam(input: unknown) {
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 
+  /*
+    Counted before the schema walks them: a record with no ceiling is a free
+    parse of however many keys fit under the body limit, which is hundreds of
+    thousands. No paper comes near a thousand questions.
+  */
+  const raw = (input as { responses?: unknown } | null)?.responses;
+  if (raw && typeof raw === "object" && Object.keys(raw).length > MAX_EXAM_RESPONSES) {
+    return { ok: false as const, error: "Something about that submission didn't make sense." };
+  }
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };
   const { level, seed, startedAt, responses } = parsed.data;
@@ -4118,9 +4166,18 @@ export async function submitExam(input: unknown) {
   );
   const result = markPaper(paper, answered);
 
-  const grades = gradesFrom(result).slice(0, REPLAY_BATCH);
-  if (grades.length > 0) {
-    const now = Date.now();
+  /*
+    IN PIECES, NOT THE FIRST PIECE.
+
+    `applyGradeBatch` takes at most `REPLAY_BATCH` grades, and this used to
+    meet that by slicing the paper's grades to fifty. A B2 paper carries up to
+    54 items on a card and a C1 paper 60, so for a learner who held those words
+    the last of them, which is the reading part since the marks are flattened
+    in the order the parts are sat, never reached the log at all.
+  */
+  const grades = gradesFrom(result);
+  const now = Date.now();
+  for (let at = 0; at < grades.length; at += REPLAY_BATCH) {
     /*
       AN ID THAT IS STABLE ACROSS A RESUBMIT, WHICH IS WHAT MAKES THE BATCH
       IDEMPOTENT AT ALL.
@@ -4134,7 +4191,7 @@ export async function submitExam(input: unknown) {
       the sitting was taken at, so seed and card together name the grade.
     */
     const stable = (cardId: string) => `exam:${seed}:${cardId}`;
-    await applyGradeBatch(ownerId, grades.map((g) => ({
+    await applyGradeBatch(ownerId, grades.slice(at, at + REPLAY_BATCH).map((g) => ({
       id: stable(g.cardId),
       cardId: g.cardId,
       rating: g.rating as RatingValue,
