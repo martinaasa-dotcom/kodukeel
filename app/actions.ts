@@ -63,7 +63,7 @@ import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
-import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
+import { boundedRestoredReview, isRepeatedReview, stableReviewId, writeGrade } from "@/lib/srs/grade";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
@@ -384,6 +384,22 @@ export async function gradeCard(
   reachedSlot?: string,
 ) {
   const ownerId = await requireUserId();
+  return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot });
+}
+
+/**
+ * `gradeCard` for a caller that has already resolved the owner, which is every
+ * mode graded on the server. `reviewId` is for the games that report a round
+ * once and may report it again (`stableReviewId`): it is never taken from the
+ * caller of a public action, only derived here from what the grade is about.
+ * A second write of it throws on the primary key; `gradeOnce` is the caller
+ * that reads that as the same answer arriving twice.
+ */
+async function gradeFor(
+  ownerId: string, cardId: string, rating: RatingValue, durationMs: number,
+  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string } = {},
+) {
+  const { reviewedAt, practisedSlot, reachedSlot, reviewId } = options;
 
   /*
     `Review` IS APPEND-ONLY, SO A BAD ROW IS PERMANENT.
@@ -415,6 +431,7 @@ export async function gradeCard(
     reviewedAt: reviewedAt ? new Date(reviewedAt) : new Date(),
     practisedSlot,
     reachedSlot,
+    reviewId,
   });
 
   revalidatePath("/");
@@ -429,6 +446,21 @@ export async function gradeCard(
     had and sending a card they had just failed away on its old interval.
   */
   return { ok: true as const, due: next.due, scheduling: snapshotOf(next) };
+}
+
+/**
+ * `gradeFor` with an id derived from what the grade is about, where a repeat is
+ * the same answer reported twice and is done rather than failed. `repeat` says
+ * so, so a caller counting new grades does not count it again.
+ */
+async function gradeOnce(ownerId: string, cardId: string, rating: RatingValue, reviewId: string) {
+  try {
+    const result = await gradeFor(ownerId, cardId, rating, 0, { reviewId });
+    return { ...result, repeat: false };
+  } catch (error) {
+    if (isRepeatedReview(error)) return { ok: true as const, repeat: true };
+    throw error;
+  }
 }
 
 /** A scheduling state in the shape that crosses the wire, which `undoGrade` takes back. */
@@ -1155,7 +1187,12 @@ export async function recordSonad(day: string, guesses: unknown) {
   });
   if (!card) return { ok: true as const, graded: false };
 
-  const result = await gradeCard(card.id, rating, 0);
+  /*
+    Once per day and card, whatever the client does: a round whose response
+    was lost is sent again the next time the board opens, and the same day's
+    puzzle can be finished on a second device. See `stableReviewId`.
+  */
+  const result = await gradeOnce(ownerId, card.id, rating, stableReviewId("sonad", ownerId, day, card.id));
   return result.ok ? { ok: true as const, graded: true } : result;
 }
 
@@ -1504,8 +1541,9 @@ export async function recordCrossword(day: string, typed: unknown, helped: unkno
     if (!cardId) continue;
     // Shown is not solved. A learner who pressed the button read the answer,
     // which is worth telling the scheduler about and is not worth a Good.
-    const result = await gradeCard(cardId, shown.has(index) ? 1 : 3, 0);
-    if (result.ok) graded += 1;
+    // Once per day and card, for the reason `recordSonad` gives.
+    const result = await gradeOnce(ownerId, cardId, shown.has(index) ? 1 : 3, stableReviewId("crossword", ownerId, day, cardId));
+    if (result.ok && !result.repeat) graded += 1;
   }
   return { ok: true as const, graded };
 }
