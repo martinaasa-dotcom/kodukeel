@@ -1,7 +1,7 @@
 /**
  * The role card, which is not a decoration.
  *
- * **The learner never plays themselves** (`docs/19-situations.md` §3). They are
+ * **The learner never plays themselves** (`docs/21-situations.md` §3). They are
  * handed a card: you are a patient, your throat has hurt since Tuesday, you can
  * come any afternoon except Wednesday. Two reasons, and the second is the one
  * that matters legally.
