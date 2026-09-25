@@ -61,8 +61,10 @@ jobs:
       # Carried between weeks, because a whole pass does not fit in one run.
       #
       # Wiktionary starts refusing part way through five thousand pages however
-      # politely they are asked: measured at about 3,800 before a batch would
-      # not come back. The script caches every page as it arrives and picks up
+      # politely they are asked, and where it stops is not a constant: about
+      # 3,800 pages once, then 1,500 and 500 on the two runs of 2026-09-24,
+      # which is the argument for carrying the cache rather than for any
+      # number. The script caches every page as it arrives and picks up
       # where it stopped, so with the cache restored each week gets further and
       # a cold start does not throw away the last run's work. Without this the
       # job would be red every week for a fact about Wiktionary rather than a
