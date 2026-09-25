@@ -21653,6 +21653,23 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("every action that writes a grade tells Today it changed", () => {
+  /*
+    A grade moves a card's due date, and Today counts what is due. Batching
+    Match through `applyGradeBatch` dropped the `revalidatePath("/")` that
+    `gradeCard` had carried per pair, so a learner back on Today after a round
+    read the old count for as long as the router cache held it.
+  */
+  const actions = code("app/actions.ts");
+  const bodies = actions.split(/\n(?=export (?:async )?function )/).slice(1);
+  const grading = bodies.filter((b) => /\b(?:applyGradeBatch|writeGrade|gradeAnswers)\(/.test(b));
+  assert.ok(grading.length >= 5, `only ${grading.length} grading actions found, so this stopped looking`);
+  const silent = grading
+    .filter((b) => !/revalidatePath\(\s*"\/"\s*\)/.test(b))
+    .map((b) => /^export (?:async )?function (\w+)/.exec(b)?.[1] ?? "?");
+  assert.deepEqual(silent, [], `${silent.join(", ")} writes a grade and never revalidates Today`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

@@ -1116,6 +1116,13 @@ export async function recordMatchGrades(grades: unknown) {
 
   const result = await applyGradeBatch(ownerId, batch);
   if (!result.ok) return { ok: false as const, error: result.error ?? "Could not record the round." };
+  /*
+    Every pair used to go through `gradeCard`, which revalidates Today; the
+    batch does not, so Today would show the old due count for as long as the
+    router cache holds it.
+  */
+  revalidatePath("/");
+  revalidatePath("/words");
   return { ok: true as const, graded: result.settled.length };
 }
 
