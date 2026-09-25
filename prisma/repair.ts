@@ -472,3 +472,33 @@ export async function repairCardSpelling(prisma: PrismaClient): Promise<number> 
   }
   return cleaned;
 }
+
+/**
+ * TAKING THE BAND OFF A WORD A MODEL SUGGESTED, ON A DATABASE WRITTEN BEFORE
+ * `createLexeme` STOPPED ACCEPTING ONE.
+ *
+ * `createLexeme` is a public Server Action and used to write whatever `cefr`
+ * its caller sent onto the shared row. It sets none now, and the word of the
+ * day and the exam pool refuse `provenance: "AI"` outright, but every other
+ * picker that reads a band (a lesson's wrong answers, Sõnad, the placement
+ * pool, the suggestion row) filters on the band alone, so a row written the
+ * old way with a band on it still reaches every learner at that level. That
+ * is a word nobody has checked being taught, which is ADR-005 (and the reason
+ * the builder fix alone reached no deployment already holding one).
+ *
+ * WHAT IT MAY TOUCH. `cefr`, and only on a row the app itself marks as a
+ * model's, set to null, which is what `createLexeme` writes today. Nothing
+ * else on the row, no card, and no row of any other provenance: an entry
+ * Ekilex enriched has become `EKILEX` and is untouched, and so is anything a
+ * person edited. A second run matches nothing. The `lemma` and `pos` stay,
+ * since `pos` is half of the unique key and moving it could collide with the
+ * entry the word should have been.
+ */
+export async function clearModelBands(prisma: PrismaClient): Promise<number> {
+  return prisma.$executeRaw`
+    UPDATE "Lexeme"
+    SET cefr = NULL
+    WHERE provenance = 'AI'
+      AND cefr IS NOT NULL
+  `;
+}

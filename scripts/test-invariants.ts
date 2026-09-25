@@ -3292,6 +3292,17 @@ check("a word a model suggested reaches no learner but the one who kept it", () 
     (wordOfDay.match(/\.\.\.VOUCHED_ROW\b/g) ?? []).length >= 2,
     "the word of the day reads the dictionary without refusing a model's suggestion on both of its reads",
   );
+
+  // And the rows written before `createLexeme` stopped taking a band: a
+  // builder fix reaches no deployment already holding one, so the seed clears
+  // them, above `--only-if-empty`'s early return, and touches nothing else.
+  const seed = code("prisma/seed.ts");
+  const cleared = seed.indexOf("clearModelBands(prisma)");
+  assert.ok(cleared >= 0, "the seed never takes the band off a word a model suggested");
+  assert.ok(cleared < seed.indexOf('"--only-if-empty"'), "the band is cleared below --only-if-empty's early return, which a seeded deployment never passes");
+  const repair = /export async function clearModelBands[\s\S]*?\n\}/.exec(code("prisma/repair.ts"));
+  assert.ok(repair, "prisma/repair.ts has no clearModelBands");
+  assert.match(repair[0], /SET cefr = NULL\s+WHERE provenance = 'AI'/, "clearModelBands writes something other than the band, or not only on a model's rows");
 });
 
 check("a word read off a photograph reaches a card only through the dictionary", () => {

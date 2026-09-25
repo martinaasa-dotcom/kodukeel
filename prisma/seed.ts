@@ -12,6 +12,7 @@ import {
   fillExampleEnglish,
   repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
   repairThinExamples,
+  clearModelBands,
 } from "./repair";
 import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
@@ -158,6 +159,17 @@ async function main() {
   const englished = await fillExampleEnglish(prisma);
   if (englished > 0) {
     console.log(`Said what the sentences on ${englished} words mean.`);
+  }
+
+  /*
+    And the band on a word a model suggested, which `createLexeme` used to take
+    from its caller. Here for the reason every repair above is: the row only
+    exists on a database that was already seeded, which is what
+    `--only-if-empty` skips.
+  */
+  const unbanded = await clearModelBands(prisma);
+  if (unbanded > 0) {
+    console.log(`Took the band off ${unbanded} words a model suggested and nobody has checked.`);
   }
 
   if (process.argv.includes("--only-if-empty")) {
