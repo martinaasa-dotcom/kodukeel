@@ -50,11 +50,25 @@ export async function startRound(page, { timeout = 4000, waitMs = 1400 } = {}) {
       if (Date.now() > until) return false;
       await page.waitForTimeout(120);
     }
-    await start.first().click({ timeout: 1500 }).catch(async () => {
-      await page.keyboard.press("Enter");
-    });
-    /* The round mounts in the next commit, so wait for the briefing to go. */
-    await page.locator("[data-briefing]").waitFor({ state: "detached", timeout }).catch(() => {});
+    /*
+      Pressed until the briefing goes, rather than once. The button's only
+      effect is a React `onClick`, and a click that lands on the server's
+      markup before the page has hydrated reaches no handler at all: the
+      briefing stays, the caller waits its whole budget for a round that was
+      never started, and the failure it reports is about the round. Measured
+      on a slow runner after a reload, which is exactly when hydration is
+      late. The round mounts in the next commit, so each press waits a
+      moment for the briefing to go before pressing again.
+    */
+    const briefing = page.locator("[data-briefing]");
+    const until2 = Date.now() + timeout * 2;
+    do {
+      await start.first().click({ timeout: 1500 }).catch(async () => {
+        await page.keyboard.press("Enter");
+      });
+      const gone = await briefing.waitFor({ state: "detached", timeout: 1000 }).then(() => true, () => false);
+      if (gone) break;
+    } while (Date.now() < until2 && (await start.count()));
     await page.waitForTimeout(150);
     return true;
   } catch {

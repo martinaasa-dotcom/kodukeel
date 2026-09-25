@@ -22,6 +22,10 @@ export default defineConfig({
     // and still be handed the wrong rows. A test beside the route is the only
     // place that is answerable.
     include: ["lib/**/*.itest.ts", "prisma/**/*.itest.ts", "app/**/*.itest.ts"],
+    // Refuses a database that is not on this machine, before any file loads:
+    // these tests write, and the shell's DATABASE_URL may be the deployment's.
+    // See scripts/itest-guard.ts.
+    globalSetup: ["scripts/itest-guard.ts"],
     // These share one database, so they must not run concurrently.
     fileParallelism: false,
     sequence: { concurrent: false },

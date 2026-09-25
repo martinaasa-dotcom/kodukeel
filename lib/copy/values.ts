@@ -333,3 +333,17 @@ export function orderVariantNote(moved: string | null, writerPut: "earlier" | "l
  * second one quietly becomes 140.
  */
 export const CAPTION_MAX = 110;
+
+/**
+ * WHAT A PRESS SAYS WHEN THE SERVER NEVER ANSWERED IT.
+ *
+ * A Server Action does not return a refusal when the network is gone, the
+ * deployment is restarting or the tab has been asleep: it throws. Uncaught
+ * inside a transition that rejection renders the error page in place of the
+ * screen, which was measured on Settings with the plug pulled. So every call
+ * catches it, puts back whatever it changed on the screen, and where there is
+ * room for a sentence says this one. One wording, because forty screens each
+ * explaining a dropped connection their own way is forty chances to blame the
+ * learner for it.
+ */
+export const NOT_REACHED = "That did not reach the server. Try it again in a moment.";
