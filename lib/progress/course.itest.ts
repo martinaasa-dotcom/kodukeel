@@ -49,6 +49,7 @@ async function wipe() {
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
 }
 
 /**
@@ -192,6 +193,26 @@ describe("which day is current", () => {
     expect(reading.current?.done.has(MEET_STEP)).toBe(true);
     /* Nothing was ticked, so nothing was written: the log is the proof. */
     expect(await prisma.courseStep.count({ where: { ownerId: OWNER } })).toBe(0);
+  });
+
+  it("meets a word the learner put aside, since the ladder will not serve it tonight", async () => {
+    /*
+      "Too complicated" on the meet rung moves the card's date and leaves it
+      New, and the ladder serves only what is due, so a step waiting for it
+      to leave New waited for ever and no press could move the evening.
+    */
+    const words = PROGRAMME.days[0]!.words;
+    await deck(words, 1);
+    const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+    await prisma.card.update({ where: { id: card!.id }, data: { state: 0 } });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(false);
+    await prisma.deferral.create({
+      data: {
+        ownerId: OWNER, lexemeId: card!.lexemeId!, lemma: "x", reason: "SOON",
+        untilAt: new Date(Date.now() + 3 * 24 * 3600_000),
+      },
+    });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(true);
   });
 
   it("does not count a word the learner has never been asked about", async () => {
