@@ -95,7 +95,6 @@ const section = (title: string, lines: readonly string[]) => {
 
 console.log(`${pins.length} pins over ${perSentence.size} distinct sentences.`);
 console.log(`${verified} verified against the dictionary's own forms.`);
-console.log(`${pins.filter((f) => f.pin.reviewed).length} read by somebody who speaks Estonian.`);
 console.log(`${Object.keys(EXAMPLE_GAPS).length} points answered with a written reason instead.`);
 
 section("WRONG — the marked word is not the slot claimed", wrong);

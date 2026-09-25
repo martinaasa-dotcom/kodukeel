@@ -75,7 +75,7 @@ describe("resolving the grammar pins", () => {
   /* A pin the dictionary no longer holds is dropped rather than half-drawn. */
   it("drops a sentence the dictionary no longer holds", () => {
     const wanted = new Map<string, PinnedExample[]>([
-      ["a point", [{ lemma: "kohv", et: "Ei ole kunagi kirja pandud.", form: "kunagi", reviewed: false }]],
+      ["a point", [{ lemma: "kohv", et: "Ei ole kunagi kirja pandud.", form: "kunagi" }]],
     ]);
     expect(matchPins(wanted, rowsFor(new Set(["kohv"]))).size).toBe(0);
   });

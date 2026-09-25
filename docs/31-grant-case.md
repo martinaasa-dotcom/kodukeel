@@ -169,10 +169,10 @@ ask for nothing and there is no suggestion they should start. At a size worth fu
 thing is to support the work rather than only use it: a contribution, corrected entries sent back,
 or paying for the compute somebody else is currently absorbing.
 
-Two things a grant would also buy that the page does not list, and they should be costed in an
-application rather than assumed. A native speaker reviewing the drafted conversational lines, which
-is `docs/20-contributed-sentences.md` and the `reviewed` flag in `lib/scenes/bank.ts`. And a first
-pilot with a class or a workplace, which `docs/30-pilots.md` scopes and prices at nothing to run.
+One thing a grant would also buy that the page does not list, and it should be costed in an
+application rather than assumed: a first pilot with a class or a workplace, which
+`docs/30-pilots.md` scopes and prices at nothing to run. The Estonian itself is developed by a
+native Estonian speaker.
 
 ## 5. What happens when the money stops
 
