@@ -38,10 +38,16 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
   const byId = new Map(TODAY_SLOTS.map((s) => [s.id, s] as const));
 
   const save = (next: readonly TodaySlot[], said: string) => {
+    const was = order;
     setOrder(next);
     setMessage(said);
     start(async () => {
-      await setTodayOrder(serialiseTodayOrder(next));
+      const landed = await setTodayOrder(serialiseTodayOrder(next)).then(() => true).catch(() => false);
+      if (!landed) {
+        setOrder(was);
+        setMessage("That did not reach the server, so the order is as it was.");
+        return;
+      }
       router.refresh();
     });
   };
@@ -55,7 +61,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
 
   return (
     <div className="flex flex-col gap-3">
-      <ol className="flex flex-col gap-2">
+      <ol className="@container flex flex-col gap-2">
         {order.map((slot, i) => {
           const entry = byId.get(slot);
           if (!entry) return null;
@@ -89,7 +95,11 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
                   {pastCut ? " Past the cut: drawn only when a card above it has nothing to say." : ""}
                 </span>
               </span>
-              <span className="flex shrink-0 items-center gap-1">
+              {/* Stacked until the list has room for them side by side: two
+                  44px arrows in a row left the card's title 68px at 320 and
+                  broke "Homework" and "yesterday" mid-word. Up above down is
+                  also the order they move a card in. */}
+              <span className="flex shrink-0 flex-col items-center gap-1 @sm:flex-row">
                 <Button
                   size="sm"
                   aria-label={`Move ${entry.title} up`}

@@ -40,12 +40,11 @@ describe("checkQuota", () => {
     THE CAP THAT PROTECTS A BALANCE RATHER THAN A BILL.
 
     One global figure was the whole truth while every path spent out of one
-    account. Since the provider split, TUTOR spends an Anthropic balance and
-    SCENE spends a Groq one, and the two are nothing like the same size: an Anu
-    answer is about $0.0144 and a composed scene turn about $0.00044, so the
-    $5 Anthropic balance is roughly 347 answers, which is a quarter of a $20
-    day. The overall cap therefore cannot fire before the money is gone, and a
-    cap that is reached after the money is gone is a receipt.
+    account. Since the provider split, each purpose spends its own providers'
+    balances and they are nothing like the same size: a small balance on one
+    account can be gone long before a global day is reached. The overall cap
+    therefore cannot fire before that money is gone, and a cap that is reached
+    after the money is gone is a receipt.
   */
   it("stops a kind that has spent its own slice, with the day's budget untouched", () => {
     const usage: UsageSnapshot = {
