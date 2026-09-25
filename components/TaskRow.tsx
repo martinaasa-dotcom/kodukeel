@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { Check } from "lucide-react";
 import { toggleTask } from "@/app/actions";
-import { TASK_TAGS, bucketFor } from "@/lib/ux/agenda";
+import { TASK_TAGS, bucketFor, dueDateOptions } from "@/lib/ux/agenda";
 import { dayClock } from "@/lib/time/day";
 
 export interface TaskView {
@@ -71,7 +71,7 @@ export function TaskRow({ task }: { task: TaskView }) {
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
               {overdue ? "Overdue · " : "Due "}
-              {due.toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+              {due.toLocaleDateString(undefined, dueDateOptions(due))}
             </span>
           )}
         </div>

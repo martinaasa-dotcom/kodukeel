@@ -11707,6 +11707,33 @@ check("late is decided in one place, against the learner's own day", () => {
   }
 });
 
+check("a due date is the day it names, in every zone", () => {
+  /*
+    The same stored midnight UTC is the evening before west of Greenwich. Read
+    as an instant, homework due the 25th was filed under today on the 24th in
+    Toronto and printed as the 24th, while the calendar, which reads the date
+    off the key, put it on the 25th. `isDateOnly` is the rule; a screen that
+    prints a due date asks `dueDateOptions` for how.
+  */
+  const agenda = code("lib/ux/agenda.ts");
+  assert.match(agenda, /const days = daysUntil\(dueAt, clock, now\)/, "bucketFor reads a stored date as an instant again");
+  let printers = 0;
+  for (const file of ALL) {
+    if (!/\.tsx$/.test(file)) continue;
+    const src = code(file);
+    const prints = src.match(/(dueAt|\bdue)\??\.toLocaleDateString\([^)]*\)/g) ?? [];
+    for (const call of prints) {
+      printers += 1;
+      assert.match(call, /dueDateOptions\(/, `${file} prints a due date in the reader's zone: ${call}`);
+    }
+    if (/iso=\{[^}]*dueAt[^}]*\}/.test(src)) {
+      printers += 1;
+      assert.match(src, /options=\{dueDateOptions\(/, `${file} hands a due date to LocalDate without saying it is a date`);
+    }
+  }
+  assert.ok(printers >= 3, `only ${printers} places print a due date; the sweep is not finding them`);
+});
+
 
 check("a confidence figure carries its evidence, on every screen that prints one", () => {
   /*

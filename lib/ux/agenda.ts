@@ -66,10 +66,49 @@ export interface AgendaGroup<T> {
   items: T[];
 }
 
+/**
+ * A due date that is a date rather than a moment.
+ *
+ * Every writer stores a date-only due date at midnight UTC: `<input
+ * type="date">` gives a day, and both the reminder form and a teacher's
+ * homework write it as `YYYY-MM-DDT00:00:00Z`. Read as an instant, that is the
+ * evening before anywhere west of Greenwich, so a learner in Toronto saw
+ * homework due the 25th filed under today on the 24th, read "Late" all of the
+ * 25th, and printed as the 24th, while the calendar, which reads the date off
+ * the key, put it on the 25th. No single instant fixes it: noon UTC is still
+ * the 24th at UTC-12 and already the 26th in Auckland. So a value at midnight
+ * UTC to the millisecond is read as the day it names, and anything else is a
+ * genuine instant and is read as one.
+ */
+export function isDateOnly(dueAt: Date): boolean {
+  return dueAt.getUTCHours() === 0 && dueAt.getUTCMinutes() === 0
+    && dueAt.getUTCSeconds() === 0 && dueAt.getUTCMilliseconds() === 0;
+}
+
+/**
+ * How to print a due date: the day it names for a date-only value, which is
+ * that day in UTC whatever zone the reader is in, and the reader's own day for
+ * an instant.
+ */
+export function dueDateOptions(dueAt: Date): Intl.DateTimeFormatOptions {
+  return isDateOnly(dueAt)
+    ? { day: "numeric", month: "short", timeZone: "UTC" }
+    : { day: "numeric", month: "short" };
+}
+
+/** Whole days from the learner's today to the day a task is due. */
+function daysUntil(dueAt: Date, clock: DayClock, now: Date): number {
+  if (!isDateOnly(dueAt)) return clock.daysBetween(now, dueAt);
+  const [y, m, d] = clock.dayKey(now).split("-").map(Number);
+  const today = Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+  return Math.round((dueAt.getTime() - today) / 86_400_000);
+}
+
+
 /** Which heading one due date belongs under. */
 export function bucketFor(dueAt: Date | null, clock: DayClock, now: Date): Bucket {
   if (!dueAt) return "undated";
-  const days = clock.daysBetween(now, dueAt);
+  const days = daysUntil(dueAt, clock, now);
   if (days < 0) return "overdue";
   if (days === 0) return "today";
   if (days === 1) return "tomorrow";

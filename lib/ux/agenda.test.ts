@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dayClock } from "@/lib/time/day";
-import { agenda, bucketFor, overdueCount } from "./agenda";
+import { agenda, bucketFor, dueDateOptions, isDateOnly, overdueCount } from "./agenda";
 
 // Tallinn, because the whole point of taking a clock is that the answer is the
 // learner's and not the process's. In August that is UTC+3.
@@ -42,6 +42,39 @@ describe("bucketFor", () => {
     expect(bucketFor(at("2026-09-01T00:00:00Z"), clock, now)).toBe("today");
     expect(bucketFor(at("2026-09-01T05:00:00Z"), clock, now)).toBe("today");
     expect(bucketFor(at("2026-08-31T23:00:00Z"), clock, now)).toBe("today");
+  });
+
+  it("files a date-only due date on the day it names west of Greenwich too", () => {
+    /*
+      Midnight UTC on the 25th is 20:00 on the 24th in Toronto, so read as an
+      instant, homework due the 25th was "today" on the 24th and "Late" all of
+      the 25th, while the calendar, which reads the date off the key, put it on
+      the 25th.
+    */
+    const toronto = dayClock("America/Toronto");
+    const due = at("2026-09-25T00:00:00Z");
+    expect(bucketFor(due, toronto, new Date("2026-09-24T16:00:00Z"))).toBe("tomorrow");
+    expect(bucketFor(due, toronto, new Date("2026-09-25T16:00:00Z"))).toBe("today");
+    expect(bucketFor(due, toronto, new Date("2026-09-26T16:00:00Z"))).toBe("overdue");
+    // And in Auckland, the far side, it is still the 25th.
+    const auckland = dayClock("Pacific/Auckland");
+    expect(bucketFor(due, auckland, new Date("2026-09-25T01:00:00Z"))).toBe("today");
+  });
+});
+
+describe("isDateOnly", () => {
+  it("reads midnight UTC to the millisecond as a date and anything else as a moment", () => {
+    expect(isDateOnly(at("2026-09-25T00:00:00Z"))).toBe(true);
+    expect(isDateOnly(at("2026-09-25T00:00:00.001Z"))).toBe(false);
+    expect(isDateOnly(at("2026-09-25T18:30:00Z"))).toBe(false);
+  });
+
+  it("prints a date-only value as the day it names in every zone", () => {
+    const due = at("2026-09-25T00:00:00Z");
+    for (const zone of ["America/Toronto", "Pacific/Pago_Pago", "Pacific/Auckland", "Pacific/Kiritimati"]) {
+      const shown = due.toLocaleDateString("en-GB", { ...dueDateOptions(due), timeZone: dueDateOptions(due).timeZone ?? zone });
+      expect(shown).toBe("25 Sept");
+    }
   });
 });
 

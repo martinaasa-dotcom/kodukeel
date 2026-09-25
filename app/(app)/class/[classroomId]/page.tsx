@@ -12,6 +12,7 @@ import { cohortKind } from "@/lib/classroom/cohort";
 import type { ExamLevel } from "@/lib/exam/spec";
 import { WorkplaceView } from "./WorkplaceView";
 import { LocalDate } from "@/components/LocalDate";
+import { dueDateOptions } from "@/lib/ux/agenda";
 import { Card, Chip, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { ArchiveClass, AssignHomework, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { counted } from "@/lib/copy/values";
@@ -312,8 +313,8 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                               {" · due "}
                               <LocalDate
                                 iso={h.dueAt.toISOString()}
-                                options={{ day: "numeric", month: "short" }}
-                                fallback={h.dueAt.toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+                                options={dueDateOptions(h.dueAt)}
+                                fallback={h.dueAt.toLocaleDateString(undefined, dueDateOptions(h.dueAt))}
                               />
                             </>
                           )}
