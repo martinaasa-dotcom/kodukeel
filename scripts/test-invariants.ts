@@ -10761,7 +10761,9 @@ check("every marker the merge ritual names is still somewhere in the tree", () =
   const haystack = [
     ...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/), ...sourceFiles("prisma"),
     "middleware.ts", "next.config.ts", "app/globals.css",
-  ].filter((f) => existsSync(f)).map(read).join("\n");
+  // Code rather than prose: a marker whose code is gone and whose name
+  // survives in a comment explaining what replaced it is a marker gone.
+  ].filter((f) => existsSync(f)).map(code).join("\n");
 
   const gone = markers.filter((marker) => !haystack.includes(marker));
   assert.deepEqual(
