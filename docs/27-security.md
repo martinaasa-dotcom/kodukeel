@@ -40,7 +40,7 @@ internet under one shared id with every visitor treated as a reviewer. `halfConf
   Browser (learner's device)
     | HTTPS, HSTS preloaded, CSP set per response
     v
-  Next.js on Vercel  ------ server only ------> Anthropic / OpenAI / OpenRouter / Groq / Gemini
+  Next.js on Vercel  ------ server only ------> Groq / Gemini / Anthropic / OpenAI
     |   middleware.ts                             (whichever keys the deployment holds)
     |   Server Actions, Route Handlers   ------> TartuNLP speech (api.tartunlp.ai)
     |                                    ------> Ekilex, Wiktionary
@@ -69,8 +69,16 @@ It goes out from a Route Handler, never from the browser, and every call is mete
 
 **Server to Ekilex, Wiktionary and TartuNLP.** Reference data and speech. These are read only,
 carry nothing about the learner, and are proxied so their keys and their quota stay on the server.
-The Content Security Policy names no third party in `connect-src` at all, which is what makes that
+The Content Security Policy's `connect-src` names `'self'` and the deployment's own Supabase project
+(`supabaseConnectSrc` in `lib/security/headers.ts`) and nothing else, which is what makes that
 structural rather than a habit.
+
+**Browser to Google, where a deployment sets `NEXT_PUBLIC_GOOGLE_CLIENT_ID`.** The sign-in page then
+loads Google Identity Services from `accounts.google.com` (`GSI_SCRIPT_SRC` in
+`lib/auth/googleIdentity.ts`), the one third-party script this app loads in a browser, and renders
+Google's button in an iframe from the same origin. The CSP adds that one origin to `script-src` and
+`frame-src` and only when the client ID is set (`googleIdentitySrc`). The ID token that comes back
+is handed to Supabase with `signInWithIdToken`.
 
 ## 3. What is worth taking
 
@@ -299,8 +307,9 @@ client component may read a server only variable. A third reads `PROVIDER_KEY_EN
 key is marked in the CI canary, so the next provider added to the chain cannot be missed the way Groq
 and Gemini were.
 
-The CSP is the other half: `connect-src` names no third party at all, so a client that tried to call
-Ekilex or TartuNLP directly would be refused by the browser as well as by an invariant.
+The CSP is the other half: `connect-src` names `'self'` and the deployment's own Supabase project and
+no other host, so a client that tried to call Ekilex or TartuNLP directly would be refused by the
+browser as well as by an invariant.
 
 ### 4.10 An error message carrying a connection string
 
@@ -334,7 +343,9 @@ self-hosted proxy appends and is read from the right. Signed-in work never touch
 session.
 
 **Control.** `X-Frame-Options: DENY` in `lib/security/headers.ts`, and `frame-ancestors 'none'` in
-the CSP. `frame-src 'none'` refuses the other direction, which was verified rather than assumed:
+the CSP. `frame-src 'none'` refuses the other direction, except for `https://accounts.google.com`
+where a Google client ID is configured, since Google's sign-in button is drawn in that frame. That
+nothing else is framed was verified rather than assumed:
 Sõnaveeb and Ekilex both send `DENY` at us, which is why nothing here is an iframe.
 
 ### 4.13 Reading the deployment-wide aggregates
@@ -395,7 +406,7 @@ being trusted.
 
 | Area | Control | Where |
 | --- | --- | --- |
-| Authentication | Supabase Auth, Google OAuth and mailed links | `lib/supabase/`, `app/auth/callback/route.ts` |
+| Authentication | Supabase Auth: Google (through Google Identity Services where a client ID is set), mailed links, and SAML SSO for domains in `SSO_DOMAINS` | `lib/supabase/`, `lib/auth/googleIdentity.ts`, `lib/auth/sso.ts`, `app/auth/callback/route.ts` |
 | Authentication | Token verified locally against cached signing keys, no round trip | `lib/auth/identity.ts` |
 | Authentication | 2,500ms deadline on every auth call, recorded per transport | `lib/auth/identity.ts` |
 | Authentication | Three state identity, so "we could not tell" is not "signed out" | `lib/auth/identity.ts` |
@@ -410,7 +421,7 @@ being trusted.
 | Transport | HSTS, two years, includeSubDomains, preload | `lib/security/headers.ts` |
 | Transport | `upgrade-insecure-requests` in the CSP | `lib/security/headers.ts` |
 | Headers | CSP set per response, so it can read which Supabase project to allow | `middleware.ts` |
-| Headers | `frame-ancestors 'none'`, `frame-src 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` | `lib/security/headers.ts` |
+| Headers | `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, and `frame-src 'none'` except `accounts.google.com` where a Google client ID is set | `lib/security/headers.ts` |
 | Headers | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, COOP, cross domain policies | `next.config.ts` via `STATIC_SECURITY_HEADERS` |
 | Headers | `Permissions-Policy` denying geolocation, allowing camera and microphone to self | `lib/security/headers.ts` |
 | Headers | `X-Powered-By` removed | `next.config.ts` |
@@ -423,7 +434,7 @@ being trusted.
 | Secrets | Nothing carries `NEXT_PUBLIC_` but the anon key, asserted | `scripts/test-invariants.ts` |
 | Secrets | CI builds with a marked value per server variable and greps the client bundle | `.github/workflows/ci.yml` |
 | Secrets | Every built file scanned for credential shapes, service role JWT told apart by role claim | `scripts/check-secrets.mjs` |
-| Secrets | Keyed services reachable only from the server, asserted and enforced by CSP | `lib/security/headers.ts` |
+| Secrets | Keyed services reachable only from the server, asserted, and `connect-src` limited to `'self'` and the Supabase project | `lib/security/headers.ts` |
 | Spend | Reserve, settle and release in an append-only ledger under an advisory lock | `lib/usage/ledger.ts` |
 | Spend | Burst, per learner daily and global daily spend caps, with no off switch | `lib/usage/quota.ts` |
 | Spend | Unknown model priced at the dearest rate | `lib/usage/pricing.ts` |
@@ -442,7 +453,7 @@ being trusted.
 | Data | Erasure has no exemptions, and removes the Supabase Auth identity too | `lib/auth/erase.ts` |
 | Data | Anonymity gate on the research export, four rules | `lib/research/corpus.ts` |
 | Dependencies | Two blocking `npm audit` gates, production and dev | `.github/workflows/ci.yml` |
-| Assurance | 279 invariants asserted in CI | `scripts/test-invariants.ts` |
+| Assurance | The invariant suite, asserted in CI | `scripts/test-invariants.ts` |
 
 ## 6. What has not been done
 
@@ -485,8 +496,12 @@ Adding RLS as a second layer is on the list and has not been done.
 `lib/security/headers.ts`: the app shell is prerendered and CDN cached, and Next stamps a nonce only
 on markup it renders per request, so a fresh nonce against cached inline Flight scripts means the
 page never hydrates. A nonce would also silently disable `'unsafe-inline'` for the theme script.
-This is the weakest line in the policy and it is a real residual risk against an injected script. The
-rest of the policy is as tight as the app allows.
+This is the weakest line in the policy and it is a real residual risk against an injected script. In
+full, `script-src` is `'self' 'unsafe-inline'`, plus `https://accounts.google.com` where a Google
+client ID is set and `'unsafe-eval'` in development only, so a deployment with Google sign-in trusts
+Google's own script as well. `style-src` also carries `'unsafe-inline'`, and `img-src` takes any
+`https:` host because a Google avatar is served from whichever host that account is on. The rest of
+the policy is as tight as the app allows.
 
 **Session freshness is traded for speed.** With asymmetric signing keys the access token is verified
 locally, so a session revoked elsewhere survives until that token expires, an hour by default. The
@@ -508,7 +523,7 @@ npx prisma generate
 npm run typecheck        # strict, plus noUncheckedIndexedAccess
 npm run lint
 npm test                 # unit suite, hermetic: no database, no network, no clock
-npm run test:invariants  # 279 asserted rules, including every security one above
+npm run test:invariants  # the asserted rules, including every security one above
 npm run check:secrets    # scans a built tree for credential shapes
 npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
@@ -519,7 +534,7 @@ grep the client bundle:
 
 ```
 CI_CANARY=canary-CI_CANARY-must-not-ship \
-OPENROUTER_API_KEY=canary-OPENROUTER_API_KEY-must-not-ship \
+GEMINI_API_KEY=canary-GEMINI_API_KEY-must-not-ship \
 SUPABASE_SERVICE_ROLE_KEY=canary-SUPABASE_SERVICE_ROLE_KEY-must-not-ship \
 npx next build
 grep -rEho "canary-[A-Z_]+-must-not-ship" .next/static   # must print nothing

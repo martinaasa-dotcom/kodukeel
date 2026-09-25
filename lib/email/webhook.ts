@@ -214,8 +214,9 @@ export function readDelivery(body: unknown): DeliveryEvent | null {
  * is somebody who fixed it. A digest rather than the address because
  * `prisma/schema.prisma` deliberately holds none, which is what lets erasure
  * promise that deleting an account takes the address with it; a digest tells
- * two addresses apart, which is the whole job, and cannot be read back into a
- * person.
+ * two addresses apart, which is the whole job, and does not hold the address.
+ * It is unsalted, so anybody holding a candidate address can hash it and
+ * confirm a match: pseudonymous rather than anonymous.
  *
  * Folded to lower case and trimmed first, since a mailbox is not case sensitive
  * in the part that matters and the provider may echo it back differently from

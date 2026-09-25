@@ -40,6 +40,8 @@ check.
 | Settings (`Setting`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Starred words (`StarredWord`) | Until unstarred, or the account is deleted | Either | `toggleStar`, `deleteMyAccount` |
 | Named shelves and what is filed on them (`Deck`, `DeckWord`) | Until removed by the learner, or the account is deleted. A label over the one row above (`Card`) rather than a copy of it: deleting a shelf never touches the cards, reviews or mastery of the words that were on it | Either | The deck's own delete cascades its `DeckWord` rows; `deleteMyAccount` for both |
+| Words put aside (`Deferral`) | Until the learner brings the word back, or the account is deleted. A wait that ends by itself, because the learner reached the band, leaves the row and stamps `wokenAt` | Bringing it back, or erasure | `undoDeferral` and `wakeForLevel` in `lib/progress/deferrals.ts`; `deleteMyAccount` |
+| Ticked course steps (`CourseStep`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Badges (`Achievement`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Level checks (`Assessment`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Mock exam sittings (`ExamAttempt`), including the composition | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
@@ -47,8 +49,8 @@ check.
 | Conversation runs (`SceneRun`) and the words they needed (`SceneGap`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Reports of real conversations (`Encounter`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Reports of something wrong (`Suggestion`) | Until the account is deleted, whatever the review status | Erasure | `deleteMyAccount` |
-| Group ownership and membership (`Classroom`, `ClassroomMember`) | Membership until the learner leaves. A group until its owner archives or deletes it, or deletes their account | Leaving, archiving, erasure | `leaveClassroom`, `deleteMyAccount` |
-| A bounced address (`Setting`, `emailUndeliverable`) | Until the account is deleted, or until the learner changes their address, which stops it applying | Erasure, or a new address | `deleteMyAccount`. It holds a digest of the address that failed rather than the address, so there is nothing in it to read back into a person, and it names the address rather than the learner so that changing one is a way out of it |
+| Group ownership and membership (`Classroom`, `ClassroomMember`) | Membership until the learner leaves. A group until its owner deletes their account. Archiving is not deletion: `archiveClassroom` sets `archived` so the join code stops working, and the group, its name and its roster stay. There is no action that deletes a group on its own | Leaving, or erasure. Erasing the owner's account deletes the group and its memberships cascade with it | `leaveClassroom`, `archiveClassroom` and `deleteMyAccount` in `app/actions.ts` |
+| A bounced address (`Setting`, `emailUndeliverable`) | Until the account is deleted, or until the learner changes their address, which stops it applying | Erasure, or a new address | `deleteMyAccount`. It holds the first 32 hex characters of an unsalted SHA-256 of the address that failed rather than the address (`addressDigest` in `lib/email/webhook.ts`), so the address is not in the row, though anybody holding a candidate address can hash it and confirm a match; and it names the address rather than the learner so that changing one is a way out of it |
 | Letters sent (`EmailSend`) | Until the account is deleted. Append-only, and it is one line per message: the kind and the moment, on the learner's own clock. Never the subject, never the body, and nothing about whether it was opened, because there is no tracking pixel in this app. It is kept because it is what stops a second copy of the same letter: the per-kind gap, the weekly ceiling and "have they had one today" are all read from it | Erasure | `deleteMyAccount` in `app/actions.ts`. Deleting it with the account is the half that matters, since it is the row that decides whether somebody is written to again |
 | Spending ledger (`UsageEvent`) | The running year, since the caps it enforces are daily. Append-only within that | The year turning over, and erasure | `deleteMyAccount` for the account's own rows. See the note below |
 
@@ -58,6 +60,12 @@ reads a day at a time (`lib/usage/quota.ts`), so nothing older than the current 
 app for any purpose. Pruning last year's rows is an operator task rather than something the app does
 on a schedule, and this document does not claim a job runs. What the app guarantees is the erasure:
 an account's ledger rows go with the account, immediately, like everything else.
+
+### Rate limit counters, owned by nobody
+
+| Category | Kept for | Trigger | Enforced by |
+| --- | --- | --- | --- |
+| Shared rate limit windows (`RateLimit`) | Until the window has passed, at most an hour. Each row is an unsalted SHA-256 digest of the caller and the endpoint, a window start and a count. The caller is a user id, or an IP address where nobody is signed in, so the row is pseudonymous rather than anonymous: it does not hold the id or the address, and anybody holding a candidate can confirm it by hashing | The next prune after the window, which runs at most once a minute per instance while a limited route is being called. There is no scheduled job, so on an idle deployment an expired row stays until the next call | `pruneSoon` in `lib/usage/sharedLimit.ts`. Not in the export or the erasure, since it carries no owner id to find it by |
 
 ### Reference data, owned by nobody
 
@@ -117,13 +125,16 @@ download, is theirs to keep or delete and this app holds no copy of it.
 
 - **The learner deletes their account.** Settings, Deleting your data. Every owner-scoped table, in
   one transaction, plus the sign-in identity. No exclusions.
-- **The learner deletes one thing.** A card, a task, a calendar entry, a star.
+- **The learner deletes one thing.** A card, a task, a calendar entry, a star, a named deck or a
+  word filed in one, or a word they put aside, by bringing it back.
 - **The learner leaves a group.** The membership row and nothing else. Their deck is untouched.
 - **The learner signs out.** Everything on the device, above.
 - **A different account signs in on the same browser.** The same clearing, without a sign-out.
-- **A group owner archives or deletes a group.** The group, and its memberships with it.
-- **The operator prunes the ledger.** The one thing on this page with a period rather than an event,
-  and the one thing not automated.
+- **A group owner deletes their account.** The group, and its memberships with it. Archiving a group
+  deletes nothing: the code stops working and the roster stays.
+- **A rate limit window passes.** The counter row is deleted by the next prune.
+- **The operator prunes the ledger.** One of the two periods on this page, and the one
+  that nothing in the app enforces.
 
 ## Where retention is currently open, and stated as such
 
