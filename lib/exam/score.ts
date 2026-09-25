@@ -509,7 +509,7 @@ export function markPaper(paper: Paper, responses: ReadonlyMap<string, Response>
   const set = parts.filter((p) => p.rawAvailable > 0);
   const points = Math.round(set.reduce((sum, p) => sum + p.points, 0) * 10) / 10;
   const maxPoints = set.reduce((sum, p) => sum + p.maxPoints, 0);
-  const pct = maxPoints === 0 ? 0 : Math.floor((points / maxPoints) * 100);
+  const pct = examPct(points, maxPoints);
   const zero = set.find((p) => p.points === 0);
 
   return {
@@ -525,6 +525,19 @@ export function markPaper(paper: Paper, responses: ReadonlyMap<string, Response>
     waitBeforeResit: pct < RETAKE_WAIT_PCT,
     thin: paper.thin,
   };
+}
+
+/**
+ * The paper's percentage, floored, worked in whole tenths of a point.
+ *
+ * `points` is already rounded to one decimal, and dividing it as a float lands
+ * just under the integer it names: 72.8 of 80 is 90.99999999999999, which
+ * floored is 90 and moves a paper out of the 91 band, and 58 of 100 printed
+ * 57. Tenths are integers, so the division is exact wherever the answer is.
+ */
+export function examPct(points: number, maxPoints: number): number {
+  if (maxPoints === 0) return 0;
+  return Math.floor((Math.round(points * 10) * 10) / maxPoints);
 }
 
 /** Every mark in the paper, flattened, for the report and the grade batch. */

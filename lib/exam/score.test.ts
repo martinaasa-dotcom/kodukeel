@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildPaper, type PoolWord } from "./paper";
 import {
-  BLANK_RESPONSE, allMarks, gradesFrom, markItem, markPaper, type Response,
+  BLANK_RESPONSE, allMarks, examPct, gradesFrom, markItem, markPaper, type Response,
 } from "./score";
 import { PASS_PCT } from "./spec";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
@@ -394,5 +394,29 @@ describe("a word order the writer did not choose", () => {
   it("refuses an answer that is short of a word", () => {
     expect(mark(["Muidugi", "tuleb", "ette"]).correct).toBe(false);
     expect(mark([]).correct).toBe(false);
+  });
+});
+
+describe("examPct", () => {
+  it("does not floor an exact percentage one under", () => {
+    expect(examPct(72.8, 80)).toBe(91);
+    expect(examPct(58, 100)).toBe(58);
+    expect(examPct(29, 100)).toBe(29);
+    expect(examPct(36.4, 40)).toBe(91);
+    expect(examPct(18.2, 20)).toBe(91);
+  });
+
+  it("still floors what is not a whole percent", () => {
+    expect(examPct(59.9, 100)).toBe(59);
+    expect(examPct(57.4, 100)).toBe(57);
+    expect(examPct(0, 0)).toBe(0);
+  });
+
+  it("agrees with exact arithmetic over every tenth on every reachable total", () => {
+    for (const max of [20, 25, 40, 45, 60, 75, 80, 100]) {
+      for (let tenths = 0; tenths <= max * 10; tenths++) {
+        expect(examPct(tenths / 10, max)).toBe(Math.floor((tenths * 10) / max));
+      }
+    }
   });
 });
