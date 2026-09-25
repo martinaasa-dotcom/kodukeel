@@ -20,7 +20,8 @@ import {
   LEVELS, checkpointFor, levelIndex, unitById, wordsAtLevel,
 } from "@/lib/collections/syllabus";
 import { checkpointPassed } from "@/lib/collections/checkpoint";
-import { generateCode, isValidCode, normaliseCode } from "@/lib/classroom/code";
+import { isValidCode, normaliseCode } from "@/lib/classroom/code";
+import { createWithFreshCode } from "@/lib/classroom/create";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
@@ -50,7 +51,8 @@ import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 import { isEmailKind } from "@/lib/email/letter";
-import { emailPrefsFrom, emailOptInTo, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
+import { switchOff, switchOn } from "@/lib/email/prefs";
+import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
 import { parseReminderTime } from "@/lib/time/reminder";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
@@ -1193,7 +1195,7 @@ export async function recordSonad(day: string, guesses: unknown) {
     ? guesses.filter((g): g is string => typeof g === "string").slice(0, SONAD_GUESSES)
     : [];
   if (played.length === 0) return { ok: false as const, error: "Nothing to record." };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
 
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
@@ -1339,7 +1341,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
  * cost is that `advance` sees the next turn as helped. Nothing is deducted, no
  * objective is withheld, and the word goes on the debrief with a button to keep
  * it. Somebody who asks for four words and finishes has learned more than
- * somebody who gave up with none (`docs/19-situations.md` §12).
+ * somebody who gave up with none (`docs/21-situations.md` §12).
  *
  * The first version of this button recorded the *beat id* as the word needed,
  * so a debrief listed `reason` and `greet` under "words this conversation
@@ -1422,7 +1424,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
  * writes into the review log and a forged one would schedule words nobody said.
  *
  * Nothing in the transcript is true about the learner. The role card is fiction
- * (`docs/19-situations.md` §3), which is what makes a table of somebody's
+ * (`docs/21-situations.md` §3), which is what makes a table of somebody's
  * practice sentences about a doctor's appointment safe to hold at all.
  */
 export async function finishScene(input: {
@@ -1529,7 +1531,7 @@ export async function finishScene(input: {
 
 export async function recordCrossword(day: string, typed: unknown, helped: unknown) {
   const ownerId = await requireUserId();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
 
   /*
     Off the wire, whatever the types say. A cell index that is not a number and
@@ -1841,14 +1843,10 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
     up refused and requested at once, which is the state a single write would
     leave behind if the second one failed.
   */
-  const [off, on] = await Promise.all([
-    readSetting(ownerId, SETTING_KEYS.emailsOff),
-    readSetting(ownerId, SETTING_KEYS.emailsOn),
-  ]);
-  const current = emailPrefsFrom(off, on);
-  const next = input.on ? switchOn(current, input.kind) : switchOff(current, [input.kind]);
-  await writeSetting(ownerId, SETTING_KEYS.emailsOff, emailPrefsTo(next));
-  await writeSetting(ownerId, SETTING_KEYS.emailsOn, emailOptInTo(next));
+  const kind = input.kind;
+  await changeEmailPrefs(ownerId, (current) =>
+    input.on ? switchOn(current, kind) : switchOff(current, [kind]),
+  );
   revalidatePath("/settings");
   return { ok: true as const, on: input.on };
 }
@@ -2396,28 +2394,16 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
     ? (targetLevel as ExamLevel)
     : "B1";
 
-  let code = "";
-  for (let attempt = 0; attempt < CODE_ATTEMPTS; attempt++) {
-    const candidate = generateCode();
-    const taken = await prisma.classroom.findUnique({ where: { code: candidate }, select: { id: true } });
-    if (!taken) { code = candidate; break; }
-  }
-  if (!code) return { ok: false as const, error: "Could not allocate a join code. Try again." };
-
+  // The insert claims the code, retried on a collision (lib/classroom/create.ts).
   const displayName = await resolveDisplayName(ownerId);
-  const classroom = await prisma.classroom.create({
-    data: {
-      name: trimmed,
-      code,
-      ownerId,
-      kind: cohort,
-      targetLevel: level,
-      members: { create: { ownerId, role: "TEACHER", displayName } },
-    },
-  });
+  const classroom = await createWithFreshCode(
+    { name: trimmed, ownerId, kind: cohort, targetLevel: level, displayName },
+    CODE_ATTEMPTS,
+  );
+  if (!classroom) return { ok: false as const, error: "Could not allocate a join code. Try again." };
 
   revalidatePath("/class");
-  return { ok: true as const, id: classroom.id, code };
+  return { ok: true as const, id: classroom.id, code: classroom.code };
 }
 
 /**
@@ -2784,9 +2770,22 @@ export async function deleteReminder(id: string) {
 const clamp = (n: number, lo: number, hi: number) =>
   Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo;
 
+/**
+ * A `YYYY-MM-DD` string, asked about as a string first.
+ *
+ * `RegExp.test` converts its argument, so `["2026-09-24"]` passes the pattern
+ * as readily as the string does, and an argument off the wire is whatever the
+ * caller sent: `recordSonad(["2026-09-24"], ...)` went on to `day.split("-")`
+ * inside the puzzle builder and threw. One check, so the three doors that take
+ * a day cannot disagree about what one is.
+ */
+function isDayKey(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 /** A `YYYY-MM-DD` string, or null for anything that is not one. */
-function dayKeyOrNull(value: string | null | undefined): string | null {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+function dayKeyOrNull(value: unknown): string | null {
+  if (!isDayKey(value)) return null;
   return Number.isNaN(Date.parse(`${value}T00:00:00.000Z`)) ? null : value;
 }
 
@@ -4144,9 +4143,6 @@ const ExamSubmissionSchema = z.object({
  */
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
-
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 

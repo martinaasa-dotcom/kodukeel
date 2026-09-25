@@ -7260,6 +7260,11 @@ render**, with `cache()` from React, which is what `requireUserId` already did a
 dropping it, because a Server Action that banks a shield and then reads the count back is real and
 is on Today. And **two answers that do not need each other are asked at once**, which is most of
 what was wrong: the four opening reads of Today were four `await`s in a row and are one `Promise.all`.
+That was fixed on Today and nowhere else, so the same shape sat on the learn page, the sprint, the
+exceptions round, the review queue's drills and the metrics route, eight pairs in all. It is
+asserted over every page and route now (`independentAwaits`): two neighbouring `await`s where the
+second never names what the first bound fail the invariants, drawn to miss rather than to fire,
+since only adjacent statements count and a nested callback is not a neighbour.
 
 **And what a page does not need before its first byte goes behind a `Suspense`.** The class board
 on Progress is four round trips to fill the last panel on a page of charts, so it streams in behind
@@ -7626,13 +7631,13 @@ break at the same midnight.
 **A hue has a fill and an ink, and that rule finally has something behind it.** It was in
 `docs/14-design-system.md` and in the design suite, which can only measure a state it can reach: six
 places were painting words in a hue's fill and the browser had seen none of them, because the two on
-`/week` and `/tasks` only render once a learner has set a class week and no fixture ever set one. The
-invariant reads the source instead and covers a `tone` prop as well as a `color`, because `Stat`
-takes a colour rather than a tone name, which is exactly how `/tasks` came to draw its "Known" figure
-in mint at 2.52:1 while `/week` drew the same figure correctly in the ink beside it. A line naming
-both, a fill for a bar and an ink for its label, is the pairing this protects rather than a breach of
-it. `scripts/demo-data.ts` now sets the week and the goal for the same reason: a rule enforced only
-where a fixture happens to walk holds on about half the app.
+`/week` and `/tasks`, both since cut, rendered only once a learner had set a class week and no
+fixture ever set one. The invariant reads the source instead and covers a `tone` prop as well as a
+`color`, because `Stat` takes a colour rather than a tone name, which is exactly how `/tasks` came
+to draw its "Known" figure in mint at 2.52:1 while `/week` drew the same figure correctly in the ink
+beside it. A line naming both, a fill for a bar and an ink for its label, is the pairing this
+protects rather than a breach of it. `scripts/demo-data.ts` sets the goal for the same reason: a
+rule enforced only where a fixture happens to walk holds on about half the app.
 
 **And the first run of the browser suites in a while found three things, one of them a screen that
 throws.** `/review/emoji` is a server component and imported `boardLead` from its own session, which
@@ -8160,8 +8165,8 @@ the next beat's line whatever the state machine had decided about the turn. `lib
 reads the response and the reading and answers as a person would: an acknowledgement then the
 move, `Ma ei saa aru` then the same question again, `Jah?` and a wait, the question again in
 Estonian for a turn in English. Every reaction is a lemma in `REACTIONS`, taught by units every
-scene declares, and the repair phrase is chosen on `reading === "unrecognised"` and nowhere else,
-asserted. Every beat carries `they`, what the other side does in English from their own side, and
+scene declares, and the repair phrase is chosen on the reading, a turn nobody could read
+(`unrecognised`) or the other side's own line handed back (`echo`), and nowhere else, asserted. Every beat carries `they`, what the other side does in English from their own side, and
 it is what the drafter and the composer are told they are doing: told the learner's `goal` instead,
 a model drafted the landlord asking the tenant when they planned to do the repairs. Fifteen such
 rows left the bank. And the curveballs are played: `raiseHurdle` stands one in front of its beat
