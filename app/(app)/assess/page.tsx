@@ -49,7 +49,9 @@ export default async function AssessPage({
         </Page>
       );
     }
-    return <AssessmentRunner items={paper.items} missing={paper.missing} />;
+    return (
+      <AssessmentRunner items={paper.items} missing={paper.missing} seed={paper.seed} builtAt={paper.builtAt} />
+    );
   }
 
   /*

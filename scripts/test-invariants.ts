@@ -5772,7 +5772,18 @@ check("a recording never moves a level", () => {
 
   // And nothing in the runner may score a recording either.
   const question = read("components/assessment/Question.tsx");
-  assert.match(question, /selfRating/, "the speaking answer stopped being self reported");
+  assert.match(
+    question.slice(question.indexOf("export function SpeakQuestion")),
+    /kind:\s*"rated"/,
+    "the speaking answer stopped being self reported",
+  );
+  // The rating is turned into a response by the one marker the server uses too,
+  // and a speaking item earns no credit there whatever was sent.
+  assert.match(
+    code("lib/assessment/score.ts"),
+    /credit:\s*item\.kind === "speak"[^,]*\?\s*0\s*:/,
+    "a speaking answer can carry credit once it is marked",
+  );
   assert.equal(
     /credit:\s*[^0\s]/.test(question.slice(question.indexOf("export function SpeakQuestion"))),
     false,
@@ -12048,23 +12059,54 @@ check("a finished sitting is bounded by the paper, not by a number typed twice",
     caps.includes("PAPER_SIZE"),
     "the posted paper is not bounded by PAPER_SIZE",
   );
-  for (const array of ["items:", "responses:"]) {
-    const at = body.indexOf(array);
-    assert.ok(at >= 0, `the sitting schema no longer names ${array}`);
-    const rest = body.slice(at);
-    const end = rest.indexOf("\n  responses:") > 0 && array === "items:" ? rest.indexOf("\n  responses:") : rest.length;
-    assert.match(
-      rest.slice(0, end),
-      /\.max\(PAPER_SIZE\)/,
-      `${array} in the sitting schema is capped at a literal rather than at the paper's own size, `
-      + "so a paper that outgrows it is rejected after the learner has already sat it",
-    );
-  }
+  assert.match(
+    body,
+    /answers:\s*z\.array\([\s\S]*\.max\(PAPER_SIZE\)/,
+    "the answers in the sitting schema are capped at a literal rather than at the paper's own size, "
+    + "so a paper that outgrows it is rejected after the learner has already sat it",
+  );
 
   assert.match(
     code("lib/assessment/items.ts"),
     /export const PAPER_SIZE = Object\.values\(BLUEPRINT\)/,
     "PAPER_SIZE stopped being derived from the blueprint, so it is a second number to keep in step",
+  );
+});
+
+check("a level check is marked on the server, never by the browser that sat it", () => {
+  /*
+    A RESULT ANYBODY CAN TYPE IS NOT A MEASUREMENT.
+
+    `recordAssessment` took a credit, a skill and a band per answer from the
+    browser and handed them to `placement()`, so a hand-made request could post
+    full credit everywhere or call an A1 question C1, and that level reached
+    Today, the plan and a sponsor's cohort view. It takes a seed and the raw
+    answers now, and `markSitting` rebuilds the paper and marks them with
+    `responseFor`, the function the runner marks with. This fails on the action
+    or its schema reading any of the three from its input again, and on the
+    runner or the server marking with anything but that one function.
+  */
+  const actions = code("app/actions.ts");
+  const schemaAt = actions.indexOf("const GIVEN = z.discriminatedUnion(");
+  const fnAt = actions.indexOf("export async function recordAssessment(");
+  assert.ok(schemaAt > 0 && fnAt > schemaAt, "the sitting schema or recordAssessment has moved");
+  const fnEnd = actions.indexOf("\n}\n", fnAt);
+  const region = actions.slice(schemaAt, fnEnd);
+  for (const field of ["credit", "skill", "band"]) {
+    assert.doesNotMatch(
+      region,
+      new RegExp(`\\b${field}\\b`),
+      `recordAssessment reads \`${field}\` from what the browser posted, so the browser decides the level`,
+    );
+  }
+  assert.match(region, /markSitting\(/, "recordAssessment no longer marks the sitting itself");
+
+  const progress = code("lib/progress/assessment.ts");
+  assert.match(progress, /responsesFrom\(paper\.items,/, "markSitting does not mark against the rebuilt paper");
+  assert.match(
+    code("components/assessment/AssessmentRunner.tsx"),
+    /responseFor\(/,
+    "the runner marks answers with something other than the function the server marks them with",
   );
 });
 
