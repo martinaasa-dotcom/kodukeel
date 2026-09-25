@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { prisma } from "@/lib/db";
-import { writeGrade } from "./grade";
+import { isRepeatedReview, stableReviewId, writeGrade } from "./grade";
 import { applyGradeBatch } from "./replay";
 
 /**
@@ -301,5 +301,36 @@ describe("the form a learner reached for instead", () => {
     expect(row.slot).toBe("ADESSIVE");
     expect(row.reachedSlot).toBe("ALLATIVE");
     expect(row.durationMs).toBe(4_100);
+  });
+});
+
+describe("a game round reported twice", () => {
+  it("writes one review and schedules the card once when the id is derived", async () => {
+    const card = await makeCard(new Date(Date.now() - 10 * 86_400_000));
+    const id = stableReviewId("sonad", OWNER, "2026-09-25", card.id);
+    const first = await writeGrade(OWNER, { card, rating: 3, durationMs: 0, reviewedAt: new Date(), reviewId: id });
+    // Refused on the key, or answered as already applied: either way nothing moves.
+    const again = await writeGrade(OWNER, { card, rating: 3, durationMs: 0, reviewedAt: new Date(), reviewId: id }).catch((e: unknown) => e);
+    if (again instanceof Error) expect(isRepeatedReview(again)).toBe(true);
+
+    expect(await prisma.review.count({ where: { ownerId: OWNER } })).toBe(1);
+    const stored = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(stored.reps).toBe(first.reps);
+  });
+
+  it("is two reviews without one, which is the fault the id closes", async () => {
+    const card = await makeCard(new Date(Date.now() - 10 * 86_400_000));
+    await writeGrade(OWNER, { card, rating: 3, durationMs: 0, reviewedAt: new Date() });
+    await writeGrade(OWNER, { card, rating: 3, durationMs: 0, reviewedAt: new Date() });
+    expect(await prisma.review.count({ where: { ownerId: OWNER } })).toBe(2);
+  });
+
+  it("derives a different id for another day, another card or another game", () => {
+    const base = stableReviewId("sonad", OWNER, "2026-09-25", "c1");
+    expect(stableReviewId("sonad", OWNER, "2026-09-25", "c1")).toBe(base);
+    expect(stableReviewId("sonad", OWNER, "2026-09-26", "c1")).not.toBe(base);
+    expect(stableReviewId("sonad", OWNER, "2026-09-25", "c2")).not.toBe(base);
+    expect(stableReviewId("crossword", OWNER, "2026-09-25", "c1")).not.toBe(base);
+    expect(base).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-8[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$/);
   });
 });

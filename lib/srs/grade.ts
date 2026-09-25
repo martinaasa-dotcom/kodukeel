@@ -1,5 +1,6 @@
 import type { Card } from "@prisma/client";
 
+import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { grade, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { isCaseSlot, isFormSlot, isKnownSlot } from "@/lib/srs/slots";
@@ -302,4 +303,26 @@ export function boundedRestoredReview(
     // tonight's closing round.
     receivedAt: null,
   };
+}
+
+/**
+ * A review id that is the same every time the same answer is reported.
+ *
+ * A game graded on the server (Sõnad, the crossword) is sent once from the
+ * board, and a round whose response never arrived is sent again the next time
+ * the board opens. Where the server had in fact written the grade, that resend
+ * was a second recall of the word in a table that is never repaired, and so was
+ * the same day's puzzle finished on a second device. Deriving the id from what
+ * the grade is about makes the second write collide on the primary key, which
+ * `writeGrade` does before it touches the card, so the card is scheduled once.
+ * Shaped like a uuid because every other review id is one.
+ */
+export function stableReviewId(...parts: readonly string[]): string {
+  const hex = createHash("sha256").update(parts.join("\u0000")).digest("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-8${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}
+
+/** Whether an error is the primary key refusing a review id already written. */
+export function isRepeatedReview(error: unknown): boolean {
+  return typeof error === "object" && error !== null && (error as { code?: unknown }).code === "P2002";
 }

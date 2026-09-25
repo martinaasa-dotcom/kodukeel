@@ -26046,6 +26046,29 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a game graded on the server writes one review however often its round is reported", () => {
+  /*
+    Sõnad and the crossword report a finished round once, and again the next
+    time the board opens if the response was lost, and again from a second
+    device. Each report was a fresh row in the append-only log and a second
+    scheduling of the card. The id is derived from the game, the day and the
+    card (`stableReviewId`), so the second write collides on the key before
+    `writeGrade` touches the card; `gradeOnce` is what reads that as done.
+  */
+  const actions = code("app/actions.ts");
+  for (const [name, game] of [["recordSonad", "sonad"], ["recordCrossword", "crossword"]] as const) {
+    const body = between(actions, `export async function ${name}(`);
+    assert.match(body, new RegExp(`gradeOnce\\([^;]*stableReviewId\\("${game}"`),
+      `${name} grades without an id derived from the round, so a resent round is a second review`);
+    assert.doesNotMatch(body, /\bgradeCard\(|\bgradeFor\(/, `${name} grades through a door that takes no derived id`);
+  }
+  const once = between(actions, "async function gradeOnce(");
+  assert.match(once, /isRepeatedReview\(/, "gradeOnce no longer reads a repeat as done");
+  const card = between(actions, "export async function gradeCard(");
+  assert.match(card, /return gradeFor\([^;]*\breviewId\b/,
+    "gradeCard drops the id the device chose, so a replayed grade is a second review");
+});
+
 check("a word-ordering tile does not say which tile goes first", () => {
   /*
     A sentence opens on a capital because it is first, and a tile keeping that
