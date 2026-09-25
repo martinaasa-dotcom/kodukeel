@@ -6181,6 +6181,23 @@ function ownerScopedModels(): string[] {
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
 
+check("a day argument is asked whether it is a string before its shape is", () => {
+  /*
+    `RegExp.test` converts its argument, so a one-element array passes a
+    date pattern exactly as the string inside it would, and an argument to a
+    server action is JSON off the wire. `recordSonad(["2026-09-24"], ...)`
+    passed the check and threw in the puzzle builder on `day.split`. Every
+    date pattern in app/actions.ts goes through `isDayKey`, which asks
+    `typeof` first, and nothing else tests the pattern directly.
+  */
+  const source = code("app/actions.ts");
+  assert.match(source, /function isDayKey\(value: unknown\): value is string \{\s*return typeof value === "string" &&/,
+    "isDayKey stopped asking whether the value is a string");
+  const direct = source.match(/\/\^\\d\{4\}-\\d\{2\}-\\d\{2\}\$\/\.test\(/g) ?? [];
+  assert.equal(direct.length, 1, `${direct.length} date patterns tested outside isDayKey in app/actions.ts`);
+  assert.ok((source.match(/\bisDayKey\(/g) ?? []).length >= 4, "the day arguments stopped going through isDayKey");
+});
+
 check("the actions that do real work per call are throttled", () => {
   /*
     Every mutation a learner makes here is a Server Action, which is a POST to
