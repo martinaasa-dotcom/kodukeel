@@ -475,4 +475,42 @@ export const A2 = [
       ["kestma", "to last, to go on"],
     ],
   }),
+  /*
+    The degree words `maaramine` had no room for. `npm run measure:scenes`
+    ranked all twelve among the commonest words the attested corpus needs and
+    no unit taught, and `maaramine` sits at the 24-word ceiling of an A1
+    sitting, so they are a unit of their own. A2 rather than A1, because A1
+    already has `väga`, `natuke` and `päris`, and these are the words that
+    come once somebody has something to qualify. Appended to the end of the
+    last A2 part, so no day id before it moves. Each is `ADVERB` for the
+    reason the connectives are: an Estonian adverb does not inflect, and the
+    label says which cards a word takes.
+  */
+  unit({
+    id: "kuivord",
+    title: "Kui väga",
+    subtitle: "How much you mean it",
+    icon: "Gauge",
+    level: "A2",
+    module: "Igapäevane suhtlus",
+    canDo: "Say how much you mean something: almost, at least, completely, a bit.",
+    blurb: "Small words that change how strongly a sentence says what it says.",
+    grammar: ["word-order"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["maaramine"],
+    words: [
+      ["täiesti", "completely", "ADVERB"],
+      ["üsna", "fairly, quite", "ADVERB"],
+      ["peaaegu", "almost", "ADVERB"],
+      ["veidi", "slightly", "ADVERB"],
+      ["pisut", "a bit", "ADVERB"],
+      ["vähe", "not much, little", "ADVERB"],
+      ["vähemalt", "at least", "ADVERB"],
+      ["hoopis", "instead, altogether", "ADVERB"],
+      ["ligi", "nearly (with a number)", "ADVERB"],
+      ["kõvasti", "a lot, hard", "ADVERB"],
+      ["üha", "more and more", "ADVERB"],
+      ["aina", "all the time", "ADVERB"],
+    ],
+  }),
 ] as const;
