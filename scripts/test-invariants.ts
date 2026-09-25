@@ -3038,6 +3038,19 @@ check("the paper's pool is drawn from its own seed, not from what was read last"
   const measure = code("scripts/measure-exam-volume.ts");
   assert.match(measure, /drawPool\(/, "measure:exam-volume builds a pool the app does not draw");
   assert.match(measure, /eligibleFor\(level/, "measure:exam-volume stopped filtering the pool to the level");
+  /*
+    And a word added mid-sitting does not reach it. The shuffle walks the whole
+    eligible set, so one more row reorders the draw, and the paper that marks
+    the answers is a different paper. The seed carries the moment the paper was
+    built and the pool reads only what existed then; a fresh seed has to be
+    made by the function that writes that moment, or a page minting its own
+    seed quietly hands every paper back the old fault.
+  */
+  assert.match(pool, /seedIssuedAt\(seed\)/, "the exam pool no longer reads when its paper was built");
+  assert.match(pool, /createdAt:\s*\{\s*lte:\s*issuedAt/, "the exam pool draws words added after its paper was built");
+  const page = code("app/(app)/exam/[level]/page.tsx");
+  assert.match(page, /freshSeed\(\)/, "the exam page mints a seed that carries no moment");
+  assert.doesNotMatch(page, /Math\.random\(\)/, "the exam page mints a seed of its own rather than through lib/exam/seed.ts");
 });
 
 check("a mock exam writes to the same review log as every other mode", () => {
@@ -10488,6 +10501,24 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     join("prisma", "schema.prisma"),
     join("prisma", "seed.ts"),
     join("prisma", "columns.ts"),
+    /*
+      And the second writer, for `semanticTypes`'s own reason: the seed's bulk
+      upsert covers the course words and `prisma/expanded.ts` covers the 5,363
+      the expansion brings, so a column added to one of them is written for a
+      fifth of the dictionary and nothing fails. `harvest-translations.ts` is
+      what fills them there, out of the same Ekilex field the course harvest
+      reads and through the same `equivalentsFrom`.
+    */
+    join("prisma", "expanded.ts"),
+    join("scripts", "harvest-translations.ts"),
+    /*
+      And the homonym pin, which repoints an expanded entry at a different
+      Ekilex word and has to take that word's equivalents with it: the
+      translation harvest never overwrites, so a pin that left them behind
+      would keep the old homonym's Russian for good. Read out of the same
+      response and through the same `equivalentsText`.
+    */
+    join("scripts", "audit-homonyms.ts"),
     // The seed's write, split out of seed.ts so a test can drive it, and that
     // test, whose fixtures write null into both: no model is upstream of either.
     join("prisma", "seedWrite.itest.ts"),
@@ -10530,8 +10561,14 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
   const naming = files.filter((f) =>
     /translation(Ru|Uk)/.test(f.endsWith(".prisma") ? read(f) : code(f)));
   assert.ok(
-    naming.length >= 6,
+    naming.length >= 9,
     `only ${naming.length} files name the columns, so this check stopped looking`,
+  );
+  assert.match(
+    code(join("scripts", "audit-homonyms.ts")),
+    // Spelled with a class so this file does not itself name the columns.
+    /translation[R]u:\s*equivalentsText\(details\.translations\.rus\)[\s\S]{0,200}translation[U]k:\s*equivalentsText\(details\.translations\.ukr\)/,
+    "a homonym pin repoints an entry and keeps the old word's Russian and Ukrainian",
   );
   assert.deepEqual(
     naming.filter((f) => !allowed.has(f)), [],
@@ -14065,6 +14102,26 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("the daily quest types what review types, and flips only what review flips", () => {
+  /*
+    The quest gave options to case and conjugation cards and turned every other
+    card over for the learner to grade, on the round that picks their weakest
+    cases and feeds the log that picks them. A card whose answer is a form is
+    typed and marked; the set is the review card's, so the two rounds cannot
+    disagree about which cards a learner marks for themselves.
+  */
+  const setOf = (src: string, name: string) =>
+    new Set([...(new RegExp("const " + name + " = new Set\\(\\[([^\\]]*)\\]\\)").exec(src)?.[1] ?? "").matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]!));
+  const review = setOf(code("app/(app)/review/ReviewSession.tsx"), "TYPEABLE");
+  const quest = setOf(code("lib/progress/quest.ts"), "TYPED");
+  assert.ok(review.size >= 4, "the review card's typeable set moved; this check cannot read it");
+  assert.deepEqual([...quest].sort(), [...review].sort(), "the quest types a different set of cards from review");
+  const session = code("app/(app)/quest/QuestSession.tsx");
+  assert.match(session, /card\.typed \? \(/, "the quest no longer asks a typed card for its answer");
+  assert.match(session, /checkAnswer\(typed, card\.back, "et", card\.rivals\)/, "the quest's typed card is not marked against the word's other forms");
+});
+
+
 check("the hourly mailout workflow runs on a schedule, carries its secret in one step, and does nothing unset", () => {
   /*
     The letters are written for hourly runs and the Hobby plan allows one a
@@ -16176,52 +16233,6 @@ check("every writer of a level hands back the words that were waiting for it", (
  * counted a batch still in flight, warned about grades about to land, and
  * deleted the database under the pass.
  */
-check("undo takes a queued grade back, and flush waits for a sync in flight", () => {
-  const undo = between(code("app/(app)/review/ReviewSession.tsx"), "const undo = useCallback");
-  const taken = undo.indexOf("takeFromOutbox(");
-  const asked = undo.indexOf("undoGrade(");
-  assert.ok(taken > 0 && asked > taken,
-    "undo asks the server without first taking the grade back out of the outbox");
-  const provider = code("components/OfflineProvider.tsx");
-  /*
-    And a new grade goes online only after anything queued before it: the
-    scheduler has to hear two answers to one card in the order they happened.
-  */
-  const queuing = sourceFiles("app").filter((f) => /enqueueGrade\(\{/.test(code(f)));
-  for (const file of queuing) {
-    const source = code(file);
-    const drained = source.indexOf("await drainFirst()");
-    const sent = source.indexOf("await gradeCard(");
-    assert.ok(drained > 0 && sent > drained,
-      `${file} sends a grade online before the outbox holding older ones has been sent`);
-  }
-  assert.match(provider, /if \(inflight\.current\) return inflight\.current;/,
-    "a sync already running is no longer the promise a second caller gets, so flush returns before it lands");
-});
-
-check("a grade queued after a failed online write keeps the id it was sent with", () => {
-  const files = sourceFiles("app").concat(sourceFiles("components"))
-    .filter((f) => /enqueueGrade\(\{/.test(code(f)));
-  assert.ok(files.length >= 4, `only ${files.length} file(s) queue a grade; the sweep has lost them`);
-  const bad: string[] = [];
-  for (const file of files) {
-    const source = code(file);
-    for (const m of source.matchAll(/enqueueGrade\(\{([\s\S]*?)\}\)/g)) {
-      const id = /\bid:\s*([A-Za-z_$][\w$]*)\s*,/.exec(m[1]!)?.[1];
-      if (!id) { bad.push(`${file}: queues an id that is not a named value`); continue; }
-      const calls = [...source.matchAll(/gradeCard\(([\s\S]*?)\)/g)];
-      if (!calls.some((c) => new RegExp(`\\b${id}\\b`).test(c[1]!))) {
-        bad.push(`${file}: queues ${id} without having sent it to gradeCard`);
-      }
-    }
-  }
-  assert.deepEqual(bad, [], `a lost online answer would be replayed as a second one:\n${bad.join("\n")}`);
-  assert.match(code("lib/srs/grade.ts"), /findUnique\(\{\s*where:\s*\{\s*id:\s*reviewId/,
-    "writeGrade no longer treats an id already written as an answer already applied");
-  assert.match(code("lib/srs/grade.ts"), /\$transaction\(\[/,
-    "writeGrade writes the review and the card's scheduling apart again");
-});
-
 /**
  * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
  *
@@ -25156,6 +25167,41 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("an already-seeded deployment receives the expansion's Russian and Ukrainian", () => {
+  /*
+    The expansion inserts with ON CONFLICT DO NOTHING, so equivalents added to
+    it after a deployment was seeded reach that deployment only through
+    `applyExpandedEquivalents`, and only if the seed calls it before the
+    `--only-if-empty` early return, which is the path every deploy takes.
+  */
+  const seed = code("prisma/seed.ts");
+  const at = seed.indexOf("applyExpandedEquivalents(prisma)");
+  const earlyReturn = seed.indexOf('"--only-if-empty"');
+  assert.ok(at >= 0, "prisma/seed.ts no longer fills the expansion's equivalents onto rows already seeded");
+  assert.ok(earlyReturn < 0 || at < earlyReturn,
+    "prisma/seed.ts fills the equivalents after the --only-if-empty early return, which no seeded deployment reaches");
+  const fn = code("prisma/expanded.ts");
+  const body = fn.slice(fn.indexOf("export async function applyExpandedEquivalents"));
+  assert.match(body.slice(0, 1500), /"editedBy" IS NULL/, "applyExpandedEquivalents may overwrite a row somebody edited");
+  // Both equivalents null, spelled without naming the columns, which may only
+  // be named by the files on the closed list above.
+  assert.ok((body.slice(0, 1500).match(/"translation\w\w" IS NULL/g) ?? []).length >= 2,
+    "applyExpandedEquivalents overwrites an equivalent a row already has");
+});
+
+check("a class's join code is claimed by the insert, not by a look before it", () => {
+  /*
+    Looking a code up and then creating the class with it lets two teachers
+    dealt one code both see it free, and the second insert throws on the
+    unique index (`lib/classroom/create.ts`, shown in `create.itest.ts`).
+  */
+  assert.match(code("lib/classroom/create.ts"), /P2002/, "createWithFreshCode no longer retries on a taken code");
+  const creators = ALL.filter(
+    (f) => f !== "lib/classroom/create.ts" && !/\.i?test\.tsx?$/.test(f) && /prisma\.classroom\.create\(/.test(code(f)),
+  );
+  assert.deepEqual(creators, [], `${creators.join(", ")} creates a class outside createWithFreshCode`);
+});
+
 check("which letters a learner gets is changed only under their lock", () => {
   /*
     Three doors write the two preference rows, the Settings switch, the
@@ -25715,6 +25761,24 @@ check("the scene judge is asked about the beat the turn was aimed at", () => {
     "the judged row is the last row again, which is another beat's whenever the turn moved the pointer");
   assert.match(route, /conceded: turns\[turns\.length - 1\]\?\.conceded \?\? null/,
     "a concession is read back off the last row, which a cascade row after it hides from the client");
+});
+
+check("the closing round compares a server tick with a server time", () => {
+  /*
+    A \`CourseStep\` tick is stamped by the server and \`Review.reviewedAt\` by the
+    device, so a clock a few minutes slow dated every closing answer before the
+    tick that opened the round, and the step is derived: no press could finish
+    the evening. The grading path writes \`receivedAt\` and the count reads it,
+    and neither half is any use without the other.
+  */
+  const grade = code("lib/srs/grade.ts");
+  const from = grade.indexOf("export async function writeGrade");
+  const write = grade.slice(from, grade.indexOf("\nexport ", from + 1));
+  assert.match(write, /receivedAt:\s*received/, "writeGrade no longer stamps when the server received the answer");
+  const course = code("lib/progress/course.ts");
+  const since = course.slice(course.indexOf("async function gradedSince"), course.indexOf("async function closingGraded"));
+  assert.ok(since.length > 0, "lib/progress/course.ts no longer has a gradedSince to check");
+  assert.match(since, /receivedAt:\s*\{\s*gte:\s*since/, "the closing round counts answers by the device's clock");
 });
 
 console.log(

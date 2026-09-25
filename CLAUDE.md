@@ -640,7 +640,7 @@ a table to build a screen out of that shows several days at once. The four that 
 four new A1 units are the reason the A1 tier grew rather than the A2 one, and they are the most
 errand-shaped thing the course teaches: a bus is a question asked of a stranger before you get on
 it, and introducing yourself cannot be rehearsed alone. None of the four names a scene, because
-none of the fourteen declares those units, and a rehearsal that could not vouch for the errand's
+none of the fifteen declares those units, and a rehearsal that could not vouch for the errand's
 words is a rehearsal of something else. What it needs before it grows again is somebody who knows
 how an Estonian counter actually works, in the shape `docs/20-contributed-sentences.md` already
 describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
@@ -1580,6 +1580,25 @@ Russian one and 1,165 a Ukrainian one, and it costs no extra request because the
 had the response. `Lexeme.translationRu` and `translationUk` hold them, `lib/collections/glossLanguage.ts`
 is the choice, and Settings is where it is made.
 
+**And the other four fifths were asked for the same field, off the same response.** The paragraph
+above is true of the 1,551 words a unit names and was false of the 5,363 the Wiktionary expansion
+adds, because the course harvest reads the equivalents out of a response it was already fetching
+and the expansion never asked. So a learner who looked up a course word was answered in the
+language they think in and one who stepped a word outside it was not, with nothing on the screen
+saying why, which is the seam a reader notices rather than a column nobody wrote.
+`npm run harvest:translations` is that question asked for the rest: every expanded entry already
+carries an `ekilexWordId`, so it is a re-fetch and a join rather than a translation, and all 5,363
+answered, 5,357 with a Russian equivalent and 3,350 with a Ukrainian one. **It adds and never
+overwrites**, since an entry the course harvest already answered for is the half a person has read,
+and two writers filling one column is where they stop agreeing. `equivalentsFrom` in
+`lib/ekilex/client.ts` is the one reading of that field now, for the live lookup, the course
+harvest and the script alike, and it takes **every** sense rather than the primary one, which is
+the opposite of `primarySemanticTypes` beside it and is deliberate: a later sense's Russian is more
+of the same fact where a later sense's semantic code is a wrong claim about the word. And the
+column went into **both** writers, which is `semanticTypes`'s own lesson repeated: `prisma/seed.ts`
+writes the course words and `prisma/expanded.ts` writes the rest, so a column added to one of them
+is written for a fifth of the dictionary and nothing fails.
+
 **The English never goes away, and that is what makes this safe.** This chooses what is printed
 *beside* the gloss, not instead of it: the authored English is the one column every entry has,
 Ekilex records an equivalent for the course and not for the Wiktionary expansion, and a card that
@@ -1615,6 +1634,36 @@ faults and only one is a missing unit: the untaught conjunctions and particles, 
 two rules above already say arrive with enrichment. A unit built off the total would have taught
 `oli` as a headword. `docs/21-situations.md` §26 has the measurements and §27 what
 building them turned up, which was three things nothing had been checking.
+
+**And the ranked list is three faults rather than one, which is why it is read rather than
+totalled.** Re-run after all of that, the commonest words nothing can vouch for are `olid`,
+`hakkas`, `alla`, `kinni`, `alles`, `kiiresti`, `umbes`, `üsna`. A unit built off the total would
+teach `oli` as a headword, because the list holds the untaught lemmas *and* the forms of verbs the
+course already teaches, the simple past and the impersonal that no rule reaches, *and* the news
+corpus's proper nouns, `vene`, `tartu`, `prantsuse`, `nr`. Only the first of the three is a missing
+unit, and what it names is two groups.
+
+**The first is the words the sentence builder moves, and the course taught 8 of the 32.**
+`lib/estonian/wordOrder.ts` stakes the whole ordering exercise on a list of particles, and
+`BUILD_FROM` is A2, so from the first ordering step a learner was being asked to move words nobody
+had shown them. They are also the half of an Estonian verb an English speaker cannot guess, since
+the particle is where the meaning is: `panen` is put and `panen kinni` is shut. `osakesed` is
+fourteen of them, and it is at A1 so that they are taught before the step that moves them.
+`viisisonad` is the other group and is `maaramine`'s missing half: that unit answers how much and
+how strongly and nothing answered **how**, which is where `kiiresti`, `tavaliselt`, `umbes` and
+`peaaegu` sit. Both are ADVERB requests for the connectives' own reason, none of them inflects, and
+all 31 came back from Ekilex with none dropped. Three homonyms were pinned rather than taken in
+silence: `alla` is the direction and not the mark in musical notation, `kaasa` is the particle and
+not the noun for a spouse, `umbes` is the approximation and not the adjective for blocked.
+
+**They are a seventh A1 part rather than two more units inside the sixth, and that is about the day
+ids.** `CourseStep` rows are keyed on a day id, so inserting a unit into the middle of a part moves
+every evening after it onto an id somebody's ticks already point at. Taking `abi`, which was the
+last unit of a1.6, and standing it at the end of a new a1.7 moves no evening anybody has reached:
+a1.6 keeps its own ids and stops three evenings earlier, the three that were `abi`'s go away rather
+than being renamed onto another lesson, and A1 still ends on asking for help. That is the cheap
+shape of a shift, and `course.test.ts` is what made the choice visible by naming every id that
+moved.
 
 **A homonym was reported on one path out of two.** The rule that a homonym is resolved by a person
 or reported, never guessed through, was written into the path that reads forms, and an uninflecting
@@ -1685,7 +1734,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,520 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,551 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1912,7 +1961,7 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
 word that inflects less. Asserted on the call in both builders. That is 1,767 forms across 378 of the
-1,520 course words. Four codes are nearly all of it, and the fact that they are the four is the
+1,551 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -5401,8 +5450,8 @@ start on rather than leaving it to be inferred, because the fallback would silen
 measured up to B1 in March the part they had not worked up to.
 
 **Deciding what to do tonight is the expensive part of an evening, and it was left to the one
-person least able to do it.** Everything this app can do is on a menu somewhere: 89 units, twenty
-rounds, fourteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to
+person least able to do it.** Everything this app can do is on a menu somewhere: 91 units, twenty
+rounds, fifteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to
 choose before they can start, and they do not yet know what they are missing. `lib/course/` is that
 choice made in advance. A day names its words and the order it does things in, the learner presses
 one button until the day says it is finished, and then it says so and stops: **"Today's module is
@@ -5415,7 +5464,7 @@ not want to choose no longer has to, and the work they do the other way still co
 
 **Seventeen parts, 182 evenings, every word of the syllabus.** A1.1 to C1.3, split where a change
 of subject falls rather than by arithmetic, ten to thirteen evenings each. Every one of the 1,363
-words in all 89 units is in exactly one evening of exactly one part, which is a stronger claim than
+words in all 91 units is in exactly one evening of exactly one part, which is a stronger claim than
 a hand-picked hundred: nothing in the course is unreachable to somebody who only ever presses the
 one button. An evening carries eight words at A1 and twelve at C1, because a beginner's eight words
 are eight new sounds and eight shapes they cannot guess, and a C1 learner meeting `hoolimata` has
@@ -5427,7 +5476,7 @@ that order into evenings. It chooses no word, no grammar page and no round: a un
 points it teaches in its own order, so an evening reads the next one along and `kus-ja-kuhu` over
 three nights opens three different case pages. What is decided by hand is the shape, where the parts
 break, how many words a night at each level, which rounds a level rotates through, and which of the
-fourteen conversations belongs to which unit. That division is what makes 182 evenings reviewable:
+fifteen conversations belongs to which unit. That division is what makes 182 evenings reviewable:
 the only things anybody has to read are seventeen part boundaries and five rotation lists.
 
 **The rotations alternate a game and a drill, and that is load-bearing rather than tidy.** Each
@@ -5437,12 +5486,12 @@ a fortnight of games teaches nothing. A unit that is mostly verbs takes the conj
 instead of the drill, worked out from the unit's own parts of speech rather than pinned by hand.
 
 **No conversation in the whole of A1, and that is a finding rather than an omission.** Every one of
-the fourteen scenes declares `korraldused` among the units it may draw on, which is asking, telling
+the fifteen scenes declares `korraldused` among the units it may draw on, which is asking, telling
 and offering, and it sits in A2: you cannot ask anybody for anything without it. It was found by
 asking the question mechanically, and `course.test.ts` is where the question lives, a scene is
 opened only once every unit it declares has been taught, checked over the whole ladder in order. It
 moved `korraldused` to the front of A2, since it is the unit that makes a conversation possible, and
-ten of the fourteen scenes fall in A2 as a result. A1 is where you get the words and A2 is where you
+ten of the fifteen scenes fall in A2 as a result. A1 is where you get the words and A2 is where you
 start using them on people; pretending otherwise would be the false confidence the readiness screen
 is built against.
 
@@ -6131,7 +6180,7 @@ the gloss of every word the app teaches. So every screen that prints a word over
 `august` and `August` to `sameSpelling` as one string, and five shipped entries printed "Spelled
 the same in English." instead of their gloss. **A word's capital is the language's rather than the
 app shouting**, and dropping it is this app correcting English and Estonian it did not write: 166
-shipped entries and 30 of the course's own 1,514 words were taught with a capital that is theirs
+shipped entries and 30 of the course's own 1,551 words were taught with a capital that is theirs
 removed, `aprill` as `april`, `esmaspäev` as `monday`, `jaanipäev` as `midsummer Day`, `mina` as
 `i`, and `Eesti` as `eesti`, which is a different word, the language rather than the country. That
 is the fault `lib/estonian/answer.ts` has a comment about, fixed in the marker and never in the
@@ -6313,7 +6362,7 @@ is not the app measures the harness.
 **And the two audits that ask whether a question is answerable read half the dictionary.** Both
 `npm run audit:questions` and `npm run audit:sense` opened `prisma/data/expanded.json` under a
 comment calling it "what the seed loads", and the seed loads that file *and*
-`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,153 entries against the expansion's 5,363,
+`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,190 entries against the expansion's 5,363,
 and 761 of the 1,514 course words are in no expansion row. `dictionaryRows` in
 `scripts/lib/dictionary.ts` is the one adapter both read now, over `shippedDictionary`, so there is
 still one merge: the harvest replaces a hand-typed entry and the expansion defers to one, which is
@@ -8193,6 +8242,28 @@ The other side repeats the learner's own word back before moving on, off `Eviden
 every line is spoken in the persona's voice. Fourteen scenes, and all fourteen play keyless from the
 first line to the debrief. `docs/21-situations.md` §32 has the table and what it does not fix.
 
+**And the fifteenth situation is a clothes shop, which is the first counter that asks a learner to
+describe something rather than name it.** Every other shop here is a transaction over a thing with
+a name: milk, a ticket, a prescription. `riidepood` asks for the noun and then two facts about it,
+a size and a colour, and then whether it fits, which is what `riided` claims a learner can do and
+what nothing rehearsed. The room needed no drawing, since the shop `poodi-piima` walks into is the
+same shop, and the errand was already written and pointing at nothing: `clothes` said "ask for a
+size or a colour in a shop" and named no scene.
+
+**What it could not declare is the word for "it fits", and that cost is stated rather than
+hidden.** `sobima` lives in `plaanid`, the last part of A2, and declaring that unit would push the
+conversation past every free evening before B1, which is a level and a half after the unit it
+rehearses. So the beat takes "too big", "too small" and "good", which is what a beginner says
+anyway. The drafter reached for `sobima` regardless, in 28 of the lines it wrote, and the gate
+withheld every one of them on vouching: §29's finding arriving live rather than in a measurement,
+that the course teaches the nouns of a situation and not the verbs that do things with them.
+
+**The price is the shop's and is said rather than handed over.** `theirs` on the prop and the beat
+that utters it, which `catalogue.test.ts` holds as a biconditional: a fact the other side says is
+off the learner's card and a fact nobody says is on it. That is also why this scene admits no
+`wrong-price`, since a learner who arrives knowing no price has none to be contradicted, and a
+curveball whose line names a slot the card never deals is a trap the same test refuses.
+
 **Seven more were written for the situations the purpose is measured on, and the bank is what
 made them a day's work rather than a project.** Forty-five of the course's claims are live
 exchanges and seven had a rehearsal. A pharmacy, a restaurant table, a shop rung before you go, the
@@ -8204,7 +8275,7 @@ lines or fails, and the 137 lines those seven and the two curveballs needed were
 through `npm run check:lines`, marked `authored` and `reviewed: false`, like the 53 before them. The
 two curveballs are `contradiction`, which was in the catalog and admitted by no scene, and
 `misheard`, admitted by one: both are admitted where the beat shape supports them now, and a
-curveball nobody admits is dead data. What the seven cannot do is what none of the fourteen can: a
+curveball nobody admits is dead data. What the seven cannot do is what none of the fifteen can: a
 native speaker has read none of the 296 lines, and that is the next thing the module needs.
 
 **An offer names a day, and a yes is an answer.** The landlord asked `Kas küte on katki?`, heard
@@ -11049,6 +11120,7 @@ npm run check:secrets    # fails if a credential reached the client bundle
 npm run db:seed          # reload the built-in dictionary
 npm run harvest          # re-ask Ekilex for the syllabus vocabulary (cached, needs EKILEX_API_KEY)
 npm run harvest:semantics # ask what kind of thing each word is, for the built dictionary (--write applies)
+npm run harvest:translations # ask for the Russian and the Ukrainian, for the built dictionary (--write applies)
 npm run build:frequency  # recount the commonest words (cached corpus, --refresh to re-fetch)
 npm run scenes:template  # write the spreadsheet a native speaker fills in, one sentence per scene
 npm run scenes:import    # read it back, gated word by word through the dictionary
