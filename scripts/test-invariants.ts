@@ -267,6 +267,18 @@ function impureChain(start: string, banned: RegExp): { chain: string | null; wal
   return { chain: null, walked };
 }
 
+/**
+ * The layers CLAUDE.md promises are pure: no React, no Next, no database, so
+ * the unit suite can import them hermetically. One list, because three checks
+ * each typed their own and they disagreed with each other and with CLAUDE.md,
+ * which still named `lib/gamification/` a year after it was deleted.
+ */
+const PURE_LAYERS = [
+  "assessment", "collections", "copy", "course", "email", "estonian", "exam", "funding", "games",
+  "learn", "offline", "questions", "random", "readiness", "research", "scan", "scenes", "security",
+  "stats", "time", "ux",
+] as const;
+
 const SCHEMA = read("prisma/schema.prisma");
 const CSS = read("app/globals.css");
 
@@ -4569,10 +4581,7 @@ check("the pure modules stay free of React, Next and Prisma", () => {
     These are the ones with unit tests around them, and a test is only cheap
     while the module under it can be imported without a framework.
   */
-  const pure = [
-    "assessment", "collections", "copy", "email", "estonian", "exam", "funding", "games",
-    "learn", "offline", "random", "research", "scan", "security", "stats", "time", "ux",
-  ];
+  const pure: readonly string[] = PURE_LAYERS;
   for (const file of LIB) {
     const area = file.split("/")[1];
     if (!pure.includes(area ?? "")) continue;
@@ -9627,11 +9636,7 @@ check("what is given to this app is credited rather than added to the bill", () 
  * nothing.
  */
 check("the layers that promise to be pure import no database, React or Next", () => {
-  const pure = [
-    "assessment", "estonian", "exam", "games", "stats", "collections", "time",
-    "offline", "security", "scan", "questions", "ux", "random", "copy", "funding", "research",
-    "learn", "scenes", "readiness",
-  ];
+  const pure = PURE_LAYERS;
   const banned = [
     [/from "@\/lib\/db"/, "the database"],
     [/from "@prisma\/client"/, "Prisma"],
@@ -9683,12 +9688,62 @@ check("the layers that promise to be pure import no database, React or Next", ()
  * before anything runs, so it is not followed: `import type` and
  * `export type` are the two spellings of that and the only ones skipped.
  */
+/**
+ * A PATH THE DOCUMENTATION NAMES IS A PATH THAT EXISTS.
+ *
+ * The data model page sent a reader to `docs/19-situations.md` for why a role
+ * card is fiction, and that file is `docs/21-situations.md`; the research export
+ * note named `lib/estonian/gradation`, which is a file with an extension. Both
+ * read as fine until somebody followed them. A backticked path is a claim a
+ * machine can check, so it is.
+ *
+ * A path that is named because it is gone (a deleted directory that may not come
+ * back, a code block a page used to show) is exempt by name with the reason, and
+ * the exemption is checked for staleness both ways: a path that exists again, or
+ * that no page names any more, fails until the line comes out.
+ */
+const GONE_ON_PURPOSE: Record<string, string> = {
+  "components/PracticeModes.tsx": "CLAUDE.md records it being deleted as the seventh copy of the practice modes",
+  "components/achievements/": "CLAUDE.md says it may not come back, with the badges",
+  "lib/achievements/": "CLAUDE.md says it may not come back, with the badges",
+  "lib/gamification/": "CLAUDE.md says it may not come back, with XP and the quests",
+  "lib/anu/client.ts": "docs/06-anu-tutor.md says the page used to show it and why it stopped",
+  "lib/copy/tour.ts": "CLAUDE.md records it going with /guide",
+};
+
+check("every path the documentation names exists, or is named because it is gone", () => {
+  const pages = ["CLAUDE.md", "README.md", "SECURITY.md", ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => join("docs", f))]
+    .filter((f) => existsSync(f));
+  const missing = new Map<string, string>();
+  const named = new Set<string>();
+  for (const page of pages) {
+    for (const m of prose(page).matchAll(/`((?:app|lib|components|scripts|prisma|docs|public)\/[^`\s*]+)`/g)) {
+      const path = m[1]!.replace(/[:#].*$/, "");
+      named.add(path);
+      if (!existsSync(path) && !(path in GONE_ON_PURPOSE)) missing.set(path, page);
+    }
+  }
+  assert.ok(named.size > 300, `only ${named.size} paths found in the documentation, so this stopped reading it`);
+  const stale = [...missing].map(([path, page]) => `${page} names ${path}`);
+  assert.deepEqual(stale, [], `the documentation names a path that does not exist: ${stale.join("; ")}`);
+  for (const path of Object.keys(GONE_ON_PURPOSE)) {
+    assert.ok(!existsSync(path), `${path} is exempt as gone and exists again; take it off GONE_ON_PURPOSE`);
+    assert.ok(named.has(path), `${path} is exempt as gone and no page names it any more; take it off GONE_ON_PURPOSE`);
+  }
+});
+
+check("CLAUDE.md names the pure layers the checks hold", () => {
+  const claude = read("CLAUDE.md");
+  const start = claude.indexOf("- `lib/assessment/`");
+  assert.ok(start >= 0, "CLAUDE.md's list of pure layers moved; point this at it");
+  const bullet = claude.slice(start, claude.indexOf("stay free of", start));
+  const named = [...bullet.matchAll(/`lib\/([a-z]+)\/`/g)].map((m) => m[1]!).sort();
+  assert.deepEqual(named, [...PURE_LAYERS].sort(), "CLAUDE.md and PURE_LAYERS name different pure layers");
+  for (const layer of PURE_LAYERS) assert.ok(existsSync(join("lib", layer)), `lib/${layer} is named pure and is not there`);
+});
+
 check("a pure layer reaches no database, React or Next, however many imports away", () => {
-  const pure = [
-    "assessment", "estonian", "exam", "games", "stats", "collections", "time",
-    "offline", "security", "scan", "questions", "ux", "random", "copy", "funding", "research",
-    "learn", "scenes", "readiness",
-  ];
+  const pure = PURE_LAYERS;
   const offenders: string[] = [];
   let walked = 0;
   for (const name of pure) {

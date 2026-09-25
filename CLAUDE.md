@@ -9344,17 +9344,22 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
-- `lib/assessment/`, `lib/estonian/`, `lib/exam/`, `lib/games/`, `lib/gamification/`,
-  `lib/stats/`, `lib/collections/`, `lib/time/`, `lib/offline/`, `lib/security/`, `lib/scan/`,
-  `lib/questions/`, `lib/ux/`, `lib/random/`, `lib/learn/`, `lib/funding/` and `lib/copy/` stay free of
-  React, Next.js and Prisma: pure functions, unit tested. Anything that
+- `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/email/`,
+  `lib/estonian/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
+  `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/scan/`, `lib/scenes/`,
+  `lib/security/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
+  however many imports away: pure functions, unit tested. Anything that
   needs the database lives in `lib/progress/` or a route. Asserted, because it
   had been prose alone and it is not a tidiness rule: the unit suite gates every
   commit on being hermetic, so one `import { prisma }` inside `lib/stats/` puts
   a database behind a function four hundred tests call, and the suite does not
   fail, it gets slower or it passes against whatever rows happen to be there.
   Each directory is checked to exist too, so a rename fails there rather than
-  quietly covering nothing.
+  quietly covering nothing, and this list is read back against `PURE_LAYERS` in
+  `scripts/test-invariants.ts`, because it named `lib/gamification/` for a year
+  after that directory was deleted and left three it was not naming. The
+  import graph is walked, not one file's own lines, which is the shape that let
+  `lib/estonian/passage.ts` reach Prisma through `lib/dict/search.ts`.
 - Data that drives UI but holds no JSX (path units, practice modes) carries a lucide icon *name*;
   `components/icons.tsx` is the only place that turns one into a component.
 - Settings go through `lib/settings/store.ts`. No new string keys scattered through pages. The five
