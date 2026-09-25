@@ -3,7 +3,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, MoreHorizontal, Moon, Sun, X } from "lucide-react";
-import { type CSSProperties, useCallback, useEffect, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { useDockClearance } from "@/lib/layout/dockClearance";
 import { useNavMarker } from "@/lib/layout/navMarker";
@@ -14,6 +14,7 @@ import { BAR, isUnder, LISTED, PLACES, SECTIONS, type Destination, type NavSecti
 import { NavMarker } from "@/components/NavMarker";
 import { Wordmark } from "@/components/brand";
 import { NamedIcon } from "@/components/icons";
+import { useModalFocus } from "@/components/useModalFocus";
 
 /**
  * The rail, and the phone bar under it.
@@ -58,6 +59,17 @@ export function Sidebar() {
   useDockClearance(bar);
 
   useEffect(() => setMoreOpen(false), [pathname]);
+
+  /*
+    The sheet takes the caret on the cross in its corner rather than on the
+    scrim, which is the first thing in it and is a close target with nothing to
+    read. Tab stays inside, and closing hands the caret back to More, which
+    stays on the bar the whole time.
+  */
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const sheetClose = useRef<HTMLButtonElement>(null);
+  const moreButton = useRef<HTMLButtonElement>(null);
+  useModalFocus(moreOpen, sheetRef, { initial: sheetClose, fallback: moreButton });
 
   // Escape closes the sheet. A sheet with no way out but a small X in its
   // corner is a sheet somebody taps around the edges of.
@@ -349,6 +361,7 @@ export function Sidebar() {
             goes somewhere, and this one deliberately does not carry it.
           */}
           <button
+            ref={moreButton}
             type="button"
             onClick={() => setMoreOpen(true)}
             aria-expanded={moreOpen}
@@ -373,6 +386,7 @@ export function Sidebar() {
 
       {moreOpen && (
         <div
+          ref={sheetRef}
           /*
             Above Anu's floating button, which sits at z-90 and was drawing on
             top of this sheet, and below the command palette at 120.
@@ -401,6 +415,7 @@ export function Sidebar() {
             <div className="mb-4 flex items-center justify-between">
               <span className="label-xs" style={{ color: "var(--ink-3)" }}>Everywhere else</span>
               <button
+                ref={sheetClose}
                 type="button"
                 onClick={() => setMoreOpen(false)}
                 aria-label="Close"

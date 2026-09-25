@@ -1,13 +1,14 @@
 "use client";
 
 import { fold } from "@/lib/estonian/fold";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { PRACTICE_MODES } from "@/lib/ux/modes";
 import { SECTIONS } from "@/lib/ux/nav";
 import { SHORTCUTS_EVENT } from "@/components/Shortcuts";
 import { KeyCap } from "@/components/ui";
+import { useModalFocus } from "@/components/useModalFocus";
 
 interface Command {
   id: string;
@@ -107,6 +108,8 @@ export function CommandPalette() {
   const [units, setUnits] = useState<Command[] | null>(unitCommands);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const listId = useId();
+  const optionId = (i: number) => `${listId}-${i}`;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -122,9 +125,10 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  useEffect(() => {
-    if (open) requestAnimationFrame(() => inputRef.current?.focus());
-  }, [open]);
+  // The caret goes to the box and back to wherever it was when ⌘K was
+  // pressed, which used to be the body: closing the palette sent a keyboard
+  // to the top of the page it had been working halfway down.
+  useModalFocus(open, dialogRef, { initial: inputRef });
 
   useEffect(() => {
     if (!open) return;
@@ -222,6 +226,18 @@ export function CommandPalette() {
 
   if (!open) return null;
 
+  /*
+    What the list now holds, said once it changes. The rows are a listbox the
+    caret never enters, so a screen reader hears the active one through
+    `aria-activedescendant` and would otherwise never hear that typing had
+    narrowed sixteen places to two, or to none. The dictionary row is always
+    there once something is typed and is not counted as a match.
+  */
+  const matched = query.trim() ? results.length - 1 : results.length;
+  const heard = matched === 0
+    ? "Nothing matches that. The dictionary can still look it up."
+    : `${matched} ${matched === 1 ? "match" : "matches"}.`;
+
   const go = (command: Command) => {
     setOpen(false);
     if (command.run) { command.run(); return; }
@@ -276,19 +292,30 @@ export function CommandPalette() {
             }}
             placeholder="Jump to a screen, or type a word to look up…"
             aria-label="Search commands and words"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={results.length > 0}
+            aria-controls={listId}
+            aria-activedescendant={results[active] ? optionId(active) : undefined}
             className="w-full bg-transparent text-base"
             style={{ color: "var(--ink)" }}
           />
           <KeyCap className="shrink-0">Esc</KeyCap>
         </div>
-        <ul className="scroll-host max-h-[52vh] py-1">
+        <p className="sr-only" role="status">{heard}</p>
+        <ul id={listId} role="listbox" aria-label="Results" className="scroll-host max-h-[52vh] py-1">
           {rows.map(({ command: c, index: i, heading }) => (
-            <li key={c.id}>
+            <li key={c.id} role="presentation">
+              {/* A listbox holds options and nothing else, so the heading is
+                  for the eye; the hint on each row says what it is. */}
               {heading && (
-                <p className="label-xs px-4 pb-1 pt-2.5" style={{ color: "var(--ink-3)" }}>{heading}</p>
+                <p aria-hidden className="label-xs px-4 pb-1 pt-2.5" style={{ color: "var(--ink-3)" }}>{heading}</p>
               )}
               <button
                 type="button"
+                id={optionId(i)}
+                role="option"
+                aria-selected={i === active}
                 // Keyboard focus never leaves the input: arrow keys move
                 // `active` and Enter selects it, the same combobox pattern
                 // the ARIA guide describes. Without this, Tab could land
@@ -311,12 +338,12 @@ export function CommandPalette() {
               </button>
             </li>
           ))}
-          {results.length === 0 && (
-            <li className="px-4 py-6 text-center text-sm" style={{ color: "var(--ink-3)" }}>
-              Nothing matches that.
-            </li>
-          )}
         </ul>
+        {results.length === 0 && (
+          <p aria-hidden className="px-4 py-6 text-center text-sm" style={{ color: "var(--ink-3)" }}>
+            Nothing matches that.
+          </p>
+        )}
       </div>
     </div>
   );
