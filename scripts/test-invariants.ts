@@ -267,6 +267,22 @@ check("no server component calls a function it imported from a client module", (
 
 // ── Never ship a credential to the client ────────────────────────────────────
 
+check("a small group names nobody by subtraction, to a member", () => {
+  /*
+    The counts a colleague sees name nobody, and in a group of three the
+    member's own band beside "1 on track" names the other person. The class
+    page's lesson plan is the same arithmetic in a class of two. So a member
+    sees the workplace counts only through `sharesCounts`, and the class-wide
+    cases are the teacher's.
+  */
+  const view = code("app/(app)/class/[classroomId]/WorkplaceView.tsx");
+  assert.match(view, /sharesCounts\(summary\.members\.length, sponsor\)/,
+    "the workplace tiles are shown to a member of a group small enough to subtract a colleague from");
+  const page = code("app/(app)/class/[classroomId]/page.tsx");
+  assert.match(page, /isTeacher && roster\.weakestCases\.length > 0/,
+    "the class-wide weakest cases are shown to a student, who in a small class can subtract their own");
+});
+
 check("no secret carries a NEXT_PUBLIC_ prefix", () => {
   const secrets = /NEXT_PUBLIC_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD)/g;
   for (const file of [...ALL, "middleware.ts", "next.config.ts", ".env.example"]) {
