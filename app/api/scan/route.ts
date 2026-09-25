@@ -174,7 +174,7 @@ export async function POST(request: Request) {
           "The page was read, but the dictionary could not be asked about the words " +
           "just now. Try the photo again in a moment.",
       },
-      { status: 503, headers: { "cache-control": "no-store" } },
+      { status: 503, headers: NO_STORE },
     );
   }
 
