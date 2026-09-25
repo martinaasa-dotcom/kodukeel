@@ -18,7 +18,6 @@
  * Local databases only, by the same guard as every other destructive script.
  */
 import { newPrismaClient } from "../lib/db";
-// @ts-expect-error - plain JS helper, shared with the .mjs end-to-end scripts.
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 
 const prisma = newPrismaClient(

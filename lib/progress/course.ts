@@ -332,9 +332,27 @@ async function metWords(ownerId: string, words: readonly string[]): Promise<bool
   return known === 0;
 }
 
-/** Answers graded since a moment, which is what the closing round counts. */
+/**
+ * Answers graded since a moment, which is what the closing round counts.
+ *
+ * The moment is a tick, and a tick is stamped by the server, so it is compared
+ * with the time the server received each answer rather than the time the
+ * device says it was given. Read against `reviewedAt`, a device clock a few
+ * minutes slow dated every closing answer before the tick that opened the
+ * round, and the step is derived, so no press anywhere could finish the
+ * evening. A row with no `receivedAt` was written before the column existed or
+ * restored from a file, and keeps the reading it always had.
+ */
 async function gradedSince(ownerId: string, since: Date): Promise<number> {
-  return prisma.review.count({ where: { ownerId, reviewedAt: { gte: since } } });
+  return prisma.review.count({
+    where: {
+      ownerId,
+      OR: [
+        { receivedAt: { gte: since } },
+        { receivedAt: null, reviewedAt: { gte: since } },
+      ],
+    },
+  });
 }
 
 /** How far into a day's closing round the learner is. Nought before it opens. */

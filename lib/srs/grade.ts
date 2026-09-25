@@ -98,7 +98,8 @@ export interface GradeWrite {
 /** Records the grade and returns the scheduling it wrote. */
 export async function writeGrade(ownerId: string, write: GradeWrite): Promise<SchedulingState> {
   const { card, rating, durationMs, reviewId } = write;
-  const at = reviewMoment(write.reviewedAt, card.createdAt, write.now ?? new Date());
+  const received = write.now ?? new Date();
+  const at = reviewMoment(write.reviewedAt, card.createdAt, received);
   const slot = slotFor(card, write.practisedSlot);
 
   /*
@@ -153,15 +154,11 @@ export async function writeGrade(ownerId: string, write: GradeWrite): Promise<Sc
           lexemeId: card.lexemeId,
           rating,
           reviewedAt: at,
-          /*
-            A duration is a number off a POST body: a NaN made the insert throw
-            and `1.5` reached an Int column as a fraction. Zero is what a round
-            that never timed an answer writes and what the pace reading filters
-            out, so an unreadable duration is recorded as none.
-          */
-          durationMs: Number.isFinite(durationMs)
-            ? Math.round(Math.min(Math.max(durationMs, 0), 600_000))
-            : 0,
+          receivedAt: received,
+          // A finite whole number of milliseconds: `Math.min`/`Math.max` pass NaN
+          // straight through and a fraction is refused by the Int column, so a
+          // client sending either got a database error instead of a row.
+          durationMs: Number.isFinite(durationMs) ? Math.round(Math.min(Math.max(durationMs, 0), 600_000)) : 0,
           stateBefore: card.state,
           targetCase: card.targetCase,
           slot,
@@ -286,5 +283,9 @@ export function boundedRestoredReview(
     // needs a slot on both sides: with no readable asked slot there is nothing
     // for a reached one to be different from.
     reachedSlot: slot ? reachedFor(slot, reached) : null,
+    // A restored row was not received now, and the file does not get to say it
+    // was: read as `receivedAt` it would count a backup's whole history towards
+    // tonight's closing round.
+    receivedAt: null,
   };
 }
