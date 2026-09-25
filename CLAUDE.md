@@ -1736,7 +1736,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,551 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,563 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1963,7 +1963,7 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
 word that inflects less. Asserted on the call in both builders. That is 1,767 forms across 378 of the
-1,551 course words. Four codes are nearly all of it, and the fact that they are the four is the
+1,563 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -6388,7 +6388,7 @@ is not the app measures the harness.
 **And the two audits that ask whether a question is answerable read half the dictionary.** Both
 `npm run audit:questions` and `npm run audit:sense` opened `prisma/data/expanded.json` under a
 comment calling it "what the seed loads", and the seed loads that file *and*
-`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,190 entries against the expansion's 5,363,
+`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,202 entries against the expansion's 5,363,
 and 761 of the 1,514 course words are in no expansion row. `dictionaryRows` in
 `scripts/lib/dictionary.ts` is the one adapter both read now, over `shippedDictionary`, so there is
 still one merge: the harvest replaces a hand-typed entry and the expansion defers to one, which is
