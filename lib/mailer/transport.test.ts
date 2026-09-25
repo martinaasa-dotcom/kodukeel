@@ -1,39 +1,73 @@
 import { describe, expect, it } from "vitest";
-
 import { send, type Envelope, type MailerConfig } from "./transport";
 
 const envelope: Envelope = {
-  to: "someone@example.com", subject: "Tonight", html: "<p>x</p>", text: "x",
-  oneClickUrl: "https://example.com/u",
+  to: "learner@example.com",
+  subject: "Tonight",
+  html: "<p>hi</p>",
+  text: "hi",
+  oneClickUrl: "https://kodukeel.ee/u/x",
 };
-const config: MailerConfig = { apiKey: "test", from: "K <k@example.com>", replyTo: null, host: "example.com" };
+const config: MailerConfig = { apiKey: "k", from: "Kodukeel <hei@kodukeel.ee>", replyTo: null, host: "kodukeel.ee" };
 
-const answering = (status: number) =>
-  (async () => new Response(JSON.stringify({ name: "error" }), { status })) as unknown as typeof fetch;
+/** A fetch that answers every request with one Resend error body. */
+function answering(status: number, body: unknown): typeof fetch {
+  return (async () =>
+    new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } })) as typeof fetch;
+}
 
-describe("send", () => {
-  /*
-    A refusal marked as the address's fault stops that learner being mailed
-    until they change it. A 400 is a request the provider could not read,
-    which is a fact about this deployment (a malformed sender, a subject it
-    rejects), and read as a dead address it blocked every learner the run
-    reached on the one day a setting was wrong.
-  */
-  it("does not blame the address for a request the provider could not read", async () => {
-    const result = await send(envelope, config, answering(400));
-    expect(result.ok).toBe(false);
-    expect(!result.ok && result.badAddress).toBe(false);
+async function badAddress(status: number, body: unknown): Promise<boolean> {
+  const result = await send(envelope, config, answering(status, body));
+  if (result.ok) throw new Error("expected a failure");
+  return result.badAddress;
+}
+
+describe("a refusal blocks the address only when it names the recipient", () => {
+  it("a sender domain nobody verified is the operator's, not the learner's", async () => {
+    expect(
+      await badAddress(422, {
+        statusCode: 422,
+        name: "validation_error",
+        message: "The kodukeel.ee domain is not verified. Please, add and verify your domain on https://resend.com/domains",
+      }),
+    ).toBe(false);
+    expect(
+      await badAddress(403, {
+        statusCode: 403,
+        name: "validation_error",
+        message: "The gmail.com domain is not verified. Please, add and verify your domain.",
+      }),
+    ).toBe(false);
   });
 
-  it("blames the address where the provider refused the recipient", async () => {
-    const result = await send(envelope, config, answering(422));
-    expect(!result.ok && result.badAddress).toBe(true);
+  it("a malformed from, a missing field or an unreadable request does not block anybody", async () => {
+    expect(
+      await badAddress(422, {
+        name: "validation_error",
+        message: "Invalid `from` field. The email address needs to follow the `email@example.com` or `Name <email@example.com>` format.",
+      }),
+    ).toBe(false);
+    expect(
+      await badAddress(422, { name: "missing_required_field", message: "Missing `subject` field." }),
+    ).toBe(false);
+    expect(await badAddress(400, { name: "validation_error", message: "An error was found with one or more fields in the request." })).toBe(false);
+    expect(await badAddress(422, "<html>not json</html>")).toBe(false);
   });
 
-  it("never blames the address for a rate limit or an outage", async () => {
-    for (const status of [429, 500, 503]) {
-      const result = await send(envelope, config, answering(status));
-      expect(!result.ok && result.badAddress).toBe(false);
-    }
+  it("a recipient the provider refuses still blocks", async () => {
+    expect(
+      await badAddress(422, {
+        statusCode: 422,
+        name: "validation_error",
+        message: "Invalid `to` field. The email address needs to follow the `email@example.com` or `Name <email@example.com>` format.",
+      }),
+    ).toBe(true);
+    expect(await badAddress(400, { name: "validation_error", message: "Invalid `to` field." })).toBe(true);
+  });
+
+  it("a status that is not a refusal of the request never blocks, whatever the message says", async () => {
+    expect(await badAddress(429, { name: "rate_limit_exceeded", message: "Invalid `to` field." })).toBe(false);
+    expect(await badAddress(500, { name: "application_error", message: "Invalid `to` field." })).toBe(false);
+    expect(await badAddress(403, { name: "validation_error", message: "Invalid `to` field." })).toBe(false);
   });
 });

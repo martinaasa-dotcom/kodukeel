@@ -90,17 +90,35 @@ export function mailerConfig(): MailerConfig | null {
  * Whether a provider's refusal is about the address.
  *
  * Drawn narrowly and erring toward "not the address", because the cost is
- * asymmetric: reading a temporary failure as a dead address stops mailing
- * somebody who is perfectly reachable, and reading a dead address as a blip
- * costs one more attempt. A 422 from Resend is a malformed or refused
- * recipient; a 5xx is theirs and a 429 is a rate limit. A 400 is a request
- * the provider could not read, which is about this deployment (a malformed
- * sender, a subject it rejects) and was read as a dead address: one bad
- * setting then blocked every learner the run reached until they changed
- * address.
+ * asymmetric and far worse than it looks: a refusal read as a dead address
+ * writes `emailUndeliverable` and that learner is never mailed again, so a
+ * refusal that is really about *this deployment* is read once per learner the
+ * run reaches and blocks every one of them, permanently, over one setting.
+ *
+ * The status alone cannot tell the two apart. Resend answers 400 and 422 with
+ * `validation_error` for a sender it will not send from (an unverified `from`
+ * domain, a malformed `from`), for a missing field, and for a malformed
+ * recipient alike, and its published error table (resend.com/docs/api-reference/
+ * errors, read 2026-09-25) names no error specific to the recipient. What does
+ * tell them apart is the message, which names the field it refused: a bad
+ * recipient reads "Invalid `to` field. ...". So an address is the problem only
+ * where the status is a refusal of the request and the message names the `to`
+ * field and nothing about the sender. A 403 never is: it is the key, the plan
+ * or the sandbox ("You can only send testing emails to your own email
+ * address"), all of them the operator's. A 5xx is theirs and a 429 is a rate
+ * limit. A body that is not the shape Resend documents is not evidence.
  */
-function addressIsTheProblem(status: number): boolean {
-  return status === 422;
+function addressIsTheProblem(status: number, detail: string): boolean {
+  if (status !== 400 && status !== 422) return false;
+  let message = "";
+  try {
+    const body = JSON.parse(detail) as { message?: unknown } | null;
+    if (typeof body?.message === "string") message = body.message;
+  } catch {
+    return false;
+  }
+  if (/`?from`?\s+field|domain|sender/i.test(message)) return false;
+  return /`to`|\bto\s+field\b|recipient/i.test(message);
 }
 
 export async function send(
@@ -166,7 +184,7 @@ export async function send(
     return {
       ok: false,
       reason: `${response.status} ${detail.slice(0, 200)}`.trim(),
-      badAddress: addressIsTheProblem(response.status),
+      badAddress: addressIsTheProblem(response.status, detail),
     };
   }
 
