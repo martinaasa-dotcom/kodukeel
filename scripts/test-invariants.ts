@@ -5738,15 +5738,6 @@ check("a government question never offers a case the word itself governs", () =>
 });
 
 /**
- * The other half of the same question: it says "the verb", so it asks a verb.
- *
- * The dictionary records a government for 36 nouns and 12 adjectives too, and
- * they are real: `osa` takes the partitive and the elative. But the task is
- * titled "Which case does the verb take?", and asking that about a noun is a
- * question worded as a fact the entry does not support. The review drill has
- * filtered on part of speech since it was written; the exam builder never did.
- */
-/**
  * A government question's cue is masked by position, and position is only a
  * promise about one kind of sentence.
  *
@@ -5771,18 +5762,26 @@ check("a government cue is masked only from the entry's own example", () => {
     [],
     `${masking.join(", ")} masks a sentence by position; use governmentCue, which only masks the entry's own example`,
   );
-  const shipped = (JSON.parse(read("prisma/data/expanded.json")) as { pos: string; government: string | null }[])
-    .filter((e) => e.pos === "VERB" && e.government)
-    .map((e) => parseGovernment(e.government))
-    .filter((g): g is Government => g !== null);
-  assert.ok(shipped.length > 100, `expected the governed verbs, found ${shipped.length}`);
-  for (const g of shipped) {
-    const cue = governmentCue(g);
-    if (cue === null) continue;
-    assert.ok(g.example && !g.experiencer, `a cue was built for ${g.caseKey} with no example of its own`);
-  }
+  /*
+    The rule itself, probed. A loop over the shipped verbs cannot fail today,
+    because none carries an example of its own and every cue comes back null;
+    these ask the three cases the function exists to decide.
+  */
+  assert.equal(governmentCue({ example: null, experiencer: false }), null, "a cue was built with no example of the entry's own");
+  assert.equal(governmentCue({ example: "aa bb cc", experiencer: true }), null, "a cue was built for an experiencer, whose governed word leads");
+  const cue = governmentCue({ example: "aa bb cc", experiencer: false });
+  assert.ok(cue !== null && !cue.includes("cc"), `the entry's own example came back unmasked: ${cue}`);
 });
 
+/**
+ * The other half of the same question: it says "the verb", so it asks a verb.
+ *
+ * The dictionary records a government for 36 nouns and 12 adjectives too, and
+ * they are real: `osa` takes the partitive and the elative. But the task is
+ * titled "Which case does the verb take?", and asking that about a noun is a
+ * question worded as a fact the entry does not support. The review drill has
+ * filtered on part of speech since it was written; the exam builder never did.
+ */
 check("a question that says \"the verb\" is asked about a verb", () => {
   for (const file of ["lib/exam/paper.ts", "app/(app)/review/government/page.tsx"]) {
     const source = code(file);

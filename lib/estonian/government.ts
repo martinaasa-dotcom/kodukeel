@@ -286,11 +286,6 @@ const FALLBACK: readonly CaseKey[] = [
 ];
 
 /**
- * Blanks the governed word in the example so it can be shown as a cue without
- * giving the answer away. Falls back to hiding nothing rather than mangling a
- * sentence it cannot parse.
- */
-/**
  * The cue a government question may print before it is answered, or null.
  *
  * `maskExample` hides a word by its position, which is only safe on the one
@@ -317,6 +312,11 @@ export function governmentCue(
   return maskExample(example);
 }
 
+/**
+ * Blanks the governed word in the example so it can be shown as a cue without
+ * giving the answer away. Falls back to hiding nothing rather than mangling a
+ * sentence it cannot parse.
+ */
 export function maskExample(example: string | null): string | null {
   if (!example) return null;
   const words = example.trim().split(/\s+/);
