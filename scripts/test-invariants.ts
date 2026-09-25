@@ -4640,6 +4640,32 @@ check("the smallest step on the scale is one a reader can actually see", () => {
   assert.deepEqual(out.map((s) => s.name), [], "a step on the scale is not larger than the one below it");
 });
 
+check("an empty cell goes through NO_VALUE, never a literal", () => {
+  /*
+    THIS HAS GONE WRONG TWICE, THE SAME WAY, AND THE COPY GUARD CANNOT SEE IT.
+
+    Ten call sites used an em dash to mean "no value here". A mechanical sweep
+    of reader copy cannot tell that from a dash used as punctuation, so both
+    times it rewrote them into `", "`: a bare comma sitting in a table of forms
+    where a form should be. `readerCopy.test.ts` passes on that happily,
+    because a comma is not a dash, which is exactly why the rule needs its own
+    assertion rather than relying on the other one.
+
+    Anything that renders a placeholder reads it from `lib/copy/values.ts`.
+  */
+  const literals = /(\?\?|\|\||\?)\s*["'`](\s*[,.\u2013\u2014-]\s*)["'`]/;
+  const offenders: string[] = [];
+  for (const file of [...APP, ...COMPONENTS]) {
+    for (const [i, line] of read(file).split("\n").entries()) {
+      if (literals.test(line)) offenders.push(`${file}:${i + 1}: ${line.trim().slice(0, 70)}`);
+      if (/>\s*[,\u2013\u2014]\s*<\/(span|td)>/.test(line)) {
+        offenders.push(`${file}:${i + 1}: ${line.trim().slice(0, 70)}`);
+      }
+    }
+  }
+  assert.deepEqual(offenders, [], "a placeholder is typed in rather than read from NO_VALUE");
+});
+
 /**
  * A count that can be one says so in the singular.
  *
@@ -4678,32 +4704,6 @@ check("a count that can be one is said in the singular", () => {
   assert.deepEqual(offenders, [], `${offenders.join(", ")} prints a count before a plural noun; use counted`);
   const stale = Object.keys(PLURAL_COUNT_EXEMPT).filter((file) => !found.has(file));
   assert.deepEqual(stale, [], `${stale.join(", ")} is exempt and no longer prints such a count`);
-});
-
-check("an empty cell goes through NO_VALUE, never a literal", () => {
-  /*
-    THIS HAS GONE WRONG TWICE, THE SAME WAY, AND THE COPY GUARD CANNOT SEE IT.
-
-    Ten call sites used an em dash to mean "no value here". A mechanical sweep
-    of reader copy cannot tell that from a dash used as punctuation, so both
-    times it rewrote them into `", "`: a bare comma sitting in a table of forms
-    where a form should be. `readerCopy.test.ts` passes on that happily,
-    because a comma is not a dash, which is exactly why the rule needs its own
-    assertion rather than relying on the other one.
-
-    Anything that renders a placeholder reads it from `lib/copy/values.ts`.
-  */
-  const literals = /(\?\?|\|\||\?)\s*["'`](\s*[,.\u2013\u2014-]\s*)["'`]/;
-  const offenders: string[] = [];
-  for (const file of [...APP, ...COMPONENTS]) {
-    for (const [i, line] of read(file).split("\n").entries()) {
-      if (literals.test(line)) offenders.push(`${file}:${i + 1}: ${line.trim().slice(0, 70)}`);
-      if (/>\s*[,\u2013\u2014]\s*<\/(span|td)>/.test(line)) {
-        offenders.push(`${file}:${i + 1}: ${line.trim().slice(0, 70)}`);
-      }
-    }
-  }
-  assert.deepEqual(offenders, [], "a placeholder is typed in rather than read from NO_VALUE");
 });
 
 check("the app drops a capital only where the capital is its own to drop", () => {
