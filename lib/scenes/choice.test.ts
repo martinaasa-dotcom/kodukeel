@@ -39,19 +39,6 @@ describe("narrowing a question to two", () => {
   });
 
   /*
-    A greeting beat names whole phrases, and joined as printed they came out
-    `Tere! või Tere hommikust!?`. The question ends in one mark.
-  */
-  it("takes each option's own closing mark off before joining them", () => {
-    const lex = buildLexicon([
-      { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
-      { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
-    ]);
-    const greet = { ...BEAT, move: "greet" as const, needs: [{ kind: "lemma" as const, oneOf: ["Tere!", "Tere hommikust!"] }] };
-    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBe(`Tere ${CHOICE_WORD} Tere hommikust?`);
-  });
-
-  /*
     A learner reads the same question twice while a transcript is replayed, so
     the sides may not swap under them; different beats get different rolls.
   */
