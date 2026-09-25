@@ -34,6 +34,16 @@ describe("answerTimeReading", () => {
     expect(reading.medianMs).toBe(2000);
   });
 
+  it("holds the accuracy floor to the share rather than to the rounded figure", () => {
+    // 35 of 44 is 79.5 percent, which prints as 80 and is under the floor.
+    const reading = answerTimeReading([
+      ...timed("NOMINATIVE", 44, 35, 9000),
+      ...timed("INESSIVE", 60, 60, 1000),
+    ]);
+    expect(reading.slots.find((s) => s.slot === "NOMINATIVE")?.accuracy).toBe(FLUENT_ACCURACY);
+    expect(reading.slow.map((s) => s.slot)).not.toContain("NOMINATIVE");
+  });
+
   it("says nothing about a slot one answer short of the floor", () => {
     expect(answerTimeReading(timed("INESSIVE", MIN_TIMED - 1, MIN_TIMED - 1, 2000)).slots).toEqual([]);
   });

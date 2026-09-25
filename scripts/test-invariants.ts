@@ -861,10 +861,15 @@ check("the mock paper's minutes and marks are the ones the exam doc cites", () =
 check("every rate is the one clip stretched in one place, and every clip is prepared before it is kept", () => {
   const route = code("app/api/tts/route.ts");
   assert.doesNotMatch(route, /\bspeed\b/, "the speech route is asking the model to slow down again");
-  assert.match(route, /prepareClip\(raw\)/, "the route stopped calling prepareClip on what the service sent");
+  assert.match(route, /clipForStore\(raw\)/, "the route stopped preparing what the service sent");
+  assert.match(code("lib/audio/wav.ts"), /export function clipForStore[\s\S]*?prepareClip\(bytes\)/,
+    "clipForStore stopped preparing the clip it decides about");
+  // A body nothing could read is spoken once and never kept: the store answers first.
+  assert.match(route, /if \(prepared\.keep\) await writeAudio\(/, "the route writes a clip it could not read to the shared store");
+  assert.equal((route.match(/writeAudio\(/g) ?? []).length, 1, "a second write to the audio store in the speech route");
   assert.match(
     route,
-    /const audio = Buffer\.from\(prepare\(raw\)\);[\s\S]{0,200}writeAudio\(hash, audio\)/,
+    /const audio = Buffer\.from\(prepared\.audio\);[\s\S]{0,300}writeAudio\(hash, audio\)/,
     "a clip reaches the cache without going through prepareClip",
   );
   const player = code("lib/audio/clip.ts");
@@ -1184,6 +1189,28 @@ check("Ekilex's Estonian explanation has a column of its own", () => {
       + "every word Ekilex has no explanation for, erasing whatever the live "
       + "lookup had fetched",
   );
+});
+
+check("a full reseed replaces only principal parts, and never a hand-corrected entry", () => {
+  /*
+    `npm run db:seed` without `--only-if-empty` is what the production reload
+    workflow runs, and it deleted every form on every row it matched: the
+    table a live Ekilex lookup had retrieved went with it, and a row somebody
+    corrected by hand had its gloss and principal parts put back to the seed's.
+    The same rule `lib/dict/upsert.ts` keeps for a hand edit. Driven against a
+    database in `prisma/seedWrite.itest.ts`; this holds the two lines.
+  */
+  const write = code("prisma/seedWrite.ts");
+  const deletes = [...write.matchAll(/form\.deleteMany\(\{[\s\S]*?\}\s*\)/g)].map((m) => m[0]);
+  assert.ok(deletes.length > 0, "prisma/seedWrite.ts no longer deletes the forms it replaces; the check is looking at the wrong file");
+  for (const d of deletes) {
+    assert.match(d, /formType:\s*\{\s*in:\s*\[\.\.\.PRINCIPAL_FORM_TYPES\]/,
+      "the seed deletes forms beyond the principal parts, which takes the forms a live Ekilex lookup retrieved");
+  }
+  assert.match(write, /ON CONFLICT \(lemma, pos\) DO UPDATE SET[\s\S]*?WHERE "Lexeme"\."editedBy" IS NULL[\s\S]*?RETURNING/,
+    "the seed's upsert overwrites an entry somebody corrected by hand");
+  assert.doesNotMatch(code("prisma/seed.ts"), /form\.deleteMany/,
+    "prisma/seed.ts deletes forms itself rather than through writeSeedEntries");
 });
 
 check("a principal part is one form, whatever Ekilex sends", () => {
@@ -2049,7 +2076,7 @@ check("a lesson at A1 asks only about words the course has taught", () => {
     nothing about it.
   */
   assert.match(
-    read("lib/collections/lesson.ts"),
+    code("lib/collections/lesson.ts"),
     /\n {2}taughtWords: ReadonlySet<string> \| null;/,
     "LessonInput.taughtWords stopped being required, so a lesson can be planned without asking what has been taught",
   );
@@ -2719,7 +2746,7 @@ check("a review is only ever deleted by something the learner asked for", () => 
   const actions = read("app/actions.ts");
   assert.match(
     actions,
-    /confirmation\.trim\(\)\.toLowerCase\(\) !== "delete"/,
+    /(?:text\(confirmation\)|confirmation)\.trim\(\)\.toLowerCase\(\) !== "delete"/,
     "account deletion no longer asks the learner to confirm",
   );
   assert.match(actions, /mode === "replace"/, "the restore no longer guards on an explicit replace");
@@ -2736,11 +2763,10 @@ check("a grade made offline keeps the time it was actually answered", () => {
     reviews all happened at breakfast, which is worse than losing them: FSRS
     would fit its intervals to a history that never happened.
   */
-  const outbox = read("lib/offline/outbox.ts");
-  assert.match(outbox, /reviewedAt/, "the queue no longer records when a grade was made");
+  assert.match(code("lib/offline/outbox.ts"), /reviewedAt/, "the queue no longer records when a grade was made");
   // Clamped in *both* directions: a device clock set ahead would schedule a card
   // into the past, and one set years back would blow up the card's stability.
-  assert.match(outbox, /clampReviewedAt/, "the queue no longer clamps a device clock");
+  assert.match(code("lib/offline/outbox.ts"), /clampReviewedAt/, "the queue no longer clamps a device clock");
 
   const replay = read("lib/srs/replay.ts");
   assert.equal(
@@ -2748,7 +2774,7 @@ check("a grade made offline keeps the time it was actually answered", () => {
     false,
     "the replay re-stamps a grade",
   );
-  assert.match(replay, /orderForReplay/, "the replay no longer applies grades in the order they happened");
+  assert.match(code("lib/srs/replay.ts"), /orderForReplay/, "the replay no longer applies grades in the order they happened");
 });
 
 // ── Progress is derived, never stored (ADR-014) ──────────────────────────────
@@ -3028,6 +3054,24 @@ check("a mock exam writes to the same review log as every other mode", () => {
     false,
     "submitExam writes Review rows directly instead of going through the grade path",
   );
+  /*
+    EVERY GRADE THE PAPER EARNED, NOT THE FIRST FIFTY.
+
+    `applyGradeBatch` refuses more than `REPLAY_BATCH` items, and submitExam met
+    that by slicing `gradesFrom` to fifty. A B2 paper carries up to 54 items
+    built on a card and a C1 paper 60, one word each, so a learner holding
+    those words had the tail of the paper, which is the reading part since
+    marks are flattened in the order the parts are sat, dropped from the log in
+    silence. The batch is sent in pieces instead.
+  */
+  const submitCode = code("app/actions.ts");
+  const body = submitCode.slice(submitCode.indexOf("export async function submitExam"));
+  const own = body.slice(0, body.indexOf("\nexport ", 1));
+  assert.equal(
+    /gradesFrom\([^)]*\)\s*\.slice\(/.test(own),
+    false,
+    "submitExam truncates the paper's grades to one batch",
+  );
 });
 
 check("nothing about the mock exam decides an answer with a model", () => {
@@ -3168,7 +3212,7 @@ check("nothing about an individual survives into the metrics", () => {
   const route = read("app/api/metrics/route.ts");
   // The route groups by owner and must, so what is checked is that it never
   // hands one onward: the grouped rows are reduced to activity before use.
-  assert.match(route, /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
+  assert.match(code("app/api/metrics/route.ts"), /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
   assert.doesNotMatch(
     route,
     /NextResponse\.json\([^)]*ownerId/s,
@@ -3586,8 +3630,7 @@ check("a word read off a photograph reaches a card only through the dictionary",
   const route = read("app/api/scan/route.ts");
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
 
-  const resolver = read("lib/dict/resolveScan.ts");
-  assert.match(resolver, /matchEstonianForm/, "the resolver stopped using the vouched matcher");
+  assert.match(code("lib/dict/resolveScan.ts"), /matchEstonianForm/, "the resolver stopped using the vouched matcher");
 
   const search = read("lib/dict/search.ts");
   assert.match(
@@ -4458,7 +4501,10 @@ check("the chat says which model actually replied", () => {
 });
 
 check("Anu's prose is cleaned on its way to the learner", () => {
-  assert.match(read("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
+  assert.match(code("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
+  // Anchored on the construction in code, not the word: the route's own
+  // comment names ProseStream, and that alone satisfied the first version.
+  assert.match(code("app/api/tutor/route.ts"), /new ProseStream\(/, "the humanize pass is gone");
 });
 
 check("Anu's reply is drawn as typography, shown once finished, and the marker lines have one shape", () => {
@@ -4525,12 +4571,11 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
   const route = read("app/api/tutor/route.ts");
   assert.match(route, /chatEstonianTokens\(/, "the chat route no longer extracts candidate Estonian tokens");
   assert.match(route, /matchEstonianForm\(/, "the chat route no longer checks tokens against the dictionary");
-  assert.match(route, /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
+  assert.match(code("app/api/tutor/route.ts"), /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
 
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // render the flag the same way.
-  const chat = read("components/anu/AnuParts.tsx");
-  assert.match(chat, /UNVERIFIED:/, "the chat screen no longer reads the flag back");
+  assert.match(code("components/anu/AnuParts.tsx"), /UNVERIFIED:/, "the chat screen no longer reads the flag back");
 });
 
 // ── Never re-add the iframes (docs/00-audit-v4.md section A) ─────────────────
@@ -4623,7 +4668,7 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
   assert.match(panel, /setTodayOrder\(/, "the Settings panel no longer writes the order");
   assert.match(panel, /TODAY_CARDS/, "the panel stopped saying which rows fall past the cut");
 
-  assert.match(read("lib/settings/store.ts"), /todayOrder:/, "todayOrder is not declared in the settings store");
+  assert.match(code("lib/settings/store.ts"), /todayOrder:/, "todayOrder is not declared in the settings store");
   for (const file of ALL) {
     if (file === "lib/settings/store.ts") continue;
     assert.doesNotMatch(read(file), /["']todayOrder["']/, `${file} writes the todayOrder key as a literal`);
@@ -5033,7 +5078,7 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   );
 
   // The answer is stored through the settings store, like every other setting.
-  assert.match(read("lib/settings/store.ts"), /letterBar:/, "letterBar is not declared in the store");
+  assert.match(code("lib/settings/store.ts"), /letterBar:/, "letterBar is not declared in the store");
   for (const file of ALL) {
     if (file === "lib/settings/store.ts") continue;
     assert.equal(
@@ -5050,7 +5095,7 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   assert.match(layout, /SETTING_KEYS\.letterBar/, "the app shell no longer reads the answer");
   assert.match(layout, /<LetterBarScope/, "the app shell no longer publishes the answer");
   assert.match(
-    read("components/DiacriticBar.tsx"),
+    code("components/DiacriticBar.tsx"),
     /data-letters=\{value\}/,
     "the scope no longer renders the answer as an attribute",
   );
@@ -5058,12 +5103,12 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   // Asked at first run, which is the point of asking at all: a learner meets
   // Estonian fields on the very next screen of the wizard.
   assert.match(
-    read("app/(chromeless)/start/WelcomeWizard.tsx"),
+    code("app/(chromeless)/start/WelcomeWizard.tsx"),
     /letterBar:\s*letters/,
     "first run no longer asks which keyboard the learner has",
   );
   assert.match(
-    read("app/actions.ts"),
+    code("app/actions.ts"),
     /completeOnboarding[\s\S]*?SETTING_KEYS\.letterBar/,
     "first run's answer is no longer written",
   );
@@ -5071,12 +5116,12 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   // And two ways back, because the moment somebody notices they do not need
   // the row is the moment they are looking at it.
   assert.match(
-    read("components/DiacriticBar.tsx"),
+    code("components/DiacriticBar.tsx"),
     /setLetterBar\("off"\)/,
     "the bar no longer offers to remove itself",
   );
   assert.match(
-    read("app/(app)/settings/PreferencesPanel.tsx"),
+    code("app/(app)/settings/PreferencesPanel.tsx"),
     /setLetterBar/,
     "Settings can no longer turn the letters back on",
   );
@@ -5818,7 +5863,16 @@ check("a rating key works wherever a rating button is drawn", () => {
     the two cannot come to disagree about which keys exist or what they grade;
     a handler matching digits by hand is how they would.
   */
-  const source = read("app/(app)/review/ReviewSession.tsx");
+  const source = code("app/(app)/review/ReviewSession.tsx");
+
+  /*
+    "Is the answer on screen" is `answerShown`, defined once. A second
+    longhand `revealed || ask === "intro"` is the copy the keydown handler once
+    lacked, which is the fault this check was written for.
+  */
+  const longhand = source.match(/revealed\s*\|\|\s*ask\s*===\s*"intro"/g)?.length ?? 0;
+  assert.match(source, /const answerShown = revealed \|\| ask === "intro"/, "answerShown is no longer the one definition of whether the answer is on screen");
+  assert.equal(longhand, 1, `"revealed || ask === intro" is spelled out ${longhand} times; read answerShown instead`);
 
   assert.match(
     source, /SELF_GRADES\.map\(/,
@@ -6185,7 +6239,7 @@ check("the gesture that replaced the browser's pull to refresh is still mounted"
   // for the browser's own pull to refresh, and installed to a home screen
   // there is no address bar to offer a reload instead.
   assert.match(CSS, /overscroll-behavior-y:\s*none/, "the bounce is back");
-  assert.match(read("app/(app)/layout.tsx"), /<PullToRefresh \/>/, "the gesture is not mounted");
+  assert.match(code("app/(app)/layout.tsx"), /<PullToRefresh \/>/, "the gesture is not mounted");
 });
 
 
@@ -6581,7 +6635,7 @@ check("a sat check is never edited, and is deleted only on request", () => {
   const deleters = product.filter((f) => /(prisma|tx)\.assessment\.delete/.test(read(f)));
   assert.deepEqual(deleters, ["app/actions.ts"], "a level check is deleted outside account deletion");
   assert.match(
-    read("app/actions.ts"),
+    code("app/actions.ts"),
     /deleteMyAccount[\s\S]*?tx\.assessment\.deleteMany/,
     "account deletion no longer removes the level checks it promises to",
   );
@@ -7326,7 +7380,13 @@ check("every dead end in the app offers a way to report it", () => {
       "a search that found nothing",
     ],
     [
-      "app/error.tsx",
+      /*
+        The drawing of a screen that threw, which is a component now for the
+        404's reason: the root boundary wraps it in a `main` and the one inside
+        the signed-in group does not. The sentence and the button both live
+        here, so this is the file that has to keep both.
+      */
+      "components/ScreenFailed.tsx",
       /didn&rsquo;t load|did not load/,
       "a screen that threw",
     ],
@@ -7439,6 +7499,30 @@ check("a file written for a crawler is a file a crawler can reach", () => {
   }
 });
 
+check("every answer after the session is read carries the cookies reading it wrote", () => {
+  /*
+    Verifying a session can rotate its tokens and a failed refresh clears them,
+    both through the cookie adapter, which rebuilds the pass-through response.
+    A branch that returns a fresh redirect instead drops them. It was fixed for
+    the allowlist refusal and left on the sign-in bounce and the signed-out
+    gate. So past `readIdentity` a response is `carrying(...)` or the rebuilt
+    `response` itself, and nothing else.
+  */
+  const middleware = code("middleware.ts");
+  const at = middleware.indexOf("await readIdentity(");
+  assert.ok(at > 0, "the middleware no longer reads the session through readIdentity");
+  const end = middleware.indexOf("\nexport const config");
+  const after = middleware.slice(at, end > at ? end : undefined);
+  const returns = [...after.matchAll(/return ([^;]+);/g)].map((m) => m[1]!.trim());
+  assert.ok(returns.length >= 4, `only ${returns.length} returns past readIdentity; the sweep has lost its footing`);
+  for (const r of returns) {
+    if (r.startsWith("carrying(") || r === "withCsp(response)" || r === "withCsp(answer)") continue;
+    // A return inside a helper function further down the file is not a branch of this one.
+    if (!/NextResponse|signedOut|withCsp/.test(r)) continue;
+    assert.fail(`\`return ${r}\` past readIdentity drops the cookies the session read wrote`);
+  }
+});
+
 check("a not-found boundary draws a main only where its layout does not", () => {
   /*
     ONE `main` PER SCREEN, INCLUDING THE SCREEN THAT SAYS THERE IS NO SCREEN.
@@ -7469,6 +7553,28 @@ check("a not-found boundary draws a main only where its layout does not", () => 
     code("app/(app)/layout.tsx"),
     /<main/,
     "the signed-in layout no longer draws a main, so the boundary below it has to",
+  );
+});
+
+check("a signed-in page that throws keeps the shell, and the error screen has one main", () => {
+  /*
+    `app/error.tsx` was the only error boundary, and a boundary replaces
+    everything under the layout it sits in. The root layout draws nothing, so a
+    signed-in page that threw took the rail, the phone bar and the palette with
+    it: one failing screen out of forty and the learner had no way to any of the
+    other thirty-nine but "Back to Today". `app/(app)/error.tsx` keeps the shell.
+
+    The rule is the 404's, pointed at the other boundary: both draw the one
+    component, the root one draws the `main` and the one under the signed-in
+    layout may not, since that layout already has one.
+  */
+  for (const file of ["app/error.tsx", "app/(app)/error.tsx"]) {
+    assert.match(code(file), /<ScreenFailed\b/, `${file} no longer draws components/ScreenFailed.tsx`);
+  }
+  assert.match(code("app/error.tsx"), /<main/, "the root error boundary draws no main, and the root layout has none");
+  assert.ok(
+    !/<main/.test(code("app/(app)/error.tsx")),
+    "app/(app)/error.tsx draws its own main inside the one app/(app)/layout.tsx already draws",
   );
 });
 
@@ -7734,50 +7840,43 @@ check("a scene cannot spend the day Anu needs, and reserves what a turn costs", 
 });
 
 /**
- * THE BACKLOG IN THE LINT CONFIG SAYS HOW BIG IT IS, AND THE TWO HALVES AGREE.
+ * LINT HAS NO WARNINGS, AND THE THREE RULES THAT ARE OFF ARE OFF FOR A REASON.
  *
- * `eslint-config-next` 16 brought the React Compiler's rules in as errors.
- * Eleven of them hold in this tree and stay errors; five do not, and they warn
- * with a table of counts above them saying how far from holding they are. A
- * count in prose beside a list in code is the shape this repository has been
- * wrong about more than once, and here it is worse than usual: the table is the
- * whole argument that these are a backlog rather than a bar somebody lowered,
- * so a rule quietly joining the list without a measured count turns a stated
- * plan into a place to park a failure.
+ * `eslint-config-next` 16 brought the React Compiler's rules in as errors, and
+ * five of them were turned down to warnings with a table of counts above them.
+ * 122 warnings sat in every lint run for as long as that lasted, which is the
+ * state in which a real warning beside them goes unread. Two of the five were
+ * fixed and are errors again; three are off, each named in the config with what
+ * it objects to here and why that is deliberate.
  *
- * The counts themselves are not asserted, because that would mean running
- * eslint over the tree inside this script. What is asserted is that the two
- * lists are the same list, that the table carries a number for every rule, and
- * that `rules-of-hooks` never joins them: it predates the compiler, this code
- * passes it, and it is the one in that family whose failures are real bugs
- * every time.
+ * What is asserted is the shape that keeps the count at nought: lint fails on
+ * a warning, no `react-hooks` rule is merely demoted, the rules switched off
+ * are exactly the three the config argues for, `rules-of-hooks` is never one of
+ * them (it predates the compiler and its failures are real bugs every time),
+ * and the three stay off only while the compiler they exist for is not run.
  */
-check("every demoted lint rule is one the config counted", () => {
-  /*
-    `code()` everywhere else in this file, and `read()` here on purpose: the
-    table is a comment, and stripping the comments is what the other checks want
-    and what would leave this one comparing the rules against nothing at all.
-    The rules are read from the stripped source, so a rule mentioned in prose
-    does not count as demoted.
-  */
-  const prose = read("eslint.config.mjs");
-  const demoted = [...code("eslint.config.mjs").matchAll(/"(react-hooks\/[a-z-]+)":\s*"warn"/g)]
-    .map((m) => m[1]!);
-  assert.ok(demoted.length > 0, "the React Compiler rules are all errors now; delete this check with the table");
+check("lint has no warnings, and the React Compiler rules that are off are the argued three", () => {
+  const pkg = JSON.parse(read("package.json")) as { scripts: Record<string, string> };
+  assert.match(pkg.scripts.lint ?? "", /--max-warnings 0\b/, "npm run lint no longer fails on a warning, so they can pile up again");
 
-  const table = new Map(
-    [...prose.matchAll(/^\s*\*\s{3}([a-z-]+)\s+(\d+)(?:\s|$)/gm)].map((m) => [`react-hooks/${m[1]!}`, Number(m[2]!)]),
-  );
+  const config = code("eslint.config.mjs");
+  const warned = [...config.matchAll(/"(react-hooks\/[a-z-]+)":\s*"warn"/g)].map((m) => m[1]!);
+  assert.deepEqual(warned, [], `a react-hooks rule warns rather than holding or being off: ${warned.join(", ")}`);
+
+  const off = [...config.matchAll(/"(react-hooks\/[a-z-]+)":\s*"off"/g)].map((m) => m[1]!).sort();
   assert.deepEqual(
-    [...demoted].sort(), [...table.keys()].sort(),
-    "the rules set to warn and the rules the table counts are two different lists, so one of them is out of date",
+    off,
+    ["react-hooks/purity", "react-hooks/refs", "react-hooks/set-state-in-effect"],
+    "the React Compiler rules switched off are not the three the config argues for",
   );
-  for (const [rule, count] of table) {
-    assert.ok(count > 0, `${rule} is counted at nought and should be an error again`);
+  const prose = read("eslint.config.mjs");
+  for (const rule of off) {
+    assert.match(prose, new RegExp(`\\*\\s{3}${rule.replace("react-hooks/", "")}\\s`), `${rule} is off with no reason written beside it`);
   }
-  assert.ok(
-    !demoted.includes("react-hooks/rules-of-hooks"),
-    "rules-of-hooks was demoted. It predates the compiler, this tree passes it, and its failures are real every time.",
+  assert.ok(!off.includes("react-hooks/rules-of-hooks"), "rules-of-hooks was switched off; its failures are real every time");
+  assert.doesNotMatch(
+    code("next.config.ts"), /reactCompiler/,
+    "the React Compiler is on, so the rules that exist for it have to come back on too",
   );
 });
 
@@ -8127,6 +8226,40 @@ check("nothing reaches a paid provider without going through the ledger", () => 
       `the scene leaves ${call} to a promise nobody is holding`,
     );
   }
+
+  /*
+    AND A TURN THAT ASKS THREE TIMES SETTLES ITS BOOKING ONCE.
+
+    `sceneLine` asks the composer up to `MAX_COMPOSE_ATTEMPTS` times under the
+    one booking, and every attempt filed its settlement against that booking,
+    so each took the whole reserve off again; where the gate withheld all
+    three, the route released the booking on top. A turn that made three
+    billed calls came out as money handed back, on the global budget that is
+    the one hard ceiling on the bill. `lib/usage/turnBooking.ts` settles the
+    booking on the first report and nothing after, and a settled booking is
+    never released. Asserted on the route, because the fault was in how the
+    route wired an ordinary helper, and on every settlement and release there.
+  */
+  const sceneCode = code("app/api/scene/route.ts");
+  assert.match(sceneCode, /turnBooking\(/, "the scene settles a turn's several model calls against one booking without `turnBooking`, so each takes the whole reserve off again");
+  const settlements = [...sceneCode.matchAll(/recordUsage\(\{[\s\S]*?\}\)/g)].map((m) => m[0]);
+  assert.ok(settlements.length >= 3, `only ${settlements.length} settlements found in the scene route, so this check stopped looking`);
+  for (const settlement of settlements) {
+    assert.match(
+      settlement, /reservation: settles,/,
+      `a scene settlement files against a raw reservation rather than its turn booking: ${settlement.slice(0, 80)}`,
+    );
+  }
+  assert.equal(
+    [...sceneCode.matchAll(/const settles = [\w.]+\.settle\(\);\s*after\(\(\) => recordUsage\(/g)].length,
+    settlements.length,
+    "a scene settlement's `settles` is not read off the turn booking just before it is filed",
+  );
+  const releases = [...sceneCode.matchAll(/(.{0,60})after\(\(\) => releaseReservation\(/g)].map((m) => m[1]!);
+  assert.ok(releases.length >= 3, `only ${releases.length} releases found in the scene route, so this check stopped looking`);
+  for (const before of releases) {
+    assert.match(before, /!\w+\.settled/, `a scene booking is released without asking whether a call already settled it: ${before.trim()}`);
+  }
 });
 
 check("an export holds every category the account holds", () => {
@@ -8268,7 +8401,7 @@ check("nothing is stored on a device that would need asking first", () => {
     "a file on the device-storage list no longer stores anything. Take it off the list.",
   );
   assert.match(
-    read("app/privacy/page.tsx"),
+    code("app/privacy/page.tsx"),
     /What is kept on your own device/,
     "the privacy page stopped saying what is kept on the device",
   );
@@ -9997,6 +10130,9 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     join("prisma", "schema.prisma"),
     join("prisma", "seed.ts"),
     join("prisma", "columns.ts"),
+    // The seed's write, split out of seed.ts so a test can drive it, and that
+    // test, whose fixtures write null into both: no model is upstream of either.
+    join("prisma", "seedWrite.itest.ts"),
     // Read here: the choice of language, and the four screens that print it.
     join("lib", "collections", "glossLanguage.ts"),
     join("lib", "collections", "glossLanguage.test.ts"),
@@ -11220,6 +11356,43 @@ check("no source file holds a control character it could have named", () => {
   for (const [file] of EXCUSED) {
     assert.match(read(file), NAMED, `${file} no longer holds a control character, so its exemption is stale`);
   }
+});
+
+/*
+  AND NO SOURCE FILE HOLDS A CHARACTER THAT REORDERS OR HIDES THE TEXT AROUND IT.
+
+  The check above is about the C0 controls, and the characters that do the
+  most damage in source are not among them: a bidirectional override
+  (U+202A to U+202E, U+2066 to U+2069) makes a line render in a different
+  order from the one the compiler reads, which is the "Trojan Source" attack,
+  and a zero-width space or a byte-order mark in the middle of a file splits a
+  word nobody can see is split. A review cannot catch any of them, because a
+  review is what they are built to get past. `lib/security/visibleText.ts`
+  refuses them in what a learner types; this refuses them in what we write.
+  The zero-width joiner is left alone on purpose, since it is how an emoji
+  sequence is spelled and `scripts/build-emoji.ts` quotes one.
+*/
+check("no source file holds an invisible format or bidirectional character", () => {
+  const HIDDEN = /[\u200b\u200c\u200e\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff]/;
+  // The pattern itself, probed, so a typo in it cannot pass everything.
+  for (const probe of ["\u200b", "\u202e", "\u2066", "\ufeff"]) {
+    assert.ok(HIDDEN.test(probe), `the pattern no longer catches U+${probe.charCodeAt(0).toString(16)}`);
+  }
+  assert.ok(!HIDDEN.test("\u200d"), "the pattern refuses the zero-width joiner an emoji is spelled with");
+
+  let looked = 0;
+  for (const file of [...ALL, ...sourceFiles("scripts"), ...sourceFiles("prisma")]) {
+    looked += 1;
+    const raw = read(file);
+    const at = raw.search(HIDDEN);
+    if (at < 0) continue;
+    assert.fail(
+      `${file}:${raw.slice(0, at).split("\n").length}: holds U+${raw.charCodeAt(at).toString(16).padStart(4, "0")} `
+      + "as a literal character. Write it as an escape: it is invisible in an editor and in a diff, and a "
+      + "bidirectional one makes the line render in a different order from the one the compiler reads.",
+    );
+  }
+  assert.ok(looked >= 500, `only ${looked} source files read, so this stopped looking`);
 });
 
 check("the emoji board is unique by picture as well as by word", () => {
@@ -13159,13 +13332,15 @@ check("the forms list is an accept list and never an answer", () => {
   // And the deployment carries the files, which a bundler does not do for a
   // path only ever built at runtime.
   assert.match(
-    read("next.config.ts"), /outputFileTracingIncludes[\s\S]{0,300}prisma\/data\/forms/,
+    code("next.config.ts"), /outputFileTracingIncludes[\s\S]{0,300}prisma\/data\/forms/,
     "the forms list is not traced into the deployment, so a hosted Sõnad refuses every guess",
   );
 
   // Every source is credited where the others are.
   for (const file of ["LICENSE", "app/(chromeless)/sign-in/page.tsx", "app/(chromeless)/welcome/page.tsx", "app/terms/page.tsx"]) {
-    assert.match(read(file), /Vabamorf/, `${file} does not credit Vabamorf`);
+    // Read as code where it is code: a comment saying the page credits the
+    // source is not the page crediting it.
+    assert.match(file.endsWith(".tsx") ? code(file) : read(file), /Vabamorf/, `${file} does not credit Vabamorf`);
   }
 });
 
@@ -14528,6 +14703,55 @@ check("the card types are the same seven wherever they are written down", () => 
 });
 
 /*
+  AND EVERY OTHER LINE OF THAT VALUE LIST HAD DRIFTED THE SAME WAY.
+
+  The card types were checked and the four lines under them were not.
+  `CardSource` printed seven of the eleven values `lib/srs/sources.ts` accepts,
+  `SceneGap` had no `REACHED`, `DeferReason` printed `WEEKS`, which the code
+  only reads back from old rows, and the prose above `FormType` counted eleven
+  parts where the list beside it named twelve. The same page described the
+  level check's overall as the weakest skill after ADR-020 amendment 2 made it
+  the average, and `Achievement` as something written when a condition is met
+  after nothing was left to meet one. Each line is read against the list that
+  decides it, and the two retired claims may not come back.
+*/
+check("docs/04-data-model.md names the values each list in the code accepts", () => {
+  const doc = read(join("docs", "04-data-model.md"));
+  const block = /```\n(CardType[\s\S]*?)```/.exec(doc)?.[1] ?? "";
+  assert.ok(block, "docs/04-data-model.md no longer prints the value list");
+  const lineOf = (name: string): string[] => {
+    const m = new RegExp(`^${name}\\s+([A-Z_ ]+)`, "m").exec(block);
+    return m?.[1]?.trim().split(/\s+/) ?? [];
+  };
+  const sorted = (xs: readonly string[]) => [...xs].sort();
+
+  const sources = [...(/CARD_SOURCES\s*=\s*\[([\s\S]*?)\]/.exec(code("lib/srs/sources.ts"))?.[1] ?? "").matchAll(/"(\w+)"/g)].map((m) => m[1]!);
+  assert.ok(sources.length >= 8, "lib/srs/sources.ts no longer declares CARD_SOURCES as a list");
+  assert.deepEqual(sorted(lineOf("CardSource")), sorted(sources), "CardSource line differs from CARD_SOURCES");
+
+  const schema = read(join("prisma", "schema.prisma"));
+  const gapModel = /model SceneGap \{([\s\S]*?)\n\}/.exec(schema)?.[1] ?? "";
+  const gapKinds = [...gapModel.matchAll(/`([A-Z]+)`/g)].map((m) => m[1]!);
+  assert.ok(gapKinds.length >= 3, "the SceneGap kind comment no longer names its values");
+  assert.deepEqual(sorted(lineOf("SceneGap")), sorted([...new Set(gapKinds)]), "SceneGap line differs from the schema's kind comment");
+
+  const deferType = /export type DeferReason\s*=([\s\S]*?);/.exec(code("lib/srs/defer.ts"))?.[1] ?? "";
+  const reasons = [...deferType.matchAll(/"(\w+)"/g)].map((m) => m[1]!);
+  assert.ok(reasons.length >= 2, "lib/srs/defer.ts no longer declares DeferReason as a union");
+  assert.deepEqual(sorted(lineOf("DeferReason")), sorted(reasons), "DeferReason line differs from lib/srs/defer.ts");
+
+  const parts = [...(/PRINCIPAL_FORM_TYPES\s*=\s*\[([\s\S]*?)\]/.exec(code("lib/estonian/types.ts"))?.[1] ?? "").matchAll(/"(\w+)"/g)].map((m) => m[1]!);
+  const formLine = /^FormType\s+([\s\S]*?)\n\s+EKILEX/m.exec(block)?.[1]?.trim().split(/\s+/) ?? [];
+  assert.deepEqual(sorted(formLine), sorted(parts), "FormType line differs from PRINCIPAL_FORM_TYPES");
+  const words = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen"];
+  const counted = /drawn from the (\w+)\s+`FormType` values/.exec(doc)?.[1];
+  assert.equal(counted, words[parts.length], "the prose counts a different number of form types from the list");
+
+  assert.ok(!/weakest measured skill/.test(doc), "docs/04-data-model.md still calls the overall level the weakest skill (ADR-020 amendment 2)");
+  assert.ok(!/condition is first met/.test(doc + schema), "Achievement is still described as earned when a condition is met; nothing earns one now");
+});
+
+/*
   AND THE PAGE A NEW CONTRIBUTOR READS ABOUT THE SCHEMA NAMES THE SCHEMA'S OWN
   MODELS.
 
@@ -14559,6 +14783,33 @@ check("the card types are the same seven wherever they are written down", () => 
   somebody runs once against a live key, and a rule that every script must be
   documented would be a rule to write filler.
 */
+check("a check that a source file does something reads its code, not its comments", () => {
+  /*
+    THE OLDEST RECURRING MISTAKE IN THIS SUITE, AND IT WAS STILL HERE.
+
+    `code()` exists because a comment naming a function satisfies a check
+    that searches the raw file for it. CLAUDE.md records that fault four
+    times, and eleven presence checks in this file were still reading raw
+    text: deleting the `clampReviewedAt` call from the offline outbox, the
+    `matchEstonianForm` call from the scan resolver, or the `ProseStream`
+    pass from the tutor route left every one of them green, because each
+    file has a comment explaining the call it no longer made.
+
+    So a positive `assert.match` handed a source file straight from `read`
+    is refused. A variable read and matched later is out of this check's
+    reach, and the ones that existed were converted by hand; `doesNotMatch`
+    may keep `read`, since there a comment can only make the check stricter.
+  */
+  const self = read("scripts/test-invariants.ts");
+  const offenders = [...self.matchAll(/assert\.match\(\s*read\(("[^"]+\.(?:ts|tsx|mjs)")\)/g)]
+    .map((m) => `line ${self.slice(0, m.index).split("\n").length}: ${m[1]}`);
+  assert.deepEqual(offenders, [], `presence checked against raw text, which a comment satisfies: ${offenders.join(", ")}`);
+  assert.ok(
+    [...self.matchAll(/assert\.match\(\s*code\("/g)].length >= 10,
+    "fewer than ten presence checks read code(); the pattern this guards moved",
+  );
+});
+
 check("every command the README and CLAUDE.md name is a script that exists", () => {
   /*
     AND EVERY COMMAND A COMMENT NAMES, WHICH IS WHERE MOST OF THEM ARE.
@@ -14995,7 +15246,7 @@ check("the research opt-out is applied in the query, and is where the page says"
     );
   }
   assert.match(
-    read("app/(app)/settings/PreferencesPanel.tsx"),
+    code("app/(app)/settings/PreferencesPanel.tsx"),
     /setResearchParticipation\(/,
     "the Settings row for the research opt-out no longer writes anything",
   );
@@ -15024,6 +15275,51 @@ check("the research export counts a right answer the way the rest of the app doe
   );
 });
 
+
+/**
+ * A tile counting the deck counts the deck, not the rows a capped read drew.
+ *
+ * My words reads at most 400 cards for its table and printed `rows.length` in
+ * the tile labelled "Cards", beside New, Learning and Known tiles counted over
+ * the whole deck and a line under the table saying "Showing the 400 cards due
+ * soonest, of 982". First run builds 982 cards, so the page said 400 in one
+ * place and 982 in another about the same deck. A page that caps a read may
+ * not print that read's length as a total.
+ */
+check("no page prints the length of a capped read as a count", () => {
+  const offenders: string[] = [];
+  for (const file of APP) {
+    const src = code(file);
+    if (!/\btake:\s*\d/.test(src)) continue;
+    for (const m of src.matchAll(/<(?:StatTile|Stat)\b[^>]*\bvalue=\{\s*([A-Za-z_.]+)\.length\s*\}/g)) {
+      offenders.push(`${file}: ${m[1]}.length`);
+    }
+  }
+  assert.deepEqual(offenders, [], `${offenders.join("; ")} is printed as a total by a page that caps the read it came from`);
+});
+
+/**
+ * A mature review is one asked of a card in the Review state, and nothing
+ * else, wherever the app reads one.
+ *
+ * `retentionReading` and the research export both count `stateBefore` equal
+ * to the Review state and say in so many words that learning and relearning
+ * answers are excluded. The exam hub's recall figure and the class roster's
+ * copy of it read `>= MATURE_STATE`, which takes in Relearning as well, so one
+ * learner could read 100 percent retention on Progress and 50 percent recall
+ * on the exam hub, over the same reviews, on the same day: ten Good answers on
+ * cards in Review beside ten Again answers on cards being relearned. The
+ * comparison has to be an equality everywhere it is written.
+ */
+check("a mature review is the Review state and nothing past it, in every reader", () => {
+  const offenders: string[] = [];
+  for (const file of ALL) {
+    const src = code(file);
+    if (/stateBefore\s*>=?\s*(MATURE_STATE|REVIEW_STATE|2\b)/.test(src)) offenders.push(file);
+    if (/stateBefore:\s*\{\s*gte?:\s*(MATURE_STATE|REVIEW_STATE|2\b)/.test(src)) offenders.push(file);
+  }
+  assert.deepEqual(offenders, [], `${offenders.join(", ")} counts a relearning answer as mature, where retentionReading does not`);
+});
 /**
  * Every secret the app reads is marked in the build CI greps.
  *
@@ -15425,6 +15721,75 @@ check("every writer of a level hands back the words that were waiting for it", (
 });
 
 /**
+ * A GRADE QUEUED AFTER A FAILED ONLINE WRITE KEEPS THE ID THE WRITE WAS SENT WITH.
+ *
+ * Every session asked `gradeCard` with no id and, on any throw, queued the
+ * grade under a fresh `crypto.randomUUID()`. A throw is not proof nothing was
+ * written: a write that committed and whose answer was lost on a flaky
+ * connection went to the outbox as a stranger, the replay found no row under
+ * the new id, and the one answer became two permanent rows and two runs of the
+ * scheduler. The id is chosen before asking now and reused in the outbox, and
+ * `writeGrade` treats an id already written as an answer already applied.
+ *
+ * Swept rather than listed: every file that queues a grade, and every call in
+ * it, has to hand `gradeCard` the id it queues.
+ */
+/**
+ * UNDO TAKES A QUEUED GRADE BACK, AND SIGNING OUT WAITS FOR A PASS IN FLIGHT.
+ *
+ * Undo asked the server alone, so a grade undone offline stayed in the outbox
+ * and was replayed later: the answer the learner withdrew was applied anyway.
+ * And `flush` returned at once while a sync was running, so signing out
+ * counted a batch still in flight, warned about grades about to land, and
+ * deleted the database under the pass.
+ */
+check("undo takes a queued grade back, and flush waits for a sync in flight", () => {
+  const undo = between(code("app/(app)/review/ReviewSession.tsx"), "const undo = useCallback");
+  const taken = undo.indexOf("takeFromOutbox(");
+  const asked = undo.indexOf("undoGrade(");
+  assert.ok(taken > 0 && asked > taken,
+    "undo asks the server without first taking the grade back out of the outbox");
+  const provider = code("components/OfflineProvider.tsx");
+  /*
+    And a new grade goes online only after anything queued before it: the
+    scheduler has to hear two answers to one card in the order they happened.
+  */
+  const queuing = sourceFiles("app").filter((f) => /enqueueGrade\(\{/.test(code(f)));
+  for (const file of queuing) {
+    const source = code(file);
+    const drained = source.indexOf("await drainFirst()");
+    const sent = source.indexOf("await gradeCard(");
+    assert.ok(drained > 0 && sent > drained,
+      `${file} sends a grade online before the outbox holding older ones has been sent`);
+  }
+  assert.match(provider, /if \(inflight\.current\) return inflight\.current;/,
+    "a sync already running is no longer the promise a second caller gets, so flush returns before it lands");
+});
+
+check("a grade queued after a failed online write keeps the id it was sent with", () => {
+  const files = sourceFiles("app").concat(sourceFiles("components"))
+    .filter((f) => /enqueueGrade\(\{/.test(code(f)));
+  assert.ok(files.length >= 4, `only ${files.length} file(s) queue a grade; the sweep has lost them`);
+  const bad: string[] = [];
+  for (const file of files) {
+    const source = code(file);
+    for (const m of source.matchAll(/enqueueGrade\(\{([\s\S]*?)\}\)/g)) {
+      const id = /\bid:\s*([A-Za-z_$][\w$]*)\s*,/.exec(m[1]!)?.[1];
+      if (!id) { bad.push(`${file}: queues an id that is not a named value`); continue; }
+      const calls = [...source.matchAll(/gradeCard\(([\s\S]*?)\)/g)];
+      if (!calls.some((c) => new RegExp(`\\b${id}\\b`).test(c[1]!))) {
+        bad.push(`${file}: queues ${id} without having sent it to gradeCard`);
+      }
+    }
+  }
+  assert.deepEqual(bad, [], `a lost online answer would be replayed as a second one:\n${bad.join("\n")}`);
+  assert.match(code("lib/srs/grade.ts"), /findUnique\(\{\s*where:\s*\{\s*id:\s*reviewId/,
+    "writeGrade no longer treats an id already written as an answer already applied");
+  assert.match(code("lib/srs/grade.ts"), /\$transaction\(\[/,
+    "writeGrade writes the review and the card's scheduling apart again");
+});
+
+/**
  * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
  *
  * `PendingGrade` carried `slot`, IndexedDB stored it, `ReplayItem` accepted it
@@ -15483,6 +15848,11 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
     rename of the Session suffix empties it and the deepEqual passes on nothing.
   */
   assert.ok(SESSION_FILES().length >= 20, `only ${SESSION_FILES().length} round components found, so the sweep stopped looking`);
+  // A sweep over nothing passes: the rounds that write a duration are the
+  // haystack, and a rename that moved them out of SESSION_FILES would leave
+  // this asking about no file at all.
+  const grading = SESSION_FILES().filter((file) => /\bgradeCard\(/.test(code(file)));
+  assert.ok(grading.length >= 15, `only ${grading.length} round sessions grade through gradeCard, so the sweep is looking in the wrong place`);
   assert.deepEqual(
     averaged, [],
     `a round clock divided by the number of answers is being written into ` +
@@ -16541,7 +16911,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
   assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
   assert.match(read("docs/25-data-retention.md"), /Tutor conversation \(`Message`\) \| 24 hours/, "the retention schedule no longer says a tutor conversation lasts a day");
   assert.match(read("docs/24-dpia.md"), /\| `Message` \| What they typed to the tutor and what came back \| 24 hours/, "the DPIA's register no longer says a tutor conversation lasts a day");
-  assert.match(read("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
+  assert.match(code("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
 });
 
 check("the scene prompt is served off a cache entry, by one module, on the route and in the harness", () => {
@@ -19139,7 +19509,7 @@ check("Today's report names no errand, and the research table files a conversati
   assert.doesNotMatch(tally, /errandById|"errandId"|unit/, "the encounters section files a report under a unit or an errand");
   assert.match(tally, /isConversation/, "the encounters section counts a day with no conversation in it as one");
   assert.match(
-    read("lib/research/sections.ts"), /NOTHING HERE SAYS WHAT A CONVERSATION WAS ABOUT/,
+    code("lib/research/sections.ts"), /NOTHING HERE SAYS WHAT A CONVERSATION WAS ABOUT/,
     "the encounters section no longer tells a reader that it does not know what a conversation was about",
   );
 });
@@ -19551,7 +19921,9 @@ check("every screen that keeps a word asks which shelf, through one press", () =
 });
 
 check("a word is favourited by one button, and the toggle has one caller", () => {
-  const callers = ALL.filter((file) => /\btoggleStar\b/.test(code(file)));
+  // A screen is the caller this is about. A test driving the action is not
+  // one, and a test that could not name it could not check it.
+  const callers = ALL.filter((file) => !/\.(i?test)\.tsx?$/.test(file) && /\btoggleStar\b/.test(code(file)));
   assert.deepEqual(
     callers.sort(),
     [join("app", "actions.ts"), join("components", "StarWord.tsx")].sort(),
@@ -21454,8 +21826,30 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
   and `AND: [pastTheLadder(...), { OR: ... }]` is the shape that passes, since
   there the two are separate objects.
 */
+/*
+  EVERY CARD THE REVIEW PAGE READS HAS BEEN ASKED ABOUT THE LADDER.
+
+  The page draws cards five ways, the due window, the new window, the band
+  top-up and three drills, and each of those has to say whether a word still
+  on the Learn ladder may be handed out. The photographed-page drill asked
+  nothing, so a word scanned a minute ago was first shown as a case card
+  rather than as its meaning. Read off each `findMany` block, since a guard
+  anywhere else on the page is a guard on a different query.
+*/
+check("every card read on the review page asks about the Learn ladder", () => {
+  const src = code("app/(app)/review/page.tsx");
+  const blocks = src.split("prisma.card.findMany(").slice(1).map((b) => b.slice(0, 700));
+  const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst)\(ownerId/;
+  const loose = blocks.filter((b) => !guard.test(b));
+  assert.ok(blocks.length >= 6, `only ${blocks.length} card reads found on the review page`);
+  assert.deepEqual(
+    loose.map((b) => b.slice(0, 80).replace(/\s+/g, " ")), [],
+    "a card read on the review page names no Learn-ladder guard",
+  );
+});
+
 check("no query spreads a second OR over the Learn-ladder guard", () => {
-  const helpers = /\.\.\.(pastTheLadder|notOnLadder)\(/g;
+  const helpers = /\.\.\.(pastTheLadder|notOnLadder|meetingFirst)\(/g;
   let looked = 0;
   for (const file of [...sourceFiles("app"), ...sourceFiles("lib")]) {
     const src = code(file);
@@ -23708,6 +24102,16 @@ check("the letter about other people carries nobody's name", () => {
     The word boundary is what keeps those two apart, and it is why this reads
     regexes rather than substrings.
   */
+  /*
+    And the aggregate it carries is the letter's own, not the screen's. The
+    screen's `weakestCases` is gated on ten answers across everybody and not on
+    how many people gave them, so a teacher and one student was that student's
+    own weakest case under "the class". `sharedCases` counts a case only where
+    enough students answered it and leaves the reader out.
+  */
+  assert.match(upTo, /classRoster\([^)]*leaveOut: ownerId/, "the classroom letter asks the roster without leaving its reader out");
+  assert.match(upTo, /weakestCases: roster\.sharedCases/, "the classroom letter carries the screen's weakest cases, which may rest on one student");
+
   for (const field of ["displayName", "weakestCase", "streak", "wordsKnown"]) {
     assert.equal(
       new RegExp(`\\b${field}\\b`).test(upTo),
@@ -24285,6 +24689,87 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+/**
+ * Two neighbouring `const x = await ...` statements in a server file where the
+ * second never names what the first bound: two reads that do not need each
+ * other, asked one after the other.
+ *
+ * A heuristic rather than a parse, and drawn to miss rather than to fire: only
+ * adjacent statements with nothing between them, a second statement that does
+ * not mention any name the first bound, and never a first statement that is
+ * the request itself (`params`, `searchParams`, the session). A nested callback
+ * is not a neighbour, so `Promise.all(LEVELS.map(async ...))` is left alone.
+ * Nor is a first statement that writes: a read after a create or an update
+ * needs the write to have landed whether or not it names what the write
+ * returned, and a check that asked for the two at once would be asking for
+ * the read to race its own precondition.
+ */
+function independentAwaits(source: string): { line: number; first: string; second: string }[] {
+  const statements: { start: number; end: number; names: string[]; text: string }[] = [];
+  const opener = /(?:const|let)\s+(\{[^}]*\}|\[[^\]]*\]|\w+)\s*(?::[^=]+)?=\s*await\s/g;
+  for (const m of source.matchAll(opener)) {
+    let i = m.index! + m[0].length;
+    let depth = 0;
+    for (; i < source.length; i += 1) {
+      const c = source[i]!;
+      if ("([{".includes(c)) depth += 1;
+      else if (")]}".includes(c)) depth -= 1;
+      else if (c === ";" && depth <= 0) break;
+    }
+    const names = m[1]!.replace(/[{}[\]]/g, "").split(",")
+      .map((part) => part.split(":").pop()!.replace(/=.*/, "").replace(/^\.\.\./, "").trim())
+      .filter(Boolean);
+    statements.push({ start: m.index!, end: i, names, text: source.slice(m.index!, i) });
+  }
+  const out: { line: number; first: string; second: string }[] = [];
+  // A statement inside the one before it (an `await` in a callback) is not a
+  // neighbour of anything, so the comparison is always with the last
+  // statement that had finished before this one began.
+  let previous: (typeof statements)[number] | null = null;
+  for (const b of statements) {
+    const a = previous;
+    if (a && b.start < a.end) continue;
+    previous = b;
+    if (!a) continue;
+    if (source.slice(a.end + 1, b.start).trim() !== "") continue;
+    if (/\b(?:params|searchParams|requireUserId)\b/.test(a.text)) continue;
+    if (/\.(?:create|createMany|update|updateMany|upsert|delete|deleteMany)\(|\$executeRaw|\$transaction|\bwrite[A-Z]\w*\(/.test(a.text)) continue;
+    const rhs = b.text.slice(b.text.indexOf("await"));
+    if (a.names.some((n) => new RegExp(`\\b${n.replace(/\$/g, "\\$")}\\b`).test(rhs))) continue;
+    out.push({ line: source.slice(0, b.start).split("\n").length, first: a.names.join(","), second: b.names.join(",") });
+  }
+  return out;
+}
+
+check("a server page asks two reads that do not need each other at once", () => {
+  /*
+    The rule CLAUDE.md states about Today, "two answers that do not need each
+    other are asked at once", held to every page and route rather than to the
+    one that was fixed. On a hosted database each `await` is a round trip in
+    another region, and this shape was on the learn page, the sprint, the
+    exceptions round, the daily review queue and the metrics route.
+  */
+  const fires = independentAwaits("const a = await one();\nconst b = await two();\n");
+  assert.equal(fires.length, 1, "the detector no longer finds two independent awaits");
+  assert.equal(independentAwaits("const a = await one();\nconst b = await two(a);\n").length, 0,
+    "the detector fires on a read that needs the one before it");
+  assert.equal(independentAwaits("const x = await Promise.all(L.map(async () => { const y = await f(); return y; }));\nconst z = await g();\n").length, 1,
+    "the detector reads a nested callback as a neighbour");
+  assert.equal(independentAwaits("const row = await prisma.card.create({ data });\nconst all = await prisma.card.findMany();\n").length, 0,
+    "the detector asks a read to race the write before it");
+
+  let scanned = 0;
+  const found: string[] = [];
+  for (const file of APP.filter((f) => /(?:page|layout)\.tsx$|route\.ts$/.test(f))) {
+    scanned += 1;
+    for (const hit of independentAwaits(code(file))) {
+      found.push(`${file}:${hit.line} awaits ${hit.second} after ${hit.first}`);
+    }
+  }
+  assert.ok(scanned >= 60, `only ${scanned} server files were read, so this is looking at nothing`);
+  assert.deepEqual(found, [], `${found.join("; ")}. Neither needs the other: ask them in one Promise.all`);
 });
 
 check("every action that writes a grade tells Today it changed", () => {
