@@ -58,6 +58,26 @@ interface ExpandedEntry {
    */
   semanticTypes: string | null;
   /**
+   * THE INSTITUTE'S OWN RUSSIAN AND UKRAINIAN, FOR THE OTHER FOUR FIFTHS.
+   *
+   * Here for the reason `semanticTypes` above is here: two writers cover
+   * different halves of the dictionary, and a column added to the seed alone
+   * is a column written for the 1,551 course words and for none of the 5,363
+   * the expansion brings. The course harvest reads these out of the response
+   * it was already fetching, so a learner who looked a word up inside the
+   * course was answered in their own language and one who stepped outside it
+   * was not, with nothing on the screen saying why.
+   *
+   * `scripts/harvest-translations.ts` is what fills them, off
+   * `equivalentsFrom` in `lib/ekilex/client.ts`, which is the one reading of
+   * that field for the live lookup, the course harvest and that script alike.
+   * No model may reach these columns: they are the one place in this schema
+   * holding a language the person reviewing this code need not read, which is
+   * what makes ADR-005 stronger here rather than milder.
+   */
+  translationRu: string | null;
+  translationUk: string | null;
+  /**
    * Ekilex's own Estonian explanation of the sense this entry carries.
    *
    * Only the entries a homonym pin re-read from Ekilex have one, which is why
@@ -211,6 +231,41 @@ export async function applyGlossCorrections(prisma: PrismaClient): Promise<numbe
 }
 
 /**
+ * Gives an already-seeded expansion row the Russian and Ukrainian this build
+ * carries.
+ *
+ * The course harvest reseeds these two columns (`prisma/columns.ts` marks them
+ * `reseeded`), and the expansion does not: it loads with `ON CONFLICT DO
+ * NOTHING`, so a deployment seeded before the expansion carried equivalents
+ * would keep a null in both for every word it holds, for ever, while a fresh
+ * one had them. This fills them where the row has neither and nobody has
+ * edited it, which is `applyGlossCorrections`' own `editedBy IS NULL` rule, and
+ * writes nothing else. Idempotent, since a filled row no longer has two nulls.
+ */
+export async function applyExpandedEquivalents(prisma: PrismaClient): Promise<number> {
+  const entries = readExpanded().filter((e) => e.translationRu || e.translationUk);
+  if (entries.length === 0) return 0;
+
+  let filled = 0;
+  for (const batch of chunk(entries, 500)) {
+    const rows = batch.map(
+      (e) => Prisma.sql`(${e.lemma}, ${e.pos}, ${e.translationRu ?? null}::text, ${e.translationUk ?? null}::text)`,
+    );
+    filled += await prisma.$executeRaw`
+      UPDATE "Lexeme" AS l
+      SET "translationRu" = c.ru, "translationUk" = c.uk, "updatedAt" = NOW()
+      FROM (VALUES ${Prisma.join(rows)}) AS c(lemma, pos, ru, uk)
+      WHERE l.lemma = c.lemma
+        AND l.pos = c.pos
+        AND l."translationRu" IS NULL
+        AND l."translationUk" IS NULL
+        AND l."editedBy" IS NULL
+    `;
+  }
+  return filled;
+}
+
+/**
  * Moves an already-seeded row onto the label this build corrected.
  *
  * `pos` is half of `Lexeme`'s conflict key, so a corrected label stops matching
@@ -294,6 +349,7 @@ export async function writeExpanded(
         ${crypto.randomUUID()}, ${e.lemma}, ${e.pos}, ${e.translation},
         ${e.cefr}::text, ${e.gradation}, ${e.gradationNote}::text,
         ${e.government}::text, ${e.notes}::text, ${e.semanticTypes ?? null}::text,
+        ${e.translationRu ?? null}::text, ${e.translationUk ?? null}::text,
         ${e.definition ?? null}::text,
         ${JSON.stringify(withEnglish(e.examples))}::text,
         'EKILEX', ${e.ekilexWordId}, NOW(), NOW()
@@ -305,7 +361,8 @@ export async function writeExpanded(
     const inserted = await prisma.$queryRaw<{ id: string; lemma: string; pos: string }[]>`
       INSERT INTO "Lexeme" (
         id, lemma, pos, translation, cefr, gradation, "gradationNote",
-        government, notes, "semanticTypes", definition, examples, provenance, "ekilexWordId", "fetchedAt", "updatedAt"
+        government, notes, "semanticTypes", "translationRu", "translationUk",
+        definition, examples, provenance, "ekilexWordId", "fetchedAt", "updatedAt"
       )
       VALUES ${Prisma.join(values)}
       ON CONFLICT (lemma, pos) DO NOTHING
