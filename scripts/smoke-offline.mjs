@@ -307,20 +307,32 @@ const trimmed = await page.evaluate(async (name) => {
 }, audioCache);
 check("a cache can be filled past its ceiling to prove the trim runs", trimmed >= 420, `${trimmed}`);
 
-await page.evaluate(async () => {
+const ttsStatus = await page.evaluate(async () => {
   // One real clip through the worker, which trims the audio cache after it
-  // writes. The phrase does not matter and a failure to fetch is fine: the
-  // trim runs on the success path, so this waits for a real one.
-  await fetch("/api/tts", {
+  // writes. The phrase does not matter.
+  const r = await fetch("/api/tts", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ text: "tere" }),
-  }).catch(() => undefined);
+  }).catch(() => null);
+  return r ? r.status : 0;
 });
-await page.waitForTimeout(2500);
-const afterTrim = await page.evaluate(async (name) =>
-  (await caches.open(name)).keys().then((k) => k.length), audioCache);
-check("the audio cache is trimmed back to its ceiling", afterTrim <= 400, `${afterTrim} entries`);
+/*
+  The trim runs on the success path and only there (`public/sw.js`), so a
+  speech service that did not answer in time leaves nothing to trim after.
+  Asserted anyway, that read as a worker that had stopped trimming, which
+  sends whoever reads it into the one file that was working. A clip that
+  failed is stated as what it is, with its status, and still counts against
+  the floor.
+*/
+if (ttsStatus >= 200 && ttsStatus < 300) {
+  await page.waitForTimeout(2500);
+  const afterTrim = await page.evaluate(async (name) =>
+    (await caches.open(name)).keys().then((k) => k.length), audioCache);
+  check("the audio cache is trimmed back to its ceiling", afterTrim <= 400, `${afterTrim} entries`);
+} else {
+  absent(1, `a clip the speech service answered (HTTP ${ttsStatus}): the worker trims after a successful write, so with no clip there is nothing to trim after`);
+}
 
 /*
   And the other half of that rule: the one cache with no ceiling still has what
