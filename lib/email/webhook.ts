@@ -213,16 +213,58 @@ export function readDelivery(body: unknown): DeliveryEvent | null {
  * the address it is about to use: the same one is still dead, a different one
  * is somebody who fixed it. A digest rather than the address because
  * `prisma/schema.prisma` deliberately holds none, which is what lets erasure
- * promise that deleting an account takes the address with it; a digest tells
- * two addresses apart, which is the whole job, and cannot be read back into a
- * person.
+ * promise that deleting an account takes the address with it.
+ *
+ * KEYED, BECAUSE AN UNKEYED HASH OF AN ADDRESS IS NOT A SECRET. The first
+ * version was a bare SHA-256 and said it could not be read back into a person,
+ * which was false for anybody holding a guess: hash the guess and compare. An
+ * HMAC keyed on the deployment's mail secret can only be recomputed by somebody
+ * who also holds that secret, so the row alone says nothing about whose address
+ * it was. The key is derived from the secret under a fixed label rather than
+ * being the secret itself, so a digest and an unsubscribe signature are never
+ * made with the same key.
+ *
+ * `secret` is passed in rather than read here, which keeps this module pure and
+ * keeps the unsubscribe secret's name out of the one file asserted never to read
+ * it. With no secret the send path sends nothing at all, so a row written then
+ * blocks nobody who could have been mailed; it is written as the unkeyed digest,
+ * which `blocks` still reads, so the block survives the secret being set later.
  *
  * Folded to lower case and trimmed first, since a mailbox is not case sensitive
  * in the part that matters and the provider may echo it back differently from
  * how it was sent.
  */
-export function addressDigest(address: string): string {
-  return createHash("sha256").update(address.trim().toLowerCase()).digest("hex").slice(0, 32);
+export function addressDigest(address: string, secret: string | null): string {
+  const folded = normaliseAddress(address);
+  if (!secret) return legacyDigest(folded);
+  const key = createHmac("sha256", secret).update(ADDRESS_DIGEST_LABEL).digest();
+  return createHmac("sha256", key).update(folded).digest("hex").slice(0, 32);
+}
+
+/** The label a digest key is derived under, so it is never the signing key itself. */
+const ADDRESS_DIGEST_LABEL = "address-digest";
+
+function normaliseAddress(address: string): string {
+  return address.trim().toLowerCase();
+}
+
+/**
+ * The unkeyed digest every row was written with before the digest was keyed.
+ *
+ * Read and never written where a secret exists: rows already stored hold it,
+ * and reading one as "not blocked" would write again to every address that had
+ * already bounced, which is what costs a sender its reputation.
+ */
+function legacyDigest(folded: string): string {
+  return createHash("sha256").update(folded).digest("hex").slice(0, 32);
+}
+
+/**
+ * What to store when an address bounced: its digest, or `BLOCKED_ANY` where the
+ * payload named no address.
+ */
+export function undeliverableValue(address: string | null | undefined, secret: string | null): string {
+  return address ? addressDigest(address, secret) : BLOCKED_ANY;
 }
 
 /**
@@ -242,7 +284,7 @@ export const BLOCKED_ANY = "any";
  * a digest against a raw address, and so the fallback above has exactly one
  * meaning.
  */
-export function blocks(stored: string | null | undefined, address: string): boolean {
+export function blocks(stored: string | null | undefined, address: string, secret: string | null): boolean {
   const value = (stored ?? "").trim();
   if (!value) return false;
   /*
@@ -253,5 +295,10 @@ export function blocks(stored: string | null | undefined, address: string): bool
     bounced.
   */
   if (value === BLOCKED_ANY || value === "1") return true;
-  return value === addressDigest(address);
+  /*
+    The keyed digest, or the unkeyed one every row held before the digest was
+    keyed. Both, because a reader that knew only the new shape would start
+    writing again to every address blocked before the deploy.
+  */
+  return value === addressDigest(address, secret) || value === legacyDigest(normaliseAddress(address));
 }

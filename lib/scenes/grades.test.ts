@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { advance, startScene, type SceneState } from "./state";
-import { gradesFor, offerFor, stalledWords } from "./grades";
+import { cardsForGrades, gradesFor, offerFor, stalledWords } from "./grades";
 import type { Evidence, TurnReading } from "./turn";
 import { buildLexicon } from "./lexicon";
 import type { RoleCard } from "./props";
@@ -485,5 +485,48 @@ describe("the word the other side offers", () => {
   it("and falls back to the walk where the caller knows nothing about the turn", () => {
     expect(offerFor(SCENE.beats[1]!, null, new Set(), [])).toBe("pea");
     expect(offerFor(SCENE.beats[1]!, null, new Set(), [true])).toBe("pea");
+  });
+});
+
+describe("which card each grade lands on", () => {
+  /*
+    `finishScene` looked each grade's card up with its own `findFirst`, one
+    round trip per grade before a single write, on the screen that says how a
+    conversation went. It reads the candidates once now and this is the match,
+    which has to choose exactly as the per-grade query did: the case card for
+    the case the beat asked, the production card otherwise, and the lowest id
+    where a learner holds two, since that query ordered on the id.
+  */
+  const grade = (lemma: string, grammCase: "INESSIVE" | "PARTITIVE" | null) =>
+    ({ lemma, grammCase, reachedCase: null, rating: 3 as const, beat: "b" });
+  const card = (id: string, lemma: string, cardType: string, targetCase: string | null = null) =>
+    ({ id, cardType, targetCase, lexeme: { lemma } });
+
+  it("takes the case card for a case and the production card otherwise", () => {
+    const found = cardsForGrades(
+      [grade("pood", "INESSIVE"), grade("piim", null)],
+      [card("c1", "pood", "CASE_FORM", "INESSIVE"), card("c2", "pood", "PRODUCTION"), card("c3", "piim", "PRODUCTION")],
+    );
+    expect(found).toEqual(["c1", "c3"]);
+  });
+
+  it("never lands a case grade on another case's card, or on the production card", () => {
+    const found = cardsForGrades(
+      [grade("pood", "INESSIVE")],
+      [card("c1", "pood", "CASE_FORM", "PARTITIVE"), card("c2", "pood", "PRODUCTION")],
+    );
+    expect(found).toEqual([null]);
+  });
+
+  it("takes the lowest id where two cards would do, as the query it replaced did", () => {
+    const found = cardsForGrades(
+      [grade("piim", null)],
+      [card("b", "piim", "PRODUCTION"), card("a", "piim", "PRODUCTION")],
+    );
+    expect(found).toEqual(["a"]);
+  });
+
+  it("answers null for a word the learner holds no card for", () => {
+    expect(cardsForGrades([grade("kass", null)], [card("c", "koer", "PRODUCTION")])).toEqual([null]);
   });
 });
