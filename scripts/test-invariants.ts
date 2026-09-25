@@ -25704,7 +25704,8 @@ check("the closing round compares a server tick with a server time", () => {
     and neither half is any use without the other.
   */
   const grade = code("lib/srs/grade.ts");
-  const write = grade.slice(grade.indexOf("export async function writeGrade"), grade.indexOf("const next = grade("));
+  const from = grade.indexOf("export async function writeGrade");
+  const write = grade.slice(from, grade.indexOf("\nexport ", from + 1));
   assert.match(write, /receivedAt:\s*received/, "writeGrade no longer stamps when the server received the answer");
   const course = code("lib/progress/course.ts");
   const since = course.slice(course.indexOf("async function gradedSince"), course.indexOf("async function closingGraded"));
