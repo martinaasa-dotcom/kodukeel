@@ -30,7 +30,7 @@ import { emailPrefsFrom } from "@/lib/email/prefs";
 import { EMAIL_KINDS, type EmailKind } from "@/lib/email/letter";
 import type { Candidate } from "@/lib/email/schedule";
 import { AWAY_DAYS, UNCAPPED } from "@/lib/email/schedule";
-import { weeksUntil } from "@/lib/assessment/goals";
+import { exactWeeksUntil } from "@/lib/assessment/goals";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
 import { examCountdown } from "@/lib/progress/countdown";
@@ -46,7 +46,8 @@ import { wordOfDay } from "@/lib/progress/wordOfDay";
 import { outThere } from "@/lib/progress/outThere";
 import { dailySummary, deckSnapshot, SHIELD_MILESTONES } from "@/lib/progress/summary";
 import { stageOf } from "@/lib/ux/disclosure";
-import { errandForDay, errandPlaces, sceneForErrand, startedUnits } from "@/lib/collections/errands";
+import { errandForDay, errandPlaces, sceneForErrand } from "@/lib/collections/errands";
+import { startedUnits } from "@/lib/collections/syllabus";
 import { unitById } from "@/lib/collections/syllabus";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { parseReminderTime } from "@/lib/time/reminder";
@@ -102,16 +103,32 @@ export const LOOK_BACK_DAYS = 45;
  * whole life inside the letter A. The answer there is the answer here: a walk
  * rather than a fixed window.
  *
- * The page turns with the hour, so a deployment larger than one page is
- * covered in `ceil(total / limit)` runs, which at the hourly schedule is under
- * a day for anything up to forty-eight thousand learners. Deterministic, so it
- * needs no stored cursor and two runs in the same hour look at the same page,
- * which is what the per-learner gap in `EmailSend` is there to make harmless.
+ * AND THE WALK HAS TO TURN ON THE SCHEDULE THE DEPLOYMENT HAS, WHICH IS ONCE A
+ * DAY. This used to turn the page with the hour since the epoch, reasoned
+ * about an hourly schedule, and `vercel.json` fires at 16:00 UTC because a
+ * Hobby plan refuses anything more often. Between two daily runs that key
+ * moves by exactly 24, so any page count sharing a factor with 24 came back to
+ * the same page every day: at five thousand learners, three pages,
+ * (24d + 16) mod 3 is 1 on every day there is, and the four thousand on the
+ * other two were never considered. That is the exclusion the paragraph above
+ * is about, reached through the clock instead of the sort.
+ *
+ * So the key is the day plus the hour of the day. A daily run at any fixed
+ * hour moves one page a day and reaches everybody in `ceil(total / limit)`
+ * days. Hourly runs, which the README's way back to hourly would give, reach
+ * twenty-four pages in a day, which is everybody up to forty-eight thousand
+ * learners, and beyond that every page within as many days as there are
+ * pages. No function of the clock can move a page every hour and also a page
+ * every day, since the first moves twenty-four a day, and the daily run is
+ * the one this deployment has. Deterministic, so it needs no stored cursor and
+ * two runs in the same hour look at the same page, which is what the
+ * per-learner gap in `EmailSend` is there to make harmless.
  */
 export function rosterPage(now: Date, total: number, limit: number): number {
   if (total <= limit) return 0;
   const pages = Math.ceil(total / limit);
-  return (Math.floor(now.getTime() / 3_600_000) % pages) * limit;
+  const hours = Math.floor(now.getTime() / 3_600_000);
+  return ((Math.floor(hours / 24) + (hours % 24)) % pages) * limit;
 }
 
 /**
@@ -125,35 +142,43 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
   const since = new Date(now.getTime() - LOOK_BACK_DAYS * 86_400_000);
 
   /*
-    The sizes first, so the walk knows how far it has to reach. Two counts on
-    indexed columns, and `distinct` here is a real `COUNT(DISTINCT)` rather
-    than the client-side deduplication a `take` beside a `distinct` would get,
-    which is the rule this project states about that pairing.
+    The sizes first, so the walk knows how far it has to reach, and both of
+    them counted in Postgres.
+
+    The reviewers used to be `findMany({ distinct: ["ownerId"] })` and a
+    `.length`, under a comment calling that a real `COUNT(DISTINCT)`. It is
+    not: Prisma deduplicates in the client with or without a `take` beside
+    it, and measured on Prisma 7 it emitted
+    `SELECT id, ownerId FROM Review WHERE reviewedAt >= $1`, so every review
+    anybody graded in the fortnight crossed the wire to produce one integer,
+    on every scheduled run. The page below was the same query again with an
+    `OFFSET` and no `LIMIT`. `Review` is the one table that grows with every
+    answer anybody gives, so this was the most expensive read the mailer made
+    and it was paid before the run had decided anything.
   */
   const [reviewers, starters] = await Promise.all([
-    prisma.review
-      .findMany({ where: { reviewedAt: { gte: since } }, distinct: ["ownerId"], select: { ownerId: true } })
-      .then((rows) => rows.length),
+    prisma.$queryRaw<{ n: number }[]>`
+      SELECT COUNT(DISTINCT "ownerId")::int AS n FROM "Review" WHERE "reviewedAt" >= ${since}
+    `.then((rows) => rows[0]?.n ?? 0),
     prisma.setting.count({
       where: { key: SETTING_KEYS.onboardedAt, value: { gte: since.toISOString() } },
     }),
   ]);
 
   const [reviewed, settled] = await Promise.all([
-    prisma.review.findMany({
-      where: { reviewedAt: { gte: since } },
-      distinct: ["ownerId"],
-      select: { ownerId: true },
-      /*
-        Ends on the primary key, because `ownerId` is not unique in `Review`
-        and a `take` over a loose order is the plan deciding which learners a
-        run considers. Stable is what matters: the page above walks, and a walk
-        over an order that moves would skip and repeat rather than cover.
-      */
-      orderBy: [{ ownerId: "asc" }, { id: "asc" }],
-      skip: rosterPage(now, reviewers, limit),
-      take: limit,
-    }),
+    /*
+      One row per learner, so `ownerId` is unique in what is ordered and the
+      order is total without a tie-break. Stable is what matters: the page
+      above walks, and a walk over an order that moves would skip and repeat
+      rather than cover. `LIMIT` and `OFFSET` are Postgres's here, which is
+      the half the Prisma version never had.
+    */
+    prisma.$queryRaw<{ ownerId: string }[]>`
+      SELECT DISTINCT "ownerId" FROM "Review"
+      WHERE "reviewedAt" >= ${since}
+      ORDER BY "ownerId" ASC
+      LIMIT ${limit} OFFSET ${rosterPage(now, reviewers, limit)}
+    `,
     /*
       And the people who finished first run and have not answered a card yet,
       who are exactly the ones a welcome is for and who a review-log query
@@ -166,7 +191,10 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
         particular key *is* an ISO-8601 instant, and ISO-8601 was designed so
         that lexical order and chronological order are the same thing. So the
         string comparison is the date comparison, in the database, on the
-        table's own primary key.
+        `(key, value)` index. Not on the primary key, which this used to say:
+        that leads with the owner and cannot serve a filter on the key alone,
+        so until the index existed this was a scan of every learner's every
+        setting.
 
         Adding an `updatedAt` column to `Setting` was the other way and is a
         migration over every learner's every preference to answer one question
@@ -339,7 +367,8 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     letter to write about it.
   */
   const deadlineRaw = settings[SETTING_KEYS.goalDeadline];
-  const weeksLeft = deadlineRaw ? weeksUntil(deadlineRaw, now) : null;
+  // Unrounded, because the letter's window has edges: rounded, 24.6 days read as four weeks.
+  const weeksLeft = deadlineRaw ? exactWeeksUntil(deadlineRaw, now) : null;
   const deadlineWeeks = weeksLeft !== null && weeksLeft > 0 ? weeksLeft : null;
 
   /*

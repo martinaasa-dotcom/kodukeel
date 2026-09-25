@@ -10,6 +10,7 @@ import { Card, Chip, Empty, Page } from "@/components/ui";
 import { QueueRows } from "./QueueRows";
 import { TooHard } from "./TooHard";
 import { hardWordReadings } from "@/lib/progress/hard";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Suggested fixes · review queue" };
 
@@ -31,7 +32,7 @@ export const dynamic = "force-dynamic";
 export default async function SuggestionsQueuePage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; category?: string; page?: string }>;
+  searchParams: Promise<{ status?: string | string[]; category?: string | string[]; page?: string | string[] }>;
 }) {
   if (!(await isAdmin())) {
     return (
@@ -49,7 +50,7 @@ export default async function SuggestionsQueuePage({
     );
   }
 
-  const params = await searchParams;
+  const params = firstParams(await searchParams);
   const status: SuggestionStatus = params.status && isStatus(params.status) ? params.status : "OPEN";
   const category: SuggestionCategory | null =
     params.category && isCategory(params.category) ? params.category : null;

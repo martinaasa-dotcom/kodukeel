@@ -11,17 +11,14 @@
  * break becomes a space first, so two words are not glued into one. Empty
  * means refused.
  */
+import { visibleLine } from "@/lib/security/visibleText";
+
 export const GROUP_NAME_MAX = 60;
 
 export function cleanGroupName(value: unknown): string {
   if (typeof value !== "string") return "";
-  const cleaned = value
-    .normalize("NFC")
-    .replace(/[\r\n\t]+/g, " ")
-    .replace(/\p{C}/gu, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, GROUP_NAME_MAX)
-    .trim();
-  return /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : "";
+  // `visibleLine` strips every control character, a line break among them, so
+  // the break becomes a space first or two words are glued into one. The cut
+  // is then its own, by code point, so an emoji is never halved.
+  return visibleLine(value.replace(/[\r\n\t]+/g, " "), GROUP_NAME_MAX);
 }
