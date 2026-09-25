@@ -21595,6 +21595,28 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("an ADR the architecture calls superseded is marked so in the decisions table", () => {
+  /*
+    `docs/11-risks-decisions.md` is the one-page summary of what was decided,
+    and it went on listing SQLite and a pinned `claude-opus-5` as the
+    decisions long after `docs/03-architecture.md` marked both superseded, so
+    a reviewer reading the summary was told the app runs on a database and a
+    model it does not. The architecture document is where an ADR is
+    superseded; this holds the summary to it.
+  */
+  const arch = read("docs/03-architecture.md");
+  const superseded = new Set<string>();
+  for (const m of arch.matchAll(/\*\*ADR-(\d{3}):[^*]*SUPERSEDED/g)) superseded.add(m[1]!);
+  for (const m of arch.matchAll(/SUPERSEDES ADR-(\d{3})/g)) superseded.add(m[1]!);
+  assert.ok(superseded.size >= 2, `found only ${superseded.size} superseded ADRs in docs/03, so this has stopped reading them`);
+  const table = read("docs/11-risks-decisions.md");
+  const unmarked = [...superseded].filter((n) => {
+    const row = table.split("\n").find((l) => l.startsWith(`| ${n} |`));
+    return row !== undefined && !/supersed/i.test(row);
+  });
+  assert.ok(unmarked.length === 0, `docs/11 lists as current an ADR docs/03 calls superseded: ${unmarked.map((n) => `ADR-${n}`).join(", ")}`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
