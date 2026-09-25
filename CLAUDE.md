@@ -4916,7 +4916,9 @@ hands in its own generator and a test hands in a fixed one. `lib/exam/paper.ts` 
 exception and its header says why: the server rebuilds a paper from its seed to mark it, so changing
 how that one draws would mis-mark a paper somebody started before a deploy and handed in after.
 Both halves are asserted, because fixing the two wrong copies and leaving eight right ones is how a
-ninth gets written.
+ninth gets written. And a ninth was written, in the one shape the check could not see: Fisher-Yates
+inline in the sentence round's `useMemo`, with no function to name and no key to sort on. The draw
+is the tell, a random index scaled to one past the loop counter, and that is asserted now too.
 
 **A seed is only as fixed as what it is seeded over.** `planLesson` promises the same seed gives the
 same lesson, and the wrong answers came from an unordered sixty of the 478 words at A1 or the 1,302
@@ -7123,6 +7125,30 @@ which is the other half: `staleTimes.dynamic` is **zero** by default, so going b
 were on ten seconds ago was a fresh render of it, queries and all. Thirty seconds is safe here
 because every mutation in this app is a Server Action and every one of them calls `revalidatePath`,
 which drops the client's copy too.
+
+**And what a page downloads is the other half, and for a while it was the whole course.** The
+signed-in shell mounts `components/course/ModuleScope.tsx`, which took three small helpers from the
+`lib/course` barrel; the barrel re-exports `build.ts`, which imports `prisma/data/harvested.ts`, and
+runs `buildProgrammes()` when it loads. A side effect at the top of a module is the one thing
+tree-shaking cannot drop, so every signed-in page downloaded 916 KB of forms, usages and Russian and
+Ukrainian glosses and built all 289 evenings on the main thread. Measured in a browser: Today went
+from 2,012 KB of script to 1,026, and its main-thread script time from about 150 ms to 110. A client
+file names `lib/course/focus`, `types` or `plan` directly now, asserted, and
+`npm run check:bundle` samples strings that exist only under `prisma/data/` and fails on any in
+`.next/static`, after the secrets job's build. It asks the bundle rather than the imports because
+the bundler decides: the English translations are reachable from fifteen client files and are in no
+chunk.
+
+**And once the round trips were counted, the slowest page was not the database.** Measured on a
+production build against a year of reviews (3,069 cards, 60,320 answers), every page issues between
+3 and 22 statements whether the deck holds 69 cards or 3,069, so nothing loops a query. `/progress`
+still took 1.9 seconds on a local socket, and a CPU profile put 1.1 of them in `dayKey` and
+`hourOf`: the formatter was memoised and `formatToParts` was not, and a heatmap, a daily load and an
+hour-of-day reading each ask it once per review. `partsIn` in `lib/time/day.ts` remembers each
+zone's offset per UTC quarter hour, checked at both ends so a quarter a transition fell inside is
+read the slow way, and is held to `formatToParts` minute by minute around every transition seven
+zones had in three years. 300,000 calls went from 2,863 ms to 167, `/progress` to 0.77 seconds and
+Today from 0.38 to 0.17.
 
 **Where the app runs is part of this and is the largest single number in it.** `vercel.json` pins
 the functions to the region the database is in. A page is several sequential round trips and a
@@ -9386,6 +9412,14 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 - Unit tests stay hermetic: no database, no network, no clock you do not control. Anything needing
   Postgres is an `*.itest.ts` under `npm run test:db`. The unit suite gates every commit and must
   stay fast enough that nobody is tempted to skip it.
+  **And a zone is a clock.** CI runs in UTC, and three clock tests that built their dates with
+  `Date.UTC` passed there and failed on `npm test` in Tallinn, since the formatter reads a time in
+  the reader's zone. `vitest.config.mts` pins `Pacific/Chatham`, a quarter-hour offset thirteen
+  hours from UTC that nobody's code assumes, so a zone assumption fails in CI as well as off it.
+  The locale is the same fault one setting over: `nextCardLine` took its weekday from the host and
+  wrote "The next card comes back on laupäev." on a machine in Estonia, so the weekday is English
+  now, since the sentence is, and the suite runs under `et_EE.UTF-8`. Asserted, including that
+  neither pin is CI's own.
 - **A cache of object URLs that never revokes one is a leak with a hit rate.** `Speak` and
   `PairsSession` each held a `Map` of blob URLs and neither released anything: `Speak`'s was
   module-level and so outlived every navigation, `PairsSession`'s went unreachable when the round

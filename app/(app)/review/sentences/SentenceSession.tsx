@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { shuffle } from "@/lib/random/shuffle";
 import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
 import { gradeCard, translateExample } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -10,7 +11,6 @@ import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
 import { sentenceTiles } from "@/lib/estonian/cloze";
-import { shuffle } from "@/lib/random/shuffle";
 import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordOrder";
 import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";

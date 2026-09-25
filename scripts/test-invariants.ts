@@ -391,6 +391,75 @@ check("the keyed services are only ever reached from the server", () => {
   }
 });
 
+/*
+  THE SUPABASE BROWSER CLIENT IS FETCHED WHEN SOMEBODY SIGNS IN OR OUT.
+
+  The rail on every signed-in page imported it at the top of the file for its
+  Sign out button, so every page downloaded 254 KB of `@supabase/supabase-js`
+  and the Buffer polyfill it brings for a press most visits never make. The
+  sign-in form is the one screen whose job is the client, so it may import it;
+  everything else asks for it with `import()` at the moment it is needed.
+*/
+check("only the sign-in form imports the Supabase browser client up front", () => {
+  const STATIC = /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["'](?:@\/lib\/supabase\/client|@supabase\/(?:ssr|supabase-js))["']/;
+  const ALLOWED = ["app/(chromeless)/sign-in/SignInForm.tsx"];
+  const offenders = CLIENT.filter((file) => !ALLOWED.includes(file) && STATIC.test(code(file)));
+  assert.deepEqual(
+    offenders, [],
+    `a client file imports the Supabase browser client at the top, so every page that renders it downloads 254 KB for it: ${offenders.join(", ")}`,
+  );
+  for (const file of ALLOWED) {
+    assert.ok(STATIC.test(code(file)), `${file} is allowed the client and no longer imports it; take it off the list`);
+  }
+  const lazy = CLIENT.filter((file) => /\bimport\(\s*["']@\/lib\/supabase\/client["']\s*\)/.test(code(file)));
+  assert.ok(lazy.length >= 2, `only ${lazy.length} files fetch the client on demand, so this has lost the ones it was about`);
+});
+
+/*
+  THE COURSE HARVEST IS A SERVER FILE, AND ONE IMPORT PUT IT ON EVERY PAGE.
+
+  The signed-in shell mounts `components/course/ModuleScope.tsx`, which took
+  three small helpers from the `lib/course` barrel. The barrel re-exports
+  `build.ts`, which imports `prisma/data/harvested.ts`, and it runs
+  `buildProgrammes()` when it loads. A side effect at the top of a module is
+  the one thing tree-shaking cannot drop, so every signed-in page downloaded
+  916 KB of forms, usages and Russian and Ukrainian glosses and built all 289
+  evenings of the course on the main thread. Measured: about 2 MB of script on
+  Today, 1 MB once the three imports named the modules they needed.
+
+  Two halves. A client file names `lib/course/focus`, `types` or `plan`
+  directly and never the barrel, which is the cause and is cheap to see here.
+  And the effect is asked of the bundle, by `scripts/check-bundle-data.mjs`,
+  after the build in the secrets job, because which module reaches the browser
+  is the bundler's decision and not something a source check can answer.
+*/
+check("no client file imports the course barrel, and the bundle is checked for the data", () => {
+  // An `import type` is erased before the bundler sees it, so only a runtime
+  // import can carry the barrel's side effect into the browser.
+  const barrel = /(?:^|\n)\s*(?:import|export)\s+(?!type\b)[^;]*?\bfrom\s+["']@\/lib\/course["']/;
+  const offenders = CLIENT.filter((file) => barrel.test(code(file)));
+  assert.deepEqual(
+    offenders, [],
+    `a client file imports @/lib/course, which builds the whole course from the harvest when it loads: ${offenders.join(", ")}`,
+  );
+  assert.ok(
+    CLIENT.some((file) => /\bfrom\s+["']@\/lib\/course\/(focus|types|plan)["']/.test(code(file))),
+    "no client file names a lib/course module directly any more, so this check has lost what it was guarding",
+  );
+  assert.match(
+    code("lib/course/index.ts"), /buildProgrammes\(\)/,
+    "lib/course/index.ts no longer builds the course when it loads; if that is deliberate, this check can go",
+  );
+
+  const ci = read(".github/workflows/ci.yml");
+  const job = ci.slice(ci.indexOf("\n  secrets:"), ci.indexOf("\n  build:"));
+  const built = job.indexOf("npx next build");
+  const checked = job.indexOf("npm run check:bundle");
+  assert.ok(built > 0, "the secrets job no longer builds, so nothing is there to check the bundle of");
+  assert.ok(checked > built, "the secrets job does not run npm run check:bundle after its build");
+  assert.match(read("package.json"), /"check:bundle":\s*"node scripts\/check-bundle-data\.mjs"/);
+});
+
 check("every source LICENSE asks a credit for is credited on every surface that owes it", () => {
   /*
     `LICENSE` names the sources this app is built on and says which ask for a
@@ -3756,26 +3825,28 @@ check("there is one shuffle, and the sort-comparator kind is not a shuffle at al
       + `that reads better as two shuffles concatenated than as a key trick whose two `
       + `ranges happen not to overlap.`,
     );
-    /*
-      And Fisher-Yates wherever it is written, not only inside a function
-      called `shuffle`. The arm above that reads for the function name let a
-      loop straight through: `SentenceSession.tsx` shuffled its tiles with the
-      algorithm inline in a `useMemo`, correct and the ninth copy, which is the
-      thing this check exists to stop, and `shuffleArray` or `_shuffle` would
-      have passed the same way. What every copy shares is a loop walking an
-      index down to 1 and drawing a partner up to and including it,
-      `random() * (i + 1)` on that same counter, so that is the shape read.
-      The loop is part of the pattern on purpose: the draw alone is also how
-      anybody picks a random integer from nought to n, and the first version of
-      this fired on exactly that in `corpus.test.ts`, which is a check people
-      learn to waive.
-    */
-    assert.ok(
-      !/for\s*\(\s*let\s+(\w+)\s*=[^;]+;\s*\1\s*>\s*0\s*;\s*(?:\1--|--\1|\1\s*-=\s*1)\s*\)[\s\S]{0,200}?Math\.floor\(\s*[\w.]+\(\)\s*\*\s*\(\s*\1\s*\+\s*1\s*\)\s*\)/.test(src),
-      `${file}: a Fisher-Yates shuffle written out by hand. Use shuffle() from ${SHUFFLE_HOME}, `
-      + `which takes the generator as a parameter if the draw has to be seeded.`,
-    );
   }
+
+  /*
+    AND THE FOURTH SHAPE, WHICH HAS NO NAME AT ALL.
+
+    The two arms above catch a function called `shuffle` and a random key
+    sorted on, and neither can see Fisher-Yates written straight into a
+    `useMemo`: no function, no key, just the draw that is the whole algorithm.
+    The sentence round's tiles were shuffled that way, a ninth copy, under a
+    rule this file says is asserted both ways. The draw is the tell, a random
+    index scaled to one past the loop counter, and it is read in every file.
+  */
+  const inline = ALL.filter((file) => file !== SHUFFLE_HOME && file !== EXCEPTION)
+    .filter((file) => /\brandom\(\)\s*\*\s*\(\s*\w+\s*\+\s*1\s*\)/.test(code(file)));
+  assert.deepEqual(
+    inline, [],
+    `a Fisher-Yates written inline rather than called. Use shuffle() from ${SHUFFLE_HOME}.`,
+  );
+  assert.match(
+    code(SHUFFLE_HOME), /\brandom\(\)\s*\*\s*\(\s*\w+\s*\+\s*1\s*\)/,
+    "the one shuffle no longer draws the way this check looks for, so the inline arm checks nothing",
+  );
 
   // And the exception carries its reason, so nobody reads it as an oversight.
   assert.match(
@@ -5145,6 +5216,37 @@ check("the app does not talk about itself the way a brochure would", () => {
 });
 
 // ── The browser suites, and the two ways one can lie ─────────────────────────
+
+/*
+  A UNIT TEST STATES ITS MACHINE, AND THE ZONE IS PART OF THE MACHINE.
+
+  CI runs in UTC. Three clock tests built their dates with `Date.UTC` and read
+  them back through formatters that honour the reader's zone, so they passed
+  in CI and failed on `npm test` in Tallinn, which is where this suite is run.
+  The unit config pins a zone that is neither UTC nor anybody's, so an
+  assumption about the zone fails everywhere rather than only off CI. Removing
+  the line or pinning UTC would put the suite back to measuring its host.
+*/
+check("the unit suite runs in a fixed zone that is not UTC, and a locale that is not English", () => {
+  const config = code("vitest.config.mts");
+  const zone = /process\.env\.TZ\s*=\s*["']([^"']+)["']/.exec(config)?.[1];
+  assert.ok(zone, "vitest.config.mts no longer pins a time zone, so the unit suite measures whatever zone its host is in");
+  assert.ok(
+    !/^(UTC|GMT|Etc\/(UTC|GMT)|Europe\/London|Africa\/Abidjan)$/.test(zone!),
+    `vitest.config.mts pins ${zone}, which is CI's own zone: a test that assumes UTC would pass there and fail on a laptop in Tallinn`,
+  );
+  /*
+    And the locale, which is the same fault one setting over: `nextCardLine`
+    took its weekday from the host and wrote "comes back on laupäev" in
+    Tallinn while CI, in English, passed.
+  */
+  const lang = /process\.env\.LC_ALL\s*=\s*["']([^"']+)["']/.exec(config)?.[1];
+  assert.ok(lang, "vitest.config.mts no longer pins LC_ALL, so a formatter handed no locale reads whatever the host speaks");
+  assert.ok(
+    !/^(C|POSIX|en)([_.-]|$)/i.test(lang!),
+    `vitest.config.mts pins ${lang}, which is CI's own language: a string that forgets to say it is English passes there`,
+  );
+});
 
 check("no browser suite hardcodes one machine's Chromium", () => {
   /*
@@ -7788,10 +7890,26 @@ check("signing out forgets the device", () => {
     that could not reach the service loses nothing), which is what the window
     either side of each call reads.
   */
+  /*
+    And a sign-out wrapped in a function is signed out wherever the function is
+    used, not where it is defined. The Supabase client is fetched on demand
+    (#470), so `DangerZone.tsx` holds `auth.signOut()` in a module-level
+    `signOutOfSupabase` and calls that from its handlers, once as a call and
+    once handed to `.then`. Read at the definition, the window saw an import
+    and no handler at all.
+  */
   let signOuts = 0;
   for (const file of leavers) {
     const source = code(file);
-    for (const call of source.matchAll(/auth\.signOut\(/g)) {
+    const wrappers = [...source.matchAll(/const\s+(\w+)\s*=\s*\([^)]*\)\s*=>[^;]*?auth\.signOut\(/g)]
+      .map((m) => ({ name: m[1]!, start: m.index!, end: m.index! + m[0].length }));
+    const sites = [
+      ...[...source.matchAll(/auth\.signOut\(/g)]
+        .filter((m) => !wrappers.some((w) => m.index! >= w.start && m.index! < w.end)),
+      ...wrappers.flatMap((w) => [...source.matchAll(new RegExp(`\\b${w.name}\\b(?!\\s*=)`, "g"))]
+        .filter((m) => m.index! !== w.start + source.slice(w.start).indexOf(w.name))),
+    ];
+    for (const call of sites) {
       signOuts += 1;
       const around = source.slice(Math.max(0, call.index! - 300), call.index! + 300);
       const line = source.slice(0, call.index!).split("\n").length;
@@ -9720,7 +9838,10 @@ check("every path the documentation names exists, or is named because it is gone
     for (const m of prose(page).matchAll(/`((?:app|lib|components|scripts|prisma|docs|public)\/[^`\s*]+)`/g)) {
       const path = m[1]!.replace(/[:#].*$/, "");
       named.add(path);
-      if (!existsSync(path) && !(path in GONE_ON_PURPOSE)) missing.set(path, page);
+      // A module named the way an import names it, with no extension, is the
+      // file the import would find.
+      const found = ["", ".ts", ".tsx", ".mjs", "/index.ts"].some((ext) => existsSync(path + ext));
+      if (!found && !(path in GONE_ON_PURPOSE)) missing.set(path, page);
     }
   }
   assert.ok(named.size > 300, `only ${named.size} paths found in the documentation, so this stopped reading it`);
