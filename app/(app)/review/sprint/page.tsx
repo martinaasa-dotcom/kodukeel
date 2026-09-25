@@ -44,14 +44,21 @@ export default async function SprintPage({
   // card only once its page has been read. See lib/course/scope.ts.
   const scope = moduleScopeFrom(await searchParams);
   const scoped = scope ? { lexeme: lemmaFilter(scope) } : {};
-  const spellings = await moduleSpellings(scope);
+  // Started here and awaited where it is read, so the settings row rides
+  // beside the deck reads rather than after them.
+  const settingsPromise = readSettings(ownerId, [
+    SETTING_KEYS.sprintBest, SETTING_KEYS.roundPace,
+  ]);
 
-  const due = await prisma.card.findMany({
-    where: { ownerId, suspended: false, due: { lte: now }, state: { not: 0 }, ...scoped },
-    orderBy: { due: "asc" },
-    take: POOL_SIZE,
-    include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
-  });
+  const [spellings, due] = await Promise.all([
+    moduleSpellings(scope),
+    prisma.card.findMany({
+      where: { ownerId, suspended: false, due: { lte: now }, state: { not: 0 }, ...scoped },
+      orderBy: { due: "asc" },
+      take: POOL_SIZE,
+      include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
+    }),
+  ]);
 
   let cards = due;
   if (cards.length < POOL_SIZE) {
@@ -111,9 +118,7 @@ export default async function SprintPage({
   // Through the store, not straight at the table: the keys live there, and so
   // does the one settings read this request has already made. Both in one
   // call, because two reads of one map is two round trips for nothing.
-  const settings = await readSettings(ownerId, [
-    SETTING_KEYS.sprintBest, SETTING_KEYS.roundPace,
-  ]);
+  const settings = await settingsPromise;
   const best = numberSetting(settings[SETTING_KEYS.sprintBest], 0);
   /*
     How long the clock runs, resolved on the server and handed down as a
