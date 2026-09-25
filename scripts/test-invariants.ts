@@ -21790,11 +21790,26 @@ check("a Server Action called from the browser is caught, so a dropped connectio
       if (s[k] === "}") depth += 1;
       else if (s[k] === "{") {
         if (depth > 0) depth -= 1;
-        else if (/try\s*$/.test(s.slice(Math.max(0, k - 10), k))) return true;
+        else if (/try\s*$/.test(s.slice(Math.max(0, k - 10), k))) {
+          // A `try` with only a `finally` lets the rejection through, so the
+          // block has to be followed by a `catch` to count.
+          let d = 0;
+          for (let j = k; j < s.length; j += 1) {
+            if (s[j] === "{") d += 1;
+            else if (s[j] === "}" && (d -= 1) === 0) return /^\s*catch\b/.test(s.slice(j + 1));
+          }
+          return false;
+        }
       }
     }
     return false;
   };
+  {
+    const probe = "try { await act(); } finally { done(); }";
+    assert.ok(!insideTry(probe, probe.indexOf("act")), "a try with only a finally is read as catching");
+    const caught = "try { await act(); } catch { fail(); }";
+    assert.ok(insideTry(caught, caught.indexOf("act")), "a try with a catch is no longer read as catching");
+  }
   const inCaughtAll = (s: string, at: number) => {
     let depth = 0;
     for (let k = at - 1; k >= 0; k -= 1) {
