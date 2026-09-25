@@ -5409,7 +5409,10 @@ which is what made that sentence reachable on the first evening alone.
 take a day id from their caller, which is JSON off the wire whatever the type says, and neither
 checked it: a forged tick would have moved the whole course onto a day two hundred evenings ahead,
 and `startCourseDay` would have built a deck out of that day's words. `dayIsInPlay` is the guard on
-both, the day reached or the one it opens on to, and it is asserted. It leans in turn on every day
+both, and it is asserted: a day at or before the day reached, or the next one once the day reached
+is finished. That last condition is the half that was missing. Every tick moves the day reached, so
+"or the next one" alone let a caller tick tomorrow, then the day after, and walk the programme one
+request at a time with nothing done. It leans in turn on every day
 having at least one step the log cannot prove, which `course.test.ts` checks over all 273 evenings:
 a day of nothing but a meet and a review would finish itself the moment its words were met
 somewhere else and walk the learner through the programme.
