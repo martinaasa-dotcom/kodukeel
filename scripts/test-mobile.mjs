@@ -101,7 +101,8 @@ for (const width of [...PHONES, ...WIDE]) {
   await ctx.close();
 }
 
-// 2c — A day on the course's own list starts beside its number. The row was a
+// 2c — A day on the course's own list, and a part on the ladder under it,
+//      starts beside its number. The row was a
 //      wrapping flex, so a title longer than the room beside the badge moved
 //      down whole and left the number alone on a line above it: at 360,
 //      "To be, this and that, and the six endings" sat under an orphaned 3.
@@ -119,9 +120,9 @@ for (const width of [320, 360]) {
       return { ok: !!first && first.top < badge.bottom, text: title.textContent.trim() };
     }));
   const orphaned = rows.filter((r) => !r.ok);
-  check(`every day on the course list starts beside its number at ${width}`,
-    rows.length >= 5 && orphaned.length === 0,
-    orphaned.length ? orphaned.slice(0, 3).map((r) => r.text).join(" | ") : `${rows.length} days`);
+  check(`every day and part on the course page starts beside its number at ${width}`,
+    rows.length >= 20 && orphaned.length === 0,
+    orphaned.length ? orphaned.slice(0, 3).map((r) => r.text).join(" | ") : `${rows.length} rows`);
   await ctx.close();
 }
 

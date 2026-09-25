@@ -544,20 +544,26 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>{groupLevel}</p>
             <ul className="mt-1.5 flex flex-col gap-1">
               {PROGRAMMES.filter((p) => p.level === groupLevel).map((p) => (
-                <li key={p.id} className="flex flex-wrap items-baseline gap-x-2 text-sm">
+                <li key={p.id} data-course-day className="flex items-baseline gap-2 text-sm">
+                  {/* The part's number is a column of its own, for the reason
+                      the evening list above gives: in one wrapping row a
+                      title that did not fit beside it left it alone on a line. */}
                   <span
-                    className="tnum font-semibold"
+                    data-course-badge
+                    className="tnum w-9 shrink-0 font-semibold"
                     style={{ color: p.id === here ? "var(--accent-deep)" : "var(--ink-2)" }}
                   >
                     {p.id.toUpperCase()}
                   </span>
-                  <span lang={wantsEnglish ? undefined : "et"} style={{ color: "var(--ink)" }}>
-                    {uiText(learnerLevel, p.title, p.subtitle)}
+                  <span className="flex min-w-0 flex-wrap items-baseline gap-x-2">
+                    <span data-course-title lang={wantsEnglish ? undefined : "et"} style={{ color: "var(--ink)" }}>
+                      {uiText(learnerLevel, p.title, p.subtitle)}
+                    </span>
+                    <span style={{ color: "var(--ink-3)" }}>
+                      {p.days.length} evenings
+                    </span>
+                    {p.id === here && <Chip tone="accent">You are here</Chip>}
                   </span>
-                  <span style={{ color: "var(--ink-3)" }}>
-                    {p.days.length} evenings
-                  </span>
-                  {p.id === here && <Chip tone="accent">You are here</Chip>}
                 </li>
               ))}
             </ul>
