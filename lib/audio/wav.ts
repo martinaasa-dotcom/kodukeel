@@ -140,6 +140,9 @@ export function decodeWav(bytes: Uint8Array): Pcm {
     const length = view.getUint32(at + 4, true);
     const body = at + 8;
     if (id === "fmt ") {
+      // Sixteen bytes is the smallest fmt chunk that holds the four fields read
+      // below; anything less reads past the chunk, or past the file.
+      if (length < 16 || body + 16 > bytes.byteLength) throw new WavError("truncated fmt chunk");
       let tag = view.getUint16(body, true);
       // WAVE_FORMAT_EXTENSIBLE carries the real tag in its sub-format GUID.
       if (tag === 0xfffe && length >= 26) tag = view.getUint16(body + 24, true);
@@ -398,10 +401,31 @@ export function encodeWav16(pcm: Pcm): Uint8Array {
 }
 
 /**
+ * What the speech route serves and whether it may keep it.
+ *
+ * A body `prepareClip` cannot read is still spoken this once, because an
+ * untrimmed clip is better than none, and it is never written to the store:
+ * the store is shared, content-addressed, never pruned and consulted before the
+ * service, so an empty answer or a maintenance page kept there is a word that
+ * stays silent for every learner until the clip shape moves. Not keeping it
+ * costs a request to the service each time until the fault is fixed, which is
+ * also what makes the report fire each time rather than once.
+ */
+export function clipForStore(
+  bytes: Uint8Array,
+): { audio: Uint8Array; keep: boolean; error: WavError | null } {
+  try {
+    return { audio: prepareClip(bytes), keep: true, error: null };
+  } catch (error) {
+    if (error instanceof WavError) return { audio: bytes, keep: false, error };
+    throw error;
+  }
+}
+
+/**
  * What the speech route does to every clip before it is cached: decode, trim,
  * cap the pauses, level, and write as 16-bit. Throws `WavError` on bytes that
- * are not a WAV this understands, and the route then keeps the clip as it
- * came, because a clip that is merely untrimmed is better than none.
+ * are not a WAV this understands; `clipForStore` is how the route answers that.
  */
 export function prepareClip(bytes: Uint8Array): Uint8Array {
   return encodeWav16(normaliseLoudness(capPauses(trimSilence(decodeWav(bytes)))));

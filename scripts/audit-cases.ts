@@ -49,6 +49,7 @@
  * .ekilex-cache/ in the same files the harvest and the verb audit use, so
  * re-running costs Ekilex nothing.
  */
+import { PARTS } from "../lib/copy/values";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -348,7 +349,7 @@ async function main() {
   if (stored.length) {
     console.log(`\n${stored.length} stored parts Ekilex spells otherwise:`);
     for (const d of stored.slice(0, 40)) {
-      console.log(`  ${d.lemma.padEnd(18)} ${d.name.padEnd(14)} held ${d.held.padEnd(20)} ekilex ${d.ekilex.join(" / ")}`);
+      console.log(`  ${d.lemma.padEnd(18)} ${d.name.padEnd(14)} held ${d.held.padEnd(20)} ekilex ${d.ekilex.join(PARTS)}`);
     }
     if (stored.length > 40) console.log(`  ... and ${stored.length - 40} more`);
   }
@@ -357,10 +358,19 @@ async function main() {
     for (const d of disagreements.slice(0, 60)) {
       console.log(
         `  ${d.lemma.padEnd(18)} ${d.key.padEnd(12)} ${d.origin.padEnd(9)}` +
-        ` app ${d.derived.join(" / ").padEnd(28)} ekilex ${d.ekilex.join(" / ")}`,
+        ` app ${d.derived.join(PARTS).padEnd(28)} ekilex ${d.ekilex.join(PARTS)}`,
       );
     }
     if (disagreements.length > 60) console.log(`  ... and ${disagreements.length - 60} more`);
+    process.exitCode = 1;
+  } else if (unreachable * 2 > checked + unreachable) {
+    /*
+      A run that could not read most of what it was asked about is not a pass,
+      which is `audit:glosses`' own rule. With every request refused this
+      printed "No disagreements." over nought checked and exited 0, a clean
+      result nobody earned.
+    */
+    console.log(`\nFewer than half the nominals could be fetched, so this is not a pass either way.`);
     process.exitCode = 1;
   } else {
     console.log("\nNo disagreements.");

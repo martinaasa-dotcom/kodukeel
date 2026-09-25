@@ -103,6 +103,15 @@ async function mainText(wanted, budgetMs = 8000) {
   do {
     text = await page.locator("main").innerText().catch(() => "");
     if (wanted.test(text)) return text;
+    /*
+      A briefing that arrives after `startRound` stopped looking for it.
+      `startRound` looks for a bounded moment and then decides the round opened
+      cold; on a busy runner the briefing can land after that, and this loop then
+      spent its whole budget reading the briefing and handed back text with no
+      question in it, which `wordOf` reads as an empty word. Seen in CI as
+      "a reload comes back to the same question (aitama olevik · ta -> )".
+    */
+    if (await page.locator("[data-briefing-start]").count()) await startRound(page);
     await page.waitForTimeout(150);
   } while (Date.now() < until);
   return text;
@@ -119,7 +128,21 @@ async function mainText(wanted, budgetMs = 8000) {
  * which is the shape of waiver this repository has learned to distrust.
  */
 async function question() {
-  const text = await mainText(/^your (answer|sentence)$/im);
+  /*
+    And presses through a briefing that turns up late. `startRound` looks for
+    one for about a second and a half and then assumes the round is exempt,
+    which on a loaded two-core runner is shorter than a reload takes to put the
+    briefing on screen: CI read the briefing for eight seconds, found no word
+    on it and reported the round as having forgotten its question.
+  */
+  const until = Date.now() + 8000;
+  let text = "";
+  do {
+    if (await page.locator("[data-briefing-start]").count()) await startRound(page);
+    text = await page.locator("main").innerText().catch(() => "");
+    if (/^your (answer|sentence)$/im.test(text)) break;
+    await page.waitForTimeout(150);
+  } while (Date.now() < until);
   return { text, hasBox: (await page.locator("#answer").count()) > 0 };
 }
 
@@ -341,21 +364,47 @@ const written = (await prisma.review.findMany({
 })).filter((row) => !alreadyThere.has(row.id));
 
 check("every answer reached the review log", written.length >= asked, `${written.length} rows`);
+/*
+  A ROUND THAT WROTE NOTHING USED TO PASS FOUR OF THE FIVE CHECKS BELOW.
+
+  `every` on an empty list is true, so with `written` empty the two rows
+  checks printed PASS about a log nobody had written to, and the two below
+  them escaped through a disjunction instead. The check above fails honestly
+  in that state and the four behind it said the round was fine, which is one
+  reported failure covering five unlooked things: the shape `scripts/lib/checks.mjs`
+  exists for, inside a check rather than behind a gate.
+
+  So each of them says what it rests on. The `written.length > 0` conjuncts
+  are a fault rather than an absence, because a round that answered twelve
+  questions and logged nothing is the thing this block is named after; the two
+  `absent` calls below are the other kind, a state the driver did not reach.
+*/
 check(
   "every row says which form it was about",
-  written.every((r) => r.slot !== null),
+  written.length > 0 && written.every((r) => r.slot !== null),
   written.filter((r) => r.slot === null).length + " without one",
 );
 check(
   "and none of them says something the app does not write",
-  written.every((r) => r.slot === null || KNOWN_SLOTS.has(r.slot)),
+  written.length > 0 && written.every((r) => r.slot === null || KNOWN_SLOTS.has(r.slot)),
   [...new Set(written.map((r) => r.slot))].join(", "),
 );
-check(
-  "a verb form is recorded as itself, which no case column could hold",
-  written.some((r) => VERB_SLOTS.includes(r.slot ?? "")) || slotsAsked.size < 4,
-);
-check("a right answer is graded as one", written.some((r) => r.rating >= 3) || rights === 0);
+if (slotsAsked.size >= 4) {
+  check(
+    "a verb form is recorded as itself, which no case column could hold",
+    written.some((r) => VERB_SLOTS.includes(r.slot ?? "")),
+    [...slotsAsked].join(", "),
+  );
+} else {
+  absent(1, "four different slots in one round, which this deck did not deal, so nothing here "
+    + "was ever going to be a verb");
+}
+if (rights > 0) {
+  check("a right answer is graded as one", written.some((r) => r.rating >= 3));
+} else {
+  absent(1, "a right answer to grade: the reload check above is what types one, and this run "
+    + "never got that far");
+}
 
 /*
   THE LISTS THE ROUND MOVES, which the learner asked for twice and could not
