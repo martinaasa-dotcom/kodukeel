@@ -259,8 +259,16 @@ export function QuestSession({
         flip it always had: space, then 1 and 2.
       */
       if (card?.typed) {
-        // The box takes Enter while it is being typed into; after the mark,
-        // the advance key moves on.
+        /*
+          The box takes Enter while it is being typed into; after the mark,
+          the advance key moves on. Never the same Enter: the mark's render
+          and its effects are flushed inside that keydown, so this listener is
+          already the one that sees `revealed`, and without the target check
+          one press marked the card and moved past it before the verdict drew.
+        */
+        const target = e.target as HTMLElement | null;
+        // A focused button answers its own Enter, which would be two grades.
+        if (target?.closest("input, textarea, button")) return;
         if (revealed && isAdvanceKey(e)) { e.preventDefault(); nextTyped(); }
         return;
       }
