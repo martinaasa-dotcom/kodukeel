@@ -69,7 +69,9 @@ export function normaliseZone(value: unknown): Zone {
   a busy learner's chart is thousands of rows. Constructing an
   `Intl.DateTimeFormat` is the expensive part; formatting with one is not. The
   map is keyed on the zone name and there is one entry per zone a process ever
-  sees, which is one on a server and one on a phone.
+  sees: one on a phone, and on a server one per zone its learners live in,
+  which the IANA list bounds, since a name that is not a zone throws inside
+  the constructor before anything is stored.
 */
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
