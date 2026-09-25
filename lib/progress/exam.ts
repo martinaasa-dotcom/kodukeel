@@ -206,7 +206,7 @@ export async function readinessSignals(
   ownerId: string,
   known?: DeckSnapshot,
 ): Promise<ReadinessSignals> {
-  const [snapshot, byLevel, knownRows, matureReviews, caseReviews, cardTypeRows, attempts, placed] =
+  const [snapshot, byLevel, knownRows, matureReviews, caseReviews, cardTypeRows, attempts, placed, totalReviews] =
     await Promise.all([
       known ?? deckSnapshot(ownerId),
       /*
@@ -259,6 +259,10 @@ export async function readinessSignals(
       }),
       recentAttempts(ownerId, { measured: true }),
       latestFor(ownerId),
+      /* In the batch rather than in the object below, where it was one more
+         round trip after all of these had come back, for a count that needs
+         none of them. */
+      prisma.review.count({ where: { ownerId } }),
     ]);
 
   const vocabulary = emptyVocabulary();
@@ -308,7 +312,7 @@ export async function readinessSignals(
           answered: placed.answered,
         }
       : null,
-    totalReviews: await prisma.review.count({ where: { ownerId } }),
+    totalReviews,
   };
 }
 

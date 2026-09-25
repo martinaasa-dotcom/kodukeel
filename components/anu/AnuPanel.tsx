@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { getTutorHistory } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -9,6 +9,7 @@ import { Empty } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { useAnuChat } from "./useAnuChat";
 import { useStickToBottom } from "./useStickToBottom";
+import { useModalFocus } from "@/components/useModalFocus";
 import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, sentenceCheckPrompt, AnuOffline } from "./AnuParts";
 
 /**
@@ -17,8 +18,12 @@ import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, 
  * see the comment there.
  */
 export function AnuPanel({
-  configured, readerCanConfigure, onClose,
+  open, returnTo, configured, readerCanConfigure, onClose,
 }: {
+  /** Whether it is on screen: mounted once and hidden afterwards, so mounting says nothing. */
+  open: boolean;
+  /** The round button, which is where the caret goes back to when she closes. */
+  returnTo: RefObject<HTMLButtonElement | null>;
   configured: boolean;
   readerCanConfigure: boolean;
   onClose: () => void;
@@ -31,6 +36,14 @@ export function AnuPanel({
   const [checkEn, setCheckEn] = useState("");
   const boxRef = useRef<HTMLInputElement>(null);
   const conversation = useStickToBottom(messages);
+  const panel = useRef<HTMLElement>(null);
+  /*
+    Every opening, not only the first: the panel stays mounted and is hidden
+    between openings, so an effect on mount put the caret nowhere after the
+    first time. The box a question is typed into takes it, since that is what
+    somebody opened her for; without a key it is the first thing in the panel.
+  */
+  useModalFocus(open, panel, { initial: boxRef, fallback: returnTo });
 
   /*
     Whether this panel is still an invitation or is now a conversation.
@@ -73,6 +86,7 @@ export function AnuPanel({
 
   return (
     <section
+      ref={panel}
       role="dialog"
       aria-modal="true"
       aria-label="Ask Anu"
@@ -87,7 +101,13 @@ export function AnuPanel({
       // whatever it was going to inside the panel (the input's own Enter,
       // a button's native activation), so this only stops it from also
       // being read by whatever the panel happens to be floating over.
-      onKeyDown={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        e.stopPropagation();
+        // Stopped here, Escape never reached the listener `AnuFab` keeps on
+        // the document, so the one key that closes every other dialog left
+        // this one open whenever the caret was inside it.
+        if (e.key === "Escape") onClose();
+      }}
       /*
         A CHAT PANEL OPENS AT THE SIZE IT WILL BE USED AT.
 

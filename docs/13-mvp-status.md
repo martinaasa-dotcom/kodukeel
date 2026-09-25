@@ -2485,3 +2485,30 @@ have failed as written, which is why it asks a locator rather than the page's wh
 question in the last act is printed two acts above it, and the way out at the end is a round that
 grades. It teaches the singular only, because that is what the claim is about; the plural is on the
 dictionary entry and on the reference.
+
+## 39. The thirty-third pass: every homonym read, and one taught as the other
+
+**The course's homonyms were resolved rather than reported.** The harvest takes the first Ekilex
+word whose forms fit and prints every lemma where that was a choice. 106 course words had a rival,
+and each was read against Ekilex's own Estonian definition of every candidate. 105 had taken the
+word the gloss describes. They are pinned now, so the report stays empty until a new word needs a
+decision. The pin is the id the harvest already chose, so no row moved.
+
+**`täis` was the one that had not.** The course teaches it as "full". The harvest had taken the
+homonym Ekilex defines as "kogu, terve", which is whole, in `täies riides` and `täie häälega`. So
+the card said "full" over the declension and sentences of a different word. The word for full is a
+separate entry that does not inflect (`Korv on seeni täis.`, `Täis klaas.`). It is pinned, labelled
+`ADVERB` as every uninflecting word in the course is, and `pos-corrections.json` moves a row
+already seeded. Seven principal parts left the built dictionary with it.
+
+**And re-harvesting one unit could not drop a row.** `--only` kept every row it did not ask about,
+including the old `täis|ADJECTIVE` row the course no longer names. The seed would have written it
+as a second entry beside the right one. `planHarvestWrite` takes `wanted`, every key the course
+requests today, and a row outside it leaves on any run. The new test was made to fail on the old
+line first.
+
+**The expansion's two suggested pins stay unapplied, on the evidence.** `npm run audit:homonyms`
+proposes `aste` and `põtk`. `aste` is the case the script's own header argues against. For `põtk`,
+the stored word is the one Ekilex defines as "jalg, koib", which is the gloss "foot, leg". The
+page's `põtku` belongs to a fishing spot. The other 78 disagreements are the page's own slips, as
+before.

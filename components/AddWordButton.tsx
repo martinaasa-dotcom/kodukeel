@@ -41,10 +41,18 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
 }) {
   const router = useRouter();
   const [result, setResult] = useState<string | null>(null);
+  /*
+    A FAILURE IS NOT A RESULT. It used to land in the same field, so a refused
+    add was drawn with the tick and the button was held shut for good: the
+    screen said it had worked and offered no second try. It is its own line,
+    in the ink a miss is written in, and the button stays open to press again.
+  */
+  const [error, setError] = useState<string | null>(null);
 
   const keeper = useKeepWord(lexemeId, async (deckIds, named) => {
     const r = await addToDeck(lexemeId, ["RECOGNITION", "PRODUCTION"], source, deckIds).catch(() => null);
-    if (!r || !r.ok) { setResult(r ? r.error : NOT_REACHED); return; }
+    if (!r || !r.ok) { setError(r ? r.error : NOT_REACHED); return; }
+    setError(null);
     const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
     setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${counted(r.added, "card")}.${where}`);
     router.refresh();
@@ -59,9 +67,12 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
         )}
         <Button
           variant={variant}
-          onClick={keeper.press}
-          disabled={keeper.pending || result !== null}
-          className={keeper.asking ? "flex-1" : "w-full"}
+          onClick={() => { if (!keeper.pending && result === null) keeper.press(); }}
+          /* Not `disabled`: the press is what starts the add, and a control
+             disabled under the caret drops focus onto the body. It says it is
+             busy, or done, and ignores a second press. */
+          aria-disabled={keeper.pending || result !== null || undefined}
+          className={`${keeper.asking ? "flex-1" : "w-full"} aria-disabled:opacity-45`}
         >
           {keeper.pending ? (
             <><Loader2 size={15} className="animate-spin" aria-hidden /> Adding…</>
@@ -72,6 +83,11 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
           )}
         </Button>
       </div>
+      {error && (
+        <p role="alert" className="mt-2 text-sm" style={{ color: "var(--again-ink)" }}>
+          {lemma}: {error}
+        </p>
+      )}
       <span className="sr-only" role="status">{result ? `${lemma}: ${result}` : ""}</span>
     </div>
   );

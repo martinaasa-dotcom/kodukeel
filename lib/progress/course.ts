@@ -284,6 +284,21 @@ export async function dayIsInPlay(
  */
 async function metWords(ownerId: string, words: readonly string[]): Promise<boolean> {
   if (words.length === 0) return true;
+  return metWordsFor(ownerId, words.join("\n"));
+}
+
+/*
+  MEMOISED FOR THE RENDER, ON PRIMITIVES. The course screen asks
+  `courseReading` and then `closingProgress`, and both ask this of the same
+  day's words: two reads of the deck a few lines apart for one answer. React's
+  `cache` compares its arguments by identity, so the words travel as one string
+  rather than as an array a caller may have built afresh. No action writes a
+  card and then asks this again in the same request, which is the one way a
+  memo here could hand back a stale answer; `ticksFor` above has stood on the
+  same ground since it was written.
+*/
+const metWordsFor = cache(async (ownerId: string, joined: string): Promise<boolean> => {
+  const words = joined.split("\n");
   const [cards, aside] = await Promise.all([
     prisma.card.findMany({
       where: {
@@ -330,7 +345,7 @@ async function metWords(ownerId: string, words: readonly string[]): Promise<bool
   */
   const known = await prisma.lexeme.count({ where: { lemma: { in: [...words] } } });
   return known === 0;
-}
+});
 
 /**
  * Answers graded since a moment, which is what the closing round counts.
@@ -344,6 +359,13 @@ async function metWords(ownerId: string, words: readonly string[]): Promise<bool
  * restored from a file, and keeps the reading it always had.
  */
 async function gradedSince(ownerId: string, since: Date): Promise<number> {
+  return gradedSinceMs(ownerId, since.getTime());
+}
+
+/* Memoised for the render on the instant as a number, for `metWordsFor`'s
+   reason: the reading and the closing line under it count the same window. */
+const gradedSinceMs = cache(async (ownerId: string, sinceMs: number): Promise<number> => {
+  const since = new Date(sinceMs);
   return prisma.review.count({
     where: {
       ownerId,
@@ -353,7 +375,7 @@ async function gradedSince(ownerId: string, since: Date): Promise<number> {
       ],
     },
   });
-}
+});
 
 /** Answers the server received in `[since, until)`, read the way `gradedSince` reads them. */
 async function gradedBetween(ownerId: string, since: Date, until: Date): Promise<number> {

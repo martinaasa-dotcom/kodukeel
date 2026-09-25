@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { prisma } from "@/lib/db";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { hardWords } from "@/lib/dict/facts";
@@ -294,7 +296,29 @@ export async function deferredFor(ownerId: string, now = new Date()): Promise<De
  * read of a small table, beside whatever else those callers are already
  * fetching rather than in front of it.
  */
-export async function deferredWordIds(ownerId: string, now = new Date()): Promise<ReadonlySet<string>> {
+export function deferredWordIds(ownerId: string, now = new Date()): Promise<ReadonlySet<string>> {
+  const slot = deferredSlot(ownerId);
+  slot.read ??= readDeferredWordIds(ownerId, now);
+  return slot.read;
+}
+
+/*
+  ONE READ PER LEARNER PER RENDER. Today's deck snapshot, the ladder's own
+  counts and the course's "have the words been met" each ask this, a few
+  milliseconds apart, and each was a round trip. A slot per learner rather than
+  a memo keyed on the instant, because every caller hands in its own `new
+  Date()` and a key on the millisecond would never hit: the first caller's
+  instant answers for the render, which is a difference of milliseconds on a
+  wait measured in days. Outside a render `cache` hands back a fresh slot
+  every time, so a test passing its own instant is read against that instant.
+  No action puts a word aside and then asks this in the same request.
+*/
+const deferredSlot = cache((ownerId: string): { read?: Promise<ReadonlySet<string>> } => {
+  void ownerId;
+  return {};
+});
+
+async function readDeferredWordIds(ownerId: string, now: Date): Promise<ReadonlySet<string>> {
   const rows = await prisma.deferral.findMany({
     where: { ownerId, wokenAt: null, untilAt: { gt: now } },
     select: { lexemeId: true },

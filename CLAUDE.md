@@ -8507,7 +8507,7 @@ a clerk who in real life takes what they are told. `npm run probe:turns` listed 
 a dozen of them were this. So a `datum` is met by any value of the slot's kind the dictionary can
 read: another of the words the slot could have dealt, through the same ladder as the dealt one so
 the case is still corrected; any clock time in digits or in the words a card's time is said in;
-any number inside the slot's span (`slotKinds`, `timeFromText`, `numberFromText`). The hit carries
+any number inside the slot's span (`slotKinds`, `timeFromText`, `numberFromText`). A slot marked `places` also takes a capitalised word the app cannot account for as anything else, because at a bus station the answer is a town and the forms list holds no capitalised word: `Tartusse` is adopted as the destination, its ending is not claimed, and it is never said back or graded. The hit carries
 `chose`, `cardChosen` stands the learner's value into the card in play, and the line that reads it
 back, the composer's facts, the numbers the gate lets a line say and the value beside the objective
 all read the learner's from that turn on. A fact marked `theirs` is never the learner's to change.

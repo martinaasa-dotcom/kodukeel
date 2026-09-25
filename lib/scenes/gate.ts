@@ -32,7 +32,7 @@ import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import { parseGovernment } from "@/lib/estonian/government";
 import type { CaseKey } from "@/lib/estonian/types";
 import {
-  DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, clausesOf, words, type Lexicon, type Subject,
+  DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, clausesOf, sentenceCount, words, type Lexicon, type Subject,
 } from "./lexicon";
 import { compoundOf } from "./nearly";
 import { isQuestion } from "./retrieval";
@@ -866,12 +866,7 @@ export const MAX_COMPOSED_WORDS = 55;
  */
 function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boolean {
   const trimmed = text.trim();
-  /*
-    A sentence ends on a stop followed by the next one's capital. Splitting on
-    every stop and a space counted `3. korrusel` and `15. mail`, which is how
-    Estonian writes an ordinal and a date, as two sentences each.
-  */
-  const sentences = trimmed.split(/[.!?]+\s+(?=[\p{Lu}„"«])/u).filter(Boolean).length;
+  const sentences = sentenceCount(trimmed);
   const shape = QUESTION_SHAPE[beat.move];
   return sentences >= 1 && sentences <= MAX_SENTENCES
     // A closing quote may follow the stop, Estonian's own `“` included.

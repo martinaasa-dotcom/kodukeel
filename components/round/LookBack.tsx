@@ -207,6 +207,20 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
   useEffect(() => { panel.current?.focus(); }, []);
 
   /*
+    AT THE OLDEST CARD "ONE MORE BACK" DISABLES UNDER THE CARET. A browser
+    drops focus off a control it has just disabled, so a keyboard walking back
+    through the round was left on the body at the one card it could not pass.
+    The caret goes to the forward button, which is the one still to press.
+  */
+  const backButton = useRef<HTMLButtonElement>(null);
+  const forwardButton = useRef<HTMLButtonElement>(null);
+  const backHadFocus = useRef(false);
+  useEffect(() => {
+    if (!hasEarlier && backHadFocus.current) forwardButton.current?.focus();
+    backHadFocus.current = false;
+  }, [hasEarlier, position]);
+
+  /*
     AND THE PANEL OWNS THE KEYBOARD WHILE IT STANDS IN THE ROUND'S PLACE.
 
     The card this replaced is not on the screen, so its keys must not be
@@ -328,13 +342,20 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-3 border-t px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-        <Button onClick={onBack} disabled={!hasEarlier}>
+        <Button
+          ref={backButton}
+          onClick={() => {
+            backHadFocus.current = document.activeElement === backButton.current;
+            onBack();
+          }}
+          disabled={!hasEarlier}
+        >
           <ArrowLeft size={14} aria-hidden /> One more back
         </Button>
         {/* The primary is the forward one, and at the newest card forward is
             the way out: somebody two words back walks home the way they came
             rather than hunting for a different button. */}
-        <Button variant="primary" size="lg" onClick={onForward}>
+        <Button ref={forwardButton} variant="primary" size="lg" onClick={onForward}>
           {hasLater ? "Next" : "Back to the round"} <ArrowRight size={14} aria-hidden />
         </Button>
       </div>

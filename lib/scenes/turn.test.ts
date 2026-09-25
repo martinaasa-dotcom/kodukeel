@@ -630,6 +630,35 @@ describe("a fact the learner changed on their own card", () => {
     expect(readTurn("12", beat({ needs: [{ kind: "datum", slot: "floor" }] }), ctx()).reading).not.toBe("complete");
   });
 
+  /*
+    A town is where anybody at a bus station is going, and the forms list
+    holds no capitalised word, so `Tartusse` was answered "sorry?". On a slot
+    marked as a place it is the fact they chose; nothing about its ending is
+    claimed, so it is never said back.
+  */
+  it("takes a place name on a slot that is a place, and never says it back", () => {
+    const towns = new Map(slots);
+    towns.set("to", { kind: "word", oneOf: ["tuba"], places: true });
+    const at = () => ({ ...ctx(), slots: towns, data: new Map([...ctx().data, ["to", new Set(["tuppa"])]]) });
+    const asks = beat({ needs: [{ kind: "datum", slot: "to", grammCase: "ILLATIVE" }] });
+    const seen = readTurn("Tartusse", asks, at());
+    expect(seen.reading).toBe("complete");
+    expect(seen.chose).toEqual([{ slot: "to", value: "Tartusse" }]);
+    expect(seen.matched).toEqual([]);
+    expect(readTurn("Ma sõidan Tartusse", asks, at()).chose).toEqual([{ slot: "to", value: "Tartusse" }]);
+    // A capitalised word the app knows is that word rather than a town.
+    expect(readTurn("Valu", asks, at()).chose ?? []).toEqual([]);
+    // A course word at the front of a sentence is that word, and a spelling the language does not hold is no town.
+    const real = () => ({ ...at(), known: (w: string) => w === "tartusse" || w === "homme", course: (w: string) => w === "homme" });
+    expect(readTurn("Tartusse", asks, real()).chose).toEqual([{ slot: "to", value: "Tartusse" }]);
+    expect(readTurn("Homme", asks, real()).chose ?? []).toEqual([]);
+    expect(readTurn("Blorpsse", asks, real()).chose ?? []).toEqual([]);
+    // Lower case is not a name, and a slot that is not a place takes none.
+    expect(readTurn("tartusse", asks, at()).reading).not.toBe("complete");
+    expect(readTurn("Tartusse", beat({ needs: [{ kind: "datum", slot: "place", grammCase: "ILLATIVE" }] }), ctx()).reading)
+      .not.toBe("complete");
+  });
+
   it("never changes a fact that belongs to the other side", () => {
     const seen = readTurn("kell 9", beat({ needs: [{ kind: "datum", slot: "offered" }] }), ctx());
     expect(seen.reading).not.toBe("complete");
@@ -687,6 +716,23 @@ describe("a beat that takes any one of several answers", () => {
     for (const said of ["2014", "140", "14.50"]) {
       expect(readTurn(said, offer, ctx).reading, said).not.toBe("complete");
     }
+  });
+
+  /*
+    And a phrase is matched whole for the same reason. A 13:30 card accepts
+    `pool kaks`, which is a prefix of `pool kaksteist`, so half past eleven met
+    a beat about half past one; and a reference is not found inside a longer
+    one. `mentions` is the app's one reading of a whole word.
+  */
+  it("takes a time said in words, or a reference, only as a whole phrase", () => {
+    const said = context({ data: new Map([["time", new Set(["13:30", "pool kaks"])]]) });
+    const at = beat({ id: "agree", shape: "word", needs: [{ kind: "datum", slot: "time" }] });
+    expect(readTurn("tulen pool kaks", at, said).reading).toBe("complete");
+    expect(readTurn("tulen pool kaksteist", at, said).reading).not.toBe("complete");
+    const code = context({ data: new Map([["ref", new Set(["kk-1234"])]]) });
+    const ref = beat({ id: "ref", shape: "word", needs: [{ kind: "datum", slot: "ref" }] });
+    expect(readTurn("KK-1234", ref, code).reading).toBe("complete");
+    expect(readTurn("KK-12345", ref, code).reading).not.toBe("complete");
   });
 
   it("is one requirement to the marker, so a miss is a miss and not a partial answer", () => {

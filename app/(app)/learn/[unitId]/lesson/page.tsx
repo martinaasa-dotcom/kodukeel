@@ -107,9 +107,20 @@ export default async function LessonPage({
     thing the paragraph above says cannot happen. The id ends it.
   */
   const poolSeed = hash(unit.id);
-  const [rows, atLevel, settings, reach, courseSpellings, everyday] = await Promise.all([
+  const [rows, pool, settings, reach, courseSpellings, everyday] = await Promise.all([
     prisma.lexeme.findMany({ where: { lemma: { in: [...unit.lemmas] } }, select }),
-    prisma.lexeme.count({ where: { cefr: unit.level } }),
+    /*
+      The decoy window, chained on the count that places it rather than read
+      after the whole batch: it needs the count and nothing else here, so it
+      was one more round trip in a row for no answer it was waiting on.
+    */
+    prisma.lexeme.count({ where: { cefr: unit.level } }).then((atLevel) => prisma.lexeme.findMany({
+      where: { cefr: unit.level, lemma: { notIn: [...unit.lemmas] } },
+      select: { id: true, lemma: true, translation: true, pos: true, semanticTypes: true },
+      orderBy: [{ lemma: "asc" }, { id: "asc" }],
+      skip: atLevel > DISTRACTOR_POOL ? poolSeed % (atLevel - DISTRACTOR_POOL) : 0,
+      take: DISTRACTOR_POOL,
+    })),
     // Which language the meeting step gives a meaning in. Memoised per render,
     // so this shares the read every other page of this request already made.
     readSettings(ownerId, [SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss]),
@@ -134,13 +145,6 @@ export default async function LessonPage({
     everydaySpellings(),
   ]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
-  const pool = await prisma.lexeme.findMany({
-    where: { cefr: unit.level, lemma: { notIn: [...unit.lemmas] } },
-    select: { id: true, lemma: true, translation: true, pos: true, semanticTypes: true },
-    orderBy: [{ lemma: "asc" }, { id: "asc" }],
-    skip: atLevel > DISTRACTOR_POOL ? poolSeed % (atLevel - DISTRACTOR_POOL) : 0,
-    take: DISTRACTOR_POOL,
-  });
 
   const toWord = (row: (typeof rows)[number]): LessonWord => ({
     lexemeId: row.id,
@@ -205,7 +209,16 @@ export default async function LessonPage({
     this part's own words rather than the unit's: a unit splits into several
     lessons and the other parts' sentences are not on screen tonight.
   */
-  const wordOrder = await orderContextFor(chosen.flatMap((w) => w.examples.map((e) => e.et)));
+  /*
+    Which of this lesson's words are already favorites, and the level the
+    course opens at, asked beside it: none of the three needs another's answer
+    and each was a round trip after the one before.
+  */
+  const [wordOrder, starred, placement] = await Promise.all([
+    orderContextFor(chosen.flatMap((w) => w.examples.map((e) => e.et))),
+    starredAmong(ownerId, chosen.map((w) => w.lexemeId)),
+    courseLevelFor(ownerId),
+  ]);
 
   /*
     The units before this one, plus this unit's words up to and including the
@@ -251,15 +264,10 @@ export default async function LessonPage({
   });
 
   /*
-    Which of this lesson's words are already favorites. A set handed to the
-    session rather than a field on the step, because `LessonStep` is built by a
-    pure planner and which words one learner has kept is not a fact about the
-    lesson.
+    `starred` above is a set handed to the session rather than a field on the
+    step, because `LessonStep` is built by a pure planner and which words one
+    learner has kept is not a fact about the lesson.
   */
-  const [starred, placement] = await Promise.all([
-    starredAmong(ownerId, chosen.map((w) => w.lexemeId)),
-    courseLevelFor(ownerId),
-  ]);
 
   /*
     THE DICTIONARY UNDER EVERY SENTENCE A WORD IS MET WITH, IN ONE READ.

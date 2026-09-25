@@ -10277,6 +10277,29 @@ check("the page you were on is cached before you need it, not by luck", () => {
     false,
     "the worker caches its shell atomically, so one bad URL loses the offline page too",
   );
+  /*
+    And nothing it keeps is a redirect. `cache.add` follows one and stores the
+    landing page under the URL it was asked for, marked `redirected`, and a
+    navigation served that response offline is the browser's ERR_FAILED screen
+    rather than /offline: measured in Chromium against this worker, on a page
+    that had started redirecting to /sign-in. So every write goes through
+    `keepable`, which refuses a redirected response, and no `cache.add` or bare
+    `response.ok` is left to write around it.
+  */
+  const worker = code("public/sw.js");
+  assert.equal(/\bcache\.add\(/.test(worker), false, "the worker keeps a page with cache.add, which stores a redirect");
+  assert.equal(/\bresponse\.ok\b/.test(worker.replace(/function keepable[\s\S]*?\n\}/, "")), false,
+    "a cache write in the worker asks response.ok rather than keepable, so a redirected page is kept");
+  assert.match(worker, /function keepable\([^)]*\)\s*\{[^}]*!response\.redirected/,
+    "keepable no longer refuses a redirected response");
+  const puts = [...worker.matchAll(/cache\.put\(/g)];
+  assert.ok(puts.length >= 4, `the worker has ${puts.length} cache writes, fewer than the four it keeps pages, clips, files and its shell with`);
+  for (const put of puts) {
+    assert.ok(
+      /keepable\(response\)/.test(worker.slice(Math.max(0, put.index - 200), put.index)),
+      `a cache.put in the worker is not behind keepable: ${worker.slice(put.index - 80, put.index + 30).replace(/\s+/g, " ")}`,
+    );
+  }
 });
 
 check("one upstream request per thing, however many callers ask at once", () => {

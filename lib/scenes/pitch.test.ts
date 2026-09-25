@@ -82,4 +82,15 @@ describe("the pitch of a scene", () => {
     const many = Array.from({ length: PITCH.A1.sentences[1] + 1 }, () => "Tere.").join(" ");
     expect(fitsPitch(many, "A1")).toMatch(/sentences where A1 allows/);
   });
+
+  /*
+    Counted the way the gate counts, or the drafter and the bank test refuse
+    a line the gate lets through. `3. korrusel` is an ordinal and not a
+    sentence break, and `e-post` is one word.
+  */
+  it("counts sentences and words the way the gate does", () => {
+    expect(fitsPitch("Tuba on 3. korrusel. Head päeva!", "A1")).toBeNull();
+    const hyphened = Array.from({ length: PITCH.A1.words }, () => "e-post").join(" ") + ".";
+    expect(fitsPitch(hyphened, "A1")).toBeNull();
+  });
 });

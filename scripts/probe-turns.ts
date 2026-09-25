@@ -123,7 +123,7 @@ async function main() {
       a fault that is not there.
     */
     const ctx = await knowing(
-      { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows), known: (w: string) => KNOWN.has(w) } },
+      { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows), known: (w: string) => KNOWN.has(w), course: (w: string) => KNOWN.has(w) } },
       cases.map(([, said]) => said),
     );
     const run = planRun(scene, "probe", HARNESS_LEVEL, "textbook");

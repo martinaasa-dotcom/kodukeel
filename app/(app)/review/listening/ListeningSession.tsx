@@ -285,6 +285,11 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
             )
           ) : (
             <div className="flex flex-col items-center gap-1">
+              {/* The verdict in words, first, because the options below say it
+                  in colour and a colour is not read out. */}
+              <p className="sr-only">
+                {selected === card.correct ? "Right." : `Not this time. It means ${card.correct}.`}
+              </p>
               <div className="flex items-center gap-2">
                 <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{card.lemma}</p>
                 <Speak text={card.lemma} voice={voice.id} label={`Hear "${card.lemma}" clearly`} />
@@ -321,8 +326,8 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                 <KeyCap>{i + 1}</KeyCap>
                 <span className={`flex-1 ${!answered && struck.includes(choice) ? "line-through" : ""}`}>{choice}</span>
                 {!answered && struck.includes(choice) && <span className="sr-only"> (ruled out by a hint)</span>}
-                {answered && isCorrectChoice && <Check size={15} aria-hidden />}
-                {answered && isPicked && !isCorrectChoice && <X size={15} aria-hidden />}
+                {answered && isCorrectChoice && <Check size={15} aria-label="Right" />}
+                {answered && isPicked && !isCorrectChoice && <X size={15} aria-label="Your pick" />}
               </button>
             );
           })}
@@ -342,7 +347,9 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
 
         {answered && (
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-            <Button variant="primary" size="lg" className="w-full" onClick={next}>
+            {/* Takes the focus, because the option that had it has just been
+                disabled and a disabled button hands the caret to the page. */}
+            <Button variant="primary" size="lg" className="w-full" autoFocus onClick={next}>
               Continue
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
