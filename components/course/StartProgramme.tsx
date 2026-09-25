@@ -27,8 +27,8 @@ export function StartProgramme({ programmeId, on = false }: {
   const press = () => {
     setFailed(false);
     start(async () => {
-      const result = await setProgramme(on ? "off" : programmeId);
-      if (!result.ok) { setFailed(true); return; }
+      const result = await setProgramme(on ? "off" : programmeId).catch(() => null);
+      if (!result || !result.ok) { setFailed(true); return; }
       router.refresh();
     });
   };
