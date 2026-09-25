@@ -8127,7 +8127,7 @@ also carries a person code, which over the shipped dictionary is those two and n
 which stays a command somebody runs rather than something the seed does: every row belongs to a
 learner, and that line was drawn when the first fault was found. What is new is a way to run it
 without a checkout, since the person who can see the bad card is rarely the person with the
-production password: `.github/workflows/audit-decks.yml` is the second of the two workflows that
+production password: `.github/workflows/audit-decks.yml` is one of the three workflows that
 map a secret, written to `seed-production.yml`'s rules, and it prints the list before it will
 delete anything. It removes and never suspends, which the schema makes safe, and it does **not**
 build the right card in its place: adding rows to a stranger's deck is a larger claim than taking

@@ -12850,30 +12850,36 @@ check("every script a workflow runs is a script that exists", () => {
   assert.deepEqual(absent, [], `a workflow runs a script file that is not there: ${absent.join(", ")}`);
 });
 
-check("only two workflows read a secret, and both run on a press", () => {
+check("a workflow that reads a secret never runs from a branch somebody pushed", () => {
   /*
     CLAUDE.md says `ci.yml` maps no repository secret into a job, so a workflow
-    file cannot become a way to read one, and names the two that do: the
-    reseed and the deck audit, both `workflow_dispatch` only so neither runs
-    from a pull request. That was prose. A third workflow reading a secret, or
-    one of the two gaining a `pull_request` trigger, is the change that lets a
-    branch somebody pushed run with the production password, and nothing
-    failed on it. Comments are stripped, since each of the two explains its
-    exemption in a comment that names `secrets.` on purpose.
+    file cannot become a way to read one, and names the ones that do: the
+    reseed and the deck audit, both run on a press, and the hourly mailout,
+    run on a schedule or a press. That was prose. A workflow reading a secret
+    from a `pull_request` or a `push` trigger is the change that lets a branch
+    somebody pushed run with the production password, and nothing failed on
+    it. So the readers are a closed list and each carries the triggers it may
+    have: a new reader fails until somebody decides about it, and a known one
+    growing a trigger fails whatever the trigger is. Comments are stripped,
+    since each of them explains its exemption in a comment naming `secrets.`.
   */
-  const READS_A_SECRET = ["audit-decks.yml", "seed-production.yml"];
+  const READS_A_SECRET: Record<string, string[]> = {
+    "audit-decks.yml": ["workflow_dispatch"],
+    "mailout.yml": ["schedule", "workflow_dispatch"],
+    "seed-production.yml": ["workflow_dispatch"],
+  };
   const dir = ".github/workflows";
   const files = readdirSync(dir).filter((f) => /\.ya?ml$/.test(f));
   assert.ok(files.length >= 4, `expected the workflows, found ${files.length}`);
   const yaml = (file: string) => readFileSync(join(dir, file), "utf8").replace(/(^|\s)#[^\n]*/g, "$1");
 
   const reading = files.filter((file) => /\bsecrets\./.test(yaml(file))).sort();
-  assert.deepEqual(reading, READS_A_SECRET, "the workflows that read a repository secret changed");
+  assert.deepEqual(reading, Object.keys(READS_A_SECRET).sort(), "the workflows that read a repository secret changed");
 
-  for (const file of READS_A_SECRET) {
+  for (const [file, allowed] of Object.entries(READS_A_SECRET)) {
     const on = /^on:\s*\n((?:[ \t]+[^\n]*\n)+)/m.exec(yaml(file))?.[1] ?? "";
     const triggers = [...on.matchAll(/^[ \t]{2}([a-z_]+):/gm)].map((m) => m[1]);
-    assert.deepEqual(triggers, ["workflow_dispatch"], `${file} reads a secret and runs on ${triggers.join(", ")}`);
+    assert.deepEqual(triggers, allowed, `${file} reads a secret and runs on ${triggers.join(", ")}`);
   }
 });
 
