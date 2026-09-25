@@ -11829,6 +11829,19 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("a roster's days since the last review are calendar days on the member's clock", () => {
+  /*
+    Both rosters print "reviewed today" at nought. Counted in whole 24-hour
+    spans, a review at 23:00 last night read at 08:00 was "today" beside a
+    streak, on the same member's clock, that knew it was yesterday.
+  */
+  const roster = code("lib/classroom/roster.ts");
+  assert.doesNotMatch(roster, /getTime\(\)\s*\)\s*\/\s*86_400_000\)/, "a roster counts days in 24-hour spans again");
+  const calls = roster.match(/daysSinceLastReview:\s*daysSince\(/g) ?? [];
+  assert.equal(calls.length, 2, "both rosters no longer read days since through daysSince");
+  assert.match(code("lib/classroom/cohort.ts"), /dayClock\(zone\)\.daysBetween\(last, now\)/, "daysSince stopped counting calendar days");
+});
+
 check("a confidence figure carries its evidence, on every screen that prints one", () => {
   /*
     ADR-022's headline rule: a percentage whose basis is not stated is the one

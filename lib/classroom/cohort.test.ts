@@ -3,7 +3,7 @@ import type { Evidence, Readiness } from "@/lib/exam/readiness";
 import { CLOSE_PCT, LIKELY_PCT } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
 import {
-  MIN_EVIDENCE_TO_BAND, bandFor, cohortKind, summariseCohort, withoutMember, type CohortInput,
+  MIN_EVIDENCE_TO_BAND, bandFor, cohortKind, daysSince, summariseCohort, withoutMember, type CohortInput,
 } from "./cohort";
 
 /** A readiness object carrying one confidence at one level, which is all this reads. */
@@ -214,5 +214,17 @@ describe("the group with its owner taken out", () => {
     const none = withoutMember(one, "hr");
     expect(none.members).toEqual([]);
     expect(none.evidence).toBe("thin");
+  });
+});
+
+describe("daysSince", () => {
+  it("counts calendar days on the member's clock, not 24-hour spans", () => {
+    // 23:00 on the 24th in Tallinn, read at 08:00 on the 25th: that was yesterday.
+    const last = new Date("2026-09-24T20:00:00Z");
+    const now = new Date("2026-09-25T05:00:00Z");
+    expect(daysSince(last, now, "Europe/Tallinn")).toBe(1);
+    // An hour before, same evening, is today.
+    expect(daysSince(new Date("2026-09-25T04:00:00Z"), now, "Europe/Tallinn")).toBe(0);
+    expect(daysSince(null, now, "Europe/Tallinn")).toBeNull();
   });
 });
