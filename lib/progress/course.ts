@@ -1,6 +1,7 @@
 import { cache } from "react";
 
 import { prisma } from "@/lib/db";
+import { deferredWordIds } from "@/lib/progress/deferrals";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { courseLevelFor, courseStandingFor } from "@/lib/progress/level";
 import { LEVELS, LEVEL_INFO, levelIndex, type Level } from "@/lib/collections/syllabus";
@@ -273,14 +274,26 @@ export async function dayIsInPlay(
  */
 async function metWords(ownerId: string, words: readonly string[]): Promise<boolean> {
   if (words.length === 0) return true;
-  const cards = await prisma.card.findMany({
-    where: {
-      ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
-      lexeme: { lemma: { in: [...words] } },
-    },
-    select: { state: true },
-  });
-  if (cards.length > 0) return cards.every((c) => c.state !== 0);
+  const [cards, aside] = await Promise.all([
+    prisma.card.findMany({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
+        lexeme: { lemma: { in: [...words] } },
+      },
+      select: { state: true, lexemeId: true },
+    }),
+    deferredWordIds(ownerId),
+  ]);
+  /*
+    AND A WORD PUT ASIDE IS NOT A WORD STILL TO MEET. The meet rung offers
+    "too complicated", which moves the card's date and leaves it New, and the
+    ladder serves only what is due, so the word never came back while this
+    went on waiting for it to leave New: the evening stopped with no press
+    anywhere that could move it, since this step is derived and neither course
+    action may write a row for it. The learner said not tonight; the step
+    takes them at their word, and the word returns when its wait ends.
+  */
+  if (cards.length > 0) return cards.every((c) => c.state !== 0 || (c.lexemeId !== null && aside.has(c.lexemeId)));
   /*
     AND A DAY WHOSE WORDS THIS DEPLOYMENT'S DICTIONARY HOLDS NONE OF IS MET.
 
