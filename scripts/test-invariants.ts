@@ -303,6 +303,27 @@ check("the keyed services are only ever reached from the server", () => {
   }
 });
 
+/*
+  TODAY'S ERRAND CARD RENDERS IN THE BROWSER, SO WHAT IT IMPORTS SHIPS.
+
+  `components/SayItToday.tsx` takes its labels and its scene link from
+  `lib/collections/errands.ts`, and that module imported the whole syllabus for
+  `startedUnits`, which only the server calls. So the home page downloaded
+  80 KB of course data for nothing it drew. `startedUnits` lives beside the
+  syllabus now, and the errand module may reach it only at runtime through the
+  server, never by importing it.
+*/
+check("the errand module Today's card renders from does not import the syllabus", () => {
+  const client = code("components/SayItToday.tsx");
+  assert.match(client, /from\s+["']@\/lib\/collections\/errands["']/, "the errand card no longer reads lib/collections/errands.ts; this check has lost its subject");
+  assert.ok(CLIENT.includes("components/SayItToday.tsx"), "the errand card is no longer a client component, so its imports no longer ship");
+  assert.doesNotMatch(
+    code("lib/collections/errands.ts"),
+    /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["'](?:\.\/syllabus|@\/lib\/collections\/syllabus)[^"']*["']/,
+    "lib/collections/errands.ts imports the syllabus again, which puts the whole course on the home page",
+  );
+});
+
 // ── Never write Estonian, never generate morphology (ADR-005, ADR-017) ───────
 
 /*
