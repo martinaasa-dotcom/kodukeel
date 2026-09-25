@@ -14,7 +14,8 @@ const SPRINT_BASE_S = 60;
  *
  * Each option says what it does to the sprint as well as what it is, because
  * "five times as long" is a ratio and "five minutes" is the thing somebody is
- * choosing. The quest stretches from its own two minutes by the same figure.
+ * choosing. The quest stretches from its own two minutes by the same figure,
+ * and Target from its eight seconds a question.
  */
 export function RoundPacePanel({ current }: { current: RoundPace }) {
   const [value, setValue] = useState(current);

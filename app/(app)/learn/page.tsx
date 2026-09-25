@@ -9,7 +9,7 @@ import {
   CHECKPOINTS, LEVELS, LEVEL_INFO, isUnitOpen, nextUnit,
 } from "@/lib/collections/syllabus";
 import { ButtonLink } from "@/components/Button";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { learnCounts } from "@/lib/progress/learn";
 import { learnerModuleScope } from "@/lib/progress/moduleScope";
@@ -211,7 +211,6 @@ export default async function LearnPage() {
 
               <ol className="flex flex-col gap-2 border-t p-4" style={{ borderColor: "var(--rule)" }}>
                 {rows.map((u) => {
-                  const Icon = icon(u.unit.icon);
                   const locked = !isUnitOpen({ unit: u.unit, doneUnitIds: doneIds, placement });
                   const complete = u.state === "done";
                   return (
@@ -246,7 +245,7 @@ export default async function LearnPage() {
                           opacity: locked ? 0.6 : 1,
                         }}
                       >
-                        {locked ? <Lock size={16} aria-hidden /> : complete ? <Check size={18} aria-hidden /> : <Icon size={17} aria-hidden />}
+                        {locked ? <Lock size={16} aria-hidden /> : complete ? <Check size={18} aria-hidden /> : <NamedIcon name={u.unit.icon} size={17} aria-hidden />}
                       </span>
                       <span className="min-w-[12rem] flex-1">
                         <Link

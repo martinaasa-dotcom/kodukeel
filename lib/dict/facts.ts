@@ -563,7 +563,7 @@ export function crosswordPool(bands: readonly string[]): Promise<CrosswordWord[]
   const key = [...bands].sort().join(",");
   return remember(`crossword-pool:${key}`, FACTS_TTL_MS, async () => {
     return prisma.$queryRaw<CrosswordWord[]>`
-      SELECT DISTINCT ON (lemma) id, lemma, pos, translation FROM "Lexeme"
+      SELECT id, lemma, pos, translation, "createdAt" FROM "Lexeme"
       WHERE char_length(lemma) BETWEEN ${MIN_LETTERS} AND ${MAX_LETTERS}
         AND lemma ~ ${"^[a-zäöüõšž]+$"}
         AND cefr = ANY(${[...bands]})
@@ -574,13 +574,22 @@ export function crosswordPool(bands: readonly string[]): Promise<CrosswordWord[]
   });
 }
 
-/** One row of that pool: the answer, the clue's source, and the entry to link to. */
+/**
+ * One row of that pool: the answer, the clue's source, and the entry to link to.
+ *
+ * Every entry of a lemma rather than one, ordered by lemma and then id, with
+ * when it was stored: `crosswordFor` narrows to the dictionary as it stood when
+ * the day began and only then takes one entry per lemma, because a row stored
+ * during the day with a smaller id would otherwise swap which entry a lemma
+ * stands for between the grid a learner fills and the grid it is marked on.
+ */
 export interface CrosswordWord {
   id: string;
   lemma: string;
   /** Named on the clue, because English does not mark one and Estonian does. */
   pos: string;
   translation: string;
+  createdAt: Date;
 }
 
 /**
