@@ -1205,19 +1205,6 @@ export async function finishRun(input: {
       .filter((slip) => slip.kind === "english")
       .map((slip) => slip.lemma),
   )].filter((lemma) => context.lexicon.byLemma.has(lemma));
-  const gaps = [
-    ...declared.slice(0, MAX_GAPS).map((one) => ({
-      kind: "ASKED", lemma: one.lemma, lexemeId: one.lexemeId,
-    })),
-    ...reached.slice(0, MAX_GAPS).map((lemma) => ({ kind: "REACHED", lemma, lexemeId: null })),
-    ...stalled.map((lemma) => ({ kind: "STALLED", lemma, lexemeId: null })),
-  ];
-  if (gaps.length > 0) {
-    await prisma.sceneGap.createMany({
-      data: gaps.map((gap) => ({ ...gap, ownerId: input.ownerId, runId: row.id })),
-    });
-  }
-
   const wanted = [...new Set([...declared.map((a) => a.lemma), ...reached, ...stalled])];
   const known = wanted.length === 0 ? [] : await prisma.lexeme.findMany({
     where: { lemma: { in: wanted } },
@@ -1232,6 +1219,23 @@ export async function finishRun(input: {
   });
   const byLemma = new Map<string, string>();
   for (const entry of known) if (!byLemma.has(entry.lemma)) byLemma.set(entry.lemma, entry.id);
+  /*
+    The entry is the server's to find, off the lemma it has just checked. The
+    id beside a lemma arrives off the wire like the lemma does and nothing
+    checked it, so a client could write any string into the column.
+  */
+  const gaps = [
+    ...declared.slice(0, MAX_GAPS).map((one) => ({
+      kind: "ASKED", lemma: one.lemma, lexemeId: byLemma.get(one.lemma) ?? null,
+    })),
+    ...reached.slice(0, MAX_GAPS).map((lemma) => ({ kind: "REACHED", lemma, lexemeId: null })),
+    ...stalled.map((lemma) => ({ kind: "STALLED", lemma, lexemeId: null })),
+  ];
+  if (gaps.length > 0) {
+    await prisma.sceneGap.createMany({
+      data: gaps.map((gap) => ({ ...gap, ownerId: input.ownerId, runId: row.id })),
+    });
+  }
 
   return {
     runId: row.id,
@@ -1423,6 +1427,16 @@ export function replay(
       if (state.hurdle || response === "moveOn") break;
       const next = currentBeat(context.scene, state);
       if (!next) break;
+      /*
+        AN OFFER IS MADE BY THE OTHER SIDE ON ITS OWN BEAT, SO THE CASCADE STOPS
+        IN FRONT OF IT, for the reason the look-ahead below passes over one. The
+        guard was written there and not here: answering "since when?" with
+        `neljapäevast. Kas homme sobib?` walked on into the offer beat, the
+        `sobib` accepted an appointment the receptionist had not proposed, and
+        the next line read a time back to somebody who had never been offered
+        one. The offer is said, and the learner's yes is read against it then.
+      */
+      if (next.move === "offer") break;
       const read = readTurn(said, next, marker);
       /*
         A judge may have said this same turn met the next beat too, in a word

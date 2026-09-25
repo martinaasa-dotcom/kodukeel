@@ -2076,7 +2076,7 @@ check("a lesson at A1 asks only about words the course has taught", () => {
     nothing about it.
   */
   assert.match(
-    read("lib/collections/lesson.ts"),
+    code("lib/collections/lesson.ts"),
     /\n {2}taughtWords: ReadonlySet<string> \| null;/,
     "LessonInput.taughtWords stopped being required, so a lesson can be planned without asking what has been taught",
   );
@@ -2763,11 +2763,10 @@ check("a grade made offline keeps the time it was actually answered", () => {
     reviews all happened at breakfast, which is worse than losing them: FSRS
     would fit its intervals to a history that never happened.
   */
-  const outbox = read("lib/offline/outbox.ts");
-  assert.match(outbox, /reviewedAt/, "the queue no longer records when a grade was made");
+  assert.match(code("lib/offline/outbox.ts"), /reviewedAt/, "the queue no longer records when a grade was made");
   // Clamped in *both* directions: a device clock set ahead would schedule a card
   // into the past, and one set years back would blow up the card's stability.
-  assert.match(outbox, /clampReviewedAt/, "the queue no longer clamps a device clock");
+  assert.match(code("lib/offline/outbox.ts"), /clampReviewedAt/, "the queue no longer clamps a device clock");
 
   const replay = read("lib/srs/replay.ts");
   assert.equal(
@@ -2775,7 +2774,7 @@ check("a grade made offline keeps the time it was actually answered", () => {
     false,
     "the replay re-stamps a grade",
   );
-  assert.match(replay, /orderForReplay/, "the replay no longer applies grades in the order they happened");
+  assert.match(code("lib/srs/replay.ts"), /orderForReplay/, "the replay no longer applies grades in the order they happened");
 });
 
 // ── Progress is derived, never stored (ADR-014) ──────────────────────────────
@@ -2857,7 +2856,7 @@ check("every practice mode writes to the same review log", () => {
     below holds that door to gradeCard the way submitExam's holds its own.
   */
   const sessions = SESSION_FILES().filter((f) => !MEASURES_RATHER_THAN_PRACTISES.includes(f));
-  assert.ok(sessions.length >= 6, `expected the practice sessions, found ${sessions.length}`);
+  assert.ok(sessions.length >= 21, `expected the practice sessions, found ${sessions.length}`);
   for (const file of sessions) {
     assert.match(
       code(file),
@@ -3116,7 +3115,7 @@ check("a session never lets its questions change under the learner", () => {
     index into it directly.
   */
   const sessions = SESSION_FILES();
-  assert.ok(sessions.length >= 6, `expected the practice and exam sessions, found ${sessions.length}`);
+  assert.ok(sessions.length >= 21, `expected the practice and exam sessions, found ${sessions.length}`);
   for (const file of sessions) {
     const source = code(file);
     // The exam session hands its answers to a Server Action rather than grading
@@ -3151,10 +3150,10 @@ check("a session never lets its questions change under the learner", () => {
     if (!listProp) continue;
     /*
       Either spelling of the snapshot. `useState(initialCards)` is the plain
-      one; `useState<T>(() => plan(initialCards))` is the lazy one, which the
-      review session needs because it expands its cards into a queue of steps
-      (lib/srs/learn.ts) and doing that work on every render to throw it away
-      is not free.
+      one; `useState<T>(() => layOut(initialPairs))` is the lazy one, which the
+      picture board uses because it lays its pairs out into tiles
+      (app/(app)/review/emoji/EmojiSession.tsx) and doing that work on every
+      render to throw it away is not free.
 
       The property is the same and the lazy form is the stronger of the two: the
       initializer runs once on mount and never again, so a refreshed prop cannot
@@ -3213,7 +3212,7 @@ check("nothing about an individual survives into the metrics", () => {
   const route = read("app/api/metrics/route.ts");
   // The route groups by owner and must, so what is checked is that it never
   // hands one onward: the grouped rows are reduced to activity before use.
-  assert.match(route, /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
+  assert.match(code("app/api/metrics/route.ts"), /MIN_COHORT|cohortRetention/, "the metrics route no longer aggregates");
   assert.doesNotMatch(
     route,
     /NextResponse\.json\([^)]*ownerId/s,
@@ -3631,8 +3630,7 @@ check("a word read off a photograph reaches a card only through the dictionary",
   const route = read("app/api/scan/route.ts");
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
 
-  const resolver = read("lib/dict/resolveScan.ts");
-  assert.match(resolver, /matchEstonianForm/, "the resolver stopped using the vouched matcher");
+  assert.match(code("lib/dict/resolveScan.ts"), /matchEstonianForm/, "the resolver stopped using the vouched matcher");
 
   const search = read("lib/dict/search.ts");
   assert.match(
@@ -4503,7 +4501,10 @@ check("the chat says which model actually replied", () => {
 });
 
 check("Anu's prose is cleaned on its way to the learner", () => {
-  assert.match(read("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
+  assert.match(code("app/api/tutor/route.ts"), /ProseStream/, "the humanize pass is gone");
+  // Anchored on the construction in code, not the word: the route's own
+  // comment names ProseStream, and that alone satisfied the first version.
+  assert.match(code("app/api/tutor/route.ts"), /new ProseStream\(/, "the humanize pass is gone");
 });
 
 check("Anu's reply is drawn as typography, shown once finished, and the marker lines have one shape", () => {
@@ -4570,12 +4571,11 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
   const route = read("app/api/tutor/route.ts");
   assert.match(route, /chatEstonianTokens\(/, "the chat route no longer extracts candidate Estonian tokens");
   assert.match(route, /matchEstonianForm\(/, "the chat route no longer checks tokens against the dictionary");
-  assert.match(route, /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
+  assert.match(code("app/api/tutor/route.ts"), /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
 
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // render the flag the same way.
-  const chat = read("components/anu/AnuParts.tsx");
-  assert.match(chat, /UNVERIFIED:/, "the chat screen no longer reads the flag back");
+  assert.match(code("components/anu/AnuParts.tsx"), /UNVERIFIED:/, "the chat screen no longer reads the flag back");
 });
 
 // ── Never re-add the iframes (docs/00-audit-v4.md section A) ─────────────────
@@ -4668,7 +4668,7 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
   assert.match(panel, /setTodayOrder\(/, "the Settings panel no longer writes the order");
   assert.match(panel, /TODAY_CARDS/, "the panel stopped saying which rows fall past the cut");
 
-  assert.match(read("lib/settings/store.ts"), /todayOrder:/, "todayOrder is not declared in the settings store");
+  assert.match(code("lib/settings/store.ts"), /todayOrder:/, "todayOrder is not declared in the settings store");
   for (const file of ALL) {
     if (file === "lib/settings/store.ts") continue;
     assert.doesNotMatch(read(file), /["']todayOrder["']/, `${file} writes the todayOrder key as a literal`);
@@ -5078,7 +5078,7 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   );
 
   // The answer is stored through the settings store, like every other setting.
-  assert.match(read("lib/settings/store.ts"), /letterBar:/, "letterBar is not declared in the store");
+  assert.match(code("lib/settings/store.ts"), /letterBar:/, "letterBar is not declared in the store");
   for (const file of ALL) {
     if (file === "lib/settings/store.ts") continue;
     assert.equal(
@@ -5095,7 +5095,7 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   assert.match(layout, /SETTING_KEYS\.letterBar/, "the app shell no longer reads the answer");
   assert.match(layout, /<LetterBarScope/, "the app shell no longer publishes the answer");
   assert.match(
-    read("components/DiacriticBar.tsx"),
+    code("components/DiacriticBar.tsx"),
     /data-letters=\{value\}/,
     "the scope no longer renders the answer as an attribute",
   );
@@ -5103,12 +5103,12 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   // Asked at first run, which is the point of asking at all: a learner meets
   // Estonian fields on the very next screen of the wizard.
   assert.match(
-    read("app/(chromeless)/start/WelcomeWizard.tsx"),
+    code("app/(chromeless)/start/WelcomeWizard.tsx"),
     /letterBar:\s*letters/,
     "first run no longer asks which keyboard the learner has",
   );
   assert.match(
-    read("app/actions.ts"),
+    code("app/actions.ts"),
     /completeOnboarding[\s\S]*?SETTING_KEYS\.letterBar/,
     "first run's answer is no longer written",
   );
@@ -5116,12 +5116,12 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   // And two ways back, because the moment somebody notices they do not need
   // the row is the moment they are looking at it.
   assert.match(
-    read("components/DiacriticBar.tsx"),
+    code("components/DiacriticBar.tsx"),
     /setLetterBar\("off"\)/,
     "the bar no longer offers to remove itself",
   );
   assert.match(
-    read("app/(app)/settings/PreferencesPanel.tsx"),
+    code("app/(app)/settings/PreferencesPanel.tsx"),
     /setLetterBar/,
     "Settings can no longer turn the letters back on",
   );
@@ -5863,7 +5863,16 @@ check("a rating key works wherever a rating button is drawn", () => {
     the two cannot come to disagree about which keys exist or what they grade;
     a handler matching digits by hand is how they would.
   */
-  const source = read("app/(app)/review/ReviewSession.tsx");
+  const source = code("app/(app)/review/ReviewSession.tsx");
+
+  /*
+    "Is the answer on screen" is `answerShown`, defined once. A second
+    longhand `revealed || ask === "intro"` is the copy the keydown handler once
+    lacked, which is the fault this check was written for.
+  */
+  const longhand = source.match(/revealed\s*\|\|\s*ask\s*===\s*"intro"/g)?.length ?? 0;
+  assert.match(source, /const answerShown = revealed \|\| ask === "intro"/, "answerShown is no longer the one definition of whether the answer is on screen");
+  assert.equal(longhand, 1, `"revealed || ask === intro" is spelled out ${longhand} times; read answerShown instead`);
 
   assert.match(
     source, /SELF_GRADES\.map\(/,
@@ -6230,7 +6239,7 @@ check("the gesture that replaced the browser's pull to refresh is still mounted"
   // for the browser's own pull to refresh, and installed to a home screen
   // there is no address bar to offer a reload instead.
   assert.match(CSS, /overscroll-behavior-y:\s*none/, "the bounce is back");
-  assert.match(read("app/(app)/layout.tsx"), /<PullToRefresh \/>/, "the gesture is not mounted");
+  assert.match(code("app/(app)/layout.tsx"), /<PullToRefresh \/>/, "the gesture is not mounted");
 });
 
 
@@ -6450,7 +6459,7 @@ check("a government question never offers a case the word itself governs", () =>
 
   const multi = verbs.filter((v) => v.government.alsoGoverned.length > 0);
   assert.ok(
-    multi.length > 20,
+    multi.length > 48,
     `expected verbs governing more than one case, found ${multi.length}: either the dictionary ` +
     "changed shape or the parser stopped reading past the first case name",
   );
@@ -6626,7 +6635,7 @@ check("a sat check is never edited, and is deleted only on request", () => {
   const deleters = product.filter((f) => /(prisma|tx)\.assessment\.delete/.test(read(f)));
   assert.deepEqual(deleters, ["app/actions.ts"], "a level check is deleted outside account deletion");
   assert.match(
-    read("app/actions.ts"),
+    code("app/actions.ts"),
     /deleteMyAccount[\s\S]*?tx\.assessment\.deleteMany/,
     "account deletion no longer removes the level checks it promises to",
   );
@@ -6885,6 +6894,86 @@ check("every npm script that pushes a schema asks the schema guard first", () =>
   const guard = code("scripts/schema-guard.mjs");
   assert.match(guard, /process\.exit\(1\)/, "the guard no longer refuses anything");
   assert.match(guard, /isLocal\(/, "the guard stopped sharing local-db.mjs's reading of local");
+});
+
+/**
+ * A PUBLIC PATH IS A PREFIX, SO NO SIGNED-IN ROUTE MAY SHARE ITS LETTERS.
+ *
+ * `isPublicPath` in `middleware.ts` is a list of `path.startsWith(...)`, which
+ * is right for `/privacy` and everything under it and also admits every path
+ * that merely begins with the same letters: a route added at `/termsheet`,
+ * `/offline-deck` or `/api/metrics-admin` would be served to anybody with no
+ * session, and nothing would say so. Rewriting the list as segment matches is
+ * the stronger fix and several open changes are editing that list at once, so
+ * this holds the property instead: every route the filesystem has is either
+ * under a public prefix as a whole segment, or shares no prefix with one.
+ */
+check("no route begins with a public path's letters without being under it", () => {
+  const mw = code("middleware.ts");
+  const block = mw.slice(mw.indexOf("const isPublicPath"), mw.indexOf(";", mw.indexOf("const isPublicPath")));
+  const prefixes = [...block.matchAll(/path\.startsWith\("([^"]+)"\)/g)].map((m) => m[1]!);
+  assert.ok(prefixes.length >= 12, `only ${prefixes.length} public prefixes read, so this stopped looking`);
+
+  const routes: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/^(page|route)\.tsx?$/.test(entry.name) || /^(opengraph-image|icon|apple-icon|robots|sitemap|manifest)\./.test(entry.name)) {
+        const url = "/" + full.slice("app/".length).split("/").slice(0, -1)
+          .filter((seg) => !/^\(.*\)$/.test(seg)).join("/");
+        const leaf = /^(page|route)\./.test(entry.name) ? "" : "/" + entry.name.replace(/\.[a-z]+$/, "");
+        routes.push((url === "/" ? "" : url) + leaf || "/");
+      }
+    }
+  };
+  walk("app");
+  assert.ok(routes.length >= 60, `only ${routes.length} routes found, so this stopped looking`);
+
+  const loose = routes.flatMap((route) =>
+    prefixes
+      .filter((p) => route.startsWith(p) && route !== p && !route.startsWith(p.endsWith("/") ? p : p + "/")
+        && !/\.[a-z]+$/.test(p))
+      .map((p) => `${route} (public through "${p}")`));
+  assert.deepEqual(loose, [], `a route is public by accident: ${loose.join(", ")}`);
+});
+
+/**
+ * EVERY VARIABLE THE APP READS IS ONE AN OPERATOR CAN FIND.
+ *
+ * `.env.example` is where somebody installing this learns what can be set,
+ * and six variables the mail run needs (`RESEND_API_KEY`, `EMAIL_FROM`,
+ * `EMAIL_TOKEN_SECRET`, `CRON_SECRET`, `EMAIL_REPLY_TO`,
+ * `RESEND_WEBHOOK_SECRET`) were read by the code and named nowhere in it, so a
+ * deployment could only turn the reminders on by reading the README's prose
+ * or the source. The two vision overrides and `TTS_SPEAKER` were the same.
+ * Both directions matter; this is the direction nothing checked.
+ *
+ * Platform and toolchain variables are exempt by name with the reason, since
+ * nobody sets those in a `.env`.
+ */
+check("every environment variable the app reads is in .env.example", () => {
+  const EXEMPT: Record<string, string> = {
+    NODE_ENV: "set by Node and Next for the build and the server",
+    NEXT_RUNTIME: "set by Next to say which runtime a module is running in",
+    VERCEL: "set by the platform on its own builder and functions",
+    VERCEL_GIT_COMMIT_SHA: "set by the platform to the commit it deployed",
+    NEXT_DIST_DIR: "a test harness's build directory, never a deployment setting",
+    NEXT_PUBLIC_ENABLE_SW: "turns the service worker on in `next dev`, where it is off by default",
+    SCENE_MODEL: "retired and read only to warn that it is ignored; .env.example says so in prose",
+  };
+  const files = [...ALL, "middleware.ts", "next.config.ts", "prisma.config.ts"];
+  const read_ = new Set(files.flatMap((f) => [...code(f).matchAll(/process\.env\.([A-Z][A-Z0-9_]+)/g)].map((m) => m[1]!)));
+  assert.ok(read_.size >= 40, `only ${read_.size} variables read, so this stopped looking`);
+  const example = read(".env.example");
+  const documented = new Set([...example.matchAll(/^#?\s?([A-Z][A-Z0-9_]+)=/gm)].map((m) => m[1]!));
+  const missing = [...read_].filter((name) => !documented.has(name) && !(name in EXEMPT)).sort();
+  assert.deepEqual(missing, [], `read by the app and not in .env.example: ${missing.join(", ")}`);
+  for (const [name, why] of Object.entries(EXEMPT)) {
+    assert.ok(read_.has(name), `${name} is exempt and nothing reads it any more`);
+    assert.ok(!documented.has(name), `${name} is exempt and also documented`);
+    assert.ok(why.length > 20, `${name} is exempt with no reason`);
+  }
 });
 
 check("a deletion that leaves something behind says so", () => {
@@ -7196,6 +7285,76 @@ function ownerScopedModels(): string[] {
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
 
+check("no server action takes an owner id from its caller", () => {
+  /*
+    CLAUDE.md: nothing in a \`"use server"\` file may take an owner id from its
+    caller. Every export there is a public endpoint whose arguments are JSON
+    anybody can send, so an action shaped \`(ownerId, ...)\` acts on whichever
+    learner the caller names. The throttle check below asserts this for the
+    actions it knows about; this is the rule for every export, whatever it
+    does, read off every file that carries the directive. A helper that needs
+    an owner lives in \`lib/\`, and the action resolves it with
+    \`requireUserId()\` and hands it over, which is \`addCardsFor\`'s shape.
+  */
+  const files = ALL.filter((f) => /^\s*["']use server["']/m.test(read(f)));
+  assert.ok(files.length >= 1, "no \"use server\" file found, so this check stopped looking");
+  const OWNERISH = /^(?:ownerId|userId|owner|user|learnerId|memberId|accountId)$/;
+  const offenders: string[] = [];
+  let exported = 0;
+  for (const file of files) {
+    const src = code(file);
+    for (const m of src.matchAll(/^export\s+async\s+function\s+(\w+)\s*\(([^)]*)\)/gm)) {
+      exported++;
+      for (const param of m[2]!.split(",")) {
+        const name = /^\s*(\w+)/.exec(param)?.[1];
+        if (name && OWNERISH.test(name)) offenders.push(`${file}: ${m[1]}(${name})`);
+      }
+    }
+  }
+  assert.ok(exported >= 80, `only ${exported} exported actions found; the pattern stopped reaching them`);
+  assert.deepEqual(offenders, [], `server actions taking an owner id from the caller: ${offenders.join("; ")}`);
+});
+
+check("the weakest case is read off the case that was asked, on every screen that reads one", () => {
+  /*
+    `Review.targetCase` is the case the card is about and `Review.slot` is what
+    was asked. The flash round asks a word in a case on its production card,
+    whose \`targetCase\` is null, so every one of those answers was missing from
+    the weakest-case figure on Progress, Practice, Today, the grammar index,
+    Anu's briefing and the class roster; and a round that asks one case on a card
+    of another counted it under the card's. `caseAsked` is the one reading, and
+    both queries that feed `caseAccuracy` select the slot and go through it.
+  */
+  for (const file of ["lib/progress/cases.ts", "lib/classroom/roster.ts"]) {
+    const src = code(file);
+    assert.match(src, /\bcaseAsked\(/, `${file} reads the weakest case off the card rather than off what was asked`);
+    assert.match(src, /slot: true/, `${file} no longer selects the slot the answer was asked in`);
+  }
+  assert.doesNotMatch(code("lib/classroom/roster.ts"), /targetCase: r(?:eview)?\.targetCase/,
+    "the roster hands caseAccuracy the card's case again");
+  // The weekly letter's class-wide cases are the same figure behind a floor,
+  // so they are read the same way, or the letter and the board disagree.
+  assert.doesNotMatch(code("lib/classroom/roster.ts"), /classWideCases\(reviews\b/,
+    "the letter's class-wide cases read the card's case rather than the one asked");
+});
+
+check("a day argument is asked whether it is a string before its shape is", () => {
+  /*
+    `RegExp.test` converts its argument, so a one-element array passes a
+    date pattern exactly as the string inside it would, and an argument to a
+    server action is JSON off the wire. `recordSonad(["2026-09-24"], ...)`
+    passed the check and threw in the puzzle builder on `day.split`. Every
+    date pattern in app/actions.ts goes through `isDayKey`, which asks
+    `typeof` first, and nothing else tests the pattern directly.
+  */
+  const source = code("app/actions.ts");
+  assert.match(source, /function isDayKey\(value: unknown\): value is string \{\s*return typeof value === "string" &&/,
+    "isDayKey stopped asking whether the value is a string");
+  const direct = source.match(/\/\^\\d\{4\}-\\d\{2\}-\\d\{2\}\$\/\.test\(/g) ?? [];
+  assert.equal(direct.length, 1, `${direct.length} date patterns tested outside isDayKey in app/actions.ts`);
+  assert.ok((source.match(/\bisDayKey\(/g) ?? []).length >= 4, "the day arguments stopped going through isDayKey");
+});
+
 /*
   AN EXPORTED SERVER ACTION IS A PUBLIC ENDPOINT, SO ONE NOTHING CALLS IS ONLY
   THAT.
@@ -7297,6 +7456,28 @@ check("the actions that do real work per call are throttled", () => {
       `an action throttles against ${charged!.trim()}, which is not an identity it resolved`,
     );
   }
+});
+
+check("the restore route reads no more than the proxy in front of it lets through", () => {
+  /*
+    `/api/restore` declared a 128 MB ceiling while `proxyClientMaxBodySize`
+    truncates every body at 16 MB on its way through the middleware. The
+    route's number could never be reached, and a backup between the two
+    arrived cut short, passed the length check because it was now exactly the
+    proxy's size, and was reported as not a backup. The three limits on one
+    upload are read here and held to one figure.
+  */
+  const config = code("next.config.ts");
+  const mb = (key: string) => {
+    const m = new RegExp(`${key}:\\s*"(\\d+)mb"`).exec(config);
+    assert.ok(m, `next.config.ts sets no ${key} in megabytes`);
+    return Number(m[1]);
+  };
+  const proxy = mb("proxyClientMaxBodySize");
+  assert.equal(mb("bodySizeLimit"), proxy, "the Server Action body limit and the proxy limit disagree");
+  const route = /const MAX_BACKUP_BYTES = (\d+) \* 1024 \* 1024;/.exec(code("app/api/restore/route.ts"));
+  assert.ok(route, "app/api/restore/route.ts states no MAX_BACKUP_BYTES in megabytes");
+  assert.equal(Number(route[1]), proxy, `the restore route reads ${route[1]} MB behind a proxy that truncates at ${proxy} MB`);
 });
 
 check("an action that reaches a bulk builder or a paper rebuild is in the throttle table", () => {
@@ -7831,50 +8012,43 @@ check("a scene cannot spend the day Anu needs, and reserves what a turn costs", 
 });
 
 /**
- * THE BACKLOG IN THE LINT CONFIG SAYS HOW BIG IT IS, AND THE TWO HALVES AGREE.
+ * LINT HAS NO WARNINGS, AND THE THREE RULES THAT ARE OFF ARE OFF FOR A REASON.
  *
- * `eslint-config-next` 16 brought the React Compiler's rules in as errors.
- * Eleven of them hold in this tree and stay errors; five do not, and they warn
- * with a table of counts above them saying how far from holding they are. A
- * count in prose beside a list in code is the shape this repository has been
- * wrong about more than once, and here it is worse than usual: the table is the
- * whole argument that these are a backlog rather than a bar somebody lowered,
- * so a rule quietly joining the list without a measured count turns a stated
- * plan into a place to park a failure.
+ * `eslint-config-next` 16 brought the React Compiler's rules in as errors, and
+ * five of them were turned down to warnings with a table of counts above them.
+ * 122 warnings sat in every lint run for as long as that lasted, which is the
+ * state in which a real warning beside them goes unread. Two of the five were
+ * fixed and are errors again; three are off, each named in the config with what
+ * it objects to here and why that is deliberate.
  *
- * The counts themselves are not asserted, because that would mean running
- * eslint over the tree inside this script. What is asserted is that the two
- * lists are the same list, that the table carries a number for every rule, and
- * that `rules-of-hooks` never joins them: it predates the compiler, this code
- * passes it, and it is the one in that family whose failures are real bugs
- * every time.
+ * What is asserted is the shape that keeps the count at nought: lint fails on
+ * a warning, no `react-hooks` rule is merely demoted, the rules switched off
+ * are exactly the three the config argues for, `rules-of-hooks` is never one of
+ * them (it predates the compiler and its failures are real bugs every time),
+ * and the three stay off only while the compiler they exist for is not run.
  */
-check("every demoted lint rule is one the config counted", () => {
-  /*
-    `code()` everywhere else in this file, and `read()` here on purpose: the
-    table is a comment, and stripping the comments is what the other checks want
-    and what would leave this one comparing the rules against nothing at all.
-    The rules are read from the stripped source, so a rule mentioned in prose
-    does not count as demoted.
-  */
-  const prose = read("eslint.config.mjs");
-  const demoted = [...code("eslint.config.mjs").matchAll(/"(react-hooks\/[a-z-]+)":\s*"warn"/g)]
-    .map((m) => m[1]!);
-  assert.ok(demoted.length > 0, "the React Compiler rules are all errors now; delete this check with the table");
+check("lint has no warnings, and the React Compiler rules that are off are the argued three", () => {
+  const pkg = JSON.parse(read("package.json")) as { scripts: Record<string, string> };
+  assert.match(pkg.scripts.lint ?? "", /--max-warnings 0\b/, "npm run lint no longer fails on a warning, so they can pile up again");
 
-  const table = new Map(
-    [...prose.matchAll(/^\s*\*\s{3}([a-z-]+)\s+(\d+)(?:\s|$)/gm)].map((m) => [`react-hooks/${m[1]!}`, Number(m[2]!)]),
-  );
+  const config = code("eslint.config.mjs");
+  const warned = [...config.matchAll(/"(react-hooks\/[a-z-]+)":\s*"warn"/g)].map((m) => m[1]!);
+  assert.deepEqual(warned, [], `a react-hooks rule warns rather than holding or being off: ${warned.join(", ")}`);
+
+  const off = [...config.matchAll(/"(react-hooks\/[a-z-]+)":\s*"off"/g)].map((m) => m[1]!).sort();
   assert.deepEqual(
-    [...demoted].sort(), [...table.keys()].sort(),
-    "the rules set to warn and the rules the table counts are two different lists, so one of them is out of date",
+    off,
+    ["react-hooks/purity", "react-hooks/refs", "react-hooks/set-state-in-effect"],
+    "the React Compiler rules switched off are not the three the config argues for",
   );
-  for (const [rule, count] of table) {
-    assert.ok(count > 0, `${rule} is counted at nought and should be an error again`);
+  const prose = read("eslint.config.mjs");
+  for (const rule of off) {
+    assert.match(prose, new RegExp(`\\*\\s{3}${rule.replace("react-hooks/", "")}\\s`), `${rule} is off with no reason written beside it`);
   }
-  assert.ok(
-    !demoted.includes("react-hooks/rules-of-hooks"),
-    "rules-of-hooks was demoted. It predates the compiler, this tree passes it, and its failures are real every time.",
+  assert.ok(!off.includes("react-hooks/rules-of-hooks"), "rules-of-hooks was switched off; its failures are real every time");
+  assert.doesNotMatch(
+    code("next.config.ts"), /reactCompiler/,
+    "the React Compiler is on, so the rules that exist for it have to come back on too",
   );
 });
 
@@ -8399,7 +8573,7 @@ check("nothing is stored on a device that would need asking first", () => {
     "a file on the device-storage list no longer stores anything. Take it off the list.",
   );
   assert.match(
-    read("app/privacy/page.tsx"),
+    code("app/privacy/page.tsx"),
     /What is kept on your own device/,
     "the privacy page stopped saying what is kept on the device",
   );
@@ -8658,7 +8832,7 @@ check("a response built out of one learner's own rows is never cacheable", () =>
   */
   const routes = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f));
   const owned = routes.filter((f) => /requireUserId\(/.test(code(f)));
-  assert.ok(owned.length >= 3, "no route handler resolves an owner any more");
+  assert.ok(owned.length >= 9, "the sweep for route handlers that resolve an owner stopped finding them");
   for (const file of owned) {
     const src = code(file);
     // A route that only ever writes has nothing to cache; the ones that hand
@@ -9741,7 +9915,7 @@ check("every browser suite that exists is a browser suite CI runs", () => {
   const declared = readdirSync("scripts")
     .filter((f) => f.endsWith(".mjs"))
     .filter((f) => DECLARES_SUITE.test(read(join("scripts", f))));
-  assert.ok(declared.length > 10, `only found ${declared.length} suites, so this check stopped looking`);
+  assert.ok(declared.length > 24, `only found ${declared.length} suites, so this check stopped looking`);
 
   const workflow = read(join(".github", "workflows", "ci.yml"));
   const exempt = NOT_IN_CI as Record<string, string>;
@@ -10191,7 +10365,7 @@ check("a suite that reveals a review card knows all the shapes it comes in", () 
   const suites = readdirSync("scripts")
     .filter((f) => f.endsWith(".mjs"))
     .filter((f) => DECLARES_SUITE.test(read(join("scripts", f))));
-  assert.ok(suites.length > 10, `only found ${suites.length} suites, so this check stopped looking`);
+  assert.ok(suites.length > 24, `only found ${suites.length} suites, so this check stopped looking`);
 
   let drivers = 0;
   for (const file of suites) {
@@ -10320,7 +10494,7 @@ check("a truncated query in the progress layer ends on the primary key", () => {
   const dir = join("lib", "progress");
   const files = readdirSync(dir)
     .filter((f) => f.endsWith(".ts") && !f.includes(".test.") && !f.includes(".itest."));
-  assert.ok(files.length > 3, `only found ${files.length} files, so this check stopped looking`);
+  assert.ok(files.length > 29, `only found ${files.length} files, so this check stopped looking`);
 
   let looked = 0;
   for (const file of files) {
@@ -10389,7 +10563,7 @@ check("a truncated query in the progress layer ends on the primary key", () => {
       );
     }
   }
-  assert.ok(looked > 8, `only ${looked} truncated queries found, so this check stopped looking`);
+  assert.ok(looked > 26, `only ${looked} truncated queries found, so this check stopped looking`);
 });
 
 /**
@@ -12263,7 +12437,7 @@ check("every marker the merge ritual names is still somewhere in the tree", () =
     .matchAll(/`([^`]+)`/g)].map((m) => m[1]!);
 
   assert.ok(
-    markers.length >= 25,
+    markers.length >= 320,
     `only ${markers.length} markers parsed out of CLAUDE.md; the list or its wording moved`,
   );
 
@@ -12463,7 +12637,7 @@ check("every script a workflow runs is a script that exists", () => {
   assert.deepEqual(missing, [], `a workflow runs an npm script that no longer exists: ${missing.join(", ")}`);
 
   const paths = [...new Set([...yaml.matchAll(/scripts\/([\w.-]+\.(?:mjs|ts))/g)].map((m) => m[1]!))];
-  assert.ok(paths.length >= 5, `only ${paths.length} script paths found in the workflows; the pattern moved`);
+  assert.ok(paths.length >= 27, `only ${paths.length} script paths found in the workflows; the pattern moved`);
   const absent = paths.filter((file) => !existsSync(join("scripts", file)));
   assert.deepEqual(absent, [], `a workflow runs a script file that is not there: ${absent.join(", ")}`);
 });
@@ -13330,13 +13504,15 @@ check("the forms list is an accept list and never an answer", () => {
   // And the deployment carries the files, which a bundler does not do for a
   // path only ever built at runtime.
   assert.match(
-    read("next.config.ts"), /outputFileTracingIncludes[\s\S]{0,300}prisma\/data\/forms/,
+    code("next.config.ts"), /outputFileTracingIncludes[\s\S]{0,300}prisma\/data\/forms/,
     "the forms list is not traced into the deployment, so a hosted Sõnad refuses every guess",
   );
 
   // Every source is credited where the others are.
   for (const file of ["LICENSE", "app/(chromeless)/sign-in/page.tsx", "app/(chromeless)/welcome/page.tsx", "app/terms/page.tsx"]) {
-    assert.match(read(file), /Vabamorf/, `${file} does not credit Vabamorf`);
+    // Read as code where it is code: a comment saying the page credits the
+    // source is not the page crediting it.
+    assert.match(file.endsWith(".tsx") ? code(file) : read(file), /Vabamorf/, `${file} does not credit Vabamorf`);
   }
 });
 
@@ -13674,6 +13850,18 @@ check("a day or a month read in SQL does not depend on the session's zone", () =
     }
   }
   assert.ok(seen >= 3, `only ${seen} TO_CHAR day readings found; the sweep is not finding them`);
+});
+
+check("a case is charted at the case the round asked, on every reader that tallies one", () => {
+  /*
+    \`Review.targetCase\` is the card's case and \`Review.slot\` is what was
+    asked. The writing round and Target ask a card for a case other than its
+    own, and every chart read the card's, so a miss was charted at a case the
+    learner was not asked. \`caseAsked\` is the one reading.
+  */
+  for (const file of ["lib/progress/cases.ts", "lib/classroom/roster.ts", "app/(app)/review/write/page.tsx"]) {
+    assert.match(code(file), /caseAsked\(/, `${file} tallies cases off the card's case rather than the asked one`);
+  }
 });
 
 check("a confidence figure carries its evidence, on every screen that prints one", () => {
@@ -14779,6 +14967,33 @@ check("docs/04-data-model.md names the values each list in the code accepts", ()
   somebody runs once against a live key, and a rule that every script must be
   documented would be a rule to write filler.
 */
+check("a check that a source file does something reads its code, not its comments", () => {
+  /*
+    THE OLDEST RECURRING MISTAKE IN THIS SUITE, AND IT WAS STILL HERE.
+
+    `code()` exists because a comment naming a function satisfies a check
+    that searches the raw file for it. CLAUDE.md records that fault four
+    times, and eleven presence checks in this file were still reading raw
+    text: deleting the `clampReviewedAt` call from the offline outbox, the
+    `matchEstonianForm` call from the scan resolver, or the `ProseStream`
+    pass from the tutor route left every one of them green, because each
+    file has a comment explaining the call it no longer made.
+
+    So a positive `assert.match` handed a source file straight from `read`
+    is refused. A variable read and matched later is out of this check's
+    reach, and the ones that existed were converted by hand; `doesNotMatch`
+    may keep `read`, since there a comment can only make the check stricter.
+  */
+  const self = read("scripts/test-invariants.ts");
+  const offenders = [...self.matchAll(/assert\.match\(\s*read\(("[^"]+\.(?:ts|tsx|mjs)")\)/g)]
+    .map((m) => `line ${self.slice(0, m.index).split("\n").length}: ${m[1]}`);
+  assert.deepEqual(offenders, [], `presence checked against raw text, which a comment satisfies: ${offenders.join(", ")}`);
+  assert.ok(
+    [...self.matchAll(/assert\.match\(\s*code\("/g)].length >= 10,
+    "fewer than ten presence checks read code(); the pattern this guards moved",
+  );
+});
+
 check("every command the README and CLAUDE.md name is a script that exists", () => {
   /*
     AND EVERY COMMAND A COMMENT NAMES, WHICH IS WHERE MOST OF THEM ARE.
@@ -15215,7 +15430,7 @@ check("the research opt-out is applied in the query, and is where the page says"
     );
   }
   assert.match(
-    read("app/(app)/settings/PreferencesPanel.tsx"),
+    code("app/(app)/settings/PreferencesPanel.tsx"),
     /setResearchParticipation\(/,
     "the Settings row for the research opt-out no longer writes anything",
   );
@@ -15690,6 +15905,75 @@ check("every writer of a level hands back the words that were waiting for it", (
 });
 
 /**
+ * A GRADE QUEUED AFTER A FAILED ONLINE WRITE KEEPS THE ID THE WRITE WAS SENT WITH.
+ *
+ * Every session asked `gradeCard` with no id and, on any throw, queued the
+ * grade under a fresh `crypto.randomUUID()`. A throw is not proof nothing was
+ * written: a write that committed and whose answer was lost on a flaky
+ * connection went to the outbox as a stranger, the replay found no row under
+ * the new id, and the one answer became two permanent rows and two runs of the
+ * scheduler. The id is chosen before asking now and reused in the outbox, and
+ * `writeGrade` treats an id already written as an answer already applied.
+ *
+ * Swept rather than listed: every file that queues a grade, and every call in
+ * it, has to hand `gradeCard` the id it queues.
+ */
+/**
+ * UNDO TAKES A QUEUED GRADE BACK, AND SIGNING OUT WAITS FOR A PASS IN FLIGHT.
+ *
+ * Undo asked the server alone, so a grade undone offline stayed in the outbox
+ * and was replayed later: the answer the learner withdrew was applied anyway.
+ * And `flush` returned at once while a sync was running, so signing out
+ * counted a batch still in flight, warned about grades about to land, and
+ * deleted the database under the pass.
+ */
+check("undo takes a queued grade back, and flush waits for a sync in flight", () => {
+  const undo = between(code("app/(app)/review/ReviewSession.tsx"), "const undo = useCallback");
+  const taken = undo.indexOf("takeFromOutbox(");
+  const asked = undo.indexOf("undoGrade(");
+  assert.ok(taken > 0 && asked > taken,
+    "undo asks the server without first taking the grade back out of the outbox");
+  const provider = code("components/OfflineProvider.tsx");
+  /*
+    And a new grade goes online only after anything queued before it: the
+    scheduler has to hear two answers to one card in the order they happened.
+  */
+  const queuing = sourceFiles("app").filter((f) => /enqueueGrade\(\{/.test(code(f)));
+  for (const file of queuing) {
+    const source = code(file);
+    const drained = source.indexOf("await drainFirst()");
+    const sent = source.indexOf("await gradeCard(");
+    assert.ok(drained > 0 && sent > drained,
+      `${file} sends a grade online before the outbox holding older ones has been sent`);
+  }
+  assert.match(provider, /if \(inflight\.current\) return inflight\.current;/,
+    "a sync already running is no longer the promise a second caller gets, so flush returns before it lands");
+});
+
+check("a grade queued after a failed online write keeps the id it was sent with", () => {
+  const files = sourceFiles("app").concat(sourceFiles("components"))
+    .filter((f) => /enqueueGrade\(\{/.test(code(f)));
+  assert.ok(files.length >= 4, `only ${files.length} file(s) queue a grade; the sweep has lost them`);
+  const bad: string[] = [];
+  for (const file of files) {
+    const source = code(file);
+    for (const m of source.matchAll(/enqueueGrade\(\{([\s\S]*?)\}\)/g)) {
+      const id = /\bid:\s*([A-Za-z_$][\w$]*)\s*,/.exec(m[1]!)?.[1];
+      if (!id) { bad.push(`${file}: queues an id that is not a named value`); continue; }
+      const calls = [...source.matchAll(/gradeCard\(([\s\S]*?)\)/g)];
+      if (!calls.some((c) => new RegExp(`\\b${id}\\b`).test(c[1]!))) {
+        bad.push(`${file}: queues ${id} without having sent it to gradeCard`);
+      }
+    }
+  }
+  assert.deepEqual(bad, [], `a lost online answer would be replayed as a second one:\n${bad.join("\n")}`);
+  assert.match(code("lib/srs/grade.ts"), /findUnique\(\{\s*where:\s*\{\s*id:\s*reviewId/,
+    "writeGrade no longer treats an id already written as an answer already applied");
+  assert.match(code("lib/srs/grade.ts"), /\$transaction\(\[/,
+    "writeGrade writes the review and the card's scheduling apart again");
+});
+
+/**
  * EVERY FIELD THE OUTBOX HOLDS REACHES THE SERVER.
  *
  * `PendingGrade` carried `slot`, IndexedDB stored it, `ReplayItem` accepted it
@@ -15748,6 +16032,11 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
     rename of the Session suffix empties it and the deepEqual passes on nothing.
   */
   assert.ok(SESSION_FILES().length >= 20, `only ${SESSION_FILES().length} round components found, so the sweep stopped looking`);
+  // A sweep over nothing passes: the rounds that write a duration are the
+  // haystack, and a rename that moved them out of SESSION_FILES would leave
+  // this asking about no file at all.
+  const grading = SESSION_FILES().filter((file) => /\bgradeCard\(/.test(code(file)));
+  assert.ok(grading.length >= 15, `only ${grading.length} round sessions grade through gradeCard, so the sweep is looking in the wrong place`);
   assert.deepEqual(
     averaged, [],
     `a round clock divided by the number of answers is being written into ` +
@@ -15986,7 +16275,7 @@ check("a case is named only when one case claims the spelling", () => {
 /**
  * NO MODEL DECIDES WHETHER A LEARNER WAS UNDERSTOOD.
  *
- * `docs/19-situations.md` §18 names the first way this module could fail: a
+ * `docs/21-situations.md` §18 names the first way this module could fail: a
  * chatbot in a costume. The guard is a type rather than a rule anybody has to
  * remember. `readTurn` is the only producer of `Evidence` and `advance` is its
  * only consumer, so a caller holding a model's opinion about a turn cannot
@@ -16024,7 +16313,7 @@ check("a case is named only when one case claims the spelling", () => {
 /**
  * A CLASS SEES EFFORT, NEVER A TRANSCRIPT.
  *
- * ADR-019 stands unchanged and `docs/19-situations.md` §18 names the way this
+ * ADR-019 stands unchanged and `docs/21-situations.md` §18 names the way this
  * module would break it: a roster row may say how many conversations somebody
  * finished, and the class panel may say which objective the group most often
  * misses, and a transcript belongs to one person. A `SceneRun` holds every turn
@@ -16098,7 +16387,7 @@ check("a class cannot read a conversation", () => {
       src,
       /prisma\.sceneRun\.(findMany|findFirst|findUnique)/,
       `${file} reads a scene transcript. A class sees effort and aggregate, never ` +
-      "one learner's turns (ADR-019, docs/19-situations.md §18).",
+      "one learner's turns (ADR-019, docs/21-situations.md §18).",
     );
     assert.doesNotMatch(
       src,
@@ -16806,7 +17095,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
   assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
   assert.match(read("docs/25-data-retention.md"), /Tutor conversation \(`Message`\) \| 24 hours/, "the retention schedule no longer says a tutor conversation lasts a day");
   assert.match(read("docs/24-dpia.md"), /\| `Message` \| What they typed to the tutor and what came back \| 24 hours/, "the DPIA's register no longer says a tutor conversation lasts a day");
-  assert.match(read("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
+  assert.match(code("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
 });
 
 check("the scene prompt is served off a cache entry, by one module, on the route and in the harness", () => {
@@ -16974,8 +17263,12 @@ check("the repair move is only used on a turn nobody understood", () => {
     "lib/scenes/reply.ts lost replyFor, so the reaction and the move are assembled somewhere else",
   );
   assert.match(
-    reply, /reading === "unrecognised"/,
-    "replyFor no longer decides the repair phrase on how the turn was read",
+    reply, /response === "repeat" && \(reading === "unrecognised" \|\| reading === "echo"\) && !composed/,
+    "replyFor no longer decides the repair phrase on how the turn was read, and on those two readings alone",
+  );
+  assert.equal(
+    (reply.match(/fallbackLine\(FALLBACK_PHRASE/g) ?? []).length, 1,
+    "the repair phrase is said from a second place in replyFor, which the reading does not decide",
   );
   assert.doesNotMatch(
     code("lib/scenes/line.ts"), /MOVE_STAGE|wayOut/,
@@ -18706,7 +18999,7 @@ check("nothing but the dictionary can advance a scene", () => {
     state,
     /export function advance\(\s*scene: SceneSpec,\s*state: SceneState,\s*evidence: Evidence,/,
     "advance no longer takes Evidence. A caller holding a model's opinion must not be able " +
-    "to satisfy it: that is the whole guard on this module (docs/19-situations.md §8).",
+    "to satisfy it: that is the whole guard on this module (docs/21-situations.md §8).",
   );
 
   /*
@@ -19404,7 +19697,7 @@ check("Today's report names no errand, and the research table files a conversati
   assert.doesNotMatch(tally, /errandById|"errandId"|unit/, "the encounters section files a report under a unit or an errand");
   assert.match(tally, /isConversation/, "the encounters section counts a day with no conversation in it as one");
   assert.match(
-    read("lib/research/sections.ts"), /NOTHING HERE SAYS WHAT A CONVERSATION WAS ABOUT/,
+    code("lib/research/sections.ts"), /NOTHING HERE SAYS WHAT A CONVERSATION WAS ABOUT/,
     "the encounters section no longer tells a reader that it does not know what a conversation was about",
   );
 });
@@ -19542,17 +19835,20 @@ check("a verdict is one size, and never below the body step", () => {
     the body step, which is what the five rounds had before this.
   */
   const small = /\btext-(?:2xs|xs|sm)\b|\blabel-xs\b|\btext-\[(?:[0-9]|1[0-4])(?:\.\d+)?px\]/;
+  let panels = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const body = code(file);
     if (!/VERDICT_CLASS/.test(body)) continue;
     for (const literal of body.match(/`[^`]*`/g) ?? []) {
       if (!/VERDICT_CLASS/.test(literal)) continue;
+      panels++;
       assert.doesNotMatch(
         literal, small,
         `${file} sets a verdict below the body step: ${literal.replace(/\s+/g, " ").slice(0, 90)}`,
       );
     }
   }
+  assert.ok(panels >= 20, `read ${panels} verdict panels; the class-list sweep has stopped finding them`);
 
   /*
     The other shape a verdict takes is a run of text with nothing behind it,
@@ -19566,6 +19862,7 @@ check("a verdict is one size, and never below the body step", () => {
     the 13px tick that carry the same ink are left alone: what is refused is a
     caption class on the element the ink is written on.
   */
+  let inked = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const body = code(file);
     if (!/VERDICT_INK/.test(body)) continue;
@@ -19577,12 +19874,14 @@ check("a verdict is one size, and never below the body step", () => {
         is read as the whole tag rather than as nothing, since nothing passes.
       */
       const names = classes?.[1] ?? classes?.[2] ?? tag;
+      if (names) inked++;
       assert.doesNotMatch(
         names, small,
         `${file} writes a verdict in the verdict ink and sets it below the body step: ${names}`,
       );
     }
   }
+  assert.ok(inked >= 1, "read no element written in the verdict ink; the tag sweep has stopped finding them");
 });
 
 /*
@@ -19816,7 +20115,9 @@ check("every screen that keeps a word asks which shelf, through one press", () =
 });
 
 check("a word is favourited by one button, and the toggle has one caller", () => {
-  const callers = ALL.filter((file) => /\btoggleStar\b/.test(code(file)));
+  // A screen is the caller this is about. A test driving the action is not
+  // one, and a test that could not name it could not check it.
+  const callers = ALL.filter((file) => !/\.(i?test)\.tsx?$/.test(file) && /\btoggleStar\b/.test(code(file)));
   assert.deepEqual(
     callers.sort(),
     [join("app", "actions.ts"), join("components", "StarWord.tsx")].sort(),
@@ -20318,9 +20619,11 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     "the room takes a className again, which is a second answer to how big it is and loses to its "
     + "own class list wherever the two disagree",
   );
+  let rooms = 0;
   for (const file of COMPONENTS) {
     const source = code(file);
     for (const match of source.matchAll(/<SceneVignette([^>]*)>/g)) {
+      rooms++;
       const call = match[1] ?? "";
       assert.ok(
         !/className/.test(call),
@@ -20328,6 +20631,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
       );
     }
   }
+  assert.ok(rooms >= 5, `found ${rooms} rooms drawn; the tag this sweep reads has moved`);
 
   /*
     AND THE DEBRIEF IS READ IN THE ROOM IT HAPPENED IN.
@@ -21008,7 +21312,11 @@ check("putting a word aside moves a date and grades nothing", () => {
     a button that promised not to touch it.
   */
   for (const [what, where] of [["an undo", "undoDeferral"], ["the level wake", "wakeForLevel"]]) {
-    const body = defer.slice(defer.indexOf(`export async function ${where}`));
+    const from = defer.indexOf(`export async function ${where}`);
+    assert.ok(from >= 0, `lib/progress/deferrals.ts no longer exports ${where}`);
+    // Bounded at the next export, or one function's line answers for the other.
+    const next = defer.indexOf("\nexport ", from + 1);
+    const body = defer.slice(from, next === -1 ? undefined : next);
     assert.match(
       body, /due: row\.untilAt/,
       `${what} pulls cards forward without matching the date the deferral wrote, `
@@ -21661,7 +21969,9 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
     reads rather than on a count, because adding it to the started one is the
     silent regression: the learner keeps meeting words and never finishes one.
   */
-  const started = learn.slice(learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1"));
+  const startedAt = learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1");
+  assert.ok(startedAt >= 0, "the started read moved; this check is anchored on its where clause");
+  const started = learn.slice(startedAt);
   assert.doesNotMatch(
     started.slice(0, 200), /introducible/,
     "a word part way up the ladder is being held back by the module, which strands it mid-word",
@@ -21719,8 +22029,30 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
   and `AND: [pastTheLadder(...), { OR: ... }]` is the shape that passes, since
   there the two are separate objects.
 */
+/*
+  EVERY CARD THE REVIEW PAGE READS HAS BEEN ASKED ABOUT THE LADDER.
+
+  The page draws cards five ways, the due window, the new window, the band
+  top-up and three drills, and each of those has to say whether a word still
+  on the Learn ladder may be handed out. The photographed-page drill asked
+  nothing, so a word scanned a minute ago was first shown as a case card
+  rather than as its meaning. Read off each `findMany` block, since a guard
+  anywhere else on the page is a guard on a different query.
+*/
+check("every card read on the review page asks about the Learn ladder", () => {
+  const src = code("app/(app)/review/page.tsx");
+  const blocks = src.split("prisma.card.findMany(").slice(1).map((b) => b.slice(0, 700));
+  const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst)\(ownerId/;
+  const loose = blocks.filter((b) => !guard.test(b));
+  assert.ok(blocks.length >= 6, `only ${blocks.length} card reads found on the review page`);
+  assert.deepEqual(
+    loose.map((b) => b.slice(0, 80).replace(/\s+/g, " ")), [],
+    "a card read on the review page names no Learn-ladder guard",
+  );
+});
+
 check("no query spreads a second OR over the Learn-ladder guard", () => {
-  const helpers = /\.\.\.(pastTheLadder|notOnLadder)\(/g;
+  const helpers = /\.\.\.(pastTheLadder|notOnLadder|meetingFirst)\(/g;
   let looked = 0;
   for (const file of [...sourceFiles("app"), ...sourceFiles("lib")]) {
     const src = code(file);
@@ -22068,23 +22400,29 @@ check("an order the writer did not choose is not a wrong order", () => {
     reach the screen as `ETTE`. It is `Chip`'s `caseSensitive` rule one screen
     over, and the one that put `-SSE` on a grammar card.
   */
-  for (const file of markers) {
+  /*
+    Asked of the two elements that actually print the note, named here by the
+    text that fills them. The first version walked back from each
+    `orderVariantNote(` call to the nearest `<p` and skipped the call when it
+    found none or found one without `label-xs`, which on the screens as they
+    are is every call: the lesson stores the note in state and prints it in
+    `Verdict`, the sentence round prints it in a plain `<p>`, and the paper has
+    no markup at all. It asserted nothing. So each printing site has to be
+    found, and its element has to be one that keeps the word's case.
+  */
+  const printed: [string, RegExp][] = [
+    ["app/(app)/review/sentences/SentenceSession.tsx", /orderVariantNote\(/],
+    ["app/(app)/learn/[unitId]/lesson/LessonSession.tsx", /\{note \?\? \(ok/],
+  ];
+  for (const [file, anchor] of printed) {
     const body = code(file);
-    /*
-      The element the note is printed in, which is the window from the run of
-      markup before it. A sweep of the whole file would answer about whichever
-      other caption came first, which is what the first version of this did.
-    */
-    for (const at of [...body.matchAll(/orderVariantNote\(/g)].map((m) => m.index)) {
-      const around = body.slice(Math.max(0, at - 600), at);
-      const opened = around.lastIndexOf("<p");
-      if (opened < 0) continue;
-      const tag = around.slice(opened);
-      if (!/\blabel-xs\b/.test(tag)) continue;
-      assert.match(
-        tag, /textTransform/,
-        `${file} prints the word a learner moved in a class that uppercases it`,
-      );
+    const at = body.search(anchor);
+    assert.ok(at >= 0, `${file} no longer prints the word-order note where this check looks for it`);
+    const tags = [...body.slice(Math.max(0, at - 600), at).matchAll(/<[a-z][\w.]*\b[^<>]*>/g)];
+    const tag = tags.at(-1)?.[0];
+    assert.ok(tag, `${file}: found no element around the word-order note`);
+    if (/\b(?:label-xs|uppercase)\b/.test(tag)) {
+      assert.match(tag, /textTransform/, `${file} prints the word a learner moved in a class that uppercases it`);
     }
   }
 
@@ -23407,6 +23745,7 @@ check("a round that draws a hint pays for it in the grade it sends", () => {
   const drawing = HINT_SWEPT_DIRS
     .flatMap((dir) => sourceFiles(dir, /Session\.tsx$/))
     .filter((f) => /<HintLadder\b/.test(code(f)));
+  assert.ok(drawing.length >= 12, `found ${drawing.length} rounds drawing a hint; the sweep has stopped finding them`);
   const free = drawing.filter((f) => !/\.ceiling\b/.test(code(f)));
   assert.deepEqual(
     free.map((f) => f.replace(/\\/g, "/")), [],
@@ -23430,6 +23769,7 @@ check("the hint's state is one hook rather than a copy per round", () => {
   // Both sweeps below are empty-list passes if the ladder is renamed, so the
   // haystack has to be there first. Fourteen rounds draw it today.
   assert.ok(drawing.length >= 10, `expected the rounds that draw the hint ladder, found ${drawing.length}`);
+  assert.ok(new Set(drawing).size >= 12, `found ${new Set(drawing).size} rounds drawing a hint; the sweep has stopped finding them`);
   const rolled = drawing.filter((f) => !/\buseHints\(/.test(code(f)));
   assert.deepEqual(
     [...new Set(rolled.map((f) => f.replace(/\\/g, "/")))], [],
@@ -23734,7 +24074,7 @@ check("the grammar examples carry the hook the browser suite finds them by", () 
     "PointExamples no longer marks itself for the suite that drives it",
   );
   assert.ok(
-    /data-point-examples/.test(read("scripts/test-teaching.mjs")),
+    /locator\("\[data-point-examples\]"\)/.test(code("scripts/test-teaching.mjs")),
     "the teaching suite no longer checks that a claim is shown rather than stated",
   );
 });
@@ -23973,6 +24313,16 @@ check("the letter about other people carries nobody's name", () => {
     The word boundary is what keeps those two apart, and it is why this reads
     regexes rather than substrings.
   */
+  /*
+    And the aggregate it carries is the letter's own, not the screen's. The
+    screen's `weakestCases` is gated on ten answers across everybody and not on
+    how many people gave them, so a teacher and one student was that student's
+    own weakest case under "the class". `sharedCases` counts a case only where
+    enough students answered it and leaves the reader out.
+  */
+  assert.match(upTo, /classRoster\([^)]*leaveOut: ownerId/, "the classroom letter asks the roster without leaving its reader out");
+  assert.match(upTo, /weakestCases: roster\.sharedCases/, "the classroom letter carries the screen's weakest cases, which may rest on one student");
+
   for (const field of ["displayName", "weakestCase", "streak", "wordsKnown"]) {
     assert.equal(
       new RegExp(`\\b${field}\\b`).test(upTo),
@@ -24112,7 +24462,7 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
       // recurring mistake in this repository's own checks, made once more.
       !/\.(test|itest)\.ts$/.test(f),
   );
-  assert.ok(letters.length >= 6, `only found ${letters.length} letter files, so this check stopped looking`);
+  assert.ok(letters.length >= 18, `only found ${letters.length} letter files, so this check stopped looking`);
   for (const file of letters) {
     const source = code(file);
     assert.doesNotMatch(
@@ -24129,8 +24479,12 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
     the subject or the body would be a copy of somebody's letter sitting in a
     table, and an `openedAt` would be the pixel arriving through the schema.
   */
-  const model = read("prisma/schema.prisma").slice(read("prisma/schema.prisma").indexOf("model EmailSend"));
+  const schema = read("prisma/schema.prisma");
+  const modelAt = schema.indexOf("model EmailSend {");
+  assert.ok(modelAt >= 0, "prisma/schema.prisma has no EmailSend model for this check to read");
+  const model = schema.slice(modelAt);
   const fields = model.slice(0, model.indexOf("\n}"));
+  assert.match(fields, /^\s+ownerId\b/m, "the EmailSend fields this check reads are not the model's own");
   for (const banned of ["subject", "body", "html", "openedAt", "clickedAt"]) {
     assert.ok(
       !new RegExp(`^\\s+${banned}\\b`, "m").test(fields),
@@ -24552,6 +24906,245 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+/**
+ * Two neighbouring `const x = await ...` statements in a server file where the
+ * second never names what the first bound: two reads that do not need each
+ * other, asked one after the other.
+ *
+ * A heuristic rather than a parse, and drawn to miss rather than to fire: only
+ * adjacent statements with nothing between them, a second statement that does
+ * not mention any name the first bound, and never a first statement that is
+ * the request itself (`params`, `searchParams`, the session). A nested callback
+ * is not a neighbour, so `Promise.all(LEVELS.map(async ...))` is left alone.
+ * Nor is a first statement that writes: a read after a create or an update
+ * needs the write to have landed whether or not it names what the write
+ * returned, and a check that asked for the two at once would be asking for
+ * the read to race its own precondition.
+ */
+function independentAwaits(source: string): { line: number; first: string; second: string }[] {
+  const statements: { start: number; end: number; names: string[]; text: string }[] = [];
+  const opener = /(?:const|let)\s+(\{[^}]*\}|\[[^\]]*\]|\w+)\s*(?::[^=]+)?=\s*await\s/g;
+  for (const m of source.matchAll(opener)) {
+    let i = m.index! + m[0].length;
+    let depth = 0;
+    for (; i < source.length; i += 1) {
+      const c = source[i]!;
+      if ("([{".includes(c)) depth += 1;
+      else if (")]}".includes(c)) depth -= 1;
+      else if (c === ";" && depth <= 0) break;
+    }
+    const names = m[1]!.replace(/[{}[\]]/g, "").split(",")
+      .map((part) => part.split(":").pop()!.replace(/=.*/, "").replace(/^\.\.\./, "").trim())
+      .filter(Boolean);
+    statements.push({ start: m.index!, end: i, names, text: source.slice(m.index!, i) });
+  }
+  const out: { line: number; first: string; second: string }[] = [];
+  // A statement inside the one before it (an `await` in a callback) is not a
+  // neighbour of anything, so the comparison is always with the last
+  // statement that had finished before this one began.
+  let previous: (typeof statements)[number] | null = null;
+  for (const b of statements) {
+    const a = previous;
+    if (a && b.start < a.end) continue;
+    previous = b;
+    if (!a) continue;
+    if (source.slice(a.end + 1, b.start).trim() !== "") continue;
+    if (/\b(?:params|searchParams|requireUserId)\b/.test(a.text)) continue;
+    if (/\.(?:create|createMany|update|updateMany|upsert|delete|deleteMany)\(|\$executeRaw|\$transaction|\bwrite[A-Z]\w*\(/.test(a.text)) continue;
+    const rhs = b.text.slice(b.text.indexOf("await"));
+    if (a.names.some((n) => new RegExp(`\\b${n.replace(/\$/g, "\\$")}\\b`).test(rhs))) continue;
+    out.push({ line: source.slice(0, b.start).split("\n").length, first: a.names.join(","), second: b.names.join(",") });
+  }
+  return out;
+}
+
+check("a server page asks two reads that do not need each other at once", () => {
+  /*
+    The rule CLAUDE.md states about Today, "two answers that do not need each
+    other are asked at once", held to every page and route rather than to the
+    one that was fixed. On a hosted database each `await` is a round trip in
+    another region, and this shape was on the learn page, the sprint, the
+    exceptions round, the daily review queue and the metrics route.
+  */
+  const fires = independentAwaits("const a = await one();\nconst b = await two();\n");
+  assert.equal(fires.length, 1, "the detector no longer finds two independent awaits");
+  assert.equal(independentAwaits("const a = await one();\nconst b = await two(a);\n").length, 0,
+    "the detector fires on a read that needs the one before it");
+  assert.equal(independentAwaits("const x = await Promise.all(L.map(async () => { const y = await f(); return y; }));\nconst z = await g();\n").length, 1,
+    "the detector reads a nested callback as a neighbour");
+  assert.equal(independentAwaits("const row = await prisma.card.create({ data });\nconst all = await prisma.card.findMany();\n").length, 0,
+    "the detector asks a read to race the write before it");
+
+  let scanned = 0;
+  const found: string[] = [];
+  for (const file of APP.filter((f) => /(?:page|layout)\.tsx$|route\.ts$/.test(f))) {
+    scanned += 1;
+    for (const hit of independentAwaits(code(file))) {
+      found.push(`${file}:${hit.line} awaits ${hit.second} after ${hit.first}`);
+    }
+  }
+  assert.ok(scanned >= 60, `only ${scanned} server files were read, so this is looking at nothing`);
+  assert.deepEqual(found, [], `${found.join("; ")}. Neither needs the other: ask them in one Promise.all`);
+});
+
+check("the Enter that submits a field does not also move the round on", () => {
+  /*
+    A field that submits on Enter (`onEnter=`) marks the answer inside
+    React's own keydown handler, and React flushes that discrete update and
+    its effects before the same event reaches `window`. So a window listener
+    re-registered with the answer marked sees the very Enter that marked it
+    and, reading it as "next", moves past a verdict nobody has seen: measured
+    against React 19 in a browser, one Enter in the dictation box went from
+    "0:none" to "1:none", marked and skipped in a single press. The
+    conjugation table and the review card each worked this out and stand
+    down for a key from a field; dictation did not, and nor did the unit
+    lesson, whose `Continue` mounts on the render that marks a typed step. So in every round whose
+    field submits on Enter, the window listener either returns early for a
+    key from a text box, or asks `inEditable` beside every advance.
+  */
+  const rounds = [...APP, ...COMPONENTS].filter((f) =>
+    /\bonEnter=/.test(code(f)) && /addEventListener\("keydown", onKey\)/.test(code(f)));
+  assert.ok(rounds.length >= 6, `only ${rounds.length} rounds submit a field on Enter; the sweep has lost its haystack`);
+  const offenders: string[] = [];
+  for (const file of rounds) {
+    const src = code(file);
+    for (const m of src.matchAll(/const onKey = \(e: KeyboardEvent\) => \{([\s\S]*?)\n\s*window\.addEventListener\("keydown", onKey/g)) {
+      const body = m[1]!;
+      const first = body.search(/isAdvanceKey\(e\)/);
+      if (first < 0) continue;
+      const before = body.slice(0, first);
+      const earlyReturn = /(?:inEditable\(e\.target\)|e\.target instanceof HTMLInputElement|tagName === "INPUT")[^;\n]*\)\s*return;/.test(before);
+      if (earlyReturn) continue;
+      const at = m.index! + m[0].indexOf(body);
+      for (const a of body.matchAll(/isAdvanceKey\(e\)((?:[^()]|\([^()]*\))*)\)\s*(\{\s*[^;]*;)?/g)) {
+        const alongside = /!inEditable\(e\.target\)|!typing/.test(a[1]!);
+        const inside = /^\{\s*if \((?:typing|inEditable\(e\.target\))\) return;/.test(a[2] ?? "");
+        if (!alongside && !inside) offenders.push(`${file}:${src.slice(0, at + a.index!).split("\n").length}`);
+      }
+    }
+  }
+  assert.deepEqual(offenders, [],
+    `${offenders.join(", ")} advances on an Enter that came from the answer field, which is the Enter that just submitted it`);
+});
+
+check("every design document the repository cites is one that exists", () => {
+  /*
+    A path to a design doc is how a comment says where its argument lives,
+    and the argument is what the next reader needs before changing the code.
+    The situations design was cited sixteen times as document 19 across the
+    scene module, the schema, the data model and this file after it had
+    become document 21, so every one of those pointers led to nothing, or
+    to the research export, which is what 19 is now. The section numbers had
+    not moved, which is why nobody noticed: the claim was right and the
+    address was wrong. Read raw rather than through `code()`, because the
+    citations are in comments.
+  */
+  const haystack = [
+    ...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), "prisma/schema.prisma",
+    "CLAUDE.md", "README.md", ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => `docs/${f}`),
+  ];
+  let cited = 0;
+  const missing = new Set<string>();
+  for (const file of haystack) {
+    const text = read(file);
+    for (const m of text.matchAll(/docs\/\d{2}-[a-z0-9-]+\.md/g)) {
+      cited += 1;
+      /*
+        A backlog may name the file a piece of work will produce, which is a
+        citation of something that does not exist yet on purpose. It says so
+        in words beside the path, so the reader is not sent looking for it,
+        and that is what lets it through; the same words on a file that does
+        exist are refused, since then the note is the stale half.
+      */
+      const planned = /^`?\s*\(to be written\)/.test(text.slice(m.index! + m[0].length));
+      if (planned && existsSync(m[0])) missing.add(`${m[0]} is marked to be written and exists (in ${file})`);
+      if (!planned && !existsSync(m[0])) missing.add(`${m[0]} (in ${file})`);
+    }
+  }
+  assert.ok(cited >= 200, `found only ${cited} citations of a design doc, so the sweep has stopped reading what it should`);
+  assert.ok(missing.size === 0, `cites a design doc that does not exist: ${[...missing].join(", ")}`);
+});
+
+check("the places nav.ts says live inside another place are the ones its table says do", () => {
+  /*
+    The comment on \`within\` lists, route by route, every destination that is
+    reached from somewhere else rather than from a rail row, and says why for
+    each. It named the class week for as long after that page was cut as
+    anybody read it, which sent the next reader looking for a table entry and a
+    page that were both gone. So the list is held to the table: every route it
+    names has an entry there, and that entry carries a \`within\`. Read raw,
+    because the list is a comment and the table is code in the same file.
+  */
+  const src = read("lib/ux/nav.ts");
+  const listed = [...src.matchAll(/^\s*\*\s+- `(\/[^`]*)`/gm)].map((m) => m[1]!);
+  assert.ok(listed.length >= 4, `found only ${listed.length} routes in the within list, so the list has moved or this has stopped reading it`);
+  const entries = new Map<string, string>();
+  for (const m of code("lib/ux/nav.ts").matchAll(/href: "([^"]+)"([\s\S]*?)(?=href: "|$)/g)) entries.set(m[1]!, m[2]!);
+  const wrong = listed.filter((r) => !/\bwithin:/.test(entries.get(r) ?? ""));
+  assert.ok(wrong.length === 0, `nav.ts lists as reached from elsewhere a route its table has no within entry for: ${wrong.join(", ")}`);
+});
+
+check("Today's homework panel counts what is waiting, not the rows it drew", () => {
+  /*
+    Today reads twelve open tasks to draw, and the panel's hint said
+    "N left" and "N late" off those twelve: a learner with twenty
+    assignments waiting was told twelve were left, and one with fifteen late
+    was told twelve. A count is a count of the table, asked of Postgres, and
+    the drawn rows are only ever the ones there was room for.
+  */
+  const plan = code("components/TodayPlan.tsx");
+  assert.doesNotMatch(plan, /\btasks\.length\}\s*left/,
+    "TodayPlan prints the length of the rows it was handed as the number left, which Today caps at twelve");
+  assert.doesNotMatch(plan, /=\s*overdueCount\(/,
+    "TodayPlan counts late tasks off the rows it was handed, which Today caps at twelve");
+  const today = code("app/(app)/page.tsx");
+  assert.match(today, /prisma\.task\.count\(/,
+    "Today does not count the open tasks, so the panel can only report the rows it drew");
+});
+
+check("every source file a comment in the code cites is one that exists", () => {
+  /*
+    A comment that names a file is a pointer somebody follows, and eight of
+    them pointed at nothing: the offline outbox under a name it no longer has,
+    a schema note naming the course's old home, a harness compared to an eval
+    script since renamed, a deploy check that was never written, and a pace
+    figure said to be shared with a badge that had been withdrawn. Each sent a
+    reader to a file that does not exist, and two of them to a reason that was
+    no longer true. So a cited path has to resolve, from the repository root
+    or from the citing file's own folder, which is how \`scripts/lib\` names
+    its neighbours. Read raw, because comments are where the citations live.
+
+    A file named only to say it is gone is honest, and each of those is listed
+    with the sentence it lives in. The list is checked both ways: an entry
+    whose file came back, or that nothing cites any more, fails until it is
+    taken out.
+  */
+  const GONE: Record<string, string> = {
+    "lib/achievements/badges.ts": "lib/stats/streak.ts says the streak outlived the badges file it lived in",
+    "components/PracticeModes.tsx": "the second copy of the practice menu, named where its deletion is recorded",
+    "lib/copy/tour.ts": "the first-run tour's screen list, named where its deletion is recorded",
+    "scripts/x.mjs": "a placeholder standing for any suite in a sentence about how CI names them",
+  };
+  const haystack = [...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), "prisma/schema.prisma"];
+  let cited = 0;
+  const missing = new Map<string, string>();
+  const seen = new Set<string>();
+  for (const file of haystack) {
+    for (const m of read(file).matchAll(/(?<![\w/.-])((?:app|lib|components|scripts|prisma)\/[A-Za-z0-9_./()\[\]-]+\.(?:tsx|ts|mjs|json|css|prisma))(?!\w)/g)) {
+      const path = m[1]!;
+      if (path.includes(".cache/")) continue;
+      cited += 1;
+      if (existsSync(path) || existsSync(join(dirname(file), path)) || existsSync(join(dirname(file), "..", path))) continue;
+      seen.add(path);
+      if (!(path in GONE)) missing.set(path, file);
+    }
+  }
+  assert.ok(cited >= 400, `found only ${cited} cited paths, so the sweep has stopped reading what it should`);
+  assert.ok(missing.size === 0, `cites a file that does not exist: ${[...missing].map(([p, f]) => `${p} (in ${f})`).join(", ")}`);
+  const stale = Object.keys(GONE).filter((p) => existsSync(p) || !seen.has(p));
+  assert.ok(stale.length === 0, `an exemption no longer applies, because the file exists or nothing cites it: ${stale.join(", ")}`);
+});
+
 check("whatever says whether Anu answers, or on what, reads her own chain", () => {
   /*
     Anu's chain is Gemini and then Groq and nothing else, and the general
@@ -24596,6 +25189,42 @@ check("every action that writes a grade tells Today it changed", () => {
     .filter((b) => !/revalidatePath\(\s*"\/"\s*\)/.test(b))
     .map((b) => /^export (?:async )?function (\w+)/.exec(b)?.[1] ?? "?");
   assert.deepEqual(silent, [], `${silent.join(", ")} writes a grade and never revalidates Today`);
+});
+
+check("a picked option is marked through choiceIsRight, never against the back as a string", () => {
+  /*
+    A back can hold two spellings (`tuppa / toasse`) and an option holds one,
+    so `choice === card.back` marked the right option wrong on every such
+    card, graded it Again and requeued it. `choiceIsRight` in
+    lib/questions/caseChoices.ts reads both through `acceptedAnswers`.
+  */
+  const sessions = ALL.filter((f) => /Session\.tsx$/.test(f));
+  assert.ok(sessions.length >= 15, `found only ${sessions.length} session files`);
+  const offenders = sessions.filter((f) =>
+    /\b(choice|chosen|picked|pick)\s*===\s*card\??\.back\b|\bcard\??\.back\s*===\s*(choice|chosen|picked|pick)\b/.test(code(f)));
+  assert.deepEqual(offenders, [], `${offenders.join(", ")} compares a picked option with the back as a string`);
+  assert.match(code("app/(app)/review/ReviewSession.tsx"), /choiceIsRight\(/,
+    "ReviewSession no longer marks its options through choiceIsRight");
+});
+
+check("the scene judge is asked about the beat the turn was aimed at", () => {
+  /*
+    The judge read the state after the turn, and the miss that spends the last
+    try moves the pointer on while a miss that meets a beat further along
+    appends that beat's row after its own. Either way the last row named
+    another beat than the pointer and no judge was asked, which on a beat
+    with patience one, or with the brisk persona, is every miss. The beat and
+    the row are read off the state before the turn.
+  */
+  const route = code("app/api/scene/route.ts");
+  assert.match(route, /const before = replay\(marking, draw, turns\.slice\(0, -1\)\)\.state;/,
+    "the scene route no longer replays the run up to the turn it is about to judge");
+  assert.match(route, /const judged = before\.hurdle \? hurdleBeat\(before\.hurdle\) : currentBeat\(scene, before\);/,
+    "the judge is asked about the beat after the turn rather than the one it was aimed at");
+  assert.doesNotMatch(route, /const lastRead = state\.turns\[state\.turns\.length - 1\]/,
+    "the judged row is the last row again, which is another beat's whenever the turn moved the pointer");
+  assert.match(route, /conceded: turns\[turns\.length - 1\]\?\.conceded \?\? null/,
+    "a concession is read back off the last row, which a cascade row after it hides from the client");
 });
 
 console.log(
