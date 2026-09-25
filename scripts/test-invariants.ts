@@ -7537,17 +7537,6 @@ check("a malformed argument to a server action is refused, not thrown or stored"
   );
 });
 
-/** Every model in the schema carrying an `ownerId`: one person's own data. */
-function ownerScopedModels(): string[] {
-  const owned = schemaModels()
-    .filter(({ body }) => /^\s*ownerId\s/m.test(body))
-    .map(({ name }) => name);
-  assert.ok(owned.length >= 12, `expected the owner-scoped models, found ${owned.length}`);
-  return owned;
-}
-
-const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
-
 check("no server action takes an owner id from its caller", () => {
   /*
     CLAUDE.md: nothing in a \`"use server"\` file may take an owner id from its
