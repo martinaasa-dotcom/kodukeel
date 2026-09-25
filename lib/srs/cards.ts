@@ -195,7 +195,8 @@ export interface LexemeForCards {
    * A production card is front `translation`, hint `pos`, back `lemma`, so two
    * entries with one gloss and one part of speech are one question with two
    * right answers, and each of their cards marks the other one wrong. The
-   * dictionary ships 372 such prompts, `ja` and `ning` among them.
+   * dictionary ships 358 such prompts (measured 2026-09-25), `pere` and
+   * `perekond` both "family" among them.
    *
    * `lib/collections/senses.ts` is what finds them and `lib/dict/facts.ts` is
    * what caches the answer. Empty for a word nothing shares a prompt with,

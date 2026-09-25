@@ -7,7 +7,8 @@
  * whichever of them the learner types, one of the two cards marks them wrong
  * and shows the card again until they stop. That is the fault the illative
  * taught this project, arriving through the vocabulary rather than through the
- * morphology, and the dictionary ships 372 of them.
+ * morphology. The dictionary shipped 372 of them when this was written and
+ * ships 358 now (measured 2026-09-25).
  *
  * THE FIX IS THE ONE THE ILLATIVE GOT. Every accepted answer goes on the back,
  * joined the way `acceptedAnswers` already splits stored alternatives, so what
@@ -26,8 +27,10 @@
  *
  * WHAT EKILEX'S DEFINITION IS STILL FOR. It is the diagnosis rather than the
  * trigger. Where the Institute gives the group one definition, they really are
- * synonyms and there is nothing to fix beyond accepting both: `ja` and `ning`
- * are both "and" and no gloss could separate them. Where it gives them two, the
+ * synonyms and there is nothing to fix beyond accepting both. (This used to
+ * cite `ja` and `ning` as a pair no gloss could separate; `ning` has since been
+ * glossed "and (joining the last of a list)", so they are no longer one
+ * prompt.) Where it gives them two, the
  * gloss is failing to identify its own word, which is a different and worse
  * bug: `iseloom` is a person's character and `tegelane` is a character in a
  * story, and both are glossed "character". Accepting both is still the fair
