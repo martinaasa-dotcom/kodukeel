@@ -460,6 +460,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                   onClick={() => onLetter(letter)}
                   lang="et"
                   aria-label={letter}
+                  data-keyboard-key
                   className="press tap-tint grid h-11 min-w-0 flex-1 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base"
                   style={{
                     background: hue.bg,

@@ -53,13 +53,13 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
   again when you were not understood. Something goes wrong on the way at every difficulty above the
   easiest, and the debrief says whether you handled it. Every line is a phrase the course teaches
   or a line written for the scene inside its own words and checked word by word before you see it,
-  the screen says which, and all fourteen play without a model key. Whether you were understood is decided by the
+  the screen says which, and all fifteen play without a model key. Whether you were understood is decided by the
   dictionary, never by a model, so you cannot be marked wrong for being right. Difficulty is a
   budget of things that go wrong: the slot you asked for has gone, a queue forms, they switch to
   English. You can walk out. The debrief leads with what happened and never with a score. Where a
   key is set the other side's line is written for this turn, with the conversation so far in front
   of it, so it can pick up something you said three turns ago; where there is none, or the free tier
-  will not answer, the lines written for the scene say it instead, which is why all fourteen still
+  will not answer, the lines written for the scene say it instead, which is why all fifteen still
   play with no key at all.
 - **Say it today.** Each morning, one press to say whether you spoke Estonian to anybody
   yesterday: they understood, they switched to English, not yesterday. Where the answer is no,
@@ -69,7 +69,7 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
 - **Hearing the way people talk.** A word you know well comes back at speed, over café noise, down
   a phone line, from halfway through, in a different voice each time. The words never change; the
   delivery does, because nobody at a counter talks like a clean synthetic voice in a quiet room.
-- **A course.** 89 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
+- **A course.** 91 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
   sitting's worth of words, and the words between the words too: question words, pronouns, the
   postpositions, the months and the adverbs of time have units of their own. Adding a unit builds real flashcards, every form, audio, both
   directions, and a unit only reads as finished when the scheduler agrees the words are retained.
@@ -234,7 +234,7 @@ without saying so.
 
 Everything except the two things that need a model, Anu and reading a photograph of a page:
 
-- **Dictionary**, 6,159 words (A1 to C2) with principal parts, consonant gradation and the
+- **Dictionary**, 6,190 words (A1 to C2) with principal parts, consonant gradation and the
   full case table worked out from the genitive. Search an inflected form you met in class,
   `toas`, `lugesin`, `tubadega`, `helistab`, and it finds the word *and* tells you which form you
   typed.

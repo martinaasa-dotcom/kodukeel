@@ -227,7 +227,14 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 app makes and what lets `table { overflow-wrap: break-word }`
                 in app/globals.css keep an Estonian form whole.
               */}
-              <div className="overflow-x-auto">
+              {/*
+                FOCUSABLE, because nothing inside it is. On a phone this table
+                is wider than the screen and scrolls, and a scroller with no
+                control in it is one a keyboard can never move: axe's
+                `scrollable-region-focusable` named it the first time it was
+                walked here. The shape the setup guides in Settings already use.
+              */}
+              <div tabIndex={0} role="region" aria-label="The table to complete" className="overflow-x-auto">
                 <table className="w-full min-w-[420px] text-base">
                   <thead>
                     <tr>
