@@ -131,12 +131,6 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
   const [played, setPlayed] = useState(!item.heard);
   const [silent, setSilent] = useState(false);
 
-  useEffect(() => {
-    setPicked(null);
-    setPlayed(!item.heard);
-    setSilent(false);
-  }, [item.id, item.heard]);
-
   const choose = (index: number) => {
     if (picked !== null) return;
     setPicked(index);
@@ -275,8 +269,6 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
   const [mark, setMark] = useState<ReturnType<typeof gradeDictation> | null>(null);
   const [silent, setSilent] = useState(false);
 
-  useEffect(() => { setTyped(""); setMark(null); setSilent(false); }, [item.id]);
-
   return (
     <div>
       <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.question}</p>
@@ -407,8 +399,6 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
 export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (answer: Answer) => void }) {
   const [text, setText] = useState("");
   const [mark, setMark] = useState<ReturnType<typeof gradeWrite> | null>(null);
-
-  useEffect(() => { setText(""); setMark(null); }, [item.id]);
 
   return (
     <div>
