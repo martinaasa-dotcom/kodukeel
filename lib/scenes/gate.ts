@@ -29,7 +29,7 @@
  */
 import type { CaseKey } from "@/lib/estonian/types";
 import {
-  DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, words, type Lexicon, type Subject,
+  DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, clausesOf, words, type Lexicon, type Subject,
 } from "./lexicon";
 import { compoundOf } from "./nearly";
 import { isQuestion } from "./retrieval";
@@ -485,22 +485,6 @@ function saysGoodbye(tokens: readonly string[], beat: BeatSpec, context: GateCon
  * the persons the harvest stored reach it through `hasFiniteVerb`; the
  * derived persons through `isPerson`.
  */
-/**
- * The clauses of a line, as the weakest boundary available without a parser.
- *
- * A comma, a semicolon, a colon, and the end of a sentence. The four checks
- * that read a clause at a time split at the first three only, so two sentences
- * were one clause to them: `Küsin kohe, mis teil on. Mida te otsite?` was
- * withheld live because the second sentence's `te` was checked against the
- * first sentence's `on`, a verbless question borrowed its verb from the
- * sentence after it, and the last word of one sentence was paired with the
- * first of the next. The shape check counts sentences at the full stop, and
- * the government check already splits here; one boundary for all of them.
- */
-function clausesOf(text: string): string[] {
-  return text.split(/[.!?,;:]+/);
-}
-
 function verblessQuestion(text: string, context: GateContext): boolean {
   const questions = context.questionWords;
   if (!questions || questions.size === 0 || !context.subjects) return false;

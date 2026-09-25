@@ -30,7 +30,7 @@ import { ASK_ENGLISH, LOST } from "./catalogue";
 import { casualBye, casualHello } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import type { CaseKey } from "@/lib/estonian/types";
-import { words, type Lexicon } from "./lexicon";
+import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
 import { numberFromText, timeFromText, type SlotKind } from "./props";
@@ -1242,7 +1242,7 @@ function personSlip(
  *
  * Two guards. The clause, because a negator earlier in the sentence is often
  * about something else entirely (`Ma ei tea, kus on pood`), and the boundary is
- * the comma Estonian writes, which is what the gate's agreement check reads.
+ * the comma or full stop Estonian writes, which is what the gate's clause checks read.
  * And **a beat that accepts the negator is never refused by it**: "Kas te
  * soovite piima?" takes `ei` as a whole answer, and reading a no there as a
  * turn that met nothing would be the app refusing the word it asked for.
@@ -1257,7 +1257,7 @@ function negatedIn(
   const takesNo = leafNeeds(beat.needs).some(({ need }) =>
     need.kind === "lemma" && need.oneOf.some((lemma) => context.negators.has(lemma.toLowerCase())));
   if (takesNo) return false;
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const said = words(clause);
     const at = said.indexOf(hit.word);
     if (at < 0) continue;

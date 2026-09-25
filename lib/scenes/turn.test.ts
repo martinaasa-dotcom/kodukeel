@@ -980,6 +980,17 @@ describe("a word the learner negated", () => {
   });
 
   /*
+    And a full stop ends a clause as surely as a comma does. The clause split
+    here was the comma, the semicolon and the colon, so a learner who answered
+    a no and then said what they did want in a new sentence had the no read
+    into the second sentence and the answer refused.
+  */
+  it("meets it where the no ended its own sentence", () => {
+    expect(readTurn("ei. mul on valu", beat({ shape: "sentence" }), ctx).reading).toBe("complete");
+    expect(readTurn("Ei! Mul on valu.", beat({ shape: "sentence" }), ctx).reading).toBe("complete");
+  });
+
+  /*
     And a beat that takes a no is never refused by one: "Kas te soovite piima?"
     accepts `ei` as the whole answer, and reading that as a turn which met
     nothing would be the app refusing the word it asked for.
