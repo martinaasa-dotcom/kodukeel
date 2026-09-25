@@ -350,7 +350,9 @@ function extractLexemeData(detail: RawDetails | null) {
     .sort((a, b) => CEFR_ORDER.indexOf(a) - CEFR_ORDER.indexOf(b));
   return {
     cefr: graded[0] ?? null,
-    ekilexPos: posCodes,
+    // Sorted, because nothing reads the order and a set written in the order the
+    // response arrived in is a file every re-harvest rewrites.
+    ekilexPos: [...posCodes].sort(),
     governments,
     usages: usages.slice(0, MAX_USAGES),
     definition: definitions[0] ?? null,

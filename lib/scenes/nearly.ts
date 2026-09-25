@@ -40,6 +40,8 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import { fold } from "@/lib/estonian/fold";
+// The one Levenshtein in the pure layers; `lib/dict/known.ts` keeps its own because it sits behind Prisma.
+import { editDistance } from "@/lib/estonian/answer";
 import type { DerivedVerbCode } from "@/lib/estonian/conjugate";
 
 /** A word shorter than this is never read as a typo of another. */
@@ -133,30 +135,6 @@ export function personAsked(spoken: readonly string[]): DerivedVerbCode | null {
     if (code) return code;
   }
   return null;
-}
-
-/**
- * Levenshtein distance, abandoned once it is past `limit`.
- *
- * The same two-row shape `lib/dict/known.ts` keeps for the spelling row, and
- * a copy rather than an import because that module imports Prisma and this
- * directory may not.
- */
-export function editDistance(a: string, b: string, limit: number): number {
-  let previous = Array.from({ length: b.length + 1 }, (_, i) => i);
-  let current = new Array<number>(b.length + 1);
-  for (let i = 1; i <= a.length; i++) {
-    current[0] = i;
-    let best = i;
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      current[j] = Math.min(previous[j]! + 1, current[j - 1]! + 1, previous[j - 1]! + cost);
-      if (current[j]! < best) best = current[j]!;
-    }
-    if (best > limit) return limit + 1;
-    [previous, current] = [current, previous];
-  }
-  return previous[b.length]!;
 }
 
 /**

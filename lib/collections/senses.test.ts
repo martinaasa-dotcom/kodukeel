@@ -38,6 +38,24 @@ const words: SenseWord[] = shippedDictionary().map((e) => ({
 }));
 const groups = sharedPrompts(words);
 
+describe("the Ekilex labels the harvest records", () => {
+  /*
+    A set written in whatever order the response arrived in is a file every
+    re-harvest rewrites: three words came back with the same labels in a
+    different order and the diff said the dictionary had changed. Nothing reads
+    the order, so it is fixed, which is what makes a re-harvest that finds
+    nothing new say so.
+  */
+  it("are written in one order, so a re-harvest that finds nothing new changes nothing", () => {
+    const labelled = words.filter((w) => (w.ekilexPos ?? []).length > 1);
+    expect(labelled.length).toBeGreaterThan(20);
+    const unordered = labelled
+      .filter((w) => (w.ekilexPos ?? []).join(" ") !== [...(w.ekilexPos ?? [])].sort().join(" "))
+      .map((w) => `${w.lemma}: ${(w.ekilexPos ?? []).join(" ")}`);
+    expect(unordered).toEqual([]);
+  });
+});
+
 describe("prompts more than one word answers", () => {
   it("finds them at the size the dictionary actually has", () => {
     expect(groups.length).toBeGreaterThan(300);

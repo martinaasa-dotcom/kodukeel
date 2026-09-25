@@ -1,7 +1,7 @@
 import { CASES } from "@/lib/estonian/cases";
 import { caseFits } from "@/lib/estonian/caseQuestion";
 import { caseAnswer, shownForms, stemsFromParts } from "@/lib/estonian/derive";
-import { caseIndex, caseWritten, type CaseVerdict } from "@/lib/estonian/whichCase";
+import { caseIndex, caseWritten, tidyForm, type CaseVerdict } from "@/lib/estonian/whichCase";
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { usesRequiredWord, type RequiredWord } from "@/lib/exam/written";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -179,8 +179,10 @@ export function markDescription(task: DescribeTask, sentence: string): DescribeM
     `tuppa` is right, and marking them wrong for the other true answer is the
     fault this app shipped twice.
   */
-  const accepted = new Set(task.accepted.map((f) => f.toLocaleLowerCase("et")));
-  const words = sentence.toLocaleLowerCase("et").split(/[^\p{L}\p{M}-]+/u).filter(Boolean);
+  // Both sides through `tidyForm`, the reading `caseWritten` below gives a word,
+  // so the grade and the case it names cannot disagree about one token.
+  const accepted = new Set(task.accepted.map(tidyForm));
+  const words = sentence.split(/[^\p{L}\p{M}-]+/u).map(tidyForm).filter(Boolean);
   const rightCase = words.some((w) => accepted.has(w));
 
   /*

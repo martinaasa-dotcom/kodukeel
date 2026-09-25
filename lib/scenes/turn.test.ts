@@ -718,6 +718,23 @@ describe("a beat that takes any one of several answers", () => {
     }
   });
 
+  /*
+    And a phrase is matched whole for the same reason. A 13:30 card accepts
+    `pool kaks`, which is a prefix of `pool kaksteist`, so half past eleven met
+    a beat about half past one; and a reference is not found inside a longer
+    one. `mentions` is the app's one reading of a whole word.
+  */
+  it("takes a time said in words, or a reference, only as a whole phrase", () => {
+    const said = context({ data: new Map([["time", new Set(["13:30", "pool kaks"])]]) });
+    const at = beat({ id: "agree", shape: "word", needs: [{ kind: "datum", slot: "time" }] });
+    expect(readTurn("tulen pool kaks", at, said).reading).toBe("complete");
+    expect(readTurn("tulen pool kaksteist", at, said).reading).not.toBe("complete");
+    const code = context({ data: new Map([["ref", new Set(["kk-1234"])]]) });
+    const ref = beat({ id: "ref", shape: "word", needs: [{ kind: "datum", slot: "ref" }] });
+    expect(readTurn("KK-1234", ref, code).reading).toBe("complete");
+    expect(readTurn("KK-12345", ref, code).reading).not.toBe("complete");
+  });
+
   it("is one requirement to the marker, so a miss is a miss and not a partial answer", () => {
     const seen = readTurn("tuba", offer, ctx);
     expect(seen.reading).toBe("offtarget");

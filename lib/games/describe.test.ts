@@ -126,6 +126,18 @@ describe("markDescription", () => {
     expect(markDescription(illative, "Ma lähen toasse.").rightCase).toBe(true);
   });
 
+  /*
+    One reading of a word for both halves of the mark. The case it names read
+    each token through `tidyForm`, and the right-case test did not, so a word
+    carrying a hyphen, `koeras- ja majas`, was named as the asked case and
+    graded as though it were not.
+  */
+  it("reads a word the same way when it grades it and when it names its case", () => {
+    const mark = markDescription(task, "Koeras- ja kassiski on midagi.");
+    expect(mark.rightCase).toBe(true);
+    expect(mark.rating).toBe(3);
+  });
+
   it("says nothing about a case where two of them share the spelling", () => {
     const mark = markDescription(task, "Ma nägin koera.");
     // `koera` is the omastav and the osastav both. Naming either would be a

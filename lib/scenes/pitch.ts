@@ -37,6 +37,7 @@
  * Pure: no React, no Next, no Prisma.
  */
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
+import { sentenceCount, words } from "./lexicon";
 
 export interface Pitch {
   /** How many sentences a whole turn runs to, at this band. */
@@ -119,15 +120,16 @@ export const PITCH: Readonly<Record<Level, Pitch>> = {
  * are the half a script can check: a banked line drafted at A1 that runs to
  * forty words is not an A1 line whatever the model was told, so the drafter
  * refuses it before the gate and `bank.test.ts` holds every pitched row to
- * the same count. Sentences are split the way the gate splits them. What this
+ * the same count. Sentences and words are counted by the functions the gate counts
+ * with, `sentenceCount` and `words`, rather than by a copy of them. What this
  * cannot see is whether the sentence is plain, which is the model's job and a
  * native speaker's to read. Null where the line fits, else why not, in words.
  */
 export function fitsPitch(text: string, level: Level): string | null {
   const pitch = PITCH[level];
   const trimmed = text.trim();
-  const sentences = trimmed.split(/[.!?]+\s+/).filter(Boolean).length;
-  const wordCount = (trimmed.match(/\p{L}+/gu) ?? []).length;
+  const sentences = sentenceCount(trimmed);
+  const wordCount = words(trimmed).length;
   if (wordCount > pitch.words) return `${wordCount} words where ${level} allows ${pitch.words}`;
   if (sentences > pitch.sentences[1]) return `${sentences} sentences where ${level} allows ${pitch.sentences[1]}`;
   return null;
