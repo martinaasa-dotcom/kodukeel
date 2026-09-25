@@ -774,9 +774,11 @@ likely. A failed send therefore spends the slot: somebody misses one evening's l
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
 is what people unsubscribe over.
 
-**A letter says how long is left, not how many days were missed.** `daysAway` is read by the
-scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
-than theirs to be handed.
+**A letter says how long is left, not how many days were missed.** The days away are read by the
+scheduler (`letterOwed`, against `AWAY_DAYS`) and never handed to a letter at all: the figure is
+the guilt, and it is ours to decide with rather than theirs to be handed. `ComebackInput` used to
+carry it as `daysAway` under a comment saying it pitched the first line, and nothing read it; a
+field a letter takes is now one the letter reads, asserted, so the figure has no door to a page.
 
 **And the run could not get past the door, so no letter ever went out on a hosted deployment.**
 `/api/email/send` was left off the gate's public list on the argument that it gates itself, which
@@ -4709,8 +4711,11 @@ a screen belongs. And the verdict band was drawn at ten hours a week measured ag
 *optimistic* end of the range while the note under it quoted the distance at five found hours a
 week, so 335 of the 704 combinations a learner could click said "It fits, but only with study
 outside this app" over a sentence putting the date three years out. Both read
-`FOUND_HOURS_PER_WEEK` now, and the band sits at the pessimistic end, which makes those two
-sentences the same claim rather than two answers to one question. A deadline already gone is its
+`FOUND_HOURS_PER_WEEK` now, and the band and the note are drawn against one `found`, which makes
+those two sentences the same claim rather than two answers to one question. The band sits at the
+near end of the distance, on purpose and after first sitting at the far one: a learner who reached
+the last level in the fewer hours is the one who reaches the next in the fewer, so "it fits" means
+the near end of the range lands inside the date, and the note prints the whole range under it. A deadline already gone is its
 own verdict rather than a division by no time: it used to floor at one week and print "in 0 weeks
 your daily goal puts in about 0.4 of those hours" over a note asking for 1 099 hours a week. Two
 invariants and an exhaustive sweep of every combination in `plan.test.ts` hold all three.
@@ -5545,7 +5550,10 @@ which is what made that sentence reachable on the first evening alone.
 take a day id from their caller, which is JSON off the wire whatever the type says, and neither
 checked it: a forged tick would have moved the whole course onto a day two hundred evenings ahead,
 and `startCourseDay` would have built a deck out of that day's words. `dayIsInPlay` is the guard on
-both, the day reached or the one it opens on to, and it is asserted. It leans in turn on every day
+both, and it is asserted: a day at or before the day reached, or the next one once the day reached
+is finished. That last condition is the half that was missing. Every tick moves the day reached, so
+"or the next one" alone let a caller tick tomorrow, then the day after, and walk the programme one
+request at a time with nothing done. It leans in turn on every day
 having at least one step the log cannot prove, which `course.test.ts` checks over all 273 evenings:
 a day of nothing but a meet and a review would finish itself the moment its words were met
 somewhere else and walk the learner through the programme.
@@ -7256,6 +7264,11 @@ render**, with `cache()` from React, which is what `requireUserId` already did a
 dropping it, because a Server Action that banks a shield and then reads the count back is real and
 is on Today. And **two answers that do not need each other are asked at once**, which is most of
 what was wrong: the four opening reads of Today were four `await`s in a row and are one `Promise.all`.
+That was fixed on Today and nowhere else, so the same shape sat on the learn page, the sprint, the
+exceptions round, the review queue's drills and the metrics route, eight pairs in all. It is
+asserted over every page and route now (`independentAwaits`): two neighbouring `await`s where the
+second never names what the first bound fail the invariants, drawn to miss rather than to fire,
+since only adjacent statements count and a nested callback is not a neighbour.
 
 **And what a page does not need before its first byte goes behind a `Suspense`.** The class board
 on Progress is four round trips to fill the last panel on a page of charts, so it streams in behind
@@ -7622,13 +7635,13 @@ break at the same midnight.
 **A hue has a fill and an ink, and that rule finally has something behind it.** It was in
 `docs/14-design-system.md` and in the design suite, which can only measure a state it can reach: six
 places were painting words in a hue's fill and the browser had seen none of them, because the two on
-`/week` and `/tasks` only render once a learner has set a class week and no fixture ever set one. The
-invariant reads the source instead and covers a `tone` prop as well as a `color`, because `Stat`
-takes a colour rather than a tone name, which is exactly how `/tasks` came to draw its "Known" figure
-in mint at 2.52:1 while `/week` drew the same figure correctly in the ink beside it. A line naming
-both, a fill for a bar and an ink for its label, is the pairing this protects rather than a breach of
-it. `scripts/demo-data.ts` now sets the week and the goal for the same reason: a rule enforced only
-where a fixture happens to walk holds on about half the app.
+`/week` and `/tasks`, both since cut, rendered only once a learner had set a class week and no
+fixture ever set one. The invariant reads the source instead and covers a `tone` prop as well as a
+`color`, because `Stat` takes a colour rather than a tone name, which is exactly how `/tasks` came
+to draw its "Known" figure in mint at 2.52:1 while `/week` drew the same figure correctly in the ink
+beside it. A line naming both, a fill for a bar and an ink for its label, is the pairing this
+protects rather than a breach of it. `scripts/demo-data.ts` sets the goal for the same reason: a
+rule enforced only where a fixture happens to walk holds on about half the app.
 
 **And the first run of the browser suites in a while found three things, one of them a screen that
 throws.** `/review/emoji` is a server component and imported `boardLead` from its own session, which
@@ -8156,8 +8169,8 @@ the next beat's line whatever the state machine had decided about the turn. `lib
 reads the response and the reading and answers as a person would: an acknowledgement then the
 move, `Ma ei saa aru` then the same question again, `Jah?` and a wait, the question again in
 Estonian for a turn in English. Every reaction is a lemma in `REACTIONS`, taught by units every
-scene declares, and the repair phrase is chosen on `reading === "unrecognised"` and nowhere else,
-asserted. Every beat carries `they`, what the other side does in English from their own side, and
+scene declares, and the repair phrase is chosen on the reading, a turn nobody could read
+(`unrecognised`) or the other side's own line handed back (`echo`), and nowhere else, asserted. Every beat carries `they`, what the other side does in English from their own side, and
 it is what the drafter and the composer are told they are doing: told the learner's `goal` instead,
 a model drafted the landlord asking the tenant when they planned to do the repairs. Fifteen such
 rows left the bank. And the curveballs are played: `raiseHurdle` stands one in front of its beat
@@ -10594,6 +10607,19 @@ comparison against a form the dictionary vouches for, in that order, and no prov
 from `lib/assessment/`. A learner meeting this app for the first time cannot tell when the machine
 is the one that is confused, so the machine is never the judge. The overall level is the **average**
 of the measured skills, floored (ADR-020 amendment 2).
+
+**And the browser marks for the feedback and the server marks for the record.** `recordAssessment`
+took a credit, a skill and a band per answer from the browser and believed all three, so a hand-made
+request could post full credit everywhere or call an A1 question C1, and that level reached Today,
+the plan and a sponsor's cohort view. It takes the paper's seed, when it was built, and what was
+done with each question now: the option picked by its text, the words typed, the rating given.
+`markSitting` builds the same paper again, takes the skill and band off each item, counts an item
+once, refuses an id the paper does not hold, and marks through `responseFor`, which is the function
+the runner marks with. A skip counts on listening alone. The deck is read as it stood when the paper
+was built, because a card added mid-sitting takes its word out of the pool and the rebuilt paper
+would hold different questions. Which questions were asked stays the browser's call, since a band
+nobody was asked is not scored. That is ADR-022's rule for the mock exam, applied to the check that
+sets the level.
 
 **And the claim is kept in the code rather than printed under every question.** Each item used to
 carry an `ItemSource` and each answered question ended in "A recorded sentence. No Estonian on this
