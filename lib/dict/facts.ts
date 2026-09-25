@@ -1,6 +1,5 @@
 import { singleFlight } from "@/lib/cache/singleFlight";
 import { plainPhrase } from "@/lib/copy/values";
-import { substitutesFrom } from "./synonyms";
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { prisma } from "@/lib/db";
 import { movedWords } from "@/lib/progress/hard";
@@ -17,7 +16,6 @@ import { exceptionsFor, type WordException } from "@/lib/estonian/exceptions";
 import { borrowSentences } from "@/lib/dict/borrow";
 import { plainReach, type PlainReach } from "@/lib/dict/plainness";
 import { parseExamples, type Example } from "@/lib/dict/examples";
-import { formsOfLength } from "@/lib/dict/forms";
 import { twinsOf } from "@/lib/estonian/pronouns";
 
 /**
@@ -80,7 +78,7 @@ export interface Entry {
   cefr: string | null;
 }
 
-async function remember<T>(key: string, ttlMs: number, work: () => Promise<T>): Promise<T> {
+export async function remember<T>(key: string, ttlMs: number, work: () => Promise<T>): Promise<T> {
   const now = Date.now();
   const entry = held.get(key);
   if (entry && now < entry.until) return entry.value as T;
@@ -209,35 +207,6 @@ export async function dictionaryLemmas(): Promise<Set<string>> {
  * bounded and meaningful, and the memory is a fifth. A word outside it is
  * rare enough that "I did not catch that" is the honest answer.
  */
-/**
- * WHICH WORDS STAND IN FOR WHICH, OVER THE WHOLE SHARED DICTIONARY.
- *
- * `lib/dict/synonyms.ts` is the rule and this is where it is read, because a
- * synonym relation is a fact about the dictionary and about nobody in
- * particular: one read a minute per instance, shared by every learner in every
- * scene. It reads the gloss and the part of speech and nothing else, which is
- * two columns of a query the scene path already makes.
- *
- * ACCEPT ONLY. What this answers is "would somebody have meant the same
- * thing", which is the right question when reading a learner's turn and the
- * wrong one everywhere else: it may not decide what the other side says, may
- * not mark a paper and may not build a card. Asserted, the way the forms list
- * is.
- */
-export async function substitutes(): Promise<ReadonlyMap<string, readonly string[]>> {
-  return remember("substitutes", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      select: { lemma: true, pos: true, translation: true },
-      orderBy: { id: "asc" },
-    });
-    return substitutesFrom(
-      rows
-        .filter((row) => row.translation)
-        .map((row) => ({ lemma: row.lemma, pos: row.pos, gloss: row.translation })),
-    );
-  });
-}
-
 /** Every word of a lemma or a form, folded, since a phrase is several words. */
 const spellingsIn = (text: string): string[] =>
   text.toLowerCase().split(/[^\p{L}\p{M}]+/u).filter(Boolean);
@@ -499,45 +468,6 @@ export function heardMeanings(): Promise<HeardIndex> {
       },
     });
     return heardIndex(rows);
-  });
-}
-
-/**
- * The same pool, grouped by part of speech, for a question that wants its
- * wrong answers to be the same kind of word as its right one.
- *
- * A word game has two word lists and they are not the same list. The answers
- * are graded dictionary entries, because an answer has to be a word the app can
- * teach and link to afterwards; the *guesses* are the whole language, because
- * telling somebody that a perfectly ordinary Estonian word is not a word is the
- * one thing a game like this must never do. They were `KnownWord`, the 154,995
- * headwords the Ekilex enumeration brought back, and a headword list refuses
- * `põhjas`, which is the seesütlev of `põhi` and was refused to a learner as
- * not a word. So they are the forms list now (`lib/dict/forms.ts`): every
- * spelling of every headword, from Ekilex's own inflection tables and from
- * Vabamorf with guessing off, 60,812 of them at six letters where the headwords
- * were 7,134.
- *
- * Read whole and handed to the browser, so a guess is checked without a round
- * trip. The alternative is a server call inside the one gesture the game is
- * made of, and it would take the board offline as well.
- *
- * MEASURED RATHER THAN ARGUED ABOUT, because the obvious objection is the
- * size: at six letters the headword list was 143 KB that compressed to 36 KB,
- * and the forms list is 430 KB that compresses to about 150 KB, which is a
- * photograph, once a day. Front-coding the shared prefixes was the first idea
- * and gzip is already doing it. Serving it from a separately cacheable route
- * would save the repeat visits and costs a loading state on the one screen
- * that must never wait, so it is written down here rather than done.
- *
- * Cached across requests like everything else in this file, since which words
- * exist is not a fact about the person playing. It is a file read rather than
- * a query, for the reason `lib/dict/forms.ts` gives about the whole list.
- */
-export function guessableWords(length: number): Promise<string[]> {
-  return remember(`guessable:${length}`, FACTS_TTL_MS, async () => {
-    const forms = await formsOfLength(length);
-    return forms.filter((f) => /^[a-zäöüõšž]+$/.test(f));
   });
 }
 

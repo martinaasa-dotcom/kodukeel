@@ -36,7 +36,8 @@ import {
 } from "@/lib/scenes/props";
 import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
-import { courseForms, substitutes } from "@/lib/dict/facts";
+import { courseForms } from "@/lib/dict/facts";
+import { substitutes } from "@/lib/dict/acceptFacts";
 import { sensesOf, substitutesFrom } from "@/lib/dict/synonyms";
 import { isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";

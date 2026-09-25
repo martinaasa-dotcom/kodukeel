@@ -268,6 +268,31 @@ function impureChain(start: string, banned: RegExp): { chain: string | null; wal
 }
 
 /**
+ * The import chain from a file to a target module, or null where no runtime
+ * import reaches it however many files away. A rule about which side of the
+ * app may read a module is a rule about reaching it, not about naming it on
+ * the first line: a side-effect import, or a helper that reads it, is the
+ * same read.
+ */
+function chainTo(start: string, target: string): string | null {
+  const seen = new Map<string, string | null>([[start, null]]);
+  const queue = [start];
+  while (queue.length > 0) {
+    const file = queue.shift()!;
+    if (file === target && file !== start) {
+      const chain = [file];
+      for (let at = seen.get(file); at; at = seen.get(at)) chain.push(at);
+      return chain.reverse().join(" -> ");
+    }
+    for (const spec of runtimeSpecifiers(file)) {
+      const local = resolveLocal(file, spec);
+      if (local && !seen.has(local)) { seen.set(local, file); queue.push(local); }
+    }
+  }
+  return null;
+}
+
+/**
  * The layers CLAUDE.md promises are pure: no React, no Next, no database, so
  * the unit suite can import them hermetically. One list, because three checks
  * each typed their own and they disagreed with each other and with CLAUDE.md,
@@ -4043,12 +4068,37 @@ check("the photograph itself is never stored", () => {
     "the Scan model has grown somewhere to keep the picture",
   );
 
-  const route = code("app/api/scan/route.ts");
-  assert.equal(
-    /prisma\.\w+\.(create|createMany|update|upsert)/.test(route),
-    false,
-    "the scan route writes to the database, which is where the picture would land",
+  /*
+    Asked of everything the route reaches, not of the route's own lines. It
+    was a regex over `app/api/scan/route.ts` for `prisma.x.create`, which an
+    aliased import walked straight past, and so would the likeliest shape of
+    the fault: a helper in lib/ that saves what it was handed. The route books
+    its model call in the ledger, so `UsageEvent` is the one table it may
+    write, and `RateLimit` beside it for the shared limiter; neither has a
+    column a picture could go in.
+  */
+  const WRITE = /\.(\w+)\.(?:create|createMany|update|updateMany|upsert)\s*\(|\$executeRaw[\s\S]{0,120}?(?:INSERT\s+INTO|UPDATE)\s+"?(\w+)/g;
+  const MAY_WRITE = new Set(["usageEvent", "UsageEvent", "rateLimit", "RateLimit"]);
+  const reached = new Set(["app/api/scan/route.ts"]);
+  const queue = ["app/api/scan/route.ts"];
+  const writes: string[] = [];
+  while (queue.length > 0) {
+    const file = queue.shift()!;
+    for (const m of code(file).matchAll(WRITE)) {
+      const table = m[1] ?? m[2]!;
+      if (!MAY_WRITE.has(table)) writes.push(`${file} writes ${table}`);
+    }
+    for (const spec of runtimeSpecifiers(file)) {
+      const local = resolveLocal(file, spec);
+      if (local && !reached.has(local)) { reached.add(local); queue.push(local); }
+    }
+  }
+  assert.ok(reached.size > 10, `walked ${reached.size} modules from the scan route, so the walk stopped resolving imports`);
+  assert.ok(
+    [...reached].includes(join("lib", "usage", "ledger.ts")),
+    "the scan route no longer reaches the ledger, so the one allowed write is not the one being checked",
   );
+  assert.deepEqual(writes, [], `the scan route reaches a database write, which is where the picture would land: ${writes.join("; ")}`);
 });
 
 // ── A headline is read, never believed ───────────────────────────────────────
@@ -11910,7 +11960,7 @@ check("Sonad decides nothing on the client but what to type", () => {
   // the built dictionary or the headword table, either of which refuses a
   // real word every round.
   assert.match(
-    code("lib/dict/facts.ts"), /guessableWords[\s\S]{0,600}formsOfLength\(/,
+    code("lib/dict/acceptFacts.ts"), /guessableWords[\s\S]{0,600}formsOfLength\(/,
     "the guess list is no longer read from the forms list",
   );
 
@@ -11956,8 +12006,9 @@ check("the forms list is an accept list and never an answer", () => {
   const forbidden = ["lib/srs", "lib/exam", "lib/assessment", "lib/scan", "lib/tutor"]
     .flatMap((dir) => sourceFiles(dir))
     .concat(["lib/dict/resolveScan.ts", "lib/dict/search.ts", "lib/dict/upsert.ts"])
-    .filter((file) => /from "(@\/lib\/dict\/forms|\.\/forms)"/.test(code(file)));
-  assert.deepEqual(forbidden, [], "a module on the answer side reads the forms list");
+    .map((file) => chainTo(file, join("lib", "dict", "forms.ts")))
+    .filter((chain): chain is string => chain !== null);
+  assert.deepEqual(forbidden, [], `a module on the answer side reaches the forms list, however many imports away: ${forbidden.join("; ")}`);
 
   // And the reader is a file read, never a table: six million rows in Postgres
   // is half a gigabyte on the ladder /funding measures, for a yes or no.
@@ -12789,7 +12840,7 @@ check("nothing caches a learner's own rows in the dictionary's cache", () => {
     and `cache()` from React, which is scoped to the one request, is where a
     per-learner memo goes instead (see `latestFor` and the settings store).
   */
-  const src = code("lib/dict/facts.ts");
+  const src = code("lib/dict/facts.ts") + code("lib/dict/acceptFacts.ts");
   /*
     Every name a person arrives under, not only the column's. A cached
     function taking a `userId` and handing it to a helper from lib/progress/
@@ -15865,6 +15916,14 @@ check("a learner who says they are lost is handed the word, never the question a
       .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts"])
       .filter((file) => /substitutesFrom|\bsubstitutes\(|context\.substitutes/.test(code(file)));
     assert.deepEqual(readers, [], "a module on the answer side reads the substitution relation");
+    // And none of them reaches the module, which a helper in between would
+    // otherwise carry past the name check above.
+    const reach = ["lib/srs", "lib/exam", "lib/assessment", "lib/scan", "lib/tutor", "lib/games"]
+      .flatMap((dir) => sourceFiles(dir))
+      .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts"])
+      .map((file) => chainTo(file, synonyms))
+      .filter((chain): chain is string => chain !== null);
+    assert.deepEqual(reach, [], `a module on the answer side reaches the substitution relation: ${reach.join("; ")}`);
   }
   /*
     And a substitution is never graded as the word the beat named. The learner
@@ -21973,9 +22032,18 @@ check("a refused sentence is refused at every door it could come back through", 
     this app deciding what Estonian is, at a false-positive rate nothing has
     measured, which is the fault the whole module argues against.
   */
-  const refused = code("lib/dict/refused.ts");
+  /*
+    Every way a pattern is written, not the two it was first written in. A
+    regex literal in an entry, or `.exec`, `.search`, `.matchAll`, or a prefix
+    or suffix rule, is a predicate over the corpus exactly as `.test` is, and
+    each walked past the first version. The one regex the file may hold is the
+    whitespace collapse in `key`, which normalises a spelling rather than
+    deciding anything about it, and it is named so that nothing else is.
+  */
+  const refused = code("lib/dict/refused.ts").replace('.replace(/\\s+/g, " ")', "");
+  assert.match(code("lib/dict/refused.ts"), /\.replace\(\/\\s\+\/g, " "\)/, "the key's whitespace collapse moved; re-read what this check allows");
   assert.ok(
-    !/\bRegExp\b|\.test\(|\.match\(/.test(refused),
+    !/\bRegExp\b|\.(?:test|match|matchAll|exec|search|startsWith|endsWith|includes)\(|(?<![\w)\]])\/(?![/*\s])(?:\\.|[^/\n])+\/[dgimsuy]*/.test(refused),
     "lib/dict/refused.ts has grown a pattern over sentences. It is a list of judgements somebody "
       + "made, not a filter over the corpus: a rule here withholds correct Estonian",
   );
