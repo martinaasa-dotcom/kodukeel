@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/Button";
 import { putWordAside } from "@/app/actions";
+import { awayIn, DEFER_DAYS } from "@/lib/srs/defer";
 
 /**
  * TOO COMPLICATED, WHEREVER THE WORD IS.
@@ -19,7 +20,7 @@ import { putWordAside } from "@/app/actions";
  * what it had done in text small enough to miss, which is how a learner reads
  * a word vanishing from their deck as a bug rather than as something they
  * asked for. A confirmation dialog says what is about to happen (the word
- * comes back on its own in a few weeks, or once the learner reaches the band
+ * comes back on its own in `DEFER_DAYS`, or once the learner reaches the band
  * it belongs to, and it can be brought back sooner from My words at any time)
  * before anything is written, and the outcome sentence afterward is the
  * confirmation of what actually happened rather than the only explanation of
@@ -124,7 +125,7 @@ export function TooComplicated({
             </p>
             <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
               It leaves your review queue for now, so it stops turning up on cards.
-              It comes back on its own in a few weeks, or once you reach the level it
+              It comes back on its own in {awayIn(DEFER_DAYS)}, or once you reach the level it
               belongs to, whichever fits. You can bring it back sooner any time from
               My words.
             </p>

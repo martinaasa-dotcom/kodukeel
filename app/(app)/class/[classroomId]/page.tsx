@@ -231,7 +231,9 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           )}
         </section>
 
-        {roster.weakestCases.length > 0 && (
+        {/* The teacher's lesson plan. Shown to a student, a class of two is their
+            classmate's accuracy less their own. */}
+        {isTeacher && roster.weakestCases.length > 0 && (
           <section>
             <SectionTitle hint="the whole class, not one person">What to teach next</SectionTitle>
             <Card>

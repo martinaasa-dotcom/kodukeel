@@ -83,6 +83,7 @@ import {
   DEFAULT_PROGRAMME, MODULE_HOME, PROGRAMMES, continueHref, dayById, programmeById,
 } from "@/lib/course";
 import { dayIsInPlay } from "@/lib/progress/course";
+import { clip } from "@/lib/copy/clip";
 
 /**
  * The part of the ladder a level starts on, for first run.
@@ -774,7 +775,7 @@ const CLASS_NAME_MAX = 60;
  * call sites at once.
  */
 const capped = (value: unknown, max: number): string =>
-  text(value).trim().slice(0, max);
+  clip(text(value).trim(), max);
 
 /**
  * An argument that is supposed to be a string, as a string.
@@ -1549,9 +1550,9 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
         const row = (one ?? {}) as Record<string, unknown>;
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: text(row.said).slice(0, MAX_TURN_CHARS),
+          said: clip(text(row.said), MAX_TURN_CHARS),
           helped: row.helped === true,
-          heard: text(row.heard).slice(0, MAX_TURN_CHARS),
+          heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
         };
@@ -1636,9 +1637,9 @@ export async function finishScene(input: {
         const row = (turn ?? {}) as Record<string, unknown>;
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: text(row.said).slice(0, MAX_TURN_CHARS),
+          said: clip(text(row.said), MAX_TURN_CHARS),
           helped: row.helped === true,
-          heard: text(row.heard).slice(0, MAX_TURN_CHARS),
+          heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
         };
@@ -2897,7 +2898,7 @@ export async function addStudyEvent(input: {
   const ownerId = await requireUserId();
   input = fieldsOf(input);
 
-  const title = text(input.title).trim().slice(0, 120);
+  const title = clip(text(input.title).trim(), 120);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const weekdays = [...new Set(Array.isArray(input.weekdays) ? input.weekdays : [])]
@@ -2916,7 +2917,7 @@ export async function addStudyEvent(input: {
     data: {
       ownerId,
       title,
-      notes: text(input.notes).trim().slice(0, 500) || null,
+      notes: clip(text(input.notes).trim(), 500) || null,
       kind: kindFrom(input.kind),
       startMinute: clamp(Math.round(input.startMinute), 0, 1439),
       durationMinutes: clamp(Math.round(input.durationMinutes), 5, 12 * 60),
@@ -2951,7 +2952,7 @@ export async function deleteStudyEvent(id: string) {
 export async function addReminder(input: { title: string; notes?: string; dueAt?: string | null }) {
   const ownerId = await requireUserId();
   input = fieldsOf(input);
-  const title = text(input.title).trim().slice(0, 200);
+  const title = clip(text(input.title).trim(), 200);
   if (!title) return { ok: false as const, error: "Give it a name." };
 
   const key = dayKeyOrNull(input.dueAt);
@@ -2959,7 +2960,7 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
     data: {
       ownerId,
       title,
-      notes: text(input.notes).trim().slice(0, 500) || null,
+      notes: clip(text(input.notes).trim(), 500) || null,
       tag: "HOMEWORK",
       // Stored at midnight UTC, which is what `<input type="date">` sends and
       // what `bucketFor` already expects: it counts whole days on the learner's
@@ -3028,7 +3029,7 @@ export async function buildClozeFromText(passageIn: string) {
 
   const busy = throttleAction(ownerId, "buildCloze");
   if (busy) return busy;
-  const passage = raw.slice(0, MAX_PASSAGE_CHARS);
+  const passage = clip(raw, MAX_PASSAGE_CHARS);
   if (!passage.trim()) return { ok: false as const, error: "Paste some Estonian first." };
 
   // Ordered, because past the cap which of somebody's words could be blanked
@@ -3688,7 +3689,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         (backup.decks ?? []).flatMap((raw) => {
           const data = revive(raw, ["createdAt"]);
           const id = String(data.id ?? "");
-          const name = String(data.name ?? "").trim().slice(0, 60);
+          const name = clip(String(data.name ?? "").trim(), 60);
           if (!id || !name) return [];
           return [{ id, ownerId, name, ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}) }];
         }),

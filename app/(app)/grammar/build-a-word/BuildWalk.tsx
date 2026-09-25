@@ -912,7 +912,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         <ChoiceGroup
           ariaLabel="Which ending"
           select="one"
-          className="mt-4 grid gap-2 sm:grid-cols-2"
+          className="choice-grid mt-4"
         >
           {options.map((option, i) => {
             const isAnswer = option.suffix === form.suffix;

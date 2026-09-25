@@ -4,7 +4,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { measuredPaceFor } from "@/lib/progress/plan";
 import { examCountdown } from "@/lib/progress/countdown";
 import { readinessSignals, recentAttempts } from "@/lib/progress/exam";
-import { EVIDENCE_NOTE, assessReadiness } from "@/lib/exam/readiness";
+import { EVIDENCE_LABEL, EVIDENCE_NOTE, assessReadiness } from "@/lib/exam/readiness";
 import {
   OFFICIAL_LEVELS, PASS_PCT, bandFor, specFor, writtenMinutes,
 } from "@/lib/exam/spec";
@@ -182,6 +182,12 @@ export default async function ExamPage() {
                   </div>
 
                   <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{level.verdict}</p>
+                  {/* The tier beside every figure (ADR-022), per level: a sat level
+                      can read up to 85 while the page's evidence is still thin,
+                      so the section's one hint could not speak for this ring. */}
+                  <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
+                    {level.measured ? "Resting on a paper you sat." : `That figure is ${EVIDENCE_LABEL[readiness.evidence]}.`}
+                  </p>
 
                   <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
                     {SKILLS.map((skill) => (

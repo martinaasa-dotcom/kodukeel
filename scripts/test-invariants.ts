@@ -351,6 +351,44 @@ check("no server component calls a function it imported from a client module", (
 
 // ── Never ship a credential to the client ────────────────────────────────────
 
+check("a small group names nobody by subtraction, to a member", () => {
+  /*
+    The counts a colleague sees name nobody, and in a group of three the
+    member's own band beside "1 on track" names the other person. The class
+    page's lesson plan is the same arithmetic in a class of two. So a member
+    sees the workplace counts only through `sharesCounts`, and the class-wide
+    cases are the teacher's.
+  */
+  const view = code("app/(app)/class/[classroomId]/WorkplaceView.tsx");
+  assert.match(view, /sharesCounts\(summary\.members\.length, sponsor\)/,
+    "the workplace tiles are shown to a member of a group small enough to subtract a colleague from");
+  const page = code("app/(app)/class/[classroomId]/page.tsx");
+  assert.match(page, /isTeacher && roster\.weakestCases\.length > 0/,
+    "the class-wide weakest cases are shown to a student, who in a small class can subtract their own");
+});
+
+// ── Never ship a credential to the client ────────────────────────────────────
+
+check("a mock paper is rebuilt the same way it was sat, and every figure on the hub says what it rests on", () => {
+  /*
+    Three ways the sitting and the marking, or the figure and its basis, came
+    apart. The pool's forms were ordered on a column the seed leaves at 0, so
+    which form a dictation asked for was the plan's choice, at the sitting and
+    again at the marking. The sitting page took any seed, and the hand-in
+    takes one string of up to 64. And the per-level rings printed a
+    percentage with the only tier text on another section.
+  */
+  const pool = code("lib/progress/exam.ts");
+  assert.match(pool, /forms: \{ orderBy: \[\{ orderIndex: "asc" \}, \{ id: "asc" \}\] \}/,
+    "the exam pool reads a word's forms in an order that ties, so a paper can be marked against another form");
+  const sit = code("app/(app)/exam/[level]/page.tsx");
+  assert.match(sit, /first && first\.length <= 64/,
+    "the sitting page accepts a seed the hand-in refuses, so a paper can be sat and never handed in");
+  const hub = code("app/(app)/exam/page.tsx");
+  assert.match(hub, /EVIDENCE_LABEL\[readiness\.evidence\]/,
+    "the hub prints a confidence ring per level with no evidence tier beside it");
+});
+
 check("no secret carries a NEXT_PUBLIC_ prefix", () => {
   const secrets = /NEXT_PUBLIC_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD)/g;
   for (const file of [...ALL, "middleware.ts", "next.config.ts", ".env.example"]) {
@@ -933,7 +971,7 @@ check("a word is asked for finished, in one place, and the two clip versions agr
   const route = code("app/api/tts/route.ts");
   assert.match(
     route,
-    /text = spokenText\(body\.text\.trim\(\)\.slice\(0, MAX_CHARS\)\)/,
+    /text = spokenText\(clip\(body\.text\.trim\(\), MAX_CHARS\)\)/,
     "the speech route asks the service for the text as typed rather than as a finished utterance",
   );
   assert.match(
@@ -7861,7 +7899,7 @@ check("a malformed argument to a server action is refused, not thrown or stored"
   const source = code("app/actions.ts");
 
   assert.match(
-    source, /const capped = \(value: unknown, max: number\): string =>\s*text\(value\)/,
+    source, /const capped = \(value: unknown, max: number\): string =>\s*(?:clip\()?text\(value\)/,
     "`capped` calls a string method on whatever it is handed, so every caller of it throws on a non-string",
   );
 
@@ -22456,11 +22494,25 @@ check("putting a word aside moves a date and grades nothing", () => {
     const next = defer.indexOf("\nexport ", from + 1);
     const body = defer.slice(from, next === -1 ? undefined : next);
     assert.match(
-      body, /due: row\.untilAt/,
-      `${what} pulls cards forward without matching the date the deferral wrote, `
-      + "so a card FSRS had honestly put further out comes back early.",
+      body, /\bgiveBack\(tx,/,
+      `${what} gives cards back without going through giveBack, which is the one place `
+      + "that matches the date the deferral wrote and returns each card to where the wait found it.",
     );
   }
+  /*
+    And the one way back matches that date, and puts a card no earlier than the
+    date it had before the push: a card due in two days that the wait moved
+    comes back in two days rather than tonight.
+  */
+  const back = defer.slice(defer.indexOf("async function giveBack"));
+  assert.match(
+    back.slice(0, 2500), /due: row\.untilAt/,
+    "giveBack reaches cards the wait did not put on its date, so a card FSRS had put further out comes back early",
+  );
+  assert.match(
+    back.slice(0, 2500), /readPriorDues\(row\.priorDues\)/,
+    "giveBack sets every card it moved to now, so a card due after tonight comes back early",
+  );
 
   /*
     AND A SECOND PRESS MAY NOT SHORTEN A WAIT, which is the same rule read

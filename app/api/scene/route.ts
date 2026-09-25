@@ -41,6 +41,7 @@ import { DEFAULT_VOICE } from "@/lib/audio/voice";
 import { glossSentences } from "@/lib/dict/glossed";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
 
 /**
@@ -853,8 +854,8 @@ export async function POST(request: Request) {
   const conversation: ChatMessage[] = state.turns
     .slice(-MAX_CONTEXT_TURNS)
     .flatMap((turn) => [
-      ...(turn.heard ? [{ role: "assistant" as const, content: turn.heard.slice(0, MAX_CONTEXT_CHARS) }] : []),
-      { role: "user" as const, content: turn.said.slice(0, MAX_CONTEXT_CHARS) },
+      ...(turn.heard ? [{ role: "assistant" as const, content: clip(turn.heard, MAX_CONTEXT_CHARS) }] : []),
+      { role: "user" as const, content: clip(turn.said, MAX_CONTEXT_CHARS) },
     ]);
 
   /*
@@ -1207,7 +1208,7 @@ export async function POST(request: Request) {
  * handles, since an empty run id finds no run and an empty turn meets nothing.
  */
 function textField(value: unknown, max: number): string {
-  return typeof value === "string" ? value.slice(0, max) : "";
+  return typeof value === "string" ? clip(value, max) : "";
 }
 
 /** Who is behind the desk, off the run's own row rather than out of a request. */

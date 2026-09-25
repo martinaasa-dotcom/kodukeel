@@ -3,7 +3,8 @@ import type { Evidence, Readiness } from "@/lib/exam/readiness";
 import { CLOSE_PCT, LIKELY_PCT } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
 import {
-  MIN_CASE_CONTRIBUTORS, MIN_EVIDENCE_TO_BAND, bandFor, classWideCases, cohortKind, daysSince, summariseCohort,
+  MIN_CASE_CONTRIBUTORS, MIN_EVIDENCE_TO_BAND, MIN_GROUP_TO_SHARE, bandFor, classWideCases, cohortKind,
+  daysSince, sharesCounts, summariseCohort,
   withoutMember, type CohortInput,
 } from "./cohort";
 
@@ -225,6 +226,17 @@ describe("the group with its owner taken out", () => {
     const none = withoutMember(one, "hr");
     expect(none.members).toEqual([]);
     expect(none.evidence).toBe("thin");
+  });
+});
+
+describe("sharesCounts", () => {
+  it("shows the sponsor the counts whatever the size", () => {
+    expect(sharesCounts(2, true)).toBe(true);
+  });
+
+  it("holds them back from a member until the group is too big to subtract a person from", () => {
+    expect(sharesCounts(3, false)).toBe(false);
+    expect(sharesCounts(MIN_GROUP_TO_SHARE, false)).toBe(true);
   });
 });
 
