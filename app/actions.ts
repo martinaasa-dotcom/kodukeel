@@ -154,6 +154,7 @@ const CARD_SOURCES = new Set<string>(KNOWN_SOURCES);
 export async function addToDeck(
   lexemeId: string, types: CardType[], source = "LOOKUP", deckIds?: string[],
 ) {
+  lexemeId = text(lexemeId);
   const known = new Set(CARD_TYPES.map((t) => t.type));
   const wanted = [...new Set(Array.isArray(types) ? types : [])]
     .filter((t): t is CardType => known.has(t as CardType));
@@ -410,6 +411,7 @@ export async function gradeCard(
    */
   reviewId?: string,
 ) {
+  cardId = text(cardId);
   const ownerId = await requireUserId();
 
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
@@ -516,6 +518,7 @@ export async function replayGrades(batch: ReplayItem[]) {
  * ever be applied to a card the caller already owns.
  */
 export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
+  cardId = text(cardId);
   const ownerId = await requireUserId();
   const parsed = SchedulingSchema.safeParse(previous);
   if (!parsed.success) return { ok: false as const, error: "That card state isn't valid." };
@@ -526,6 +529,12 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
   const p = parsed.data;
   const due = new Date(p.due);
   if (Number.isNaN(due.getTime())) return { ok: false as const, error: "That card state isn't valid." };
+  // The last review is a date for the same reason `due` is: an unparseable one
+  // reached the update as an Invalid Date and came back as a 500.
+  const lastReview = p.lastReview ? new Date(p.lastReview) : null;
+  if (lastReview && Number.isNaN(lastReview.getTime())) {
+    return { ok: false as const, error: "That card state isn't valid." };
+  }
 
   await prisma.card.update({
     where: { id: cardId },
@@ -539,7 +548,7 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
       lapses: p.lapses,
       state: p.state,
       learningSteps: p.learningSteps,
-      lastReview: p.lastReview ? new Date(p.lastReview) : null,
+      lastReview,
     },
   });
 
@@ -548,6 +557,7 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
 }
 
 export async function setCardSuspended(cardId: string, suspended: boolean) {
+  cardId = text(cardId);
   const ownerId = await requireUserId();
   if (typeof suspended !== "boolean") return { ok: false as const, error: "That is not a yes or a no." };
   await prisma.card.updateMany({ where: { id: text(cardId), ownerId }, data: { suspended } });
@@ -558,6 +568,7 @@ export async function setCardSuspended(cardId: string, suspended: boolean) {
 }
 
 export async function deleteCard(cardId: string) {
+  cardId = text(cardId);
   const ownerId = await requireUserId();
   await prisma.card.deleteMany({ where: { id: cardId, ownerId } });
   revalidatePath("/words");
@@ -577,6 +588,7 @@ export async function deleteCard(cardId: string) {
  * page can say where it came from.
  */
 export async function translateExample(lexemeId: string, sentence: string) {
+  lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
   const lexeme = await prisma.lexeme.findUnique({
     where: { id: lexemeId },
@@ -653,6 +665,7 @@ export async function translateExample(lexemeId: string, sentence: string) {
  * lexicographers' examples rather than quietly passing it off as attested.
  */
 export async function addExample(lexemeId: string, sentence: string, translation?: string) {
+  lexemeId = text(lexemeId);
   /*
     THIS IS A WRITE INTO THE SHARED DICTIONARY, SO IT OBEYS WHAT ONE COSTS.
 
@@ -728,6 +741,14 @@ const capped = (value: unknown, max: number): string =>
  * 500 and a digest: an unhandled fault where the honest answer is a refusal.
  * Anything that is not a string is nothing, and every one of these paths
  * already has a sentence for nothing.
+ *
+ * An id is where that matters most, because Prisma reads an object in the
+ * place of a string as a filter. `assignHomework({ not: "" }, ...)` passed the
+ * ownership check against any class the caller owned, and the roster read
+ * that followed took the same argument, so one teacher could write a task into
+ * the list of every class member in the deployment; `deleteCard({ not: "" })`
+ * emptied a deck in one call. Every id an export takes is read through this
+ * first, which the invariants hold.
  */
 const text = (value: unknown): string => (typeof value === "string" ? value : "");
 
@@ -870,6 +891,8 @@ export async function createLexemeWithForms(input: {
   }
 
   const lexeme = await upsertLexemeWithForms({
+    // An id off the wire or none: an object here reached a `findUnique` as a
+    // filter and came back as a 500.
     id: text(input.id) || undefined,
     lemma,
     translation,
@@ -963,6 +986,7 @@ export async function toggleStar(lexemeId: unknown, starred?: unknown) {
  * putting a word aside is not an answer to it (ADR-016).
  */
 export async function putWordAside(lexemeId: string, context: string) {
+  lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
   const id = text(lexemeId).slice(0, 64);
   if (!id) return { ok: false as const, error: "No word was named." };
@@ -1004,6 +1028,7 @@ export async function putWordAside(lexemeId: string, context: string) {
  * the scheduler put it (`lib/progress/deferrals.ts`).
  */
 export async function bringWordBack(lexemeId: string) {
+  lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
   const id = text(lexemeId).slice(0, 64);
   if (!id) return { ok: false as const, error: "No word was named." };
@@ -2317,6 +2342,7 @@ export async function completeLesson(
   unitId: string,
   results: z.input<typeof LessonResultSchema>[],
 ) {
+  unitId = text(unitId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "completeLesson");
   if (busy) return busy;
@@ -2613,7 +2639,7 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
   if (!unit) return { ok: false as const, error: "That unit does not exist." };
 
   const members = await prisma.classroomMember.findMany({
-    where: { classroomId },
+    where: { classroomId: classroom.id },
     select: { ownerId: true },
   });
 
@@ -2668,7 +2694,7 @@ export async function assignHomework(
   const cleanNotes = visibleProse(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
 
   const members = await prisma.classroomMember.findMany({
-    where: { classroomId },
+    where: { classroomId: classroom.id },
     select: { ownerId: true },
   });
 
@@ -2750,6 +2776,7 @@ async function resolveDisplayName(ownerId: string): Promise<string> {
  * is the one thing a learner does to a task: the row on Today, done or not.
  */
 export async function toggleTask(id: string) {
+  id = text(id);
   const ownerId = await requireUserId();
   const task = await prisma.task.findFirst({ where: { id, ownerId }, select: { completed: true } });
   if (!task) return { ok: false as const };
@@ -2823,6 +2850,7 @@ export async function addStudyEvent(input: {
 
 /** Removes one of the learner's own events. Scoped by owner, like every delete. */
 export async function deleteStudyEvent(id: string) {
+  id = text(id);
   const ownerId = await requireUserId();
   const { count } = await prisma.studyEvent.deleteMany({ where: { id, ownerId } });
   if (count === 0) return { ok: false as const };
@@ -2868,6 +2896,7 @@ export async function addReminder(input: { title: string; notes?: string; dueAt?
  * remove, and what says which is `isClasswork` in lib/ux/agenda.ts.
  */
 export async function deleteReminder(id: string) {
+  id = text(id);
   const ownerId = await requireUserId();
   if (typeof id !== "string") return { ok: false as const };
   if (!(await deleteOwnReminder(ownerId, id))) return { ok: false as const };
@@ -3637,6 +3666,8 @@ const COURSE_DAY_CARDS = ["RECOGNITION", "PRODUCTION"] as const;
  * already there under the deck lock, so pressing twice is one word's cards.
  */
 export async function startCourseDay(programmeId: string, dayId: string) {
+  programmeId = text(programmeId);
+  dayId = text(dayId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "startCourseDay");
   if (busy) return busy;
@@ -3678,6 +3709,9 @@ export async function startCourseDay(programmeId: string, dayId: string) {
  * it again, which is what every other round already does.
  */
 export async function markCourseStep(programmeId: string, dayId: string, stepId: string) {
+  programmeId = text(programmeId);
+  dayId = text(dayId);
+  stepId = text(stepId);
   const ownerId = await requireUserId();
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
@@ -3737,6 +3771,9 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
  * server. A caller cannot name where it goes.
  */
 export async function advanceCourseStep(programmeId: string, dayId: string, stepId: string) {
+  programmeId = text(programmeId);
+  dayId = text(dayId);
+  stepId = text(stepId);
   const ownerId = await requireUserId();
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
@@ -3975,6 +4012,7 @@ export async function saveScan(input: {
 
 /** Adds every word on a saved page that is not in the deck yet. */
 export async function addScanToDeck(scanId: string) {
+  scanId = text(scanId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "addScanToDeck");
   if (busy) return busy;
@@ -4025,8 +4063,9 @@ export async function addScanToDeck(scanId: string) {
 }
 
 export async function renameScan(scanId: string, title: string) {
+  scanId = text(scanId);
   const ownerId = await requireUserId();
-  const trimmed = capped(title, MAX_SCAN_TITLE);
+  const trimmed = capped(text(title), MAX_SCAN_TITLE);
   if (!trimmed) return { ok: false as const, error: "Give the page a name." };
 
   // Scoped by owner in the filter, not only in the lookup: an updateMany that
@@ -4050,6 +4089,7 @@ export async function renameScan(scanId: string, title: string) {
  * it must not quietly take a fortnight of scheduling with it.
  */
 export async function deleteScan(scanId: string) {
+  scanId = text(scanId);
   const ownerId = await requireUserId();
   const deleted = await prisma.scan.deleteMany({ where: { id: scanId, ownerId } });
   if (deleted.count === 0) return { ok: false as const, error: "That page is not here any more." };

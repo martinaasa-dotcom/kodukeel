@@ -20906,6 +20906,8 @@ check("every screen that keeps a word asks which shelf, through one press", () =
 
   const keepers = ALL.filter(
     (file) => file !== DICTIONARY && file !== PRESS && file !== join("app", "actions.ts")
+      // A test calls the action to check it and is not a screen anybody keeps a word on.
+      && !/\.i?test\.tsx?$/.test(file)
       && /\baddToDeck\(/.test(code(file)),
   );
   assert.ok(keepers.length >= 6, `only ${keepers.length} screens keep a word, so this check has stopped looking`);
@@ -26804,6 +26806,48 @@ check("the scene judge is asked about the beat the turn was aimed at", () => {
     "the judged row is the last row again, which is another beat's whenever the turn moved the pointer");
   assert.match(route, /conceded: turns\[turns\.length - 1\]\?\.conceded \?\? null/,
     "a concession is read back off the last row, which a cascade row after it hides from the client");
+});
+
+check("an id a Server Action takes is read as a string before anything reads it", () => {
+  /*
+    Every export of app/actions.ts is a public endpoint and Prisma reads an
+    object where a string was typed as a filter. `assignHomework({ not: "" },
+    ...)` passed the ownership check against a class the caller owned and then
+    read the roster with the same argument, which matched every membership in
+    the deployment, so one teacher could write a task into every class
+    member's list. `deleteCard({ not: "" })` emptied a deck in one call. So a
+    positional id is coerced before any other line names it, and the rule is
+    asked of the order rather than of the presence, since a `text(id)` two
+    lines after a query is the same hole.
+  */
+  const src = code("app/actions.ts");
+  const exports = [...src.matchAll(/^export async function (\w+)\(([\s\S]*?)\)(?:\s*:\s*[^{]+)?\s*\{\n/gm)];
+  let ids = 0;
+  const loose: string[] = [];
+  for (const m of exports) {
+    const params = (m[2] ?? "").replace(/\{[\s\S]*?\}/g, "");
+    const names = [...params.matchAll(/(?:^|[,(\s])(\w*[iI]d)\??\s*:\s*string\b(?!\s*\|\s*null)/g)]
+      .map((x) => x[1] ?? "").filter((n) => n === "id" || /Id$/.test(n));
+    const start = (m.index ?? 0) + m[0].length;
+    const next = src.indexOf("\nexport ", start);
+    const body = src.slice(start, next === -1 ? undefined : next);
+    for (const n of names) {
+      ids++;
+      const first = body.search(new RegExp(`\\b${n}\\b`));
+      // A type guard asked before anything else reads it is as good as a
+      // coercion: `reviewId !== undefined && !isClientReviewId(reviewId)`
+      // refuses every value that is not a string of the right shape.
+      const coerced = body.search(new RegExp(
+        `(?:${n} = text|text|String)\\(${n}\\b|(?:${n} !== undefined && )?!is[A-Z]\\w*\\(${n}\\)`,
+      ));
+      if (first === -1) continue;
+      if (coerced === -1 || coerced > first) loose.push(`${m[1]}(${n})`);
+    }
+  }
+  assert.ok(ids >= 30, `found only ${ids} id parameters on the exports of app/actions.ts; the parser has stopped reading them`);
+  assert.deepEqual(loose, [], `${loose.join(", ")} reads an id before it is known to be a string`);
+  const rosters = [...src.matchAll(/classroomMember\.findMany\(\{\s*where: \{ classroomId(?![:\w])/g)];
+  assert.equal(rosters.length, 0, "a roster is read with the caller's argument rather than the id the ownership check returned");
 });
 
 check("the closing round compares a server tick with a server time", () => {
