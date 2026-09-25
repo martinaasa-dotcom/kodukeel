@@ -78,6 +78,14 @@ export const ACTION_LIMITS = {
    * allowance as `saveScan`, which is the press before it on the same screen.
    */
   addScanToDeck: { perMinute: 15 },
+  /**
+   * Finishing a level check, which appends an `Assessment` row.
+   *
+   * That table is append-only like `Review`, so a loop of calls is a history
+   * nobody can repair rather than a cost that passes. The check takes a quarter
+   * of an hour, so six a minute is a double press with room to spare.
+   */
+  recordAssessment: { perMinute: 6 },
   /** Writes a lexeme and its principal parts into the shared dictionary. */
   editDictionary: { perMinute: 30 },
   /** Resolves a confirmed page against the dictionary and builds cards. */
@@ -170,6 +178,18 @@ export const ACTION_LIMITS = {
    * far under anything a loop would reach.
    */
   sceneHelp: { perMinute: 30 },
+  /**
+   * "Too complicated", which is one small write per press and is here for what
+   * it votes on rather than for what it costs.
+   *
+   * A deferral is also a vote: enough learners putting one word aside moves it
+   * a band later for the whole deployment (`lib/progress/hard.ts`). A learner
+   * presses this a few times an evening, so twenty a minute is never met by
+   * anybody using the app, and a script sweeping the dictionary is slowed to a
+   * crawl rather than let through. The count itself is the other half: only a
+   * learner who has graded a card gets a vote at all.
+   */
+  putAside: { perMinute: 20 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;

@@ -9,7 +9,7 @@ import { checkAnswer } from "@/lib/estonian/answer";
 const tuba: LexemeForCards = {
   lemma: "tuba", translation: "room", pos: "NOUN",
   gradation: "QUALITATIVE", gradationNote: "b : ∅", government: null,
-  semanticTypes: "koht_hoone",
+  semanticTypes: "koht_hoone", examples: null,
   forms: [
     { formType: "NOM_SG", value: "tuba" },
     { formType: "GEN_SG", value: "toa" },
@@ -21,7 +21,7 @@ const aitama: LexemeForCards = {
   lemma: "aitama", translation: "to help", pos: "VERB",
   gradation: "NONE", gradationNote: null,
   government: "partitive — aitan sind",
-  semanticTypes: null,
+  semanticTypes: null, examples: null,
   forms: [{ formType: "INF_MA", value: "aitama" }],
 };
 
@@ -42,7 +42,7 @@ const aitama: LexemeForCards = {
 describe("a prompt more than one word answers", () => {
   const ja: LexemeForCards = {
     lemma: "ja", translation: "and", pos: "ADVERB",
-    gradation: "NONE", gradationNote: null, government: null, semanticTypes: null, forms: [],
+    gradation: "NONE", gradationNote: null, government: null, semanticTypes: null, examples: null, forms: [],
     alsoAccepted: ["ning"],
   };
 
@@ -232,9 +232,28 @@ describe("generateCards — CLOZE", () => {
     expect(asLemma?.hint?.toLowerCase()).not.toContain("kohv");
   });
 
-  it("tags the case, so a gap-fill counts toward the weak-case breakdown", () => {
-    const cards = generateCards(drinking, ["CLOZE"]);
-    expect(cards.some((c) => c.targetCase !== null)).toBe(true);
+  /*
+    THIS USED TO PASS ON A WRONG LABEL. `kohvi` is the genitive and the
+    partitive both, and the first stored row read decided which it was named,
+    so `Jõin tassi kohvi.`, which uses the partitive, was filed as the omastav.
+    A spelling two slots claim names neither (`gapForms`), and a form only one
+    case spells is what carries the tag: `voodis` in a sentence the dictionary
+    records for `voodi`.
+  */
+  it("tags the case where one case spells the gap, so a gap-fill counts toward the weak-case breakdown", () => {
+    expect(generateCards(drinking, ["CLOZE"]).find((c) => c.back.toLowerCase() === "kohvi")?.targetCase).toBeNull();
+    const bed = {
+      ...drinking, lemma: "voodi", translation: "bed",
+      examples: JSON.stringify([{ et: "Tast pole voodis asjagi!", source: "EKILEX" }]),
+      forms: [
+        { formType: "NOM_SG", value: "voodi", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "voodi", morphCode: "SgG" },
+        { formType: "PART_SG", value: "voodit", morphCode: "SgP" },
+      ],
+    };
+    const [card] = generateCards(bed, ["CLOZE"]);
+    expect(card?.back.toLowerCase()).toBe("voodis");
+    expect(card?.targetCase).toBe("INESSIVE");
   });
 
   it("stops at two per word rather than drilling every sentence", () => {

@@ -11,6 +11,7 @@ import {
   removeMyDeckWord, renameMyDeck,
 } from "@/app/actions";
 import type { DeckSummary, DeckWordRow } from "@/lib/progress/decks";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * CREATING, RENAMING, REMOVING A SHELF, AND SEEING WHAT IS ON IT.
@@ -61,8 +62,8 @@ function NewDeck({ onCreated }: { onCreated: (deck: DeckSummary) => void }) {
   const submit = () => {
     if (!name.trim() || pending) return;
     start(async () => {
-      const result = await createMyDeck(name);
-      if (!result.ok) { setError(result.error); return; }
+      const result = await createMyDeck(name).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       setError(null);
       setName("");
       onCreated(result.deck);
@@ -125,8 +126,8 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
     if (pending) return; // a blur chasing an Enter submit must not fire this twice
     if (!name.trim() || name === deck.name) { setEditing(false); setName(deck.name); return; }
     start(async () => {
-      const result = await renameMyDeck(deck.id, name);
-      if (!result.ok) { setError(result.error); return; }
+      const result = await renameMyDeck(deck.id, name).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       setError(null);
       setEditing(false);
       onRenamed(name.trim());
@@ -141,8 +142,8 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
 
   const remove = () => {
     start(async () => {
-      const result = await deleteMyDeck(deck.id);
-      if (!result.ok) { setError(result.error); return; }
+      const result = await deleteMyDeck(deck.id).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       onDeleted();
       router.refresh();
     });
@@ -249,12 +250,20 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
 function DeckWordList({ deckId, version, onWordRemoved }: {
   deckId: string; version: number; onWordRemoved: () => void;
 }) {
-  const [words, setWords] = useState<DeckWordRow[] | null>(null);
+  /*
+    Three states rather than two. A read that failed used to be written as an
+    empty list, which drew nothing at all and reads as a shelf with no words on
+    it: the one wrong answer a learner would believe. "failed" is its own state
+    and says so.
+  */
+  const [words, setWords] = useState<DeckWordRow[] | null | "failed">(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    listMyDeckWords(deckId).then((w) => { if (!cancelled) setWords(w); }).catch(() => { if (!cancelled) setWords([]); });
+    listMyDeckWords(deckId)
+      .then((w) => { if (!cancelled) setWords(w); })
+      .catch(() => { if (!cancelled) setWords("failed"); });
     return () => { cancelled = true; };
   }, [deckId, version]);
 
@@ -262,14 +271,31 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
     setPendingId(lexemeId);
     removeMyDeckWord(deckId, lexemeId)
       .then(() => {
-        setWords((w) => (w ? w.filter((x) => x.lexemeId !== lexemeId) : w));
+        setWords((w) => (Array.isArray(w) ? w.filter((x) => x.lexemeId !== lexemeId) : w));
         onWordRemoved();
       })
+      // A press that never reached the server leaves the word where it was,
+      // which is the truth, rather than an unhandled rejection.
+      .catch(() => null)
       .finally(() => setPendingId(null));
   };
 
   if (words === null) {
     return <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>Loading…</p>;
+  }
+  if (words === "failed") {
+    return (
+      <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
+        The words on this shelf would not load. Close it and open it again to retry.
+      </p>
+    );
+  }
+  if (words.length === 0) {
+    return (
+      <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
+        No words on this shelf yet.
+      </p>
+    );
   }
 
   return (
@@ -321,7 +347,9 @@ function FileWords({ deckId, deckName, onFiled }: {
   deckId: string; deckName: string; onFiled: () => void;
 }) {
   const [query, setQuery] = useState("");
-  const [words, setWords] = useState<DeckWordRow[] | null>(null);
+  // "failed" rather than an empty list, which read as "every word you have is
+  // on this shelf already" about a query that never came back.
+  const [words, setWords] = useState<DeckWordRow[] | null | "failed">(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [said, setSaid] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -336,7 +364,7 @@ function FileWords({ deckId, deckName, onFiled }: {
     const timer = setTimeout(() => {
       myWordsToFile(deckId, query)
         .then((w) => { if (!cancelled) setWords(w); })
-        .catch(() => { if (!cancelled) setWords([]); });
+        .catch(() => { if (!cancelled) setWords("failed"); });
     }, query ? 200 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [deckId, query]);
@@ -352,7 +380,7 @@ function FileWords({ deckId, deckName, onFiled }: {
           press and the answer are the same gesture: waiting a round trip to
           see the word go would read as a button that did nothing.
         */
-        setWords((w) => (w ? w.filter((x) => x.lexemeId !== word.lexemeId) : w));
+        setWords((w) => (Array.isArray(w) ? w.filter((x) => x.lexemeId !== word.lexemeId) : w));
         setSaid(`${word.lemma} is on ${deckName}.`);
         onFiled();
       })
@@ -376,6 +404,10 @@ function FileWords({ deckId, deckName, onFiled }: {
       {error && <p role="alert" className="mt-2 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       {words === null ? (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>Loading…</p>
+      ) : words === "failed" ? (
+        <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
+          Your words would not load. Change the search to try again.
+        </p>
       ) : words.length === 0 ? (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
           {query
