@@ -13868,18 +13868,6 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["невиновный", "невинный"], ukr: [],
   },
   {
-    lemma: "taas", gloss: "again, once more", pos: "ADVERB", cefr: "B1",
-    ekilexWordId: 240769,
-    ekilexPos: ["adv"],
-    parts: {  },
-    extraForms: [],
-    government: null,
-    usages: ["Muuseum avab uksed taas aprillis.", "Eesti on taas iseseisev.", "Väljas hakkas taas vihma sadama.", "Millal me taas kohtume?"],
-    note: "(teatud aja järel) uut puhku",
-    semanticTypes: ["ADV_aeg"],
-    rus: ["снова", "вновь"], ukr: ["знов", "знову"],
-  },
-  {
     lemma: "taaskasutus", gloss: "recycling", pos: "NOUN", cefr: "B2",
     ekilexWordId: 240781,
     ekilexPos: ["s"],

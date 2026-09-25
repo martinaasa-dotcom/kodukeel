@@ -130,4 +130,4 @@
  * `Prantsusmaa` the countries and peoples unit, which was already at its
  * per-evening ceiling and had room for three.
  */
-export const SEED_SET_SIZE = { words: 6_160, forms: 39_734 };
+export const SEED_SET_SIZE = { words: 6_159, forms: 39_734 };

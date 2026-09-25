@@ -965,7 +965,6 @@ export const A1 = [
       ["jälle", "again", "ADVERB"],
       ["ammu", "long ago, for a long time", "ADVERB"],
       ["vanasti", "in the old days, once", "ADVERB"],
-      ["taas", "again, once more", "ADVERB"],
     ],
   }),
 
