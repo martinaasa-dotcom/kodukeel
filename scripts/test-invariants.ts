@@ -8305,6 +8305,28 @@ check("a not-found boundary draws a main only where its layout does not", () => 
   );
 });
 
+check("a key a caller chose is looked up as an own key, and a duration is a number", () => {
+  /*
+    TWO WAYS A VALUE OFF THE WIRE REACHED A COLUMN IT COULD NOT GO IN.
+
+    `beginScene` checked the difficulty with `chosen in BUDGETS`. `in` walks the
+    prototype, so `constructor`, `toString` and `__proto__` all passed, and
+    `BUDGETS[chosen]` handed the `Object` function to `SceneRun.difficulty`,
+    which is an Int: the action threw where it meant to say "Not a difficulty."
+    And `gradeCard` passed `durationMs` straight through to `writeGrade`, which
+    clamped it with `Math.min` and `Math.max`, both of which return NaN for NaN,
+    so a NaN or a string threw on insert and `1.5` reached an Int column.
+  */
+  const actions = code("app/actions.ts");
+  const walks = actions.match(/!\(\s*\w+\s+in\s+[A-Z][A-Z0-9_]+\s*\)/g) ?? [];
+  assert.deepEqual(walks, [], "a \"use server\" export checks a caller's key with `in`, which walks the prototype");
+  const grade = code("lib/srs/grade.ts");
+  assert.match(
+    grade, /durationMs:\s*Number\.isFinite\(durationMs\)/,
+    "writeGrade writes a duration it has not checked is a number into an Int column",
+  );
+});
+
 check("a signed-in page that throws keeps the shell, and the error screen has one main", () => {
   /*
     `app/error.tsx` was the only error boundary, and a boundary replaces
