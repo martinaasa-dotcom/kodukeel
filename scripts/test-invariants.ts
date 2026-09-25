@@ -4640,6 +4640,25 @@ check("the smallest step on the scale is one a reader can actually see", () => {
   assert.deepEqual(out.map((s) => s.name), [], "a step on the scale is not larger than the one below it");
 });
 
+/**
+ * A count is spelled from one table.
+ *
+ * Five files kept their own, reaching three, seven, ten and fourteen, so one
+ * letter wrote "4 shields" where another wrote "four", and three of them put
+ * the word first in a sentence and sent it out lowercase, one as a subject
+ * line. `spelledCount` and `SpelledCount` in `lib/copy/values.ts` are the
+ * table; an array literal spelling "one", "two", "three" anywhere else is a
+ * sixth copy.
+ */
+check("a count is spelled from the one table in lib/copy/values.ts", () => {
+  const tables = ALL.filter(
+    (f) => f !== join("lib", "copy", "values.ts") && !/\.test\.tsx?$/.test(f) &&
+      /\[\s*(?:"no",\s*)?"one",\s*"two",\s*"three"/.test(code(f)),
+  );
+  assert.deepEqual(tables, [], `${tables.join(", ")} spells counts from a table of its own; use spelledCount`);
+  assert.match(code("lib/copy/values.ts"), /export function spelledCount\(/, "the one table has gone");
+});
+
 check("an empty cell goes through NO_VALUE, never a literal", () => {
   /*
     THIS HAS GONE WRONG TWICE, THE SAME WAY, AND THE COPY GUARD CANNOT SEE IT.
@@ -5746,25 +5765,6 @@ check("a government question never offers a case the word itself governs", () =>
  * question worded as a fact the entry does not support. The review drill has
  * filtered on part of speech since it was written; the exam builder never did.
  */
-/**
- * A count is spelled from one table.
- *
- * Five files kept their own, reaching three, seven, ten and fourteen, so one
- * letter wrote "4 shields" where another wrote "four", and three of them put
- * the word first in a sentence and sent it out lowercase, one as a subject
- * line. `spelledCount` and `SpelledCount` in `lib/copy/values.ts` are the
- * table; an array literal spelling "one", "two", "three" anywhere else is a
- * sixth copy.
- */
-check("a count is spelled from the one table in lib/copy/values.ts", () => {
-  const tables = ALL.filter(
-    (f) => f !== join("lib", "copy", "values.ts") && !/\.test\.tsx?$/.test(f) &&
-      /\[\s*(?:"no",\s*)?"one",\s*"two",\s*"three"/.test(code(f)),
-  );
-  assert.deepEqual(tables, [], `${tables.join(", ")} spells counts from a table of its own; use spelledCount`);
-  assert.match(code("lib/copy/values.ts"), /export function spelledCount\(/, "the one table has gone");
-});
-
 check("a question that says \"the verb\" is asked about a verb", () => {
   for (const file of ["lib/exam/paper.ts", "app/(app)/review/government/page.tsx"]) {
     const source = code(file);
