@@ -204,15 +204,15 @@ export async function classRoster(
   */
   entries.sort((a, b) => b.reviewsThisWeek - a.reviewsThisWeek || a.displayName.localeCompare(b.displayName));
 
+  // Each answer under the case it asked, read once for the board and the letter,
+  // so the two cannot name different cases as the class's weakest.
+  const asked = reviews.map((r) => ({ ownerId: r.ownerId, targetCase: caseAsked(r), rating: r.rating }));
   return {
     entries,
     // The class-wide picture, for a lesson plan. entries[].weakestCase is the
     // per-student one, for who to sit next to during it.
-    weakestCases: caseAccuracy(
-      reviews.map((r) => ({ targetCase: caseAsked(r), rating: r.rating })),
-      10,
-    ).slice(0, 5),
-    sharedCases: classWideCases(reviews, opts.leaveOut ?? null),
+    weakestCases: caseAccuracy(asked, 10).slice(0, 5),
+    sharedCases: classWideCases(asked, opts.leaveOut ?? null),
     totalReviewsThisWeek: entries.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
     activeThisWeek: entries.filter((e) => e.reviewsThisWeek > 0).length,
   };

@@ -7213,6 +7213,10 @@ check("the weakest case is read off the case that was asked, on every screen tha
   }
   assert.doesNotMatch(code("lib/classroom/roster.ts"), /targetCase: r(?:eview)?\.targetCase/,
     "the roster hands caseAccuracy the card's case again");
+  // The weekly letter's class-wide cases are the same figure behind a floor,
+  // so they are read the same way, or the letter and the board disagree.
+  assert.doesNotMatch(code("lib/classroom/roster.ts"), /classWideCases\(reviews\b/,
+    "the letter's class-wide cases read the card's case rather than the one asked");
 });
 
 /*
