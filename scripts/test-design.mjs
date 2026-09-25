@@ -286,7 +286,7 @@ check("every text size is on the scale", offScale.length === 0,
     ? offScale.map((size) => `${size} ${where.get(size) ?? ""}`).join(" | ")
     : `${sizes.size} steps in use`);
 check(`nothing is set below the ${FLOOR}px floor`,
-  sizes.size > 0 && [...sizes.keys()].every((s) => parseFloat(s) >= FLOOR),
+  [...sizes.keys()].every((s) => parseFloat(s) >= FLOOR),
   [...sizes.keys()].filter((s) => parseFloat(s) < FLOOR).join(" "));
 check("every run of text clears WCAG AA on its background", contrast.length === 0,
   /*

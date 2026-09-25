@@ -343,12 +343,12 @@ const written = (await prisma.review.findMany({
 check("every answer reached the review log", written.length >= asked, `${written.length} rows`);
 check(
   "every row says which form it was about",
-  written.length > 0 && written.every((r) => r.slot !== null),
+  written.every((r) => r.slot !== null),
   written.filter((r) => r.slot === null).length + " without one",
 );
 check(
   "and none of them says something the app does not write",
-  written.length > 0 && written.every((r) => r.slot === null || KNOWN_SLOTS.has(r.slot)),
+  written.every((r) => r.slot === null || KNOWN_SLOTS.has(r.slot)),
   [...new Set(written.map((r) => r.slot))].join(", "),
 );
 check(

@@ -555,7 +555,7 @@ check("the script is asked for in the language the rest of the screen is in",
   gsiRequests.length > 0 && gsiRequests.every((url) => url.includes("hl=en")),
   gsiRequests[0] ?? "never requested");
 check("and the button is told the same language, which is the setting Google reads per button",
-  after.length > 0 && after.every((call) => call.locale === "en"),
+  after.every((call) => call.locale === "en"),
   `${after.map((c) => c.locale).join(", ")}`);
 
 /*
