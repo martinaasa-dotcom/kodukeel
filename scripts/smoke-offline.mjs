@@ -23,8 +23,9 @@ const page = await ctx.newPage();
 const app = page.locator("main");
 
 // Floor: the count CI reaches, which is every check here, including the one
-// about the cache that is deliberately never trimmed.
-const { check, absent, done } = suite("Offline review", { floor: 15 });
+// about the cache that is deliberately never trimmed and the eight about Anu,
+// whose server carries the stubbed provider key that configures her.
+const { check, absent, done } = suite("Offline review", { floor: 23 });
 
 
 /*
@@ -504,6 +505,63 @@ for (let i = 0; i < 30; i++) {
 
 check("the outbox drains once the connection is back", drained,
   `${await outboxSize()} still queued`);
+
+// ── Anu, who needs a connection and says so before anything is typed ────────
+/*
+  `docs/08-ux-ia-a11y.md` §4 names her offline state, and neither surface had
+  one: the question was typed, the box was cleared, and only after a fetch that
+  could never land did the reply say the connection was lost. The refusal is in
+  `useAnuChat` and the notice is `AnuOffline`, and whether either is drawn is a
+  fact about a running tab rather than about the source, so it is asked here,
+  on both surfaces, with the plug pulled.
+
+  She is only configured where a provider key is present. CI's server carries a
+  stubbed one for the scanner, which is enough, since nothing here sends; a
+  keyless server draws "Anu needs an AI key" instead, which is a different
+  state and has nothing to go offline from.
+*/
+const ANU_CHECKS = 8;
+await page.goto(`${BASE}/tutor`, { waitUntil: "domcontentloaded" });
+await page.waitForSelector("main h1");
+const asks = page.getByRole("textbox", { name: "Ask Anu a question" });
+if (await asks.count() === 0) {
+  absent(ANU_CHECKS, "this server has no provider key, so Anu shows her key state and has no offline state to draw");
+} else {
+  const notice = () => page.getByText("Anu needs a connection.");
+  check("Anu draws no offline notice while online", await notice().count() === 0);
+  await ctx.setOffline(true);
+  await page.evaluate(() => window.dispatchEvent(new Event("offline")));
+  await page.waitForTimeout(300);
+  check("Anu says she needs a connection once it goes", await notice().isVisible());
+  await asks.fill("Why is it raamatut?");
+  check("Anu's Ask button is not live offline", await page.getByRole("button", { name: "Ask" }).isDisabled());
+  await asks.press("Enter");
+  await page.waitForTimeout(300);
+  check("pressing Enter offline keeps the question in the box", (await asks.inputValue()) === "Why is it raamatut?",
+    `the box reads "${await asks.inputValue()}"`);
+  check("nothing is sent to Anu offline", await page.getByText("Lost the connection").count() === 0);
+  await ctx.setOffline(false);
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await page.waitForTimeout(300);
+  check("the notice goes when the connection is back", await notice().count() === 0);
+
+  // The panel in the corner of every screen, which the first fix missed.
+  await page.goto(`${BASE}/practice`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("main h1");
+  await page.getByRole("button", { name: /Anu/ }).first().click();
+  const panelBox = page.getByRole("textbox", { name: "Ask Anu a question" });
+  await panelBox.waitFor();
+  await ctx.setOffline(true);
+  await page.evaluate(() => window.dispatchEvent(new Event("offline")));
+  await page.waitForTimeout(300);
+  check("Anu's corner panel says she needs a connection", await notice().isVisible());
+  await panelBox.fill("Mis on osastav?");
+  await panelBox.press("Enter");
+  await page.waitForTimeout(300);
+  check("the panel keeps an offline question in its box", (await panelBox.inputValue()) === "Mis on osastav?",
+    `the box reads "${await panelBox.inputValue()}"`);
+  await ctx.setOffline(false);
+}
 
 await browser.close();
 done();
