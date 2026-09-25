@@ -351,6 +351,24 @@ check("no server component calls a function it imported from a client module", (
 
 // ── Never ship a credential to the client ────────────────────────────────────
 
+check("a small group names nobody by subtraction, to a member", () => {
+  /*
+    The counts a colleague sees name nobody, and in a group of three the
+    member's own band beside "1 on track" names the other person. The class
+    page's lesson plan is the same arithmetic in a class of two. So a member
+    sees the workplace counts only through `sharesCounts`, and the class-wide
+    cases are the teacher's.
+  */
+  const view = code("app/(app)/class/[classroomId]/WorkplaceView.tsx");
+  assert.match(view, /sharesCounts\(summary\.members\.length, sponsor\)/,
+    "the workplace tiles are shown to a member of a group small enough to subtract a colleague from");
+  const page = code("app/(app)/class/[classroomId]/page.tsx");
+  assert.match(page, /isTeacher && roster\.weakestCases\.length > 0/,
+    "the class-wide weakest cases are shown to a student, who in a small class can subtract their own");
+});
+
+// ── Never ship a credential to the client ────────────────────────────────────
+
 check("a mock paper is rebuilt the same way it was sat, and every figure on the hub says what it rests on", () => {
   /*
     Three ways the sitting and the marking, or the figure and its basis, came
