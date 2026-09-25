@@ -20,7 +20,7 @@ import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { mergeExamples, parseExamples, serialiseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
-import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
+import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
@@ -234,7 +234,7 @@ export async function deleteMyDeck(deckId: string) {
 async function addCardsFor(
   owner: string, lexemeId: string, types: CardType[], source: string,
 ) {
-  const [lexeme, borrowed, reach] = await Promise.all([
+  const [lexeme, borrowed, reach, alsoAccepted] = await Promise.all([
     prisma.lexeme.findUnique({
       where: { id: lexemeId },
       include: { forms: true },
@@ -245,6 +245,16 @@ async function addCardsFor(
     // And how a beginner's word orders its own, which is the same kind of
     // fact and cached the same way. See lib/dict/plainness.ts.
     sentenceReach(),
+    /*
+      And which other words answer the same prompt, the fact `lib/srs/deck.ts`
+      reads for a unit. Without it a production card built one word at a time
+      took its own word alone: `pere` added from the dictionary got a back
+      of `pere` where a unit gives it `pere / perekond`, so a learner who wrote
+      `perekond` for "family" was marked wrong on a card that could not tell
+      them apart. The back reads `pere / perekond` now, read off a card
+      added in a browser; the invariant for it was made to fail on this line.
+    */
+    alsoAcceptedByLemma(),
   ]);
   if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
 
@@ -304,6 +314,7 @@ async function addCardsFor(
     const generated = generateCards(
       {
         ...(lexeme as LexemeForCards),
+        alsoAccepted: alsoAccepted.get(`${lexeme.lemma}|${lexeme.pos}`) ?? [],
         borrowed: borrowed.get(lexemeId) ?? [],
         plainest: plainerFirst(lexeme.cefr, reach),
       }, types,

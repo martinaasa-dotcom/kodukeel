@@ -1388,6 +1388,45 @@ check("a word borrows sentences under one rule, and every builder is handed them
 });
 
 /**
+ * EVERY BUILDER THAT CAN MAKE A PRODUCTION CARD IS HANDED THE WORDS THAT SHARE
+ * ITS PROMPT.
+ *
+ * A production card is front the gloss and back the word, so two entries glossed
+ * alike are one question with two right answers, and `lib/srs/deck.ts` hands the
+ * builder `alsoAccepted` so the back carries both. `addCardsFor` did not, and it
+ * is the builder behind the dictionary's Add, a scanned page and a lesson's end:
+ * `pere` added from the dictionary got a back of `pere` where a unit gives it
+ * `pere / perekond`, and a learner who wrote `perekond` for "family" was marked
+ * wrong. The
+ * field is optional on purpose, so the type cannot hold this. A sweep rather than
+ * a list: any call whose card types are not a literal list without PRODUCTION
+ * is a call that can build one.
+ */
+check("every builder that can make a production card is handed the words sharing its prompt", () => {
+  const callers: string[] = [];
+  for (const file of ALL.filter((f) => /^(app|lib)\//.test(f) && !/\.(test|itest)\.ts$/.test(f))) {
+    if (file === "lib/srs/cards.ts") continue;
+    const src = code(file);
+    const calls = [...src.matchAll(/\bgenerateCards\(/g)];
+    if (calls.length === 0) continue;
+    const canProduce = calls.some((m) => {
+      const args = src.slice(m.index!, m.index! + 400);
+      const literal = args.match(/,\s*\[([^\]]*)\]\s*\)/);
+      return !literal || /PRODUCTION/.test(literal[1]!);
+    });
+    if (!canProduce) continue;
+    callers.push(file);
+    assert.match(
+      src,
+      /alsoAccepted/,
+      `${file} builds cards that can include a production card without handing over the words ` +
+      "that share its prompt, so a correct synonym is marked wrong",
+    );
+  }
+  assert.ok(callers.length >= 2, `only ${callers.length} production-card builders found, so the sweep is not reading them`);
+});
+
+/**
  * A BEGINNER'S WORD IS TAUGHT WITH THE PLAINEST SENTENCE RECORDED FOR IT, NOT
  * THE SHORTEST.
  *
