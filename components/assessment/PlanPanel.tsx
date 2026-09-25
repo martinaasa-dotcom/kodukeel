@@ -9,7 +9,7 @@ import { minutesForCards } from "@/lib/stats/pace";
 import { PRE_A1, type Band, type Level } from "@/lib/assessment/types";
 import { ChevronRight } from "lucide-react";
 import { Card, Note, SectionTitle, StatTile } from "@/components/ui";
-import { icon } from "@/components/icons";
+import { NamedIcon } from "@/components/icons";
 import { Explain } from "@/components/Explain";
 
 /**
@@ -302,7 +302,6 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
           <SectionTitle hint="checkable, not motivational">Facts worth knowing first</SectionTitle>
         <ul className="flex flex-col gap-3">
           {FACTS.map((fact) => {
-            const Icon = icon(fact.icon);
             return (
               <li key={fact.id}>
                 <Card className="flex gap-4">
@@ -310,7 +309,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                     style={{ background: "var(--raised)", color: "var(--ink-2)" }}
                   >
-                    <Icon size={17} aria-hidden />
+                    <NamedIcon name={fact.icon} size={17} aria-hidden />
                   </span>
                   <div className="min-w-0">
                     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{fact.claim}</p>
