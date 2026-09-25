@@ -1,5 +1,6 @@
 "use client";
 
+import { PARTS } from "@/lib/copy/values";
 import { useRef, useState } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { Check, CircleAlert, Loader2 } from "lucide-react";
@@ -424,20 +425,20 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
               You wrote <strong lang="et">{mark.written}</strong>, which is the{" "}
               <span lang="et">{wrote}</span>. The{" "}
               <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(" / ")}</strong>.
+              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>
           ) : mark.written ? (
             // Two cases share that spelling, so naming either would be a guess.
             <>
               <strong lang="et">{mark.written}</strong> is more than one case at once, so it
               cannot be this one. The <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(" / ")}</strong>.
+              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>
           ) : (
             <>
               <strong lang="et">{prompt.askLemma}</strong> is not in that sentence. The{" "}
               <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(" / ")}</strong>.
+              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>
           )}
         </p>
