@@ -11310,6 +11310,65 @@ check("a job that runs an audit generates the Prisma client first", () => {
   );
 });
 
+check("a cache a job carries between runs is saved when the job fails", () => {
+  /*
+    `.github/workflows/drift.yml` restores a Wiktionary page cache keyed on the
+    run id, because a whole pass over the dictionary does not fit in one run
+    and each week is meant to carry on from the last. It relied on
+    `save-always: true` to write that cache back from a job that is red by
+    design until the cache has carried it past half the dictionary, and the
+    input does nothing: actions/cache's post step runs only on success
+    whatever it is told, and v6 says so itself in the log, "save-always does
+    not work as intended and will be removed". Measured on the three
+    scheduled runs there have been: the post job section of every one of them
+    holds no cache step at all, the first read 2,500 pages and the second
+    started from nothing and read 1,000.
+
+    So two rules, each about the shape and never about the one file. The
+    input is gone from every workflow, since it is a promise the action has
+    stopped keeping. And a job that restores a cache keyed on the run is a job
+    whose next run is waiting on this one's save, so it saves with a separate
+    step that runs whatever happened above it; a restore of a per-run key
+    that nothing saves is a restore that can only ever miss.
+  */
+  const offenders: string[] = [];
+  let restoring = 0;
+  for (const file of sourceFiles(".github/workflows", /\.ya?ml$/)) {
+    const body = read(file)
+      .split("\n")
+      .map((line) => line.replace(/(^|\s)#.*$/, ""))
+      .join("\n");
+    if (/\bsave-always\s*:/.test(body)) offenders.push(`${file}: sets save-always`);
+    const jobsAt = body.indexOf("\njobs:");
+    if (jobsAt < 0) continue;
+    const jobs = body.slice(jobsAt).split(/\n {2}(?=[A-Za-z][\w-]*:\n)/).slice(1);
+    for (const job of jobs) {
+      const name = job.slice(0, job.indexOf(":"));
+      /*
+        A step is a `- ` at the step indent, so splitting on it gives one step
+        per piece, which is all a `uses:` and its `with:` need to be read
+        together.
+      */
+      const steps = job.split(/\n {6}- /).slice(1);
+      const perRun = steps.filter(
+        (step) => /uses:\s*actions\/cache(?:\/restore)?@/.test(step) && /key:[^\n]*github\.run_id/.test(step),
+      );
+      if (perRun.length === 0) continue;
+      restoring += perRun.length;
+      const saves = steps.filter(
+        (step) =>
+          /uses:\s*actions\/cache\/save@/.test(step) &&
+          /\bif:\s*\$\{\{\s*(?:!\s*cancelled\(\)|always\(\))\s*\}\}/.test(step),
+      );
+      if (saves.length === 0) {
+        offenders.push(`${file}:${name}: restores a per-run cache and saves it with no step that runs on failure`);
+      }
+    }
+  }
+  assert.ok(restoring >= 1, "no job restores a per-run cache, so the drift job's page cache has moved and this checks nothing");
+  assert.deepEqual(offenders, [], offenders.join("; "));
+});
+
 // ── A deck is counted by building it, and built in a bounded number of queries ─
 
 /*
