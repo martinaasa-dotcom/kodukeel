@@ -33,6 +33,7 @@ import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
 import { OPENS_WITHOUT_BRIEFING } from "../lib/copy/briefingCoverage";
 import { BRIEFINGS } from "../lib/copy/briefings";
 import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
+import { estonianNotCopied } from "../lib/dict/copiedWords";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
@@ -24735,11 +24736,14 @@ check("the shipped translations are English, and there are enough of them to mat
     AND NOT ONE OF THEM IS ESTONIAN. The whole value of the file is that it is
     the other language, and the way a weaker model fails this job is by handing
     the sentence back: `looksLikeEcho` catches an exact echo and the script
-    refuses anything still carrying õ, ä, ö, ü, š or ž. A line of Estonian
-    printed under a heading promising English is worse than no line at all.
+    refuses a line carrying õ, ä, ö, ü, š or ž in a word its sentence did not
+    hold. A name or a quoted word copied through is the sentence rather than
+    the model (`estonianNotCopied`), and refusing those left 137 sentences with
+    a place or a person in them bare. A line of Estonian printed under a
+    heading promising English is worse than no line at all.
   */
   const table: Record<string, string> = JSON.parse(readFileSync("prisma/data/example-english.json", "utf8"));
-  const estonian = Object.entries(table).filter(([, en]) => /[õäöüšž]/i.test(en));
+  const estonian = Object.entries(table).filter(([et, en]) => estonianNotCopied(en, et));
   assert.deepEqual(
     estonian.slice(0, 3), [],
     `${estonian.length} shipped translations still carry Estonian's own letters, so they are not English`,
