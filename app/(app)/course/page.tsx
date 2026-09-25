@@ -461,11 +461,12 @@ export default async function CoursePage({
                   get right. The caption gets its own line, indented under
                   the badge, and wraps instead of clipping.
                 */
-                <li key={d.id} className="flex flex-col gap-0.5 text-sm">
-                  <div className="flex flex-wrap items-center gap-2">
+                <li key={d.id} data-course-day className="flex flex-col gap-0.5 text-sm">
+                  <div className="flex items-start gap-2">
                     <span
                       aria-hidden
-                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
+                      data-course-badge
+                      className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
                       style={{
                         background: state === "done" ? "var(--good-soft)"
                           : state === "now" ? "var(--accent-soft)" : "var(--raised)",
@@ -475,13 +476,22 @@ export default async function CoursePage({
                     >
                       {state === "done" ? <Check size={11} /> : d.index}
                     </span>
-                    <span
-                      lang={uiWantsEnglish(level) ? undefined : "et"}
-                      style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
-                    >
-                      {uiText(level, d.title, d.subtitle)}
+                    {/*
+                      The number is its own column and the title wraps inside
+                      the other one. As one wrapping row, a title longer than
+                      the room beside the badge moved down whole and left the
+                      number alone on the line above it.
+                    */}
+                    <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                      <span
+                        data-course-title
+                        lang={uiWantsEnglish(level) ? undefined : "et"}
+                        style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
+                      >
+                        {uiText(level, d.title, d.subtitle)}
+                      </span>
+                      {state === "now" && <Chip tone="accent">Tonight</Chip>}
                     </span>
-                    {state === "now" && <Chip tone="accent">Tonight</Chip>}
                   </div>
                   {(uiWantsEnglish(level) ? d.part.of > 1 : true) && (
                     <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>
