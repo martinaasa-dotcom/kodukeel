@@ -39,6 +39,12 @@ export interface CheckpointQuestion {
   /** The full sentence, revealed afterwards. */
   full: string;
   answer: string;
+  /**
+   * The word's other forms, handed to `checkAnswer` so another ending one
+   * keystroke away is marked as the wrong form rather than as a slip: `toast`
+   * for `toas` read as "One letter out." and counted toward passing a level.
+   */
+  rivals: readonly string[];
 }
 
 /**
@@ -104,6 +110,7 @@ export function buildCheckpoint(
         questions.push({
           id: `q${i}`, kind: "gap", lemma: word.lemma, gloss: word.gloss,
           sentence: cloze.text, full: cloze.full, answer: cloze.answer,
+          rivals: knownForms(word).filter((form) => form !== cloze.answer.toLowerCase()),
         });
         continue;
       }
@@ -111,6 +118,7 @@ export function buildCheckpoint(
     questions.push({
       id: `q${i}`, kind: "type", lemma: word.lemma, gloss: word.gloss,
       sentence: "", full: "", answer: word.lemma,
+      rivals: knownForms(word).filter((form) => form !== word.lemma.toLowerCase()),
     });
   }
 

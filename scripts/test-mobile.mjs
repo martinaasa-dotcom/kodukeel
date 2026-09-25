@@ -55,13 +55,14 @@ const browser = await launchChromium();
   instead.
 */
 /*
-  129 rather than 73: the 44px pass walks every route under `app/` a fresh
+  131 rather than 73: 129 because the 44px pass walks every route under `app/` a fresh
   install can answer for, and presses through each round's briefing, where it
   used to ask fourteen chosen routes about the screen in front of the round.
   That is 71 routes where there were 14, measured against a production build
-  with the demo fixture in place.
+  with the demo fixture in place, and 2 more for the check
+  that every day and part on the course page starts beside its number.
 */
-const { check, done } = suite("The phone", { floor: 129 });
+const { check, done } = suite("The phone", { floor: 131 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -129,6 +130,31 @@ for (const width of [320, ...PHONES]) {
   const broken = cells.filter((c) => c.lines !== 1);
   check(`every label on the bar holds one line at ${width}`, cells.length >= 5 && broken.length === 0,
     broken.length ? broken.map((c) => `${c.label}: ${c.lines} lines`).join(", ") : `${cells.length} labels`);
+  await ctx.close();
+}
+
+// 2c — A day on the course's own list, and a part on the ladder under it,
+//      starts beside its number. The row was a
+//      wrapping flex, so a title longer than the room beside the badge moved
+//      down whole and left the number alone on a line above it: at 360,
+//      "To be, this and that, and the six endings" sat under an orphaned 3.
+//      Read off the first line box of each title against its badge.
+for (const width of [320, 360]) {
+  const { ctx, page } = await open(width, 844, "/course");
+  const rows = await page.evaluate(() =>
+    [...document.querySelectorAll("[data-course-day]")].map((row) => {
+      const badge = row.querySelector("[data-course-badge]")?.getBoundingClientRect();
+      const title = row.querySelector("[data-course-title]");
+      if (!badge || !title) return { ok: false, text: "(missing)" };
+      const range = document.createRange();
+      range.selectNodeContents(title);
+      const first = range.getClientRects()[0];
+      return { ok: !!first && first.top < badge.bottom, text: title.textContent.trim() };
+    }));
+  const orphaned = rows.filter((r) => !r.ok);
+  check(`every day and part on the course page starts beside its number at ${width}`,
+    rows.length >= 20 && orphaned.length === 0,
+    orphaned.length ? orphaned.slice(0, 3).map((r) => r.text).join(" | ") : `${rows.length} rows`);
   await ctx.close();
 }
 
