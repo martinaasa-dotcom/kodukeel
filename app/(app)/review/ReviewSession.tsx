@@ -1754,7 +1754,7 @@ export function ReviewSession({
               question somebody has the moment they first see one, and the
               screen that introduces the form is the obvious place to answer
               it. */}
-          {(revealed || chosen || ask === "intro") && <WhyRow card={card} />}
+          {(answerShown || chosen) && <WhyRow card={card} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>

@@ -19443,6 +19443,30 @@ check("a planned course day names words rather than writing any", () => {
 });
 
 /*
+  THE ANSWER BEING ON SCREEN IS ONE NAME IN THE REVIEW SESSION.
+
+  A new card leads with its answer, so `revealed` is false while the answer is
+  showing, and the render worked that out longhand in four places before the
+  number keys, which read `!revealed`, did nothing on a first meeting.
+  `answerShown` is that condition named once, and a comment beside it says
+  naming it once is what stops a sixth reader. Nothing checked it, and the
+  why-this-card row went on spelling it out as `revealed || chosen || ask ===
+  "intro"`. Correct today, and the copy that drifts the day the condition
+  grows a third term.
+*/
+check("the review session names the answer being shown once, and nothing spells it out again", () => {
+  const src = code("app/(app)/review/ReviewSession.tsx");
+  const defs = src.match(/const answerShown = /g) ?? [];
+  assert.equal(defs.length, 1, "ReviewSession.tsx should define answerShown exactly once");
+  assert.ok(
+    !/revealed\s*\|\|[^;{}]*ask\s*===\s*"intro"|ask\s*===\s*"intro"\s*\|\|[^;{}]*revealed/.test(src.replace(/const answerShown = [^;]*;/, "")),
+    "ReviewSession.tsx spells out revealed || ask === \"intro\" again; read answerShown",
+  );
+  const reads = (src.match(/\banswerShown\b/g) ?? []).length;
+  assert.ok(reads >= 5, `answerShown is read ${reads} times; the screen has stopped asking it`);
+});
+
+/*
   A ROUND THE MODULE CAN DEAL READS WHAT THE MODULE HAS TAUGHT.
 
   Every step of a planned evening opens a screen a learner can also reach from
@@ -19472,6 +19496,34 @@ check("every round a rotation can deal reads the module's scope off its address"
   // And the closing review reads it too, since it is the last step of every evening.
   assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
   assert.match(code("app/(app)/review/page.tsx"), /cardWithin\(/, "the closing review stopped holding a case card to the case pages read");
+});
+
+/*
+  AND THE GATES ARE READ, NEVER RETYPED.
+
+  `lib/course/scope.ts` is the one answer to "has the module handed this
+  over", and two rounds wrote the answer out again: the picture round filtered
+  its cases with `scope.cases.includes`, and the conjugation table rebuilt the
+  conditional's rule, level floor and all, with a comment above it saying the
+  same thing twice. Both agreed with the module on the day they were written,
+  which is the dangerous state rather than the safe one: the day `caseWithin`
+  or `slotWithin` learns something, the copy does not, and the round that
+  kept it deals a page nobody has read. Only the module that owns the gates
+  may look inside a scope's lists.
+*/
+check("nothing outside lib/course/scope.ts reads a scope's lists to answer the module's gates", () => {
+  let files = 0;
+  for (const file of ALL) {
+    if (file === "lib/course/scope.ts") continue;
+    const src = code(file);
+    if (!/ModuleScope|moduleScopeFrom|scopeFor/.test(src)) continue;
+    files += 1;
+    assert.ok(
+      !/\.(cases|topics)\.includes\(/.test(src),
+      `${file} reads a module scope's lists itself; ask caseWithin, slotWithin, sentenceWithin or cardWithin in lib/course/scope.ts`,
+    );
+  }
+  assert.ok(files >= 12, `only ${files} files hold a module scope; the sweep has stopped finding the rounds`);
 });
 
 /*
