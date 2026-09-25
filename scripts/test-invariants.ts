@@ -16495,6 +16495,23 @@ check("a learner who says they are lost is handed the word, never the question a
     );
   }
   /*
+    AND A HARNESS IS A CALLER TOO. The two files above are named because they
+    are the app, and three scripts replay a scene the way the route does in
+    order to report on it. One of them, the fuzzer, never widened, so its rule
+    that the repair phrase is never said about a turn that was read was asked
+    of a marker narrower than the one a learner meets: a harness that is not
+    the app measures the harness. Swept rather than listed, since a list is
+    how the fuzzer was missed.
+  */
+  const replayers = [...ALL, ...sourceFiles("scripts")].filter((file) =>
+    !/\.(i?test)\.ts$/.test(file)
+    && file !== join("scripts", "test-invariants.ts")
+    && /(?<![.\w])replay\(/.test(code(file)));
+  assert.ok(replayers.length >= 5, `the replay sweep found ${replayers.length} callers, which means it is looking in the wrong place`);
+  for (const file of replayers) {
+    assert.match(code(file), /\bknowing\(/, `${file} replays a scene without widening what counts as Estonian first`);
+  }
+  /*
     A MISS IS ANSWERED AS A MISS, AND THE QUESTION IS PUT AGAIN RATHER THAN
     PUT DIFFERENTLY. A turn that landed got a word and then the next question;
     a turn that was real Estonian off the point got nothing and then a

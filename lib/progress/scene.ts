@@ -973,7 +973,7 @@ export interface Briefing {
  * purpose. Ordered, so which one leads is the app's answer rather than the
  * plan's.
  */
-async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
+export async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
   const lemmas = [...new Set(run.card.props.flatMap((prop) => prop.lemmas))];
   if (lemmas.length === 0) return new Map();
   const rows = await prisma.lexeme.findMany({
@@ -984,6 +984,22 @@ async function glossesFor(run: SceneRunPlan): Promise<Map<string, string>> {
   const out = new Map<string, string>();
   for (const row of rows) if (!out.has(row.lemma)) out.set(row.lemma, row.translation);
   return out;
+}
+
+/**
+ * The card as a run stores it: every drawn word with its English beside it,
+ * for `stageFor`. One function because a harness that opens a run its own way
+ * fuzzes a card the app never deals, which is how `npm run fuzz:scenes`
+ * reported a landlord offering "esmaspäev" inside an English sentence.
+ */
+export function glossCard(card: RoleCard, glosses: ReadonlyMap<string, string>): RoleCard {
+  return {
+    ...card,
+    props: card.props.map((prop) => {
+      const english = prop.lemmas[0] ? glosses.get(prop.lemmas[0]) : undefined;
+      return english ? { ...prop, english } : prop;
+    }),
+  };
 }
 
 function briefingOf(run: SceneRunPlan, glosses: ReadonlyMap<string, string>): Briefing {
@@ -1069,13 +1085,7 @@ export async function beginRun(input: {
     is what a reload and the debrief read back.
   */
   const glosses = await glossesFor(run);
-  const card: RoleCard = {
-    ...run.card,
-    props: run.card.props.map((prop) => {
-      const english = prop.lemmas[0] ? glosses.get(prop.lemmas[0]) : undefined;
-      return english ? { ...prop, english } : prop;
-    }),
-  };
+  const card = glossCard(run.card, glosses);
   const draw: StoredDraw = {
     persona: run.persona.id,
     card,
