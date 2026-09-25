@@ -121,7 +121,10 @@ export async function POST(request: Request) {
     return rateLimited(limit, "That was a lot of turns at once. Give it a moment.");
   }
 
-  const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  // A body that parses to `null` or a number is not a turn, and reading a key
+  // off `null` threw here, which the framework answered with a 500.
+  const parsed: unknown = await request.json().catch(() => null);
+  const body = (typeof parsed === "object" && parsed !== null ? parsed : {}) as Record<string, unknown>;
   const runId = String(body.runId ?? "").slice(0, 64);
 
   /*

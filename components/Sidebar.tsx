@@ -7,7 +7,6 @@ import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { useDockClearance } from "@/lib/layout/dockClearance";
 import { useNavMarker } from "@/lib/layout/navMarker";
-import { createClient } from "@/lib/supabase/client";
 import { useOffline } from "@/components/OfflineProvider";
 import { outboxSize } from "@/lib/offline/db";
 import { forgetThisDevice } from "@/lib/offline/forget";
@@ -308,6 +307,15 @@ export function Sidebar() {
           }
         >
           <NavMarker state={barMarker} />
+          {/*
+            A cell is as wide as its label plus an equal share of what is left,
+            not a fifth of the bar. Equal fifths gave "Dictionary" 64px at 360
+            for a word 70px wide, and `overflow-wrap: anywhere` broke it into
+            "Dictionar / y" on every screen. The five labels need 240px and
+            the bar has 284 at 320, so sized to content they fit on one line
+            down to the narrowest phone sold, and the narrowest cell is still
+            44px wide. Measured in `scripts/test-mobile.mjs`.
+          */}
           {BAR.map((item) => {
             const Icon = icon(item.icon);
             const on = active(item.href);
@@ -319,7 +327,7 @@ export function Sidebar() {
                 data-nav-goes
                 data-nav-on={on ? "" : undefined}
                 aria-current={on ? "page" : undefined}
-                className="nav-cell flex flex-1 flex-col items-center gap-1 rounded-full py-1.5 text-2xs font-semibold"
+                className="nav-cell flex flex-auto flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold"
                 style={{ color: on ? "var(--ink)" : "var(--ink-3)" }}
               >
                 <span
@@ -347,7 +355,7 @@ export function Sidebar() {
             aria-expanded={moreOpen}
             data-nav-cell
             data-nav-on={restActive ? "" : undefined}
-            className="nav-cell flex flex-1 flex-col items-center gap-1 rounded-full py-1.5 text-2xs font-semibold"
+            className="nav-cell flex flex-auto flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold"
             style={{ color: restActive ? "var(--ink)" : "var(--ink-3)" }}
           >
             <span
@@ -561,7 +569,19 @@ function SignOutButton({ labelled }: { labelled?: boolean }) {
     // The session goes first and the device is forgotten only once it has:
     // a sign-out that could not reach the service leaves the cookie in place,
     // and forgetting the outbox before that would lose the grades for nothing.
-    const { error } = await createClient().auth.signOut();
+    //
+    // The client is fetched here rather than imported at the top, because this
+    // button is in the rail on every signed-in page and the Supabase browser
+    // client is 254 KB with the Buffer polyfill it brings: every page was
+    // downloading it for a press most visits never make. A load that fails is
+    // the service not being reached, and is answered the same way.
+    let error: unknown = null;
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      ({ error } = await createClient().auth.signOut());
+    } catch (failed) {
+      error = failed;
+    }
     if (error) {
       window.alert("The sign-in service could not be reached, so you are still signed in. Try again once you are back online.");
       return;
@@ -593,7 +613,13 @@ function ThemeToggle({ labelled }: { labelled?: boolean }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("theme");
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem("theme");
+    } catch {
+      // Blocked storage throws on a read as well as on the write below; the
+      // toggle then starts from light, which is what the page painted.
+    }
     if (stored === "light" || stored === "dark") {
       setTheme(stored);
       document.documentElement.dataset.theme = stored;
