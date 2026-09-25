@@ -500,3 +500,20 @@ describe("a paper the learner sat and passed clears its own level", () => {
     expect(r.next).toBe("B1");
   });
 });
+
+describe("a part sat on its own", () => {
+  it("is never read as the paper sat", () => {
+    const base = established();
+    const partOnly = readinessFor(signals({
+      ...base,
+      attempts: [{ level: "B2", pct: 92, passed: true, at: "2026-09-20T10:00:00Z", parts: { reading: 92 }, whole: false, part: "reading" }],
+    }), "B2");
+    const wholePaper = readinessFor(signals({
+      ...base,
+      attempts: [{ level: "B2", pct: 92, passed: true, at: "2026-09-20T10:00:00Z", parts: { reading: 92 } }],
+    }), "B2");
+    expect(partOnly.measured).toBe(false);
+    expect(wholePaper.measured).toBe(true);
+  });
+});
+

@@ -3,7 +3,8 @@ import { requireUserId } from "@/lib/auth/session";
 import { paperFor, sittingOf } from "@/lib/progress/exam";
 import { isExamLevel } from "@/lib/exam/spec";
 import { fillRate } from "@/lib/exam/paper";
-import { freshSeed } from "@/lib/exam/seed";
+import { freshSeed, numberedSeed, PAPERS_PER_LEVEL } from "@/lib/exam/seed";
+import { SKILLS, type SkillKey } from "@/lib/exam/types";
 import { ExamSession } from "./ExamSession";
 import { firstParams } from "@/lib/ux/queryParam";
 
@@ -29,10 +30,11 @@ export const dynamic = "force-dynamic";
  */
 export default async function ExamLevelPage({ params, searchParams }: {
   params: Promise<{ level: string }>;
-  searchParams: Promise<{ seed?: string | string[] }>;
+  searchParams: Promise<{ seed?: string | string[]; paper?: string | string[]; part?: string | string[] }>;
 }) {
   const { level } = await params;
-  const first = firstParams(await searchParams).seed;
+  const query = firstParams(await searchParams);
+  const first = query.seed;
   /*
     Only a seed the hand-in will take. `submitExam` refuses anything longer
     than 64 characters, and an over-long parameter built a paper that could be
@@ -41,6 +43,20 @@ export default async function ExamLevelPage({ params, searchParams }: {
   const seed = first && first.length <= 64 ? first : undefined;
   const upper = level.toUpperCase();
   if (!isExamLevel(upper)) notFound();
+
+  /*
+    A numbered paper, whole or one part, is asked for by number and turned into
+    a seed of its own shape here, carrying this moment like any fresh seed
+    (lib/exam/seed.ts). A number or a part that is not one is a fresh paper
+    rather than an error: the address is a link somebody may have typed.
+  */
+  if (!seed && query.paper) {
+    const number = Number(query.paper);
+    const part = (SKILLS as readonly string[]).includes(query.part ?? "") ? (query.part as SkillKey) : null;
+    if (Number.isInteger(number) && number >= 1 && number <= PAPERS_PER_LEVEL) {
+      redirect(`/exam/${upper}?seed=${numberedSeed(number, part)}`);
+    }
+  }
 
   if (!seed) {
     // A random draw in base 36, short enough to read out and long enough that

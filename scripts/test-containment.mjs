@@ -187,6 +187,7 @@ const ROUTES = [
   "/progress/readiness", "/progress/record",
   "/progress/readiness/sook-ja-jook",
   "/exam",
+  "/exam/B1/papers",
   "/assess",
 
   // Everything else a signed-in learner can reach.
