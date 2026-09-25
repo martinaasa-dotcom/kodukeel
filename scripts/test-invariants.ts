@@ -6244,6 +6244,53 @@ check("the actions that do real work per call are throttled", () => {
   }
 });
 
+check("the retention schedule names every table that holds a learner's rows", () => {
+  /*
+    `docs/25-data-retention.md` is the table a reviewer reads to learn how long
+    each kind of personal data is kept, and it had fallen two models behind the
+    schema: `Deferral` and `CourseStep` are owner-scoped, are exported and are
+    erased, and appeared nowhere in it. The erasure and the export are held to
+    the schema by other checks; the document that describes them was not. So
+    every model carrying an `ownerId` has to be named there in backticks.
+  */
+  const schema = read("prisma/schema.prisma");
+  const doc = read("docs/25-data-retention.md");
+  const owned = [...schema.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)]
+    .filter(([, , body]) => /^\s+ownerId\s/m.test(body!))
+    .map(([, name]) => name!);
+  assert.ok(owned.length >= 15, `expected the owner-scoped models, found ${owned.length}`);
+  const missing = owned.filter((name) => !doc.includes("`" + name + "`"));
+  assert.deepEqual(missing, [], `the retention schedule does not say how long these are kept: ${missing.join(", ")}`);
+});
+
+check("the security doc's per-instance residual names no route the shared counter covers", () => {
+  /*
+    `docs/27-security.md` said, in its residuals, that the in-memory limiter
+    alone protected speech, the share card, the export and the restore, three
+    screens above its own record that `lib/usage/sharedLimit.ts` had moved
+    exactly those four onto a count every instance sees. A residual that is no
+    longer a residual tells a reviewer the control is weaker than it is and,
+    worse, leaves out the one that really is per instance: the Server Action
+    throttles. So the paragraph is read for the four routes' names, and each
+    name is checked to still be a route that counts in the shared table.
+  */
+  const doc = read("docs/27-security.md");
+  const residual = doc.split(/\n\n/).find((p) => /^\*\*[^*]*per instance[^*]*\*\*/i.test(p));
+  assert.ok(residual, "docs/27-security.md has no per-instance residual to read");
+  const SHARED: Record<string, string> = {
+    speech: "app/api/tts/route.ts",
+    "share card": "app/api/share/route.tsx",
+    export: "app/api/export/route.ts",
+    restore: "app/api/restore/route.ts",
+  };
+  for (const [noun, file] of Object.entries(SHARED)) {
+    assert.match(code(file), /checkSharedRateLimit\(/, `${file} no longer counts in the shared table`);
+    const claims = residual.split(/(?<=[.;])\s/).filter((s) => s.includes(noun) && !/sharedLimit/.test(s));
+    assert.equal(claims.length, 0, `the per-instance residual still names ${noun}: ${claims[0]}`);
+  }
+  assert.match(residual, /throttleAction|actionLimits/, "the residual no longer names the throttles that really are per instance");
+});
+
 check("every dead end in the app offers a way to report it", () => {
   /*
     THE RULE: nothing here may tell somebody it cannot help them and then
