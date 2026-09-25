@@ -19,7 +19,8 @@ import {
   LEVELS, checkpointFor, levelIndex, unitById, wordsAtLevel,
 } from "@/lib/collections/syllabus";
 import { checkpointPassed } from "@/lib/collections/checkpoint";
-import { generateCode, isValidCode, normaliseCode } from "@/lib/classroom/code";
+import { isValidCode, normaliseCode } from "@/lib/classroom/code";
+import { createWithFreshCode } from "@/lib/classroom/create";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
@@ -2392,28 +2393,16 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
     ? (targetLevel as ExamLevel)
     : "B1";
 
-  let code = "";
-  for (let attempt = 0; attempt < CODE_ATTEMPTS; attempt++) {
-    const candidate = generateCode();
-    const taken = await prisma.classroom.findUnique({ where: { code: candidate }, select: { id: true } });
-    if (!taken) { code = candidate; break; }
-  }
-  if (!code) return { ok: false as const, error: "Could not allocate a join code. Try again." };
-
+  // The insert claims the code, retried on a collision (lib/classroom/create.ts).
   const displayName = await resolveDisplayName(ownerId);
-  const classroom = await prisma.classroom.create({
-    data: {
-      name: trimmed,
-      code,
-      ownerId,
-      kind: cohort,
-      targetLevel: level,
-      members: { create: { ownerId, role: "TEACHER", displayName } },
-    },
-  });
+  const classroom = await createWithFreshCode(
+    { name: trimmed, ownerId, kind: cohort, targetLevel: level, displayName },
+    CODE_ATTEMPTS,
+  );
+  if (!classroom) return { ok: false as const, error: "Could not allocate a join code. Try again." };
 
   revalidatePath("/class");
-  return { ok: true as const, id: classroom.id, code };
+  return { ok: true as const, id: classroom.id, code: classroom.code };
 }
 
 /**

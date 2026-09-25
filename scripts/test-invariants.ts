@@ -25101,6 +25101,19 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a class's join code is claimed by the insert, not by a look before it", () => {
+  /*
+    Looking a code up and then creating the class with it lets two teachers
+    dealt one code both see it free, and the second insert throws on the
+    unique index (`lib/classroom/create.ts`, shown in `create.itest.ts`).
+  */
+  assert.match(code("lib/classroom/create.ts"), /P2002/, "createWithFreshCode no longer retries on a taken code");
+  const creators = ALL.filter(
+    (f) => f !== "lib/classroom/create.ts" && !/\.i?test\.tsx?$/.test(f) && /prisma\.classroom\.create\(/.test(code(f)),
+  );
+  assert.deepEqual(creators, [], `${creators.join(", ")} creates a class outside createWithFreshCode`);
+});
+
 check("which letters a learner gets is changed only under their lock", () => {
   /*
     Three doors write the two preference rows, the Settings switch, the
