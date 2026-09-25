@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Card } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
+import { counted } from "@/lib/copy/values";
 
 interface Row { lemma: string; translation: string; pos: string }
 
@@ -80,7 +81,7 @@ export function ImportPanel() {
       setResult(
         r.created === 0
           ? `Nothing new. Every word was already in your deck.${overflow}`
-          : `Added ${r.created} word${r.created === 1 ? "" : "s"} and ${r.cards} cards.` +
+          : `Added ${counted(r.created, "word")} and ${counted(r.cards, "card")}.` +
             (r.skipped.length ? ` Skipped ${r.skipped.length} you already had.` : "") +
             overflow,
       );
