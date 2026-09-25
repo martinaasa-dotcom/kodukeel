@@ -4444,8 +4444,10 @@ check("the integration suite refuses a database that is not on this machine", ()
     the database every learner uses. `scripts/itest-guard.ts` runs as the
     suite's global setup and refuses anything off loopback unless the run opts
     in by name. Anchored on the config naming the guard and the guard asking
-    `databaseTarget` of both variables, since a guard nobody wires up is the
-    same silence one file later.
+    `isLocal` of both variables, off `scripts/lib/local-db.mjs`, which is the
+    rule every script that deletes rows already asks: a second definition of
+    "local" would be two answers to one question. A guard nobody wires up is
+    the same silence one file later.
   */
   const config = code("vitest.integration.config.mts");
   assert.match(
@@ -4454,7 +4456,12 @@ check("the integration suite refuses a database that is not on this machine", ()
     "the integration suite no longer runs its database guard before loading",
   );
   const guard = code("scripts/itest-guard.ts");
-  assert.match(guard, /databaseTarget\(/, "the guard no longer asks whether the database is local");
+  assert.match(guard, /isLocal\(/, "the guard no longer asks whether the database is local");
+  assert.match(
+    guard,
+    /from "\.\/lib\/local-db\.mjs"/,
+    "the guard keeps its own definition of a local database beside the one the scripts ask",
+  );
   for (const name of ["DATABASE_URL", "DIRECT_URL"]) {
     assert.ok(guard.includes(`"${name}"`), `the guard no longer checks ${name}`);
   }

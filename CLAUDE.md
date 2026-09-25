@@ -9376,7 +9376,8 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   `vitest.config.mts` blanks every variable the app reads, because a real `ERROR_WEBHOOK_URL` in the
   shell had a unit-test run posting to the live error channel, and an invariant keeps that list
   whole. And `npm run test:db` writes, so `scripts/itest-guard.ts` refuses a `DATABASE_URL` that is
-  not on loopback unless the run sets `ITEST_ALLOW_REMOTE_DATABASE=1`.
+  not on loopback, by the rule in `scripts/lib/local-db.mjs` every destructive script already asks,
+  unless the run sets `KODUKEEL_ALLOW_REMOTE_DB=1`.
 - **A cache of object URLs that never revokes one is a leak with a hit rate.** `Speak` and
   `PairsSession` each held a `Map` of blob URLs and neither released anything: `Speak`'s was
   module-level and so outlived every navigation, `PairsSession`'s went unreachable when the round
