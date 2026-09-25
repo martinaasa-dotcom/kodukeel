@@ -205,15 +205,23 @@ export function unreachableSlots(verb: VerbStems): readonly string[] {
  * negative after `ei` and the singular imperative are the stem on its own.
  */
 export function possibleFirstPersons(word: string): string[] {
-  const head = word.trim().toLowerCase().split(/\s+/)[0] ?? "";
+  const [head = "", ...rest] = word.trim().toLowerCase().split(/\s+/);
   if (head.length < 2) return [];
-  const out = new Set<string>([`${head}n`]);
+  const heads = new Set<string>([`${head}n`]);
   for (const [, ending] of [...PRESENT, ...CONDITIONAL]) {
     if (head.length > ending.length && head.endsWith(ending)) {
-      out.add(`${head.slice(0, head.length - ending.length)}n`);
+      heads.add(`${head.slice(0, head.length - ending.length)}n`);
     }
   }
-  return [...out];
+  /*
+    A particle verb stores its first person as both words, `annan edasi`, so a
+    search for `annab edasi` has to ask for the particle back on the end as
+    well as for the bare verb. Only the head was ever returned, and the search
+    compares a whole stored value, so every derived person of every particle
+    verb in the dictionary was a word the app conjugates and cannot find.
+  */
+  const tail = rest.length ? ` ${rest.join(" ")}` : "";
+  return tail ? [...heads, ...[...heads].map((h) => `${h}${tail}`)] : [...heads];
 }
 
 /**

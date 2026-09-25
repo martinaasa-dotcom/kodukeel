@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { parseExamples, sentenceEnglish, teachingSentence } from "@/lib/dict/examples";
-import { BLANK, filledSentence } from "@/lib/estonian/cloze";
+import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { glossSentences } from "@/lib/dict/glossed";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { isPhrase } from "@/lib/dict/pos";
@@ -495,7 +495,10 @@ export async function withChoices(
     const lemma = rows[i]?.lexeme?.lemma;
     if (!forms || !lemma) return card;
     const accepted = acceptedAnswers(card.back, "et");
-    const answer = accepted[0] ?? card.back;
+    // The back's own spelling rather than `accepted[0]`, which is folded to
+    // lower case: `Eestisse` is offered as written. `choiceIsRight` is what
+    // decides whether a pick is this, so the two cannot disagree.
+    const answer = primaryAnswer(card.back);
     /*
       EVERY OTHER FORM OF THIS WORD, SO ANOTHER ENDING IS NOT READ AS A SLIP.
 
