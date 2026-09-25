@@ -697,7 +697,6 @@ function gapStep(word: LessonWord, id: string, rules: LessonRules): GapStep | nu
   return fallback;
 }
 
-/** See `GapCue`. A rung is taken only where it does not spell the answer. */
 /**
  * Every spelling of a lesson word, which a typed step is marked against.
  *
@@ -715,6 +714,7 @@ function wordRivals(word: LessonWord): string[] {
   }, []);
 }
 
+/** See `GapCue`. A rung is taken only where it does not spell the answer. */
 function gapCue(word: LessonWord, answer: string): GapCue {
   if (!mentions(`${word.lemma}, ${word.gloss}`, answer)) return "word-and-meaning";
   if (!mentions(word.gloss, answer)) return "meaning";
