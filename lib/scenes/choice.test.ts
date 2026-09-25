@@ -39,6 +39,20 @@ describe("narrowing a question to two", () => {
   });
 
   /*
+    A greeting beat names whole phrases, and a greeting is said rather than
+    chosen, so `Tere või Tere hommikust?` is one thing said two ways and the
+    beat falls to the app's own hint (see OFFERABLE in choice.ts).
+  */
+  it("offers no choice between two phrases", () => {
+    const lex = buildLexicon([
+      { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
+      { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
+    ]);
+    const greet = { ...BEAT, move: "greet" as const, needs: [{ kind: "lemma" as const, oneOf: ["Tere!", "Tere hommikust!"] }] };
+    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBeNull();
+  });
+
+  /*
     A learner reads the same question twice while a transcript is replayed, so
     the sides may not swap under them; different beats get different rolls.
   */
