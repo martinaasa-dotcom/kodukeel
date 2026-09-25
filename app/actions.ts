@@ -627,7 +627,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
 
-  const et = capped(sentence, LIMITS.example);
+  const et = visibleLine(sentence, LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That is too short to be a sentence." };
 
   const lexeme = await prisma.lexeme.findUnique({
@@ -637,7 +637,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
 
   const merged = mergeExamples(parseExamples(lexeme.examples), [
-    { et, en: capped(translation ?? "", LIMITS.translation) || null, source: "USER" },
+    { et, en: visibleLine(translation ?? "", LIMITS.translation) || null, source: "USER" },
   ]);
   await prisma.lexeme.update({
     where: { id: lexeme.id },
@@ -705,8 +705,8 @@ export async function createLexeme(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
-  const lemma = capped(input.lemma, LIMITS.lemma);
-  const translation = capped(input.translation, LIMITS.translation);
+  const lemma = visibleLine(input.lemma, LIMITS.lemma);
+  const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
@@ -768,8 +768,8 @@ export async function createLexemeWithForms(input: {
 
   const busy = throttleAction(ownerId, "editDictionary");
   if (busy) return busy;
-  const lemma = capped(input.lemma, LIMITS.lemma);
-  const translation = capped(input.translation, LIMITS.translation);
+  const lemma = visibleLine(input.lemma, LIMITS.lemma);
+  const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
     return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
   }
@@ -780,9 +780,9 @@ export async function createLexemeWithForms(input: {
     translation,
     pos: input.pos,
     cefr: input.cefr,
-    government: capped(input.government, LIMITS.government),
+    government: visibleLine(input.government, LIMITS.government),
     forms: Object.fromEntries(
-      Object.entries(input.forms).map(([type, value]) => [type, capped(value, LIMITS.form)]),
+      Object.entries(input.forms).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
     ),
     editedBy: ownerId,
   });
@@ -958,8 +958,8 @@ export async function importWords(rows: { lemma: string; translation: string; po
   const wanted: { lemma: string; translation: string; pos: string }[] = [];
   const seenKeys = new Set<string>();
   for (const row of rows.slice(0, MAX_IMPORT_ROWS)) {
-    const lemma = capped(row.lemma, LIMITS.lemma);
-    const translation = capped(row.translation, LIMITS.translation);
+    const lemma = visibleLine(row.lemma, LIMITS.lemma);
+    const translation = visibleLine(row.translation, LIMITS.translation);
     if (!lemma || !translation) continue;
     const key = `${lemma}|${row.pos}`;
     if (seenKeys.has(key)) continue;
@@ -3743,7 +3743,7 @@ export async function saveScan(input: {
   // hold it. `(lemma, pos)` is `Lexeme`'s own unique key, so this is the same
   // question the loop below asks and the same one the write below settles.
   const keyOf = (et: string) => {
-    const lemma = capped(et, LIMITS.lemma);
+    const lemma = visibleLine(et, LIMITS.lemma);
     const pos = guessPos(lemma);
     return { lemma, pos, key: `${lemma}|${pos}` };
   };
@@ -3767,7 +3767,7 @@ export async function saveScan(input: {
         data: missing.map(([, w]) => ({
           lemma: w.lemma,
           pos: w.pos,
-          translation: capped(w.en, LIMITS.translation) || NEEDS_TRANSLATION,
+          translation: visibleLine(w.en, LIMITS.translation) || NEEDS_TRANSLATION,
           provenance: "USER" as const,
           editedBy: ownerId,
           editedAt: new Date(),
@@ -3919,7 +3919,7 @@ export async function deleteScan(scanId: string) {
  */
 export async function resolveScannedWord(word: string) {
   const ownerId = await requireUserId();
-  const trimmed = capped(word, LIMITS.lemma);
+  const trimmed = visibleLine(word, LIMITS.lemma);
   if (!trimmed) return { ok: false as const, error: "Type the word first." };
 
   const local = await resolveOneWord(trimmed);
@@ -4197,10 +4197,10 @@ export async function submitSuggestion(input: unknown) {
 
   // Read by a reviewer, which is somebody other than the person who typed it.
   const note = visibleProse(raw.note, SUGGESTION_LIMITS.note);
-  const lemma = capped(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
+  const lemma = visibleLine(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
   const lexemeId = capped(raw.lexemeId, 64) || null;
-  const context = capped(raw.context, SUGGESTION_LIMITS.context) || null;
-  const trigger = capped(raw.trigger, SUGGESTION_LIMITS.trigger) || null;
+  const context = visibleProse(raw.context, SUGGESTION_LIMITS.context) || null;
+  const trigger = visibleLine(raw.trigger, SUGGESTION_LIMITS.trigger) || null;
 
   const groupKey = groupKeyFor({ category, lexemeId, lemma, context, trigger, patch });
 
@@ -4296,7 +4296,7 @@ export async function reviewSuggestion(input: unknown) {
       status: decision === "ACCEPT" ? "ACCEPTED" : "DECLINED",
       reviewedBy: reviewerId,
       reviewedAt: new Date(),
-      decision: capped(parsed.data.note, SUGGESTION_LIMITS.decision) || null,
+      decision: visibleProse(parsed.data.note, SUGGESTION_LIMITS.decision) || null,
     },
   });
 

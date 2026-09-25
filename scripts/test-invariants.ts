@@ -13632,6 +13632,16 @@ check("text one person types and another person reads is cleaned, not trimmed", 
     ["submitSuggestion", /\bvisibleProse\(raw\.note,/],
     ["joinClassroom", /\bcleanDisplayName\(displayName\)/],
     ["setClassDisplayName", /\bcleanDisplayName\(/],
+    /*
+      And the shared dictionary, which every learner reads: a lemma, a gloss, a
+      government note or a form one learner types is on every other learner's
+      search results and cards, which is the roster's fault on a bigger screen.
+    */
+    ["addExample", /\bvisibleLine\(sentence,/],
+    ["createLexeme", /\bvisibleLine\(input\.lemma,[\s\S]*\bvisibleLine\(input\.translation,/],
+    ["createLexemeWithForms", /\bvisibleLine\(input\.lemma,[\s\S]*\bvisibleLine\(input\.government,[\s\S]*\bvisibleLine\(value, LIMITS\.form\)/],
+    ["importWords", /\bvisibleLine\(row\.lemma,[\s\S]*\bvisibleLine\(row\.translation,/],
+    ["reviewSuggestion", /\bvisibleProse\(parsed\.data\.note,/],
   ];
   for (const [name, cleaned] of doors) {
     const start = source.indexOf(`export async function ${name}(`);
