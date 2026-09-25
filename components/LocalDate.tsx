@@ -15,6 +15,15 @@ import { useEffect, useState } from "react";
  * mistake as the day boundary, one notch less severe because it is only ever
  * the shape of a reading rather than which day it names.
  *
+ * AND A CLIENT COMPONENT IS RENDERED ON THE SERVER FIRST, which the paragraph
+ * above missed. Three of those "four places" formatted in render, so the
+ * server wrote "Sep 24" and a browser set to Estonian wrote "24. sept" over
+ * it during hydration: React 19 reported error #418 on Today and threw the
+ * server's HTML away, for exactly the readers this app is for. A date in a
+ * client component goes through this module now, as `LocalDate` for text and
+ * `useReaderDate` where it has to be a string, and both write `stableDate`
+ * until the browser has mounted.
+ *
  * The server renders one shape and the browser swaps in its own on mount, so
  * there is no hydration mismatch to warn about and no blank while it waits:
  * the server's rendering is a perfectly readable date, it is just not
@@ -34,6 +43,33 @@ export interface LocalDateProps {
   /** IANA zone, or undefined for the reader's own. */
   zone?: string;
   options: Intl.DateTimeFormatOptions;
+}
+
+/**
+ * One shape of a date that the server and the first client render agree on,
+ * whatever either is set to: British English and UTC, pinned. It is only ever
+ * on screen until the browser has mounted and swapped in the reader's own.
+ */
+export function stableDate(date: Date, options: Intl.DateTimeFormatOptions): string {
+  return new Intl.DateTimeFormat("en-GB", { ...options, timeZone: "UTC" }).format(date);
+}
+
+/**
+ * The same promise as `LocalDate` where a date has to be a string, such as in
+ * an attribute or inside a loop: `stableDate` until the browser has mounted,
+ * then the reader's own locale and zone.
+ */
+export function useReaderDate(): (date: Date, options: Intl.DateTimeFormatOptions) => string {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return (date, options) => {
+    if (!mounted) return stableDate(date, options);
+    try {
+      return new Intl.DateTimeFormat(undefined, options).format(date);
+    } catch {
+      return stableDate(date, options);
+    }
+  };
 }
 
 export function LocalDate({ iso, fallback, zone, options }: LocalDateProps) {

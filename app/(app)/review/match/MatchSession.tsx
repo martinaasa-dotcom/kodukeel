@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Timer, Trophy, X } from "lucide-react";
-import { gradeCard, recordMatchTime } from "@/app/actions";
+import { recordMatchGrades, recordMatchTime } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Confetti } from "@/components/Confetti";
 import { Empty, Page, Stat } from "@/components/ui";
@@ -99,14 +99,29 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       reads it as one, and zero is what every other round that grades in bulk
       already writes for "this was not timed". A wrong measurement is worse
       than an absent one, because only one of the two can be filtered out.
+
+      ONE CALL, NOT ONE PER PAIR. This used to loop over `pairs` and `await
+      gradeCard` for each in turn, which for an eight-pair board is eight
+      sequential Server Action round trips before the finish screen could
+      show. `recordMatchGrades` is the batched door onto the same log
+      (ADR-016): the whole round crosses the wire once and lands through one
+      `applyGradeBatch` call, the way `completeLesson` and `submitExam`
+      already close their own rounds. A missing or already-graded card still
+      settles rather than failing the batch, so one stale pair costs nothing
+      the loop would not also have shrugged off.
     */
-    for (const pair of pairs) {
-      const rating = (missMap[pair.cardId] ?? 0) > 0 ? 2 : 3;
-      try {
-        await gradeCard(pair.cardId, rating, 0);
-      } catch {
-        // A failed write costs this one card's rep, not the round.
-      }
+    try {
+      await recordMatchGrades(pairs.map((pair) => ({
+        // Generated per pair so a retried call settles rather than
+        // double-counting, the same property the offline outbox relies on.
+        id: typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${pair.cardId}-${Date.now()}`,
+        cardId: pair.cardId,
+        missed: (missMap[pair.cardId] ?? 0) > 0,
+      })));
+    } catch {
+      // A failed write costs this round's rep, not the finish screen.
     }
 
     const result = await recordMatchTime(finalSeconds);
