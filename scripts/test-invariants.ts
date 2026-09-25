@@ -10427,6 +10427,40 @@ check("every timed practice round reads the learner's pace", () => {
 });
 
 /*
+  AND WHAT SETTINGS SAYS THE PACE REACHES IS THE SET OF ROUNDS THAT READ IT.
+
+  Target was made to read the pace and the one sentence a learner reads about
+  the setting went on saying "the sprint and the daily quest run to a clock",
+  so somebody finding Target too fast looked at the control and was told it
+  would not help them. The same sentence on /accessibility had drifted the
+  same way before it was corrected. So both are held to the pages that call
+  `roundPaceFrom`, by the name each page gives itself, which is the name a
+  learner knows the round by: a fourth timed round fails here until the two
+  sentences say it too.
+*/
+check("the copy about the round pace names every round that reads it", () => {
+  const rounds = APP.filter((f) => f.endsWith("/page.tsx") && !f.includes("/settings/"))
+    .filter((f) => /\broundPaceFrom\(/.test(code(f)))
+    .map((f) => {
+      const title = /title:\s*"([^"]+)"/.exec(read(f))?.[1];
+      assert.ok(title, `${f} reads the round pace and has no title to be named by`);
+      return title!;
+    });
+  assert.ok(rounds.length >= 3, `only ${rounds.length} rounds read the pace, so this stopped looking`);
+  const settings = code("app/(app)/settings/page.tsx");
+  const section = settings.slice(settings.indexOf('id="round-pace"'), settings.indexOf("<RoundPacePanel"));
+  assert.ok(section.length > 40, "the round-pace section of Settings has moved, so this checks nothing");
+  const access = read("app/accessibility/page.tsx");
+  const statement = access.slice(access.indexOf("Timing Adjustable") - 200, access.indexOf("Timing Adjustable") + 900);
+  assert.ok(statement.length > 400, "/accessibility no longer carries the 2.2.1 paragraph");
+  const missing = rounds.flatMap((title) => [
+    ...(section.toLowerCase().includes(title.toLowerCase()) ? [] : [`Settings does not name ${title}`]),
+    ...(statement.toLowerCase().includes(title.toLowerCase()) ? [] : [`/accessibility does not name ${title}`]),
+  ]);
+  assert.deepEqual(missing, [], missing.join("; ") + ", though its clock reads the round pace");
+});
+
+/*
   A figure shaped for a screen is never a divisor.
 
   `project` rounded the learner's pace to one decimal place and then divided
