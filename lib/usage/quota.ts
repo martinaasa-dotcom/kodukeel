@@ -151,59 +151,56 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  * `qwen3.8-27b` in `pricing.ts`: the real figures come off Groq's own
  * `/v1/models`, and everything below is priced with them.
  *
- * WHICH PATHS CAN REACH ANTHROPIC AT ALL, since that is what the $5 constrains:
+ * WHICH PATHS CAN REACH ANTHROPIC AT ALL, since that is what the $5 constrains.
+ * This list used to read TUTOR "always" and SCENE "Groq by purpose"; both
+ * purposes have moved since (`PURPOSE_CHAINS` in `lib/tutor/provider.ts`), and
+ * the numbers below were kept because they still hold, not because the
+ * reasoning that set them does:
  *
- *   TUTOR   always. It is Anthropic by purpose and has no other chain.
- *   SCENE   never. It is Groq by purpose, and there is no cross-purpose
- *           fallback, so a scene cannot spend the tutor's balance however badly
- *           Groq is behaving.
- *   SCAN    normally not, and sometimes. It is on the general chain, which
- *           leads with Groq, and `qwen3.8-27b` accepts images, so a scan is a
- *           Groq call until Groq fails.
- *   GRADER  the same, for the same reason.
+ *   TUTOR   never. Gemini `gemini-3.1-flash-lite` leads and Groq
+ *           `openai/gpt-oss-120b` backs it up, and `resolveProviders` leaves
+ *           the paid tail off a tutor chain on purpose.
+ *   SCENE   only as the gated last resort. Gemini `gemini-3.8-flash`, then the
+ *           Lite, then Groq `qwen/qwen3.8-27b`, and the paid tail behind all
+ *           three only while `dailyMicrosFallback` has room.
+ *   SCAN    the same way. Gemini's Lite leads, then the general chain.
+ *   GRADER  the same way. Gemini's Lite, then Groq's `gpt-oss-120b`.
  *
- * So the ceiling that matters is TUTOR plus the two fallbacks, and the numbers
- * below are sized so that even a day when Groq is down from midnight to
- * midnight stays inside it. A cap that only holds while the cheap provider is
- * up is not a cap.
+ * So the ceiling that matters is the fallback budget, and a day when Gemini and
+ * Groq are both down from midnight to midnight is bounded by it. A cap that only
+ * holds while the cheap providers are up is not a cap.
  *
- * THE ARITHMETIC, measured against the real prompts (`lib/tutor/prompt.ts`
- * builds a 3,031-token system prompt; the scene route's word list is 714 to 955
- * tokens across the fourteen shipped scenes; the three grader systems in
- * `lib/tutor/grader.ts` are 462, 609 and 717):
+ * THE ARITHMETIC, from the rates in `pricing.ts` against the real prompts
+ * (`lib/tutor/prompt.ts` builds a system prompt of about 3,000 tokens; the scene
+ * route's word list is 714 to 955 tokens; the three grader systems in
+ * `lib/tutor/grader.ts` are 462, 609 and 717), and the measurements recorded
+ * beside each pinned model:
  *
- *   TUTOR   ~3,700 in + ~700 out on claude-sonnet-5 = $0.0144 an answer.
- *           $0.10 a day is 6 answers. It takes the largest share because Anu is
- *           what the Anthropic key was bought for.
- *   SCAN    ~3,000 in of image + ~400 out. $0.0040 on Groq, $0.0100 on
- *           Anthropic. $0.02 a day is 5 scans, or 2 on a day Groq is out. This
- *           is the one that gives up headroom, on the README's own word for it:
- *           a page is photographed once and studied for weeks. Fifteen a day
- *           was asked about and fits in no arrangement, because fifteen scans
- *           on Anthropic is $0.15, which is the whole daily balance with
- *           nothing left for the tutor.
- *   GRADER  ~900 in + ~200 out. $0.0015 on Groq, $0.0038 on Anthropic. $0.04 a
- *           day is 26 notes, or 10 on a day Groq is out.
- *   SCENE   ~1,400 in + ~60 out on Groq = $0.0014 a turn. $2.00 a day is about
- *           1,470 composed turns. It is the one slice with no bearing on the
- *           $5, and it is also $60 a month of Groq if it is ever reached, which
- *           is the number to argue with rather than this arithmetic.
+ *   TUTOR   ~3,700 in + ~700 out = about $0.002 an answer on the Lite, about
+ *           $0.0003 once the static prompt is held on Google's side, about
+ *           $0.001 on the Groq backup. $0.10 a day is roughly 50 answers,
+ *           several times that held. When Anu answered on claude-sonnet-5 the
+ *           same slice was 6 answers, which is what it was first sized for.
+ *   SCAN    ~3,000 in of image + ~400 out. About $0.0014 on the Lite, $0.0040
+ *           on Groq, $0.0100 on Anthropic. $0.02 a day is about 14 pages, or 2
+ *           on a day only the paid tail answers. This is the one that gives up
+ *           headroom, on the README's own word for it: a page is photographed
+ *           once and studied for weeks.
+ *   GRADER  About $0.0002 a note on the Lite, which returns 26 to 31 output
+ *           tokens a verdict, $0.0003 on Groq and $0.0038 on Anthropic. $0.04 a
+ *           day is about 200 notes, or 10 on a day only the paid tail answers.
+ *   SCENE   About $0.0015 a composed turn on `gemini-3.8-flash`, $0.0003 held,
+ *           $0.0005 on the Lite and $0.0014 on Groq's qwen. $2.00 a day is about
+ *           1,300 turns before any holding, and $60 a month if it is ever
+ *           reached, which is the number to argue with rather than this
+ *           arithmetic.
  *
- * WHAT THAT COMES TO. Anthropic sees $0.10 a day in the ordinary case, which is
- * fifty days of the tutor cap being reached every single day, and $0.16 on a day
- * Groq never answers at all, which is 4% under what the balance allows and
- * thirty-one days. Both readings are under it, which is the property worth
- * having: the arithmetic does not depend on a provider behaving.
+ * WHAT THAT COMES TO. Anthropic sees nothing in the ordinary case, and at most
+ * the fallback budget on a day every free link fails. The arithmetic does not
+ * depend on a provider behaving, which is the property worth having.
  *
- * These are deployment-wide, not per learner. At a pilot's size six answers a
- * day is the number to argue with, and the answer to it is a bigger balance
- * rather than a bigger cap.
- *
- * There is quiet margin under all of it. Anthropic's cache read is a tenth of
- * the input rate and `absorbUsage` counts a cache read as a full input token,
- * so a cached tutor answer is charged here at about 1.6 times what it costs.
- * That over-charge is deliberate elsewhere in this file and is left alone: it
- * makes the cap bind sooner than the balance, which is the safe order.
+ * These are deployment-wide, not per learner. At a pilot's size the tutor
+ * slice is the number to argue with, and on Gemini it is now wide.
  *
  * TTS is the one metered kind with no slice, and that is not an oversight: it
  * is free, so a budget denominated in money says nothing about it. What rations
@@ -221,13 +218,13 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  * `AI_DAILY_USD_GLOBAL` still bounds the lot.
  */
 export const DEFAULT_KIND_BUDGETS: Readonly<Partial<Record<UsageKind, number>>> = {
-  // Anthropic's balance: $0.10 a day normally, $0.16 if Groq is out all day,
-  // against the $0.167 that makes $5 last a month.
-  TUTOR: 100_000,     // $0.10  =  6 answers
-  SCAN: 20_000,       // $0.02  =  5 scans on Groq, 2 on Anthropic
-  GRADER: 40_000,     // $0.04  =  26 notes on Groq, 10 on Anthropic
-  // Groq's, which is a separate bill and cannot reach the Anthropic balance.
-  SCENE: 2_000_000,   // $2.00  =  1,470 composed turns
+  // Sized when these reached Anthropic's balance; see the note above for
+  // where each purpose answers now.
+  TUTOR: 100_000,     // $0.10  =  about 50 answers on Gemini, more held
+  SCAN: 20_000,       // $0.02  =  about 14 pages on Gemini, 2 on Anthropic
+  GRADER: 40_000,     // $0.04  =  about 200 notes on Gemini, 10 on Anthropic
+  // Gemini's first, with the paid tail behind it only inside the fallback budget.
+  SCENE: 2_000_000,   // $2.00  =  about 1,300 composed turns before holding
 };
 
 /** The environment variable that overrides a kind's slice, where it has one. */

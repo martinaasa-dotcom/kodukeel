@@ -258,8 +258,20 @@ export function semanticCategory(
   codes: readonly string[] | string | null | undefined,
 ): string | null {
   const real = codesOf(codes);
-  for (const [group, label] of CATEGORIES) {
+  for (const [group, label] of CATEGORY_KEYS) {
     if (real.some((code) => group.includes(code))) return label;
   }
   return null;
 }
+
+/*
+  THE TABLE IN THE SPELLING `codesOf` COMPARES AGAINST. The Institute writes
+  its verb codes with a capital (`VERB_liikuma`) and every code is lowered on
+  the way in, so the verb rows above were matched against a spelling nothing
+  could produce and every verb went without its clue. The table keeps the
+  Institute's spelling so it can be read against the data; this is the copy
+  that is compared.
+*/
+const CATEGORY_KEYS: readonly (readonly [readonly string[], string])[] = CATEGORIES.map(
+  ([group, label]) => [group.map((code) => code.toLowerCase()), label] as const,
+);
