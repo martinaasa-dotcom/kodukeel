@@ -4077,10 +4077,17 @@ holds the worst of it by an order of magnitude, 2,295 such pairs, and five, six 
 stay in the same range as each other, 187, 149, 136, `istuma` and `astuma`, `hammas` and `lammas`,
 `ehitama` and `esitama`. Eight letters is where the count first drops by more than three times, to
 43, so a same-length substitution needs eight letters before it is read as a slip rather than as the
-wrong word; a letter inserted or dropped keeps the old floor of four, because it does not spell a
-coincidental second word the way a swapped one does. Eight is safer rather than safe: `valutama`
+wrong word. Eight is safer rather than safe: `valutama`
 and `valetama` are both real Estonian verbs at exactly that length, and a length floor can only push
-the risk down to where it stops being the common case, not remove it.
+the risk down to where it stops being the common case, not remove it. **A letter inserted or dropped
+is held to the same eight**, which it was not: it kept a floor of four on the claim that such a slip
+does not spell a coincidental second word, and the same script counts that claim false, 498
+four-letter answers one insertion or deletion from another, 303 at five, 134 at six, 80 at seven and
+34 at eight, `kuulma` and `kuulama`, `õpetaja` and `lõpetaja`. The substitution floor already accepts
+43 pairs at eight and refuses the hundreds below, so the two kinds of slip are held to one standard
+(`TYPO_LENGTH_CHANGE_FLOOR`). What it costs is `tooas` forgiven for `toas`: a real slip on a short
+word is marked wrong and comes back sooner, which is the cheaper of the two mistakes, since a wrong
+word graded Hard is a recall written into the one table that is never repaired.
 
 **Two faults in it were invisible to every unit test and turned up in the first rounds anybody
 drove**, which is the argument for `scripts/test-flash.mjs` rather than for more unit tests. The
