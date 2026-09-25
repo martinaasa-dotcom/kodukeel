@@ -554,6 +554,27 @@ describe("the free providers", () => {
     expect(billedOutput({ prompt_tokens: 100, total_tokens: 140 })).toBe(40);
     expect(billedOutput({})).toBeUndefined();
   });
+
+  it("bills a scanned page for the thinking Gemini hides from its completion count", async () => {
+    /*
+      The scanner is the one non-streamed OpenAI-compatible read and it took
+      `completion_tokens` as the whole of the output, which is the fault
+      `billedOutput` was written for on the chat path. `VISION_MODEL` is a
+      Gemini link and carries no `reasoning: "none"`, so whatever it thinks
+      arrives only in `total_tokens`, and the ledger booked the page at the
+      length of its JSON.
+    */
+    vi.stubEnv("GEMINI_API_KEY", "gem-key");
+    vi.stubGlobal("fetch", async () => new Response(JSON.stringify({
+      choices: [{ message: { content: "{\"words\":[]}" } }],
+      usage: { prompt_tokens: 1000, completion_tokens: 30, total_tokens: 1900 },
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    const reply = await completeWithImage(
+      [{ name: "gemini", model: "gemini-3.1-flash-lite", label: "Google Gemini" }],
+      "system", "read it", { mediaType: "image/png", base64: "AAAA" },
+    );
+    expect(reply.usage).toMatchObject({ inputTokens: 1000, outputTokens: 900, measured: true });
+  });
 });
 
 describe("how many things can actually answer", () => {
