@@ -28,7 +28,14 @@ describe("the hour", () => {
 });
 
 describe("a clock reading is the same reading in every locale", () => {
-  const evening = new Date(Date.UTC(2026, 2, 14, 20, 5));
+  /*
+    In the local zone rather than UTC. These formatters read a time in the
+    reader's own zone, which is right, so a date built with `Date.UTC` reads
+    back as 20:05 only on a machine that is itself in UTC: CI was, a laptop in
+    Tallinn was not, and three of these failed there. What is being tested is
+    the shape of the hour, never the zone.
+  */
+  const evening = new Date(2026, 2, 14, 20, 5);
 
   it("is 24-hour in a locale that would rather use twelve", () => {
     // The whole point: a teacher and a student looking at the same figure see
@@ -39,7 +46,7 @@ describe("a clock reading is the same reading in every locale", () => {
   });
 
   it("renders midnight as 00:00 rather than 24:00", () => {
-    const midnight = new Date(Date.UTC(2026, 2, 14, 0, 0));
+    const midnight = new Date(2026, 2, 14, 0, 0);
     expect(formatTime(midnight, "en-US")).toBe("00:00");
   });
 

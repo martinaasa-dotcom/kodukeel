@@ -477,7 +477,8 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
               it, which is the same order `explainGap` takes.
             */
             const asked = [`${lex.lemma}, ${lex.translation}`, lex.translation];
-            const hint = asked.find((line) => !mentions(line, cloze.answer)) ?? null;
+            // Every spelling on the back, not only the one the sentence held: `salve` is a right answer too.
+            const hint = asked.find((line) => ![cloze.answer, ...also].some((a) => mentions(line, a))) ?? null;
             out.push({
               cardType: type,
               front: cloze.text,
@@ -628,7 +629,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
               (w) => w.toLocaleLowerCase("et") !== answer.toLocaleLowerCase("et"),
             );
             const asked = [`${lex.lemma}, ${lex.translation}`, lex.translation];
-            const hint = asked.find((line) => !mentions(line, cloze.answer)) ?? null;
+            const hint = asked.find((line) => ![cloze.answer, answer, ...also].some((a) => mentions(line, a))) ?? null;
             out.push({
               cardType: type,
               front,

@@ -51,16 +51,15 @@ import { answerBeatId, sceneBeats } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
 import { offerFor } from "../lib/scenes/grades";
 import { choiceOf } from "../lib/scenes/choice";
-import { caseKeyFor, words, type Lexicon } from "../lib/scenes/lexicon";
+import { caseKeyFor, words } from "../lib/scenes/lexicon";
 import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "../lib/scenes/judge";
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
-import { isKnownForm } from "../lib/dict/forms";
 import type { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
-import { askLine, chain as providerChain, HARNESS_LEVEL } from "./lib/sceneDraft";
+import { askLine, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
 
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
@@ -99,19 +98,6 @@ const LINKS = composing
   : [];
 const COMPOSE_STATUS = new Map<string, number>();
 
-/**
- * The app's own vouching, minus the course read that needs a database: is this
- * spelling Estonian at all (`sceneVouch`). Without it this harness plays a
- * scene whose other side may only say the lemmas its units declare, which is
- * not the app.
- */
-async function vouchOf(lexicon: Lexicon, spellings: readonly string[]): Promise<ReadonlySet<string>> {
-  const out = new Set<string>();
-  await Promise.all([...new Set(spellings)].map(async (word) => {
-    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
-  }));
-  return out;
-}
 
 const askModel = (
   ask: Parameters<typeof composeLive>[0],
@@ -271,7 +257,7 @@ async function play(sceneId: string) {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
-          model: link.model, temperature: 0, max_tokens: JUDGE_REPLY_TOKENS,
+          model: link.model, max_tokens: JUDGE_REPLY_TOKENS,
           messages: [
             { role: "system", content: buildJudgeSystemPrompt() },
             { role: "user", content: buildJudgeUserPrompt({ goal: beat.goal, they: beat.they, said, reading: "", dealt }) },
@@ -356,7 +342,7 @@ async function play(sceneId: string) {
       const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, card));
       const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
       const handing = (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? []) : null;
+        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
       const cheap = await sceneLine({
         beat: spokenFor, lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
@@ -444,7 +430,7 @@ async function play(sceneId: string) {
       acknowledges: persona.acknowledges, echo: last?.matched?.[0] ?? null,
       recast: Boolean(last?.slips?.some((s) => s.form && s.form === last?.matched?.[0])),
       aside, offer: (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? []) : null,
+        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null,
       met: state.done.length,
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,

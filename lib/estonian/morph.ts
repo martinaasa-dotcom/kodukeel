@@ -1,5 +1,6 @@
 import { caseByKey } from "./cases";
-import type { CaseKey } from "./types";
+import { isPrincipalFormType } from "./types";
+import type { CaseKey, PrincipalFormType } from "./types";
 
 /**
  * Ekilex's morph codes, decoded.
@@ -130,8 +131,15 @@ export function morphCodeFor(key: CaseKey, plural = false): string | null {
  * The table is not a second naming of anything: `morph_test` drives every pair
  * through `formName` and fails where the two spellings of one slot do not name
  * the same form, so a wrong pair here cannot sit quietly.
+ *
+ * It is keyed on `PrincipalFormType` rather than on `string`, because the way
+ * this fails is by falling behind: a thirteenth principal part added to
+ * `PRINCIPAL_FORM_TYPES` would get its raw `formType` back from `slotCodeOf`,
+ * `plainAsk` would return null for it, and the placement check's explanation
+ * would quietly drop the clause the header above says this exists to restore.
+ * A missing key is a build error now rather than a screen that says less.
  */
-const CODE_BY_FORM_TYPE: Record<string, string> = {
+const CODE_BY_FORM_TYPE: Record<PrincipalFormType, string> = {
   NOM_SG: "SgN", GEN_SG: "SgG", PART_SG: "SgP", ILL_SG_SHORT: "SgAdt",
   NOM_PL: "PlN", GEN_PL: "PlG", PART_PL: "PlP",
   INF_MA: "Sup", INF_DA: "Inf",
@@ -148,7 +156,7 @@ export function slotCodeOf(form: {
 }): string | null {
   const code = morphCodeOf(form);
   if (!code) return null;
-  return CODE_BY_FORM_TYPE[code] ?? code;
+  return isPrincipalFormType(code) ? CODE_BY_FORM_TYPE[code] : code;
 }
 
 export type MorphNumber = "SINGULAR" | "PLURAL" | null;
