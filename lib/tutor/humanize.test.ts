@@ -179,4 +179,20 @@ describe("a case name one or two letters off the table's", () => {
     expect(nearestCaseName("kohtav")).toBeNull();
     expect(humanizeLine("the alalütlev and the alaleütlev answer kus and kuhu")).toBe("the alalütlev and the alaleütlev answer kus and kuhu");
   });
+
+  it("never moves an Estonian word that is only shaped like one of the six names ending in a participle", async () => {
+    /*
+      `nimetav`, `omastav`, `osastav`, `saav`, `rajav` and `olev` are spelled
+      like ordinary participles, so the words two letters from them are real
+      Estonian: `armastav` is loving, `otsustav` decisive, `rajatav` being
+      built, `oletav` supposing, `ostetav` bought, and each was rewritten into
+      a case name inside Anu's prose. Measured over the forms list, 92 real
+      spellings were moved and every one of them was a word of that shape.
+    */
+    const { nearestCaseName, humanizeLine } = await import("./humanize");
+    for (const word of ["armastav", "otsustav", "rajatav", "oletav", "ostetav", "omatav", "koolev", "ustav", "kaasasolev", "nimetatav"]) {
+      expect(nearestCaseName(word), word).toBeNull();
+    }
+    expect(humanizeLine("armastav means loving")).toBe("armastav means loving");
+  });
 });

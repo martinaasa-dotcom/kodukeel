@@ -4,6 +4,7 @@ import {
   BLANK_RESPONSE, allMarks, gradesFrom, markItem, markPaper, type Response,
 } from "./score";
 import { PASS_PCT } from "./spec";
+import { REPLAY_BATCH } from "@/lib/offline/outbox";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
 import { orderVariantNote, ORDER_WRONG, PARTS } from "@/lib/copy/values";
 
@@ -294,6 +295,15 @@ describe("what the sitting tells the scheduler", () => {
     expect(grades.every((g) => g.rating === 3)).toBe(true);
   });
 
+  it("can earn more grades than one replay batch holds, so the submission may not cut it to one", () => {
+    // A C1 paper sets up to sixty items on a word, each word once. The action
+    // used to slice this to `REPLAY_BATCH`, dropping the reading part's grades.
+    const c1 = buildPaper("C1", pool(200), "grade-seed", WORD_ORDER);
+    const grades = gradesFrom(markPaper(c1, perfect(c1)));
+    expect(grades.length).toBeGreaterThan(REPLAY_BATCH);
+    expect(new Set(grades.map((g) => g.cardId)).size).toBe(grades.length);
+  });
+
   it("writes nothing for a question left blank", () => {
     const result = markPaper(paper, new Map());
     expect(gradesFrom(result)).toEqual([]);
@@ -327,6 +337,26 @@ describe("which language an answer is in", () => {
   it("leaves the Estonian answers Estonian", () => {
     const form = items.find((i) => i.kind === "case-form")!;
     expect(markItem(form, { kind: "typed", value: "vale" }, 1).language).toBe("et");
+  });
+});
+
+describe("what the browser sends may not move the marks", () => {
+  const paper = buildPaper("B1", pool(60), "trust-seed", WORD_ORDER);
+  const items = paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items);
+
+  it("treats \"unheard\" on anything but a recording as a blank", () => {
+    const form = items.find((i) => i.kind === "case-form")!;
+    const mark = markItem(form, { kind: "unheard" }, 1);
+    expect(mark.available).toBe(1);
+    expect(mark.scored).toBe(0);
+  });
+
+  it("counts the speaking criteria itself rather than taking the array's length", () => {
+    const speak = items.find((i) => i.kind === "speak")!;
+    const oneTick = markItem(speak, { kind: "spoken", recorded: true, criteria: [true] }, 5);
+    expect(oneTick.scored).toBeLessThan(5);
+    const allTicks = markItem(speak, { kind: "spoken", recorded: true, criteria: [true, true, true, true, true] }, 5);
+    expect(allTicks.scored).toBe(5);
   });
 });
 
