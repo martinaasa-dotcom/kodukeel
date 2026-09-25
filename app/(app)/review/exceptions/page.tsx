@@ -63,35 +63,27 @@ export default async function ExceptionsRoundPage({
     ? kind.toUpperCase()
     : null;
 
-  const level = await courseLevelFor(ownerId);
-  const index = await exceptionIndex();
+  const [level, index] = await Promise.all([courseLevelFor(ownerId), exceptionIndex()]);
   const near = index.filter(
     (row) => (scope ? scope.lemmas.includes(row.lemma) : isAround(row.cefr, level))
       && (!wanted || row.exceptions.some((e) => e.kind === wanted)),
   );
 
-  if (near.length === 0) {
-    return (
-      <Page title="Exceptions" lead="The forms the ending rules do not reach.">
-        <Empty
-          title="Nothing to drill here yet"
-          body="The dictionary has no graded words near your level with this kind of exception."
-          action={<ButtonLink href="/grammar/exceptions" variant="primary">See the exceptions</ButtonLink>}
-        />
-      </Page>
-    );
-  }
+  if (near.length === 0) return <NothingToDrill />;
 
-  const starred = await starredAmong(ownerId, near.map((row) => row.id));
-
-  const cards = await prisma.card.findMany({
-    where: { ownerId, lexemeId: { in: near.map((row) => row.id) } },
-    select: { id: true, lexemeId: true, cardType: true, targetCase: true },
-    // Ordered because it is what decides which words grade a real card, and an
-    // unordered read hands that to the query plan: the same word would score on
-    // one visit and not the next.
-    orderBy: { id: "asc" },
-  });
+  // Both are asked of the same list and neither needs the other, so they are
+  // one round trip.
+  const [starred, cards] = await Promise.all([
+    starredAmong(ownerId, near.map((row) => row.id)),
+    prisma.card.findMany({
+      where: { ownerId, lexemeId: { in: near.map((row) => row.id) } },
+      select: { id: true, lexemeId: true, cardType: true, targetCase: true },
+      // Ordered because it is what decides which words grade a real card, and an
+      // unordered read hands that to the query plan: the same word would score on
+      // one visit and not the next.
+      orderBy: { id: "asc" },
+    }),
+  ]);
 
   const mine = new Set(cards.map((c) => c.lexemeId));
   const ordered = [
@@ -160,6 +152,13 @@ export default async function ExceptionsRoundPage({
   });
 
   const tasks = exceptionRound(words);
+  /*
+    Words near the learner's level do not guarantee a round. `pickWords` keeps
+    only the drillable ones, so a kind page or a module whose words are all
+    spelled like a principal part builds no task. Handed to the session, that
+    read "Round complete · Asked 0": a round that claimed to have happened.
+  */
+  if (tasks.length === 0) return <NothingToDrill />;
   return (
     <BeforeYouStart id="exceptions" ready={tasks.length > 0} count={{ n: tasks.length, noun: "word" }}>
       <ExceptionsSession tasks={tasks} />
@@ -185,4 +184,17 @@ function cardFor(
   if (exact) return exact.id;
   const production = mine.find((c) => c.cardType === "PRODUCTION");
   return (production ?? mine[0])?.id ?? null;
+}
+
+/** The one empty state, whichever of the two reasons there is nothing to ask. */
+function NothingToDrill() {
+  return (
+    <Page title="Exceptions" lead="The forms the ending rules do not reach.">
+      <Empty
+        title="Nothing to drill here yet"
+        body="The dictionary has no graded words near your level with this kind of exception."
+        action={<ButtonLink href="/grammar/exceptions" variant="primary">See the exceptions</ButtonLink>}
+      />
+    </Page>
+  );
 }
