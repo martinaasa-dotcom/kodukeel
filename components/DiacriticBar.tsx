@@ -104,10 +104,18 @@ export function DiacriticBar({
     // Optimistic, on the scope this bar is actually inside, so the row goes the
     // moment it is pressed rather than a round trip later. The refresh below
     // re-renders the same attribute from the setting, so the two agree.
-    (from.closest("[data-letters]") ?? document.documentElement)
-      .setAttribute("data-letters", "off");
+    const scope = from.closest("[data-letters]") ?? document.documentElement;
+    const was = scope.getAttribute("data-letters");
+    scope.setAttribute("data-letters", "off");
     start(async () => {
-      await setLetterBar("off");
+      /* A press that never reached the server puts the row back rather than
+         letting the rejection take the screen with it. */
+      const landed = await setLetterBar("off").then(() => true).catch(() => false);
+      if (!landed) {
+        if (was === null) scope.removeAttribute("data-letters");
+        else scope.setAttribute("data-letters", was);
+        return;
+      }
       router.refresh();
     });
   };
