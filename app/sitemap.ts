@@ -35,6 +35,9 @@ const PUBLIC_PATHS = [
   { path: "/trust", priority: 0.8 },
   { path: "/accessibility", priority: 0.6 },
   { path: "/funding", priority: 0.6 },
+  // What the state examination is and how to register, for somebody who has
+  // been told they need a level and has no account anywhere yet.
+  { path: "/state-exam", priority: 0.8 },
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {

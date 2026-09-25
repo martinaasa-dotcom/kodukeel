@@ -217,6 +217,7 @@ const ROUTES = [
   "/privacy",
   "/terms",
   "/funding",
+  "/state-exam",
   "/trust",
   "/accessibility",
   "/offline",

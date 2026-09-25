@@ -137,6 +137,10 @@ export async function middleware(request: NextRequest) {
     // not going to make one to read them.
     path.startsWith("/trust") ||
     path.startsWith("/accessibility") ||
+    // What the state examination is and how to register for it, which is the
+    // question somebody told they need B1 asks before deciding anything else,
+    // and usually before they have an account anywhere.
+    path.startsWith("/state-exam") ||
     // Whether the app is up is not a question with an owner. It carries no
     // count, no identifier and nothing about anybody, and a health check
     // behind a session is one no monitor can make.
