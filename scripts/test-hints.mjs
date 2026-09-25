@@ -166,14 +166,14 @@ for (let r = 0; r < 8 && (await hints(page).count()) > 0; r += 1) {
 }
 
 check("the ladder has more than one rung", spellings.length > 1, `${spellings.length} rungs`);
-check("every press says something", spellings.every((s, i) => s !== "" || strikes[i] > 0), spellings.join(" → "));
+check("every press says something", spellings.length > 0 && spellings.every((s, i) => s !== "" || strikes[i] > 0), spellings.join(" → "));
 
 const letters = spellings.some(Boolean);
 if (letters) {
   const covered = spellings.map((s) => [...s].filter((c) => c === "_").length);
   check(
     "each press uncovers strictly more than the one before",
-    covered.every((n, i) => i === 0 || n < covered[i - 1]),
+    covered.length > 1 && covered.every((n, i) => i === 0 || n < covered[i - 1]),
     covered.join(" → "),
   );
   check("the first rung gives no letter away", covered[0] > 0 && !/\p{L}/u.test(spellings[0]), spellings[0]);
@@ -186,13 +186,13 @@ if (letters) {
   const answer = spellings[spellings.length - 1] ?? "";
   check(
     "every rung is a covered spelling of the one answer",
-    spellings.every((s) => s.length === answer.length && [...s].every((c, i) => c === "_" || c === answer[i])),
+    spellings.length > 0 && spellings.every((s) => s.length === answer.length && [...s].every((c, i) => c === "_" || c === answer[i])),
     `${answer} ← ${spellings.join(" ")}`,
   );
 } else {
   check(
     "each press crosses out strictly more options than the one before",
-    strikes.every((n, i) => i === 0 || n > strikes[i - 1]),
+    strikes.length > 1 && strikes.every((n, i) => i === 0 || n > strikes[i - 1]),
     strikes.join(" → "),
   );
   check("the first press crosses exactly one out", strikes[0] === 1, `${strikes[0]}`);

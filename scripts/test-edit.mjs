@@ -101,14 +101,14 @@ const attestedCards = renamedCards.filter(c => c.cardType === "CLOZE");
 */
 if (attestedCards.length > 0) {
   check("and the attested sentence behind a gap-fill was left exactly as recorded",
-    attestedCards.every(c => !`${c.front}${c.back}`.includes("kohvjook")),
+    attestedCards.length > 0 && attestedCards.every(c => !`${c.front}${c.back}`.includes("kohvjook")),
     `${attestedCards.length} gap-fill card(s)`);
 } else {
   absent(1, "no gap-fill card for this word: the dictionary's own Add to deck builds recognition "
     + "and production only, so a deck built from a unit is what would put one here");
 }
 check("scheduling was not reset by the correction",
-  renamedCards.every(c => typeof c.stability === "number"), `${renamedCards.length} cards`);
+  renamedCards.length > 0 && renamedCards.every(c => typeof c.stability === "number"), `${renamedCards.length} cards`);
 
 check("no page errors while editing", errors.length === 0, errors.join("; "));
 

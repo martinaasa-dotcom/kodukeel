@@ -21604,6 +21604,39 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a browser check over a list says the list is not empty", () => {
+  /*
+    \`[].every(...)\` is true, so a check whose whole condition is \`rows.every\`
+    passes on a page that drew no rows, which is the pass nobody earned this
+    file warns about. The sign-in suite asked whether every render of Google's
+    button was told English and would have passed on no render at all; the
+    design suite asked whether every measured size cleared the floor and would
+    have passed having measured nothing. Each was guarded by a different check
+    somewhere above it, which is a guard that moves the day that check does. So
+    a list walked with \`.every\` is asked for its length on the same line. A
+    literal array of strings is exempt, since it cannot be empty.
+  */
+  let guarded = 0;
+  for (const file of [...sourceFiles("scripts", /\.mjs$/), ...sourceFiles("scripts/lib", /\.mjs$/)]) {
+    const lines = code(file).split("\n");
+    lines.forEach((line, i) => {
+      for (const hit of line.matchAll(/(\[\.\.\.\s*([A-Za-z_$][\w$]*)[^\]]*\]|(?<![\w$.\]\)])([A-Za-z_$][\w$]*))\.every\(/g)) {
+        const name = hit[2] ?? hit[3] ?? "";
+        const before = line.slice(0, hit.index);
+        // Only a list the page produced: a nested \`.every\` over a word's own
+        // characters is inside one that is already guarded.
+        if (/\.every\(/.test(before)) continue;
+        // A wait inside the page is a condition to poll for, not a verdict.
+        if (/querySelectorAll/.test(hit[1] ?? "")) continue;
+        const ok = new RegExp(`\\b${name}\\.(length|size)\\s*>\\s*[0-9]`).test(before);
+        if (ok) guarded += 1;
+        else assert.fail(`${file}:${i + 1} checks ${name}.every(...) without asking whether ${name} is empty`);
+      }
+    });
+  }
+  assert.ok(guarded >= 12, `only ${guarded} guarded .every checks found, so the sweep is reading nothing`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
