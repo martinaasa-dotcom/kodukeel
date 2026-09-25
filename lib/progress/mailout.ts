@@ -555,14 +555,10 @@ export async function letterInputFor(
     return {
       kind: "welcome",
       input: {
-        name,
         origin,
         reminderAt: settings[SETTING_KEYS.reminderAt] ?? null,
         cardsWaiting: cards,
         opensOn: opening ? { title: opening.title, subtitle: opening.subtitle } : null,
-        target: settings[SETTING_KEYS.cefrGoal]
-          ? { level: settings[SETTING_KEYS.cefrGoal]!, deadline: null }
-          : null,
       },
     };
   }
@@ -612,9 +608,7 @@ export async function letterInputFor(
     return {
       kind: "comeback",
       input: {
-        name,
         origin,
-        daysAway: last ? clock.daysBetween(last.reviewedAt, now) : 0,
         wordsKept: kept,
         shieldUsed,
         streak: summary.streak,
@@ -692,7 +686,6 @@ export async function letterInputFor(
     return {
       kind: "weekly",
       input: {
-        name,
         origin,
         week: weekKeys.map((key) => ({
           label: dayLabel(key),
@@ -767,7 +760,6 @@ export async function letterInputFor(
       return {
         kind: "milestone",
         input: {
-          name,
           origin,
           level: {
             key: reached.level,
@@ -829,7 +821,6 @@ export async function letterInputFor(
     return {
       kind: "shield",
       input: {
-        name,
         origin,
         streak: summary.streak,
         remaining: summary.shieldsAvailable,
@@ -904,7 +895,6 @@ export async function letterInputFor(
     return {
       kind: "deadline",
       input: {
-        name,
         origin,
         band: countdown.band,
         label: countdown.label,
@@ -1093,7 +1083,6 @@ export async function letterInputFor(
     return {
       kind: "errand",
       input: {
-        name,
         origin,
         errand: {
           says: errand.says,

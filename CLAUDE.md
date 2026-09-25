@@ -751,9 +751,11 @@ likely. A failed send therefore spends the slot: somebody misses one evening's l
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
 is what people unsubscribe over.
 
-**A letter says how long is left, not how many days were missed.** `daysAway` is read by the
-scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
-than theirs to be handed.
+**A letter says how long is left, not how many days were missed.** The days away are read by the
+scheduler (`letterOwed`, against `AWAY_DAYS`) and never handed to a letter at all: the figure is
+the guilt, and it is ours to decide with rather than theirs to be handed. `ComebackInput` used to
+carry it as `daysAway` under a comment saying it pitched the first line, and nothing read it; a
+field a letter takes is now one the letter reads, asserted, so the figure has no door to a page.
 
 **And one number the weekly letter wanted is not in this schema, so it is not claimed.** "Words
 you learned this week" needs a row written when a card changes state, and nothing records one:
