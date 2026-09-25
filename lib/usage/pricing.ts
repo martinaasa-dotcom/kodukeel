@@ -65,10 +65,10 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   // Read the same way, off Groq's own `/v1/models`: half its bigger sibling,
   // and the cheapest input rate any provider on this deployment's keys quotes.
   "gpt-oss-20b": { inputPerMTok: 0.075, outputPerMTok: 0.3 },
-  // Groq publishes no price for this one, so there is none to write down. It is
-  // on no purpose chain and is reachable only on an install that sets no
-  // GROQ_MODEL; if it ever earns a rate, read it off the API rather than guess.
-  "compound-mini": { inputPerMTok: 0, outputPerMTok: 0 },
+  // No row for `groq/compound-mini`, which sat here at zero because Groq
+  // publishes no price for it. A zero fails silently and an omission fails
+  // expensive, so it came off every chain rather than keep a zero in the
+  // table; `PRICED_MODELS` is how a test holds every row above nought.
 
   /*
     THE ONE ROW THAT IS NOT FREE, AND THE REASON IT STOPPED BEING.
@@ -151,6 +151,9 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
 };
 
 /** Charged when the model is not in the table. Deliberately the dearest rate. */
+/** Every model the table prices, so a test can hold each row above zero. */
+export const PRICED_MODELS: readonly string[] = Object.keys(PRICES);
+
 export const UNKNOWN_MODEL: ModelPrice = { inputPerMTok: 10, outputPerMTok: 50 };
 
 /**

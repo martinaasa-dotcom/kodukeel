@@ -458,7 +458,7 @@ export const VISION_MODEL = "gemini-3.1-flash-lite";
 /**
  * The model scene composition asks, and why it is one name rather than three.
  *
- * `FREE_GROQ_MODELS` carries three because a free model is retired without
+ * `FREE_GROQ_MODELS` carries two because a free model is retired without
  * notice and walking past a 404 within one provider costs a request where
  * refusing costs the learner their answer. That reasoning does not survive
  * `lib/usage/pricing.ts`: this deployment bills for these calls, and a
@@ -744,11 +744,17 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
  * an argument against it. It is the alias that tracks whatever the current
  * flash model is, and a provider having a bad minute is the exact thing the
  * two names behind it are for.
+ *
+ * `groq/compound-mini` was the third Groq name and came off for its price.
+ * Groq publishes none, so the table held it at zero, which on a paid account
+ * is the spend cap switched off for every call that reaches it, and a zero
+ * fails silently where an omission fails expensive. It also wrote verbless
+ * pidgin when measured on scenes (above). Two names keep a retired one
+ * survivable, which is all a third was for.
  */
 export const FREE_GROQ_MODELS = [
   "openai/gpt-oss-120b",
   "qwen/qwen3.8-27b",
-  "groq/compound-mini",
 ] as const;
 
 /*

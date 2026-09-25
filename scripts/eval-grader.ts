@@ -36,7 +36,8 @@
   switched off; `qwen/qwen3.8-27b` 34 of 36 with five withheld at up to
   $0.83; `gemini-3.8-flash` 33 of 36; `openai/gpt-oss-20b` 31 of 36 with
   400s. Llama 4 Scout, Kimi K2 and both Gemini 2.5 models answered 404 on
-  these accounts. So `GRADER_MODELS` in `lib/tutor/provider.ts` is
+  these accounts and are no longer asked; compound-mini is not asked either,
+  since it is off every chain for having no price. So `GRADER_MODELS` in `lib/tutor/provider.ts` is
   `gemini-3.1-flash-lite` first and `gpt-oss-120b` behind it: the only two
   that never failed, cheapest first. What this measures is whether a valid
   verdict comes back and whether the note quotes only forms the learner
@@ -94,9 +95,6 @@ const CANDIDATES: ProviderConfig[] = [
   { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
   { name: "groq", model: "openai/gpt-oss-20b", label: "Groq" },
   { name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" },
-  { name: "groq", model: "groq/compound-mini", label: "Groq" },
-  { name: "groq", model: "meta-llama/llama-4-scout-17b-16e-instruct", label: "Groq" },
-  { name: "groq", model: "moonshotai/kimi-k2-instruct", label: "Groq" },
   ...(process.env.ANTHROPIC_API_KEY
     ? ([
         { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },
