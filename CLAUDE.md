@@ -1651,7 +1651,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,514 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,520 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1877,8 +1877,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,765 forms across 376 of the
-1,514 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,767 forms across 378 of the
+1,520 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -3363,7 +3363,7 @@ things were wrong in one line and the code was only the loudest. `prisma/seed.ts
 retrieved form under `formType` as `EKILEX:<code>` with no `morphCode` at all, and every name in
 `lib/estonian/morph.ts` is keyed on the code, so `formName` fell past the code branch, past the
 stored table, past `morphName` and out of `formLabel`'s last line as the bare slot: the names were
-all there and nothing was reading them, on the 1,765 forms the harvest stores because no rule
+all there and nothing was reading them, on the 1,767 forms the harvest stores because no rule
 reaches them. `morphCodeOf` is the one reading of both shapes a row is in and `formName` asks it.
 And the word that had been *pressed* was nowhere on the panel, which is the half a reader notices
 first: the spelling leads now, then what it means here, then the headword it came from with the
