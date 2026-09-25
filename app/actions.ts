@@ -494,7 +494,10 @@ async function gradeFor(
  * the same answer reported twice and is done rather than failed. `repeat` says
  * so, so a caller counting new grades does not count it again.
  */
-async function gradeOnce(ownerId: string, cardId: string, rating: RatingValue, reviewId: string) {
+async function gradeOnce(
+  ownerId: string, cardId: string, rating: RatingValue, reviewId: string,
+  slots: { practisedSlot?: string; reachedSlot?: string } = {},
+) {
   /*
     Asked first rather than only caught, so the answer does not depend on how
     `writeGrade` treats an id it has already written: a repeat that is read
@@ -503,7 +506,7 @@ async function gradeOnce(ownerId: string, cardId: string, rating: RatingValue, r
   const seen = await prisma.review.findUnique({ where: { id: reviewId }, select: { id: true } });
   if (seen) return { ok: true as const, repeat: true };
   try {
-    const result = await gradeFor(ownerId, cardId, rating, 0, { reviewId });
+    const result = await gradeFor(ownerId, cardId, rating, 0, { ...slots, reviewId });
     return { ...result, repeat: false };
   } catch (error) {
     if (isRepeatedReview(error)) return { ok: true as const, repeat: true };
@@ -1694,11 +1697,20 @@ export async function finishScene(input: {
       on a card. `writeGrade` checks both against the closed list rather than
       trusting them, which is what it does for every other caller.
     */
-    const result = await gradeCard(
-      cardId, grade.rating, 0, undefined,
-      grade.grammCase ?? undefined, grade.reachedCase ?? undefined,
+    /*
+      Named by the run and the grade's place in it, so a finish arriving twice
+      is graded once. `finishRun` closes a run once and a second finish gets
+      nothing to grade; the id is the second lock on the same door.
+    */
+    const result = await gradeOnce(
+      ownerId, cardId, grade.rating as RatingValue,
+      stableReviewId("scene", ownerId, finished.runId, String(index)),
+      {
+        ...(grade.grammCase ? { practisedSlot: grade.grammCase } : {}),
+        ...(grade.reachedCase ? { reachedSlot: grade.reachedCase } : {}),
+      },
     );
-    if (result.ok) graded += 1;
+    if (result.ok && !result.repeat) graded += 1;
   }
 
   revalidatePath("/situations");

@@ -6737,6 +6737,17 @@ they are, since they are what gates `b`, and they are no longer what makes this 
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)
 
+**And a round the server marks is graded once, however often it arrives.** `gradeCard` mints a
+review id per call, which is right for the one answer a session has just shown and wrong for a
+round the server rebuilds and marks: Sõnad, the crossword and a finished conversation each wrote a
+second set of recalls whenever the same round arrived again, and the screens send a round again by
+design, since they mark it sent only once the server has answered. So those grade through
+`gradeOnce` with an id `stableReviewId` derives from what the grade is about (the day and the card
+for Sõnad and the crossword, the run and the grade's place in it for a conversation), and an
+invariant fails on any other export reaching for `gradeCard`. And a run is closed once: `finishRun`
+closes it with a compare-and-set on `endedAt`, driven four times at once against a real database,
+so two presses of the finish grade one set rather than two.
+
 **And a round that grades in bulk sends the round once, not a request per card.** `gradeCard` is a
 Server Action, so every call is a POST, a session read, a card lookup, a write and a
 `revalidatePath`. Match finished its board by looping over its pairs and awaiting one each, which
@@ -11261,6 +11272,12 @@ of them first on a machine that is not CI and `crossword.itest.ts` failed with "
 no grid", which reads as the compiler being broken and sends the reader into `lib/games/crossword.ts`.
 It cost an hour of looking in the wrong file. The precondition is asked once now, against
 `SEED_SET_SIZE`, and fails in 93 milliseconds naming both the state and the command that fixes it.
+
+**And a script that deletes rows refuses a database that is not local.** `scripts/lib/local-db.mjs`
+is the refusal, because Prisma reads the environment's `DATABASE_URL` before `.env` and a shell
+carrying hosted credentials points a test at production with nothing in the output to say so. An
+invariant finds every script that deletes by shape and holds it to the guard, `audit-decks.ts`
+exempt by name since it is the production audit and reports before it removes anything.
 
 **A suite states its preconditions; it does not inherit them.** `letterBar` is a
 stored preference that decides whether a control is drawn at all, so a database
