@@ -2292,6 +2292,59 @@ check("the word a learner taps is named and read rather than coded", () => {
   }
 });
 
+/*
+  AND EVERY OTHER READER OF THE COLUMN, BECAUSE THE FIX ABOVE WAS ONE OF FIVE.
+
+  The check above holds `formName` to `morphCodeOf`, and it was written about
+  one reader. The same column was being asked alone in four more places, each
+  one a rule that fired on a live Ekilex lookup and on no seeded install:
+  `gapForms` named the case of a stored spelling (399 spellings across 376
+  shipped entries had a case one way and none the other), and the plural
+  guards in the card builder and the worksheet let 56 shipped plurals through
+  to be gapped on every fresh deployment. So the haystack is every reader of
+  the two functions that turn a code into a case or a number, and the one
+  that asks the bare column has to be one of the two below, each with its
+  reason. `ekilexCodeOf` is the narrower reading, which is the one a caller
+  of the column meant: `morphCodeOf` hands a principal part back as its own
+  name, and `numberFromMorphCode` reads the `_PL` in `PART_PL` as a plural.
+*/
+check("a stored form's code is read from either column, not from the one the seed leaves empty", () => {
+  const COLUMN_ONLY = /\b(?:case|number)FromMorphCode\(\s*[A-Za-z_$][\w$]*\.morphCode\s*\)/;
+  const EXEMPT: Record<string, string> = {
+    /*
+      The dictionary entry's retrieved table. Its caller keeps a row only where
+      `morphCode` is set and uses "we hold Ekilex's whole table" as the test,
+      and a seeded entry holds only the few forms no rule reaches: reading the
+      code from `formType` here would swap a complete derived table for one
+      made of those few, on 376 entries. The proxy is fragile, and replacing
+      it is a change to what the entry draws rather than to how a code is read.
+    */
+    "app/(app)/dictionary/Forms.tsx": "a proxy for holding Ekilex's whole table, not a reading",
+    /*
+      The grammar reference's example for a principal case. Read from either
+      column it would prefer a seeded pronoun's short form, `ma` over `mina`,
+      which is a choice about which spelling a page leads with rather than a
+      fault in reading the column, and it is a choice about Estonian.
+    */
+    "lib/progress/caseExamples.ts": "which of two spellings leads is a call about Estonian",
+  };
+
+  const readers = ALL.filter((f) => !/\.(?:test|itest)\.tsx?$/.test(f))
+    .filter((f) => /\b(?:case|number)FromMorphCode\(/.test(code(f)));
+  assert.ok(readers.length >= 8, `only ${readers.length} files read a code as a case or a number, so this sweep stopped looking`);
+
+  const offenders = readers.filter((f) => !(f in EXEMPT) && COLUMN_ONLY.test(code(f)));
+  assert.deepEqual(
+    offenders, [],
+    `${offenders.join(", ")} read a stored form's code from \`morphCode\` alone, which \`prisma/seed.ts\` `
+    + "never writes, so the rule fires on a live lookup and on no seeded install: read it through `ekilexCodeOf`",
+  );
+  // And an exemption still has to be doing something, or it is a parking space.
+  for (const file of Object.keys(EXEMPT)) {
+    assert.match(code(file), COLUMN_ONLY, `${file} no longer reads the column alone, so its exemption is stale`);
+  }
+});
+
 check("a case reading is one table, holds no Estonian, and reaches the screen made", () => {
   const table = "lib/estonian/caseReading.ts";
   assert.ok(existsSync(table), "the case readings have gone");
