@@ -239,7 +239,7 @@ describe("grammar examples", () => {
     Only `wrong` fails. `shared` is Estonian's own syncretism, `aadressi`
     being three cases at once, and `unknown` is a slot the dictionary does not
     store, which is every converb and every quotative; `npm run
-    audit:grammar-pins` is where both are read rather than counted.
+    audit:pins` is where both are read rather than counted.
   */
   const SLOT_INDEX = buildSlotIndex();
 

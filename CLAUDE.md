@@ -52,7 +52,7 @@ lemma it names is one its own declared units teach, asserted word by word, so a 
 introduce vocabulary. What the other side says comes from `sceneLine`, with its provenance: a
 recorded usage where one fits the beat, which after §32 is the courtesies and nothing else,
 otherwise a line a model composed inside the scene's closed word list with this run's own turns in
-front of it and `runGate` checked five ways, shape, vouching, register, government and facts, and
+front of it and checked by `runGate` against every entry of its `CHECKS`, and
 withheld whole when it fails, otherwise a line drafted in advance and gated then, otherwise the
 line the beat says off the card, and where every rung fails the other side says they did not catch
 that, in a phrase the course teaches and in character, never a repair line this app wrote. **The
@@ -64,7 +64,7 @@ may ask a judge on the grader's chain whether the learner did what the beat aske
 yes ends the beat through `concede`, the only other producer of `Evidence`, which can mark as met only
 what the dictionary left missing. A conceded requirement writes no row (`gradesFor` skips it), a value
 off the role card is never conceded, and a turn nobody could read is never put to the judge. The
-operator asked for this so a conversation can flow and end naturally. The fifth check exists because the other four are about words and a number is
+operator asked for this so a conversation can flow and end naturally. The `facts` check exists because the others are about words and a number is
 not one: a digit in a composed line has to be one `dealtNumbers` says the card dealt, or a model
 asked first on a beat that names a time invites the learner to agree to an appointment nobody
 offered. What the learner
@@ -92,6 +92,18 @@ recalled, with the day on the entry, and the Flash tier's promotional rate is wr
 the date it doubles rather than left in a diary. A model the table does not name prices at
 `UNKNOWN_MODEL`, which is the dearest row, so an omission fails expensive and a zero fails silently:
 that asymmetry is the whole argument for never writing one.
+
+**And a date written down is a diary until something reads it.** That sentence was true and nothing
+acted on it, so on 1 January 2027 six figures would have understated by two with the bill as the
+only reader, which is the one direction this table never errs in. The three dated rows carry a
+`promotion` and `priceFor` takes a clock, so the doubling happens on the day whether or not anybody
+has opened the file since; the clock is a parameter because a rule that fires on a future morning
+cannot be tested against the machine's own. Re-read against Google's page on 2026-09-22 and every
+row still matched it exactly, and so did every Groq row against `/v1/models`. `compound-mini` went
+the other way: Groq no longer serve it, so a zero row for a model nobody can call was the silent
+zero this paragraph is about, kept alive by the excuse that created it. It is gone from the table
+and from `FREE_GROQ_MODELS`, and there is no third Groq name to put back, because the two text
+models left on that account are the two `provider.ts` already records rejecting by name.
 
 **There is a model per purpose rather than a house model, and every one of them was measured
 through its own production call path.** Four paths here call a model and none of them wants the same
@@ -151,6 +163,17 @@ production gates, and compound-mini's 32 is the pidgin above passing. Read the l
 harness carried `max_tokens: 1200` after the route moved to `SCENE_REPLY_TOKENS`, which is
 `play-scene.ts`'s fault one harness over: gpt-oss came back empty on a fifth of its calls and read as
 a model that cannot write a line until the constant was read rather than typed.
+
+**And the verbless lines stopped being the difference once `question` shipped, so the choice now
+rests on latency.** Measured on 2026-09-25 through `npm run play:scenes -- --compose --drafts`, every
+scene in the `curious` and `sloppy` styles, each model pinned through the app's own scene chain:
+qwen withheld 79 of 249 drafts (31.7%) and gpt-oss-120b 81 of 237 (34.2%), and each wrote two
+verbless lines. That is the check below doing the work the fallback's choice used to do.
+What still separates them is where they fail and how fast they answer: qwen trips
+`agreement` (13 against 3) and gpt-oss says goodbye before the scene is over (12 against 3), and
+qwen answers in about a fifth of the time, which is a learner waiting mid-conversation. So qwen stays,
+for the latency and not for the verbs, at about five times the price per line.
+`groq/compound-mini` answers 404 on every call now and is out of the running.
 
 **And a question naming a pronoun holds a verb, which is the line the clause check cannot see.**
 `clause` stands down under four words and on any line carrying a word outside the scene's list, so
@@ -221,13 +244,13 @@ reaches past the scene's list rather than as whether its words are Estonian; the
 number to read.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
-`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
+`MAX_COMPOSED_WORDS` is fifty-five and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
 reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
 that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
-check written for it, and the gate has twelve now rather than five, `shape`, `vouching`, `register`,
+check written for it, and the gate had twelve by then rather than five, `shape`, `vouching`, `register`,
 `government`, `facts`, `agreement`, `topic`, `giveaway`, `stretch`, `clause`, `infinitive`,
-`negation`. **Not one of the twelve was relaxed**, and four of them are the reason: `vouching` is
+`negation`, with `farewell` and `question` added since. **Not one of them was relaxed**, and four of them are the reason: `vouching` is
 where ADR-005 lives on this path, `agreement` is what catches `Kuhu te soovid sõita?` on a check that
 had never been handed `te`, `me` or `nad`, `infinitive` is what catches `aitama saan`, and `giveaway`
 is what stops the other side saying the form the beat is about to ask for. Measured: 13.7 percent of
@@ -262,10 +285,10 @@ chunk. And `completion_tokens` was read where `total_tokens` less the prompt is 
 `billedOutput` reads the larger of the two, which is the same number on Groq and OpenAI, whose
 totals add up. `ProviderConfig.reasoning` is the other half: the two Gemini scene links carry
 `"none"`, sent as `reasoning_effort`, because `npm run eval:thinking` put thinking on and off at
-24 of 24 beats each, one gate refusal apart, on lines nobody could tell apart. Only that value is
-allowed, so a link cannot be put on "low" and called a saving nobody measured. The tutor and
-grader chains carry nothing, since a Groq reasoning model refuses "none" and Anu was measured
-thinking. Input is now nine tenths of a scene line, 2,000 tokens a call, and the endpoint reports
+24 of 24 beats each, one gate refusal apart, on lines nobody could tell apart. Only a value an eval
+measured is allowed, so a link cannot be put on a setting and called a saving nobody measured. The grader
+chain and every Groq link carry nothing, since a Groq reasoning model refuses "none"; Anu's Gemini
+link carries `"none"`, because that is how the eval that chose it was run. Input is now nine tenths of a scene line, 2,000 tokens a call, and the endpoint reports
 no cached share on an identical 2,000-token prefix, so the next saving there is the prompt's
 length rather than its order. `npm run report:spend` is how the bill is read by kind, model and
 day off the deployment's own ledger, priced in and out apart, because a model whose output share
@@ -301,7 +324,7 @@ what a live lookup returns is a sentence the shipped table already answers for, 
 and the expansion are where those words are. Four writers, all four asserted: the two halves of the
 seed, the repair for a database seeded before the table existed, and the mapper.
 
-**Nobody has read the 16,037 lines, and a mechanical second opinion was built and thrown away.** The
+**Nobody has read the 16,036 lines, and a mechanical second opinion was built and thrown away.** The
 gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
 from, and there is no equivalent here: a translation has no upstream to be checked against. What was
 tried instead was the dictionary itself, asking whether each English line shares a content word with
@@ -755,6 +778,17 @@ is what people unsubscribe over.
 scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
 than theirs to be handed.
 
+**And the run could not get past the door, so no letter ever went out on a hosted deployment.**
+`/api/email/send` was left off the gate's public list on the argument that it gates itself, which
+is exactly why it belonged on it: the platform's cron carries a bearer token and no session, so the
+middleware answered every scheduled run 401 before the route read `CRON_SECRET`. The invariant
+beside it asked that `vercel.json` schedules a route that exists, and passed the whole time, because
+a route that exists and a route the scheduler can reach are two claims. It is the crawler files'
+fault one door over, and it hid the same way: local mode steps the gate aside and every suite runs
+in local mode. Every scheduled path is now held to being named in `isPublicPath`, read off
+`vercel.json`, and `test-security.mjs` asks the route to 404 without its token, beside
+`/api/metrics` and `/api/research`, which take the same shape.
+
 **And one number the weekly letter wanted is not in this schema, so it is not claimed.** "Words
 you learned this week" needs a row written when a card changes state, and nothing records one:
 `Review` holds ratings rather than transitions and `lastReview` is when a card was answered
@@ -887,9 +921,10 @@ beside a live `caseEt`, and not one screen, script or test read any of them: `Ca
 own comment says it is "the name the advice is written in". Four of the nine exemptions on the
 closed list were justified by a sentence that was half true, "carries caseEn on the task; the screen
 prints the reading", where the screen prints the reading and the field reaches no reader at all. They
-are gone, and with the demo row and the exam option's dead `en` the list is four readers rather than
-nine: the stored government string, the mapper that writes it, Anu's own table, and a slug. **None
-of them is a screen.**
+are gone, and with the demo row and the exam option's dead `en` the list is down to the stored
+government string, the mapper that writes it, Anu's prompt and her facts block, a slug, and
+`lib/copy/caseHint.ts`, which reads the name only to take it off a stored hint. **None of them is a
+screen.**
 
 **And two stored columns still said it, which no sweep over the source can see.** Every check above
 is about what this app *writes*, and a learner reported "the comitative" off a review card months
@@ -1161,9 +1196,9 @@ reason, so a gap is at least six words and is checked in both directions, becaus
 is somebody who stopped reading.
 
 **The screen reads `Example.en` like every other screen.** `lib/dict/exampleEnglish.ts` has a closed
-list of four readers and every one of them is a writer, the two halves of the seed, the repair and
-the live Ekilex mapper, so a page reaching past the column would be a fifth answer to what a
-sentence means and the copy nobody is watching is the one that goes stale.
+list of readers, each with its reason beside it, and the ones that write are the two halves of the
+seed, the repair and the live Ekilex mapper, so a page reaching past the column would be one more
+answer to what a sentence means and the copy nobody is watching is the one that goes stale.
 `lib/progress/grammarExamples.ts` is the read: one query per page whatever it holds, the lemmas of
 every pin on it in a single `findMany`, and a pin the live dictionary no longer holds is dropped
 rather than drawn from the text in the table. `matchPins` is that join kept pure, because the query
@@ -1328,14 +1363,21 @@ what disagrees; `--write` applies it. **The first pass over the whole of `expand
 5,363 entries, came back clean on 2026-08-31**, which is worth writing down because every pass
 before it stopped at B1: A1 to B1 is 2,164 entries and the 3,199 above it had never been asked.
 `.github/workflows/drift.yml` asks weekly, and that sentence was written the week it landed,
-before its first cron, so this was its first execution by hand. **Every firing since died in
-twenty-nine seconds** on `Cannot find module '.prisma/client/default'`: the job ran `npm ci` and
-went straight to the audit, `prisma/expanded.ts` imports `Prisma` as a value, and the client is
-generated rather than installed, so the one drift check that needs no credential had never once
-run and the page cache it carefully carries between weeks had never been written. Nothing said
-so, because a scheduled job nobody watches is red in a tab nobody opens, which is the same
-argument this file makes about a check that can fail and has never been made to. It generates
-the client now, like every job in `ci.yml`. A clean result over a
+before its first cron, so this was its first execution by hand. **It has fired three times and
+failed three times, for two different reasons, and both were in the workflow rather than in a
+gloss.** The third died in twenty-nine seconds on `Cannot find module '.prisma/client/default'`:
+the job ran `npm ci` and went straight to the audit, `prisma/expanded.ts` imports `Prisma` as a
+value, and the client is generated rather than installed. It generates the client now, like every
+job in `ci.yml`. The first two did run, found no gloss in disagreement, and stopped where
+Wiktionary stopped answering, at 2,500 pages and then at 1,000, which is under the half the audit
+needs before a clean result counts. The page cache the job restores each week is what was meant
+to carry it past that, and **it had never been saved**: the workflow asked for `save-always`, the
+input does nothing, actions/cache saves only on success, and this job is red until the cache has
+carried it. The second run started from nothing because the first wrote nothing back. It restores
+and saves in two steps now, the save running whatever the audit said, and an invariant holds any
+per-run cache to that shape. Nothing said so, because a scheduled job nobody watches is red in a
+tab nobody opens, and the account written here first described one failure as all three, which is
+the argument for reading a run's log rather than its conclusion. A clean result over a
 parser this quiet is only worth the words if the check can fail, so it was made to: run the same
 comparison against a translation known to be wrong and all 5,363 flag. What remains is not parser
 drift but a page being wrong about its own word, which is what the report queue is for. The
@@ -1639,7 +1681,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,514 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,520 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1865,8 +1907,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,765 forms across 376 of the
-1,514 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,767 forms across 378 of the
+1,520 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -2406,7 +2448,7 @@ capitalised tag, since a component of ours may legitimately take a width class a
 its size in an attribute may not. It reads a few hundred icon tags and was made to fail on the real
 line.
 
-**Fourteen rounds offer it and eleven are exempt by name, in `lib/questions/hintCoverage.ts`.** The
+**The rounds that do not offer it are exempt by name, in `lib/questions/hintCoverage.ts`.** The
 ask was website wide and that is not the same as every file. The three **measurements** may not have
 one, which is the line `lib/exam/paper.ts` and `lib/assessment/items.ts` are already exempt on: a
 candidate helped through a mock paper has been measured at something other than what the screen
@@ -2843,8 +2885,8 @@ shape a pin is written in, and `prisma/data/homonym-pins.json` is where a person
 re-reads a pinned entry from that word as `expand-seed.ts` would have: the forms, the sentences, the
 level, the gradation and the Institute's semantic type all belong to whichever homonym was taken, so
 all of them are read again, and only the gloss and the part of speech stay, because those came from
-Wiktionary and are not what was wrong. Fifteen are pinned, each checked against Ekilex's own Estonian
-definition; ten of them are the entry a learner actually meets and five are shadowed by the course
+Wiktionary and are not what was wrong. Sixteen are pinned, each checked against Ekilex's own Estonian
+definition; eleven of them are the entry a learner actually meets and five are shadowed by the course
 harvest, which had already pinned the same words.
 
 **And a wrong answer may be tricky, never true.** The listening check plays a whole sentence and asks
@@ -3351,7 +3393,7 @@ things were wrong in one line and the code was only the loudest. `prisma/seed.ts
 retrieved form under `formType` as `EKILEX:<code>` with no `morphCode` at all, and every name in
 `lib/estonian/morph.ts` is keyed on the code, so `formName` fell past the code branch, past the
 stored table, past `morphName` and out of `formLabel`'s last line as the bare slot: the names were
-all there and nothing was reading them, on the 1,765 forms the harvest stores because no rule
+all there and nothing was reading them, on the 1,767 forms the harvest stores because no rule
 reaches them. `morphCodeOf` is the one reading of both shapes a row is in and `formName` asks it.
 And the word that had been *pressed* was nowhere on the panel, which is the half a reader notices
 first: the spelling leads now, then what it means here, then the headword it came from with the
@@ -3559,8 +3601,8 @@ deployment nothing for a query it cannot afford. **A refusal is respected wherev
 since an entry that holds the sentence answers for it and the table is never asked, which is what
 stops a line somebody read and refused being handed back; the residual is a sentence refused on the
 entry that owns it and borrowed by another, which this cannot see, and it is written down rather
-than left to be rediscovered. `lib/dict/examples.ts` is the fifth entry on `exampleEnglish`'s closed
-reader list and the only one that is a read rather than a write, with that reason beside it.
+than left to be rediscovered. `lib/dict/examples.ts` is on `exampleEnglish`'s closed
+reader list as the one runtime read, the others being writers, checks and the audits' adapter, with that reason beside it.
 
 **And a gap card's back holds every spelling the marker takes, while its sentence holds one word.**
 `lib/srs/cards.ts` builds a case or conjugation back as `[answer, ...also].join(PARTS)`, so the
@@ -4147,6 +4189,24 @@ is a name collision rather than a copy. And the move is where it is on purpose:
 layer asserted to be free of the database was pulling it in one import away and the invariant, which
 reads each file's own imports, could not see it.
 
+**And the fourth and fifth copies were outside the directories the check swept.** The sweep read
+`app/`, `lib/` and `components/`, and `prisma/indexes.ts` built every folded function index off a
+pair of its own under a comment pointing at `lib/dict/search.ts`, a file that had stopped holding
+the table months before. That one fails silently in the worst way: Postgres uses a function index
+only where the query's expression matches it character for character, so a sixth letter added to
+`fold.ts` and not to the index turns every folded search into a sequential scan and nothing says
+so. It reads `FOLD_FROM` and `FOLD_TO` now, and `scripts/eval-scan.ts` reads `fold`. The haystack
+is `prisma/` and `scripts/` as well, a quoted run of the six letters counts as a table because that
+is the shape Postgres takes the pair in, and `scripts/fuzz-scenes.ts` is excused by name, since the
+six in a row there are a hostile turn rather than a table.
+
+**An allow-list is checked in both directions or it is a set of standing permissions.** The list of
+files that may name a Russian or Ukrainian meaning held three that named nothing, the harvest among
+them, which writes `rus` and `ukr` and leaves the columns to the seed; and the list of files that
+store something on the reader's device held `lib/ux/resumePosition.ts`, which is pure and was on it
+because the check read comments. Both read code, both fail on an entry that no longer matches, and
+the second has a floor.
+
 **One game a day, the same one every week, and nothing hidden by it.** Eleven rounds on a menu is a
 decision to make before you can start; one on the home page with a reason beside it is an invitation,
 and Thursday being Match every week is a thing somebody comes to know about their own Thursdays.
@@ -4371,6 +4431,19 @@ applying it fails, and so does an action throttling against anything but the own
 Most actions must **not** have one. Grading a card is a single indexed write and a limit there
 would be met by learners and nobody else.
 
+**And the table was checked one way, so seven expensive actions were never put in it.** The
+invariant asked that every allowance in `ACTION_LIMITS` is applied, and nothing asked the other
+question, whether an action doing the expensive work has one. `addPlanToDeck` costs the same on a
+press that adds nothing as on the first: it reads every word with its sentences, builds every card
+and filters them under the deck lock, and the dedupe only decides what is inserted at the end. So
+first run, the frequency lists, tonight's module, a finished lesson, a page added from the scanner
+and a handed-in mock paper, which rebuilds five hundred entries to mark it, all had the cost and
+none of the allowance, while `deepenCommonWords`, `saveScan` and `finishScene` beside them did. The
+rule is drawn on reaching a bulk builder or a paper rebuild, or a card writer inside a loop, read off
+each exported action's own body, with a floor so a matcher that stops matching cannot pass on
+nobody. `addUnitToDeck` was an eighth and was deleted rather than limited: no screen had called it
+since the unit page lost its "Add to deck", and an endpoint nobody presses is only a door.
+
 **A bucket key the caller chooses is worse than no bucket key.** `clientIp` read
 `X-Forwarded-For` whatever this app was standing behind. On Vercel that is right, because the
 platform overwrites it; self-hosted behind a proxy that passes it through, it is a value the
@@ -4444,6 +4517,14 @@ two zero-width spaces were a two-character name that passed the empty check and 
 nothing on the roster; U+202E reverses what follows it and can make one pupil's row read as
 another's. `cleanDisplayName` strips `\p{C}`, normalizes to NFC, and requires a letter or a digit.
 The roster is the one screen where a stranger's text is shown to a teacher beside real names.
+
+**And it was one door of four.** The class name a stranger reads on the join screen before deciding
+to join, a homework title on every member's Today and the note a reviewer reads in the report queue
+were each `trim()` and a slice, so two zero-width spaces were a class name that passed its length
+check and drew as nothing. And the one that cleaned cut by UTF-16 unit after cleaning, so a name
+ending in an emoji kept half of it, which is a `\p{C}` character drawn as a box.
+`lib/security/visibleText.ts` is the one cleaning, `visibleLine` for a field and `visibleProse` for a
+note that keeps its line breaks, both cut by code point, and an invariant holds each door to it.
 
 **An argument that is supposed to be a string is not one.** Every export of `app/actions.ts` is a
 public endpoint and its arguments are JSON off the wire whatever the types say, so
@@ -4801,6 +4882,22 @@ every truncated read in the app on the primary key is a larger change than the r
 useful, and where a screen orders by `due` and cuts, arbitrary-but-stated still beats
 arbitrary-and-silent. The stricter rule stays where a number is derived.
 
+**And where a comment claims the cut is stable, the looser rule is not what the file is promising.**
+Four reads outside `lib/progress/` end on a key that does not identify a row while their own prose
+says a learner is shown the same thing twice, which the weaker invariant cannot see and which is
+the file disagreeing with itself rather than with the rule. The leech clinic is both of them at
+once: it takes thirty cards ordered on `lapses` alone, and ties there are the normal case rather
+than the edge, since a learner with sixty cards stuck at six lapses got whichever thirty the plan
+returned, in a short list they work through over several sittings; and the read under it cuts a
+thousand cards on `createdAt` under a comment saying a deck past the cap compares the same thousand
+words every time, where `addCardsFor` writes a word's two cards in one `createMany` and they carry
+that column to the millisecond. The other two are **the lemma, which is not what identifies a
+row**: `Lexeme` is unique on `(lemma, pos)`, so the lesson's seeded distractor window and
+Practice's count of what a round could ask both had their edges fall wherever the plan left `hall`
+the noun against `hall` the adjective, the first under a paragraph arguing at length that the same
+seed gives the same lesson. Ordering is free where the index is there, and all four now end on the
+id.
+
 **A shared calculation over an unshared input is not a shared answer, and Today proved it twice.**
 `lib/progress/cases.ts` exists because "your weakest cases" was drawn from three different queries
 behind one calculation, so a learner who got the partitive wrong three hundred times last year and
@@ -4824,6 +4921,31 @@ lets strangers grow. Practice had the same shape over `examples`, the longest co
 fetched once per card rather than once per word. So the pairing is owner-scoped or it does not
 happen, which is what the invariant asserts: one learner's own cards are bounded by their deck
 whatever the `take` says, and anything deployment-wide counts in Postgres.
+
+**And "owner-scoped" is a fact about the `where`, which the check behind that rule could not see.**
+It asked whether the word `ownerId` appeared anywhere in the call, and the commonest
+deployment-wide `distinct` there is, `distinct: ["ownerId"]`, satisfies that on its own. So
+`mailoutRoster` read every `Review` row in a fortnight into the process twice per run, once to
+count learners and once to page them, with the check green and a comment above it calling the count
+"a real `COUNT(DISTINCT)`". Measured on Prisma 7, both emitted `SELECT id, ownerId FROM Review WHERE
+reviewedAt >= $1` with no `DISTINCT` and no `LIMIT`; both count and page in Postgres now, and on
+1,200 learners the new page returns the old one row for row. The check reads the top-level `where`
+by brace depth, so a relation's own filter does not count, and it has a floor. **Equality or `in`
+pins an owner and `notIn` does not**, which matters one table over: `Setting`'s primary key leads
+with the owner, five reads ask about one key across the whole deployment, and one of them carries
+`ownerId: { notIn }`. They are served by `@@index([key, value])` now, asserted the same way.
+
+**And the page it walks turned with the wrong clock.** `rosterPage` exists because a cap on a sorted
+list is an exclusion, and it turned the page with the hour since the epoch, under a comment
+reasoning about an hourly schedule. The schedule is daily (`vercel.json`, 16:00 UTC, since a Hobby
+plan refuses anything more often), so the key moved by exactly 24 between runs and any page count
+sharing a factor with 24 came back to the same page every day: at five thousand learners, three
+pages, four thousand people were never considered. Its test drove consecutive hours, which is the
+harness measuring a schedule the deployment does not have. The key is the day plus the hour of the
+day now, one page a day on a daily run whatever the hour and twenty-four a day on an hourly one, and
+the test drives both. It gave up one thing and says so: a hundred thousand learners on hourly runs
+are reached over days rather than inside fifty hours, since no clock-keyed walk can move a page
+every hour and also a page every day.
 
 **A cap on rows is not a cap on time, and a loop of queries is where the difference lives.** Three
 loops were measured against a real database rather than reasoned about, and they did not all need
@@ -4863,9 +4985,9 @@ deployment's own build is what runs it.
 **And then the batched builder arrived without it, which is why the key is the learner and not the
 word.** `addUnitsToDeck` is the rewrite of the loop that called `addCardsFor` per word, and it kept
 the shape and inherited no lock, so the fault came back a whole unit at a time: eight concurrent
-adds of an eighteen-word unit wrote 180 cards where 36 is right, and the two screens that reach it
-are "Add to deck" on a unit and the last button of first run, which is the one place in the app
-where somebody is already waiting and inclined to press again. `lockDeck` in `lib/srs/deck.ts` is
+adds of an eighteen-word unit wrote 180 cards where 36 is right, and the two screens that reached it
+were "Add to deck" on a unit, which no screen draws any more, and the last button of first run, which
+is the one place in the app where somebody is already waiting and inclined to press again. `lockDeck` in `lib/srs/deck.ts` is
 the one definition and both paths take it. The key had to widen to do that: a key naming the word
 is safe against another add of the same word and says nothing about a batch containing it, so two
 keys would leave each path guarded against itself and neither against the other. What that costs is
@@ -4909,7 +5031,9 @@ hands in its own generator and a test hands in a fixed one. `lib/exam/paper.ts` 
 exception and its header says why: the server rebuilds a paper from its seed to mark it, so changing
 how that one draws would mis-mark a paper somebody started before a deploy and handed in after.
 Both halves are asserted, because fixing the two wrong copies and leaving eight right ones is how a
-ninth gets written.
+ninth gets written. And a ninth was written, in the one shape the check could not see: Fisher-Yates
+inline in the sentence round's `useMemo`, with no function to name and no key to sort on. The draw
+is the tell, a random index scaled to one past the loop counter, and that is asserted now too.
 
 **A seed is only as fixed as what it is seeded over.** `planLesson` promises the same seed gives the
 same lesson, and the wrong answers came from an unordered sixty of the 478 words at A1 or the 1,302
@@ -6512,6 +6636,16 @@ they are, since they are what gates `b`, and they are no longer what makes this 
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)
 
+**And a round that grades in bulk sends the round once, not a request per card.** `gradeCard` is a
+Server Action, so every call is a POST, a session read, a card lookup, a write and a
+`revalidatePath`. Match finished its board by looping over its pairs and awaiting one each, which
+is eight sequential round trips before an eight-pair board's finish screen settled.
+`recordMatchGrades` sends the whole round and grades it through `applyGradeBatch`, which is how
+`completeLesson` and `submitExam` already close theirs, and what a pair is worth is
+`lib/srs/matchGrades.ts`, pure and unit tested. The invariant is on the shape rather than on Match:
+no session may await `gradeCard` inside a loop, and it was made to fail on the real line first. A
+round that grades one card per answer is not this shape, because that is a person answering.
+
 **Every mutation goes through the forged-request gate, and it is not an `/api/` rule.** Every
 mutation a learner makes here is a Server Action, which is a POST to a *page* path, so a gate
 inside an `isApi` branch would be watching the quiet door. `lib/security/sameOrigin.ts` reads
@@ -6588,8 +6722,8 @@ its own comment says why: "a suite added to `npm run test:browser` alone is a su
 It had drifted in the other direction too, with nothing counting, and five suites had nothing
 watching them at all, `test-restore.mjs` among them. The source of truth is the filesystem: every
 `scripts/*.mjs` that declares a suite is one CI runs, and anything else is named in
-`scripts/lib/suites.mjs` with a written reason. Two are, and both are facts about the route rather
-than about anybody's schedule.
+`scripts/lib/suites.mjs` with a written reason: a suite that needs a live key CI deliberately does
+not carry, or one another job runs against a fixture of its own.
 
 **A browser refusing to autoplay is a fact about the gesture, and one module knows it.** Every
 browser blocks `HTMLAudioElement.play()` on a page the reader has not touched yet and rejects it
@@ -7117,6 +7251,30 @@ were on ten seconds ago was a fresh render of it, queries and all. Thirty second
 because every mutation in this app is a Server Action and every one of them calls `revalidatePath`,
 which drops the client's copy too.
 
+**And what a page downloads is the other half, and for a while it was the whole course.** The
+signed-in shell mounts `components/course/ModuleScope.tsx`, which took three small helpers from the
+`lib/course` barrel; the barrel re-exports `build.ts`, which imports `prisma/data/harvested.ts`, and
+runs `buildProgrammes()` when it loads. A side effect at the top of a module is the one thing
+tree-shaking cannot drop, so every signed-in page downloaded 916 KB of forms, usages and Russian and
+Ukrainian glosses and built all 289 evenings on the main thread. Measured in a browser: Today went
+from 2,012 KB of script to 1,026, and its main-thread script time from about 150 ms to 110. A client
+file names `lib/course/focus`, `types` or `plan` directly now, asserted, and
+`npm run check:bundle` samples strings that exist only under `prisma/data/` and fails on any in
+`.next/static`, after the secrets job's build. It asks the bundle rather than the imports because
+the bundler decides: the English translations are reachable from fifteen client files and are in no
+chunk.
+
+**And once the round trips were counted, the slowest page was not the database.** Measured on a
+production build against a year of reviews (3,069 cards, 60,320 answers), every page issues between
+3 and 22 statements whether the deck holds 69 cards or 3,069, so nothing loops a query. `/progress`
+still took 1.9 seconds on a local socket, and a CPU profile put 1.1 of them in `dayKey` and
+`hourOf`: the formatter was memoised and `formatToParts` was not, and a heatmap, a daily load and an
+hour-of-day reading each ask it once per review. `partsIn` in `lib/time/day.ts` remembers each
+zone's offset per UTC quarter hour, checked at both ends so a quarter a transition fell inside is
+read the slow way, and is held to `formatToParts` minute by minute around every transition seven
+zones had in three years. 300,000 calls went from 2,863 ms to 167, `/progress` to 0.77 seconds and
+Today from 0.38 to 0.17.
+
 **Where the app runs is part of this and is the largest single number in it.** `vercel.json` pins
 the functions to the region the database is in. A page is several sequential round trips and a
 reader's own distance is one, so colocation beats proximity by about the number of queries on the
@@ -7547,10 +7705,11 @@ third until the page it led was cut.
 The others are one question asked four ways. The deck, the level check, the mock exam and a class
 are four readings of "how am I doing", which is
 the question `/progress` exists to answer: standing them beside it as four more rows made the rail
-a list of every noun in the app rather than a set of places to go. Eight rows are left, under three
-headings rather than four, because a heading over a single row is furniture: a heading earns itself
-by telling two or three rows apart, and "where you are in the course" and "how far along it you
-are" turned out to be one question rather than two sections.
+a list of every noun in the app rather than a set of places to go. Where a heading goes, the rule is
+that a heading over a single row is furniture: a heading earns itself by telling two or three rows
+apart, and "where you are in the course" and "how far along it you are" turned out to be one
+question rather than two sections. How many rows and headings that leaves is `SECTIONS`, not this
+paragraph.
 
 This is not the "More" button coming back, and the difference is the whole point: a disclosure
 hides a link somewhere a learner has to *remember*, and each of these is on the screen they are
@@ -8183,7 +8342,7 @@ is asked once more about the beat ahead (`alsoDone`), which is how `ma tahan pil
 being answered with "where to?". The composer is told the same rule in words and asked for the turn
 a person takes, two to four sentences inside `MAX_COMPOSED_WORDS`, rather than the shortest question
 that would do. Every learner-facing rule stayed where it was: the dictionary reads first, the model
-never writes a grade, and a composed line still passes the twelve checks.
+never writes a grade, and a composed line still passes every check in the gate.
 
 **Every failure in a conversation looked exactly like a success, and that is why the whole module
 was reported as unusable.** A turn that landed got a word back and then the next question. A turn
@@ -8610,12 +8769,12 @@ none refused.
 **And the leash came off, because the leash was never what was holding the line together.** A
 learner asked why the limits are that tight at all, and they were right: some of these moments need
 explaining, and what is missing from a form and what to do about it is three sentences from
-anybody. `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` is twenty-two. The middle step is the
+anybody. The limits were then three sentences and twenty-two words. The middle step is the
 one worth knowing: the ceiling was raised to eighteen once, `Tere! Mis needus täna aitama saan?`
 came back, and it was put down again on the argument that the only thing keeping a composed line
 honest is how little room it has to reach. That argument is wrong in a way the line itself shows,
 since it is six words. Length did not produce it and length was never going to stop it. What stops
-it is the check written for it, and what pays for the room is a gate with eleven checks in it.
+it is the check written for it, and what pays for the room is the gate, which had eleven checks then.
 
 **And asking for one short sentence is what made the other side terse.** A learner read
 `Kust alustaksite tööd?` and said what the model needs is context rather than shorter questions,
@@ -8968,7 +9127,7 @@ whole sentence with one clause inside it and a reason or a consequence in a seco
 speak to any adult; at C1 how you speak to a colleague. Each row also narrows the ask, fewer
 sentences, fewer words and fewer words outside the list as the band drops, and **every figure sits
 under the gate's own ceiling**, asserted, since the gate is what keeps a composed line honest and
-none of its twelve checks was touched.
+none of its checks was touched.
 
 **A scene has no band of its own.** It did, and it decided where a tile sat on the listing and, for
 an hour, how the other side talked; the operator asked for the bands to go, and they were right
@@ -9338,9 +9497,10 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
-- `lib/assessment/`, `lib/estonian/`, `lib/exam/`, `lib/games/`, `lib/gamification/`,
+- `lib/assessment/`, `lib/estonian/`, `lib/exam/`, `lib/games/`, `lib/email/`, `lib/research/`,
   `lib/stats/`, `lib/collections/`, `lib/time/`, `lib/offline/`, `lib/security/`, `lib/scan/`,
-  `lib/questions/`, `lib/ux/`, `lib/random/`, `lib/learn/`, `lib/funding/` and `lib/copy/` stay free of
+  `lib/questions/`, `lib/ux/`, `lib/random/`, `lib/learn/`, `lib/scenes/`, `lib/readiness/`,
+  `lib/funding/` and `lib/copy/` stay free of
   React, Next.js and Prisma: pure functions, unit tested. Anything that
   needs the database lives in `lib/progress/` or a route. Asserted, because it
   had been prose alone and it is not a tidiness rule: the unit suite gates every
@@ -9348,7 +9508,9 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   a database behind a function four hundred tests call, and the suite does not
   fail, it gets slower or it passes against whatever rows happen to be there.
   Each directory is checked to exist too, so a rename fails there rather than
-  quietly covering nothing.
+  quietly covering nothing, and each is read to the bottom: the check once read
+  one level, so a Prisma import in `lib/collections/syllabus/` passed it, and
+  `lib/email/` was read only by a second, weaker copy of the check with no floor.
 - Data that drives UI but holds no JSX (path units, practice modes) carries a lucide icon *name*;
   `components/icons.tsx` is the only place that turns one into a component.
 - Settings go through `lib/settings/store.ts`. No new string keys scattered through pages. The five
@@ -9373,6 +9535,14 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 - Unit tests stay hermetic: no database, no network, no clock you do not control. Anything needing
   Postgres is an `*.itest.ts` under `npm run test:db`. The unit suite gates every commit and must
   stay fast enough that nobody is tempted to skip it.
+  **And a zone is a clock.** CI runs in UTC, and three clock tests that built their dates with
+  `Date.UTC` passed there and failed on `npm test` in Tallinn, since the formatter reads a time in
+  the reader's zone. `vitest.config.mts` pins `Pacific/Chatham`, a quarter-hour offset thirteen
+  hours from UTC that nobody's code assumes, so a zone assumption fails in CI as well as off it.
+  The locale is the same fault one setting over: `nextCardLine` took its weekday from the host and
+  wrote "The next card comes back on laupäev." on a machine in Estonia, so the weekday is English
+  now, since the sentence is, and the suite runs under `et_EE.UTF-8`. Asserted, including that
+  neither pin is CI's own.
 - **A cache of object URLs that never revokes one is a leak with a hit rate.** `Speak` and
   `PairsSession` each held a `Map` of blob URLs and neither released anything: `Speak`'s was
   module-level and so outlived every navigation, `PairsSession`'s went unreachable when the round
@@ -9672,6 +9842,33 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   production and no more. And the scene suite's report-button check opened `spoken === 0 || ...`,
   which passes when there is nothing on screen to report. Where the subject can honestly be empty,
   say so with `absent` and name what would fill it; where it cannot, assert the claim.
+- **And the third of those was found by reading, which is why it is asserted now.** Reading every
+  `.every(` once fixes the instances somebody looked at that afternoon and nothing about the next
+  one, and there were six more. The edit suite's own header explains the fault above and two checks
+  below the fix it reads the same array the same way, so a rename that failed outright still
+  reported that scheduling had survived it; the flash round had four, where a round that logged
+  nothing failed one check about the log and passed the four behind it, two on an empty `every` and
+  two through a disjunction nobody counted; Today's column check, the hint ladder and the sign-in
+  button had one apiece. **The pairing is what makes it a rule rather than a reading**: in every
+  case a check above already asks the length, because the suite knew the list could be empty, and
+  that check failing is exactly the run where the ones below it stop meaning anything. So the
+  haystack is a bare `.every()` on a name the same file counts somewhere else, which fires on
+  nothing honest: an array literal cannot be empty, and a name nobody counts is a name nothing has
+  raised a question about. **The count has to be in the verdict**, which is how the first version
+  missed the very line it was written for: `test-edit.mjs` carries the length in its *detail*
+  string, the "0 cards" that was the visible half of the bug, and a rule reading the whole call
+  took that label for a guard. A count beside the verdict says how many there were; only a count
+  inside it decides. Made to fail on all four of the real lines.
+- **And an exemption is granted to a control rather than to the file it is in.** The rule that a
+  control answers a pointer excused `Sidebar.tsx` and `CommandPalette.tsx` by name, on two
+  arguments that are each about one button: the scrim behind the phone sheet is a close target
+  rather than a labelled control, and the palette's rows are painted from `active`, which the arrow
+  keys move too. What it excused was every control in both files, the rail's own cells and both
+  crosses on the sheet among them, and it carried no staleness check, which is the one shape this
+  file names as a parking space. Nothing is wrong in either file today, which is the state a
+  file-wide exemption is invisible in: it costs nothing until somebody adds a control to one of
+  them. It is the `only` list `lib/ekilex/client.ts` gets from the phrase rule, and it is checked
+  both ways, since an exemption naming a control that has gone is where the next button lands.
 - **A suite that pairs two facts by walking the markup goes blind the day the markup moves, and
   waives itself while it does.** `scripts/test-scene.mjs` asks two questions only a browser can
   answer, that a composed line and a scripted line are each one short sentence saying which rung
@@ -9952,9 +10149,17 @@ it cannot find the rail, which was the `A || !A` shape one check over.
 
 ## Model configuration
 
-**Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` returns every
-key in `.env` in order, free first: OpenRouter (default), Anthropic, then OpenAI. Do not re-pin a
-single provider. `openWithFallback` walks past a provider that is throttled or having a bad
+**Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` builds one
+of two kinds of chain. Asked for a purpose, it builds that purpose's own (`PURPOSE_CHAINS`, above):
+Anu on `TUTOR_MODEL` with Groq's `TUTOR_FALLBACK_MODEL` behind it, a scene on `SCENE_MODELS` with
+`SCENE_FALLBACK_MODEL` behind them, the grader on `GRADER_MODELS`, and for the scene and the grader
+Anthropic last, only while the day's fallback budget has room. Asked for nothing in particular, it
+builds the general chain, which is the scanner's tail, the dictionary's translation fallback and
+whatever else asks only "is any model configured": Groq's models, then Gemini's, then Anthropic and
+OpenAI behind the same budget gate. That order replaced "free first", and the function's own
+comment says why: a free model is throttled upstream by design, so preferring one spends the
+learner's wait to save a hundredth of a cent. Do not collapse either kind to one provider.
+`openWithFallback` walks past a provider that is throttled or having a bad
 minute, and never past a rejected key or a model that does not exist, since every provider would
 answer those the same way and trying them all turns one clear message into a slower one. A
 provider is only ever walked past **before it has said anything**: once text is reaching the
@@ -9965,17 +10170,20 @@ sitting through 4.5 seconds of backoff against a provider that has already said 
 seconds. The Anthropic path keeps a `cache_control` breakpoint on the static Estonian system
 prompt. This supersedes the original ADR-004; see `docs/13-mvp-status.md` §2.
 
-**Reading a picture uses whichever model the deployment already configured.** Not a better one
-chosen behind the operator's back: turning the camera on must not move a free-model deployment onto
-a paid one, and the free chain that is now the default is text-only. `OPENROUTER_VISION_MODEL`,
-`ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` are how that choice is made, and they affect
-scanning and nothing else. The chain is deduplicated by model first: OpenRouter contributes a link
-per free model, so an override would otherwise ask one model the same question three times and read
-the third refusal as having exhausted the chain. The image path
-falls back more readily than the chat path does, and deliberately: `openWithFallback` refuses to
-walk past a 400 because every provider would refuse a malformed request the same way, but whether a
-model can see is a fact about that one model, so `completeWithImage` walks past everything except a
-rejected key.
+**Reading a picture leads with the model measured reading one, and never adds a provider.**
+`visionProviders` puts `VISION_MODEL` first wherever a Gemini key is set, because `npm run eval:scan`
+measured it reading every diacritic on the page, and the general chain follows it, deduplicated,
+because a scan has no bank underneath it and a bad minute at one provider has to be able to reach
+another. It only ever chooses among providers the deployment already holds a key for, so turning
+the camera on cannot move a deployment onto one it did not configure. `GEMINI_VISION_MODEL`,
+`GROQ_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` swap the model on that
+provider's link, and they affect scanning and nothing else. The chain is deduplicated by model
+because Groq and Gemini each contribute a link per model, so an override would otherwise ask one
+model the same question three times and read the third refusal as having exhausted the chain. The
+image path falls back more readily than the chat path does, and deliberately: `openWithFallback`
+refuses to walk past a 400 because every provider would refuse a malformed request the same way,
+but whether a model can see is a fact about that one model, so `completeWithImage` walks past
+everything except a rejected key.
 
 **Which model answered is a fact about the answer, so it travels with it.** Never the head of the
 chain: a screen naming the wrong model is worse than one naming none. The handshake finishes
@@ -10719,7 +10927,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
 `data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
-`OPENS_WITHOUT_BRIEFING`.
+`OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -10906,7 +11114,7 @@ add checks; never lower one to make a run pass.
 
 **A floor is only honest while the count is a property of the code rather than
 of the machine.** It was not. `test-teaching.mjs` was measured on a box whose
-environment carried `EKILEX_API_KEY` and `OPENROUTER_API_KEY`, so dictation
+environment carried an Ekilex key and a model key, so dictation
 built a real round and Anu had a text box, and its floor of 38 counted both.
 CI has neither key, ran the same correct code, came in at 34, and the floor
 read that as a block having stopped running. Lowering it was not available:
