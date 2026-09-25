@@ -2571,7 +2571,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "frost; gray; gloomy, gray",
+  "notes": null,
   "examples": [
    {
     "et": "Hommikul oli hall maas.",
@@ -7020,7 +7020,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "cucumber",
+  "notes": null,
   "examples": [
    {
     "et": "Kurk on külmast kähe.",
@@ -16741,7 +16741,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "salt",
+  "notes": null,
   "examples": [
    {
     "et": "Mao ja soole seedetegevus on korras.",
@@ -42848,7 +42848,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "kk : k",
   "government": null,
-  "notes": "package; being full of something; a hurry",
+  "notes": null,
   "examples": [
    {
     "et": "Kasepakk.",
@@ -46884,7 +46884,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "s : ∅",
   "government": null,
-  "notes": "trip, journey",
+  "notes": null,
   "examples": [
    {
     "et": "Reied on eilsest trennist valusad.",
@@ -74732,7 +74732,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "s : t",
   "government": null,
-  "notes": "duty, requirement",
+  "notes": null,
   "examples": [
    {
     "et": "Püsti, kohus tuleb!",
@@ -77952,7 +77952,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "b : v",
   "government": null,
-  "notes": "a large uninhabited forest; desert; red-brown, tawny",
+  "notes": null,
   "examples": [
    {
     "et": "Ürgsed kõrved paeluvad mind tänini.",
@@ -83169,7 +83169,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "tax, payment",
+  "notes": null,
   "examples": [
    {
     "et": "Veisemaks.",
@@ -109847,7 +109847,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "a row of trucks or any other vehicle carrying a load; row; phase, stage, round, e.g. in a competition",
+  "notes": null,
   "examples": [
    {
     "et": "Matkarada kulgeb voorte harju mööda.",
@@ -115190,7 +115190,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "sensor",
+  "notes": null,
   "examples": [],
   "forms": [
    {
@@ -120039,7 +120039,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "fork; snowdrift; blanket of snow",
+  "notes": null,
   "examples": [
    {
     "et": "Kuuris on hange ja labidaid.",
@@ -140494,7 +140494,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "note",
+  "notes": null,
   "examples": [
    {
     "et": "Räimenoot.",
@@ -160740,7 +160740,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : ∅",
   "government": null,
-  "notes": "guard",
+  "notes": null,
   "examples": [
    {
     "et": "Õllevaht.",
@@ -220281,7 +220281,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "jetty, mole",
+  "notes": null,
   "examples": [
    {
     "et": "Bareljeefil on kujutatud ehitusmaterjali vedavat muula.",

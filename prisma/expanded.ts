@@ -328,3 +328,35 @@ export async function writeExpanded(
 
   return { added, forms: formCount };
 }
+
+const PINS = "prisma/data/homonym-pins.json";
+
+/**
+ * Clears the notes a homonym pin carried over from the other word.
+ *
+ * A pinned entry is one whose Wiktionary page holds more than one word, and
+ * its notes were that page's other senses: `kurk` pinned to the throat said
+ * "cucumber", `maks` the liver "tax, payment", `vaht` the foam "guard", which
+ * the entry prints as further meanings of the word it is about. The file no
+ * longer ships them, and the expansion inserts with ON CONFLICT DO NOTHING, so
+ * a deployment seeded before that keeps them until this runs. On both paths
+ * for `clearDuplicatedNotes`'s reason.
+ *
+ * Exactly the rows the file made: the pinned lemma and part of speech, on the
+ * Ekilex word it is pinned to, and nobody's hand edit, since a note somebody
+ * wrote in is theirs to keep.
+ */
+export async function clearPinnedNotes(prisma: PrismaClient): Promise<void> {
+  const pins = JSON.parse(readFileSync(PINS, "utf8")) as Record<string, number>;
+  let cleared = 0;
+  for (const [key, wordId] of Object.entries(pins)) {
+    const [lemma, pos] = key.split("|");
+    if (!lemma || !pos) continue;
+    cleared += await prisma.$executeRaw`
+      UPDATE "Lexeme" SET notes = NULL
+      WHERE lemma = ${lemma} AND pos = ${pos} AND "ekilexWordId" = ${wordId}
+        AND "editedBy" IS NULL AND notes IS NOT NULL
+    `;
+  }
+  if (cleared > 0) console.log(`Cleared ${cleared} notes a homonym pin carried over from the other word.`);
+}

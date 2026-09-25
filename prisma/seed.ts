@@ -6,7 +6,7 @@ import { ADJECTIVES, PHRASES } from "./data/other";
 import { ADVANCED_ADJECTIVES, ADVANCED_NOUNS, ADVANCED_VERBS } from "./data/advanced";
 import { HARVESTED } from "./data/harvested";
 import { LEXEME_COLUMNS, type SeedEntry } from "./columns";
-import { applyGlossCorrections, applyPosCorrections, writeExpanded } from "./expanded";
+import { applyGlossCorrections, applyPosCorrections, clearPinnedNotes, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
@@ -165,6 +165,7 @@ async function main() {
     if (existing > 0) {
       console.log(`Dictionary already has ${existing} entries. Leaving it alone.`);
       await clearDuplicatedNotes(prisma);
+      await clearPinnedNotes(prisma);
       return;
     }
     console.log("Dictionary is empty. Seeding it.");
@@ -336,6 +337,7 @@ async function main() {
   }
 
   await clearDuplicatedNotes(prisma);
+  await clearPinnedNotes(prisma);
 }
 
 /**
