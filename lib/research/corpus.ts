@@ -325,8 +325,7 @@ export function buildSection(
     keys: readonly string[];
     group: string;
     raw: number;
-    /** The unrounded mature count, which picks a mature victim the way `raw` picks a cell. */
-    matureRaw: number;
+    rawMature: number;
     all: Summary | null;
     mature: Summary | null;
   }
@@ -339,7 +338,7 @@ export function buildSection(
       keys: cell.keys,
       group: groupKey(cell.keys, spec.groupBy),
       raw: cell.all.reduce((sum, t) => sum + t.n, 0),
-      matureRaw: cell.mature.reduce((sum, t) => sum + t.n, 0),
+      rawMature: cell.mature.reduce((sum, t) => sum + t.n, 0),
       all: typeof all === "string" ? null : all,
       mature: typeof mature === "string" ? null : mature,
     });
@@ -370,23 +369,20 @@ export function buildSection(
   }
 
   /*
-    And the same again for the mature column, which is a table of its own with
-    the same totals problem. The `case` section publishes how many mature
-    answers the partitive rests on, so a row of `case_by_level` that publishes
-    every level's mature figure but one has handed that one back by
-    subtraction, exactly as a lone hidden cell would. The pass above only sees
-    whole cells, and a cell whose mature half was gated on its own while the
-    cell itself passed was the one gap nothing covered. A cell withheld whole
-    has no mature figure either, so it counts as missing here too.
+    And the same for the mature figures, which are a second table in the same
+    rows. A cell can pass the gate on all its answers and fail it on the
+    mature ones, dominance being the usual reason, and a group hiding exactly
+    one mature figure gives it back by subtraction against the section above
+    it, which sums the same answers over one dimension fewer. Counted over the
+    cells that had mature answers at all, since a figure over none hides
+    nothing, and settled the same way, smallest first.
   */
   for (const group of byGroup.values()) {
-    if (group.filter((c) => !c.all || !c.mature).length !== 1) continue;
+    const hidden = group.filter((c) => c.rawMature > 0 && !c.mature);
+    if (hidden.length !== 1) continue;
     const victim = group
-      .filter((c) => c.all && c.mature)
-      .sort(
-        (a, b) =>
-          a.matureRaw - b.matureRaw || a.keys.join(" ").localeCompare(b.keys.join(" ")),
-      )[0];
+      .filter((c) => c.mature)
+      .sort((a, b) => a.rawMature - b.rawMature || a.keys.join(" ").localeCompare(b.keys.join(" ")))[0];
     if (victim) victim.mature = null;
   }
 

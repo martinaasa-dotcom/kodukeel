@@ -157,6 +157,30 @@ describe("complementary suppression", () => {
     expect(section.suppressed).toBe(2);
   });
 
+  /*
+    The mature figures are a second table in the same rows. Here every cell
+    passes on all its answers and A2's mature figure fails on its own, being
+    one learner's: published beside A1's and B1's, it came back by subtracting
+    them from the per-case total, which is that learner's accuracy.
+  */
+  it("hides a second mature figure when a group hid exactly one", () => {
+    const level = (lvl: string) =>
+      Array.from({ length: 12 }, (_, i): Contribution => ({
+        keys: ["PARTITIVE", lvl], learner: `${lvl}${i}`,
+        reviews: 10, correct: 10, matureReviews: 10, matureCorrect: 10,
+      }));
+    const a2 = Array.from({ length: 12 }, (_, i): Contribution => ({
+      keys: ["PARTITIVE", "A2"], learner: `A2${i}`,
+      reviews: i === 0 ? 200 : 20, correct: i === 0 ? 60 : 20,
+      matureReviews: i === 0 ? 200 : 0, matureCorrect: i === 0 ? 60 : 0,
+    }));
+    const section = buildSection(CROSSTAB, [...level("A1"), ...a2, ...level("B1")]);
+    expect(section.cells).toHaveLength(3);
+    const hiddenMature = section.cells.filter((c) => c.mature === null).map((c) => c.keys[1]).sort();
+    expect(hiddenMature).toHaveLength(2);
+    expect(hiddenMature).toContain("A2");
+  });
+
   it("leaves a group alone when it hid nothing", () => {
     const section = buildSection(CROSSTAB, [
       ...group("A1", 40, 20),
