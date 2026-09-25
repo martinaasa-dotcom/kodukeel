@@ -26,6 +26,7 @@ import { resolvePos } from "../lib/dict/pos";
 import { wordNote } from "../lib/estonian/dictation";
 import { ACTION_LIMITS } from "../lib/security/actionLimits";
 import { DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS } from "../lib/usage/quota";
+import { billFor, DEFAULT_SHAPE } from "../lib/funding/model";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
 import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
 import { OPENS_WITHOUT_BRIEFING } from "../lib/copy/briefingCoverage";
@@ -6976,6 +6977,51 @@ check("every environment variable the app reads is in .env.example", () => {
   }
 });
 
+/**
+ * THE FUNDING PAGE PRICES ANU ON THE MODEL SHE ANSWERS ON, AND NAMES WHO ANSWERS HER.
+ *
+ * `/funding` is the page a funder reads to decide whether the bill is real,
+ * and it started its projection on `claude-opus-5` while Anu answers on
+ * `TUTOR_MODEL`, and it named the tutor's providers off the general chain,
+ * which carries the paid tail a tutor chain never reaches, so a deployment
+ * with an Anthropic key was told Anthropic answers Anu. Both are the same
+ * fault: a page whose argument is that its numbers are checkable describing a
+ * deployment that does not exist.
+ */
+check("the funding page prices and names Anu the way the app runs her", () => {
+  const tutorModel = /export const TUTOR_MODEL = "([^"]+)"/.exec(code("lib/tutor/provider.ts"))?.[1];
+  assert.ok(tutorModel, "TUTOR_MODEL was not read out of lib/tutor/provider.ts");
+  const facts = code("lib/funding/facts.ts");
+  const first = /TUTOR_MODELS[^=]*=\s*\[\s*\{\s*id:\s*"([^"]+)"/.exec(facts)?.[1];
+  assert.equal(first, tutorModel, "the funding page's first model is not the one Anu answers on");
+  const start = /DEFAULT_SHAPE[^=]*=\s*\{[^}]*tutorModel:\s*"([^"]+)"/.exec(facts)?.[1];
+  assert.equal(start, tutorModel, "the funding page starts its projection on a model Anu does not answer on");
+  assert.match(code("app/funding/page.tsx"), /resolveProviders\(\{\s*purpose:\s*"tutor"\s*\}\)/,
+    "the funding page names Anu's providers off a chain that is not hers");
+});
+
+/*
+  AND THE GRANT CASE QUOTES THE BILL THE MODEL COMPUTES.
+
+  `docs/31-grant-case.md` printed four monthly totals off an earlier run of
+  the cost model and nothing tied them to it, so they went on quoting $946.94
+  at ten thousand learners after the model had moved to $429.46. A funder
+  reads that document beside `/funding`, and two figures for one bill is the
+  one thing a page about checkable numbers may not show.
+*/
+check("the grant case quotes the monthly bill billFor computes", () => {
+  const doc = read("docs/31-grant-case.md");
+  const sentence = /the monthly bill is (.+?), which is/.exec(doc.replace(/\s+/g, " "))?.[1];
+  assert.ok(sentence, "the grant case no longer quotes the monthly bill, so this checks nothing");
+  const quoted = [...sentence.matchAll(/\$([\d,]+\.\d\d) at (one|a hundred thousand|a hundred|ten thousand)/g)];
+  assert.ok(quoted.length >= 4, `only ${quoted.length} figures read from the sentence`);
+  const learners: Record<string, number> = { one: 1, "a hundred": 100, "ten thousand": 10_000, "a hundred thousand": 100_000 };
+  for (const [, figure, size] of quoted) {
+    const computed = billFor({ ...DEFAULT_SHAPE, learners: learners[size!]! }).totalUsd;
+    assert.equal(Number(figure!.replace(/,/g, "")), computed, `the grant case quotes $${figure} at ${size}, billFor says ${computed}`);
+  }
+});
+
 check("a deletion that leaves something behind says so", () => {
   /*
     `deleteMyAccount` empties every table this app owns. The identity is not in
@@ -7284,6 +7330,36 @@ function ownerScopedModels(): string[] {
 }
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
+
+check("no server action takes an owner id from its caller", () => {
+  /*
+    CLAUDE.md: nothing in a \`"use server"\` file may take an owner id from its
+    caller. Every export there is a public endpoint whose arguments are JSON
+    anybody can send, so an action shaped \`(ownerId, ...)\` acts on whichever
+    learner the caller names. The throttle check below asserts this for the
+    actions it knows about; this is the rule for every export, whatever it
+    does, read off every file that carries the directive. A helper that needs
+    an owner lives in \`lib/\`, and the action resolves it with
+    \`requireUserId()\` and hands it over, which is \`addCardsFor\`'s shape.
+  */
+  const files = ALL.filter((f) => /^\s*["']use server["']/m.test(read(f)));
+  assert.ok(files.length >= 1, "no \"use server\" file found, so this check stopped looking");
+  const OWNERISH = /^(?:ownerId|userId|owner|user|learnerId|memberId|accountId)$/;
+  const offenders: string[] = [];
+  let exported = 0;
+  for (const file of files) {
+    const src = code(file);
+    for (const m of src.matchAll(/^export\s+async\s+function\s+(\w+)\s*\(([^)]*)\)/gm)) {
+      exported++;
+      for (const param of m[2]!.split(",")) {
+        const name = /^\s*(\w+)/.exec(param)?.[1];
+        if (name && OWNERISH.test(name)) offenders.push(`${file}: ${m[1]}(${name})`);
+      }
+    }
+  }
+  assert.ok(exported >= 80, `only ${exported} exported actions found; the pattern stopped reaching them`);
+  assert.deepEqual(offenders, [], `server actions taking an owner id from the caller: ${offenders.join("; ")}`);
+});
 
 check("the weakest case is read off the case that was asked, on every screen that reads one", () => {
   /*
@@ -24922,6 +24998,60 @@ check("an already-seeded deployment receives the expansion's Russian and Ukraini
     "applyExpandedEquivalents overwrites an equivalent a row already has");
 });
 
+check("every package a document says the app uses is one it depends on", () => {
+  /*
+    The integrations document said the model calls go through
+    `@anthropic-ai/sdk`, streaming with adaptive thinking, and the app has no
+    SDK at all: one HTTP client speaks to every provider. A reader sizing the
+    dependency tree, or auditing what talks to whom, is told about a package
+    that is not there. So a package a document names the way a dependency is
+    named, scoped or quoted with its version, has to be in package.json. The
+    one exception keeps a plan that was not built, and says so.
+  */
+  const NOT_BUILT: Record<string, string> = {
+    "ical.js": "docs/05 §4 keeps the calendar subscription plan, marked as not built",
+  };
+  const pkg = JSON.parse(read("package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
+  const deps = new Set([...Object.keys(pkg.dependencies ?? {}), ...Object.keys(pkg.devDependencies ?? {})]);
+  const docs = [
+    ...readdirSync("docs").filter((f) => f.endsWith(".md")).map((f) => `docs/${f}`),
+    "README.md", "CLAUDE.md",
+  ];
+  const named = new Map<string, string>();
+  for (const file of docs) {
+    const text = read(file);
+    for (const m of text.matchAll(/`([a-z][a-z0-9.-]*)`\s*\((?:[0-9]+\.[0-9]+|MIT|VERIFIED)/g)) named.set(m[1]!, file);
+    for (const m of text.matchAll(/`(@[a-z0-9-]+\/[a-z0-9.-]+)`/g)) named.set(m[1]!, file);
+  }
+  assert.ok(named.size >= 3, `found only ${named.size} packages named, so the sweep has stopped reading what it should`);
+  const missing = [...named].filter(([p]) => !deps.has(p) && !(p in NOT_BUILT)).map(([p, f]) => `${p} (in ${f})`);
+  assert.ok(missing.length === 0, `names a package the app does not depend on: ${missing.join(", ")}`);
+  const stale = Object.keys(NOT_BUILT).filter((p) => deps.has(p) || !named.has(p));
+  assert.ok(stale.length === 0, `an exemption no longer applies: ${stale.join(", ")}`);
+});
+
+check("an ADR the architecture calls superseded is marked so in the decisions table", () => {
+  /*
+    `docs/11-risks-decisions.md` is the one-page summary of what was decided,
+    and it went on listing SQLite and a pinned `claude-opus-5` as the
+    decisions long after `docs/03-architecture.md` marked both superseded, so
+    a reviewer reading the summary was told the app runs on a database and a
+    model it does not. The architecture document is where an ADR is
+    superseded; this holds the summary to it.
+  */
+  const arch = read("docs/03-architecture.md");
+  const superseded = new Set<string>();
+  for (const m of arch.matchAll(/\*\*ADR-(\d{3}):[^*]*SUPERSEDED/g)) superseded.add(m[1]!);
+  for (const m of arch.matchAll(/SUPERSEDES ADR-(\d{3})/g)) superseded.add(m[1]!);
+  assert.ok(superseded.size >= 2, `found only ${superseded.size} superseded ADRs in docs/03, so this has stopped reading them`);
+  const table = read("docs/11-risks-decisions.md");
+  const unmarked = [...superseded].filter((n) => {
+    const row = table.split("\n").find((l) => l.startsWith(`| ${n} |`));
+    return row !== undefined && !/supersed/i.test(row);
+  });
+  assert.ok(unmarked.length === 0, `docs/11 lists as current an ADR docs/03 calls superseded: ${unmarked.map((n) => `ADR-${n}`).join(", ")}`);
+});
+
 /**
  * Two neighbouring `const x = await ...` statements in a server file where the
  * second never names what the first bound: two reads that do not need each
@@ -25159,6 +25289,35 @@ check("every source file a comment in the code cites is one that exists", () => 
   assert.ok(missing.size === 0, `cites a file that does not exist: ${[...missing].map(([p, f]) => `${p} (in ${f})`).join(", ")}`);
   const stale = Object.keys(GONE).filter((p) => existsSync(p) || !seen.has(p));
   assert.ok(stale.length === 0, `an exemption no longer applies, because the file exists or nothing cites it: ${stale.join(", ")}`);
+});
+
+check("whatever says whether Anu answers, or on what, reads her own chain", () => {
+  /*
+    Anu's chain is Gemini and then Groq and nothing else, and the general
+    chain is every configured key in another order. Settings drew her section
+    off the general one, so it named a model she never answers on and, with
+    only a paid key set, printed "Connected" over a tutor the route refuses
+    with "No AI key set up yet"; the dictionary offered her a question on the
+    same reading. The shell and /tutor had already learned this. So a prop that
+    says whether she is there, and the Settings section that says what she runs
+    on, are held to the purpose chain: the file has to build it, and the prop
+    may not be computed off the head of the general chain.
+  */
+  const offenders: string[] = [];
+  let props = 0;
+  for (const file of APP) {
+    const src = code(file);
+    for (const m of src.matchAll(/\b(tutorReady|configured)=\{([^}]*)\}/g)) {
+      // A bare name is a prop handed on from a parent, which is where it was decided.
+      if (/^\s*[\w.]+\s*$/.test(m[2]!)) continue;
+      props += 1;
+      if (/resolveProvider\(\)/.test(m[2]!) || !/purpose:\s*"tutor"/.test(src)) offenders.push(`${file} (${m[1]})`);
+    }
+  }
+  const settings = code(join("app", "(app)", "settings", "page.tsx"));
+  if (/resolveProvider\(\)/.test(settings) || !/purpose:\s*"tutor"/.test(settings)) offenders.push("app/(app)/settings/page.tsx (the Anu section)");
+  assert.ok(props >= 3, `found only ${props} availability props, so the sweep has stopped reading what it should`);
+  assert.ok(offenders.length === 0, `reads the general chain to say something about Anu: ${offenders.join(", ")}`);
 });
 
 check("every action that writes a grade tells Today it changed", () => {
