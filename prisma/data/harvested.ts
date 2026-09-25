@@ -5972,7 +5972,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["как"], ukr: ["як"],
   },
   {
-    lemma: "kuigi", gloss: "although", pos: "ADVERB", cefr: "B1",
+    lemma: "kuigi", gloss: "although, not particularly", pos: "ADVERB", cefr: "B1",
     ekilexWordId: 187065,
     ekilexPos: ["adv", "konj"],
     parts: {  },

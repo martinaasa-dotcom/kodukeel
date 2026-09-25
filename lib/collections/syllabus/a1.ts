@@ -1052,7 +1052,11 @@ export const A1 = [
       ["siis", "then", "ADVERB"],
       ["nii", "so, like this", "ADVERB"],
       ["mitte", "not", "ADVERB", 203249],
-      ["kuigi", "although", "ADVERB"],
+      // Ekilex holds the conjunction and the adverb as one word (adv, konj), and the
+      // definition, the four usages and the Russian it returns are all the adverb:
+      // `Ma ei tundnud teda kuigi hästi`. The gloss names both, so a gap cut from
+      // one of those sentences is not cued with a sense it does not carry.
+      ["kuigi", "although, not particularly", "ADVERB"],
       // A literary "but", commoner in writing than aga.
       ["ent", "but, however", "ADVERB"],
     ],
