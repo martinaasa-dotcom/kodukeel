@@ -108,7 +108,14 @@ export function checkRateLimit(key: string, limit: number, windowMs: number): Ra
 
   const bucket = buckets.get(key);
   if (!bucket || now >= bucket.resetAt) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs });
+    /*
+      The window this moment falls in, floored exactly as the shared table
+      floors it. Opened at the first request instead, the two disagreed about
+      where a window starts, and since the shared check asks this one first
+      and takes its refusal, a caller the table had moved into a fresh window
+      was still refused here.
+    */
+    buckets.set(key, { count: 1, resetAt: windowStartMs(now, windowMs) + windowMs });
     return { ok: true };
   }
   if (bucket.count >= limit) {

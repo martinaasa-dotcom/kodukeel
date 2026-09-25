@@ -124,8 +124,8 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       // A failed write costs this round's rep, not the finish screen.
     }
 
-    const result = await recordMatchTime(finalSeconds);
-    setIsNewBest(result.ok && result.isNewBest);
+    const result = await recordMatchTime(finalSeconds).catch(() => null);
+    setIsNewBest(!!result?.ok && result.isNewBest);
   }, [pairs]);
 
   const pick = (tile: Tile) => {
