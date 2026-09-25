@@ -42,7 +42,7 @@ check("it comes back with an English translation",
 check("the authoritative forms are shown, not derived ones",
   (await page.getByText(/^Every form$/i).count()) > 0);
 /*
-  The retrieved forms are a table now (app/dictionary/Forms.tsx): one row
+  The retrieved forms are a table now (app/(app)/dictionary/Forms.tsx): one row
   per case, naming it in both languages. Asserted on the row's text rather than
   on the element it happens to be built from.
 
