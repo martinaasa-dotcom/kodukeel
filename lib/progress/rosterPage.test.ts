@@ -26,25 +26,38 @@ describe("the roster walk", () => {
     }
   });
 
+  it("covers everybody when the run fires once a day, as it does", () => {
+    /*
+      Stepping by the hour, a daily run moves 24 hours a time, so wherever the
+      page count divides 24 the same page came up every day. Every page count
+      from two to thirty has to be covered in that many daily runs.
+    */
+    for (let pages = 2; pages <= 30; pages += 1) {
+      const total = pages * LIMIT;
+      const seen = new Set<number>();
+      for (let d = 0; d < pages; d += 1) seen.add(rosterPage(hour(16 + 24 * d), total, LIMIT));
+      expect(seen.size, `${pages} pages, daily runs left gaps`).toBe(pages);
+    }
+  });
+
   it("covers everybody on a deployment larger than one page", () => {
     /*
-      The claim that matters. Five thousand learners is three pages, so three
-      consecutive runs have to touch every offset; under the old code every run
-      returned the same one.
+      Five thousand learners is three pages, so three consecutive runs have to
+      touch every offset, here at an hourly cadence.
     */
     const total = 5_000;
     const seen = new Set<number>();
-    for (let h = 0; h < 3; h += 1) seen.add(rosterPage(hour(h), total, LIMIT));
+    for (let h = 0; h < 3; h += 1) seen.add(rosterPage(hour(h), total, LIMIT, 1));
     expect(seen).toEqual(new Set([0, LIMIT, 2 * LIMIT]));
   });
 
-  it("covers everybody inside a day at the sizes this app models", () => {
-    // The funding page models a hundred thousand learners. Twenty-four hourly
-    // runs have to reach all of them, or somebody is still excluded.
+  it("covers everybody at an hourly cadence at the sizes this app models", () => {
+    // The funding page models a hundred thousand learners. Hourly runs have to
+    // reach all of them in as many runs as there are pages.
     for (const total of [5_000, 48_000, 100_000]) {
       const pages = Math.ceil(total / LIMIT);
       const seen = new Set<number>();
-      for (let h = 0; h < pages; h += 1) seen.add(rosterPage(hour(h), total, LIMIT));
+      for (let h = 0; h < pages; h += 1) seen.add(rosterPage(hour(h), total, LIMIT, 1));
       expect(seen.size, `${total} learners left gaps in the walk`).toBe(pages);
     }
   });
@@ -59,7 +72,7 @@ describe("the roster walk", () => {
     }
   });
 
-  it("gives two runs in the same hour the same page", () => {
+  it("gives two runs inside one period the same page", () => {
     /*
       Deterministic on purpose, so it needs no stored cursor. Two invocations
       inside one hour look at the same learners, which is what the unique key

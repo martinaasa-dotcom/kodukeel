@@ -61,9 +61,10 @@ import { mailerConfig, send } from "./transport";
  *
  * A ceiling on the run rather than on the audience, so a deployment that grows
  * spreads its evening over several invocations instead of asking one function
- * to hold four thousand sends inside a platform timeout. The schedule fires
- * hourly, the evening window is four hours wide, and a learner who is owed a
- * letter and does not get one this hour gets it the next.
+ * to hold four thousand sends inside a platform timeout. How often the
+ * schedule fires is `RUN_EVERY_HOURS` in `lib/progress/mailout.ts`, held to
+ * `vercel.json`; a learner owed a letter who does not get one this run is
+ * owed it on the next.
  */
 export const MAX_PER_RUN = 200;
 

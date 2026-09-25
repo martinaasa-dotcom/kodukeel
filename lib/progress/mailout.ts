@@ -101,16 +101,33 @@ export const LOOK_BACK_DAYS = 45;
  * whole life inside the letter A. The answer there is the answer here: a walk
  * rather than a fixed window.
  *
- * The page turns with the hour, so a deployment larger than one page is
- * covered in `ceil(total / limit)` runs, which at the hourly schedule is under
- * a day for anything up to forty-eight thousand learners. Deterministic, so it
- * needs no stored cursor and two runs in the same hour look at the same page,
+ * The page turns once per run, so a deployment larger than one page is
+ * covered in `ceil(total / limit)` runs. Deterministic, so it needs no stored
+ * cursor and two runs inside one period look at the same page,
  * which is what the per-learner gap in `EmailSend` is there to make harmless.
  */
-export function rosterPage(now: Date, total: number, limit: number): number {
+/**
+ * How often the scheduled run fires, in hours, and the walk steps once per run.
+ *
+ * The walk used to turn with the hour on the understanding that the run was
+ * hourly. It is daily (`vercel.json`, and #279 for why), so each run moved the
+ * hour on by 24, and wherever the page count divides 24 the run looked at the
+ * same page every day: at 4,001 to 6,000 recent learners, two thirds of them
+ * were never considered for any letter. An invariant holds this to the cron
+ * expression, because the two disagreeing is exactly that silent exclusion.
+ */
+export const RUN_EVERY_HOURS = 24;
+
+export function rosterPage(
+  now: Date,
+  total: number,
+  limit: number,
+  everyHours: number = RUN_EVERY_HOURS,
+): number {
   if (total <= limit) return 0;
   const pages = Math.ceil(total / limit);
-  return (Math.floor(now.getTime() / 3_600_000) % pages) * limit;
+  const run = Math.floor(now.getTime() / (everyHours * 3_600_000));
+  return (run % pages) * limit;
 }
 
 /**

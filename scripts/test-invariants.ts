@@ -11724,6 +11724,24 @@ check("late is decided in one place, against the learner's own day", () => {
 });
 
 
+check("the mailout walk steps once per run, at the cadence the cron declares", () => {
+  /*
+    The walk turned with the hour while the cron fired once a day, so each run
+    moved it on by 24 and a roster of two, three, four or six pages came back
+    to the same page every day, leaving the rest out of every letter. The step
+    is declared once and has to match the schedule.
+  */
+  const vercel = JSON.parse(read("vercel.json")) as { crons?: { path: string; schedule: string }[] };
+  const cron = vercel.crons?.find((c) => c.path === "/api/email/send");
+  assert.ok(cron, "vercel.json no longer schedules the mailout");
+  const [minute, hourField, dom, month, dow] = cron.schedule.trim().split(/\s+/);
+  assert.ok(/^\d+$/.test(minute ?? "") && dom === "*" && month === "*" && dow === "*", `unrecognised mailout schedule ${cron.schedule}`);
+  const every = hourField === "*" ? 1 : /^\*\/(\d+)$/.test(hourField ?? "") ? Number(hourField!.slice(2)) : /^\d+$/.test(hourField ?? "") ? 24 : NaN;
+  const declared = /export const RUN_EVERY_HOURS = (\d+);/.exec(code("lib/progress/mailout.ts"))?.[1];
+  assert.equal(Number(declared), every, `the cron fires every ${every}h and the roster walk steps every ${declared}h`);
+  assert.match(code("lib/progress/mailout.ts"), /now\.getTime\(\) \/ \(everyHours \* 3_600_000\)/, "the walk no longer steps by the declared period");
+});
+
 check("a confidence figure carries its evidence, on every screen that prints one", () => {
   /*
     ADR-022's headline rule: a percentage whose basis is not stated is the one
