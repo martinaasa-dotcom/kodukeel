@@ -1,5 +1,6 @@
 import { CLOSE_PCT, LIKELY_PCT, type Evidence, type Readiness } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
+import { dayClock } from "@/lib/time/day";
 import { caseAccuracy } from "@/lib/stats/history";
 
 /**
@@ -235,6 +236,17 @@ export function withoutMember(summary: CohortSummary, ownerId: string): CohortSu
       EVIDENCE_RANK[member.evidence] < EVIDENCE_RANK[worst] ? member.evidence : worst
     ), members.length > 0 ? "good" : "thin"),
   };
+}
+
+/**
+ * Calendar days since somebody last reviewed, on their own clock.
+ *
+ * It was whole 24-hour spans, so a review at 23:00 last night read at 08:00
+ * this morning was "reviewed today" beside a streak, read on the same member's
+ * clock, that knows it was yesterday. Days are the member's, like the streak's.
+ */
+export function daysSince(last: Date | null, now: Date, zone: string | undefined): number | null {
+  return last ? dayClock(zone).daysBetween(last, now) : null;
 }
 
 /**

@@ -5329,6 +5329,25 @@ check("the smallest step on the scale is one a reader can actually see", () => {
   assert.deepEqual(out.map((s) => s.name), [], "a step on the scale is not larger than the one below it");
 });
 
+/**
+ * A count is spelled from one table.
+ *
+ * Five files kept their own, reaching three, seven, ten and fourteen, so one
+ * letter wrote "4 shields" where another wrote "four", and three of them put
+ * the word first in a sentence and sent it out lowercase, one as a subject
+ * line. `spelledCount` and `SpelledCount` in `lib/copy/values.ts` are the
+ * table; an array literal spelling "one", "two", "three" anywhere else is a
+ * sixth copy.
+ */
+check("a count is spelled from the one table in lib/copy/values.ts", () => {
+  const tables = ALL.filter(
+    (f) => f !== join("lib", "copy", "values.ts") && !/\.test\.tsx?$/.test(f) &&
+      /\[\s*(?:"no",\s*)?"one",\s*"two",\s*"three"/.test(code(f)),
+  );
+  assert.deepEqual(tables, [], `${tables.join(", ")} spells counts from a table of its own; use spelledCount`);
+  assert.match(code("lib/copy/values.ts"), /export function spelledCount\(/, "the one table has gone");
+});
+
 check("an empty cell goes through NO_VALUE, never a literal", () => {
   /*
     THIS HAS GONE WRONG TWICE, THE SAME WAY, AND THE COPY GUARD CANNOT SEE IT.
@@ -7061,6 +7080,40 @@ check("the privacy notice carries what Article 13 requires", () => {
   for (const [pattern, what] of required) {
     assert.match(privacy, pattern, `the privacy page no longer states ${what}`);
   }
+});
+
+/**
+ * THE SUBPROCESSOR REGISTER NAMES WHAT THE GENERATED LIST CAN NAME, AND NO MORE.
+ *
+ * `docs/26-subprocessors.md` says of itself that it describes the same table
+ * `lib/legal/recipients.ts` generates, and it had drifted three ways while the
+ * code moved on: OpenRouter sat in the provider table after the chain stopped
+ * reading its key, Vercel was written up as "not on the generated list" after
+ * the list learned to name it, and the page said no mail provider was
+ * configured while the list named Resend. A register a DPO reads is the wrong
+ * place for the code's history.
+ *
+ * Both directions: every recipient the code can generate has an entry, and
+ * the provider table holds exactly the labels `PROVIDER_HOME` knows, so a
+ * provider added to or taken out of the chain moves the page with it.
+ */
+check("the subprocessor register names every recipient the list can generate, and no retired provider", () => {
+  const register = read("docs/26-subprocessors.md");
+  const source = code("lib/legal/recipients.ts");
+  const stems = [...source.matchAll(/name:\s*["`]([^"`$,]+)/g)]
+    .map((m) => m[1]!.replace(/\s+at\s*$/, "").trim());
+  assert.ok(stems.length >= 6, `only ${stems.length} recipient names read from the code, so this stopped looking`);
+  const missing = stems.filter((stem) => !register.includes(stem));
+  assert.deepEqual(missing, [], `the register has no entry for: ${missing.join(", ")}`);
+
+  const home = source.slice(source.indexOf("PROVIDER_HOME"), source.indexOf("};", source.indexOf("PROVIDER_HOME")));
+  const labels = [...home.matchAll(/^\s*(?:"([^"]+)"|([A-Za-z]+)):/gm)].map((m) => (m[1] ?? m[2])!);
+  assert.ok(labels.length >= 3, "PROVIDER_HOME was not read");
+  const section = register.slice(register.indexOf("### The AI provider chain"));
+  const table = section.slice(0, section.indexOf("**What they process.**"));
+  const rows = [...table.matchAll(/^\| ([^|]+?) \| [^|]+ \| (?:Inside|Outside) \|$/gm)].map((m) => m[1]!);
+  assert.deepEqual([...rows].sort(), [...labels].sort(),
+    "the register's provider table and PROVIDER_HOME name different providers");
 });
 
 /*
@@ -9056,6 +9109,35 @@ check("nothing is stored on a device that would need asking first", () => {
     /What is kept on your own device/,
     "the privacy page stopped saying what is kept on the device",
   );
+});
+
+check("a due date is printed and bucketed as the day it names, never as an instant", () => {
+  /*
+    A due date is typed into `<input type="date">` and stored at midnight UTC,
+    so it is a day rather than an instant. Read in the learner's zone it named
+    the day before anywhere west of Greenwich: homework was "Late" on the day it
+    was due and printed as due the day before. `bucketFor` reads the stored day
+    through `dueDayKey`, and a screen that prints one formats it in UTC through
+    `DUE_DATE_FORMAT`. Asked of every place a due date reaches a formatter.
+  */
+  const agendaSrc = code("lib/ux/agenda.ts");
+  assert.match(agendaSrc, /const days = dayNumber\(dueDayKey\(dueAt\)\) - dayNumber\(clock\.dayKey\(now\)\)/,
+    "bucketFor reads a due date as an instant in the learner's zone again");
+  const bare: string[] = [];
+  let seen = 0;
+  for (const file of [...APP, ...COMPONENTS].filter((f) => f.endsWith(".tsx"))) {
+    const src = code(file);
+    for (const m of src.matchAll(/\b(?:dueAt|due)\??\.toLocale(?:Date)?String\(([^)]*)\)/g)) {
+      seen++;
+      if (!/DUE_DATE_FORMAT/.test(m[1]!)) bare.push(`${file}: ${m[0]}`);
+    }
+    for (const m of src.matchAll(/<LocalDate\b[^>]*iso=\{[^}]*\b(?:dueAt|due)\b[^>]*>/g)) {
+      seen++;
+      if (!/zone="UTC"/.test(m[0]) || !/DUE_DATE_FORMAT/.test(m[0])) bare.push(`${file}: LocalDate over a due date`);
+    }
+  }
+  assert.ok(seen >= 3, `only ${seen} due dates formatted; the pattern has stopped reaching them`);
+  assert.deepEqual(bare, [], `a due date printed in the reader's zone, a day early west of UTC: ${bare.join("; ")}`);
 });
 
 check("browser storage is read and written inside a try, because a blocked store throws", () => {
@@ -14621,7 +14703,9 @@ check("late is decided in one place, against the learner's own day", () => {
     second time, and getting it wrong is the default.
   */
   const agenda = read("lib/ux/agenda.ts");
-  assert.match(agenda, /daysBetween\(/, "the agenda stopped counting in whole days");
+  // Whole calendar days, from the day the date names to the learner's today:
+  // see "a due date is printed and bucketed as the day it names".
+  assert.match(agenda, /dayNumber\(dueDayKey\(dueAt\)\) - dayNumber\(clock\.dayKey\(now\)\)/, "the agenda stopped counting in whole days");
 
   for (const file of ALL) {
     if (file === "lib/ux/agenda.ts") continue;
@@ -14633,6 +14717,19 @@ check("late is decided in one place, against the learner's own day", () => {
   }
 });
 
+
+check("a roster's days since the last review are calendar days on the member's clock", () => {
+  /*
+    Both rosters print "reviewed today" at nought. Counted in whole 24-hour
+    spans, a review at 23:00 last night read at 08:00 was "today" beside a
+    streak, on the same member's clock, that knew it was yesterday.
+  */
+  const roster = code("lib/classroom/roster.ts");
+  assert.doesNotMatch(roster, /getTime\(\)\s*\)\s*\/\s*86_400_000\)/, "a roster counts days in 24-hour spans again");
+  const calls = roster.match(/daysSinceLastReview:\s*daysSince\(/g) ?? [];
+  assert.equal(calls.length, 2, "both rosters no longer read days since through daysSince");
+  assert.match(code("lib/classroom/cohort.ts"), /dayClock\(zone\)\.daysBetween\(last, now\)/, "daysSince stopped counting calendar days");
+});
 
 check("the daily quest types what review types, and flips only what review flips", () => {
   /*
@@ -15606,6 +15703,25 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
   );
   for (const caller of ["app/actions.ts", "lib/srs/replay.ts"]) {
     assert.match(code(caller), /\bwriteGrade\(/, `${caller} stopped writing its grade through lib/srs/grade.ts`);
+  }
+});
+
+/*
+  A PRESS SETS THE STATE THE SCREEN SHOWED, AND NEVER THE OPPOSITE OF THE ROW.
+
+  `toggleStar` and `toggleTask` each read a stored boolean and wrote its
+  negation, which answers what the database holds rather than what the learner
+  was looking at: a stale Today unticked homework already handed in, a stale
+  star turned "Add" into a removal, and two presses landing together undid
+  each other or threw. The screen sends the state it wants now. What this
+  refuses is the shape itself, a write whose value is the negation of a field
+  just read, anywhere a learner's press arrives.
+*/
+check("a press sets the state the screen showed, never the opposite of the row", () => {
+  const flips = [...code("app/actions.ts").matchAll(/(\w+):\s*!\s*\w+\.\1\b/g)].map((m) => m[0]);
+  assert.deepEqual(flips, [], "a server action writes a stored boolean as the negation of what it read");
+  for (const [file, call] of [["components/StarWord.tsx", /toggleStar\(lexemeId,\s*\w+\)/], ["components/TaskRow.tsx", /toggleTask\(task\.id,\s*!task\.completed\)/]] as const) {
+    assert.match(code(file), call, `${file} stopped sending the state it wants`);
   }
 });
 
@@ -20906,6 +21022,8 @@ check("every screen that keeps a word asks which shelf, through one press", () =
 
   const keepers = ALL.filter(
     (file) => file !== DICTIONARY && file !== PRESS && file !== join("app", "actions.ts")
+      // A test calls the action to check it and is not a screen anybody keeps a word on.
+      && !/\.i?test\.tsx?$/.test(file)
       && /\baddToDeck\(/.test(code(file)),
   );
   assert.ok(keepers.length >= 6, `only ${keepers.length} screens keep a word, so this check has stopped looking`);
@@ -26819,6 +26937,48 @@ check("the scene judge is asked about the beat the turn was aimed at", () => {
     "the judged row is the last row again, which is another beat's whenever the turn moved the pointer");
   assert.match(route, /conceded: turns\[turns\.length - 1\]\?\.conceded \?\? null/,
     "a concession is read back off the last row, which a cascade row after it hides from the client");
+});
+
+check("an id a Server Action takes is read as a string before anything reads it", () => {
+  /*
+    Every export of app/actions.ts is a public endpoint and Prisma reads an
+    object where a string was typed as a filter. `assignHomework({ not: "" },
+    ...)` passed the ownership check against a class the caller owned and then
+    read the roster with the same argument, which matched every membership in
+    the deployment, so one teacher could write a task into every class
+    member's list. `deleteCard({ not: "" })` emptied a deck in one call. So a
+    positional id is coerced before any other line names it, and the rule is
+    asked of the order rather than of the presence, since a `text(id)` two
+    lines after a query is the same hole.
+  */
+  const src = code("app/actions.ts");
+  const exports = [...src.matchAll(/^export async function (\w+)\(([\s\S]*?)\)(?:\s*:\s*[^{]+)?\s*\{\n/gm)];
+  let ids = 0;
+  const loose: string[] = [];
+  for (const m of exports) {
+    const params = (m[2] ?? "").replace(/\{[\s\S]*?\}/g, "");
+    const names = [...params.matchAll(/(?:^|[,(\s])(\w*[iI]d)\??\s*:\s*string\b(?!\s*\|\s*null)/g)]
+      .map((x) => x[1] ?? "").filter((n) => n === "id" || /Id$/.test(n));
+    const start = (m.index ?? 0) + m[0].length;
+    const next = src.indexOf("\nexport ", start);
+    const body = src.slice(start, next === -1 ? undefined : next);
+    for (const n of names) {
+      ids++;
+      const first = body.search(new RegExp(`\\b${n}\\b`));
+      // A type guard asked before anything else reads it is as good as a
+      // coercion: `reviewId !== undefined && !isClientReviewId(reviewId)`
+      // refuses every value that is not a string of the right shape.
+      const coerced = body.search(new RegExp(
+        `(?:${n} = text|text|String)\\(${n}\\b|(?:${n} !== undefined && )?!is[A-Z]\\w*\\(${n}\\)`,
+      ));
+      if (first === -1) continue;
+      if (coerced === -1 || coerced > first) loose.push(`${m[1]}(${n})`);
+    }
+  }
+  assert.ok(ids >= 30, `found only ${ids} id parameters on the exports of app/actions.ts; the parser has stopped reading them`);
+  assert.deepEqual(loose, [], `${loose.join(", ")} reads an id before it is known to be a string`);
+  const rosters = [...src.matchAll(/classroomMember\.findMany\(\{\s*where: \{ classroomId(?![:\w])/g)];
+  assert.equal(rosters.length, 0, "a roster is read with the caller's argument rather than the id the ownership check returned");
 });
 
 check("the closing round compares a server tick with a server time", () => {
