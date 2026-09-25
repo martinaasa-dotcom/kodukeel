@@ -30,7 +30,6 @@ import { letterTiles, meter } from "../art";
 import type { Block, Letter } from "../letter";
 
 export interface WelcomeInput {
-  readonly name: string | null;
   readonly origin: string;
   /** The hour they chose to be reminded at, as "18:00", or null where they did not. */
   readonly reminderAt: string | null;
@@ -38,8 +37,6 @@ export interface WelcomeInput {
   readonly cardsWaiting: number;
   /** Where the course opens for them, in the programme's own words. */
   readonly opensOn: { readonly title: string; readonly subtitle: string } | null;
-  /** What they said they wanted to reach, and by when. */
-  readonly target: { readonly level: string; readonly deadline: string | null } | null;
 }
 
 export function welcomeLetter(input: WelcomeInput): Letter {

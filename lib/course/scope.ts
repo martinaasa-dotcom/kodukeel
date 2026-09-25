@@ -29,6 +29,7 @@ import { focusFrom } from "./focus";
 import { readableSentence } from "./build";
 import { BLANK, sentenceTiles } from "@/lib/estonian/cloze";
 import { CASES } from "@/lib/estonian/cases";
+import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import type { CourseDay, Programme } from "./types";
 
 export interface ModuleScope {
@@ -148,7 +149,16 @@ export function cardWithin(
   }
   // A verb card is about a part of the verb, and the past on the first
   // evening of A2 is three evenings before the page that teaches it.
-  if (card.cardType === "CONJUGATION" && !slotWithin(scope, card.slot)) return false;
+  //
+  // A card built before `Card.slot` existed carries no slot and names its part
+  // on the front (`lugema → lihtminevik · ma`), which is the builder's own
+  // label against a closed table. Read as no slot at all it passed whatever it
+  // asked, so an old deck's past and conditional cards reached the first
+  // evening of A2.
+  if (
+    card.cardType === "CONJUGATION"
+    && !slotWithin(scope, card.slot ?? conjugationSlotFromFront(card.front))
+  ) return false;
   if (card.cardType === "CLOZE" || card.cardType === "CASE_FORM" || card.cardType === "CONJUGATION") {
     // A sentence front, with the gap taken out. A bare front (`lemma → ask`)
     // has no sentence to check and passes.
