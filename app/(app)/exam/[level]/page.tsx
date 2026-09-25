@@ -3,7 +3,9 @@ import { requireUserId } from "@/lib/auth/session";
 import { paperFor } from "@/lib/progress/exam";
 import { isExamLevel } from "@/lib/exam/spec";
 import { fillRate } from "@/lib/exam/paper";
+import { freshSeed } from "@/lib/exam/seed";
 import { ExamSession } from "./ExamSession";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
@@ -30,21 +32,21 @@ export default async function ExamLevelPage({ params, searchParams }: {
   searchParams: Promise<{ seed?: string | string[] }>;
 }) {
   const { level } = await params;
-  const raw = (await searchParams).seed;
+  const first = firstParams(await searchParams).seed;
   /*
-    Only a seed the hand-in will take. `submitExam` refuses anything that is
-    not one string of up to 64 characters, and a repeated or over-long
-    parameter built a paper that could be sat for three hours and never
-    handed in. Anything else is a fresh paper.
+    Only a seed the hand-in will take. `submitExam` refuses anything longer
+    than 64 characters, and an over-long parameter built a paper that could be
+    sat for three hours and never handed in. Anything else is a fresh paper.
   */
-  const seed = typeof raw === "string" && raw.length <= 64 ? raw : undefined;
+  const seed = first && first.length <= 64 ? first : undefined;
   const upper = level.toUpperCase();
   if (!isExamLevel(upper)) notFound();
 
   if (!seed) {
-    // Base 36 of a random draw: short enough to read out, long enough that two
-    // learners sitting at once do not get the same paper.
-    const fresh = Math.random().toString(36).slice(2, 10);
+    // A random draw in base 36, short enough to read out and long enough that
+    // two learners sitting at once do not get the same paper, then the moment
+    // the paper was built, which pins its pool (see lib/exam/seed.ts).
+    const fresh = freshSeed();
     redirect(`/exam/${upper}?seed=${fresh}`);
   }
 

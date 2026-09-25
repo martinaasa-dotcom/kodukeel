@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { requireUserId } from "@/lib/auth/session";
 import { dailyGoalFrom, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { buildReminderIcs, parseReminderTime } from "@/lib/time/reminder";
+import { PRIVATE_NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -51,8 +52,7 @@ export async function GET(request: Request) {
       "content-type": "text/calendar; charset=utf-8",
       "content-disposition": 'attachment; filename="kodukeel-daily.ics"',
       // One learner's own reminder, for the reason /api/export gives.
-      "cache-control": "private, no-store",
-      vary: "Cookie",
+      ...PRIVATE_NO_STORE,
     },
   });
 }

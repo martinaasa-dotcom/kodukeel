@@ -44,21 +44,28 @@ const MAX_HEADLINES = 60;
 const SENTENCE_BREAK = /[.:!?…]+/u;
 
 /** Any run of characters that is not a letter separates two words. */
-const WORD_BREAK = /[^\p{L}]+/u;
+const WORD_BREAK = /[^\p{L}\p{M}]+/u;
 
 const ENTITIES: Record<string, string> = {
   amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
 };
 
+/*
+  A reference past the last code point is left as it was written, because
+  `String.fromCodePoint` throws on one, and a throw here took every headline in
+  the feed with it for the sake of one malformed title.
+*/
+const MAX_CODE_POINT = 0x10ffff;
+const character = (code: number, whole: string) =>
+  Number.isFinite(code) && code <= MAX_CODE_POINT ? String.fromCodePoint(code) : whole;
+
 function decodeEntities(text: string): string {
   return text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (whole, body: string) => {
     if (body.startsWith("#x") || body.startsWith("#X")) {
-      const code = Number.parseInt(body.slice(2), 16);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
+      return character(Number.parseInt(body.slice(2), 16), whole);
     }
     if (body.startsWith("#")) {
-      const code = Number.parseInt(body.slice(1), 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
+      return character(Number.parseInt(body.slice(1), 10), whole);
     }
     return ENTITIES[body.toLowerCase()] ?? whole;
   });
@@ -85,7 +92,11 @@ export function parseHeadlines(xml: string): string[] {
     if (!title?.[1]) continue;
     const text = decodeEntities(
       title[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1"),
-    ).trim();
+    ).trim()
+      // One spelling of each letter. A feed that sends `õ` as `o` plus a
+      // combining tilde matches no dictionary row, which holds the composed
+      // form, and reads as a word nobody could vouch for.
+      .normalize("NFC");
     if (text) out.push(text);
     if (out.length >= MAX_HEADLINES) break;
   }
@@ -148,7 +159,9 @@ export interface HeadlineToken {
 
 export function tokenise(headline: string): HeadlineToken[] {
   const out: HeadlineToken[] = [];
-  for (const match of headline.matchAll(/\p{L}+|[^\p{L}]+/gu)) {
+  // A combining mark belongs to the letter before it: split on it and a
+  // decomposed `sõna` is two words, `so` and `na`, each looked up alone.
+  for (const match of headline.matchAll(/[\p{L}\p{M}]+|[^\p{L}\p{M}]+/gu)) {
     const text = match[0];
     out.push({ text, word: /\p{L}/u.test(text) });
   }

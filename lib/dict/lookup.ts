@@ -152,11 +152,25 @@ async function runEnrich(lexemeId: string): Promise<boolean> {
     return false;
   }
 
-  const matches = await searchEkilex(lexeme.lemma);
-  const first = matches.find((m) => m.wordValue === lexeme.lemma) ?? matches[0];
-  if (!first) return recordMiss(lexeme.id);
+  /*
+    A row that already names its Ekilex word is enriched from that word and no
+    other. Ekilex numbers its homonyms, and the harvest and the homonym pins
+    exist because the first match for a spelling is often the wrong one:
+    `kohus` is pinned to the court, and the search hands back the moral duty.
+    Every seeded form is principal, so the check above never stood this down
+    for a seeded entry, and asking the search here replaced a pinned entry's
+    forms, sentences and word id with the other homonym's, under the first
+    one's gloss, on the first open of the entry, for everybody.
+  */
+  let wordId = lexeme.ekilexWordId;
+  if (wordId == null) {
+    const matches = await searchEkilex(lexeme.lemma);
+    const first = matches.find((m) => m.wordValue === lexeme.lemma) ?? matches[0];
+    if (!first) return recordMiss(lexeme.id);
+    wordId = first.wordId;
+  }
 
-  const details = await fetchEkilexDetails(first.wordId);
+  const details = await fetchEkilexDetails(wordId);
   const mapped = details ? mapEkilexDetails(details) : null;
   if (!mapped || mapped.lemma !== lexeme.lemma) return recordMiss(lexeme.id);
 
