@@ -379,11 +379,12 @@ export async function writeSetting(ownerId: string, key: SettingKey, value: stri
 /**
  * Drop what this request remembers about a learner's settings.
  *
- * For the three paths that write the table without coming through
- * `writeSetting`: setting the course week to nothing (a delete, which is not a
- * value), restoring a backup, and erasing an account. All three are bulk
- * changes rather than one key, so correcting the held map in place would mean
- * describing the write twice, and all three end the request straight after.
+ * For the paths that write the table without coming through `writeSetting`:
+ * restoring a backup and erasing an account, which are bulk changes rather
+ * than one key, and the unsubscribe and bounce routes, which write a mail
+ * setting with an upsert of their own. Correcting the held map in place would
+ * mean describing each write twice, and every one of them ends the request
+ * straight after.
  */
 export function forgetSettings(ownerId: string): void {
   settingsScope().delete(ownerId);

@@ -21595,6 +21595,25 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("the places nav.ts says live inside another place are the ones its table says do", () => {
+  /*
+    The comment on \`within\` lists, route by route, every destination that is
+    reached from somewhere else rather than from a rail row, and says why for
+    each. It named the class week for as long after that page was cut as
+    anybody read it, which sent the next reader looking for a table entry and a
+    page that were both gone. So the list is held to the table: every route it
+    names has an entry there, and that entry carries a \`within\`. Read raw,
+    because the list is a comment and the table is code in the same file.
+  */
+  const src = read("lib/ux/nav.ts");
+  const listed = [...src.matchAll(/^\s*\*\s+- `(\/[^`]*)`/gm)].map((m) => m[1]!);
+  assert.ok(listed.length >= 4, `found only ${listed.length} routes in the within list, so the list has moved or this has stopped reading it`);
+  const entries = new Map<string, string>();
+  for (const m of code("lib/ux/nav.ts").matchAll(/href: "([^"]+)"([\s\S]*?)(?=href: "|$)/g)) entries.set(m[1]!, m[2]!);
+  const wrong = listed.filter((r) => !/\bwithin:/.test(entries.get(r) ?? ""));
+  assert.ok(wrong.length === 0, `nav.ts lists as reached from elsewhere a route its table has no within entry for: ${wrong.join(", ")}`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

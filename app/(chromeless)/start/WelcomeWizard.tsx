@@ -152,9 +152,11 @@ const STEPS = ["You", "Level", "Goal", "Tonight"] as const;
  *   - **Start** picks the daily goal and the first units. Last, because the
  *     plan has to be seen before anybody invests an evening in a deck.
  *
- * The tour that was step seven is `/guide`, in the rail and in the palette,
- * where it can be reopened a fortnight in when the question actually arises.
- * The honest limits it led with are on the first screen here in one sentence,
+ * The tour that was step seven became a page and was then removed with it,
+ * since the landing page already makes that case to somebody deciding and a
+ * learner finds the rest by using the app (CLAUDE.md, "There is no page
+ * describing this app"). The honest limits it led with are on the first screen
+ * here in one sentence,
  * because that is where they earn their place: before the investment, not
  * after seven screens of it.
  */
