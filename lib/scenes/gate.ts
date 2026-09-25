@@ -856,7 +856,7 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
     caller that has none.
   */
   if (text !== undefined) {
-    return text.split(/[.!?,;:]+/).map((clause) => words(clause)).filter((clause) => clause.length > 0)
+    return clausesOf(text).map((clause) => words(clause)).filter((clause) => clause.length > 0)
       .some((clause) => governmentSuspect(clause, context));
   }
   const lower = tokens.map((t) => t.toLowerCase());
