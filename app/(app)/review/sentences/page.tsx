@@ -3,7 +3,8 @@ import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
-import { isBuildable, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
+import { isBuildable, naturalSentence, nominalOpener, sentenceTiles } from "@/lib/estonian/cloze";
+import { ordinaryOpeners } from "@/lib/dict/openers";
 import { SentenceSession, type SentenceTask } from "./SentenceSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
@@ -110,7 +111,7 @@ export default async function SentencesPage({
     }
   }
 
-  const tasks: Omit<SentenceTask, "alsoRight">[] = [];
+  const tasks: Omit<SentenceTask, "alsoRight" | "openerIsWord">[] = [];
   for (const entry of byLexeme.values()) {
     /*
       And only out of a sentence. `isBuildable` counts the tiles and refuses a
@@ -147,12 +148,19 @@ export default async function SentencesPage({
     decides. Asked of the eight sentences the round actually sets rather than
     of every candidate, since the query is keyed on the words in front of it.
   */
-  const wordOrder = await orderContextFor(round.map((t) => t.et));
+  const [wordOrder, openers] = await Promise.all([
+    orderContextFor(round.map((t) => t.et)),
+    ordinaryOpeners(round.map((t) => t.et)),
+  ]);
 
   return (
     <BeforeYouStart id="sentences" ready={round.length > 0} count={{ n: round.length, noun: "sentence" }}>
       <SentenceSession
-        tasks={round.map((t) => ({ ...t, alsoRight: alsoRightOrders(t.et, wordOrder) }))}
+        tasks={round.map((t) => ({
+          ...t,
+          alsoRight: alsoRightOrders(t.et, wordOrder),
+          openerIsWord: openers.has(sentenceTiles(t.et)[0] ?? ""),
+        }))}
       />
     </BeforeYouStart>
   );

@@ -21716,6 +21716,21 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a word-ordering tile does not say which tile goes first", () => {
+  /*
+    A sentence opens on a capital because it is first, and a tile keeping that
+    capital hands the first move over: 9,441 of the 9,463 sentences the builder
+    can set open on one. \`tileFaces\` takes it off where the forms list says the
+    opener is an ordinary word, and both screens that hand a learner tiles
+    have to read it. The examination paper is not one of them on purpose: it
+    is a marked instrument and its items are built in \`lib/exam/paper.ts\`.
+  */
+  for (const file of ["app/(app)/review/sentences/SentenceSession.tsx", "app/(app)/learn/[unitId]/lesson/page.tsx"]) {
+    assert.match(code(file), /\btileFaces\(/, `${file} hands a learner tiles still carrying the sentence's opening capital`);
+  }
+  assert.match(code("lib/dict/openers.ts"), /\bisKnownForm\(/, "the opener is no longer decided against the forms list");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
