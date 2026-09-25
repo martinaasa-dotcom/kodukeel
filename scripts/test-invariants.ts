@@ -5509,11 +5509,41 @@ check("a row of stat tiles is two across on a phone, never three", () => {
       assert.ok(
         !classes.includes("grid-cols-3"),
         `${file}:${src.slice(0, found.index).split("\n").length} lays StatTiles three across at every width; ` +
-        "a label like ACCURACY breaks mid-word at 360px. Use grid-cols-2 sm:grid-cols-3.",
+        "a label like ACCURACY breaks mid-word at 360px. Use grid-cols-2 sm:grid-cols-3, or " +
+        "grid-cols-2 @sm:grid-cols-3 inside an @container where the row sits in a column narrower than the window.",
       );
     }
   }
   assert.ok(rows >= 15, `only ${rows} StatTile rows found, so this check stopped looking`);
+});
+
+/*
+  A CONTAINER QUERY NEEDS A CONTAINER, AND WITHOUT ONE IT FAILS IN SILENCE.
+
+  From 768 the rail takes a column and the page is 368px, so a grid that
+  chose its columns by the window laid out two cards of 174 or five tiles of
+  57, and `overflow-wrap: anywhere` broke the words inside them mid-letter.
+  Those grids ask their container now (`@container` beside `@lg:grid-cols-2`),
+  which has one failure a viewport breakpoint does not: a `@lg:` variant with
+  no `@container` above it matches nothing, so the grid is one column at
+  every width and nothing says so. The wrapper is written in the same file as
+  the variant everywhere it is used, which is what this reads: a file using a
+  container variant declares the container too.
+*/
+check("a container query variant has its container in the same file", () => {
+  let files = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (!file.endsWith(".tsx")) continue;
+    const src = code(file);
+    const uses = src.match(/(?:^|[\s"'`])@(?:3xs|2xs|xs|sm|md|lg|xl|[2-7]xl):[a-z][a-z0-9-]*/gm);
+    if (!uses) continue;
+    files += 1;
+    assert.ok(
+      /(?:^|[\s"'`])@container(?:[\s"'`/]|$)/m.test(src),
+      `${file} uses a container variant (${uses[0]!.trim()}) and declares no @container, so it matches nothing`,
+    );
+  }
+  assert.ok(files >= 12, `only ${files} files use a container variant, so this check stopped looking`);
 });
 
 check("an icon is sized by its own size prop, never by a class", () => {

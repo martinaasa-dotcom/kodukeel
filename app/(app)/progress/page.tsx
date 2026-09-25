@@ -363,121 +363,124 @@ export default async function ProgressPage() {
           </section>
         )}
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {/*
-            THE PANEL THIS PAGE IS FOR, PUT AHEAD OF THE CHARTS.
+        {/* Two across by the page's width rather than the window's. At 768 the rail takes a column, this grid is 368px, and two cards of 174 squeezed every case name on the weakest-cases panel to a letter a line. */}
+        <div className="@container">
+          <div className="grid gap-5 @xl:grid-cols-2">
+            {/*
+              THE PANEL THIS PAGE IS FOR, PUT AHEAD OF THE CHARTS.
 
-            A level and a heatmap are what the app measures. What a person
-            cares about is whether they got through the conversation at the
-            counter, so the first thing here is what they reported from out
-            there. The readiness panel beside the charts is the app's forecast
-            of the same thing; this is the result. Derived on every request
-            from rows that are facts (ADR-014): an encounter is a report, never
-            a counter.
-          */}
-          <section>
-            <SectionTitle hint={`last ${outside.days} days`}>Out there</SectionTitle>
-            <Card>
-              {outside.total === 0 ? (
-                <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  Nothing reported yet. Today asks each morning whether you spoke Estonian to
-                  anybody, and the answers land here.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-4">
-                  {/*
-                    The first figure counts the days something was said, not the
-                    days the question was answered: "not yesterday" is an honest
-                    answer and counting it here would report a fortnight of them
-                    back as a fortnight of conversations. lib/collections/errands.ts
-                    is where that is decided, for this panel and Today alike.
-                  */}
-                  {/*
-                    Three columns rather than four, because there are five
-                    figures now: `STUCK` is the answer a learner gives when
-                    they spoke and ran out of words, and folding it into the
-                    others would hide the commonest thing that happens out
-                    there. Widening the grid to five was the other way and is
-                    the one that puts "switched to English" through a column
-                    a fifth narrower at the width `test-containment.mjs`
-                    measures.
-                  */}
-                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-                    <Stat value={outside.total} label="conversations" tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
-                    <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" tone="var(--good-ink)" />
-                    <Stat value={outside.byOutcome.STUCK} label="you got stuck" tone="var(--hard-ink)" />
-                    <Stat value={outside.byOutcome.SWITCHED} label="switched to English" tone="var(--hard-ink)" />
-                    <Stat value={outside.byOutcome.BAILED} label="days with none" tone="var(--ink-3)" />
-                  </div>
-                  <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    {outside.streak > 1 ? `${outside.streak} days in a row with a real conversation in them. ` : ""}
-                    {/*
-                      The figure to watch, watched against the thirty days before,
-                      because "it falls as your Estonian holds" over one count is a
-                      promise with nothing to fall from. Only where there is a
-                      month behind this one to set it against.
-                    */}
-                    {/*
-                      The Stat above already prints how many switched. What it
-                      cannot print is the month before it, which is the whole
-                      reason the figure is worth watching, so that is all this
-                      line carries now.
-                    */}
-                    {outside.previous.total > 0
-                      ? `Against ${outside.previous.switched} of ${outside.previous.total} the month before. Self-reported, and the figure to watch: it falls as your Estonian holds.`
-                      : "Self-reported, and the switch to English is the figure to watch: it falls as your Estonian holds."}
-                  </p>
-                </div>
-              )}
-            </Card>
-          </section>
-
-          <section>
-            <SectionTitle hint="weakest first">Cases</SectionTitle>
-            <Card>
-              <WeakestCases
-                cases={cases}
-                empty={
+              A level and a heatmap are what the app measures. What a person
+              cares about is whether they got through the conversation at the
+              counter, so the first thing here is what they reported from out
+              there. The readiness panel beside the charts is the app's forecast
+              of the same thing; this is the result. Derived on every request
+              from rows that are facts (ADR-014): an encounter is a report, never
+              a counter.
+            */}
+            <section>
+              <SectionTitle hint={`last ${outside.days} days`}>Out there</SectionTitle>
+              <Card>
+                {outside.total === 0 ? (
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    No case-form cards answered yet. Add a noun unit from the{" "}
-                    <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>path</Link>.
+                    Nothing reported yet. Today asks each morning whether you spoke Estonian to
+                    anybody, and the answers land here.
                   </p>
-                }
-              />
-            </Card>
-          </section>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {/*
+                      The first figure counts the days something was said, not the
+                      days the question was answered: "not yesterday" is an honest
+                      answer and counting it here would report a fortnight of them
+                      back as a fortnight of conversations. lib/collections/errands.ts
+                      is where that is decided, for this panel and Today alike.
+                    */}
+                    {/*
+                      Three columns rather than four, because there are five
+                      figures now: `STUCK` is the answer a learner gives when
+                      they spoke and ran out of words, and folding it into the
+                      others would hide the commonest thing that happens out
+                      there. Widening the grid to five was the other way and is
+                      the one that puts "switched to English" through a column
+                      a fifth narrower at the width `test-containment.mjs`
+                      measures.
+                    */}
+                    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                      <Stat value={outside.total} label="conversations" tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
+                      <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" tone="var(--good-ink)" />
+                      <Stat value={outside.byOutcome.STUCK} label="you got stuck" tone="var(--hard-ink)" />
+                      <Stat value={outside.byOutcome.SWITCHED} label="switched to English" tone="var(--hard-ink)" />
+                      <Stat value={outside.byOutcome.BAILED} label="days with none" tone="var(--ink-3)" />
+                    </div>
+                    <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+                      {outside.streak > 1 ? `${outside.streak} days in a row with a real conversation in them. ` : ""}
+                      {/*
+                        The figure to watch, watched against the thirty days before,
+                        because "it falls as your Estonian holds" over one count is a
+                        promise with nothing to fall from. Only where there is a
+                        month behind this one to set it against.
+                      */}
+                      {/*
+                        The Stat above already prints how many switched. What it
+                        cannot print is the month before it, which is the whole
+                        reason the figure is worth watching, so that is all this
+                        line carries now.
+                      */}
+                      {outside.previous.total > 0
+                        ? `Against ${outside.previous.switched} of ${outside.previous.total} the month before. Self-reported, and the figure to watch: it falls as your Estonian holds.`
+                        : "Self-reported, and the switch to English is the figure to watch: it falls as your Estonian holds."}
+                    </p>
+                  </div>
+                )}
+              </Card>
+            </section>
 
-          <section>
-            <SectionTitle hint={`${pathKnown} of ${pathTotal} course words · your deck only`}>How many words you know</SectionTitle>
-            <Card>
-              <ul className="flex flex-col gap-2">
-                {CEFR_LEVELS.map((level) => {
-                  const entry = byLevel.get(level);
-                  if (!entry || entry.total.size === 0) return null;
-                  const pct = Math.round((entry.known.size / entry.total.size) * 100);
-                  return (
-                    <li key={level} className="flex items-center gap-3 text-sm">
-                      <span className="w-8" style={{ color: "var(--ink-2)" }}>{level}</span>
-                      <span className="flex-1">
-                        <Meter pct={pct} label={`${level}: ${entry.known.size} of ${entry.total.size} known`} height={5} />
-                      </span>
-                      <span className="tnum w-16 text-right text-xs" style={{ color: "var(--ink-3)" }}>
-                        {entry.known.size}/{entry.total.size}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-              <Explain label="What counts as known">
-                This counts a word only once you know every card for it, so the real number could
-                be a little higher.{" "}
-                <Link href="/words" className="underline" style={{ color: "var(--accent-deep)" }}>
-                  See your deck card by card
-                </Link>.
-              </Explain>
-            </Card>
-          </section>
+            <section>
+              <SectionTitle hint="weakest first">Cases</SectionTitle>
+              <Card>
+                <WeakestCases
+                  cases={cases}
+                  empty={
+                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                      No case-form cards answered yet. Add a noun unit from the{" "}
+                      <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>path</Link>.
+                    </p>
+                  }
+                />
+              </Card>
+            </section>
 
+            <section>
+              <SectionTitle hint={`${pathKnown} of ${pathTotal} course words · your deck only`}>How many words you know</SectionTitle>
+              <Card>
+                <ul className="flex flex-col gap-2">
+                  {CEFR_LEVELS.map((level) => {
+                    const entry = byLevel.get(level);
+                    if (!entry || entry.total.size === 0) return null;
+                    const pct = Math.round((entry.known.size / entry.total.size) * 100);
+                    return (
+                      <li key={level} className="flex items-center gap-3 text-sm">
+                        <span className="w-8" style={{ color: "var(--ink-2)" }}>{level}</span>
+                        <span className="flex-1">
+                          <Meter pct={pct} label={`${level}: ${entry.known.size} of ${entry.total.size} known`} height={5} />
+                        </span>
+                        <span className="tnum w-16 text-right text-xs" style={{ color: "var(--ink-3)" }}>
+                          {entry.known.size}/{entry.total.size}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <Explain label="What counts as known">
+                  This counts a word only once you know every card for it, so the real number could
+                  be a little higher.{" "}
+                  <Link href="/words" className="underline" style={{ color: "var(--accent-deep)" }}>
+                    See your deck card by card
+                  </Link>.
+                </Explain>
+              </Card>
+            </section>
+
+          </div>
         </div>
 
         {/*

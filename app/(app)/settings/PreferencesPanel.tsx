@@ -53,19 +53,21 @@ export function ReviewModePanel({ current }: { current: ReviewMode }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="How review asks" className="grid gap-2 sm:grid-cols-2">
-      {MODES.map((m) => (
-        <ChoiceCard
-          key={m.value}
-          layout="stacked"
-          selected={mode === m.value}
-          onSelect={() => pick(m.value)}
-          icon={<m.icon size={16} aria-hidden />}
-          title={m.label}
-          detail={m.detail}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="How review asks" className="grid gap-2 @md:grid-cols-2">
+        {MODES.map((m) => (
+          <ChoiceCard
+            key={m.value}
+            layout="stacked"
+            selected={mode === m.value}
+            onSelect={() => pick(m.value)}
+            icon={<m.icon size={16} aria-hidden />}
+            title={m.label}
+            detail={m.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -101,19 +103,21 @@ export function LetterBarPanel({ current }: { current: LetterBar }) {
 
   return (
     <div ref={root}>
-      <ChoiceGroup ariaLabel="Typing Estonian" className="grid gap-2 sm:grid-cols-2">
-        {LETTER_BAR_CHOICES.map((o) => (
-          <ChoiceCard
-            key={o.value}
-            layout="stacked"
-            disabled={pending}
-            selected={value === o.value}
-            onSelect={() => pick(o.value)}
-            title={o.label}
-            detail={<><LetterSample lit={o.value === "on"} />{o.detail}</>}
-          />
-        ))}
-      </ChoiceGroup>
+      <div className="@container">
+        <ChoiceGroup ariaLabel="Typing Estonian" className="grid gap-2 @md:grid-cols-2">
+          {LETTER_BAR_CHOICES.map((o) => (
+            <ChoiceCard
+              key={o.value}
+              layout="stacked"
+              disabled={pending}
+              selected={value === o.value}
+              onSelect={() => pick(o.value)}
+              title={o.label}
+              detail={<><LetterSample lit={o.value === "on"} />{o.detail}</>}
+            />
+          ))}
+        </ChoiceGroup>
+      </div>
     </div>
   );
 }
@@ -147,20 +151,22 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="Words in a sentence" className="grid gap-2 sm:grid-cols-2">
-      {WORD_GLOSS_CHOICES.map((o) => (
-        <ChoiceCard
-          key={o.value}
-          layout="stacked"
-          disabled={pending}
-          selected={value === o.value}
-          onSelect={() => pick(o.value)}
-          icon={o.value === "on" ? <Underline size={16} aria-hidden /> : <AlignLeft size={16} aria-hidden />}
-          title={o.label}
-          detail={o.detail}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="Words in a sentence" className="grid gap-2 @md:grid-cols-2">
+        {WORD_GLOSS_CHOICES.map((o) => (
+          <ChoiceCard
+            key={o.value}
+            layout="stacked"
+            disabled={pending}
+            selected={value === o.value}
+            onSelect={() => pick(o.value)}
+            icon={o.value === "on" ? <Underline size={16} aria-hidden /> : <AlignLeft size={16} aria-hidden />}
+            title={o.label}
+            detail={o.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -190,35 +196,37 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
   const autoShows = caseGlossDefaultFor(level);
 
   return (
-    <ChoiceGroup ariaLabel="English under a case question" className="grid gap-2 sm:grid-cols-3">
-      <ChoiceCard
-        layout="stacked"
-        disabled={pending}
-        selected={value === "auto"}
-        onSelect={() => pick("auto")}
-        icon={<Wand2 size={16} aria-hidden />}
-        title="Follow my level"
-        detail={autoShows ? `Shown, because ${level} still gets it.` : `Hidden, because ${level} has moved past it.`}
-      />
-      <ChoiceCard
-        layout="stacked"
-        disabled={pending}
-        selected={value === "on"}
-        onSelect={() => pick("on")}
-        icon={<Eye size={16} aria-hidden />}
-        title="Always show it"
-        detail="Every case question keeps its English reading, at every level."
-      />
-      <ChoiceCard
-        layout="stacked"
-        disabled={pending}
-        selected={value === "off"}
-        onSelect={() => pick("off")}
-        icon={<EyeOff size={16} aria-hidden />}
-        title="Never show it"
-        detail={<>Just <span lang="et">milles? kus?</span>, with nothing under it.</>}
-      />
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="English under a case question" className="grid gap-2 @lg:grid-cols-3">
+        <ChoiceCard
+          layout="stacked"
+          disabled={pending}
+          selected={value === "auto"}
+          onSelect={() => pick("auto")}
+          icon={<Wand2 size={16} aria-hidden />}
+          title="Follow my level"
+          detail={autoShows ? `Shown, because ${level} still gets it.` : `Hidden, because ${level} has moved past it.`}
+        />
+        <ChoiceCard
+          layout="stacked"
+          disabled={pending}
+          selected={value === "on"}
+          onSelect={() => pick("on")}
+          icon={<Eye size={16} aria-hidden />}
+          title="Always show it"
+          detail="Every case question keeps its English reading, at every level."
+        />
+        <ChoiceCard
+          layout="stacked"
+          disabled={pending}
+          selected={value === "off"}
+          onSelect={() => pick("off")}
+          icon={<EyeOff size={16} aria-hidden />}
+          title="Never show it"
+          detail={<>Just <span lang="et">milles? kus?</span>, with nothing under it.</>}
+        />
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -332,19 +340,21 @@ export function ResearchPanel({ current, exported }: { current: Participation; e
 
   return (
     <div className="flex flex-col gap-3">
-      <ChoiceGroup ariaLabel="Anonymous statistics" className="grid gap-2 sm:grid-cols-2">
-        {PARTICIPATION.map((p) => (
-          <ChoiceCard
-            key={p.value}
-            layout="stacked"
-            selected={value === p.value}
-            onSelect={() => pick(p.value)}
-            icon={<p.icon size={16} aria-hidden />}
-            title={p.label}
-            detail={p.detail}
-          />
-        ))}
-      </ChoiceGroup>
+      <div className="@container">
+        <ChoiceGroup ariaLabel="Anonymous statistics" className="grid gap-2 @md:grid-cols-2">
+          {PARTICIPATION.map((p) => (
+            <ChoiceCard
+              key={p.value}
+              layout="stacked"
+              selected={value === p.value}
+              onSelect={() => pick(p.value)}
+              icon={<p.icon size={16} aria-hidden />}
+              title={p.label}
+              detail={p.detail}
+            />
+          ))}
+        </ChoiceGroup>
+      </div>
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
         {exported
           ? "Which grammar learners here get wrong, counted across everybody, so that whoever teaches Estonian can see it. Which case, which stem change, which word. Never your deck, your searches or a single answer."

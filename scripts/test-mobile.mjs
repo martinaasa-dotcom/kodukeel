@@ -52,7 +52,7 @@ const browser = await launchChromium();
   that only reads the source, which is what made it worth measuring here
   instead.
 */
-const { check, done } = suite("The phone", { floor: 79 });
+const { check, done } = suite("The phone", { floor: 100 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -101,16 +101,28 @@ for (const width of [...PHONES, ...WIDE]) {
   await ctx.close();
 }
 
-// 2d — No word is broken mid-letter at 360. `overflow-wrap: anywhere` keeps a
-//      long word inside its box by breaking it wherever it has to, which is the
-//      right trade for a word longer than its box and the wrong answer for a
-//      box squeezed narrower than an ordinary word. A sweep of every route at
-//      360 found six: the readiness tiles five across ("LEAD / IT"), a section
-//      title shrunk by its hint ("INDEPEN / DENT USER"), the grammar list's
-//      case names, the quest's chips, the settings key caps and a fixed-width
-//      admin label. The app's own chrome is left to the bar's check above.
-for (const path of ["/progress", "/progress/readiness", "/grammar", "/quest", "/settings", "/admin/suggestions"]) {
-  const { ctx, page } = await open(360, 844, path);
+// 2d — No word is broken mid-letter, at 360 or at 768. `overflow-wrap:
+//      anywhere` keeps a long word inside its box by breaking it wherever it
+//      has to, which is the right trade for a word longer than its box and the
+//      wrong answer for a box squeezed narrower than an ordinary word. A sweep
+//      of every route at 360 found six: the readiness tiles five across ("LEAD
+//      / IT"), a section title shrunk by its hint ("INDEPEN / DENT USER"), the
+//      grammar list's case names, the quest's chips, the settings key caps and
+//      a fixed-width admin label. The same sweep at 768 found nine more, and
+//      one cause under most of them: a grid choosing its columns by the
+//      window, where the rail takes a column and the page is 368px, so "two
+//      across" meant two cards of 174 and a unit's own sentence was laid out
+//      0px wide. Those choose by their container now. /welcome's comparison
+//      table is drawn from md up only, so it is asked at 1280 as well. The
+//      app's own chrome is left to the bar's check above.
+const WORD_SPLIT = [
+  ...["/progress", "/progress/readiness", "/grammar", "/quest", "/settings", "/admin/suggestions",
+    "/exam", "/learn", "/learn/kodu", "/situations", "/course", "/grammar/build-a-word", "/welcome"]
+    .flatMap((path) => [[360, path], [768, path]]),
+  [1280, "/welcome"],
+];
+for (const [width, path] of WORD_SPLIT) {
+  const { ctx, page } = await open(width, 844, path);
   const split = await page.evaluate(() => {
     const out = new Set();
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -131,7 +143,7 @@ for (const path of ["/progress", "/progress/readiness", "/grammar", "/quest", "/
     }
     return { words, split: [...out] };
   });
-  check(`no word is broken mid-letter on ${path} at 360`, split.words > 20 && split.split.length === 0,
+  check(`no word is broken mid-letter on ${path} at ${width}`, split.words > 20 && split.split.length === 0,
     split.split.length ? split.split.slice(0, 6).join(", ") : `${split.words} words`);
   await ctx.close();
 }

@@ -376,14 +376,19 @@ export default async function CoursePage({
           <p className="mt-2 text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
             {day.canDo}
           </p>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <StatTile value={day.words.length} label="New words" tone="mint" />
-            <StatTile
-              value={standing.complete ? "0" : `${standing.minutesLeft}m`}
-              label="Left tonight"
-              tone="sky"
-            />
-            <StatTile value={`${standing.pct}%`} label="Done tonight" tone="butter" />
+          {/* Three across by the card's width rather than the window's: from
+              768 this card shares the page with the words beside it and is
+              318px wide, where three tiles broke "tonight" mid-letter. */}
+          <div className="@container mt-4">
+            <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3">
+              <StatTile value={day.words.length} label="New words" tone="mint" />
+              <StatTile
+                value={standing.complete ? "0" : `${standing.minutesLeft}m`}
+                label="Left tonight"
+                tone="sky"
+              />
+              <StatTile value={`${standing.pct}%`} label="Done tonight" tone="butter" />
+            </div>
           </div>
         </Card>
 

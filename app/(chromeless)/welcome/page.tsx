@@ -836,8 +836,11 @@ function Comparison() {
         className="mt-7 hidden overflow-hidden rounded-[var(--r-xl)] border md:block"
         style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow)" }}
       >
+        {/* 7rem a column rather than 88px: the header names are set in
+            label-xs, which grew to 14px with the type scale, and at 88px
+            "Keeleklikk" broke across two lines at every width. */}
         <div
-          className="grid grid-cols-[1fr_repeat(4,88px)] items-center gap-2 border-b px-5 py-3.5"
+          className="grid grid-cols-[1fr_repeat(4,7rem)] items-center gap-2 border-b px-5 py-3.5"
           style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
         >
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>&nbsp;</span>
@@ -856,7 +859,7 @@ function Comparison() {
         {ROWS.map((row) => (
           <div
             key={row.label}
-            className="grid grid-cols-[1fr_repeat(4,88px)] items-center gap-2 px-5 py-3.5"
+            className="grid grid-cols-[1fr_repeat(4,7rem)] items-center gap-2 px-5 py-3.5"
             style={{ borderTop: "1px solid var(--rule-soft)" }}
           >
             <span className="text-base" style={{ color: "var(--ink-2)" }}>{row.label}</span>
