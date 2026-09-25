@@ -6,7 +6,7 @@
  *   npm run draft:lines -- --scene poodi-piima
  *   npm run draft:lines -- --level A1      # one band only
  *   npm run draft:lines -- --unpitched     # the net under every band, as the bank was first drafted
- *   npm run draft:lines -- --refresh       # drop unreviewed rows first and draft again
+ *   npm run draft:lines -- --refresh       # drop every row first and draft again
  *
  * A LINE IS DRAFTED FOR A BAND. The other side talks at the run's band
  * (`lib/scenes/pitch.ts`) and a banked line is a composed line moved to a
@@ -21,9 +21,8 @@
  * ADR-025 amendment 1 (`lib/scenes/scripted.ts`). This is the composer moved
  * to a different moment: the same chain, the same prompt and the same four
  * checks as a live turn, run on a developer's machine, with the survivors
- * written into `lib/scenes/bank.ts` where the pull request is the review. A
- * native speaker's pass, when there is one, edits that file and flips
- * `reviewed`; this script never touches a row somebody has reviewed.
+ * written into `lib/scenes/bank.ts` where the pull request is the review,
+ * read by the native Estonian speaker who develops this app.
  *
  * WHAT IS REFUSED BEFORE THE GATE IS EVEN ASKED, and each is a way a bad line
  * would otherwise look like a good one:
@@ -47,11 +46,10 @@
  *   - a duplicate of a line already in the bank for that beat, spelled the
  *     same or the same once lowercased.
  *
- * AND THE RULES ARE APPLIED TO WHAT IS ALREADY THERE, on every run. An
- * unreviewed row that today's gate or today's refusals would not let in is
- * dropped and reported before anything is drafted, so a rule added after a
- * bank was written reaches the bank rather than only the next line. A row a
- * native speaker has reviewed is never touched by a script.
+ * AND THE RULES ARE APPLIED TO WHAT IS ALREADY THERE, on every run. A row
+ * that today's gate or today's refusals would not let in is dropped and
+ * reported before anything is drafted, so a rule added after a bank was
+ * written reaches the bank rather than only the next line.
  *
  * A run that drafts nothing says which wall it hit rather than reporting a
  * full bank, which is the rule `eval:scene` learned the expensive way.
@@ -116,10 +114,9 @@ async function main() {
   const reasons = new Map<string, number>();
   const note = (why: string) => reasons.set(why, (reasons.get(why) ?? 0) + 1);
 
-  // What is already there, re-judged by today's rules. Reviewed rows are a person's and stay.
+  // What is already there, re-judged by today's rules.
   const contexts = new Map(SCENES.map((scene) => [scene.id, keylessContext(scene)]));
   const kept: ScriptedLine[] = BANK.filter((row) => {
-    if (row.reviewed) return true;
     if (refresh) return false;
     const scene = SCENES.find((s) => s.id === row.scene);
     const beat = scene ? beatById(scene, row.beat) : undefined;
@@ -198,7 +195,7 @@ async function main() {
             seen.add(key);
             kept.push({
               scene: scene.id, beat: beat.id, text: candidate.text,
-              model: candidate.model, draftedAt: today, reviewed: false,
+              model: candidate.model, draftedAt: today,
               ...(level ? { level } : {}),
             });
             drafted++;
@@ -229,7 +226,7 @@ async function main() {
 function render(rows: readonly ScriptedLine[]): string {
   const body = rows.map((row) =>
     `  { scene: ${JSON.stringify(row.scene)}, beat: ${JSON.stringify(row.beat)}, text: ${JSON.stringify(row.text)},`
-    + ` model: ${JSON.stringify(row.model)}, draftedAt: ${JSON.stringify(row.draftedAt)}, reviewed: ${row.reviewed}`
+    + ` model: ${JSON.stringify(row.model)}, draftedAt: ${JSON.stringify(row.draftedAt)}`
     + (row.level ? `, level: ${JSON.stringify(row.level)}` : "") + " },",
   ).join("\n");
   return [
@@ -237,10 +234,9 @@ function render(rows: readonly ScriptedLine[]): string {
     "",
     "   Every row was drafted by a model inside its scene's closed word list, passed",
     "   the four checks in lib/scenes/gate.ts on the day named, and was read in the",
-    "   pull request that added it. The one field a person edits is `reviewed`,",
-    "   which a native speaker sets to true after reading the row, and which the",
-    "   chip on screen reads. Regenerate with `npm run draft:lines`; the script",
-    "   keeps rows that are already here and only drafts what is missing. A row",
+    "   pull request that added it, by the native Estonian speaker who develops",
+    "   this app. Regenerate with `npm run draft:lines`; the script keeps rows",
+    "   that are already here and only drafts what is missing. A row",
     "   whose model is `authored` was typed in a session rather than drafted, and",
     "   went through the same checks on its way in; a beat named `hurdle:<id>` is",
     "   a curveball's line; a row carrying `level` was drafted for that band with",

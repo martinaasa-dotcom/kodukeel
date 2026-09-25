@@ -18950,7 +18950,7 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   // And what is already banked is re-judged on every run, so a rule reaches the bank and not only the next line.
   assert.match(
     draft,
-    /BANK\.filter\(\(row\) => \{[\s\S]{0,120}if \(row\.reviewed\) return true;/,
+    /BANK\.filter\(\(row\) => \{[\s\S]{0,400}runGate\(row\.text/,
     "scripts/draft-lines.ts no longer re-judges the rows already in the bank, so a rule added today never reaches a line drafted yesterday",
   );
 });
