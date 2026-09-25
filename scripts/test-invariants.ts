@@ -6285,7 +6285,7 @@ check("the security doc's per-instance residual names no route the shared counte
   };
   for (const [noun, file] of Object.entries(SHARED)) {
     assert.match(code(file), /checkSharedRateLimit\(/, `${file} no longer counts in the shared table`);
-    const claims = residual.split(/(?<=[.;])\s/).filter((s) => s.includes(noun) && !/sharedLimit/.test(s));
+    const claims: string[] = residual.split(/(?<=[.;])\s/).filter((s) => s.includes(noun) && !/sharedLimit/.test(s));
     assert.equal(claims.length, 0, `the per-instance residual still names ${noun}: ${claims[0]}`);
   }
   assert.match(residual, /throttleAction|actionLimits/, "the residual no longer names the throttles that really are per instance");
