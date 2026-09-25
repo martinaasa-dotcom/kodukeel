@@ -3,13 +3,15 @@
 What was actually built, what was deliberately left out, and which planning decisions changed once
 the answers to `12-open-questions.md` came back.
 
-**§11 to §14 are the current state.** §1-5 describe the first MVP, §6 the pass that made it usable
-by a stranger, §7 the pass that made it teach in context, §9 and §10 the teaching and diagnostic
-layers, §11 the pass that measured the learner and stated what the app costs, §12 the pass that let
-a photographed page become a set of words, §13 the mock state examination, and §14 the pass that
-turned the path into a course covering A1 to C2. Those four were built at the same time against the
-same main and landed one after another. Word counts in §1-7 are the numbers of their own time and
-§14 supersedes them.
+**How to read it.** It is a log of passes in the order they landed, from §6 to the last section,
+and the latest pass that speaks to a thing is the current state of it: a later pass supersedes an
+earlier one wherever they disagree, and an item struck through records what changed and where. §1-5
+describe the first MVP as it stood, §6 the pass that made it usable by a stranger, §7 the pass that
+made it teach in context, §9 and §10 the teaching and diagnostic layers, §11 the pass that measured
+the learner and stated what the app costs, §12 the pass that let a photographed page become a set of
+words, §13 the mock state examination, and §14 the pass that turned the path into a course covering
+A1 to C2; each pass after that is headed with what it changed. Word counts in §1-7 are the numbers
+of their own time and §14 supersedes them.
 
 ## 1. The answers, and what they changed
 
@@ -34,10 +36,10 @@ Pinning one paid provider fails that.
 
 | Key in `.env` | Used | Default model |
 |---|---|---|
-| `GROQ_API_KEY` | Groq (OpenAI-compatible) | `openai/gpt-oss-120b`, free tier |
-| `GEMINI_API_KEY` | Google Gemini (OpenAI-compatible layer) | `gemini-flash-latest`, free tier |
-| `ANTHROPIC_API_KEY` | Anthropic Messages API | `claude-sonnet-5`, behind the fallback budget |
-| `OPENAI_API_KEY` | OpenAI | `gpt-4o-mini`, behind the fallback budget |
+| `GROQ_API_KEY` | Groq (OpenAI-compatible) | `openai/gpt-oss-120b`, then the rest of `FREE_GROQ_MODELS` |
+| `GEMINI_API_KEY` | Google Gemini (OpenAI-compatible) | `gemini-flash-latest`, then the rest of `FREE_GEMINI_MODELS` |
+| `ANTHROPIC_API_KEY` | Anthropic Messages API | `claude-sonnet-5`, gated by the day's fallback budget |
+| `OPENAI_API_KEY` | OpenAI | `gpt-4o-mini`, gated the same way |
 
 That is the general chain. Anu, scenes and the graders each have a pinned chain of their own
 (`PURPOSE_CHAINS`). OpenRouter was the first row of this table and is in no chain now. All of them
@@ -87,16 +89,25 @@ Each of these is a decision, not an omission.
 
 - ~~Ekilex live search.~~ **Now built**. The key arrived, the response shape was read from real
   data rather than guessed, and the mapper is covered by contract tests.
-- **Calendar / iCal.** No digital class schedule exists (Q3), so it would sync nothing.
-- **Speech-to-text.** Unverified for Estonian (audit A5). Still a spike, not a feature.
+- ~~**Calendar / iCal.** No digital class schedule exists (Q3), so it would sync nothing.~~ **Two
+  narrower things were built instead**: `/calendar`, a week the learner fills with their own study
+  times and reminders, and `/api/reminder`, a daily reminder served as a calendar file. Neither
+  syncs a class schedule, because there is still none to sync.
+- **Speech-to-text.** ~~Unverified for Estonian (audit A5).~~ **Measured since, and still not
+  built.** `scripts/measure-asr.mjs` puts the best reachable recognizer at a 14.6% word error rate
+  on clean native audio, with its mistakes on consonant length and voicing, which is where a learner
+  is weakest; showing that transcript would mark correct pronunciation wrong (ADR-018).
 - **Anki export.** JSON export and restore both ship; the Anki format is a nice-to-have, not a
   data-safety need.
-- **Object-case and listening card types.** Defined in the model; not generated yet. They need
-  example sentences the built-in dictionary does not carry for every word.
-- **Auth, multi-user, sync.** Explicitly deferred to the Google-SSO version (Q7).
-- **Undo in review (`u`).** Specified in `07-srs.md`, not built. `Again` already requeues the card
-  within the session, which covers the common case; a true undo has to restore the previous FSRS
-  state without deleting from the append-only review log, and that is more design than the MVP needs.
+- ~~**Object-case and listening card types.** Defined in the model; not generated yet.~~ **Neither
+  became a card type**, and neither is in the model now. Listening is a round of its own
+  (`/review/listening`), and the object case is drilled inside the gap-fill and case cards that are
+  cut from a sentence a lexicographer recorded (§7, and the case-card rule in CLAUDE.md).
+- ~~**Auth, multi-user, sync.** Explicitly deferred to the Google-SSO version (Q7).~~ **Built**:
+  hosted on Supabase with Google sign-in, a mailed link and company sign-in (ADR-011, ADR-013), with
+  local mode kept for a single learner on one machine.
+- ~~**Undo in review (`u`).** Specified in `07-srs.md`, not built.~~ **Built in §6**: it restores
+  the card's previous scheduling and leaves the `Review` row in the append-only log standing.
 
 ## 4b. Built since the MVP
 
@@ -142,8 +153,11 @@ Each of these is a decision, not an omission.
 3. **Plural oblique cases need a stored genitive plural.** Where it is missing the table shows a gap.
    `tuba : toa` yields `tubade`, not `toade`. It is not derivable, so it is not derived.
 4. **Anu's Estonian is only as good as the model behind it.** The free model is decent, not
-   authoritative. Everything it suggests is tagged `AI · verify`, and it never supplies a dictionary
-   form, and that boundary is enforced in the data model, not just in the prompt.
+   authoritative. It never supplies a dictionary form, and that boundary is enforced in the data
+   model, not just in the prompt: a word she suggests is stored with `provenance: "AI"`, and
+   `vouchable` in `lib/dict/search.ts` refuses such a row everywhere the app vouches for a word. The
+   `AI · verify` chip that once marked it on screen has since been taken off, and was never the
+   guard.
 5. **Editing a word does not regenerate its case-form cards.** Recognition and production cards
    follow a correction; a case-form card built from an old genitive keeps the old answer. Deleting
    and re-adding the card fixes it, and now costs nothing, since deleting a card no longer

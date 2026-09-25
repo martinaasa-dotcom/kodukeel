@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Timer, Trophy, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { gradeCard, recordSprintScore } from "@/app/actions";
+import { recordSprintScore } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -56,6 +57,7 @@ const estonianSide = (type: string, side: "front" | "back") =>
 export function SprintSession({
   cards: initialCards, best, seconds, canTranslate,
 }: { cards: SprintCard[]; best: number; seconds: number; canTranslate: boolean }) {
+  const grade = useGrade();
   /* Whether this round is a step of tonight's module, which decides whether
      the note about the clock carries a link out of it. */
   const inModule = useModuleFocus() !== null;
@@ -96,9 +98,9 @@ export function SprintSession({
 
   const finish = useCallback((finalScore: number) => {
     setPhase("done");
-    void recordSprintScore(finalScore).then((r) => {
+    void recordSprintScore(finalScore).catch(() => null).then((r) => {
       // A refused score is not a new best; the round is over either way.
-      setIsNewBest(r.ok && r.isNewBest);
+      setIsNewBest(!!r?.ok && r.isNewBest);
     });
   }, []);
 
@@ -115,18 +117,14 @@ export function SprintSession({
     if (!card || busy || phase !== "running") return;
     setBusy(true);
     const duration = Date.now() - shownAt.current;
-    try {
-      await gradeCard(card.id, rating, duration);
-    } catch {
-      // Speed is the point; a failed write here just means this rep isn't scored.
-    }
+    await grade(card.id, rating, duration);
     setAttempted((a) => a + 1);
     if (rating === 3) setCorrect((c) => c + 1);
     setIndex((i) => i + 1);
     setRevealed(false);
     shownAt.current = Date.now();
     setBusy(false);
-  }, [busy, phase, card]);
+  }, [busy, phase, card, grade]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -228,7 +226,7 @@ export function SprintSession({
             {isNewBest ? "New personal best." : `Best so far: ${best}.`}
           </p>
         </div>
-        <div className="mt-8 grid grid-cols-3 gap-3">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={correct} label="Score" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "mint" : "butter"} />
           <StatTile value={attempted} label="Attempted" tone="sky" />

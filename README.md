@@ -53,13 +53,13 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
   again when you were not understood. Something goes wrong on the way at every difficulty above the
   easiest, and the debrief says whether you handled it. Every line is a phrase the course teaches
   or a line written for the scene inside its own words and checked word by word before you see it,
-  the screen says which, and all fourteen play without a model key. Whether you were understood is decided by the
+  the screen says which, and all fifteen play without a model key. Whether you were understood is decided by the
   dictionary, never by a model, so you cannot be marked wrong for being right. Difficulty is a
   budget of things that go wrong: the slot you asked for has gone, a queue forms, they switch to
   English. You can walk out. The debrief leads with what happened and never with a score. Where a
   key is set the other side's line is written for this turn, with the conversation so far in front
   of it, so it can pick up something you said three turns ago; where there is none, or the free tier
-  will not answer, the lines written for the scene say it instead, which is why all fourteen still
+  will not answer, the lines written for the scene say it instead, which is why all fifteen still
   play with no key at all.
 - **Say it today.** Each morning, one press to say whether you spoke Estonian to anybody
   yesterday: they understood, they switched to English, not yesterday. Where the answer is no,
@@ -69,7 +69,7 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
 - **Hearing the way people talk.** A word you know well comes back at speed, over café noise, down
   a phone line, from halfway through, in a different voice each time. The words never change; the
   delivery does, because nobody at a counter talks like a clean synthetic voice in a quiet room.
-- **A course.** 89 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
+- **A course.** 92 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
   sitting's worth of words, and the words between the words too: question words, pronouns, the
   postpositions, the months and the adverbs of time have units of their own. Adding a unit builds real flashcards, every form, audio, both
   directions, and a unit only reads as finished when the scheduler agrees the words are retained.
@@ -234,7 +234,7 @@ without saying so.
 
 Everything except the two things that need a model, Anu and reading a photograph of a page:
 
-- **Dictionary**, 6,159 words (A1 to C2) with principal parts, consonant gradation and the
+- **Dictionary**, 6,202 words (A1 to C2) with principal parts, consonant gradation and the
   full case table worked out from the genitive. Search an inflected form you met in class,
   `toas`, `lugesin`, `tubadega`, `helistab`, and it finds the word *and* tells you which form you
   typed.
@@ -264,22 +264,24 @@ Everything except the two things that need a model, Anu and reading a photograph
 
 ## Turning on Anu, the tutor
 
-Anu needs one API key, and Situations and scanning a page need a second. Both are free and neither
-asks for a card. **Settings** in the app walks through it, but in short:
+One free key turns on Anu, Situations and scanning a page, and a second free key is the backup
+for all of them. Neither asks for a card. **Settings** in the app walks through it, but in short:
 
-1. Sign in at [console.groq.com](https://console.groq.com), free, no card.
-2. **API Keys** → **Create API Key**. Copy it; you only see it once.
+1. Sign in at [aistudio.google.com](https://aistudio.google.com/apikey), free, no card.
+2. **Create API key**. Copy it.
 3. Open the file `.env` in this folder and fill in:
    ```
-   GROQ_API_KEY="paste-your-key-here"
+   GEMINI_API_KEY="paste-your-key-here"
    ```
 4. Stop the app (Ctrl-C) and run `npm run dev` again.
 
-That is Anu. **Situations** and **Scan a page** compose and read with Gemini, so for those add a
-second key from [aistudio.google.com](https://aistudio.google.com/apikey) (Create API key, free
-tier, no card) on a line of its own:
+That is all three. Anu answers on `gemini-3.1-flash-lite`, scenes compose on `gemini-3.8-flash` and
+scanning reads with `gemini-3.1-flash-lite`. For a backup, add a key from
+[console.groq.com](https://console.groq.com) (**API Keys** → **Create API Key**, free, no card) on
+a line of its own; Groq then answers Anu on `openai/gpt-oss-120b` and scenes on `qwen/qwen3.8-27b`
+whenever Gemini is missing, out of credit or having a bad minute:
    ```
-   GEMINI_API_KEY="paste-your-key-here"
+   GROQ_API_KEY="paste-your-key-here"
    ```
 
 An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is optional and paid: it sits behind the two free keys as
@@ -308,8 +310,8 @@ request for the rest of the day (OpenRouter is no longer in the chain), which is
 and is the argument for the lines written in advance being good rather than for the ladder being
 different.
 
-**Conversations are pinned to `gemini-3.8-flash`, with Groq's `openai/gpt-oss-120b` a fixed second
-link behind it, and no variable moves either.** They compose on Gemini when `GEMINI_API_KEY` is set,
+**Conversations are pinned to `gemini-3.8-flash`, with `gemini-3.1-flash-lite` behind it and Groq's
+`qwen/qwen3.8-27b` a fixed link behind both, and no variable moves any of them.** They compose on Gemini when `GEMINI_API_KEY` is set,
 fall to Groq when it is not or is having a bad minute, and only fall to their recorded and banked
 lines once both are unavailable. Anthropic sits behind both, still only as the gated last resort.
 There is no `SCENE_MODEL` and no `*_SCENE_MODEL` override any more: the first held a Groq model name
@@ -599,10 +601,13 @@ deployed at all. It did: eighteen merges to main between 2026-09-18 and 2026-09-
 and the live site served the commit before the hourly cron was added until somebody went looking
 for why.
 
-The way back to hourly is a Pro plan, or any scheduler outside this repository that can GET that
-URL with `Authorization: Bearer $CRON_SECRET`. If you change the expression, check that the plan
-allows it before merging, because the failure is a deploy that never happens rather than a letter
-that never arrives.
+The way back to hourly is a Pro plan, or any scheduler that can GET that URL with
+`Authorization: Bearer $CRON_SECRET`. `.github/workflows/mailout.yml` is one, and it costs
+nothing: set the repository secret `CRON_SECRET` to the deployment's value and the repository
+variable `MAILOUT_URL` to its origin, and it asks every hour. Until both are set it does nothing
+and says so. If you change the Vercel expression instead, check that the plan allows it before
+merging, because the failure is a deploy that never happens rather than a letter that never
+arrives.
 
 What goes out, to whom and how often is `lib/email/schedule.ts`, which is pure and unit tested.
 What each letter says is `lib/email/letters/`. Both are swept for the voice rules like every

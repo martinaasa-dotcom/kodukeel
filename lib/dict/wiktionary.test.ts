@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractEstonianEntries, extractEstonianSenses } from "./wiktionary";
+import { extractEstonianEntries, extractEstonianSenses, furtherSenses } from "./wiktionary";
 
 /**
  * Every case here is markup that was live on Wiktionary during the A1 to B1
@@ -180,6 +180,8 @@ describe("extractEstonianEntries", () => {
       // second opinion `scripts/audit-homonyms.ts` checks the join against:
       // the gloss and the forms both have to be about one word.
       stems: ["kalli", "kallist"],
+      // One word on the page, so no etymology heading to number it.
+      etymology: 0,
     });
   });
 
@@ -234,5 +236,51 @@ describe("extractEstonianEntries", () => {
       "==Estonian==\n\n===Adjective===\n{{et-adj|üksiku}}\n\n# [[lonely]]\n\n" +
       "====Declension====\n{{et-decl-õnnelik|üksik}}\n\n==Finnish==\n";
     expect(extractEstonianEntries(wikitext)[0]?.headword).toBe("ADJECTIVE");
+  });
+});
+
+describe("furtherSenses", () => {
+  /*
+    A page is headed by a spelling, and two words that share one sit under two
+    etymologies. The notes took the next three senses on the page whatever
+    they belonged to, so `tee` the road kept "tea".
+  */
+  const tee = [
+    "==Estonian==",
+    "===Etymology 1===",
+    "====Noun====",
+    "{{et-noun|tee|teed}}",
+    "# road, way",
+    "# path",
+    "===Etymology 2===",
+    "====Noun====",
+    "{{et-noun|tee|teed}}",
+    "# tea",
+    "",
+  ].join("\n");
+
+  it("keeps the senses of the first word and none of the second", () => {
+    const senses = extractEstonianEntries(tee);
+    expect(senses.map((s) => s.etymology)).toEqual([1, 1, 2]);
+    expect(furtherSenses(senses)).toBe("path");
+  });
+
+  it("keeps every sense on a page with one word, across its headings", () => {
+    const teine = [
+      "==Estonian==",
+      "===Numeral===",
+      "# second",
+      "===Pronoun===",
+      "# other, another",
+      "",
+    ].join("\n");
+    const senses = extractEstonianEntries(teine);
+    expect(senses.every((s) => s.etymology === 0)).toBe(true);
+    expect(furtherSenses(senses)).toBe("other, another");
+  });
+
+  it("says nothing where the first word has no second sense", () => {
+    const only = tee.replace("# path\n", "");
+    expect(furtherSenses(extractEstonianEntries(only))).toBeNull();
   });
 });

@@ -22,24 +22,27 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
   const pick = (next: RoundPace) => {
     setValue(next);
     start(async () => {
-      await setRoundPace(next);
+      const landed = await setRoundPace(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
 
   return (
-    <ChoiceGroup ariaLabel="How long a timed round runs" className="grid gap-2 sm:grid-cols-2">
-      {ROUND_PACES.map((option) => (
-        <ChoiceCard
-          key={option.id}
-          layout="stacked"
-          disabled={pending}
-          selected={value === option.id}
-          onSelect={() => pick(option.id)}
-          title={option.label}
-          detail={`${roundLength(secondsFor(SPRINT_SECONDS, option.id))} in the sprint. ${option.detail}`}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="How long a timed round runs" className="grid gap-2 @md:grid-cols-2">
+        {ROUND_PACES.map((option) => (
+          <ChoiceCard
+            key={option.id}
+            layout="stacked"
+            disabled={pending}
+            selected={value === option.id}
+            onSelect={() => pick(option.id)}
+            title={option.label}
+            detail={`${roundLength(secondsFor(SPRINT_SECONDS, option.id))} in the sprint. ${option.detail}`}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }

@@ -18,6 +18,11 @@ import { join } from "node:path";
 const ROOTS = [".next/static", ".next/server/app", ".next/server/chunks"];
 const TEXT = /\.(js|mjs|cjs|json|css|map|html|txt)$/;
 
+/*
+  `redact` in `lib/observability/report.ts` scrubs these same shapes out of the
+  error log, and `report.test.ts` reads this list by the `name` of each entry:
+  a pattern added here without a sample there fails the unit suite.
+*/
 const PATTERNS = [
   { name: "OpenAI / OpenRouter secret key", re: /\bsk-(?:proj-|or-v1-|ant-)?[A-Za-z0-9_-]{20,}/g },
   { name: "Anthropic API key", re: /\bsk-ant-[A-Za-z0-9_-]{20,}/g },

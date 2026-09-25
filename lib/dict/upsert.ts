@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { classifyGradation, classifyVerbGradation, gradates } from "@/lib/estonian/gradation";
 import { PRINCIPAL_FORM_TYPES, isPrincipalFormType } from "@/lib/estonian/types";
+import { isUniqueViolation, replaceForms } from "./replaceForms";
 
 /**
  * The one write path into the shared dictionary, for a change a person made.
@@ -42,15 +43,64 @@ export interface LexemeWriteResult {
 }
 
 export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeWriteResult> {
+  try {
+    return await writeOnce(input);
+  } catch (error) {
+    /*
+      TWO PEOPLE ADDING ONE NEW WORD AT ONCE BOTH FIND NO ENTRY, AND ONE LOSES.
+
+      `existing` is read and the create follows it, so two adds of the same
+      lemma inside that gap both reach the create and the second is refused on
+      `(lemma, pos)`. That was an error page for somebody who had done nothing
+      wrong. Asked again, the loser finds the entry the winner made and takes
+      the correction path, which is exactly what it would have done arriving a
+      moment later. Once, because a second collision is not this race.
+    */
+    if (!input.id && isUniqueViolation(error)) return writeOnce(input);
+    throw error;
+  }
+}
+
+async function writeOnce(input: LexemeWrite): Promise<LexemeWriteResult> {
   const { lemma, translation, pos } = input;
 
-  const forms = Object.entries(input.forms)
+  const named = Object.entries(input.forms)
     // Only the principal parts are user-managed. Everything else on this lexeme
     // came from Ekilex and is authoritative; a hand edit must not submit one.
-    .map(([formType, value]) => ({ formType, value: value.trim() }))
-    .filter((f) => f.value && isPrincipalFormType(f.formType));
+    .filter(([formType]) => isPrincipalFormType(formType))
+    .map(([formType, value]) => ({ formType, value: String(value ?? "").trim() }));
+  const forms = named.filter((f) => f.value);
+  /*
+    A FORM THE CALLER DID NOT NAME IS LEFT ALONE, AND ONE IT NAMED EMPTY IS
+    CLEARED.
 
-  const at = (type: string) => forms.find((f) => f.formType === type)?.value;
+    Every principal part was deleted and only the supplied ones written back.
+    The hand-edit form names every stored part, because it is pre-filled from
+    the entry, so that was harmless there. Accepting a "this word is missing"
+    report for a word the dictionary already holds names none or a few, and
+    the entry lost its genitive, its partitive and its plural for everybody,
+    which is a case table and every card built off it. It is the rule the
+    `cefr` and `government` block below states, applied to the forms.
+  */
+  const replaced = named.map((f) => f.formType);
+  const existing = input.id
+    ? await prisma.lexeme.findUnique({ where: { id: input.id } })
+    : await prisma.lexeme.findUnique({ where: { lemma_pos: { lemma, pos } } });
+
+  // The stems the entry will hold once this lands: what was supplied, and
+  // otherwise what it already had, so gradation is graded off the result.
+  const kept = existing
+    ? await prisma.form.findMany({
+        where: {
+          lexemeId: existing.id,
+          formType: { in: [...PRINCIPAL_FORM_TYPES].filter((t) => !replaced.includes(t)) },
+        },
+        orderBy: { id: "asc" },
+        select: { formType: true, value: true },
+      })
+    : [];
+  const at = (type: string) =>
+    forms.find((f) => f.formType === type)?.value ?? kept.find((f) => f.formType === type)?.value;
   const nomSg = at("NOM_SG");
   const genSg = at("GEN_SG");
   const infMa = at("INF_MA");
@@ -61,10 +111,6 @@ export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeW
     : nomSg && genSg ? classifyGradation(nomSg, genSg)
     : infMa && pres1 ? classifyVerbGradation(infMa, pres1)
     : { type: "NONE" as const, note: undefined };
-
-  const existing = input.id
-    ? await prisma.lexeme.findUnique({ where: { id: input.id } })
-    : await prisma.lexeme.findUnique({ where: { lemma_pos: { lemma, pos } } });
 
   const data = {
     lemma, translation, pos,
@@ -105,17 +151,15 @@ export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeW
     */
     /*
       A WRITE THAT SUPPLIED NO FORMS HAS NO OPINION ABOUT THEM, which is the
-      rule `cefr` and `government` follow above, one field over. The only
-      caller that does this is an accepted missing-word report (`SuggestFix`
-      sends `forms: {}`), and where the word has arrived since, through a live
-      Ekilex lookup after the queue loaded, reading "none supplied" as "none
-      exist" deleted every principal part of the entry and reset its gradation
-      for everybody. The hand-edit form always sends the citation form, so it
-      never reaches this branch.
+      rule `cefr` and `government` follow above, one field over. An accepted
+      missing-word report sends `forms: {}`, and reading "none supplied" as
+      "none exist" reset the gradation for everybody. The gradation is graded
+      off the forms the entry will hold once this lands, the supplied ones and
+      otherwise the ones it already had (`kept` above), so a write naming no
+      form or only some of them grades the entry it leaves behind.
     */
-    ...(existing && !forms.length
-      ? {}
-      : { gradation: gradation.type, gradationNote: gradation.note ?? null }),
+    gradation: gradation.type,
+    gradationNote: gradation.note ?? null,
     // An entry Ekilex supplied stays marked as Ekilex's after a correction —
     // relabelling it USER would quietly discard where the forms came from.
     ...(existing && (existing.provenance === "SEED" || existing.provenance === "EKILEX")
@@ -132,11 +176,11 @@ export async function upsertLexemeWithForms(input: LexemeWrite): Promise<LexemeW
   // Replace only the principal parts. Deleting every row for the lexeme threw
   // away the forms retrieved from Ekilex — the one thing on an entry that cannot
   // be reconstructed — whenever anybody corrected a typo.
-  if (forms.length) {
-    await prisma.form.deleteMany({
-      where: { lexemeId: lexeme.id, formType: { in: [...PRINCIPAL_FORM_TYPES] } },
-    });
-    await prisma.form.createMany({ data: forms.map((f) => ({ ...f, lexemeId: lexeme.id })) });
+  // Under the entry's own row, so two corrections at once cannot leave it with
+  // both genitives. See lib/dict/replaceForms.ts. Only the parts the write
+  // named: one it named empty is cleared, one it did not name is left alone.
+  if (replaced.length) {
+    await replaceForms(lexeme.id, forms, { formType: { in: replaced } });
   }
 
   return {
