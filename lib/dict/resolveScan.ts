@@ -90,6 +90,23 @@ function resolveOne(candidates: Candidate[], item: ScannedItem): ResolvedItem {
 }
 
 /**
+ * A page the learner is saving, vouched again on the server.
+ *
+ * The client sends back the rows it was shown, and every field on them came
+ * off the wire: `lexemeId`, `lemma`, `translation`, `matchedAs` and `cefr` are
+ * whatever the request says. `saveScan` used to check only that a claimed id
+ * existed, so a word corrected in the edit box kept the match its old spelling
+ * had (the camera read `tuba`, the learner typed `tubli`, the cards were built
+ * for `tuba`), and a crafted request could point any printed word at any row,
+ * a model's unchecked suggestion included. So nothing the client said about
+ * the dictionary survives: the spelling and the page's own English do, and the
+ * rest is asked of `matchEstonianForm` again, which is the one gate (ADR-021).
+ */
+export async function vouchScanItems(items: ResolvedItem[]): Promise<ResolvedItem[]> {
+  return resolveScannedItems(items.map((item) => ({ et: item.et, en: item.en })));
+}
+
+/**
  * Re-resolves a single word after the learner has corrected its spelling.
  *
  * The row on screen is editable precisely because a camera misreads `ö` as `o`

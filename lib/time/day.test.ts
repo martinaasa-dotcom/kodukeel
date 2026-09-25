@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { dayClock, isTimeZone, nextCardLine, normaliseZone, partsIn, slowPartsIn } from "./day";
+import { dayClock, earliestStartOf, isTimeZone, nextCardLine, normaliseZone, partsIn, slowPartsIn } from "./day";
 
 /*
   The bug these exist for, stated once.
@@ -103,6 +103,34 @@ describe("stepping days survives a clock change", () => {
     expect(keys).toEqual([
       "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27",
     ]);
+  });
+
+  /*
+    The day after a change is where it went wrong, because stepping onto the
+    change day asked for its midnight and got one read in the wrong offset:
+    23:00 on the 28th in spring, 01:00 on the 25th in autumn. A run of days
+    across the spring change then named the 28th twice and skipped the 29th,
+    and a streak over the 29th and the 30th read 1.
+  */
+  it("finds midnight on the day the clocks change, in both directions", () => {
+    const clock = dayClock(TALLINN);
+    expect(clock.startOfDay(new Date("2026-03-29T09:00:00.000Z")).toISOString()).toBe("2026-03-28T22:00:00.000Z");
+    expect(clock.startOfDay(new Date("2026-10-25T10:00:00.000Z")).toISOString()).toBe("2026-10-24T21:00:00.000Z");
+    expect(clock.dayKey(clock.shiftDay(new Date("2026-03-30T09:00:00.000Z"), 1))).toBe("2026-03-29");
+    expect(clock.recentDayKeys(4, new Date("2026-03-30T09:00:00.000Z"))).toEqual([
+      "2026-03-27", "2026-03-28", "2026-03-29", "2026-03-30",
+    ]);
+    expect(dayClock("America/New_York").recentDayKeys(3, new Date("2026-03-09T17:00:00.000Z"))).toEqual([
+      "2026-03-07", "2026-03-08", "2026-03-09",
+    ]);
+  });
+
+  it("keeps the first instant of a day whose midnight does not exist", () => {
+    // Havana springs from 00:00 straight to 01:00 on 8 March 2026.
+    const clock = dayClock("America/Havana");
+    const start = clock.startOfDay(new Date("2026-03-08T18:00:00.000Z"));
+    expect(clock.dayKey(start)).toBe("2026-03-08");
+    expect(start.toISOString()).toBe("2026-03-08T05:00:00.000Z");
   });
 
   it("counts whole calendar days between instants, not 24-hour blocks", () => {
@@ -246,5 +274,15 @@ describe("the wall clock is the formatter's answer, whatever the cache holds", (
     // Which throws, exactly as it did before there was a cache in front of it.
     expect(() => slowPartsIn(new Date(Number.NaN), "Europe/Tallinn")).toThrow(RangeError);
     expect(() => partsIn(new Date(Number.NaN), "Europe/Tallinn")).toThrow(RangeError);
+  });
+});
+
+describe("earliestStartOf", () => {
+  it("is midnight at UTC+14, which no zone's day begins before", () => {
+    expect(earliestStartOf("2026-09-25").toISOString()).toBe("2026-09-24T10:00:00.000Z");
+    for (const zone of ["Pacific/Kiritimati", "Europe/Tallinn", "UTC", "Pacific/Pago_Pago"]) {
+      const midnight = dayClock(zone).startOfDay(new Date("2026-09-25T12:00:00Z"));
+      expect(midnight.getTime()).toBeGreaterThanOrEqual(earliestStartOf("2026-09-25").getTime());
+    }
   });
 });

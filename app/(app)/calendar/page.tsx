@@ -3,8 +3,10 @@ import { requireUserId } from "@/lib/auth/session";
 import { dayClock } from "@/lib/time/day";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { kindFrom, weekOf, type StudyEvent } from "@/lib/ux/schedule";
+import { isClasswork } from "@/lib/ux/agenda";
 import { Page, Stack } from "@/components/ui";
 import { CalendarWeek } from "./CalendarWeek";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const metadata = { title: "Calendar" };
 
@@ -38,10 +40,10 @@ export const dynamic = "force-dynamic";
 export default async function CalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ w?: string }>;
+  searchParams: Promise<{ w?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const { w } = await searchParams;
+  const { w } = firstParams(await searchParams);
 
   // Whole weeks only, and bounded: the query strings that reach a page are
   // whatever somebody types, and a calendar four thousand weeks out is a page
@@ -103,8 +105,8 @@ export default async function CalendarPage({
             // column it belongs in is a question about the learner's own day.
             dueKey: t.dueAt ? t.dueAt.toISOString().slice(0, 10) : null,
             completed: t.completed,
-            /* A teacher's assignment is not the learner's to delete. */
-            mine: t.classWeek === null,
+            /* A class's homework is not the learner's to delete. */
+            mine: !isClasswork(t.notes),
           }))}
         />
       </Stack>

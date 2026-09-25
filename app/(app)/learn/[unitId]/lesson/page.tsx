@@ -23,6 +23,7 @@ import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
@@ -50,10 +51,10 @@ export default async function LessonPage({
   params, searchParams,
 }: {
   params: Promise<{ unitId: string }>;
-  searchParams: Promise<{ part?: string }>;
+  searchParams: Promise<{ part?: string | string[] }>;
 }) {
   const { unitId } = await params;
-  const { part } = await searchParams;
+  const { part } = firstParams(await searchParams);
   const unit = unitById(unitId);
   if (!unit) notFound();
 
@@ -96,6 +97,13 @@ export default async function LessonPage({
     and for the same reason. Seeded on the unit rather than the part, because a
     unit's decoys being one slice is right and `index` is not known this early;
     which of them each question uses is the per-part seed's job, below.
+
+    AND THE LEMMA IS NOT WHAT IDENTIFIES A ROW, which is the same fault one key
+    short. `Lexeme` is unique on `(lemma, pos)`, so `hall` the noun and `hall`
+    the adjective tie outright, and any word a learner confirms off a
+    photograph makes a second pair for any lemma at all. Ordered by lemma alone
+    the window's two edges fall wherever the plan left those ties, which is the
+    thing the paragraph above says cannot happen. The id ends it.
   */
   const poolSeed = hash(unit.id);
   const [rows, atLevel, settings, reach, courseSpellings, everyday] = await Promise.all([
@@ -128,7 +136,7 @@ export default async function LessonPage({
   const pool = await prisma.lexeme.findMany({
     where: { cefr: unit.level, lemma: { notIn: [...unit.lemmas] } },
     select: { id: true, lemma: true, translation: true, pos: true, semanticTypes: true },
-    orderBy: { lemma: "asc" },
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
     skip: atLevel > DISTRACTOR_POOL ? poolSeed % (atLevel - DISTRACTOR_POOL) : 0,
     take: DISTRACTOR_POOL,
   });
