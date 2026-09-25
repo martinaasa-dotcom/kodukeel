@@ -20,7 +20,7 @@ import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
 import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
 import { isAppsChoice } from "@/lib/srs/sources";
 import {
-  MAX_SESSION, NEW_CANDIDATES, dueWhere, notOnLadder, pastTheLadder, roomFor,
+  MAX_SESSION, NEW_CANDIDATES, dueWhere, meetingFirst, notOnLadder, pastTheLadder, roomFor,
   unseenWhere,
 } from "@/lib/srs/reviewQueue";
 import { include, withChoices, type CardRow } from "./cards";
@@ -187,7 +187,7 @@ export default async function ReviewPage({
       : [];
     const drill = lexemeIds.length
       ? await prisma.card.findMany({
-          where: { ownerId, suspended: false, lexemeId: { in: lexemeIds } },
+          where: { ownerId, suspended: false, lexemeId: { in: lexemeIds }, ...meetingFirst(ownerId) },
           orderBy: [{ due: "asc" }, { lapses: "desc" }, { id: "asc" }],
           take: 60,
           include,
