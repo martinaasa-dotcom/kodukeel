@@ -21716,6 +21716,31 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a screen with nothing to show says so, rather than drawing a round or a list that happened", () => {
+  /*
+    Three screens drew a success out of nothing. The exceptions round was
+    handed an empty task list whenever its words were all undrillable and
+    reported "Round complete · Asked 0"; a saved page whose words no longer
+    match an entry drew a ring at "0 of 0 known" over an empty heading; and a
+    shelf whose word list would not load was written down as an empty list.
+    Each branch is asserted where it has to sit, before the thing it stands in
+    for, because an empty-state guard below the render is a guard nobody meets.
+  */
+  const exceptions = code("app/(app)/review/exceptions/page.tsx");
+  const guard = exceptions.indexOf("if (tasks.length === 0) return <NothingToDrill />");
+  assert.ok(guard > 0, "the exceptions page hands an empty round to the session");
+  assert.ok(guard < exceptions.indexOf("<ExceptionsSession"), "the exceptions page checks for an empty round after rendering it");
+
+  const scan = code("app/(app)/scan/[scanId]/page.tsx");
+  const empty = scan.indexOf("if (words.length === 0)");
+  assert.ok(empty > 0 && empty < scan.indexOf("<Ring"), "a saved page with no dictionary words draws its ring and an empty list");
+
+  const decks = code("app/(app)/words/decks/DecksClient.tsx");
+  assert.doesNotMatch(decks, /\.catch\(\(\) => \{[^}]*setWords\(\[\]\)/,
+    "a shelf whose words would not load is written down as an empty shelf");
+  assert.equal((decks.match(/setWords\("failed"\)/g) ?? []).length, 2, "a shelf read or a search that fails has no state of its own");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
