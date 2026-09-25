@@ -165,10 +165,26 @@ export function gradesFor(
         .find((slip) => slip.kind === "case" && slip.grammCase && slip.reached)?.reached ?? null;
 
       if (need.kind === "lemma") {
-        // One requirement, one row: `oneOf` is a choice and the turn does not
-        // say which was taken, so a row per candidate would credit words
-        // nobody used. The first is the beat's own head word.
-        const lemma = need.oneOf[0];
+        /*
+          One requirement, one row, and the row names the word they wrote.
+
+          This took `oneOf[0]` under a comment saying the turn does not say
+          which was taken. It does: `producedFor(index)` is `satisfiedBy`,
+          which is the word that met the requirement, and `oneWordFor` two
+          hundred lines down has been settling exactly this ambiguity for a
+          card's own slot since ADR-025 amendment 3. 60 of the catalogue's 61
+          `lemma` requirements name more than one word, and the health centre's names
+          ten, so a learner who wrote `Mu selg valutab` had `pea` written into
+          the append-only log as a recall. That is the false row the
+          `substituted`, `conceded` and `chose` guards directly above exist to
+          keep out, arriving through the branch nobody guarded.
+
+          Where the words settle it on neither or on both, or where there is
+          no lexicon to ask, it grades nothing, which is the discipline the
+          card's own slot already takes and is the safe direction: a row not
+          written costs a schedule nothing, and a wrong one is never repaired.
+        */
+        const lemma = oneOfProduced(need.oneOf, producedFor(index), lexicon);
         if (lemma && answered(index)) {
           out.push({ lemma, grammCase: null, reachedCase: null, rating, beatId: beat.id });
         }
@@ -212,6 +228,46 @@ export function gradesFor(
   }
 
   return out;
+}
+
+/** A card that could carry a scene's grade, as `finishScene` reads it. */
+export interface GradeableCard {
+  readonly id: string;
+  readonly cardType: string;
+  readonly targetCase: string | null;
+  readonly lexeme: { readonly lemma: string } | null;
+}
+
+/**
+ * Which of the learner's cards each grade lands on, or null where they hold
+ * none: the case card for the case the beat asked, the production card
+ * otherwise, and the lowest id where two would do.
+ *
+ * `finishScene` asked this one grade at a time, a `findFirst` per grade
+ * ordered on the id, so a conversation that met ten requirements made ten
+ * round trips before its first write, on the screen that says how it went.
+ * It reads every candidate once now and this is the match, pure so the choice
+ * is tested rather than trusted to a query that no longer exists. The lowest
+ * id is what that query's `orderBy` chose, so a learner holding two cards for
+ * one word has the same one graded as before.
+ */
+export function cardsForGrades(
+  grades: readonly Pick<SceneGrade, "lemma" | "grammCase">[],
+  cards: readonly GradeableCard[],
+): (string | null)[] {
+  const key = (lemma: string, grammCase: string | null) =>
+    grammCase ? `${lemma}\u0000CASE_FORM\u0000${grammCase}` : `${lemma}\u0000PRODUCTION`;
+  const lowest = new Map<string, string>();
+  for (const card of cards) {
+    if (!card.lexeme) continue;
+    const k = card.cardType === "CASE_FORM" && card.targetCase
+      ? key(card.lexeme.lemma, card.targetCase)
+      : card.cardType === "PRODUCTION" ? key(card.lexeme.lemma, null) : null;
+    if (k === null) continue;
+    const held = lowest.get(k);
+    if (held === undefined || card.id < held) lowest.set(k, card.id);
+  }
+  return grades.map((grade) => lowest.get(key(grade.lemma, grade.grammCase)) ?? null);
 }
 
 /**
@@ -278,6 +334,12 @@ export function offerFor(
    * `beat.needs`. A hint may not be a word the learner has just used.
    */
   met: readonly boolean[] = [],
+  /**
+   * The scene's verbs, so a beat that wants a value off the card is not
+   * pointed at with a bare infinitive (`Lexicon.infinitives` has one key per
+   * verb the dictionary can inflect).
+   */
+  verbs: { has(lemma: string): boolean } = new Set<string>(),
 ): string | null {
   /*
     THE HINT IS FOR WHAT IS STILL MISSING, NEVER FOR WHAT THEY ALREADY SAID.
@@ -306,7 +368,14 @@ export function offerFor(
         drew one of the beat's own words, that is the word.
       */
       const drawn = card?.props.flatMap((prop) => prop.lemmas).find((lemma) => need.oneOf.includes(lemma));
-      return drawn ?? need.oneOf[0] ?? null;
+      /*
+        And a word a person could say on its own. Every word on the list meets
+        the beat, so the first one that is not a verb is as much an answer as
+        the first one, and `Sobima?`, `Täitma?` and `Maksma?` were handed over
+        where `Jah?`, `Allkiri?` and `Raha?` stood beside them. A list of
+        nothing but verbs keeps its first, since the word is still the answer.
+      */
+      return drawn ?? need.oneOf.find((lemma) => !verbs.has(lemma)) ?? need.oneOf[0] ?? null;
     }
     if (need.kind === "case") return need.lemma;
   }
@@ -324,8 +393,15 @@ export function offerFor(
 
     Never a question word: `Kuhu?` handed to somebody who was just asked
     `Kuhu te sõidate?` is the question said back at them with nothing added.
+
+    And never a verb. A topic lists the verb the question is asked with, and
+    the dictionary form of a verb said as a question is nothing anybody says:
+    a learner stuck on where they were travelling was handed `Sõitma?`, and
+    six beats across the catalogue did the same (`Aitama?`, `Õppima?`,
+    `Alustama?`, `Ostma?`). The thing the question is about is a noun on the
+    same list, `Buss?`, `Koht?`, `Keel?`, `Päev?`.
   */
-  const pointer = beat.topic.find((lemma) => !questionWords.has(lemma));
+  const pointer = beat.topic.find((lemma) => !questionWords.has(lemma) && !verbs.has(lemma));
   return pointer ?? null;
 }
 
@@ -353,10 +429,28 @@ function oneWordFor(
   lexicon: Lexicon | null,
 ): string | null {
   const prop = card?.props.find((one) => one.slot === slot);
-  if (!prop || prop.lemmas.length === 0) return null;
-  if (prop.lemmas.length === 1) return prop.lemmas[0]!;
+  if (!prop) return null;
+  return oneOfProduced(prop.lemmas, produced, lexicon);
+}
+
+/**
+ * Which of several candidate lemmas the learner actually wrote, or nothing.
+ *
+ * One candidate is itself. More than one is settled by the turn's own words
+ * against the scene's forms, and settled on neither or on both is nothing,
+ * because a row here is a claim about somebody's memory in the one table
+ * this app never repairs. Shared by the `lemma` branch and by the card's own
+ * slot, which had this rule and the beat's own words did not.
+ */
+function oneOfProduced(
+  lemmas: readonly string[],
+  produced: ReadonlySet<string>,
+  lexicon: Lexicon | null,
+): string | null {
+  if (lemmas.length === 0) return null;
+  if (lemmas.length === 1) return lemmas[0]!;
   if (!lexicon) return null;
-  const wrote = prop.lemmas.filter((lemma) => {
+  const wrote = lemmas.filter((lemma) => {
     const forms = lexicon.byLemma.get(lemma);
     return forms ? [...produced].some((word) => forms.has(word)) : false;
   });

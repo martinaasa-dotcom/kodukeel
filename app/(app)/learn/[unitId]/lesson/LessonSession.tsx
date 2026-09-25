@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -307,13 +307,15 @@ function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: 
  * under a coarse pointer.
  */
 function Options({
-  options, answer, chosen, onChoose, lang,
+  options, answer, chosen, onChoose, lang, render,
 }: {
   options: readonly string[];
   answer: number;
   chosen: number | null;
   onChoose: (i: number) => void;
   lang: "et" | "en";
+  /** How an option is drawn, where a bare string is not the whole of it. */
+  render?: (option: string) => ReactNode;
 }) {
   useEffect(() => {
     if (chosen !== null) return;
@@ -346,7 +348,7 @@ function Options({
                 so hiding it takes the shortcut away from the one reader who
                 cannot see the option to point at it. */}
             <KeyCap>{i + 1}</KeyCap>
-            {lang === "et" ? <Et>{option}</Et> : <span>{option}</span>}
+            {render ? render(option) : lang === "et" ? <Et>{option}</Et> : <span>{option}</span>}
           </button>
         );
       })}
@@ -543,7 +545,11 @@ function StepCard({
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>Which word is this?</span>
           <p className="text-2xl">{step.gloss}</p>
+          {/* Each option is a case question, and a question word is Estonian a
+              beginner cannot cash in, so it carries what it asks, the way the
+              drill's options do (components/CaseQuestion.tsx). */}
           <Options options={step.options} answer={step.answer} chosen={chosen} lang="et"
+            render={(option) => <CaseQuestion question={option} />}
             onChoose={(i) => choose(i, step.answer, step.lemma, step.kind)} />
           {chosen !== null && <Verdict ok={chosen === step.answer} />}
           {chosen !== null && <Continue onNext={onNext} />}
@@ -749,7 +755,11 @@ function StepCard({
             <Et className="text-3xl">{step.lemma}</Et>
             <span style={{ color: "var(--ink-2)" }}>{step.gloss}</span>
           </div>
+          {/* Each option is a case question, and a question word is Estonian a
+              beginner cannot cash in, so it carries what it asks, the way the
+              drill's options do (components/CaseQuestion.tsx). */}
           <Options options={step.options} answer={step.answer} chosen={chosen} lang="et"
+            render={(option) => <CaseQuestion question={option} />}
             onChoose={(i) => choose(i, step.answer, step.lemma, step.kind)} />
           {chosen !== null && <Verdict ok={chosen === step.answer} />}
           {chosen !== null && <Continue onNext={onNext} />}
