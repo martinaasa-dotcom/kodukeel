@@ -1,5 +1,6 @@
 "use client";
 
+import { PARTS } from "@/lib/copy/values";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -68,7 +69,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const sound = useFeedbackSound();
-  const { refresh: refreshOutbox } = useOffline();
+  const { refresh: refreshOutbox, drainFirst } = useOffline();
 
   const task = prompts[index];
   const finished = !task;
@@ -151,9 +152,12 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     const reached = result.wroteSlot && result.wroteSlot !== task.slot
       ? result.wroteSlot
       : undefined;
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
     try {
+      await drainFirst();
       const res = await gradeCard(
-        task.cardId, result.rating, duration, answeredAt, task.slot, reached,
+        task.cardId, result.rating, duration, answeredAt, task.slot, reached, reviewId,
       );
       if (!res.ok) throw new Error(res.error);
     } catch {
@@ -162,7 +166,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       // answer about the kaasaütlev would go down as an answer about whatever
       // the card happens to be.
       await enqueueGrade({
-        id: crypto.randomUUID(),
+        id: reviewId,
         cardId: task.cardId,
         rating: result.rating,
         durationMs: duration,
@@ -172,7 +176,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       });
       refreshOutbox();
     }
-  }, [task, typed, mark, sound, streak, refreshOutbox, hints]);
+  }, [task, typed, mark, sound, streak, refreshOutbox, drainFirst, hints]);
 
   const next = useCallback(() => {
     /*
@@ -185,7 +189,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         of: task.id,
         label: task.label,
         question: task.gapped ?? task.sentence ?? task.lemma,
-        answer: task.shown.join(" / ") || task.value,
+        answer: task.shown.join(PARTS) || task.value,
         note: task.gapped || task.sentence ? `${task.lemma}, ${task.translation}` : task.translation,
         questionLang: "et",
         answerLang: "et",
@@ -607,7 +611,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
           className="text-xl font-semibold leading-tight"
           style={{ color: "var(--ink)" }}
         >
-          {task.shown.join(" / ")}
+          {task.shown.join(PARTS)}
         </p>
         {/*
           Only where the slot names a form. `task.label` for PRODUCTION is

@@ -445,6 +445,14 @@ const FOLD_COLLISION_LOSES = new Set(["õli"]);
 
 function rank(
   c: Candidate, raw: string, folded: string,
+  /**
+   * Whether an English gloss may answer. A search box says yes; the gate that
+   * vouches for Estonian says no, and has to be able to *skip* the tier rather
+   * than drop the candidate after it answered: returning here first meant an
+   * Estonian form spelled like the entry's own gloss (`sauna`, a form of
+   * `saun`, "sauna") never reached the tiers that would have vouched for it.
+   */
+  english = true,
 ): { score: number; matchedAs?: string; form?: MatchedForm } {
   const l = fold(c.lemma);
   const t = c.translation.toLowerCase();
@@ -454,7 +462,7 @@ function rank(
   if (c.lemma.toLowerCase() === r) return { score: 100 };
   // An exact English match beats a merely diacritic-folded Estonian one: typing
   // "room" almost always means the English word, not rõõm (joy).
-  if (t === r) return { score: 95 };
+  if (english && t === r) return { score: 95 };
 
   if (!FOLD_COLLISION_LOSES.has(c.lemma.toLowerCase())) {
     if (l === folded) return { score: 90 };
@@ -660,14 +668,13 @@ export function matchEstonianForm(candidates: Candidate[], word: string): FormMa
   const raw = word.trim();
   if (!raw) return null;
   const folded = fold(raw);
-  const lower = raw.toLowerCase();
 
   let best: { hit: Candidate; score: number; matchedAs?: string; form?: MatchedForm } | null = null;
   for (const candidate of candidates) {
     if (!vouchable(candidate)) continue;
-    const scored = rank(candidate, raw, folded);
-    // The English tier: right for a search box, wrong here.
-    if (scored.score === 95 && candidate.translation.toLowerCase() === lower) continue;
+    // The English tier is right for a search box and wrong here, so it is
+    // never asked: see `rank`.
+    const scored = rank(candidate, raw, folded, false);
     if (scored.score < VOUCHED_SCORE) continue;
     /*
       `>` alone kept whichever of two equal candidates the array happened to
