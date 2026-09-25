@@ -5746,6 +5746,30 @@ check("a government question never offers a case the word itself governs", () =>
  * question worded as a fact the entry does not support. The review drill has
  * filtered on part of speech since it was written; the exam builder never did.
  */
+/**
+ * A government string is read by `parseGovernment` and nothing else.
+ *
+ * The stored column is Ekilex's, `keda/mida* (partitive) · millest
+ * (elative)`, and the unit lesson split it on a comma and printed the first
+ * piece as the right option: asterisk and Latin case name included, beside
+ * three bare question words, so the answer was the one option shaped
+ * differently. The column separates cases with a middot, so 255 of the 392
+ * governed verbs were refused outright while `et` was asked as a case. The
+ * parser is the one reader, and the one question builder is `buildOptions`.
+ */
+check("a stored government string is read only through parseGovernment", () => {
+  const slicing = ALL.filter(
+    (f) => !/\.test\.tsx?$/.test(f) && /\bgovernment\??\.(split|slice|match|replace)\(/.test(code(f)),
+  );
+  assert.deepEqual(slicing, [], `${slicing.join(", ")} reads a stored government string by hand`);
+  const builders = ["lib/collections/lesson.ts", "lib/exam/paper.ts", "app/(app)/review/government/page.tsx"];
+  for (const file of builders) {
+    const source = code(file);
+    assert.match(source, /\bparseGovernment\(/, `${file} builds a government question without parseGovernment`);
+    assert.match(source, /\bbuildOptions\(/, `${file} builds government options without buildOptions`);
+  }
+});
+
 check("a question that says \"the verb\" is asked about a verb", () => {
   for (const file of ["lib/exam/paper.ts", "app/(app)/review/government/page.tsx"]) {
     const source = code(file);
