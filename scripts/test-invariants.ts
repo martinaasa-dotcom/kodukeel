@@ -1731,6 +1731,7 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     "lib/dict/examples.ts": "is the seam the rank plugs into",
     "lib/dict/facts.ts": "caches the pool and the reach themselves",
     "lib/dict/lookup.ts": "writes back what Ekilex returned",
+    "lib/dict/restoredEntry.ts": "writes back a learner's own sentences from their backup, re-ranked on every read",
     // `lib/dict/borrow.ts` and `lib/ekilex/mapper.ts` are deliberately absent:
     // both take their sentences as a field rather than opening the column, so
     // they are outside the net and an exemption for them would be one nobody
@@ -25642,6 +25643,30 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("a restore creates a word only out of what a person could have typed, and never aborts on one already there", () => {
+  /*
+    A backup file is a document one learner hands the server, and a word it
+    brings in used to go into the shared dictionary nearly as written:
+    sentences marked `EKILEX`, forms filed as `EKILEX:<morphCode>`, the
+    Institute's own columns. `restoredEntry` is the allowlist, and the action
+    may create a lexeme through nothing else. And it creates with
+    `skipDuplicates`, because a caught `create` inside an interactive
+    transaction still aborts the transaction in Postgres, so "theirs stays"
+    failed the whole restore on the first word a reseed had moved.
+  */
+  const body = between(code("app/actions.ts"), "export async function restoreBackup(");
+  assert.ok(body.length > 0, "restoreBackup is gone from app/actions.ts; move this check with it");
+  assert.match(body, /restoredEntry\(/, "restoreBackup no longer builds a restored word through restoredEntry");
+  assert.doesNotMatch(body, /\blexeme\.(create|upsert)\s*\(/,
+    "restoreBackup writes a lexeme with create or upsert, which takes the file's columns and aborts the transaction on a clash");
+  assert.match(body, /restoreLexemes\(/, "restoreBackup no longer writes its words through restoreLexemes");
+  assert.match(code("lib/progress/restoreRows.ts"), /lexeme\.createMany\(\{[^}]*\}?[^)]*skipDuplicates:\s*true/s,
+    "restoreLexemes creates a lexeme without skipDuplicates, so one word already held aborts the whole restore");
+  const entry = code("lib/dict/restoredEntry.ts");
+  assert.match(entry, /isPrincipalFormType\(/, "restoredEntry no longer drops the forms that are not principal parts");
+  assert.match(entry, /source:\s*"USER"/, "restoredEntry no longer marks a restored sentence as the learner's own");
 });
 
 check("every workflow runs on a Node the shipped dependencies accept", () => {

@@ -27,6 +27,7 @@ import { loadRecentMessages } from "@/lib/tutor/history";
 import { mergeExamples, parseExamples, serialiseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
 import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
+import { restoredEntry } from "@/lib/dict/restoredEntry";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { requireAdminId } from "@/lib/auth/admin";
@@ -3298,16 +3299,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
 
         So a restore does what the seed does, `ON CONFLICT DO NOTHING`: a word
         the dictionary already holds is left exactly as it is, and a word it
-        does not is created as this learner's own, without the provenance or
-        the Ekilex identifiers that would claim otherwise. Nothing is lost by
-        it, because the cards below point at ids either way.
+        does not is created as this learner's own, carrying only what a hand
+        edit could have supplied (`restoredEntry` says which columns and why).
+        Nothing is lost by it, because the cards below point at ids either way.
       */
-      const live = await restoreLexemes(tx, ownerId, backup.lexemes.map((raw) => {
-        const { forms, ...lex } = raw as Record<string, unknown> & { forms?: unknown[] };
-        return {
-          data: revive(lex, ["createdAt", "updatedAt"]),
-          forms: Array.isArray(forms) ? forms.map((f) => revive(f as Record<string, unknown>, [])) : [],
-        };
+      const live = await restoreLexemes(tx, ownerId, backup.lexemes.flatMap((raw) => {
+        const entry = restoredEntry(raw as Record<string, unknown>, ownerId);
+        return entry ? [{ data: entry.lexeme, forms: entry.forms }] : [];
       }));
       /*
         Every row below that points at a word points at it through `wordOf`,
