@@ -32,9 +32,10 @@ export const dynamic = "force-dynamic";
  * be rebuilt, which is exactly the argument `Review` is append-only for.
  *
  * So the file carries the lexemes this learner's own rows reference, with their
- * forms: every word their cards, their review log, their starred list and their
- * reports are about. Measured on a demo deck, 15.19 MB became 0.08 MB, and the
- * size now scales with the deck rather than with the dictionary, which is the
+ * forms: every word their cards, their review log, their starred list, their
+ * reports, their shelves, their deferrals and their conversations are about.
+ * Measured on a demo deck, 15.19 MB became 0.08 MB, and the size now scales
+ * with the deck rather than with the dictionary, which is the
  * property that stops this coming back.
  */
 export async function GET() {
@@ -95,20 +96,32 @@ export async function GET() {
   /*
     Which words to carry, asked before the rest so the answer can be used.
 
-    Four tables reference a lexeme and every one of them is the learner's own.
+    Every one of the learner's own tables that names a lexeme is asked, which
+    is seven, and `route.itest.ts` beside this reads the schema to say so.
     `Review` keeps `lexemeId` as a plain column with no relation, deliberately,
     so it outlives the card it was about: a word they have not had a card for
     in a year is still a word their history is about, and leaving it out would
-    restore a log pointing at nothing.
+    restore a log pointing at nothing. The same is true of a shelf: a word
+    filed in a deck keeps its `DeckWord` row after its card is deleted, and
+    `restoreBackup` drops a shelf entry whose word the dictionary it lands in
+    does not hold, so a file that left the word out lost the shelf with it. A
+    word put aside and a word a conversation needed are the same shape.
   */
-  const [cardWords, reviewWords, starWords, reportWords] = await Promise.all([
-    prisma.card.findMany({ where: { ownerId }, select: { lexemeId: true } }),
-    prisma.review.findMany({ where: { ownerId }, select: { lexemeId: true } }),
-    prisma.starredWord.findMany({ where: { ownerId }, select: { lexemeId: true } }),
-    prisma.suggestion.findMany({ where: { ownerId }, select: { lexemeId: true } }),
-  ]);
+  const [cardWords, reviewWords, starWords, reportWords, shelfWords, asideWords, gapWords] =
+    await Promise.all([
+      prisma.card.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+      prisma.review.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+      prisma.starredWord.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+      prisma.suggestion.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+      prisma.deckWord.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+      prisma.deferral.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+      prisma.sceneGap.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+    ]);
   const mine = new Set<string>();
-  for (const row of [...cardWords, ...reviewWords, ...starWords, ...reportWords]) {
+  for (const row of [
+    ...cardWords, ...reviewWords, ...starWords, ...reportWords,
+    ...shelfWords, ...asideWords, ...gapWords,
+  ]) {
     if (row.lexemeId) mine.add(row.lexemeId);
   }
 
