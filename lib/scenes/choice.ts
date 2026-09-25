@@ -22,7 +22,9 @@
  * whole line, which is `datumLine`'s rule and for its reason: half a choice is
  * worse than none.
  *
- * AND IT IS TWO THINGS THEY COULD HAVE MEANT, never one thing said two ways.
+ * AND IT IS TWO THINGS THEY COULD HAVE MEANT, never one thing said two ways,
+ * which is why a pair of the beat's own words is one the scene names
+ * (`BeatSpec.choice`) rather than two the list happens to hold.
  * A beat wanting a case was narrowed on the ending, which reads as a grammar
  * exercise in a character's voice: `Poest või pood?` is not a question a
  * friend on the phone asks, and it was reported by the learner it was asked
@@ -115,11 +117,17 @@ function optionsFor(input: ChoiceInput): string[] {
   for (const { need } of (wanted.length > 0 ? wanted : leaves)) {
     if (need.kind === "lemma") {
       /*
-        Any of a beat's own words is a right answer, so both options are true
-        and the learner cannot be caught out by taking either.
+        Only the pair the scene names (`BeatSpec.choice`), and only while both
+        are words of this requirement the dictionary holds. Any of a beat's
+        own words is a right answer, so both options are true and the learner
+        cannot be caught out by taking either; what the list cannot say is
+        which two of them are two different things rather than one thing said
+        twice, which is why the scene says it.
       */
-      const pair = alternatives(need.oneOf, lexicon);
-      if (pair) return pair;
+      const pair = beat.choice;
+      if (pair && pair.every((lemma) => need.oneOf.includes(lemma) && lexicon.byLemma.has(lemma))) {
+        return [pair[0], pair[1]];
+      }
       continue;
     }
     /*
@@ -156,44 +164,14 @@ function optionsFor(input: ChoiceInput): string[] {
 }
 
 /**
- * The part of speech a narrowed question may offer a pair of.
+ * The part of speech a narrowed question may offer a pair of, which
+ * `catalogue.test.ts` holds every `BeatSpec.choice` to.
  *
  * A noun, an adjective or a pronoun is an answer on its own in its dictionary
- * form: `Pea või kõrv?`, `Suur või väike?`, `Üks või kaks?`. A verb is not,
- * since nobody offers `Helistama või küsima?`, and a phrase is not a thing to
- * choose between: a greeting is said, so `Tere või Tere hommikust?` is one
- * thing said two ways.
- *
- * And an adverb is not one kind of thing here. The course labels every word
- * that does not inflect `ADVERB`, because the label decides which cards a word
- * takes rather than what it is, so a yes, a thank you, an agreement and a now
- * all carry it, and this offered `Jah või aitäh?` and `Jah või nüüd?`. It
- * costs `Jah või ei?` and `Otse või vasakul?`, which fall to the app's hint.
+ * form: `Pea või selg?`, `Suur või väike?`, `Üks või kaks?`. A verb is not,
+ * since nobody offers `Helistama või küsima?`; a phrase is said rather than
+ * chosen; and the course labels every word that does not inflect `ADVERB`, so
+ * a yes, a thank you and a now all carry that label and `Jah või aitäh?` is
+ * not a choice.
  */
-const OFFERABLE: ReadonlySet<string> = new Set(["NOUN", "ADJECTIVE", "PRONOUN"]);
-
-function offerable(pos: string | undefined): boolean {
-  return pos !== undefined && OFFERABLE.has(pos);
-}
-
-/**
- * The first two of a beat's own words that are two of one kind of thing.
- *
- * A beat's list mixes kinds, because it names every word that answers it:
- * `valu` and `valutama`, `sobima` and `jah`, `arve` and `maksma`. Taking the
- * first two put exactly those side by side, which is not two things a person
- * could have meant but one thing in two word classes, or a thing and a yes.
- * Measured over the catalogue, that was most of the pairs it offered. Two of
- * one part of speech is what a choice at a counter is, and a beat with no such
- * pair falls to the app's own hint, which is the honest thing to say.
- */
-function alternatives(oneOf: readonly string[], lexicon: Lexicon): [string, string] | null {
-  const known = oneOf.filter((lemma) => lexicon.byLemma.has(lemma));
-  for (let i = 0; i < known.length; i++) {
-    const pos = lexicon.posOf.get(known[i]!);
-    if (!offerable(pos)) continue;
-    const partner = known.slice(i + 1).find((lemma) => lexicon.posOf.get(lemma) === pos);
-    if (partner) return [known[i]!, partner];
-  }
-  return null;
-}
+export const OFFERABLE: ReadonlySet<string> = new Set(["NOUN", "ADJECTIVE", "PRONOUN"]);

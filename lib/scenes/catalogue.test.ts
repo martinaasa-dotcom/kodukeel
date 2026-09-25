@@ -23,7 +23,7 @@ import { curveballById } from "./curveballs";
 import { LEFT_OUTCOME, QUESTION_SHAPE, leafNeeds } from "./types";
 import { unitById } from "@/lib/collections/syllabus";
 import { CLOCK_LEMMA, TIME_LEMMAS } from "./props";
-import { CHOICE_WORD } from "./choice";
+import { CHOICE_WORD, OFFERABLE } from "./choice";
 
 /** Every lemma a scene names, from its beats' topics and its requirements. */
 function lemmasOf(scene: (typeof SCENES)[number]): string[] {
@@ -716,5 +716,33 @@ describe("a beat asking what is wrong", () => {
     const answers = leafNeeds(beat.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : []));
     expect(answers).toContain("katki");
     expect(beat.topic).toContain("katki");
+  });
+});
+
+/*
+  A NAMED CHOICE IS TWO WORDS THE BEAT TAKES, OF ONE KIND THAT CAN BE OFFERED.
+  `choiceOf` refuses a pair that fails any of this, silently, so a typo here
+  would leave the beat narrowing on nothing with no sign of it: two lemmas the
+  course harvested, two different ones, both answers to one of the beat's own
+  requirements, one part of speech, and a noun, an adjective or a pronoun.
+*/
+describe("a choice a scene names", () => {
+  const pos = new Map(HARVESTED.map((word) => [word.lemma, word.pos]));
+  const named = SCENES.flatMap((scene) => scene.beats.flatMap((beat) => (beat.choice ? [{ scene, beat, pair: beat.choice }] : [])));
+
+  it("is named somewhere, so the rule is not reached by an empty list", () => {
+    expect(named.length).toBeGreaterThanOrEqual(8);
+  });
+
+  it("is two different words one requirement of the beat takes, of one offerable kind", () => {
+    for (const { scene, beat, pair: [a, b] } of named) {
+      const where = `${scene.id}/${beat.id}`;
+      expect(a, where).not.toBe(b);
+      const takes = leafNeeds(beat.needs).some(({ need }) => need.kind === "lemma" && need.oneOf.includes(a) && need.oneOf.includes(b));
+      expect(takes, `${where} names a pair no requirement takes`).toBe(true);
+      expect(pos.get(a), `${where}: ${a}`).toBeDefined();
+      expect(pos.get(a), where).toBe(pos.get(b));
+      expect(OFFERABLE.has(pos.get(a)!), `${where}: ${pos.get(a)} is not a kind a choice offers`).toBe(true);
+    }
   });
 });
