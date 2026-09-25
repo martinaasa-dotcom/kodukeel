@@ -9689,6 +9689,55 @@ check("a pure layer reaches no database, React or Next, however many imports awa
 });
 
 /**
+ * NO SERVER ACTION TAKES AN OWNER FROM ITS CALLER.
+ *
+ * CLAUDE.md states it as a rule that is not negotiable: every export of a
+ * `"use server"` file is a public endpoint, its arguments are JSON off the wire
+ * whatever the types say, and an owner id taken from one is an owner id anybody
+ * can type. The owner is resolved with `requireUserId()`, and a helper that
+ * needs one as a parameter lives in `lib/`. Nothing held that up: the one check
+ * near it read `advanceCourseStep` alone, so an eighty-ninth action written
+ * `saveNote(ownerId: string, text: string)` passed the whole suite.
+ *
+ * Every exported function and every exported arrow in any file that declares
+ * `"use server"` has its whole parameter list read, balanced on parentheses so
+ * a default value or a callback type does not end it early, and refused where
+ * a parameter or a field of an inline object type names an owner, a user or a
+ * learner.
+ */
+check("no server action takes an owner id from its caller", () => {
+  const files = ALL.filter((f) => /^\s*["']use server["'];?\s*$/m.test(code(f)));
+  assert.ok(files.includes(join("app", "actions.ts")), "app/actions.ts no longer declares \"use server\"");
+  const offenders: string[] = [];
+  let signatures = 0;
+  for (const file of files) {
+    const src = code(file);
+    for (const m of src.matchAll(/export\s+(?:const\s+\w+\s*=\s*)?(?:async\s+)?(?:function\s+(\w+)\s*(?:<[^>(]*>)?)?\(/g)) {
+      if (!m[1] && !/const/.test(m[0])) continue;
+      let depth = 1;
+      let at = m.index! + m[0].length;
+      const from = at;
+      while (at < src.length && depth > 0) {
+        if (src[at] === "(") depth += 1;
+        else if (src[at] === ")") depth -= 1;
+        at += 1;
+      }
+      signatures += 1;
+      const params = src.slice(from, at - 1);
+      if (/\b(owner\w*|userId|learnerId)\s*[?]?\s*[:,)=]|\b(owner\w*|userId|learnerId)\s*$/i.test(params)) {
+        offenders.push(`${file}: ${m[1] ?? m[0].trim()}(${params.replace(/\s+/g, " ").slice(0, 80)})`);
+      }
+    }
+  }
+  assert.ok(signatures >= 60, `only read ${signatures} server action signatures, so this check stopped looking`);
+  assert.deepEqual(
+    offenders, [],
+    "a server action takes an owner from its caller, which anybody can type. Resolve it with "
+      + "requireUserId() inside the action, or move the helper that needs one into lib/",
+  );
+});
+
+/**
  * Nothing hands a raw error message back to a browser.
  *
  * `restoreBackup` and `deleteMyAccount` both end in "and nothing was changed"
@@ -12485,9 +12534,15 @@ check("nothing caches a learner's own rows in the dictionary's cache", () => {
     per-learner memo goes instead (see `latestFor` and the settings store).
   */
   const src = code("lib/dict/facts.ts");
+  /*
+    Every name a person arrives under, not only the column's. A cached
+    function taking a `userId` and handing it to a helper from lib/progress/
+    never spells `ownerId` in this file and is exactly the fault above, and
+    the one-word check let it through.
+  */
   assert.ok(
-    !/ownerId/.test(src),
-    "lib/dict/facts.ts names an ownerId. It caches across requests and across "
+    !/\bownerId\b|\buserId\b|\blearnerId\b|\bowner\b|requireUserId|currentLearner/.test(src),
+    "lib/dict/facts.ts names a learner. It caches across requests and across "
     + "learners, so anything scoped to a person served from here is served to "
     + "everybody. Use cache() from react, which is scoped to one request.",
   );
