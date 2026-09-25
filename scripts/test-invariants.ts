@@ -21595,6 +21595,19 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("closing the share sheet is not reported as a failure", () => {
+  /*
+    navigator.share rejects with an AbortError when the learner closes the sheet,
+    and the progress card answered every rejection with "Could not build the
+    card just now", about a card that was built. Every caller asks shareRefusal
+    in lib/ux/share.ts which of the two it was.
+  */
+  const sharers = ALL.filter((f) => /navigator\.share\(/.test(code(f)));
+  assert.ok(sharers.length >= 1, "nothing calls navigator.share, so this check stopped looking");
+  const blind = sharers.filter((f) => !/\bshareRefusal\(/.test(code(f)));
+  assert.deepEqual(blind, [], `these read a closed share sheet as a failure: ${blind.join(", ")}`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
