@@ -10051,6 +10051,27 @@ check("no source file holds a control character it could have named", () => {
   }
 });
 
+/*
+  A `next` read off the address goes through `safeNext` wherever it is read.
+
+  The callback applied it, and the sign-in page's Google button signs in with
+  an ID token on the page itself and then navigates to `next` with no callback
+  in between, so the one check sat on a door that path never walks through: an
+  open redirect straight after a fresh sign-in.
+*/
+check("every read of the next parameter goes through safeNext", () => {
+  const reads: string[] = [];
+  for (const file of [...APP, ...COMPONENTS, ...LIB]) {
+    if (/\.test\.|\.itest\./.test(file)) continue;
+    for (const line of code(file).split("\n")) {
+      if (!/\.get\(\s*["']next["']\s*\)/.test(line)) continue;
+      reads.push(file);
+      assert.match(line, /safeNext\(/, `${file} reads ?next= without safeNext, so it can send somebody off-site`);
+    }
+  }
+  assert.ok(reads.length >= 2, `only ${reads.length} reads of ?next= found, so this stopped looking`);
+});
+
 check("the emoji board is unique by picture as well as by word", () => {
   const file = join("app", "(app)", "review", "emoji", "page.tsx");
   const source = code(file);
