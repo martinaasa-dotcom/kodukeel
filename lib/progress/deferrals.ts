@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { hardWords } from "@/lib/dict/facts";
+import { lockDeck } from "@/lib/srs/deck";
 import { bandReached, daysBetween, deferralFor, deferralNote, inForce, offeredBand, type Deferral } from "@/lib/srs/defer";
 
 /**
@@ -74,6 +75,15 @@ export async function deferWord(
   const fresh = deferralFor({ band, level, now });
 
   const deferral = await prisma.$transaction(async (tx) => {
+    /*
+      Under the deck lock every builder takes. A builder reads the deferral and
+      dates its new cards on it under that lock, so a push that does not take
+      it runs beside a builder that has read "none" and not yet committed: the
+      push cannot see the uncommitted card, and it lands dated now, bringing
+      the word straight back. Taken, the push waits for the builder and moves
+      what it built.
+    */
+    await lockDeck(tx, ownerId);
     /*
       A SECOND PRESS NEVER SHORTENS A WAIT, WHICH IS A RULE ABOUT THE CARDS
       RATHER THAN ABOUT POLITENESS.
@@ -176,13 +186,21 @@ export async function deferWord(
  * undone press stand in the aggregate for ever.
  */
 export async function undoDeferral(ownerId: string, lexemeId: string, now = new Date()): Promise<boolean> {
-  // Read inside the transaction, and locked, so a second press landing in
-  // between cannot move the cards to a date this then fails to match.
+  /*
+    Under the deck lock, for the reason `deferWord` takes it, pointed the other
+    way: a builder that read the deferral and has not yet committed dates its
+    card on `untilAt`, and an undo running beside it would hand back the cards
+    it can see, delete the row, and leave that one on the old date with nothing
+    left to bring it back. Read inside the lock, so the row is the one in force,
+    and a second press landing in between cannot move the cards to a date this
+    then fails to match.
+  */
   return prisma.$transaction(async (tx) => {
-    const [row] = await tx.$queryRaw<{ untilAt: Date; priorDues: unknown }[]>`
-      SELECT "untilAt", "priorDues" FROM "Deferral"
-      WHERE "ownerId" = ${ownerId} AND "lexemeId" = ${lexemeId}
-      FOR UPDATE`;
+    await lockDeck(tx, ownerId);
+    const row = await tx.deferral.findUnique({
+      where: { ownerId_lexemeId: { ownerId, lexemeId } },
+      select: { untilAt: true, priorDues: true },
+    });
     if (!row) return false;
     await giveBack(tx, ownerId, lexemeId, row, now);
     await tx.deferral.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
@@ -317,9 +335,9 @@ export async function deferredDues(
 /**
  * Hands back every word that was waiting for a band the learner has reached.
  *
- * Called from `recordCourseLevel`, which is the one writer of a level that did
- * not come from a sitting, so this runs where the fact changes rather than on
- * a read path. A word deferred to B1 by somebody who moves up to B1 in March
+ * Called from both writers of a level, `recordCourseLevel` and a level
+ * check's `saveResult`, so this runs where the fact changes rather than on a
+ * read path. A word deferred to B1 by somebody who moves up to B1 in March
  * is a word they asked for: leaving it on its backstop date would mean the
  * button that says "it waits until you get there" does not.
  *
@@ -327,14 +345,20 @@ export async function deferredDues(
  * does, and only where the wait really was for a band.
  */
 export async function wakeForLevel(ownerId: string, level: string, now = new Date()): Promise<number> {
-  const rows = await prisma.deferral.findMany({
-    where: { ownerId, wokenAt: null, untilLevel: { not: null }, untilAt: { gt: now } },
-    select: { id: true, lexemeId: true, untilAt: true, untilLevel: true, priorDues: true },
-  });
-  const reached = rows.filter((row) => bandReached(row, level));
-  if (reached.length === 0) return 0;
+  /*
+    Under the deck lock, as the undo is and for its reason: a builder that has
+    read a deferral and not yet committed dates its card on `untilAt`, and a
+    wake beside it would stamp the row and leave that card on the old date.
+  */
+  return prisma.$transaction(async (tx) => {
+    await lockDeck(tx, ownerId);
+    const rows = await tx.deferral.findMany({
+      where: { ownerId, wokenAt: null, untilLevel: { not: null }, untilAt: { gt: now } },
+      select: { id: true, lexemeId: true, untilAt: true, untilLevel: true, priorDues: true },
+    });
+    const reached = rows.filter((row) => bandReached(row, level));
+    if (reached.length === 0) return 0;
 
-  await prisma.$transaction(async (tx) => {
     /*
       Only the cards still sitting on the date this wrote, each to where the
       wait found it, exactly as an undo does (`giveBack`).
@@ -350,6 +374,6 @@ export async function wakeForLevel(ownerId: string, level: string, now = new Dat
       where: { id: { in: reached.map((row) => row.id) } },
       data: { wokenAt: now },
     });
+    return reached.length;
   });
-  return reached.length;
 }

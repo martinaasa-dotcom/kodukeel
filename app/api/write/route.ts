@@ -11,6 +11,8 @@ import {
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
 import type { CaseKey } from "@/lib/estonian/types";
+import { NO_STORE } from "@/lib/security/headers";
+import { courseLevelFor } from "@/lib/progress/level";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -47,25 +49,23 @@ export async function POST(request: Request) {
   let lexemeId: string;
   let caseKey: CaseKey;
   let sentence: string;
-  let level = "B1";
   try {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.lexemeId !== "string" || typeof body.caseKey !== "string" ||
         typeof body.sentence !== "string") {
-      return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+      return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
     }
     lexemeId = body.lexemeId;
     caseKey = body.caseKey as CaseKey;
     sentence = body.sentence.trim().slice(0, MAX_SENTENCE_CHARS);
-    if (typeof body.level === "string" && /^[ABC][12]$/.test(body.level)) level = body.level;
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
+    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
 
   if (!looksLikeSentence(sentence)) {
     return Response.json(
       { error: "Write a whole sentence, at least three words." },
-      { status: 400 },
+      { headers: NO_STORE, status: 400 },
     );
   }
 
@@ -73,12 +73,12 @@ export async function POST(request: Request) {
     where: { id: lexemeId },
     include: { forms: true },
   });
-  if (!lexeme) return Response.json({ error: "That word no longer exists." }, { status: 404 });
+  if (!lexeme) return Response.json({ error: "That word no longer exists." }, { headers: NO_STORE, status: 404 });
 
   const tasks = writingTasksFor(lexeme);
   const task = tasks.find((t) => t.caseKey === caseKey);
   if (!task) {
-    return Response.json({ error: "No exercise for that case." }, { status: 400 });
+    return Response.json({ error: "No exercise for that case." }, { headers: NO_STORE, status: 400 });
   }
 
   /**
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
   // note the route is about to refuse (see `PURPOSE_CHAINS`).
   const config = resolveProviders({ purpose: "grader" })[0];
   if (!config) {
-    return Response.json({ formCheck, graded: null, aiAvailable: false });
+    return Response.json({ formCheck, graded: null, aiAvailable: false }, { headers: NO_STORE });
   }
 
   const decision = await authoriseCall(ownerId, "GRADER");
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
     // than a failure — the learner is told whether the form was right.
     return Response.json(
       { formCheck, graded: null, aiAvailable: false, quotaMessage: decision.message },
-      { status: 200 },
+      { headers: NO_STORE, status: 200 },
     );
   }
 
@@ -121,6 +121,13 @@ export async function POST(request: Request) {
   // verification. Only the first is owed its authorization back.
   let settled = false;
   try {
+    /*
+      WHO IS WRITING IS READ OFF THEIR OWN LOG, the way `/api/describe` and
+      `/api/tutor` read it. This took `body.level` and fell back to B1, and the
+      one screen that calls it sends none, so every learner was graded as B1.
+      Inside the try, so a read that fails hands the booking back.
+    */
+    const level = await courseLevelFor(ownerId);
       /*
     The grader's chain (`PURPOSE_CHAINS`): the model `eval:grader` measured
     first, the other measured one behind it, and the paid tail only while the
@@ -173,7 +180,7 @@ export async function POST(request: Request) {
       reply = verified.graded;
     }
 
-    return Response.json({ formCheck, graded: reply, aiAvailable: true, withheld, withheldReason });
+    return Response.json({ formCheck, graded: reply, aiAvailable: true, withheld, withheldReason }, { headers: NO_STORE });
   } catch (error) {
     const booking = decision.reservation;
     if (!settled && booking) after(() => releaseReservation(booking));
@@ -181,6 +188,6 @@ export async function POST(request: Request) {
       reportError(error, { at: "api/write", ownerId, extra: { model: config.model } });
     }
     // Degrades to the mechanical result, which is the important half anyway.
-    return Response.json({ formCheck, graded: null, aiAvailable: false });
+    return Response.json({ formCheck, graded: null, aiAvailable: false }, { headers: NO_STORE });
   }
 }

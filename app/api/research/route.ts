@@ -200,13 +200,25 @@ async function tallyEncounters(excluded: readonly string[]): Promise<Contributio
   const not = excluded.length > 0 ? Prisma.sql`AND e."ownerId" NOT IN (${Prisma.join([...excluded])})` : Prisma.empty;
   const conversations = Prisma.join(OUTCOMES.filter(isConversation));
   const rows = await prisma.$queryRaw<{ month: string; learner: string; reviews: number; correct: number }[]>`
-    SELECT TO_CHAR(e."createdAt" AT TIME ZONE 'UTC', 'YYYY-MM') AS "month",
+    -- The column is a naive timestamp holding UTC wall time, so TO_CHAR on it
+    -- is the UTC day. Converting it first gave a timestamptz, which TO_CHAR
+    -- renders in the session's zone: the day before on a non-UTC server.
+    SELECT TO_CHAR(e."createdAt", 'YYYY-MM') AS "month",
            e."ownerId" AS "learner",
            COUNT(*)::int AS "reviews",
            COUNT(*) FILTER (WHERE e."outcome" <> 'SWITCHED')::int AS "correct"
-    FROM "Encounter" e
+    -- One report per learner per day, the last one given, as the learner's own
+    -- panel reads them; filtered after, so a day answered twice counts as the
+    -- answer that stood rather than as both.
+    FROM (
+      SELECT DISTINCT ON (e."ownerId", date_trunc('day', e."createdAt"))
+             e."ownerId", e."outcome", e."createdAt"
+      FROM "Encounter" e
+      WHERE TRUE
+      ${not}
+      ORDER BY e."ownerId", date_trunc('day', e."createdAt"), e."createdAt" DESC, e."id" DESC
+    ) e
     WHERE e."outcome" IN (${conversations})
-    ${not}
     GROUP BY 1, e."ownerId"
   `;
   return rows.map((row) => ({
