@@ -56,7 +56,6 @@
 import { dayIndex } from "@/lib/random/dayHash";
 import { joinWithOr } from "@/lib/copy/values";
 import { SCENES, sceneById } from "@/lib/scenes/catalogue";
-import { SYLLABUS } from "./syllabus";
 
 export interface Errand {
   readonly id: string;
@@ -95,7 +94,7 @@ export const ERRANDS: readonly Errand[] = [
   { id: "family", says: "Tell a colleague or a neighbor one thing about your family.", where: "Work, the stairwell", unit: "inimesed", scene: "trepikoda" },
   { id: "day", says: "Tell somebody what you did today, in three sentences.", where: "Home, a friend", unit: "iga-paev" },
   { id: "number", says: "Give your phone number in Estonian, digit by digit, and have it read back.", where: "A form, a friend", unit: "arvud" },
-  { id: "clothes", says: "Ask for a size or a color in a shop.", where: "A clothes shop", unit: "riided" },
+  { id: "clothes", says: "Ask for a size or a color in a shop.", where: "A clothes shop", unit: "riided", scene: "riidepood" },
   { id: "call", says: "Make one phone call in Estonian, even a short one.", where: "The phone", unit: "suhtlemine", scene: "helistamine" },
   { id: "appointment", says: "Book or ask about an appointment in Estonian, and hold the line if they switch.", where: "A health center, a salon", unit: "keha-ja-tervis", scene: "arsti-aeg" },
   { id: "plan", says: "Arrange to meet somebody, with a day and a time.", where: "Work, a friend", unit: "plaanid" },
@@ -259,11 +258,3 @@ export function errandForScene(sceneId: string): Errand | undefined {
   return ERRANDS.find((e) => e.scene === sceneId);
 }
 
-/** The units a deck has started: any of the unit's words with a card. */
-export function startedUnits(startedLemmas: ReadonlySet<string>): Set<string> {
-  const out = new Set<string>();
-  for (const unit of SYLLABUS) {
-    if (unit.lemmas.some((l) => startedLemmas.has(l))) out.add(unit.id);
-  }
-  return out;
-}

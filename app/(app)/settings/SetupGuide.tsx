@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { COPY_LABEL, useCopy } from "@/components/useCopy";
 
 const STEPS = [
-  { text: "Go to ", link: { href: "https://console.groq.com", label: "console.groq.com" }, after: " and sign in. It's free and takes no card." },
-  { text: "Open ", strong: "API Keys", after: " in the left-hand menu." },
-  { text: "Click ", strong: "Create API Key", after: ". Give it any name. Copy the key it shows you: you only see it once." },
+  { text: "Go to ", link: { href: "https://aistudio.google.com/apikey", label: "aistudio.google.com" }, after: " and sign in. It's free and takes no card." },
+  { text: "Click ", strong: "Create API key", after: ". Copy the key it shows you." },
   { text: "In this project's folder, open the file called ", code: ".env", after: " and paste the key between the quotes, like the example below." },
   { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again. Anu will be waiting." },
 ];
@@ -19,17 +18,17 @@ const STEPS = [
   rate-limited hard and retired without notice, and both were true of the one
   named here within a day of it being written.
 */
-const SNIPPET = 'GROQ_API_KEY="paste-your-key-here"';
+const SNIPPET = 'GEMINI_API_KEY="paste-your-key-here"';
 
 export function SetupGuide() {
-  const [copied, setCopied] = useState(false);
+  const [copied, copy] = useCopy();
 
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
         Anu needs a free key to answer questions. Everything else (the dictionary, your cards,
-        audio) works without one. The key costs nothing and needs no card: Anu asks free models,
-        and moves on to the next one when the first is busy. Here is the whole thing, step by step:
+        audio) works without one. One Gemini key turns on Anu, conversations and scanning a page
+        together, and costs nothing. Here is the whole thing, step by step:
       </p>
 
       <ol className="mt-4 flex flex-col gap-3">
@@ -65,15 +64,12 @@ export function SetupGuide() {
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>.env</span>
           <button
             type="button"
-            onClick={() => {
-              void navigator.clipboard.writeText(SNIPPET);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
+            onClick={() => copy(SNIPPET)}
             className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
-            style={{ color: copied ? "var(--good-ink)" : "var(--ink-3)" }}
+            style={{ color: copied === "copied" ? "var(--good-ink)" : "var(--ink-3)" }}
           >
-            {copied ? <><Check size={13} aria-hidden /> Copied</> : <><Copy size={13} aria-hidden /> Copy</>}
+            {copied === "copied" ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
+            <span aria-live="polite">{copied === "idle" ? "Copy" : COPY_LABEL[copied]}</span>
           </button>
         </div>
         {/*
@@ -110,12 +106,11 @@ export function SetupGuide() {
         have been looking for a line that does not exist.
       */}
       <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-        Anu asks Groq. Conversations (Situations) need a second free key,{" "}
-        <code>GEMINI_API_KEY</code>, from{" "}
-        <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
-          aistudio.google.com
+        For a backup, add a free Groq key as <code>GROQ_API_KEY</code>, from{" "}
+        <a href="https://console.groq.com" target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
+          console.groq.com
         </a>
-        , on a line of its own in the same file.
+        , on a line of its own in the same file. Anu then answers whenever Gemini is busy.
       </p>
     </div>
   );

@@ -75,9 +75,13 @@ async function ask(
   cap: number,
 ): Promise<TranslationOutcome> {
   // The grader's chain, since this is metered as a GRADER call and wants the
-  // same cheap, measured model the three graders use (`PURPOSE_CHAINS`).
-  const chain = resolveProviders({ purpose: "grader" });
-  if (chain.length === 0) return { ok: false, reason: "unavailable" };
+  // same cheap, measured model the three graders use (`PURPOSE_CHAINS`). Asked
+  // here only for whether anything is configured at all, which decides the
+  // screen; which links it holds is decided below, once the ledger has said
+  // whether the last resort is affordable.
+  if (resolveProviders({ purpose: "grader" }).length === 0) {
+    return { ok: false, reason: "unavailable" };
+  }
 
   const decision = await authoriseCall(ownerId, "GRADER");
   if (!decision.allowed) {
@@ -91,6 +95,20 @@ async function ask(
       retryAfterSeconds: decision.retryAfterSeconds,
     };
   }
+
+  /*
+    THE LAST RESORT IS ASKED FOR, NEVER ASSUMED, AND THIS PATH WAS ASSUMING IT.
+
+    The chain was built above and never rebuilt, so `allowFallback` took its
+    default of true and the dear tail was on it whatever the ledger said. The
+    four routes that grade already do this; this one is the fifth grader and
+    was not on the list the invariant kept, which is the fault this repository
+    keeps finding in its own checks: a list is a thing somebody has to remember
+    to extend, and what it left behind here is the one metered path a stranger
+    can reach from the dictionary search box billing Anthropic on a day the
+    fallback budget was already spent.
+  */
+  const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
 
   let open;
   try {

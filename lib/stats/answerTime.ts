@@ -168,7 +168,14 @@ export function answerTimeReading(reviews: readonly AnswerTimePoint[], forms = t
     .sort((a, b) => b.medianMs - a.medianMs || b.answers - a.answers || a.slot.localeCompare(b.slot));
 
   const slow = overall === null ? [] : slots.filter(
-    (s) => s.accuracy >= FLUENT_ACCURACY && s.medianMs >= overall * SLOW_RATIO,
+    /*
+      Against the unrounded share: 35 of 44 is 79.5 percent, prints as 80 and is
+      under the floor, so the rounded figure named a slot the rule excludes.
+    */
+    (s) => {
+      const v = perSlot.get(s.slot)!;
+      return v.ok * 100 >= FLUENT_ACCURACY * v.total && s.medianMs >= overall * SLOW_RATIO;
+    },
   );
 
   return { medianMs: overall, slots, slow };
