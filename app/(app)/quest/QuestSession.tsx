@@ -28,7 +28,6 @@ import { roundLength } from "@/lib/ux/roundClock";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
 
-
 export interface AimedCase {
   key: string;
   accuracy: number;

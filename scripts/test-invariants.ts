@@ -2852,7 +2852,8 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * one fact: the seventh door, `finishScene`, had to be added to all three or the
  * newest and busiest mode would sit outside a rule that reported itself as held.
  * That is the failure this file exists to catch, so it is not a shape this file
- * may have itself.
+ * may have itself. `useGrade` is on it because it is `gradeCard` with the
+ * outbox behind it, which the check on that hook holds it to.
  *
  * `recordMatchGrades` is the eighth: Match used to grade its board by looping
  * over `pairs` and calling `gradeCard` once each, which is eight sequential
@@ -2861,7 +2862,7 @@ check("no counter column exists for anything the review log can reconstruct", ()
  * and `submitExam`, so it belongs in this list rather than under `gradeCards?`.
  */
 const GRADING_DOORS =
-  /\b(gradeCards?|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
+  /\b(gradeCards?|useGrade|replayGrades|completeLesson|recordCheckpoint|submitExam|recordSonad|recordCrossword|finishScene|recordMatchGrades)\b/;
 
 /**
  * Sessions that measure rather than practice.
@@ -16858,7 +16859,7 @@ check("a wrong answer records the form it reached for, and only between forms", 
   ]) {
     assert.match(
       code(file),
-      /gradeCard\([\s\S]{0,260}reached/,
+      /(?:gradeCard|grade)\([\s\S]{0,260}reached/,
       `${file} works out which form the learner reached for, prints it, and no ` +
       "longer sends it. That was the whole life of the fact before this column.",
     );
@@ -17084,7 +17085,8 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
       stopped short and the check passed against the live bug. Made to fail on
       the real line before being kept.
     */
-    .filter((file) => /gradeCard\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
+    // `grade(` is `useGrade`'s, which is how most rounds reach `gradeCard` now.
+    .filter((file) => /\b(?:gradeCard|grade)\([^;]{0,200}\/\s*\w+\.length/.test(code(file)));
   /*
     The half above is only a claim while SESSION_FILES finds the rounds: a
     rename of the Session suffix empties it and the deepEqual passes on nothing.
@@ -17093,7 +17095,7 @@ check("a recorded answer time is one answer, and the pace reading knows it", () 
   // A sweep over nothing passes: the rounds that write a duration are the
   // haystack, and a rename that moved them out of SESSION_FILES would leave
   // this asking about no file at all.
-  const grading = SESSION_FILES().filter((file) => /\bgradeCard\(/.test(code(file)));
+  const grading = SESSION_FILES().filter((file) => /\b(?:gradeCard|grade)\(/.test(code(file)));
   assert.ok(grading.length >= 15, `only ${grading.length} round sessions grade through gradeCard, so the sweep is looking in the wrong place`);
   assert.deepEqual(
     averaged, [],
@@ -20817,7 +20819,7 @@ check("a verdict is painted once, in the tint and the ink", () => {
   }
 
   // The screens that mark an answer are the ones that call the app's markers.
-  const marks = /\b(gradeCard|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
+  const marks = /\b(gradeCard|useGrade|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
   // Sõnad is not on this list and is not exempt from it: it marks letters with
   // three kinds of object rather than three tints, by a design argued at the
   // top of its own file, and it calls none of the markers above.
@@ -26295,8 +26297,8 @@ check("a round that asks one case says which when it grades", () => {
     fault the flash round's own practisedSlot was added for.
   */
   const rounds: Record<string, RegExp> = {
-    "app/(app)/review/write/WriteSession.tsx": /gradeCard\([^;]{0,200}?prompt\.caseKey/,
-    "app/(app)/review/target/TargetSession.tsx": /gradeCard\([^;]{0,200}?question\.caseKey/,
+    "app/(app)/review/write/WriteSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?prompt\.caseKey/,
+    "app/(app)/review/target/TargetSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?question\.caseKey/,
   };
   for (const [file, pattern] of Object.entries(rounds)) {
     assert.match(code(file).replace(/\s+/g, " "), pattern, `${file} grades without saying which case it asked`);

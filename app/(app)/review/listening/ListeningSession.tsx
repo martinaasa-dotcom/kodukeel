@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { Check, Headphones, X } from "lucide-react";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -51,6 +51,7 @@ export interface ListeningCard {
 }
 
 export function ListeningSession({ cards: initialCards }: { cards: ListeningCard[] }) {
+  const grade = useGrade();
   // Snapshotted once on mount, and never updated from later props. gradeCard()
   // is a Server Action, and Next.js refreshes this route's Server Component
   // after every call — which would hand down a shrinking `cards` prop as
@@ -117,16 +118,12 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     const duration = Date.now() - shownAt.current;
     setSelected(choice);
     if (!isCorrect) hints.noteMiss();
-    try {
-      // A hint is paid for: see `lib/questions/hints.ts`.
-      await gradeCard(card.id, Math.min(isCorrect ? 3 : 1, hints.ceiling) as 1 | 2 | 3, duration);
-    } catch {
-      // The grade did not reach the database; the round still shows feedback.
-    }
+    // A hint is paid for: see `lib/questions/hints.ts`.
+    await grade(card.id, Math.min(isCorrect ? 3 : 1, hints.ceiling) as 1 | 2 | 3, duration);
     setAttempted((a) => a + 1);
     if (isCorrect) setCorrect((c) => c + 1);
     setBusy(false);
-  }, [card, answered, busy, hints]);
+  }, [card, answered, busy, hints, grade]);
 
   const next = useCallback(() => {
     /* The word that was played, which is the one thing this round never

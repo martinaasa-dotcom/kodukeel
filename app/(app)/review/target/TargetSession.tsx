@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGrade } from "@/components/round/useGrade";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { Crosshair, Timer, Trophy } from "lucide-react";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
-import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Page, StatTile } from "@/components/ui";
 import { useFeedbackSound } from "@/components/AudioPrefs";
@@ -42,6 +42,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
   /** The learner's own pace, from `lib/ux/roundClock.ts`, resolved on the page. */
   multiplier: number;
 }) {
+  const grade = useGrade();
   // Snapshotted on mount: `gradeCard` refreshes this route's Server Component,
   // and a round whose questions changed under the player is a different round.
   const [questions] = useState(initialQuestions);
@@ -74,9 +75,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
     // The case the target asked, which is not always the card it grades: the slot
     // is what mastery counts, and without it this read as the card's case.
     if (question.cardId) {
-      void gradeCard(
-        question.cardId, right ? 3 : 1, Date.now() - shownAt.current, undefined, question.caseKey ?? undefined,
-      ).catch(() => {});
+      void grade(question.cardId, right ? 3 : 1, Date.now() - shownAt.current, question.caseKey ?? undefined);
     }
 
     // A hit moves on quickly; a miss holds, because the correction is the one
@@ -87,7 +86,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
       shownAt.current = Date.now();
       setIndex((i) => i + 1);
     }, right ? 480 : 1500);
-  }, [question, picked, sound, hits, multiplier]);
+  }, [question, picked, sound, hits, multiplier, grade]);
 
   useEffect(() => {
     if (phase !== "running" || picked !== null) return;
