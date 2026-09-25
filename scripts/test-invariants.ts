@@ -25740,6 +25740,52 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a truncated read whose order is the result ends on the primary key", () => {
+  /*
+    Outside lib/progress the rule is only that a cut says where it cuts, since
+    most rounds shuffle what they read. Two kinds of read are not shuffled and
+    their order *is* what the learner sees: a window paged by a seed, which
+    promises the same lesson for the same seed, and the reads behind the
+    daily review page and the leech clinic, which decide which cards make the
+    session and which leeches make the list. There a tie at the cut is the
+    plan choosing: a word's cards share `createdAt`, `due` and `lapses`, and a
+    lemma can hold two entries. So those end on `id`.
+  */
+  const calls = (file: string) => {
+    const src = code(file);
+    const out: { at: number; call: string }[] = [];
+    for (const m of src.matchAll(/prisma\.\w+\.findMany\(\{/g)) {
+      let depth = 0; let end = m.index! + m[0].length - 1;
+      for (let i = end; i < src.length; i++) {
+        if (src[i] === "{") depth++;
+        else if (src[i] === "}" && --depth === 0) { end = i; break; }
+      }
+      out.push({ at: src.slice(0, m.index!).split("\n").length, call: src.slice(m.index!, end + 1) });
+    }
+    return out;
+  };
+  const endsOnId = (call: string) => {
+    const order = call.match(/orderBy:\s*(\[[^\]]*\]|\{[^}]*\})/)?.[1] ?? "";
+    return /\{\s*id:\s*"(asc|desc)"\s*\}\s*\]?\s*$/.test(order.trim());
+  };
+  const loose: string[] = [];
+  let seeded = 0;
+  for (const file of ALL.filter((f) => f.startsWith("app/"))) {
+    for (const { at, call } of calls(file)) {
+      if (!/\bskip:/.test(call) || !/\btake:/.test(call)) continue;
+      seeded++;
+      if (!endsOnId(call)) loose.push(`${file}:${at}`);
+    }
+  }
+  for (const file of ["app/(app)/review/page.tsx", "app/(app)/review/clinic/page.tsx"]) {
+    for (const { at, call } of calls(file)) {
+      if (/\btake:/.test(call) && /orderBy:/.test(call) && !endsOnId(call)) loose.push(`${file}:${at}`);
+    }
+  }
+  assert.ok(seeded >= 1, "found no seeded window to check; the sweep has stopped reading them");
+  assert.deepEqual([...new Set(loose)], [], `a cut whose order is the result, loose at the end: ${loose.join(", ")}`);
+});
+
 check("a round survives a grade that could not be sent", () => {
   /*
     `gradeCard` and `undoGrade` are Server Actions, and one that gets no
