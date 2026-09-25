@@ -25332,6 +25332,67 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("every route the app has is walked by the containment and accessibility sweeps", () => {
+  /*
+    BOTH SWEEPS KEEP A LIST, AND A LIST IS WHAT FELL BEHIND.
+
+    `/accessibility` says axe "loads every page the app has, not a chosen
+    sample" and that the containment suite "walks every route at 360, 768 and
+    1280". Both were true when written and false by the time anybody checked:
+    nine routes had never been walked for containment and eight never by axe,
+    among them the evening module, the build-a-word walk, the Tähed round and
+    the two pages that make those claims. The first run over them found a real
+    fault on `/review/letters` at 360. The lists stay lists, since a route
+    walked there needs a value for every segment and some need a row made
+    first; what is asserted is that no route reaches `app/` without either
+    being on both, or being named here as a screen the suite makes, with the
+    reason.
+  */
+  const routes: string[] = [];
+  const walk = (dir: string, prefix: string) => {
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      if (!statSync(full).isDirectory()) {
+        if (entry === "page.tsx") routes.push(prefix || "/");
+        continue;
+      }
+      if (entry === "api") continue;
+      walk(full, prefix + (entry.startsWith("(") ? "" : `/${entry}`));
+    }
+  };
+  walk("app", "");
+  assert.ok(routes.length >= 60, `found only ${routes.length} routes under app/, so this walk has stopped reading it`);
+
+  /* Read off the page by the suite rather than typed, because a row has to exist first. */
+  const MADE: Record<string, string> = {
+    "/class/[classroomId]": "a classroom the demo fixture lays down, read off /class",
+    "/exam/result/[id]": "a paper the containment suite sits and hands in",
+    "/scan/[scanId]": "a scanned page the containment suite makes with the model stubbed",
+    "/review/deck/[deckId]": "a shelf the demo fixture lays down, read off /words/decks",
+  };
+  /* And the paper the containment suite sits at every width, from its own goto rather than its list. */
+  /* Two screens axe does not reach yet, and `/accessibility` says so in words. */
+  const NOT_BY_AXE = ["/exam/result/[id]", "/scan/[scanId]"];
+  assert.match(code("app/accessibility/page.tsx"), /marked\s+paper[\s\S]{0,200}scanned\s+page/,
+    "/accessibility no longer says which screens axe does not reach, while this check still exempts them");
+  const listed = (file: string) =>
+    [...code(file).matchAll(/"(\/[^"\s?]*)(?:\?[^"]*)?"/g)].map((m) => m[1]!);
+  const matches = (route: string, entry: string) =>
+    new RegExp(`^${route.replace(/\[[^\]]+\]/g, "[^/]+")}$`).test(entry);
+
+  for (const [file, made] of [
+    ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]"]],
+    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", ...NOT_BY_AXE]],
+  ] as const) {
+    const entries = listed(file);
+    const missing = routes.filter((r) => !made.includes(r) && !entries.some((e) => matches(r, e)));
+    assert.deepEqual(missing, [], `${file} walks no ${missing.join(", ")}`);
+    for (const r of made) {
+      assert.ok(routes.includes(r), `${file} names ${r} as a screen it makes, and app/ has no such route`);
+    }
+  }
+});
+
 check("an already-seeded deployment receives the expansion's Russian and Ukrainian", () => {
   /*
     The expansion inserts with ON CONFLICT DO NOTHING, so equivalents added to
