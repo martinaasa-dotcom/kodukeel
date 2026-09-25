@@ -326,7 +326,14 @@ const SPARSE = new Map([
 // floor keeps the same ten under that. The waiver is what makes it safe to set
 // from a run that did not reach the state: `absent` lowers the target by
 // exactly what it could not ask.
-const { check, absent, done } = suite("Containment", { floor: 1290 });
+//
+// The broken-word question adds one check a pass. Run against a production
+// build here it asked 274 of them over 1644 checks, on a database whose other
+// checks came to 1370 against the 1300 above, so the fixture this floor was set
+// on reaches about 258. The floor rises by 250 and keeps a margin under that,
+// because the count is a property of which screens a fixture can reach and the
+// margin is what stops one missing row reading as a deleted block.
+const { check, absent, done } = suite("Containment", { floor: 1540 });
 
 const browser = await launchChromium();
 
@@ -904,6 +911,54 @@ function survey({ stress }) {
   }
   window.scrollTo(0, startedAt);
 
+  /*
+    AN ORDINARY WORD DRAWN A FEW LETTERS A LINE.
+
+    The four questions above cannot see this, and that is the reason it is a
+    fifth. `overflow-wrap: anywhere` is what keeps a long word inside its box,
+    and it does it by letting any word break anywhere once the box is too
+    narrow for it, so a box squeezed to 13px holds its text perfectly and
+    reads "see / süt / lev". Nothing is cut, nothing bleeds, nothing collides.
+    It was found on Progress, where five tiles forced across a phone drew
+    "NOT STA RTE D", and then on a dozen screens at 768, where the rail
+    leaves 368px of content and every `sm:`/`md:` grid still splits it.
+
+    The test is the longest ordinary word of an element's own text against
+    the width it was given. Ordinary means thirteen letters or fewer: an
+    Estonian compound or a pasted address longer than that is exactly what the
+    rule above exists to break, and breaking it is the page working. Only the
+    text as written, never the stressed pass, whose words are made unbreakable
+    on purpose. An inline element wraps inside the block it sits in, so the
+    block is what is measured; a `nowrap` run cannot break at all; and
+    anything a reader is not shown is not asked about.
+  */
+  const split = [];
+  if (!stress) {
+    const probe = document.createElement("span");
+    probe.style.cssText = "white-space:nowrap;position:absolute;visibility:hidden;left:0;top:0";
+    for (const el of textLeaves) {
+      if (!shown(el)) continue;
+      if (el.closest("table, pre, code, .sr-only, [aria-hidden='true']")) continue;
+      const cs = getComputedStyle(el);
+      if (cs.display === "inline" || cs.whiteSpace.startsWith("nowrap") || cs.whiteSpace === "pre") continue;
+      const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join(" ");
+      const words = own.split(/\s+/).filter((w) => /^[\p{L}'’.,:;!?()-]{2,13}$/u.test(w));
+      if (!words.length) continue;
+      const box = el.getBoundingClientRect().width
+        - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+        - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth);
+      if (box <= 0) continue;
+      el.appendChild(probe);
+      let widest = "", wide = 0;
+      for (const w of words) {
+        probe.textContent = w;
+        const x = probe.getBoundingClientRect().width;
+        if (x > wide) { wide = x; widest = w; }
+      }
+      probe.remove();
+      if (wide > box + EPS) split.push(`"${widest}" needs ${Math.round(wide)}px and ${named(el)} has ${Math.round(box)}`);
+    }
+  }
 
   for (const svg of icons) {
     if (!shown(svg)) continue;
@@ -927,8 +982,9 @@ function survey({ stress }) {
     bled: [...new Set(bled)].length,
     deformed: [...new Set(deformed)].length,
     collided: [...new Set(collided)].length,
+    split: [...new Set(split)].length,
     sideways,
-    say: { cut: first(cut), bled: first(bled), deformed: first(deformed), collided: first(collided) },
+    say: { cut: first(cut), bled: first(bled), deformed: first(deformed), collided: first(collided), split: first(split) },
     counted: textLeaves.length + icons.length + sized.length,
   };
 }
@@ -955,6 +1011,7 @@ async function measure(page, label, atLeast = 25) {
   check(`nothing bleeds over a border on ${label}`, rest.bled === 0, rest.say.bled);
   check(`nothing is drawn into its neighbor on ${label}`, rest.collided === 0, rest.say.collided);
   check(`no icon is deformed on ${label}`, rest.deformed === 0, rest.say.deformed);
+  check(`no ordinary word is broken across lines on ${label}`, rest.split === 0, rest.say.split);
 
   const hard = await page.evaluate(survey, { stress: true });
   check(

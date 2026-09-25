@@ -139,7 +139,11 @@ export default async function ExamPage() {
         <SectionTitle hint={`${PASS_PCT} percent to pass, and no part can be a zero`}>
           Every paper, and how likely you are to pass it
         </SectionTitle>
-        <ul className="grid gap-4 md:grid-cols-2">
+        {/* Columns by the room the list has rather than by the window. At
+            768 `md:grid-cols-2` split a 368px column in two, which left the
+            summary 52px and "Listening" 55px, both drawn a few letters a
+            line. 18rem is two cards at 1024 and one at 768. */}
+        <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
           {readiness.levels.map((level) => {
             const spec = specFor(level.level);
             const official = (OFFICIAL_LEVELS as readonly string[]).includes(level.level);

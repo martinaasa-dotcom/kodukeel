@@ -105,7 +105,11 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
           <Ring pct={progress.pct} size={70} label={`${progress.pct}% of this unit learned`}>
             <Icon size={22} aria-hidden style={{ color: "var(--accent-deep)" }} />
           </Ring>
-          <div className="min-w-0 flex-1">
+          {/* A floor rather than `min-w-0`: at 768 the ring and the 208px
+              button column left this 0px wide, and every word of the can-do
+              line was drawn a letter a line. With the floor the buttons wrap
+              under the text instead. */}
+          <div className="min-w-[12rem] flex-1">
             <div className="flex flex-wrap items-center gap-2">
               {!uiWantsEnglish(placement) && (
                 <span className="text-base" style={{ color: "var(--ink)" }}>{unit.subtitle}</span>

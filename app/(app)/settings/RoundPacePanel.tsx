@@ -30,7 +30,7 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="How long a timed round runs" className="grid gap-2 sm:grid-cols-2">
+    <ChoiceGroup ariaLabel="How long a timed round runs" className="choice-grid">
       {ROUND_PACES.map((option) => (
         <ChoiceCard
           key={option.id}

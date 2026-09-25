@@ -86,7 +86,7 @@ export function SpeechPacePanel({ current, fromLevel, level }: { current: Pace; 
   const levelPace = SPEECH_PACES.find((p) => p.id === fromLevel.id);
 
   return (
-    <ChoiceGroup ariaLabel="How fast Estonian is read aloud" className="grid gap-2 sm:grid-cols-2">
+    <ChoiceGroup ariaLabel="How fast Estonian is read aloud" className="choice-grid">
       <ChoiceCard
         layout="stacked"
         disabled={pending}
@@ -151,7 +151,7 @@ export function AutoplayPanel({ current }: { current: Autoplay }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="When Estonian is read aloud" className="grid gap-2 sm:grid-cols-2">
+    <ChoiceGroup ariaLabel="When Estonian is read aloud" className="choice-grid">
       {AUTOPLAY.map((o) => (
         <ChoiceCard
           key={o.value}
@@ -199,7 +199,7 @@ export function FeedbackSoundsPanel({ current }: { current: FeedbackSounds }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="Whether answers make a sound" className="grid gap-2 sm:grid-cols-2">
+    <ChoiceGroup ariaLabel="Whether answers make a sound" className="choice-grid">
       {SOUNDS.map((o) => (
         <ChoiceCard
           key={o.value}
@@ -264,7 +264,7 @@ export function HearingPanel({ current }: { current: Hearing }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="How the listening rounds sound" className="grid gap-2 sm:grid-cols-2">
+    <ChoiceGroup ariaLabel="How the listening rounds sound" className="choice-grid">
       {HEARING.map((o) => (
         <ChoiceCard
           key={o.value}
@@ -331,7 +331,7 @@ export function SupportPanel({ current }: { current: Support }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="How much the app helps in a conversation" className="grid gap-2 sm:grid-cols-3">
+    <ChoiceGroup ariaLabel="How much the app helps in a conversation" className="choice-grid">
       {SUPPORT_LEVELS.map((o) => (
         <ChoiceCard
           key={o.value}

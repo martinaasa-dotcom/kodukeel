@@ -178,7 +178,7 @@ export default async function GrammarIndexPage() {
                             figure under the meter, which read as three rows
                             with nothing lining up. */}
                         <span className="flex items-baseline justify-between gap-3">
-                          <span className="flex min-w-0 items-baseline gap-2 text-sm">
+                          <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
                             <Target size={15} aria-hidden className="self-center" style={{ color: "var(--ink-3)" }} />
                             {!ref.spec.principal && (
                               <span lang="et" className="font-semibold" style={{ color: "var(--accent-deep)" }}>

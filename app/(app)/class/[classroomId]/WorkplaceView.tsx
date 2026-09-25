@@ -29,7 +29,9 @@ export function WorkplaceView({ summary, sponsor }: {
 
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-3">
+      {/* Columns by the room the tiles have: at 768 `sm:grid-cols-3` left
+          "Practiced" 83px of the 94 it needs, drawn across two lines. */}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-3">
         <StatTile value={summary.members.length} label="People" tone="sky" />
         <StatTile value={summary.active} label={`Practiced in ${QUIET_DAYS} days`} tone="mint" />
         <StatTile value={counts.likely} label={`On track for ${summary.level}`} tone="accent" />

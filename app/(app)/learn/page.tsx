@@ -248,7 +248,7 @@ export default async function LearnPage() {
                       >
                         {locked ? <Lock size={16} aria-hidden /> : complete ? <Check size={18} aria-hidden /> : <Icon size={17} aria-hidden />}
                       </span>
-                      <span className="min-w-0 flex-1">
+                      <span className="min-w-[12rem] flex-1">
                         <Link
                           href={`/learn/${u.unit.id}`}
                           lang={uiWantsEnglish(placement) ? undefined : "et"}
@@ -289,7 +289,7 @@ export default async function LearnPage() {
                     className="flex flex-wrap items-center gap-4 rounded-[var(--r-sm)] border border-dashed p-3"
                     style={{ borderColor: "var(--rule)" }}
                   >
-                    <span className="min-w-0 flex-1">
+                    <span className="min-w-[12rem] flex-1">
                       <span
                         lang={uiWantsEnglish(placement) ? undefined : "et"}
                         className="text-md font-bold"

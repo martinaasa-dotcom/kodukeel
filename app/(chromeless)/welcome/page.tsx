@@ -836,8 +836,11 @@ function Comparison() {
         className="mt-7 hidden overflow-hidden rounded-[var(--r-xl)] border md:block"
         style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow)" }}
       >
+        {/* 104px a column rather than 88: a tool's name is set in `label-xs`,
+            which uppercases, and "KEELEKLIKK" is 98px of it, so at 88 it was
+            drawn across two lines with its last letter alone on the second. */}
         <div
-          className="grid grid-cols-[1fr_repeat(4,88px)] items-center gap-2 border-b px-5 py-3.5"
+          className="grid grid-cols-[1fr_repeat(4,104px)] items-center gap-2 border-b px-5 py-3.5"
           style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
         >
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>&nbsp;</span>
@@ -856,7 +859,7 @@ function Comparison() {
         {ROWS.map((row) => (
           <div
             key={row.label}
-            className="grid grid-cols-[1fr_repeat(4,88px)] items-center gap-2 px-5 py-3.5"
+            className="grid grid-cols-[1fr_repeat(4,104px)] items-center gap-2 px-5 py-3.5"
             style={{ borderTop: "1px solid var(--rule-soft)" }}
           >
             <span className="text-base" style={{ color: "var(--ink-2)" }}>{row.label}</span>

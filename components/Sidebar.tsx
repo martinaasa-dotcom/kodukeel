@@ -318,7 +318,7 @@ export function Sidebar() {
                 data-nav-goes
                 data-nav-on={on ? "" : undefined}
                 aria-current={on ? "page" : undefined}
-                className="nav-cell flex flex-1 flex-col items-center gap-1 rounded-full py-1.5 text-2xs font-semibold"
+                className="nav-cell flex flex-1 flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold"
                 style={{ color: on ? "var(--ink)" : "var(--ink-3)" }}
               >
                 <span
@@ -346,7 +346,7 @@ export function Sidebar() {
             aria-expanded={moreOpen}
             data-nav-cell
             data-nav-on={restActive ? "" : undefined}
-            className="nav-cell flex flex-1 flex-col items-center gap-1 rounded-full py-1.5 text-2xs font-semibold"
+            className="nav-cell flex flex-1 flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold"
             style={{ color: restActive ? "var(--ink)" : "var(--ink-3)" }}
           >
             <span

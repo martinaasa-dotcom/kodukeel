@@ -53,7 +53,7 @@ export function ReviewModePanel({ current }: { current: ReviewMode }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="How review asks" className="grid gap-2 sm:grid-cols-2">
+    <ChoiceGroup ariaLabel="How review asks" className="choice-grid">
       {MODES.map((m) => (
         <ChoiceCard
           key={m.value}
@@ -101,7 +101,7 @@ export function LetterBarPanel({ current }: { current: LetterBar }) {
 
   return (
     <div ref={root}>
-      <ChoiceGroup ariaLabel="Typing Estonian" className="grid gap-2 sm:grid-cols-2">
+      <ChoiceGroup ariaLabel="Typing Estonian" className="choice-grid">
         {LETTER_BAR_CHOICES.map((o) => (
           <ChoiceCard
             key={o.value}
@@ -147,7 +147,7 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="Words in a sentence" className="grid gap-2 sm:grid-cols-2">
+    <ChoiceGroup ariaLabel="Words in a sentence" className="choice-grid">
       {WORD_GLOSS_CHOICES.map((o) => (
         <ChoiceCard
           key={o.value}
@@ -190,7 +190,7 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
   const autoShows = caseGlossDefaultFor(level);
 
   return (
-    <ChoiceGroup ariaLabel="English under a case question" className="grid gap-2 sm:grid-cols-3">
+    <ChoiceGroup ariaLabel="English under a case question" className="choice-grid">
       <ChoiceCard
         layout="stacked"
         disabled={pending}
@@ -332,7 +332,7 @@ export function ResearchPanel({ current, exported }: { current: Participation; e
 
   return (
     <div className="flex flex-col gap-3">
-      <ChoiceGroup ariaLabel="Anonymous statistics" className="grid gap-2 sm:grid-cols-2">
+      <ChoiceGroup ariaLabel="Anonymous statistics" className="choice-grid">
         {PARTICIPATION.map((p) => (
           <ChoiceCard
             key={p.value}

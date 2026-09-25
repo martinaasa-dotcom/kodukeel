@@ -29,7 +29,7 @@ export function GlossLanguagePanel({ current }: { current: GlossLanguage }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="Which language a meaning is given in" className="grid gap-2 sm:grid-cols-3">
+    <ChoiceGroup ariaLabel="Which language a meaning is given in" className="choice-grid">
       {GLOSS_LANGUAGES.map((option) => (
         <ChoiceCard
           key={option.id}

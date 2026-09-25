@@ -163,9 +163,19 @@ export function Columns({ children, className = "" }: { children: ReactNode; cla
   );
 }
 
+/**
+ * A section's heading, and a hint beside it while there is room for both.
+ *
+ * The row wraps rather than shares. Sharing it was a squeeze: a hint as long
+ * as its heading took half the line, `overflow-wrap: anywhere` let the heading
+ * shrink to nothing, and on a readiness page at 360 "Pace" and "Rehearse"
+ * were drawn a letter or two a line under a hint that was fine. Wrapping keeps
+ * every word whole and puts the hint under the heading, where it reads as the
+ * heading's second line, only when the two do not fit side by side.
+ */
 export function SectionTitle({ children, hint }: { children: ReactNode; hint?: ReactNode }) {
   return (
-    <div className="mb-3 flex items-baseline justify-between gap-3">
+    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
       <h2 className="label-xs" style={{ color: "var(--ink-3)" }}>{children}</h2>
       {hint && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint}</span>}
     </div>
@@ -208,7 +218,7 @@ export function Chip({ children, tone = "neutral", title, caseSensitive }: {
   return (
     <span
       title={title}
-      className="label-xs inline-flex max-w-full items-center gap-1.5 whitespace-normal rounded-full px-2.5 py-1"
+      className="label-xs inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-0.5 whitespace-normal rounded-full px-2.5 py-1"
       style={{ background: bg, color: fg, textTransform: caseSensitive ? "none" : undefined }}
     >
       {children}
