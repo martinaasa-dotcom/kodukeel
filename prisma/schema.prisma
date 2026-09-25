@@ -783,7 +783,7 @@ model Suggestion {
 /// row, and there is no update path.
 ///
 /// NOTHING IN HERE IS TRUE ABOUT THE LEARNER. The role card is fiction
-/// (docs/19-situations.md §3), which is a marking rule and a legal one: a
+/// (docs/21-situations.md §3), which is a marking rule and a legal one: a
 /// health-centre scene where somebody typed about their own symptoms would be
 /// Article 9 special category data, and no scene asks for a real document
 /// number either.

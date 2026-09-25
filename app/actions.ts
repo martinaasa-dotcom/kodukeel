@@ -827,15 +827,30 @@ export async function createLexemeWithForms(input: {
   return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null };
 }
 
-export async function toggleStar(lexemeId: string) {
+/**
+ * Sets a star to the state the learner pressed for, rather than flipping it.
+ *
+ * A flip is a guess about what the button showed. A word met twice in one
+ * session, recognition then production, was starred on the first card and
+ * then drawn unstarred on the second from the page's own snapshot, so the
+ * press meaning "keep this" deleted it. `starred` is what the press asked
+ * for; a caller that sends none gets the old flip.
+ */
+export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   const ownerId = await requireUserId();
-  const existing = await prisma.starredWord.findUnique({
-    where: { ownerId_lexemeId: { ownerId, lexemeId } },
-  });
-  if (existing) {
-    await prisma.starredWord.delete({ where: { ownerId_lexemeId: { ownerId, lexemeId } } });
-  } else {
-    await prisma.starredWord.create({ data: { ownerId, lexemeId } });
+  const id = text(lexemeId).slice(0, 64);
+  if (!id) return { ok: false as const, error: "That is not a word." };
+  const exists = await prisma.lexeme.findUnique({ where: { id }, select: { id: true } });
+  if (!exists) return { ok: false as const, error: "That word is not in the dictionary." };
+
+  const key = { ownerId_lexemeId: { ownerId, lexemeId: id } };
+  const existing = await prisma.starredWord.findUnique({ where: key });
+  const want = typeof starred === "boolean" ? starred : !existing;
+  if (want && !existing) {
+    // A second tab pressing at the same moment has already written it.
+    await prisma.starredWord.createMany({ data: [{ ownerId, lexemeId: id }], skipDuplicates: true });
+  } else if (!want && existing) {
+    await prisma.starredWord.deleteMany({ where: { ownerId, lexemeId: id } });
   }
   /*
     The dictionary is where a star used to be set from and the only place it
@@ -846,7 +861,7 @@ export async function toggleStar(lexemeId: string) {
   */
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
-  return { ok: true as const, starred: !existing };
+  return { ok: true as const, starred: want };
 }
 
 /**
@@ -1182,7 +1197,7 @@ export async function recordSonad(day: string, guesses: unknown) {
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
 
-  const rating = ratingFor(played, puzzle.answer);
+  const rating = ratingFor(played, puzzle.answer, puzzle.category !== null);
   if (rating === null) return { ok: false as const, error: "That round is not over." };
   if (!puzzle.inDeck) return { ok: true as const, graded: false };
 
@@ -1323,7 +1338,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
  * cost is that `advance` sees the next turn as helped. Nothing is deducted, no
  * objective is withheld, and the word goes on the debrief with a button to keep
  * it. Somebody who asks for four words and finishes has learned more than
- * somebody who gave up with none (`docs/19-situations.md` §12).
+ * somebody who gave up with none (`docs/21-situations.md` §12).
  *
  * The first version of this button recorded the *beat id* as the word needed,
  * so a debrief listed `reason` and `greet` under "words this conversation
@@ -1406,7 +1421,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
  * writes into the review log and a forged one would schedule words nobody said.
  *
  * Nothing in the transcript is true about the learner. The role card is fiction
- * (`docs/19-situations.md` §3), which is what makes a table of somebody's
+ * (`docs/21-situations.md` §3), which is what makes a table of somebody's
  * practice sentences about a doctor's appointment safe to hold at all.
  */
 export async function finishScene(input: {
@@ -2447,8 +2462,10 @@ export async function joinClassroom(code: string, displayName?: string) {
 }
 
 /** Leaves a class. Removes the membership row and nothing else — no deck, no history. */
-export async function leaveClassroom(classroomId: string) {
+export async function leaveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return { ok: false as const, error: "That is not a class." };
   const classroom = await prisma.classroom.findUnique({
     where: { id: classroomId },
     select: { ownerId: true },
@@ -2462,8 +2479,10 @@ export async function leaveClassroom(classroomId: string) {
 }
 
 /** Archives a class the caller teaches: the code stops working, the data stays. */
-export async function archiveClassroom(classroomId: string) {
+export async function archiveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return { ok: false as const, error: "That is not a class." };
   const updated = await prisma.classroom.updateMany({
     where: { id: classroomId, ownerId },
     data: { archived: true },
@@ -2481,13 +2500,18 @@ export async function archiveClassroom(classroomId: string) {
  * they owe lives, and homework from class belongs in it. Nobody's deck is
  * touched — the task says what to do, the student decides when.
  */
-export async function assignUnit(classroomId: string, unitId: string, dueAt?: string) {
+export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, rawDueAt?: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const unitId = text(rawUnitId).slice(0, 64);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "That is not your class." };
 
   const busy = throttleAction(ownerId, "assignUnit");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    where: { id: classroomId, ownerId },
+    // An archived class takes no more work, which the page says and the action now does.
+    where: { id: classroomId, ownerId, archived: false },
     select: { id: true, name: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
@@ -2526,13 +2550,21 @@ export async function assignUnit(classroomId: string, unitId: string, dueAt?: st
  * touched, the teacher's own copy of the task (they are a member too) is what
  * lets the class page read its own history back without a table to hold it.
  */
-export async function assignHomework(classroomId: string, title: string, notes: string, dueAt?: string) {
+export async function assignHomework(
+  rawClassroomId: unknown, rawTitle: unknown, rawNotes: unknown, rawDueAt?: unknown,
+) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const title = text(rawTitle);
+  const notes = text(rawNotes);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "That is not your class." };
 
   const busy = throttleAction(ownerId, "assignHomework");
   if (busy) return busy;
   const classroom = await prisma.classroom.findFirst({
-    where: { id: classroomId, ownerId },
+    // An archived class takes no more work, which the page says and the action now does.
+    where: { id: classroomId, ownerId, archived: false },
     select: { id: true, name: true },
   });
   if (!classroom) return { ok: false as const, error: "That is not your class." };
@@ -2577,8 +2609,10 @@ export async function assignHomework(classroomId: string, title: string, notes: 
  * teacher with the exact same name would share a marker. Rare enough, and
  * visible enough if it happens, not to be worth a schema change over.
  */
-export async function classworkHistory(classroomId: string) {
+export async function classworkHistory(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  if (!classroomId) return [];
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { name: true },
@@ -4109,9 +4143,6 @@ const ExamSubmissionSchema = z.object({
  */
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
-
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 
