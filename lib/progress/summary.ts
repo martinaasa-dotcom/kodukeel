@@ -233,10 +233,6 @@ export async function pathWithProgress(ownerId: string, snapshot?: DeckSnapshot)
   });
 }
 
-export function unitsCompleted(units: UnitView[]): number {
-  return units.filter((u) => u.state === "done").length;
-}
-
 export interface DailySummary {
   dayKey: string;
   streak: number;
@@ -309,8 +305,9 @@ export const SHIELD_MILESTONES = [7, 30, 100] as const;
  * Current streak, spending banked shields on any missed days.
  *
  * Lives here rather than in app/actions.ts so a Server Component can call it
- * without importing the whole action module; `resolveStreak` in actions.ts is
- * now a thin wrapper over it.
+ * without importing the whole action module. There is deliberately no action
+ * wrapping it: a Server Action is a public endpoint, and one nobody called
+ * that banks shields when hit is surface with no reader.
  */
 export async function resolveStreakFor(
   ownerId: string,

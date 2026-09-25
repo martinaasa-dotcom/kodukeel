@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { fold, FOLD_FROM, FOLD_TO } from "@/lib/estonian/fold";
-import { isKnownForm, lemmasOfForm } from "./forms";
+import { lemmasOfForm } from "./forms";
 
 /**
  * IS THAT AN ESTONIAN WORD?
@@ -60,11 +60,6 @@ const CANDIDATES = 800;
  */
 export async function knownAs(query: string): Promise<string[]> {
   return lemmasOfForm(query);
-}
-
-/** Whether Ekilex holds this spelling at all, as a headword or as a form of one. */
-export async function isKnownWord(query: string): Promise<boolean> {
-  return isKnownForm(query);
 }
 
 /**

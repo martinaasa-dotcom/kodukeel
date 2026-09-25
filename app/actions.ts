@@ -36,12 +36,10 @@ import { resolveOneWord } from "@/lib/dict/resolveScan";
 import { guessPos, MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
-import { resolveStreakFor } from "@/lib/progress/summary";
 import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
@@ -1012,21 +1010,6 @@ export async function importWords(rows: { lemma: string; translation: string; po
 }
 
 // ────────────────────────────── Achievements ───────────────────────────────
-
-/**
- * Resolves the current streak for whoever is signed in, applying any banked
- * streak shields (Duolingo's "streak freeze") to bridge missed days.
- *
- * The logic lives in lib/progress/summary.ts so a Server Component can reach it
- * without importing this whole action module. This wrapper takes no owner id on
- * purpose: an exported Server Action is a public endpoint, and one that read a
- * streak for any id passed to it would happily report on someone else's.
- */
-export async function resolveStreak() {
-  const ownerId = await requireUserId();
-  const result = await resolveStreakFor(ownerId, new Date(), await learnerDayClock(ownerId));
-  return { ok: true as const, ...result };
-}
 
 /**
  * A learner's recent turns with Anu, for the floating Anu button.

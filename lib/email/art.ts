@@ -195,48 +195,6 @@ export function wordCard(word: string, meaning: string, note?: string): Html {
 }
 
 /**
- * The arithmetic: a stem, an ending, and the word they make.
- *
- * `/grammar/build-a-word` opens with this and it is the best news this language
- * has: three forms are stored and the other eleven are the second of those with
- * a fixed ending glued on. Fourteen cases is the number that makes people put
- * Estonian down, and this is the sentence that answers it, shown rather than
- * asserted.
- *
- * Every string handed in comes off `buildCaseTable`, so nothing here is a form
- * this app wrote (ADR-005). This draws three boxes and joins them with a plus
- * and an equals, and holds no Estonian of its own.
- */
-export function buildLine(stem: string, ending: string, built: string): Html {
-  const box = (text: string, bg: string, ink: string, bold: boolean): Html =>
-    html`<td align="center" style="${css({
-      "background-color": bg,
-      color: ink,
-      "border-radius": "10px",
-      padding: "10px 14px",
-      "font-family": "Georgia, 'Times New Roman', serif",
-      "font-size": "17px",
-      "line-height": "22px",
-      "font-weight": bold ? "700" : "400",
-      "white-space": "nowrap",
-    })}">${text}</td>`;
-  const sign = (glyph: string): Html =>
-    html`<td align="center" style="${css({
-      color: P.ink3,
-      "font-size": "15px",
-      padding: "0 8px",
-    })}">${glyph}</td>`;
-
-  return html`<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-    ${box(stem, P.raised, P.ink2, false)}
-    ${sign("+")}
-    ${box(ending, P.butterSoft, P.butterInk, false)}
-    ${sign("=")}
-    ${box(built, P.mintSoft, P.mintInk, true)}
-  </tr></table>`;
-}
-
-/**
  * The week, as seven cells, the days with a review in them ticked.
  *
  * The same object Today draws, and the reason it is worth a letter is that a

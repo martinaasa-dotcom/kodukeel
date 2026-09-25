@@ -3596,7 +3596,7 @@ planner ever saw it and no amount of fixing the card could have put it back. `Le
 carries `{ et, en }` now, the gap and build steps carry it too because both put a whole recorded
 sentence on screen, and the meet step asks `teachingSentence` which sentence and which form, the
 same function review and the ladder ask, so three screens introducing one word cannot introduce it
-three ways. `translationOf` is the one reader of "does the dictionary already say what this line
+three ways. `sentenceEnglish` is the one reader of "does the dictionary already say what this line
 means", asked by the review card, the quest and the sprint, which reconstruct a gap card's sentence
 by putting the answer back.
 
@@ -10756,7 +10756,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
 `readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
-`caseExamplesFor`, `EstonianSentence`, `SentenceTranslation`, `translationOf`, `LessonExample`,
+`caseExamplesFor`, `EstonianSentence`, `SentenceTranslation`, `sentenceEnglish`, `LessonExample`,
 `meetSentence`, `fullEn`, `SENTENCE_WITHOUT_ENGLISH`, `englishFor`, `sentenceInstruction`,
 `readSentenceTranslation`, `withEnglish`, `fillExampleEnglish`, `CLEAR_TRANSLATION`, `Explain`,
 `CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`, `MODULE_PARAM`, `readFocus`, `focusedSteps`,

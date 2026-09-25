@@ -38,5 +38,3 @@ export function sceneAnswerFor(sceneId: string): SceneAnswer | undefined {
   return SCENE_ANSWERS[sceneId];
 }
 
-/** How many scenes have one, for a screen or a script that has to say so. */
-export const SCENE_ANSWER_COUNT = Object.keys(SCENE_ANSWERS).length;

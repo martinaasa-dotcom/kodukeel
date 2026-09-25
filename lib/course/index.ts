@@ -43,11 +43,6 @@ export const PROGRAMMES: readonly Programme[] = buildProgrammes();
  */
 export const DEFAULT_PROGRAMME = PROGRAMMES[0]!;
 
-/** Every part of a level, in order. */
-export function programmesAtLevel(level: string): readonly Programme[] {
-  return PROGRAMMES.filter((p) => p.level === level);
-}
-
 /**
  * The part that follows this one, which is the next part of the same level or
  * the first of the next. Null at the end of C1, where there is nothing after.

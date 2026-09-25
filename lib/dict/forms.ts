@@ -29,7 +29,7 @@ import { LENGTH_FILE, SHARD_DIR, shardKey } from "./formsLayout";
  * reads one shard keyed on the form's folded first three letters, indexes it by
  * folded spelling on the way in, and keeps it for a while, so a class typing
  * into the same corner of the alphabet reads it once. Folded on both sides,
- * exactly as `isKnownWord` was, because a learner with no õ key is still
+ * as the headword list was, because a learner with no õ key is still
  * asking whether their word exists.
  *
  * No Prisma, deliberately: this module reads the filesystem and nothing else,

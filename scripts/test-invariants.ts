@@ -1704,7 +1704,7 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // it has a gate of its own: see lib/scenes/retrieval.ts.
     "lib/progress/scene.ts": "picks a line for a beat, through the scene gate",
     // These two open the column to read back the English of the sentence the
-    // card already carries (`translationOf`, an exact match on the sentence a
+    // card already carries (`sentenceEnglish`, an exact match on the sentence a
     // gap was cut from). The card's front decided which sentence that is, when
     // it was built, and a rank here would be ranking a list of one.
     // The grammar reference's pins name one sentence each, by its text, and
@@ -9851,6 +9851,48 @@ check("every path the documentation names exists, or is named because it is gone
     assert.ok(!existsSync(path), `${path} is exempt as gone and exists again; take it off GONE_ON_PURPOSE`);
     assert.ok(named.has(path), `${path} is exempt as gone and no page names it any more; take it off GONE_ON_PURPOSE`);
   }
+});
+
+/*
+  AN EXPORT NOTHING READS IS A FEATURE NOBODY HAS, OR NOTHING AT ALL.
+
+  Seven were sitting in the tree: a drawing of the build-a-word arithmetic for
+  a letter no letter drew, an icon "the index page uses" that the index page
+  did not, a count of reviewed bank lines, and four helpers whose callers had
+  gone. Each read like something the app did, which is the fault CLAUDE.md
+  records `DangerZone.tsx` having had one room over. What is refused is a name
+  exported and read nowhere: not by another file, test or script included, and
+  not even inside its own file. A constant exported and used where it is
+  declared is fine; so is a name only a test reads, since a test hook is a
+  reason. The Next.js names a route or a page exports for the framework are
+  read by the framework and are skipped.
+*/
+check("every export is read by something", () => {
+  const FRAMEWORK = new Set([
+    "metadata", "viewport", "dynamic", "revalidate", "maxDuration", "runtime", "fetchCache",
+    "preferredRegion", "dynamicParams", "generateMetadata", "generateStaticParams", "generateViewport",
+    "config", "middleware", "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS",
+  ]);
+  const haystack = [...ALL, ...sourceFiles("scripts", /\.(ts|tsx|mjs|js)$/), ...sourceFiles("prisma")];
+  const texts = new Map(haystack.map((f) => [f, code(f)]));
+  const unread: string[] = [];
+  let exports = 0;
+  for (const file of ALL) {
+    if (/\.(test|itest)\.tsx?$/.test(file)) continue;
+    const source = texts.get(file)!;
+    for (const m of source.matchAll(/^export\s+(?:async\s+)?(?:function|const|class)\s+([A-Za-z_$][\w$]*)/gm)) {
+      const name = m[1]!;
+      if (FRAMEWORK.has(name)) continue;
+      exports += 1;
+      const word = new RegExp(`(?<![\\w$])${name.replace(/\$/g, "\\$")}(?![\\w$])`, "g");
+      if ((source.match(word) ?? []).length > 1) continue;
+      const elsewhere = haystack.some((other) => other !== file && word.test(texts.get(other)!));
+      word.lastIndex = 0;
+      if (!elsewhere) unread.push(`${file} ${name}`);
+    }
+  }
+  assert.ok(exports > 1500, `read only ${exports} exports, so this stopped reading the tree`);
+  assert.deepEqual(unread, [], `exported and read by nothing, anywhere: ${unread.join("; ")}`);
 });
 
 check("every npm command the documentation names is one package.json has", () => {
@@ -20861,8 +20903,8 @@ check("the English of a shipped sentence is built once and read in one place", (
       "scripts/test-invariants.ts",
       /*
         And the one runtime reader, which is a *screen's* read of a fact the
-        column cannot carry. `translationOf` answers off one entry's own
-        examples, and `lib/dict/borrow.ts` lends a sentence recorded under one
+        column cannot carry. A card's own entry
+        holds only its own examples, and `lib/dict/borrow.ts` lends a sentence recorded under one
         headword to a card built for another, so a borrowed sentence matched
         nothing and a learner read it with no English under it and then an
         error naming this app's own storage. An English line is a fact about
