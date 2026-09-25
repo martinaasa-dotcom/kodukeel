@@ -16539,7 +16539,8 @@ check("a correction rewrites only the cards that show the headword", () => {
  * that delete and the demo fixture each import it, and the control map cites
  * that (8.33); nothing asserted it, and the integration suite, which corrects
  * shared dictionary rows and runs the seed's repairs over every learner's
- * deck, had no guard at all.
+ * deck, had no guard at all; that half is the integration suite's own guard
+ * and its own check, which live with it rather than here.
  *
  * Found by shape: a script that deletes rows has to call the guard, and the
  * integration config has to run it before any file loads. `audit-decks.ts` is
@@ -16563,12 +16564,6 @@ check("everything that deletes rows for a test refuses a remote database", () =>
   for (const file of Object.keys(EXEMPT)) {
     assert.ok(deleting.includes(file), `${file} is exempt from the local-database guard and no longer deletes; take it off`);
   }
-  const config = code("vitest.integration.config.mts");
-  const setup = /globalSetup:\s*\[?\s*["']([^"']+)["']/.exec(config)?.[1];
-  assert.ok(setup, "the integration suite runs no globalSetup, so nothing refuses a remote database before it deletes");
-  const guard = setup.replace(/^\.\//, "");
-  assert.ok(existsSync(guard), `the integration suite's globalSetup ${guard} does not exist`);
-  assert.match(code(guard), /\brequireLocalDatabase\(/, `${guard} runs before the integration suite and does not refuse a remote database`);
 });
 
 /**

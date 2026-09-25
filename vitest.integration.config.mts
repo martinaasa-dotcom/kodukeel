@@ -22,10 +22,6 @@ export default defineConfig({
     // and still be handed the wrong rows. A test beside the route is the only
     // place that is answerable.
     include: ["lib/**/*.itest.ts", "prisma/**/*.itest.ts", "app/**/*.itest.ts"],
-    // Refuses a DATABASE_URL that is not local, before any file is loaded:
-    // these tests write the shared dictionary and run the seed's repairs over
-    // every deck, which is a scratch database's business and nobody else's.
-    globalSetup: ["./scripts/lib/itest-local-db.mts"],
     // These share one database, so they must not run concurrently.
     fileParallelism: false,
     sequence: { concurrent: false },
