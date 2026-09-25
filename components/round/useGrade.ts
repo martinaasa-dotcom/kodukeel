@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { gradeCard } from "@/app/actions";
 import { useOffline } from "@/components/OfflineProvider";
 import { enqueueGrade } from "@/lib/offline/db";
+import type { PendingGrade } from "@/lib/offline/outbox";
 import type { RatingValue } from "@/lib/srs/scheduler";
 
 /**
@@ -64,6 +65,32 @@ export function useGrade() {
         // Nowhere to keep it on this device: the round goes on regardless.
       }
       return false;
+    },
+    [refresh],
+  );
+}
+
+/**
+ * A whole round's grades into the outbox, for a round that grades in one call.
+ *
+ * Match hands its board in through `recordMatchGrades`, one batched call
+ * rather than a grade per pair, so it cannot use `useGrade`; a batch that did
+ * not land is queued here instead, with the ids the batch carried. Those ids
+ * are what make it safe: a batch the server applied and whose answer never
+ * came back is replayed as ids it has already written, which `replayGrades`
+ * settles rather than counting twice.
+ */
+export function useQueueGrades() {
+  const { refresh } = useOffline();
+  return useCallback(
+    async (grades: readonly PendingGrade[]): Promise<void> => {
+      if (grades.length === 0) return;
+      try {
+        for (const grade of grades) await enqueueGrade(grade);
+        refresh();
+      } catch {
+        // Nowhere to keep them on this device: the finish screen goes on regardless.
+      }
     },
     [refresh],
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useOffline } from "@/components/OfflineProvider";
 
 export interface Msg { role: "user" | "assistant"; content: string }
 
@@ -37,9 +38,30 @@ export function useAnuChat(initialMessages: Msg[]) {
   */
   const [failure, setFailure] = useState<string | null>(null);
 
-  const send = async (text: string) => {
+  /*
+    Whether a question can be sent at all. Asked here rather than by each
+    surface, because the page at /tutor and the panel in the corner both call
+    `send` from three places apiece, and a door left open is a question typed,
+    a fetch that cannot land, and "lost the connection" read afterwards.
+  */
+  const { online } = useOffline();
+
+  /*
+    Whether the question was taken, said at once, so a caller empties a box
+    only when something was sent. Every caller used to clear straight after
+    calling this whatever it did, so a question typed while Anu was still
+    answering, or with no connection, was thrown away with nothing sent. The
+    answer arrives later through the state above; the decision cannot wait
+    for it.
+  */
+  const send = (text: string): boolean => {
     const content = text.trim();
-    if (!content || streaming) return;
+    if (!content || streaming || !online) return false;
+    void ask(content);
+    return true;
+  };
+
+  const ask = async (content: string) => {
 
     const next: Msg[] = [...messages, { role: "user", content }];
     setFailure(null);
@@ -113,5 +135,5 @@ export function useAnuChat(initialMessages: Msg[]) {
     }
   };
 
-  return { messages, setMessages, streaming, answeredBy, failure, send };
+  return { messages, setMessages, streaming, answeredBy, failure, send, online };
 }
