@@ -57,7 +57,7 @@ for. See `13-mvp-status.md` §2 for the decision; what matters here is what it m
 
 | Choice | Why |
 |---|---|
-| A chain, not a model | Anu's chain is her own (`PURPOSE_CHAINS.tutor`): `TUTOR_MODEL` on Gemini, then `TUTOR_FALLBACK_MODEL` on Groq, and never the Anthropic tail, because a fallback that answers her questions wrongly is worse than one that does not answer. A deployment with no paid key still has a tutor |
+| A chain, not a model | `resolveProviders()` builds Anu her own chain, `TUTOR_MODEL` on Gemini with Groq's `TUTOR_FALLBACK_MODEL` behind it, and the general chain is Groq, then Gemini, then Anthropic and OpenAI as a budget-gated tail. A deployment with no paid key still has a tutor |
 | Walk past a bad minute, never past a bad key | `openWithFallback` moves on from a throttle or a hiccup and stops at a rejected key or a model that does not exist, because every provider would answer those the same way and trying them all turns one clear message into a slower one |
 | Never walk past a first token | Once text is reaching the learner a failure stays a failure: a second answer appended to half of a first one is two teachers talking over each other |
 | Streaming | A grammar explanation is long enough that non-streaming reads as a hang |

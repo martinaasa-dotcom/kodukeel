@@ -84,8 +84,15 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
     case "case": {
       const spec = CASES.find((one) => one.key === need.grammCase);
       if (!spec) return null;
-      return `They are waiting for “${need.lemma}”, in the ${spec.et} (${spec.question}).`
-        + " The word is right, the ending is what they are listening for.";
+      /*
+        It said "The word is right" as well, which this function cannot know:
+        it is asked about a beat, never about a turn, and it fired on a learner
+        who had typed nothing like the word. A hint that misnames what went
+        wrong sends somebody to fix the half that was fine. And the question is
+        said in English beside the Estonian, as on every screen that prints one.
+      */
+      return `They are waiting for “${need.lemma}” in the ${spec.et}, which answers `
+        + `${spec.question} (${spec.questionEn}). The ending is what they are listening for.`;
     }
     /*
       A value off the card, so the answer is already in front of them and the
