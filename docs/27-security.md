@@ -282,8 +282,10 @@ and the Ekilex identifiers stripped.
 
 Size is bounded twice, and both limits are set to the same number on purpose because two limits on
 one upload that disagree is how the last fault happened. `serverActions.bodySizeLimit` and
-`proxyClientMaxBodySize` in `next.config.ts` are both 16 MB; `/api/restore` declares its own
-128 MB ceiling and checks `content-length` before reading. `inspectBackup`, which parses the same
+`proxyClientMaxBodySize` in `next.config.ts` are both 16 MB, and `/api/restore` checks
+`content-length` against the same 16 MB before reading. It used to declare 128 MB, which no request
+could reach: the proxy truncates a larger body rather than refusing it, so an oversized backup was
+parsed half-read and reported as not a backup at all. `inspectBackup`, which parses the same
 whole file and writes nothing, is throttled too, because it never looked expensive and is a public
 endpoint like every other `"use server"` export.
 
@@ -313,6 +315,7 @@ and Gemini were.
 The CSP is the other half: `connect-src` names no third party but the deployment's own Supabase
 project, which the browser needs for sign-in, so a client that tried to call Ekilex or TartuNLP
 directly would be refused by the browser as well as by an invariant.
+`lib/security/headers.test.ts` pins the whole directive rather than listing what it may not contain.
 
 ### 4.10 An error message carrying a connection string
 
@@ -512,7 +515,9 @@ somebody from `ALLOWED_EMAILS` takes effect on their next request.
 spread across cold starts meets an empty map. No route relies on it alone: speech, the share card,
 the export and the restore are counted across instances by `lib/usage/sharedLimit.ts`, and the routes
 that cost money are bounded by the Postgres ledger. What is left is the moment the database cannot
-answer, when the shared count falls back to the per-instance map rather than failing open or closed.
+answer, when the shared count falls back to the per-instance map rather than failing open or closed,
+and the Server Action throttles in `lib/security/actionLimits.ts`, which `throttleAction` counts in
+that map alone, so their allowance is per warm instance rather than per learner.
 
 ## 7. How to verify any of this yourself
 
