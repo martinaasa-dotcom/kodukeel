@@ -7063,6 +7063,40 @@ check("the privacy notice carries what Article 13 requires", () => {
   }
 });
 
+/**
+ * THE SUBPROCESSOR REGISTER NAMES WHAT THE GENERATED LIST CAN NAME, AND NO MORE.
+ *
+ * `docs/26-subprocessors.md` says of itself that it describes the same table
+ * `lib/legal/recipients.ts` generates, and it had drifted three ways while the
+ * code moved on: OpenRouter sat in the provider table after the chain stopped
+ * reading its key, Vercel was written up as "not on the generated list" after
+ * the list learned to name it, and the page said no mail provider was
+ * configured while the list named Resend. A register a DPO reads is the wrong
+ * place for the code's history.
+ *
+ * Both directions: every recipient the code can generate has an entry, and
+ * the provider table holds exactly the labels `PROVIDER_HOME` knows, so a
+ * provider added to or taken out of the chain moves the page with it.
+ */
+check("the subprocessor register names every recipient the list can generate, and no retired provider", () => {
+  const register = read("docs/26-subprocessors.md");
+  const source = code("lib/legal/recipients.ts");
+  const stems = [...source.matchAll(/name:\s*["`]([^"`$,]+)/g)]
+    .map((m) => m[1]!.replace(/\s+at\s*$/, "").trim());
+  assert.ok(stems.length >= 6, `only ${stems.length} recipient names read from the code, so this stopped looking`);
+  const missing = stems.filter((stem) => !register.includes(stem));
+  assert.deepEqual(missing, [], `the register has no entry for: ${missing.join(", ")}`);
+
+  const home = source.slice(source.indexOf("PROVIDER_HOME"), source.indexOf("};", source.indexOf("PROVIDER_HOME")));
+  const labels = [...home.matchAll(/^\s*(?:"([^"]+)"|([A-Za-z]+)):/gm)].map((m) => (m[1] ?? m[2])!);
+  assert.ok(labels.length >= 3, "PROVIDER_HOME was not read");
+  const section = register.slice(register.indexOf("### The AI provider chain"));
+  const table = section.slice(0, section.indexOf("**What they process.**"));
+  const rows = [...table.matchAll(/^\| ([^|]+?) \| [^|]+ \| (?:Inside|Outside) \|$/gm)].map((m) => m[1]!);
+  assert.deepEqual([...rows].sort(), [...labels].sort(),
+    "the register's provider table and PROVIDER_HOME name different providers");
+});
+
 /*
   A TIMED ROUND'S LENGTH IS WRITTEN ONCE, AND WHERE IT IS SHOWN IT IS THE LEARNER'S.
 
