@@ -408,8 +408,17 @@ export async function POST(request: Request) {
   const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
   const heard = last?.heard ?? null;
 
+  /*
+    Bounded like the turns are, since it arrives off the wire the same way:
+    the other side says at most a few lines a turn, and a line long enough to
+    be past any the bank holds can only ever fail to match one.
+  */
   const used = new Set(
-    Array.isArray(body.used) ? body.used.filter((v): v is string => typeof v === "string") : [],
+    Array.isArray(body.used)
+      ? body.used
+        .slice(0, MAX_TURNS * 4)
+        .filter((v): v is string => typeof v === "string" && v.length <= MAX_TURN_CHARS * 4)
+      : [],
   );
 
   /*
