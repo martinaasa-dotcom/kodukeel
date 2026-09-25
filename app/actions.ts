@@ -99,7 +99,7 @@ import { placement } from "@/lib/assessment/score";
 import { PAPER_SIZE } from "@/lib/assessment/items";
 import type { Band, ItemRef, Response } from "@/lib/assessment/types";
 import { goalsFor, saveGoals, saveResult } from "@/lib/progress/assessment";
-import { recordCourseLevel } from "@/lib/progress/level";
+import { recordCourseLevel, wakeForStanding } from "@/lib/progress/level";
 import { REPLAY_BATCH } from "@/lib/offline/outbox";
 import { paperFor as examPaperFor, recordAttempt } from "@/lib/progress/exam";
 import { gradesFrom, markPaper, type Response as ExamResponse } from "@/lib/exam/score";
@@ -4011,6 +4011,8 @@ export async function recordAssessment(input: unknown) {
 
   const result = placement(items, responses);
   const stored = await saveResult(ownerId, result);
+  // A measured level is a level reached, so the words waiting for it come back.
+  await wakeForStanding(ownerId);
 
   revalidatePath("/assess");
   revalidatePath("/progress");

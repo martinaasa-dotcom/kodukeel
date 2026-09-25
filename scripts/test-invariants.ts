@@ -12241,6 +12241,18 @@ check("a stored level carries the time it was stated", () => {
     check that reads a file rather than the function in it is the oldest
     recurring mistake in this suite.
   */
+  /*
+    And a level a sitting measured wakes the words waiting for it, the way a
+    level set by hand does: the placement moved the level every screen reads
+    and woke nothing, so a word put aside for B1 stayed on its backstop after
+    a paper had said the learner was there.
+  */
+  assert.match(
+    between(code("app/actions.ts"), "export async function recordAssessment"),
+    /\bwakeForStanding\(ownerId\)/,
+    "recordAssessment saves a measured level and does not wake the words waiting for it",
+  );
+
   const level = code("lib/progress/level.ts");
   const writer = between(level, "export async function recordCourseLevel");
   for (const key of ["cefrPlacement", "cefrPlacementAt"] as const) {

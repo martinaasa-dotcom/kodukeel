@@ -1,6 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { deferWord, deferredFor, deferredWordIds, undoDeferral, wakeForLevel } from "./deferrals";
+import { wakeForStanding } from "./level";
 import { addUnitsToDeck, planUnits } from "@/lib/srs/deck";
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { BAND_DAYS, DEFER_DAYS } from "@/lib/srs/defer";
@@ -24,6 +25,8 @@ const LATER = new Date("2027-06-01T09:00:00.000Z");
 async function wipe() {
   await prisma.card.deleteMany({ where: { ownerId: MINE } });
   await prisma.deferral.deleteMany({ where: { ownerId: MINE } });
+  await prisma.assessment.deleteMany({ where: { ownerId: MINE } });
+  await prisma.setting.deleteMany({ where: { ownerId: MINE } });
   await prisma.lexeme.deleteMany({ where: { lemma: { in: ["zzdefer", "zzdeferb"] } } });
 }
 
@@ -132,6 +135,27 @@ describe("giving a word back", () => {
 
     const listed = await deferredFor(MINE, moved);
     expect(listed.map((row) => row.lemma)).toEqual(["zzdeferb"]);
+  });
+});
+
+describe("a level a sitting measured", () => {
+  it("hands back the words that were waiting for it", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const waiting = await word("zzdefer", "B1");
+    await cards(waiting.id, [now]);
+    await deferWord(MINE, waiting.id, "A2", "/review", now);
+
+    // A placement that measured B1 in every scored skill, sat after the press.
+    const moved = new Date("2026-10-01T10:00:00.000Z");
+    await prisma.assessment.create({
+      data: {
+        ownerId: MINE, takenAt: moved, overall: "B1", confidence: "reasonable", answered: 40,
+        reading: "B1", listening: "B1", writing: "B1",
+      },
+    });
+    expect(await wakeForStanding(MINE, moved)).toBe(1);
+    const back = await prisma.card.findFirst({ where: { ownerId: MINE, lexemeId: waiting.id } });
+    expect(back!.due.toISOString()).toBe(moved.toISOString());
   });
 });
 

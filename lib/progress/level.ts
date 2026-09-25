@@ -132,6 +132,20 @@ const isAssessed = (value: string | null | undefined): value is AssessedLevel =>
  * The owner is resolved by the caller and never sent to it: every export in
  * `app/actions.ts` is a public endpoint, so a level belongs to whoever asked.
  */
+/**
+ * AND A LEVEL A SITTING MEASURED WAKES THEM TOO.
+ *
+ * `recordCourseLevel` is the one writer of a level that did not come from a
+ * sitting, so a placement at `/assess` moved the level every screen reads
+ * and woke nothing: a word put aside to wait for B1 stayed on its backstop,
+ * up to a term, after a paper had said the learner was there. Read through
+ * `courseLevelFor` rather than off the sitting, so the level that wakes the
+ * words is the level the app now holds, whichever answer that is.
+ */
+export async function wakeForStanding(ownerId: string, now = new Date()): Promise<number> {
+  return wakeForLevel(ownerId, await courseLevelFor(ownerId), now);
+}
+
 export async function recordCourseLevel(ownerId: string, level: Level, now = new Date()): Promise<void> {
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.cefrPlacement, level),
