@@ -7631,13 +7631,13 @@ break at the same midnight.
 **A hue has a fill and an ink, and that rule finally has something behind it.** It was in
 `docs/14-design-system.md` and in the design suite, which can only measure a state it can reach: six
 places were painting words in a hue's fill and the browser had seen none of them, because the two on
-`/week` and `/tasks` only render once a learner has set a class week and no fixture ever set one. The
-invariant reads the source instead and covers a `tone` prop as well as a `color`, because `Stat`
-takes a colour rather than a tone name, which is exactly how `/tasks` came to draw its "Known" figure
-in mint at 2.52:1 while `/week` drew the same figure correctly in the ink beside it. A line naming
-both, a fill for a bar and an ink for its label, is the pairing this protects rather than a breach of
-it. `scripts/demo-data.ts` now sets the week and the goal for the same reason: a rule enforced only
-where a fixture happens to walk holds on about half the app.
+`/week` and `/tasks`, both since cut, rendered only once a learner had set a class week and no
+fixture ever set one. The invariant reads the source instead and covers a `tone` prop as well as a
+`color`, because `Stat` takes a colour rather than a tone name, which is exactly how `/tasks` came
+to draw its "Known" figure in mint at 2.52:1 while `/week` drew the same figure correctly in the ink
+beside it. A line naming both, a fill for a bar and an ink for its label, is the pairing this
+protects rather than a breach of it. `scripts/demo-data.ts` sets the goal for the same reason: a
+rule enforced only where a fixture happens to walk holds on about half the app.
 
 **And the first run of the browser suites in a while found three things, one of them a screen that
 throws.** `/review/emoji` is a server component and imported `boardLead` from its own session, which
