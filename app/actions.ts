@@ -64,6 +64,7 @@ import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
 import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
+import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
@@ -3100,6 +3101,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
 
   try {
     await prisma.$transaction(async (tx) => {
+      /*
+        The deck lock, because a restore is the widest add a deck ever gets: a
+        tab pressing "Add to deck" while a replace has emptied the deck and not
+        yet put it back would read an empty deck and write its own cards
+        beside the restored ones.
+      */
+      await lockDeck(tx, ownerId);
       if (mode === "replace") {
         // Scoped to this user's own data only — Lexeme/Form are the shared
         // dictionary and must never be wiped by one person's restore.
@@ -3135,51 +3143,42 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         the Ekilex identifiers that would claim otherwise. Nothing is lost by
         it, because the cards below point at ids either way.
       */
-      const wanted = backup.lexemes.map((l) => String((l as { id?: unknown }).id ?? ""));
-      const present = new Set(
-        (await tx.lexeme.findMany({ where: { id: { in: wanted } }, select: { id: true } }))
-          .map((l) => l.id),
-      );
-      for (const raw of backup.lexemes) {
+      const live = await restoreLexemes(tx, ownerId, backup.lexemes.map((raw) => {
         const { forms, ...lex } = raw as Record<string, unknown> & { forms?: unknown[] };
-        const data = revive(lex, ["createdAt", "updatedAt"]);
-        delete data.starred; // dropped field from a pre-multi-user backup
-        if (present.has(String(data.id))) continue;
-
-        // Whoever restores it is who added it, and it is not Ekilex's.
-        data.provenance = "USER";
-        data.editedBy = ownerId;
-        delete data.ekilexWordId;
-        delete data.fetchedAt;
-        delete data.lookupMissAt;
-
-        try {
-          await tx.lexeme.create({ data: data as never });
-        } catch {
-          // Another word already holds this (lemma, pos). Theirs stays.
-          continue;
-        }
-        if (Array.isArray(forms) && forms.length) {
-          await tx.form.createMany({
-            data: forms.map((f) => {
-              const form = revive(f as Record<string, unknown>, []);
-              form.lexemeId = String(data.id);
-              return form;
-            }) as never,
-            skipDuplicates: true,
-          });
-        }
-      }
+        return {
+          data: revive(lex, ["createdAt", "updatedAt"]),
+          forms: Array.isArray(forms) ? forms.map((f) => revive(f as Record<string, unknown>, [])) : [],
+        };
+      }));
+      /*
+        Every row below that points at a word points at it through `wordOf`,
+        which is where that word lives on this deployment. A card whose word is
+        nowhere here is left out rather than written: it would fail the foreign
+        key and take the whole restore with it, over a word nothing can show.
+      */
+      const wordOf = await resolveLexemes(tx, live, [
+        ...backup.cards, ...backup.reviews, ...(backup.stars ?? []), ...(backup.deckWords ?? []),
+        ...(backup.sceneGaps ?? []), ...(backup.deferrals ?? []),
+      ].map((row) => row.lexemeId));
 
       // Cards/tasks are always attributed to the person restoring them, regardless
       // of what the backup file says — restoring "my backup" always means "my data".
-      for (const raw of backup.cards) {
+      const cards = backup.cards.flatMap((raw) => {
         const data = revive(raw, ["due", "lastReview", "createdAt"]);
         data.ownerId = ownerId;
-        const existing = await tx.card.findUnique({ where: { id: String(data.id) }, select: { ownerId: true } });
-        if (existing && existing.ownerId !== ownerId) continue; // id collision with another user's card — skip
-        await tx.card.upsert({ where: { id: String(data.id) }, create: data as never, update: data as never });
-      }
+        if (data.lexemeId != null) {
+          data.lexemeId = wordOf(data.lexemeId);
+          if (data.lexemeId === null) return [];
+        }
+        return [data];
+      });
+      // A card already here is updated only where it is already this learner's;
+      // an id collision with another learner's card is skipped.
+      await restoreOwned(ownerId, cards, {
+        read: (chunk) => tx.card.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+        insert: (chunk) => tx.card.createMany({ data: chunk as never, skipDuplicates: true }),
+        update: (data) => tx.card.update({ where: { id: String(data.id) }, data: data as never }),
+      });
 
       /*
         Reviews are append-only, so they are created if absent and never
@@ -3195,22 +3194,26 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         two that need a card left out.
       */
       const restoredAt = new Date();
-      for (const raw of backup.reviews) {
-        const data = boundedRestoredReview(revive(raw, ["reviewedAt"]), restoredAt);
-        if (!data) continue;
-        const exists = await tx.review.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        data.ownerId = ownerId;
-        await tx.review.create({ data: data as never });
-      }
+      await createAbsent(
+        backup.reviews.flatMap((raw) => {
+          const data = boundedRestoredReview(revive(raw, ["reviewedAt"]), restoredAt);
+          if (!data) return [];
+          data.ownerId = ownerId;
+          data.lexemeId = wordOf(data.lexemeId) ?? data.lexemeId;
+          return [data];
+        }),
+        (chunk) => tx.review.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.tasks) {
-        const data = revive(raw, ["dueAt", "completedAt", "createdAt"]);
-        data.ownerId = ownerId;
-        const existing = await tx.task.findUnique({ where: { id: String(data.id) }, select: { ownerId: true } });
-        if (existing && existing.ownerId !== ownerId) continue;
-        await tx.task.upsert({ where: { id: String(data.id) }, create: data as never, update: data as never });
-      }
+      await restoreOwned(
+        ownerId,
+        backup.tasks.map((raw) => ({ ...revive(raw, ["dueAt", "completedAt", "createdAt"]), ownerId })),
+        {
+          read: (chunk) => tx.task.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+          insert: (chunk) => tx.task.createMany({ data: chunk as never, skipDuplicates: true }),
+          update: (data) => tx.task.update({ where: { id: String(data.id) }, data: data as never }),
+        },
+      );
 
       /*
         The calendar, on the same terms: written by its original id so a second
@@ -3218,34 +3221,36 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         A replace deletes these, so a restore that did not put them back would
         take somebody's class times away in the name of giving them their data.
       */
-      for (const raw of backup.studyEvents ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const existing = await tx.studyEvent.findUnique({
-          where: { id: String(data.id) }, select: { ownerId: true },
-        });
-        if (existing && existing.ownerId !== ownerId) continue;
-        await tx.studyEvent.upsert({
-          where: { id: String(data.id) }, create: data as never, update: data as never,
-        });
-      }
+      await restoreOwned(
+        ownerId,
+        (backup.studyEvents ?? []).map((raw) => ({ ...revive(raw, ["createdAt"]), ownerId })),
+        {
+          read: (chunk) => tx.studyEvent.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+          insert: (chunk) => tx.studyEvent.createMany({ data: chunk as never, skipDuplicates: true }),
+          update: (data) => tx.studyEvent.update({ where: { id: String(data.id) }, data: data as never }),
+        },
+      );
 
       // Photographed pages, on the same terms as everything else here: written
       // by their original id so a second restore changes nothing, and always
       // attributed to whoever is restoring. The item list is re-checked on the
       // way in rather than trusted, because the file is supplied by its caller.
-      for (const raw of backup.scans ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        data.items = serialiseItems(parseItems(
-          typeof data.items === "string" ? data.items : null, SCAN_MAX_ITEMS,
-        ));
-        data.title = capped(typeof data.title === "string" ? data.title : "", MAX_SCAN_TITLE);
-        if (!data.title) data.title = "A page";
-        const existing = await tx.scan.findUnique({ where: { id: String(data.id) }, select: { ownerId: true } });
-        if (existing && existing.ownerId !== ownerId) continue;
-        await tx.scan.upsert({ where: { id: String(data.id) }, create: data as never, update: data as never });
-      }
+      await restoreOwned(
+        ownerId,
+        (backup.scans ?? []).map((raw) => {
+          const data: Record<string, unknown> = { ...revive(raw, ["createdAt"]), ownerId };
+          data.items = serialiseItems(parseItems(
+            typeof data.items === "string" ? data.items : null, SCAN_MAX_ITEMS,
+          ));
+          data.title = capped(typeof data.title === "string" ? data.title : "", MAX_SCAN_TITLE) || "A page";
+          return data;
+        }),
+        {
+          read: (chunk) => tx.scan.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+          insert: (chunk) => tx.scan.createMany({ data: chunk as never, skipDuplicates: true }),
+          update: (data) => tx.scan.update({ where: { id: String(data.id) }, data: data as never }),
+        },
+      );
 
       /*
         THE FIVE THAT USED TO BE EXPORTED NOWHERE AND RESTORED NOWHERE.
@@ -3260,95 +3265,79 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         measured alone. The other four are upserts, because a setting or a star
         is a current value rather than a fact about a moment.
       */
+      const settings = new Map<string, string>();
       for (const raw of backup.settings ?? []) {
         const data = revive(raw, []);
         const key = String(data.key ?? "");
-        if (!key) continue;
-        const value = String(data.value ?? "");
-        await tx.setting.upsert({
-          where: { ownerId_key: { ownerId, key } },
-          create: { ownerId, key, value },
-          update: { value },
-        });
+        if (key) settings.set(key, String(data.value ?? ""));
+      }
+      const heldKeys = new Set((await tx.setting.findMany({
+        where: { ownerId, key: { in: [...settings.keys()] } }, select: { key: true },
+      })).map((row) => row.key));
+      await tx.setting.createMany({
+        data: [...settings].filter(([key]) => !heldKeys.has(key)).map(([key, value]) => ({ ownerId, key, value })),
+        skipDuplicates: true,
+      });
+      for (const key of heldKeys) {
+        await tx.setting.update({ where: { ownerId_key: { ownerId, key } }, data: { value: settings.get(key)! } });
       }
       // Written straight at the table rather than through `writeSetting`,
       // because a restore replaces the lot. See lib/settings/store.ts.
       forgetSettings(ownerId);
 
-      for (const raw of backup.messages ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.message.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.message.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.messages ?? []).map((raw) => ({ ...revive(raw, ["createdAt"]), ownerId })),
+        (chunk) => tx.message.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.assessments ?? []) {
-        const data = revive(raw, ["takenAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.assessment.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.assessment.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.assessments ?? []).map((raw) => ({ ...revive(raw, ["takenAt"]), ownerId })),
+        (chunk) => tx.assessment.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.examAttempts ?? []) {
-        const data = revive(raw, ["startedAt", "finishedAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.examAttempt.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.examAttempt.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.examAttempts ?? []).map((raw) => ({ ...revive(raw, ["startedAt", "finishedAt"]), ownerId })),
+        (chunk) => tx.examAttempt.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
       /*
         A conversation played through, with its transcript, and the words it
         needed. Both append-only, so a row already here is left exactly as it
         is; a gap whose run did not come back is still a fact about a word.
       */
-      for (const raw of backup.sceneRuns ?? []) {
-        const data = revive(raw, ["startedAt", "endedAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.sceneRun.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.sceneRun.create({ data: data as never });
-      }
-      for (const raw of backup.sceneGaps ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.sceneGap.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        if (data.lexemeId) {
-          const lexeme = await tx.lexeme.findUnique({ where: { id: String(data.lexemeId) }, select: { id: true } });
-          if (!lexeme) data.lexemeId = null;
-        }
-        await tx.sceneGap.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.sceneRuns ?? []).map((raw) => ({ ...revive(raw, ["startedAt", "endedAt"]), ownerId })),
+        (chunk) => tx.sceneRun.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
+      await createAbsent(
+        (backup.sceneGaps ?? []).map((raw) => {
+          const data: Record<string, unknown> = { ...revive(raw, ["createdAt"]), ownerId };
+          if (data.lexemeId) data.lexemeId = wordOf(data.lexemeId);
+          return data;
+        }),
+        (chunk) => tx.sceneGap.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.encounters ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.encounter.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        await tx.encounter.create({ data: data as never });
-      }
+      await createAbsent(
+        (backup.encounters ?? []).map((raw) => ({ ...revive(raw, ["createdAt"]), ownerId })),
+        (chunk) => tx.encounter.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.deferrals ?? []) {
-        const data = revive(raw, ["untilAt", "wokenAt", "createdAt", "updatedAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.deferral.findUnique({ where: { id: String(data.id) }, select: { id: true } });
-        if (exists) continue;
-        /*
-          One row per owner per word is what makes the deployment-wide count
-          mean people, so a restore onto a database that already holds a
-          deferral for this word keeps the one that is there rather than
-          failing the whole transaction over a word somebody put aside twice.
-        */
-        const held = await tx.deferral.findUnique({
-          where: { ownerId_lexemeId: { ownerId, lexemeId: String(data.lexemeId ?? "") } },
-          select: { id: true },
-        });
-        if (held) continue;
-        await tx.deferral.create({ data: data as never });
-      }
+      /*
+        One row per owner per word is what makes the deployment-wide count
+        mean people, so a restore onto a database that already holds a
+        deferral for this word keeps the one that is there rather than
+        failing the whole transaction over a word somebody put aside twice.
+        `skipDuplicates` skips on that key as well as on the id.
+      */
+      await createAbsent(
+        (backup.deferrals ?? []).map((raw) => {
+          const data: Record<string, unknown> = { ...revive(raw, ["untilAt", "wokenAt", "createdAt", "updatedAt"]), ownerId };
+          data.lexemeId = wordOf(data.lexemeId) ?? data.lexemeId;
+          return data;
+        }),
+        (chunk) => tx.deferral.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
       /*
         Steps of a planned course day. Created and never updated, like every
@@ -3364,54 +3353,47 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         all-or-nothing. `StarredWord` and `Achievement` are the same shape two
         loops down and already did it this way.
       */
-      for (const raw of backup.courseSteps ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        const programmeId = String(data.programmeId ?? "");
-        const dayId = String(data.dayId ?? "");
-        const stepId = String(data.stepId ?? "");
-        if (!programmeId || !dayId || !stepId) continue;
-        await tx.courseStep.upsert({
-          where: {
-            ownerId_programmeId_dayId_stepId: { ownerId, programmeId, dayId, stepId },
-          },
-          create: {
+      await createAbsent(
+        (backup.courseSteps ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const programmeId = String(data.programmeId ?? "");
+          const dayId = String(data.dayId ?? "");
+          const stepId = String(data.stepId ?? "");
+          if (!programmeId || !dayId || !stepId) return [];
+          return [{
             ownerId, programmeId, dayId, stepId,
             ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
-          },
-          update: {},
-        });
-      }
+          }];
+        }),
+        (chunk) => tx.courseStep.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.stars ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        const lexemeId = String(data.lexemeId ?? "");
-        if (!lexemeId) continue;
-        /*
-          A star points at a dictionary entry with a real foreign key, and a
-          merge onto a database that does not hold that entry would abort the
-          whole transaction over a bookmark. The backup carries the dictionary,
-          so this normally finds it; when it does not, one lost star is the
-          right price for the rest of the restore completing.
-        */
-        const lexeme = await tx.lexeme.findUnique({ where: { id: lexemeId }, select: { id: true } });
-        if (!lexeme) continue;
-        await tx.starredWord.upsert({
-          where: { ownerId_lexemeId: { ownerId, lexemeId } },
-          create: { ownerId, lexemeId, ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}) },
-          update: {},
-        });
-      }
+      /*
+        A star points at a dictionary entry with a real foreign key, and a
+        merge onto a database that does not hold that entry would abort the
+        whole transaction over a bookmark. The backup carries the dictionary,
+        so this normally finds it; when it does not, one lost star is the
+        right price for the rest of the restore completing.
+      */
+      await createAbsent(
+        (backup.stars ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const lexemeId = wordOf(data.lexemeId);
+          if (!lexemeId) return [];
+          return [{ ownerId, lexemeId, ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}) }];
+        }),
+        (chunk) => tx.starredWord.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
-      for (const raw of backup.achievements ?? []) {
-        const data = revive(raw, ["earnedAt"]);
-        const key = String(data.key ?? "");
-        if (!key) continue;
-        await tx.achievement.upsert({
-          where: { ownerId_key: { ownerId, key } },
-          create: { ownerId, key, ...(data.earnedAt ? { earnedAt: data.earnedAt as Date } : {}) },
-          update: {},
-        });
-      }
+      await createAbsent(
+        (backup.achievements ?? []).flatMap((raw) => {
+          const data = revive(raw, ["earnedAt"]);
+          const key = String(data.key ?? "");
+          if (!key) return [];
+          return [{ ownerId, key, ...(data.earnedAt ? { earnedAt: data.earnedAt as Date } : {}) }];
+        }),
+        (chunk) => tx.achievement.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
 
       /*
         Their own named shelves, on the same terms as everything else here:
@@ -3419,46 +3401,39 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         always attributed to whoever is restoring rather than to whatever the
         file claims. Decks first, because a `DeckWord` points at one.
       */
-      const deckIdMap = new Map<string, string>();
-      for (const raw of backup.decks ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        const id = String(data.id ?? "");
-        if (!id) continue;
-        const name = String(data.name ?? "").trim().slice(0, 60);
-        if (!name) continue;
-        const existing = await tx.deck.findUnique({ where: { id }, select: { ownerId: true } });
-        if (existing && existing.ownerId !== ownerId) continue; // id collision with another learner's deck
-        await tx.deck.upsert({
-          where: { id },
-          create: {
-            id, ownerId, name,
-            ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
-          },
-          update: { name },
-        });
-        deckIdMap.set(id, id);
-      }
+      const deckIdMap = await restoreOwned(
+        ownerId,
+        (backup.decks ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const id = String(data.id ?? "");
+          const name = String(data.name ?? "").trim().slice(0, 60);
+          if (!id || !name) return [];
+          return [{ id, ownerId, name, ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}) }];
+        }),
+        {
+          read: (chunk) => tx.deck.findMany({ where: { id: { in: chunk } }, select: { id: true, ownerId: true } }),
+          insert: (chunk) => tx.deck.createMany({ data: chunk as never, skipDuplicates: true }),
+          update: (data) => tx.deck.update({ where: { id: String(data.id) }, data: { name: String(data.name) } }),
+        },
+      );
 
       // A word on a shelf points at a dictionary entry with a real foreign
       // key, the same as a star above: when the backup's dictionary does not
       // hold it, one dropped shelf entry is the right price for the rest of
       // the restore completing.
-      for (const raw of backup.deckWords ?? []) {
-        const data = revive(raw, ["createdAt"]);
-        const deckId = String(data.deckId ?? "");
-        const lexemeId = String(data.lexemeId ?? "");
-        if (!deckId || !lexemeId || !deckIdMap.has(deckId)) continue;
-        const lexeme = await tx.lexeme.findUnique({ where: { id: lexemeId }, select: { id: true } });
-        if (!lexeme) continue;
-        await tx.deckWord.upsert({
-          where: { deckId_lexemeId: { deckId, lexemeId } },
-          create: {
+      await createAbsent(
+        (backup.deckWords ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const deckId = String(data.deckId ?? "");
+          const lexemeId = wordOf(data.lexemeId);
+          if (!deckId || !lexemeId || !deckIdMap.has(deckId)) return [];
+          return [{
             deckId, ownerId, lexemeId,
             ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
-          },
-          update: {},
-        });
-      }
+          }];
+        }),
+        (chunk) => tx.deckWord.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
     }, { timeout: 120_000 });
   } catch (error) {
     return {
