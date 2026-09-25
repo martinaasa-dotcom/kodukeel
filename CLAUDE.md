@@ -9373,6 +9373,14 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 - Unit tests stay hermetic: no database, no network, no clock you do not control. Anything needing
   Postgres is an `*.itest.ts` under `npm run test:db`. The unit suite gates every commit and must
   stay fast enough that nobody is tempted to skip it.
+  **And a zone is a clock.** CI runs in UTC, and three clock tests that built their dates with
+  `Date.UTC` passed there and failed on `npm test` in Tallinn, since the formatter reads a time in
+  the reader's zone. `vitest.config.mts` pins `Pacific/Chatham`, a quarter-hour offset thirteen
+  hours from UTC that nobody's code assumes, so a zone assumption fails in CI as well as off it.
+  The locale is the same fault one setting over: `nextCardLine` took its weekday from the host and
+  wrote "The next card comes back on laupäev." on a machine in Estonia, so the weekday is English
+  now, since the sentence is, and the suite runs under `et_EE.UTF-8`. Asserted, including that
+  neither pin is CI's own.
 - **A cache of object URLs that never revokes one is a leak with a hit rate.** `Speak` and
   `PairsSession` each held a `Map` of blob URLs and neither released anything: `Speak`'s was
   module-level and so outlived every navigation, `PairsSession`'s went unreachable when the round
