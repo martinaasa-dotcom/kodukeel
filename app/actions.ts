@@ -4127,9 +4127,6 @@ export async function submitExam(input: unknown) {
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 
-  const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
-
   /*
     Counted before the schema walks them: a record with no ceiling is a free
     parse of however many keys fit under the body limit, which is hundreds of
