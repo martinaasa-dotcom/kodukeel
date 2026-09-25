@@ -12,6 +12,7 @@ import {
   EVENT_KINDS, KIND_LABEL, KIND_TONE, WEEKDAY_LONG, WEEKDAY_SHORT,
   eventsOn, repeatLabel, span, weekdayOf, type EventKind, type StudyEvent,
 } from "@/lib/ux/schedule";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 export interface Reminder {
   id: string;
@@ -210,7 +211,10 @@ function EventRow({ event }: { event: StudyEvent }) {
           type="button"
           aria-label={`Remove ${event.title}`}
           disabled={pending}
-          onClick={() => start(async () => { await deleteStudyEvent(event.id); router.refresh(); })}
+          onClick={() => start(async () => {
+            const landed = await deleteStudyEvent(event.id).then(() => true).catch(() => false);
+            if (landed) router.refresh();
+          })}
           className="tap-tint rounded-full p-1"
           style={{ color: "var(--ink-3)" }}
         >
@@ -264,7 +268,10 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
             type="button"
             aria-label={`Remove ${reminder.title}`}
             disabled={pending}
-            onClick={() => start(async () => { await deleteReminder(reminder.id); router.refresh(); })}
+            onClick={() => start(async () => {
+              const landed = await deleteReminder(reminder.id).then(() => true).catch(() => false);
+              if (landed) router.refresh();
+            })}
             className="tap-tint rounded-full p-1"
             style={{ color: "var(--ink-3)" }}
           >
@@ -308,7 +315,7 @@ function AddPanel({ days, opensAs, onDone }: {
     setError(null);
     start(async () => {
       const result = isReminder
-        ? await addReminder({ title, dueAt: date })
+        ? await addReminder({ title, dueAt: date }).catch(() => null)
         : await addStudyEvent({
             title,
             kind,
@@ -316,7 +323,8 @@ function AddPanel({ days, opensAs, onDone }: {
             durationMinutes: minutes,
             weekdays,
             onDate: weekdays.length > 0 ? null : date,
-          });
+          }).catch(() => null);
+      if (!result) { setError(NOT_REACHED); return; }
       if (!result.ok) {
         setError(("error" in result && result.error) || "That did not save.");
         return;
