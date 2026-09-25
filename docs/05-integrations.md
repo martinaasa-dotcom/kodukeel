@@ -2,7 +2,9 @@
 
 Every claim marked **VERIFIED** was probed against the live service on 2026-08-28. v4.0 asserted
 three integrations that do not work as described; this document records what is actually true and
-what we do instead.
+what we do instead. Where an integration was built differently from the plan written here, or not
+built at all, its section says so and names what exists; the risk table at the end is the state as
+built.
 
 ---
 
@@ -99,25 +101,33 @@ Errors: `422` unprocessable, `408` timeout. Terms of service:
 ### 2.3 How we use it
 
 - **Proxied** through `/api/tts`, never called from the browser, so we control caching and rate.
-- **Cached forever**, content-addressed on `sha256(text + speaker + speed)`, stored as `.wav` under
-  `.data/audio/`. A word's pronunciation does not change; we fetch each one exactly once.
-- **Pre-warmed** on card creation, so review sessions never wait on the network. This is what makes
-  offline review with audio possible.
-- **Speaker configurable** in settings, defaulting to `mari`.
-- **Slow-repeat control** at `speed: 0.6` for hearing gradation and quantity distinctions, directly
-  useful given that Q2/Q3 are not distinguished in spelling (`02-estonian-domain.md` §1.4).
-- **Fallback chain:** cache → TartuNLP → Web Speech (if an `et` voice exists) → hide the control.
-  Never render a play button that does nothing.
+- **Cached forever**, content-addressed on the clip shape, the text and the speaker, and shared by
+  every instance through an object store (`lib/audio/store.ts`), with local disk under
+  `.data/audio/` as the development fallback. A word's pronunciation does not change; we fetch each
+  one exactly once. What is stored is the clip trimmed, leveled and written as 16-bit PCM
+  (`lib/audio/wav.ts`), not what the service sent.
+- **Fetched ahead** on the client: the next card's clip is requested while this one is being
+  answered, so the play is instant, and the service worker keeps what has been heard.
+- **Speaker configurable** in Settings from the voices in `lib/audio/voice.ts`, defaulting to `mari`.
+- **Slow and everyday playback are one clip stretched in the browser** (`lib/audio/stretch.ts`), at
+  a rate read off the learner's level (`lib/audio/pace.ts`). The plan here asked the service for
+  `speed: 0.6`; measured, that holds every vowel flat with a buzz under it, so no speed is sent.
+- **When nothing can be played, the control goes away.** There is no Web Speech fallback: the
+  browser's voices for `et` were not dependable enough to be worth a second path, and a play button
+  that does nothing is worse than none.
 
-### 2.4 Speech-to-text: unproven, spike required (audit A5)
+### 2.4 Speech-to-text: measured, and not built (audit A5)
 
 v4.0 promises microphone input to Anu. Browser `SpeechRecognition` does not dependably support
-Estonian, and the TartuNLP speech-to-text path did not resolve on probe. This is a **Phase 4
-timeboxed spike (2 days)**, not a committed Phase 2 feature.
+Estonian, and the TartuNLP speech-to-text path did not resolve on probe, so this was planned as a
+timeboxed spike rather than a feature.
 
-If the spike fails, the fallback is *pronunciation self-check*: record via `MediaRecorder`, play back
-against the reference TartuNLP clip, self-grade. No recognition required, and it is genuinely useful
-practice for quantity and gradation contrasts.
+The spike ran and the answer was no. `scripts/measure-asr.mjs` puts the best reachable recognizer at
+a 14.6% word error rate on clean native audio, and its mistakes land on consonant length, voicing and
+word boundaries, which is where a learner is weakest: showing that transcript would mark correct
+pronunciation wrong. So the fallback planned here is what shipped (ADR-018): speaking practice
+records with `MediaRecorder`, plays the learner back beside the reference clip, and the learner
+judges. Re-run the script before re-opening the question.
 
 ---
 
@@ -146,10 +156,16 @@ Speakly ever publishes an API, it becomes one more parser behind the same interf
 
 ---
 
-## 4. Calendar: read-only iCal subscription
+## 4. Calendar: read-only iCal subscription (not built)
+
+**Not built.** The plan below assumed a class schedule published as an `.ics` feed, and there was
+none to subscribe to (`12-open-questions.md` Q3). What exists instead goes the other way and needs no
+integration: `/calendar` is a week the learner fills in themselves (`StudyEvent` and `Task`), and
+`/api/reminder` serves a daily study reminder as a calendar file for the learner's own calendar app.
+The plan is kept because it is still the right shape if a school ever publishes a feed:
 
 - `ical.js` (2.2.1, **VERIFIED** on npm), RFC 5545.
-- Server-side fetch and parse of user-supplied `.ics` URLs; events persisted to `CalendarEvent`.
+- Server-side fetch and parse of user-supplied `.ics` URLs.
 - **Read-only.** No OAuth, no Google Calendar API, no write scope. An iCal URL is a bearer secret,
   stored server-side, never rendered into client HTML.
 - Sync on demand and on app start, at most hourly per feed.
@@ -158,14 +174,23 @@ Speakly ever publishes an API, it becomes one more parser behind the same interf
 
 ---
 
-## 5. Anthropic API
+## 5. Model providers
 
-Full treatment in `06-anu-tutor.md`. Integration-level facts:
+Planned as the Anthropic API alone, through its SDK; built as no SDK at all. Full treatment of the
+tutor in `06-anu-tutor.md`, and of why each job is on the model it is on in CLAUDE.md, "There is a
+model per purpose". Integration-level facts:
 
-- `claude-opus-5` (v4.0's `claude-3-5-sonnet` is not a current model identifier, audit C2).
-- `@anthropic-ai/sdk`, **server-side only**, streaming, adaptive thinking.
-- `cache_control` breakpoint on the static Estonian system prompt.
-- Every response's `usage` is written to `Message` and `UsageDay`, so spend is measured rather than estimated.
+- **One HTTP client over a chain of providers** (`lib/tutor/provider.ts`), **server-side only**:
+  Groq and Gemini through their OpenAI-compatible endpoints, and Anthropic and OpenAI behind them.
+- **Each job is pinned to the provider it was measured on** (`PURPOSE_CHAINS`): Anu, scene lines,
+  scanning and the graders all lead on Gemini with Groq behind them, and the paid keys answer only
+  as a last resort inside a daily fallback budget, which Anu never reaches.
+- **Prompt caching where the provider has it**: a `cache_control` breakpoint on the Anthropic path,
+  and an explicit `cachedContents` entry on Gemini (`lib/tutor/geminiCache.ts`) that holds the
+  static prompt for scenes and the tutor.
+- **Every call is booked before it is made and settled after** in `UsageEvent`
+  (`lib/usage/ledger.ts`), priced off `lib/usage/pricing.ts`, so spend is measured rather than
+  estimated and the daily caps hold under concurrency.
 
 ---
 
@@ -196,10 +221,10 @@ at the integration level:
 
 | Integration | Verified? | Risk | Mitigation |
 |---|---|---|---|
-| Ekilex API | Key requirement verified; contract not yet exercised with a key | **High**: Phase 2 blocker | Start key request day one; seed fixture unblocks development; mapper isolated behind one contract test |
-| TartuNLP TTS | Fully verified live | Low | Cache forever; Web Speech fallback |
-| TartuNLP STT | **Not verified** | Medium | Timeboxed spike; self-check fallback |
+| Ekilex API | Verified, and exercised with a key: the harvest, the word list and every live lookup run on it | Low | Server-side key; built-in dictionary for a keyless deployment; a refused request is never read as a missing word (`lib/ekilex/harvestGuard.ts`) |
+| TartuNLP TTS | Fully verified live | Low | Cached forever in shared storage; the control disappears when nothing can play |
+| TartuNLP STT | Measured: 14.6% word error rate on clean native audio | Not built | Speaking practice compares clips and the learner judges (ADR-018) |
 | Speakly | Verified as *not* integrable | Low (descoped) | Generic importer |
-| iCal | Standard format, library verified | Low | Per-feed error isolation |
-| Anthropic | Well documented | Low | Budget cap, typed errors |
+| iCal | Standard format, library verified | Not built | The learner's own week at `/calendar`, and an outbound reminder file |
+| Model providers | Each job measured on its own model | Medium: a provider can be throttled or out of credit | A second provider behind every job, a metered ledger that fails closed, and every feature degrading to its keyless state |
 | ERR news feed | Verified live; read-only, no key | Low | Two offline sources behind it; every failure silent; `NEWS_FEED_URL=off` |

@@ -39,19 +39,18 @@ describe("narrowing a question to two", () => {
   });
 
   /*
-    A greeting beat names whole phrases, and joined as printed they came out
-    `Tere! või Tere hommikust!?`. Stripping the marks fixed the punctuation and
-    left a question nobody asks: two greetings are one thing said two ways,
-    which is not a choice (#515). So a greeting beat is not narrowed at all,
-    and the marks are still taken off any option that carries one.
+    A lemma can carry its own closing mark, and joined as printed two of them
+    came out `Tere! või Tere hommikust!?`. That pair is no longer offered at
+    all (a greeting is one thing said, below), but the join still ends the
+    line in one mark whatever the options were spelled with.
   */
-  it("does not narrow a greeting, since two greetings are one thing said two ways", () => {
+  it("takes each option's own closing mark off before joining them", () => {
     const lex = buildLexicon([
-      { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
-      { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
+      { lemma: "Appi!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
+      { lemma: "Tuli!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
     ]);
-    const greet = { ...BEAT, move: "greet" as const, needs: [{ kind: "lemma" as const, oneOf: ["Tere!", "Tere hommikust!"] }] };
-    expect(choiceOf({ beat: greet, card: CARD, lexicon: lex, roll: 0 })).toBeNull();
+    const shout = { ...BEAT, needs: [{ kind: "lemma" as const, oneOf: ["Appi!", "Tuli!"] }] };
+    expect(choiceOf({ beat: shout, card: CARD, lexicon: lex, roll: 0 })).toBe(`Appi ${CHOICE_WORD} Tuli?`);
   });
 
   /*

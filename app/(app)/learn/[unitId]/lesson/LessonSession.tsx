@@ -30,7 +30,7 @@ import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import type { SeenCard } from "@/lib/ux/lookBack";
 
@@ -272,6 +272,14 @@ function Verdict({ ok, note }: { ok: boolean; note?: string }) {
 function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: string }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      /*
+        A key from the answer box is the box's. This mounts on the render that
+        marks a typed step, and the Enter that marked it reaches the window
+        after React has mounted it, so read here it moved straight on and the
+        verdict was never on the screen. The box stays after the mark, so its
+        own Enter carries on instead, through `checkTyped`.
+      */
+      if (inEditable(e.target)) return;
       if (isAdvanceKey(e)) { e.preventDefault(); onNext(); }
     };
     window.addEventListener("keydown", onKey);
@@ -414,7 +422,9 @@ function StepCard({
   };
 
   const checkTyped = (expected: string, lemma: string, kind: string, rivals: readonly string[] = []) => {
-    if (checked) return;
+    // Once marked, the box's Enter is "carry on": `Continue` leaves a key
+    // from the box alone, because that is also the key that marked it.
+    if (checked) { onNext(); return; }
     const result = checkAnswer(typed, expected, "et", rivals);
     const ok = countsAsRecalled(result.verdict);
     setChecked({ ok, note: result.note || (ok ? "Correct." : `It is “${result.expected}”.`) });
