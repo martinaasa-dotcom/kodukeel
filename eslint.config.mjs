@@ -82,12 +82,12 @@ const config = [
        * `eslint-config-next` 16 brings `eslint-plugin-react-hooks` 7 with it and
        * enables sixteen `react-hooks/*` rules as errors, eleven of which did not
        * exist in 15. Eleven hold in this tree already and stay errors, so none of
-       * them can regress quietly. Five do not: 119 findings over 50 files,
+       * them can regress quietly. Five do not: 117 findings over 50 files,
        * listed here with their counts, because a warning nobody has counted
        * is a warning nobody reads.
        *
-       *   purity              49  (46 are `Date.now()` read during render)
-       *   set-state-in-effect 34
+       *   purity              48  (46 are `Date.now()` read during render)
+       *   set-state-in-effect 33
        *   refs                25
        *   static-components    8
        *   immutability         3
@@ -109,6 +109,12 @@ const config = [
        * `npm run lint` prints.
        */
       "react-hooks/purity": "warn",
+      // Both at nought, so both are errors: a button navigating by assigning
+      // `window.location` is a link that cannot be middle-clicked or
+      // prefetched, and the two full loads that are deliberate say why beside
+      // a scoped disable.
+      "@next/next/no-location-assign-relative-destination": "error",
+      "react-hooks/exhaustive-deps": "error",
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/refs": "warn",
       "react-hooks/static-components": "warn",

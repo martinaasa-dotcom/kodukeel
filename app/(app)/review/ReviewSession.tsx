@@ -898,7 +898,7 @@ export function ReviewSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
     producedAt.current = null;
-  }, [card, queue, index]);
+  }, [card, queue]);
 
   const submit = useCallback(async (asked: RatingValue) => {
     if (!card || busy) return;
