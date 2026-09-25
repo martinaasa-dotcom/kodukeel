@@ -307,39 +307,32 @@ const trimmed = await page.evaluate(async (name) => {
 }, audioCache);
 check("a cache can be filled past its ceiling to prove the trim runs", trimmed >= 420, `${trimmed}`);
 
-/*
-  ONE CLIP THROUGH THE WORKER, ANSWERED HERE RATHER THAN BY TARTUNLP.
-
-  The worker trims the audio cache after it writes a clip, and it writes one
-  only when the route answers `ok` for a phrase it has not already cached. The
-  comment here used to say a failed fetch was fine, which is the opposite of
-  that: `/api/tts` calls a service somebody else runs, and on a CI run where it
-  timed out nothing was written, nothing was trimmed, and this check reported
-  421 entries as a worker that does not trim. What is under test is the trim,
-  so the clip is answered by the context, which in Chromium is where a
-  service worker's own requests are routed too, and the phrase is new each run
-  so no cached copy can stand in for the write. Polled rather than slept on,
-  since the trim runs after the response is already back.
-*/
-await ctx.route("**/api/tts", (route) => route.fulfill({
-  status: 200, contentType: "audio/wav", body: Buffer.from("RIFF"),
-}));
-await page.evaluate(async () => {
-  await fetch("/api/tts", {
+const ttsStatus = await page.evaluate(async () => {
+  // One real clip through the worker, which trims the audio cache after it
+  // writes. The phrase does not matter.
+  const r = await fetch("/api/tts", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ text: `trim-${Date.now()}` }),
-  }).catch(() => undefined);
+    body: JSON.stringify({ text: "tere" }),
+  }).catch(() => null);
+  return r ? r.status : 0;
 });
-let afterTrim = 0;
-for (let tries = 0; tries < 20; tries += 1) {
-  afterTrim = await page.evaluate(async (name) =>
+/*
+  The trim runs on the success path and only there (`public/sw.js`), so a
+  speech service that did not answer in time leaves nothing to trim after.
+  Asserted anyway, that read as a worker that had stopped trimming, which
+  sends whoever reads it into the one file that was working. A clip that
+  failed is stated as what it is, with its status, and still counts against
+  the floor.
+*/
+if (ttsStatus >= 200 && ttsStatus < 300) {
+  await page.waitForTimeout(2500);
+  const afterTrim = await page.evaluate(async (name) =>
     (await caches.open(name)).keys().then((k) => k.length), audioCache);
-  if (afterTrim <= 400) break;
-  await page.waitForTimeout(250);
+  check("the audio cache is trimmed back to its ceiling", afterTrim <= 400, `${afterTrim} entries`);
+} else {
+  absent(1, `a clip the speech service answered (HTTP ${ttsStatus}): the worker trims after a successful write, so with no clip there is nothing to trim after`);
 }
-await ctx.unroute("**/api/tts");
-check("the audio cache is trimmed back to its ceiling", afterTrim <= 400, `${afterTrim} entries`);
 
 /*
   And the other half of that rule: the one cache with no ceiling still has what
