@@ -1428,6 +1428,16 @@ export function replay(
       if (state.hurdle || response === "moveOn") break;
       const next = currentBeat(context.scene, state);
       if (!next) break;
+      /*
+        AN OFFER IS MADE BY THE OTHER SIDE ON ITS OWN BEAT, SO THE CASCADE STOPS
+        IN FRONT OF IT, for the reason the look-ahead below passes over one. The
+        guard was written there and not here: answering "since when?" with
+        `neljapäevast. Kas homme sobib?` walked on into the offer beat, the
+        `sobib` accepted an appointment the receptionist had not proposed, and
+        the next line read a time back to somebody who had never been offered
+        one. The offer is said, and the learner's yes is read against it then.
+      */
+      if (next.move === "offer") break;
       const read = readTurn(said, next, marker);
       /*
         A judge may have said this same turn met the next beat too, in a word
