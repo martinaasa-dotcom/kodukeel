@@ -778,6 +778,17 @@ is what people unsubscribe over.
 scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
 than theirs to be handed.
 
+**And the run could not get past the door, so no letter ever went out on a hosted deployment.**
+`/api/email/send` was left off the gate's public list on the argument that it gates itself, which
+is exactly why it belonged on it: the platform's cron carries a bearer token and no session, so the
+middleware answered every scheduled run 401 before the route read `CRON_SECRET`. The invariant
+beside it asked that `vercel.json` schedules a route that exists, and passed the whole time, because
+a route that exists and a route the scheduler can reach are two claims. It is the crawler files'
+fault one door over, and it hid the same way: local mode steps the gate aside and every suite runs
+in local mode. Every scheduled path is now held to being named in `isPublicPath`, read off
+`vercel.json`, and `test-security.mjs` asks the route to 404 without its token, beside
+`/api/metrics` and `/api/research`, which take the same shape.
+
 **And one number the weekly letter wanted is not in this schema, so it is not claimed.** "Words
 you learned this week" needs a row written when a card changes state, and nothing records one:
 `Review` holds ratings rather than transitions and `lastReview` is when a card was answered
@@ -4176,6 +4187,24 @@ is a name collision rather than a copy. And the move is where it is on purpose:
 `lib/estonian/passage.ts` was importing `fold` from `lib/dict/search.ts`, which imports Prisma, so a
 layer asserted to be free of the database was pulling it in one import away and the invariant, which
 reads each file's own imports, could not see it.
+
+**And the fourth and fifth copies were outside the directories the check swept.** The sweep read
+`app/`, `lib/` and `components/`, and `prisma/indexes.ts` built every folded function index off a
+pair of its own under a comment pointing at `lib/dict/search.ts`, a file that had stopped holding
+the table months before. That one fails silently in the worst way: Postgres uses a function index
+only where the query's expression matches it character for character, so a sixth letter added to
+`fold.ts` and not to the index turns every folded search into a sequential scan and nothing says
+so. It reads `FOLD_FROM` and `FOLD_TO` now, and `scripts/eval-scan.ts` reads `fold`. The haystack
+is `prisma/` and `scripts/` as well, a quoted run of the six letters counts as a table because that
+is the shape Postgres takes the pair in, and `scripts/fuzz-scenes.ts` is excused by name, since the
+six in a row there are a hostile turn rather than a table.
+
+**An allow-list is checked in both directions or it is a set of standing permissions.** The list of
+files that may name a Russian or Ukrainian meaning held three that named nothing, the harvest among
+them, which writes `rus` and `ukr` and leaves the columns to the seed; and the list of files that
+store something on the reader's device held `lib/ux/resumePosition.ts`, which is pure and was on it
+because the check read comments. Both read code, both fail on an entry that no longer matches, and
+the second has a floor.
 
 **One game a day, the same one every week, and nothing hidden by it.** Eleven rounds on a menu is a
 decision to make before you can start; one on the home page with a reason beside it is an invitation,
