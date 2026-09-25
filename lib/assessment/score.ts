@@ -2,7 +2,7 @@ import { checkDictation, type DictationResult } from "@/lib/estonian/dictation";
 import { checkAnswer } from "@/lib/estonian/answer";
 import {
   BANDS, PRE_A1, type Band, type BandScore, type ChoiceItem, type Confidence,
-  type DictationItem, type ItemRef, type Level, type Placement, type Response,
+  type DictationItem, type Item, type ItemRef, type Level, type Placement, type Response,
   type Skill, type SkillResult, type WriteItem,
 } from "./types";
 
@@ -137,6 +137,93 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
     usedAnotherForm: false,
     note: `That is not a form of ${item.lemma}.`,
   };
+}
+
+/**
+ * What a learner did with a question, before anybody has marked it.
+ *
+ * This is what the browser sends, and it carries no mark, no skill and no band.
+ * The runner used to post a credit per answer beside the skill and band it
+ * claimed for it, and the server believed all three: anybody could post full
+ * credit on every question, or call an A1 question C1, and the level that came
+ * out reached Today, the plan and a sponsor's cohort view. A result anybody can
+ * type is not a measurement, which is what `submitExam` already says about the
+ * mock paper. So the server rebuilds the paper from its seed and marks this
+ * itself, through `responseFor`, which is the function the runner marks with.
+ *
+ * A choice is sent as the option's text rather than its position, so an option
+ * list that came back in another order still marks the answer that was meant.
+ */
+export type Given =
+  | { kind: "picked"; option: string }
+  | { kind: "typed"; text: string }
+  | { kind: "rated"; rating: number }
+  /** The listening section left unmeasured, because the audio would not play. */
+  | { kind: "skipped" };
+
+export interface Answered {
+  itemId: string;
+  given: Given;
+  /** Milliseconds on the question. Kept for the record and never a mark. */
+  ms: number;
+}
+
+/** The credit an answer earns on its own item. A mismatched shape earns nothing. */
+export function creditFor(item: Item, given: Given): number {
+  if (item.kind === "choice" && given.kind === "picked") {
+    return gradeChoice(item, item.options.indexOf(given.option));
+  }
+  if (item.kind === "dictation" && given.kind === "typed") return gradeDictation(item, given.text).credit;
+  if (item.kind === "write" && given.kind === "typed") return gradeWrite(item, given.text).credit;
+  return 0;
+}
+
+/**
+ * One answer marked against its own item, with the skill and band read off the
+ * item rather than off anything a caller said about it.
+ *
+ * A skip is honoured on listening alone, because that is the one section the
+ * runner lets a learner leave, and only when the audio will not play. A skip
+ * anywhere else would be a way to leave a skill unmeasured and have the level
+ * averaged over the two that went better, so it is marked as a blank instead.
+ * A speaking answer carries its rating and no credit (ADR-018).
+ */
+export function responseFor(item: Item, answer: Answered): Response {
+  const skipped = answer.given.kind === "skipped" && item.skill === "listening";
+  const rating = answer.given.kind === "rated" && item.kind === "speak"
+    ? Math.min(4, Math.max(1, Math.round(answer.given.rating)))
+    : undefined;
+  return {
+    itemId: item.id,
+    skill: item.skill,
+    band: item.band,
+    credit: item.kind === "speak" || skipped ? 0 : creditFor(item, answer.given),
+    ms: Math.max(0, Math.round(answer.ms)),
+    ...(rating === undefined ? {} : { selfRating: rating }),
+    ...(skipped ? { skipped: true } : {}),
+  };
+}
+
+/**
+ * A whole sitting marked against the paper it was sat on.
+ *
+ * Null when an answer names a question the paper does not hold, because then
+ * this is not the paper that was sat and nothing marked against it means
+ * anything. An item answered twice counts once, the first time, which is the
+ * answer the learner saw marked.
+ */
+export function responsesFrom(items: readonly Item[], answers: readonly Answered[]): Response[] | null {
+  const byId = new Map(items.map((i) => [i.id, i]));
+  const seen = new Set<string>();
+  const out: Response[] = [];
+  for (const answer of answers) {
+    const item = byId.get(answer.itemId);
+    if (!item) return null;
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    out.push(responseFor(item, answer));
+  }
+  return out;
 }
 
 function bandScores(items: readonly ItemRef[], responses: readonly Response[]): BandScore[] {

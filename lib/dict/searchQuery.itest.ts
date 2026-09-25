@@ -160,6 +160,25 @@ describe("searchLexemes against the seeded dictionary", () => {
     expect(top?.matchedAs).toMatch(/mitmuse kaasaütlev/);
   });
 
+  /*
+    AN EXACT MATCH SURVIVES A BROAD ONE.
+
+    `ma` is contained in more than a thousand entries and is also the stored
+    short form of `mina`. The union was capped at 600 by id as a whole, so
+    the pronoun sorted past the cut and was not a result at all. The
+    precondition is asserted too, since on a dictionary too small to reach the
+    cap this passes for the wrong reason.
+  */
+  it("keeps a stored-form match when the substring matches pass the cap", async () => {
+    const [row] = await prisma.$queryRaw<{ n: bigint }[]>`
+      SELECT count(*) AS n FROM "Lexeme" WHERE lower(lemma) LIKE '%ma%' OR lower(translation) LIKE '%ma%'`;
+    expect(Number(row?.n ?? 0), "the dictionary is too small to reach the cap").toBeGreaterThan(600);
+    const hits = await searchLexemes("ma");
+    expect(hits[0]?.lemma).toBe("mina");
+    const te = await searchLexemes("te");
+    expect(te.map((h) => h.lemma)).toContain("teie");
+  });
+
   it("returns nothing for a query that matches nothing", async () => {
     expect(await searchLexemes("zzzzzzzz")).toEqual([]);
   });
