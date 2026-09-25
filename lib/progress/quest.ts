@@ -93,12 +93,37 @@ export interface QuestCard {
    * rather than being worked out in the browser.
    */
   choices: { text: string; slot: string | null }[] | null;
+  /**
+   * Asked typed rather than turned over, where the card has no options and its
+   * answer is a form the dictionary vouches for.
+   *
+   * The same set the review card types (\`TYPEABLE\` there), for the same rule:
+   * a card this app can mark is never marked by the learner. Options are the
+   * first answer, being a tap; where none can be built the honest fallback is
+   * to ask for it typed, not to hand the marking back. What is left as a flip
+   * is what review leaves as one.
+   */
+  typed: boolean;
+  /**
+   * Every other spelling of the word, so another ending typed is marked as the
+   * wrong form rather than forgiven as a slip. Empty where nothing is typed.
+   */
+  rivals: string[];
 }
 
 export interface Quest {
   cards: QuestCard[];
   /** The cases the round is aimed at, weakest first. Named on the screen. */
   weakCases: { grammCase: string; accuracy: number }[];
+}
+
+/** The card types whose answer is a form the dictionary vouches for, as review types them. */
+const TYPED = new Set(["PRODUCTION", "CASE_FORM", "GRADATION", "CLOZE", "CONJUGATION"]);
+
+/** A word's other spellings, the accepted ones taken out. */
+function rivalsAmong(spellings: readonly string[], accepted: readonly string[]): string[] {
+  const right = new Set(accepted.map((a) => a.trim()));
+  return [...new Set(spellings.map((v) => v.trim()).filter((v) => v && !right.has(v)))];
 }
 
 export async function questFor(ownerId: string): Promise<Quest> {
@@ -133,7 +158,7 @@ export async function questFor(ownerId: string): Promise<Quest> {
   */
   const chosen = [...onWeakCase, ...rest].slice(0, QUEST_SIZE);
 
-  const options = await optionsFor(chosen);
+  const { options, spellings } = await optionsFor(chosen);
 
   return {
     weakCases: weak.map((c) => ({ grammCase: c.grammCase, accuracy: c.accuracy })),
@@ -152,6 +177,10 @@ export async function questFor(ownerId: string): Promise<Quest> {
       canTranslate: resolveProvider() !== null,
       targetsWeakCase: Boolean(c.targetCase && weakKeys.includes(c.targetCase)),
       choices: options.get(c.id) ?? null,
+      typed: !options.has(c.id) && TYPED.has(c.cardType),
+      rivals: !options.has(c.id) && TYPED.has(c.cardType) && c.lexemeId
+        ? rivalsAmong(spellings.get(c.lexemeId) ?? [], acceptedAnswers(c.back, "et"))
+        : [],
     })),
   };
 }
@@ -170,12 +199,15 @@ async function optionsFor(
     id: string; back: string; cardType: string; lexemeId: string | null;
     lexeme: { lemma: string } | null;
   }[],
-): Promise<Map<string, { text: string; slot: string | null }[]>> {
+): Promise<{
+  options: Map<string, { text: string; slot: string | null }[]>;
+  spellings: Map<string, string[]>;
+}> {
   const out = new Map<string, { text: string; slot: string | null }[]>();
-  const wanted = cards.filter(
-    (c) => (c.cardType === "CASE_FORM" || c.cardType === "CONJUGATION") && c.lexemeId,
-  );
-  if (wanted.length === 0) return out;
+  const spellings = new Map<string, string[]>();
+  // Every card a form answers, since a typed one needs its word's other forms too.
+  const wanted = cards.filter((c) => TYPED.has(c.cardType) && c.lexemeId);
+  if (wanted.length === 0) return { options: out, spellings };
 
   const forms = await prisma.form.findMany({
     where: { lexemeId: { in: [...new Set(wanted.map((c) => c.lexemeId!))] } },
@@ -190,7 +222,10 @@ async function optionsFor(
     byLexeme.set(form.lexemeId, held);
   }
 
+  for (const [lexemeId, held] of byLexeme) spellings.set(lexemeId, held.map((f) => f.value));
+
   for (const card of wanted) {
+    if (card.cardType !== "CASE_FORM" && card.cardType !== "CONJUGATION") continue;
     const held = byLexeme.get(card.lexemeId!);
     if (!held) continue;
     const accepted = acceptedAnswers(card.back, "et");
@@ -221,5 +256,5 @@ async function optionsFor(
       return { text, slot: verdict.kind === "one" ? verdict.key : null };
     }));
   }
-  return out;
+  return { options: out, spellings };
 }
