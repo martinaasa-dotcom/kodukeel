@@ -177,10 +177,10 @@ async function writeOnce(input: LexemeWrite): Promise<LexemeWriteResult> {
   // away the forms retrieved from Ekilex — the one thing on an entry that cannot
   // be reconstructed — whenever anybody corrected a typo.
   // Under the entry's own row, so two corrections at once cannot leave it with
-  // both genitives. See lib/dict/replaceForms.ts. Only where the write supplied
-  // forms: a write that supplied none has no opinion about them (see above).
-  if (forms.length) {
-    await replaceForms(lexeme.id, forms, { formType: { in: [...PRINCIPAL_FORM_TYPES] } });
+  // both genitives. See lib/dict/replaceForms.ts. Only the parts the write
+  // named: one it named empty is cleared, one it did not name is left alone.
+  if (replaced.length) {
+    await replaceForms(lexeme.id, forms, { formType: { in: replaced } });
   }
 
   return {
