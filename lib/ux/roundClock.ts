@@ -77,6 +77,17 @@ export type RoundPace = (typeof ROUND_PACES)[number]["id"];
  */
 export const DEFAULT_ROUND_PACE: RoundPace = "standard";
 
+/**
+ * Each timed round's length as it was written, before the learner's pace.
+ *
+ * One place, because the Case Sprint's sixty seconds was typed three times: in
+ * the round, in the Settings panel that says what a pace does to it, and as a
+ * bare "60 seconds" under its tile on Practice, which went on saying sixty to a
+ * learner who had asked for five minutes.
+ */
+export const SPRINT_SECONDS = 60;
+export const QUEST_SECONDS = 120;
+
 /** A stored value, or the default. Never throws: a stored row can be anything. */
 export function roundPaceFrom(value: string | null | undefined): RoundPace {
   return ROUND_PACES.some((p) => p.id === value)

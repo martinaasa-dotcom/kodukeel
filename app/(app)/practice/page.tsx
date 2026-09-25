@@ -12,6 +12,7 @@ import { isBuildable } from "@/lib/estonian/cloze";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { GAMES, QUICK_MODES, modeAt, type PracticeMode } from "@/lib/ux/modes";
+import { roundLength, roundPaceFrom, secondsFor, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { icon } from "@/components/icons";
@@ -32,7 +33,7 @@ export default async function PracticePage() {
   const ownerId = await requireUserId();
   const [snapshot, settings, caseReviews, sentenceReady, words, decks] = await Promise.all([
     deckSnapshot(ownerId),
-    readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest]),
+    readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest, SETTING_KEYS.roundPace]),
     // The one reader, so Practice and Progress cannot disagree about which case
     // a learner is worst at. See lib/progress/cases.ts.
     caseReviewsFor(ownerId),
@@ -134,6 +135,14 @@ export default async function PracticePage() {
     "/review/dictation": dictationCount > 0 ? `${dictationCount} ready` : undefined,
   };
   const metaFor = (mode: PracticeMode) => live[mode.href] ?? mode.note;
+  /*
+    The one tile whose subtitle is a length, and the length is the learner's:
+    the sprint runs to whatever pace they set in Settings, so a fixed "60
+    seconds" here was wrong for everybody who had asked for longer.
+  */
+  const sprintLength = roundLength(secondsFor(SPRINT_SECONDS, roundPaceFrom(settings[SETTING_KEYS.roundPace])));
+  const withLength = (mode: PracticeMode): PracticeMode =>
+    mode.href === "/review/sprint" ? { ...mode, subtitle: sprintLength } : mode;
 
   return (
     <Page title="Practice" lead="Words you have already learned, asked every way there is.">
@@ -266,7 +275,7 @@ export default async function PracticePage() {
             <SectionTitle hint="a few minutes each">Rounds</SectionTitle>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {QUICK_MODES.map((m) => (
-                <ModeTile key={m.href} mode={m} meta={metaFor(m)} />
+                <ModeTile key={m.href} mode={withLength(m)} meta={metaFor(m)} />
               ))}
             </div>
           </section>
@@ -290,7 +299,7 @@ export default async function PracticePage() {
               <SectionTitle hint="for the fun of it">Games</SectionTitle>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {GAMES.map((m) => (
-                  <ModeTile key={m.href} mode={m} meta={metaFor(m)} />
+                  <ModeTile key={m.href} mode={withLength(m)} meta={metaFor(m)} />
                 ))}
               </div>
             </section>
