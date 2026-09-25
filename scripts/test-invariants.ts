@@ -11952,6 +11952,40 @@ check("a hue's fill is never used as its ink", () => {
   assert.deepEqual(offenders, [], "a hue's fill is being used to write words, where its ink belongs");
 });
 
+check("every link written into the source goes to a route that exists", () => {
+  /*
+    Three pages have been cut from this app in its life, `/tasks`, `/week` and
+    `/guide`, and each time the question was what still pointed at them. A link
+    to a route that is gone is a 404 behind a button that looked like it went
+    somewhere, and nothing in the build notices: an `href` is a string. So the
+    routes are read off the filesystem, the way Next reads them, and every
+    literal internal destination in `app/`, `components/` and `lib/` has to be
+    one of them. A dynamic segment matches any value, and a destination that
+    stops at a prefix of one (`/grammar` beside `/grammar/[caseKey]`) is a route
+    only if that prefix has a page of its own.
+  */
+  const routes = sourceFiles("app", /^(page|route)\.tsx?$/)
+    .map((f) => "/" + f.replace(/^app\//, "").replace(/\([^)]*\)\//g, "").replace(/\/?(page|route)\.tsx?$/, ""))
+    .map((r) => (r === "/" ? r : r.replace(/\/$/, "")));
+  const patterns = routes.map((r) => new RegExp(
+    "^" + r.replace(/\[\.\.\.[^\]]+\]/g, ".+").replace(/\[[^\]]+\]/g, "[^/]+") + "$",
+  ));
+  assert.ok(routes.length >= 40, `expected the app's routes, found ${routes.length}`);
+
+  const dead: string[] = [];
+  let seen = 0;
+  for (const file of ALL) {
+    for (const m of code(file).matchAll(/(?:href|push|replace|redirect)\s*[=(]\s*\{?\s*["`](\/[a-z][a-z0-9/_-]*)(\$\{)?/g)) {
+      // A template that runs on into `${...}` fills the next segment itself.
+      const path = m[2] && m[1]!.endsWith("/") ? `${m[1]}x` : m[1]!.replace(/\/$/, "");
+      seen++;
+      if (!patterns.some((p) => p.test(path))) dead.push(`${file}: ${path}`);
+    }
+  }
+  assert.ok(seen >= 100, `expected the app's internal links, found ${seen}`);
+  assert.deepEqual(dead, [], `a link goes to a route that does not exist:\n  ${dead.join("\n  ")}`);
+});
+
 check("every link into this app fetches the page on intent, not just its skeleton", () => {
   /*
     Every route here is `force-dynamic`, correctly: a deck, a streak and a due
