@@ -57,7 +57,7 @@ for. See `13-mvp-status.md` §2 for the decision; what matters here is what it m
 
 | Choice | Why |
 |---|---|
-| A chain, not a model | `resolveProviders()` returns every key in `.env`, free first: OpenRouter, then Anthropic, then OpenAI. A deployment with no paid key still has a tutor |
+| A chain, not a model | `resolveProviders()` returns every key in `.env`, cheapest first: Groq, then Gemini, with Anthropic and OpenAI behind the fallback budget. `PURPOSE_CHAINS` pins each purpose to the provider it was measured on, so Anu answers on Gemini with Groq behind her. A deployment with no paid key still has a tutor wherever a free key is set |
 | Walk past a bad minute, never past a bad key | `openWithFallback` moves on from a throttle or a hiccup and stops at a rejected key or a model that does not exist, because every provider would answer those the same way and trying them all turns one clear message into a slower one |
 | Never walk past a first token | Once text is reaching the learner a failure stays a failure: a second answer appended to half of a first one is two teachers talking over each other |
 | Streaming | A grammar explanation is long enough that non-streaming reads as a hang |

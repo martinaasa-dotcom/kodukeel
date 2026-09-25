@@ -2367,9 +2367,10 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
  * Joins a class by its code.
  *
  * Joining is the consent: from here the teacher and classmates can see this
- * learner's name, streak, weekly XP and how many words they know. The screen
- * says so before the button is pressed — nothing about a class is retroactive
- * or hidden, and leaving removes the membership and nothing else.
+ * learner's name, streak, how many reviews they did this week and how many
+ * words they know. The screen says so before the button is pressed. Nothing
+ * about a class is retroactive or hidden, and leaving removes the membership
+ * and nothing else.
  */
 export async function joinClassroom(code: string, displayName?: string) {
   const ownerId = await requireUserId();

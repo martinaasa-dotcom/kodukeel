@@ -4,8 +4,9 @@
 
 An Estonian learning app: dictionary, learning path, spaced-repetition review, practice games and a
 grammar tutor. `docs/` holds the plan it was built from; `docs/13-mvp-status.md` says what is built,
-what is deliberately not, and the known limitations. Read that first, and §6 of it especially. That
-is the current state.
+what is deliberately not, and the known limitations. Read that first, starting with its header: it is
+a log of passes in the order they landed, and the latest pass that speaks to a thing is the current
+state of it.
 
 ## Read before writing code
 

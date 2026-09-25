@@ -68,7 +68,6 @@ label rather than per model.
 
 | Provider | Where established | On the EEA list |
 | --- | --- | --- |
-| OpenRouter | United States | Outside |
 | Groq | United States | Outside |
 | Google Gemini | United States | Outside |
 | Anthropic | United States | Outside |
