@@ -3038,6 +3038,19 @@ check("the paper's pool is drawn from its own seed, not from what was read last"
   const measure = code("scripts/measure-exam-volume.ts");
   assert.match(measure, /drawPool\(/, "measure:exam-volume builds a pool the app does not draw");
   assert.match(measure, /eligibleFor\(level/, "measure:exam-volume stopped filtering the pool to the level");
+  /*
+    And a word added mid-sitting does not reach it. The shuffle walks the whole
+    eligible set, so one more row reorders the draw, and the paper that marks
+    the answers is a different paper. The seed carries the moment the paper was
+    built and the pool reads only what existed then; a fresh seed has to be
+    made by the function that writes that moment, or a page minting its own
+    seed quietly hands every paper back the old fault.
+  */
+  assert.match(pool, /seedIssuedAt\(seed\)/, "the exam pool no longer reads when its paper was built");
+  assert.match(pool, /createdAt:\s*\{\s*lte:\s*issuedAt/, "the exam pool draws words added after its paper was built");
+  const page = code("app/(app)/exam/[level]/page.tsx");
+  assert.match(page, /freshSeed\(\)/, "the exam page mints a seed that carries no moment");
+  assert.doesNotMatch(page, /Math\.random\(\)/, "the exam page mints a seed of its own rather than through lib/exam/seed.ts");
 });
 
 check("a mock exam writes to the same review log as every other mode", () => {
