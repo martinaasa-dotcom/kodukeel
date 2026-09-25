@@ -83,13 +83,13 @@ Journey 4 is the load-bearing one: it is the daily path.
 
 Non-negotiable, automated, and failing the build:
 
-```bash
-# No API key may appear in any client-shipped asset
-grep -rE "sk-ant-|EKILEX_API_KEY" .next/static/ && exit 1
-
-# No secret may be exposed via a NEXT_PUBLIC_ variable
-grep -rE "NEXT_PUBLIC_.*(KEY|SECRET|TOKEN)" .env* && exit 1
-```
+The `secrets` job in `.github/workflows/ci.yml` builds the app with a marked value in every
+server-only variable, `canary-GROQ_API_KEY-must-not-ship` and so on, and greps `.next/static` for
+the marker, so a leak fails the build and names which variable leaked. It then greps the bundle for
+the shapes a real key takes, in case one is pasted into source, and `scripts/check-secrets.mjs`
+scans every built file, server chunks included, for credential shapes and a Supabase service-role
+token. The invariant suite holds the canary list to every provider key the chain can read and to
+every variable named like a key, token, secret or password.
 
 This is the automated form of the rule in `03-architecture.md` §2. A documented rule that nothing
 enforces is a rule that gets broken during a late-night refactor.
