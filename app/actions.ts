@@ -4146,8 +4146,6 @@ export async function submitExam(input: unknown) {
   const busy = throttleAction(ownerId, "submitExam");
   if (busy) return busy;
 
-<<<<<<< HEAD
-=======
   /*
     Counted before the schema walks them: a record with no ceiling is a free
     parse of however many keys fit under the body limit, which is hundreds of
@@ -4157,7 +4155,6 @@ export async function submitExam(input: unknown) {
   if (raw && typeof raw === "object" && Object.keys(raw).length > MAX_EXAM_RESPONSES) {
     return { ok: false as const, error: "Something about that submission didn't make sense." };
   }
->>>>>>> origin/main
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };
   const { level, seed, startedAt, responses } = parsed.data;
