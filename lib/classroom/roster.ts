@@ -1,3 +1,4 @@
+import { caseAsked } from "@/lib/srs/slots";
 import { prisma } from "@/lib/db";
 import { computeStreak } from "@/lib/stats/streak";
 import { caseAccuracy } from "@/lib/stats/history";
@@ -93,7 +94,7 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
   const [reviews, known, zones] = await Promise.all([
     prisma.review.findMany({
       where: { reviewedAt: { gte: historyStart }, ownerId: { in: ids } },
-      select: { reviewedAt: true, rating: true, targetCase: true, ownerId: true },
+      select: { reviewedAt: true, rating: true, targetCase: true, slot: true, ownerId: true },
     }),
     /*
       WORDS, NOT CARDS, WHICH IS WHAT THE COLUMN SAYS.
@@ -151,7 +152,8 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
     const entry = byOwner.get(review.ownerId);
     if (!entry) continue;
     entry.dates.push(review.reviewedAt);
-    entry.caseReviews.push({ targetCase: review.targetCase, rating: review.rating });
+    // The case asked, as every learner's own panel reads it (`caseAsked`).
+    entry.caseReviews.push({ targetCase: caseAsked(review), rating: review.rating });
     if (review.reviewedAt >= weekAgo) entry.weekCount++;
   }
 
@@ -187,7 +189,7 @@ export async function classRoster(classroomId: string, now = new Date()): Promis
     // The class-wide picture, for a lesson plan. entries[].weakestCase is the
     // per-student one, for who to sit next to during it.
     weakestCases: caseAccuracy(
-      reviews.map((r) => ({ targetCase: r.targetCase, rating: r.rating })),
+      reviews.map((r) => ({ targetCase: caseAsked(r), rating: r.rating })),
       10,
     ).slice(0, 5),
     totalReviewsThisWeek: entries.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
