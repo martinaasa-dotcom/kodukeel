@@ -282,7 +282,14 @@ export function markItem(
         itemId: item.id, scored: correct ? 1 : 0, available: 1, correct,
         expected: item.answer, given: typed.trim(), note: result.note,
         cardId: item.cardId, lexemeId: item.lexemeId, lemma: item.lemma,
-        recalled: result.accuracy >= 60,
+        // An answer this paper marks right is a recall, whatever the word
+        // count says. `accuracy` counts the words matched exactly, and a slip
+        // the spec forgives is not one of those: a single `spacing` entry
+        // swallows up to three expected words, so `Malähen kooli täna` scores
+        // 1 of 1 and reads 50% here. Left to the floor alone, `gradesFrom`
+        // wrote Again into the append-only log for a word the paper had just
+        // credited, which is the scheduler drilling a right answer.
+        recalled: correct || result.accuracy >= 60,
         language: "et",
       });
     }

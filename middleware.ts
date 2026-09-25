@@ -152,11 +152,20 @@ export async function middleware(request: NextRequest) {
       public: it carries an HMAC over the learner and the kind, verified in
       `lib/email/unsubscribe.ts`, so it authorises exactly one thing for
       exactly one person.
-
-      The route that *sends* is deliberately not here. It is gated on a secret
-      of its own and answers 404 to everybody else.
     */
     path.startsWith("/api/email/unsubscribe") ||
+    /*
+      AND THE ROUTE THAT SENDS, BECAUSE ITS CALLER IS A SCHEDULER.
+
+      It was left off this list on the argument that it gates itself, which is
+      the reason it belongs here: the platform's cron carries a bearer token and
+      no session, so the gate below answered every scheduled run 401 before the
+      route read its secret, and not one letter went out on a hosted
+      deployment. Past this line it checks `CRON_SECRET` in constant time and
+      answers 404 to anybody else, and with no secret set it refuses, which is
+      the shape `/api/metrics` and `/api/research` take below.
+    */
+    path.startsWith("/api/email/send") ||
     /*
       AND WHAT THE SENDING PROVIDER TELLS US AFTERWARDS, WHICH ARRIVES FROM
       THEIR SERVERS AND NOT FROM A BROWSER.
