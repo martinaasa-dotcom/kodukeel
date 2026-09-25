@@ -15,6 +15,13 @@ describe("adminEmails", () => {
     expect(adminEmails({ ADMIN_EMAILS: " Ann@Example.com , bob@example.com " }))
       .toEqual(["ann@example.com", "bob@example.com"]);
   });
+
+  it("reads a space- or newline-separated list the way ALLOWED_EMAILS does", () => {
+    // One list parsed two ways would make "a@x.ee b@y.ee" one address nobody
+    // has, so nobody would be a reviewer and the queue would say so.
+    expect(adminEmails({ ADMIN_EMAILS: "a@x.ee b@y.ee\nc@z.ee" }))
+      .toEqual(["a@x.ee", "b@y.ee", "c@z.ee"]);
+  });
 });
 
 describe("isAdminEmail", () => {

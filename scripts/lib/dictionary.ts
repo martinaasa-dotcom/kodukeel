@@ -148,11 +148,15 @@ export function shippedDictionary(): ShippedEntry[] {
     });
   }
 
-  for (const [lemma, gloss, cefr, infMa, infDa, pres1sg, past1sg, partTud] of [
+  for (const [lemma, gloss, cefr, infMa, infDa, pres1sg, past1sg, partTud, government] of [
     ...VERBS, ...ADVANCED_VERBS,
   ]) {
     rows.push({
       lemma, pos: "VERB", cefr, gloss, usages: [], ...bare,
+      // The seed writes a hand-typed verb's government, so this carries it:
+      // dropped here, `koosnema` had a government card on every deployment
+      // and none in the audits that build their cards off this.
+      government: government ?? null,
       parts: clean({ INF_MA: infMa, INF_DA: infDa, PRES_1SG: pres1sg, PAST_1SG: past1sg, PART_TUD: partTud }),
     });
   }
@@ -319,7 +323,15 @@ export function dictionaryRows(): DictionaryRow[] {
         measuring. 3,363 of the 3,392 gap items the placement check builds
         carry a line, and before this every one of them read as none.
       */
-      examples: e.usages.map((et) => ({ et, en: englishFor(et) })),
+      /*
+        And none on a hand-typed entry, because the seed writes none there:
+        `examples` defaults to the empty list. A hand-typed phrase carries
+        itself as a usage in `shippedDictionary`, which is right for a script
+        vouching words against what a learner may be shown, and wrong for a
+        row the card builders read, where it lent `Kas sa räägid inglise
+        keelt?` to `keel` and `rääkima` as a sentence no deployment holds.
+      */
+      examples: e.source === "SEED" ? [] : e.usages.map((et) => ({ et, en: englishFor(et) })),
       government: e.government,
       gradation: g.type,
       gradationNote: g.note ?? null,

@@ -23,6 +23,7 @@
  * thousand words, and the harvest holds the simple past's third person and the
  * polite imperative, which only exist for the course.
  */
+import { PARTS } from "../lib/copy/values";
 import { HARVESTED } from "../prisma/data/harvested";
 import { readExpanded } from "./lib/expandedFile";
 import { exceptionsFor, type ExceptionKind, type WordException } from "../lib/estonian/exceptions";
@@ -79,7 +80,7 @@ function main() {
     if (!wantList || (wantKind && wantKind !== kind)) continue;
     for (const { lemma, ex } of list.slice(0, 400)) {
       const rule = ex.ruleForm ? `  pattern: ${ex.ruleForm}${ex.ruleFormIsAlsoRight ? " (also right)" : ""}` : "";
-      console.log(`    ${lemma.padEnd(20)} ${ex.forms.join(" / ").padEnd(20)}${ex.note ? ` [${ex.note}]` : ""}${rule}`);
+      console.log(`    ${lemma.padEnd(20)} ${ex.forms.join(PARTS).padEnd(20)}${ex.note ? ` [${ex.note}]` : ""}${rule}`);
     }
     if (list.length > 400) console.log(`    ... and ${list.length - 400} more`);
   }
