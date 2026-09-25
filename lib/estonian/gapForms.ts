@@ -111,11 +111,28 @@ export function gapForms(word: GapWord): Map<string, CaseKey | null> {
       .map((k) => parts[k]?.trim().toLowerCase())
       .filter((v): v is string => !!v),
   );
+  /*
+    AND THE ROWS ARE READ WHOLE BEFORE ANY OF THEM IS LABELED. First writer
+    wins below, so a label decided row by row was a label decided by the order
+    the database returned the rows in: an enriched `arst` stores `arsti` again
+    as `EKILEX:SgAdt`, which names the short illative on its own, and the
+    spelling was an illative when that row came first and nothing when the
+    genitive did. Every reading a stored row gives a spelling is gathered
+    first, the same code twice being one reading, and a case is named only
+    where there is exactly one and a principal part is not among them.
+  */
+  const readings = new Map<string, Set<string>>();
   for (const form of word.forms) {
-    const named = form.formType === "ILL_SG_SHORT"
-      ? (principalValues.has(form.value.trim().toLowerCase()) ? null : "ILLATIVE" as const)
-      : singularCaseOf(ekilexCodeOf(form));
-    add(form.value, named);
+    const clean = form.value.trim().toLowerCase();
+    if (!clean) continue;
+    const reading = form.formType === "ILL_SG_SHORT" ? "SgAdt" : ekilexCodeOf(form) ?? form.formType;
+    readings.set(clean, (readings.get(clean) ?? new Set()).add(reading));
+  }
+  for (const form of word.forms) {
+    const clean = form.value.trim().toLowerCase();
+    const read = readings.get(clean);
+    const only = read && read.size === 1 ? [...read][0]! : null;
+    add(form.value, only && !principalValues.has(clean) ? singularCaseOf(only) : null);
   }
   add(word.lemma, null);
 
