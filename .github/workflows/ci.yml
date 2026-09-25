@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       # Prisma's client is generated, so `tsc` has nothing to check against
       # until it exists. It needs no database to be generated.
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       - run: npx prisma generate
       - run: npm run lint
@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       - run: npx prisma generate
       # The database-backed tests skip themselves without a connection, which
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       # No database and no key: it reads prisma/data/expanded.json, which is
       # what `npm run db:seed` loads, and builds every card, paper and clue the
@@ -121,7 +121,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       # This is the whole reason the suite will stay green. Upside Lab kept
       # one like it that nothing ran, and it drifted to twenty-three failures
@@ -138,7 +138,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       - run: npx prisma generate
       # Built with a key-shaped value in every server-only variable. If any of
@@ -228,7 +228,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       # THE ONE JOB THAT WRITES NEXT'S BUILD CACHE, and the others restore it.
       #
@@ -395,7 +395,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       # Next keeps its own build cache here, and five shards each building the
@@ -504,7 +504,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       # The schema and the dictionary, but not a build: the suite makes its
@@ -540,7 +540,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       - name: Next's build cache, from the last run
         uses: actions/cache/restore@v6
@@ -575,7 +575,7 @@ jobs:
       - uses: actions/checkout@v7
         with: { persist-credentials: false }
       - uses: actions/setup-node@v7
-        with: { node-version: "20", cache: npm }
+        with: { node-version: "22", cache: npm }
       - run: npm ci
       # Read every advisory in the whole tree, out loud, whether or not it
       # blocks. This step never fails: it is the record.

@@ -19,6 +19,7 @@ import { GAP_MARKS, GAP_WITHOUT_MEANING, NEVER_SAYS_WHAT_IT_MEANS } from "../lib
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { createRequire } from "node:module";
 import { ACTIVITIES } from "@/lib/course/types";
 
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
@@ -21674,6 +21675,40 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
+});
+
+check("every workflow runs on a Node the shipped dependencies accept", () => {
+  /*
+    CI ran on Node 20 while the Supabase client and four of its packages
+    declare `>=22.0.0`, so every job was testing a runtime the dependencies
+    say they do not support, and a deployment on 22 or 24 was not the thing
+    CI had measured. The versions are read off the workflows and the engine
+    ranges off the lockfile, so a dependency raising its floor fails here
+    rather than on a production build. Dev-only packages are left out, since
+    they never reach a deployment, and so are optional ones, which are the
+    per-platform binaries only one of which is ever installed.
+  */
+  const semver = createRequire(import.meta.url)("semver") as {
+    satisfies: (v: string, range: string) => boolean;
+  };
+  const lock = JSON.parse(read("package-lock.json")) as {
+    packages: Record<string, { dev?: boolean; optional?: boolean; engines?: { node?: string } }>;
+  };
+  const ranges = Object.entries(lock.packages)
+    .filter(([name, p]) => name && !p.dev && !p.optional && typeof p.engines?.node === "string")
+    .map(([name, p]) => [name, p.engines!.node!] as const);
+  assert.ok(ranges.length >= 5, `read only ${ranges.length} engine ranges out of the lockfile`);
+  const workflows = readdirSync(".github/workflows").filter((f) => f.endsWith(".yml"));
+  let seen = 0;
+  for (const wf of workflows) {
+    for (const m of read(`.github/workflows/${wf}`).matchAll(/node-version:\s*"?([\d.]+)"?/g)) {
+      seen++;
+      const version = /^\d+$/.test(m[1]!) ? `${m[1]}.99.0` : m[1]!;
+      const refused = ranges.filter(([, r]) => !semver.satisfies(version, r)).map(([n, r]) => `${n} ${r}`);
+      assert.deepEqual(refused, [], `${wf} runs Node ${m[1]}, which ${refused.join(", ")} refuse`);
+    }
+  }
+  assert.ok(seen >= 10, `found only ${seen} node-version lines across the workflows`);
 });
 
 console.log(
