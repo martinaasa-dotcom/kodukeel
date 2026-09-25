@@ -7285,6 +7285,36 @@ function ownerScopedModels(): string[] {
 
 const accessorFor = (model: string) => model.charAt(0).toLowerCase() + model.slice(1);
 
+check("no server action takes an owner id from its caller", () => {
+  /*
+    CLAUDE.md: nothing in a \`"use server"\` file may take an owner id from its
+    caller. Every export there is a public endpoint whose arguments are JSON
+    anybody can send, so an action shaped \`(ownerId, ...)\` acts on whichever
+    learner the caller names. The throttle check below asserts this for the
+    actions it knows about; this is the rule for every export, whatever it
+    does, read off every file that carries the directive. A helper that needs
+    an owner lives in \`lib/\`, and the action resolves it with
+    \`requireUserId()\` and hands it over, which is \`addCardsFor\`'s shape.
+  */
+  const files = ALL.filter((f) => /^\s*["']use server["']/m.test(read(f)));
+  assert.ok(files.length >= 1, "no \"use server\" file found, so this check stopped looking");
+  const OWNERISH = /^(?:ownerId|userId|owner|user|learnerId|memberId|accountId)$/;
+  const offenders: string[] = [];
+  let exported = 0;
+  for (const file of files) {
+    const src = code(file);
+    for (const m of src.matchAll(/^export\s+async\s+function\s+(\w+)\s*\(([^)]*)\)/gm)) {
+      exported++;
+      for (const param of m[2]!.split(",")) {
+        const name = /^\s*(\w+)/.exec(param)?.[1];
+        if (name && OWNERISH.test(name)) offenders.push(`${file}: ${m[1]}(${name})`);
+      }
+    }
+  }
+  assert.ok(exported >= 80, `only ${exported} exported actions found; the pattern stopped reaching them`);
+  assert.deepEqual(offenders, [], `server actions taking an owner id from the caller: ${offenders.join("; ")}`);
+});
+
 check("the weakest case is read off the case that was asked, on every screen that reads one", () => {
   /*
     `Review.targetCase` is the case the card is about and `Review.slot` is what
