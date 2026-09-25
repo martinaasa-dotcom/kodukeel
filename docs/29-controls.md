@@ -220,8 +220,8 @@ this before SOC 2, because the buyers who ask us for one ask for this one.
 *SOC 2 Type II* is what a North American enterprise buyer asks for. Trigger: a customer in that
 market whose contract value covers the observation window and the examination.
 
-`docs/33-certification-readiness.md` is the backlog under all four of those: every row above that
-says Partial or Not done, with what would close it, how long it takes, what it costs, and the
+`docs/33-certification-readiness.md` is the backlog under all four of those: the rows above that
+say Partial or Not done, with what would close it, how long it takes, what it costs, and the
 artifact an auditor would be shown. Twelve of its items need a decision and no budget at all.
 
 We would rather tell you the number and the trigger than imply a roadmap. If a certificate is a

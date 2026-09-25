@@ -2,8 +2,14 @@
 
 `docs/29-controls.md` says what this project does about each control and marks the honest answer:
 Implemented, Partial, Inherited, Not applicable, Not done. This document is the other half. It takes
-every row that says Partial or Not done and turns it into a piece of work with a size, a cost, an
+the rows that say Partial or Not done and turns each into a piece of work with a size, a cost, an
 artifact, and a place in a queue.
+
+**Seven of those rows are not sized here yet**, and they are named rather than left for a reader to
+count: 5.2 Roles and responsibilities, 5.7 Threat intelligence, 5.12 Classification of information,
+5.23 Cloud services security, 6.2 Terms of employment, 8.15 Logging and 8.24 Use of cryptography.
+Each is Partial in `docs/29-controls.md` and each needs a decision about what closing it means
+before a size means anything.
 
 **Nothing here is a claim that anything has been done.** A plan is not a control, and a dated plan is
 not a control either. Read this as the backlog, and read `docs/29-controls.md` for the state.
@@ -63,7 +69,7 @@ of what an ISO Stage 1 readiness review asks to see.
 | **5.29, 5.30, 8.13, SOC 2 Availability.** Provider backups are inherited and have never been restored by us. Recovery objectives are written as untested. | Restore a production-shaped database from a Supabase backup into a scratch project, time it, and write down what broke. | 1 day | Section 9 of `docs/28-incident-response.md` rewritten with a dated run and a measured recovery time | ISO Stage 2, SOC 2 |
 | **CC3, 5.9.** Threat model with ranked assets, but no risk register anybody reviews on a schedule. | A register with one row per risk: description, owner, likelihood, impact, treatment, review date. Seeded from section 4 of `docs/27-security.md`, which already holds the analysis. | 1 day, then 2 hours a quarter | `docs/34-risk-register.md` | ISO Stage 1, SOC 2 |
 | **5.9.** Asset inventory lives in a design document rather than a register. | Extract section 3 of `docs/27-security.md` into a register with owners and review dates. | Half a day | A file of its own, reviewed with the risk register | ISO Stage 1 |
-| **5.18, CC6.** Access rights are provisioned correctly and never reviewed. | A quarterly review of the GitHub organisation, the Vercel team, the Supabase project and `ADMIN_EMAILS`, recorded with a date and an initial. | 1 hour a quarter | A dated record per review | ISO Stage 2, SOC 2 |
+| **5.18.** Access rights are provisioned correctly and never reviewed. | A quarterly review of the GitHub organisation, the Vercel team, the Supabase project and `ADMIN_EMAILS`, recorded with a date and an initial. | 1 hour a quarter | A dated record per review | ISO Stage 2, SOC 2 |
 | **6.5.** No offboarding procedure. | A joiner and leaver checklist naming the four places access exists, with a record per event. | Half a day | A checklist in `docs/`, plus the records | ISO Stage 2, SOC 2 |
 | **5.19 to 5.22, CC9.** Suppliers are on standard terms with no assessment process. | A supplier register built on `docs/26-subprocessors.md`: what each holds, which terms apply, where the data sits, and a yearly review date. | Half a day, then 2 hours a year | `docs/26-subprocessors.md` grown a review column, or a register beside it | ISO Stage 1, SOC 2 |
 | **5.1, CC1.** Policies exist as design documents. There is no ISMS with a scope and a Statement of Applicability. | Write the scope, the policy index, the SoA skeleton against all 93 Annex A controls, and one measurable objective. | 2 to 3 days | An ISMS document set in `docs/` | ISO Stage 1 |
@@ -71,7 +77,7 @@ of what an ISO Stage 1 readiness review asks to see.
 | **6.7, 7.7, 7.9.** Devices are personal machines with full disk encryption and nothing enforcing it. | A device policy, and a per-device attestation that encryption is on, screen lock is set and the OS is current. | 2 hours, then an hour a year | The policy, plus one attestation per machine | ISO Stage 2 |
 | **8.32, CC8.** The default branch is not protected, so CI runs on every change and is not required to pass before a merge. | Turn on branch protection with the CI jobs as required checks, export the rules, and record who may merge. | 2 hours | A settings export committed beside the workflows | SOC 2 |
 | **8.16, CC4, CC7.** Nothing watches the running deployment. | Point `ERROR_WEBHOOK_URL` at a mailbox or channel a person reads, and add a weekly digest of failed jobs and refused requests. This is alerting and it is not a SIEM. | 1 day | The configuration, plus the digest itself | SOC 2 |
-| **5.8, CC4, CC5.** Controls are asserted and the assertion is not recorded. | The control evidence record in section 2. | 1 to 2 days | A dated artifact per CI run | SOC 2 |
+| **CC4.** Controls are asserted and the assertion is not recorded. | The control evidence record in section 2. | 1 to 2 days | A dated artifact per CI run | SOC 2 |
 
 Totals: about ten working days spread across a quarter, and nothing to pay for.
 
@@ -84,13 +90,12 @@ table waits behind nothing.
 | Gap | What closes it | Cost | Artifact | Blocks |
 | --- | --- | --- | --- | --- |
 | **8.29, 5.35, and section 6 of `docs/27-security.md`.** No penetration test and no independent review of any kind. | A scoped web application test against the hosted deployment, with a retest after the fixes land. | 4,000 to 12,000 euro | The report, and a fix log against it | ISO Stage 2, SOC 2, and most procurement questionnaires |
-| **8.8.** Two blocking `npm audit` gates and no external scanning. | Continuous dependency and attack surface scanning on the deployed application. | A few hundred euro a year | Scan history | Nothing formally. It is cheap and it raises the floor. |
+| **8.8.** Two blocking `npm audit` gates and no external scanning. | Continuous dependency and attack surface scanning on the deployed application. | Not priced yet | Scan history | Nothing formally. It raises the floor. |
 | **No Postgres row level security.** Ownership is enforced in application code and asserted in CI. | RLS as a second layer under the application check, not instead of it. | 3 to 5 days of engineering, no vendor cost | The migration, plus an integration test that a mis-scoped query returns nothing | Nothing. It closes a named residual risk. |
 | **No MFA on learner accounts.** Google sign-in inherits whatever the account has. A mailed link does not. | Decide, and write the decision down. The honest option is an operator setting that requires the OAuth path for a deployment holding a school's data. | 1 to 2 days | The setting, and a line on `/privacy` and in `docs/27-security.md` | Nothing. It is asked about constantly. |
 
 **The penetration test is the item that changes the most honest answers per euro.** It moves 8.29 and
-5.35, it is the one thing section 6 of `docs/27-security.md` names first, and no school procurement
-process gets past its absence.
+5.35, and it is the one thing section 6 of `docs/27-security.md` names first.
 
 ## 5. Phase 2: ISO/IEC 27001:2022
 
@@ -104,7 +109,7 @@ exists as something other than a design document. Items 2, 3, 6 and 7 of Phase 0
 **What Stage 2 wants beyond Phase 0**, and none of it is in this repository today:
 
 - **An internal audit by somebody who did not write the thing being audited.** At this headcount that
-  means an external internal auditor, which is a real line item and typically a few thousand euro.
+  means an external internal auditor, which is a real line item and is not priced here yet.
 - **A management review with minutes**, held at a stated interval, with inputs and decisions recorded.
 - **A corrective action log**: nonconformity, root cause, action, verification, date closed.
 - **Evidence that the controls operated over a period**, which is the access reviews, the supplier
