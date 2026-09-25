@@ -174,39 +174,58 @@ export async function searchLexemes(query: string, limit = 40): Promise<SearchHi
     one. Measured on the full dictionary: 35ms as an OR, 14ms with the form
     indexes and the OR, and under a millisecond once the branches were split.
   */
+  /*
+    AN EXACT MATCH IS NEVER CUT, AND ONLY THE BROAD HALF IS CAPPED.
+
+    The cap used to sit over the whole union, so a short query whose substring
+    branches reached more than 600 rows lost whatever sorted past the cut by
+    id, and that included the rows the equality branches had found: `ma` has
+    1,350 entries containing it and `mina`, whose stored form is `ma`, was not
+    among the first 600, so the pronoun somebody typed was not in the results
+    at all. `te` lost `teie` the same way. The ranker can only rank what it was
+    handed. So the branches that compare whole values, which are small by
+    construction, go through whole, and the cap is applied to the two
+    substring branches alone.
+  */
   const rows = await prisma.$queryRaw<{ id: string }[]>`
+    SELECT l.id FROM "Lexeme" l
+      WHERE translate(lower(l.lemma), ${FOLD_FROM}, ${FOLD_TO}) = ${folded}
+    UNION
+    SELECT l.id FROM "Lexeme" l
+      WHERE lower(l.translation) = ${raw}
+         OR lower(l.translation) LIKE ${`${rawLike},%`} ESCAPE '\\'
+    UNION
+    SELECT f."lexemeId" FROM "Form" f
+      WHERE translate(lower(f.value), ${FOLD_FROM}, ${FOLD_TO}) = ${folded}
+    UNION
+    SELECT f."lexemeId" FROM "Form" f
+      WHERE f."formType" IN ('GEN_SG', 'GEN_PL')
+        AND translate(lower(f.value), ${FOLD_FROM}, ${FOLD_TO})
+            IN (${Prisma.join(stems.length ? stems : [""])})
+    UNION
+    SELECT f."lexemeId" FROM "Form" f
+      WHERE f."formType" = 'PRES_1SG'
+        AND translate(lower(f.value), ${FOLD_FROM}, ${FOLD_TO})
+            IN (${Prisma.join(firstPersons.length ? firstPersons : [""])})
+    UNION
     SELECT id FROM (
-      SELECT l.id FROM "Lexeme" l
-        WHERE translate(lower(l.lemma), ${FOLD_FROM}, ${FOLD_TO})
-              LIKE ${`%${foldedLike}%`} ESCAPE '\\'
-      UNION
-      SELECT l.id FROM "Lexeme" l
-        WHERE lower(l.translation) LIKE ${`%${rawLike}%`} ESCAPE '\\'
-      UNION
-      SELECT f."lexemeId" FROM "Form" f
-        WHERE translate(lower(f.value), ${FOLD_FROM}, ${FOLD_TO}) = ${folded}
-      UNION
-      SELECT f."lexemeId" FROM "Form" f
-        WHERE f."formType" IN ('GEN_SG', 'GEN_PL')
-          AND translate(lower(f.value), ${FOLD_FROM}, ${FOLD_TO})
-              IN (${Prisma.join(stems.length ? stems : [""])})
-      UNION
-      SELECT f."lexemeId" FROM "Form" f
-        WHERE f."formType" = 'PRES_1SG'
-          AND translate(lower(f.value), ${FOLD_FROM}, ${FOLD_TO})
-              IN (${Prisma.join(firstPersons.length ? firstPersons : [""])})
-    ) AS candidates
-    -- Ordered because it is truncated. Which 600 of a broad match you got was
-    -- otherwise decided by the plan, so one query could answer differently
-    -- after a reindex, and the ranker can only rank what it was handed.
-    -- Arbitrary-but-stable beats arbitrary: a search is a function of the
-    -- dictionary now, which is what makes a wrong result reproducible.
-    -- Measured on the full dictionary, both ways, since the split-branch union
-    -- above was won on exactly this ground: an ordinary word is 3ms either way,
-    -- and a single letter, which is the only query that reaches 600, is 49ms
-    -- against 50ms. The sort is off the end of a set the LIMIT already caps.
-    ORDER BY id
-    LIMIT 600
+      SELECT id FROM (
+        SELECT l.id FROM "Lexeme" l
+          WHERE translate(lower(l.lemma), ${FOLD_FROM}, ${FOLD_TO})
+                LIKE ${`%${foldedLike}%`} ESCAPE '\\'
+        UNION
+        SELECT l.id FROM "Lexeme" l
+          WHERE lower(l.translation) LIKE ${`%${rawLike}%`} ESCAPE '\\'
+      ) AS broad
+      -- Ordered because it is truncated. Which 600 of a broad match you got was
+      -- otherwise decided by the plan, so one query could answer differently
+      -- after a reindex. Arbitrary-but-stable beats arbitrary: a search is a
+      -- function of the dictionary now, which is what makes a wrong result
+      -- reproducible. A single letter, the only query that reaches 600, is
+      -- about 50ms either way.
+      ORDER BY id
+      LIMIT 600
+    ) AS capped
   `;
 
   if (rows.length === 0) return [];
@@ -445,6 +464,14 @@ const FOLD_COLLISION_LOSES = new Set(["õli"]);
 
 function rank(
   c: Candidate, raw: string, folded: string,
+  /**
+   * Whether an English gloss may answer. A search box says yes; the gate that
+   * vouches for Estonian says no, and has to be able to *skip* the tier rather
+   * than drop the candidate after it answered: returning here first meant an
+   * Estonian form spelled like the entry's own gloss (`sauna`, a form of
+   * `saun`, "sauna") never reached the tiers that would have vouched for it.
+   */
+  english = true,
 ): { score: number; matchedAs?: string; form?: MatchedForm } {
   const l = fold(c.lemma);
   const t = c.translation.toLowerCase();
@@ -454,7 +481,7 @@ function rank(
   if (c.lemma.toLowerCase() === r) return { score: 100 };
   // An exact English match beats a merely diacritic-folded Estonian one: typing
   // "room" almost always means the English word, not rõõm (joy).
-  if (t === r) return { score: 95 };
+  if (english && t === r) return { score: 95 };
 
   if (!FOLD_COLLISION_LOSES.has(c.lemma.toLowerCase())) {
     if (l === folded) return { score: 90 };
@@ -660,14 +687,13 @@ export function matchEstonianForm(candidates: Candidate[], word: string): FormMa
   const raw = word.trim();
   if (!raw) return null;
   const folded = fold(raw);
-  const lower = raw.toLowerCase();
 
   let best: { hit: Candidate; score: number; matchedAs?: string; form?: MatchedForm } | null = null;
   for (const candidate of candidates) {
     if (!vouchable(candidate)) continue;
-    const scored = rank(candidate, raw, folded);
-    // The English tier: right for a search box, wrong here.
-    if (scored.score === 95 && candidate.translation.toLowerCase() === lower) continue;
+    // The English tier is right for a search box and wrong here, so it is
+    // never asked: see `rank`.
+    const scored = rank(candidate, raw, folded, false);
     if (scored.score < VOUCHED_SCORE) continue;
     /*
       `>` alone kept whichever of two equal candidates the array happened to

@@ -4,8 +4,9 @@ import {
   BLANK_RESPONSE, allMarks, gradesFrom, markItem, markPaper, type Response,
 } from "./score";
 import { PASS_PCT } from "./spec";
+import { REPLAY_BATCH } from "@/lib/offline/outbox";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
-import { orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
+import { orderVariantNote, ORDER_WRONG, PARTS } from "@/lib/copy/values";
 
 /* No dictionary behind the paper, so every sentence keeps the one order the
    writer chose. What a reading of the dictionary adds is asserted in
@@ -294,6 +295,15 @@ describe("what the sitting tells the scheduler", () => {
     expect(grades.every((g) => g.rating === 3)).toBe(true);
   });
 
+  it("can earn more grades than one replay batch holds, so the submission may not cut it to one", () => {
+    // A C1 paper sets up to sixty items on a word, each word once. The action
+    // used to slice this to `REPLAY_BATCH`, dropping the reading part's grades.
+    const c1 = buildPaper("C1", pool(200), "grade-seed", WORD_ORDER);
+    const grades = gradesFrom(markPaper(c1, perfect(c1)));
+    expect(grades.length).toBeGreaterThan(REPLAY_BATCH);
+    expect(new Set(grades.map((g) => g.cardId)).size).toBe(grades.length);
+  });
+
   it("writes nothing for a question left blank", () => {
     const result = markPaper(paper, new Map());
     expect(gradesFrom(result)).toEqual([]);
@@ -327,6 +337,26 @@ describe("which language an answer is in", () => {
   it("leaves the Estonian answers Estonian", () => {
     const form = items.find((i) => i.kind === "case-form")!;
     expect(markItem(form, { kind: "typed", value: "vale" }, 1).language).toBe("et");
+  });
+});
+
+describe("what the browser sends may not move the marks", () => {
+  const paper = buildPaper("B1", pool(60), "trust-seed", WORD_ORDER);
+  const items = paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items);
+
+  it("treats \"unheard\" on anything but a recording as a blank", () => {
+    const form = items.find((i) => i.kind === "case-form")!;
+    const mark = markItem(form, { kind: "unheard" }, 1);
+    expect(mark.available).toBe(1);
+    expect(mark.scored).toBe(0);
+  });
+
+  it("counts the speaking criteria itself rather than taking the array's length", () => {
+    const speak = items.find((i) => i.kind === "speak")!;
+    const oneTick = markItem(speak, { kind: "spoken", recorded: true, criteria: [true] }, 5);
+    expect(oneTick.scored).toBeLessThan(5);
+    const allTicks = markItem(speak, { kind: "spoken", recorded: true, criteria: [true, true, true, true, true] }, 5);
+    expect(allTicks.scored).toBe(5);
   });
 });
 
@@ -407,5 +437,64 @@ describe("a word order the writer did not choose", () => {
   it("refuses an answer that is short of a word", () => {
     expect(mark(["Muidugi", "tuleb", "ette"]).correct).toBe(false);
     expect(mark([]).correct).toBe(false);
+  });
+});
+
+describe("what a paper is marked on", () => {
+  /** Four 25-point parts, each answered right on `correct` of `n` items. */
+  function sat(correct: number, n: number) {
+    const responses = new Map<string, Response>();
+    const parts = ["reading", "listening", "writing", "speaking"].map((skill) => {
+      const items = Array.from({ length: n }, (_, i) => {
+        const id = `${skill}-${i}`;
+        responses.set(id, { kind: "chosen", value: i < correct ? "x" : "y" });
+        return { kind: "gap-choice", id, answer: "x", cardId: null, lexemeId: "l", lemma: "l" };
+      });
+      return {
+        spec: { skill, label: skill, points: 25 },
+        tasks: [{ spec: { id: skill, title: skill, raw: n, items: n }, items, fallbackFrom: null, shortfall: 0, shortfallReason: null, rawAvailable: n }],
+      };
+    });
+    // A hand-built paper, so the rounding is the only thing under test.
+    return markPaper({ level: "B1", parts, thin: false, substituted: false } as unknown as Parameters<typeof markPaper>[0], responses);
+  }
+
+  it("does not round a paper over the pass mark, part by part", () => {
+    // 374 of 625 is 59.84 percent in every part. Each part rounded to 15.0 and
+    // the four summed to exactly 60, which passed.
+    const result = sat(374, 625);
+    expect(result.pct).toBe(59);
+    expect(result.passed).toBe(false);
+  });
+
+  it("still passes a paper at exactly the pass mark", () => {
+    const result = sat(3, 5);
+    expect(result.pct).toBe(PASS_PCT);
+    expect(result.passed).toBe(true);
+  });
+
+  it("does not call a part that earned a sliver a part left at nought", () => {
+    // 1 of 2000 on 25 points is 0.0125, printed as 0.0. It is not a blank part.
+    const result = sat(1, 2000);
+    expect(result.zeroPart).toBeNull();
+  });
+});
+
+describe("a case written from a word", () => {
+  const item = {
+    kind: "case-form", id: "c1", cardId: "card-1", lexemeId: "lex-1", lemma: "tuba",
+    caseKey: "INESSIVE", caseEt: "seesütlev", caseQuestion: "milles?", provenance: "derived",
+  } as const;
+
+  it("marks the wrong ending wrong, and never logs it as a recall", () => {
+    // `toast` is one keystroke from `toas` and is the elative.
+    const mark = markItem({ ...item, answer: "toas", rivals: ["tuba", "toa", "toast", "toale"] } as never, { kind: "typed", value: "toast" }, 1);
+    expect(mark.correct).toBe(false);
+    expect(mark.recalled).toBe(false);
+  });
+
+  it("takes the long illative wherever the short one is the answer", () => {
+    const mark = markItem({ ...item, caseKey: "ILLATIVE", answer: ["tuppa", "toasse"].join(PARTS), rivals: ["tuba", "toa"] } as never, { kind: "typed", value: "toasse" }, 1);
+    expect(mark.correct).toBe(true);
   });
 });
