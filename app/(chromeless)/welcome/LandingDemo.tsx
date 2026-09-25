@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CASES } from "@/lib/estonian/cases";
 import { LETTER_CHEER_EVENT } from "@/lib/ux/letterMotion";
 import { ArrowRight } from "lucide-react";
-import { PARTS } from "@/lib/copy/values";
+import { PARTS, spelledCount } from "@/lib/copy/values";
 
 /**
  * How long each word stays up while the card walks itself, in milliseconds.
@@ -27,9 +27,7 @@ export const LAP_STEP_MS = 4200;
  * A heading promising eleven over a list of nine is the card arguing with
  * itself in the one place the whole page is asking to be believed.
  */
-const COUNTED = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-  "eleven", "twelve", "thirteen", "fourteen"] as const;
-const counted = (n: number): string => COUNTED[n] ?? String(n);
+const counted = spelledCount;
 
 export interface DemoCase {
   et: string;

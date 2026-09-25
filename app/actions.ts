@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
+import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
+import { setTaskDone } from "@/lib/progress/tasks";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { deleteOwnReminder } from "@/lib/progress/reminders";
 import { classworkMarker } from "@/lib/ux/agenda";
@@ -70,7 +72,8 @@ import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
-import { boundedRestoredReview, isRepeatedReview, stableReviewId, writeGrade } from "@/lib/srs/grade";
+import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
+import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
@@ -861,8 +864,17 @@ export async function createLexeme(input: {
   });
   if (existing) return { ok: true as const, id: existing.id, existed: true };
 
-  const lexeme = await prisma.lexeme.create({
-    data: {
+  /*
+    `createMany` with `skipDuplicates` rather than `create`, because the read
+    above is not a guard: two presses in two tabs, or two learners keeping the
+    same word Anu offered, both find nothing and the second `create` was
+    refused on `(lemma, pos)` with an error. Here the loser writes nothing and
+    reads back the entry the winner made, which is what the read above would
+    have told it a moment later.
+  */
+  const written = await prisma.lexeme.createMany({
+    skipDuplicates: true,
+    data: [{
       lemma, translation, pos,
       cefr,
       /*
@@ -887,8 +899,13 @@ export async function createLexeme(input: {
       provenance: "AI",
       editedBy: ownerId,
       editedAt: new Date(),
-    },
+    }],
   });
+  const lexeme = await prisma.lexeme.findUniqueOrThrow({
+    where: { lemma_pos: { lemma, pos } },
+    select: { id: true },
+  });
+  if (written.count === 0) return { ok: true as const, id: lexeme.id, existed: true };
   revalidatePath("/dictionary");
   return { ok: true as const, id: lexeme.id, existed: false };
 }
@@ -1029,6 +1046,8 @@ export async function toggleStar(lexemeId: unknown, starred?: unknown) {
 export async function putWordAside(lexemeId: string, context: string) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "putAside");
+  if (busy) return busy;
   const id = text(lexemeId).slice(0, 64);
   if (!id) return { ok: false as const, error: "No word was named." };
 
@@ -1420,7 +1439,9 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   const scene = sceneById(text(sceneId).slice(0, 64));
   if (!scene) return { ok: false as const, error: "No scene by that name." };
   const chosen = text(difficulty);
-  if (!(chosen in BUDGETS)) return { ok: false as const, error: "Not a difficulty." };
+  // `in` walks the prototype, so `constructor` and `toString` passed it and
+  // reached a SceneRun.difficulty Int column as a function. Own keys only.
+  if (!Object.hasOwn(BUDGETS, chosen)) return { ok: false as const, error: "Not a difficulty." };
   /*
     THE BAND THE OTHER SIDE TALKS AT IS THE LEARNER'S, UNLESS THEY MOVED IT. A
     scene carries no level of its own: the selector on the briefing defaults
@@ -2589,9 +2610,10 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
  * Joins a class by its code.
  *
  * Joining is the consent: from here the teacher and classmates can see this
- * learner's name, streak, weekly XP and how many words they know. The screen
- * says so before the button is pressed — nothing about a class is retroactive
- * or hidden, and leaving removes the membership and nothing else.
+ * learner's name, streak, how many reviews they did this week and how many
+ * words they know. The screen says so before the button is pressed. Nothing
+ * about a class is retroactive or hidden, and leaving removes the membership
+ * and nothing else.
  */
 export async function joinClassroom(code: string, displayName?: string) {
   const ownerId = await requireUserId();
@@ -2822,15 +2844,21 @@ async function resolveDisplayName(ownerId: string): Promise<string> {
  * Ticks a task a teacher assigned. The manual homework list is gone, so this
  * is the one thing a learner does to a task: the row on Today, done or not.
  */
-export async function toggleTask(id: string) {
-  id = text(id);
+export async function toggleTask(id: string, done?: boolean) {
   const ownerId = await requireUserId();
-  const task = await prisma.task.findFirst({ where: { id, ownerId }, select: { completed: true } });
-  if (!task) return { ok: false as const };
-  await prisma.task.update({
-    where: { id },
-    data: { completed: !task.completed, completedAt: task.completed ? null : new Date() },
-  });
+  const taskId = text(id);
+  /*
+    The row says which state it wants, for the reason `setTaskDone` gives. A
+    tab still on the bundle from before this sends none and gets the toggle it
+    was written against.
+  */
+  let want = done;
+  if (typeof want !== "boolean") {
+    const task = await prisma.task.findFirst({ where: { id: taskId, ownerId }, select: { completed: true } });
+    if (!task) return { ok: false as const };
+    want = !task.completed;
+  }
+  if (!(await setTaskDone(ownerId, taskId, want))) return { ok: false as const };
   revalidatePath("/");
   return { ok: true as const };
 }
@@ -3106,6 +3134,15 @@ export async function deleteMyAccount(confirmation: string) {
       await tx.deckWord.deleteMany({ where: { ownerId } });
       await tx.deck.deleteMany({ where: { ownerId } });
       await tx.achievement.deleteMany({ where: { ownerId } });
+      /*
+        Letters before settings, and the order is load-bearing. The unsubscribe
+        link and the bounce webhook write a setting with no session behind them,
+        and `writeSettingsWhileMailed` holds this person's `EmailSend` row while
+        it does. Deleting that row first makes such a write either wait for this
+        transaction and then find nobody, or finish first and be swept by the
+        next line, so no setting outlives the account.
+      */
+      await tx.emailSend.deleteMany({ where: { ownerId } });
       await tx.setting.deleteMany({ where: { ownerId } });
       forgetSettings(ownerId);
       await tx.usageEvent.deleteMany({ where: { ownerId } });
@@ -3161,12 +3198,10 @@ export async function deleteMyAccount(confirmation: string) {
       await tx.deferral.deleteMany({ where: { ownerId } });
       await tx.courseStep.deleteMany({ where: { ownerId } });
       /*
-        And every record that this deployment wrote to them. It is the row that
-        decides whether they are written to again, so leaving it would be an
-        account that is gone everywhere except in the one table that could put
-        a letter in front of somebody who asked to be forgotten.
+        Every record that this deployment wrote to them went above, before the
+        settings: it is the row that decides whether they are written to again,
+        and the row the mail routes check before they write a setting.
       */
-      await tx.emailSend.deleteMany({ where: { ownerId } });
       await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
       /*
         And the attribution on anything they reviewed, for the same reason the
@@ -3525,13 +3560,19 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         (chunk) => tx.message.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
+      /*
+        A level check and a sat paper come back as history and never as
+        evidence: the file carries their marks and not the answers they were
+        marked from, so nothing here can mark them again (ADR-022). See
+        `asRestoredMeasurement`, and every reader that asks `restoredAt: null`.
+      */
       await createAbsent(
-        (backup.assessments ?? []).map((raw) => ({ ...revive(raw, ["takenAt"]), ownerId })),
+        (backup.assessments ?? []).map((raw) => ({ ...asRestoredMeasurement(revive(raw, ["takenAt"]), restoredAt), ownerId })),
         (chunk) => tx.assessment.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
       await createAbsent(
-        (backup.examAttempts ?? []).map((raw) => ({ ...revive(raw, ["startedAt", "finishedAt"]), ownerId })),
+        (backup.examAttempts ?? []).map((raw) => ({ ...asRestoredMeasurement(revive(raw, ["startedAt", "finishedAt"]), restoredAt), ownerId })),
         (chunk) => tx.examAttempt.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
@@ -4469,33 +4510,14 @@ export async function submitSuggestion(input: unknown) {
     on Monday and again on Thursday is one voice, not two, and the count beside
     a group in the review queue is only worth reading while that is true: the
     number is there to say "this many people", and clicks would make it say
-    "this many clicks" while looking identical.
-
-    The later report wins the note and the proposal, because it is the one they
-    wrote after seeing more of the problem.
+    "this many clicks" while looking identical. Two sends landing together are
+    held to that too, under a lock: see `lib/suggestions/record.ts`.
   */
-  const mine = await prisma.suggestion.findFirst({
-    where: { ownerId, groupKey, status: "OPEN" },
-    select: { id: true },
+  const { repeat } = await recordSuggestion(ownerId, {
+    category, groupKey, note, context, trigger, lemma, lexemeId,
+    patch: patch ? JSON.stringify(patch) : "{}",
   });
-
-  if (mine) {
-    await prisma.suggestion.update({
-      where: { id: mine.id },
-      data: {
-        note, context, trigger, lemma, lexemeId,
-        patch: patch ? JSON.stringify(patch) : "{}",
-      },
-    });
-    return { ok: true as const, repeat: true, message: acknowledgement(category) };
-  }
-
-  await prisma.suggestion.create({
-    data: {
-      ownerId, category, groupKey, note, context, trigger, lemma, lexemeId,
-      patch: patch ? JSON.stringify(patch) : "{}",
-    },
-  });
+  if (repeat) return { ok: true as const, repeat: true, message: acknowledgement(category) };
 
   revalidatePath("/suggestions");
   return { ok: true as const, repeat: false, message: acknowledgement(category) };

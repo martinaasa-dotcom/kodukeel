@@ -122,6 +122,11 @@ export function isKnownSlot(slot: string): boolean {
   return CASE_KEYS.has(slot) || CONJUGATION_CODES.has(slot) || MEANING_SLOTS.includes(slot);
 }
 
+/** Whether a slot is one of the fourteen cases. */
+export function isCaseSlot(slot: string): boolean {
+  return CASE_KEYS.has(slot);
+}
+
 /** Every case key, for a query that has to ask the database which rows name one. */
 export const CASE_SLOTS: readonly string[] = [...CASE_KEYS];
 
