@@ -7831,50 +7831,43 @@ check("a scene cannot spend the day Anu needs, and reserves what a turn costs", 
 });
 
 /**
- * THE BACKLOG IN THE LINT CONFIG SAYS HOW BIG IT IS, AND THE TWO HALVES AGREE.
+ * LINT HAS NO WARNINGS, AND THE THREE RULES THAT ARE OFF ARE OFF FOR A REASON.
  *
- * `eslint-config-next` 16 brought the React Compiler's rules in as errors.
- * Eleven of them hold in this tree and stay errors; five do not, and they warn
- * with a table of counts above them saying how far from holding they are. A
- * count in prose beside a list in code is the shape this repository has been
- * wrong about more than once, and here it is worse than usual: the table is the
- * whole argument that these are a backlog rather than a bar somebody lowered,
- * so a rule quietly joining the list without a measured count turns a stated
- * plan into a place to park a failure.
+ * `eslint-config-next` 16 brought the React Compiler's rules in as errors, and
+ * five of them were turned down to warnings with a table of counts above them.
+ * 122 warnings sat in every lint run for as long as that lasted, which is the
+ * state in which a real warning beside them goes unread. Two of the five were
+ * fixed and are errors again; three are off, each named in the config with what
+ * it objects to here and why that is deliberate.
  *
- * The counts themselves are not asserted, because that would mean running
- * eslint over the tree inside this script. What is asserted is that the two
- * lists are the same list, that the table carries a number for every rule, and
- * that `rules-of-hooks` never joins them: it predates the compiler, this code
- * passes it, and it is the one in that family whose failures are real bugs
- * every time.
+ * What is asserted is the shape that keeps the count at nought: lint fails on
+ * a warning, no `react-hooks` rule is merely demoted, the rules switched off
+ * are exactly the three the config argues for, `rules-of-hooks` is never one of
+ * them (it predates the compiler and its failures are real bugs every time),
+ * and the three stay off only while the compiler they exist for is not run.
  */
-check("every demoted lint rule is one the config counted", () => {
-  /*
-    `code()` everywhere else in this file, and `read()` here on purpose: the
-    table is a comment, and stripping the comments is what the other checks want
-    and what would leave this one comparing the rules against nothing at all.
-    The rules are read from the stripped source, so a rule mentioned in prose
-    does not count as demoted.
-  */
-  const prose = read("eslint.config.mjs");
-  const demoted = [...code("eslint.config.mjs").matchAll(/"(react-hooks\/[a-z-]+)":\s*"warn"/g)]
-    .map((m) => m[1]!);
-  assert.ok(demoted.length > 0, "the React Compiler rules are all errors now; delete this check with the table");
+check("lint has no warnings, and the React Compiler rules that are off are the argued three", () => {
+  const pkg = JSON.parse(read("package.json")) as { scripts: Record<string, string> };
+  assert.match(pkg.scripts.lint ?? "", /--max-warnings 0\b/, "npm run lint no longer fails on a warning, so they can pile up again");
 
-  const table = new Map(
-    [...prose.matchAll(/^\s*\*\s{3}([a-z-]+)\s+(\d+)(?:\s|$)/gm)].map((m) => [`react-hooks/${m[1]!}`, Number(m[2]!)]),
-  );
+  const config = code("eslint.config.mjs");
+  const warned = [...config.matchAll(/"(react-hooks\/[a-z-]+)":\s*"warn"/g)].map((m) => m[1]!);
+  assert.deepEqual(warned, [], `a react-hooks rule warns rather than holding or being off: ${warned.join(", ")}`);
+
+  const off = [...config.matchAll(/"(react-hooks\/[a-z-]+)":\s*"off"/g)].map((m) => m[1]!).sort();
   assert.deepEqual(
-    [...demoted].sort(), [...table.keys()].sort(),
-    "the rules set to warn and the rules the table counts are two different lists, so one of them is out of date",
+    off,
+    ["react-hooks/purity", "react-hooks/refs", "react-hooks/set-state-in-effect"],
+    "the React Compiler rules switched off are not the three the config argues for",
   );
-  for (const [rule, count] of table) {
-    assert.ok(count > 0, `${rule} is counted at nought and should be an error again`);
+  const prose = read("eslint.config.mjs");
+  for (const rule of off) {
+    assert.match(prose, new RegExp(`\\*\\s{3}${rule.replace("react-hooks/", "")}\\s`), `${rule} is off with no reason written beside it`);
   }
-  assert.ok(
-    !demoted.includes("react-hooks/rules-of-hooks"),
-    "rules-of-hooks was demoted. It predates the compiler, this tree passes it, and its failures are real every time.",
+  assert.ok(!off.includes("react-hooks/rules-of-hooks"), "rules-of-hooks was switched off; its failures are real every time");
+  assert.doesNotMatch(
+    code("next.config.ts"), /reactCompiler/,
+    "the React Compiler is on, so the rules that exist for it have to come back on too",
   );
 });
 
