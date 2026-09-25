@@ -5,6 +5,7 @@ import { ekilexConfigured, fetchEkilexDetails, searchEkilex } from "@/lib/ekilex
 import { mapEkilexDetails } from "@/lib/ekilex/mapper";
 import { mergeExamples, serialiseExamples } from "./examples";
 import { fetchEnglishGloss } from "./wiktionary";
+import { isUniqueViolation, replaceForms } from "./replaceForms";
 import { translateWithAnu } from "@/lib/tutor/translate";
 import { NEEDS_TRANSLATION, NO_VALUE } from "@/lib/copy/values";
 import { isRecentMiss, rememberMiss, singleFlight } from "@/lib/cache/singleFlight";
@@ -224,10 +225,10 @@ async function runEnrich(lexemeId: string): Promise<boolean> {
     lib/dict/editExamples.ts.
   */
   await editExamples(lexeme.id, (now) => ({ next: mergeExamples(now, mapped.examples), result: null }));
-  await prisma.form.deleteMany({ where: { lexemeId: lexeme.id } });
-  await prisma.form.createMany({
-    data: mapped.forms.map((f) => ({ ...f, lexemeId: lexeme.id })),
-  });
+  // Under the entry's own row, since the single flight above is per instance
+  // and a live lookup of the same word replaces the same rows. See
+  // lib/dict/replaceForms.ts.
+  await replaceForms(lexeme.id, mapped.forms);
   return true;
 }
 
@@ -319,6 +320,29 @@ async function runLookup(ownerId: string, query: string): Promise<LookupResult |
     return null;
   }
 
+  try {
+    return await storeLookup(ownerId, mapped);
+  } catch (error) {
+    /*
+      TWO LOOKUPS OF ONE WORD ON TWO INSTANCES BOTH FIND NO ENTRY.
+
+      The single flight above is keyed on the query and lives in one process,
+      so `toas` and `tuba`, or the same word on two instances, both reach the
+      create and the second is refused on `(lemma, pos)`: an error page over a
+      dictionary search, for a word that had just been stored. Asked again, the
+      loser finds the entry and takes the update path, which is what it would
+      have done arriving a moment later. Once, because a second collision is
+      not this race.
+    */
+    if (isUniqueViolation(error)) return storeLookup(ownerId, mapped);
+    throw error;
+  }
+}
+
+async function storeLookup(
+  ownerId: string,
+  mapped: NonNullable<ReturnType<typeof mapEkilexDetails>>,
+): Promise<LookupResult> {
   // Already stored under this lemma from an earlier lookup or the seed.
   const existing = await prisma.lexeme.findUnique({
     where: { lemma_pos: { lemma: mapped.lemma, pos: mapped.pos } },
@@ -384,11 +408,9 @@ async function runLookup(ownerId: string, query: string): Promise<LookupResult |
     await editExamples(lexeme.id, (now) => ({ next: mergeExamples(now, mapped.examples), result: null }));
   }
 
-  // Ekilex is authoritative, so its forms replace whatever we held.
-  await prisma.form.deleteMany({ where: { lexemeId: lexeme.id } });
-  await prisma.form.createMany({
-    data: mapped.forms.map((f) => ({ ...f, lexemeId: lexeme.id })),
-  });
+  // Ekilex is authoritative, so its forms replace whatever we held, under the
+  // entry's own row. See lib/dict/replaceForms.ts.
+  await replaceForms(lexeme.id, mapped.forms);
 
   return { id: lexeme.id, lemma: lexeme.lemma, translationSource: source };
 }
