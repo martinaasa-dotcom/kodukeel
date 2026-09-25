@@ -194,6 +194,23 @@ function between(source: string, from: string): string {
 const SCHEMA = read("prisma/schema.prisma");
 const CSS = read("app/globals.css");
 
+/*
+  EVERY MODEL IN THE SCHEMA, READ TO THE BRACE THAT CLOSES IT.
+
+  A model closes on a `}` at the start of a line and on nothing else. The
+  obvious `model (\w+) \{([^}]*)\}` stops at the first `}` anywhere, and the
+  schema is full of them before that: `@default("{}")` on four columns and a
+  `[{ et, en }]` in two doc comments. So `Scan` was read as far as its `items`
+  comment and no further, and "the photograph is never stored" was asserted of
+  the three columns above it: an `image` column added at the bottom, which is
+  where anybody adds one, passed. Read to the line that closes the model, which
+  is the shape the primary-key lookup further down already used.
+*/
+function schemaModels(): { name: string; body: string }[] {
+  return [...SCHEMA.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)]
+    .map(([, name, body]) => ({ name: name!, body: body! }));
+}
+
 /** Files that run in the browser, by their own declaration. */
 const CLIENT = ALL.filter((f) => /^["']use client["']/m.test(read(f).trimStart()));
 
@@ -2778,7 +2795,23 @@ check("a session never lets its questions change under the learner", () => {
     // snapshotted. The name list after it is the older spelling, kept for the
     // sessions that predate the convention — and `steps` had to be added to it
     // after the lesson runner slipped through both arms of this check.
-    const props = source.match(/export function \w+\(\{([^}]*)\}/)?.[1] ?? "";
+    /*
+      Every exported function's destructured props, read to the brace that
+      closes them. `\(\{([^}]*)\}` stopped at the first `}`, so a default such as
+      `rivals = {}` or a template `${...}` in front of `initialCards` hid the
+      list prop and the file was skipped as though it took none; and it read the
+      first export only, so a helper exported above the session answered for it.
+    */
+    const props = [...source.matchAll(/export (?:default )?function \w+\(\{/g)].map((m) => {
+      let depth = 1;
+      let at = m.index! + m[0].length;
+      while (at < source.length && depth > 0) {
+        if (source[at] === "{") depth += 1;
+        else if (source[at] === "}") depth -= 1;
+        at += 1;
+      }
+      return source.slice(m.index! + m[0].length, at - 1);
+    }).join("\n");
     const listProp = /\binitial[A-Z]\w*/.test(props)
       || /\b(cards|prompts|questions|items|gaps|pairs|steps|paper)\b/.test(props);
     if (!listProp) continue;
@@ -3803,8 +3836,9 @@ check("the photograph itself is never stored", () => {
     exercise makes the same promise about a pasted passage. Keeping it is a
     property of the schema and of the route, not a habit.
   */
-  const scanModel = /model Scan \{[^}]*\}/.exec(SCHEMA)?.[0] ?? "";
+  const scanModel = schemaModels().find((m) => m.name === "Scan")?.body ?? "";
   assert.ok(scanModel, "the Scan model is gone, so this check is watching nothing");
+  assert.ok(/\bcreatedAt\b/.test(scanModel), "the Scan model was read short of its last column");
   assert.equal(
     /image|photo|base64|dataUrl/i.test(scanModel),
     false,
@@ -6172,9 +6206,9 @@ check("a Prisma client is built in one place, with its adapter", () => {
 
 /** Every model in the schema carrying an `ownerId`: one person's own data. */
 function ownerScopedModels(): string[] {
-  const owned = [...SCHEMA.matchAll(/model (\w+) \{([^}]*)\}/g)]
-    .filter(([, , body]) => /^\s*ownerId\s/m.test(body ?? ""))
-    .map(([, name]) => name!);
+  const owned = schemaModels()
+    .filter(({ body }) => /^\s*ownerId\s/m.test(body))
+    .map(({ name }) => name);
   assert.ok(owned.length >= 12, `expected the owner-scoped models, found ${owned.length}`);
   return owned;
 }
