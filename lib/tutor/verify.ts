@@ -83,7 +83,8 @@ export function buildAllowlist(
 export function estonianTokens(comment: string): string[] {
   const found = new Set<string>();
 
-  for (const match of comment.matchAll(/["'“”‘’]([\p{L}\p{M}-]{2,})["'“”‘’]/gu)) {
+  // Punctuation may sit inside the closing quote, which is how English writes it: "raamatusse." is still a form presented.
+  for (const match of comment.matchAll(/["'“”‘’]([\p{L}\p{M}-]{2,})[.,;:!?]?["'“”‘’]/gu)) {
     const word = normalise(match[1] ?? "");
     if (word) found.add(word);
   }

@@ -1,7 +1,7 @@
 /**
  * The one function that answers "what does the other side say here".
  *
- * `docs/19-situations.md` §2. It works the way `caseAnswer` works: an attested
+ * `docs/21-situations.md` §2. It works the way `caseAnswer` works: an attested
  * sentence ahead of a composed one ahead of the way out, **with the screen
  * saying which it got**. That last clause is the whole of ADR-025's second
  * half, and it is why the return type carries a provenance rather than a
@@ -24,7 +24,9 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { passes, runGate, type Check, type GateContext, type Verdict } from "./gate";
+import {
+  MAX_COMPOSED_WORDS, MAX_SENTENCES, passes, runGate, type Check, type GateContext, type Verdict,
+} from "./gate";
 import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
 import type { BeatSpec } from "./types";
@@ -469,8 +471,18 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
  * simply too much of it at once, and telling it those words are "not allowed"
  * sends it hunting for a synonym that is equally new. The words are the same
  * shape either way, so what changes is which set is sent.
+ *
+ * Exported because the harnesses have to tell a retry the words the route
+ * tells it. They still retry less than the route does, once rather than up to
+ * `MAX_COMPOSE_ATTEMPTS` times and without `whyWithheld`, so a harness rescue
+ * rate is a floor under the route's rather than the same number.
+ * `eval:scene` passed `verdict.unknown` flat and `draft:lines` retried only
+ * where it was non-empty, both written before the split gave `vouching` and
+ * `stretch` a set each: after it, a line withheld for reaching too far got no
+ * retry at all in the drafter and an empty instruction in the eval, so the
+ * rescue the route gives that line was measured on neither.
  */
-function retryNote(verdict: Verdict | null): readonly string[] {
+export function retryNote(verdict: Verdict | null): readonly string[] {
   if (!verdict) return [];
   if (verdict.unknown.length > 0) return verdict.unknown;
   return verdict.failed.includes("stretch") ? verdict.stretched : [];
@@ -499,7 +511,9 @@ export function whyWithheld(verdict: Verdict | null): string | undefined {
     facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, in digits or in words",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
     topic: "it was not about what you are doing at this moment, or about what they just said",
-    shape: "it was the wrong shape: an ask holds a question, an instruction or an answer does not, and it has to be punctuated, unformatted, at most five sentences and at most fifty-five words",
+    // The ceiling is read off the gate rather than typed, so the retry is told
+    // the limit the gate will actually apply to the line it writes next.
+    shape: `it was the wrong shape: an ask holds a question, an instruction or an answer does not, and it has to be punctuated, unformatted, at most ${MAX_SENTENCES} sentences and at most ${MAX_COMPOSED_WORDS} words`,
     agreement: "its subject and its verb did not agree in person",
     infinitive: "it put the ma-infinitive where the da-infinitive belongs",
     negation: "a verb after the negator kept its personal ending",

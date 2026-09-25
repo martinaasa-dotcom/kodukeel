@@ -4,6 +4,7 @@ import { paperFor } from "@/lib/progress/exam";
 import { isExamLevel } from "@/lib/exam/spec";
 import { fillRate } from "@/lib/exam/paper";
 import { ExamSession } from "./ExamSession";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
@@ -27,10 +28,10 @@ export const dynamic = "force-dynamic";
  */
 export default async function ExamLevelPage({ params, searchParams }: {
   params: Promise<{ level: string }>;
-  searchParams: Promise<{ seed?: string }>;
+  searchParams: Promise<{ seed?: string | string[] }>;
 }) {
   const { level } = await params;
-  const { seed } = await searchParams;
+  const { seed } = firstParams(await searchParams);
   const upper = level.toUpperCase();
   if (!isExamLevel(upper)) notFound();
 
