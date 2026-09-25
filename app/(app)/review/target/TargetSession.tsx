@@ -71,7 +71,13 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
     } else {
       setStreak(0);
     }
-    if (question.cardId) void gradeCard(question.cardId, right ? 3 : 1, Date.now() - shownAt.current);
+    // The case the target asked, which is not always the card it grades: the slot
+    // is what mastery counts, and without it this read as the card's case.
+    if (question.cardId) {
+      void gradeCard(
+        question.cardId, right ? 3 : 1, Date.now() - shownAt.current, undefined, question.caseKey ?? undefined,
+      ).catch(() => {});
+    }
 
     // A hit moves on quickly; a miss holds, because the correction is the one
     // moment in a round worth slowing down for.
@@ -157,7 +163,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
             style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
             <Trophy size={34} aria-hidden />
           </span>
-          <div className="grid w-full grid-cols-3 gap-3">
+          <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
             <StatTile value={hits} label="Hit" tone="mint" />
             <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "mint" : "butter"} />
             <StatTile value={best} label="Best run" tone="blush" />

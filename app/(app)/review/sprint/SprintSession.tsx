@@ -96,9 +96,9 @@ export function SprintSession({
 
   const finish = useCallback((finalScore: number) => {
     setPhase("done");
-    void recordSprintScore(finalScore).then((r) => {
+    void recordSprintScore(finalScore).catch(() => null).then((r) => {
       // A refused score is not a new best; the round is over either way.
-      setIsNewBest(r.ok && r.isNewBest);
+      setIsNewBest(!!r?.ok && r.isNewBest);
     });
   }, []);
 
@@ -228,7 +228,7 @@ export function SprintSession({
             {isNewBest ? "New personal best." : `Best so far: ${best}.`}
           </p>
         </div>
-        <div className="mt-8 grid grid-cols-3 gap-3">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={correct} label="Score" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "mint" : "butter"} />
           <StatTile value={attempted} label="Attempted" tone="sky" />

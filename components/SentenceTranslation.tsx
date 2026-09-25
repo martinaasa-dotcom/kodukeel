@@ -85,10 +85,11 @@ export function SentenceTranslation({ lexemeId, et, en, canTranslate, ask = "onA
     asked.current = true;
     let live = true;
     void (async () => {
-      const result = await translateExample(lexemeId, et);
+      const result = await translateExample(lexemeId, et).catch(() => null);
       // A refusal, a sentence this entry does not hold, a spent allowance: none
       // of those is news a learner can act on, so none of them is drawn, and
       // none of them is asked about twice in one sitting.
+      if (!result) return; // no answer at all is not an answer, so it may be asked again
       if (!result.ok) {
         UNANSWERED.add(et);
         return;

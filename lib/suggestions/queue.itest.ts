@@ -18,10 +18,11 @@ const OWNERS = Array.from({ length: 5 }, (_, i) => `itest-queue-owner-${i}`);
 
 async function wipe() {
   await prisma.suggestion.deleteMany({ where: { ownerId: { in: OWNERS } } });
-  const lexeme = await prisma.lexeme.findFirst({ where: { lemma: LEMMA } });
-  if (lexeme) {
-    await prisma.form.deleteMany({ where: { lexemeId: lexeme.id } });
-    await prisma.lexeme.delete({ where: { id: lexeme.id } });
+  const lexemes = await prisma.lexeme.findMany({ where: { lemma: LEMMA }, select: { id: true } });
+  const ids = lexemes.map((l) => l.id);
+  if (ids.length) {
+    await prisma.form.deleteMany({ where: { lexemeId: { in: ids } } });
+    await prisma.lexeme.deleteMany({ where: { id: { in: ids } } });
   }
 }
 
@@ -126,6 +127,34 @@ describe("readQueue", () => {
     const queue = await readQueue({ status: "OPEN", category: null, page: 0 });
     const row = queue.rows.find((r) => r.lemma === LEMMA)!;
     expect(row.blocked).toMatch(/already/i);
+  });
+
+  /*
+    A lemma can hold two entries, and the queue compared the report with the
+    one the app leads with. A missing-noun report for a lemma whose adjective
+    leads read as unblocked while the noun it would write over sat right there.
+  */
+  it("blocks a missing-word report for an entry of that part of speech, whichever entry leads", async () => {
+    await seedWord();
+    await prisma.lexeme.create({
+      data: {
+        lemma: LEMMA, pos: "ADJECTIVE", translation: "roomy", provenance: "USER",
+        forms: { create: [{ formType: "NOM_SG", value: "x" }, { formType: "GEN_SG", value: "y" }] },
+      },
+    });
+    const patch = { kind: "CREATE_WORD" as const, lemma: LEMMA, pos: "NOUN", translation: "hall", forms: {} };
+    await prisma.suggestion.create({
+      data: {
+        ownerId: OWNERS[0]!, category: "MISSING_WORD", lemma: LEMMA, note: "missing",
+        groupKey: groupKeyFor({ category: "MISSING_WORD", lexemeId: null, lemma: LEMMA, patch }),
+        patch: JSON.stringify(patch),
+      },
+    });
+
+    const queue = await readQueue({ status: "OPEN", category: null, page: 0 });
+    const row = queue.rows.find((r) => r.lemma === LEMMA)!;
+    expect(row.blocked).toMatch(/already/i);
+    expect(row.before).toContain("noun");
   });
 
   it("survives the entry being deleted under the report", async () => {

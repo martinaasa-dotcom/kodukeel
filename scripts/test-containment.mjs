@@ -63,6 +63,8 @@ import { baseUrl, suite } from "./lib/checks.mjs";
 import { revealAnswer } from "./lib/review.mjs";
 import { ensureLetterBar } from "./lib/prefs.mjs";
 import { startRound } from "./lib/briefing.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
+import { resolveDatabaseUrl } from "./lib/local-db.mjs";
 
 const B = baseUrl();
 
@@ -148,7 +150,9 @@ const ROUTES = [
   "/dictionary?q=tuba",
   "/words",
   "/words/decks",
+  "/words/mastery",
   "/grammar",
+  "/grammar/build-a-word",
   "/grammar/partitive",
   "/grammar/topic/object",
   /*
@@ -160,13 +164,18 @@ const ROUTES = [
   "/grammar/exceptions",
   "/grammar/exceptions/stem",
   "/review/exceptions",
+  "/review/letters",
+  "/review/lookups",
 
   // The course.
   "/learn",
+  "/learn/new",
   "/learn/kodu",
   "/learn/kodu/lesson",
   "/learn/kodu/worksheet",
   "/learn/checkpoint/A1",
+  "/course",
+  "/course/learn",
 
   // Measurement, and the things built on it.
   "/progress",
@@ -207,6 +216,8 @@ const ROUTES = [
   "/privacy",
   "/terms",
   "/funding",
+  "/trust",
+  "/accessibility",
   "/offline",
 ];
 
@@ -326,7 +337,26 @@ const SPARSE = new Map([
 // floor keeps the same ten under that. The waiver is what makes it safe to set
 // from a run that did not reach the state: `absent` lowers the target by
 // exactly what it could not ask.
-const { check, absent, done } = suite("Containment", { floor: 1290 });
+//
+// And 1580 rather than 1300, from a sweep of `app/` against this list rather
+// than against anybody's memory of it: nine routes had never been walked here
+// at all, `/trust`, `/accessibility`, `/course`, `/course/learn`,
+// `/grammar/build-a-word`, `/learn/new`, `/review/letters`, `/review/lookups`
+// and `/words/mastery`, which is 180 checks, and a tenth, a round over one
+// shelf, which no fixture had ever made, so the demo fixture lays one down and
+// the shelf is read off `/words/decks`. Reading it found a real fault on the first of the nine
+// that had anything to overflow: `/review/letters`' footer put a hint sentence
+// and the "Take back" button in one unshrinkable row, and at 360 with the
+// stress text in, the button's own icon and its key cap were drawn past the
+// button's edge, because neither sibling could shrink below its own content
+// and the button lost that fight. The hint now truncates and the button
+// carries `shrink-0`, which is the same trade every other footer in this file
+// makes between a sentence that can be cut short and a control that cannot.
+// Measured at 1570 with the fixture's own ten-check absence still standing.
+// That absence is gone: a word's first meeting with its sentence is reached
+// through the scanned page's drill now (see `wordAboveA1`), and a run with the
+// stub key CI starts its server with reaches all 1580. The floor is that.
+const { check, absent, done } = suite("Containment", { floor: 1580 });
 
 /**
  * An A2 unit, whose lesson meets words with their sentence under them: A1
@@ -386,6 +416,38 @@ await ensureLetterBar(browser, B, "on");
  * (ADR-005) and neither do its fixtures.
  */
 const UNVOUCHED = "kodukeelcontainmenttest";
+
+/**
+ * A real word above A1, for the one state the demo fixture cannot reach.
+ *
+ * A first meeting draws the word's sentence with the dictionary under it, and
+ * `components/WordIntro.tsx` meets an A1 word on its own, with no sentence, on
+ * purpose. Every word in the demo fixture is A1, so the panel a tapped word
+ * opens was never drawn and five checks at each width were waived on every CI
+ * run. The scanned page below carries this word as well, vouched the way the
+ * real scanner vouches one, so ticking it builds its cards and the page's own
+ * drill opens on its first meeting. Read-only, and chosen by rule rather than
+ * typed, so no Estonian is written here: the first seeded A2 noun with three
+ * or more recorded sentences, in the dictionary's own order.
+ */
+async function wordAboveA1() {
+  const prisma = newPrismaClient(resolveDatabaseUrl().url);
+  try {
+    const rows = await prisma.lexeme.findMany({
+      where: { cefr: "A2", pos: "NOUN", provenance: "SEED" },
+      orderBy: [{ lemma: "asc" }, { id: "asc" }],
+      select: { id: true, lemma: true, translation: true, cefr: true, examples: true },
+      take: 200,
+    });
+    return rows.find((r) => {
+      try { return JSON.parse(r.examples).length >= 3; } catch { return false; }
+    }) ?? null;
+  } catch {
+    return null;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
 
 async function screensToMake() {
   const made = [];
@@ -454,6 +516,18 @@ async function screensToMake() {
   if (classrooms) made.push(...classrooms.split(" "));
   else missing.push("a classroom, which local mode cannot create by hand: run `npm run demo`");
 
+  /*
+    A round over one shelf. `/words/decks` links to it only once the shelf
+    holds a word, so it is read off that page rather than typed, and the demo
+    fixture lays the shelf down for the reason it lays the class down.
+  */
+  const shelf = await budgeted("a shelf with words on it", 30_000, async (page) => {
+    await page.goto(`${B}/words/decks`, { waitUntil: "networkidle", timeout: 30_000 });
+    return page.locator('a[href^="/review/deck/"]').first().getAttribute("href", { timeout: 5_000 });
+  });
+  if (shelf) made.push(shelf);
+  else missing.push("a shelf with words on it, which the demo fixture lays down: run `npm run demo`");
+
   // A marked paper: sat, advanced part by part with the blanks left blank, and
   // handed in. The blanks are the point elsewhere and harmless here.
   const result = await budgeted("a marked paper", 120_000, async (page) => {
@@ -482,14 +556,24 @@ async function screensToMake() {
     provider key on the server the page correctly offers no camera, and then
     this screen is genuinely unreachable rather than broken.
   */
+  const aboveA1 = await wordAboveA1();
   const scan = await budgeted("a scanned page", 90_000, async (page) => {
     await page.route("**/api/scan", (route) => route.fulfill({
       status: 200,
       contentType: "application/json",
       headers: { "x-model-provider": "Stub", "x-model-id": "test" },
       body: JSON.stringify({
-        items: [{ et: UNVOUCHED, en: "a word off the page", lexemeId: null, lemma: null, translation: null, matchedAs: null, cefr: null }],
-        summary: { total: 1, known: 0, unknown: 1, inflected: 0 },
+        // The word above A1 first: its cards are written first, so the page's
+        // drill deals its first meeting before the invented word's typed card,
+        // which the walk below cannot answer.
+        items: [
+          ...(aboveA1 ? [{
+            et: aboveA1.lemma, en: aboveA1.translation, lexemeId: aboveA1.id, lemma: aboveA1.lemma,
+            translation: aboveA1.translation, matchedAs: null, cefr: aboveA1.cefr,
+          }] : []),
+          { et: UNVOUCHED, en: "a word off the page", lexemeId: null, lemma: null, translation: null, matchedAs: null, cefr: null },
+        ],
+        summary: { total: aboveA1 ? 2 : 1, known: aboveA1 ? 1 : 0, unknown: 1, inflected: 0 },
       }),
     }));
     await page.goto(`${B}/scan`, { waitUntil: "networkidle", timeout: 30_000 });
@@ -1171,6 +1255,33 @@ async function askedForStates(ctx, at) {
     const on = page.getByRole("button", { name: /^(Start these|Got it)\b/ });
     if (await on.count()) await on.first().click().catch(() => {});
     await page.waitForTimeout(500);
+  }
+  /*
+    AND WHERE THE LADDER DEALT NO SUCH MEETING, THE SCANNED PAGE'S OWN DRILL.
+
+    The demo fixture's ladder is full of A1 words already past their first
+    meeting, so the loop above finds nothing to tap there on every run. The
+    page made above carries one vouched word above A1, ticking it built that
+    word's cards, and the page's drill opens on its first meeting, which is
+    the same `WordIntro` with the same dictionary under the same sentence.
+  */
+  const scanPath = made.find((path) => /^\/scan\/[^/]+$/.test(path));
+  if (!opened && scanPath) {
+    await page.goto(`${B}/review?scan=${encodeURIComponent(scanPath.split("/").pop())}`, {
+      waitUntil: "networkidle", timeout: 60000,
+    });
+    await startRound(page);
+    for (let tries = 0; tries < 6 && !opened; tries += 1) {
+      const words = page.locator("main p[lang=et] button");
+      if (await words.count()) {
+        await words.last().click().catch(() => {});
+        opened = (await page.getByRole("button", { name: /Add to my deck/ }).count()) > 0;
+        if (opened) break;
+      }
+      const met = page.getByRole("button", { name: /^Got it\b/ });
+      if (await met.count()) await met.first().click().catch(() => {});
+      await page.waitForTimeout(500);
+    }
   }
   if (opened) {
     await page.waitForTimeout(300);

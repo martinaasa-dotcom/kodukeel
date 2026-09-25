@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { Flame, Target, Timer, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
+import { useOffline } from "@/components/OfflineProvider";
+import { enqueueGrade } from "@/lib/offline/db";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
@@ -157,6 +159,7 @@ export function QuestSession({
         suffix: card.targetCase ? caseByKey(card.targetCase)?.suffix : null,
       })
       : [];
+  const { refresh: refreshOutbox, drainFirst } = useOffline();
   const hints = useHints({
     word: card?.lemma ?? card?.id ?? null,
     question: card?.id ?? null,
@@ -198,12 +201,44 @@ export function QuestSession({
       cases.
     */
     if (!got) hints.noteMiss();
-    await gradeCard(
-      // A hint is paid for: see `lib/questions/hints.ts`.
-      card.id, Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3,
-      Date.now() - shownAt.current, undefined,
-      card.targetCase ?? undefined, reached ?? undefined,
-    );
+    // A hint is paid for: see `lib/questions/hints.ts`.
+    const grade = Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3;
+    const duration = Date.now() - shownAt.current;
+    const answeredAt = new Date().toISOString();
+    // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
+    const reviewId = crypto.randomUUID();
+    /*
+      A GRADE THAT CANNOT REACH THE SERVER IS QUEUED, AND THE ROUND GOES ON.
+
+      With the network gone the answer used to be lost: the round moved on and
+      the scheduler never heard it. It goes to the same outbox the review path
+      uses, with the time it was answered, which is what ADR-015 promises the
+      daily path.
+    */
+    try {
+      // Anything queued earlier goes first, so the scheduler hears the answers in order.
+      await drainFirst();
+      const res = await gradeCard(
+        card.id, grade, duration, answeredAt,
+        card.targetCase ?? undefined, reached ?? undefined, reviewId,
+      );
+      if (!res.ok) throw new Error(res.error);
+    } catch {
+      try {
+        await enqueueGrade({
+          id: reviewId,
+          cardId: card.id,
+          rating: grade,
+          durationMs: duration,
+          reviewedAt: Date.parse(answeredAt),
+          slot: card.targetCase ?? undefined,
+          reachedSlot: reached ?? undefined,
+        });
+        refreshOutbox();
+      } catch {
+        // No IndexedDB either: the answer is lost, and the round still goes on.
+      }
+    }
     setPicked(null);
     setRevealed(false);
     setTyped("");
@@ -211,7 +246,7 @@ export function QuestSession({
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
     setBusy(false);
-  }, [card, busy, sound, hints]);
+  }, [card, busy, sound, hints, refreshOutbox, drainFirst]);
 
   /*
     A pick marks itself. The option carries what it would mean, so a wrong one
@@ -327,9 +362,14 @@ export function QuestSession({
                 {aimed.map((c) => (
                   <li key={c.key}>
                     <Chip tone={c.accuracy < 60 ? "again" : "hard"}>
-                      <span lang="et">{c.et}</span>
-                      {c.question && <> · <CaseQuestion question={c.question} inline /></>}
-                      {" "}{c.accuracy}%
+                      {/* One run of text, so it wraps between words. As four
+                          children of the chip's inline-flex they squeezed each
+                          other and broke the case name mid-letter at 360. */}
+                      <span>
+                        <span lang="et">{c.et}</span>
+                        {c.question && <> · <CaseQuestion question={c.question} inline /></>}
+                        {" "}{c.accuracy}%
+                      </span>
                     </Chip>
                   </li>
                 ))}
@@ -368,7 +408,7 @@ export function QuestSession({
     return (
       <Page title="Daily quest" lead="That is where you stand today.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
-          <div className="grid w-full grid-cols-3 gap-3">
+          <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
             <StatTile value={correct} label="Right" tone="mint" />
             <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "mint" : "butter"} />
             <StatTile value={bestStreak} label="Best run" tone="blush" />

@@ -99,7 +99,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
       }
     >
       <div className="flex flex-col gap-5">
-        <Card className="flex flex-wrap items-center gap-5">
+        <Card className="@container flex flex-wrap items-center gap-5">
           <Ring pct={progress.pct} size={70} label={`${progress.pct}% of this unit learned`}>
             <NamedIcon name={unit.icon} size={22} aria-hidden style={{ color: "var(--accent-deep)" }} />
           </Ring>
@@ -133,7 +133,11 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
               />
             </div>
           </div>
-          <div className="flex w-full flex-col gap-2 sm:w-52">
+          {/* A column of its own beside the unit only where the card has
+              room for both. Sized by the window it took 208px at 768 out of a
+              320px card, and `flex-1` above it grows from nothing, so the
+              unit's own sentence was laid out 0px wide, a letter a line. */}
+          <div className="flex w-full flex-col gap-2 @lg:w-52">
             {/*
               One way in, and it is the lesson.
 
@@ -199,18 +203,18 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                   <span lang={point.estonian ? "et" : undefined} className="underline">
                     {point.title}
                   </span>
-                  <span className="text-xs" style={{ opacity: 0.75 }}>{point.english}</span>
+                  <span className="text-xs">{point.english}</span>
                 </Link>
               );
             })}
           </div>
         )}
 
-        <div>
+        <div className="@container">
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
             {words.length} words · {offered.map(cardTypeLabel).join(", ")} cards
           </p>
-          <ul className="grid gap-2 sm:grid-cols-2">
+          <ul className="grid gap-2 @lg:grid-cols-2">
             {words.map((l) => {
               const known = snapshot.knownLemmas.has(l.lemma);
               const started = snapshot.startedLemmas.has(l.lemma);

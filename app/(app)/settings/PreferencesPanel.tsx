@@ -17,6 +17,7 @@ import { WORD_GLOSS_CHOICES, type WordGloss } from "@/lib/ux/wordGloss";
 import { caseGlossDefaultFor, type CaseGlossPref } from "@/lib/estonian/caseGloss";
 import type { Level } from "@/lib/collections/syllabus";
 import type { Participation } from "@/lib/research/participation";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof PenLine }[] = [
   {
@@ -48,24 +49,29 @@ export function ReviewModePanel({ current }: { current: ReviewMode }) {
   const [, start] = useTransition();
 
   const pick = (next: ReviewMode) => {
+    const was = mode;
     setMode(next);
-    start(() => { void setReviewMode(next); });
+    start(() => {
+      void setReviewMode(next).catch(() => setMode(was));
+    });
   };
 
   return (
-    <ChoiceGroup ariaLabel="How review asks" className="grid gap-2 sm:grid-cols-2">
-      {MODES.map((m) => (
-        <ChoiceCard
-          key={m.value}
-          layout="stacked"
-          selected={mode === m.value}
-          onSelect={() => pick(m.value)}
-          icon={<m.icon size={16} aria-hidden />}
-          title={m.label}
-          detail={m.detail}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="How review asks" className="grid gap-2 @md:grid-cols-2">
+        {MODES.map((m) => (
+          <ChoiceCard
+            key={m.value}
+            layout="stacked"
+            selected={mode === m.value}
+            onSelect={() => pick(m.value)}
+            icon={<m.icon size={16} aria-hidden />}
+            title={m.label}
+            detail={m.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -94,26 +100,36 @@ export function LetterBarPanel({ current }: { current: LetterBar }) {
     // attribute from the setting a moment later, so the two cannot disagree.
     root.current?.closest("[data-letters]")?.setAttribute("data-letters", next);
     start(async () => {
-      await setLetterBar(next);
+      /* A press that never reached the server puts the row back as it was,
+         the attribute included, rather than letting the rejection take the
+         screen: an uncaught one out of a transition renders the error page. */
+      const landed = await setLetterBar(next).then(() => true).catch(() => false);
+      if (!landed) {
+        setValue(value);
+        root.current?.closest("[data-letters]")?.setAttribute("data-letters", value);
+        return;
+      }
       router.refresh();
     });
   };
 
   return (
     <div ref={root}>
-      <ChoiceGroup ariaLabel="Typing Estonian" className="grid gap-2 sm:grid-cols-2">
-        {LETTER_BAR_CHOICES.map((o) => (
-          <ChoiceCard
-            key={o.value}
-            layout="stacked"
-            disabled={pending}
-            selected={value === o.value}
-            onSelect={() => pick(o.value)}
-            title={o.label}
-            detail={<><LetterSample lit={o.value === "on"} />{o.detail}</>}
-          />
-        ))}
-      </ChoiceGroup>
+      <div className="@container">
+        <ChoiceGroup ariaLabel="Typing Estonian" className="grid gap-2 @md:grid-cols-2">
+          {LETTER_BAR_CHOICES.map((o) => (
+            <ChoiceCard
+              key={o.value}
+              layout="stacked"
+              disabled={pending}
+              selected={value === o.value}
+              onSelect={() => pick(o.value)}
+              title={o.label}
+              detail={<><LetterSample lit={o.value === "on"} />{o.detail}</>}
+            />
+          ))}
+        </ChoiceGroup>
+      </div>
     </div>
   );
 }
@@ -139,7 +155,8 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
   const pick = (next: WordGloss) => {
     setValue(next);
     start(async () => {
-      await setWordGloss(next);
+      const landed = await setWordGloss(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       // The answer is read on the server when a sentence is looked up, so the
       // screens holding one have to be built again rather than repainted.
       router.refresh();
@@ -147,20 +164,22 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="Words in a sentence" className="grid gap-2 sm:grid-cols-2">
-      {WORD_GLOSS_CHOICES.map((o) => (
-        <ChoiceCard
-          key={o.value}
-          layout="stacked"
-          disabled={pending}
-          selected={value === o.value}
-          onSelect={() => pick(o.value)}
-          icon={o.value === "on" ? <Underline size={16} aria-hidden /> : <AlignLeft size={16} aria-hidden />}
-          title={o.label}
-          detail={o.detail}
-        />
-      ))}
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="Words in a sentence" className="grid gap-2 @md:grid-cols-2">
+        {WORD_GLOSS_CHOICES.map((o) => (
+          <ChoiceCard
+            key={o.value}
+            layout="stacked"
+            disabled={pending}
+            selected={value === o.value}
+            onSelect={() => pick(o.value)}
+            icon={o.value === "on" ? <Underline size={16} aria-hidden /> : <AlignLeft size={16} aria-hidden />}
+            title={o.label}
+            detail={o.detail}
+          />
+        ))}
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -182,7 +201,8 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
   const pick = (next: CaseGlossPref | "auto") => {
     setValue(next);
     start(async () => {
-      await setCaseQuestionGloss(next === "auto" ? "" : next);
+      const landed = await setCaseQuestionGloss(next === "auto" ? "" : next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
@@ -190,35 +210,37 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
   const autoShows = caseGlossDefaultFor(level);
 
   return (
-    <ChoiceGroup ariaLabel="English under a case question" className="grid gap-2 sm:grid-cols-3">
-      <ChoiceCard
-        layout="stacked"
-        disabled={pending}
-        selected={value === "auto"}
-        onSelect={() => pick("auto")}
-        icon={<Wand2 size={16} aria-hidden />}
-        title="Follow my level"
-        detail={autoShows ? `Shown, because ${level} still gets it.` : `Hidden, because ${level} has moved past it.`}
-      />
-      <ChoiceCard
-        layout="stacked"
-        disabled={pending}
-        selected={value === "on"}
-        onSelect={() => pick("on")}
-        icon={<Eye size={16} aria-hidden />}
-        title="Always show it"
-        detail="Every case question keeps its English reading, at every level."
-      />
-      <ChoiceCard
-        layout="stacked"
-        disabled={pending}
-        selected={value === "off"}
-        onSelect={() => pick("off")}
-        icon={<EyeOff size={16} aria-hidden />}
-        title="Never show it"
-        detail={<>Just <span lang="et">milles? kus?</span>, with nothing under it.</>}
-      />
-    </ChoiceGroup>
+    <div className="@container">
+      <ChoiceGroup ariaLabel="English under a case question" className="grid gap-2 @lg:grid-cols-3">
+        <ChoiceCard
+          layout="stacked"
+          disabled={pending}
+          selected={value === "auto"}
+          onSelect={() => pick("auto")}
+          icon={<Wand2 size={16} aria-hidden />}
+          title="Follow my level"
+          detail={autoShows ? `Shown, because ${level} still gets it.` : `Hidden, because ${level} has moved past it.`}
+        />
+        <ChoiceCard
+          layout="stacked"
+          disabled={pending}
+          selected={value === "on"}
+          onSelect={() => pick("on")}
+          icon={<Eye size={16} aria-hidden />}
+          title="Always show it"
+          detail="Every case question keeps its English reading, at every level."
+        />
+        <ChoiceCard
+          layout="stacked"
+          disabled={pending}
+          selected={value === "off"}
+          onSelect={() => pick("off")}
+          icon={<EyeOff size={16} aria-hidden />}
+          title="Never show it"
+          detail={<>Just <span lang="et">milles? kus?</span>, with nothing under it.</>}
+        />
+      </ChoiceGroup>
+    </div>
   );
 }
 
@@ -244,8 +266,8 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
 
   const save = () => {
     start(async () => {
-      const result = await setClassDisplayName({ displayName: name });
-      setMessage(result.ok ? "Saved." : result.error);
+      const result = await setClassDisplayName({ displayName: name }).catch(() => null);
+      setMessage(!result ? NOT_REACHED : result.ok ? "Saved." : result.error);
     });
   };
 
@@ -326,25 +348,30 @@ export function ResearchPanel({ current, exported }: { current: Participation; e
   const [, start] = useTransition();
 
   const pick = (next: Participation) => {
+    const was = value;
     setValue(next);
-    start(() => { void setResearchParticipation(next); });
+    start(() => {
+      void setResearchParticipation(next).catch(() => setValue(was));
+    });
   };
 
   return (
     <div className="flex flex-col gap-3">
-      <ChoiceGroup ariaLabel="Anonymous statistics" className="grid gap-2 sm:grid-cols-2">
-        {PARTICIPATION.map((p) => (
-          <ChoiceCard
-            key={p.value}
-            layout="stacked"
-            selected={value === p.value}
-            onSelect={() => pick(p.value)}
-            icon={<p.icon size={16} aria-hidden />}
-            title={p.label}
-            detail={p.detail}
-          />
-        ))}
-      </ChoiceGroup>
+      <div className="@container">
+        <ChoiceGroup ariaLabel="Anonymous statistics" className="grid gap-2 @md:grid-cols-2">
+          {PARTICIPATION.map((p) => (
+            <ChoiceCard
+              key={p.value}
+              layout="stacked"
+              selected={value === p.value}
+              onSelect={() => pick(p.value)}
+              icon={<p.icon size={16} aria-hidden />}
+              title={p.label}
+              detail={p.detail}
+            />
+          ))}
+        </ChoiceGroup>
+      </div>
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
         {exported
           ? "Which grammar learners here get wrong, counted across everybody, so that whoever teaches Estonian can see it. Which case, which stem change, which word. Never your deck, your searches or a single answer."
