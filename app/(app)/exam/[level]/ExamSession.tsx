@@ -1200,7 +1200,7 @@ function RequiredWords({ words, text }: { words: MustUseWord[]; text: string }) 
           // than a label, and a gloss is as long as the word needs.
           <Chip key={word.lexemeId} tone={done ? "good" : "neutral"} caseSensitive>
             <span lang="et">{word.lemma}</span>
-            <span style={{ opacity: 0.75 }}>{word.translation}</span>
+            <span>{word.translation}</span>
           </Chip>
         );
       })}
@@ -1379,7 +1379,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
         {item.ideas.map((idea) => (
           <Chip key={idea.lexemeId} caseSensitive>
             <span lang="et">{idea.lemma}</span>
-            <span style={{ opacity: 0.75 }}>{idea.translation}</span>
+            <span>{idea.translation}</span>
           </Chip>
         ))}
       </p>
