@@ -15754,6 +15754,18 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
   assert.match(history, /createdAt: \{ gte: conversationCutoff\(now\) \}/, "loadRecentMessages no longer stops at the day's cutoff");
   assert.match(history, /deleteMany\(\{\s*where: \{ ownerId, createdAt: \{ lt: conversationCutoff\(now\) \} \}/, "forgetOldMessages no longer deletes the turns older than a day");
   assert.match(code("app/api/tutor/route.ts"), /await forgetOldMessages\(ownerId\);/, "the tutor route no longer forgets yesterday's conversation when it writes today's");
+  /*
+    And the write that forgets is held, not floated. `persist` runs in the
+    stream's `finally`, after the last byte is handed over, which is exactly
+    the moment the platform may suspend the function: written as
+    `void persist(...)` the turn and the deletion were a promise nobody was
+    holding, so the day's conversation could survive past the day the notice
+    promises. The rule `no ledger write is left to a promise` states for the
+    ledger, applied to the one write the retention schedule rests on.
+  */
+  const tutorRoute = code("app/api/tutor/route.ts");
+  assert.doesNotMatch(tutorRoute, /\bvoid\s+persist\s*\(/, "the tutor route leaves the write that forgets yesterday to a promise the platform may drop");
+  assert.match(tutorRoute, /after\(\(\) => persist\(/, "the tutor route no longer hands the write that forgets yesterday to after()");
   assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
   assert.match(read("docs/25-data-retention.md"), /Tutor conversation \(`Message`\) \| 24 hours/, "the retention schedule no longer says a tutor conversation lasts a day");
   assert.match(read("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
