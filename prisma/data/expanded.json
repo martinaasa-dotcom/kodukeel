@@ -2571,7 +2571,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "frost; gray; gloomy, gray",
+  "notes": null,
   "examples": [
    {
     "et": "Hommikul oli hall maas.",
@@ -6596,7 +6596,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "peel; cream; choir",
+  "notes": "peel; cream",
   "examples": [
    {
     "et": "Rõõsk koor.",
@@ -7020,7 +7020,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "cucumber",
+  "notes": null,
   "examples": [
    {
     "et": "Kurk on külmast kähe.",
@@ -7901,7 +7901,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "p : b",
   "government": null,
-  "notes": "random; flat",
+  "notes": "random",
   "examples": [
    {
     "et": "Lamp põleb.",
@@ -11697,7 +11697,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "plan, idea; receptacle, container, vessel; dish, utensil",
+  "notes": "plan, idea",
   "examples": [
    {
     "et": "Koorenõu.",
@@ -12105,7 +12105,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "hard hat",
+  "notes": null,
   "examples": [
    {
     "et": "Oktoober oli külm ja vihmane.",
@@ -12605,7 +12605,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "couple; a couple; speed",
+  "notes": "couple; a couple",
   "examples": [
    {
     "et": "Geipaar.",
@@ -16545,7 +16545,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "blueness",
+  "notes": null,
   "examples": [
    {
     "et": "Sinu Maret.",
@@ -16741,7 +16741,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "salt",
+  "notes": null,
   "examples": [
    {
     "et": "Mao ja soole seedetegevus on korras.",
@@ -18450,7 +18450,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "tea",
+  "notes": null,
   "examples": [
    {
     "et": "Asfalttee.",
@@ -20502,7 +20502,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "kk : k",
   "government": null,
-  "notes": "trick; a mischievous act; cannon",
+  "notes": "trick; a mischievous act",
   "examples": [
    {
     "et": "Juustutükk.",
@@ -22150,7 +22150,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "s : ∅",
   "government": null,
-  "notes": "way, manner; mode; melody, tune",
+  "notes": null,
   "examples": [
    {
     "et": "Buss nr 5.",
@@ -25005,7 +25005,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "bar",
+  "notes": null,
   "examples": [
    {
     "et": "Hotelli baar asub esimesel korrusel.",
@@ -30664,7 +30664,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": "mille eest · mille vastu",
-  "notes": "a protective device; circuit breaker",
+  "notes": null,
   "examples": [
    {
     "et": "Lisakaitse.",
@@ -31376,7 +31376,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "p : b",
   "government": null,
-  "notes": "carp",
+  "notes": null,
   "examples": [
    {
     "et": "Pappkarp.",
@@ -39124,7 +39124,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "roe; Mari",
+  "notes": "roe",
   "examples": [
    {
     "et": "Need marjad on mürgised.",
@@ -40048,7 +40048,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": "kelle/mille pärast · mida teha",
-  "notes": "problem, task, responsibility; crumbly",
+  "notes": "problem, task, responsibility",
   "examples": [
    {
     "et": "Tal on palju muresid.",
@@ -40880,7 +40880,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "thump, thud",
+  "notes": null,
   "examples": [
    {
     "et": "Jäämüts.",
@@ -41464,7 +41464,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "norm; OK, all right, decent",
+  "notes": "norm",
   "examples": [
    {
     "et": "Kõlblusnormid.",
@@ -42848,7 +42848,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "kk : k",
   "government": null,
-  "notes": "package; being full of something; a hurry",
+  "notes": null,
   "examples": [
    {
     "et": "Kasepakk.",
@@ -42901,7 +42901,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "log, beam",
+  "notes": null,
   "examples": [
    {
     "et": "Lisapalk.",
@@ -46356,7 +46356,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "reef",
+  "notes": null,
   "examples": [
    {
     "et": "Tartu rahu.",
@@ -46884,7 +46884,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "s : ∅",
   "government": null,
-  "notes": "trip, journey",
+  "notes": null,
   "examples": [
    {
     "et": "Reied on eilsest trennist valusad.",
@@ -48213,7 +48213,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "ash",
+  "notes": null,
   "examples": [
    {
     "et": "Meresaar.",
@@ -49593,7 +49593,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "kk : k",
   "government": null,
-  "notes": "buck",
+  "notes": null,
   "examples": [
    {
     "et": "Spordisokid.",
@@ -52773,7 +52773,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "p : b",
   "government": null,
-  "notes": "post, pole; column, pillar; column",
+  "notes": null,
   "examples": [
    {
     "et": "Tulbid õitsevad.",
@@ -54665,7 +54665,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "cast; lightness, light",
+  "notes": null,
   "examples": [
    {
     "et": "Hambavalu.",
@@ -56743,7 +56743,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
   "government": null,
-  "notes": "straw, hay",
+  "notes": null,
   "examples": [
    {
     "et": "Kangkaalu õlad.",
@@ -59482,7 +59482,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "mercy; pardon; love, affection",
+  "notes": null,
   "examples": [
    {
     "et": "Haavaarm.",
@@ -60250,7 +60250,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "grade, step",
+  "notes": null,
   "examples": [
    {
     "et": "Trepiaste.",
@@ -67232,7 +67232,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "each; age; lifetime",
+  "notes": "each",
   "examples": [
    {
     "et": "Teismelise iga.",
@@ -68016,7 +68016,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : ∅",
   "government": null,
-  "notes": "yacht",
+  "notes": null,
   "examples": [
    {
     "et": "Rahajaht.",
@@ -70328,7 +70328,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "stuff, things",
+  "notes": null,
   "examples": [
    {
     "et": "Leidsin kapist kaks pakki kama.",
@@ -70640,7 +70640,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "kettle; toy; ass, buttocks",
+  "notes": "kettle",
   "examples": [
    {
     "et": "Vundamendi kannud.",
@@ -71004,7 +71004,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "herd, flock; reef",
+  "notes": "herd, flock",
   "examples": [
    {
     "et": "Ahvikari.",
@@ -71108,7 +71108,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "quarry",
+  "notes": null,
   "examples": [
    {
     "et": "Tippsportlase karjääri lõpetas vigastus.",
@@ -72408,7 +72408,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "pp : p",
   "government": null,
-  "notes": "penis, sex, fuck, copulation",
+  "notes": null,
   "examples": [
    {
     "et": "Jaan toetub käies kepile.",
@@ -73040,7 +73040,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "membrane; plastic film, plastic wrap; shrill",
+  "notes": "membrane; plastic film, plastic wrap",
   "examples": [
    {
     "et": "Kilesse pakitud viinerid.",
@@ -73456,7 +73456,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "favour/favor; small mound, knoll",
+  "notes": "favour/favor",
   "examples": [
    {
     "et": "Tädi tõi lapsele kingiks nuku.",
@@ -74524,7 +74524,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "large, bulky",
+  "notes": null,
   "examples": [
    {
     "et": "Kanna väike kogus õli juustele.",
@@ -74576,7 +74576,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "rustling, the sound of waves or of leaves in the wind.",
+  "notes": null,
   "examples": [
    {
     "et": "Praetud koha sinepikastmega.",
@@ -74732,7 +74732,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "s : t",
   "government": null,
-  "notes": "duty, requirement",
+  "notes": null,
   "examples": [
    {
     "et": "Püsti, kohus tuleb!",
@@ -77952,7 +77952,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "b : v",
   "government": null,
-  "notes": "a large uninhabited forest; desert; red-brown, tawny",
+  "notes": null,
   "examples": [
    {
     "et": "Ürgsed kõrved paeluvad mind tänini.",
@@ -82697,7 +82697,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
   "government": null,
-  "notes": "belly; taste, flavour",
+  "notes": "belly",
   "examples": [
    {
     "et": "Täidetud magu.",
@@ -82753,7 +82753,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : ∅",
   "government": null,
-  "notes": "time, spare time, opportunity; possibility, opportunity",
+  "notes": null,
   "examples": [
    {
     "et": "Mõiste maht.",
@@ -83169,7 +83169,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "tax, payment",
+  "notes": null,
   "examples": [
    {
     "et": "Veisemaks.",
@@ -83598,7 +83598,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "tt : t",
   "government": null,
-  "notes": "matte; checkmate",
+  "notes": null,
   "examples": [
    {
     "et": "Libisemiskindel matt.",
@@ -86442,7 +86442,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "meadow, lea; mowing",
+  "notes": null,
   "examples": [
    {
     "et": "Imenduv niit.",
@@ -86498,7 +86498,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "appointment, designation; namelessness",
+  "notes": "appointment, designation",
   "examples": [
    {
     "et": "Nädalapäevade nimetused.",
@@ -88281,7 +88281,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "primrose, fawn",
+  "notes": null,
   "examples": [
    {
     "et": "Väikepaat.",
@@ -88689,7 +88689,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "to park",
+  "notes": null,
   "examples": [
    {
     "et": "Parkisin auto tänavale.",
@@ -90409,7 +90409,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "nd : nn",
   "government": null,
-  "notes": "splinter",
+  "notes": null,
   "examples": [
    {
     "et": "Büroopind.",
@@ -90793,7 +90793,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "kk : k",
   "government": null,
-  "notes": "any kind of spot, such as a bruise; stain; sheet metal",
+  "notes": "any kind of spot, such as a bruise; stain",
   "examples": [
    {
     "et": "Rasvaplekk.",
@@ -93472,7 +93472,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "sediment left over after the creation of beer or kvass",
+  "notes": null,
   "examples": [
    {
     "et": "Murakaraba.",
@@ -96304,7 +96304,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "let alone, not to mention; since; up to something, until a certain limit",
+  "notes": null,
   "examples": [
    {
     "et": "Eesti saadik Soomes.",
@@ -98696,7 +98696,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
   "government": null,
-  "notes": "pen; bracket",
+  "notes": "pen",
   "examples": [
    {
     "et": "Sabasulg.",
@@ -100822,7 +100822,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "dam; embankment; levee, dyke",
+  "notes": null,
   "examples": [
    {
     "et": "Tammest puusärk.",
@@ -102645,7 +102645,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "penis; ding, tinkle",
+  "notes": null,
   "examples": [
    {
     "et": "Lisasin supile tilli ja peterselli.",
@@ -103009,7 +103009,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "customs; inch",
+  "notes": "customs",
   "examples": [
    {
     "et": "Läbiveotoll.",
@@ -108839,7 +108839,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "loose, slack; sluggish; inept, lazy, weak-willed; timid; troll",
+  "notes": "loose, slack; sluggish; inept, lazy, weak-willed; timid",
   "examples": [
    {
     "et": "Vedel lämmastik.",
@@ -109643,7 +109643,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "blister, boil",
+  "notes": null,
   "examples": [
    {
     "et": "Vikunjavill.",
@@ -109847,7 +109847,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "a row of trucks or any other vehicle carrying a load; row; phase, stage, round, e.g. in a competition",
+  "notes": null,
   "examples": [
    {
     "et": "Matkarada kulgeb voorte harju mööda.",
@@ -115190,7 +115190,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "sensor",
+  "notes": null,
   "examples": [],
   "forms": [
    {
@@ -117780,7 +117780,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "decoration, ornament",
+  "notes": null,
   "examples": [
    {
     "et": "Ehe metall.",
@@ -120039,7 +120039,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "fork; snowdrift; blanket of snow",
+  "notes": null,
   "examples": [
    {
     "et": "Kuuris on hange ja labidaid.",
@@ -127139,7 +127139,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "sauce",
+  "notes": null,
   "examples": [
    {
     "et": "Rohi on kastest märg.",
@@ -130668,7 +130668,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "mug, cup",
+  "notes": null,
   "examples": [
    {
     "et": "Ehituskruus.",
@@ -132803,7 +132803,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "to sheave (fabric), to skein; to wrap, to roll; to tuck up, to roll up or down",
+  "notes": null,
   "examples": [
    {
     "et": "Ühiskond käärib.",
@@ -133367,7 +133367,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "spot, stain, blemish; like",
+  "notes": "spot, stain, blemish",
   "examples": [
    {
     "et": "Õlilaik.",
@@ -133894,7 +133894,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "A side; A (protestant) confirmation into the faithful community.",
+  "notes": "A side",
   "examples": [
    {
     "et": "Reformistide leer lõhenes.",
@@ -134146,7 +134146,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "d : ∅",
   "government": null,
-  "notes": "breeching",
+  "notes": null,
   "examples": [
    {
     "et": "Arheoloogilised leiud.",
@@ -134942,7 +134942,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "d : t",
   "government": null,
-  "notes": "sunset",
+  "notes": null,
   "examples": [
    {
     "et": "Loote esimesed liigutused.",
@@ -135693,7 +135693,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": "kelle/mille vahel",
-  "notes": "crack, fissure; split, gap",
+  "notes": null,
   "examples": [
    {
     "et": "Jäälõhe.",
@@ -135745,7 +135745,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "trap; latch; with a click",
+  "notes": "trap; latch",
   "examples": [
    {
     "et": "Võlalõks.",
@@ -136656,7 +136656,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "prestige, renown, fame; earthly, worldly",
+  "notes": "prestige, renown, fame",
   "examples": [
    {
     "et": "Taani kinol on hea maine.",
@@ -137328,7 +137328,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "covered with honey",
+  "notes": null,
   "examples": [
    {
     "et": "Istanbulist kaasa toodud meened.",
@@ -138635,7 +138635,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "tt : t",
   "government": null,
-  "notes": "old woman; hag; A traditional fishing net used to catch small fish.",
+  "notes": null,
   "examples": [
    {
     "et": "Aia on vallutanud mutid.",
@@ -139251,7 +139251,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "coin",
+  "notes": null,
   "examples": [],
   "forms": [
    {
@@ -140494,7 +140494,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "note",
+  "notes": null,
   "examples": [
    {
     "et": "Räimenoot.",
@@ -143045,7 +143045,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "d : j",
   "government": null,
-  "notes": "spades",
+  "notes": null,
   "examples": [
    {
     "et": "Malmpada.",
@@ -143945,7 +143945,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "a large unorganised group of people; a large group of objects; raft",
+  "notes": "a large unorganised group of people; a large group of objects",
   "examples": [
    {
     "et": "Haneparv.",
@@ -144225,7 +144225,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "tt : t",
   "government": null,
-  "notes": "stalemate - position where a player has no legal moves, but the king is not mate, resulting in a remis",
+  "notes": null,
   "examples": [
    {
     "et": "Kahetsen pattu.",
@@ -146807,7 +146807,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "any male animal, especially a moose; bubble; funny, strange",
+  "notes": "any male animal, especially a moose",
   "examples": [
    {
     "et": "Noorpull.",
@@ -148573,7 +148573,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "kk : k",
   "government": null,
-  "notes": "blister; The nest of a hornet or a wasp.; parrel",
+  "notes": "blister; The nest of a hornet or a wasp.",
   "examples": [
    {
     "et": "Naharakk.",
@@ -149988,7 +149988,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
   "government": null,
-  "notes": "dish, course, meal; reed, cane",
+  "notes": "dish, course, meal",
   "examples": [
    {
     "et": "Külmad road.",
@@ -150187,7 +150187,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "rutin",
+  "notes": null,
   "examples": [
    {
     "et": "Argielu nüristav rutiin.",
@@ -150967,7 +150967,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "squad, platoon, troop; a small tuft of hair",
+  "notes": "squad, platoon, troop",
   "examples": [
    {
     "et": "Meestesalk.",
@@ -155399,7 +155399,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "horse stable",
+  "notes": null,
   "examples": [
    {
     "et": "Utt on talled sünnitanud.",
@@ -160740,7 +160740,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : ∅",
   "government": null,
-  "notes": "guard",
+  "notes": null,
   "examples": [
    {
     "et": "Õllevaht.",
@@ -160805,7 +160805,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "earwax; quiet",
+  "notes": "earwax",
   "examples": [
    {
     "et": "Kuusevaik.",
@@ -163310,7 +163310,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "Võro",
+  "notes": null,
   "examples": [
    {
     "et": "Võru on õllevaadi ümbert ära tulnud.",
@@ -164804,7 +164804,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "attack! get 'em!",
+  "notes": null,
   "examples": [
    {
     "et": "Ruutuäss.",
@@ -169168,7 +169168,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "p : b",
   "government": null,
-  "notes": "trick; a porridge-like dish containing crushed hemp seeds; temperature",
+  "notes": "trick",
   "examples": [
    {
     "et": "Tulemata jätmine oli alatu temp.",
@@ -175181,7 +175181,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "understanding; a kind of dry temperate grassland",
+  "notes": "understanding",
   "examples": [
    {
     "et": "Tal pole täit aru peas.",
@@ -179415,7 +179415,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "genie; jinni",
+  "notes": null,
   "examples": [
    {
     "et": "Täida klaas jääga, lisa džinn ja toonik.",
@@ -181271,7 +181271,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "precursor, origin; at an early stage",
+  "notes": "precursor, origin",
   "examples": [
    {
     "et": "Hallitusseente eosed.",
@@ -183401,7 +183401,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "Frank",
+  "notes": null,
   "examples": [],
   "forms": [
    {
@@ -184324,7 +184324,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "garnet",
+  "notes": null,
   "examples": [],
   "forms": [
    {
@@ -187367,7 +187367,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "cock, dick, penis",
+  "notes": null,
   "examples": [],
   "forms": [
    {
@@ -191409,7 +191409,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "jerk, douchebag, asshole; job",
+  "notes": "jerk, douchebag, asshole",
   "examples": [
    {
     "et": "Tahaks mingi kergema jobi peale saada.",
@@ -194682,7 +194682,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "kk : k",
   "government": null,
-  "notes": "loaf of bread or white bread",
+  "notes": null,
   "examples": [
    {
     "et": "Lõkketulel küpsetatud kakud.",
@@ -212952,7 +212952,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "sounding line; lot; alvar",
+  "notes": "sounding line; alvar; islet",
   "examples": [
    {
     "et": "Lood lasti vette.",
@@ -215682,7 +215682,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "grain",
+  "notes": null,
   "examples": [
    {
     "et": "Me ei otsinud Victoria saarelt vaske ega mingit muud maaret.",
@@ -218602,7 +218602,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "makeup, cosmetics",
+  "notes": null,
   "examples": [
    {
     "et": "Jaapani kabukiteatri traditsiooniline mink.",
@@ -220281,7 +220281,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "jetty, mole",
+  "notes": null,
   "examples": [
    {
     "et": "Bareljeefil on kujutatud ehitusmaterjali vedavat muula.",
@@ -225535,7 +225535,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "awn, beard",
+  "notes": null,
   "examples": [
    {
     "et": "Hingepõhjast tulev ohe.",
@@ -227758,7 +227758,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "heavy rain; very, extremely, really",
+  "notes": "heavy rain",
   "examples": [
    {
     "et": "Padu tuli padu järel ja järjest külmemaks läks.",
@@ -228641,7 +228641,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "pp : p",
   "government": null,
-  "notes": "money; Orthodox priest; pastor",
+  "notes": null,
   "examples": [
    {
     "et": "Röövijad said hunniku pappi.",
@@ -233481,7 +233481,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "porn, pornography",
+  "notes": null,
   "examples": [
    {
     "et": "Toiduotsingul ronib porr väga osavasti puutüvel.",
@@ -235269,7 +235269,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "prank, practical joke; poot",
+  "notes": "poot",
   "examples": [
    {
     "et": "Mees lükkas pussi saapasäärde.",
@@ -237542,7 +237542,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "tt : t",
   "government": null,
-  "notes": "a former unit of volume used primarily to measure fish and grains; grebe",
+  "notes": "a former unit of volume used primarily to measure fish and grains",
   "examples": [
    {
     "et": "Puupütt.",
@@ -238737,7 +238737,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : ∅",
   "government": null,
-  "notes": "rubbish, garbage; Used as an intensifier to represent displeasure or anger, approximately translates to fuck, but not quite as severe; but also to represent wonder.; waste",
+  "notes": "rubbish, garbage; Used as an intensifier to represent displeasure or anger, approximately translates to fuck, but not quite as severe; but also to represent wonder.",
   "examples": [
    {
     "et": "Kassiraisk.",
@@ -241972,7 +241972,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "a rune",
+  "notes": null,
   "examples": [
    {
     "et": "Ruun on pererahvale lemmikloomaks, talutöödeks on traktorid.",
@@ -242800,7 +242800,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "wreck, jalopy",
+  "notes": null,
   "examples": [
    {
     "et": "Angerjarüsa.",
@@ -247112,7 +247112,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "som",
+  "notes": null,
   "examples": [
    {
     "et": "1960-ndatel käisid sommid samuti Rootsis tööl.",
@@ -247594,7 +247594,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "tt : t",
   "government": null,
-  "notes": "hundred",
+  "notes": null,
   "examples": [
    {
     "et": "Näed, läkski sott sassi.",
@@ -252312,7 +252312,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "the shake",
+  "notes": null,
   "examples": [],
   "forms": [
    {
@@ -255679,7 +255679,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "ink",
+  "notes": null,
   "examples": [
    {
     "et": "Peipsil tohib üle kümne aasta taas tinti püüda.",
@@ -260575,7 +260575,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "dizziness, stupor; drunkenness, intoxication",
+  "notes": null,
   "examples": [
    {
     "et": "Kiirkaater lõikas lainet kui hai uim.",
@@ -265569,7 +265569,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "screw; propeller; rifle",
+  "notes": null,
   "examples": [
    {
     "et": "Vint tahab enne kappipanekut puhastamist.",
@@ -268582,7 +268582,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "tt : t",
   "government": null,
-  "notes": "at sign",
+  "notes": null,
   "examples": [
    {
     "et": "Sõtta läksid mehed igas vanuses, koolipoistest tõeliste ättideni.",

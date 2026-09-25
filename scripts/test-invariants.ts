@@ -21594,6 +21594,47 @@ check("a translation a reviewer refused is never filled in again", () => {
   result, after the call is bought and the file rewritten, which is the wrong
   end to find it from.
 */
+/**
+ * A built entry's notes are its own word's senses, on every path that writes them.
+ *
+ * The builder took the next three senses on the Wiktionary page whatever they
+ * belonged to, so a page holding two words gave each the other's meanings:
+ * `tee` the road kept "tea", `palk` the salary "log, beam". `furtherSenses`
+ * keeps the first sense's etymology. Two scripts write notes, the builder and
+ * the gloss audit's correction, and the seed carries the fix to a deployment
+ * seeded before it, ahead of the early return.
+ */
+check("a built entry's notes come from its own etymology on every writer", () => {
+  for (const file of ["scripts/expand-seed.ts", "scripts/audit-glosses.ts"]) {
+    const source = code(file);
+    assert.match(source, /\bfurtherSenses\(/, `${file} builds notes without furtherSenses`);
+    assert.doesNotMatch(source, /senses\.slice\(1,\s*4\)/, `${file} takes the page's next senses whatever word they belong to`);
+  }
+  const seed = code("prisma/seed.ts");
+  const at = seed.indexOf("applyNotesCorrections(prisma)");
+  const early = seed.indexOf('process.argv.includes("--only-if-empty")');
+  assert.ok(at > 0 && early > 0 && at < early, "the seed does not correct notes before the early return");
+});
+
+/**
+ * A homonym pin takes the other word's notes with it, on every path.
+ *
+ * Pinning re-reads an entry from the Ekilex word it names and kept the notes,
+ * which are the Wiktionary page's other senses: `kurk` the throat kept
+ * "cucumber". `prisma/pinnedNotes.test.ts` holds the shipped file; this holds
+ * the two writers, the script that applies a pin and the seed that repairs a
+ * deployment seeded before it, on both of the seed's paths.
+ */
+check("a homonym pin carries no notes from the other word", () => {
+  const audit = code("scripts/audit-homonyms.ts");
+  const apply = /async function applyPins[\s\S]*?\n}/.exec(audit)?.[0] ?? "";
+  assert.match(apply, /notes: null/, "applyPins keeps the page's other senses on a pinned entry");
+  const seed = code("prisma/seed.ts");
+  assert.equal((seed.match(/\bclearPinnedNotes\(/g) ?? []).length, 2,
+    "the seed does not clear pinned notes on both its paths");
+  assert.match(code("prisma/expanded.ts"), /"editedBy" IS NULL/, "clearPinnedNotes may reach a hand edit");
+});
+
 check("nothing pays a model to translate a sentence nobody may be shown", () => {
   assert.match(
     code("scripts/translate-examples.ts"),
