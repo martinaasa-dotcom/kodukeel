@@ -2064,8 +2064,16 @@ const COMPLAINT: SceneSpec = {
       they: "They ask what the matter is.",
       feel: "sorry",
       move: "ask",
-      topic: ["probleem", "viga", "kaebus", "aitama"],
-      needs: [{ kind: "datum", slot: "item" }, { kind: "lemma", oneOf: ["probleem", "viga", "halb", "kahju", "töötama", "vana"] }],
+      topic: ["probleem", "viga", "katki", "kaebus", "aitama"],
+      /*
+        `katki` is how anybody says a thing is broken, and the beat did not
+        take it: `Ma ostsin arvuti ja arvuti on katki` read as incomplete,
+        the clerk asked again, and then offered `Viga või probleem?` to a
+        learner who had just said exactly what was wrong. The composer's
+        `Kuidas telefon teil katki läks?` was withheld as off topic for the
+        same reason.
+      */
+      needs: [{ kind: "datum", slot: "item" }, { kind: "lemma", oneOf: ["probleem", "viga", "katki", "halb", "kahju", "töötama", "vana"] }],
       required: true,
       patience: 3,
       shape: "sentence",

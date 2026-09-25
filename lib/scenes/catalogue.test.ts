@@ -676,3 +676,18 @@ describe("the scene catalog", () => {
     });
   });
 });
+
+/*
+  A beat asking what is wrong with a thing takes the word anybody uses for it.
+  `Ma ostsin arvuti ja arvuti on katki` read as incomplete on the complaint
+  scene, and the clerk offered `Viga või probleem?` to a learner who had just
+  said exactly what was wrong.
+*/
+describe("a beat asking what is wrong", () => {
+  it("takes katki, both as an answer and as its topic", () => {
+    const beat = sceneById("kaebus")!.beats.find((one) => one.id === "problem")!;
+    const answers = leafNeeds(beat.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : []));
+    expect(answers).toContain("katki");
+    expect(beat.topic).toContain("katki");
+  });
+});
