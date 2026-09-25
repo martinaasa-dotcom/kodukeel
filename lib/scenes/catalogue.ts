@@ -942,7 +942,7 @@ const CAFE: SceneSpec = {
       goal: "Tell them what you would like to drink.",
       they: "They ask what you would like.",
       move: "ask",
-      topic: ["kohv", "tee", "jook", "soovima", "tellima"],
+      topic: ["jook", "kohv", "tee", "soovima", "tellima"],
       needs: [{ kind: "datum", slot: "drink", grammCase: "PARTITIVE" }],
       required: true,
       patience: 3,
