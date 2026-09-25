@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { setTimeZone } from "@/app/actions";
+import { zoneToSend } from "@/lib/time/day";
 
 /**
  * Tells the server where the learner's midnight is.
@@ -14,8 +15,10 @@ import { setTimeZone } from "@/app/actions";
  *
  * Called only when the stored value actually disagrees with the browser, which
  * is once on a new account and once more if somebody moves or travels. The
- * server rejects anything `Intl` does not recognize, so a stored zone is safe
- * to hand to Postgres.
+ * server accepts a named zone and nothing else (`canonicalZone` in
+ * lib/time/day.ts), so a stored zone means the same thing to Postgres as it
+ * does here. A browser that reports a bare offset is not asked to send it,
+ * because the server would refuse it on every page load for ever.
  */
 export function TimeZoneSync({ stored }: { stored: string | null }) {
   useEffect(() => {
@@ -28,8 +31,9 @@ export function TimeZoneSync({ stored }: { stored: string | null }) {
       // recover from.
       return;
     }
-    if (!zone || zone === stored) return;
-    void setTimeZone(zone).catch(() => undefined);
+    const send = zoneToSend(zone, stored);
+    if (!send) return;
+    void setTimeZone(send).catch(() => undefined);
   }, [stored]);
 
   return null;
