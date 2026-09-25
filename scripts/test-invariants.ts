@@ -12003,19 +12003,44 @@ check("first run builds a deck in a fixed number of queries, not one set per wor
     "completeOnboarding stopped using the batched builder",
   );
   assert.doesNotMatch(
-    onboarding, /for\s*\([^)]*\)\s*\{[\s\S]{0,400}?addUnitToDeck\(/,
+    // Lazy to the `) {`: `[^)]*` stops at the first `)`, so a loop over
+    // `units.entries()` or `Object.keys(x)` was invisible to both arms here.
+    onboarding, /for\s*\([\s\S]*?\)\s*\{[\s\S]{0,400}?addUnitToDeck\(/,
     "completeOnboarding is calling addUnitToDeck in a loop again, which is a session check and three reads per unit",
   );
 
   const deck = code("lib/srs/deck.ts");
   assert.doesNotMatch(
     between(deck, "export async function addUnitsToDeck"),
-    /for\s*\([^)]*\)\s*\{[\s\S]{0,300}?await\s+prisma\.lexeme\./,
+    /for\s*\([\s\S]*?\)\s*\{[\s\S]{0,300}?await\s+prisma\.lexeme\./,
     "the deck builder is reading the dictionary inside a loop, which is the shape it was written to remove",
   );
   assert.match(
     deck, /INSERT_CHUNK/,
     "the deck builder inserts unchunked; a whole level is over 2000 rows and Postgres binds at most 65535 parameters",
+  );
+});
+
+/*
+  A finished conversation reads the cards it grades once.
+
+  `finishScene` wrote each of the run's grades through a loop that opened with
+  a `findFirst` for that grade's card, so ten requirements met was ten round
+  trips before the first write, on the screen that says how the conversation
+  went, against a database in another region. It reads every candidate in one
+  query and `cardsForGrades` matches them, choosing the lowest id exactly as
+  the per-grade query's `orderBy` did. The writes stay per grade, because each
+  reads the state the one before left behind.
+*/
+check("a finished scene reads the cards it grades once, not one query per grade", () => {
+  const finish = between(code("app/actions.ts"), "export async function finishScene");
+  assert.match(finish, /cardsForGrades\(/, "finishScene stopped matching its grades in one pass");
+  assert.doesNotMatch(
+    // Lazy to the `) {` rather than `[^)]*`, which stops at the first `)`: the
+    // loop header here is `.entries()`, so the narrower pattern never saw the
+    // loop at all and this arm passed with a query put back inside it.
+    finish, /for\s*\([\s\S]*?\)\s*\{[\s\S]{0,400}?await\s+prisma\./,
+    "finishScene is querying inside its grading loop again, a round trip per grade before a single write",
   );
 });
 

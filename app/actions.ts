@@ -8,6 +8,7 @@ import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
+import { cardsForGrades } from "@/lib/scenes/grades";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
@@ -1466,20 +1467,25 @@ export async function finishScene(input: {
     fails under pressure lands in the same weak-case charts as the case they
     fail on a card.
   */
+  /*
+    Every candidate card read once, and matched in `cardsForGrades`. This was a
+    `findFirst` per grade inside the loop below, so a conversation that met ten
+    requirements made ten round trips before its first write, on the screen
+    that says how it went. Bounded by this learner's own cards for the words
+    the run graded.
+  */
+  const lemmas = [...new Set(finished.grades.map((grade) => grade.lemma))];
+  const candidates = lemmas.length === 0 ? [] : await prisma.card.findMany({
+    where: { ownerId, lexeme: { lemma: { in: lemmas } }, cardType: { in: ["CASE_FORM", "PRODUCTION"] } },
+    select: { id: true, cardType: true, targetCase: true, lexeme: { select: { lemma: true } } },
+    orderBy: { id: "asc" },
+  });
+  const cardIds = cardsForGrades(finished.grades, candidates);
+
   let graded = 0;
-  for (const grade of finished.grades) {
-    const card = await prisma.card.findFirst({
-      where: {
-        ownerId,
-        lexeme: { lemma: grade.lemma },
-        ...(grade.grammCase
-          ? { cardType: "CASE_FORM", targetCase: grade.grammCase }
-          : { cardType: "PRODUCTION" }),
-      },
-      orderBy: { id: "asc" },
-      select: { id: true },
-    });
-    if (!card) continue;
+  for (const [index, grade] of finished.grades.entries()) {
+    const cardId = cardIds[index];
+    if (!cardId) continue;
     /*
       The case that came back instead travels with the grade, so the pair
       somebody mixes up at a counter is counted beside the pair they mix up
@@ -1487,7 +1493,7 @@ export async function finishScene(input: {
       trusting them, which is what it does for every other caller.
     */
     const result = await gradeCard(
-      card.id, grade.rating, 0, undefined,
+      cardId, grade.rating, 0, undefined,
       grade.grammCase ?? undefined, grade.reachedCase ?? undefined,
     );
     if (result.ok) graded += 1;
