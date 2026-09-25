@@ -41,12 +41,14 @@ import type { CaseKey } from "../lib/estonian/types";
 import { SCENES } from "../lib/scenes/catalogue";
 import { formsOf, words, type Lexicon } from "../lib/scenes/lexicon";
 import { CHECKS, governmentSuspect, runGate, type Check } from "../lib/scenes/gate";
-import { topicForms } from "../lib/scenes/retrieval";
-import { isKnownForm } from "../lib/dict/forms";
+import { MAX_COMPOSE_ATTEMPTS, retryNote, whyWithheld } from "../lib/scenes/line";
+import { scriptedFor } from "../lib/scenes/scripted";
+import { stageFor } from "../lib/scenes/reply";
 import { SYLLABUS } from "../lib/collections/syllabus";
+import { lemmasOfForm } from "../lib/dict/forms";
 import {
-  ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneLemmas, sceneLexicon,
-  wrongRegisterForms, type Allowlist,
+  ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, HARNESS_LEVEL, askLine, chain, gateContext, sceneEntries, sceneLemmas, sceneLexicon,
+  routeGate, wrongRegisterForms, type Allowlist,
 } from "./lib/sceneDraft";
 
 const arg = (name: string, fallback: number) => {
@@ -55,19 +57,6 @@ const arg = (name: string, fallback: number) => {
 };
 const LINES = arg("lines", 3);
 
-/**
- * The app's own vouching, minus the course read it cannot do without a
- * database: the scene's list, then the forms list. `courseForms` is a query
- * and every word it holds is in the forms list anyway, so what this loses is
- * speed rather than an answer.
- */
-async function vouchOf(lexicon: Lexicon, spellings: readonly string[]): Promise<ReadonlySet<string>> {
-  const out = new Set<string>();
-  await Promise.all([...new Set(spellings)].map(async (word) => {
-    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
-  }));
-  return out;
-}
 const sceneArg = process.argv.indexOf("--scene");
 const onlyScene = sceneArg >= 0 ? process.argv[sceneArg + 1] : undefined;
 /*
@@ -96,11 +85,11 @@ const CHAIN = chain();
 
 /** The one government check, so Part B measures what a learner would meet. */
 function suspect(tokens: readonly string[]): boolean {
-  return governmentSuspect(tokens, gateContext(EMPTY_LEXICON, new Set()));
+  return governmentSuspect(tokens, gateContext(EMPTY_LEXICON, new Set(), []));
 }
 
 const EMPTY_LEXICON: Lexicon = {
-  forms: new Set(), spoken: [], byLemma: new Map(), byCase: new Map(), caseForm: new Map(),
+  forms: new Set(), spoken: [], byLemma: new Map(), posOf: new Map(), byCase: new Map(), caseForm: new Map(),
   folded: new Map(), infinitives: new Map(), persons: new Map(),
 };
 
@@ -136,8 +125,35 @@ async function partA() {
     let sceneAsked = 0, sceneWithheld = 0;
 
     for (const beat of scene.beats) {
+      /*
+        THROUGH THE ROUTE'S PROMPT, NOT THE DRAFTER'S. This composed with
+        `compose` from sceneDraft, which is the prompt `draft:lines` banks lines
+        with: it hands the model the learner's `goal`, which is the thing §32
+        found makes a model write the learner's line, and it is not what
+        `app/api/scene/route.ts` sends. So every withheld rate this printed was
+        a rate for drafting the bank rather than for composing live. The route's
+        request is built here field for field as `play:scenes` builds it, with
+        no conversation in front of it: `composeSystem` for the scene, and
+        `composeLive` with this beat's stage direction, the scene's other lines
+        for tone and this beat's own banked lines to rephrase.
+      */
+      const routeCompose = (avoid: readonly string[] = [], because?: string) => askLine(CHAIN, {
+        move: beat.move,
+        they: stageFor(beat, null),
+        reading: "",
+        because,
+        examples: scene.beats
+          .filter((other) => other.id !== beat.id)
+          .flatMap((other) => scriptedFor(scene, other, HARNESS_LEVEL).slice(0, 1))
+          .slice(0, 6),
+        asked: scriptedFor(scene, beat, HARNESS_LEVEL).slice(0, 2),
+        avoid,
+      }, {
+        scene: scene.title, place: scene.place, level: HARNESS_LEVEL, persona: "",
+        situation: scene.role, register: scene.register, words: lexicon.spoken,
+      }, []);
       for (let i = 0; i < LINES; i++) {
-        const line = (await compose(scene, beat, lemmas))?.text;
+        const line = await routeCompose();
         if (!line) { refused++; continue; }
         asked++; sceneAsked++;
         /*
@@ -161,26 +177,52 @@ async function partA() {
           reported `ja` and `on` as words nothing could account for and rescued
           nothing at all, which is the harness measuring itself.
         */
-        const gateFor = async (text: string) => {
-          const vouched = await vouchOf(lexicon, words(text));
-          return {
-            ...gateContext(lexicon, wrongRegister),
-            topic: topicForms(beat, lexicon),
-            vouched: (word: string) => vouched.has(word),
-          };
-        };
-        const first = runGate(line, beat, await gateFor(line));
-        for (const word of first.unknown) reached.set(word, (reached.get(word) ?? 0) + 1);
+        const base = gateContext(lexicon, wrongRegister, sceneEntries(scene, ALLOWLIST));
+        const first = runGate(line, beat, await routeGate(scene, beat, lexicon, base, line));
+        /*
+          THE WORDS IT REACHED PAST THE SCENE FOR, WHICH IS `stretched` AND WAS
+          `unknown`. The two were one field until the vouching split, and this
+          counted the wrong one afterwards for as long as the split has existed.
+          `unknown` is now what nothing in the language could vouch for, which a
+          composer writing real Estonian almost never produces; `stretched` is
+          real Estonian the scene does not teach, which is the whole of what
+          this list is for and what the caption under it already says. Measured
+          on the run that found this: the model leaked its English deliberation
+          into `content` on one line of 276, and that one line was the entire
+          ranked list, `yes 40  wait 17  words 17  the 16`, every entry starred
+          as a word the syllabus ought to teach.
+        */
+        const unvouched = new Set(first.unknown);
+        for (const word of first.stretched) {
+          // Real Estonian the scene does not teach, which is both halves of it:
+          // `stretched` is what it reached past the list for, and anything also
+          // in `unknown` is not a word at all and belongs to no syllabus.
+          if (!unvouched.has(word)) reached.set(word, (reached.get(word) ?? 0) + 1);
+        }
         if (first.failed.length === 0) { firstPass++; continue; }
 
-        // The one retry, with the words that failed named. §6.
-        const second = (await compose(scene, beat, lemmas, first.unknown))?.text;
-        const after = second ? runGate(second, beat, await gateFor(second)) : null;
-        if (after && after.failed.length === 0) { rescued++; continue; }
+        /*
+          THE ROUTE'S RETRIES, AS MANY AS IT MAKES AND TOLD WHAT IT TELLS THEM.
+          This retried once with `retryNote` alone, where the route makes up to
+          `MAX_COMPOSE_ATTEMPTS` attempts and tells each retry both `retryNote`
+          and `whyWithheld` of the last (`sceneLine`), so the rate it printed
+          was a ceiling on what a learner sees rather than the number.
+        */
+        let last = first;
+        let shown = line;
+        let rescuedHere = false;
+        for (let attempt = 1; attempt < MAX_COMPOSE_ATTEMPTS; attempt += 1) {
+          const again = await routeCompose(retryNote(last), whyWithheld(last));
+          if (!again) continue;
+          const verdict = runGate(again, beat, await routeGate(scene, beat, lexicon, base, again));
+          shown = again;
+          last = verdict;
+          if (verdict.failed.length === 0) { rescuedHere = true; break; }
+        }
+        if (rescuedHere) { rescued++; continue; }
 
         withheld++; sceneWithheld++;
-        const shown = second ?? line;
-        const why = after ?? first;
+        const why = last;
         for (const check of why.failed) tally.set(check, (tally.get(check) ?? 0) + 1);
         if (examples.length < 12) {
           const reason = why.failed.join(", ")
@@ -250,10 +292,41 @@ async function partA() {
       if (!taught.has(entry.lemma)) continue;
       for (const form of formsOf(entry)) inCourse.add(form);
     }
+    /*
+      AND A WORD THE COURSE TEACHES IN A FORM IT CANNOT REACH IS A THIRD
+      STATE, because the two gaps want opposite work.
+
+      `inCourse` is every form the course can vouch for, which is the fix that
+      stopped `arsti` and `olen` being starred. It leaves the forms a taught
+      word has that nothing reaches: the simple past is not derivable at all
+      (CLAUDE.md, and `lugesin` goes to `luges` where `tahtsin` goes to
+      `tahtis`) and the harvest stores only its third person, so `tulite`,
+      `ostsite` and `töötasite` were starred as words the syllabus ought to
+      teach while `tulema`, `ostma` and `töötama` are all in it. They are
+      second person plural, which is the register every one of these scenes is
+      played in, so the star was wrong about exactly the forms the module needs
+      most.
+
+      The forms list tells them apart and needs no key: a spelling it maps to a
+      lemma the course teaches is a form this dictionary does not hold, which
+      is a stored form to add, and a spelling it maps nowhere near the course
+      is a word to teach. A star that means both means neither.
+    */
+    const unreachable = new Set<string>();
+    await Promise.all(ranked.map(async ([word]) => {
+      if (inCourse.has(word)) return;
+      const lemmas = await lemmasOfForm(word);
+      if (lemmas.some((lemma) => taught.has(lemma))) unreachable.add(word);
+    }));
     console.log("\n  Words the model reached for that the scene could not vouch for.");
     console.log("  A star means the course does not teach the word at all, at any level, so no");
     console.log("  scene could declare a unit for it and the gap is in the syllabus.");
-    console.log("    " + ranked.map(([w, n]) => `${inCourse.has(w) ? "" : "*"}${w} ${n}`).join("  "));
+    console.log("  A plus means the course teaches the word and this dictionary holds no such");
+    console.log("  form of it, so the gap is a stored form rather than a unit.");
+    console.log("    " + ranked.map(([w, n]) => {
+      const mark = inCourse.has(w) ? "" : unreachable.has(w) ? "+" : "*";
+      return `${mark}${w} ${n}`;
+    }).join("  "));
   }
 }
 
