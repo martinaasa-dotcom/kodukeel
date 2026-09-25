@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Section } from "./corpus";
-import { commentBlock, keyColumns, toCsv } from "./csv";
+import { commentBlock, defused, keyColumns, toCsv } from "./csv";
 
 function section(over: Partial<Section> = {}): Section {
   return {
@@ -115,5 +115,34 @@ describe("a field that could break a parser is quoted", () => {
       ],
     });
     expect(rows(toCsv([et], HEADER))[1]).toContain(",sõbranna,");
+  });
+});
+
+describe("a cell a spreadsheet would run is written as text", () => {
+  it("defuses a lemma that opens a formula, however it opens", () => {
+    for (const bad of ["=HYPERLINK(\"x\")", "+1+1", "@SUM(A1)", "-2+3", "-cmd|x", "\t=1", "\r=1"]) {
+      expect(defused(bad).startsWith("'"), bad).toBe(true);
+    }
+  });
+
+  it("leaves a word, a suffix entry and a band alone", () => {
+    for (const fine of ["tuba", "sõbranna", "-ki", "10-19", "PARTITIVE"]) {
+      expect(defused(fine)).toBe(fine);
+    }
+  });
+
+  it("carries the defusing into the file, quoted where the formula held a quote", () => {
+    const hostile = section({
+      id: "word",
+      dimensions: ["lemma"],
+      cells: [
+        {
+          keys: ['=HYPERLINK("http://x")'],
+          all: { reviews: 100, learners: "10-19", accuracyPct: 50 },
+          mature: null,
+        },
+      ],
+    });
+    expect(rows(toCsv([hostile], HEADER))[1]).toBe('word,lemma,"\'=HYPERLINK(""http://x"")",100,10-19,50,,');
   });
 });

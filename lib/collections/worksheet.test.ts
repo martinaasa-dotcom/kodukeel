@@ -117,6 +117,23 @@ describe("buildWorksheet", () => {
     expect(buildWorksheet([pluralOblique]).gaps).toEqual([]);
   });
 
+  /*
+    And as the seed writes it, with no `morphCode`: the case above is the live
+    shape only, and the guard read the column alone.
+  */
+  it("never gaps a plural stored the way the seed writes it", () => {
+    const seeded = word({
+      forms: [
+        { formType: "NOM_SG", value: "tuba" },
+        { formType: "GEN_SG", value: "toa" },
+        { formType: "PART_SG", value: "tuba" },
+        { formType: "EKILEX:PlKom", value: "tubadega" },
+      ],
+      examples: [{ et: "Nad said tubadega hakkama.", en: null, source: "EKILEX" }],
+    });
+    expect(buildWorksheet([seeded]).gaps).toEqual([]);
+  });
+
   it("hides a verb person worked out from the stored first person", () => {
     const verb = word({
       lemma: "algama", translation: "to begin", pos: "VERB",
