@@ -3661,6 +3661,27 @@ check("there is one shuffle, and the sort-comparator kind is not a shuffle at al
     );
   }
 
+  /*
+    AND THE FOURTH SHAPE, WHICH HAS NO NAME AT ALL.
+
+    The two arms above catch a function called `shuffle` and a random key
+    sorted on, and neither can see Fisher-Yates written straight into a
+    `useMemo`: no function, no key, just the draw that is the whole algorithm.
+    The sentence round's tiles were shuffled that way, a ninth copy, under a
+    rule this file says is asserted both ways. The draw is the tell, a random
+    index scaled to one past the loop counter, and it is read in every file.
+  */
+  const inline = ALL.filter((file) => file !== SHUFFLE_HOME && file !== EXCEPTION)
+    .filter((file) => /\brandom\(\)\s*\*\s*\(\s*\w+\s*\+\s*1\s*\)/.test(code(file)));
+  assert.deepEqual(
+    inline, [],
+    `a Fisher-Yates written inline rather than called. Use shuffle() from ${SHUFFLE_HOME}.`,
+  );
+  assert.match(
+    code(SHUFFLE_HOME), /\brandom\(\)\s*\*\s*\(\s*\w+\s*\+\s*1\s*\)/,
+    "the one shuffle no longer draws the way this check looks for, so the inline arm checks nothing",
+  );
+
   // And the exception carries its reason, so nobody reads it as an oversight.
   assert.match(
     read(EXCEPTION),
@@ -5018,6 +5039,37 @@ check("the app does not talk about itself the way a brochure would", () => {
 });
 
 // ── The browser suites, and the two ways one can lie ─────────────────────────
+
+/*
+  A UNIT TEST STATES ITS MACHINE, AND THE ZONE IS PART OF THE MACHINE.
+
+  CI runs in UTC. Three clock tests built their dates with `Date.UTC` and read
+  them back through formatters that honour the reader's zone, so they passed
+  in CI and failed on `npm test` in Tallinn, which is where this suite is run.
+  The unit config pins a zone that is neither UTC nor anybody's, so an
+  assumption about the zone fails everywhere rather than only off CI. Removing
+  the line or pinning UTC would put the suite back to measuring its host.
+*/
+check("the unit suite runs in a fixed zone that is not UTC, and a locale that is not English", () => {
+  const config = code("vitest.config.mts");
+  const zone = /process\.env\.TZ\s*=\s*["']([^"']+)["']/.exec(config)?.[1];
+  assert.ok(zone, "vitest.config.mts no longer pins a time zone, so the unit suite measures whatever zone its host is in");
+  assert.ok(
+    !/^(UTC|GMT|Etc\/(UTC|GMT)|Europe\/London|Africa\/Abidjan)$/.test(zone!),
+    `vitest.config.mts pins ${zone}, which is CI's own zone: a test that assumes UTC would pass there and fail on a laptop in Tallinn`,
+  );
+  /*
+    And the locale, which is the same fault one setting over: `nextCardLine`
+    took its weekday from the host and wrote "comes back on laupäev" in
+    Tallinn while CI, in English, passed.
+  */
+  const lang = /process\.env\.LC_ALL\s*=\s*["']([^"']+)["']/.exec(config)?.[1];
+  assert.ok(lang, "vitest.config.mts no longer pins LC_ALL, so a formatter handed no locale reads whatever the host speaks");
+  assert.ok(
+    !/^(C|POSIX|en)([_.-]|$)/i.test(lang!),
+    `vitest.config.mts pins ${lang}, which is CI's own language: a string that forgets to say it is English passes there`,
+  );
+});
 
 check("no browser suite hardcodes one machine's Chromium", () => {
   /*
