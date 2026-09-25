@@ -3616,6 +3616,27 @@ check("there is one shuffle, and the sort-comparator kind is not a shuffle at al
     );
   }
 
+  /*
+    AND THE FOURTH SHAPE, WHICH HAS NO NAME AT ALL.
+
+    The two arms above catch a function called `shuffle` and a random key
+    sorted on, and neither can see Fisher-Yates written straight into a
+    `useMemo`: no function, no key, just the draw that is the whole algorithm.
+    The sentence round's tiles were shuffled that way, a ninth copy, under a
+    rule this file says is asserted both ways. The draw is the tell, a random
+    index scaled to one past the loop counter, and it is read in every file.
+  */
+  const inline = ALL.filter((file) => file !== SHUFFLE_HOME && file !== EXCEPTION)
+    .filter((file) => /\brandom\(\)\s*\*\s*\(\s*\w+\s*\+\s*1\s*\)/.test(code(file)));
+  assert.deepEqual(
+    inline, [],
+    `a Fisher-Yates written inline rather than called. Use shuffle() from ${SHUFFLE_HOME}.`,
+  );
+  assert.match(
+    code(SHUFFLE_HOME), /\brandom\(\)\s*\*\s*\(\s*\w+\s*\+\s*1\s*\)/,
+    "the one shuffle no longer draws the way this check looks for, so the inline arm checks nothing",
+  );
+
   // And the exception carries its reason, so nobody reads it as an oversight.
   assert.match(
     read(EXCEPTION),
