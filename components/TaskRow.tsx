@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { toggleTask } from "@/app/actions";
 import { TASK_TAGS, bucketFor, dueDateOptions } from "@/lib/ux/agenda";
 import { dayClock } from "@/lib/time/day";
+import { LocalDate, stableDate } from "@/components/LocalDate";
 
 export interface TaskView {
   id: string;
@@ -71,7 +72,7 @@ export function TaskRow({ task }: { task: TaskView }) {
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
               {overdue ? "Overdue · " : "Due "}
-              {due.toLocaleDateString(undefined, dueDateOptions(due))}
+              <LocalDate iso={due.toISOString()} fallback={stableDate(due, dueDateOptions(due))} options={dueDateOptions(due)} />
             </span>
           )}
         </div>

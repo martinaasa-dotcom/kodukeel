@@ -6,7 +6,8 @@ import type { MetadataRoute } from "next";
  * Not decoration: review is the daily path and it has to survive a bus with no
  * signal (CLAUDE.md). Installed, Kodukeel opens straight into the review screen
  * from the home screen, the service worker has the shell cached, and grades made
- * offline queue locally until there is a connection (lib/offline/queue.ts).
+ * offline wait in the device's outbox until there is a connection
+ * (lib/offline/db.ts).
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {

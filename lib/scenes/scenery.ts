@@ -134,6 +134,11 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   keeletund: { icon: "School", setting: "classroom" },
   toovestlus: { icon: "Briefcase", setting: "meeting" },
   kaebus: { icon: "ClipboardCheck", setting: "returns" },
+  /*
+    The shop `poodi-piima` walks into, opened in rather than moved to: this
+    one starts at the rail and ends at the till, and both are the same room.
+  */
+  riidepood: { icon: "Shirt", setting: "shop" },
 };
 
 /**
