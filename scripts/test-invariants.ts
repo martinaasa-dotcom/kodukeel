@@ -861,10 +861,15 @@ check("the mock paper's minutes and marks are the ones the exam doc cites", () =
 check("every rate is the one clip stretched in one place, and every clip is prepared before it is kept", () => {
   const route = code("app/api/tts/route.ts");
   assert.doesNotMatch(route, /\bspeed\b/, "the speech route is asking the model to slow down again");
-  assert.match(route, /prepareClip\(raw\)/, "the route stopped calling prepareClip on what the service sent");
+  assert.match(route, /clipForStore\(raw\)/, "the route stopped preparing what the service sent");
+  assert.match(code("lib/audio/wav.ts"), /export function clipForStore[\s\S]*?prepareClip\(bytes\)/,
+    "clipForStore stopped preparing the clip it decides about");
+  // A body nothing could read is spoken once and never kept: the store answers first.
+  assert.match(route, /if \(prepared\.keep\) await writeAudio\(/, "the route writes a clip it could not read to the shared store");
+  assert.equal((route.match(/writeAudio\(/g) ?? []).length, 1, "a second write to the audio store in the speech route");
   assert.match(
     route,
-    /const audio = Buffer\.from\(prepare\(raw\)\);[\s\S]{0,200}writeAudio\(hash, audio\)/,
+    /const audio = Buffer\.from\(prepared\.audio\);[\s\S]{0,300}writeAudio\(hash, audio\)/,
     "a clip reaches the cache without going through prepareClip",
   );
   const player = code("lib/audio/clip.ts");
