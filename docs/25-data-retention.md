@@ -46,8 +46,8 @@ check.
 | Confirmed word lists off a photograph (`Scan`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Conversation runs (`SceneRun`) and the words they needed (`SceneGap`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Reports of real conversations (`Encounter`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
-| Words put aside as too complicated (`Deferral`) | Until the account is deleted. One row per learner per word; a wait that ends early is stamped (`wokenAt`) rather than removed, because the deployment-wide count of hard words is built from it | Erasure | `deleteMyAccount` |
-| Ticked steps of the course (`CourseStep`) | Until the account is deleted. Append-only, and there is no way to untick | Erasure | `deleteMyAccount` |
+| Where a learner is in the planned module (`CourseStep`) | Until the account is deleted. Append-only, and one row per step a learner ticked: the programme, the day and the step, never an answer. Which day they are on is derived from it rather than stored | Erasure | `deleteMyAccount` |
+| Words put aside (`Deferral`) | Until the account is deleted. One row per learner per word, updated rather than appended when they say it again, and a wait ended early is stamped rather than removed | Erasure | `deleteMyAccount` |
 | Reports of something wrong (`Suggestion`) | Until the account is deleted, whatever the review status | Erasure | `deleteMyAccount` |
 | Group ownership and membership (`Classroom`, `ClassroomMember`) | Membership until the learner leaves. A group until its owner archives or deletes it, or deletes their account | Leaving, archiving, erasure | `leaveClassroom`, `deleteMyAccount` |
 | A bounced address (`Setting`, `emailUndeliverable`) | Until the account is deleted, or until the learner changes their address, which stops it applying | Erasure, or a new address | `deleteMyAccount`. It holds a digest of the address that failed rather than the address, so there is nothing in it to read back into a person, and it names the address rather than the learner so that changing one is a way out of it |
