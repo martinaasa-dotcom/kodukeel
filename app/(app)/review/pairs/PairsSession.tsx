@@ -320,7 +320,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
                       {option.formLabel} of {option.lemma} · {option.translation}
                     </span>
                   </span>
-                  {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-hidden />}
+                  {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label="Right" />}
                 </button>
               );
             })}
@@ -328,7 +328,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         </div>
 
         {revealed && (
-          <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
+          <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
               {question.letter
                 ? <>The two only differ in how long the <strong lang="et">{question.letter}</strong> sounds.
@@ -354,6 +354,19 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       </div>
       )}
 
+      {/*
+        The verdict in words, in a region that is on the page before there is
+        anything to say. The panel under the card used to carry `aria-live`
+        itself and arrived with the reveal, so its first words were never read
+        out, and none of them said whether the pick was right.
+      */}
+      <p className="sr-only" role="status">
+        {revealed && question && (
+          picked?.toLowerCase() === question.heard.toLowerCase()
+            ? "Right."
+            : <>Not this time. It was <span lang="et">{question.heard}</span>.</>
+        )}
+      </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>{correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 2 to answer</span>
         <LookBackButton {...look.button} disabled={look.looking} />
