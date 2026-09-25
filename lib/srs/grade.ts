@@ -110,7 +110,17 @@ export async function writeGrade(ownerId: string, write: GradeWrite): Promise<Sc
       lexemeId: card.lexemeId,
       rating,
       reviewedAt: at,
-      durationMs: Math.min(Math.max(durationMs, 0), 600_000),
+      /*
+        The column is an Int and a duration is a number off a POST body:
+        `gradeCard` passes it through as it arrived, so a NaN or a string made
+        the insert throw and `1.5` reached Postgres as a fraction. Zero is what
+        a round that never timed an answer already writes, and it is the value
+        the pace reading filters out, so an unreadable duration is recorded as
+        no duration rather than as a guess or a crash.
+      */
+      durationMs: Number.isFinite(durationMs)
+        ? Math.round(Math.min(Math.max(durationMs, 0), 600_000))
+        : 0,
       stateBefore: card.state,
       targetCase: card.targetCase,
       slot,

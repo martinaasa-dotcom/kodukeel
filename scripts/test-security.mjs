@@ -37,7 +37,7 @@ const B = baseUrl();
 // Floor: 36, measured against a local-mode build, which is what the browser
 // job runs. Hosted waives the handful that need a route to answer rather than
 // refuse, and says so.
-const { check, absent, done } = suite("Security", { floor: 36 });
+const { check, absent, done } = suite("Security", { floor: 43 });
 
 /** GET with no cleverness, returning status, headers and body together. */
 async function get(path, init) {
@@ -236,6 +236,32 @@ if (hosted) {
     be is anything else, which `npm run check:secrets` scans the whole bundle
     for by shape. This is the same question asked of what is actually served.
   */
+}
+
+// ── A body that parses and is not an object is a 400, never a 500 ───────────
+
+/*
+  `null`, a number and an array are all valid JSON, so a `.catch` on the parse
+  lets them through, and a route that then read `body.runId` off `null` threw
+  outside anything that could answer it: `/api/scene` and `/api/scan` both
+  answered 500 where they meant "that is not a turn" and "that is not an
+  image". A source check can say a guard is written; only a request says the
+  route answers. The check is on 500 exactly, since a 503 from a route with no
+  provider configured is a deliberate answer given before the body is read,
+  and the detail says which routes were actually reached.
+*/
+const JSON_ROUTES = ["/api/scene", "/api/scan", "/api/tutor", "/api/tts", "/api/write", "/api/describe", "/api/exam/write"];
+for (const route of JSON_ROUTES) {
+  const codes = [];
+  for (const body of ["null", "7", "[]"]) {
+    codes.push(await status(route, {
+      method: "POST",
+      headers: { "sec-fetch-site": "same-origin", "content-type": "application/json" },
+      body,
+    }));
+  }
+  check(`${route} answers a body that is not an object without crashing`,
+    !codes.includes(500), codes.join(" "));
 }
 
 // ── The policy pages are readable without an account, and say who to write to ─

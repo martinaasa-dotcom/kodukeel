@@ -64,7 +64,9 @@ export async function POST(request: Request) {
 
   let payload: { image?: unknown };
   try {
-    payload = (await request.json()) as { image?: unknown };
+    const parsed: unknown = await request.json();
+    // `null` parses, and reading `.image` off it threw outside this try.
+    payload = (parsed && typeof parsed === "object" ? parsed : {}) as { image?: unknown };
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
   }

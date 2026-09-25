@@ -121,7 +121,10 @@ export async function POST(request: Request) {
     return rateLimited(limit, "That was a lot of turns at once. Give it a moment.");
   }
 
-  const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  // A body that parses is not a body that is an object: `null` is valid JSON,
+  // and reading a field off it threw outside anything here, a 500 for a 400.
+  const parsed: unknown = await request.json().catch(() => ({}));
+  const body = (parsed && typeof parsed === "object" ? parsed : {}) as Record<string, unknown>;
   const runId = String(body.runId ?? "").slice(0, 64);
 
   /*

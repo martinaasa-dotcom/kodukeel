@@ -1202,7 +1202,9 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   const scene = sceneById(text(sceneId).slice(0, 64));
   if (!scene) return { ok: false as const, error: "No scene by that name." };
   const chosen = text(difficulty);
-  if (!(chosen in BUDGETS)) return { ok: false as const, error: "Not a difficulty." };
+  // `in` walks the prototype, so `constructor` and `toString` passed it and
+  // reached a SceneRun.difficulty Int column as a function. Own keys only.
+  if (!Object.hasOwn(BUDGETS, chosen)) return { ok: false as const, error: "Not a difficulty." };
   /*
     THE BAND THE OTHER SIDE TALKS AT IS THE LEARNER'S, UNLESS THEY MOVED IT. A
     scene carries no level of its own: the selector on the briefing defaults
