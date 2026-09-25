@@ -103,6 +103,15 @@ async function mainText(wanted, budgetMs = 8000) {
   do {
     text = await page.locator("main").innerText().catch(() => "");
     if (wanted.test(text)) return text;
+    /*
+      A briefing that arrives after `startRound` stopped looking for it.
+      `startRound` looks for a bounded moment and then decides the round opened
+      cold; on a busy runner the briefing can land after that, and this loop then
+      spent its whole budget reading the briefing and handed back text with no
+      question in it, which `wordOf` reads as an empty word. Seen in CI as
+      "a reload comes back to the same question (aitama olevik · ta -> )".
+    */
+    if (await page.locator("[data-briefing-start]").count()) await startRound(page);
     await page.waitForTimeout(150);
   } while (Date.now() < until);
   return text;
