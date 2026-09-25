@@ -764,4 +764,13 @@ describe("a wrong answer may be tricky and may not be true", () => {
       expect(item!.options).not.toContain("I, me");
     }
   });
+  it("asks the written word the same way, since the reading question prints that spelling", () => {
+    const pool = [...PRONOUNS, ...FAMILY, ...NEIGHBOURS];
+    for (let seed = 1; seed < 40; seed++) {
+      const item = readingItems(pool, mulberry32(seed)).find((i) => i.id === "r-mean-meie");
+      expect(item, `seed ${seed} asked nothing about meie`).toBeDefined();
+      expect(item!.options).toContain("we, us");
+      expect(item!.options).not.toContain("I, me");
+    }
+  });
 });

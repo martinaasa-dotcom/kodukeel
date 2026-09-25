@@ -17,6 +17,7 @@
  * Ekilex nothing, and a source that will not answer is reported as unchecked
  * rather than written down as a miss.
  */
+import { PARTS } from "../lib/copy/values";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -177,8 +178,17 @@ async function main() {
   if (disagreements.length) {
     console.log(`\n${disagreements.length} disagreements:`);
     for (const d of disagreements) {
-      console.log(`  ${d.lemma.padEnd(18)} ${d.code.padEnd(10)} derived ${d.derived.padEnd(22)} ekilex ${d.ekilex.join(" / ")}`);
+      console.log(`  ${d.lemma.padEnd(18)} ${d.code.padEnd(10)} derived ${d.derived.padEnd(22)} ekilex ${d.ekilex.join(PARTS)}`);
     }
+    process.exitCode = 1;
+  } else if (unreachable * 2 > checked + unreachable) {
+    /*
+      A run that could not read most of what it was asked about is not a pass,
+      which is `audit:glosses`' own rule. With every request refused this
+      printed "No disagreements." over nought checked and exited 0, a clean
+      result nobody earned.
+    */
+    console.log(`\nFewer than half the verbs could be fetched, so this is not a pass either way.`);
     process.exitCode = 1;
   } else {
     console.log("\nNo disagreements.");

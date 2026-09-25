@@ -54,7 +54,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { extractEstonianEntries } from "../lib/dict/wiktionary";
-import { equivalentsText, fetchEkilexDetails, searchEkilex } from "../lib/ekilex/client";
+import { equivalentsText, fetchEkilexDetails, searchEkilexAnswered } from "../lib/ekilex/client";
 import { mapEkilexDetails } from "../lib/ekilex/mapper";
 import { readExpanded, writeExpanded } from "./lib/expandedFile";
 
@@ -193,7 +193,10 @@ async function main(): Promise<void> {
     + "from the ones stored beside its gloss:\n",
   );
   const pins = readPins();
-  const candidates = await candidateIds(disagree);
+  const { found: candidates, unanswered } = await candidateIds(disagree);
+  if (!process.env.EKILEX_API_KEY) {
+    console.log("  EKILEX_API_KEY is not set, so no homonym was looked up and none is ruled out.\n");
+  }
   for (const row of disagree.sort((a, b) => a.cefr.localeCompare(b.cefr))) {
     const key = `${row.entry.lemma}|${row.entry.pos}`;
     console.log(`  ${row.cefr} ${row.entry.lemma.padEnd(18)} "${row.gloss.slice(0, 34)}"`);
@@ -202,6 +205,7 @@ async function main(): Promise<void> {
     const candidate = candidates.get(key);
     if (pins[key]) console.log(`       pinned to ${pins[key]}`);
     else if (candidate) console.log(`       to pin the word the page describes: "${key}": ${candidate}`);
+    else if (unanswered.has(key)) console.log("       Ekilex was not asked or did not answer, so whether a homonym has those parts is unknown");
     else console.log("       no Ekilex homonym has those parts, so the page is the one that is wrong");
   }
 
@@ -228,25 +232,34 @@ function readPins(): Record<string, number> {
 /** For each disagreement, the Ekilex homonym whose parts are the page's. */
 async function candidateIds(
   rows: readonly { entry: Entry; stems: readonly [string, string] }[],
-): Promise<Map<string, number>> {
+): Promise<{ found: Map<string, number>; unanswered: Set<string> }> {
   const out = new Map<string, number>();
-  if (!process.env.EKILEX_API_KEY) return out;
+  /*
+    Every row Ekilex was not asked about, or did not answer for, is kept
+    apart from a row it answered with nothing. Only the second supports "the
+    page is the one that is wrong".
+  */
+  const unanswered = new Set<string>();
   for (const row of rows) {
-    const hits = (await searchEkilex(row.entry.lemma)).filter((h) => h.wordValue === row.entry.lemma);
+    const key = `${row.entry.lemma}|${row.entry.pos}`;
+    const answer = await searchEkilexAnswered(row.entry.lemma);
+    if (!answer) { unanswered.add(key); continue; }
+    const hits = answer.filter((h) => h.wordValue === row.entry.lemma);
     for (const hit of hits) {
       if (hit.wordId === row.entry.ekilexWordId) continue;
       const mapped = await mappedWord(hit.wordId);
-      if (!mapped) continue;
+      if (!mapped) { unanswered.add(key); continue; }
       const part = (type: string) => mapped.forms.find((f) => f.formType === type)?.value;
       const genSg = part("GEN_SG");
       const partSg = part("PART_SG");
       if (!genSg || !partSg) continue;
       if (tidy(genSg) !== tidy(row.stems[0]) || tidy(partSg) !== tidy(row.stems[1])) continue;
-      out.set(`${row.entry.lemma}|${row.entry.pos}`, hit.wordId);
+      out.set(key, hit.wordId);
+      unanswered.delete(key);
       break;
     }
   }
-  return out;
+  return { found: out, unanswered };
 }
 
 const mappedWord = async (wordId: number) => {

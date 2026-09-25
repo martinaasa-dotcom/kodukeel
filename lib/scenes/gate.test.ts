@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, subjectsIn, type DictEntry } from "./lexicon";
-import { NEW_WORDS, disagrees, governmentSuspect, passes, runGate, type GateContext } from "./gate";
+import { NEW_WORDS, disagrees, governedWord, governmentSuspect, passes, runGate, type GateContext } from "./gate";
 import type { BeatSpec } from "./types";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -124,6 +124,19 @@ const LEX = buildLexicon(ENTRIES);
 // way the harvest stores them.
 const EXTRA = new Set(["teil", "mul", "kus", "kas", "te", "teie", "see", "millal", "peas", "katki"]);
 const LEXICON = { ...LEX, forms: new Set([...LEX.forms, ...EXTRA]) };
+
+/**
+ * The scene's list with these spellings in it as headwords of their own.
+ *
+ * `byLemma`'s keys are what the course teaches as words, which is what the
+ * government check reads to tell a headword from another word's inflected
+ * form.
+ */
+function withHeadwords(lemmas: readonly string[]): typeof LEXICON {
+  const byLemma = new Map<string, ReadonlySet<string>>(LEXICON.byLemma);
+  for (const lemma of lemmas) byLemma.set(lemma, new Set([lemma]));
+  return { ...LEXICON, byLemma };
+}
 
 function context(over: Partial<GateContext> = {}): GateContext {
   return {
@@ -322,6 +335,59 @@ describe("the government check", () => {
     expect(governmentSuspect(["minu", "sõber", "elab", "siin"], priced)).toBe(false);
     expect(governmentSuspect(["pilet", "maksab", "tuppa"], priced)).toBe(true);
   });
+
+  /*
+    AND A SPELLING THE SCENE TEACHES AS A WORD OF ITS OWN IS THAT WORD.
+
+    This function already refuses to count a nominal whose spelling has more
+    than one reading: the oblique filter drops anything that could be a
+    nominative, a genitive or a partitive. It never asked the same question
+    about the verb, so any spelling a governed verb happened to own put that
+    verb's cases on the clause, and it never asked it about a function word, so
+    an uninflecting one that looks like a case form supplied a complement.
+
+    Both readings are settled by the course's own word list rather than by any
+    claim of ours. `maitse` is a headword glossed "taste, flavor" and also one
+    of the forms the dictionary lists for `maitsma`, so `sest sellel on väga hea maitse` was
+    read as governing the allative. `sest` is a headword glossed "because" and
+    also the elative of `see`, so it stood in as the oblique complement that
+    made the same clause suspect. `lib/estonian/wordOrder.ts` states this rule
+    for exactly this shape, and names `täna` (also the imperative of `tänama`)
+    as the case it was written for.
+
+    It may only ever make the check weaker: a headword can still exonerate a
+    clause by carrying a case the verb governs, and can no longer be what
+    incriminates one. Refusing correct Estonian is the fault this module is
+    built against.
+  */
+  it("does not read another word's form into a spelling the scene teaches as a headword", () => {
+    const tasted = context({
+      lexicon: withHeadwords(["maitse", "sest", "roog"]),
+      governed: [{ lemma: "maitsma", forms: new Set(["maitse", "maitseb"]), cases: new Set(["ALLATIVE"]) }],
+      caseOf: new Map<string, ReadonlySet<CaseKey>>([
+        ["maitse", new Set(["NOMINATIVE", "GENITIVE"])],
+        ["sest", new Set(["ELATIVE"])],
+        ["roale", new Set(["ALLATIVE"])],
+        ["roast", new Set(["ELATIVE"])],
+      ]),
+    });
+    // The noun, and a conjunction. The verb is not in the clause at all.
+    expect(governmentSuspect(["sest", "sellel", "on", "hea", "maitse"], tasted)).toBe(false);
+    /*
+      The same noun beside a real oblique complement, which is the half the
+      line above cannot see: there `sest` is excused as a complement and
+      nothing oblique is left, so it reads false whether or not the verb side
+      works. Here `roast` stays oblique and is not a case the verb governs, so
+      the only thing keeping the clause clear is `maitse` being the noun rather
+      than `maitsma`.
+    */
+    expect(governmentSuspect(["sellel", "on", "hea", "maitse", "roast"], tasted)).toBe(false);
+    // A spelling only the verb owns still puts its government on the clause.
+    expect(governmentSuspect(["see", "maitseb", "roast"], tasted)).toBe(true);
+    expect(governmentSuspect(["see", "maitseb", "roale"], tasted)).toBe(false);
+    // And a headword may still exonerate: it is never what incriminates.
+    expect(governmentSuspect(["see", "maitseb", "sest"], tasted)).toBe(false);
+  });
 });
 
 /**
@@ -334,6 +400,37 @@ describe("the government check", () => {
  * being survivable the moment the model is asked first on every beat, because
  * the learner is then being invited to agree to an appointment nobody offered.
  */
+/**
+ * A GOVERNMENT NAMING A PLACE QUESTION GOVERNS THE CASES THAT ANSWER IT.
+ *
+ * `minema` is stored as "kuhu (direction) · millega (comitative) · ...", and
+ * `parseGovernment` names a case for the comitative alone, since `kuhu` is not
+ * a case. Read that way the gate withheld `Minge otse edasi ja siis vasakule.`
+ * in every measurement, where the route had long added the place cases.
+ */
+describe("a governed verb, built once for the route and the harness", () => {
+  it("takes the cases that answer a place question its government names", () => {
+    const word = governedWord({
+      lemma: "minema", pos: "VERB", forms: ["minna", "lähen"], pres1sg: "lähen",
+      government: "kuhu (direction) · millega (comitative) · mida tegema · mille peale",
+    });
+    expect([...word!.cases].sort()).toEqual(["ALLATIVE", "COMITATIVE", "ILLATIVE"]);
+  });
+
+  it("carries the persons the rule derives, so a conjugated verb is the verb", () => {
+    const word = governedWord({
+      lemma: "sõitma", pos: "VERB", forms: ["sõita"], pres1sg: "sõidan",
+      government: "kuhu (direction) · millega (comitative)",
+    });
+    expect(word!.forms.has("sõidab")).toBe(true);
+  });
+
+  it("builds nothing for a word that is not a verb or has no government", () => {
+    expect(governedWord({ lemma: "osa", pos: "NOUN", forms: [], government: "mille (genitive)" })).toBeNull();
+    expect(governedWord({ lemma: "olema", pos: "VERB", forms: [], government: null })).toBeNull();
+  });
+});
+
 describe("a number nobody dealt", () => {
   it("is withheld, and the value that was dealt is not", () => {
     const dealt = new Set(["15:30", "15.30"]);
@@ -739,3 +836,30 @@ describe("a farewell on a beat that is not the goodbye", () => {
   });
 });
 
+
+describe("the gate reads Estonian punctuation and counts words, not repeats", () => {
+  /*
+    An ordinal is written with a full stop, `3. korrusel`, and a date the same
+    way, and the sentence count split on every stop followed by a space: a
+    correct line of four sentences with two floors in it counted six and was
+    withheld as a paragraph.
+  */
+  it("does not end a sentence on an ordinal", () => {
+    const line = "Te elate 3. korrusel. Kas 2. korrusel on valu? Teil on valu. Kus?";
+    expect(runGate(line, beat(), context({ dealt: new Set(["2", "3"]) })).failed).not.toContain("shape");
+  });
+
+  it("takes a line ending inside an Estonian closing quote", () => {
+    expect(runGate("Kas teil on „valu?“", beat(), context()).failed).not.toContain("shape");
+  });
+
+  /*
+    `NEW_WORDS` is how many words a learner has not met, and a line that says
+    one of them twice holds one. It was charged per repeat.
+  */
+  it("charges a new word once however often the line says it", () => {
+    const ctx = context({ vouched: () => true });
+    const line = `Kas ${"peavalu ".repeat(12).trim()} on?`;
+    expect(runGate(line, beat({ move: "ask" }), ctx).failed).not.toContain("stretch");
+  });
+});

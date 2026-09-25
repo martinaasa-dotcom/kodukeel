@@ -27,6 +27,23 @@ describe("reading a feed", () => {
     expect(parseHeadlines("<html><title>Not a feed</title></html>")).toEqual([]);
     expect(parseHeadlines("<item><title>unclosed")).toEqual([]);
   });
+
+  /*
+    A numeric reference past the last code point is a malformed feed, and
+    `String.fromCodePoint` throws on it rather than returning anything. One
+    such entity in one title took every headline on the front page with it,
+    since the throw left the parser and the feed read as a miss.
+  */
+  it("keeps the other headlines when one carries a reference to no character", () => {
+    const feed = `<rss><channel>
+      <item><title>Valitsus arutas eelarvet</title></item>
+      <item><title>Viga &#1114112; ja &#x110000; pealkirjas</title></item>
+    </channel></rss>`;
+    expect(parseHeadlines(feed)).toEqual([
+      "Valitsus arutas eelarvet",
+      "Viga &#1114112; ja &#x110000; pealkirjas",
+    ]);
+  });
 });
 
 describe("the words in a headline", () => {
@@ -78,5 +95,20 @@ describe("tokenise", () => {
 
   it("treats a diacritic as part of a word", () => {
     expect(tokenise("õun ja päev").filter((t) => t.word).map((t) => t.text)).toEqual(["õun", "ja", "päev"]);
+  });
+});
+
+describe("a letter sent in two pieces", () => {
+  const decomposed = "Sõna on õige";
+
+  it("is read back composed, as the dictionary holds it", () => {
+    const [title] = parseHeadlines(`<rss><item><title>${decomposed}</title></item></rss>`);
+    expect(title).toBe("Sõna on õige");
+  });
+
+  it("is never split into two words", () => {
+    const words = tokenise(decomposed).filter((t) => t.word).map((t) => t.text);
+    expect(words).toEqual(["Sõna", "on", "õige"]);
+    expect(tokenise(decomposed).map((t) => t.text).join("")).toBe(decomposed);
   });
 });

@@ -56,7 +56,6 @@
 import { dayIndex } from "@/lib/random/dayHash";
 import { joinWithOr } from "@/lib/copy/values";
 import { SCENES, sceneById } from "@/lib/scenes/catalogue";
-import { SYLLABUS } from "./syllabus";
 
 export interface Errand {
   readonly id: string;
@@ -259,11 +258,3 @@ export function errandForScene(sceneId: string): Errand | undefined {
   return ERRANDS.find((e) => e.scene === sceneId);
 }
 
-/** The units a deck has started: any of the unit's words with a card. */
-export function startedUnits(startedLemmas: ReadonlySet<string>): Set<string> {
-  const out = new Set<string>();
-  for (const unit of SYLLABUS) {
-    if (unit.lemmas.some((l) => startedLemmas.has(l))) out.add(unit.id);
-  }
-  return out;
-}

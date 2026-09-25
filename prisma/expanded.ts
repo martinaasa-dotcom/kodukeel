@@ -62,7 +62,7 @@ interface ExpandedEntry {
    *
    * Here for the reason `semanticTypes` above is here: two writers cover
    * different halves of the dictionary, and a column added to the seed alone
-   * is a column written for the 1,545 course words and for none of the 5,363
+   * is a column written for the 1,551 course words and for none of the 5,363
    * the expansion brings. The course harvest reads these out of the response
    * it was already fetching, so a learner who looked a word up inside the
    * course was answered in their own language and one who stepped outside it
