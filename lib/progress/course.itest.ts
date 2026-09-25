@@ -408,6 +408,24 @@ describe("the day an action may write about", () => {
     expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[4]!)).toBe(false);
     expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days.at(-1)!)).toBe(false);
   });
+
+  /*
+    AND THE PROGRAMME HAS TO BE THE ONE THEY ARE FOLLOWING. The day id is not
+    the only thing off the wire: the programme id is too, and a part nobody has
+    opened has no ticks, so its first two evenings read as "reached" by the
+    rule above. Without this a call naming the last part of C1 builds a
+    beginner's deck out of its words, which is the forged call the guard's own
+    header says it closes.
+  */
+  it("refuses a day of a programme they are not following", async () => {
+    const elsewhere = PROGRAMMES.at(-1)!;
+    expect(elsewhere.id).not.toBe(PROGRAMME.id);
+    await deck(PROGRAMME.days[0]!.words, 1);
+    expect(await dayIsInPlay(OWNER, elsewhere, elsewhere.days[0]!)).toBe(false);
+    expect(await dayIsInPlay(OWNER, elsewhere, elsewhere.days[1]!)).toBe(false);
+    // The one they are following is still open, which is what the UI hands over.
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[0]!)).toBe(true);
+  });
 });
 
 describe("the closing round's own counter", () => {
