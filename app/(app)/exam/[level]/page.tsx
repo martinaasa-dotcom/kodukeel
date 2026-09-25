@@ -27,10 +27,17 @@ export const dynamic = "force-dynamic";
  */
 export default async function ExamLevelPage({ params, searchParams }: {
   params: Promise<{ level: string }>;
-  searchParams: Promise<{ seed?: string }>;
+  searchParams: Promise<{ seed?: string | string[] }>;
 }) {
   const { level } = await params;
-  const { seed } = await searchParams;
+  const raw = (await searchParams).seed;
+  /*
+    Only a seed the hand-in will take. `submitExam` refuses anything that is
+    not one string of up to 64 characters, and a repeated or over-long
+    parameter built a paper that could be sat for three hours and never
+    handed in. Anything else is a fresh paper.
+  */
+  const seed = typeof raw === "string" && raw.length <= 64 ? raw : undefined;
   const upper = level.toUpperCase();
   if (!isExamLevel(upper)) notFound();
 
