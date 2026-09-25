@@ -62,3 +62,43 @@ export function studyTotals(reviews: readonly TimedReview[], dayKey: (at: Date) 
     lastDay: dayKey(last),
   };
 }
+
+export interface PaperSitting {
+  readonly at: Date;
+  readonly level: string;
+  readonly pct: number;
+  readonly passed: boolean;
+}
+
+export interface PaperSummary {
+  readonly level: string;
+  readonly sittings: number;
+  readonly best: number;
+  /** Whether any sitting at this level reached the pass mark. */
+  readonly passed: boolean;
+  readonly latest: Date;
+}
+
+/**
+ * One line a level rather than one a sitting.
+ *
+ * The person reading a printout wants to know which levels were practised,
+ * how often and how far it got, and eleven lines of the same paper tell them
+ * that less clearly than one. Levels in the order they are examined.
+ */
+export function summarisePapers(sittings: readonly PaperSitting[]): PaperSummary[] {
+  const by = new Map<string, PaperSummary>();
+  for (const s of sittings) {
+    const was = by.get(s.level);
+    by.set(s.level, was
+      ? {
+          level: s.level,
+          sittings: was.sittings + 1,
+          best: Math.max(was.best, s.pct),
+          passed: was.passed || s.passed,
+          latest: s.at > was.latest ? s.at : was.latest,
+        }
+      : { level: s.level, sittings: 1, best: s.pct, passed: s.passed, latest: s.at });
+  }
+  return [...by.values()].sort((a, b) => a.level.localeCompare(b.level));
+}

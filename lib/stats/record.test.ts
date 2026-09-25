@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { NOT_A_CERTIFICATE, WHAT_PROVES_A_LEVEL, studyTotals } from "./record";
+import { NOT_A_CERTIFICATE, WHAT_PROVES_A_LEVEL, studyTotals, summarisePapers } from "./record";
 
 const at = (iso: string, durationMs = 5_000) => ({ reviewedAt: new Date(iso), durationMs });
 const utcDay = (d: Date) => d.toISOString().slice(0, 10);
@@ -48,5 +48,27 @@ describe("what the record says about itself", () => {
     expect(NOT_A_CERTIFICATE).toMatch(/record of study/);
     expect(NOT_A_CERTIFICATE).toMatch(/not a certificate/);
     expect(WHAT_PROVES_A_LEVEL).toMatch(/state examination/);
+  });
+});
+
+describe("summarisePapers", () => {
+  it("gives one line a level, with the best score and whether any sitting passed", () => {
+    const d = (iso: string) => new Date(iso);
+    const lines = summarisePapers([
+      { at: d("2026-03-01"), level: "B1", pct: 48, passed: false },
+      { at: d("2026-02-01"), level: "A2", pct: 71, passed: true },
+      { at: d("2026-04-01"), level: "B1", pct: 63, passed: true },
+      { at: d("2026-03-15"), level: "B1", pct: 55, passed: false },
+    ]);
+    expect(lines.map((l) => l.level)).toEqual(["A2", "B1"]);
+    const b1 = lines[1]!;
+    expect(b1.sittings).toBe(3);
+    expect(b1.best).toBe(63);
+    expect(b1.passed).toBe(true);
+    expect(b1.latest.toISOString().slice(0, 10)).toBe("2026-04-01");
+  });
+
+  it("says nothing about a level nobody sat", () => {
+    expect(summarisePapers([])).toEqual([]);
   });
 });

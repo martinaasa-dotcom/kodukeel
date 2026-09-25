@@ -59,7 +59,7 @@ export default async function RecordPage() {
             From {onDay(totals.firstDay!)} to {onDay(totals.lastDay!)}
           </p>
 
-          <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-5 xl:grid-cols-4">
             <Stat label="Time studied" value={formatDuration(totals.hours)} />
             <Stat label="Days studied" value={totals.activeDays.toLocaleString("en-GB")} />
             <Stat label="Answers given" value={totals.answers.toLocaleString("en-GB")} />
@@ -101,10 +101,11 @@ export default async function RecordPage() {
                 </li>
               ))}
               {record.papers.map((p) => (
-                <li key={`p-${p.at.toISOString()}`} className="rounded-[var(--r)] border px-4 py-3 text-sm" style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}>
-                  <DateText iso={p.at.toISOString()} zone={record.zone} options={DAY} />: mock {p.level} paper,{" "}
-                  <strong style={{ color: "var(--ink)" }}>{Math.round(p.pct)} percent</strong>
-                  {p.passed ? ", at or above the pass mark" : ", under the pass mark"}
+                <li key={`p-${p.level}`} className="rounded-[var(--r)] border px-4 py-3 text-sm" style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}>
+                  Mock {p.level} paper, sat {p.sittings === 1 ? "once" : `${p.sittings} times`}, best{" "}
+                  <strong style={{ color: "var(--ink)" }}>{Math.round(p.best)} percent</strong>
+                  {p.passed ? ", at or above the pass mark" : ", under the pass mark"}. Latest{" "}
+                  <DateText iso={p.latest.toISOString()} zone={record.zone} options={DAY} />.
                 </li>
               ))}
             </ul>

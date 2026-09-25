@@ -14,18 +14,13 @@ import { historyFor } from "@/lib/progress/assessment";
 import { deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { isConversation, OUTCOMES } from "@/lib/collections/errands";
-import { studyTotals, type StudyTotals } from "@/lib/stats/record";
+import { studyTotals, summarisePapers, type PaperSummary, type StudyTotals } from "@/lib/stats/record";
 import type { DayClock } from "@/lib/time/day";
 
-/** Papers and checks listed on the record, most recent first. */
+/** Level checks listed on the record, most recent first. */
 const LISTED = 12;
-
-export interface RecordPaper {
-  readonly at: Date;
-  readonly level: string;
-  readonly pct: number;
-  readonly passed: boolean;
-}
+/** Sittings read to summarise the papers. A learner past this has sat a great many. */
+const SITTINGS = 500;
 
 export interface RecordCheck {
   readonly at: Date;
@@ -41,7 +36,8 @@ export interface StudyRecord {
   readonly cardsKnown: number;
   readonly unitsDone: readonly { readonly title: string; readonly level: string }[];
   readonly checks: readonly RecordCheck[];
-  readonly papers: readonly RecordPaper[];
+  /** One line a level: how often it was sat, the best score, whether any sitting passed. */
+  readonly papers: readonly PaperSummary[];
   /** Conversations in Estonian the learner reported having, outside the app. */
   readonly conversations: number;
 }
@@ -60,7 +56,7 @@ export async function studyRecord(ownerId: string): Promise<StudyRecord> {
     prisma.examAttempt.findMany({
       where: { ownerId, restoredAt: null },
       orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
-      take: LISTED,
+      take: SITTINGS,
       select: { finishedAt: true, level: true, pct: true, passed: true },
     }),
     prisma.encounter.count({ where: { ownerId, outcome: { in: [...conversationOutcomes] } } }),
@@ -76,7 +72,7 @@ export async function studyRecord(ownerId: string): Promise<StudyRecord> {
       .filter((u) => u.state === "done")
       .map((u) => ({ title: u.unit.title, level: u.unit.level })),
     checks: checks.map((c) => ({ at: c.takenAt, overall: c.overall })),
-    papers: papers.map((p) => ({ at: p.finishedAt, level: p.level, pct: p.pct, passed: p.passed })),
+    papers: summarisePapers(papers.map((p) => ({ at: p.finishedAt, level: p.level, pct: p.pct, passed: p.passed }))),
     conversations,
   };
 }
