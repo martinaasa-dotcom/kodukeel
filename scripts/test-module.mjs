@@ -74,9 +74,12 @@ await requireLocalDatabase(prisma);
   So the floor is the three-step evening, and what actually catches a block
   that stopped running is the check below that the walk visited every step the
   list named. A floor alone cannot do it here and saying so is better than a
-  number that looks stricter than it is.
+  number that looks stricter than it is. The five reading checks below run on
+  every evening now, off the walk's own marker when the evening dealt no
+  reading, so they are in the floor: 33 was the three-step evening with them
+  waived.
 */
-const { check, absent, done } = suite("Tonight's module", { floor: 33 });
+const { check, absent, done } = suite("Tonight's module", { floor: 38 });
 
 /** The module's own screen, with a programme running. */
 async function openModule(page) {
@@ -278,13 +281,27 @@ try {
     `${walked.length} walked of ${steps.length - Math.max(0, openAt)} left of ${steps.length} listed`,
   );
 
-  if (!reading) {
+  /*
+    AN EVENING WITH NO READING STILL HAS A READING TO ASK ABOUT.
+
+    The waiver here used to say "this day is a conversation, which replaces
+    it", and on the fixture that was never the reason: the demo learner opens
+    on the first evening of A1.1, whose steps are the words, two rounds and the
+    review, because A1's first two evenings read nothing (`reads()` in
+    `lib/course/build.ts`). So these five checks were waived on every run CI
+    has ever made. The drill checks below already carry the marker the app
+    wrote onto a grammar page of their choosing, which is the same address in
+    the same shape, so the reading is asked that way too when the walk dealt
+    none. Only a walk that produced no marker at all is waived.
+  */
+  const readingAt = reading ?? (marker ? `${B}/grammar/topic/imperative?module=${encodeURIComponent(marker)}` : null);
+  if (!readingAt) {
     /* Five, counted off the block below rather than guessed: a waiver lowers
        the floor by exactly as much as it skips, and one too many is a block
        that can stop running without the floor noticing. */
-    absent(5, "an evening with a reading in it: this day is a conversation, which replaces it");
+    absent(5, "a marker the app wrote: no step of this evening carried one, so there is no reading address to ask");
   } else {
-    await page.goto(reading, { waitUntil: "domcontentloaded" });
+    await page.goto(readingAt, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("main h1", { timeout: 20_000 });
     check(
       "the reading says which step of the evening it is",
@@ -321,7 +338,7 @@ try {
       a topic that does have one, which is the same address in the same shape
       with the same step behind it, and the page is asked there.
     */
-    const readingMarker = new URL(reading).searchParams.get("module");
+    const readingMarker = new URL(readingAt).searchParams.get("module");
     check("the reading's address carries a readable marker", Boolean(readingMarker), String(readingMarker));
     for (const [what, path] of [["topic", "/grammar/topic/government"], ["ending", "/grammar/inessive"]]) {
       await page.goto(`${B}${path}?module=${encodeURIComponent(readingMarker)}`, { waitUntil: "domcontentloaded" });
