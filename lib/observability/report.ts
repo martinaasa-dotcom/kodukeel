@@ -26,17 +26,34 @@ export interface ErrorContext {
 const SENSITIVE = /(key|token|secret|password|authorization|cookie|email|dsn)/i;
 
 /**
- * Something that looks like a credential regardless of the key it arrived under,
- * the same shapes CI greps the client bundle for.
+ * Something that looks like a credential regardless of the key it arrived under.
  *
- * The chain grew two providers after this was written and this did not follow:
- * Groq's keys open `gsk_` and Gemini's `AIza`, neither of which is an `sk-`,
- * so a provider error quoting one back would have been written to the webhook
- * whole. Keep this and `scripts/check-secrets.mjs` in step with
- * `PROVIDER_KEY_ENV`.
+ * These are the shapes `scripts/check-secrets.mjs` refuses to let reach a
+ * browser, and `report.test.ts` holds the two lists together by name: it reads
+ * that script's patterns and fails on one this has no sample for. Typed
+ * separately, the two had drifted by eight: Groq and Gemini first, then a
+ * Supabase secret key, a Supabase access token, a Resend key, an AWS key, a
+ * GitHub token and a private key block, every one of them something the build
+ * would not ship and the error log would have posted to a webhook whole.
  */
-const SECRET_SHAPE =
-  /\b(sk-[A-Za-z0-9_-]{16,}|gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{35}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{6,}|postgres(?:ql)?:\/\/[^\s]+:[^\s@]+@)/g;
+const SECRET_SHAPE = new RegExp(
+  [
+    String.raw`-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?(?:-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|$)`,
+    String.raw`\bsk-[A-Za-z0-9_-]{16,}`,
+    String.raw`\bgsk_[A-Za-z0-9]{20,}`,
+    String.raw`\bAIza[0-9A-Za-z_-]{35}`,
+    String.raw`\bAKIA[0-9A-Z]{16}\b`,
+    String.raw`\bsb_secret_[A-Za-z0-9_-]{16,}`,
+    String.raw`\bsbp_[A-Za-z0-9]{32,}`,
+    String.raw`\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36,}`,
+    String.raw`\bgithub_pat_[A-Za-z0-9_]{50,}`,
+    String.raw`\bre_[A-Za-z0-9]{16,}\b`,
+    String.raw`EKILEX_API_KEY["'\x60\s]*[:=]\s*["'\x60]?[^"'\x60\s]{8,}`,
+    String.raw`\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{6,}`,
+    String.raw`postgres(?:ql)?:\/\/[^\s]+:[^\s@]+@`,
+  ].join("|"),
+  "g",
+);
 
 export function redact(value: unknown, depth = 0): unknown {
   if (depth > 4) return "[deep]";

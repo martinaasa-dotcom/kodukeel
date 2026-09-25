@@ -149,6 +149,51 @@ describe("marking a paper", () => {
   });
 });
 
+/*
+  THE PASS IS DECIDED ON WHAT WAS SCORED, NOT ON WHAT IS PRINTED.
+
+  Four parts, each one composition worth 25 points, each written to 332 of
+  1,000 words with nothing named to use: 0.4 + 0.6 x 0.332 of 25 is 14.98 a
+  part and 59.92 in all. Each part prints as 15.0, and the floor used to be
+  taken on that printed sum, which made a failing paper a pass.
+*/
+describe("a paper just under the pass mark", () => {
+  const built = buildPaper("B1", pool(60), "score-seed", WORD_ORDER);
+  const compose = built.parts.flatMap((p) => p.tasks).find((t) => t.items[0]?.kind === "compose")!;
+
+  function paperAt(minWords: number) {
+    return {
+      ...built,
+      parts: built.parts.map((part, i) => ({
+        spec: { ...part.spec, points: 25 },
+        tasks: [{
+          ...compose,
+          spec: { ...compose.spec, raw: 25, items: 1 },
+          shortfall: 0,
+          items: [{ ...compose.items[0]!, id: `c${i}`, minWords, mustUse: [] }],
+        }],
+      })),
+    } as typeof built;
+  }
+
+  const answers = (words: number) => new Map<string, Response>(
+    [0, 1, 2, 3].map((i) => [`c${i}`, { kind: "composed", value: Array(words).fill("sõna").join(" ") }]));
+
+  it("does not round 59.92 percent up to a pass", () => {
+    const result = markPaper(paperAt(1000), answers(332));
+    expect(result.parts.every((p) => p.points === 15)).toBe(true);
+    expect(result.pct).toBe(59);
+    expect(result.passed).toBe(false);
+  });
+
+  it("still passes a paper that is exactly sixty percent", () => {
+    // 0.4 + 0.6 x 1/3 of 25 is 15 a part, written the way floats will not.
+    const result = markPaper(paperAt(3), answers(1));
+    expect(result.pct).toBe(PASS_PCT);
+    expect(result.passed).toBe(true);
+  });
+});
+
 describe("what one answer is worth", () => {
   const paper = buildPaper("B1", pool(60), "item-seed", WORD_ORDER);
   const dictation = paper.parts
