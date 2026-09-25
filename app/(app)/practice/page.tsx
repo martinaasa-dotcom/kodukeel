@@ -51,10 +51,16 @@ export default async function PracticePage() {
       a real `LIMIT` and the join happens once. Two thousand is past any deck
       somebody has actually built, and ordered, so a learner who does get there
       is told the same number twice rather than a different one each load.
+
+      Ordered to the end, since the lemma is not what identifies a row here:
+      `Lexeme` is unique on `(lemma, pos)`, so two entries sharing a lemma tie,
+      and past the cap it is the tie at the two thousandth row that decides
+      which words the count is built from. That is the sentence above being
+      true rather than nearly true.
     */
     prisma.lexeme.findMany({
       where: { cards: { some: { ownerId, suspended: false } } },
-      orderBy: { lemma: "asc" },
+      orderBy: [{ lemma: "asc" }, { id: "asc" }],
       take: 2000,
       select: { examples: true },
     }),

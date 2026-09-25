@@ -163,6 +163,19 @@ describe("what one answer is worth", () => {
     expect(mark.correct).toBe(true);
   });
 
+  it("never marks an answer right and then reports it as not recalled", () => {
+    if (dictation.kind !== "dictation") throw new Error("expected a dictation item");
+    // A merge the spec forgives swallows two or three expected words, so the
+    // exact-word accuracy falls under the floor on an answer the paper credits
+    // at full marks. `gradesFrom` reads `recalled`, so the two disagreeing
+    // wrote Again into the append-only log for a word just marked right.
+    const words = dictation.answer.split(" ");
+    const merged = [words[0]! + words[1]!, ...words.slice(2)].join(" ");
+    const mark = markItem(dictation, { kind: "typed", value: merged }, 1);
+    expect(mark.correct).toBe(true);
+    expect(mark.recalled).toBe(true);
+  });
+
   it("does not forgive a missing word", () => {
     if (dictation.kind !== "dictation") throw new Error("expected a dictation item");
     const short = dictation.answer.split(" ").slice(0, -1).join(" ");
