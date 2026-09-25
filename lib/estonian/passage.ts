@@ -90,6 +90,14 @@ export function buildPassageCloze(
   options: ClozeOptions = {},
 ): ClozeItem[] {
   const { minWords = 4, limit = 20 } = options;
+  /*
+    NFC first, since the passage is pasted and the dictionary is not. macOS
+    and most PDFs write `õ` as `o` plus a combining tilde, which matches no
+    stored form, so every word in such a passage that carries a diacritic was
+    silently never gapped: a paste from a textbook PDF offered its plainest
+    words and none of the ones the letter bar exists for.
+  */
+  text = text.normalize("NFC");
 
   // Longest form first: in `raamatute` we want the longest known form that
   // matches, not a shorter one that happens to be a prefix.
@@ -133,9 +141,21 @@ export function buildPassageCloze(
   return items;
 }
 
+/**
+ * The one reading both sides are compared in: trimmed, lower case, and NFC.
+ *
+ * The passage is pasted, so it arrives in whatever form its source used, and
+ * macOS and most PDFs write `õ` as `o` plus a combining tilde. A keyboard
+ * types the one code point. Compared as strings those are different, so a
+ * correct `õppima` was marked wrong, and not even read as a diacritic slip,
+ * since the fold below maps the code point and leaves the combining mark.
+ * `lib/estonian/answer.ts` normalises for the same reason.
+ */
+const comparable = (value: string) => value.normalize("NFC").trim().toLowerCase();
+
 /** Compares an attempt with the answer, forgiving case and surrounding space. */
 export function isClozeCorrect(attempt: string, answer: string): boolean {
-  return attempt.trim().toLowerCase() === answer.trim().toLowerCase();
+  return comparable(attempt) === comparable(answer);
 }
 
 /**
@@ -144,7 +164,7 @@ export function isClozeCorrect(attempt: string, answer: string): boolean {
  */
 export function isDiacriticSlip(attempt: string, answer: string): boolean {
   if (isClozeCorrect(attempt, answer)) return false;
-  return fold(attempt.trim().toLowerCase()) === fold(answer.trim().toLowerCase());
+  return fold(comparable(attempt)) === fold(comparable(answer));
 }
 
 export const MAX_PASSAGE_CHARS = 8000;

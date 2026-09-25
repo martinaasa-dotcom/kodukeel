@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dayClock } from "@/lib/time/day";
-import { agenda, bucketFor, overdueCount } from "./agenda";
+import { agenda, bucketFor, classworkMarker, isClasswork, overdueCount } from "./agenda";
 
 // Tallinn, because the whole point of taking a clock is that the answer is the
 // learner's and not the process's. In August that is UTC+3.
@@ -86,5 +86,20 @@ describe("overdueCount", () => {
       { dueAt: null },
     ];
     expect(overdueCount(rows, byDue, clock, now)).toBe(1);
+  });
+});
+
+describe("isClasswork", () => {
+  it("reads the sentence both assigning actions open the notes with", () => {
+    const marker = classworkMarker("Tuesday evening group");
+    expect(isClasswork(marker)).toBe(true);
+    expect(isClasswork(`${marker} Exercises 3 and 4.`)).toBe(true);
+  });
+
+  it("leaves a reminder the learner wrote as theirs", () => {
+    expect(isClasswork(null)).toBe(false);
+    expect(isClasswork(undefined)).toBe(false);
+    expect(isClasswork("")).toBe(false);
+    expect(isClasswork("Ask about the evening course")).toBe(false);
   });
 });
