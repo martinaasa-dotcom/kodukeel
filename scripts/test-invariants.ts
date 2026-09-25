@@ -21716,6 +21716,23 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a deployment-wide count of conversations counts one report per learner per day", () => {
+  /*
+    Progress keeps one answer per morning, the last, because a second row on
+    the same morning is a double tap or a second tab. The research export and
+    the funder report counted rows, so that morning was two conversations
+    there. Every SQL reader goes through \`ENCOUNTER_DAYS\`, which is defined
+    once beside the Progress reading, and nothing else selects from the table.
+  */
+  const readers = ["app/api/research/route.ts", "lib/progress/impact.ts"];
+  for (const file of readers) {
+    assert.match(code(file), /FROM \$\{ENCOUNTER_DAYS\}/, `${file} no longer counts one report per learner per day`);
+  }
+  const raw = [...sourceFiles("app"), ...sourceFiles("lib")].filter((file) => !file.endsWith(".itest.ts") && !file.endsWith(".test.ts"))
+    .filter((file) => /FROM\s+"Encounter"/.test(code(file)));
+  assert.deepEqual(raw, ["lib/progress/outThere.ts"], `these read the Encounter rows raw in SQL: ${raw.join(", ")}`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

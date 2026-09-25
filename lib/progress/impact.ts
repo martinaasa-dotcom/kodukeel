@@ -27,6 +27,7 @@ import { Prisma } from "@prisma/client";
 
 import { OUTCOMES, isConversation } from "@/lib/collections/errands";
 import { prisma } from "@/lib/db";
+import { ENCOUNTER_DAYS } from "@/lib/progress/outThere";
 import {
   summariseImpact, type EncounterTotals, type Impact, type LearnerTotals,
 } from "@/lib/research/impact";
@@ -188,7 +189,7 @@ export async function gatherImpact(
            COUNT(*) FILTER (
              WHERE e."outcome" IN (${Prisma.join([...CONVERSATION_OUTCOMES])})
            )::int AS "conversations"
-    FROM "Encounter" e
+    FROM ${ENCOUNTER_DAYS} e
     WHERE TRUE
     ${excluding(Prisma.sql`e."ownerId"`, excluded)}
     GROUP BY e."ownerId"

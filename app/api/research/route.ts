@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
+import { ENCOUNTER_DAYS } from "@/lib/progress/outThere";
 import {
   BELOW_BAND,
   COUNT_ROUNDING,
@@ -204,7 +205,7 @@ async function tallyEncounters(excluded: readonly string[]): Promise<Contributio
            e."ownerId" AS "learner",
            COUNT(*)::int AS "reviews",
            COUNT(*) FILTER (WHERE e."outcome" <> 'SWITCHED')::int AS "correct"
-    FROM "Encounter" e
+    FROM ${ENCOUNTER_DAYS} e
     WHERE e."outcome" IN (${conversations})
     ${not}
     GROUP BY 1, e."ownerId"

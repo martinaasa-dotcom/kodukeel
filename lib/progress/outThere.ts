@@ -17,7 +17,26 @@
  * conversations and a run of fourteen days. `isConversation` is the one place
  * that is decided and both figures here read it.
  */
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+
+/**
+ * EVERY REPORT, ONE PER LEARNER PER DAY, THE LAST ONE WINS. For the readers
+ * that count in SQL across the whole deployment.
+ *
+ * `reports` below keeps one answer per reporting day, because two rows on one
+ * morning are what a double tap or a second tab makes, and they are one answer
+ * rather than two conversations. The research export and the funder report
+ * counted rows, so the same morning was two conversations there and one on
+ * Progress. The day is the UTC day of a naive UTC timestamp, since a
+ * deployment-wide query has no learner's zone to read; a report made either
+ * side of the learner's own midnight lands a day off, which moves no count.
+ */
+export const ENCOUNTER_DAYS = Prisma.sql`(
+  SELECT DISTINCT ON ("ownerId", ("createdAt")::date) *
+  FROM "Encounter"
+  ORDER BY "ownerId", ("createdAt")::date, "createdAt" DESC, "id" DESC
+)`;
 import { isConversation, outcomeFrom, OUTCOMES, type Outcome } from "@/lib/collections/errands";
 import type { DayClock } from "@/lib/time/day";
 
