@@ -70,6 +70,23 @@ describe("the result report", () => {
       pct: 75,
     }));
     expect(report.headline).toContain("zero in one part");
+    // The total would pass, so there is no shortfall to state, and the part is
+    // what to work on. It used to read "You are -15 points of percentage short".
+    expect(report.consequence).not.toMatch(/-\d/);
+    expect(report.consequence).not.toContain("short");
+    expect(report.consequence.toLowerCase()).toContain("speaking");
+  });
+
+  it("names the zero part under a total that also fell short, rather than counting points alone", () => {
+    const report = buildReport(result({
+      parts: [part("writing", 20), part("listening", 20), part("reading", 10), part("speaking", 0)],
+      zeroPart: "speaking",
+      passed: false,
+      pct: 50,
+      waitBeforeResit: false,
+    }));
+    expect(report.consequence).toContain("10 points");
+    expect(report.consequence.toLowerCase()).toContain("speaking");
   });
 
   it("warns about the six month wait only when a real result would earn one", () => {

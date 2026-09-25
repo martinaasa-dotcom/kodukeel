@@ -141,6 +141,22 @@ function openers(text: string): string {
 */
 const CASE_NAMES = CASES.map((c) => c.et.toLowerCase());
 
+/*
+  ONLY THE EIGHT NAMES ENDING IN -ÜTLEV ARE EVER A TARGET.
+
+  The other six, `nimetav`, `omastav`, `osastav`, `saav`, `rajav` and `olev`,
+  are spelled exactly like ordinary participles, so the words within two
+  letters of them are real Estonian rather than slips: `armastav` is loving,
+  `otsustav` decisive, `rajatav` being built, `oletav` supposing. Every one
+  of those was rewritten into a case name inside Anu's prose, which is this
+  pass editing her Estonian, and measured over the forms list 92 real
+  spellings were moved and all 92 were of that shape. A slip on one of the
+  six cannot be told from a word, so it is left as it came; `-ütlev` is not a
+  shape the language otherwise builds its long words on, and no spelling in
+  the forms list is moved by the rule that is left.
+*/
+const FIXABLE_NAMES = CASE_NAMES.filter((name) => name.endsWith("ütlev"));
+
 function editDistance(a: string, b: string): number {
   const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
   for (let i = 1; i <= a.length; i += 1) {
@@ -158,14 +174,14 @@ function editDistance(a: string, b: string): number {
 /** The case name a misspelt token is nearest, within two letters and nearer than any other, or null where it is a name already or nothing is near. */
 export function nearestCaseName(token: string): string | null {
   const lower = token.toLowerCase();
-  if (!/[uü]tlev$|tav$|saav$|rajav$|olev$/.test(lower) || CASE_NAMES.includes(lower)) return null;
+  if (!/[uü]tlev$/.test(lower) || CASE_NAMES.includes(lower)) return null;
   // The nearest name wins where it is nearer than every other: `seesutlev` is
   // one letter from seesütlev and two from seestütlev, and a rule asking for
   // one name within two would refuse the folded diacritic, which is the
   // commonest slip of all.
   let best: string[] = [];
   let bestDistance = 3;
-  for (const name of CASE_NAMES) {
+  for (const name of FIXABLE_NAMES) {
     if (Math.abs(name.length - lower.length) > 2) continue;
     const distance = editDistance(lower, name);
     if (distance > 2) continue;

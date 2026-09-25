@@ -26,21 +26,33 @@ import { reportError } from "@/lib/observability/report";
  * changes how the bytes arrive.
  */
 /**
- * The biggest body this route will read.
+ * The biggest body this route will read, which is the proxy's and no larger.
  *
- * A backup carries the shared dictionary as well as the deck, so a real one is
- * already tens of megabytes and grows as the dictionary does. This is set well
- * above that rather than close to it: refusing somebody's genuine backup is a
- * far worse failure than accepting one that is larger than expected, and the
- * whole point of the route is that the person with the longest history is not
- * the first to lose the ability to restore it.
+ * It said 128 MB, on the argument that refusing a genuine backup is worse than
+ * accepting a large one. That argument is right and the number could never be
+ * reached: every request here passes through the middleware, and
+ * `proxyClientMaxBodySize` in `next.config.ts` truncates a body there at 16 MB
+ * rather than refusing it. So a 20 MB backup arrived cut short, passed the
+ * length check below because it was now exactly 16 MB, failed to parse, and the
+ * learner was told their own file did not look like a backup, which is the
+ * failure the comment on that setting records the first time round.
  *
- * What it is for is the other end. `request.text()` read whatever arrived,
- * with no ceiling anywhere in the app, and `inspect` then handed the result to
- * `JSON.parse`. That is one signed-in account away from holding an arbitrary
- * amount of a server's memory, per request, as often as it likes.
+ * The same figure here turns that into the honest refusal: the declared length
+ * is the caller's claim about the whole file and survives the truncation, so
+ * an oversized backup is told it is too large instead of being called
+ * something it is not. Raising one means raising the other, and an invariant
+ * reads both.
  */
-const MAX_BACKUP_BYTES = 128 * 1024 * 1024;
+const MAX_BACKUP_BYTES = 16 * 1024 * 1024;
+
+/*
+  Above the restore's own transaction, which is allowed a hundred and twenty
+  seconds. With nothing declared the route took the platform's default, which
+  on several of them is ten, so a large restore was ended by the platform
+  rather than by its own limit, and "nothing was changed" never reached the
+  person whose backup it was.
+*/
+export const maxDuration = 150;
 
 export async function POST(request: NextRequest) {
   /*

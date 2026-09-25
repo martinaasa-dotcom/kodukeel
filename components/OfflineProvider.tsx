@@ -19,10 +19,18 @@ interface OfflineState {
    * them (`lib/offline/forget.ts`).
    */
   flush: () => Promise<void>;
+  /**
+   * Sends anything still queued before a new grade goes online. A grade the
+   * outbox is holding was answered earlier, and the scheduler has to hear the
+   * two in the order they happened: an online Good landing first and a queued
+   * Again after it left a card lapsed that the learner had just got right.
+   * Costs nothing when the outbox is empty, which is nearly always.
+   */
+  drainFirst: () => Promise<void>;
 }
 
 const Context = createContext<OfflineState>({
-  online: true, pending: 0, refresh: () => {}, flush: async () => {},
+  online: true, pending: 0, refresh: () => {}, flush: async () => {}, drainFirst: async () => {},
 });
 
 /** How often to retry a stuck queue. Long enough to be invisible, short enough to matter. */
@@ -60,13 +68,26 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     handler was made. The state stays for the banner's spinner, which is a
     render and wants the render's value.
   */
-  const syncingRef = useRef(false);
+  /*
+    AND A CALLER WHO ASKS DURING A PASS WAITS FOR IT, RATHER THAN BEING TOLD
+    IT IS DONE. The guard used to return at once, which is right for the
+    retry interval and wrong for `flush`: signing out awaits it and then counts
+    what is left, so a pass already running meant counting a batch still in
+    flight, warning about grades that were about to land, and deleting the
+    database under the pass. The pass in flight is the promise every caller
+    gets.
+  */
+  const inflight = useRef<Promise<void> | null>(null);
 
-  const sync = useCallback(async () => {
-    if (syncingRef.current) return;
+  const sync = useCallback((): Promise<void> => {
+    if (inflight.current) return inflight.current;
+    const pass = drain().finally(() => { inflight.current = null; });
+    inflight.current = pass;
+    return pass;
+
+    async function drain() {
     // Cheap guard so the retry interval costs nothing in the normal case.
     if ((await outboxSize()) === 0) { setPending(0); return; }
-    syncingRef.current = true;
     setSyncing(true);
     try {
       // Drain in batches until the queue is empty or a batch fails to land.
@@ -111,11 +132,17 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       // durable, so this simply happens again on the next `online` event.
       setOnline(false);
     } finally {
-      syncingRef.current = false;
       setSyncing(false);
       refresh();
     }
+    }
   }, [refresh]);
+
+  const pendingRef = useRef(0);
+  pendingRef.current = pending;
+  const drainFirst = useCallback(async () => {
+    if (pendingRef.current > 0) await sync();
+  }, [sync]);
 
   useEffect(() => {
     setOnline(navigator.onLine);
@@ -169,7 +196,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Context.Provider value={{ online, pending, refresh, flush: sync }}>
+    <Context.Provider value={{ online, pending, refresh, flush: sync, drainFirst }}>
       {children}
       <OfflineBanner online={online} pending={pending} syncing={syncing} />
     </Context.Provider>
