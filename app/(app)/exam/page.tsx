@@ -220,9 +220,18 @@ export default async function ExamPage() {
                       {" · "}
                       predicted {level.expectedTotal} percent, {band.label}
                     </span>
-                    <ButtonLink href={`/exam/${level.level}`} variant="secondary" size="sm">
-                      Sit it <ArrowRight size={14} aria-hidden />
-                    </ButtonLink>
+                    <span className="flex flex-wrap items-center gap-3">
+                      <Link
+                        href={`/exam/${level.level}/papers`}
+                        className="text-sm font-semibold underline underline-offset-4"
+                        style={{ color: "var(--ink-2)" }}
+                      >
+                        Numbered papers, or one part
+                      </Link>
+                      <ButtonLink href={`/exam/${level.level}`} variant="secondary" size="sm">
+                        Sit it <ArrowRight size={14} aria-hidden />
+                      </ButtonLink>
+                    </span>
                   </div>
                 </Card>
               );
@@ -303,8 +312,17 @@ export default async function ExamPage() {
                     <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>
                       {attempt.level}
                     </span>
+                    {(attempt.number || attempt.part) && (
+                      <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+                        {attempt.number ? `Paper ${attempt.number}` : "A paper"}
+                        {attempt.part ? `, ${SKILL_LABEL[attempt.part].toLowerCase()} only` : ""}
+                      </span>
+                    )}
                     <Chip tone={attempt.passed ? "good" : "again"}>
-                      {attempt.pct} percent, {attempt.passed ? "pass" : "not a pass"}
+                      {attempt.pct} percent
+                      {attempt.whole === false
+                        ? ""
+                        : attempt.passed ? ", pass" : ", not a pass"}
                     </Chip>
                   </span>
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
