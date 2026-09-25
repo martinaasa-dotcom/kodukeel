@@ -7,7 +7,7 @@ import { VERBS } from "@/prisma/data/verbs";
 import { ADJECTIVES, PHRASES } from "@/prisma/data/other";
 import { ADVANCED_ADJECTIVES, ADVANCED_NOUNS, ADVANCED_VERBS } from "@/prisma/data/advanced";
 import { HARVESTED } from "@/prisma/data/harvested";
-import { shippedDictionary } from "@/scripts/lib/dictionary";
+import { dictionaryRows, shippedDictionary } from "@/scripts/lib/dictionary";
 
 /**
  * The seed is read here the way `prisma/seed.ts` reads it: the hand-typed
@@ -102,5 +102,33 @@ describe("the built-in dictionary's stated size", () => {
     const forms = shippedDictionary()
       .reduce((n, e) => n + Object.keys(e.parts).length + e.extraForms.length, 0);
     expect(forms).toBe(SEED_SET_SIZE.forms);
+  });
+
+  /*
+    AND THE COLUMNS THE HAND-TYPED LISTS HAND THE SEED, WHICH IS WHAT THE AUDITS
+    READ.
+
+    `dictionaryRows` says it is every entry the seed writes, in the shape the
+    card builders read, and the audits build their cards off it. It dropped the
+    government `prisma/seed.ts` writes for a hand-typed verb the harvest does
+    not supersede, so `koosnema` has a government card on every deployment and
+    none in `npm run audit:questions`. And it handed each hand-typed phrase
+    itself as a recorded sentence, which the seed never writes (`examples`
+    defaults to the empty list), so the audits lent `Kas sa räägid inglise
+    keelt?` to `keel` and `rääkima` as a borrowed sentence no deployment holds.
+  */
+  it("gives each hand-typed entry the government and sentences the seed writes for it", () => {
+    const harvested = new Set(HARVESTED.map((w) => `${w.lemma}|${w.pos}`));
+    const rows = new Map(dictionaryRows().map((r) => [`${r.lemma}|${r.pos}`, r]));
+    const verbs = [...VERBS, ...ADVANCED_VERBS].filter(([lemma]) => !harvested.has(`${lemma}|VERB`));
+    expect(verbs.filter(([, , , , , , , , government]) => government).length).toBeGreaterThan(0);
+    for (const [lemma, , , , , , , , government] of verbs) {
+      expect(rows.get(`${lemma}|VERB`)?.government, lemma).toBe(government ?? null);
+    }
+    const phrases = PHRASES.filter(([lemma]) => !harvested.has(`${lemma}|PHRASE`));
+    expect(phrases.length).toBeGreaterThan(0);
+    for (const [lemma] of phrases) {
+      expect(rows.get(`${lemma}|PHRASE`)?.examples, lemma).toEqual([]);
+    }
   });
 });
