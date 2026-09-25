@@ -10,6 +10,7 @@ import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Speak } from "@/components/Speak";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { Condition } from "@/lib/audio/conditions";
+import { counted } from "@/lib/copy/values";
 
 /**
  * AN ATTESTED SENTENCE YOU CAN READ, RATHER THAN ONE YOU CAN ONLY LOOK AT.
@@ -222,7 +223,7 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
     if (!r.ok) { setResult(r.error); return; }
     const named = keeper.choice.decks?.filter((d) => deckIds?.includes(d.id)).map((d) => d.name) ?? [];
     const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
-    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${r.added} cards.${where}`);
+    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${counted(r.added, "card")}.${where}`);
   });
 
   /* The spelling in the sentence and the headword are the same word often
