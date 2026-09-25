@@ -26,7 +26,8 @@ import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
-import { enqueueGrade, readStashedSession, stashSession } from "@/lib/offline/db";
+import { enqueueGrade, readStashedSession, stashSession, takeFromOutbox } from "@/lib/offline/db";
+import { undoOutcome } from "@/lib/offline/outbox";
 import { useOffline } from "@/components/OfflineProvider";
 import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
@@ -443,6 +444,8 @@ interface Done {
   rating: RatingValue;
   /** The card's scheduling before the grade — everything undo needs. */
   before: ReviewCard["scheduling"];
+  /** The id the grade was written, or queued, under, so undo can take a queued one back. */
+  reviewId: string;
 }
 
 export function ReviewSession({
@@ -959,7 +962,7 @@ export function ReviewSession({
 
     setDone((d) => d + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
-    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before }]);
+    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId }]);
     recordSeen(card, false);
 
     // "Again" means it is not learned — put it back near the end of this session.
@@ -1003,8 +1006,18 @@ export function ReviewSession({
       which is the honest answer to an undo that could not reach the server.
     */
     try {
+    /*
+      A grade still in the outbox never reached the server, so it is taken
+      back here first. Asking the server alone meant a grade undone offline
+      stayed queued and was replayed later: the answer the learner withdrew
+      was applied anyway. The server is still asked, since a sync may have
+      sent the grade a moment ago, and its answer decides only for a grade
+      that was no longer queued.
+    */
+    const taken = await takeFromOutbox(last.reviewId);
+    if (taken) refreshOutbox();
     const result = await undoGrade(last.cardId, last.before).catch(() => null);
-    if (result?.ok) {
+    if (undoOutcome(taken, result?.ok === true) === "undone") {
       scheduled.current.set(last.cardId, last.before);
       setHistory((h) => h.slice(0, -1));
       // The card is in front of the learner again, so that showing has not
@@ -1027,7 +1040,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [history, busy, queue, forget]);
+  }, [history, busy, queue, forget, refreshOutbox]);
 
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;

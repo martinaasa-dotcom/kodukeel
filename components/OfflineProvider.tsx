@@ -60,13 +60,26 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     handler was made. The state stays for the banner's spinner, which is a
     render and wants the render's value.
   */
-  const syncingRef = useRef(false);
+  /*
+    AND A CALLER WHO ASKS DURING A PASS WAITS FOR IT, RATHER THAN BEING TOLD
+    IT IS DONE. The guard used to return at once, which is right for the
+    retry interval and wrong for `flush`: signing out awaits it and then counts
+    what is left, so a pass already running meant counting a batch still in
+    flight, warning about grades that were about to land, and deleting the
+    database under the pass. The pass in flight is the promise every caller
+    gets.
+  */
+  const inflight = useRef<Promise<void> | null>(null);
 
-  const sync = useCallback(async () => {
-    if (syncingRef.current) return;
+  const sync = useCallback((): Promise<void> => {
+    if (inflight.current) return inflight.current;
+    const pass = drain().finally(() => { inflight.current = null; });
+    inflight.current = pass;
+    return pass;
+
+    async function drain() {
     // Cheap guard so the retry interval costs nothing in the normal case.
     if ((await outboxSize()) === 0) { setPending(0); return; }
-    syncingRef.current = true;
     setSyncing(true);
     try {
       // Drain in batches until the queue is empty or a batch fails to land.
@@ -111,9 +124,9 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       // durable, so this simply happens again on the next `online` event.
       setOnline(false);
     } finally {
-      syncingRef.current = false;
       setSyncing(false);
       refresh();
+    }
     }
   }, [refresh]);
 

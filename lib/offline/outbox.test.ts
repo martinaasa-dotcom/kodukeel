@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  MAX_BACKDATE_DAYS, REPLAY_BATCH, clampReviewedAt, isClientReviewId, isValidPending, nextBatch,
+  MAX_BACKDATE_DAYS, REPLAY_BATCH, clampReviewedAt, isClientReviewId, isValidPending, undoOutcome, nextBatch,
   orderForReplay, withoutSettled, type PendingGrade,
 } from "./outbox";
 
@@ -122,5 +122,15 @@ describe("isClientReviewId", () => {
     for (const bad of ["", "short", "a".repeat(65), "has space in it", "semi;colon-12", 42, null, undefined]) {
       expect(isClientReviewId(bad)).toBe(false);
     }
+  });
+});
+
+describe("undoOutcome", () => {
+  it("counts a grade taken back out of the outbox as undone, whatever the server said", () => {
+    expect(undoOutcome(true, false)).toBe("undone");
+  });
+  it("undoes a sent grade only where the server did", () => {
+    expect(undoOutcome(false, true)).toBe("undone");
+    expect(undoOutcome(false, false)).toBe("kept");
   });
 });

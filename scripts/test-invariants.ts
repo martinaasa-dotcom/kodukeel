@@ -13282,6 +13282,26 @@ check("a wrong answer records the form it reached for, and only between forms", 
  * Swept rather than listed: every file that queues a grade, and every call in
  * it, has to hand `gradeCard` the id it queues.
  */
+/**
+ * UNDO TAKES A QUEUED GRADE BACK, AND SIGNING OUT WAITS FOR A PASS IN FLIGHT.
+ *
+ * Undo asked the server alone, so a grade undone offline stayed in the outbox
+ * and was replayed later: the answer the learner withdrew was applied anyway.
+ * And `flush` returned at once while a sync was running, so signing out
+ * counted a batch still in flight, warned about grades about to land, and
+ * deleted the database under the pass.
+ */
+check("undo takes a queued grade back, and flush waits for a sync in flight", () => {
+  const undo = between(code("app/(app)/review/ReviewSession.tsx"), "const undo = useCallback");
+  const taken = undo.indexOf("takeFromOutbox(");
+  const asked = undo.indexOf("undoGrade(");
+  assert.ok(taken > 0 && asked > taken,
+    "undo asks the server without first taking the grade back out of the outbox");
+  const provider = code("components/OfflineProvider.tsx");
+  assert.match(provider, /if \(inflight\.current\) return inflight\.current;/,
+    "a sync already running is no longer the promise a second caller gets, so flush returns before it lands");
+});
+
 check("a grade queued after a failed online write keeps the id it was sent with", () => {
   const files = sourceFiles("app").concat(sourceFiles("components"))
     .filter((f) => /enqueueGrade\(\{/.test(code(f)));
