@@ -119,7 +119,33 @@ const SHELL_URLS = [OFFLINE_URL, "/app-icon.svg"];
  * fallback itself, which is the one thing in here that has no fallback.
  */
 function cacheEach(cache, urls) {
-  return Promise.all(urls.map((url) => cache.add(url).catch(() => undefined)));
+  return Promise.all(urls.map((url) => fetchAndKeep(cache, url).catch(() => undefined)));
+}
+
+/*
+  A REDIRECTED RESPONSE IS NEVER KEPT, AND NEVER SERVED.
+
+  `cache.add` follows a redirect and stores what it lands on under the URL it
+  was asked for, marked `redirected`. Served back to a navigation, which is
+  made with `redirect: "manual"`, that response is a network error rather than
+  a page: measured in Chromium, a page cached that way and opened offline shows
+  the browser's own ERR_FAILED screen instead of /offline. A page redirects the
+  moment a session has expired (to /sign-in), a first run has finished (/start
+  to /) or a paper has been seeded (/exam/A1), and `warmOpenPages` asks for
+  exactly those pages, so the one place meant to keep somebody's page for the
+  bus is where the error page came from.
+
+  So every write asks `keepable`, and a cached entry that is redirected, which
+  a worker before this one may already hold, falls through to the offline page
+  rather than being handed to the browser.
+*/
+function keepable(response) {
+  return Boolean(response) && response.ok && !response.redirected;
+}
+
+async function fetchAndKeep(cache, url) {
+  const response = await fetch(new Request(url, { credentials: "same-origin" }));
+  if (keepable(response)) await cache.put(url, response);
 }
 
 self.addEventListener("install", (event) => {
@@ -170,7 +196,7 @@ async function warmOpenPages() {
       const url = new URL(client.url);
       if (url.origin !== self.location.origin) return;
       if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) return;
-      await cache.add(new Request(url.href, { credentials: "same-origin" })).catch(() => undefined);
+      await fetchAndKeep(cache, url.href).catch(() => undefined);
     }));
     await trim(PAGES);
   } catch {
@@ -216,9 +242,9 @@ self.addEventListener("fetch", (event) => {
 
 async function cacheFirst(request, cacheName) {
   const cached = await caches.match(request);
-  if (cached) return cached;
+  if (keepable(cached)) return cached;
   const response = await fetch(request);
-  if (response.ok) {
+  if (keepable(response)) {
     const copy = response.clone();
     caches.open(cacheName)
       .then((cache) => cache.put(request, copy))
@@ -252,7 +278,7 @@ async function audioWithCache(request) {
 
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    if (keepable(response)) {
       const copy = response.clone();
       caches.open(AUDIO)
         .then((cache) => cache.put(key, copy))
@@ -279,7 +305,7 @@ async function audioWithCache(request) {
 async function navigateWithFallback(request) {
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    if (keepable(response)) {
       const copy = response.clone();
       caches.open(PAGES)
         .then((cache) => cache.put(request, copy))
@@ -288,8 +314,9 @@ async function navigateWithFallback(request) {
     }
     return response;
   } catch {
+    const cached = await caches.match(request);
     return (
-      (await caches.match(request)) ??
+      (keepable(cached) ? cached : null) ??
       (await caches.match(OFFLINE_URL)) ??
       new Response("Offline", { status: 503, headers: { "content-type": "text/plain" } })
     );
