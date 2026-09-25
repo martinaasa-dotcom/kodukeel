@@ -238,6 +238,7 @@ describe("building a paper", () => {
       .flatMap((p) => p.tasks)
       .flatMap((t) => t.items)
       .filter((i): i is Extract<typeof i, { kind: "order" }> => i.kind === "order");
+    expect(orders.length).toBeGreaterThan(0);
     for (const item of orders) {
       expect(item.tiles.join(" ")).not.toEqual(item.answer);
       expect([...item.tiles].sort()).toEqual([...item.answer.replace(/[.!?]/g, "").split(" ")].sort());
@@ -330,6 +331,8 @@ describe("an empty dictionary", () => {
     const needingWords = paper.parts
       .flatMap((p) => p.tasks)
       .filter((t) => !["message", "compose", "speak"].includes(t.spec.kind));
+    // The tasks are still set and empty, rather than gone from the paper.
+    expect(needingWords.length).toBeGreaterThan(0);
     expect(needingWords.every((t) => t.items.length === 0)).toBe(true);
   });
 });

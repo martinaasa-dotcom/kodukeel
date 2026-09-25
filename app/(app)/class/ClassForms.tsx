@@ -14,6 +14,7 @@ import {
 } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS } from "@/lib/exam/spec";
 import { Explain } from "@/components/Explain";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 export function CreateClass() {
   const router = useRouter();
@@ -27,8 +28,8 @@ export function CreateClass() {
   const create = () => {
     setError(null);
     start(async () => {
-      const result = await createClassroom(name, kind, level);
-      if (!result.ok) { setError(result.error); return; }
+      const result = await createClassroom(name, kind, level).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       router.push(`/class/${result.id}`);
       router.refresh();
     });
@@ -97,8 +98,8 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
   const join = () => {
     setError(null);
     start(async () => {
-      const result = await joinClassroom(code, name);
-      if (!result.ok) { setError(result.error); return; }
+      const result = await joinClassroom(code, name).catch(() => null);
+      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
       router.push(`/class/${result.id}`);
       router.refresh();
     });
@@ -196,8 +197,8 @@ export function LeaveClass({ classroomId }: { classroomId: string }) {
         type="button"
         disabled={pending}
         onClick={() => start(async () => {
-          const result = await leaveClassroom(classroomId);
-          if (!result.ok) { setError(result.error); return; }
+          const result = await leaveClassroom(classroomId).catch(() => null);
+          if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
           router.push("/class");
           router.refresh();
         })}
@@ -233,7 +234,8 @@ export function ArchiveClass({ classroomId }: { classroomId: string }) {
     <span className="flex items-center gap-2 text-xs" style={{ color: "var(--ink-2)" }}>
       The join code stops working. Nobody loses any work.
       <Button variant="danger" disabled={pending} onClick={() => start(async () => {
-        await archiveClassroom(classroomId);
+        const landed = await archiveClassroom(classroomId).then(() => true).catch(() => false);
+        if (!landed) return;
         router.push("/class");
         router.refresh();
       })}>
@@ -289,7 +291,8 @@ export function AssignUnit({ classroomId, units }: {
         variant="primary"
         disabled={pending || !unitId}
         onClick={() => start(async () => {
-          const result = await assignUnit(classroomId, unitId, due || undefined);
+          const result = await assignUnit(classroomId, unitId, due || undefined).catch(() => null);
+          if (!result) { setMessage(NOT_REACHED); return; }
           setMessage(result.ok ? `Sent to ${result.assigned} ${result.assigned === 1 ? "person" : "people"}.` : result.error);
           router.refresh();
         })}
@@ -327,8 +330,8 @@ export function AssignHomework({ classroomId }: { classroomId: string }) {
   const send = () => {
     setMessage(null);
     start(async () => {
-      const result = await assignHomework(classroomId, title, notes, due || undefined);
-      if (!result.ok) { setMessage(result.error); return; }
+      const result = await assignHomework(classroomId, title, notes, due || undefined).catch(() => null);
+      if (!result || !result.ok) { setMessage(result ? result.error : NOT_REACHED); return; }
       setMessage(`Sent to ${result.assigned} ${result.assigned === 1 ? "person" : "people"}.`);
       setTitle("");
       setNotes("");
