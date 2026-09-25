@@ -629,16 +629,16 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
       recorded and banked lines, which is how a keyless deployment plays all
       fourteen of them.
 
-      Anu is the exception and takes no fallback at all. Her chain is two
-      links, Gemini and then Groq (`TUTOR_MODEL`, `TUTOR_FALLBACK_MODEL`), and
-      both were measured on her own job by `npm run eval:anu` with the words
-      block in front of them. A link past those is a model nobody measured on
-      it, and an older run of the same eval showed what an unmeasured model
-      does with her questions: the tuba : toa gradation called "b becomes v"
-      where the dictionary says b : ∅, "Mul meeldib" offered for "Mulle
-      meeldib", and `lähema` invented for `minema` and emitted as a VOCAB line
-      the app parses. A fallback that answers wrongly is worse than one that
-      does not answer, because the learner cannot tell.
+      Anu is the exception and takes no Anthropic tail. This used to say her
+      provider *was* Anthropic with nothing behind it but Groq, and that
+      `npm run eval:anu` had watched Groq call the tuba : toa gradation "b
+      becomes v" and invent `lähema` for `minema`. Both halves have moved: she
+      answers on `TUTOR_MODEL`, and her own chain already carries Groq's
+      `TUTOR_FALLBACK_MODEL` behind it, measured at 83 of 87 facts on the
+      eval that chose `TUTOR_MODEL`. So her fallback is the one
+      `PURPOSE_CHAINS.tutor` names. Whether
+      she should also reach Anthropic on a day both of those are down has not
+      been measured since, and the exclusion stands as it was until it is.
     */
     if (allowFallback && options.purpose !== "tutor" && process.env.ANTHROPIC_API_KEY) {
       if (!chain.some((c) => c.name === "anthropic")) {
@@ -1679,7 +1679,7 @@ async function readImageOpenAiCompatible(
   await assertOk(res, config);
   const body = (await res.json()) as {
     choices?: { message?: { content?: unknown } }[];
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
   };
 
   const raw = body.choices?.[0]?.message?.content;
@@ -1694,7 +1694,9 @@ async function readImageOpenAiCompatible(
   return {
     config,
     text,
-    usage: usageFrom(body.usage?.prompt_tokens, body.usage?.completion_tokens, system + prompt, text),
+    // Thinking Gemini hides from `completion_tokens` is still billed, which is
+    // the fault `billedOutput` exists for on the chat path, one transport over.
+    usage: usageFrom(body.usage?.prompt_tokens, body.usage ? billedOutput(body.usage) : undefined, system + prompt, text),
   };
 }
 

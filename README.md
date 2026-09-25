@@ -374,6 +374,13 @@ rebuild, documented in `docs/03-architecture.md` ADR-011:
    ever touches `Card` or `Review`. To force a reseed after correcting the seed data, run
    `npm run db:seed` against the hosted database yourself.
 
+   Outside Vercel and CI, `npm run build`, `npm run setup` and `npm run db:push` refuse a
+   `DATABASE_URL` or `DIRECT_URL` that is not on this machine (`scripts/schema-guard.mjs`), because
+   a shell carrying the deployment's connection string would otherwise push a branch's schema into
+   production just by checking that it compiles. To check a build, run
+   `npx prisma generate && npx next build`. A self-hosted builder that means it sets
+   `KODUKEEL_SCHEMA_PUSH=1`.
+
 Two things that used to change when hosted have since been fixed. Review works on a train again:
 it is a PWA, grades go to a device-local outbox and replay when the connection returns. And the
 audio cache is durable rather than per-instance: set `SUPABASE_SERVICE_ROLE_KEY` and clips are

@@ -214,6 +214,41 @@ describe("a scene against the dictionary", () => {
     The friend who heard that does not ask, two questions later, what they are
     buying; before this they did, and the learner had to say it twice.
   */
+  /*
+    A GOODBYE IS LEAVING, EVEN ON A BEAT THAT TAKES ANY REPLY.
+
+    A beat whose only requirement is `any` is complete for every turn, and the
+    rule that ends a conversation on a farewell asked whether the current beat
+    was complete before it asked whether the turn was a goodbye. So `Nägemist`
+    said to "Täna on ilus ilm" went down on the debrief as a reply about the
+    weather.
+  */
+  it("does not credit a goodbye as the answer to a beat that takes anything", async () => {
+    const scene = sceneById("trepikoda")!;
+    const opened = await beginRun({
+      ownerId: OWNER, sceneId: scene.id, level: "A2", difficulty: "textbook", lines: "scripted",
+    });
+    const context = await sceneContext(scene.id);
+    const row = await prisma.sceneRun.findUnique({ where: { id: opened!.runId } });
+    const draw = readDraw(row!.transcript);
+    const floor = draw!.card.props.find((p) => p.slot === "floor");
+    const country = draw!.card.props.find((p) => p.slot === "from");
+    const who = draw!.card.props.find((p) => p.slot === "with");
+
+    const { state } = replay(context!, draw, [
+      { beatId: "greet", said: "Tere!", helped: false, heard: "" },
+      { beatId: "new", said: "Jah, ma just kolisin sisse", helped: false, heard: "" },
+      { beatId: "floor", said: floor?.value ?? "kolmandal korrusel", helped: false, heard: "" },
+      { beatId: "from", said: country?.value ?? "soomest", helped: false, heard: "" },
+      { beatId: "with", said: who?.value ?? "koos mehega", helped: false, heard: "" },
+      { beatId: "weather", said: "Nägemist!", helped: false, heard: "" },
+    ]);
+
+    expect(state.done, "the run never reached the weather beat, so this proves nothing").toContain("with");
+    expect(state.done, "the goodbye ended the conversation").toContain("close");
+    expect(state.done, "a goodbye was written down as a reply about the weather").not.toContain("weather");
+  });
+
   it("credits a beat the turn answered further down the scene", async () => {
     const scene = sceneById("poodi-piima")!;
     const opened = await beginRun({

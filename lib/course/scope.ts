@@ -116,9 +116,9 @@ export function slotWithin(scope: ModuleScope | null, slot: string | null | unde
   if (scope.cases.includes(slot)) return true;
   const verb = VERB_SLOT_PAGE.find((v) => slot.startsWith(v.opens));
   if (verb) {
-    // The conditional is asked from B1, as the module's own table asks it
-    // (`app/(app)/review/conjugation/page.tsx`): A2's request unit reads the
-    // page to soften a request and is not asking anybody to conjugate it.
+    // The conditional is asked from B1, and the module's own table asks this
+    // rather than keeping a copy: A2's request unit reads the page to soften a
+    // request and is not asking anybody to conjugate it.
     if (verb.page === "conditional" && ["A1", "A2"].includes(scope.programme.level)) return false;
     return scope.topics.includes(verb.page) || (verb.also !== undefined && scope.topics.includes(verb.also));
   }
