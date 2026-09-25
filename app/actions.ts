@@ -848,6 +848,8 @@ export async function toggleStar(lexemeId: string) {
  */
 export async function putWordAside(lexemeId: string, context: string) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "putAside");
+  if (busy) return busy;
   const id = text(lexemeId).slice(0, 64);
   if (!id) return { ok: false as const, error: "No word was named." };
 

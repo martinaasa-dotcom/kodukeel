@@ -3,6 +3,7 @@ import { generateCards, type LexemeForCards } from "@/lib/srs/cards";
 import { lockDeck } from "@/lib/srs/deck";
 import { courseAsksFor } from "@/lib/collections/syllabus";
 import { emptyScheduling } from "@/lib/srs/scheduler";
+import { deferredDues } from "@/lib/progress/deferrals";
 
 /**
  * Adds gap-fill cards to a word already in the deck, once it has sentences.
@@ -30,9 +31,18 @@ import { emptyScheduling } from "@/lib/srs/scheduler";
  *   one entry, or a prefetch on a settled pointer followed by the click, both
  *   land in the gap. `lockDeck` is the same transaction advisory lock
  *   `addCardsFor` and `addPlanToDeck` take, keyed on the learner;
- * - existing cards are never touched, so no scheduling is disturbed.
+ * - existing cards are never touched, so no scheduling is disturbed;
+ * - and a word the learner put aside stays aside. The new card is dated where
+ *   the deferral put the word, which is what `addCardsFor` and
+ *   `addPlanToDeck` already do inside the same lock: without it, opening the
+ *   entry for a word somebody had just called too complicated handed them a
+ *   gap-fill on it the same evening (`lib/progress/deferrals.ts`).
  */
-export async function backfillClozeCards(ownerId: string, lexemeId: string): Promise<number> {
+export async function backfillClozeCards(
+  ownerId: string,
+  lexemeId: string,
+  now = new Date(),
+): Promise<number> {
   const lexeme = await prisma.lexeme.findUnique({
     where: { id: lexemeId },
     include: { forms: true, cards: { where: { ownerId }, select: { cardType: true, front: true, source: true } } },
@@ -60,7 +70,7 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
     the first of them is the answer.
   */
   const source = lexeme.cards[0]?.source ?? "MANUAL";
-  const scheduling = emptyScheduling(new Date());
+  const scheduling = emptyScheduling(now);
   /*
     The check and the write under one lock. Reading "has it a gap-fill card
     yet" and then inserting is check-then-act, and the gap is wide enough to
@@ -71,8 +81,12 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
   */
   return prisma.$transaction(async (tx) => {
     await lockDeck(tx, ownerId);
-    const already = await tx.card.count({ where: { ownerId, lexemeId, cardType: "CLOZE" } });
+    const [already, held] = await Promise.all([
+      tx.card.count({ where: { ownerId, lexemeId, cardType: "CLOZE" } }),
+      deferredDues(tx, ownerId, [lexemeId], now),
+    ]);
     if (already > 0) return 0;
+    const due = held.get(lexemeId) ?? scheduling.due;
     await tx.card.createMany({
     data: generated.map((c) => ({
       ownerId,
@@ -84,7 +98,7 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
       targetCase: c.targetCase,
       slot: c.slot,
       source,
-      due: scheduling.due,
+      due,
       stability: scheduling.stability,
       difficulty: scheduling.difficulty,
       state: scheduling.state,
