@@ -88,6 +88,16 @@ interface Entry {
   readonly name: string;
   readonly tokens: number;
   expiresAt: number;
+  /**
+   * What making or extending the entry cost and no turn has booked yet.
+   *
+   * Google charges for the write and the storage when the entry is made,
+   * whatever happens to the generate call after it. Handed only to the turn
+   * that made it, a 429 on that turn lost the charge, and the next turn
+   * reused the entry booking the prompt alone. So it is carried here and
+   * cleared by the first turn that comes back.
+   */
+  owed: Booked | null;
 }
 
 /** What this turn owes for the entry it used: the tokens written, if it made it, and the seconds of storage it bought. */
@@ -136,9 +146,17 @@ async function entryFor(config: ProviderConfig, system: string): Promise<{ entry
   const held = entries.get(key);
   if (held) {
     const now = Date.now();
-    if (held.expiresAt - now > EXTEND_BELOW_MS) return { entry: held, booked: null };
+    if (held.expiresAt - now > EXTEND_BELOW_MS) return { entry: held, booked: takeOwed(held) };
     const bought = await extend(config, held, now);
-    return { entry: held, booked: bought > 0 ? { tokens: held.tokens, model: config.model, written: false, storageSeconds: bought } : null };
+    if (bought > 0) {
+      held.owed = {
+        tokens: held.tokens,
+        model: config.model,
+        written: held.owed?.written ?? false,
+        storageSeconds: (held.owed?.storageSeconds ?? 0) + bought,
+      };
+    }
+    return { entry: held, booked: takeOwed(held) };
   }
 
   const res = await fetch(`${BASE}/cachedContents?key=${keyOf()}`, {
@@ -163,9 +181,38 @@ async function entryFor(config: ProviderConfig, system: string): Promise<{ entry
     name: made.name,
     tokens: made.usageMetadata?.totalTokenCount ?? 0,
     expiresAt: Date.now() + CACHE_TTL_SECONDS * 1000,
+    owed: { tokens: made.usageMetadata?.totalTokenCount ?? 0, model: config.model, written: true, storageSeconds: CACHE_TTL_SECONDS },
   };
   entries.set(key, entry);
-  return { entry, booked: { tokens: entry.tokens, model: config.model, written: true, storageSeconds: CACHE_TTL_SECONDS } };
+  return { entry, booked: takeOwed(entry) };
+}
+
+/**
+ * Hands the entry's debt to the turn asking and clears it, in one step.
+ *
+ * Read and cleared later instead, two turns in flight on one entry were both
+ * handed the same debt and both booked it: a scene another learner opened a
+ * moment after this one paid for a write it did not make. A turn that fails
+ * gives it back through `returnOwed`.
+ */
+function takeOwed(entry: Entry): Booked | null {
+  const owed = entry.owed;
+  entry.owed = null;
+  return owed;
+}
+
+/** Puts a failed turn's debt back, merged with any the entry has taken on since. */
+function returnOwed(entry: Entry, booked: Booked | null): void {
+  if (!booked) return;
+  const now = entry.owed;
+  entry.owed = now
+    ? {
+        tokens: booked.tokens,
+        model: booked.model,
+        written: booked.written || now.written,
+        storageSeconds: booked.storageSeconds + now.storageSeconds,
+      }
+    : booked;
 }
 
 /**
@@ -269,38 +316,44 @@ export async function geminiCachedReply(
   maxTokens = SCENE_REPLY_TOKENS,
 ): Promise<{ text: string; usage: UsageReport }> {
   const { entry, booked } = await entryFor(config, system);
-  const body = {
-    cachedContent: entry.name,
-    contents: contentsFor(messages, live),
-    generationConfig: {
-      maxOutputTokens: maxTokens,
-      // The chain's own answer to a flash model thinking by default (`ProviderConfig.reasoning`).
-      ...(config.reasoning === "none" ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
-    },
-  };
-  const res = await fetch(`${BASE}/models/${config.model}:generateContent?key=${keyOf()}`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(90_000),
-  });
-  if (!res.ok) {
-    /*
-      An entry the provider no longer holds is a 4xx naming it; forget ours
-      so the next turn makes a fresh one, and let the caller fall back to the
-      plain transport for this line rather than compose nothing.
-    */
-    if (res.status === 400 || res.status === 403 || res.status === 404) {
-      entries.delete(keyFor(config.model, system));
-      throw new TutorError(`${config.label} no longer holds the prompt (${res.status}).`, 502);
+  try {
+    const body = {
+      cachedContent: entry.name,
+      contents: contentsFor(messages, live),
+      generationConfig: {
+        maxOutputTokens: maxTokens,
+        // The chain's own answer to a flash model thinking by default (`ProviderConfig.reasoning`).
+        ...(config.reasoning === "none" ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+      },
+    };
+    const res = await fetch(`${BASE}/models/${config.model}:generateContent?key=${keyOf()}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(90_000),
+    });
+    if (!res.ok) {
+      /*
+        An entry the provider no longer holds is a 4xx naming it; forget ours
+        so the next turn makes a fresh one, and let the caller fall back to the
+        plain transport for this line rather than compose nothing.
+      */
+      if (res.status === 400 || res.status === 403 || res.status === 404) {
+        entries.delete(keyFor(config.model, system));
+        throw new TutorError(`${config.label} no longer holds the prompt (${res.status}).`, 502);
+      }
+      if (res.status === 401) throw new TutorError(`${config.label} rejected the API key. Check it in your .env file.`, 401);
+      if (res.status === 429) throw new TutorError(`${config.label} is rate-limiting this model.`, 429);
+      throw new TutorError(`${config.label} answered ${res.status}.`, 502);
     }
-    if (res.status === 401) throw new TutorError(`${config.label} rejected the API key. Check it in your .env file.`, 401);
-    if (res.status === 429) throw new TutorError(`${config.label} is rate-limiting this model.`, 429);
-    throw new TutorError(`${config.label} answered ${res.status}.`, 502);
+    const reply = await res.json() as GenerateReply;
+    const text = reply.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+    const usage = usageFromMetadata(reply.usageMetadata, booked);
+    if (reply.candidates?.[0]?.finishReason === "MAX_TOKENS") usage.truncated = true;
+    return { text, usage };
+  } catch (error) {
+    // This turn booked nothing, so what the entry cost waits for the next turn that comes back.
+    returnOwed(entry, booked);
+    throw error;
   }
-  const reply = await res.json() as GenerateReply;
-  const text = reply.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
-  const usage = usageFromMetadata(reply.usageMetadata, booked);
-  if (reply.candidates?.[0]?.finishReason === "MAX_TOKENS") usage.truncated = true;
-  return { text, usage };
 }

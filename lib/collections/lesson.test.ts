@@ -302,6 +302,7 @@ describe("what a step is built from", () => {
 
   it("derives a case question from the genitive, never from thin air", () => {
     const cases = plan().filter((s): s is Extract<LessonStep, { kind: "case" }> => s.kind === "case");
+    expect(cases.length).toBeGreaterThan(0);
     for (const step of cases) {
       const source = WORDS.find((w) => w.lemma === step.lemma)!;
       expect(step.answer.startsWith(source.parts.GEN_SG!)).toBe(true);

@@ -191,6 +191,20 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
     live: false, needs: [], cases: [],
     tryThis: "Write four sentences about your week, each joined to the next with a different connective.",
   },
+  /*
+    Not a live exchange and not a place: a particle is half of a verb, so what
+    it is rehearsed by is using the verbs the course already taught and letting
+    the small word carry the difference. No case, because a particle governs
+    nothing and takes no ending.
+  */
+  osakesed: {
+    live: false, needs: [], cases: [],
+    tryThis: "Say three things you did at home today, each with the little word that finishes the verb: shut, opened, tidied up.",
+  },
+  viisisonad: {
+    live: false, needs: [], cases: [],
+    tryThis: "Answer three questions about numbers you do not know exactly, using about, almost and at least.",
+  },
   vastused: {
     live: true, needs: [], cases: [],
     tryThis: "Say hello and thank you to the first person you deal with today.",
@@ -279,6 +293,10 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   vordlemine: {
     live: false, needs: [], cases: ["ELATIVE", "PARTITIVE"],
     tryThis: "Compare two places you have lived and say which was better and why.",
+  },
+  kuivord: {
+    live: false, needs: [], cases: [],
+    tryThis: "Answer three questions about your week with almost, at least or completely rather than yes.",
   },
   tunded: {
     live: true, needs: ["replies"], cases: ["ADESSIVE", "PARTITIVE", "ELATIVE"],
