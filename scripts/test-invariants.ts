@@ -21716,6 +21716,23 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);
 });
 
+check("a personal best is compared inside the write that keeps it", () => {
+  /*
+    Read, compare, write is check-then-act, and two rounds finishing together
+    let the slower one lower the best (`lib/progress/personalBest.ts`,
+    shown in `personalBest.itest.ts`). ADR-014 stores a best because nothing
+    can rebuild it, so the only writer is the conditional upsert.
+  */
+  const helper = code("lib/progress/personalBest.ts");
+  assert.match(helper, /ON CONFLICT[\s\S]*DO UPDATE[\s\S]*WHERE/, "keepBest no longer compares inside the write");
+  const writers = ALL.filter(
+    (f) =>
+      f !== "lib/progress/personalBest.ts" &&
+      /writeSetting\([^)]*SETTING_KEYS\.(?:sprintBest|matchBest)|ownerId_key:\s*\{[^}]*SETTING_KEYS\.(?:sprintBest|matchBest)/.test(code(f)),
+  );
+  assert.deepEqual(writers, [], `${writers.join(", ")} writes a personal best outside keepBest`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

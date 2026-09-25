@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
+import { keepBest } from "@/lib/progress/personalBest";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
@@ -1082,10 +1083,13 @@ export async function recordSprintScore(score: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(score)) return { ok: false as const, error: "That is not a score." };
   const clamped = Math.min(MAX_SPRINT_SCORE, Math.max(0, Math.round(score)));
-  const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.sprintBest), 0);
-  const isNewBest = clamped > best;
-  if (isNewBest) await writeSetting(ownerId, SETTING_KEYS.sprintBest, String(clamped));
-  return { ok: true as const, best: Math.max(clamped, best), isNewBest };
+  // A round of nothing beats no stored best and writes no row, as before.
+  if (clamped === 0) {
+    const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.sprintBest), 0);
+    return { ok: true as const, best, isNewBest: false };
+  }
+  // Compared inside the write, so a slower round cannot lower it (lib/progress/personalBest.ts).
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.sprintBest, clamped, "higher")) };
 }
 
 /**
@@ -1099,10 +1103,7 @@ export async function recordMatchTime(seconds: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(seconds)) return { ok: false as const, error: "That is not a time." };
   const rounded = Math.min(MAX_MATCH_SECONDS, Math.max(1, Math.round(seconds)));
-  const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.matchBest), 0);
-  const isNewBest = best === 0 || rounded < best;
-  if (isNewBest) await writeSetting(ownerId, SETTING_KEYS.matchBest, String(rounded));
-  return { ok: true as const, best: isNewBest ? rounded : best, isNewBest };
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.matchBest, rounded, "lower")) };
 }
 
 /**
