@@ -9443,10 +9443,15 @@ check("the layers that promise to be pure import no database, React or Next", ()
   const banned = [
     [/from ["']@\/lib\/db["']/, "the database"],
     [/from ["']@prisma\/client["']/, "Prisma"],
-    [/from ["']react["']|from ["']react\//, "React"],
+    [/from ["']react(?:["'/-])/, "React"],
     [/from ["']next\//, "Next"],
     [/from ["']server-only["']/, "a server-only marker, which is a Next concern"],
   ] as const;
+
+  /* `react-dom` is React too, and the check this replaced caught it as a prefix. */
+  for (const probe of [`from "react"`, `from 'react/jsx-runtime'`, `from "react-dom"`]) {
+    assert.ok(banned.some(([pattern]) => pattern.test(probe)), `the React ban no longer catches ${probe}`);
+  }
 
   let looked = 0;
   for (const name of pure) {
