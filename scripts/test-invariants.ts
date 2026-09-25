@@ -6764,6 +6764,33 @@ check("the privacy notice carries what Article 13 requires", () => {
   }
 });
 
+/**
+ * NO NPM SCRIPT RESHAPES A DATABASE THAT IS NOT ON THIS MACHINE BY ACCIDENT.
+ *
+ * `npm run build` is `prisma db push` and the seed before it is a compile, so
+ * in a shell carrying the deployment's connection string, which is how a
+ * deployment-linked terminal and the agent sessions working this repository
+ * are set up, checking that a branch compiles pushed its schema into
+ * production. `scripts/schema-guard.mjs` refuses a remote target outside
+ * Vercel and CI; this holds every script that pushes a schema to running it
+ * first, since a guard one script forgets is the door the next one uses.
+ */
+check("every npm script that pushes a schema asks the schema guard first", () => {
+  const scripts = JSON.parse(read("package.json")).scripts as Record<string, string>;
+  const pushers = Object.entries(scripts).filter(([, command]) => /prisma db push/.test(command));
+  assert.ok(pushers.length >= 3, `only ${pushers.length} scripts push a schema, so this stopped looking`);
+  const unguarded = pushers
+    .filter(([, command]) => {
+      const guard = command.indexOf("node scripts/schema-guard.mjs");
+      return guard < 0 || guard > command.indexOf("prisma db push");
+    })
+    .map(([name]) => name);
+  assert.deepEqual(unguarded, [], `these push a schema without the guard in front: ${unguarded.join(", ")}`);
+  const guard = code("scripts/schema-guard.mjs");
+  assert.match(guard, /process\.exit\(1\)/, "the guard no longer refuses anything");
+  assert.match(guard, /isLocal\(/, "the guard stopped sharing local-db.mjs's reading of local");
+});
+
 check("a deletion that leaves something behind says so", () => {
   /*
     `deleteMyAccount` empties every table this app owns. The identity is not in
