@@ -203,7 +203,10 @@ export function QuestSession({
       card.id, Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3,
       Date.now() - shownAt.current, undefined,
       card.targetCase ?? undefined, reached ?? undefined,
-    );
+    ).catch(() => {
+      // A grade that did not reach the server costs this one card's rep, not
+      // the round: uncaught, the round stopped on this card for good.
+    });
     setPicked(null);
     setRevealed(false);
     setTyped("");

@@ -1076,8 +1076,8 @@ function AddToDeck({ entry }: { entry: EntryView }) {
         every shelf exactly as it is, an empty list is "take it off all of
         them", and a learner who never saw a deck section asked for neither.
       */
-      const result = await addToDeck(entry.id, selected, undefined, choice.argument);
-      if (result.ok) { setAdded(true); setOpen(false); }
+      const result = await addToDeck(entry.id, selected, undefined, choice.argument).catch(() => null);
+      if (result?.ok) { setAdded(true); setOpen(false); }
     });
   };
 

@@ -6024,6 +6024,19 @@ say so and leave everything as it was. The step still opens with the network gon
 page cache is for, and `scripts/test-module.mjs` pulls the plug and presses on, because what a
 rejection does to a React tree is a fact about the runtime rather than about the source.
 
+**And the module was the only place that knew it, so the rest of the app lost its screen the same
+way.** 77 calls to a Server Action from the browser, in about forty files, awaited the answer with
+nothing to catch a rejection: every Settings panel, the class forms, the deck and scan screens,
+first run's last button, the scene session and the rounds that record a score. Measured on a
+production build with the plug pulled, picking a level on Settings replaced the page with "That
+screen didn't load"; outside a transition the same fault left a busy flag set for good, so a
+conversation or a quest stopped on the card it was on. Every call catches now, puts back whatever it
+changed on the screen, and where there is room says `NOT_REACHED` from `lib/copy/values.ts`, one
+wording rather than forty. The invariant walks every call to an export of `app/actions.ts` from a
+client file and requires a `.catch(`, an enclosing `try`, or a caught `Promise.all`, with a floor on
+calls found; `scripts/test-modes.mjs` presses a level offline and asks that Settings is still on
+the screen and the chip went back. Both were made to fail on the real code first.
+
 **And what reads the module is a leaf, because of where its readers sit.** `WayOut` lives inside
 `Empty`, and `Empty` is drawn on the landing page and on the sign-in screen, which have no signed-in
 shell and no module and never will. With the context living beside the bar, importing the hook
