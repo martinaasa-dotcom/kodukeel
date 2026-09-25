@@ -26,7 +26,7 @@ import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
 import { SceneVignette } from "./SceneVignette";
 import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
-import { joinWithAnd } from "@/lib/copy/values";
+import { joinWithAnd, NOT_REACHED } from "@/lib/copy/values";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
@@ -795,9 +795,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
   async function start() {
     setBusy(true);
     setError(null);
-    const result = await beginScene(scene.id, difficulty, level);
+    const result = await beginScene(scene.id, difficulty, level).catch(() => null);
     setBusy(false);
-    if (!result.ok) { setError(result.error); return; }
+    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
 
     /*
       The briefing and nothing else: the plan stays on the server, so there is
@@ -816,9 +816,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
 
   async function help() {
     setBusy(true);
-    const result = await sceneHelp(opened?.runId, sent);
+    const result = await sceneHelp(opened?.runId, sent).catch(() => null);
     setBusy(false);
-    if (!result.ok) { setError(result.error); return; }
+    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
     setHelped(true);
     setLent({ lemma: result.lemma, gloss: result.gloss });
     setAsked((was) => [...was, { lemma: result.lemma, lexemeId: result.lexemeId }]);
@@ -852,9 +852,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
     setBusy(true);
     const result = await finishScene({
       runId: opened?.runId, turns: finalTurns, walkedOut, asked,
-    });
+    }).catch(() => null);
     setBusy(false);
-    if (!result.ok) { setError(result.error); return; }
+    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
     setDebrief({
       scene,
       objectives: result.objectives,

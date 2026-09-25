@@ -223,6 +223,30 @@ describe("the form a learner reached for instead", () => {
     expect(row.targetCase).toBe("INESSIVE");
   });
 
+  it("records the case the round asked in the slot, whatever card it landed on", async () => {
+    // The flash, writing and target rounds ask one case and grade the nearest
+    // card the learner holds. The slot carries what was asked; `targetCase`
+    // stays the card's own, which is the decision recorded in CLAUDE.md.
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await writeGrade(OWNER, {
+      card, rating: 3, durationMs: 2_000,
+      reviewedAt: new Date("2026-08-20T09:00:00Z"),
+      practisedSlot: "COMITATIVE",
+    });
+    const row = await prisma.review.findFirstOrThrow({ where: { ownerId: OWNER } });
+    expect(row.slot).toBe("COMITATIVE");
+    expect(row.targetCase).toBe("INESSIVE");
+  });
+
+  it("writes a duration it can store whatever number arrives", async () => {
+    const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await writeGrade(OWNER, { card, rating: 3, durationMs: Number.NaN, reviewedAt: new Date("2026-08-20T09:00:00Z") });
+    const card2 = await makeCard(new Date("2026-08-01T09:00:00Z"));
+    await writeGrade(OWNER, { card: card2, rating: 3, durationMs: 4.5, reviewedAt: new Date("2026-08-20T09:00:00Z") });
+    const rows = await prisma.review.findMany({ where: { ownerId: OWNER }, orderBy: { id: "asc" } });
+    expect(rows.map((r) => r.durationMs).sort()).toEqual([0, 5].sort());
+  });
+
   it("writes nothing where the learner produced what was asked for", async () => {
     const card = await makeCard(new Date("2026-08-01T09:00:00Z"));
     await writeGrade(OWNER, {
