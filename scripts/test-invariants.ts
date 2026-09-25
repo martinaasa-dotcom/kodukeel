@@ -3050,6 +3050,24 @@ check("a mock exam writes to the same review log as every other mode", () => {
     false,
     "submitExam writes Review rows directly instead of going through the grade path",
   );
+  /*
+    EVERY GRADE THE PAPER EARNED, NOT THE FIRST FIFTY.
+
+    `applyGradeBatch` refuses more than `REPLAY_BATCH` items, and submitExam met
+    that by slicing `gradesFrom` to fifty. A B2 paper carries up to 54 items
+    built on a card and a C1 paper 60, one word each, so a learner holding
+    those words had the tail of the paper, which is the reading part since
+    marks are flattened in the order the parts are sat, dropped from the log in
+    silence. The batch is sent in pieces instead.
+  */
+  const submitCode = code("app/actions.ts");
+  const body = submitCode.slice(submitCode.indexOf("export async function submitExam"));
+  const own = body.slice(0, body.indexOf("\nexport ", 1));
+  assert.equal(
+    /gradesFrom\([^)]*\)\s*\.slice\(/.test(own),
+    false,
+    "submitExam truncates the paper's grades to one batch",
+  );
 });
 
 check("nothing about the mock exam decides an answer with a model", () => {
