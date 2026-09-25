@@ -303,7 +303,7 @@ export function StatTile({ value, label, tone = "accent", icon, hint }: {
     >
       <div className="flex items-center justify-between gap-2">
         <span className="label-xs min-w-0" style={{ color: fg }}>{label}</span>
-        {icon && <span className="shrink-0" style={{ color: fg, opacity: 0.75 }}>{icon}</span>}
+        {icon && <span aria-hidden className="shrink-0" style={{ color: fg, opacity: 0.75 }}>{icon}</span>}
       </div>
       <span className="tnum text-2xl font-bold leading-none" style={{ color: fg }}>{value}</span>
       {hint && <span className="text-2xs" style={{ color: fg }}>{hint}</span>}

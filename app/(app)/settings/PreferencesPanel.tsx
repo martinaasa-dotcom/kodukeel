@@ -17,6 +17,7 @@ import { WORD_GLOSS_CHOICES, type WordGloss } from "@/lib/ux/wordGloss";
 import { caseGlossDefaultFor, type CaseGlossPref } from "@/lib/estonian/caseGloss";
 import type { Level } from "@/lib/collections/syllabus";
 import type { Participation } from "@/lib/research/participation";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof PenLine }[] = [
   {
@@ -48,8 +49,11 @@ export function ReviewModePanel({ current }: { current: ReviewMode }) {
   const [, start] = useTransition();
 
   const pick = (next: ReviewMode) => {
+    const was = mode;
     setMode(next);
-    start(() => { void setReviewMode(next); });
+    start(() => {
+      void setReviewMode(next).catch(() => setMode(was));
+    });
   };
 
   return (
@@ -96,7 +100,15 @@ export function LetterBarPanel({ current }: { current: LetterBar }) {
     // attribute from the setting a moment later, so the two cannot disagree.
     root.current?.closest("[data-letters]")?.setAttribute("data-letters", next);
     start(async () => {
-      await setLetterBar(next);
+      /* A press that never reached the server puts the row back as it was,
+         the attribute included, rather than letting the rejection take the
+         screen: an uncaught one out of a transition renders the error page. */
+      const landed = await setLetterBar(next).then(() => true).catch(() => false);
+      if (!landed) {
+        setValue(value);
+        root.current?.closest("[data-letters]")?.setAttribute("data-letters", value);
+        return;
+      }
       router.refresh();
     });
   };
@@ -143,7 +155,8 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
   const pick = (next: WordGloss) => {
     setValue(next);
     start(async () => {
-      await setWordGloss(next);
+      const landed = await setWordGloss(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       // The answer is read on the server when a sentence is looked up, so the
       // screens holding one have to be built again rather than repainted.
       router.refresh();
@@ -188,7 +201,8 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
   const pick = (next: CaseGlossPref | "auto") => {
     setValue(next);
     start(async () => {
-      await setCaseQuestionGloss(next === "auto" ? "" : next);
+      const landed = await setCaseQuestionGloss(next === "auto" ? "" : next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };
@@ -252,8 +266,8 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
 
   const save = () => {
     start(async () => {
-      const result = await setClassDisplayName({ displayName: name });
-      setMessage(result.ok ? "Saved." : result.error);
+      const result = await setClassDisplayName({ displayName: name }).catch(() => null);
+      setMessage(!result ? NOT_REACHED : result.ok ? "Saved." : result.error);
     });
   };
 
@@ -334,8 +348,11 @@ export function ResearchPanel({ current, exported }: { current: Participation; e
   const [, start] = useTransition();
 
   const pick = (next: Participation) => {
+    const was = value;
     setValue(next);
-    start(() => { void setResearchParticipation(next); });
+    start(() => {
+      void setResearchParticipation(next).catch(() => setValue(was));
+    });
   };
 
   return (

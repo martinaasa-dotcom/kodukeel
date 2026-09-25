@@ -23,7 +23,8 @@ export function GlossLanguagePanel({ current }: { current: GlossLanguage }) {
   const pick = (next: GlossLanguage) => {
     setValue(next);
     start(async () => {
-      await setGlossLanguage(next);
+      const landed = await setGlossLanguage(next).then(() => true).catch(() => false);
+      if (!landed) { setValue(value); return; }
       router.refresh();
     });
   };

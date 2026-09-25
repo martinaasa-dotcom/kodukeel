@@ -71,7 +71,13 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
     } else {
       setStreak(0);
     }
-    if (question.cardId) void gradeCard(question.cardId, right ? 3 : 1, Date.now() - shownAt.current);
+    // The case the target asked, which is not always the card it grades: the slot
+    // is what mastery counts, and without it this read as the card's case.
+    if (question.cardId) {
+      void gradeCard(
+        question.cardId, right ? 3 : 1, Date.now() - shownAt.current, undefined, question.caseKey ?? undefined,
+      ).catch(() => {});
+    }
 
     // A hit moves on quickly; a miss holds, because the correction is the one
     // moment in a round worth slowing down for.

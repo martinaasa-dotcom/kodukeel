@@ -32,7 +32,7 @@ import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import { parseGovernment } from "@/lib/estonian/government";
 import type { CaseKey } from "@/lib/estonian/types";
 import {
-  DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, words, type Lexicon, type Subject,
+  DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, clausesOf, words, type Lexicon, type Subject,
 } from "./lexicon";
 import { compoundOf } from "./nearly";
 import { isQuestion } from "./retrieval";
@@ -546,7 +546,7 @@ function saysGoodbye(tokens: readonly string[], beat: BeatSpec, context: GateCon
 function verblessQuestion(text: string, context: GateContext): boolean {
   const questions = context.questionWords;
   if (!questions || questions.size === 0 || !context.subjects) return false;
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const lower = words(clause);
     if (lower.length < QUESTION_FLOOR) continue;
     if (!questions.has(lower[0]!)) continue;
@@ -700,7 +700,7 @@ function inflectedAfterEi(text: string, context: GateContext): boolean {
   }
   if (persons.size === 0) return false;
 
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const lower = words(clause);
     for (let at = 0; at < lower.length - 1; at += 1) {
       if (lower[at] === "ei" && persons.has(lower[at + 1]!)) return true;
@@ -750,7 +750,7 @@ function wrongInfinitive(text: string, context: GateContext): boolean {
     for (const form of forms) infinitive.set(form.toLowerCase(), lemma);
   }
 
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const lower = words(clause);
     for (let at = 0; at < lower.length - 1; at += 1) {
       const here = lower[at]!;
@@ -779,7 +779,7 @@ export function disagrees(text: string, context: GateContext): boolean {
     still a clause boundary is available without a parser, and a check reading
     the sentence whole refused a line the bank has held since it was drafted.
   */
-  for (const clause of text.split(/[,;:]/)) {
+  for (const clause of clausesOf(text)) {
     const lower = words(clause);
     const said = lower.filter((t) => subjects.has(t) && !possessive(t, lower, context));
     if (said.length !== 1) continue;
@@ -935,7 +935,7 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
     caller that has none.
   */
   if (text !== undefined) {
-    return text.split(/[.!?,;:]+/).map((clause) => words(clause)).filter((clause) => clause.length > 0)
+    return clausesOf(text).map((clause) => words(clause)).filter((clause) => clause.length > 0)
       .some((clause) => governmentSuspect(clause, context));
   }
   const lower = tokens.map((t) => t.toLowerCase());
