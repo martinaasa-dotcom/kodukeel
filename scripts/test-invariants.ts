@@ -13069,6 +13069,34 @@ check("Anu's briefing reads the shared level rule and the reasons table", () => 
 
 // ── Checks about the checks ──────────────────────────────────────────────────
 
+check("where CLAUDE.md says what a gate limit is, it says the number the gate holds", () => {
+  /*
+    `MAX_COMPOSED_WORDS` moved from forty to fifty-five and CLAUDE.md went on
+    saying forty, in the paragraph arguing why the limit is safe to raise. A
+    number in prose beside a constant is a second copy, and nothing failed on
+    the copy going stale. Only the present tense is held: a sentence saying
+    what a limit *was* is history and is left alone.
+  */
+  const WORDS: Record<string, number> = {
+    one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+    twelve: 12, fifteen: 15, eighteen: 18, twenty: 20, "twenty-two": 22, thirty: 30, forty: 40,
+    "forty-five": 45, fifty: 50, "fifty-five": 55, sixty: 60,
+  };
+  const claude = read("CLAUDE.md");
+  const gate = code("lib/scenes/gate.ts");
+  let held = 0;
+  for (const name of ["MAX_SENTENCES", "MAX_COMPOSED_WORDS", "NEW_WORDS"]) {
+    const value = Number(new RegExp(`(?:export )?const ${name} = (\\d+);`).exec(gate)?.[1]);
+    assert.ok(Number.isInteger(value), `${name} is no longer a number in lib/scenes/gate.ts`);
+    for (const [, said] of claude.matchAll(new RegExp(`\`${name}\` is ([a-z-]+|\\d+)\\b`, "g"))) {
+      const stated = /^\d+$/.test(said!) ? Number(said) : WORDS[said!];
+      assert.equal(stated, value, `CLAUDE.md says \`${name}\` is ${said}, and lib/scenes/gate.ts holds ${value}`);
+      held += 1;
+    }
+  }
+  assert.ok(held >= 3, `expected CLAUDE.md to state each gate limit, read ${held}`);
+});
+
 check("every marker the merge ritual names is still somewhere in the tree", () => {
   /*
     CLAUDE.md ends its section on more than one session at a time with a list of
@@ -13307,6 +13335,39 @@ check("every script a workflow runs is a script that exists", () => {
   assert.ok(paths.length >= 27, `only ${paths.length} script paths found in the workflows; the pattern moved`);
   const absent = paths.filter((file) => !existsSync(join("scripts", file)));
   assert.deepEqual(absent, [], `a workflow runs a script file that is not there: ${absent.join(", ")}`);
+});
+
+check("a workflow that reads a secret never runs from a branch somebody pushed", () => {
+  /*
+    CLAUDE.md says `ci.yml` maps no repository secret into a job, so a workflow
+    file cannot become a way to read one, and names the ones that do: the
+    reseed and the deck audit, both run on a press, and the hourly mailout,
+    run on a schedule or a press. That was prose. A workflow reading a secret
+    from a `pull_request` or a `push` trigger is the change that lets a branch
+    somebody pushed run with the production password, and nothing failed on
+    it. So the readers are a closed list and each carries the triggers it may
+    have: a new reader fails until somebody decides about it, and a known one
+    growing a trigger fails whatever the trigger is. Comments are stripped,
+    since each of them explains its exemption in a comment naming `secrets.`.
+  */
+  const READS_A_SECRET: Record<string, string[]> = {
+    "audit-decks.yml": ["workflow_dispatch"],
+    "mailout.yml": ["schedule", "workflow_dispatch"],
+    "seed-production.yml": ["workflow_dispatch"],
+  };
+  const dir = ".github/workflows";
+  const files = readdirSync(dir).filter((f) => /\.ya?ml$/.test(f));
+  assert.ok(files.length >= 4, `expected the workflows, found ${files.length}`);
+  const yaml = (file: string) => readFileSync(join(dir, file), "utf8").replace(/(^|\s)#[^\n]*/g, "$1");
+
+  const reading = files.filter((file) => /\bsecrets\./.test(yaml(file))).sort();
+  assert.deepEqual(reading, Object.keys(READS_A_SECRET).sort(), "the workflows that read a repository secret changed");
+
+  for (const [file, allowed] of Object.entries(READS_A_SECRET)) {
+    const on = /^on:\s*\n((?:[ \t]+[^\n]*\n)+)/m.exec(yaml(file))?.[1] ?? "";
+    const triggers = [...on.matchAll(/^[ \t]{2}([a-z_]+):/gm)].map((m) => m[1]);
+    assert.deepEqual(triggers, allowed, `${file} reads a secret and runs on ${triggers.join(", ")}`);
+  }
 });
 
 check("a job that runs an audit generates the Prisma client first", () => {
@@ -25384,6 +25445,40 @@ check("every path the scheduler calls is exempt from the canonical-host redirect
   harvest that rewrites the generated file. A refusal holding on three of the
   four is the state this replaced.
 */
+check("a letter is booked before it is sent, and its mark is written only once it went", () => {
+  /*
+    Two orderings CLAUDE.md states and nothing held. The booking is the
+    frequency cap, so a row written after the send is missing exactly when the
+    process died between the provider accepting and the write landing, which
+    is when sending twice is likeliest. And a milestone's high-water mark is
+    written after the send and nowhere earlier, because a mark written when the
+    letter was decided is a mark against news that never arrived.
+  */
+  const run = code("lib/mailer/run.ts");
+  const booked = run.indexOf("prisma.emailSend.create(");
+  const sent = run.indexOf("await send(");
+  const went = run.indexOf("if (result.ok)", sent);
+  const marked = run.indexOf("built.remember.key");
+  assert.ok(booked > 0 && sent > booked, "the letter is sent before it is booked");
+  assert.ok(went > sent && marked > went, "the high-water mark is written before the letter is known to have gone");
+
+  // Nothing that decides a letter may write the mark itself.
+  for (const file of ["lib/progress/mailout.ts", ...sourceFiles("lib/email", /\.ts$/)]) {
+    assert.doesNotMatch(code(file), /writeSetting\(/, `${file} writes a setting while deciding a letter`);
+  }
+
+  /*
+    Append-only, except the provider's message id stamped on the row the
+    booking made. Any other update is a send record being rewritten.
+  */
+  const updates = [...run.matchAll(/emailSend\.update\(\{[\s\S]*?data:\s*\{([^}]*)\}/g)].map((m) => m[1]!.trim());
+  assert.ok(updates.length >= 1, "the message id is no longer stamped on the booking");
+  for (const data of updates) assert.match(data, /^messageId:\s*result\.messageId,?$/, `an EmailSend row is rewritten with ${data}`);
+  for (const file of ALL.filter((f) => f !== "lib/mailer/run.ts")) {
+    assert.doesNotMatch(code(file), /emailSend\.(?:update|updateMany|upsert)\(/, `${file} rewrites a send record`);
+  }
+});
+
 check("a refused sentence is refused at every door it could come back through", () => {
   const examples = code("lib/dict/examples.ts");
   assert.match(

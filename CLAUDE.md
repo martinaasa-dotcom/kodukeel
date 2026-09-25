@@ -772,7 +772,8 @@ and a row written afterwards is a row that is missing exactly when the process d
 provider accepting and the write landing, which is the one case where sending twice is most
 likely. A failed send therefore spends the slot: somebody misses one evening's letter and gets
 tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
-is what people unsubscribe over.
+is what people unsubscribe over. The one write after it is the provider's message id, stamped on
+the row the booking made and on nothing else, and an invariant holds both orders and that stamp.
 
 **A letter says how long is left, not how many days were missed.** The days away are read by the
 scheduler (`letterOwed`, against `AWAY_DAYS`) and never handed to a letter at all: the figure is
@@ -8215,7 +8216,7 @@ also carries a person code, which over the shipped dictionary is those two and n
 which stays a command somebody runs rather than something the seed does: every row belongs to a
 learner, and that line was drawn when the first fault was found. What is new is a way to run it
 without a checkout, since the person who can see the bad card is rarely the person with the
-production password: `.github/workflows/audit-decks.yml` is the second of the two workflows that
+production password: `.github/workflows/audit-decks.yml` is one of the three workflows that
 map a secret, written to `seed-production.yml`'s rules, and it prints the list before it will
 delete anything. It removes and never suspends, which the schema makes safe, and it does **not**
 build the right card in its place: adding rows to a stranger's deck is a larger claim than taking
