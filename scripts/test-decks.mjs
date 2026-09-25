@@ -131,13 +131,36 @@ const shown = () => page.locator("main").innerText();
 */
 const shows = async (needle) => (await shown()).toLowerCase().includes(needle.toLowerCase());
 
+/*
+  ONE SHELF OF SEVERAL, BECAUSE THE FIXTURE LAYS ONE DOWN.
+
+  `scripts/demo-data.ts` puts a "Kitchen words" shelf in the deck so that
+  `/review/deck/[deckId]` is reachable by the sweeps, and from that commit on
+  every press here that read "the first N words button" or "the Add words
+  button" on the page was a press on whichever shelf rendered first. The count
+  check timed out on the fixture's shelf and the next press threw a strict mode
+  violation, naming two buttons, twenty checks short of the floor. The row is
+  found by the one control only this shelf carries, its own name, and every
+  press on the shelf is asked of that row.
+*/
+const shelfRow = (name) => page.locator("main div.flex-col.gap-3 > *")
+  .filter({ has: page.getByRole("button", { name, exact: true }) });
+
 // ── With no shelf named, the panel asks nothing about shelves ──────────────
 // The honest half of the gate, and the only check here that a learner's own
 // decks can take away: it is a claim about holding none.
 await deckPage();
 await requireAppShell(page);
-const ownDecks = await prisma.deck.count({ where: { ownerId: OWNER } });
-if (ownDecks === 0) {
+/*
+  The fixture's own shelf is set aside for this one check and put back at once,
+  rows and ids as they were. Waiving it instead, which is what this did the day
+  the fixture grew a shelf, is a waiver that fires on every run CI will ever
+  make: the claim would read as covered and never execute.
+*/
+const parkedDecks = await prisma.deck.findMany({ where: { ownerId: OWNER } });
+const parkedWords = await prisma.deckWord.findMany({ where: { ownerId: OWNER } });
+await prisma.deck.deleteMany({ where: { ownerId: OWNER } });
+try {
   await page.goto(`${B}/dictionary?q=${encodeURIComponent(plain)}`, { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /Add to deck|In deck/ }).first().click();
   await page.waitForTimeout(600);
@@ -145,8 +168,9 @@ if (ownDecks === 0) {
     "with no deck named, the add panel offers no shelf to choose",
     !(await shows("Which deck?")),
   );
-} else {
-  absent(1, `this learner already has ${ownDecks} deck(s) of their own, so "no deck named" is unreachable`);
+} finally {
+  if (parkedDecks.length) await prisma.deck.createMany({ data: parkedDecks });
+  if (parkedWords.length) await prisma.deckWord.createMany({ data: parkedWords });
 }
 
 // ── Naming one ─────────────────────────────────────────────────────────────
@@ -167,13 +191,14 @@ await page.getByRole("checkbox", { name: DECK }).check();
 await page.getByRole("button", { name: /^Add$/ }).click();
 await page.waitForTimeout(1500);
 await deckPage();
-check("the word filed from the dictionary is on the shelf", await eventually(() => shows("1 word")));
+check("the word filed from the dictionary is on the shelf",
+  await eventually(async () => (await shelfRow(DECK).innerText()).includes("1 word")));
 
-await page.getByRole("button", { name: /^\d+ words?$/ }).first().click();
+await shelfRow(DECK).getByRole("button", { name: /^\d+ words?$/ }).click();
 check("and the shelf lists it by name", await eventually(() => shows(plain)));
 
 // ── Filing after the fact, which is what no other screen could do ──────────
-await page.getByRole("button", { name: /Add words/ }).click();
+await shelfRow(DECK).getByRole("button", { name: /Add words/ }).click();
 // The panel's own list, by its relation to its own field, rather than "the last
 // ul on the page": the shelf's word list is open above it and a positional
 // guess would read that one and pass while looking at the wrong thing.
@@ -201,7 +226,8 @@ check(`typing "${second}" narrows the list to it`, await eventually(async () =>
   (await offers.count()) > 0 && (await offers.allInnerTexts()).join(" ").includes(second),
   { timeoutMs: 8000 }));
 await offers.filter({ hasText: second }).first().click();
-check("pressing a word files it, and the count says so", await eventually(() => shows("2 words")));
+check("pressing a word files it, and the count says so",
+  await eventually(async () => (await shelfRow(DECK).innerText()).includes("2 words")));
 
 // ── A shelf is a label, never a container ─────────────────────────────────
 const filed = second;
@@ -255,8 +281,8 @@ await page.keyboard.press("Enter");
 check("a shelf can be renamed", await eventually(() => shows(RENAMED)));
 
 await deckPage();
-await page.getByRole("button", { name: /^\d+ words?$/ }).first().click();
-const takeOff = page.getByRole("button", { name: /Take .* off this shelf/ });
+await shelfRow(RENAMED).getByRole("button", { name: /^\d+ words?$/ }).click();
+const takeOff = shelfRow(RENAMED).getByRole("button", { name: /Take .* off this shelf/ });
 /*
   The shelf's own list is fetched when the disclosure opens rather than handed
   down by the server render, so counting straight after the click counts the
@@ -277,7 +303,7 @@ if (had > 0) {
 
 // ── Removing the shelf keeps the words ────────────────────────────────────
 await deckPage();
-await page.getByRole("button", { name: /Remove/ }).first().click();
+await shelfRow(RENAMED).getByRole("button", { name: /^Remove/ }).click();
 check("removing a shelf says the words stay", await eventually(() => shows("The words stay in your deck")));
 await page.getByRole("button", { name: /^Remove$/ }).last().click();
 check("and the shelf goes", await eventually(async () => !(await shows(RENAMED))));
