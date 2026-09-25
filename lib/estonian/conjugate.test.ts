@@ -125,6 +125,9 @@ describe("possibleFirstPersons", () => {
 
   it("reads the first word of a particle verb, which is the one that inflects", () => {
     expect(possibleFirstPersons("loed läbi")).toContain("loen");
+    // And with the particle kept, which is how the dictionary stores the first person.
+    expect(possibleFirstPersons("loed läbi")).toContain("loen läbi");
+    expect(possibleFirstPersons("annab edasi")).toContain("annan edasi");
   });
 
   it("says nothing about something too short to have an ending on it", () => {
