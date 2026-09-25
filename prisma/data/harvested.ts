@@ -12,7 +12,7 @@
  * first time a word is viewed — storing it here would be a second source of
  * truth that goes stale.
  *
- * 1526 words, harvested 2026-09-25.
+ * 1532 words, harvested 2026-09-25.
  */
 
 export interface HarvestedWord {
@@ -1794,6 +1794,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "millegi soovimatu ärahoidmine",
     semanticTypes: ["tegevus"],
     rus: ["опережение", "предупреждение"], ukr: [],
+  },
+  {
+    lemma: "ent", gloss: "but, however", pos: "ADVERB", cefr: "B2",
+    ekilexWordId: 164409,
+    ekilexPos: ["konj"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Kontserdile olid tulnud enamasti noored, ent oli ka üksikuid vanemaid inimesi.", "Ta oli voodis, ent ei maganud.", "Ilm oli soe, ent aeg-ajalt sadas.", "Noh, mis see siis olgu!? – peaaegu et röögatasid lugupeetavad. Ent üks neist siiski mitte..."],
+    note: "(vastandavalt:) seob lauseid või lauseosi, mis sisaldavad vastandavaid või piiravaid väiteid või asjaolusid",
+    semanticTypes: [],
+    rus: ["но", "а"], ukr: ["але", "та"],
   },
   {
     lemma: "epideemia", gloss: "epidemic", pos: "NOUN", cefr: "B2",
@@ -5982,6 +5994,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "esineb millegi toimumise viisi, olukorra vms täpsustamisel otseses või kaudselt väljendatud küsimuses ning täpsustava lauseosa alguses",
     semanticTypes: ["ADV_viis"],
     rus: ["как"], ukr: ["як"],
+  },
+  {
+    lemma: "kuigi", gloss: "although, not particularly", pos: "ADVERB", cefr: "B1",
+    ekilexWordId: 187065,
+    ekilexPos: ["adv", "konj"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Loodusõnnetust ei peetud kuigi tõenäoliseks.", "Algus polnud kuigi roosiline.", "Ma ei tundnud teda kuigi hästi.", "Ma ei tunne teda kuigi hästi (= tunnen teda vähe)."],
+    note: "(rõhutab tagasihoidlikult väidet:) eriti, mainimisväärselt",
+    semanticTypes: ["abstr"],
+    rus: ["не очень", "не столь"], ukr: ["не дуже", "не вельми"],
   },
   {
     lemma: "kuiv", gloss: "dry", pos: "ADJECTIVE", cefr: "A2",
@@ -10830,6 +10854,30 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "käesoleval ajahetkel või seda hõlmaval lühemal või pikemal ajalõigul",
     semanticTypes: ["ADV_aeg"],
     rus: ["теперь", "в настоящее время"], ukr: ["тепер", "зараз"],
+  },
+  {
+    lemma: "prantsuse", gloss: "French", pos: "ADVERB", cefr: "A2",
+    ekilexWordId: 219591,
+    ekilexPos: ["adjg"],
+    parts: {  },
+    extraForms: [{ code: "??", value: "Prantsuse" }],
+    government: null,
+    usages: ["Kas tead mõnd prantsuse laenu eesti keeles?"],
+    note: "prantslaste või prantsuse keelega seotud",
+    semanticTypes: ["omadus"],
+    rus: ["французский"], ukr: ["французький"],
+  },
+  {
+    lemma: "Prantsusmaa", gloss: "France", pos: "NOUN", cefr: null,
+    ekilexWordId: 219605,
+    ekilexPos: ["prop"],
+    parts: { NOM_SG: "Prantsusmaa", GEN_SG: "Prantsusmaa", PART_SG: "Prantsusmaad", ILL_SG_SHORT: "Prantsusmaa", NOM_PL: "Prantsusmaad", PART_PL: "Prantsusmaid", GEN_PL: "Prantsusmaade" },
+    extraForms: [],
+    government: null,
+    usages: [],
+    note: "riik Lääne-Euroopas",
+    semanticTypes: ["koht_geogr"],
+    rus: ["Франция"], ukr: ["Франція"],
   },
   {
     lemma: "privaatsus", gloss: "privacy", pos: "NOUN", cefr: "B2",
@@ -16364,6 +16412,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["дедушка", "дед"], ukr: ["дід", "дідусь"],
   },
   {
+    lemma: "vanasti", gloss: "in the old days, once", pos: "ADVERB", cefr: "B1",
+    ekilexWordId: 253911,
+    ekilexPos: ["adv"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Vanasti ei käinud madisepäeval Saaremaa naised võõrsil, muidu pidavat sead pahuraks minema.", "Vanasti kannatasin vinnide tõttu.", "Vanasti oli siin järv."],
+    note: "vanal ajal, kaua aega tagasi",
+    semanticTypes: ["ADV_aeg"],
+    rus: ["в старину", "в прошлые времена"], ukr: ["за старих часів", "за давніх часів"],
+  },
+  {
     lemma: "vanasõna", gloss: "proverb", pos: "NOUN", cefr: "B2",
     ekilexWordId: 253914,
     ekilexPos: ["s"],
@@ -16722,6 +16782,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "poiss või mees oma vanemate teiste laste suhtes",
     semanticTypes: ["in_sugulane"],
     rus: ["брат", "братья"], ukr: ["брат"],
+  },
+  {
+    lemma: "vene", gloss: "Russian", pos: "ADVERB", cefr: "A1",
+    ekilexWordId: 255516,
+    ekilexPos: ["adjg"],
+    parts: {  },
+    extraForms: [{ code: "??", value: "Vene" }],
+    government: null,
+    usages: ["Lasnamäel on mitu vene kooli.", "Ka vene poisid pürivad Eesti kaitseväkke."],
+    note: "venelaste või nende keelega seotud",
+    semanticTypes: ["omadus"],
+    rus: ["русский"], ukr: ["російський"],
   },
   {
     lemma: "venelane", gloss: "a Russian", pos: "NOUN", cefr: "A1",
