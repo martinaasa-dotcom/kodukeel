@@ -102,7 +102,10 @@ export default function AccessibilityPage() {
               a11y-check.mjs
             </a>{" "}
             loads every page the app has, not a chosen sample, and runs axe over each one,
-            including its best-practice rules. It runs the whole sweep again in the dark
+            including its best-practice rules. Two screens are the exception so far, a marked
+            paper and a scanned page, because each needs a row made before it exists; the
+            containment suite below makes both and measures them, and axe does not reach them
+            yet. It runs the whole sweep again in the dark
             theme, because light and dark are two palettes and a colour that clears the bar in
             one says nothing about the other. It runs it twice more at 390 pixels wide, which
             is a phone, because a phone here is different markup rather than the same markup

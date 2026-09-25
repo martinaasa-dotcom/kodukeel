@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { plainPhrase, sameSpelling } from "./values";
+import { plainPhrase, sameSpelling, SpelledCount, spelledCount } from "./values";
 
 describe("a word spelled the same in both languages", () => {
   /*
@@ -146,5 +146,25 @@ describe("a phrase dropped to the case a card teaches in", () => {
       "Sorry! / Excuse me!", "I don't understand", "April"]) {
       expect(plainPhrase(plainPhrase(text, "PHRASE"), "PHRASE")).toBe(plainPhrase(text, "PHRASE"));
     }
+  });
+});
+
+describe("spelledCount", () => {
+  it("spells a small count and prints a large one as digits", () => {
+    expect(spelledCount(0)).toBe("no");
+    expect(spelledCount(4)).toBe("four");
+    expect(spelledCount(14)).toBe("fourteen");
+    expect(spelledCount(20)).toBe("twenty");
+    expect(spelledCount(21)).toBe("21");
+  });
+
+  it("never spells what is not a count", () => {
+    expect(spelledCount(-1)).toBe("-1");
+    expect(spelledCount(2.5)).toBe("2.5");
+  });
+
+  it("opens a sentence on a capital", () => {
+    expect(SpelledCount(2)).toBe("Two");
+    expect(SpelledCount(21)).toBe("21");
   });
 });
