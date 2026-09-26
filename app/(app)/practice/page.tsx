@@ -471,7 +471,7 @@ function CommonWordsCard() {
             key={group.key}
             href={`/review/common/${group.slug}`}
             aria-label={`Flash cards: most common ${group.title.toLowerCase()}`}
-            className="tap-tint flex min-h-11 items-center gap-2.5 rounded-[var(--r)] border px-3 py-2"
+            className="tap-tint flex min-h-11 flex-wrap items-center gap-x-2.5 gap-y-1 rounded-[var(--r)] border px-3 py-2"
             style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
           >
             <span
@@ -533,7 +533,7 @@ function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: nu
         {"Words you filed together, asked the same way Flash cards asks the rest of your deck."}
       </p>
 
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 15rem), 1fr))" }}>
         {stocked.map((deck) => (
           <Link
             key={deck.id}
@@ -543,7 +543,7 @@ function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: nu
             style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
           >
             <Play size={14} aria-hidden className="shrink-0" style={{ color: "var(--sky-ink)" }} />
-            <span className="min-w-0 flex-1 text-sm font-semibold" style={{ color: "var(--ink)" }}>
+            <span className="min-w-[7rem] flex-1 text-sm font-semibold" style={{ color: "var(--ink)" }}>
               {deck.name}
             </span>
             <span className="shrink-0 text-xs" style={{ color: "var(--ink-3)" }}>

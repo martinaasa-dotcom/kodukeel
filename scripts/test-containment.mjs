@@ -377,7 +377,7 @@ const SPARSE = new Map([
 // margin is what stops one missing row reading as a deleted block.
 // On top of main's 1580, whose passes number about 313 at five checks each,
 // the fifth question adds 300.
-const { check, absent, done } = suite("Containment", { floor: 1880 });
+const { check, absent, done } = suite("Containment", { floor: 2500 });
 
 /**
  * An A2 unit, whose lesson meets words with their sentence under them: A1
