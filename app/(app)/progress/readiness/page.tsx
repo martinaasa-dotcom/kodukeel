@@ -67,7 +67,7 @@ export default async function ReadinessPage() {
       <Stack>
         <section>
           <SectionTitle hint={`at ${picture.level} · your level, from Settings`}>Where you stand</SectionTitle>
-          <Card>
+          <Card tone="night">
             <ReadinessSummary summary={picture.summary} />
             <Explain label="What the three rungs mean">
               Three rungs, and the first is the one a word count measures. {RUNG_LABEL.follow} means you would

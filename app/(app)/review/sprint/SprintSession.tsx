@@ -20,6 +20,7 @@ import { GapMeaning } from "@/components/GapMeaning";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
 export interface SprintCard {
@@ -154,61 +155,41 @@ export function SprintSession({
       );
     }
     return (
-      <div className="mx-auto max-w-xl px-5 py-16 text-center md:px-10">
-        <div
-          className="pop-in rounded-[var(--r-xl)] px-6 py-12"
-          style={{ background: "var(--butter-soft)" }}
-        >
-          <span
-            className="float mx-auto flex h-16 w-16 items-center justify-center rounded-full"
-            style={{ background: "var(--surface)", color: "var(--butter-ink)", boxShadow: "var(--shadow)" }}
-          >
-            <Timer size={30} aria-hidden />
-          </span>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-            Case Sprint
-          </h1>
-          <p className="mx-auto mt-2 max-w-[44ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {counted(cards.length, "card")} loaded, {roundLength(seconds)} on the clock.{" "}
-            <BriefingLines id="sprint" /> {ADVANCE_KEY_LABEL} flips the card, again for correct,
-            Backspace for missed.
-          </p>
-          <p
-            className="mt-4 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold"
-            style={{ background: "var(--surface)", color: "var(--butter-ink)" }}
-          >
-            <Trophy size={14} aria-hidden /> Personal best: {best}
-          </p>
-          <div className="mt-7">
-            <Button variant="primary" size="lg" className="px-10" onClick={start}>Start the clock</Button>
-          </div>
-          {/* Said here rather than only in Settings, because the moment
-              somebody notices the round is too fast is the moment they are
-              looking at this screen. */}
-          <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
-            {/*
-              THE SENTENCE SURVIVES A MODULE AND THE DOOR DOES NOT.
+      <RoundStart
+        icon={<Timer size={34} aria-hidden />}
+        title="Case Sprint"
+        lead={`${roundLength(seconds)} on the clock.`}
+        chips={<>
+          <RoundChip>{counted(cards.length, "card")} loaded</RoundChip>
+          <RoundChip icon={<Trophy size={14} aria-hidden />}>Personal best {best}</RoundChip>
+        </>}
+        actions={<Button variant="primary" size="lg" className="px-10" onClick={start}>Start the clock</Button>}
+        footnote={<>
+          {/*
+            THE SENTENCE SURVIVES A MODULE AND THE DOOR DOES NOT.
 
-              WCAG 2.2.1 is met by the limit being adjustable before the round
-              starts, which it is, in Settings, at up to ten times this. What
-              it does not require is a link out of the round, and inside
-              tonight's module that link lands the learner on Settings with the
-              evening gone. So they are told the same thing and told where, and
-              the press is one they make between evenings rather than mid
-              round. See docs/08-ux-ia-a11y.md and lib/ux/roundClock.ts.
-            */}
-            Need longer?{" "}
-            {inModule ? (
+            WCAG 2.2.1 is met by the limit being adjustable before the round
+            starts, which it is, in Settings, at up to ten times this. Inside
+            tonight's module a link out would land the learner on Settings with
+            the evening gone, so they are told the same thing and told where.
+            See docs/08-ux-ia-a11y.md and lib/ux/roundClock.ts.
+          */}
+          Need longer?{" "}
+          {inModule ? (
               <span>Settings lets you give yourself more time</span>
             ) : (
               <Link href="/settings#round-pace" className="underline underline-offset-2">
                 Give yourself more time
               </Link>
             )}
-            , up to ten times this.
-          </p>
-        </div>
-      </div>
+          , up to ten times this.
+        </>}
+      >
+        <p>
+          <BriefingLines id="sprint" /> {ADVANCE_KEY_LABEL} flips the card, again for correct,
+          Backspace for missed.
+        </p>
+      </RoundStart>
     );
   }
 

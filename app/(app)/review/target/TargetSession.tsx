@@ -12,6 +12,7 @@ import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { shotSeconds } from "@/lib/games/target";
@@ -111,44 +112,41 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
 
   if (phase === "ready") {
     return (
-      <Page title="Target" lead="Hit the right form before the clock does.">
-        <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
-          <span className="flex h-20 w-20 items-center justify-center rounded-full quest-pulse"
-            style={{ background: "var(--peach-soft)", color: "var(--peach-ink)" }}>
-            <Crosshair size={34} aria-hidden />
-          </span>
-          <p className="max-w-[44ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            <BriefingLines id="target" /> This is about endings rather than meanings:
-            only the question word tells you which of the four to hit.
-          </p>
+      <RoundStart
+        icon={<Crosshair size={34} aria-hidden />}
+        title="Target"
+        lead="Hit the right form before the clock does."
+        hue="accent"
+        chips={<RoundChip icon={<Timer size={14} aria-hidden />}>{questions.length} shots</RoundChip>}
+        actions={<>
+          {/* The way back to the menu somebody chose this round from, which
+              inside a module is a door out of the evening. */}
+          <WayOut><ButtonLink href="/practice" variant="ghost">Back to practice</ButtonLink></WayOut>
           <Button variant="primary" size="lg"
             onClick={() => { setPhase("running"); setLeft(shotSeconds(0, multiplier)); shownAt.current = Date.now(); }}>
             Start
           </Button>
-          {/*
-            The same sentence the Case Sprint carries, for the same reason: the
-            moment somebody finds the clock too fast is the moment they are
-            looking at this screen. Inside a module the sentence stays and the
-            link goes, since a link out of the round would land the learner on
-            Settings with the evening gone (see SprintSession.tsx).
-          */}
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Need longer?{" "}
-            {inModule ? (
+        </>}
+        footnote={<>
+          {/* The same sentence the Case Sprint carries: the moment somebody
+              finds the clock too fast is the moment they are looking at this
+              screen. Inside a module the sentence stays and the link goes. */}
+          Need longer?{" "}
+          {inModule ? (
               <span>Settings lets you give yourself more time</span>
             ) : (
               <Link href="/settings#round-pace" className="underline underline-offset-2">
                 Give yourself more time
               </Link>
             )}
-            , up to ten times this.
-          </p>
-          {/* The way back to the menu somebody chose this round from, which
-              inside a module is a door out of the evening: the way on is the
-              bar at the foot of the screen. */}
-          <WayOut><ButtonLink href="/practice">Back to practice</ButtonLink></WayOut>
-        </div>
-      </Page>
+          , up to ten times this.
+        </>}
+      >
+        <p>
+          <BriefingLines id="target" /> This is about endings rather than meanings:
+          only the question word tells you which of the four to hit.
+        </p>
+      </RoundStart>
     );
   }
 

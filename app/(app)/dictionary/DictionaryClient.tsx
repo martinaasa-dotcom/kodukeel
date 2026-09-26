@@ -204,6 +204,7 @@ export function DictionaryClient({
   const [pending, start] = useTransition();
 
   const showingEntry = entry !== null;
+  const landing = !showingEntry && initialQuery === "";
 
   const go = (q: string) => {
     setQuery(q);
@@ -230,31 +231,66 @@ export function DictionaryClient({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* One row at every width: on a phone the button is its icon beside
-          the field rather than a full-width bar under it. */}
-      <div className="flex items-start gap-2 md:gap-3">
-        <div className="min-w-0 flex-1">
-          {/*
-            Not `large`: that size step is `field-lg` at 24px, which is what a
-            review round's own answer box reads from — the one field in this
-            app the learner is asked to produce a whole typed answer into. A
-            search box is typed into on every visit and read past rather than
-            dwelt on, so it takes the field's default size (still `field-lg`'s
-            roomier padding, at the 19px "lead" step) rather than borrowing
-            the answer box's weight for something that is not one.
-          */}
-          <EstonianInput
-            value={query}
-            onChange={setQuery}
-            onEnter={() => go(query)}
-            placeholder="Search Estonian or English, try tuba, or room"
-            ariaLabel="Search the dictionary"
-            autoFocus={!initialQuery}
-          />
+      {/*
+        The landing is a night panel with the search in it: the one thing this
+        screen is for, lit, with a few words to try under it. Once a word is
+        open the panel steps aside for the entry, which has a night header of
+        its own.
+      */}
+      <div className={landing ? "night flex flex-col gap-5 rounded-[var(--r-xl)] border px-5 py-7 md:px-8 md:py-9" : "contents"}>
+        {landing && (
+          <p className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-3xl md:text-4xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+            Type any word, in any form you met it in.
+          </p>
+        )}
+        {/* One row at every width: on a phone the button is its icon beside
+            the field rather than a full-width bar under it. */}
+        <div className="flex items-start gap-2 md:gap-3">
+          <div className="min-w-0 flex-1">
+            {/*
+              Not `large`: that size step is `field-lg` at 24px, which is what a
+              review round's own answer box reads from — the one field in this
+              app the learner is asked to produce a whole typed answer into. A
+              search box is typed into on every visit and read past rather than
+              dwelt on, so it takes the field's default size (still `field-lg`'s
+              roomier padding, at the 19px "lead" step) rather than borrowing
+              the answer box's weight for something that is not one.
+            */}
+            <EstonianInput
+              value={query}
+              onChange={setQuery}
+              onEnter={() => go(query)}
+              placeholder="Search Estonian or English, try tuba, or room"
+              ariaLabel="Search the dictionary"
+              autoFocus={!initialQuery}
+            />
+          </div>
+          <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label="Search">
+            <Search size={16} aria-hidden /> <span className="hidden sm:inline">Search</span>
+          </Button>
         </div>
-        <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label="Search">
-          <Search size={16} aria-hidden /> <span className="hidden sm:inline">Search</span>
-        </Button>
+        {!initialQuery && suggestions.words.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p id="try-these" className="label-xs" style={{ color: "var(--ink-3)" }}>
+              {suggestions.label}
+            </p>
+            <ul aria-labelledby="try-these" className="flex flex-wrap gap-2">
+              {suggestions.words.map((s) => (
+                <li key={s}>
+                  <button
+                    type="button"
+                    onClick={() => go(s)}
+                    lang="et"
+                    className="press rounded-full px-4 py-1.5 text-base transition-ui hover:-translate-y-px"
+                    style={{ background: "var(--surface)", color: "var(--ink)", border: "1px solid var(--edge)", boxShadow: "var(--shadow-sm)" }}
+                  >
+                    {s}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {!showingEntry && initialQuery === "" && starred.length > 0 && (
@@ -322,29 +358,6 @@ export function DictionaryClient({
               <ScissorsLineDashed size={15} aria-hidden /> Paste a passage
             </Link>
           </div>
-        </div>
-      )}
-
-      {!initialQuery && suggestions.words.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <p id="try-these" className="label-xs" style={{ color: "var(--ink-3)" }}>
-            {suggestions.label}
-          </p>
-          <ul aria-labelledby="try-these" className="flex flex-wrap gap-2">
-            {suggestions.words.map((s) => (
-              <li key={s}>
-                <button
-                  type="button"
-                  onClick={() => go(s)}
-                  lang="et"
-                  className="press rounded-full px-4 py-1.5 text-base transition-ui hover:-translate-y-px"
-                  style={{ background: "var(--surface)", color: "var(--ink-2)", boxShadow: "var(--shadow-sm)" }}
-                >
-                  {s}
-                </button>
-              </li>
-            ))}
-          </ul>
         </div>
       )}
 
