@@ -153,7 +153,9 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
 
   return (
     <div className="flex flex-col gap-5">
-      <Card>
+      {/* The board is the night panel: squares lit where the word you are on
+          runs, the clue under it in the display face. */}
+      <Card tone="night">
         <div
           className="mx-auto grid w-fit gap-1"
           style={{ gridTemplateColumns: `repeat(${puzzle.cols}, minmax(0, 1fr))` }}
@@ -217,9 +219,9 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                   aria-label={`Row ${Math.floor(cell / puzzle.cols) + 1}, column ${(cell % puzzle.cols) + 1}`}
                   className={`${isWrong ? OPTION_CLASS.wrong : isRight ? OPTION_CLASS.right : ""} h-full w-full rounded-[var(--r-sm)] border-0 text-center text-base font-bold uppercase transition-ui`}
                   style={isWrong || isRight ? undefined : {
-                    background: inWord ? "var(--accent-soft)" : "var(--raised)",
+                    background: inWord ? "color-mix(in srgb, var(--cta) 20%, var(--surface))" : "var(--surface)",
                     color: "var(--ink)",
-                    boxShadow: `inset 0 0 0 1px var(--rule-soft)`,
+                    boxShadow: inWord ? "inset 0 0 0 1.5px var(--cta)" : "inset 0 0 0 1px var(--rule)",
                   }}
                 />
               </span>
@@ -228,10 +230,10 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
         </div>
 
         <div className="mt-4 flex flex-col items-center gap-3">
-          <p className="text-center text-sm" style={{ color: "var(--ink-2)" }}>
-            <span className="font-semibold">{entry.number} {entry.direction}</span>
+          <p className="text-center text-base" style={{ color: "var(--ink-2)" }}>
+            <span className="font-semibold" style={{ color: "var(--cta)" }}>{entry.number} {entry.direction}</span>
             {": "}
-            {entry.clue}
+            <span className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{entry.clue}</span>
           </p>
           <DiacriticBar standalone={false} label="Insert Estonian character" />
         </div>
