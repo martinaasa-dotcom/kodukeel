@@ -179,7 +179,7 @@ export default async function PracticePage() {
             confident means.
           */}
           <section className="night rounded-[var(--r-xl)] border p-6 md:p-9" aria-labelledby="practice-review">
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
                 <p className="label-xs" style={{ color: "var(--butter-ink)" }}>Review</p>
                 <h2 id="practice-review" className="font-display mt-3 flex items-baseline gap-3 font-bold leading-none" style={{ color: "var(--ink)" }}>
@@ -190,7 +190,7 @@ export default async function PracticePage() {
                   Timed to the moment before you forget. The schedule decides what comes back, not you.
                 </p>
               </div>
-              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full justify-center md:w-auto">
+              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full shrink-0 justify-center whitespace-nowrap lg:w-auto">
                 {ready > 0 ? "Review now" : "Nothing due, open review"} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             </div>

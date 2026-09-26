@@ -437,7 +437,7 @@ function LearnCard({
       */}
       {ready > 0 && (
         <ol
-          className="ladder-steps mt-8 grid gap-3 sm:grid-cols-3"
+          className="ladder-steps mt-8 grid gap-3 xl:grid-cols-3"
           aria-label="Each word is met, then picked out of four, then put back in its sentence"
         >
           {([[Eye, "Meet it", "See it, hear it, in a sentence"], [MousePointerClick, "Pick it", "Find its meaning among four"], [PenLine, "Use it", "Put it back in the sentence"]] as const).map(([Glyph, label, line], i) => (

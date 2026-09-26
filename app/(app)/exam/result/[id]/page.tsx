@@ -189,7 +189,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
       <section className="mb-10">
         <SectionTitle hint={`${PASS_PCT} percent to pass`}>The four parts</SectionTitle>
-        <ul className="grid gap-3 md:grid-cols-2">
+        <ul className="grid gap-3 lg:grid-cols-2">
           {result.parts.map((part) => (
             <Card as="li" key={part.skill}>
               <div className="flex items-baseline justify-between gap-3">
