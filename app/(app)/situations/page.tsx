@@ -192,7 +192,7 @@ function SceneTile({ scene, history, learnerLevel }: {
                 <li
                   key={d}
                   lang={CASES.some((c) => c.et === d) ? "et" : undefined}
-                  className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
                   style={{ background: "var(--raised)", color: "var(--ink-2)" }}
                 >
                   {d}

@@ -879,7 +879,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                           both languages (`components/CaseQuestion.tsx`), where
                           it used to be a fourth column that made every row
                           two lines tall. */}
-                      <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-medium hover:underline" style={{ color: "var(--ink)" }}>
+                      <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-semibold hover:underline" style={{ color: "var(--ink)" }}>
                         {spec.et}
                       </Link>
                       <CaseQuestion inline className="block text-xs" question={caseQuestionFor(spec, subjectOf(entry))} />

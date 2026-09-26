@@ -341,7 +341,7 @@ export function StatTile({ value, label, tone = "accent", icon, hint }: {
       style={{ borderColor: "var(--rule-soft)", borderTopColor: rule, borderTopWidth: 3, background: "var(--surface)" }}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="min-w-0 text-sm font-medium" style={{ color: "var(--ink-2)" }}>{label}</span>
+        <span className="min-w-0 text-sm" style={{ color: "var(--ink-2)" }}>{label}</span>
         {icon && <span aria-hidden className="shrink-0" style={{ color: toneInk(tone) }}>{icon}</span>}
       </div>
       <span className={`tnum font-display ${long ? "text-2xl" : "text-3xl"} font-bold leading-none tracking-tight`} style={{ color: "var(--ink)" }}>{value}</span>

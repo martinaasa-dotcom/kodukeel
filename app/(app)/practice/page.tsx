@@ -236,7 +236,7 @@ export default async function PracticePage() {
             goes to the index, which carries the counts and the way to build
             the next twenty out.
           */}
-          <div className={`grid gap-4 [&>*]:h-full ${decks.length > 0 ? "md:grid-cols-2" : ""}`}>
+          <div className="@container"><div className={`grid gap-4 [&>*]:h-full ${decks.length > 0 ? "@2xl:grid-cols-2" : ""}`}>
           <CommonWordsCard />
 
           {/*
@@ -250,7 +250,7 @@ export default async function PracticePage() {
             checkbox list.
           */}
           {decks.length > 0 && <DecksCard decks={decks} />}
-          </div>
+          </div></div>
 
           {/*
             AND WHERE THOSE WORDS STAND, BESIDE THE ROUNDS THAT MOVE THEM.

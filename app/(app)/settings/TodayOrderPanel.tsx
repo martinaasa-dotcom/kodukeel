@@ -72,7 +72,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
               /* The cut, said once in words where it falls rather than on
                  every row under it. Hidden from a screen reader, which hears
                  it on each row instead. */
-              <li aria-hidden className="flex items-center gap-3 px-1 pt-2 text-xs font-medium" style={{ color: "var(--ink-3)" }}>
+              <li aria-hidden className="flex items-center gap-3 px-1 pt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                 <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
                 Below here, only when a card above has nothing to say
                 <span className="h-px flex-1" style={{ background: "var(--rule)" }} />

@@ -137,7 +137,7 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
                       under the name now, in both languages, and the
                       Latin name is on the reference page for anybody reading an
                       English grammar. */}
-                  <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-medium hover:underline" style={{ color: "var(--ink)" }}>
+                  <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-semibold hover:underline" style={{ color: "var(--ink)" }}>
                     {spec.et}
                   </Link>
                   <CaseQuestion inline className="block text-xs" question={caseQuestionFor(spec, subject)} />
@@ -165,7 +165,7 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
               {spec.key === "ILLATIVE" && shortIllative.length > 0 && (
                 <tr style={{ borderTop: "1px solid var(--rule-soft)" }}>
                   <td className="px-3 py-2" style={{ color: "var(--ink-2)" }}>
-                    <span lang="et" className="block font-medium" style={{ color: "var(--ink)" }}>lühike sisseütlev</span>
+                    <span lang="et" className="block font-semibold" style={{ color: "var(--ink)" }}>lühike sisseütlev</span>
                     <CaseQuestion inline className="block text-xs" question="kuhu?" />
                   </td>
                   <td className="px-3 py-2"><Cell values={shortIllative} /></td>

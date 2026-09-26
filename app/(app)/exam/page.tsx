@@ -294,10 +294,10 @@ export default async function ExamPage() {
                     {item.href && (
                       <Link
                         href={item.href}
-                        className="mt-2 inline-flex items-center gap-1 text-sm font-semibold underline underline-offset-4"
+                        className="mt-2 inline-block text-sm font-semibold underline underline-offset-4"
                         style={{ color: "var(--accent-deep)" }}
                       >
-                        {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden />
+                        {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden className="inline align-[-2px]" />
                       </Link>
                     )}
                   </span>

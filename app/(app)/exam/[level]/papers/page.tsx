@@ -36,6 +36,8 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
   const ownerId = await requireUserId();
   const papers = await numberedPapers(ownerId, upper, PAPERS_PER_LEVEL);
   const spec = specFor(upper);
+  // One loud action on the shelf: the next paper nobody has sat.
+  const nextUp = papers.find((p) => !p.whole)?.number;
 
   return (
     <Page
@@ -79,7 +81,7 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
                   <span className="block text-sm" style={{ color: "var(--ink-3)" }}>Not sat yet</span>
                 )}
               </span>
-              <ButtonLink href={`/exam/${upper}?paper=${paper.number}`} variant={paper.whole ? "secondary" : "primary"} size="sm">
+              <ButtonLink href={`/exam/${upper}?paper=${paper.number}`} variant={paper.number === nextUp ? "primary" : "secondary"} size="sm">
                 {paper.whole ? "Sit again" : "Sit it"}
               </ButtonLink>
             </div>
@@ -90,7 +92,7 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
                   <Link
                     key={skill}
                     href={`/exam/${upper}?paper=${paper.number}&part=${skill}`}
-                    className="choice-btn press inline-flex min-h-8 items-center gap-1 rounded-full border px-2.5 text-xs pointer-coarse:min-h-11 font-semibold"
+                    className="choice-btn press inline-flex min-h-8 items-center gap-1 rounded-full border px-2 text-xs pointer-coarse:min-h-11 font-semibold"
                   >
                     {SKILL_LABEL[skill]}
                     {done ? <span className="tnum" style={{ color: "var(--ink-3)" }}>{done.pct}%</span> : null}

@@ -179,18 +179,21 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
         {Number(dayKey.slice(8, 10))}
       </p>
 
-      <ul className="mt-2 flex flex-col gap-1.5">
-        {events.map((e) => <EventRow key={e.id} event={e} />)}
-        {reminders.map((r) => <ReminderRow key={r.id} reminder={r} />)}
-      </ul>
+      {!empty && (
+        <ul className="mt-2 flex flex-col gap-1.5">
+          {events.map((e) => <EventRow key={e.id} event={e} />)}
+          {reminders.map((r) => <ReminderRow key={r.id} reminder={r} />)}
+        </ul>
+      )}
 
       {/* Said plainly rather than left blank: an empty column and a column that
           failed to load look the same, and on a phone the difference matters. */}
+      {/* An empty day is a line with its date on it in a list, and an empty
+          slot only where the week is drawn as columns. */}
       {empty && (
-        <p className="mt-2 h-6 rounded-[var(--r-sm)] border border-dashed" style={{ borderColor: "var(--rule-soft)" }}>
-          <span className="sr-only">Nothing</span>
-        </p>
+        <p className="mt-2 hidden h-6 rounded-[var(--r-sm)] border border-dashed xl:block" style={{ borderColor: "var(--rule-soft)" }} aria-hidden />
       )}
+      {empty && <span className="sr-only">Nothing</span>}
     </div>
   );
 }
