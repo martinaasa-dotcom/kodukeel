@@ -9,13 +9,17 @@ neutral scheme described in `08-ux-ia-a11y.md` §6; everything that document say
 The app is opened by one person, alone, most days, usually tired, usually in the evening. Two
 things follow from that:
 
-**It has to be warm before it is impressive.** A grammar drill that looks like a tax form is a
-drill you stop opening. So: pastels, round corners, a mascot, and a small physical response to
-every press.
+**It has to be warm before it is impressive, and confident rather than cute.** A grammar drill
+that looks like a tax form is a drill you stop opening, and one that looks like every other app
+made this year is one nobody trusts to know Estonian. So: a warm off-white ground, one saturated
+cornflower blue carrying the voice, type that leads, round corners, and a small physical response
+to every press. Retuned on 2026-09-25 away from pastel washes and a violet cast, which read as
+generated.
 
 **Color has to mean something.** Warmth costs nothing until colour stops carrying information.
-So the palette is disciplined: a mostly-white ground, five hues with fixed meanings, and a wash
-of pastel light behind everything so the ground never reads as grey.
+So the palette is disciplined: a warm neutral ground, five hues with fixed meanings, and at most a
+faint tint of the accent behind a screen where depth helps. The washes are neutral or accent,
+never a second and third hue drifting in the background.
 
 | Hue | Token | Means |
 |---|---|---|
@@ -168,12 +172,18 @@ fully round. Tailwind's own radius names are remapped onto those four in `@theme
 `rounded-md` lands on 10px instead of inventing a 6px corner. The single exception is the heatmap
 cell: at 10px square, a token radius rounds it into a dot and the grid stops reading as a calendar.
 
-Shadows are violet-tinted rather than grey (`--shadow-sm/-/-lg`), plus `--shadow-accent` for the
-one gradient button.
+Shadows are neutral and layered (`--shadow-sm/-/-lg`), a tight contact shadow under a soft
+ambient one, plus `--shadow-accent` for the one primary button, which is solid accent with a
+highlight along its top edge rather than a gradient.
 
 ## 3. Type
 
-**One face, Plus Jakarta Sans.** Estonian used to be set in Fraunces, a second face carrying
+**Onest for everything a learner reads, Bricolage Grotesque for `h1` and `h2`.** Onest is built
+to be read small and carries Cyrillic, which the Russian and Ukrainian glosses need. Bricolage has
+an optical size axis, so a 40px heading is tighter and has more character than a 21px one without
+a third file. The display face never sets an answer, an option or a form the learner types.
+
+Estonian used to be set in Fraunces, a second face carrying
 headings and the numbers a screen is about as well. It meant two typefaces inside one card
 wherever a prompt and its answers are in different languages, which is most of this app: a
 lesson step asks "Which word is this?" in the interface face and offers four Estonian answers
