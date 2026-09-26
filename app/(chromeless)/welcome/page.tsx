@@ -2,7 +2,7 @@ import { PARTS } from "@/lib/copy/values";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import type { Metadata } from "next";
 import {
-  ArrowRight, BookOpen, Check, CircleHelp, Minus,
+  ArrowRight, BookOpen, Briefcase, Check, CircleHelp, ClipboardCheck, Heart, House, Minus,
   Plus, Sparkles, Target, X,
 } from "lucide-react";
 import { prisma } from "@/lib/db";
@@ -15,10 +15,12 @@ import {
 import type { CaseSubject } from "@/lib/estonian/caseQuestion";
 import { caseByKey, questionInEnglish } from "@/lib/estonian/cases";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
+import { toWalkWord } from "@/lib/estonian/caseBuild";
 import { ButtonLink } from "@/components/Button";
 import { Wordmark } from "@/components/brand";
 import { MascotWatch } from "@/components/MascotWatch";
 import { CaseExplorer, TutorPeek, type DemoCase, type DemoWord } from "./LandingDemo";
+import { HeroWord, PlanCalculator } from "./LandingMotion";
 import { LetterTile } from "@/components/LetterTile";
 import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { toneInk } from "@/components/ui";
@@ -42,15 +44,15 @@ export default async function WelcomePage() {
   return (
     <div className="landing relative overflow-x-hidden" style={{ background: "var(--ground)" }}>
       {/*
-        Pastel light behind the whole page, drifting. Each blob has its own
-        period so the three never move together, and a blob is a blurred
-        circle moved on the compositor, so the drift costs no layout.
+        One faint light at the top of the page, in the accent's own tint. It
+        was three drifting pastel blobs, which banded into rings on a warm
+        ground and read as generated.
       */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <span className="wash wash-roam" style={{ background: "var(--wash-1)", width: 620, height: 620, top: -260, left: -160, "--wash-time": "26s" } as React.CSSProperties} />
-        <span className="wash wash-roam" style={{ background: "var(--wash-2)", width: 520, height: 520, top: 60, right: -220, opacity: 0.65, "--wash-time": "31s", "--wash-delay": "-9s" } as React.CSSProperties} />
-        <span className="wash wash-roam" style={{ background: "var(--wash-3)", width: 560, height: 560, top: 1180, left: -200, opacity: 0.5, "--wash-time": "37s", "--wash-delay": "-17s" } as React.CSSProperties} />
-      </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[900px]"
+        style={{ background: "radial-gradient(60% 70% at 50% 0%, var(--wash-1), transparent 70%)" }}
+      />
 
       <Nav />
 
@@ -79,9 +81,12 @@ export default async function WelcomePage() {
         section of its own, which is where the person asking it looks.
       */}
       <main className="landing-flow relative">
-        <Hero stats={stats} />
+        <Hero stats={stats} words={words} />
+        <WhoFor />
         <Cases words={words} />
         <Features />
+        <Compare />
+        <Plan />
         <Questions />
         <FinalCta />
       </main>
@@ -102,8 +107,11 @@ export default async function WelcomePage() {
  */
 const ANU_LINES: readonly AnuLine[] = [
   { at: "top", mood: "happy", text: "I’m Anu, the tutor. I’ll come down the page with you." },
+  { at: "who", mood: "happy", text: "Whichever one is you, the first evening is the same fifteen minutes." },
   { at: "cases", mood: "thinking", text: "Press a word. The endings light up, and the odd one out says so." },
   { at: "features", mood: "happy", text: "Ask me the thing you would not ask in class. I never sigh." },
+  { at: "compare", mood: "thinking", text: "Keep your class. This is the part between lessons." },
+  { at: "plan", mood: "happy", text: "Press a few. The sum is the one I use inside." },
   { at: "faq", mood: "thinking", text: "Straight answers, and the comparison is in there too." },
   { at: "start", mood: "cheer", text: "Fifteen minutes a day. See you inside." },
 ];
@@ -166,9 +174,9 @@ function Nav() {
           rather than quietly folding again.
         */}
         <div className="hidden items-center gap-7 whitespace-nowrap text-sm font-medium lg:flex" style={{ color: "var(--ink-2)" }}>
+          <a href="#who" className="transition-opacity hover:opacity-60">Who it is for</a>
           <a href="#cases" className="transition-opacity hover:opacity-60">The cases</a>
-          <a href="#features" className="transition-opacity hover:opacity-60">What you get</a>
-          <a href="#faq" className="transition-opacity hover:opacity-60">Questions</a>
+          <a href="#plan" className="transition-opacity hover:opacity-60">Your plan</a>
         </div>
         <div className="flex items-center gap-2">
           <Link
@@ -223,7 +231,7 @@ function Nav() {
  * half: the eye goes down the middle to the button rather than across to a card
  * and back.
  */
-function Hero({ stats }: { stats: { words: number; forms: number } }) {
+function Hero({ stats, words }: { stats: { words: number; forms: number }; words: DemoWord[] }) {
   /*
     The four figures that were a panel of their own, as one line of evidence
     under the button. A stat panel three screens down is a claim nobody has a
@@ -288,6 +296,15 @@ function Hero({ stats }: { stats: { words: number; forms: number } }) {
         <span className="word-in grad-text grad-sweep" style={{ "--w": "380ms" } as React.CSSProperties}>sticks</span>.
       </h1>
 
+      {/*
+        The claim, shown. One real word turning through its cases, read out of
+        the same rows the explorer below is built from, so the first thing a
+        visitor watches is the thing this app is for.
+      */}
+      <div className="fade-up" style={{ animationDelay: "300ms" }}>
+        <HeroWord words={words.filter((w) => w.cases.some((c) => !c.principal && c.singular))} />
+      </div>
+
       <p
         className="fade-up hero-lead hero-sub max-w-[52ch] leading-relaxed"
         style={{ color: "var(--ink-2)", animationDelay: "420ms" }}
@@ -339,6 +356,188 @@ function Hero({ stats }: { stats: { words: number; forms: number } }) {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────── who for ── */
+
+/**
+ * Who this is for, in the words a stranger would use about themselves.
+ *
+ * The page said what the app does and left the reader to decide whether
+ * that was them. Four situations cover nearly everybody who learns Estonian
+ * as an adult, and they are the reasons first run asks for, so picking the
+ * card that is you here is picking the plan you will be shown inside.
+ */
+const WHO = [
+  {
+    icon: House,
+    tone: "accent",
+    title: "You live here",
+    body: "The shop, the doctor, the letter from the city. The Estonian you meet every week, in the order you meet it.",
+  },
+  {
+    icon: Heart,
+    tone: "blush",
+    title: "Somebody you love speaks it",
+    body: "Their family, their jokes, their mother on the phone. Practise before Sunday lunch rather than during it.",
+  },
+  {
+    icon: ClipboardCheck,
+    tone: "mint",
+    title: "You have an exam date",
+    body: "Mock papers from A2 to C1, marked by rule rather than by a model, and a plain guide to the real one.",
+    href: "/state-exam",
+    link: "How the real exam works",
+  },
+  {
+    icon: Briefcase,
+    tone: "sky",
+    title: "Your meetings are in Estonian",
+    body: "The words work runs on, and a rehearsal with somebody who wants something from you before the real one.",
+  },
+] as const;
+
+function WhoFor() {
+  return (
+    <section id="who" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
+      <Reveal>
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>Who it is for</p>
+          <h2 className="mt-4 text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+            Anybody making a home in Estonian
+          </h2>
+        </div>
+      </Reveal>
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 md:mt-12">
+        {WHO.map((who) => {
+          const Icon = who.icon;
+          return (
+            <Reveal key={who.title}>
+              <article className="who-card lift flex h-full flex-col rounded-[var(--r-xl)] border p-6">
+                <span
+                  className="flex h-11 w-11 items-center justify-center rounded-[var(--r)]"
+                  style={{ background: `var(--${who.tone}-soft)`, color: toneInk(who.tone) }}
+                >
+                  <Icon size={20} aria-hidden />
+                </span>
+                <h3 className="mt-5 text-lg font-semibold leading-snug" style={{ color: "var(--ink)" }}>{who.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{who.body}</p>
+                {"href" in who && (
+                  <Link
+                    href={who.href}
+                    className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold underline-offset-4 hover:underline"
+                    style={{ color: "var(--accent-deep)" }}
+                  >
+                    {who.link} <ArrowRight size={14} aria-hidden />
+                  </Link>
+                )}
+              </article>
+            </Reveal>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────── compare ── */
+
+/**
+ * The comparison a stranger is actually making, which is between kinds of
+ * thing rather than between brands.
+ *
+ * Nobody arrives here choosing between four named apps. They arrive having
+ * tried a streak app, sitting in a class, or asking a chatbot, and the
+ * question is what this adds to the one they have. So the columns are those
+ * three, each credited with what it is good at before saying where it stops,
+ * and the claims are about what each kind of tool is built to do. The
+ * tool-by-tool table, checked against each product's own pages, stays in the
+ * questions below for the reader who wants names.
+ */
+const KINDS = [
+  { name: "A streak app", good: "A daily habit and your first few hundred words.", stops: "The fourteen cases, which is where Estonian gets hard." },
+  { name: "A class or a textbook", good: "A teacher, a syllabus and people to talk to.", stops: "Bringing a word back the day before you would forget it." },
+  { name: "An AI chatbot", good: "An answer at eleven at night, about anything.", stops: "Getting the form right. It writes Estonian that looks correct and is not." },
+] as const;
+
+function Compare() {
+  return (
+    <section id="compare" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
+      <Reveal>
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>How it compares</p>
+          <h2 className="mt-4 text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+            Keep what you use now. This is the missing part.
+          </h2>
+        </div>
+      </Reveal>
+      <Reveal>
+        <div className="compare-grid mt-10 grid gap-4 md:mt-12 lg:grid-cols-4">
+          {KINDS.map((kind) => (
+            <div key={kind.name} className="rounded-[var(--r-xl)] border p-6" style={{ background: "var(--surface)", borderColor: "var(--rule)" }}>
+              <h3 className="text-md font-semibold" style={{ color: "var(--ink)" }}>{kind.name}</h3>
+              <p className="mt-4 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                <Check size={16} aria-label="Good at" className="mt-0.5 shrink-0" style={{ color: "var(--mint-ink)" }} />
+                <span>{kind.good}</span>
+              </p>
+              <p className="mt-3 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                <Minus size={16} aria-label="Stops at" className="mt-0.5 shrink-0" style={{ color: "var(--ink-3)" }} />
+                <span>{kind.stops}</span>
+              </p>
+            </div>
+          ))}
+          <div className="compare-ours rounded-[var(--r-xl)] p-6">
+            <h3 className="text-md font-semibold">Kodukeel</h3>
+            <p className="mt-4 text-sm leading-relaxed">
+              The cases taught one by one, a scheduler that brings every word back, a tutor at any
+              hour, and every form from a dictionary rather than a model. Free, and it keeps working
+              offline.
+            </p>
+          </div>
+        </div>
+      </Reveal>
+      <p className="mx-auto mt-6 max-w-[60ch] text-center text-sm" style={{ color: "var(--ink-3)" }}>
+        Comparing named apps? The table is under{" "}
+        <a href="#faq" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>the questions</a>,
+        checked against each one&rsquo;s own pages.
+      </p>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── plan ── */
+
+function Plan() {
+  return (
+    <section id="plan" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
+      <Reveal>
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>Your plan</p>
+          <h2 className="mt-4 text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+            When could you get there?
+          </h2>
+          <p className="mx-auto mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            Four answers, and the page does the sum the app does inside. A range, because anybody
+            quoting you one number is guessing.
+          </p>
+        </div>
+      </Reveal>
+      <Reveal>
+        <div className="plan-card mt-10 rounded-[var(--r-xl)] border p-5 md:mt-12 md:p-10">
+          <PlanCalculator />
+          <div className="mt-6">
+          <Explain label="Where the hours come from">
+            The hours usually published for each CEFR level, raised for Estonian where the cases
+            start to matter, and kept inside the ratio the US Foreign Service Institute gives for
+            it. Nothing here is measured on this app&rsquo;s learners. Inside, the same sum reads
+            your own pace off your reviews.
+          </Explain>
+          </div>
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -1087,8 +1286,6 @@ function FinalCta() {
           className="relative mx-auto max-w-5xl overflow-hidden rounded-[var(--r-xl)] px-6 py-9 text-center md:px-16 md:py-12"
           style={{ background: "var(--accent-soft)" }}
         >
-          <span aria-hidden className="wash" style={{ background: "var(--wash-2)", width: 420, height: 420, top: -160, right: -80 }} />
-          <span aria-hidden className="wash" style={{ background: "var(--wash-3)", width: 380, height: 380, bottom: -200, left: -60, opacity: 0.5 }} />
 
           <div className="relative">
             <MascotWatch size={68} mood="cheer" className="float mx-auto" />
@@ -1282,13 +1479,23 @@ async function loadDemo(): Promise<{ words: DemoWord[]; stats: { words: number; 
       const table = isVerb
         ? []
         : buildCaseTable(stemsFrom(lex.forms));
+      /*
+        What each built form means in English, off the build-a-word walk's own
+        rows, so the hero and the walkthrough read one table about an ending.
+      */
+      const readings = new Map(
+        isVerb
+          ? []
+          : toWalkWord(lex.lemma, lex.translation, stemsFrom(lex.forms), subject, [])
+              .derived.map((r) => [r.key, r.reading] as const),
+      );
 
 
       return [{
         lemma: lex.lemma,
         genitive: form("GEN_SG") ?? null,
         principal,
-        cases: table.map((row) => demoCase(row, subject, form("GEN_SG") ?? null)),
+        cases: table.map((row) => demoCase(row, subject, form("GEN_SG") ?? null, readings.get(row.spec.key) ?? null)),
       }];
     });
 
@@ -1353,7 +1560,7 @@ const FALLBACK_WORDS: DemoWord[] = DEMO_STEMS.map((w) => {
  * would read as stored, which is true and is not what the chip means. The
  * chip means no rule reaches this one.
  */
-function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | null): DemoCase {
+function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | null, reading: string | null = null): DemoCase {
   const shown = shownForms(row);
   /*
     Regular means the printed form is the genitive with this case's ending on
@@ -1374,6 +1581,12 @@ function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | nul
       lib/estonian/caseQuestion.ts.
     */
     question: caseQuestionFor(row.spec, subject),
+    /*
+      What the form means, in the fewest English words that are true: "into
+      the book", handed in off the build-a-word walk's rows. Where it has
+      nothing to say, the English of the question stands in.
+    */
+    english: reading ?? questionInEnglish(caseQuestionFor(row.spec, subject)),
     singular: shown.length > 0 ? shown.join(PARTS) : null,
     plural: row.plural ?? null,
     principal: row.spec.principal,

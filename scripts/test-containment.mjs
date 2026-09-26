@@ -824,6 +824,14 @@ function survey({ stress }) {
 
   for (const el of [...textLeaves, ...icons, ...sized]) {
     if (!shown(el) || placed(el)) continue;
+    /*
+      Inside a visually hidden box is text a reader hears and nobody sees,
+      clipped to a pixel on purpose. The box itself is skipped as placed; a
+      word inside it marked with its own `lang` is a child of it and was being
+      reported as cut off, which is the one-pixel clip doing its job. The
+      word-splitting check below skips the same boxes for the same reason.
+    */
+    if (el.closest(".sr-only")) continue;
 
     for (const axis of ["x", "y"]) {
       const clip = clipperOf(el, axis);

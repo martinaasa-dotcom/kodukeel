@@ -5,19 +5,19 @@ import { WayOut } from "@/components/round/RoundExit";
 import { PrefetchLink } from "@/components/PrefetchLink";
 
 /**
- * Three soft pastel lights, fixed behind the page content.
+ * One faint light in the top corner, fixed behind the page content.
  *
- * They are what stops a mostly-white app reading as a spreadsheet: color is
- * present everywhere at 5% strength, so the color that appears at full strength
- * (a due count, a grade button) still means something. Decorative, so aria-hidden.
+ * It was three blurred pastel circles, which read as generated and, at the
+ * strength a warm ground wants, banded into visible rings. One gradient in the
+ * accent's own tint is the depth without the rings. Decorative, so aria-hidden.
  */
 export function Wash() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <span className="wash" style={{ background: "var(--wash-1)", width: 520, height: 520, top: -180, left: -140 }} />
-      <span className="wash" style={{ background: "var(--wash-2)", width: 460, height: 460, top: 180, right: -200, opacity: 0.6 }} />
-      <span className="wash" style={{ background: "var(--wash-3)", width: 420, height: 420, bottom: -200, left: "35%", opacity: 0.55 }} />
-    </div>
+    <div
+      aria-hidden
+      className="no-print pointer-events-none fixed inset-0 -z-10"
+      style={{ background: "radial-gradient(70% 55% at 0% 0%, var(--wash-1), transparent 72%)" }}
+    />
   );
 }
 
@@ -250,11 +250,6 @@ export function Empty({ title, body, action, mood = "thinking" }: {
       className="pop-in relative overflow-hidden rounded-[var(--r-xl)] border border-dashed px-6 py-9 text-center"
       style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
     >
-      <span
-        aria-hidden
-        className="wash"
-        style={{ background: "var(--wash-1)", width: 260, height: 260, top: -120, left: "50%", marginLeft: -130, opacity: 0.5 }}
-      />
       <div className="relative">
         <Mascot size={54} mood={mood} className="mx-auto float" />
         <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>{title}</p>

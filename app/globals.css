@@ -2036,6 +2036,44 @@
   */
   .landing { --section-gap: 5.5rem; }
   .landing-flow { display: flex; flex-direction: column; gap: var(--section-gap); }
+
+  /*
+    The word under the headline. The lemma sits still and the form beside it
+    arrives, so the eye reads one change at a time: the ending. Each new form
+    rises in over 420ms and the question under it fades, both on the
+    compositor, and the row holds a fixed height so nothing below it moves.
+  */
+  .hero-word { margin-top: clamp(1.25rem, 3svh, 2rem); display: flex; flex-direction: column; align-items: center; }
+  .hero-word-row {
+    display: inline-flex; align-items: baseline; gap: 0.6em;
+    padding: 0.55rem 1.1rem; border-radius: 9999px;
+    background: var(--surface); border: 1px solid var(--rule); box-shadow: var(--shadow-sm);
+    font-size: var(--text-xl); line-height: 1.2; min-height: 3.1rem;
+  }
+  .hero-word-lemma { color: var(--ink-3); font-weight: 500; }
+  .hero-word-arrow { color: var(--ink-3); font-size: var(--text-md); }
+  .hero-word-form {
+    color: var(--accent-deep); font-weight: 700; display: inline-block;
+    animation: hero-word-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .hero-word-question {
+    margin-top: 0.6rem; font-size: var(--text-sm); color: var(--ink-3);
+    animation: hero-word-fade 420ms ease both;
+  }
+  @keyframes hero-word-in { from { opacity: 0; transform: translateY(0.45em); } to { opacity: 1; transform: none; } }
+  @keyframes hero-word-fade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-word-form, .hero-word-question { animation: none; }
+  }
+
+  .who-card { background: var(--surface); border-color: var(--rule); }
+  .compare-ours { background: var(--accent); color: var(--accent-ink); box-shadow: var(--shadow-accent); }
+  .plan-card { background: var(--surface); border-color: var(--rule); box-shadow: var(--shadow); }
+  .plan-calc-answer { background: var(--accent-soft); }
+  .plan-calc-figure { font-size: var(--text-4xl); line-height: 1.05; }
+  @media (min-width: 768px) {
+    .plan-calc-figure { font-size: var(--text-5xl); }
+  }
   .landing-foot { margin-top: var(--section-gap); }
   .hero-open {
     --landing-nav: 83px;
@@ -2133,15 +2171,6 @@
       padding-block: 1rem;
       font-size: var(--text-md);
     }
-  }
-
-  /* Soft pastel light behind a section, so the ground never reads as flat grey. */
-  .wash {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(72px);
-    opacity: 0.6;
-    pointer-events: none;
   }
 
   /*
@@ -2680,10 +2709,6 @@
     animation-delay: calc(var(--i, 0) * 34ms + 240ms);
   }
   .chip-spring { animation: chip-spring 0.42s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .wash-roam {
-    animation: wash-roam var(--wash-time, 26s) ease-in-out infinite;
-    animation-delay: var(--wash-delay, 0s);
-  }
   .word-in {
     display: inline-block;
     animation: word-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -2769,7 +2794,6 @@
 
   /* The rail, the phone bar, and anything a page marks as screen-only. */
   nav[aria-label="Main"], .no-print { display: none !important; }
-  .wash { display: none !important; }
 
   .page-break { break-before: page; }
   .avoid-break { break-inside: avoid; }
@@ -2801,13 +2825,6 @@
   0% { scale: 1; }
   45% { scale: 1.1; }
   100% { scale: 1; }
-}
-
-/* Slow enough that nobody sees it move and everybody sees that it has. */
-@keyframes wash-roam {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(48px, -36px) scale(1.06); }
-  66% { transform: translate(-36px, 28px) scale(0.96); }
 }
 
 @keyframes word-in {
