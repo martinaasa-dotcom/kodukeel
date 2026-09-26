@@ -173,13 +173,13 @@ export default async function TopicPage({
       <Stack>
         {(term || topic.marker) && (
           <Card tone="night">
-            <dl className="grid gap-6 sm:grid-cols-3">
+            <dl className="grid gap-6 lg:grid-cols-3">
               {topic.marker && (
                 <div className="min-w-0">
                   <dt className="label-xs" style={{ color: "var(--cta)" }}>
                     The ending that carries it
                   </dt>
-                  <dd lang="et" className="font-display mt-1 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
                     {topic.marker}
                   </dd>
                 </div>
@@ -187,7 +187,7 @@ export default async function TopicPage({
               {term && (
                 <div className="min-w-0">
                   <dt className="label-xs" style={{ color: "var(--cta)" }}>Called</dt>
-                  <dd lang="et" className="font-display mt-1 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
                     {term.et}
                   </dd>
                   {term.alsoCalled && (
@@ -202,7 +202,7 @@ export default async function TopicPage({
                   <dt className="label-xs" style={{ color: "var(--cta)" }}>
                     Answers
                   </dt>
-                  <dd lang="et" className="font-display mt-1 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
                     {term.question}
                   </dd>
                   {/* And what it asks, where the table has a reading for it.

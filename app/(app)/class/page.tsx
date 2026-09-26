@@ -64,7 +64,7 @@ export default async function ClassIndexPage() {
         {memberships.length > 0 && (
           <section>
             <SectionTitle>Your classes</SectionTitle>
-            <ul className="grid gap-3 md:grid-cols-2">
+            <ul className="grid gap-3 lg:grid-cols-2">
               {memberships.map((m) => {
                 const workplace = cohortKind(m.classroom.kind) === "WORKPLACE";
                 const owns = m.role === "TEACHER";
@@ -84,7 +84,7 @@ export default async function ClassIndexPage() {
                           ? <Building2 size={20} aria-hidden />
                           : owns ? <GraduationCap size={20} aria-hidden /> : <Users size={20} aria-hidden />}
                       </span>
-                      <span className="flex flex-wrap justify-end gap-1.5">
+                      <span className="flex shrink-0 flex-wrap justify-end gap-1.5 whitespace-nowrap">
                         {m.classroom.archived && <Chip>archived</Chip>}
                         {owns && !m.classroom.archived && (
                           <Chip tone="accent" caseSensitive>{m.classroom.code}</Chip>
