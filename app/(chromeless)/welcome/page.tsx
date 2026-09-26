@@ -1212,6 +1212,8 @@ function Footer() {
               <li><Link href="/trust" className="underline underline-offset-4 transition-opacity hover:opacity-70">Security and trust</Link></li>
               <li><Link href="/accessibility" className="underline underline-offset-4 transition-opacity hover:opacity-70">Accessibility</Link></li>
               <li><Link href="/state-exam" className="underline underline-offset-4 transition-opacity hover:opacity-70">The state examination</Link></li>
+              <li><Link href="/welcome/ru" lang="ru" className="underline underline-offset-4 transition-opacity hover:opacity-70">Русский</Link></li>
+              <li><Link href="/welcome/uk" lang="uk" className="underline underline-offset-4 transition-opacity hover:opacity-70">Українська</Link></li>
               <li><Link href="/sign-in" className="underline underline-offset-4 transition-opacity hover:opacity-70">Sign in</Link></li>
             </ul>
           </div>
