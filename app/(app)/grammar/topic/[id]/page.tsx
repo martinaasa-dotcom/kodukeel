@@ -172,26 +172,26 @@ export default async function TopicPage({
     >
       <Stack>
         {(term || topic.marker) && (
-          <Card tone="accent">
-            <dl className="grid gap-4 sm:grid-cols-3">
+          <Card tone="night">
+            <dl className="grid gap-6 lg:grid-cols-3">
               {topic.marker && (
                 <div className="min-w-0">
-                  <dt className="label-xs" style={{ color: "var(--accent-deep)" }}>
+                  <dt className="label-xs" style={{ color: "var(--cta)" }}>
                     The ending that carries it
                   </dt>
-                  <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
+                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
                     {topic.marker}
                   </dd>
                 </div>
               )}
               {term && (
                 <div className="min-w-0">
-                  <dt className="label-xs" style={{ color: "var(--accent-deep)" }}>Called</dt>
-                  <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
+                  <dt className="label-xs" style={{ color: "var(--cta)" }}>Called</dt>
+                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
                     {term.et}
                   </dd>
                   {term.alsoCalled && (
-                    <dd className="text-xs" style={{ color: "var(--ink-3)" }}>
+                    <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
                       {term.alsoCalled}, in an English grammar
                     </dd>
                   )}
@@ -199,10 +199,10 @@ export default async function TopicPage({
               )}
               {term?.question && (
                 <div className="min-w-0">
-                  <dt className="label-xs" style={{ color: "var(--accent-deep)" }}>
+                  <dt className="label-xs" style={{ color: "var(--cta)" }}>
                     Answers
                   </dt>
-                  <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
+                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
                     {term.question}
                   </dd>
                   {/* And what it asks, where the table has a reading for it.
@@ -210,7 +210,7 @@ export default async function TopicPage({
                       point taught in a language the reader came here to
                       learn. See `lib/estonian/cases.ts`. */}
                   {questionInEnglish(term.question) && (
-                    <dd className="text-xs" style={{ color: "var(--ink-3)" }}>
+                    <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
                       {questionInEnglish(term.question)}
                     </dd>
                   )}
@@ -226,8 +226,8 @@ export default async function TopicPage({
             {topic.points.map((point) => (
               <li
                 key={point}
-                className="rounded-[var(--r-sm)] border p-3 text-base leading-relaxed"
-                style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
+                className="rounded-[var(--r-lg)] border p-4 text-base leading-relaxed md:p-5"
+                style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)", color: "var(--ink)" }}
               >
                 {point}
                 {/* And somebody saying it. See `components/grammar/PointExamples.tsx`

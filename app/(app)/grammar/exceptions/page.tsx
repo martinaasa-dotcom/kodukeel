@@ -1,5 +1,4 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { TriangleAlert } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { exceptionGroups, exceptionScale } from "@/lib/progress/exceptions";
@@ -52,11 +51,13 @@ export default async function ExceptionsPage() {
       lead="Where the endings stop being predictable, and which words to learn one at a time."
     >
       <Stack>
-        <Card tone="butter">
-          <div className="flex items-start gap-3">
-            <TriangleAlert size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--butter-ink)" }} />
-            <div className="min-w-0">
-              <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
+        <Card tone="night">
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
+            <p className="font-display tnum text-6xl font-bold leading-none tracking-tight md:text-7xl" style={{ color: "var(--cta)" }}>
+              {scale}
+            </p>
+            <div className="min-w-0 flex-[1_1_20rem]">
+              <p className="font-display text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
                 Most words follow the pattern. These do not.
               </p>
               <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

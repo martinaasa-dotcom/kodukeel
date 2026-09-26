@@ -13,6 +13,7 @@ import { shuffle } from "@/lib/random/shuffle";
 import { OPTION_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 
 export interface MatchPair {
   cardId: string;
@@ -192,41 +193,28 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
   if (phase === "ready") {
     return (
-      <div className="mx-auto max-w-xl px-5 py-16 text-center md:px-10">
-        <div className="pop-in rounded-[var(--r-xl)] px-6 py-12" style={{ background: "var(--mint-soft)" }}>
-          <span
-            className="float mx-auto flex h-16 w-16 items-center justify-center rounded-full"
-            style={{ background: "var(--surface)", color: "var(--mint-ink)", boxShadow: "var(--shadow)" }}
+      <RoundStart
+        icon={<Timer size={34} aria-hidden />}
+        title="Match"
+        lead="Clear the board against the clock."
+        hue="sky"
+        chips={<>
+          <RoundChip>{pairs.length} pairs</RoundChip>
+          {best > 0 && <RoundChip icon={<Trophy size={14} aria-hidden />}>Personal best {best}s</RoundChip>}
+        </>}
+        actions={
+          <Button
+            variant="primary"
+            size="lg"
+            className="px-10"
+            onClick={() => { startedAt.current = Date.now(); setPhase("playing"); }}
           >
-            <Timer size={30} aria-hidden />
-          </span>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-            Match
-          </h1>
-          <p className="mx-auto mt-2 max-w-[44ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {pairs.length} pairs. <BriefingLines id="match" /> Pairs you get first time count as a
-            clean review.
-          </p>
-          {best > 0 && (
-            <p
-              className="mt-4 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold"
-              style={{ background: "var(--surface)", color: "var(--mint-ink)" }}
-            >
-              <Trophy size={14} aria-hidden /> Personal best: {best}s
-            </p>
-          )}
-          <div className="mt-7">
-            <Button
-              variant="primary"
-              size="lg"
-              className="px-10"
-              onClick={() => { startedAt.current = Date.now(); setPhase("playing"); }}
-            >
-              Start the clock
-            </Button>
-          </div>
-        </div>
-      </div>
+            Start the clock
+          </Button>
+        }
+      >
+        <p><BriefingLines id="match" /> Pairs you get first time count as a clean review.</p>
+      </RoundStart>
     );
   }
 

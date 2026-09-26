@@ -152,49 +152,53 @@ export default async function CasePage({
       )}
     >
       <Stack>
-        <Card tone="accent">
-          <dl className="grid gap-4 sm:grid-cols-3">
+        {/*
+          The ending is the answer to what a learner came here for, so it is
+          the one thing drawn large, lit, beside the name a class uses and the
+          question the case answers.
+        */}
+        <Card tone="night">
+          <div className="flex flex-wrap items-center gap-x-10 gap-y-6">
             <div className="min-w-0">
-              <dt className="label-xs" style={{ color: "var(--accent-deep)" }}>The ending</dt>
-              <dd className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                {ref.spec.principal ? (
-                  <span className="text-base font-semibold" style={{ color: "var(--ink-2)" }}>
-                    none, this one is memorized
+              <p className="label-xs" style={{ color: "var(--cta)" }}>The ending</p>
+              {ref.spec.principal ? (
+                <p className="font-display mt-2 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+                  none, this one is memorized
+                </p>
+              ) : (
+                <p className="mt-1 flex items-baseline gap-3">
+                  <span lang="et" className="font-display text-7xl font-bold leading-none tracking-tight md:text-8xl" style={{ color: "var(--cta)" }}>
+                    -{ref.spec.suffix}
                   </span>
-                ) : (
-                  <>
-                    <span lang="et" className="text-2xl">-{ref.spec.suffix}</span>{" "}
-                    <span className="text-xs font-normal" style={{ color: "var(--ink-3)" }}>
-                      on the omastav
-                    </span>
-                  </>
-                )}
-              </dd>
+                  <span className="text-sm" style={{ color: "var(--ink-3)" }}>on the omastav</span>
+                </p>
+              )}
             </div>
-            <div className="min-w-0">
-              <dt className="label-xs" style={{ color: "var(--accent-deep)" }}>Called</dt>
-              <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                {ref.spec.et}
-              </dd>
-
-            </div>
-            <div className="min-w-0">
-              <dt className="label-xs" style={{ color: "var(--accent-deep)" }}>Answers</dt>
-              <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                {ref.spec.question}
-              </dd>
-              {/* And what that is asking. The question is the name a class uses
-                  and it is opaque to somebody who has not met it, which is the
-                  whole reason the Latin name used to be the only English
-                  anywhere near a case. See `lib/estonian/cases.ts`. */}
-              <dd className="text-xs" style={{ color: "var(--ink-3)" }}>
-                {ref.spec.questionEn}
-              </dd>
-            </div>
-          </dl>
+            <dl className="grid min-w-0 flex-[1_1_18rem] gap-4 sm:grid-cols-2">
+              <div className="min-w-0">
+                <dt className="label-xs" style={{ color: "var(--ink-3)" }}>Called</dt>
+                <dd lang="et" className="font-display mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
+                  {ref.spec.et}
+                </dd>
+              </div>
+              <div className="min-w-0">
+                <dt className="label-xs" style={{ color: "var(--ink-3)" }}>Answers</dt>
+                <dd lang="et" className="font-display mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
+                  {ref.spec.question}
+                </dd>
+                {/* And what that is asking. The question is the name a class uses
+                    and it is opaque to somebody who has not met it, which is the
+                    whole reason the Latin name used to be the only English
+                    anywhere near a case. See `lib/estonian/cases.ts`. */}
+                <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
+                  {ref.spec.questionEn}
+                </dd>
+              </div>
+            </dl>
+          </div>
           {ref.englishHook && (
-            <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-              <span className="label-xs mr-2" style={{ color: "var(--accent-deep)" }}>In English</span>
+            <p className="mt-6 border-t pt-4 text-base" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-2)" }}>
+              <span className="label-xs mr-2" style={{ color: "var(--cta)" }}>In English</span>
               {ref.englishHook}
             </p>
           )}

@@ -274,12 +274,21 @@ export function Empty({ title, body, action, mood = "thinking" }: {
 }) {
   return (
     <div
-      className="pop-in relative overflow-hidden rounded-[var(--r-xl)] border border-dashed px-6 py-9 text-center"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+      className="pop-in relative overflow-hidden rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12"
+      style={{
+        borderColor: "var(--edge)",
+        boxShadow: "var(--depth-sm)",
+        /* A little of the night's light behind the mark, so an empty screen
+           reads as a quiet moment rather than a missing one. */
+        background:
+          "radial-gradient(60% 70% at 50% 0%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%),"
+          + " radial-gradient(40% 50% at 85% 100%, color-mix(in srgb, var(--blush) 7%, transparent), transparent 70%),"
+          + " var(--surface)",
+      }}
     >
       <div className="relative">
         <Mascot size={54} mood={mood} className="mx-auto float" />
-        <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>{title}</p>
+        <p className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>{title}</p>
         {body && (
           <p className="mx-auto mt-2 max-w-[48ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{body}</p>
         )}
@@ -424,12 +433,12 @@ export function Meter({ pct, label, tone = "var(--accent)", height = 8 }: {
 }
 
 /** A short, non-blocking note: a tip, a warning, a confirmation. */
-export function Note({ tone = "neutral", children }: {
-  tone?: keyof typeof TONES; children: ReactNode;
+export function Note({ tone = "neutral", className = "", children }: {
+  tone?: keyof typeof TONES; className?: string; children: ReactNode;
 }) {
   const [bg, fg] = TONES[tone];
   return (
-    <p className="rounded-[var(--r)] px-4 py-3 text-sm" style={{ background: bg, color: fg }}>
+    <p className={`rounded-[var(--r)] px-4 py-3 text-sm ${className}`} style={{ background: bg, color: fg }}>
       {children}
     </p>
   );

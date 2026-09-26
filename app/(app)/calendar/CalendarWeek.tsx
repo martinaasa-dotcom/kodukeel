@@ -66,7 +66,7 @@ export function CalendarWeek({
 
   return (
     <>
-      <Card>
+      <Card tone="night">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <SectionTitle hint={weekLabel(days, offset)}>This week</SectionTitle>
           <div className="flex items-center gap-2">
@@ -172,12 +172,13 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
         // An empty day in a list is a date and nothing else, so on a phone it
         // loses its box: seven boxes, five of them empty, read as a form.
         ...(quiet ? {} : {
-          borderColor: isToday ? "var(--accent)" : "var(--rule-soft)",
-          background: isToday ? "var(--accent-soft)" : "var(--surface)",
+          borderColor: isToday ? "var(--cta)" : "var(--rule-soft)",
+          background: isToday ? "color-mix(in srgb, var(--cta) 12%, var(--surface))" : "var(--surface)",
+          boxShadow: isToday ? "0 0 0 1px var(--cta), 0 12px 28px -16px var(--cta)" : undefined,
         }),
       }}
     >
-      <p className="label-xs" style={{ color: isToday ? "var(--accent-deep)" : "var(--ink-3)" }}>
+      <p className="label-xs" style={{ color: isToday ? "var(--cta)" : "var(--ink-3)" }}>
         {/* The short name is for a column, so it arrives with the columns. */}
         <span className="xl:hidden">{WEEKDAY_LONG[weekday]}</span>
         <span className="hidden xl:inline">{WEEKDAY_SHORT[weekday]}</span>{" "}

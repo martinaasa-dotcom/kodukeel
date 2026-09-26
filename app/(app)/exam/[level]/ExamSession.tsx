@@ -1,7 +1,7 @@
 "use client";
 
 import { OPENING_CONVERSATION } from "@/lib/exam/warmUp";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { useRouter } from "next/navigation";
 import {
@@ -495,6 +495,24 @@ function Break({ until, now, nextLabel, onResume }: {
 
 // ── The briefing ─────────────────────────────────────────────────────────────
 
+/** The four night colours, one per part, in the order the paper is sat. */
+const PART_HUES = ["cta", "blush", "accent", "sky"] as const;
+
+/** One thing worth knowing before the clock starts, beside a mark saying what about. */
+function Fact({ icon, hue, children }: { icon: ReactNode; hue: "butter" | "blush" | "sky" | "accent"; children: ReactNode }) {
+  return (
+    <div
+      className="flex items-start gap-3 rounded-[var(--r-lg)] border p-4"
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+    >
+      <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-full" style={{ background: `var(--${hue}-soft)`, color: `var(--${hue === "accent" ? "accent-deep" : `${hue}-ink`})` }}>
+        {icon}
+      </span>
+      <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{children}</p>
+    </div>
+  );
+}
+
 /**
  * What the paper is, before the clock starts.
  *
@@ -540,30 +558,64 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           </Card>
         </div>
       )}
-      <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>
-        {paper.spec.official ? "Mock state examination" : "Not a state examination"}
-      </p>
-      <h1 className="text-3xl font-bold tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
-        {paper.level}
-        {paper.number ? `, paper ${paper.number}` : ""}
-        {paper.part ? `, ${SKILL_LABEL[paper.part].toLowerCase()} only` : ""}
-      </h1>
-      <p className="mt-3 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {paper.spec.summary}
-      </p>
+      {/*
+        The paper as one night panel: which examination, what it is, and the
+        whole day drawn as a line, each part as long as its clock, so the shape
+        of the sitting is seen before a word of it is read.
+      */}
+      <section className="night rounded-[var(--r-xl)] border px-5 py-8 sm:px-8 md:px-10 md:py-11">
+        <p className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold" style={{ background: "rgb(255 255 255 / 0.08)", border: "1px solid rgb(255 255 255 / 0.14)", color: "var(--ink)" }}>
+          <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: paper.spec.official ? "var(--cta)" : "var(--blush)" }} />
+          {paper.spec.official ? "Mock state examination" : "Not a state examination"}
+        </p>
+        <h1 className="font-display mt-5 text-6xl font-bold leading-[0.95] tracking-tight md:text-7xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+          {paper.level}
+          <span className="text-3xl md:text-4xl" style={{ color: "var(--ink-2)" }}>
+            {paper.number ? `, paper ${paper.number}` : ""}
+            {paper.part ? `, ${SKILL_LABEL[paper.part].toLowerCase()} only` : ""}
+          </span>
+        </h1>
+        <p className="mt-4 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          {paper.spec.summary}
+        </p>
+        <div aria-hidden className="mt-8 flex h-3 gap-1">
+          {paper.parts.map((part, index) => (
+            <Fragment key={part.spec.skill}>
+              {!paper.part && part.spec.skill === "speaking" && (
+                <span className="rounded-full" style={{ flexGrow: BREAK_MINUTES, background: "rgb(255 255 255 / 0.14)" }} />
+              )}
+              <span className="rounded-full" style={{ flexGrow: part.spec.minutes, background: `var(--${PART_HUES[index % PART_HUES.length]})` }} />
+            </Fragment>
+          ))}
+        </div>
+        <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          {paper.parts.map((part, index) => (
+            <li key={part.spec.skill} className="flex items-center gap-2 whitespace-nowrap text-sm">
+              <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: `var(--${PART_HUES[index % PART_HUES.length]})` }} />
+              <span className="font-semibold" style={{ color: "var(--ink)" }}>{part.spec.label}</span>
+              <span className="tnum" style={{ color: "var(--ink-3)" }}>{part.spec.minutes} min</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <ul className="mt-6 grid gap-3">
+      <ul className="mt-6 grid gap-3 md:grid-cols-2">
         {paper.parts.map((part, index) => (
-          <Card as="li" key={part.spec.skill} className="!py-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <span>
-                <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>
+          <li
+            key={part.spec.skill}
+            className="relative overflow-hidden rounded-[var(--r-xl)] border px-5 pb-5 pt-6"
+            style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth)" }}
+          >
+            <span aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: `var(--${PART_HUES[index % PART_HUES.length]})` }} />
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <span className="min-w-0">
+                <span className="label-xs block" style={{ color: "var(--ink-3)" }}>
                   Part {index + 1}
                 </span>
-                <span className="text-md font-semibold" style={{ color: "var(--ink)" }}>
+                <span className="font-display mt-1 block text-2xl font-bold" style={{ color: "var(--ink)" }}>
                   {part.spec.label}
                 </span>
-                <span className="ml-2 text-sm" style={{ color: "var(--ink-3)" }}>
+                <span lang="et" className="text-sm" style={{ color: "var(--ink-3)" }}>
                   {SKILL_ET[part.spec.skill]}
                 </span>
               </span>
@@ -572,10 +624,10 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
                 <Chip tone="accent">{part.spec.points} points</Chip>
               </span>
             </div>
-            <ul className="mt-2 grid gap-1">
+            <ul className="mt-4 grid gap-2.5">
               {part.tasks.map((task) => (
-                <li key={task.spec.id} className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  {task.spec.title}
+                <li key={task.spec.id} className="border-t pt-2.5 text-sm leading-relaxed" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-2)" }}>
+                  <span className="font-semibold" style={{ color: "var(--ink)" }}>{task.spec.title}</span>
                   <span style={{ color: "var(--ink-3)" }}>
                     {" · "}stands for {task.spec.standsFor}
                   </span>
@@ -593,7 +645,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
                 </li>
               ))}
             </ul>
-          </Card>
+          </li>
         ))}
       </ul>
 
@@ -616,17 +668,15 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         </Note>
         )}
         {partOf(paper, "writing") && (
-        <Note tone="neutral">
-          <PenLine size={14} className="mr-1.5 inline" aria-hidden />
+        <Fact icon={<PenLine size={17} />} hue="butter">
           The real writing part is just two pieces of writing, and the clock is only for those two.
           The grammar questions after them are ours, not the real exam&apos;s: a real examiner checks
           your grammar by reading what you wrote, and nothing here can do that. They come last, so
           use whatever time the two texts leave you.
-        </Note>
+        </Fact>
         )}
         {partOf(paper, "listening") && (
-        <Note tone="neutral">
-          <Headphones size={14} className="mr-1.5 inline" aria-hidden />
+        <Fact icon={<Headphones size={17} />} hue="blush">
           Each recording plays {LISTEN_PLAYS} times and no more, just like the real exam. Every
           listening task gives you {READ_QUESTIONS_SECONDS} seconds to read the questions before
           the audio starts.
@@ -637,24 +687,22 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             <> The real C1 paper plays one task only once. We don&apos;t do that here, so this
             listening part is a little easier than the real thing.</>
           )}
-        </Note>
+        </Fact>
         )}
-        <Note tone="neutral">
-          <WifiOff size={14} className="mr-1.5 inline" aria-hidden />
+        <Fact icon={<WifiOff size={17} />} hue="sky">
           Unlike everyday review, this needs a live connection. The recordings load as you play
           them, and the paper is marked on our server, so make sure you&apos;re somewhere with signal.
           If handing in fails, your answers stay right here on the page, and you can just press the
           button again.
-        </Note>
+        </Fact>
         {speaking && (
-        <Note tone="neutral">
-          <Mic size={14} className="mr-1.5 inline" aria-hidden />
+        <Fact icon={<Mic size={17} />} hue="accent">
           You mark the spoken part yourself. We tested a speech recognizer for Estonian and it
           wasn&apos;t accurate enough, so instead you record yourself, listen back, and tick off what
           you managed. Your result will show which quarter of your score came from this part. The
           real spoken exam opens with a few minutes of chat with the examiner before the tasks
           start. There&apos;s no examiner here, so we go straight to the first task.
-        </Note>
+        </Fact>
         )}
         {paper.substituted && (
           <Note tone="hard">
@@ -677,7 +725,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         )}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 flex justify-end">
         <Button variant="primary" size="lg" onClick={onStart}>
           Start the clock
         </Button>

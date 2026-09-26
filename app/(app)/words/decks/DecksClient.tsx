@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, Play, Plus, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Library, Play, Plus, Trash2, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Empty, Stack } from "@/components/ui";
@@ -98,6 +98,14 @@ function NewDeck({ onCreated }: { onCreated: (deck: DeckSummary) => void }) {
   );
 }
 
+const SHELF_HUES = ["cta", "sky", "blush", "mint"] as const;
+
+function hueIndex(id: string): number {
+  let h = 0;
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h % SHELF_HUES.length;
+}
+
 function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
   deck: DeckSummary;
   onRenamed: (name: string) => void;
@@ -155,7 +163,16 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
           phone, with Practice and Remove under them: sharing one row, the
           name was squeezed and "Add words" broke over two lines. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0 flex-1 basis-[14rem]">
+        {/* A shelf wears one of the four night colours, chosen by its id so it
+            keeps the same one every visit. */}
+        <span
+          aria-hidden
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-[var(--r)]"
+          style={{ background: `var(--${SHELF_HUES[hueIndex(deck.id)]})`, color: "var(--on-hue)", boxShadow: "var(--depth-sm)" }}
+        >
+          <Library size={20} />
+        </span>
+        <div className="min-w-0 flex-1 basis-[12rem]">
           {editing ? (
             <form onSubmit={(e) => { e.preventDefault(); rename(); }} className="flex flex-wrap items-center gap-2">
               <input
@@ -172,7 +189,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="tap-tint truncate rounded-md px-1.5 py-0.5 text-left text-md font-semibold"
+              className="tap-tint font-display truncate rounded-md px-1.5 py-0.5 text-left text-xl font-bold"
               style={{ color: "var(--ink)" }}
             >
               {deck.name}
@@ -207,7 +224,15 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
             <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>Cancel</Button>
           </span>
         ) : (
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              className="tap-tint inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
+              style={{ color: "var(--ink-3)" }}
+            >
+              <Trash2 size={13} aria-hidden /> Remove
+            </button>
             {deck.wordCount > 0 && (
               // `size="sm"` alone leaves this under the 44px floor: the
               // coarse-pointer rule in app/globals.css reaches `button` and
@@ -217,14 +242,6 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
                 <Play size={13} aria-hidden /> Practice
               </ButtonLink>
             )}
-            <button
-              type="button"
-              onClick={() => setConfirming(true)}
-              className="tap-tint inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
-              style={{ color: "var(--ink-3)" }}
-            >
-              <Trash2 size={13} aria-hidden /> Remove
-            </button>
           </span>
         )}
         {error && <p role="alert" className="w-full text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}

@@ -13,6 +13,7 @@ import { OPTION_CLASS } from "@/lib/ux/verdict";
 import { boardLead, type EmojiPair } from "@/lib/games/emojiBoard";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 
 type Side = "picture" | "word";
 interface Tile { key: string; pairId: string; side: Side }
@@ -128,27 +129,17 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
 
   if (phase === "ready") {
     return (
-      <Page title="Picture match" lead={boardLead(pairs)}>
-        <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
-          {/*
-            An icon rather than three emoji. The voice sweep bans pictographic
-            emoji in copy and is right to: this one is decoration, and the
-            pictures this round is actually about arrive from the dictionary as
-            data. Excusing the whole component would have excused those literals
-            too, for a line that says nothing the sentence below it does not.
-          */}
-          <span className="flex h-20 w-20 items-center justify-center rounded-full quest-pulse"
-            style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
-            <Grid2x2 size={34} aria-hidden />
-          </span>
-          <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            <BriefingLines id="emoji" />
-          </p>
-          <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            No English on the board. The picture is the meaning, so the Estonian
-            side can be a case form: match <span lang="et" className="font-semibold">majas</span>{" "}
-            to the house, not <span lang="et" className="font-semibold">maja</span>.
-          </p>
+      <RoundStart
+        icon={<Grid2x2 size={34} aria-hidden />}
+        title="Picture match"
+        lead={boardLead(pairs)}
+        hue="blush"
+        chips={<RoundChip>{pairs.length} pictures</RoundChip>}
+        actions={<>
+          {/* The way back to the menu somebody chose this round from, which
+              inside a module is a door out of the evening: the way on is the
+              bar at the foot of the screen. */}
+          <WayOut><ButtonLink href="/practice" variant="ghost">Back to practice</ButtonLink></WayOut>
           <Button
             variant="primary"
             size="lg"
@@ -156,12 +147,15 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
           >
             Start
           </Button>
-          {/* The way back to the menu somebody chose this round from, which
-              inside a module is a door out of the evening: the way on is the
-              bar at the foot of the screen. */}
-          <WayOut><ButtonLink href="/practice">Back to practice</ButtonLink></WayOut>
-        </div>
-      </Page>
+        </>}
+      >
+        <p><BriefingLines id="emoji" /></p>
+        <p>
+          No English on the board. The picture is the meaning, so the Estonian
+          side can be a case form: match <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>majas</span>{" "}
+          to the house, not <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>maja</span>.
+        </p>
+      </RoundStart>
     );
   }
 

@@ -90,13 +90,13 @@ export default async function WordsPage() {
         />
       ) : (
         <Stack>
-          <Card>
+          <Card tone="night">
             <SectionTitle hint={`${counted(totalCards, "card")}, how they are settling`}>Where your cards are</SectionTitle>
             <DeckBar
               segments={[
-                { label: "New", value: byState[0] ?? 0, color: "var(--sky-ink)" },
-                { label: "Learning", value: (byState[1] ?? 0) + (byState[3] ?? 0), color: "var(--butter-ink)" },
-                { label: "Known", value: byState[2] ?? 0, color: "var(--mint-ink)" },
+                { label: "New", value: byState[0] ?? 0, fill: "var(--sky)" },
+                { label: "Learning", value: (byState[1] ?? 0) + (byState[3] ?? 0), fill: "var(--cta)" },
+                { label: "Known", value: byState[2] ?? 0, fill: "var(--mint)" },
               ]}
             />
             {/*
@@ -105,9 +105,9 @@ export default async function WordsPage() {
               is the deck: what is in it and how it is settling. What the log
               says about your grammar is one link away, computed once.
             */}
-            <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
+            <p className="mt-6 text-sm" style={{ color: "var(--ink-2)" }}>
               Which cases keep catching you out, and what the pattern behind them is, live on{" "}
-              <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+              <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--cta)" }}>
                 Progress
               </Link>.
             </p>
@@ -147,30 +147,33 @@ export default async function WordsPage() {
  * behind you, with each part's count and share written under it. It used to
  * sit under four tiles of the same counts, which said the deck three times.
  */
-function DeckBar({ segments }: { segments: { label: string; value: number; color: string }[] }) {
+function DeckBar({ segments }: { segments: { label: string; value: number; fill: string }[] }) {
   const total = segments.reduce((sum, s) => sum + s.value, 0);
   if (total === 0) return null;
 
+  /* Drawn on the night panel: each state a lit bar as wide as its share, the
+     figure large under its own colour, so the deck reads at a glance. */
   return (
     <div>
-      <div className="flex h-3 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-        {segments.map((s) => (
+      <div className="flex h-3.5 gap-1">
+        {segments.filter((s) => s.value > 0).map((s) => (
           <div
             key={s.label}
-            style={{ width: `${(s.value / total) * 100}%`, background: s.color }}
+            className="rounded-full"
+            style={{ flexGrow: s.value, background: s.fill }}
             title={`${s.label}: ${s.value}`}
           />
         ))}
       </div>
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-5 grid grid-cols-3 gap-3">
         {segments.map((s) => (
-          <span key={s.label} className="flex flex-col">
+          <span key={s.label} className="flex min-w-0 flex-col">
             <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
-              <span aria-hidden className="h-2 w-2 shrink-0 rounded-full" style={{ background: s.color }} />
+              <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.fill }} />
               {s.label}
             </span>
-            <span className="tnum font-display text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>{s.value}</span>
-            <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>{Math.round((s.value / total) * 100)}%</span>
+            <span className="tnum font-display mt-1 text-4xl font-bold leading-none md:text-5xl" style={{ color: "var(--ink)" }}>{s.value}</span>
+            <span className="tnum mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{Math.round((s.value / total) * 100)}%</span>
           </span>
         ))}
       </div>

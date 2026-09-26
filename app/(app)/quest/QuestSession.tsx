@@ -27,6 +27,7 @@ import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey
 import { roundLength } from "@/lib/ux/roundClock";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
+import { RoundStart } from "@/components/round/RoundStart";
 
 export interface AimedCase {
   key: string;
@@ -340,79 +341,67 @@ export function QuestSession({
 
   if (phase === "ready") {
     return (
-      <Page title="Daily quest" lead={`${roundLength(seconds)} on whatever keeps going wrong.`}>
-        {/*
-          A dial and a chart rather than a paragraph and a row of pills. The
-          dial is the round (it is timed, and this long); the chart is why it is
-          worth pressing: this learner's own weakest endings, each a bar as long
-          as how often it comes out right. The name leads, the question it
-          answers sits under it, and the figure is the bar's end rather than a
-          number inside a sentence.
-        */}
-        <div className="mx-auto flex max-w-md flex-col gap-6">
-          <div className="flex items-center gap-4">
-            <span
-              className="quest-pulse relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full"
-              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-            >
-              <Timer size={30} aria-hidden />
-            </span>
-            <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              <BriefingLines id="quest" />
-            </p>
-          </div>
-
-          {aimed.length > 0 && (
-            <section
-              aria-label="What this round is aimed at"
-              className="rounded-[var(--r-lg)] border p-5"
-              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
-            >
-              <h2 className="flex items-center gap-2 text-md font-bold" style={{ color: "var(--ink)" }}>
-                <Target size={17} aria-hidden style={{ color: "var(--accent-deep)" }} />
-                Aimed at your weakest endings
-              </h2>
-              <ul className="mt-4 flex flex-col gap-4">
-                {aimed.map((c) => (
-                  <li key={c.key}>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
-                      <span className="tnum text-sm font-semibold" style={{ color: c.accuracy < 60 ? "var(--again-ink)" : c.accuracy < 90 ? "var(--hard-ink)" : "var(--good-ink)" }}>
-                        {c.accuracy}% right
-                      </span>
-                    </div>
-                    <span aria-hidden className="mt-1.5 block h-2 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-                      <span
-                        className="block h-full rounded-full"
-                        style={{ width: `${Math.max(3, c.accuracy)}%`, background: c.accuracy < 60 ? "var(--peach)" : c.accuracy < 90 ? "var(--butter)" : "var(--mint)" }}
-                      />
-                    </span>
-                    {c.question && (
-                      <CaseQuestion question={c.question} className="mt-1 block text-sm" inline />
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <ButtonLink href="/" variant="ghost">Not now</ButtonLink>
-            <Button variant="primary" size="lg" onClick={() => { setPhase("running"); shownAt.current = Date.now(); }}>
-              Start the {roundLength(seconds)}
-            </Button>
-          </div>
+      <RoundStart
+        icon={<Timer size={34} aria-hidden />}
+        title="Daily quest"
+        lead={`${roundLength(seconds)} on whatever keeps going wrong.`}
+        hue="blush"
+        actions={<>
+          <ButtonLink href="/" variant="ghost">Not now</ButtonLink>
+          <Button variant="primary" size="lg" onClick={() => { setPhase("running"); shownAt.current = Date.now(); }}>
+            Start the {roundLength(seconds)}
+          </Button>
+        </>}
+        footnote={<>
           {/* Where the clock is set, said on the screen somebody is standing
               on when they find the round too fast. */}
-          <p className="text-right text-xs" style={{ color: "var(--ink-3)" }}>
-            Need longer?{" "}
-            <Link href="/settings#round-pace" className="underline underline-offset-2">
-              Give yourself more time
-            </Link>
-            , up to ten times this.
-          </p>
-        </div>
-      </Page>
+          Need longer?{" "}
+          <Link href="/settings#round-pace" className="underline underline-offset-2">
+            Give yourself more time
+          </Link>
+          , up to ten times this.
+        </>}
+      >
+        <p><BriefingLines id="quest" /></p>
+        {/*
+          The chart is why the round is worth pressing: this learner's own
+          weakest endings, each a bar as long as how often it comes out right.
+          The name leads, the question it answers sits under it.
+        */}
+        {aimed.length > 0 && (
+          <section
+            aria-label="What this round is aimed at"
+            className="mt-2 rounded-[var(--r-lg)] p-5 text-left"
+            style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.12)" }}
+          >
+            <h2 className="flex items-center gap-2 text-md font-bold" style={{ color: "var(--ink)" }}>
+              <Target size={17} aria-hidden style={{ color: "var(--cta)" }} />
+              Aimed at your weakest endings
+            </h2>
+            <ul className="mt-4 flex flex-col gap-4">
+              {aimed.map((c) => (
+                <li key={c.key}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
+                    <span className="tnum text-sm font-semibold" style={{ color: c.accuracy < 60 ? "var(--again-ink)" : c.accuracy < 90 ? "var(--hard-ink)" : "var(--good-ink)" }}>
+                      {c.accuracy}% right
+                    </span>
+                  </div>
+                  <span aria-hidden className="mt-1.5 block h-2 overflow-hidden rounded-full" style={{ background: "rgb(255 255 255 / 0.1)" }}>
+                    <span
+                      className="block h-full rounded-full"
+                      style={{ width: `${Math.max(3, c.accuracy)}%`, background: c.accuracy < 60 ? "var(--peach)" : c.accuracy < 90 ? "var(--butter)" : "var(--mint)" }}
+                    />
+                  </span>
+                  {c.question && (
+                    <CaseQuestion question={c.question} className="mt-1 block text-sm" inline />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </RoundStart>
     );
   }
 

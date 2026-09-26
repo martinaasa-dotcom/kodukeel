@@ -118,8 +118,11 @@ export function ChoiceGroup({
   return (
     <div>
       {label && (
-        <p id={labelId} className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-          {label}{hint ? <> {hint}</> : null}
+        <p id={labelId} className="label-xs mb-2" style={{ color: "var(--ink-2)" }}>
+          {label}
+          {/* On a line of its own: run on after the label, the two read as one
+              sentence with a missing full stop between them. */}
+          {hint ? <span className="mt-0.5 block text-sm font-normal" style={{ color: "var(--ink-3)" }}>{hint}</span> : null}
         </p>
       )}
       <GroupContext.Provider value={select}>

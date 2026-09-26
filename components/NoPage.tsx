@@ -21,12 +21,12 @@ import { Mascot } from "@/components/brand";
  */
 export function NoPage() {
   return (
-    <>
-      <Mascot size={62} mood="thinking" className="float" />
-      <h1 className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
+    <div className="night flex w-full flex-col items-center gap-4 rounded-[var(--r-xl)] border px-6 py-10 md:px-10 md:py-12">
+      <Mascot size={72} mood="thinking" className="float" />
+      <h1 lang="et" className="font-display text-4xl font-bold leading-tight tracking-tight md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
         Seda lehte pole
       </h1>
-      <p className="text-base" style={{ color: "var(--ink-2)" }}>
+      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
         There&rsquo;s no page here. If you were after a word, try the dictionary. It takes
         Estonian or English, and inflected forms too, which is usually what you have in front of you.
       </p>
@@ -42,7 +42,7 @@ export function NoPage() {
           label="This link is broken"
         />
       </div>
-    </>
+    </div>
   );
 }
 
