@@ -111,7 +111,7 @@ export default async function RecordPage() {
             </ul>
           )}
           <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-            Both are this app&rsquo;s own imitations, marked by rule. Neither is the state examination.
+            The level check and the mock papers are this app&rsquo;s own, marked by rule. None of them is the state examination.
           </p>
         </section>
 
