@@ -708,7 +708,7 @@ export default async function TodayPage() {
             style={{ background: `var(--${KIND_TONE[e.kind]}-soft)` }}
           >
             <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold" style={{ color: "var(--ink)" }}>
+              <span className="block text-sm font-semibold" style={{ color: "var(--ink)" }}>
                 {e.title}
               </span>
               <span className="text-xs" style={{ color: "var(--ink-2)" }}>

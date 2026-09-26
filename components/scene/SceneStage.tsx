@@ -214,10 +214,19 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
           */
           <div
             data-scene-stage
-            className="scene-open mx-auto flex w-full max-w-3xl items-end justify-center px-4 pb-1 md:px-6"
+            className="scene-open mx-auto flex w-full max-w-3xl px-4 pb-1.5 md:px-6"
             style={{ height: "var(--scene-stage)" }}
           >
-            {stage}
+            {/*
+              The room is lit the way the briefing lit it: a night panel inset
+              in the band, so the place a conversation happens in is the same
+              object before it starts and while it runs. Inside the band rather
+              than being it, so the band keeps the height the sticky offsets
+              under it are computed from.
+            */}
+            <div className="night flex h-full w-full items-end justify-center rounded-[var(--r-lg)] border px-3 pt-2">
+              {stage}
+            </div>
           </div>
         )}
       </header>

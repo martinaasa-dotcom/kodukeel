@@ -189,7 +189,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="tap-tint font-display truncate rounded-md px-1.5 py-0.5 text-left text-xl font-bold"
+              className="tap-tint font-display rounded-md px-1.5 py-0.5 text-left text-xl font-bold"
               style={{ color: "var(--ink)" }}
             >
               {deck.name}
@@ -322,7 +322,7 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
     <ul className="mt-3 flex flex-col gap-1 border-t pt-3" style={{ borderColor: "var(--rule)" }}>
       {words.map((word) => (
         <li key={word.lexemeId} className="flex items-center justify-between gap-2 text-sm">
-          <Link href={`/dictionary?q=${encodeURIComponent(word.lemma)}`} lang="et" className="truncate underline" style={{ color: "var(--ink)" }}>
+          <Link href={`/dictionary?q=${encodeURIComponent(word.lemma)}`} lang="et" className="underline" style={{ color: "var(--ink)" }}>
             {word.lemma}
           </Link>
           <button
@@ -445,8 +445,8 @@ function FileWords({ deckId, deckName, onFiled }: {
                 className="tap-tint flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm"
               >
                 <Plus size={13} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
-                <span className="truncate" lang="et" style={{ color: "var(--ink)" }}>{word.lemma}</span>
-                <span className="truncate text-xs" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
+                <span className="" lang="et" style={{ color: "var(--ink)" }}>{word.lemma}</span>
+                <span className="text-xs" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
               </button>
             </li>
           ))}

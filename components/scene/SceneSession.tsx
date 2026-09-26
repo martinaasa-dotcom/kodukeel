@@ -1038,7 +1038,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
             who expects to be understood, and being understood is the point.
           */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            You will need {joinWithAnd(practises(scene))}.
+            You will practise {joinWithAnd(practises(scene))}.
           </p>
           {/*
             TWO SENTENCES RATHER THAN FOUR, AND ONE NEW PROMISE. The card is a

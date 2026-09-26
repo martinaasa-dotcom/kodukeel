@@ -240,7 +240,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                     >
                       {l.lemma}
                     </Link>
-                    <span className="block truncate text-xs" style={{ color: "var(--ink-2)" }}>
+                    <span className="block text-xs" style={{ color: "var(--ink-2)" }}>
                       {l.translation}
                     </span>
                     {/* The stored string annotates each question word with a

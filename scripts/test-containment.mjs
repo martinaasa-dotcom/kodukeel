@@ -80,7 +80,16 @@ const B = baseUrl();
  * and at 360 it does not exist, and 768 is the first width that has it in the
  * least room it will ever have.
  */
-const WIDTHS = [360, 768, 1280];
+/*
+  The three widths CI measures, and a fourth where the rail is showing and
+  the content column is at its narrowest after 768: a laptop at 1024 is where
+  a card built for a wide screen first gets squeezed, and a word that breaks
+  there is a word broken on most people's computers. `CONTAIN_WIDTHS` takes a
+  comma-separated list, for sweeping every width in between by hand.
+*/
+const WIDTHS = process.env.CONTAIN_WIDTHS
+  ? process.env.CONTAIN_WIDTHS.split(",").map(Number).filter((n) => n > 0)
+  : [360, 768, 1024, 1280];
 
 /**
  * Dark is measured once, at the width where containment fails first.

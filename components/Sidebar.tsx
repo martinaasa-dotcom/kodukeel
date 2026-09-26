@@ -186,7 +186,14 @@ export function Sidebar() {
         <div
           ref={railMarker.ref}
           data-nav-marked={railMarker.mark ? "" : undefined}
-          className="scroll-host relative isolate -mr-4 flex min-h-0 flex-1 flex-col"
+          /*
+            `-ml-2 pl-2` is room for the marker's ring and its shadow. The
+            scroller clips at its padding box, and a pane measured flush
+            against the left of it drew the card with its left side sheared
+            off; the padding moves every cell eight pixels in and the margin
+            moves them back, so nothing on the rail shifts but the clip.
+          */
+          className="scroll-host relative isolate -ml-2 -mr-4 flex min-h-0 flex-1 flex-col pl-2"
           style={
             {
               "--nav-marker-bg": "var(--surface)",

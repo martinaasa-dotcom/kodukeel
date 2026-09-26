@@ -56,7 +56,7 @@ export function TaskRow({ task }: { task: TaskView }) {
 
       <div className="min-w-0 flex-1">
         <p
-          className="truncate text-base"
+          className="text-base"
           style={{
             color: task.completed ? "var(--ink-3)" : "var(--ink)",
             textDecoration: task.completed ? "line-through" : "none",

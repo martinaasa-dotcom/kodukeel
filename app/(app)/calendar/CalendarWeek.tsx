@@ -262,14 +262,14 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
           an intrinsic minimum: it cannot shrink into the space, so it hangs
           out of it. The row already says what it is by where it sits.
 
-          Block and truncating rather than inline, and without the uppercase
-          tracking the first attempt kept: an inline run still measured 2px
-          over, because `min-w-0` lets the column shrink and does nothing
-          about the text inside it. `truncate` is a way out somebody chose,
-          which is what the sweep accepts.
+          Block rather than inline, and without the uppercase tracking the
+          first attempt kept: an inline run still measured 2px over, because
+          `min-w-0` lets the column shrink and does nothing about the text
+          inside it. It wraps at its space rather than being cut off, since
+          text a reader cannot see is not an answer to text that does not fit.
         */}
         <span
-          className="block min-w-0 truncate text-2xs font-semibold"
+          className="block min-w-0 text-2xs font-semibold"
           style={{ color: reminder.completed ? "var(--good-ink)" : "var(--hard-ink)" }}
         >
           {reminder.completed ? "Done" : "To do"}

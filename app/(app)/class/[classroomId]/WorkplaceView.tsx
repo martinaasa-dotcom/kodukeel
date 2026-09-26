@@ -78,7 +78,7 @@ export function WorkplaceView({ summary, sponsor }: {
                   }}
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-base" style={{ color: "var(--ink)" }}>
+                    <span className="block text-base" style={{ color: "var(--ink)" }}>
                       {member.displayName}
                     </span>
                     <span className="block text-xs" style={{ color: quiet ? "var(--hard-ink)" : "var(--ink-3)" }}>

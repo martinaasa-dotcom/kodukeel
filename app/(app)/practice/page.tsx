@@ -543,7 +543,7 @@ function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: nu
             style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
           >
             <Play size={14} aria-hidden className="shrink-0" style={{ color: "var(--sky-ink)" }} />
-            <span className="min-w-0 flex-1 truncate text-sm font-semibold" style={{ color: "var(--ink)" }}>
+            <span className="min-w-0 flex-1 text-sm font-semibold" style={{ color: "var(--ink)" }}>
               {deck.name}
             </span>
             <span className="shrink-0 text-xs" style={{ color: "var(--ink-3)" }}>

@@ -187,7 +187,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                       ? <Trophy size={16} aria-hidden style={{ color: "var(--hard-ink)" }} />
                       : <span className="w-4" aria-hidden />}
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-base" style={{ color: "var(--ink)" }}>
+                      <span className="block text-base" style={{ color: "var(--ink)" }}>
                         {entry.displayName}
                         {entry.role === "TEACHER" && (
                           <GraduationCap size={13} aria-label="teacher" className="ml-1.5 inline" style={{ color: "var(--ink-3)" }} />
