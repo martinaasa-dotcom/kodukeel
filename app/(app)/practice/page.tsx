@@ -581,14 +581,17 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
       {/* One row whatever the width: on a phone the chip wrapped onto a line
           of its own under the title, which read as a second heading. There it
           sits under the title as plain text instead. */}
-      <span className="flex items-center gap-3">
+      {/* And the chip wraps under the title rather than squeezing it: at
+          1100 with the rail showing, a two-column card left "Situations" a
+          75px box beside a chip that cannot shrink, and the word broke. */}
+      <span className="flex flex-wrap items-center gap-3">
         <span
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
           style={{ background: `var(--${tone})`, color: "var(--surface)" }}
         >
           <NamedIcon name={iconName} size={19} aria-hidden />
         </span>
-        <span className="min-w-0 flex-1">
+        <span className="min-w-[9rem] flex-1">
           <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{title}</span>
           {subtitle && <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{subtitle}</span>}
           <span className="block text-xs font-semibold sm:hidden" style={{ color: primary ? "var(--accent-deep)" : "var(--ink-2)" }}>{meta}</span>
