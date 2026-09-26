@@ -136,7 +136,7 @@ const BASE = baseUrl();
 const ROUTES = [
   "/", "/learn", "/learn/new", "/practice", "/progress", "/words", "/words/decks", "/dictionary",
   "/grammar", "/grammar/inessive", "/grammar/build-a-word", "/settings", "/scan", "/class", "/tutor",
-  "/assess", "/assess?take=1", "/exam", "/exam/B1/papers", "/privacy", "/terms", "/funding", "/state-exam", "/offline",
+  "/assess", "/assess?take=1", "/exam", "/exam/B1/papers", "/privacy", "/terms", "/funding", "/state-exam", "/welcome/ru", "/welcome/uk", "/offline",
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions",
   "/course", "/course/learn", "/review/letters", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",

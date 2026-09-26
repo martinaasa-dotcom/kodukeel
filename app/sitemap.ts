@@ -38,6 +38,8 @@ const PUBLIC_PATHS = [
   // What the state examination is and how to register, for somebody who has
   // been told they need a level and has no account anywhere yet.
   { path: "/state-exam", priority: 0.8 },
+  { path: "/welcome/ru", priority: 0.7 },
+  { path: "/welcome/uk", priority: 0.7 },
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {

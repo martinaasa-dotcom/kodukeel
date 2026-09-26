@@ -218,6 +218,7 @@ const ROUTES = [
   "/terms",
   "/funding",
   "/state-exam",
+  "/welcome/ru", "/welcome/uk",
   "/trust",
   "/accessibility",
   "/offline",
