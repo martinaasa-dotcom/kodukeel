@@ -1388,8 +1388,18 @@
       room's own name is. Softened with it, because what this is for is depth
       rather than colour: at full strength three pastels behind a conversation
       is a second thing to look at.
+
+      And it fades in below the bar and the room rather than reaching up
+      behind them. The bar is the column's width, so a wash that reached the
+      top of the window showed round both its sides and was cut off along its
+      foot: a pale rectangle standing in the light. Masked, the top of the
+      window is plain ground from edge to edge and the light starts where the
+      conversation does.
     */
     opacity: 0.72;
+    --scene-lit: calc(var(--scene-top, 3.5rem) + var(--scene-stage, 0px) + var(--scene-fade, 1.25rem));
+    -webkit-mask-image: linear-gradient(to bottom, transparent var(--scene-lit), black calc(var(--scene-lit) + 10rem));
+    mask-image: linear-gradient(to bottom, transparent var(--scene-lit), black calc(var(--scene-lit) + 10rem));
   }
 
   /*
@@ -2710,6 +2720,23 @@
     box-shadow: var(--shadow-sm);
   }
   .choice-chip:disabled, .choice-card:disabled { opacity: 0.45; }
+
+  /*
+    A disabled primary on a night panel. Everywhere else it is the gold at
+    45 percent, which on a light ground is a pale gold and reads as waiting;
+    over navy the same fade mixes to olive, which reads as broken. On the
+    night it is a glass pill like the panel's own chips instead, with the
+    words in the quiet ink, and it turns gold the moment there is something
+    to send. The fill has to win over the button's inline one, hence the
+    importance.
+  */
+  .night .btn-cta:disabled {
+    opacity: 1;
+    background: rgb(255 255 255 / 0.08) !important;
+    border-color: rgb(255 255 255 / 0.16) !important;
+    color: var(--ink-3) !important;
+    box-shadow: none !important;
+  }
 
   /*
     Chosen, on a pill: the fill inverts. That is a change of *luminance* rather

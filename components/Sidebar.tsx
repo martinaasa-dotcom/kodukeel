@@ -220,7 +220,7 @@ export function Sidebar() {
             "next row" at a glance.
           */}
           {PLACES.map((section) => (
-            <section key={section.id} aria-labelledby={`rail-${section.id}`} className="mb-9">
+            <section key={section.id} aria-labelledby={`rail-${section.id}`} className="mb-7">
               <h2 id={`rail-${section.id}`} className="label-xs px-3 pb-3" style={{ color: "var(--ink-3)" }}>
                 {section.title}
               </h2>
@@ -243,7 +243,7 @@ export function Sidebar() {
             column and three more uppercase words at the bottom of it would be
             one label too many.
           */}
-          <div className="mt-auto border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
+          <div className="mt-auto border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
             {SECTIONS.filter((s) => s.id === "app").map((section) =>
               section.items.map((item) => (
                 <RailLink key={item.href} item={item} active={active(item.href)} />

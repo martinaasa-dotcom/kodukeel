@@ -523,7 +523,7 @@ export default async function SettingsPage() {
         </Group>
 
         <Group title="Words and Anu">
-          <section>
+          <section id="import">
             <SectionTitle>Import words</SectionTitle>
             <ImportPanel />
           </section>
