@@ -35,7 +35,7 @@ export default async function MySuggestionsPage() {
 
   return (
     <Page route="/suggestions"
-      title="Your suggested fixes"
+      title="Suggested fixes"
       lead="Everything you have reported, and where each one got to."
       actions={
         reviewer ? (

@@ -64,7 +64,7 @@ export default async function ClassIndexPage() {
         {memberships.length > 0 && (
           <section>
             <SectionTitle>Your classes</SectionTitle>
-            <ul className="flex flex-col gap-2">
+            <ul className="grid gap-3 md:grid-cols-2">
               {memberships.map((m) => {
                 const workplace = cohortKind(m.classroom.kind) === "WORKPLACE";
                 const owns = m.role === "TEACHER";
@@ -72,32 +72,36 @@ export default async function ClassIndexPage() {
                 <li key={m.classroomId}>
                   <Link
                     href={`/class/${m.classroomId}`}
-                    className="lift flex flex-wrap items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3.5"
-                    style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+                    className="lift flex h-full flex-col gap-4 rounded-[var(--r-xl)] border p-5"
+                    style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth)" }}
                   >
-                    <span
-                      className="flex h-10 w-10 items-center justify-center rounded-full"
-                      style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-                    >
-                      {workplace
-                        ? <Building2 size={19} aria-hidden />
-                        : owns ? <GraduationCap size={19} aria-hidden /> : <Users size={19} aria-hidden />}
+                    <span className="flex items-center justify-between gap-3">
+                      <span
+                        className="grid h-12 w-12 shrink-0 place-items-center rounded-[var(--r)]"
+                        style={{ background: workplace ? "var(--cta)" : "var(--sky)", color: "var(--on-hue)", boxShadow: "var(--depth-sm)" }}
+                      >
+                        {workplace
+                          ? <Building2 size={20} aria-hidden />
+                          : owns ? <GraduationCap size={20} aria-hidden /> : <Users size={20} aria-hidden />}
+                      </span>
+                      <span className="flex flex-wrap justify-end gap-1.5">
+                        {m.classroom.archived && <Chip>archived</Chip>}
+                        {owns && !m.classroom.archived && (
+                          <Chip tone="accent" caseSensitive>{m.classroom.code}</Chip>
+                        )}
+                      </span>
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-md font-semibold" style={{ color: "var(--ink)" }}>
+                    <span className="min-w-0">
+                      <span className="font-display block text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
                         {m.classroom.name}
                       </span>
-                      <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
+                      <span className="mt-1 block text-sm" style={{ color: "var(--ink-3)" }}>
                         {workplace
                           ? (owns ? "You run this group" : "You are in this group")
                           : (owns ? "You teach this class" : "You are a student here")} ·{" "}
                         {sizeOf.get(m.classroomId) ?? 1} member{(sizeOf.get(m.classroomId) ?? 1) === 1 ? "" : "s"}
                       </span>
                     </span>
-                    {m.classroom.archived && <Chip>archived</Chip>}
-                    {owns && !m.classroom.archived && (
-                      <Chip tone="accent" caseSensitive>{m.classroom.code}</Chip>
-                    )}
                   </Link>
                 </li>
                 );

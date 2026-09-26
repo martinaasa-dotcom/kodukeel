@@ -99,10 +99,18 @@ const SHORTCUTS: [string, string][] = [
 const GROUPS = ["Study", "Sharing", "Words and Anu", "Device and data"] as const;
 const groupId = (title: string) => `group-${title.toLowerCase().replace(/[^a-z]+/g, "-")}`;
 
+/** One of the four night colours per group, so the jump row and the heading it lands on match. */
+const GROUP_HUES: Record<(typeof GROUPS)[number], string> = {
+  "Study": "var(--cta)", "Sharing": "var(--sky)", "Words and Anu": "var(--blush)", "Device and data": "var(--mint)",
+};
+
 function Group({ title, children }: { title: (typeof GROUPS)[number]; children: ReactNode }) {
   return (
     <div id={groupId(title)} className="flex scroll-mt-6 flex-col gap-8 border-t pt-10 first:border-t-0 first:pt-0" style={{ borderColor: "var(--rule-soft)" }}>
-      <h2 className="font-display text-2xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>{title}</h2>
+      <h2 className="font-display flex items-center gap-3 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <span aria-hidden className="h-3 w-3 shrink-0 rounded-full" style={{ background: GROUP_HUES[title], boxShadow: `0 0 0 4px color-mix(in srgb, ${GROUP_HUES[title]} 22%, transparent)` }} />
+        {title}
+      </h2>
       {children}
     </div>
   );
@@ -228,8 +236,9 @@ export default async function SettingsPage() {
             <a
               key={g}
               href={`#${groupId(g)}`}
-              className="choice-btn press inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold"
+              className="choice-btn press inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold"
             >
+              <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: GROUP_HUES[g] }} />
               {g}
             </a>
           ))}
