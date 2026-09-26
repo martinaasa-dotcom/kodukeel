@@ -1735,12 +1735,6 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["praegune", "Mis on sinu praegune töö?", "What's your current job?"],
   ["kuri", "Miks sa kuri oled?", "Why are you angry?"],
   ["paha", "Ära ole paha!", "Don't be naughty!"],
-  /*
-    EVERY ROW ABOVE WAS READ, on 2026-09-26, by the native Estonian speaker
-    who develops this app: all of A1, A2, B1, B2 and C1, and the words added
-    to the course. Every change asked for is in. A row added below this line
-    is drafted and checked by machine and waits for the same reading.
-  */
   // a second sentence for the words whose first one a gap cannot be cut from
   ["aitäh", "Ei, ei, aitäh!", "No, no, thank you!"],
   ["muidugi", "Jah, jah, muidugi!", "Yes, yes, of course!"],
@@ -1757,7 +1751,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["maha", "Ta istub maha.", "She sits down."],
   ["pipar", "Ma ei söö pipart.", "I don't eat pepper."],
   ["hüppama", "Laps hüppab vette.", "The child jumps into the water."],
-  ["kukkuma", "Ma kukun maha!", "I'm falling down!"],
+  ["kukkuma", "Ma kukun maha!", "I'm going to fall!"],
   ["valetama", "Miks sa valetad?", "Why are you lying?"],
   ["keerama", "Me keerame siia.", "We're turning here."],
   ["appi", "Tule mulle appi!", "Come and help me!"],
@@ -1779,4 +1773,10 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["reageerima", "Ta reageerib alati kiiresti.", "He always reacts quickly."],
   ["üldistama", "Sa üldistad liiga palju.", "You generalize too much."],
   ["sekkuma", "Ma ei taha sekkuda.", "I don't want to interfere."],
+  /*
+    EVERY ROW ABOVE WAS READ, on 2026-09-26, by the native Estonian speaker
+    who develops this app: all of A1, A2, B1, B2 and C1, and the words added
+    to the course. Every change asked for is in. A row added below this line
+    is drafted and checked by machine and waits for the same reading.
+  */
 ];
