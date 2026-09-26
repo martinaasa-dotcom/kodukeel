@@ -2794,17 +2794,15 @@
   .stack-rise > :nth-child(n + 6) { animation-delay: 400ms; }
 
   /*
-    The mark beside a page's heading: the rail's own icon, in the rail's own
-    hue, at the size of a title. It is how the page a learner pressed and the
-    row they pressed are visibly one place. It settles in on arrival, which is
-    the one flourish a heading gets; it is not tilted, since a rotated icon
-    measures larger than it was drawn and reads as a rendering fault.
-  */
-  /*
     The page's mark is a sticker: the rail's own icon on a solid square of the
     destination's colour, tilted, standing on a lip like a key. It wobbles
     once as the page arrives and again under a pointer, which is the app
     saying it is an object you can poke rather than a document.
+
+    The square tilts and the icon inside it does not: the icon carries the
+    opposite `rotate`, so it is drawn upright at the size it declares. A
+    rotated icon measures larger than it was drawn, which the containment
+    suite reads as a deformed glyph and a reader reads as a wobbly one.
   */
   .page-mark {
     width: 58px;
@@ -2816,6 +2814,8 @@
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   header:hover .page-mark { transform: rotate(5deg); }
+  .page-mark > svg { rotate: 7deg; transition: rotate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  header:hover .page-mark > svg { rotate: -5deg; }
   @keyframes mark-pop {
     0% { transform: rotate(-30deg) scale(0.4); opacity: 0; }
     60% { transform: rotate(4deg) scale(1.08); opacity: 1; }

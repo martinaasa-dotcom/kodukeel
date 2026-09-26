@@ -384,7 +384,7 @@ function WhoFor() {
                     transform: "rotate(-6deg)",
                   }}
                 >
-                  <Icon size={22} strokeWidth={2.25} aria-hidden />
+                  <Icon size={22} strokeWidth={2.25} aria-hidden style={{ rotate: "6deg" }} />
                 </span>
                 <h3 className="font-display mt-5 text-xl font-bold leading-tight" style={{ color: "var(--ink)" }}>{who.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{who.body}</p>
