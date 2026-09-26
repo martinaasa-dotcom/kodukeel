@@ -35,7 +35,11 @@
  *
  * WHAT NO MACHINE CAN CHECK is whether the grammar is right and whether
  * anybody would say it, which is the person's reading, and is why every row
- * arrives in a pull request rather than at runtime. No model writes a row at
+ * arrives in a pull request rather than at runtime. Nor whether a spelling is
+ * the word it looks like: `vali` passes as the imperative of `valima` when it
+ * was written to mean "loud", which is a word no evening had taught, and the
+ * check caught nothing because both are one string. A homograph is the
+ * writer's to notice. No model writes a row at
  * runtime; nothing here is reachable from the provider chain.
  *
  * WHERE THEY ARE SHOWN, AND WHERE THEY MAY NOT BE. On the screens that
@@ -54,7 +58,7 @@
  */
 import type { Example } from "@/lib/dict/examples";
 import { isRefusedSentence } from "@/lib/dict/refused";
-import { AUTHORED_A1 } from "@/lib/dict/authoredA1";
+import { AUTHORED_ROWS } from "@/lib/dict/authoredRows";
 
 /** One written sentence: the word it is filed under, the Estonian, the English. */
 export type AuthoredRow = readonly [lemma: string, et: string, en: string];
@@ -62,7 +66,7 @@ export type AuthoredRow = readonly [lemma: string, et: string, en: string];
 /** Every written sentence, by the lemma it is filed under. */
 const BY_LEMMA: ReadonlyMap<string, readonly AuthoredRow[]> = (() => {
   const out = new Map<string, AuthoredRow[]>();
-  for (const row of AUTHORED_A1) {
+  for (const row of AUTHORED_ROWS) {
     const held = out.get(row[0]) ?? [];
     held.push(row);
     out.set(row[0], held);
@@ -72,7 +76,7 @@ const BY_LEMMA: ReadonlyMap<string, readonly AuthoredRow[]> = (() => {
 
 /** Every row, for the checker. */
 export function authoredRows(): readonly AuthoredRow[] {
-  return AUTHORED_A1;
+  return AUTHORED_ROWS;
 }
 
 /**

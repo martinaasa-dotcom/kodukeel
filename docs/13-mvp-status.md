@@ -2520,11 +2520,12 @@ written to illustrate a word to somebody who already reads Estonian, and 55 of t
 can be cut for had a sentence made of words the course had taught by that evening. The app's answer
 had been to show A1 words no sentence at all.
 
-**The sentences are written now, under ADR-005 amendment 4.** `lib/dict/authored.ts` holds 505 rows,
-one or more per A1 word, each checked by `npm run check:authored` against the module's own walk and
+**The sentences are written now, under ADR-005 amendment 4.** `lib/dict/authored.ts` holds 738 rows,
+one or more per A1 and A2 word, each checked by `npm run check:authored` against the module's own walk and
 read by the native speaker who develops the app in the pull request that adds them. They are shown on
 the Learn ladder, the review card's first meeting and the unit lesson, and on nothing that marks,
-measures, builds a card or plays a scene, asserted. 489 of 511 A1 words now have a readable sentence.
+measures, builds a card or plays a scene, asserted. 489 of 511 A1 words now have a readable sentence,
+and 241 of 245 at A2.
 
 **"Taught" covers the forms the app derives** (`readableSpellings`), so `elab` counts once `elama`
 is taught, and **the glue words moved to the fourth unit** (`vaikesed-sonad`), with the question

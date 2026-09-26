@@ -194,7 +194,7 @@ sentence the app showed a learner was one a lexicographer recorded, and for the 
 words of the course that meant a sentence made of words from further up it: `npm run
 audit:readable` found 55 of the 499 A1 words the dictionary can gap with a sentence a learner could
 read by the evening they meet the word, so every A1 screen showed the word alone for three months.
-*Decision:* `lib/dict/authored.ts` holds sentences written for a beginner, one or more per A1 word,
+*Decision:* `lib/dict/authored.ts` holds sentences written for a beginner, one or more per A1 and A2 word,
 drafted and then read by the native Estonian speaker who develops this app in the pull request that
 adds them, which is the standing ADR-025 amendment 1 gave the scene bank. **A machine holds every row
 to four rules before a person reads it** (`scripts/lib/authoredCheck.ts`, run by the unit suite and by

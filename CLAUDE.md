@@ -5198,7 +5198,7 @@ paragraph.
 
 **And then the sentences were written, because the supply was never going to arrive by itself.**
 The two paragraphs above end on the same instruction, write the sentences down, and for months
-nothing did. `lib/dict/authored.ts` is ADR-005 amendment 4: a sentence per A1 word, drafted and read
+nothing did. `lib/dict/authored.ts` is ADR-005 amendment 4: a sentence per A1 and A2 word, drafted and read
 by the native Estonian speaker who develops this app in the pull request that adds it, which is the
 standing ADR-025 amendment 1 gave the scene bank. **The rules are mechanical and every row is held to
 them** by `scripts/lib/authoredCheck.ts`, run by the unit suite and printed by
@@ -5206,7 +5206,8 @@ them** by `scripts/lib/authoredCheck.ts`, run by the unit suite and printed by
 module's own walk; the sentence carries a form of its word, passes `naturalSentence` and opens on a
 capital; it has an English line with no Estonian letter; and it is not a sentence Ekilex recorded, a
 duplicate, or one refused. Measured after: 489 of the 511 A1 words a gap can be cut for have a
-sentence made of words given by then, against 55. **Where they may go is the half that keeps the
+sentence made of words given by then, against 55, and 241 of 245 at A2, against 100, where a
+written sentence is what lets the module's gap rung ask at all. **Where they may go is the half that keeps the
 amendment narrow**: the Learn ladder, the review card's first meeting and the unit lesson, which are
 the screens that introduce a word, and no exam, level check, scene, card builder or borrowed pool,
 since each says its Estonian was recorded; the invariant is a closed list of three readers.
