@@ -798,21 +798,16 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["ligi", "Siin elab ligi sada inimest.", "Nearly a hundred people live here."],
   ["üha", "Inimesi tuleb üha juurde.", "More and more people keep coming."],
   ["aina", "Ta räägib aina tööst.", "He talks about work all the time."],
-  /*
-    EVERYTHING ABOVE WAS READ, on 2026-09-26, by the native Estonian speaker
-    who develops this app, and the six changes asked for are in. Everything
-    below is drafted and checked by machine and waits for the same reading.
-  */
   // B1: inimsuhted
   ["suhe", "Meil on hea suhe.", "We have a good relationship."],
   ["sõprus", "Meie sõprus on väga vana.", "Our friendship is very old."],
-  ["usaldus", "Usaldus võtab aega.", "Trust takes time."],
+  ["usaldus", "Usaldus tuleb ajaga.", "Trust comes with time."],
   ["tüli", "Neil oli eile tüli.", "They had a quarrel yesterday."],
-  ["lepitus", "Pärast tüli tuli lepitus.", "After the quarrel came the making up."],
+  ["lepitus", "Lepitus võttis kaua aega.", "The reconciliation took a long time."],
   ["abielu", "Nende abielu on väga hea.", "Their marriage is very good."],
   ["usaldama", "Ma usaldan sind.", "I trust you."],
   ["tülitsema", "Lapsed tülitsevad jälle.", "The children are quarrelling again."],
-  ["leppima", "Lepime kokku, et kohtume homme.", "Let us agree to meet tomorrow."],
+  ["leppima", "Ma lepin sellega.", "I will settle for that."],
   ["toetama", "Pere toetab mind alati.", "My family always supports me."],
   ["hoolima", "Ma hoolin sinust väga.", "I care about you a lot."],
   ["mõistma", "Ma mõistan sind.", "I understand you."],
@@ -835,30 +830,30 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["toode", "See toode on uus.", "This product is new."],
   ["ettevõte", "Ta töötab väikeses ettevõttes.", "She works at a small company."],
   ["ülesanne", "See ülesanne on raske.", "This task is difficult."],
-  ["kogemus", "Mul on selles töös kogemus.", "I have experience in this work."],
+  ["kogemus", "Mul on selles töös kogemusi.", "I have experience in this work."],
   ["oskus", "Mul ei ole seda oskust.", "I do not have that skill."],
   ["vastutus", "See on suur vastutus.", "It is a big responsibility."],
   ["projekt", "Projekt lõpeb detsembris.", "The project ends in December."],
   ["tähtaeg", "Tähtaeg on reedel.", "The deadline is on Friday."],
-  ["aruanne", "Ma kirjutan aruande.", "I am writing a report."],
+  ["aruanne", "Ma kirjutan aruannet.", "I am writing a report."],
   ["kasutama", "Kas ma saan su telefoni kasutada?", "Can I use your phone?"],
-  ["korraldama", "Me korraldame peo.", "We are organising a party."],
+  ["korraldama", "Me korraldame peo.", "We are going to throw a party."],
   ["vastutama", "Kes siin vastutab?", "Who is in charge here?"],
   ["saavutama", "Me saavutame oma eesmärgi.", "We will reach our goal."],
   // B1: tingiv
-  ["eelistama", "Ma eelistan teed.", "I prefer tea."],
-  ["kaaluma", "Ma kaalun seda võimalust.", "I am considering that option."],
-  ["pakkuma", "Mida ma saan teile pakkuda?", "What can I offer you?"],
-  ["nõudma", "See töö nõuab aega.", "This work takes time."],
-  ["oletama", "Ma oletan, et ta tuleb.", "I suppose he is coming."],
-  ["tingimus", "Mul on üks tingimus.", "I have one condition."],
-  ["juhus", "See oli juhus.", "It was a coincidence."],
-  ["olukord", "Olukord on raske.", "The situation is difficult."],
-  ["valik", "See on sinu valik.", "It is your choice."],
+  ["eelistama", "Ma eelistaksin teed.", "I would prefer tea."],
+  ["kaaluma", "Ma kaaluksin seda võimalust.", "I would consider that option."],
+  ["pakkuma", "Mida ma saaksin teile pakkuda?", "What could I offer you?"],
+  ["nõudma", "Ma ei nõuaks sinult liiga palju.", "I would not ask too much of you."],
+  ["oletama", "Ma oletaksin, et ta tuleb homme.", "I would guess he is coming tomorrow."],
+  ["tingimus", "Selle tingimusega oleksin ma nõus.", "On that condition I would agree."],
+  ["juhus", "See oleks küll juhus!", "That really would be a coincidence!"],
+  ["olukord", "Mida sa selles olukorras teeksid?", "What would you do in this situation?"],
+  ["valik", "Mis oleks sinu valik?", "What would your choice be?"],
   // B1: haridus
   ["haridus", "Tal on hea haridus.", "She has a good education."],
   ["eriala", "Mis on sinu eriala?", "What is your field of study?"],
-  ["õppekava", "Uus õppekava algab sügisel.", "The new curriculum starts in autumn."],
+  ["õppekava", "Koolil on uus õppekava.", "The school has a new curriculum."],
   ["loeng", "Loeng algab kell üheksa.", "The lecture starts at nine."],
   ["seminar", "Homme on seminar.", "There is a seminar tomorrow."],
   ["eksam", "Mul on homme eksam.", "I have an exam tomorrow."],
@@ -892,7 +887,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["küte", "Küte ei tööta.", "The heating is not working."],
   ["elekter", "Elekter on kallis.", "Electricity is expensive."],
   ["naaber", "Minu naaber on väga meeldiv.", "My neighbour is very pleasant."],
-  ["kord", "Ma olin Soomes ühe korra.", "I was in Finland once."],
+  ["kord", "Pane oma tuba korda!", "Tidy up your room!"],
   ["ruum", "Selles ruumis on külm.", "It is cold in this room."],
   ["kolima", "Me kolime uude korterisse.", "We are moving into a new flat."],
   ["üürima", "Ma üürin korterit.", "I rent a flat."],
@@ -1004,4 +999,10 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["ette valmistama", "Ema valmistab söögi ette.", "Mum is preparing the food."],
   ["sisse astuma", "Astu sisse!", "Come in!"],
   ["edasi andma", "Anna see teade edasi.", "Pass on this message."],
+  /*
+    EVERY ROW ABOVE WAS READ, on 2026-09-26, by the native Estonian speaker
+    who develops this app, A1 and A2 first and B1 after, and every change
+    asked for is in. A row added below this line is drafted and checked by
+    machine and waits for the same reading.
+  */
 ];

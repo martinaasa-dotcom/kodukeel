@@ -2525,7 +2525,7 @@ one or more per A1 and A2 word, each checked by `npm run check:authored` against
 read by the native speaker who develops the app in the pull request that adds them. They are shown on
 the Learn ladder, the review card's first meeting and the unit lesson, and on nothing that marks,
 measures, builds a card or plays a scene, asserted. 489 of 511 A1 words now have a readable sentence,
-and 241 of 245 at A2; B1 is drafted too (196 of 203) and waits for the same reading.
+and 241 of 245 at A2, and 196 of 203 at B1. All three levels have been read.
 
 **"Taught" covers the forms the app derives** (`readableSpellings`), so `elab` counts once `elama`
 is taught, and **the glue words moved to the fourth unit** (`vaikesed-sonad`), with the question
