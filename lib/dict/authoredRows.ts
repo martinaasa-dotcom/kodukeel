@@ -1125,13 +1125,6 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["osutama", "Ta osutas käega aknale.", "He pointed at the window with his hand."],
   ["rõhutama", "Õpetaja rõhutas seda mitu korda.", "The teacher stressed it several times."],
   ["kuuldus", "See on ainult kuuldus.", "It's only a rumor."],
-  /*
-    EVERY ROW ABOVE WAS READ, on 2026-09-26, by the native Estonian speaker
-    who develops this app: A1 and A2 first, B1 after, then the first words
-    added to the course and the start of B2. Every change asked for is in. A
-    row added below this line is drafted and checked by machine and waits for
-    the same reading.
-  */
   ["tunnistaja", "Ta oli õnnetuse tunnistaja.", "She was a witness to the accident."],
   ["väide", "See väide ei ole õige.", "This claim isn't true."],
   ["tõendus", "Mul ei ole selle kohta tõendust.", "I have no evidence of that."],
@@ -1234,9 +1227,9 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["iseseisvus", "Iseseisvus on meile väga tähtis.", "Independence is very important to us."],
   ["okupatsioon", "Okupatsioon kestis pikka aega.", "The occupation lasted a long time."],
   ["revolutsioon", "Revolutsioon muutis riiki.", "The revolution changed the country."],
-  ["pärand", "See maja on vanaema pärand.", "This house is my grandmother's legacy."],
+  ["pärand", "See maja on vanaema pärand.", "This house is an inheritance from my grandmother."],
   ["mälestus", "Mul on sellest ilusad mälestused.", "I have beautiful memories of it."],
-  ["vabanema", "Ma vabanen kell viis.", "I get free at five."],
+  ["vabanema", "Ma vabanen kell viis.", "I'll be free at five."],
   ["vallutama", "Ta vallutas mu südame.", "She won my heart."],
   ["taastama", "Me taastame vana maja.", "We're restoring an old house."],
   ["säilitama", "Me peame keelt säilitama.", "We have to preserve the language."],
@@ -1254,7 +1247,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["põhjalik", "Ta tegi põhjaliku töö.", "She did a thorough job."],
   ["ulatuslik", "Remont oli väga ulatuslik.", "The renovation was very extensive."],
   ["järjekindel", "Ole järjekindel!", "Be consistent!"],
-  ["erakond", "Ta kuulub erakonda.", "He belongs to a party."],
+  ["erakond", "Ta kuulub erakonda.", "He belongs to a political party."],
   ["valimised", "Valimised on järgmisel aastal.", "The elections are next year."],
   ["hääletus", "Hääletus toimub pühapäeval.", "The vote takes place on Sunday."],
   ["riigikogu", "Riigikogu võttis seaduse vastu.", "Parliament passed the law."],
@@ -1263,7 +1256,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["opositsioon", "Opositsioon on selle vastu.", "The opposition is against it."],
   ["poliitik", "Ta tahab saada poliitikuks.", "She wants to become a politician."],
   ["võim", "Võim on rahva käes.", "Power is in the hands of the people."],
-  ["reform", "Valitsus tahab teha uue reformi.", "The government wants to carry out a new reform."],
+  ["reform", "Valitsus tahab uue reformi läbi viia.", "The government wants to carry out a new reform."],
   ["eelnõu", "Riigikogu arutab eelnõu.", "Parliament is discussing the bill."],
   ["kampaania", "Kampaania algab homme.", "The campaign starts tomorrow."],
   ["hääletama", "Kas sa lähed hääletama?", "Are you going to vote?"],
@@ -1318,7 +1311,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["kohtunik", "Kohtunik tegi otsuse.", "The judge made a decision."],
   ["advokaat", "Mul on vaja advokaati.", "I need a lawyer."],
   ["süüdistus", "Süüdistus oli vale.", "The accusation was false."],
-  ["karistus", "Karistus oli liiga suur.", "The punishment was too big."],
+  ["karistus", "Karistus oli liiga range.", "The punishment was too harsh."],
   ["kuritegu", "See on kuritegu.", "That's a crime."],
   ["tõend", "Politsei leidis uue tõendi.", "The police found a new piece of evidence."],
   ["hagi", "Ta esitas kohtusse hagi.", "She filed a lawsuit in court."],
@@ -1352,7 +1345,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["konflikt", "Neil on konflikt.", "They have a conflict."],
   ["meeskond", "Meil on hea meeskond.", "We have a good team."],
   ["edutamine", "Ta ootab edutamist.", "He's waiting for a promotion."],
-  ["koondamine", "Koondamine on raske aeg.", "Being made redundant is a hard time."],
+  ["koondamine", "Koondamine on raske kogemus.", "Being made redundant is a hard experience."],
   ["läbi rääkima", "Me peame palga üle läbi rääkima.", "We have to negotiate the salary."],
   ["delegeerima", "Hea juht oskab delegeerida.", "A good manager knows how to delegate."],
   ["motiveerima", "Raha ei motiveeri mind.", "Money doesn't motivate me."],
@@ -1371,7 +1364,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["ületama", "See ületab minu eelarvet.", "This exceeds my budget."],
   ["moodustama", "See moodustab suure osa eelarvest.", "This makes up a large part of the budget."],
   ["vastuväide", "Mul on üks vastuväide.", "I have one objection."],
-  ["eeldus", "See on hea eeldus.", "That's a good premise."],
+  ["eeldus", "See on hea eeldus.", "That's a good basis."],
   ["tõendusmaterjal", "Tõendusmaterjali ei ole.", "There's no evidence."],
   ["üldistus", "See on liiga suur üldistus.", "That's too big a generalization."],
   ["erand", "See on erand.", "That's an exception."],
@@ -1445,7 +1438,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["kajastuma", "See kajastub hinnas.", "That's reflected in the price."],
   ["kõrvallause", "Kõrvallause algab sidesõnaga.", "A subordinate clause begins with a conjunction."],
   ["pealause", "Pealause võib olla lühike.", "A main clause can be short."],
-  ["sidesõna", "Sõna ja on sidesõna.", "The word ja is a conjunction."],
+  ["sidesõna", "Sõna „ja“ on sidesõna.", "The word \"ja\" is a conjunction."],
   ["koma", "Siia tuleb koma.", "A comma goes here."],
   ["täiend", "Täiend seisab tavaliselt sõna ees.", "An attribute usually stands before the word."],
   ["tuginema", "Me tugineme sellele uuringule.", "We rely on this study."],
@@ -1627,7 +1620,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["saatkond", "Saatkond asub linna keskel.", "The embassy is in the centre of town."],
   ["resolutsioon", "Riigikogu võttis resolutsiooni vastu.", "Parliament adopted the resolution."],
   ["ühisavaldus", "Ühisavaldus oli lühike.", "The joint statement was short."],
-  ["liikmesriik", "Eesti on liikmesriik.", "Estonia is a member state."],
+  ["liikmesriik", "Eesti on Euroopa Liidu liikmesriik.", "Estonia is a member state of the European Union."],
   ["koostöö", "Koostöö on väga hea.", "The cooperation is very good."],
   ["survestama", "Ära mind survesta!", "Don't pressure me!"],
   ["jutustaja", "Jutustaja on noor tüdruk.", "The narrator is a young girl."],
@@ -1742,4 +1735,10 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["praegune", "Mis on sinu praegune töö?", "What's your current job?"],
   ["kuri", "Miks sa kuri oled?", "Why are you angry?"],
   ["paha", "Ära ole paha!", "Don't be naughty!"],
+  /*
+    EVERY ROW ABOVE WAS READ, on 2026-09-26, by the native Estonian speaker
+    who develops this app: all of A1, A2, B1, B2 and C1, and the words added
+    to the course. Every change asked for is in. A row added below this line
+    is drafted and checked by machine and waits for the same reading.
+  */
 ];
