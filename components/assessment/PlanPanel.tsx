@@ -383,7 +383,7 @@ function foundNote(plan: Projection, reasons: readonly Reason[]): string {
   const where = situation(reasons);
   const held = formatDurationRange(plan.found.low, plan.found.high, "long");
   if (plan.verdict === "short") {
-    return `That date asks for roughly ${need} a week of Estonian beyond this app, which is more than a week holds beside a life. At ${held} a week beyond the app the distance is about ${lands}: move the date to there, or raise the daily goal, and this is a plan again.`;
+    return `That is more than a week holds beside a life. At ${held} a week beyond this app the distance is about ${lands}: move the date to there, or raise the daily goal, and this is a plan again.`;
   }
   if (where) {
     return `Put in roughly ${need} a week of Estonian beyond this app and you make the date. You ${where}, which usually puts ${held} a week within reach without booking anything, so most of it is already there to be used.`;

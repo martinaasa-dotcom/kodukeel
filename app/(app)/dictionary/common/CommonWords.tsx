@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, Plus } from "lucide-react";
+import { Check, Play, Plus } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, SectionTitle } from "@/components/ui";
 import { commonGroup } from "@/lib/collections/commonGroups";
 import type { CommonSection } from "@/lib/progress/common";
@@ -64,35 +64,37 @@ function GroupCard({ section }: { section: CommonSection }) {
     });
   }
 
+  /*
+    A meter for how much of the list is yours, then two quiet actions in one
+    row. Four cards each ending in a loud "Add the 95 you do not have" were
+    four primary buttons on one screen saying the same thing four times, with
+    a link and a disclosure stacked under each.
+  */
+  const pct = section.found > 0 ? Math.round((kept / section.found) * 100) : 0;
   return (
     <Card>
       <SectionTitle hint={`${kept} of ${section.found} in your deck`}>{group.title}</SectionTitle>
       <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{group.blurb}</p>
+      <span aria-hidden className="mt-3 block h-1.5 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
+        <span className="block h-full rounded-full" style={{ width: `${Math.max(2, pct)}%`, background: left > 0 ? "var(--accent)" : "var(--mint)" }} />
+      </span>
 
-      {left > 0 ? (
-        <Button type="button" variant="primary" onClick={add} disabled={pending} className="mt-4">
-          <Plus size={15} aria-hidden />
-          {pending ? "Adding" : `Add the ${left} you do not have`}
-        </Button>
-      ) : (
-        <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--mint-ink)" }}>
-          <Check size={15} aria-hidden /> All of these are in your deck.
-        </p>
-      )}
-
-      {/*
-        Collecting a hundred words is half of it. The other half is being asked
-        them, and this list said nothing about where that happens.
-      */}
-      <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        <Link
-          href={`/review/common/${group.slug}`}
-          className="underline"
-          style={{ color: "var(--accent-deep)" }}
-        >
-          Work through them as flash cards
-        </Link>
-      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {left > 0 ? (
+          <Button type="button" onClick={add} disabled={pending}>
+            <Plus size={15} aria-hidden />
+            {pending ? "Adding" : `Add the ${left} missing`}
+          </Button>
+        ) : (
+          <span className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--mint-ink)" }}>
+            <Check size={15} aria-hidden /> All in your deck
+          </span>
+        )}
+        {/* Collecting a hundred words is half of it; being asked them is the other. */}
+        <ButtonLink href={`/review/common/${group.slug}`} variant="ghost">
+          <Play size={14} aria-hidden /> Practise
+        </ButtonLink>
+      </div>
       {note && <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{note}</p>}
 
       <details className="mt-4 rounded-[var(--r)] border" style={{ borderColor: "var(--rule-soft)" }}>

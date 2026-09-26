@@ -149,14 +149,13 @@ export default async function ClassIndexPage() {
               <School size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
               <div>
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                  This copy is running in local mode: one learner, no accounts, so there is nobody
-                  here to share a class with. Classes need sign-in turned on
-                  (<code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and its anon key);
-                  the README walks through it in about ten minutes.
+                  Classes need sign-in, and this copy runs without it: one learner on one machine.
+                  Everything else works the same.
                 </p>
-                <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-                  Everything else in the app works exactly the same either way.
-                </p>
+                <Explain label="Turning sign-in on">
+                  Set <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and its anon key; the
+                  README walks through it in about ten minutes.
+                </Explain>
               </div>
             </div>
           </Card>

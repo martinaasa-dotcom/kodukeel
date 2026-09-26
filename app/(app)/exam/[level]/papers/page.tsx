@@ -58,19 +58,23 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
         through, and the one sat last is the one that stands out.
       */}
       <div className="@container mt-6">
-      <ol className="grid gap-3 @xl:grid-cols-2 @3xl:grid-cols-3">
-        {papers.map((paper) => (
+      <ol className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @3xl:grid-cols-4">
+        {papers.map((paper) => {
+          const open = paper.number === nextUp || !!paper.whole || Object.values(paper.parts).some(Boolean);
+          return (
           <li
             key={paper.number}
-            className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-4"
+            // A paper with its parts on show takes the row; a plain one is half
+            // of it, so twenty-five papers are a shelf rather than a scroll.
+            className={`flex flex-col gap-3 rounded-[var(--r-lg)] border px-4 py-3 ${open ? "col-span-2" : ""}`}
             style={{
               borderColor: paper.whole ? (paper.whole.passed ? "var(--mint)" : "var(--peach)") : "var(--rule-soft)",
               background: "var(--surface)",
             }}
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
               <span className="min-w-0">
-                <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
+                <span className="block whitespace-nowrap text-lg font-bold" style={{ color: "var(--ink)" }}>
                   Paper {paper.number}
                 </span>
                 {paper.whole ? (
@@ -85,6 +89,11 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
                 {paper.whole ? "Sit again" : "Sit it"}
               </ButtonLink>
             </div>
+            {/* One part at a time is offered where it is likely to be wanted, on
+                the paper up next and on a paper already started. Four part
+                buttons on each of twenty-five cards was a hundred buttons
+                saying the same four words. */}
+            {open && (
             <p className="flex flex-wrap gap-1.5" aria-label={`Paper ${paper.number}, one part on its own`}>
               {SKILLS.filter((skill) => spec.parts.some((p) => p.skill === skill)).map((skill) => {
                 const done = paper.parts[skill];
@@ -100,8 +109,10 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
                 );
               })}
             </p>
+            )}
           </li>
-        ))}
+          );
+        })}
       </ol>
       </div>
     </Page>

@@ -150,6 +150,7 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
 }) {
   const weekday = weekdayOf(dayKey);
   const empty = events.length === 0 && reminders.length === 0;
+  const quiet = empty && !isToday;
 
   return (
     <div
@@ -166,10 +167,14 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
         floors a flex item rather than capping what the column is sized to.
         The same fault the shell had against `main`, one container in.
       */
-      className="min-w-0 rounded-[var(--r)] border p-2"
+      className={`min-w-0 rounded-[var(--r)] border ${quiet ? "border-transparent px-2 py-1 xl:border-[var(--rule-soft)] xl:bg-[var(--surface)] xl:py-2" : "p-2"}`}
       style={{
-        borderColor: isToday ? "var(--accent)" : "var(--rule-soft)",
-        background: isToday ? "var(--accent-soft)" : "var(--surface)",
+        // An empty day in a list is a date and nothing else, so on a phone it
+        // loses its box: seven boxes, five of them empty, read as a form.
+        ...(quiet ? {} : {
+          borderColor: isToday ? "var(--accent)" : "var(--rule-soft)",
+          background: isToday ? "var(--accent-soft)" : "var(--surface)",
+        }),
       }}
     >
       <p className="label-xs" style={{ color: isToday ? "var(--accent-deep)" : "var(--ink-3)" }}>

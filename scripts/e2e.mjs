@@ -198,7 +198,7 @@ check("diacritic bar inserts õ",
 // stopped asking who was right on a card it had already marked.
 await page.goto(`${B}/review`, { waitUntil: "networkidle" });
 await startRound(page);
-const before = await page.getByText(/\d+ left/).textContent();
+const before = await page.getByText(/^\d+ left$/).textContent();
 const graded = async () => Number(/(\d+) graded/.exec(await page.locator("main").innerText())?.[1] ?? 0);
 const gradedBefore = await graded();
 
@@ -262,7 +262,7 @@ else if (selfGrade) await page.keyboard.press("2");
 */
 const gradedAfter = await eventually(async () => (await graded()) > gradedBefore);
 check("the keyboard gets from a question to a graded card", gradedAfter,
-  `${gradedBefore} graded -> ${await graded()} graded, ${before} -> ${await page.getByText(/\d+ left/).textContent()}`);
+  `${gradedBefore} graded -> ${await graded()} graded, ${before} -> ${await page.getByText(/^\d+ left$/).textContent()}`);
 
 // 5 — Import
 await page.goto(`${B}/settings`, { waitUntil: "networkidle" });

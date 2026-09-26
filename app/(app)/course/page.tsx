@@ -11,7 +11,7 @@ import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { PROGRAMMES, dayById, holdAdvice, holdReason, programmeAfter, unitOf } from "@/lib/course";
 import { ButtonLink } from "@/components/Button";
-import { Card, Chip, Meter, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, Chip, Meter, Page, SectionTitle, Stack } from "@/components/ui";
 import { Explain } from "@/components/Explain";
 import { StepList } from "@/components/course/StepList";
 import { StartProgramme } from "@/components/course/StartProgramme";
@@ -376,20 +376,21 @@ export default async function CoursePage({
           <p className="mt-2 text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
             {day.canDo}
           </p>
-          {/* Three across by the card's width rather than the window's: from
-              768 this card shares the page with the words beside it and is
-              318px wide, where three tiles broke "tonight" mid-letter. */}
-          <div className="@container mt-4">
-            <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3">
-              <StatTile value={day.words.length} label="New words" tone="mint" />
-              <StatTile
-                value={standing.complete ? "0" : `${standing.minutesLeft}m`}
-                label="Left tonight"
-                tone="sky"
-              />
-              <StatTile value={`${standing.pct}%`} label="Done tonight" tone="butter" />
-            </div>
-          </div>
+          {/* Three figures on one line, set as type rather than three boxes:
+              three tiles broke onto two rows on a phone, one alone under two,
+              and "tonight" said three times over was the card's heading again. */}
+          <dl className="mt-4 grid grid-cols-3 divide-x rounded-[var(--r)] border py-3" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}>
+            {[
+              { value: String(day.words.length), label: "new words" },
+              { value: standing.complete ? "0m" : `${standing.minutesLeft}m`, label: "left" },
+              { value: `${standing.pct}%`, label: "done" },
+            ].map((figure) => (
+              <div key={figure.label} className="flex flex-col-reverse items-center gap-1 px-2" style={{ borderColor: "var(--rule-soft)" }}>
+                <dt className="text-sm" style={{ color: "var(--ink-3)" }}>{figure.label}</dt>
+                <dd className="tnum font-display text-2xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}</dd>
+              </div>
+            ))}
+          </dl>
         </Card>
 
         <div>
