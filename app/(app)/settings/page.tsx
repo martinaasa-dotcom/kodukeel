@@ -246,11 +246,13 @@ export default async function SettingsPage() {
         <Group title="Study">
           <section>
             <SectionTitle hint={mode === "type" ? "typing" : "flipping"}>How review asks</SectionTitle>
-            <ReviewModePanel current={mode} />
-            <Explain label="Why new cards show the answer">
-              Either way, brand-new cards are shown with their answer first. Being asked to produce a
-              word you have never seen teaches nothing.
-            </Explain>
+            <Card>
+              <ReviewModePanel current={mode} />
+              <Explain label="Why new cards show the answer">
+                Either way, brand-new cards are shown with their answer first. Being asked to produce a
+                word you have never seen teaches nothing.
+              </Explain>
+            </Card>
           </section>
 
           {/*
@@ -625,11 +627,13 @@ export default async function SettingsPage() {
           */}
           <section className="letters-choice">
             <SectionTitle hint={letters === "on" ? "shown" : "hidden"}>Typing Estonian</SectionTitle>
-            <LetterBarPanel current={letters} />
-            <Explain label="Why only on a computer">
-              These only ever show up on a computer. A phone keyboard already has these letters,
-              on a long press or with the keyboard switched to Estonian.
-            </Explain>
+            <Card>
+              <LetterBarPanel current={letters} />
+              <Explain label="Why only on a computer">
+                These only ever show up on a computer. A phone keyboard already has these letters,
+                on a long press or with the keyboard switched to Estonian.
+              </Explain>
+            </Card>
           </section>
 
           <section>

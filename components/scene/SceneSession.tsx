@@ -1841,10 +1841,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
           The shadow is the app's own, so this is the same object the rest of
           the app raises rather than a second idea of what raised means.
         */}
+        {/* Lit the way the room above it is, so the two ends of the screen
+            are one conversation: the place you are in, and what you say in it. */}
         <Card
-          tone="accent"
+          tone="night"
           className="flex flex-col gap-3"
-          style={{ boxShadow: "var(--shadow)" }}
         >
           <div aria-live="polite">
             {/*
@@ -1859,7 +1860,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
               disagree, and it is a count of ticks rather than a meter (§7):
               nothing fills, nothing drains, and nothing is running.
             */}
-            <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--accent-deep)" }}>
+            <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--cta)" }}>
               <span>Your turn</span>
               <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length}</span>
             </p>
