@@ -227,7 +227,7 @@ export default function FundingPage() {
           build served locally. Each row says what to run to get the same number, because
           a figure nobody can reproduce is a claim rather than a measurement.
         </P>
-        <div className="scroll-host overflow-x-auto">
+        <div className="scroll-host overflow-x-auto" tabIndex={0} role="region" aria-label="Measurements taken on this repository">
           <table className="w-full text-sm">
             <caption className="sr-only">Measurements taken on this repository</caption>
             <thead>
