@@ -367,7 +367,9 @@ export function CostExplorer() {
           </div>
         </div>
 
-        <div className="scroll-host mt-5 overflow-x-auto">
+        {/* Focusable, because a region that scrolls sideways on a phone has to be
+            reachable by a keyboard as well as a finger. */}
+        <div className="scroll-host mt-5 overflow-x-auto" tabIndex={0} role="region" aria-label="What the app costs at each size">
           <table className="w-full text-sm">
             <caption className="sr-only">
               What the app costs a month at each size, and what that is per learner
