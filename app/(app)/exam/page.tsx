@@ -308,7 +308,7 @@ export default async function ExamPage() {
             {attempts.map((attempt, index) => (
               <li key={`${attempt.level}-${attempt.at}-${index}`}>
                 <Card className="flex flex-wrap items-center justify-between gap-3 !py-3">
-                  <span className="flex items-center gap-3">
+                  <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
                     <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>
                       {attempt.level}
                     </span>
