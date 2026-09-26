@@ -230,8 +230,10 @@ export function DictionaryClient({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-start">
-        <div className="flex-1">
+      {/* One row at every width: on a phone the button is its icon beside
+          the field rather than a full-width bar under it. */}
+      <div className="flex items-start gap-2 md:gap-3">
+        <div className="min-w-0 flex-1">
           {/*
             Not `large`: that size step is `field-lg` at 24px, which is what a
             review round's own answer box reads from — the one field in this
@@ -250,8 +252,8 @@ export function DictionaryClient({
             autoFocus={!initialQuery}
           />
         </div>
-        <Button variant="primary" onClick={() => go(query)} disabled={pending} className="py-3">
-          <Search size={16} aria-hidden /> Search
+        <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label="Search">
+          <Search size={16} aria-hidden /> <span className="hidden sm:inline">Search</span>
         </Button>
       </div>
 
@@ -288,36 +290,38 @@ export function DictionaryClient({
 
       {!showingEntry && initialQuery === "" && (
         <div className="flex flex-col gap-3">
-          <AddWord />
-          {canScan && (
-            <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-              Got it on paper?{" "}
+          {/*
+            THREE WAYS IN, ONE ROW.
+
+            Adding a word, photographing a list and pasting a passage are all
+            "bring your own Estonian", and they were a full-width button and
+            two sentences explaining the other two. They are three buttons side
+            by side now, each saying what it does; the scanner's own page says
+            the picture is never stored, at the moment somebody is about to
+            take one. The add form still opens in place.
+          */}
+          <div className="flex flex-wrap items-start gap-2">
+            <AddWord />
+            {canScan && (
               <Link
                 href="/scan"
-                className="inline-flex items-center gap-1.5 font-semibold underline underline-offset-2"
-                style={{ color: "var(--accent-deep)" }}
+                className="choice-btn press inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-sm font-semibold"
+                style={{ color: "var(--ink)" }}
               >
-                <Camera size={14} aria-hidden /> Photograph a word list
-              </Link>{" "}
-              and tick the words you want. Nothing is added until you do, and the picture is never
-              stored.
-            </p>
-          )}
-          {/* The other way of bringing your own Estonian in, and the reason it
-              is here rather than on the practice menu: both of these turn
-              something you already have into something you can study, which is
-              what this page is for. */}
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Reading something already?{" "}
+                <Camera size={15} aria-hidden /> Photograph a list
+              </Link>
+            )}
+            {/* The other way of bringing your own Estonian in, and the reason it
+                is here rather than on the practice menu: both of these turn
+                something you already have into something you can study. */}
             <Link
               href="/review/cloze"
-              className="inline-flex items-center gap-1.5 font-semibold underline underline-offset-2"
-              style={{ color: "var(--accent-deep)" }}
+              className="choice-btn press inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-sm font-semibold"
+              style={{ color: "var(--ink)" }}
             >
-              <ScissorsLineDashed size={14} aria-hidden /> Paste a passage
-            </Link>{" "}
-            and the words already in your deck are blanked out for you to fill back in.
-          </p>
+              <ScissorsLineDashed size={15} aria-hidden /> Paste a passage
+            </Link>
+          </div>
         </div>
       )}
 
@@ -781,10 +785,13 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                   style={{ background: value ? "var(--accent-soft)" : "var(--raised)" }}
                 >
                   {value ? (
-                    <>
-                      <span lang="et" className="block text-lg font-bold" style={{ color: "var(--accent-deep)" }}>{value}</span>
+                    // The form and its speaker on one line: stacked, every
+                    // tile on a phone was a column of three with an icon alone
+                    // in the middle of it.
+                    <span className="flex items-center justify-center gap-1">
+                      <span lang="et" className="text-lg font-bold" style={{ color: "var(--accent-deep)" }}>{value}</span>
                       <Speak text={value} />
-                    </>
+                    </span>
                   ) : (
                     <span className="block text-lg" style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>
                   )}
@@ -854,10 +861,10 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             regular endings.
           </p>
           <div className="overflow-x-auto rounded-[var(--r)] border" style={{ borderColor: "var(--rule)" }}>
-            <table className="w-full min-w-[440px] text-sm">
+            <table className="w-full min-w-[360px] text-sm">
               <thead>
                 <tr>
-                  {["Case", "Singular", "Plural", "Answers"].map((h) => (
+                  {["Case", "Singular", "Plural"].map((h) => (
                     <th key={h} className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
                       {h}
                     </th>
@@ -872,10 +879,15 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                           table says what the form is, that page says when to
                           use it. It has to be here too, because a deployment
                           with no Ekilex key only ever renders this one, and
-                          without the link its case table is a dead end. */}
-                      <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="hover:underline">
+                          without the link its case table is a dead end. The
+                          question the case answers sits under its name, in
+                          both languages (`components/CaseQuestion.tsx`), where
+                          it used to be a fourth column that made every row
+                          two lines tall. */}
+                      <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-semibold hover:underline" style={{ color: "var(--ink)" }}>
                         {spec.et}
                       </Link>
+                      <CaseQuestion inline className="block text-xs" question={caseQuestionFor(spec, subjectOf(entry))} />
                     </td>
                     {/* Both illatives, where the word has both. `tuppa` and
                         `toasse` are one answer to one question and a course
@@ -890,12 +902,6 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                     </td>
                     <td lang="et" className="px-3 py-2 text-base" style={{ color: "var(--ink-2)" }}>
                       {plural ?? <span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>}
-                    </td>
-                    {/* The Latin name came off the Case column and what the
-                        case asks went into this one, in both languages: see
-                        `components/CaseQuestion.tsx`. */}
-                    <td className="px-3 py-2 text-xs" style={{ color: "var(--ink-2)" }}>
-                      <CaseQuestion question={caseQuestionFor(spec, subjectOf(entry))} />
                     </td>
                   </tr>
                 ))}

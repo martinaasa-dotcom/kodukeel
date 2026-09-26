@@ -5,6 +5,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { BookOpen, Compass, EyeOff, Undo2 } from "lucide-react";
 import { setCardSuspended } from "@/app/actions";
 import { Chip } from "@/components/ui";
+import { counted } from "@/lib/copy/values";
 import { stickingNote, type StickingPoint } from "@/lib/stats/sticking";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -50,14 +51,14 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
   };
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
       {rows.map((point) => {
         const isSuspended = suspended[point.id] ?? false;
         const word = point.lemma ?? point.front;
         return (
           <li
             key={point.id}
-            className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[var(--r)] px-4 py-3"
+            className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3"
             /*
               NO `opacity` ON A BOX THAT HOLDS WORDS.
 
@@ -70,7 +71,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
             */
             style={{
               background: isSuspended ? "var(--raised)" : "var(--surface)",
-              border: "1px solid var(--rule)",
+              borderColor: "var(--rule-soft)",
             }}
           >
             {/*
@@ -102,13 +103,43 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                 <span className="text-xs" style={{ color: "var(--ink-3)" }}>
                   {TYPE_LABEL[point.cardType] ?? point.cardType}
                 </span>
-                {point.reason === "lapses" || point.accuracy === null
-                  ? <Chip tone="again">{point.lapses} lapses</Chip>
-                  : <Chip tone="hard">{point.accuracy}%</Chip>}
+                {/* The percentage is the meter under the word, so the chip
+                    names the one thing the meter cannot: how often it has
+                    been forgotten, where that is the reason it is here. */}
+                {(point.reason === "lapses" || point.accuracy === null) && (
+                  <Chip tone="again">{point.lapses} lapses</Chip>
+                )}
               </p>
-              <p className="mt-0.5 text-xs" style={{ color: "var(--ink-2)" }}>
-                {isSuspended ? "Set aside. It will not come up until you put it back." : stickingNote(point)}
-              </p>
+              {/*
+                A METER RATHER THAN A SENTENCE.
+
+                Every row said "Learned and forgotten again, 67% recalled over
+                12 reviews", six times down the page, and the one figure in it
+                was the thing worth seeing. The bar shows it, the small print
+                says what it is out of, and `stickingNote` is still the whole
+                sentence for a screen reader, which is who the words were for.
+              */}
+              {isSuspended ? (
+                <p className="mt-0.5 text-xs" style={{ color: "var(--ink-2)" }}>
+                  Set aside. It will not come up until you put it back.
+                </p>
+              ) : (
+                <p className="mt-1.5 flex items-center gap-2">
+                  <span className="sr-only">{stickingNote(point)}</span>
+                  {point.accuracy !== null && (
+                    <span aria-hidden className="block h-1.5 w-28 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
+                      <span
+                        className="block h-full rounded-full"
+                        style={{ width: `${point.accuracy}%`, background: point.accuracy >= 80 ? "var(--mint)" : point.accuracy >= 60 ? "var(--butter)" : "var(--peach)" }}
+                      />
+                    </span>
+                  )}
+                  <span aria-hidden className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+                    {point.accuracy === null ? "not seen lately" : `${point.accuracy}% of ${point.reviews}`}
+                    {point.siblings > 0 ? ` · ${counted(point.siblings + 1, "card")} stuck` : ""}
+                  </span>
+                </p>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">

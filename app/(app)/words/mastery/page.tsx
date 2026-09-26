@@ -59,7 +59,7 @@ export default async function MasteryPage() {
   ]);
 
   return (
-    <Page
+    <Page route="/words/mastery"
       title="Where your words stand"
       lead="Your favorites, and how well every other word is sticking."
       actions={<ButtonLink href="/review/flashcards" variant="primary">Flash cards</ButtonLink>}

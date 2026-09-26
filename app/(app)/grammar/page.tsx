@@ -51,17 +51,17 @@ export default async function GrammarIndexPage() {
   const weakest = caseAccuracy(reviews).slice(0, 3);
 
   return (
-    <Page
+    <Page route="/grammar"
       eyebrow="Reference"
       title="Grammar"
       lead="Fourteen endings. Three you memorize, and eleven you can work out."
     >
       <Stack>
         <Card tone="accent">
-          <div className="flex items-start gap-3">
-            <Sparkles size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
+          <div>
             <div className="min-w-0">
-              <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
+              <p className="flex items-center gap-2.5 text-lg font-bold" style={{ color: "var(--ink)" }}>
+                <Sparkles size={20} aria-hidden className="shrink-0" style={{ color: "var(--accent-deep)" }} />
                 One word, eleven endings
               </p>
               <p className="mt-2 max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -229,7 +229,7 @@ export default async function GrammarIndexPage() {
             <p className="mb-3 max-w-[68ch] text-sm" style={{ color: "var(--ink-2)" }}>
               {group.blurb}
             </p>
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {group.keys.map((key) => {
                 const ref = caseReference(key);
                 if (!ref) return null;

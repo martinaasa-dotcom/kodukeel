@@ -8,7 +8,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { allCaseReferences, caseReference } from "@/lib/estonian/grammar";
 import { caseExamples, type CaseExample } from "@/lib/progress/caseExamples";
 import { ButtonLink } from "@/components/Button";
-import { Card, Chip, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { Card, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { PointExamples } from "@/components/grammar/PointExamples";
@@ -30,8 +30,11 @@ export function generateStaticParams() {
 }
 
 /** The ending, or the word "memorized" where there is no ending to give. */
-function endingOf(ref: { spec: { principal: boolean; suffix: string } }): string {
-  return ref.spec.principal ? "memorized" : `-${ref.spec.suffix}`;
+function endingOf(ref: { spec: { principal: boolean; suffix: string; et: string } }): string {
+  // A stored case has no ending to print, so it is named the way a class
+  // names it. "memorized" at the top of the page read as a heading about
+  // nothing: it is what a form is, not what the case is called.
+  return ref.spec.principal ? ref.spec.et : `-${ref.spec.suffix}`;
 }
 
 /** The plain meaning as a heading. Everything else about it stays as written. */
@@ -248,7 +251,7 @@ export default async function CasePage({
               className="overflow-x-auto rounded-[var(--r-lg)] border"
               style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
             >
-              <table className="w-full min-w-[460px] text-sm">
+              <table className="w-full min-w-[360px] text-sm">
                 <thead>
                   <tr>
                     {/*
@@ -257,7 +260,7 @@ export default async function CasePage({
                       English word on a table of Estonian and is a term out of
                       a grammar this language does not use.
                     */}
-                    {["Word", "Omastav", endingOf(ref), "From"].map((h, i) => (
+                    {["Word", "Omastav", endingOf(ref)].map((h, i) => (
                       <th
                         key={h}
                         className="label-xs px-3 py-2.5 text-left"
@@ -320,14 +323,17 @@ export default async function CasePage({
                           )}
                           <Speak text={example.form} label={`Hear "${example.form}"`} size={13} />
                         </span>
-                      </td>
-                      <td className="px-3 py-2.5">
-                        <Chip
-                          tone={example.origin === "DERIVED" ? "neutral" : "sky"}
+                        {/* Where the form came from, under it rather than in a
+                            column of its own: a column of six identical chips
+                            was the loudest thing on the table and said one
+                            fact six times. */}
+                        <span
+                          className="block text-xs"
                           title={ORIGIN_LABEL[example.origin].title}
+                          style={{ color: example.origin === "DERIVED" ? "var(--ink-3)" : "var(--sky-ink)" }}
                         >
                           {ORIGIN_LABEL[example.origin].label}
-                        </Chip>
+                        </span>
                       </td>
                     </tr>
                   ))}

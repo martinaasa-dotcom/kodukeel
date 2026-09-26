@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Check, Compass, Lock } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Compass, Eye, Lock, MousePointerClick, PenLine } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { unitById } from "@/lib/collections/syllabus";
@@ -86,7 +86,7 @@ export default async function LearnPage() {
   });
 
   return (
-    <Page
+    <Page route="/learn"
       title="Learn"
       lead="New words, one small round at a time, and the course they come out of."
     >
@@ -107,20 +107,22 @@ export default async function LearnPage() {
           B1", which is the same fact twice inside one screenful. */}
       <SectionTitle hint="A1 to C1">The course</SectionTitle>
       {/*
-        Stacked on a phone, one row above it. `flex-wrap` alone looked right and
-        was not: at 390px the ring and the button both stayed on the row and
-        squeezed the text between them into a column four words wide. Wrapping
-        only helps when a child is allowed to take a whole line, so the phone
-        layout is a column and the row starts at the small breakpoint.
+        One row that wraps, with the text told how wide to be. `flex-wrap`
+        alone looked right and was not: at 390px the ring and the button both
+        stayed on the row and squeezed the text between them into a column
+        four words wide. A basis of the line less the ring keeps the text
+        beside the ring and sends the button to a line of its own.
       */}
       <div
-        className="mb-7 flex flex-col gap-4 rounded-[var(--r-lg)] border p-5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-5"
+        className="mb-7 flex flex-wrap items-center gap-4 rounded-[var(--r-lg)] border p-5 sm:gap-5"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
-        <Ring pct={overall} size={72} label={`${overall}% of the course learned`}>
+        <Ring pct={overall} size={64} label={`${overall}% of the course learned`}>
           <span className="tnum text-sm font-bold" style={{ color: "var(--ink)" }}>{overall}%</span>
         </Ring>
-        <div className="min-w-0 flex-1">
+        {/* Beside the ring on a phone too: the text takes the rest of the line
+            rather than a line under a ring standing alone. */}
+        <div className="min-w-0 flex-1 basis-[calc(100%-5.5rem)] sm:basis-0">
           <p className="text-base" style={{ color: "var(--ink)" }}>
             You are working at {placement} · {knownWords} of {totalWords} words known
           </p>
@@ -139,10 +141,17 @@ export default async function LearnPage() {
         {next && (
           <ButtonLink
             href={`/learn/${next.id}/lesson`}
-            variant="primary"
+            variant={counts.waiting + counts.started > 0 ? "secondary" : "primary"}
             className="w-full justify-center sm:w-auto"
           >
-            {startedIds.has(next.id) ? "Continue" : "Start"}: {uiText(placement, next.title, next.subtitle)}
+            {/* The unit's name is the highlighted row right under this card on a
+                phone, and at 390px it wrapped the button onto two lines. One
+                span round both halves: as two children of a flex button each
+                was its own flex item and "Continue" shrank on its own. */}
+            <span>
+              {startedIds.has(next.id) ? "Continue" : "Start"}
+              <span className="sr-only sm:not-sr-only">: {uiText(placement, next.title, next.subtitle)}</span>
+            </span>
           </ButtonLink>
         )}
       </div>
@@ -216,10 +225,11 @@ export default async function LearnPage() {
                 {rows.map((u) => {
                   const locked = !isUnitOpen({ unit: u.unit, doneUnitIds: doneIds, placement });
                   const complete = u.state === "done";
+                  const isNext = !!next && u.unit.id === next.id;
                   return (
                     <li
                       key={u.unit.id}
-                      className="@container flex flex-wrap items-center gap-4 rounded-[var(--r-sm)] border p-3"
+                      className="@container relative flex flex-wrap items-start gap-3 rounded-[var(--r-sm)] border p-3 @md:items-center @md:gap-4"
                       /*
                         A locked unit is quieter, and the quiet used to be an
                         `opacity: 0.6` on the whole row. That fades the words:
@@ -236,64 +246,83 @@ export default async function LearnPage() {
                         the padlock, which carries no words.
                       */
                       style={{
-                        borderColor: complete ? "var(--mint)" : u.state === "learning" ? "var(--accent)" : "var(--rule)",
+                        borderColor: next && u.unit.id === next.id ? "var(--accent)" : "var(--rule)",
                         background: "var(--surface)",
                       }}
                     >
-                      <span
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                        style={{
-                          background: complete ? "var(--mint)" : u.state === "learning" ? "var(--accent)" : "var(--raised)",
-                          color: complete || u.state === "learning" ? "var(--surface)" : "var(--ink-3)",
-                          opacity: locked ? 0.6 : 1,
-                        }}
+                      {/* On a phone the whole row is the way in: the icon, the
+                          words and a chevron are one link, and only the next
+                          unit keeps a full-width button beside it. Twenty rows
+                          each ending in a button the width of the screen was a
+                          column of buttons with some text between them. A link
+                          stretched over the row with a pseudo-element was the
+                          first try, and it lay over every word in the row. */}
+                      <Link
+                        href={`/learn/${u.unit.id}`}
+                        className="group flex min-w-0 flex-1 basis-full items-start gap-3 @md:basis-0 @md:items-center @md:gap-4"
                       >
-                        {locked ? <Lock size={16} aria-hidden /> : complete ? <Check size={18} aria-hidden /> : <NamedIcon name={u.unit.icon} size={17} aria-hidden />}
-                      </span>
-                      {/* Under @md the words take the whole line beside the icon and
-                          the count moves inside them: a count and a button beside
-                          the name left it 115px at 320 and broke "Environment"
-                          and "responsibility" in half. calc is the icon plus
-                          the gap, so the icon never drops onto a line of its own. */}
-                      <span className="min-w-0 flex-1 basis-[calc(100%-3.5rem)] @md:basis-0">
-                        <Link
-                          href={`/learn/${u.unit.id}`}
-                          lang={uiWantsEnglish(placement) ? undefined : "et"}
-                          className="text-md font-bold hover:underline"
-                          style={{ color: "var(--ink)" }}
+                        <span
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full @md:h-10 @md:w-10"
+                          style={{
+                            background: complete ? "var(--mint)" : u.state === "learning" ? "var(--accent)" : "var(--raised)",
+                            color: complete || u.state === "learning" ? "var(--surface)" : "var(--ink-3)",
+                            opacity: locked ? 0.6 : 1,
+                          }}
                         >
-                          {uiText(placement, u.unit.title, u.unit.subtitle)}
-                        </Link>
-                        <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
-                          {u.unit.canDo}
+                          {locked ? <Lock size={16} aria-hidden /> : complete ? <Check size={18} aria-hidden /> : <NamedIcon name={u.unit.icon} size={17} aria-hidden />}
                         </span>
-                        <span className="tnum mt-1 block text-xs @md:hidden" style={{ color: "var(--ink-3)" }}>
+                        {/* Under @md the count moves inside the words: a count and a
+                            button beside the name left it 115px at 320 and broke
+                            "Environment" and "responsibility" in half. */}
+                        <span className="min-w-0 flex-1">
+                          <span
+                            lang={uiWantsEnglish(placement) ? undefined : "et"}
+                            className="block text-md font-bold group-hover:underline"
+                            style={{ color: "var(--ink)" }}
+                          >
+                            {uiText(placement, u.unit.title, u.unit.subtitle)}
+                          </span>
+                          <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
+                            {u.unit.canDo}
+                          </span>
+                          {u.available > 0 && (u.known > 0 || u.state === "learning") && (
+                            <span aria-hidden className="mt-2 block h-1 max-w-[16rem] overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
+                              <span className="block h-full rounded-full" style={{ width: `${Math.max(4, Math.round((u.known / u.available) * 100))}%`, background: complete ? "var(--mint)" : "var(--accent)" }} />
+                            </span>
+                          )}
+                          <span className="tnum mt-1 block text-xs @md:hidden" style={{ color: "var(--ink-3)" }}>
+                            {u.known}/{u.available}
+                          </span>
+                          {locked && (
+                            <span className="mt-1 block text-xs" style={{ color: "var(--ink-3)" }}>
+                              Builds on {u.unit.requires.map((id) => {
+                                const required = unitById(id);
+                                return required ? uiText(placement, required.title, required.subtitle) : id;
+                              }).join(", ")}. You can still open it.
+                            </span>
+                          )}
+                        </span>
+                        <span className="tnum hidden text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
                           {u.known}/{u.available}
                         </span>
-                        {locked && (
-                          <span className="mt-1 block text-xs" style={{ color: "var(--ink-3)" }}>
-                            Builds on {u.unit.requires.map((id) => {
-                              const required = unitById(id);
-                              return required ? uiText(placement, required.title, required.subtitle) : id;
-                            }).join(", ")}. You can still open it.
-                          </span>
+                        {!isNext && (
+                          <ChevronRight size={18} aria-hidden className="shrink-0 self-center @md:hidden" style={{ color: "var(--ink-3)" }} />
                         )}
+                      </Link>
+                      {/* The button sits beside the words only where the row has
+                          room for both, which is the row's width rather than the
+                          window's: at 768 a 128px button beside the count left
+                          the unit's name 59px and broke every word of it. */}
+                      <span className={isNext ? "w-full @md:w-auto" : "hidden @md:block"}>
+                        <ButtonLink
+                          href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
+                          variant={isNext ? "primary" : u.state === "learning" ? "secondary" : "ghost"}
+                          size="sm"
+                          className="w-full justify-center @md:w-32"
+                        >
+                          {complete ? "Revisit" : u.state === "learning" ? "Continue" : "Learn"}
+                        </ButtonLink>
                       </span>
-                      <span className="tnum hidden text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
-                        {u.known}/{u.available}
-                      </span>
-                      {/* Beside the words only where the row has room for both, which
-                          is the row's width rather than the window's: at 768 a
-                          128px button beside the count left the unit's name 59px
-                          and broke every word of it. The row is the container. */}
-                      <ButtonLink
-                        href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
-                        variant={u.state === "learning" ? "primary" : "ghost"}
-                        size="sm"
-                        className="w-full justify-center @md:w-32"
-                      >
-                        {complete ? "Revisit" : u.state === "learning" ? "Continue" : "Learn"}
-                      </ButtonLink>
                     </li>
                   );
                 })}
@@ -362,7 +391,7 @@ function LearnCard({
   const phrasesReady = phrases.waiting + phrases.started;
   return (
     <div
-      className="mb-7 flex flex-col gap-4 rounded-[var(--r-lg)] border p-5 sm:flex-row sm:items-center"
+      className="mb-7 flex flex-wrap items-center gap-4 rounded-[var(--r-lg)] border p-5 sm:flex-nowrap"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
     >
       <span
@@ -371,15 +400,30 @@ function LearnCard({
       >
         <Sparkles size={20} aria-hidden />
       </span>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-[calc(100%-3.75rem)] sm:basis-0">
         <p className="text-base font-bold" style={{ color: "var(--ink)" }}>
           {ready > 0 ? "New words" : "No new words waiting"}
         </p>
-        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-          {ready > 0
-            ? "Meet it, then pick what it means, then put it back in the sentence. Words you can produce move over to practice."
-            : "Open a unit below and its words arrive here, ready to be met."}
-        </p>
+        {/*
+          THE LADDER AS THREE STEPS YOU CAN SEE, RATHER THAN A SENTENCE ABOUT IT.
+          The words are the same three the round is made of, in its order.
+        */}
+        {ready > 0 ? (
+          <ol className="mt-2 flex flex-wrap items-center gap-1 text-sm sm:gap-1.5" aria-label="Each word is met, then picked out of four, then put back in its sentence">
+            {([[Eye, "Meet it"], [MousePointerClick, "Pick it"], [PenLine, "Use it"]] as const).map(([Glyph, label], i) => (
+              <li key={label} className="flex items-center gap-1 sm:gap-1.5">
+                {i > 0 && <ArrowRight size={13} aria-hidden style={{ color: "var(--ink-3)" }} />}
+                <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 font-semibold sm:gap-1.5 sm:px-2.5" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
+                  <Glyph size={13} aria-hidden className="hidden sm:inline" /> {label}
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+            Open a unit below and its words arrive here, ready to be met.
+          </p>
+        )}
         {ready > 0 && (
           <p className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--ink-3)" }}>
             <Chip tone="accent">{waiting} never seen</Chip>

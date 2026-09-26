@@ -177,6 +177,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
         <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {sentence(plan, weeks, levelLabel(from), target, { guessed, bySkill })}
         </p>
+        <DistanceBar plan={plan} />
       </Card>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -383,7 +384,7 @@ function foundNote(plan: Projection, reasons: readonly Reason[]): string {
   const where = situation(reasons);
   const held = formatDurationRange(plan.found.low, plan.found.high, "long");
   if (plan.verdict === "short") {
-    return `That date asks for roughly ${need} a week of Estonian beyond this app, which is more than a week holds beside a life. At ${held} a week beyond the app the distance is about ${lands}: move the date to there, or raise the daily goal, and this is a plan again.`;
+    return `That is more than a week holds beside a life. At ${held} a week beyond this app the distance is about ${lands}: move the date to there, or raise the daily goal, and this is a plan again.`;
   }
   if (where) {
     return `Put in roughly ${need} a week of Estonian beyond this app and you make the date. You ${where}, which usually puts ${held} a week within reach without booking anything, so most of it is already there to be used.`;
@@ -434,4 +435,53 @@ function sentence(
       ? "The rest is a real commitment beyond this app, every week, and people who make that commitment get there."
       : "The rest is more than a week holds beside a life, so the date or the pace has to move.";
   return `${distance} In ${weeks} weeks ${whose} puts in about ${covered} of those hours. ${rest}`;
+}
+
+/**
+ * The distance, drawn: the hours the level takes as a track, and what this
+ * app and the learner's own week put into it by the date. The sentence above
+ * says whether the date fits; this is the same arithmetic as a picture, so
+ * the gap is something a reader sees before they have read a number. Drawn
+ * only where there is a date, since without one nothing is being measured
+ * against the track.
+ */
+function DistanceBar({ plan }: { plan: Projection }) {
+  if (plan.weeksAvailable === null || plan.appHoursAvailable === null || plan.hours.high <= 0) return null;
+  const total = plan.hours.high;
+  const app = Math.min(plan.appHoursAvailable, total);
+  const week = Math.min(plan.found.low * plan.weeksAvailable, total - app);
+  const share = (h: number) => `${Math.max(0, (h / total) * 100)}%`;
+  const nearEnd = (plan.hours.low / total) * 100;
+  const segments = [
+    { key: "app", label: "This app by your date", hours: app, fill: "var(--accent)" },
+    { key: "week", label: "Your week beside it", hours: week, fill: "var(--sky)" },
+  ].filter((segment) => segment.hours > 0);
+  const left = Math.max(0, plan.hours.low - app - week);
+  return (
+    <div className="mt-5">
+      <div aria-hidden className="relative h-3 overflow-hidden rounded-full" style={{ background: "var(--surface)" }}>
+        <div className="flex h-full">
+          {segments.map((segment) => (
+            <span key={segment.key} className="h-full" style={{ width: share(segment.hours), minWidth: 4, background: segment.fill }} />
+          ))}
+        </div>
+        {/* Where the level starts to be within reach: the near end of the range. */}
+        <span className="absolute inset-y-0 w-0.5" style={{ left: `${nearEnd}%`, background: "var(--ink-3)" }} />
+      </div>
+      <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
+        {segments.map((segment) => (
+          <li key={segment.key} className="flex items-center gap-2">
+            <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: segment.fill }} />
+            {segment.label}
+            <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{formatDuration(segment.hours)}</span>
+          </li>
+        ))}
+        <li className="flex items-center gap-2">
+          <span aria-hidden className="h-2.5 w-2.5 rounded-full border" style={{ borderColor: "var(--ink-3)", background: "var(--surface)" }} />
+          {left > 0 ? "Still to find" : "Nothing left to find"}
+          {left > 0 && <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{formatDuration(left)}</span>}
+        </li>
+      </ul>
+    </div>
+  );
 }

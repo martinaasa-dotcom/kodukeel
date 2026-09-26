@@ -6679,7 +6679,7 @@ check("a container query variant has its container in the same file", () => {
   for (const file of [...APP, ...COMPONENTS]) {
     if (!file.endsWith(".tsx")) continue;
     const src = code(file);
-    const uses = src.match(/(?:^|[\s"'`])@(?:3xs|2xs|xs|sm|md|lg|xl|[2-7]xl):[a-z][a-z0-9-]*/gm);
+    const uses = src.match(/(?:^|[\s"'`])@(?:3xs|2xs|xs|sm|md|lg|xl|[2-7]xl|(?:min|max)-\[[^\]]+\]):[a-z][a-z0-9-]*/gm);
     if (!uses) continue;
     files += 1;
     assert.ok(

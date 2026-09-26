@@ -275,3 +275,49 @@ export function ChoiceCard({
     </button>
   );
 }
+
+/**
+ * ONE ANSWER CHOSEN FROM A FEW, WITH ONLY THE CHOSEN ONE EXPLAINED.
+ *
+ * Settings drew every option as a card with a paragraph under it, so a panel
+ * of five paces was five paragraphs about four speeds nobody had picked, and
+ * the whole screen read as small print. The titles are what a reader compares
+ * and they fit in a row; the sentence that says what a choice does is worth
+ * reading once, about the choice in force. So the options are chips and the
+ * chosen one's sentence sits under them, tied to the group for a screen
+ * reader, and it changes as the choice does.
+ */
+export function ChoiceSegment<T extends string>({
+  ariaLabel, value, options, onSelect, disabled,
+}: {
+  ariaLabel: string;
+  value: T;
+  options: readonly { id: T; title: string; icon?: ReactNode; detail?: ReactNode }[];
+  onSelect: (id: T) => void;
+  disabled?: boolean;
+}) {
+  const detailId = useId();
+  const chosen = options.find((o) => o.id === value);
+  return (
+    <div>
+      <ChoiceGroup ariaLabel={ariaLabel} className="flex flex-wrap gap-2">
+        {options.map((o) => (
+          <ChoiceChip
+            key={o.id}
+            selected={o.id === value}
+            disabled={disabled}
+            onSelect={() => onSelect(o.id)}
+            icon={o.icon}
+          >
+            {o.title}
+          </ChoiceChip>
+        ))}
+      </ChoiceGroup>
+      {chosen?.detail ? (
+        <p id={detailId} aria-live="polite" className="mt-2.5 max-w-[60ch] text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
+          {chosen.detail}
+        </p>
+      ) : null}
+    </div>
+  );
+}

@@ -70,7 +70,7 @@ export default async function ExamPage() {
   const evidenceNote = EVIDENCE_NOTE[readiness.evidence];
 
   return (
-    <Page
+    <Page route="/exam"
       eyebrow="Mock examination"
       title="Practice the state exam, before you sit the real one"
       /*
@@ -90,7 +90,10 @@ export default async function ExamPage() {
       <section className="mb-10">
         <SectionTitle hint={evidenceNote}>Where you are</SectionTitle>
         <Card tone={readiness.assessed ? "mint" : "accent"}>
-          <div className="flex flex-wrap items-center gap-5">
+          {/* The ring and the verdict share a row; what follows takes the
+              card's width on a phone rather than a column beside the ring. */}
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-5 gap-y-2">
+            <span className="sm:row-span-2">
             <Ring
               pct={readiness.assessed ? 100 : 0}
               size={72}
@@ -101,12 +104,13 @@ export default async function ExamPage() {
                 {readiness.assessed ?? "?"}
               </span>
             </Ring>
-            <div className="min-w-[16rem] flex-1">
-              <p className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-                {readiness.assessed
-                  ? `We'd bet on you passing ${readiness.assessed} today.`
-                  : "We wouldn't bet on any paper yet."}
-              </p>
+            </span>
+            <p className="text-lg font-bold sm:self-end sm:text-xl" style={{ color: "var(--ink)" }}>
+              {readiness.assessed
+                ? `We'd bet on you passing ${readiness.assessed} today.`
+                : "We wouldn't bet on any paper yet."}
+            </p>
+            <div className="col-span-2 sm:col-span-1 sm:col-start-2 sm:self-start">
               <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {!readiness.next
                   ? "You could pass every paper here. That's as far as we can tell."
@@ -165,10 +169,8 @@ export default async function ExamPage() {
                           : <Chip tone="neutral">Not examined</Chip>}
                         {level.measured && <Chip tone="accent">Sat</Chip>}
                       </div>
-                      <p className="mt-2 max-w-[44ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                        {spec.summary}
-                      </p>
                     </div>
+                    <span className="flex shrink-0 flex-col items-center gap-1">
                     <Ring
                       pct={level.confidence}
                       size={62}
@@ -179,16 +181,34 @@ export default async function ExamPage() {
                         {level.confidence}%
                       </span>
                     </Ring>
+                    {/* The tier beside every figure (ADR-022), per level: a sat
+                        level can read up to 85 while the page's evidence is
+                        still thin, so the section's one hint could not speak
+                        for this ring. */}
+                    <span className="max-w-[6rem] text-center text-xs leading-tight" style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
+                      {level.measured ? "from your paper" : EVIDENCE_LABEL[readiness.evidence]}
+                    </span>
+                    </span>
                   </div>
-
-                  <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{level.verdict}</p>
-                  {/* The tier beside every figure (ADR-022), per level: a sat level
-                      can read up to 85 while the page's evidence is still thin,
-                      so the section's one hint could not speak for this ring. */}
-                  <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
-                    {level.measured ? "Resting on a paper you sat." : `That figure is ${EVIDENCE_LABEL[readiness.evidence]}.`}
+                  {/* Under the header rather than beside the ring, so it has
+                      the card's whole width: squeezed beside a 62px ring on a
+                      phone it ran to six lines of four words. */}
+                  <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                    {spec.summary}
                   </p>
 
+                  {/* The verdict where it says something: a paper sat, or a
+                      level close enough to be worth aiming at. On the other
+                      cards it was "X is a long way off for now" five times
+                      down the page. */}
+                  {(level.measured || level.confidence >= 25) && (
+                    <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{level.verdict}</p>
+                  )}
+
+                  {/* The four parts only once one of them has a figure: four
+                      labels over four empty tracks said "nothing measured" in
+                      the loudest way the card had. */}
+                  {SKILLS.some((skill) => level.seen[skill] && level.expected[skill] > 0) && (
                   <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
                     {SKILLS.map((skill) => (
                       <div key={skill}>
@@ -212,13 +232,13 @@ export default async function ExamPage() {
                       </div>
                     ))}
                   </dl>
+                  )}
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                      <Clock size={12} className="mr-1 inline" aria-hidden />
-                      {writtenMinutes(spec)} minutes written, then {spec.parts[3]?.minutes ?? 15} speaking
-                      {" · "}
-                      predicted {level.expectedTotal} percent, {band.label}
+                    <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
+                      <Clock size={12} aria-hidden />
+                      <span className="sr-only">Predicted {level.expectedTotal} percent, {band.label}. </span>
+                      {writtenMinutes(spec)} + {spec.parts[3]?.minutes ?? 15} min
                     </span>
                     <span className="flex flex-wrap items-center gap-3">
                       <Link
@@ -248,17 +268,17 @@ export default async function ExamPage() {
               Nothing here yet. Review for a week or two and it will start to fill in.
             </Note>
           ) : (
-            <ul className="grid gap-3">
+            <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
               {readiness.strengths.map((item) => (
-                <Card as="li" key={item.id} tone="mint">
-                  <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--mint-ink)" }}>
-                    <BadgeCheck size={16} aria-hidden />
-                    {item.title}
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--mint-ink)" }}>
-                    {item.detail}
-                  </p>
-                </Card>
+                <li key={item.id} className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+                  <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
+                    <BadgeCheck size={16} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{item.title}</span>
+                    <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.detail}</span>
+                  </span>
+                </li>
               ))}
             </ul>
           )}
@@ -269,26 +289,26 @@ export default async function ExamPage() {
           {readiness.gaps.length === 0 ? (
             <Note tone="good">Nothing here is holding you back. Go sit the paper.</Note>
           ) : (
-            <ul className="grid gap-3">
+            <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
               {readiness.gaps.map((item) => (
-                <Card as="li" key={item.id} tone="peach">
-                  <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--peach-ink)" }}>
-                    <TriangleAlert size={16} aria-hidden />
-                    {item.title}
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--peach-ink)" }}>
-                    {item.detail}
-                  </p>
-                  {item.href && (
-                    <Link
-                      href={item.href}
-                      className="mt-3 inline-flex items-center gap-1 text-sm font-semibold underline underline-offset-4"
-                      style={{ color: "var(--peach-ink)" }}
-                    >
-                      {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden />
-                    </Link>
-                  )}
-                </Card>
+                <li key={item.id} className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+                  <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--peach-soft)", color: "var(--peach-ink)" }}>
+                    <TriangleAlert size={16} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{item.title}</span>
+                    <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.detail}</span>
+                    {item.href && (
+                      <Link
+                        href={item.href}
+                        className="mt-2 inline-block text-sm font-semibold underline underline-offset-4"
+                        style={{ color: "var(--accent-deep)" }}
+                      >
+                        {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden className="inline align-[-2px]" />
+                      </Link>
+                    )}
+                  </span>
+                </li>
               ))}
             </ul>
           )}

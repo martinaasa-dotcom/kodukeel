@@ -151,8 +151,11 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
 
   return (
     <Card>
+      {/* The name and its two small controls take a line of their own on a
+          phone, with Practice and Remove under them: sharing one row, the
+          name was squeezed and "Add words" broke over two lines. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 basis-[14rem]">
           {editing ? (
             <form onSubmit={(e) => { e.preventDefault(); rename(); }} className="flex flex-wrap items-center gap-2">
               <input
@@ -179,7 +182,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
             <button
               type="button"
               onClick={() => setExpanded((e) => !e)}
-              className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs"
+              className="tap-tint flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs"
               style={{ color: "var(--ink-3)" }}
               aria-expanded={expanded}
             >
@@ -189,7 +192,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
             <button
               type="button"
               onClick={() => setFiling((f) => !f)}
-              className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs"
+              className="tap-tint flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs"
               style={{ color: "var(--ink-3)" }}
               aria-expanded={filing}
             >

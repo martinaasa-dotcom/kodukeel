@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
 import { WayOut } from "@/components/round/RoundExit";
 import { PrefetchLink } from "@/components/PrefetchLink";
+import { NamedIcon } from "@/components/icons";
+import { DESTINATIONS } from "@/lib/ux/nav";
 
 /**
  * One faint light in the top corner, fixed behind the page content.
@@ -21,7 +23,7 @@ export function Wash() {
   );
 }
 
-export function Page({ title, titleLang, lead, actions, children, eyebrow }: {
+export function Page({ title, titleLang, lead, actions, children, eyebrow, route }: {
   title: string;
   /**
    * Set to "et" where the heading is the Estonian name of a grammar point
@@ -36,22 +38,44 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow }: {
    * dates, which only their own browser knows. See components/LocalDate.tsx.
    */
   eyebrow?: ReactNode;
+  /**
+   * The destination this page is, as `lib/ux/nav.ts` names it. The heading
+   * then carries the same icon in the same hue as the row in the rail, so the
+   * place a learner pressed and the page that opened are visibly one thing.
+   * Read off the table rather than passed as an icon, so the two cannot drift.
+   */
+  route?: string;
 }) {
+  const place = route ? DESTINATIONS.find((d) => d.href === route) : undefined;
   return (
     <div className="mx-auto max-w-5xl px-5 py-8 md:px-10 md:py-12">
-      <header className="fade-up mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          {eyebrow && (
-            <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
+      <header className="fade-up mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="flex min-w-0 flex-[1_1_28rem] items-start gap-4">
+          {place && (
+            <span
+              aria-hidden
+              className="page-mark mt-1 hidden shrink-0 place-items-center sm:grid"
+              style={{
+                background: place.tone === "ink" ? "var(--raised)" : `var(--${place.tone}-soft)`,
+                color: place.tone === "ink" ? "var(--ink)" : toneInk(place.tone),
+              }}
+            >
+              <NamedIcon name={place.icon} size={24} strokeWidth={2} />
+            </span>
           )}
-          <h1 lang={titleLang} className="text-3xl font-bold leading-[1.1] tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
-            {title}
-          </h1>
-          {lead && <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
+          <div className="min-w-0">
+            {eyebrow && (
+              <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
+            )}
+            <h1 lang={titleLang} className="text-3xl font-bold leading-[1.05] tracking-tight md:text-4xl lg:text-5xl" style={{ color: "var(--ink)" }}>
+              {title}
+            </h1>
+            {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
+          </div>
         </div>
-        {actions}
+        {actions && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>}
       </header>
-      {children}
+      <div className="page-body">{children}</div>
     </div>
   );
 }
@@ -113,7 +137,7 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
  * reason a reader could name. A rhythm nobody can predict is one more thing to
  * absorb on every screen.
  *
- * So this is the rhythm, and it is deliberately generous: 32px between one
+ * So this is the rhythm, and it is deliberately generous: 40px between one
  * section and the next, which is comfortably more than the 20px inside a card
  * and the 8px between rows in a list. Space is what says "these are separate
  * things" before a heading has to.
@@ -123,7 +147,7 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
  * says those belong together.
  */
 export function Stack({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`flex flex-col gap-8 ${className}`}>{children}</div>;
+  return <div className={`stack-rise flex flex-col gap-10 ${className}`}>{children}</div>;
 }
 
 /**
@@ -175,9 +199,9 @@ export function Columns({ children, className = "" }: { children: ReactNode; cla
  */
 export function SectionTitle({ children, hint }: { children: ReactNode; hint?: ReactNode }) {
   return (
-    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <h2 className="label-xs" style={{ color: "var(--ink-3)" }}>{children}</h2>
-      {hint && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint}</span>}
+    <div className="section-title mb-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <h2 className="text-lg font-bold tracking-tight md:text-xl" style={{ color: "var(--ink)" }}>{children}</h2>
+      {hint && <span className="text-sm" style={{ color: "var(--ink-3)" }}>{hint}</span>}
     </div>
   );
 }
@@ -294,24 +318,34 @@ export function Stat({ value, label, tone, icon }: {
 export function StatTile({ value, label, tone = "accent", icon, hint }: {
   value: ReactNode; label: string; tone?: Exclude<CardTone, "plain">; icon?: ReactNode; hint?: string;
 }) {
-  // The ink, not the hue: a tile's label and figure sit on that hue's own tint,
-  // where the hue itself lands near 2.5:1 (see the token block in globals.css).
-  const fg = {
-    accent: "var(--accent-deep)", mint: "var(--mint-ink)", butter: "var(--butter-ink)",
-    peach: "var(--peach-ink)", blush: "var(--blush-ink)", sky: "var(--sky-ink)",
-  }[tone];
+  /*
+    A FIGURE SET LIKE TYPE, NOT A PASTEL BOX.
 
+    These were a hue's tint with the label and the number written in that
+    hue's ink, four or five across: the tinted-tile dashboard every generated
+    admin panel has, and the first thing a reader takes it for. The number is
+    what the tile is about, so it is set large in the display face on the
+    card's own ground, in ink; the hue is a rule along the top, where it still
+    says which kind of figure this is without painting the whole square; and
+    the label is quiet sentence-case rather than tracked capitals. Contrast
+    stops being a question, since everything is ink on the ground it was
+    measured against.
+  */
+  const rule = tone === "accent" ? "var(--accent)" : `var(--${tone})`;
+  // A range like "72.9 to 100 h" in the display size breaks its unit onto a
+  // line of its own in a quarter-width tile, so a long figure steps down one.
+  const long = typeof value === "string" && value.length > 8;
   return (
     <div
-      className="flex flex-col gap-1 rounded-[var(--r)] px-3 py-3 sm:px-4 sm:py-3.5"
-      style={{ background: CARD_TONES[tone].background }}
+      className="stat-tile flex flex-col gap-1.5 rounded-[var(--r)] border px-3 py-3 sm:px-4 sm:py-3.5"
+      style={{ borderColor: "var(--rule-soft)", borderTopColor: rule, borderTopWidth: 3, background: "var(--surface)" }}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="label-xs min-w-0" style={{ color: fg }}>{label}</span>
-        {icon && <span aria-hidden className="shrink-0" style={{ color: fg, opacity: 0.75 }}>{icon}</span>}
+        <span className="min-w-0 text-sm" style={{ color: "var(--ink-2)" }}>{label}</span>
+        {icon && <span aria-hidden className="shrink-0" style={{ color: toneInk(tone) }}>{icon}</span>}
       </div>
-      <span className="tnum text-2xl font-bold leading-none" style={{ color: fg }}>{value}</span>
-      {hint && <span className="text-2xs" style={{ color: fg }}>{hint}</span>}
+      <span className={`tnum font-display ${long ? "text-2xl" : "text-3xl"} font-bold leading-none tracking-tight`} style={{ color: "var(--ink)" }}>{value}</span>
+      {hint && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint}</span>}
     </div>
   );
 }

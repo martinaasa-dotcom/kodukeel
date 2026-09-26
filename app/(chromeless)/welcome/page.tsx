@@ -346,11 +346,11 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
         rather than breaking inside itself with the tick left hanging.
       */}
       <ul
-        className="fade-up hero-claims mx-auto text-xs sm:[text-wrap:balance]"
+        className="fade-up hero-claims mx-auto w-fit max-w-full text-xs sm:w-auto sm:[text-wrap:balance]"
         style={{ color: "var(--ink-3)", animationDelay: "640ms" }}
       >
         {claims.map((t) => (
-          <li key={t} className="my-1 flex items-start justify-center gap-1.5 sm:mx-2.5 sm:inline-flex sm:items-center sm:align-middle">
+          <li key={t} className="my-1 flex items-start gap-1.5 sm:mx-2.5 sm:justify-center sm:inline-flex sm:items-center sm:align-middle">
             <Check size={14} aria-hidden className="mt-0.5 sm:mt-0" style={{ color: "var(--mint-ink)" }} />
             <span className="max-w-[30ch] text-left sm:max-w-none">{t}</span>
           </li>

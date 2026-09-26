@@ -46,7 +46,7 @@ export default async function ExceptionsPage() {
   const families = [...new Set(live.map((g) => g.family))] as ExceptionFamily[];
 
   return (
-    <Page
+    <Page route="/grammar/exceptions"
       eyebrow="Reference"
       title="Exceptions"
       lead="Where the endings stop being predictable, and which words to learn one at a time."
@@ -60,13 +60,8 @@ export default async function ExceptionsPage() {
                 Most words follow the pattern. These do not.
               </p>
               <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Learn the omastav and eleven cases follow from it. That holds until the stem
-                itself changes, and then it stops holding for every case at once. {scale} graded
-                words in this dictionary break a pattern somewhere. This page is which ones, and
-                where.
-              </p>
-              <p className="mt-2 max-w-[62ch] text-sm" style={{ color: "var(--ink-3)" }}>
-                Any word not on this page follows the rules, so you can work it out.
+                {scale} graded words in this dictionary break a pattern somewhere. Every other word follows the
+                rules, so you can work it out.
               </p>
             </div>
           </div>

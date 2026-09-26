@@ -11,7 +11,7 @@ import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { PROGRAMMES, dayById, holdAdvice, holdReason, programmeAfter, unitOf } from "@/lib/course";
 import { ButtonLink } from "@/components/Button";
-import { Card, Chip, Meter, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, Chip, Meter, Page, SectionTitle, Stack } from "@/components/ui";
 import { Explain } from "@/components/Explain";
 import { StepList } from "@/components/course/StepList";
 import { StartProgramme } from "@/components/course/StartProgramme";
@@ -376,20 +376,21 @@ export default async function CoursePage({
           <p className="mt-2 text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
             {day.canDo}
           </p>
-          {/* Three across by the card's width rather than the window's: from
-              768 this card shares the page with the words beside it and is
-              318px wide, where three tiles broke "tonight" mid-letter. */}
-          <div className="@container mt-4">
-            <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3">
-              <StatTile value={day.words.length} label="New words" tone="mint" />
-              <StatTile
-                value={standing.complete ? "0" : `${standing.minutesLeft}m`}
-                label="Left tonight"
-                tone="sky"
-              />
-              <StatTile value={`${standing.pct}%`} label="Done tonight" tone="butter" />
-            </div>
-          </div>
+          {/* Three figures on one line, set as type rather than three boxes:
+              three tiles broke onto two rows on a phone, one alone under two,
+              and "tonight" said three times over was the card's heading again. */}
+          <dl className="mt-4 grid grid-cols-3 divide-x rounded-[var(--r)] border py-3" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}>
+            {[
+              { value: String(day.words.length), label: "new words" },
+              { value: standing.complete ? "0m" : `${standing.minutesLeft}m`, label: "left" },
+              { value: `${standing.pct}%`, label: "done" },
+            ].map((figure) => (
+              <div key={figure.label} className="flex flex-col-reverse items-center gap-1 px-2" style={{ borderColor: "var(--rule-soft)" }}>
+                <dt className="text-sm" style={{ color: "var(--ink-3)" }}>{figure.label}</dt>
+                <dd className="tnum font-display text-2xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}</dd>
+              </div>
+            ))}
+          </dl>
         </Card>
 
         <div>
@@ -449,7 +450,7 @@ export default async function CoursePage({
           <div className="mt-3">
             <Meter pct={Math.round((reading.daysDone / total) * 100)} label={programme.subtitle} />
           </div>
-          <ol className="mt-4 flex flex-col gap-1.5">
+          <ol className="mt-4 grid gap-x-4 gap-y-0.5 sm:grid-cols-2">
             {programme.days.map((d) => {
               const state = d.index < day.index ? "done" : d.index === day.index ? "now" : "ahead";
               return (
@@ -466,7 +467,7 @@ export default async function CoursePage({
                   get right. The caption gets its own line, indented under
                   the badge, and wraps instead of clipping.
                 */
-                <li key={d.id} data-course-day className="flex flex-col gap-0.5 text-sm">
+                <li key={d.id} data-course-day className="flex flex-col gap-0.5 rounded-[var(--r)] px-2 py-1.5 text-sm" style={state === "now" ? { background: "var(--accent-soft)" } : undefined}>
                   <div className="flex items-start gap-2">
                     <span
                       aria-hidden
@@ -495,14 +496,17 @@ export default async function CoursePage({
                       >
                         {uiText(level, d.title, d.subtitle)}
                       </span>
+                      {uiWantsEnglish(level) && d.part.of > 1 && (
+                        <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+                          {d.part.n} of {d.part.of}
+                        </span>
+                      )}
                       {state === "now" && <Chip tone="accent">Tonight</Chip>}
                     </span>
                   </div>
-                  {(uiWantsEnglish(level) ? d.part.of > 1 : true) && (
+                  {!uiWantsEnglish(level) && (
                     <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>
-                      {uiWantsEnglish(level)
-                        ? `${d.part.n}/${d.part.of}`
-                        : d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
+                      {d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
                     </span>
                   )}
                 </li>
@@ -543,6 +547,39 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
   return (
     <Card>
       <SectionTitle hint={`${PROGRAMMES.length} parts`}>The whole ladder</SectionTitle>
+      {/*
+        THE LADDER AS A PICTURE FIRST, AND THE LIST ON A PRESS.
+
+        Nineteen rows of part titles was the longest block on a screen whose
+        job is tonight. What the ladder is there to say is that the course has
+        an end and where you are on the way to it, and a strip of nineteen
+        segments says both at a glance; the titles are one press away for
+        somebody who wants to read them.
+      */}
+      <div aria-hidden className="mt-2 flex gap-1">
+        {PROGRAMMES.map((p) => {
+          const at = PROGRAMMES.findIndex((q) => q.id === here);
+          const index = PROGRAMMES.indexOf(p);
+          return (
+            <span
+              key={p.id}
+              className="h-2.5 flex-1 rounded-full"
+              style={{
+                background: p.id === here ? "var(--accent)" : at >= 0 && index < at ? "var(--mint)" : "var(--raised)",
+              }}
+            />
+          );
+        })}
+      </div>
+      <div aria-hidden className="mt-1.5 flex gap-1 text-xs font-semibold" style={{ color: "var(--ink-3)" }}>
+        {groupLevels.map((groupLevel) => (
+          <span key={groupLevel} style={{ flex: PROGRAMMES.filter((p) => p.level === groupLevel).length }}>
+            {groupLevel}
+          </span>
+        ))}
+      </div>
+      <details className="explain mt-3">
+        <summary>Every part, by name</summary>
       <div className="mt-3 flex flex-col gap-4">
         {groupLevels.map((groupLevel) => (
           <div key={groupLevel}>
@@ -555,7 +592,7 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
                       title that did not fit beside it left it alone on a line. */}
                   <span
                     data-course-badge
-                    className="tnum w-9 shrink-0 font-semibold"
+                    className="tnum w-12 shrink-0 whitespace-nowrap font-semibold"
                     style={{ color: p.id === here ? "var(--accent-deep)" : "var(--ink-2)" }}
                   >
                     {p.id.toUpperCase()}
@@ -575,6 +612,7 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
           </div>
         ))}
       </div>
+      </details>
     </Card>
   );
 }

@@ -151,7 +151,7 @@ export default async function PracticePage() {
     mode.href === "/review/sprint" ? { ...mode, subtitle: sprintLength } : mode;
 
   return (
-    <Page title="Practice" lead="Words you have already learned, asked every way there is.">
+    <Page route="/practice" title="Practice" lead="Words you have already learned, asked every way there is.">
       {snapshot.totalCards === 0 ? (
         <Empty
           title="Nothing to practice yet"
@@ -198,6 +198,7 @@ export default async function PracticePage() {
             screen somebody is on when they have ten minutes and want to use
             them.
           */}
+          <div className="@container"><div className="grid gap-4 @2xl:grid-cols-2 [&>*]:h-full">
           <ModeCard
             href="/situations"
             iconName="MessagesSquare"
@@ -218,6 +219,7 @@ export default async function PracticePage() {
             meta={flashMeta}
             primary={unfinished > 0 && ready === 0}
           />
+          </div></div>
 
           {/*
             THE SAME ROUND, POINTED AT THE WORDS EVERYBODY MEETS FIRST.
@@ -234,6 +236,7 @@ export default async function PracticePage() {
             goes to the index, which carries the counts and the way to build
             the next twenty out.
           */}
+          <div className="@container"><div className={`grid gap-4 [&>*]:h-full ${decks.length > 0 ? "@2xl:grid-cols-2" : ""}`}>
           <CommonWordsCard />
 
           {/*
@@ -247,6 +250,7 @@ export default async function PracticePage() {
             checkbox list.
           */}
           {decks.length > 0 && <DecksCard decks={decks} />}
+          </div></div>
 
           {/*
             AND WHERE THOSE WORDS STAND, BESIDE THE ROUNDS THAT MOVE THEM.
@@ -279,7 +283,7 @@ export default async function PracticePage() {
 
           <section>
             <SectionTitle hint="a few minutes each">Rounds</SectionTitle>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
               {QUICK_MODES.map((m) => (
                 <ModeTile key={m.href} mode={withLength(m)} meta={metaFor(m)} />
               ))}
@@ -303,7 +307,7 @@ export default async function PracticePage() {
           {GAMES.length > 0 && (
             <section>
               <SectionTitle hint="for the fun of it">Games</SectionTitle>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                 {GAMES.map((m) => (
                   <ModeTile key={m.href} mode={withLength(m)} meta={metaFor(m)} />
                 ))}
@@ -375,7 +379,10 @@ function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
   return (
     <Link
       href={mode.href}
-      className="lift flex items-center gap-3 rounded-[var(--r-lg)] border p-4"
+      /* Stacked on a phone, two to a row, the shape of a launcher: the icon
+         is what a thumb aims at and the name is read under it. Side by side
+         from `sm`, where a row has the width for it. */
+      className="lift flex h-full flex-col items-start gap-2.5 rounded-[var(--r-lg)] border p-3.5 sm:flex-row sm:items-center sm:gap-3 sm:p-4"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
     >
       <span
@@ -428,7 +435,7 @@ function CommonWordsCard() {
         >
           <TrendingUp size={19} aria-hidden />
         </span>
-        <span className="min-w-0">
+        <span className="min-w-0 flex-1">
           <Link
             href={mode.href}
             className="block text-lg font-bold underline-offset-4 hover:underline"
@@ -436,8 +443,9 @@ function CommonWordsCard() {
           >
             {mode.title}
           </Link>
+          <span className="block text-xs font-semibold sm:hidden" style={{ color: "var(--ink-2)" }}>{mode.note}</span>
         </span>
-        <span className="ml-auto"><Chip tone="neutral">{mode.note}</Chip></span>
+        <span className="hidden shrink-0 sm:inline-flex"><Chip tone="neutral">{mode.note}</Chip></span>
       </div>
 
       {/*
@@ -451,7 +459,7 @@ function CommonWordsCard() {
         Counted over film and television subtitles, not picked by hand.
       </p>
 
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-2">
         {COMMON_GROUPS.map((group) => (
           <Link
             key={group.key}
@@ -500,7 +508,7 @@ function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: nu
         >
           <Layers size={19} aria-hidden />
         </span>
-        <span className="min-w-0">
+        <span className="min-w-0 flex-1">
           <Link
             href="/words/decks"
             className="block text-lg font-bold underline-offset-4 hover:underline"
@@ -510,7 +518,7 @@ function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: nu
           </Link>
           <span className="block text-xs" style={{ color: "var(--ink-3)" }}>The shelves you named</span>
         </span>
-        <span className="ml-auto">
+        <span className="shrink-0">
           <Chip tone="neutral">{stocked.length === 1 ? "1 deck" : `${stocked.length} decks`}</Chip>
         </span>
       </div>
@@ -564,18 +572,22 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
         boxShadow: "var(--shadow-sm)",
       }}
     >
-      <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      {/* One row whatever the width: on a phone the chip wrapped onto a line
+          of its own under the title, which read as a second heading. There it
+          sits under the title as plain text instead. */}
+      <span className="flex items-center gap-3">
         <span
-          className="flex h-11 w-11 items-center justify-center rounded-full"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
           style={{ background: `var(--${tone})`, color: "var(--surface)" }}
         >
           <NamedIcon name={iconName} size={19} aria-hidden />
         </span>
-        <span className="min-w-0">
+        <span className="min-w-0 flex-1">
           <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{title}</span>
           {subtitle && <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{subtitle}</span>}
+          <span className="block text-xs font-semibold sm:hidden" style={{ color: primary ? "var(--accent-deep)" : "var(--ink-2)" }}>{meta}</span>
         </span>
-        <span className="ml-auto"><Chip tone={primary ? "accent" : "neutral"}>{meta}</Chip></span>
+        <span className="hidden shrink-0 sm:inline-flex"><Chip tone={primary ? "accent" : "neutral"}>{meta}</Chip></span>
       </span>
       <span className="text-sm" style={{ color: "var(--ink-2)" }}>{body}</span>
     </Link>

@@ -86,7 +86,7 @@ export default async function CalendarPage({
   }));
 
   return (
-    <Page
+    <Page route="/calendar"
       title="Calendar"
       lead="Your Estonian week: classes, study slots and what is due."
     >

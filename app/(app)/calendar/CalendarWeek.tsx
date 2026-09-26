@@ -96,7 +96,7 @@ export function CalendarWeek({
         title beside the control: at 1024 the row is 55px and the button and
         its gap take 50 of them.
       */}
-      <div className="mt-4 grid gap-2 xl:grid-cols-7">
+      <div className="mt-4 grid gap-2 xl:gap-1.5 xl:grid-cols-7">
           {days.map((key) => (
             <DayColumn
               key={key}
@@ -150,6 +150,7 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
 }) {
   const weekday = weekdayOf(dayKey);
   const empty = events.length === 0 && reminders.length === 0;
+  const quiet = empty && !isToday;
 
   return (
     <div
@@ -166,10 +167,14 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
         floors a flex item rather than capping what the column is sized to.
         The same fault the shell had against `main`, one container in.
       */
-      className="min-w-0 rounded-[var(--r)] border p-2.5"
+      className={`min-w-0 rounded-[var(--r)] border ${quiet ? "border-transparent px-2 py-1 xl:border-[var(--rule-soft)] xl:bg-[var(--surface)] xl:py-2" : "p-2"}`}
       style={{
-        borderColor: isToday ? "var(--accent)" : "var(--rule-soft)",
-        background: isToday ? "var(--accent-soft)" : "var(--surface)",
+        // An empty day in a list is a date and nothing else, so on a phone it
+        // loses its box: seven boxes, five of them empty, read as a form.
+        ...(quiet ? {} : {
+          borderColor: isToday ? "var(--accent)" : "var(--rule-soft)",
+          background: isToday ? "var(--accent-soft)" : "var(--surface)",
+        }),
       }}
     >
       <p className="label-xs" style={{ color: isToday ? "var(--accent-deep)" : "var(--ink-3)" }}>
@@ -179,14 +184,21 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
         {Number(dayKey.slice(8, 10))}
       </p>
 
-      <ul className="mt-2 flex flex-col gap-1.5">
-        {events.map((e) => <EventRow key={e.id} event={e} />)}
-        {reminders.map((r) => <ReminderRow key={r.id} reminder={r} />)}
-      </ul>
+      {!empty && (
+        <ul className="mt-2 flex flex-col gap-1.5">
+          {events.map((e) => <EventRow key={e.id} event={e} />)}
+          {reminders.map((r) => <ReminderRow key={r.id} reminder={r} />)}
+        </ul>
+      )}
 
       {/* Said plainly rather than left blank: an empty column and a column that
           failed to load look the same, and on a phone the difference matters. */}
-      {empty && <p className="mt-1 text-2xs" style={{ color: "var(--ink-3)" }}>Nothing</p>}
+      {/* An empty day is a line with its date on it in a list, and an empty
+          slot only where the week is drawn as columns. */}
+      {empty && (
+        <p className="mt-2 hidden h-6 rounded-[var(--r-sm)] border border-dashed xl:block" style={{ borderColor: "var(--rule-soft)" }} aria-hidden />
+      )}
+      {empty && <span className="sr-only">Nothing</span>}
     </div>
   );
 }
@@ -197,16 +209,16 @@ function EventRow({ event }: { event: StudyEvent }) {
 
   return (
     <li
-      className="rounded-[var(--r-sm)] px-2 py-1.5"
+      className="rounded-[var(--r-sm)] px-1.5 py-1.5"
       style={{ background: `var(--${KIND_TONE[event.kind]}-soft)` }}
     >
-      <div className="flex items-start justify-between gap-1.5">
-        <div className="min-w-0">
-          <p className="truncate text-xs font-semibold" style={{ color: "var(--ink)" }}>{event.title}</p>
-          <p className="text-2xs" style={{ color: "var(--ink-2)" }}>
-            {span(event.startMinute, event.durationMinutes)}
-          </p>
-        </div>
+      <p className="text-xs font-semibold leading-snug" style={{ color: "var(--ink)" }}>{event.title}</p>
+      {/* The remove button sits on the line under the title, so the title has
+          the whole width of a column that is about ninety pixels wide. */}
+      <div className="flex items-center justify-between gap-1.5">
+        <p className="text-2xs" style={{ color: "var(--ink-2)" }}>
+          {span(event.startMinute, event.durationMinutes)}
+        </p>
         <button
           type="button"
           aria-label={`Remove ${event.title}`}
@@ -215,7 +227,7 @@ function EventRow({ event }: { event: StudyEvent }) {
             const landed = await deleteStudyEvent(event.id).then(() => true).catch(() => false);
             if (landed) router.refresh();
           })}
-          className="tap-tint rounded-full p-1"
+          className="tap-tint shrink-0 rounded-full p-1"
           style={{ color: "var(--ink-3)" }}
         >
           <Trash2 size={12} aria-hidden />
@@ -231,38 +243,36 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
   const router = useRouter();
 
   return (
-    <li className="rounded-[var(--r-sm)] px-2 py-1.5" style={{ background: "var(--raised)" }}>
-      <div className="flex items-start justify-between gap-1.5">
-        <div className="min-w-0">
-          <p
-            className="truncate text-xs font-semibold"
-            style={{
-              color: reminder.completed ? "var(--ink-3)" : "var(--ink)",
-              textDecoration: reminder.completed ? "line-through" : undefined,
-            }}
-          >
-            {reminder.title}
-          </p>
-          {/*
-            Plain text rather than a `Chip`, which the containment sweep caught
-            bleeding 11px out of this row at 768px. A week column at that width
-            is about ninety pixels and a chip is a padded inline-flex box with
-            an intrinsic minimum: it cannot shrink into the space, so it hangs
-            out of it. The row already says what it is by where it sits.
+    <li className="rounded-[var(--r-sm)] px-1.5 py-1.5" style={{ background: "var(--raised)" }}>
+      <p
+        className="text-xs font-semibold leading-snug"
+        style={{
+          color: reminder.completed ? "var(--ink-3)" : "var(--ink)",
+          textDecoration: reminder.completed ? "line-through" : undefined,
+        }}
+      >
+        {reminder.title}
+      </p>
+      <div className="flex items-center justify-between gap-1.5">
+        {/*
+          Plain text rather than a `Chip`, which the containment sweep caught
+          bleeding 11px out of this row at 768px. A week column at that width
+          is about ninety pixels and a chip is a padded inline-flex box with
+          an intrinsic minimum: it cannot shrink into the space, so it hangs
+          out of it. The row already says what it is by where it sits.
 
-            Block and truncating rather than inline, and without the uppercase
-            tracking the first attempt kept: an inline run still measured 2px
-            over, because `min-w-0` lets the column shrink and does nothing
-            about the text inside it. `truncate` is a way out somebody chose,
-            which is what the sweep accepts.
-          */}
-          <span
-            className="block truncate text-2xs font-semibold"
-            style={{ color: reminder.completed ? "var(--good-ink)" : "var(--hard-ink)" }}
-          >
-            {reminder.completed ? "Done" : "To do"}
-          </span>
-        </div>
+          Block and truncating rather than inline, and without the uppercase
+          tracking the first attempt kept: an inline run still measured 2px
+          over, because `min-w-0` lets the column shrink and does nothing
+          about the text inside it. `truncate` is a way out somebody chose,
+          which is what the sweep accepts.
+        */}
+        <span
+          className="block min-w-0 truncate text-2xs font-semibold"
+          style={{ color: reminder.completed ? "var(--good-ink)" : "var(--hard-ink)" }}
+        >
+          {reminder.completed ? "Done" : "To do"}
+        </span>
         {reminder.mine && (
           <button
             type="button"
@@ -272,7 +282,7 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
               const landed = await deleteReminder(reminder.id).then(() => true).catch(() => false);
               if (landed) router.refresh();
             })}
-            className="tap-tint rounded-full p-1"
+            className="tap-tint shrink-0 rounded-full p-1"
             style={{ color: "var(--ink-3)" }}
           >
             <Trash2 size={12} aria-hidden />
@@ -455,5 +465,9 @@ function weekLabel(days: string[], offset: number): string {
   const last = days[6];
   if (!first || !last) return "";
   const when = offset === 0 ? "this week" : offset < 0 ? `${-offset} back` : `${offset} ahead`;
-  return `${first.slice(5)} to ${last.slice(5)} · ${when}`;
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const d = (key: string) => Number(key.slice(8, 10));
+  const m = (key: string) => MONTHS[Number(key.slice(5, 7)) - 1] ?? "";
+  const range = m(first) === m(last) ? `${d(first)} to ${d(last)} ${m(last)}` : `${d(first)} ${m(first)} to ${d(last)} ${m(last)}`;
+  return `${range} · ${when}`;
 }

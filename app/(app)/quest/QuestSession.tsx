@@ -341,56 +341,70 @@ export function QuestSession({
   if (phase === "ready") {
     return (
       <Page title="Daily quest" lead={`${roundLength(seconds)} on whatever keeps going wrong.`}>
-        <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
-          <span
-            className="flex h-20 w-20 items-center justify-center rounded-full quest-pulse"
-            style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-          >
-            <Target size={34} aria-hidden />
-          </span>
+        {/*
+          A dial and a chart rather than a paragraph and a row of pills. The
+          dial is the round (it is timed, and this long); the chart is why it is
+          worth pressing: this learner's own weakest endings, each a bar as long
+          as how often it comes out right. The name leads, the question it
+          answers sits under it, and the figure is the bar's end rather than a
+          number inside a sentence.
+        */}
+        <div className="mx-auto flex max-w-md flex-col gap-6">
+          <div className="flex items-center gap-4">
+            <span
+              className="quest-pulse relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full"
+              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+            >
+              <Timer size={30} aria-hidden />
+            </span>
+            <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              <BriefingLines id="quest" />
+            </p>
+          </div>
 
-          {/* What the round is about, said before it starts. A timer with no
-              reason behind it is another timer; "your seesütlev is at 54%" is
-              the reason to press it. */}
-          {aimed.length > 0 ? (
-            <>
-              <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                Aimed at what is going wrong most:
-              </p>
-              <ul className="flex flex-wrap justify-center gap-2">
+          {aimed.length > 0 && (
+            <section
+              aria-label="What this round is aimed at"
+              className="rounded-[var(--r-lg)] border p-5"
+              style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+            >
+              <h2 className="flex items-center gap-2 text-md font-bold" style={{ color: "var(--ink)" }}>
+                <Target size={17} aria-hidden style={{ color: "var(--accent-deep)" }} />
+                Aimed at your weakest endings
+              </h2>
+              <ul className="mt-4 flex flex-col gap-4">
                 {aimed.map((c) => (
                   <li key={c.key}>
-                    <Chip tone={c.accuracy < 60 ? "again" : "hard"}>
-                      {/* One run of text, so it wraps between words. As four
-                          children of the chip's inline-flex they squeezed each
-                          other and broke the case name mid-letter at 360. */}
-                      <span>
-                        <span lang="et">{c.et}</span>
-                        {c.question && <> · <CaseQuestion question={c.question} inline /></>}
-                        {" "}{c.accuracy}%
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
+                      <span className="tnum text-sm font-semibold" style={{ color: c.accuracy < 60 ? "var(--again-ink)" : c.accuracy < 90 ? "var(--hard-ink)" : "var(--good-ink)" }}>
+                        {c.accuracy}% right
                       </span>
-                    </Chip>
+                    </div>
+                    <span aria-hidden className="mt-1.5 block h-2 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
+                      <span
+                        className="block h-full rounded-full"
+                        style={{ width: `${Math.max(3, c.accuracy)}%`, background: c.accuracy < 60 ? "var(--peach)" : c.accuracy < 90 ? "var(--butter)" : "var(--mint)" }}
+                      />
+                    </span>
+                    {c.question && (
+                      <CaseQuestion question={c.question} className="mt-1 block text-sm" inline />
+                    )}
                   </li>
                 ))}
               </ul>
-            </>
-          ) : null}
+            </section>
+          )}
 
-          {/* What is about to happen and what to do about it, off the one
-              table every round reads (`lib/copy/briefings.ts`). The chips
-              above it are this learner's own weakest endings and are the
-              reason to press; this is the round. */}
-          <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            <BriefingLines id="quest" />
-          </p>
-
-          <Button variant="primary" size="lg" onClick={() => { setPhase("running"); shownAt.current = Date.now(); }}>
-            Start the {roundLength(seconds)}
-          </Button>
-          <ButtonLink href="/">Not now</ButtonLink>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <ButtonLink href="/" variant="ghost">Not now</ButtonLink>
+            <Button variant="primary" size="lg" onClick={() => { setPhase("running"); shownAt.current = Date.now(); }}>
+              Start the {roundLength(seconds)}
+            </Button>
+          </div>
           {/* Where the clock is set, said on the screen somebody is standing
               on when they find the round too fast. */}
-          <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+          <p className="text-right text-xs" style={{ color: "var(--ink-3)" }}>
             Need longer?{" "}
             <Link href="/settings#round-pace" className="underline underline-offset-2">
               Give yourself more time

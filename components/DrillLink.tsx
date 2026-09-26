@@ -30,20 +30,23 @@ export function DrillLink({ href }: { href: string }) {
   return (
     <Link
       href={mode.href}
-      className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
+      className="lift grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2.5 rounded-[var(--r-lg)] border p-5 sm:items-start"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
     >
       <span
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full sm:row-span-2"
         style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
       >
         <NamedIcon name={mode.icon} size={19} aria-hidden />
       </span>
-      <span className="min-w-0 flex-1">
+      {/* On a phone the icon sits beside the title and the blurb takes the
+          card's whole width under both, rather than a column the icon has
+          already narrowed. */}
+      <span className="min-w-0">
         <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{mode.title}</span>
         <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{mode.subtitle}</span>
-        <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>{mode.blurb}</span>
       </span>
+      <span className="col-span-2 block text-sm sm:col-span-1 sm:col-start-2" style={{ color: "var(--ink-2)" }}>{mode.blurb}</span>
     </Link>
   );
 }

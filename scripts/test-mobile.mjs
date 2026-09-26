@@ -191,6 +191,10 @@ for (const [width, path] of WORD_SPLIT) {
 //      Read off the first line box of each title against its badge.
 for (const width of [320, 360]) {
   const { ctx, page } = await open(width, 844, "/course");
+  // The ladder's rows sit behind "Every part, by name", and a closed
+  // disclosure lays nothing out, so it is opened the way a reader opens it
+  // before its rows are measured. Every row is still held to its number.
+  await page.evaluate(() => document.querySelectorAll("details").forEach((d) => { d.open = true; }));
   const rows = await page.evaluate(() =>
     [...document.querySelectorAll("[data-course-day]")].map((row) => {
       const badge = row.querySelector("[data-course-badge]")?.getBoundingClientRect();

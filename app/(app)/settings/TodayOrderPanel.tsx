@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { Fragment, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { setTodayOrder } from "@/app/actions";
@@ -67,8 +67,18 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
           if (!entry) return null;
           const pastCut = i >= TODAY_CARDS;
           return (
+            <Fragment key={slot}>
+            {i === TODAY_CARDS && (
+              /* The cut, said once in words where it falls rather than on
+                 every row under it. Hidden from a screen reader, which hears
+                 it on each row instead. */
+              <li aria-hidden className="flex items-center gap-3 px-1 pt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
+                Below here, only when a card above has nothing to say
+                <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
+              </li>
+            )}
             <li
-              key={slot}
               className="flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3"
               style={{
                 borderColor: pastCut ? "var(--rule-soft)" : "var(--rule)",
@@ -92,7 +102,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
                     Said in words rather than by the tint alone, since a
                     greyer row is a hue carrying a distinction on its own.
                   */}
-                  {pastCut ? " Past the cut: drawn only when a card above it has nothing to say." : ""}
+                  {pastCut ? <span className="sr-only"> Past the cut: drawn only when a card above it has nothing to say.</span> : null}
                 </span>
               </span>
               {/* Stacked until the list has room for them side by side: two
@@ -118,6 +128,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
                 </Button>
               </span>
             </li>
+            </Fragment>
           );
         })}
       </ol>

@@ -94,8 +94,14 @@ export function EstonianSentence({
           speak={speak}
         />
       ) : (
-        <div className="flex items-start gap-2">
-          <p lang="et" className={className ?? "flex-1 text-lg font-semibold leading-snug"} style={{ color: "var(--ink)" }}>
+        /*
+          The speaker spans both lines and sits centred beside them. Beside the
+          Estonian alone, a 44px button under a coarse pointer was taller than
+          a one-line sentence, so the English under it was pushed a button's
+          height down and every short example read as two things with a gap.
+        */
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2">
+          <p lang="et" className={className ?? "text-lg font-semibold leading-snug"} style={{ color: "var(--ink)" }}>
             {splitOnForm(et, form).map((run, i) => (
               run.match
                 ? <mark key={i} className="bg-transparent font-bold" style={{ color: "var(--accent-deep)" }}>{run.text}</mark>
@@ -108,19 +114,32 @@ export function EstonianSentence({
             voice={speak?.voice}
             rate={speak?.rate}
             autoplay={speak?.autoplay}
+            className="press row-span-2 inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
           />
+          <div className="min-w-0">
+            <SentenceTranslation
+              key={et}
+              lexemeId={lexemeId}
+              et={et}
+              en={en}
+              canTranslate={canTranslate}
+              ask={ask}
+              onTranslated={onTranslated}
+            />
+          </div>
         </div>
       )}
-
-      <SentenceTranslation
-        key={et}
-        lexemeId={lexemeId}
-        et={et}
-        en={en}
-        canTranslate={canTranslate}
-        ask={ask}
-        onTranslated={onTranslated}
-      />
+      {tokens && (
+        <SentenceTranslation
+          key={et}
+          lexemeId={lexemeId}
+          et={et}
+          en={en}
+          canTranslate={canTranslate}
+          ask={ask}
+          onTranslated={onTranslated}
+        />
+      )}
     </>
   );
 }

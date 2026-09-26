@@ -41,7 +41,7 @@ export default async function ScanPage() {
   const configured = resolveProvider() !== null;
 
   return (
-    <Page
+    <Page route="/scan"
       eyebrow="From paper"
       title="Scan a page"
       lead="Photograph a word list or your homework, and study what is on it."
@@ -49,9 +49,8 @@ export default async function ScanPage() {
       <Stack>
         {!configured && (
           <Note tone="hard">
-            Reading a photo needs an AI key, and this copy of the app doesn&apos;t have one set up.
-            Everything else still works, and Settings has the two minute version of how to add one.
-            A word list can also be pasted in there by hand.
+            Reading a photo needs an AI key, which this copy has not set up. A word list can be
+            pasted into Settings instead.
           </Note>
         )}
 

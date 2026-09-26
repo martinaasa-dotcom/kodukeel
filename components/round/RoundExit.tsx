@@ -57,6 +57,7 @@ export function EndSession({ href = "/", label = "End session", size = 18 }: {
     <Link
       href={href}
       aria-label={label}
+      data-round-live=""
       className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
       style={{ color: "var(--ink-3)" }}
     >

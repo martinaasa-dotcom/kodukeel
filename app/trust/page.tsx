@@ -1,3 +1,5 @@
+import { Accessibility, CircleAlert, CircleCheck, Database, Download, EyeOff, ShieldQuestion, UserRound } from "lucide-react";
+import type { ReactNode } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
@@ -43,12 +45,34 @@ export default function TrustPage() {
   return (
     <Legal title="Trust and security" updated="5 September 2026">
       <P>
-        This page is for whoever has to decide whether Kodukeel is safe to put in front of a
-        class, a team or a grant. It says who is answerable, where the data sits, what has
-        been checked and by whom, and what has not been done yet.
+        For whoever decides whether this is safe for a class, a team or a grant. The short
+        answers first; each one opens the detail under it.
       </P>
 
-      <S title="Who runs this">
+      {/*
+        THE ANSWERS AT A GLANCE, THE WORKING UNDER THEM. Six questions a buyer
+        asks, each with its answer in a few words and a mark saying whether it
+        is a yes or a not yet. The not-yets are drawn exactly as loudly as the
+        yeses, which is the whole argument of this page: a reader who catches
+        one overclaim stops believing the rest. Every tile is a link to the
+        section that holds the evidence, so nothing here is asserted twice.
+      */}
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Glance href="#who" icon={<UserRound size={18} aria-hidden />} question="Who is answerable"
+          answer={operator.identified && operator.name ? operator.name : "Not named on this copy yet"} good={operator.identified} />
+        <Glance href="#data" icon={<Database size={18} aria-hidden />} question="Where the data sits"
+          answer={leavesTheUnion ? "Its own database; some services outside the EEA" : "Its own database; nothing sent outside the EEA"} good={!leavesTheUnion} />
+        <Glance href="#data" icon={<EyeOff size={18} aria-hidden />} question="Trackers and analytics"
+          answer="None" good />
+        <Glance href="#rights" icon={<Download size={18} aria-hidden />} question="Export and deletion"
+          answer="Any time, from Settings" good />
+        <Glance href="#security" icon={<ShieldQuestion size={18} aria-hidden />} question="Outside audit or certificate"
+          answer="Not yet: no SOC 2, ISO 27001 or pen test" good={false} />
+        <Glance href="#accessibility" icon={<Accessibility size={18} aria-hidden />} question="Accessibility"
+          answer="Measured on every change; partial, gaps named" good={false} />
+      </ul>
+
+      <S id="who" title="Who runs this">
         {operator.identified ? (
           <>
             <P>
@@ -80,7 +104,7 @@ export default function TrustPage() {
         )}
       </S>
 
-      <S title="Where the data is held, and who else touches it">
+      <S id="data" title="Where the data is held, and who else touches it">
         <P>
           Everything a learner does is held in this installation&rsquo;s own Postgres
           database. Nothing below gets a deck, a review history or an exam paper. The list is
@@ -120,7 +144,7 @@ export default function TrustPage() {
         </P>
       </S>
 
-      <S title="How a learner gets their data out, and how they delete it">
+      <S id="rights" title="How a learner gets their data out, and how they delete it">
         <P>
           <strong>Export.</strong> Settings has a button that returns everything held about
           the account as a single JSON file: every card, review, task, setting, scanned word
@@ -145,7 +169,7 @@ export default function TrustPage() {
         </P>
       </S>
 
-      <S title="Security posture">
+      <S id="security" title="Security posture">
         <P>
           The security work is written down rather than summarised at you. Three documents,
           each of which names files you can open:
@@ -290,7 +314,7 @@ export default function TrustPage() {
         </P>
       </S>
 
-      <S title="Accessibility">
+      <S id="accessibility" title="Accessibility">
         <P>
           Contrast is measured in a browser in both themes, every target is measured against
           44px under a coarse pointer, axe runs over every route on every change, and no audit
@@ -303,5 +327,33 @@ export default function TrustPage() {
         </P>
       </S>
     </Legal>
+  );
+}
+
+/** One answer at a glance, marked yes or not yet, opening the section behind it. */
+function Glance({ href, icon, question, answer, good }: {
+  href: string; icon: ReactNode; question: string; answer: string; good: boolean;
+}) {
+  return (
+    <li>
+      <a
+        href={href}
+        className="lift flex h-full items-start gap-3 rounded-[var(--r-lg)] border p-4"
+        style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
+          {icon}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm" style={{ color: "var(--ink-3)" }}>{question}</span>
+          <span className="mt-0.5 block text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{answer}</span>
+        </span>
+        <span className="shrink-0" style={{ color: good ? "var(--mint-ink)" : "var(--hard-ink)" }}>
+          {good
+            ? <CircleCheck size={18} aria-label="Yes" />
+            : <CircleAlert size={18} aria-label="Not yet" />}
+        </span>
+      </a>
+    </li>
   );
 }

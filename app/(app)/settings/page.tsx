@@ -96,10 +96,13 @@ const SHORTCUTS: [string, string][] = [
  * is the same argument `lib/ux/disclosure.ts` makes about withholding a
  * panel rather than deleting it.
  */
-function Group({ title, children }: { title: string; children: ReactNode }) {
+const GROUPS = ["Study", "Sharing", "Words and Anu", "Device and data"] as const;
+const groupId = (title: string) => `group-${title.toLowerCase().replace(/[^a-z]+/g, "-")}`;
+
+function Group({ title, children }: { title: (typeof GROUPS)[number]; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-6 border-t pt-8 first:border-t-0 first:pt-0" style={{ borderColor: "var(--rule-soft)" }}>
-      <h2 className="text-lg font-bold" style={{ color: "var(--ink)" }}>{title}</h2>
+    <div id={groupId(title)} className="flex scroll-mt-6 flex-col gap-8 border-t pt-10 first:border-t-0 first:pt-0" style={{ borderColor: "var(--rule-soft)" }}>
+      <h2 className="font-display text-2xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>{title}</h2>
       {children}
     </div>
   );
@@ -209,7 +212,7 @@ export default async function SettingsPage() {
   const measuredIsCurrent = (latestCheck?.overall ?? null) === courseLevel;
 
   return (
-    <Page
+    <Page route="/settings"
       title="Settings"
       lead={
         hosted
@@ -218,6 +221,19 @@ export default async function SettingsPage() {
       }
     >
       <Stack>
+        {/* Four places on a long page, one press each. A jump rather than a
+            tab, so nothing is hidden and a search in the page still finds it. */}
+        <nav aria-label="Settings sections" className="flex flex-wrap gap-2">
+          {GROUPS.map((g) => (
+            <a
+              key={g}
+              href={`#${groupId(g)}`}
+              className="choice-btn press inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold"
+            >
+              {g}
+            </a>
+          ))}
+        </nav>
         <Group title="Study">
           <section>
             <SectionTitle hint={mode === "type" ? "typing" : "flipping"}>How review asks</SectionTitle>
@@ -271,11 +287,14 @@ export default async function SettingsPage() {
               <div>
                 <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Listening and dictation</h3>
                 <HearingPanel current={hearing} />
-                <SupportPanel current={support} />
                 <Explain label="What a hearing condition changes">
                   The words never change. What changes is the pace, the reader, and the room,
                   because the receptionist will not slow down for you and the counter is never quiet.
                 </Explain>
+              </div>
+              <div>
+                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>In a conversation</h3>
+                <SupportPanel current={support} />
               </div>
             </Card>
           </section>

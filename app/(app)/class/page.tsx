@@ -1,11 +1,12 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Explain } from "@/components/Explain";
 import { Building2, GraduationCap, School, Users } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
-import { Card, Chip, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { CreateClass, JoinClass } from "./ClassForms";
 
 export const metadata = { title: "Classes" };
@@ -54,7 +55,7 @@ export default async function ClassIndexPage() {
   const shareable = supabaseConfigured();
 
   return (
-    <Page
+    <Page route="/class"
       eyebrow="Learn together"
       title="Classes"
       lead="A class shares progress, not data. Your deck, your searches and your history stay yours."
@@ -148,20 +149,19 @@ export default async function ClassIndexPage() {
               <School size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
               <div>
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                  This copy is running in local mode: one learner, no accounts, so there is nobody
-                  here to share a class with. Classes need sign-in turned on
-                  (<code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and its anon key);
-                  the README walks through it in about ten minutes.
+                  Classes need sign-in, and this copy runs without it: one learner on one machine.
+                  Everything else works the same.
                 </p>
-                <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-                  Everything else in the app works exactly the same either way.
-                </p>
+                <Explain label="Turning sign-in on">
+                  Set <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and its anon key; the
+                  README walks through it in about ten minutes.
+                </Explain>
               </div>
             </div>
           </Card>
         )}
 
-        <Note tone="neutral">
+        <Explain label="What a teacher or an employer can see">
           A teacher sees effort and progress: reviews this week, streak, words known, the cases
           the whole class keeps missing, and the one case each student struggles with most, as a
           percentage across all their reviews. Whoever runs a workplace group sees less than
@@ -170,7 +170,7 @@ export default async function ClassIndexPage() {
           never a colleague&rsquo;s weak grammar. Both of those lines are drawn in the code
           rather than only in a policy. See{" "}
           <code className="text-xs">lib/classroom/roster.ts</code>.
-        </Note>
+        </Explain>
       </Stack>
     </Page>
   );

@@ -1,5 +1,6 @@
 import { MapPin } from "lucide-react";
-import { Card, Chip, SectionTitle } from "@/components/ui";
+import { Card, SectionTitle } from "@/components/ui";
+import { Explain } from "@/components/Explain";
 import type { LadderProgress } from "@/lib/course";
 import { LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
@@ -213,96 +214,84 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
         The stops in words, which is what a screen reader gets and what
         anybody reads once the picture has told them roughly where they are.
       */}
-      <ol className="mt-5 flex flex-col gap-2">
+      {/*
+        THE STOPS AS TILES UNDER THE CLIMB, AND ONE SENTENCE FOR THE ONE YOU ARE ON.
+
+        This was a list: every level's name, its state and the sentence saying
+        what arriving there means, then two paragraphs about where the numbers
+        come from. Eleven lines of grey prose under a picture that had already
+        said most of it. The tiles carry each level's name and state; the
+        sentence is printed for the level being worked on, which is the only
+        one a learner acts on tonight; and the arithmetic is behind a press.
+        A screen reader still hears every stop's sentence.
+      */}
+      <ol className="mt-5 grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(milestones.length, 5)}, minmax(0, 1fr))` }}>
         {milestones.map((stop) => (
-          <li key={stop.level} className="flex flex-col gap-1">
-            {/*
-              THE LEVEL NAME AND THE ARRIVAL SENTENCE STOP COMPETING FOR ROOM.
-              Both used to sit on one `flex-wrap` line, so on a phone the
-              unbreakable Estonian level name (font-semibold, no truncate) took
-              whatever width it wanted and the arrival sentence, the one thing
-              actually explaining "you are here", was squeezed into whatever
-              was left and clipped to a word or two. The sentence gets a line
-              of its own now, indented under the badge, and can wrap freely
-              instead of being truncated.
-            */}
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <li
+            key={stop.level}
+            className="@container flex min-w-0 flex-col gap-1 rounded-[var(--r)] border px-2.5 py-2"
+            style={{
+              borderColor: stop.state === "here" ? "var(--accent)" : "var(--rule-soft)",
+              background: stop.state === "here" ? "var(--accent-soft)" : "transparent",
+            }}
+          >
+            <span className="flex items-center justify-between gap-1">
               <span
-                className="tnum w-7 shrink-0 text-sm font-bold"
-                style={{
-                  color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink)",
-                }}
+                className="tnum text-sm font-bold"
+                style={{ color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
               >
                 {stop.level}
               </span>
-              <span
-                lang={wantsEnglish ? undefined : "et"}
-                className="min-w-0 text-sm font-semibold"
-                style={{ color: "var(--ink)" }}
-              >
-                {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}
-              </span>
-              {stop.state === "passed" && <Chip tone="good">Done</Chip>}
-              {stop.state === "assumed" && <Chip tone="neutral">Assumed</Chip>}
-              {stop.state === "here" && <Chip tone="accent">{stop.pct}% through</Chip>}
-              {stop.state === "ahead" && (
-                <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-                  {stop.parts} parts
-                </span>
-              )}
-            </div>
-            <span className="pl-7 text-sm" style={{ color: "var(--ink-3)" }}>
-              {stop.arrival}
+              {stop.state === "passed" && <span className="text-xs font-semibold" style={{ color: "var(--good-ink)" }}>Done</span>}
+              {stop.state === "here" && <span className="tnum text-xs font-semibold" style={{ color: "var(--accent-deep)" }}>{stop.pct}%</span>}
             </span>
-            {/*
-              WHAT AN ASSUMPTION HAS BEHIND IT SO FAR, ON THE STOP IT IS ABOUT.
-
-              This is the line that makes the credit worth having rather than a
-              nicer way of saying nothing: it is nought on the first morning and
-              it climbs on its own, so a learner who spends an evening on a word
-              from a level they were credited with can see where it landed.
-            */}
+            <span
+              lang={wantsEnglish ? undefined : "et"}
+              className="hidden text-xs leading-snug @min-[7rem]:block"
+              style={{ color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink-2)" }}
+            >
+              {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}
+            </span>
             {stop.state === "assumed" && (
-              <span className="tnum pl-7 text-sm" style={{ color: "var(--ink-3)" }}>
-                {stop.verified} of {stop.words} checked so far.
+              <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+                Assumed · {stop.verified}/{stop.words}
               </span>
             )}
+            <span className="sr-only">{stop.state === "ahead" ? `${stop.parts} parts. ` : ""}{stop.arrival}</span>
           </li>
         ))}
       </ol>
-
-      {/*
-        WHERE THE CREDITED HALF CAME FROM, IN THE LEARNER'S OWN TERMS.
-
-        A number somebody cannot account for is a number they stop believing,
-        and this one arrives on their first morning with nothing behind it that
-        they did here. So the sentence names the answer the app is holding and
-        which of the two kinds it is: a check they sat is worth saying out loud,
-        and a level they ticked in Settings is worth saying is theirs to correct.
-      */}
-      {standing && assumed > 0 && (
-        <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          {standing.kind === "measured"
-            ? `Your level check put you at ${standing.level}, so `
-            : `You told us you are at ${standing.level}, so `}
-          {joinLevels(assumedLevels)} {assumedLevels.length === 1 ? "is" : "are"} counted as
-          yours. Nothing below your own level is waiting to be done again.
+      {milestones.filter((m) => m.state === "here").map((stop) => (
+        <p key={stop.level} aria-hidden className="mt-4 text-base" style={{ color: "var(--ink)" }}>
+          <span className="font-semibold">{stop.level}: </span>
+          {stop.arrival}
         </p>
-      )}
-
-      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-        {arrived
-          ? "You know every word this level asks for. None of them count as new any more."
-          : here
-            ? <>
-                {pct}% of the way from the start of {start} to {target}. The checked share moves
-                when a word sticks, not when an evening is ticked, so it follows your review
-                queue{partLabel ? <>, and you are on {partLabel}</> : null}.
-              </>
-            : standing
-              ? `Every level up to ${target} is counted as yours. What is left is checking them, which is what the evenings do.`
-              : "Pick a target in Settings and this becomes the one number worth watching."}
-      </p>
+      ))}
+      <div className="mt-3">
+        <Explain label="What moves this bar">
+          {arrived
+            ? "You know every word this level asks for. None of them count as new any more."
+            : here
+              ? <>
+                  {pct}% of the way from the start of {start} to {target}. The checked share moves
+                  when a word sticks, not when an evening is ticked, so it follows your review
+                  queue{partLabel ? <>, and you are on {partLabel}</> : null}.
+                </>
+              : standing
+                ? `Every level up to ${target} is counted as yours. What is left is checking them, which is what the evenings do.`
+                : "Pick a target in Settings and this becomes the one number worth watching."}
+          {standing && assumed > 0 && (
+            <>
+              {" "}
+              {standing.kind === "measured"
+                ? `Your level check put you at ${standing.level}, so `
+                : `You told us you are at ${standing.level}, so `}
+              {joinLevels(assumedLevels)} {assumedLevels.length === 1 ? "is" : "are"} counted as
+              yours. Nothing below your own level is waiting to be done again.
+            </>
+          )}
+        </Explain>
+      </div>
     </Card>
   );
 }

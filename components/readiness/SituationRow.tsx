@@ -21,7 +21,7 @@ export function SituationRow({ reading, learnerLevel }: { reading: Reading; lear
   return (
     <Link
       href={`/progress/readiness/${situation.id}`}
-      className="lift flex items-start gap-4 rounded-[var(--r)] border p-4"
+      className="lift flex h-full items-start gap-4 rounded-[var(--r)] border p-4"
       style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}
     >
       <span className="min-w-0 flex-1">

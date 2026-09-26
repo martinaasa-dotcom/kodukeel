@@ -9,7 +9,7 @@ import {
   setReviewMode, setWordGloss,
 } from "@/app/actions";
 import { Button } from "@/components/Button";
-import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
+import { ChoiceCard, ChoiceGroup, ChoiceSegment } from "@/components/Choice";
 import { LetterSample } from "@/components/DiacriticBar";
 import type { ReviewMode } from "@/lib/settings/store";
 import { LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
@@ -57,21 +57,12 @@ export function ReviewModePanel({ current }: { current: ReviewMode }) {
   };
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="How review asks" className="grid gap-2 @md:grid-cols-2">
-        {MODES.map((m) => (
-          <ChoiceCard
-            key={m.value}
-            layout="stacked"
-            selected={mode === m.value}
-            onSelect={() => pick(m.value)}
-            icon={<m.icon size={16} aria-hidden />}
-            title={m.label}
-            detail={m.detail}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="How review asks"
+      value={mode}
+      onSelect={pick}
+      options={MODES.map((m) => ({ id: m.value, title: m.label, detail: m.detail, icon: <m.icon size={15} aria-hidden /> }))}
+    />
   );
 }
 
@@ -164,22 +155,18 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
   };
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="Words in a sentence" className="grid gap-2 @md:grid-cols-2">
-        {WORD_GLOSS_CHOICES.map((o) => (
-          <ChoiceCard
-            key={o.value}
-            layout="stacked"
-            disabled={pending}
-            selected={value === o.value}
-            onSelect={() => pick(o.value)}
-            icon={o.value === "on" ? <Underline size={16} aria-hidden /> : <AlignLeft size={16} aria-hidden />}
-            title={o.label}
-            detail={o.detail}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="Words in a sentence"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={WORD_GLOSS_CHOICES.map((o) => ({
+        id: o.value,
+        title: o.label,
+        detail: o.detail,
+        icon: o.value === "on" ? <Underline size={15} aria-hidden /> : <AlignLeft size={15} aria-hidden />,
+      }))}
+    />
   );
 }
 
@@ -210,37 +197,22 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
   const autoShows = caseGlossDefaultFor(level);
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="English under a case question" className="grid gap-2 @lg:grid-cols-3">
-        <ChoiceCard
-          layout="stacked"
-          disabled={pending}
-          selected={value === "auto"}
-          onSelect={() => pick("auto")}
-          icon={<Wand2 size={16} aria-hidden />}
-          title="Follow my level"
-          detail={autoShows ? `Shown, because ${level} still gets it.` : `Hidden, because ${level} has moved past it.`}
-        />
-        <ChoiceCard
-          layout="stacked"
-          disabled={pending}
-          selected={value === "on"}
-          onSelect={() => pick("on")}
-          icon={<Eye size={16} aria-hidden />}
-          title="Always show it"
-          detail="Every case question keeps its English reading, at every level."
-        />
-        <ChoiceCard
-          layout="stacked"
-          disabled={pending}
-          selected={value === "off"}
-          onSelect={() => pick("off")}
-          icon={<EyeOff size={16} aria-hidden />}
-          title="Never show it"
-          detail={<>Just <span lang="et">milles? kus?</span>, with nothing under it.</>}
-        />
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="English under a case question"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={[
+        {
+          id: "auto" as const,
+          title: "Follow my level",
+          icon: <Wand2 size={15} aria-hidden />,
+          detail: autoShows ? `Shown, because ${level} still gets it.` : `Hidden, because ${level} has moved past it.`,
+        },
+        { id: "on" as const, title: "Always show it", icon: <Eye size={15} aria-hidden />, detail: "Every case question keeps its English reading, at every level." },
+        { id: "off" as const, title: "Never show it", icon: <EyeOff size={15} aria-hidden />, detail: <>Just <span lang="et">milles? kus?</span>, with nothing under it.</> },
+      ]}
+    />
   );
 }
 

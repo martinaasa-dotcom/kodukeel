@@ -43,6 +43,33 @@ export function AnuFab({
   // the button drawn again in its place is what a keyboard is handed back to.
   const button = useRef<HTMLButtonElement>(null);
 
+  /*
+    TUCKED WHILE THE PAGE MOVES DOWN, BACK THE MOMENT IT MOVES UP.
+
+    On a phone the button sits over the right edge of whatever card is
+    scrolling under it: the count beside a heading, the last day of the week
+    strip, the end of a task's title. Reading down a page is the one time it
+    is not wanted, and scrolling back up is the gesture that says "I am
+    looking for something", which is when it returns, as a browser's own
+    toolbar does. It also returns at the end of a page, where nothing is left
+    to cover. Only a phone: `.anu-fab[data-tucked]` is scoped to the width
+    the dock is drawn at, and a keyboard that tabs to it untucks it.
+  */
+  const [tucked, setTucked] = useState(false);
+  useEffect(() => {
+    let last = window.scrollY;
+    function onScroll() {
+      const y = window.scrollY;
+      const atEnd = window.innerHeight + y >= document.documentElement.scrollHeight - 24;
+      if (atEnd || y < 120) setTucked(false);
+      else if (y > last + 6) setTucked(true);
+      else if (y < last - 6) setTucked(false);
+      last = y;
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -55,7 +82,7 @@ export function AnuFab({
   if (pathname === "/tutor") return null;
 
   return (
-    <div data-chrome="anu" className="bottom-notice fixed right-[max(1rem,env(safe-area-inset-right))] z-[90] flex flex-col items-end">
+    <div data-chrome="anu" data-tucked={tucked && !open ? "" : undefined} className="anu-fab bottom-notice fixed right-[max(1rem,env(safe-area-inset-right))] z-[90] flex flex-col items-end">
       {loaded && (
         <div hidden={!open}>
           <Suspense fallback={null}>

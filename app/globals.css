@@ -1921,11 +1921,21 @@
 
   .tnum { font-variant-numeric: tabular-nums; }
 
+  /*
+    THE SMALL LABEL, IN SENTENCE CASE.
+
+    It was bold, tracked out and uppercased, on every card heading, every chip
+    and every figure's caption: "35 WAITING", "FIVE TO EIGHT MINUTES", "4
+    LAPSES". That is the texture of a generated dashboard, and a screen where
+    every other word shouts is one where nothing does. Weight and colour say
+    "label" well enough at this size; the capitals were only volume. It also
+    ends the class of fault this file has a paragraph about elsewhere, an
+    Estonian ending like "-sse" printed as "-SSE".
+  */
   .label-xs {
     font-size: var(--text-2xs);
-    font-weight: 700;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.005em;
   }
 
   /*
@@ -2514,6 +2524,40 @@
 
   .fade-up { animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+  /*
+    A PAGE ARRIVES IN THE ORDER IT IS READ.
+
+    The header rises first and each section of the column follows it by a
+    beat, so the eye is led down the page rather than handed all of it in one
+    frame. Seventy milliseconds a step and capped at the sixth, because a long
+    page whose last section arrives a second late reads as slow rather than
+    choreographed. Transform and opacity only, so nothing is laid out twice;
+    and under `prefers-reduced-motion` the block further down this file takes
+    every duration to nothing, so the page is simply there.
+  */
+  .stack-rise > * { animation: fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .stack-rise > :nth-child(1) { animation-delay: 60ms; }
+  .stack-rise > :nth-child(2) { animation-delay: 130ms; }
+  .stack-rise > :nth-child(3) { animation-delay: 200ms; }
+  .stack-rise > :nth-child(4) { animation-delay: 270ms; }
+  .stack-rise > :nth-child(5) { animation-delay: 340ms; }
+  .stack-rise > :nth-child(n + 6) { animation-delay: 400ms; }
+
+  /*
+    The mark beside a page's heading: the rail's own icon, in the rail's own
+    hue, at the size of a title. It is how the page a learner pressed and the
+    row they pressed are visibly one place. It settles in on arrival, which is
+    the one flourish a heading gets; it is not tilted, since a rotated icon
+    measures larger than it was drawn and reads as a rendering fault.
+  */
+  .page-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-lg);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, currentColor 14%, transparent);
+    animation: mark-settle 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   /* Scroll-driven reveal, done in CSS so the content is never hidden behind a
      script. Browsers without scroll timelines simply get the finished state.
 
@@ -2799,6 +2843,11 @@
   .avoid-break { break-inside: avoid; }
 
   a { text-decoration: none; color: inherit; }
+}
+
+@keyframes mark-settle {
+  from { transform: scale(0.82); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes fade-up {
@@ -3191,4 +3240,44 @@
   .card-link {
     padding-block: 0.625rem;
   }
+}
+
+/*
+  Anu's button tucks off the right edge while a phone scrolls down and comes
+  back on the way up (components/anu/AnuFab.tsx). Transform and opacity only,
+  so nothing is laid out again, and never while a keyboard is on it.
+*/
+.anu-fab { transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease; }
+@media (max-width: 767px) {
+  .anu-fab[data-tucked]:not(:focus-within) {
+    transform: translateX(calc(100% + 1.5rem));
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/*
+  A ROUND ON A PHONE IS THE WHOLE SCREEN.
+
+  The cross that ends a session (`EndSession`) is drawn only while a round is
+  being played, so it is the marker: on a phone the tab bar and Anu's button
+  step aside for as long as it is there, the way the module and a
+  conversation already take the furniture away. The card is the one thing on
+  the screen and the cross is the way out. From the width the rail appears at,
+  there is room for both and nothing changes.
+*/
+@media (max-width: 767px) {
+  body:has([data-round-live]) [data-chrome="dock"],
+  body:has([data-round-live]) [data-chrome="anu"] { display: none !important; }
+}
+
+/*
+  A key cap on a control is a keyboard's shortcut, and a touch screen has no
+  keyboard to press it with: "1" beside an answer and "↵" inside a button are
+  noise under a thumb. Hidden where the only pointer is a finger, and only
+  inside a control, so a list of shortcuts written out as a reference still
+  shows what it is listing.
+*/
+@media (hover: none) and (pointer: coarse) {
+  :is(button, a, [role="radio"], [role="button"]) .key-cap { display: none; }
 }

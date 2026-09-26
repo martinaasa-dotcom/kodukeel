@@ -36,7 +36,7 @@ export default async function ReadinessPage() {
 
   if (picture.totalReviews === 0) {
     return (
-      <Page
+      <Page route="/progress/readiness"
         eyebrow="Readiness"
         title="In real life"
         lead="Which situations you could follow, take part in or lead, based on your own answers."
@@ -54,7 +54,7 @@ export default async function ReadinessPage() {
   const worthTrying = picture.summary.couldTry.slice(0, 3);
 
   return (
-    <Page
+    <Page route="/progress/readiness"
       eyebrow="Readiness"
       title="In real life"
       lead="Which situations you could follow, take part in or lead, based on your own answers."
@@ -69,13 +69,13 @@ export default async function ReadinessPage() {
           <SectionTitle hint={`at ${picture.level} · your level, from Settings`}>Where you stand</SectionTitle>
           <Card>
             <ReadinessSummary summary={picture.summary} />
-            <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
+            <Explain label="What the three rungs mean">
               Three rungs, and the first is the one a word count measures. {RUNG_LABEL.follow} means you would
               understand most of it. {RUNG_LABEL.takePart} means you could answer, with the words and the endings
               it needs, without a long silence first. {RUNG_LABEL.lead} means you could open it, steer it and recover
               when it goes sideways, which for a live exchange also needs some evidence you can follow speech.
               Recognizing words on cards never clears the second rung on its own.
-            </p>
+            </Explain>
           </Card>
         </section>
 
@@ -124,11 +124,13 @@ export default async function ReadinessPage() {
                   {uiText(picture.level, LEVEL_INFO[level].title, LEVEL_INFO[level].titleEn)}
                 </span>
               </SectionTitle>
-              <ul className="flex flex-col gap-3">
-                {rows.map((r) => (
-                  <li key={r.situation.id}><SituationRow reading={r} learnerLevel={picture.level} /></li>
-                ))}
-              </ul>
+              <div className="@container">
+                <ul className="grid gap-3 @3xl:grid-cols-2">
+                  {rows.map((r) => (
+                    <li key={r.situation.id}><SituationRow reading={r} learnerLevel={picture.level} /></li>
+                  ))}
+                </ul>
+              </div>
             </section>
           );
         })}

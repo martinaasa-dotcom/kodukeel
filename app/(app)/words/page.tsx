@@ -2,12 +2,13 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
-import { Card, Empty, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { STATE_LABELS } from "@/lib/srs/scheduler";
 import { Diagnosis } from "@/components/Diagnosis";
 import { DrillLink } from "@/components/DrillLink";
 import { MasteryLists } from "@/components/MasteryLists";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
+import { counted } from "@/lib/copy/values";
 import { WordsTable, type CardRow } from "./WordsTable";
 
 export const metadata = { title: "My words" };
@@ -67,7 +68,7 @@ export default async function WordsPage() {
   const totalCards = counts.reduce((sum, c) => sum + c._count, 0);
 
   return (
-    <Page
+    <Page route="/words"
       title="My words"
       lead="Everything in your deck, and how well it is sticking."
       actions={
@@ -75,7 +76,7 @@ export default async function WordsPage() {
           {/* The other reading of this page, and the one somebody comes for
               when the question is "what do I actually know". Counted in words
               rather than cards, which is what the box below is. */}
-          <ButtonLink href="/words/mastery">Where your words stand</ButtonLink>
+          <ButtonLink href="/words/mastery">Word by word</ButtonLink>
           <ButtonLink href="/words/decks">Decks</ButtonLink>
           <ButtonLink href="/dictionary" variant="primary">Add words</ButtonLink>
         </>
@@ -90,13 +91,7 @@ export default async function WordsPage() {
       ) : (
         <Stack>
           <Card>
-            <SectionTitle hint="how the deck is settling">Where your cards are</SectionTitle>
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <StatTile value={totalCards} label="Cards" tone="accent" />
-              <StatTile value={byState[0] ?? 0} label="New" tone="sky" />
-              <StatTile value={(byState[1] ?? 0) + (byState[3] ?? 0)} label="Learning" tone="butter" />
-              <StatTile value={byState[2] ?? 0} label="Known" tone="mint" />
-            </div>
+            <SectionTitle hint={`${counted(totalCards, "card")}, how they are settling`}>Where your cards are</SectionTitle>
             <DeckBar
               segments={[
                 { label: "New", value: byState[0] ?? 0, color: "var(--sky-ink)" },
@@ -148,15 +143,16 @@ export default async function WordsPage() {
 /**
  * One bar showing how the deck splits between new, learning and known.
  *
- * The four numbers above it are the facts; this is the shape of them — whether
- * the deck is mostly still ahead of you or mostly behind you, at a glance.
+ * The shape of the deck, whether it is mostly still ahead of you or mostly
+ * behind you, with each part's count and share written under it. It used to
+ * sit under four tiles of the same counts, which said the deck three times.
  */
 function DeckBar({ segments }: { segments: { label: string; value: number; color: string }[] }) {
   const total = segments.reduce((sum, s) => sum + s.value, 0);
   if (total === 0) return null;
 
   return (
-    <div className="mt-5">
+    <div>
       <div className="flex h-3 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
         {segments.map((s) => (
           <div
@@ -166,11 +162,15 @@ function DeckBar({ segments }: { segments: { label: string; value: number; color
           />
         ))}
       </div>
-      <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: "var(--ink-3)" }}>
+      <div className="mt-3 grid grid-cols-3 gap-2">
         {segments.map((s) => (
-          <span key={s.label} className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
-            {s.label} <span className="tnum" style={{ color: "var(--ink-2)" }}>{Math.round((s.value / total) * 100)}%</span>
+          <span key={s.label} className="flex flex-col">
+            <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
+              <span aria-hidden className="h-2 w-2 shrink-0 rounded-full" style={{ background: s.color }} />
+              {s.label}
+            </span>
+            <span className="tnum font-display text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>{s.value}</span>
+            <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>{Math.round((s.value / total) * 100)}%</span>
           </span>
         ))}
       </div>

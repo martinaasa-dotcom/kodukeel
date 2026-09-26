@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Card, CardLink, SectionTitle, StatTile } from "@/components/ui";
+import { Card, CardLink, SectionTitle } from "@/components/ui";
 import { RUNG_LABEL, RUNG_ORDER, type Summary } from "@/lib/readiness/rungs";
 import { headline } from "@/lib/readiness/narrative";
 import { RUNG_TILE } from "./Rung";
@@ -24,6 +24,7 @@ import { RUNG_TILE } from "./Rung";
  */
 export function ReadinessSummary({ summary }: { summary: Summary }) {
   const shown = [...RUNG_ORDER].reverse();
+  const total = shown.reduce((sum, rung) => sum + summary.counts[rung], 0);
   return (
     <>
       <p className="text-base" style={{ color: "var(--ink)" }}>{headline(summary)}</p>
@@ -33,13 +34,35 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
         five tiles at 57px each and broke "Lead" and "Follow" mid-letter.
         The card's own width is the question, so it is a container query.
       */}
-      <div className="@container mt-4">
-        <div className="grid grid-cols-2 gap-2 @lg:grid-cols-5">
-          {shown.map((rung) => (
-            <StatTile key={rung} value={summary.counts[rung]} label={RUNG_LABEL[rung]} tone={RUNG_TILE[rung]} />
+      {/*
+        One bar in proportion rather than five tiles of numbers: where the
+        situations stand is a share of one whole, and the shape of it is the
+        thing worth seeing at a glance. The legend carries the words and the
+        counts, so the hue is never the only thing saying which is which.
+      */}
+      {total > 0 && (
+        <div aria-hidden className="mt-4 flex h-3 w-full overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
+          {shown.filter((rung) => summary.counts[rung] > 0).map((rung) => (
+            <span
+              key={rung}
+              className="block h-full"
+              style={{ width: `${(summary.counts[rung] / total) * 100}%`, background: `var(--${RUNG_TILE[rung]})` }}
+            />
           ))}
         </div>
-      </div>
+      )}
+      {/* Only the rungs something sits on: three zeros in a row beside the two
+          that count was a legend longer than the bar it explains, and the
+          sentence above already says what is empty. */}
+      <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+        {shown.filter((rung) => total === 0 || summary.counts[rung] > 0).map((rung) => (
+          <li key={rung} className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
+            <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: `var(--${RUNG_TILE[rung]})` }} />
+            {RUNG_LABEL[rung]}
+            <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{summary.counts[rung]}</span>
+          </li>
+        ))}
+      </ul>
       {summary.commonest && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
           The thing in the way most often, on {summary.commonest.times} of them: {summary.commonest.title.toLowerCase()}.

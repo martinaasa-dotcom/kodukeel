@@ -1,3 +1,4 @@
+import { BookOpen, Headphones, Mic, PenLine } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { P, S } from "@/components/Legal";
 import { GUIDE, MATERIALS, READ_ON, SOURCES, type Fact } from "@/lib/exam/official";
@@ -48,11 +49,54 @@ export default function StateExamPage() {
         Read off the state&rsquo;s own pages on {spelledDay(READ_ON)}
       </p>
 
+      {/*
+        The examination at a glance, drawn: the four levels it sets and the four
+        parts every level has. Both are facts the first section below states
+        with its source, so this repeats them as a picture rather than adding a
+        claim of its own.
+      */}
+      <div
+        className="mt-8 grid gap-5 rounded-[var(--r-lg)] border p-5"
+        style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+      >
+        <div>
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>Four levels</p>
+          <ul className="mt-2 flex gap-2">
+            {["A2", "B1", "B2", "C1"].map((level) => (
+              <li
+                key={level}
+                className="font-display flex h-12 w-12 items-center justify-center rounded-[var(--r)] text-lg font-bold"
+                style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+              >
+                {level}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>Four parts, every level</p>
+          <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-3">
+            {[
+              { name: "Writing", Icon: PenLine },
+              { name: "Listening", Icon: Headphones },
+              { name: "Reading", Icon: BookOpen },
+              { name: "Speaking", Icon: Mic },
+            ].map(({ name, Icon }) => (
+              <li key={name} className="flex flex-col items-center gap-1.5 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
+                  <Icon size={19} aria-hidden />
+                </span>
+                <span className="text-xs" style={{ color: "var(--ink-2)" }}>{name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
       <div className="mt-8 space-y-8">
         <P>
-          Everything below comes from the Education and Youth Board, which sets and runs the
-          examination, and each section names the page it was read from. Rules and dates change,
-          so check the page itself before you register or plan around a date.
+          Every fact names the page it was read from. Rules and dates change, so check that page
+          before you register.
         </P>
 
         {GUIDE.map((section) => (

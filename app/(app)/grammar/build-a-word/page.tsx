@@ -43,7 +43,7 @@ export default async function BuildPage() {
   const walk = await caseWalk(ownerId);
 
   return (
-    <Page
+    <Page route="/grammar/build-a-word"
       eyebrow="Start here"
       title="Build a word"
       lead="Three forms are memorized. The other eleven are one of them plus an ending."

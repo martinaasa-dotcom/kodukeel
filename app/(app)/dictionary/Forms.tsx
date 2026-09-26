@@ -112,10 +112,10 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
   return (
     <>
       <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
-        <table className="w-full min-w-[420px] text-sm">
+        <table className="w-full min-w-[340px] text-sm">
           <thead>
             <tr>
-              {["Case", "Singular", "Plural", "Answers"].map((h) => (
+              {["Case", "Singular", "Plural"].map((h) => (
                 <th key={h} className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
                   {h}
                 </th>
@@ -134,26 +134,24 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
                       fourteen rows, which is why a learner reported the table
                       as unreadable: "nominative" tells somebody who has not met
                       `nimetav` nothing they can use. What the case is asking is
-                      in the Answers column now, in both languages, and the
+                      under the name now, in both languages, and the
                       Latin name is on the reference page for anybody reading an
                       English grammar. */}
-                  <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="hover:underline">
+                  <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-semibold hover:underline" style={{ color: "var(--ink)" }}>
                     {spec.et}
                   </Link>
+                  <CaseQuestion inline className="block text-xs" question={caseQuestionFor(spec, subject)} />
                 </td>
                 <td className="px-3 py-2"><Cell values={singular[spec.key] ? valuesFor(forms, singular[spec.key]!) : []} /></td>
                 <td className="px-3 py-2"><Cell values={plural[spec.key] ? valuesFor(forms, plural[spec.key]!) : []} /></td>
-                <td className="px-3 py-2 text-xs" style={{ color: "var(--ink-2)" }}>
-                  <CaseQuestion question={caseQuestionFor(spec, subject)} />
-                </td>
               </tr>
               {/*
                 THE SHORT ILLATIVE SITS UNDER THE LONG ONE, NOT AT THE BOTTOM
                 OF THE TABLE.
 
                 It was appended after all fourteen cases, eleven rows below the
-                case it is a form of. A learner reading down the "Answers"
-                column for `kuhu?` meets `sisseütlev toasse` first and stops,
+                case it is a form of. A learner reading down the questions
+                for `kuhu?` meets `sisseütlev toasse` first and stops,
                 which for `tuba` hands them the form almost nobody says while
                 `tuppa` sits out of sight under a name they have not met yet.
                 Both are attested and both are labelled correctly, so nothing
@@ -167,13 +165,11 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
               {spec.key === "ILLATIVE" && shortIllative.length > 0 && (
                 <tr style={{ borderTop: "1px solid var(--rule-soft)" }}>
                   <td className="px-3 py-2" style={{ color: "var(--ink-2)" }}>
-                    <span lang="et">lühike sisseütlev</span>
+                    <span lang="et" className="block font-semibold" style={{ color: "var(--ink)" }}>lühike sisseütlev</span>
+                    <CaseQuestion inline className="block text-xs" question="kuhu?" />
                   </td>
                   <td className="px-3 py-2"><Cell values={shortIllative} /></td>
                   <td className="px-3 py-2"><span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span></td>
-                  <td className="px-3 py-2 text-xs" style={{ color: "var(--ink-2)" }}>
-                    <CaseQuestion question="kuhu?" />
-                  </td>
                 </tr>
               )}
               </Fragment>

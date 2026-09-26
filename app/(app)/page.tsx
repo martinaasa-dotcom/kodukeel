@@ -895,7 +895,7 @@ export default async function TodayPage() {
   ) : null;
 
   return (
-    <Page
+    <Page route="/"
       /*
         THE ONE DATE IN THIS APP THAT IS NOT WRITTEN THE READER'S WAY.
 

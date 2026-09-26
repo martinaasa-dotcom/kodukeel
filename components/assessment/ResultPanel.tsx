@@ -1,4 +1,4 @@
-import { BookOpen, Headphones, Mic, PenLine } from "lucide-react";
+import { Award, BookOpen, Headphones, MessagesSquare, Mic, MicOff, PenLine } from "lucide-react";
 import { Card, Chip, SectionTitle } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { PRE_A1, type Confidence, type Placement, type SkillResult } from "@/lib/assessment/types";
@@ -120,24 +120,25 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
 
       <Card>
         <SectionTitle>What this is not</SectionTitle>
-        <ul className="flex list-disc flex-col gap-2 pl-5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          <li>
-            Not a certificate. The exams that count are the state language exams, run at A2, B1, B2
-            and C1 by the authority that sets them. This is half an hour in an app.
-          </li>
-          <li>
-            Not a measurement of your speaking. Nothing here can honestly score how you say
-            Estonian, so the speaking line is only how confident you said you felt. It is left
-            out of the level.
-          </li>
-          <li>
-            Not a measurement of conversation. Nothing here talks back to you at real speed, and
-            reading a sentence in your own time is far easier than following one as it is spoken.
-          </li>
-          <li>
-            Built from this dictionary. Every word and sentence came from the same set the rest
-            of the app teaches from. That is broad, but it is not the whole language.
-          </li>
+        {/* Four limits, each a mark and a line: a list of four paragraphs was
+            the longest thing on the screen and said less than its first words. */}
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {[
+            { icon: <Award size={17} aria-hidden />, head: "Not a certificate", body: "The exams that count are the state's, at A2 to C1. This is half an hour in an app." },
+            { icon: <MicOff size={17} aria-hidden />, head: "Not a score of your speaking", body: "Only how confident you said you felt, and left out of the level." },
+            { icon: <MessagesSquare size={17} aria-hidden />, head: "Not a conversation", body: "Reading in your own time is easier than following Estonian at speed." },
+            { icon: <BookOpen size={17} aria-hidden />, head: "Built from this dictionary", body: "Broad, but not the whole language." },
+          ].map((limit) => (
+            <li key={limit.head} className="flex items-start gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
+                {limit.icon}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{limit.head}</span>
+                <span className="block text-sm" style={{ color: "var(--ink-2)" }}>{limit.body}</span>
+              </span>
+            </li>
+          ))}
         </ul>
       </Card>
     </div>

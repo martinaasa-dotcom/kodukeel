@@ -242,7 +242,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
       {done ? (
         <Finish puzzle={puzzle} helped={helped.length} />
       ) : (
-        <Card>
+        <div>
           {/*
             The quiet way out first and the loud one last, which is the rule
             everywhere else in the app: the primary sits on the right, where a
@@ -250,11 +250,13 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
             it, so the one thing this screen is for was drawn at the weight of
             "show me the answer".
           */}
+          {/* Under the grid in no card of its own: two buttons in a box by
+              themselves were a third panel for a screen that has two. */}
           <div className="flex gap-2">
             <Button
               type="button"
               variant="ghost"
-              className="flex-1"
+              className="flex-1 whitespace-nowrap"
               onClick={() => {
                 setHelped((was) => (was.includes(active) ? was : [...was, active]));
                 setTyped((held) => {
@@ -287,7 +289,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
               <Check size={16} aria-hidden /> Check
             </Button>
           </div>
-        </Card>
+        </div>
       )}
 
       <Clues puzzle={puzzle} active={active} solved={solved} onPick={(i) => {
