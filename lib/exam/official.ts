@@ -93,6 +93,10 @@ export const GUIDE: readonly GuideSection[] = [
         text: "The papers, the descriptions of each level and the sample materials are all in Estonian.",
         source: "harnoEn",
       },
+      {
+        text: "The spoken part opens with a short general conversation with the examiner, the way people talk when they first meet: who you are and a little about yourself. Two assessors mark a recording of it.",
+        source: "harnoEt",
+      },
     ],
   },
   {
