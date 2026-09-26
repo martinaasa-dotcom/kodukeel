@@ -234,7 +234,7 @@ check("and not the time the desk is about to offer", !/The time you were given/.
   list holds the objective the learner is standing on, and the panel under the
   conversation is where that string comes from.
 */
-const inPlay = ((await page.locator("main").innerText()).split(/YOUR TURN\s*\n[^\n]*\n/)[1] ?? "")
+const inPlay = ((await page.locator("main").innerText()).split(/YOUR TURN\s*\n[^\n]*\n/i)[1] ?? "")
   .split("\n").map((line) => line.trim()).find(Boolean) ?? "";
 check("the panel names the objective in play", inPlay.length > 0, inPlay);
 check("and every objective, once it has been opened", card.includes(inPlay), inPlay);
@@ -441,8 +441,8 @@ const waited = await say("Tere!");
 */
 const afterGreeting = await page.locator("main").innerText();
 check("a greeting is read as a greeting",
-  /\b[1-9]\d* OF \d+/.test(afterGreeting) && afterGreeting.includes("done"),
-  `${waited}ms · ${/\b\d+ OF \d+/.exec(afterGreeting)?.[0] ?? "no count"}`);
+  /\b[1-9]\d* OF \d+/i.test(afterGreeting) && afterGreeting.includes("done"),
+  `${waited}ms · ${/\b\d+ OF \d+/i.exec(afterGreeting)?.[0] ?? "no count"}`);
 
 /*
   AND THE CARET IS BACK IN THE BOX, WHICH THE BUTTON TAKES AND THEN LEAVES.
