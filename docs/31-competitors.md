@@ -76,30 +76,30 @@ Kodukeel does not. The last column is what closed it, and it is updated as the w
 | Capability | Keelix | TereTere | Keeleklikk | Kodukeel | Status | Closed by |
 |---|---|---|---|---|---|---|
 | Mock papers in the state format | 25 per section per level, A2 and B1 | Exam skills practised in lessons, no mock paper named on the front page | Tests per chapter; "Exam type" exercises in the lesson list | Whole papers at A1 (the app's own), A2, B1, B2 and C1, built to the published minutes and points; `lib/exam/spec.ts`, `/exam` | EQUAL on format, AHEAD on levels | |
-| A numbered set a learner can work through, checked for repeats | 100 named mock exams | None named | None named | Papers drawn from a random seed; no numbered set, no way to return to "paper 7" | BEHIND | |
-| Practising one part of the paper on its own | Every section sat separately | Skills practised separately in lessons | Exercises per skill | Only the whole paper | BEHIND | |
+| A numbered set a learner can work through, checked for repeats | 100 named mock exams | None named | None named | Papers drawn from a random seed; no numbered set, no way to return to "paper 7" | EQUAL in kind, 25 papers a level rather than 100 | #679 |
+| Practising one part of the paper on its own | Every section sat separately | Skills practised separately in lessons | Exercises per skill | Only the whole paper | EQUAL | #679 |
 | Pass rules as the real paper applies them | 60 percent, no part at zero | Not stated | Not stated | 60 percent, no part at zero, the 45 percent retake rule, the verbal bands; `lib/exam/spec.ts`, asserted in `spec.test.ts` | EQUAL | |
 | Each task says which official task it stands in for | Says it follows Harno's task types | Not stated | Not stated | Every task declares `standsFor`, and two say they are not tasks the real paper sets; `docs/16-exam.md` §2 | AHEAD | |
-| Writing feedback | "Model answers" | 50 and 100 word tasks, feedback not described | Texts sent to a teacher by email | Marks for length and the named words, a live word and length meter, an optional note from Anu; no checklist of what an examiner looks for and no example of the words in use | BEHIND | |
-| Speaking practice structured like the spoken part | Picture and question tasks, "AI feedback" | Record, with optional browser transcription | "Practice speaking to the computer"; texts to a teacher | Two timed monologues with an idea card, recorded, played back beside a native reading and marked by the learner against named criteria (ADR-018); no introductory conversation, which the real spoken part opens with | BEHIND on structure | |
+| Writing feedback | "Model answers" | 50 and 100 word tasks, feedback not described | Texts sent to a teacher by email | Marks for length and the named words, a live word and length meter, an optional note from Anu; no checklist of what an examiner looks for and no example of the words in use | EQUAL, without a model answer by rule | #683 |
+| Speaking practice structured like the spoken part | Picture and question tasks, "AI feedback" | Record, with optional browser transcription | "Practice speaking to the computer"; texts to a teacher | Two timed monologues with an idea card, recorded, played back beside a native reading and marked by the learner against named criteria (ADR-018); no introductory conversation, which the real spoken part opens with | EQUAL on structure | #684 |
 | A pronunciation score | "AI feedback on speaking" | Browser transcription | "Practice speaking to the computer" | None, by rule: the best reachable recognizer misreads clean native Estonian at a 14.6 percent word error rate, landing on exactly what a learner is weakest at (ADR-018, `scripts/measure-asr.mjs`) | Not built, by rule | |
 | Readiness | Certificate unlocks at 60 percent average | None | None | A confidence per level with its evidence tier printed beside it, capped by how much evidence there is; `lib/exam/readiness.ts` | AHEAD | |
-| A record of study a learner can keep | Readiness certificate | None | Diploma after the course test | None; the result page and Progress show figures, nothing printable or keepable | BEHIND | |
-| What the examination is, how to register, exam day, results | Long A2 and B1 guides | None | Exam advice exercises in lessons | Only in `docs/16-exam.md`, which a learner never sees | BEHIND | |
-| The Constitution and Citizenship Act examination | Guide and free mock | None | None | None | BEHIND | |
+| A record of study a learner can keep | Readiness certificate | None | Diploma after the course test | None; the result page and Progress show figures, nothing printable or keepable | EQUAL, a record and not a certificate by rule | #682 |
+| What the examination is, how to register, exam day, results | Long A2 and B1 guides | None | Exam advice exercises in lessons | Only in `docs/16-exam.md`, which a learner never sees | EQUAL | #677 |
+| The Constitution and Citizenship Act examination | Guide and free mock | None | None | None | BEHIND, by decision: named with Harno's materials, no mock | #677 |
 
 ### The course
 
 | Capability | Keelix | TereTere | Keeleklikk | Kodukeel | Status | Closed by |
 |---|---|---|---|---|---|---|
 | A course that says what to do tonight | Not a course | 12 weeks, a day of learn, recall, listen | 16 chapters to A2, 13 at B1, a B2 course | 17 parts from A1 to C1, 15 minutes an evening, every word of the syllabus placed; `lib/course/`, `/course` | AHEAD on range | |
-| A plain promise of time to a level | None | "B1 in twelve focused weeks", "18 minutes" | None | The only promise is fifteen minutes an evening; a plan is computed in first run (`lib/assessment/plan.ts`) but nothing before sign up says how long a level takes at a given pace | BEHIND | |
-| Trying it before making an account | First exam in every section, no account | A sample lesson on the front page | The introductory part without logging in | Two passive demos on the landing page; nothing to answer | BEHIND | |
+| A plain promise of time to a level | None | "B1 in twelve focused weeks", "18 minutes" | None | The only promise is fifteen minutes an evening; a plan is computed in first run (`lib/assessment/plan.ts`) but nothing before sign up says how long a level takes at a given pace | AHEAD, computed from the visitor's own answers | #681 |
+| Trying it before making an account | First exam in every section, no account | A sample lesson on the front page | The introductory part without logging in | Two passive demos on the landing page; nothing to answer | EQUAL: a word to press and a plan to work out, nothing marked | #681 |
 | Price | 9.99 euros a week and up | 9.99 euros a month | Free | Free, MIT licensed | AHEAD on two, EQUAL on one | |
-| Interface in Russian and Ukrainian | English on the front page | English | English, Russian, Ukrainian at 0 to A2; English and Russian at B1 | English only; the Russian and Ukrainian are glosses beside the Estonian, not the interface; `lib/collections/glossLanguage.ts` | BEHIND | |
-| A recurring cast | None | None | Named people across chapters, animated | Situations have unnamed roles; nothing carries across; `lib/scenes/catalogue.ts` | BEHIND | |
-| Video, animation, recorded native speakers | None | None | Interviews, animations, grammar videos | Speech is TartuNLP's synthetic voices, with a slow play that keeps the voice (`lib/audio/stretch.ts`); no recordings | BEHIND on recordings | |
-| A human teacher | None | None | Written and spoken texts sent to a teacher by email | Classes where a teacher sees effort and sets homework (`lib/classroom/`); Anu the AI tutor; no way to send a text to a person | BEHIND | |
+| Interface in Russian and Ukrainian | English on the front page | English | English, Russian, Ukrainian at 0 to A2; English and Russian at B1 | English only; the Russian and Ukrainian are glosses beside the Estonian, not the interface; `lib/collections/glossLanguage.ts` | BEHIND, narrowed: entry pages in both, machine-translated and marked | #685 |
+| A recurring cast | None | None | Named people across chapters, animated | Situations have unnamed roles; nothing carries across; `lib/scenes/catalogue.ts` | BEHIND, left for the operator |  |
+| Video, animation, recorded native speakers | None | None | Interviews, animations, grammar videos | Speech is TartuNLP's synthetic voices, with a slow play that keeps the voice (`lib/audio/stretch.ts`); no recordings | BEHIND on recordings, left for the operator |  |
+| A human teacher | None | None | Written and spoken texts sent to a teacher by email | Classes where a teacher sees effort and sets homework (`lib/classroom/`); Anu the AI tutor; no way to send a text to a person | BEHIND, left for the operator |  |
 | Conversation practice | Speaking tasks | Speaking prompts | Speak to the computer | Fifteen situations a learner holds a conversation in, gated word by word through the dictionary; `lib/scenes/`, `/situations` | AHEAD | |
 | Spaced repetition | None named | "Recall, review five useful chunks" | Tests per chapter | FSRS on every card, graded by every mode; `lib/srs/` | AHEAD | |
 | Dictionary | None | Saved words | A course glossary | The whole Ekilex dictionary, 6,000 entries built in and every other word looked up live; `/dictionary` | AHEAD | |
@@ -138,3 +138,23 @@ In the order a learner would feel them, biggest first.
 12. **The Constitution and Citizenship Act examination.** Named in the guide with Harno's own
     materials. Not built: its question bank is Harno's, it is about civics rather than Estonian, and a
     mock of it written here would be a claim about Estonian law this project is not placed to make.
+
+## 4. After, read 2026-09-26
+
+The Kodukeel column above is the app as it was read on 2026-09-25, kept so the before is on the
+page; the Status and Closed by columns are the after.
+
+Ten of the thirteen BEHIND rows are closed or narrowed, each by a pull request that carries its own
+check (an invariant or a unit test, made to fail before the fix). Three are left, and each for a
+reason that is not engineering:
+
+- **Recordings** cannot be made by this project without a speaker and a studio, and faking them is
+  ruled out. A deployment with recordings to offer is the operator's decision.
+- **A human teacher** is a partnership, not a feature. The classroom mechanism exists; who answers a
+  learner's text is for the operator to arrange.
+- **A recurring cast** means reworking the scene engine's personas across fifteen scenes, each gated
+  word by word. It is the next piece of work and needs the scene specs read by somebody who speaks
+  Estonian, since a character's lines come from the dictionary and the bank.
+
+The Constitution examination stays named rather than mocked, for the reason section 3 gives.
+

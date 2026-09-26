@@ -1,5 +1,6 @@
 "use client";
 
+import { OPENING_CONVERSATION } from "@/lib/exam/warmUp";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { useRouter } from "next/navigation";
@@ -464,6 +465,24 @@ function Break({ until, now, nextLabel, onResume }: {
       </p>
 
       <p className="sr-only" aria-live="polite">{over ? "The break is over." : ""}</p>
+
+      {/*
+        The real spoken part opens with a short conversation with the examiner,
+        which the Board describes and this paper otherwise skips. The break is
+        the moment to rehearse it: out loud, in Estonian, marked by nobody.
+      */}
+      <div className="mt-8 rounded-[var(--r-lg)] border px-5 py-4" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
+        <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
+          The real spoken part opens with a short conversation
+        </p>
+        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+          The examiner talks to you the way people do when they first meet. Say these out loud in
+          Estonian now. Nothing here listens or marks.
+        </p>
+        <ul className="mt-3 flex list-disc flex-col gap-1 pl-5 text-sm" style={{ color: "var(--ink-2)" }}>
+          {OPENING_CONVERSATION.map((line) => <li key={line}>{line}</li>)}
+        </ul>
+      </div>
 
       <div className="mt-8">
         <Button variant="primary" size="lg" onClick={onResume}>

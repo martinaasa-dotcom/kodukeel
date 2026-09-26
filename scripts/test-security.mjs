@@ -268,7 +268,7 @@ for (const route of JSON_ROUTES) {
 
 // ── The policy pages are readable without an account, and say who to write to ─
 
-for (const path of ["/privacy", "/terms", "/trust", "/accessibility", "/funding", "/state-exam"]) {
+for (const path of ["/privacy", "/terms", "/trust", "/accessibility", "/funding", "/state-exam", "/welcome/ru", "/welcome/uk"]) {
   const { status: code } = await get(path);
   check(`${path} is readable without signing in`, code === 200, String(code));
 }
