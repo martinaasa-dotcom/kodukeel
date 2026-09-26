@@ -856,10 +856,10 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             regular endings.
           </p>
           <div className="overflow-x-auto rounded-[var(--r)] border" style={{ borderColor: "var(--rule)" }}>
-            <table className="w-full min-w-[440px] text-sm">
+            <table className="w-full min-w-[360px] text-sm">
               <thead>
                 <tr>
-                  {["Case", "Singular", "Plural", "Answers"].map((h) => (
+                  {["Case", "Singular", "Plural"].map((h) => (
                     <th key={h} className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
                       {h}
                     </th>
@@ -874,10 +874,15 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                           table says what the form is, that page says when to
                           use it. It has to be here too, because a deployment
                           with no Ekilex key only ever renders this one, and
-                          without the link its case table is a dead end. */}
-                      <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="hover:underline">
+                          without the link its case table is a dead end. The
+                          question the case answers sits under its name, in
+                          both languages (`components/CaseQuestion.tsx`), where
+                          it used to be a fourth column that made every row
+                          two lines tall. */}
+                      <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-medium hover:underline" style={{ color: "var(--ink)" }}>
                         {spec.et}
                       </Link>
+                      <CaseQuestion inline className="block text-xs" question={caseQuestionFor(spec, subjectOf(entry))} />
                     </td>
                     {/* Both illatives, where the word has both. `tuppa` and
                         `toasse` are one answer to one question and a course
@@ -892,12 +897,6 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                     </td>
                     <td lang="et" className="px-3 py-2 text-base" style={{ color: "var(--ink-2)" }}>
                       {plural ?? <span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>}
-                    </td>
-                    {/* The Latin name came off the Case column and what the
-                        case asks went into this one, in both languages: see
-                        `components/CaseQuestion.tsx`. */}
-                    <td className="px-3 py-2 text-xs" style={{ color: "var(--ink-2)" }}>
-                      <CaseQuestion question={caseQuestionFor(spec, subjectOf(entry))} />
                     </td>
                   </tr>
                 ))}

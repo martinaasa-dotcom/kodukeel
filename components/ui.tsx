@@ -73,7 +73,7 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
             {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
           </div>
         </div>
-        {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+        {actions && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>}
       </header>
       <div className="page-body">{children}</div>
     </div>
@@ -332,6 +332,9 @@ export function StatTile({ value, label, tone = "accent", icon, hint }: {
     measured against.
   */
   const rule = tone === "accent" ? "var(--accent)" : `var(--${tone})`;
+  // A range like "72.9 to 100 h" in the display size breaks its unit onto a
+  // line of its own in a quarter-width tile, so a long figure steps down one.
+  const long = typeof value === "string" && value.length > 8;
   return (
     <div
       className="stat-tile flex flex-col gap-1.5 rounded-[var(--r)] border px-3 py-3 sm:px-4 sm:py-3.5"
@@ -341,7 +344,7 @@ export function StatTile({ value, label, tone = "accent", icon, hint }: {
         <span className="min-w-0 text-sm font-medium" style={{ color: "var(--ink-2)" }}>{label}</span>
         {icon && <span aria-hidden className="shrink-0" style={{ color: toneInk(tone) }}>{icon}</span>}
       </div>
-      <span className="tnum font-display text-3xl font-bold leading-none tracking-tight" style={{ color: "var(--ink)" }}>{value}</span>
+      <span className={`tnum font-display ${long ? "text-2xl" : "text-3xl"} font-bold leading-none tracking-tight`} style={{ color: "var(--ink)" }}>{value}</span>
       {hint && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint}</span>}
     </div>
   );

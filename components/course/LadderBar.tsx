@@ -229,7 +229,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
         {milestones.map((stop) => (
           <li
             key={stop.level}
-            className="flex min-w-0 flex-col gap-1 rounded-[var(--r)] border px-2.5 py-2"
+            className="@container flex min-w-0 flex-col gap-1 rounded-[var(--r)] border px-2.5 py-2"
             style={{
               borderColor: stop.state === "here" ? "var(--accent)" : "var(--rule-soft)",
               background: stop.state === "here" ? "var(--accent-soft)" : "transparent",
@@ -247,7 +247,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
             </span>
             <span
               lang={wantsEnglish ? undefined : "et"}
-              className="hidden text-xs leading-snug sm:block"
+              className="hidden text-xs leading-snug @min-[7rem]:block"
               style={{ color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink-2)" }}
             >
               {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setRoundPace } from "@/app/actions";
-import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
+import { ChoiceSegment } from "@/components/Choice";
 import { ROUND_PACES, roundLength, secondsFor, SPRINT_SECONDS, type RoundPace } from "@/lib/ux/roundClock";
 
 /**
@@ -29,20 +29,16 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
   };
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="How long a timed round runs" className="grid gap-2 @md:grid-cols-2">
-        {ROUND_PACES.map((option) => (
-          <ChoiceCard
-            key={option.id}
-            layout="stacked"
-            disabled={pending}
-            selected={value === option.id}
-            onSelect={() => pick(option.id)}
-            title={option.label}
-            detail={`${roundLength(secondsFor(SPRINT_SECONDS, option.id))} in the sprint. ${option.detail}`}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="How long a timed round runs"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={ROUND_PACES.map((option) => ({
+        id: option.id,
+        title: option.label,
+        detail: `${roundLength(secondsFor(SPRINT_SECONDS, option.id))} in the sprint. ${option.detail}`,
+      }))}
+    />
   );
 }

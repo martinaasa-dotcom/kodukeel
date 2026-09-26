@@ -98,11 +98,11 @@ export default async function AssessPage({
     <Page route="/assess"
       title="Level check"
       lead="Reading, listening, writing and speaking, all checked against the dictionary."
-      actions={
+      actions={result ? (
         <ButtonLink href="/assess?take=1" variant="primary" size="lg">
-          <Compass size={16} aria-hidden /> {latest ? "Take it again" : "Take the check"}
+          <Compass size={16} aria-hidden /> Take it again
         </ButtonLink>
-      }
+      ) : undefined}
     >
       <Stack>
         {result ? (

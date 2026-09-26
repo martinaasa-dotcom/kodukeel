@@ -1,11 +1,12 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Explain } from "@/components/Explain";
 import { Building2, GraduationCap, School, Users } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
-import { Card, Chip, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { CreateClass, JoinClass } from "./ClassForms";
 
 export const metadata = { title: "Classes" };
@@ -161,7 +162,7 @@ export default async function ClassIndexPage() {
           </Card>
         )}
 
-        <Note tone="neutral">
+        <Explain label="What a teacher or an employer can see">
           A teacher sees effort and progress: reviews this week, streak, words known, the cases
           the whole class keeps missing, and the one case each student struggles with most, as a
           percentage across all their reviews. Whoever runs a workplace group sees less than
@@ -170,7 +171,7 @@ export default async function ClassIndexPage() {
           never a colleague&rsquo;s weak grammar. Both of those lines are drawn in the code
           rather than only in a policy. See{" "}
           <code className="text-xs">lib/classroom/roster.ts</code>.
-        </Note>
+        </Explain>
       </Stack>
     </Page>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { Eye, MousePointerClick } from "lucide-react";
 import { Button } from "@/components/Button";
 import { KeyCap } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -94,35 +95,48 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
     : count.n === 1 ? count.noun : `${count.noun}s`;
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-16 md:px-10" data-briefing={id}>
+    <div className="mx-auto max-w-xl px-5 py-12 md:py-16" data-briefing={id}>
       {/* The one heading on the screen: the round's own is inside the round,
-          which is not mounted yet. */}
-      <div className="pop-in text-center">
-        <Mascot size={72} className="mx-auto" />
-        <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+          which is not mounted yet. Two steps rather than two paragraphs:
+          what arrives on the screen, and what the learner does about it,
+          each beside a mark that says which of the two it is. */}
+      <div
+        className="pop-in rounded-[var(--r-xl)] border px-6 py-8 text-center md:px-8"
+        style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
+      >
+        <Mascot size={56} className="mx-auto" />
+        <h1 className="mt-4 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           {brief.title}
         </h1>
-        <p className="mx-auto mt-3 max-w-[46ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {brief.what}
-        </p>
-        <p className="mx-auto mt-2 max-w-[46ch] text-base leading-relaxed font-semibold" style={{ color: "var(--ink)" }}>
-          {brief.you}
-        </p>
         {count && count.n > 0 && (
-          <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-            {count.n} {plural} in this round.
+          <p className="mt-2 text-sm font-medium" style={{ color: "var(--ink-3)" }}>
+            {count.n} {plural} in this round
           </p>
         )}
-      </div>
-      <div className="mt-8 flex justify-center">
-        <Button
-          variant="primary"
-          size="lg"
-          data-briefing-start=""
-          onClick={() => setPressed(true)}
-        >
-          {brief.action} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
-        </Button>
+        <ol className="mt-6 flex flex-col gap-2.5 text-left">
+          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-4 py-3.5" style={{ background: "var(--raised)" }}>
+            <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}>
+              <Eye size={16} />
+            </span>
+            <span className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{brief.what}</span>
+          </li>
+          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-4 py-3.5" style={{ background: "var(--accent-soft)" }}>
+            <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--surface)", color: "var(--accent-deep)" }}>
+              <MousePointerClick size={16} />
+            </span>
+            <span className="text-base font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>{brief.you}</span>
+          </li>
+        </ol>
+        <div className="mt-7 flex justify-center">
+          <Button
+            variant="primary"
+            size="lg"
+            data-briefing-start=""
+            onClick={() => setPressed(true)}
+          >
+            {brief.action} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+          </Button>
+        </div>
       </div>
     </div>
   );

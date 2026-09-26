@@ -6,7 +6,8 @@ import { isExamLevel, PASS_PCT, specFor } from "@/lib/exam/spec";
 import { PAPERS_PER_LEVEL } from "@/lib/exam/seed";
 import { SKILLS, SKILL_LABEL } from "@/lib/exam/types";
 import { ButtonLink } from "@/components/Button";
-import { Card, Chip, Page } from "@/components/ui";
+import { Page } from "@/components/ui";
+import { Explain } from "@/components/Explain";
 
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
@@ -43,50 +44,60 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
       lead="The same questions each time you open one, so you can sit a paper again and compare."
       actions={<ButtonLink href="/exam" variant="secondary">Back to the exam</ButtonLink>}
     >
-      <p className="mb-6 max-w-[64ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+      <Explain label="Sitting one part on its own">
         Each part can also be sat on its own, on its own clock. A part on its own is a mark for
         that part, never a pass or a fail: the real paper marks all four together, and{" "}
         {PASS_PCT} percent of the total is the pass.
-      </p>
-      <ol className="grid gap-3">
+      </Explain>
+      {/*
+        A shelf of papers rather than a column of identical cards. Twenty-five
+        rows each repeating "Not sat yet" and the same four links read as a
+        form to fill in; a grid of numbered tiles reads as a set to work
+        through, and the one sat last is the one that stands out.
+      */}
+      <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {papers.map((paper) => (
-          <Card as="li" key={paper.number} className="!py-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="flex flex-wrap items-center gap-2">
-                <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>
+          <li
+            key={paper.number}
+            className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-4"
+            style={{
+              borderColor: paper.whole ? (paper.whole.passed ? "var(--mint)" : "var(--peach)") : "var(--rule-soft)",
+              background: "var(--surface)",
+            }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <span className="min-w-0">
+                <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
                   Paper {paper.number}
                 </span>
                 {paper.whole ? (
-                  <Link href={`/exam/result/${paper.whole.id}`} className="underline underline-offset-4">
-                    <Chip tone={paper.whole.passed ? "good" : "again"}>
-                      Last sat at {paper.whole.pct} percent, {paper.whole.passed ? "a pass" : "not a pass"}
-                    </Chip>
+                  <Link href={`/exam/result/${paper.whole.id}`} className="text-sm font-semibold underline underline-offset-4" style={{ color: paper.whole.passed ? "var(--good-ink)" : "var(--again-ink)" }}>
+                    {paper.whole.pct} percent, {paper.whole.passed ? "a pass" : "not a pass"}
                   </Link>
                 ) : (
-                  <Chip tone="neutral">Not sat yet</Chip>
+                  <span className="block text-sm" style={{ color: "var(--ink-3)" }}>Not sat yet</span>
                 )}
               </span>
-              <ButtonLink href={`/exam/${upper}?paper=${paper.number}`} variant="secondary" size="sm">
-                Sit the whole paper
+              <ButtonLink href={`/exam/${upper}?paper=${paper.number}`} variant={paper.whole ? "secondary" : "primary"} size="sm">
+                {paper.whole ? "Sit again" : "Sit it"}
               </ButtonLink>
             </div>
-            <p className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm" style={{ color: "var(--ink-2)" }}>
-              <span style={{ color: "var(--ink-3)" }}>One part:</span>
+            <p className="flex flex-wrap gap-1.5" aria-label={`Paper ${paper.number}, one part on its own`}>
               {SKILLS.filter((skill) => spec.parts.some((p) => p.skill === skill)).map((skill) => {
                 const done = paper.parts[skill];
                 return (
                   <Link
                     key={skill}
                     href={`/exam/${upper}?paper=${paper.number}&part=${skill}`}
-                    className="font-semibold underline underline-offset-4"
+                    className="choice-btn press inline-flex min-h-8 items-center gap-1 rounded-full border px-2.5 text-xs pointer-coarse:min-h-11 font-semibold"
                   >
                     {SKILL_LABEL[skill]}
-                    {done ? `, last ${done.pct} percent` : ""}
+                    {done ? <span className="tnum" style={{ color: "var(--ink-3)" }}>{done.pct}%</span> : null}
                   </Link>
                 );
               })}
             </p>
-          </Card>
+          </li>
         ))}
       </ol>
     </Page>

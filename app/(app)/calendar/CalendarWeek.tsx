@@ -186,7 +186,11 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
 
       {/* Said plainly rather than left blank: an empty column and a column that
           failed to load look the same, and on a phone the difference matters. */}
-      {empty && <p className="mt-1 text-2xs" style={{ color: "var(--ink-3)" }}>Nothing</p>}
+      {empty && (
+        <p className="mt-2 h-6 rounded-[var(--r-sm)] border border-dashed" style={{ borderColor: "var(--rule-soft)" }}>
+          <span className="sr-only">Nothing</span>
+        </p>
+      )}
     </div>
   );
 }
@@ -200,13 +204,13 @@ function EventRow({ event }: { event: StudyEvent }) {
       className="rounded-[var(--r-sm)] px-2 py-1.5"
       style={{ background: `var(--${KIND_TONE[event.kind]}-soft)` }}
     >
-      <div className="flex items-start justify-between gap-1.5">
-        <div className="min-w-0">
-          <p className="truncate text-xs font-semibold" style={{ color: "var(--ink)" }}>{event.title}</p>
-          <p className="text-2xs" style={{ color: "var(--ink-2)" }}>
-            {span(event.startMinute, event.durationMinutes)}
-          </p>
-        </div>
+      <p className="text-xs font-semibold leading-snug" style={{ color: "var(--ink)" }}>{event.title}</p>
+      {/* The remove button sits on the line under the title, so the title has
+          the whole width of a column that is about ninety pixels wide. */}
+      <div className="flex items-center justify-between gap-1.5">
+        <p className="text-2xs" style={{ color: "var(--ink-2)" }}>
+          {span(event.startMinute, event.durationMinutes)}
+        </p>
         <button
           type="button"
           aria-label={`Remove ${event.title}`}
@@ -215,7 +219,7 @@ function EventRow({ event }: { event: StudyEvent }) {
             const landed = await deleteStudyEvent(event.id).then(() => true).catch(() => false);
             if (landed) router.refresh();
           })}
-          className="tap-tint rounded-full p-1"
+          className="tap-tint shrink-0 rounded-full p-1"
           style={{ color: "var(--ink-3)" }}
         >
           <Trash2 size={12} aria-hidden />
@@ -232,37 +236,35 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
 
   return (
     <li className="rounded-[var(--r-sm)] px-2 py-1.5" style={{ background: "var(--raised)" }}>
-      <div className="flex items-start justify-between gap-1.5">
-        <div className="min-w-0">
-          <p
-            className="truncate text-xs font-semibold"
-            style={{
-              color: reminder.completed ? "var(--ink-3)" : "var(--ink)",
-              textDecoration: reminder.completed ? "line-through" : undefined,
-            }}
-          >
-            {reminder.title}
-          </p>
-          {/*
-            Plain text rather than a `Chip`, which the containment sweep caught
-            bleeding 11px out of this row at 768px. A week column at that width
-            is about ninety pixels and a chip is a padded inline-flex box with
-            an intrinsic minimum: it cannot shrink into the space, so it hangs
-            out of it. The row already says what it is by where it sits.
+      <p
+        className="text-xs font-semibold leading-snug"
+        style={{
+          color: reminder.completed ? "var(--ink-3)" : "var(--ink)",
+          textDecoration: reminder.completed ? "line-through" : undefined,
+        }}
+      >
+        {reminder.title}
+      </p>
+      <div className="flex items-center justify-between gap-1.5">
+        {/*
+          Plain text rather than a `Chip`, which the containment sweep caught
+          bleeding 11px out of this row at 768px. A week column at that width
+          is about ninety pixels and a chip is a padded inline-flex box with
+          an intrinsic minimum: it cannot shrink into the space, so it hangs
+          out of it. The row already says what it is by where it sits.
 
-            Block and truncating rather than inline, and without the uppercase
-            tracking the first attempt kept: an inline run still measured 2px
-            over, because `min-w-0` lets the column shrink and does nothing
-            about the text inside it. `truncate` is a way out somebody chose,
-            which is what the sweep accepts.
-          */}
-          <span
-            className="block truncate text-2xs font-semibold"
-            style={{ color: reminder.completed ? "var(--good-ink)" : "var(--hard-ink)" }}
-          >
-            {reminder.completed ? "Done" : "To do"}
-          </span>
-        </div>
+          Block and truncating rather than inline, and without the uppercase
+          tracking the first attempt kept: an inline run still measured 2px
+          over, because `min-w-0` lets the column shrink and does nothing
+          about the text inside it. `truncate` is a way out somebody chose,
+          which is what the sweep accepts.
+        */}
+        <span
+          className="block min-w-0 truncate text-2xs font-semibold"
+          style={{ color: reminder.completed ? "var(--good-ink)" : "var(--hard-ink)" }}
+        >
+          {reminder.completed ? "Done" : "To do"}
+        </span>
         {reminder.mine && (
           <button
             type="button"
@@ -272,7 +274,7 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
               const landed = await deleteReminder(reminder.id).then(() => true).catch(() => false);
               if (landed) router.refresh();
             })}
-            className="tap-tint rounded-full p-1"
+            className="tap-tint shrink-0 rounded-full p-1"
             style={{ color: "var(--ink-3)" }}
           >
             <Trash2 size={12} aria-hidden />
@@ -455,5 +457,9 @@ function weekLabel(days: string[], offset: number): string {
   const last = days[6];
   if (!first || !last) return "";
   const when = offset === 0 ? "this week" : offset < 0 ? `${-offset} back` : `${offset} ahead`;
-  return `${first.slice(5)} to ${last.slice(5)} · ${when}`;
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const d = (key: string) => Number(key.slice(8, 10));
+  const m = (key: string) => MONTHS[Number(key.slice(5, 7)) - 1] ?? "";
+  const range = m(first) === m(last) ? `${d(first)} to ${d(last)} ${m(last)}` : `${d(first)} ${m(first)} to ${d(last)} ${m(last)}`;
+  return `${range} · ${when}`;
 }

@@ -5,6 +5,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { BookOpen, Compass, EyeOff, Undo2 } from "lucide-react";
 import { setCardSuspended } from "@/app/actions";
 import { Chip } from "@/components/ui";
+import { counted } from "@/lib/copy/values";
 import { stickingNote, type StickingPoint } from "@/lib/stats/sticking";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -132,7 +133,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                   )}
                   <span aria-hidden className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
                     {point.accuracy === null ? "not seen lately" : `${point.accuracy}% of ${point.reviews}`}
-                    {point.siblings > 0 ? ` · ${point.siblings + 1} cards stuck` : ""}
+                    {point.siblings > 0 ? ` · ${counted(point.siblings + 1, "card")} stuck` : ""}
                   </span>
                 </p>
               )}

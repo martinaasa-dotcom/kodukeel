@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AudioLines, BookOpen, Coffee, Ear, EarOff, Gauge, Music, Sparkles, VolumeX } from "lucide-react";
 import { setAutoplay, setFeedbackSounds, setHearing, setSpeechPace, setSupport, setVoice } from "@/app/actions";
 import { CONDITIONS, removesWords, type Hearing, type Support } from "@/lib/audio/conditions";
-import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { ChoiceChip, ChoiceGroup, ChoiceSegment } from "@/components/Choice";
 import { Speak } from "@/components/Speak";
 import { playFeedback } from "@/lib/audio/feedback";
 import { type Autoplay, type FeedbackSounds, VOICES } from "@/lib/audio/voice";
@@ -91,31 +91,21 @@ export function SpeechPacePanel({ current, fromLevel, level }: { current: Pace; 
   // 318px at 768, where the rail takes a column, and every choice here that
   // asked the window broke its title mid-letter there.
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="How fast Estonian is read aloud" className="grid gap-2 @md:grid-cols-2">
-        <ChoiceCard
-          layout="stacked"
-          disabled={pending}
-          selected={value === "auto"}
-          onSelect={() => pick("auto")}
-          icon={<Gauge size={16} aria-hidden />}
-          title="Follow my level"
-          detail={`At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`}
-        />
-        {SPEECH_PACES.map((p) => (
-          <ChoiceCard
-            key={p.id}
-            layout="stacked"
-            disabled={pending}
-            selected={value === p.id}
-            onSelect={() => pick(p.id)}
-            icon={<Gauge size={16} aria-hidden />}
-            title={p.label}
-            detail={p.detail}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="How fast Estonian is read aloud"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={[
+        {
+          id: "auto" as const,
+          title: "Follow my level",
+          icon: <Gauge size={15} aria-hidden />,
+          detail: `At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`,
+        },
+        ...SPEECH_PACES.map((p) => ({ id: p.id, title: p.label, detail: p.detail })),
+      ]}
+    />
   );
 }
 
@@ -159,22 +149,13 @@ export function AutoplayPanel({ current }: { current: Autoplay }) {
   };
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="When Estonian is read aloud" className="grid gap-2 @md:grid-cols-2">
-        {AUTOPLAY.map((o) => (
-          <ChoiceCard
-            key={o.value}
-            layout="stacked"
-            disabled={pending}
-            selected={value === o.value}
-            onSelect={() => pick(o.value)}
-            icon={<o.icon size={16} aria-hidden />}
-            title={o.label}
-            detail={o.detail}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="When Estonian is read aloud"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={AUTOPLAY.map((o) => ({ id: o.value, title: o.label, detail: o.detail, icon: <o.icon size={15} aria-hidden /> }))}
+    />
   );
 }
 
@@ -210,22 +191,13 @@ export function FeedbackSoundsPanel({ current }: { current: FeedbackSounds }) {
   };
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="Whether answers make a sound" className="grid gap-2 @md:grid-cols-2">
-        {SOUNDS.map((o) => (
-          <ChoiceCard
-            key={o.value}
-            layout="stacked"
-            disabled={pending}
-            selected={value === o.value}
-            onSelect={() => pick(o.value)}
-            icon={<o.icon size={16} aria-hidden />}
-            title={o.label}
-            detail={o.detail}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="Whether answers make a sound"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={SOUNDS.map((o) => ({ id: o.value, title: o.label, detail: o.detail, icon: <o.icon size={15} aria-hidden /> }))}
+    />
   );
 }
 
@@ -278,22 +250,13 @@ export function HearingPanel({ current }: { current: Hearing }) {
   };
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="How the listening rounds sound" className="grid gap-2 @md:grid-cols-2">
-        {HEARING.map((o) => (
-          <ChoiceCard
-            key={o.value}
-            layout="stacked"
-            disabled={pending}
-            selected={value === o.value}
-            onSelect={() => pick(o.value)}
-            icon={<o.icon size={16} aria-hidden />}
-            title={o.label}
-            detail={o.detail}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="How the listening rounds sound"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={HEARING.map((o) => ({ id: o.value, title: o.label, detail: o.detail, icon: <o.icon size={15} aria-hidden /> }))}
+    />
   );
 }
 
@@ -348,22 +311,13 @@ export function SupportPanel({ current }: { current: Support }) {
   };
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="How much the app helps in a conversation" className="grid gap-2 @lg:grid-cols-3">
-        {SUPPORT_LEVELS.map((o) => (
-          <ChoiceCard
-            key={o.value}
-            layout="stacked"
-            disabled={pending}
-            selected={value === o.value}
-            onSelect={() => pick(o.value)}
-            icon={<o.icon size={16} aria-hidden />}
-            title={o.label}
-            detail={o.detail}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="How much the app helps in a conversation"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={SUPPORT_LEVELS.map((o) => ({ id: o.value, title: o.label, detail: o.detail, icon: <o.icon size={15} aria-hidden /> }))}
+    />
   );
 }
 

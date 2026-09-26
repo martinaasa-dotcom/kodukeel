@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setGlossLanguage } from "@/app/actions";
-import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
+import { ChoiceSegment } from "@/components/Choice";
 import {
   GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
@@ -30,20 +30,16 @@ export function GlossLanguagePanel({ current }: { current: GlossLanguage }) {
   };
 
   return (
-    <div className="@container">
-      <ChoiceGroup ariaLabel="Which language a meaning is given in" className="grid gap-2 @lg:grid-cols-3">
-        {GLOSS_LANGUAGES.map((option) => (
-          <ChoiceCard
-            key={option.id}
-            layout="stacked"
-            disabled={pending}
-            selected={value === option.id}
-            onSelect={() => pick(option.id)}
-            title={option.label}
-            detail={option.id === "en" ? "The course's own English meanings" : option.native}
-          />
-        ))}
-      </ChoiceGroup>
-    </div>
+    <ChoiceSegment
+      ariaLabel="Which language a meaning is given in"
+      value={value}
+      disabled={pending}
+      onSelect={pick}
+      options={GLOSS_LANGUAGES.map((option) => ({
+        id: option.id,
+        title: option.label,
+        detail: option.id === "en" ? "The course's own English meanings." : `${option.native}, beside the English.`,
+      }))}
+    />
   );
 }

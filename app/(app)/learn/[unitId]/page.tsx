@@ -218,7 +218,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
             {words.length} words · {offered.map(cardTypeLabel).join(", ")} cards
           </p>
-          <ul className="grid gap-2 @lg:grid-cols-2">
+          <ul className="grid gap-2 @lg:grid-cols-2 @3xl:grid-cols-3">
             {words.map((l) => {
               const known = snapshot.knownLemmas.has(l.lemma);
               const started = snapshot.startedLemmas.has(l.lemma);
