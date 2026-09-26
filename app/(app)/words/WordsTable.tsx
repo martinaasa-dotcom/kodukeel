@@ -86,7 +86,13 @@ export function WordsTable({ rows }: { rows: CardRow[] }) {
           No cards match that. Try another filter.
         </p>
       ) : (
-        <ul className="flex flex-col gap-1.5">
+        /* One list with hairlines between the rows, rather than a bordered and
+           shadowed box per card: seventy boxes stacked down a page is seventy
+           edges to read past before the words. */
+        <ul
+          className="overflow-hidden rounded-[var(--r-lg)] border"
+          style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+        >
           {visible.map((r) => <Row key={r.id} row={r} />)}
         </ul>
       )}
@@ -105,12 +111,13 @@ function Row({ row }: { row: CardRow }) {
 
   return (
     <li
-      className="flex items-center gap-3 rounded-[var(--r)] border px-4 py-3 transition-colors hover:border-[var(--accent-soft)]"
+      className="flex items-center gap-3 border-b px-4 py-3 transition-colors last:border-b-0"
       style={{
-        borderColor: "var(--rule)",
-        background: "var(--surface)",
-        boxShadow: "var(--shadow-sm)",
-        opacity: pending ? 0.5 : suspended ? 0.55 : 1,
+        borderColor: "var(--rule-soft)",
+        /* A set-aside row is a quieter ground, never a fade: an opacity on a
+           row of words fades the words. */
+        background: suspended ? "var(--raised)" : "transparent",
+        opacity: pending ? 0.5 : 1,
       }}
     >
       <div className="min-w-0 flex-1">

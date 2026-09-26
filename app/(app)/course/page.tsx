@@ -546,6 +546,39 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
   return (
     <Card>
       <SectionTitle hint={`${PROGRAMMES.length} parts`}>The whole ladder</SectionTitle>
+      {/*
+        THE LADDER AS A PICTURE FIRST, AND THE LIST ON A PRESS.
+
+        Nineteen rows of part titles was the longest block on a screen whose
+        job is tonight. What the ladder is there to say is that the course has
+        an end and where you are on the way to it, and a strip of nineteen
+        segments says both at a glance; the titles are one press away for
+        somebody who wants to read them.
+      */}
+      <div aria-hidden className="mt-2 flex gap-1">
+        {PROGRAMMES.map((p) => {
+          const at = PROGRAMMES.findIndex((q) => q.id === here);
+          const index = PROGRAMMES.indexOf(p);
+          return (
+            <span
+              key={p.id}
+              className="h-2.5 flex-1 rounded-full"
+              style={{
+                background: p.id === here ? "var(--accent)" : at >= 0 && index < at ? "var(--mint)" : "var(--raised)",
+              }}
+            />
+          );
+        })}
+      </div>
+      <div aria-hidden className="mt-1.5 flex gap-1 text-xs font-semibold" style={{ color: "var(--ink-3)" }}>
+        {groupLevels.map((groupLevel) => (
+          <span key={groupLevel} style={{ flex: PROGRAMMES.filter((p) => p.level === groupLevel).length }}>
+            {groupLevel}
+          </span>
+        ))}
+      </div>
+      <details className="explain mt-3">
+        <summary>Every part, by name</summary>
       <div className="mt-3 flex flex-col gap-4">
         {groupLevels.map((groupLevel) => (
           <div key={groupLevel}>
@@ -578,6 +611,7 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
           </div>
         ))}
       </div>
+      </details>
     </Card>
   );
 }

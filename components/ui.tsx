@@ -50,7 +50,7 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
   return (
     <div className="mx-auto max-w-5xl px-5 py-8 md:px-10 md:py-12">
       <header className="fade-up mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="flex min-w-0 items-start gap-4">
+        <div className="flex min-w-0 flex-[1_1_28rem] items-start gap-4">
           {place && (
             <span
               aria-hidden
@@ -73,7 +73,7 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
             {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
           </div>
         </div>
-        {actions}
+        {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
       </header>
       <div className="page-body">{children}</div>
     </div>

@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Card, Chip, Meter, SectionTitle, StatTile } from "@/components/ui";
+import { Card, Meter, SectionTitle, StatTile } from "@/components/ui";
 import {
   MASTERY_CORRECT, MASTERY_LABEL, MASTERY_ORDER, type Mastery,
 } from "@/lib/srs/mastery";
@@ -37,13 +37,6 @@ const TONES: Record<Mastery, "mint" | "butter" | "peach" | "sky"> = {
   almost: "butter",
   struggling: "peach",
   learning: "sky",
-};
-
-const CHIPS: Record<Mastery, "good" | "hard" | "again" | "neutral"> = {
-  mastered: "good",
-  almost: "hard",
-  struggling: "again",
-  learning: "neutral",
 };
 
 /** What each tier means, in the learner's terms rather than the rule's. */
@@ -95,7 +88,7 @@ function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; to
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>{EXPLAINS[tier]}</p>
 
-      <ul className="mt-4 flex flex-col gap-2">
+      <ul className="mt-4 grid gap-2 sm:grid-cols-2">
         {words.map((word) => (
           <li key={word.lexemeId}>
             <Row word={word} tier={tier} />
@@ -129,36 +122,31 @@ function Row({ word, tier }: { word: MasteredWord; tier: Mastery }) {
         <span className="text-xs" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
       </div>
 
-      <div className="mt-2.5">
+      <div className="mt-2">
         <Meter
           pct={Math.round(progress * 100)}
           label={`${word.lemma} toward mastered`}
           tone={`var(--${TONES[tier]}-ink)`}
-          height={6}
+          height={5}
         />
       </div>
-
       {/*
+        ONE LINE UNDER THE BAR, WHERE THERE WERE TWO AND A ROW OF CHIPS.
+
         "4 of 3 different forms" is what a bare fraction prints the moment the
         variety bar is met and passed, which is most of the words in the two
-        tiers that are not about variety at all. A learner reads that as a
-        counting fault. Where the bar is met the fraction has nothing left to
-        say, so it says the count instead.
+        tiers that are not about variety at all. Where the bar is met the
+        fraction has nothing left to say, so it says the count instead. The
+        forms follow as plain words rather than a chip each: a coloured pill
+        per form was four pills a word, forty words down the page.
       */}
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-        <span className="tnum">{correct}</span> right of <span className="tnum">{total}</span>,
+        <span className="tnum">{correct}</span> of <span className="tnum">{total}</span> right,
         in <span className="tnum">{slots}</span>
         {slots < slotsNeeded ? <> of <span className="tnum">{slotsNeeded}</span></> : null}{" "}
-        {slots === 1 ? "form" : "different forms"}
+        {slots === 1 ? "form" : "forms"}
+        {filled.length > 0 && <>: {filled.map((slot) => slotShort(slot)).join(", ")}</>}
       </p>
-
-      {filled.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {filled.map((slot) => (
-            <Chip key={slot} tone={CHIPS[tier]}>{slotShort(slot)}</Chip>
-          ))}
-        </div>
-      )}
     </Link>
   );
 }

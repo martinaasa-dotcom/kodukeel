@@ -169,6 +169,7 @@ export default async function ExamPage() {
                         {spec.summary}
                       </p>
                     </div>
+                    <span className="flex shrink-0 flex-col items-center gap-1">
                     <Ring
                       pct={level.confidence}
                       size={62}
@@ -179,23 +180,28 @@ export default async function ExamPage() {
                         {level.confidence}%
                       </span>
                     </Ring>
+                    {/* The tier beside every figure (ADR-022), per level: a sat
+                        level can read up to 85 while the page's evidence is
+                        still thin, so the section's one hint could not speak
+                        for this ring. */}
+                    <span className="max-w-[6rem] text-center text-xs leading-tight" style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
+                      {level.measured ? "from your paper" : EVIDENCE_LABEL[readiness.evidence]}
+                    </span>
+                    </span>
                   </div>
 
-                  {/* The tier beside every figure (ADR-022), per level: a sat level
-                      can read up to 85 while the page's evidence is still thin,
-                      so the section's one hint could not speak for this ring.
-                      One line with the verdict rather than a second paragraph. */}
-                  <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                    {level.verdict}{" "}
-                    <span style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
-                      {level.measured ? "Resting on a paper you sat." : `That figure is ${EVIDENCE_LABEL[readiness.evidence]}.`}
-                    </span>
-                  </p>
+                  {/* The verdict where it says something: a paper sat, or a
+                      level close enough to be worth aiming at. On the other
+                      cards it was "X is a long way off for now" five times
+                      down the page. */}
+                  {(level.measured || level.confidence >= 25) && (
+                    <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{level.verdict}</p>
+                  )}
 
                   {/* The four parts only once one of them has a figure: four
                       labels over four empty tracks said "nothing measured" in
                       the loudest way the card had. */}
-                  {SKILLS.some((skill) => level.seen[skill]) && (
+                  {SKILLS.some((skill) => level.seen[skill] && level.expected[skill] > 0) && (
                   <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
                     {SKILLS.map((skill) => (
                       <div key={skill}>
@@ -222,11 +228,10 @@ export default async function ExamPage() {
                   )}
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                      <Clock size={12} className="mr-1 inline" aria-hidden />
-                      {writtenMinutes(spec)} minutes written, then {spec.parts[3]?.minutes ?? 15} speaking
-                      {" · "}
-                      predicted {level.expectedTotal} percent, {band.label}
+                    <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
+                      <Clock size={12} aria-hidden />
+                      <span className="sr-only">Predicted {level.expectedTotal} percent, {band.label}. </span>
+                      {writtenMinutes(spec)} + {spec.parts[3]?.minutes ?? 15} min
                     </span>
                     <span className="flex flex-wrap items-center gap-3">
                       <Link
