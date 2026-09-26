@@ -1000,7 +1000,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
           the other four hues in this app mean something and a café is not
           "you got it".
         */}
-        <div className="flex justify-center pb-1 pt-2">
+        <div className="night flex justify-center rounded-[var(--r-xl)] border px-5 pb-2 pt-6">
           <SceneVignette sceneId={scene.id} setting={room} />
         </div>
 

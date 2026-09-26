@@ -451,9 +451,9 @@ function Compare() {
               </p>
             </div>
           ))}
-          <div className="compare-ours rounded-[var(--r-xl)] p-6">
-            <h3 className="text-md font-semibold">Kodukeel</h3>
-            <p className="mt-4 text-sm leading-relaxed">
+          <div className="compare-ours night rounded-[var(--r-xl)] border p-6">
+            <h3 className="font-display text-xl font-bold" style={{ color: "var(--cta)" }}>Kodukeel</h3>
+            <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
               The cases taught one by one, a scheduler that brings every word back, a tutor at any
               hour, and every form from a dictionary rather than a model. Free, and it keeps working
               offline.
@@ -1249,7 +1249,7 @@ function FinalCta() {
     <section id="start" className="w-full px-5 md:px-8">
       <Reveal>
         <div
-          className="cta-stage relative mx-auto max-w-5xl overflow-hidden rounded-[var(--r-xl)] px-6 py-10 text-center md:px-16 md:py-16"
+          className="cta-stage night relative mx-auto max-w-5xl overflow-hidden rounded-[var(--r-xl)] px-6 py-10 text-center md:px-16 md:py-16"
         >
 
           <div className="relative">

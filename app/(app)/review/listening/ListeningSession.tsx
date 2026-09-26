@@ -181,9 +181,9 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="pop-in text-center">
+        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
             Session complete
           </h1>
           <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>

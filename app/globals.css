@@ -2395,9 +2395,9 @@
   @media (min-width: 768px) { .landing-title { font-size: var(--text-6xl); } }
 
   .who-card { background: var(--surface); border-color: var(--edge); border-width: 2px; box-shadow: var(--depth); }
-  .compare-ours { background: var(--accent); color: var(--accent-ink); border: 2px solid var(--edge); box-shadow: var(--depth); }
+  .compare-ours { color: var(--ink); }
   .plan-card { background: var(--surface); border-color: var(--edge); border-width: 2px; box-shadow: var(--depth); }
-  .plan-calc-answer { background: var(--accent-soft); }
+  .plan-calc-answer { min-height: 16rem; }
   .plan-calc-figure { font-size: var(--text-4xl); line-height: 1.05; }
   @media (min-width: 768px) {
     .plan-calc-figure { font-size: var(--text-5xl); }

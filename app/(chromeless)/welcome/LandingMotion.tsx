@@ -180,10 +180,10 @@ export function PlanCalculator() {
         </ChoiceGroup>
       </div>
 
-      <div className="plan-calc-answer flex flex-col justify-center rounded-[var(--r-xl)] p-6 md:p-8" aria-live="polite">
+      <div className="plan-calc-answer night flex flex-col justify-center rounded-[var(--r-xl)] border p-6 md:p-8" aria-live="polite">
         {arrived ? (
           <>
-            <p className="label-xs" style={{ color: "var(--accent-deep)" }}>You are there</p>
+            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>You are there</p>
             <p className="mt-3 text-2xl font-bold leading-tight font-display" style={{ color: "var(--ink)" }}>
               {target} is behind you already.
             </p>
@@ -193,7 +193,7 @@ export function PlanCalculator() {
           </>
         ) : (
           <>
-            <p className="label-xs" style={{ color: "var(--accent-deep)" }}>{target}, in about</p>
+            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{target}, in about</p>
             <p className="plan-calc-figure mt-2 font-display font-bold" style={{ color: "var(--ink)" }}>
               {span}
             </p>
