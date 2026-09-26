@@ -319,7 +319,7 @@ export async function workplaceRoster(
       prisma.examAttempt.findMany({
         where: { ownerId: { in: ids }, restoredAt: null },
         orderBy: [{ finishedAt: "desc" }, { id: "asc" }],
-        select: { ownerId: true, level: true, pct: true, passed: true, finishedAt: true, result: true },
+        select: { ownerId: true, level: true, pct: true, passed: true, finishedAt: true, result: true, part: true },
       }),
       prisma.assessment.findMany({
         where: { ownerId: { in: ids }, restoredAt: null },
@@ -359,6 +359,8 @@ export async function workplaceRoster(
         passed: row.passed,
         at: row.finishedAt.toISOString(),
         parts: partPercentages(row.result),
+        // One part sat alone is evidence about that part, never a paper passed.
+        whole: row.part === null,
       }));
 
     const known = knownLemmasFrom(

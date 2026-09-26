@@ -513,6 +513,14 @@ export interface ExamResult {
   waitBeforeResit: boolean;
   /** True when the dictionary could not fill the paper, so the score is of a shorter one. */
   thin: boolean;
+  /** Which numbered paper, when it was one. */
+  number?: number | null;
+  /**
+   * The one part sat on its own, when it was. `passed` then says whether that
+   * part reached the pass mark, which is not the paper passing, and nothing
+   * that reads a sitting as evidence of a pass may read it that way.
+   */
+  part?: SkillKey | null;
 }
 
 function markTask(task: ExamTask, responses: ReadonlyMap<string, Response>): TaskResult {
@@ -592,8 +600,11 @@ export function markPaper(paper: Paper, responses: ReadonlyMap<string, Response>
     band: bandFor(pct),
     zeroPart: zero?.skill ?? null,
     absentParts: parts.filter((p) => p.rawAvailable === 0).map((p) => p.skill),
-    waitBeforeResit: pct < RETAKE_WAIT_PCT,
+    // A part sat alone is not a sitting of the examination, so no rule about resitting one applies.
+    waitBeforeResit: !paper.part && pct < RETAKE_WAIT_PCT,
     thin: paper.thin,
+    number: paper.number ?? null,
+    part: paper.part ?? null,
   };
 }
 

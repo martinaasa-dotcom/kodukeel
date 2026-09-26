@@ -9,7 +9,7 @@ import { attemptById, bestAt, previousAttempt } from "@/lib/progress/exam";
 import { buildReport } from "@/lib/exam/report";
 import { allMarks } from "@/lib/exam/score";
 import { PASS_PCT, specFor } from "@/lib/exam/spec";
-import { SKILL_ET } from "@/lib/exam/types";
+import { SKILL_ET, SKILL_LABEL } from "@/lib/exam/types";
 import { NO_VALUE } from "@/lib/copy/values";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
@@ -71,8 +71,8 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
     row it was computed from.
   */
   const [previous, best, clock] = await Promise.all([
-    previousAttempt(ownerId, result.level, attempt.finishedAt),
-    bestAt(ownerId, result.level, attempt.finishedAt),
+    previousAttempt(ownerId, result.level, attempt.finishedAt, result.part ?? null),
+    bestAt(ownerId, result.level, attempt.finishedAt, result.part ?? null),
     learnerDayClock(ownerId),
   ]);
   const moved = previous ? result.pct - previous.pct : null;
@@ -81,15 +81,24 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
     <Page
       eyebrow={
         <>
-          {result.level} · sat{" "}
+          {result.level}
+          {result.number ? ` · paper ${result.number}` : ""}
+          {result.part ? ` · ${SKILL_LABEL[result.part].toLowerCase()} only` : ""} · sat{" "}
           <DateText iso={attempt.finishedAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
         </>
       }
-      title={result.passed ? "Passed" : "Not this time"}
+      title={
+        result.part
+          ? `${SKILL_LABEL[result.part]}: ${result.pct} percent`
+          : result.passed ? "Passed" : "Not this time"
+      }
       lead={report.headline}
       actions={
-        <ButtonLink href={`/exam/${result.level}`} variant="secondary">
-          <Repeat size={15} aria-hidden /> Another paper
+        <ButtonLink
+          href={result.number ? `/exam/${result.level}/papers` : `/exam/${result.level}`}
+          variant="secondary"
+        >
+          <Repeat size={15} aria-hidden /> {result.number ? "The numbered papers" : "Another paper"}
         </ButtonLink>
       }
     >

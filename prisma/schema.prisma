@@ -556,6 +556,16 @@ model ExamAttempt {
   /// this deployment wrote itself. Always set on restore, whatever the file says.
   restoredAt DateTime?
 
+  /// Set when one part of a paper was sat on its own, to the part's skill
+  /// ("writing", "listening", "reading", "speaking"). Null is the whole paper.
+  ///
+  /// A column rather than a reading of the seed, because three queries ask it:
+  /// a result is compared with earlier sittings of the same shape, and a part
+  /// sat alone is never read as the paper passed or failed. The real
+  /// examination is all four parts on one day, and 70 percent in reading on its
+  /// own says nothing about the rule that no part may score nothing.
+  part String?
+
   @@index([ownerId, finishedAt])
   @@index([ownerId, level])
 }

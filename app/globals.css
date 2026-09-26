@@ -65,66 +65,69 @@
   /* Tailwind's radius names, mapped onto the four the system actually has, so
      a stray `rounded-md` lands on 10px rather than inventing a 6px corner. */
   --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
-  --radius-2xl: 30px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 26px;
+  --radius-2xl: 32px;
 
   /* One face, for Estonian and for the English around it. A second one set
      the Estonian apart and put two typefaces inside a single card: a prompt
      in one language and its four answers in the other is most of this app. */
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  /* Display sizes only. See app/layout.tsx for why there are two, and why the
+     second has Onest behind it rather than a system face. */
+  --font-display: var(--font-bricolage), var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
-  --color-ground: #fbf9ff;
+  --color-ground: #f7f7f4;
   --color-surface: #ffffff;
-  --color-raised: #f4f1fe;
-  --color-ink: #241f35;
-  --color-ink-2: #5b5470;
-  --color-ink-3: #635c7d;
-  --color-rule: #e8e3f7;
-  --color-rule-soft: #f2effb;
+  --color-raised: #f0f0ec;
+  --color-ink: #111216;
+  --color-ink-2: #43454d;
+  --color-ink-3: #5c5e67;
+  --color-rule: #e4e4de;
+  --color-rule-soft: #eeeee9;
 
-  --color-accent: #7a6bf0;
+  --color-accent: #2f55f5;
   --color-accent-ink: #ffffff;
-  --color-accent-soft: #ece9ff;
+  --color-accent-soft: #e9eeff;
 
-  --color-mint: #1fb894;
-  --color-mint-soft: #dcf7ee;
-  --color-mint-ink: #0e735d;
-  --color-peach: #ef6f52;
-  --color-peach-soft: #ffe6df;
-  --color-peach-ink: #b0341f;
-  --color-butter: #cf9114;
-  --color-butter-soft: #fff0d4;
-  --color-butter-ink: #845c0b;
-  --color-sky: #2b93d8;
-  --color-sky-soft: #ddeffd;
-  --color-sky-ink: #1868a0;
-  --color-blush: #e2559a;
-  --color-blush-soft: #ffe2f0;
-  --color-blush-ink: #a72e6b;
+  --color-mint: #16b58c;
+  --color-mint-soft: #dcf5ec;
+  --color-mint-ink: #0b6b54;
+  --color-peach: #ef6a4c;
+  --color-peach-soft: #ffe7df;
+  --color-peach-ink: #a93318;
+  --color-butter: #d99a14;
+  --color-butter-soft: #fdf0d2;
+  --color-butter-ink: #7c560a;
+  --color-sky: #2a90d8;
+  --color-sky-soft: #e0f0fc;
+  --color-sky-ink: #155f95;
+  --color-blush: #e0508f;
+  --color-blush-soft: #fde5f0;
+  --color-blush-ink: #9f2a64;
 
-  --color-again: #ef6f52;
-  --color-hard: #cf9114;
-  --color-good: #1fb894;
-  --color-easy: #2b93d8;
+  --color-again: #ef6a4c;
+  --color-hard: #d99a14;
+  --color-good: #16b58c;
+  --color-easy: #2a90d8;
 
-  --color-again-soft: #ffe6df;
-  --color-hard-soft: #fff0d4;
-  --color-good-soft: #dcf7ee;
-  --color-easy-soft: #ddeffd;
+  --color-again-soft: #ffe7df;
+  --color-hard-soft: #fdf0d2;
+  --color-good-soft: #dcf5ec;
+  --color-easy-soft: #e0f0fc;
 }
 
 @layer base {
   :root {
     color-scheme: light;
 
-    --ground: #fbf9ff;
+    --ground: #f7f7f4;
     --surface: #ffffff;
-    --raised: #f4f1fe;
-    --ink: #241f35;
-    --ink-2: #5b5470;
+    --raised: #f0f0ec;
+    --ink: #111216;
+    --ink-2: #43454d;
     /* Tertiary ink, chosen against every surface in the system rather than
        against white: 4.59:1 on the softest tint (blush) and better everywhere
        else, so a caption stays legible on a pastel tile. */
@@ -139,25 +142,30 @@
       Same hue, one step down: it clears 4.5 on the wash, both grounds, both
       surfaces, the raised fill and the softest tint.
     */
-    --ink-3: #635c7d;
-    --rule: #e8e3f7;
-    --rule-soft: #f2effb;
+    --ink-3: #5c5e67;
+    --rule: #e4e4de;
+    --rule-soft: #eeeee9;
 
-    --accent: #7a6bf0;
+    /*
+      Rukkilill, sharpened. The cornflower stays the app's voice, taken from a
+      lilac pastel to the saturated blue of the flower itself: 5.62:1 under
+      white text on a button, and its deep ink 7.08 on its own tint.
+    */
+    --accent: #2f55f5;
     --accent-ink: #ffffff;
-    --accent-soft: #ece9ff;
-    --accent-deep: #5b4bd6;
+    --accent-soft: #e9eeff;
+    --accent-deep: #1e3fc4;
 
-    --mint: #1fb894;
-    --mint-soft: #dcf7ee;
-    --peach: #ef6f52;
-    --peach-soft: #ffe6df;
-    --butter: #cf9114;
-    --butter-soft: #fff0d4;
-    --sky: #2b93d8;
-    --sky-soft: #ddeffd;
-    --blush: #e2559a;
-    --blush-soft: #ffe2f0;
+    --mint: #16b58c;
+    --mint-soft: #dcf5ec;
+    --peach: #ef6a4c;
+    --peach-soft: #ffe7df;
+    --butter: #d99a14;
+    --butter-soft: #fdf0d2;
+    --sky: #2a90d8;
+    --sky-soft: #e0f0fc;
+    --blush: #e0508f;
+    --blush-soft: #fde5f0;
 
     /*
       Text on a pastel tile.
@@ -168,11 +176,11 @@
       has an ink: the same colour walked down until it clears 4.5:1 on its own
       tint, so a chip, a stat tile and a grade button can all be read.
     */
-    --mint-ink: #0e735d;
-    --peach-ink: #b0341f;
-    --butter-ink: #845c0b;
-    --sky-ink: #1868a0;
-    --blush-ink: #a72e6b;
+    --mint-ink: #0b6b54;
+    --peach-ink: #a93318;
+    --butter-ink: #7c560a;
+    --sky-ink: #155f95;
+    --blush-ink: #9f2a64;
     --good-ink: var(--mint-ink);
     --hard-ink: var(--butter-ink);
     --again-ink: var(--peach-ink);
@@ -206,22 +214,23 @@
     --easy-soft: var(--sky-soft);
 
     /* Pastel washes for the decorative blobs behind the page. */
-    --wash-1: #ded9ff;
-    --wash-2: #ffe4ef;
-    --wash-3: #d9f4ea;
+    --wash-1: #e6ecff;
+    --wash-2: #eceef4;
+    --wash-3: #f0eee6;
 
-    --r-sm: 10px;
-    --r: 16px;
-    --r-lg: 22px;
-    --r-xl: 30px;
+    --r-sm: 8px;
+    --r: 12px;
+    --r-lg: 18px;
+    --r-xl: 26px;
 
     /* Between a text box and the row of Estonian keys under it. See `.under-field`. */
     --field-gap: 14px;
 
-    --shadow-sm: 0 1px 2px rgb(36 31 53 / 0.04), 0 4px 12px -8px rgb(66 48 150 / 0.18);
-    --shadow: 0 1px 2px rgb(36 31 53 / 0.04), 0 14px 34px -18px rgb(66 48 150 / 0.28);
-    --shadow-lg: 0 2px 4px rgb(36 31 53 / 0.04), 0 30px 60px -28px rgb(66 48 150 / 0.38);
-    --shadow-accent: 0 10px 24px -12px rgb(122 107 240 / 0.65);
+    /* Neutral and layered, a hairline under a soft fall: depth without a tint. */
+    --shadow-sm: 0 0 0 1px rgb(17 18 22 / 0.04), 0 1px 2px rgb(17 18 22 / 0.06);
+    --shadow: 0 0 0 1px rgb(17 18 22 / 0.04), 0 2px 4px rgb(17 18 22 / 0.04), 0 12px 28px -12px rgb(17 18 22 / 0.16);
+    --shadow-lg: 0 0 0 1px rgb(17 18 22 / 0.05), 0 4px 8px rgb(17 18 22 / 0.04), 0 28px 56px -24px rgb(17 18 22 / 0.26);
+    --shadow-accent: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 20px -10px rgb(47 85 245 / 0.7);
 
     /*
       The key cap on a primary button, which is the one surface whose ink
@@ -261,20 +270,20 @@
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --ground: #12101d;
-    --surface: #1a1729;
-    --raised: #221e36;
-    --ink: #f2eeff;
-    --ink-2: #c2bade;
+    --ground: #0c0d10;
+    --surface: #141519;
+    --raised: #1c1d22;
+    --ink: #f3f3ef;
+    --ink-2: #c2c3cb;
     /* The same nudge as the media-query block above, for the same numbers. */
-    --ink-3: #9a92b8;
-    --rule: #2e2848;
-    --rule-soft: #241f39;
+    --ink-3: #a2a4ae;
+    --rule: #2a2b31;
+    --rule-soft: #1f2025;
 
-    --accent: #a99bff;
-    --accent-ink: #171229;
-    --accent-soft: #2a2350;
-    --accent-deep: #c3b7ff;
+    --accent: #7e97ff;
+    --accent-ink: #0c0d10;
+    --accent-soft: #1f2645;
+    --accent-deep: #b3c2ff;
 
     --mint: #5fe3bc;
     --mint-soft: #10332a;
@@ -297,14 +306,14 @@
     --again-ink: var(--peach);
     --easy-ink: var(--sky);
 
-    --wash-1: #2b2358;
-    --wash-2: #3b1f36;
-    --wash-3: #123a33;
+    --wash-1: #171c3a;
+    --wash-2: #16181f;
+    --wash-3: #1a1916;
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px -8px rgb(0 0 0 / 0.6);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 14px 34px -18px rgb(0 0 0 / 0.8);
     --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.5), 0 30px 60px -28px rgb(0 0 0 / 0.9);
-    --shadow-accent: 0 10px 24px -12px rgb(169 155 255 / 0.5);
+    --shadow-accent: 0 8px 20px -10px rgb(126 151 255 / 0.5);
 
     --key-cap: rgb(255 255 255 / 0.28);
   }
@@ -458,6 +467,19 @@
        and this keeps content out of both. */
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+  }
+
+  /*
+    Headings are set in the display face, which is the one place the app
+    raises its voice. Bricolage carries an optical size axis, so the same face
+    is tighter and more characterful at 40px and plainer at 20px without a
+    second family to load. Body text, answers and every Estonian form a
+    learner types stay in Onest, which is built to be read small.
+  */
+  h1, h2, .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
   }
 
   /*
@@ -1928,7 +1950,15 @@
       endpoint. `grad-text` keeps its tilt: it is clipped to letterforms,
       which have no caps to discolour.
     */
-    background-image: linear-gradient(90deg, #6a5ae8 0%, #7a4fdc 45%, #c33a7e 100%);
+    /*
+      Solid now, not a ramp. The violet-to-pink ramp was the loudest thing on
+      every screen and the most generic: it is the colour of a great many
+      product templates, and a learner reads a page that looks like one as a
+      page that is selling something. One flat cornflower with a light edge
+      along its top is louder by being plain.
+    */
+    background-color: var(--accent);
+    background-image: linear-gradient(180deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0) 55%);
     /*
       And the ramp has to be measured from the same box it is painted into.
       A button here carries a 1px transparent border, and the CSS defaults
@@ -1948,7 +1978,7 @@
     background-repeat: no-repeat;
   }
   .grad-text {
-    background-image: linear-gradient(112deg, var(--accent-deep) 0%, #7b3fd0 40%, var(--blush-ink) 92%);
+    background-image: linear-gradient(112deg, var(--accent-deep) 0%, var(--accent) 55%, var(--accent-deep) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -2109,8 +2139,8 @@
   .wash {
     position: absolute;
     border-radius: 50%;
-    filter: blur(64px);
-    opacity: 0.75;
+    filter: blur(72px);
+    opacity: 0.6;
     pointer-events: none;
   }
 

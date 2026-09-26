@@ -318,6 +318,10 @@ export interface Paper {
   thin: boolean;
   /** True when at least one task was set in its fallback shape. */
   substituted: boolean;
+  /** Which numbered paper this is, or absent for one drawn at random (`lib/exam/assemble.ts`). */
+  number?: number | null;
+  /** The one part being sat on its own, or absent for the whole paper. */
+  part?: SkillKey | null;
 }
 
 // ── Choosing the material ────────────────────────────────────────────────────
