@@ -450,37 +450,33 @@ export default async function CoursePage({
           <div className="mt-3">
             <Meter pct={Math.round((reading.daysDone / total) * 100)} label={programme.subtitle} />
           </div>
+          {/*
+            ONE ROW PER UNIT, WITH A DOT PER EVENING. A unit taught over five
+            evenings used to be five rows reading the same title with "1 of 5"
+            to "5 of 5" after it, which made a nineteen-evening part look like a
+            list of repeats. The dots say how many evenings and which are done;
+            the numbers say where in the part they fall.
+          */}
           <ol className="mt-4 grid gap-x-4 gap-y-0.5 sm:grid-cols-2">
-            {programme.days.map((d) => {
-              const state = d.index < day.index ? "done" : d.index === day.index ? "now" : "ahead";
+            {courseRuns(programme.days).map((run) => {
+              const first = run[0]!;
+              const last = run[run.length - 1]!;
+              const state = last.index < day.index ? "done" : first.index <= day.index ? "now" : "ahead";
               return (
-                /*
-                  TWO LINES RATHER THAN ONE TRUNCATED CAPTION.
-
-                  The day's own name and its caption used to share a
-                  `flex items-center` row with no wrap, so a long subtitle
-                  (English ones run longer than the Estonian titles they
-                  stand in for at A1, e.g. "Asking for help, and calling
-                  for it") was cut short with an ellipsis, or, worse, sat
-                  hard against a name with none to spare. Neither is read
-                  in full, which is the one thing a 273-evening list has to
-                  get right. The caption gets its own line, indented under
-                  the badge, and wraps instead of clipping.
-                */
-                <li key={d.id} data-course-day className="flex flex-col gap-0.5 rounded-[var(--r)] px-2 py-1.5 text-sm" style={state === "now" ? { background: "var(--accent-soft)" } : undefined}>
+                <li key={first.id} data-course-day className="flex flex-col gap-1 rounded-[var(--r)] px-2 py-1.5 text-sm" style={state === "now" ? { background: "var(--accent-soft)" } : undefined}>
                   <div className="flex items-start gap-2">
                     <span
                       aria-hidden
                       data-course-badge
-                      className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
+                      className="tnum mt-px flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs"
                       style={{
                         background: state === "done" ? "var(--good-soft)"
-                          : state === "now" ? "var(--accent-soft)" : "var(--raised)",
+                          : state === "now" ? "var(--surface)" : "var(--raised)",
                         color: state === "done" ? "var(--good-ink)"
                           : state === "now" ? "var(--accent-deep)" : "var(--ink-3)",
                       }}
                     >
-                      {state === "done" ? <Check size={11} /> : d.index}
+                      {state === "done" ? <Check size={11} /> : first.index}
                     </span>
                     {/*
                       The number is its own column and the title wraps inside
@@ -494,19 +490,30 @@ export default async function CoursePage({
                         lang={uiWantsEnglish(level) ? undefined : "et"}
                         style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
                       >
-                        {uiText(level, d.title, d.subtitle)}
+                        {uiText(level, first.title, first.subtitle)}
                       </span>
-                      {uiWantsEnglish(level) && d.part.of > 1 && (
-                        <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                          {d.part.n} of {d.part.of}
-                        </span>
-                      )}
                       {state === "now" && <Chip tone="accent">Tonight</Chip>}
                     </span>
                   </div>
                   {!uiWantsEnglish(level) && (
-                    <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>
-                      {d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
+                    <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>{first.subtitle}</span>
+                  )}
+                  {run.length > 1 && (
+                    <span className="flex flex-wrap items-center gap-1 pl-7">
+                      {run.map((d) => (
+                        <span
+                          key={d.id}
+                          aria-hidden
+                          className="h-1.5 w-4 rounded-full"
+                          style={{
+                            background: d.index < day.index ? "var(--good)"
+                              : d.index === day.index ? "var(--accent)" : "var(--rule)",
+                          }}
+                        />
+                      ))}
+                      <span className="tnum ml-1 text-xs" style={{ color: "var(--ink-3)" }}>
+                        evenings {first.index} to {last.index}
+                      </span>
                     </span>
                   )}
                 </li>
@@ -615,4 +622,18 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
       </details>
     </Card>
   );
+}
+
+/**
+ * The part's evenings in runs, one run per unit: consecutive evenings with
+ * the same title are one unit taught over several nights.
+ */
+function courseRuns<T extends { title: string; part: { n: number; of: number } }>(days: readonly T[]): T[][] {
+  const runs: T[][] = [];
+  for (const d of days) {
+    const current = runs[runs.length - 1];
+    if (current && current[0]!.title === d.title && d.part.n > 1) current.push(d);
+    else runs.push([d]);
+  }
+  return runs;
 }
