@@ -585,7 +585,7 @@ export default async function SettingsPage() {
                 <a
                   href="/api/export"
                   className="press inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-ui hover:-translate-y-px"
-                  style={{ borderColor: "var(--edge)", color: "var(--ink)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
+                  style={{ borderColor: "var(--edge)", color: "var(--ink)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
                 >
                   <Download size={15} aria-hidden /> Download a backup
                 </a>

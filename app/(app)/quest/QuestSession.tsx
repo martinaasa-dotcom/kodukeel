@@ -366,7 +366,7 @@ export function QuestSession({
             <section
               aria-label="What this round is aimed at"
               className="rounded-[var(--r-lg)] border p-5"
-              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
             >
               <h2 className="flex items-center gap-2 text-md font-bold" style={{ color: "var(--ink)" }}>
                 <Target size={17} aria-hidden style={{ color: "var(--accent-deep)" }} />
@@ -481,7 +481,7 @@ export function QuestSession({
         <div
           key={card.id}
           className="quest-card mt-6 flex min-h-[19rem] flex-col items-center justify-center gap-4 rounded-[var(--r-lg)] border p-6 text-center"
-          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
+          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
           {card.targetsWeakCase && (
             <Chip tone="hard">One of your weak spots</Chip>

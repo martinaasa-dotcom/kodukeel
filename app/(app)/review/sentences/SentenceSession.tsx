@@ -364,7 +364,7 @@ export function SentenceSession(
                     borderColor: "var(--edge)",
                     background: "var(--surface)",
                     color: "var(--ink)",
-                    boxShadow: "var(--hard-sm)",
+                    boxShadow: "var(--depth-sm)",
                   }}
                 >
                   {tile.word}

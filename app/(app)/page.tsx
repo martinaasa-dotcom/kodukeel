@@ -453,26 +453,50 @@ export default async function TodayPage() {
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
   const courseCard = moduleTonight && courseDay && courseStep ? (
-    <Card tone="accent" className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
+    <Card tone="night" className="flex flex-col gap-6 md:p-9 lg:flex-row lg:items-center lg:gap-10">
       <div className="min-w-0 flex-1">
-        <SectionTitle hint={`Day ${courseDay.day.index} of ${programme!.days.length}`}>
-          Today&rsquo;s module
-        </SectionTitle>
-        <p
-          className="mt-1 text-xl font-semibold"
+        <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
+          <span style={{ color: "var(--cta)" }}>Today&rsquo;s module</span>
+          <span aria-hidden>·</span>
+          <span>Day {courseDay.day.index} of {programme!.days.length}</span>
+        </p>
+        <h2
+          className="font-display mt-3 text-3xl font-bold leading-[1.02] md:text-4xl"
           lang={uiWantsEnglish(placement) ? undefined : "et"}
-          style={{ color: "var(--ink)" }}
+          style={{ color: "var(--ink)", textWrap: "balance" }}
         >
           {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}
-        </p>
-        <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+        </h2>
+        <p className="mt-3 max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay.day.canDo}
         </p>
-        <p className="mt-3 text-base" style={{ color: "var(--ink-2)" }}>
-          Next: {courseStep.title}. About {courseDay.minutesLeft} minutes left tonight.
+        <p
+          className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-full px-3.5 py-1.5 text-sm"
+          style={{ background: "rgb(255 255 255 / 0.08)", color: "var(--ink)" }}
+        >
+          <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>Next</span>
+          <span>{courseStep.title}</span>
         </p>
       </div>
-      <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
+      <div className="flex flex-col items-stretch gap-4 lg:w-[19rem] lg:shrink-0">
+        <div className="flex items-center gap-4">
+          <Ring
+            pct={courseDay.pct}
+            size={72}
+            thickness={7}
+            tone="var(--cta)"
+            track="rgb(255 255 255 / 0.1)"
+            label={`${courseDay.pct} percent of tonight done`}
+          >
+            <span className="text-sm font-bold tabular-nums" style={{ color: "var(--ink)" }}>{courseDay.pct}%</span>
+          </Ring>
+          <p className="text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
+            <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
+              {courseDay.minutesLeft} min
+            </span>
+            left tonight
+          </p>
+        </div>
         <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
           {courseDay.pct === 0 ? "Start tonight" : "Carry on"} <ArrowRight size={17} aria-hidden />
         </ButtonLink>

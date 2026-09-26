@@ -468,7 +468,7 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
       style={{
         background: "var(--surface)",
         borderColor: "var(--edge)",
-        boxShadow: "var(--hard-sm)",
+        boxShadow: "var(--depth-sm)",
       }}
     >
       <div className="flex items-center gap-3 py-2">

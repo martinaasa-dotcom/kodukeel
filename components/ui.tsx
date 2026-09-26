@@ -101,6 +101,8 @@ const CARD_TONES = {
   peach: { background: "var(--peach-soft)" },
   blush: { background: "var(--blush-soft)" },
   sky: { background: "var(--sky-soft)" },
+  /* The rainbow at night: the one panel a screen leads with. See `.night`. */
+  night: {},
 } as const;
 
 export type CardTone = keyof typeof CARD_TONES;
@@ -116,11 +118,11 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
 }) {
   return (
     <Tag
-      className={`rounded-[var(--r-lg)] border-2 p-5 md:p-6 ${hover ? "lift" : ""} ${className}`}
+      className={`rounded-[var(--r-xl)] border p-5 md:p-7 ${tone === "night" ? "night" : ""} ${hover ? "lift" : ""} ${className}`}
       style={{
         ...CARD_TONES[tone],
         borderColor: "var(--edge)",
-        boxShadow: "var(--hard)",
+        boxShadow: "var(--depth)",
         ...style,
       }}
     >

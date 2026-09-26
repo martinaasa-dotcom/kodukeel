@@ -74,7 +74,7 @@ export function WorkplaceView({ summary, sponsor }: {
                   style={{
                     borderColor: "var(--edge)",
                     background: "var(--surface)",
-                    boxShadow: "var(--hard-sm)",
+                    boxShadow: "var(--depth-sm)",
                   }}
                 >
                   <span className="min-w-0 flex-1">

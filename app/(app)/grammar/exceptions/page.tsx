@@ -92,7 +92,7 @@ export default async function ExceptionsPage() {
                         style={{
                           borderColor: "var(--edge)",
                           background: "var(--surface)",
-                          boxShadow: "var(--hard-sm)",
+                          boxShadow: "var(--depth-sm)",
                         }}
                       >
                         <span className="flex flex-wrap items-baseline justify-between gap-2">

@@ -529,7 +529,7 @@ export function DictionaryClient({
                   type="button"
                   onClick={() => openHit(h)}
                   className="press flex items-baseline gap-2 rounded-full border px-4 py-2 text-left transition-ui hover:-translate-y-px"
-                  style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
+                  style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
                 >
                   <span lang="et" className="text-base" style={{ color: "var(--ink)" }}>{h.lemma}</span>
                   {/*

@@ -108,7 +108,7 @@ export default async function GrammarIndexPage() {
         <Link
           href="/grammar/build-a-word"
           className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
-          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
+          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
           <span
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
@@ -140,7 +140,7 @@ export default async function GrammarIndexPage() {
         <Link
           href="/grammar/exceptions"
           className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
-          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
+          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
           <span
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
@@ -241,7 +241,7 @@ export default async function GrammarIndexPage() {
                       style={{
                         borderColor: "var(--edge)",
                         background: "var(--surface)",
-                        boxShadow: "var(--hard-sm)",
+                        boxShadow: "var(--depth-sm)",
                       }}
                     >
                       <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -336,7 +336,7 @@ export default async function GrammarIndexPage() {
                             style={{
                               borderColor: "var(--edge)",
                               background: "var(--surface)",
-                              boxShadow: "var(--hard-sm)",
+                              boxShadow: "var(--depth-sm)",
                             }}
                           >
                             <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">

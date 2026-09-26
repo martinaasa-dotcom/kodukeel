@@ -179,7 +179,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                     style={{
                       borderColor: isYou ? "transparent" : "var(--edge)",
                       background: isYou ? "var(--accent-soft)" : "var(--surface)",
-                      boxShadow: isYou ? "none" : "var(--hard-sm)",
+                      boxShadow: isYou ? "none" : "var(--depth-sm)",
                     }}
                   >
                     <span className="tnum w-6 text-xs" style={{ color: "var(--ink-3)" }}>{i + 1}</span>

@@ -96,7 +96,7 @@ export function VerbTable({ verbs, show }: {
   return (
     <div
       className="overflow-x-auto rounded-[var(--r-lg)] border"
-      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <table className={`w-full text-sm ${persons ? "min-w-[640px]" : "min-w-[460px]"}`}>
         <thead>

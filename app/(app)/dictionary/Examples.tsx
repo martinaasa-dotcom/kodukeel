@@ -167,7 +167,7 @@ function AddExample({ lexemeId, onAdded, onCancel }: {
   return (
     <div
       className="pop-in mt-3 rounded-[var(--r-lg)] border p-4"
-      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Your sentence</p>
       <EstonianInput

@@ -140,7 +140,7 @@ function Nav() {
           borderColor: "var(--edge)",
           background: "color-mix(in oklab, var(--surface) 82%, transparent)",
           backdropFilter: "blur(16px)",
-          boxShadow: "var(--hard-sm)",
+          boxShadow: "var(--depth-sm)",
         }}
       >
         {/*
@@ -279,7 +279,7 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
         <div className="hero-copy">
           <p className="hero-kicker fade-up">
             <span className="hero-kicker-dot" aria-hidden />
-            For grown-ups learning Estonian
+            Estonian for the life you live here
           </p>
           <h1 className="hero-display">
             <span className="word-in" style={{ "--w": "60ms" } as React.CSSProperties}>Estonian</span>{" "}
@@ -372,19 +372,18 @@ function WhoFor() {
           return (
             <Reveal key={who.title}>
               <article
-                className="who-card lift flex h-full flex-col rounded-[var(--r-xl)] border-2 p-6"
+                className="who-card lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
                 style={{ background: `var(--${who.tone}-soft)` }}
               >
                 <span
-                  className="flex h-12 w-12 items-center justify-center rounded-[var(--r)] border-2"
+                  className="flex h-12 w-12 items-center justify-center rounded-[var(--r)] border"
                   style={{
                     background: `var(--${who.tone})`,
                     borderColor: "var(--edge)",
                     color: who.tone === "accent" ? "var(--accent-ink)" : "var(--on-hue)",
-                    transform: "rotate(-6deg)",
                   }}
                 >
-                  <Icon size={22} strokeWidth={2.25} aria-hidden style={{ rotate: "6deg" }} />
+                  <Icon size={22} strokeWidth={2.25} aria-hidden />
                 </span>
                 <h3 className="font-display mt-5 text-xl font-bold leading-tight" style={{ color: "var(--ink)" }}>{who.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{who.body}</p>
@@ -440,7 +439,7 @@ function Compare() {
       <Reveal>
         <div className="compare-grid mt-10 grid gap-4 md:mt-12 lg:grid-cols-4">
           {KINDS.map((kind) => (
-            <div key={kind.name} className="rounded-[var(--r-xl)] border-2 p-6" style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--hard)" }}>
+            <div key={kind.name} className="rounded-[var(--r-xl)] border p-6" style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}>
               <h3 className="text-md font-semibold" style={{ color: "var(--ink)" }}>{kind.name}</h3>
               <p className="mt-4 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 <Check size={16} aria-label="Good at" className="mt-0.5 shrink-0" style={{ color: "var(--mint-ink)" }} />
@@ -489,7 +488,7 @@ function Plan() {
         </div>
       </Reveal>
       <Reveal>
-        <div className="plan-card mt-10 rounded-[var(--r-xl)] border-2 p-5 md:mt-12 md:p-10">
+        <div className="plan-card mt-10 rounded-[var(--r-xl)] border p-5 md:mt-12 md:p-10">
           <PlanCalculator />
           <div className="mt-6">
           <Explain label="Where the hours come from">
@@ -793,12 +792,12 @@ function Feature({ tone, icon, title, body, children }: {
 }) {
   return (
     <div
-      className="lift flex h-full flex-col rounded-[var(--r-xl)] border-2 p-6"
-      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--hard)" }}
+      className="lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
+      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
       <div className="flex items-center gap-3">
         <span
-          className="feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)] border-2"
+          className="feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)] border"
           style={{
             background: `var(--${tone})`,
             borderColor: "var(--edge)",
@@ -1017,7 +1016,7 @@ function Comparison() {
 
       <div
         className="mt-7 hidden overflow-hidden rounded-[var(--r-xl)] border md:block"
-        style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--hard)" }}
+        style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
       >
         {/* 7rem a column rather than 88px: the header names are set in
             label-xs, which grew to 14px with the type scale, and at 88px
@@ -1140,7 +1139,7 @@ function FaqItem({ question, children }: { question: string; children: React.Rea
   return (
     <details
       className="group rounded-[var(--r-lg)] border px-5 py-4"
-      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--hard-sm)" }}
+      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth-sm)" }}
     >
       <summary
         className="flex cursor-pointer list-none items-center justify-between gap-4 text-md font-semibold"
