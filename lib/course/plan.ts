@@ -148,7 +148,7 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   reisimine: "bussipilet",
   "linn-ja-teenused": "tee-kusimine",
   restoranis: "kohvikus",
-  vordlemine: "restoranis-tellimine",
+  kirjeldamine: "restoranis-tellimine",
   plaanid: "arsti-aeg",
   suhtlemine: "helistamine",
   tunded: "apteek",
@@ -307,30 +307,30 @@ export const PARTS: readonly PartSpec[] = [
 
   {
     id: "a2.1", level: "A2",
-    title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors and the body",
+    title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors, the body and the house",
     blurb:
       "A2 opens with the unit that makes a conversation possible, asking somebody for something "
       + "without sounding like a machine, and then the past tense. Then the first case pages, the "
       + "stem first. At the end you can say what you did yesterday and what is wrong with you, and "
       + "the first two conversations open.",
-    units: ["korraldused", "minevik", "loodus", "keha-ja-tervis"],
+    units: ["korraldused", "minevik", "loodus", "keha-ja-tervis", "kodutood"],
   },
   {
     id: "a2.2", level: "A2",
-    title: "Linn ja liikumine", subtitle: "School, travel, the house, the town and a free afternoon",
+    title: "Linn ja liikumine", subtitle: "School, travel, the town, a free afternoon and comparing things",
     blurb:
       "Everything that happens outside your own front door, and three conversations to have "
       + "there. At the end you can buy a ticket, ask the way and say what you did on Saturday.",
-    units: ["kool-ja-keel", "reisimine", "kodutood", "linn-ja-teenused", "vaba-aeg"],
+    units: ["kool-ja-keel", "reisimine", "linn-ja-teenused", "vaba-aeg", "vordlemine"],
   },
   {
     id: "a2.3", level: "A2",
-    title: "Söök, plaanid ja tunded", subtitle: "Eating out, comparing things, what is next, and how you feel",
+    title: "Söök, plaanid ja tunded", subtitle: "Eating out, what is next, talking to people, and how you feel",
     blurb:
-      "Comparing two things, talking about what has not happened yet, and saying how you feel "
+      "Talking about what has not happened yet, keeping in touch, and saying how you feel "
       + "about either. Five conversations, more than any other part: at the end you can hold a "
       + "whole meal in Estonian, book an appointment and ring somebody about it.",
-    units: ["restoranis", "vordlemine", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
+    units: ["restoranis", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
   },
 
   {

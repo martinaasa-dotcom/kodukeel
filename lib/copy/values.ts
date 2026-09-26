@@ -48,6 +48,22 @@ export function sameSpelling(estonian: string, english: string): boolean {
   return a.length > 0 && a === b;
 }
 
+/**
+ * Whether a question showing the one would hand over the other.
+ *
+ * The other answer to the same question, and deliberately not the same
+ * function. `sameSpelling` decides what a screen SAYS beside a word, where
+ * the capital is the lesson. A question about meaning is not a screen that
+ * teaches spelling: the level check put `august` up with "August" among four
+ * options, and nobody reading one picks anything but the other. So a
+ * measurement folds case, and a caption does not.
+ */
+export function givesItselfAway(estonian: string, english: string): boolean {
+  const a = estonian.trim().toLocaleLowerCase("et");
+  const b = english.trim().toLocaleLowerCase("et");
+  return a.length > 0 && a === b;
+}
+
 export const SAME_SPELLING = "Spelled the same in English.";
 
 /**

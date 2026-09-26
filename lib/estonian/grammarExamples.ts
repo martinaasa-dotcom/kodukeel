@@ -577,7 +577,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "algus", et: "Ootasime kontserdi algust.", form: "algust" },
     ],
     "After any number above one": [
-      { lemma: "kott", et: "Kolm kotti kartuleid.", form: "kotti" },
+      { lemma: "neli", et: "Autol on neli ratast.", form: "ratast" },
       { lemma: "pere", et: "Nende peres on viis last.", form: "last" },
     ],
   },
@@ -635,7 +635,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "poolteist", et: "Linnani on poolteist kilomeetrit.", form: "Linnani" },
     ],
     "Until a moment": [
-      { lemma: "lõuna", et: "Ta magas lõunani.", form: "lõunani" },
+      { lemma: "varahommik", et: "Ta töötab varahommikust hilisõhtuni.", form: "hilisõhtuni" },
       { lemma: "näitus", et: "Näitus jääb avatuks sügiseni.", form: "sügiseni" },
     ],
     "Up to an amount": [

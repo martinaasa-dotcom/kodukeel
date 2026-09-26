@@ -346,6 +346,7 @@ export const A1 = [
       ["abikaasa", "spouse, husband or wife"],
       ["onu", "uncle"],
       ["tädi", "aunt"],
+      ["perekond", "family, household"],
     ],
   }),
 
@@ -380,6 +381,8 @@ export const A1 = [
       ["meeldiv", "pleasant", "ADJECTIVE"],
       ["abielus", "married", "ADVERB"],
       ["vallaline", "unmarried, single", "ADJECTIVE"],
+      ["vanem", "parent", "NOUN", 253965],
+      ["liige", "member"],
     ],
   }),
 
@@ -481,6 +484,10 @@ export const A1 = [
       ["sein", "wall"],
       ["põrand", "floor"],
       ["korrus", "floor, story"],
+      ["aed", "garden"],
+      ["õu", "yard"],
+      ["kapp", "cupboard"],
+      ["kott", "bag"],
     ],
   }),
 
@@ -518,6 +525,11 @@ export const A1 = [
       ["sool", "salt", "NOUN", 235271],
       ["suhkur", "sugar"],
       ["supp", "soup"],
+      ["õlu", "beer"],
+      ["vein", "wine"],
+      ["kook", "cake"],
+      ["tomat", "tomato"],
+      ["riis", "rice"],
     ],
   }),
 
@@ -629,6 +641,13 @@ export const A1 = [
       ["tähendama", "to mean"],
       ["jätma", "to leave (something), to let"],
       ["toimuma", "to take place, to happen"],
+      ["kuuluma", "to belong"],
+      ["lisama", "to add"],
+      ["tõmbama", "to pull"],
+      ["viskama", "to throw"],
+      ["kasvatama", "to grow, to raise"],
+      ["jagama", "to share, to divide"],
+      ["tõusma", "to rise, to get up"],
     ],
   }),
 
@@ -709,6 +728,8 @@ export const A1 = [
       ["lihtne", "simple", "ADJECTIVE"],
       ["valmis", "ready", "ADJECTIVE"],
       ["keeruline", "complicated", "ADJECTIVE"],
+      ["võõras", "strange, unfamiliar", "ADJECTIVE"],
+      ["kõva", "hard, loud", "ADJECTIVE"],
     ],
   }),
 
@@ -781,6 +802,8 @@ export const A1 = [
       ["tubli", "good, well done (of a person)", "ADJECTIVE"],
       ["vale", "wrong", "ADJECTIVE"],
       ["näljane", "hungry", "ADJECTIVE"],
+      ["ots", "end, tip"],
+      ["algus", "beginning"],
     ],
   }),
 
@@ -894,6 +917,8 @@ export const A1 = [
       ["üheksas", "ninth", "ADJECTIVE"],
       ["kümnes", "tenth", "ADJECTIVE"],
       ["miljon", "million"],
+      ["meeter", "metre"],
+      ["kilomeeter", "kilometre"],
     ],
   }),
 
@@ -1104,6 +1129,7 @@ export const A1 = [
       ["jälle", "again", "ADVERB"],
       ["ammu", "long ago, for a long time", "ADVERB"],
       ["vanasti", "in the old days, once", "ADVERB"],
+      ["tänapäev", "today, the present day"],
     ],
   }),
 
@@ -1270,6 +1296,7 @@ export const A1 = [
       */
       ["üksi", "alone", "ADVERB"],
       ["aeglaselt", "slowly", "ADVERB"],
+      ["hulk", "amount, a lot"],
     ],
   }),
   /*
@@ -1455,6 +1482,7 @@ export const A1 = [
       ["helistama", "to call, to phone"],
       ["vaja", "necessary, needed", "ADVERB"],
       ["päästma", "to save, to rescue"],
+      ["jaoks", "for (somebody)", "ADVERB"],
     ],
   }),
 
@@ -1561,6 +1589,8 @@ export const A1 = [
       ["taas", "again", "ADVERB"],
       ["pigem", "rather", "ADVERB"],
       ["täpselt", "exactly", "ADVERB"],
+      ["valesti", "wrong, wrongly", "ADVERB"],
+      ["õigesti", "right, correctly", "ADVERB"],
     ],
   }),
 ] as const;

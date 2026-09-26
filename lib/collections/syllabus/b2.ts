@@ -152,6 +152,7 @@ export const B2 = [
       ["rahvastik", "population"],
       ["ränne", "migration"],
       ["lõimumine", "integration"],
+      ["rahvusvaheline", "international", "ADJECTIVE"],
     ],
   }),
 
@@ -246,6 +247,7 @@ export const B2 = [
       ["karistama", "to punish"],
       ["kaebama", "to appeal, to complain"],
       ["tõendama", "to prove (by producing evidence)"],
+      ["isik", "person"],
     ],
   }),
 
@@ -339,6 +341,8 @@ export const B2 = [
       ["tõlgendus", "interpretation"],
       ["looma", "to create"],
       ["kujutama", "to depict"],
+      ["kultuur", "culture"],
+      ["kunstnik", "artist"],
     ],
   }),
 
@@ -400,6 +404,7 @@ export const B2 = [
       ["ennetama", "to prevent"],
       ["nakatuma", "to become infected"],
       ["diagnoosima", "to diagnose"],
+      ["patsient", "patient"],
     ],
   }),
 

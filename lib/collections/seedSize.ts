@@ -136,4 +136,4 @@
  * course teaches "full", which Ekilex records as a separate word that does not
  * inflect. Pinning the right one took the forms that belonged to the other.
  */
-export const SEED_SET_SIZE = { words: 6_212, forms: 39_844 };
+export const SEED_SET_SIZE = { words: 6_221, forms: 39_923 };

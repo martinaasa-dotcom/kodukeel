@@ -723,9 +723,11 @@ describe("what a day reads and where it goes", () => {
     // At A1 a case is not a page, and a unit of nothing but cases reads nothing.
     expect(readingPlan(unitById("kodu")!, "A1", new Set())).toEqual([]);
     // And every page a unit declares above A1 is read somewhere on the ladder,
-    // except the one page a unit with as many pages as evenings loses to the
+    // except a page a unit with as many pages as evenings loses to the
     // conversation on its last evening, which is named here rather than waived.
-    const LOST_TO_A_SCENE: Record<string, string> = { reisimine: "terminative" };
+    // Empty since the travel unit grew an evening; a name goes back in only
+    // with the scene that takes the page.
+    const LOST_TO_A_SCENE: Record<string, string> = {};
     const everRead = new Set(DAYS.map(({ day }) => (day.grammarCase ?? day.grammar)?.toLowerCase()));
     for (const unit of SYLLABUS) {
       if (unit.level === "A1") continue;

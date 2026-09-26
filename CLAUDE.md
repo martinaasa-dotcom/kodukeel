@@ -1733,7 +1733,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,640 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,724 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1959,8 +1959,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,842 forms across 397 of the
-1,640 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,882 forms across 408 of the
+1,724 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -5917,8 +5917,9 @@ list reads nothing, which the fifteen-minute test allows
 at every level now rather than at A1 alone. The scene evening takes no page off the plan, since
 the conversation replaces the reading (`day()`): the first version handed it one, counted it read
 in the ledger, and showed it to nobody, so a round on the evening after was dealt a case nobody had
-been shown. One page is lost to that, the terminative on the travel unit, whose four pages meet
-four evenings and a scene on the last, and it is named in the test rather than waived. Fresh pages
+been shown. One page was lost to that, the terminative on the travel unit, whose four pages met
+four evenings and a scene on the last; the unit grew the compass points and has the evening now,
+and the test still fails on a page a scene takes, naming it rather than waiving it. Fresh pages
 first was tried and reverted: it put the conditional in front of the imperative on the request unit
 because the imperative had been met at A1, and a unit's list is a lesson plan whose revision at the
 front is the revision its author wanted first. **And a verb

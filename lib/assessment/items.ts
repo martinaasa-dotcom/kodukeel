@@ -23,7 +23,7 @@ import {
   type GlossOption,
 } from "@/lib/questions/distractors";
 import { BANDS, type Band, type ChoiceItem, type DictationItem, type Item, type SpeakItem, type WriteItem } from "./types";
-import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
+import { SAME_SPELLING, givesItselfAway, sameSpelling } from "@/lib/copy/values";
 import { heardIndex, meaningsHeard, type HeardIndex } from "./heard";
 import { rng as seededRng } from "@/lib/random/seeded";
 
@@ -572,9 +572,11 @@ export function readingItems(
       be got wrong. On a card that costs a deck slot; here it costs the
       placement, because a band's score is what decides a learner's level and
       an item nobody can fail measures nothing. `meansLine` below already knew
-      about these words and only said so after the answer.
+      about these words and only said so after the answer. Case is folded
+      here, where `meansLine` keeps it: `august` over "August" is a spelling
+      lesson on a card and a free mark in a placement.
     */
-    if (sameSpelling(word.lemma, word.translation)) continue;
+    if (givesItselfAway(word.lemma, word.translation)) continue;
     const band = bandOf(word.cefr)!;
     const set = pickOptions({
       answer: glossFor(word), candidates: glosses, rng,

@@ -161,6 +161,11 @@ export const B1 = [
       ["juhtima", "to manage, to lead"],
       ["vastutama", "to be responsible"],
       ["saavutama", "to achieve"],
+      ["firma", "company, firm", "NOUN"],
+      ["ülemus", "boss"],
+      ["töötaja", "employee"],
+      ["teenima", "to earn"],
+      ["juht", "manager, leader", "NOUN", 174239],
     ],
   }),
 
@@ -414,6 +419,8 @@ export const B1 = [
       ["põhjendama", "to justify (give reasons for)"],
       ["tõestama", "to prove (by reasoning), to demonstrate"],
       ["möönma", "to concede"],
+      ["peamine", "main", "ADJECTIVE"],
+      ["üldine", "general", "ADJECTIVE"],
     ],
   }),
 

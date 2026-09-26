@@ -2536,3 +2536,27 @@ commonest Estonian words were in no unit (`võima`, `oskama`, `seal`, `tähtis`,
 `huvitav`), and a second pass found 24 more (`mõte`, `maailm`, `kena`, `paistma`). New units
 `veel-verbe`, `tahtsad-sonad` and `kirjeldamine`, and additions to eleven others carry them, harvested from Ekilex, with sentences written and checked for each.
 
+
+**The subtitle frequency list could not see the words a household needs, so the course's own
+corpus was asked instead.** Ranking every dictionary entry no unit teaches by how often it turns up
+in the 12,000 sentences the Institute recorded put `firma`, `aed`, `küla`, `klass`, `taevas`,
+`hammas`, `kino`, `õlu` and `kook` near the top: words a subtitle corpus drowns in `kurat` and
+`kapten`. 86 more words joined sixteen existing units, all of them harvested from Ekilex, and two
+entries the dictionary did not hold (`ülemus`, `taotlus`) came with them. `jaoks` needed `postp`
+in the coarsening table, since Ekilex calls it a postposition and nothing else. Growing the units
+moved `kodutood` to the end of a2.1 and `vordlemine` to the end of a2.2, and the restaurant scene
+now closes `kirjeldamine`. The travel unit grew an evening, so the terminative page it used to lose
+to its scene is read.
+
+**B2 and C1 have their sentences as well.** 215 rows at B2 and 244 at C1, one per word, under
+the same checker: above B1 nearly
+every word is taught by the evening it is met, so what the check found there was the course, not
+the sentence. That is where `küla`, `jaoks`, `teema` and `plaanima` were first noticed.
+
+**And the level check stopped asking what `august` means with "August" among the options.** The
+guard against a word spelled alike in both languages was `sameSpelling`, which keeps case on
+purpose, since on a card the capital is the lesson. A question is not a card: nobody reading
+`august` picks anything but "August". `givesItselfAway` folds case and is what the level check and
+the mock exam ask now, and `sameSpelling` still decides what a screen says. The question audit
+found it, on the run whose new words shifted the draw onto it.
+

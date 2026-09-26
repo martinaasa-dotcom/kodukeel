@@ -3,7 +3,7 @@ import { buildCloze, ESTONIAN_WORD, isBuildable, naturalSentence, nominalOpener,
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { buildOptions, governmentCue, parseGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
-import { PARTS, sameSpelling } from "@/lib/copy/values";
+import { PARTS, givesItselfAway } from "@/lib/copy/values";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { writingTasksFor } from "@/lib/estonian/writing";
 import { twinsOf } from "@/lib/estonian/gapForms";
@@ -906,9 +906,10 @@ function buildGlossChoice(spec: TaskSpec, ctx: BuildContext): ExamTask {
       those two the question prints its own answer and the item cannot be got
       wrong. It is a mark a candidate is given rather than one they earned,
       and this paper's whole claim is that its marking is mechanical and
-      fair. The level check refuses the same shape for the same reason.
+      fair. The level check refuses the same shape for the same reason, with
+      case folded, since `august` beside "August" is no harder to answer.
     */
-    if (sameSpelling(word.lemma, word.translation)) continue;
+    if (givesItselfAway(word.lemma, word.translation)) continue;
     const set = pickOptions({
       answer: glossFor(word),
       candidates: glosses,

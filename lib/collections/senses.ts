@@ -215,7 +215,13 @@ export const COARSENS: Record<string, readonly string[]> = {
     harvested formless the way a connective is: real because Ekilex has it,
     with no forms to get wrong.
   */
-  ADVERB: ["adv", "konj", "prep", "interj", "adjg"],
+  /*
+    `postp` is `jaoks`, which Ekilex records as a postposition and nothing
+    else, where `taga` and `peal` are adverbs as well. It does not inflect,
+    which is all ADVERB says here, and `prep` is already on the list for the
+    same reason one side of the noun over.
+  */
+  ADVERB: ["adv", "konj", "prep", "postp", "interj", "adjg"],
   /*
     Empty on purpose, and not a gap. A multi-word greeting is not a headword,
     so the harvest does not fetch one and Ekilex never labels it: `mislabelled`
