@@ -1733,7 +1733,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,563 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,616 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1959,8 +1959,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,767 forms across 378 of the
-1,563 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,824 forms across 392 of the
+1,616 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -5228,6 +5228,17 @@ the fourth unit of the course rather than scattered through the twenty-second an
 question words are the sixth, since a beginner who can say `ma elan siin` and `kus sa töötad?` in
 their first fortnight is the whole point. That shifted a1.1's day ids from the fifth evening on, and
 a1.5's and a1.6's, agreed through `npm run course:ids` rather than left for the snapshot test to find.
+
+**And writing the sentences found the words the course did not teach, which is the better finding.**
+The checker refused sentence after sentence over `tähtis`, `seal`, `võima` and `ära`, and read
+against `lib/collections/frequency.ts` the course was missing 55 of the four hundred commonest
+words in Estonian outright: `võima`, `oskama`, `vaatama`, `käima`, `hakkama`, `asi`, `elu`,
+`huvitav`, `järgmine`, `poiss`. Two A1 units hold most of them (`veel-verbe` after the core verbs,
+`tahtsad-sonad` after the colours) and the rest joined the unit they belong to; all came back from
+Ekilex, and the 150 new usages were given English through `npm run translate:examples`. **What the
+frequency list names and the course still does not is a list worth reading rather than a total**:
+most of what is left is subtitle vocabulary (`kurat`, `relv`, `kolonel`) that a course has no
+business teaching early, and the rest is the next place to look.
 
 **And one word in the whole of A1 is asked a question nobody can fail, which is stated rather than
 special-cased.** Three A1 module words are spelled the same in both languages, `number`, `park` and

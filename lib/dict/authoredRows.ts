@@ -39,7 +39,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["ja", "Ma töötan ja õpin.", "I work and study."],
   ["aga", "Ta õpib, aga ei tööta.", "She studies but does not work."],
   ["ka", "Ka mina õpin.", "I am studying too."],
-  ["väga", "Ta räägib väga hästi.", "She speaks very well."],
+  ["väga", "Ma tahan väga minna.", "I really want to go."],
   ["hästi", "Te räägite hästi.", "You speak well."],
   ["siin", "Ma elan siin.", "I live here."],
   ["siin", "Tema elab ka siin.", "She lives here too."],
@@ -1005,4 +1005,72 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
     asked for is in. A row added below this line is drafted and checked by
     machine and waits for the same reading.
   */
+  // The words added to the course on 2026-09-26.
+  // vaikesed-sonad
+  ["seal", "Ta elab seal.", "She lives there."],
+  ["sealt", "Ma tulen sealt.", "I am coming from there."],
+  // inimesed
+  ["poiss", "See poiss on minu vend.", "That boy is my brother."],
+  ["tüdruk", "See tüdruk õpib siin.", "That girl studies here."],
+  ["abikaasa", "Minu abikaasa töötab täna.", "My husband is working today."],
+  ["onu", "Minu onu elab siin.", "My uncle lives here."],
+  ["tädi", "Tädi tuleb täna.", "My aunt is coming today."],
+  // veel-verbe
+  ["võima", "Kas ma võin tulla?", "May I come?"],
+  ["oskama", "Ma oskan eesti keelt.", "I can speak Estonian."],
+  ["vaatama", "Vaata seda raamatut!", "Look at this book!"],
+  ["kuulama", "Palun kuula mind.", "Please listen to me."],
+  ["käima", "Sõber käib täna meil.", "A friend is coming round to ours today."],
+  ["hakkama", "Ma hakkan eesti keelt õppima.", "I am going to start learning Estonian."],
+  ["näitama", "Näita mulle sinu tuba!", "Show me your room!"],
+  ["tähendama", "Mida see tähendab?", "What does that mean?"],
+  ["jätma", "Jäta raamat lauale.", "Leave the book on the table."],
+  ["toimuma", "Mis siin toimub?", "What is going on here?"],
+  // tahtsad-sonad
+  ["asi", "See on hea asi.", "That is a good thing."],
+  ["elu", "Elu on ilus.", "Life is beautiful."],
+  ["osa", "See on minu osa.", "This is my part."],
+  ["paar", "Mul on paar raamatut.", "I have a couple of books."],
+  ["lõpp", "See on raamatu lõpp.", "This is the end of the book."],
+  ["tähtis", "See on väga tähtis.", "This is very important."],
+  ["oluline", "See on väga oluline.", "This is very important."],
+  ["huvitav", "See raamat on huvitav.", "This book is interesting."],
+  ["igav", "Täna on igav päev.", "Today is a boring day."],
+  ["õnnelik", "Ma olen väga õnnelik.", "I am very happy."],
+  ["vaba", "Kas see tool on vaba?", "Is this chair free?"],
+  ["järgmine", "Järgmine tund on kell kaks.", "The next lesson is at two."],
+  ["eelmine", "Eelmine nädal oli raske.", "Last week was hard."],
+  ["viimane", "See on minu viimane päev siin.", "This is my last day here."],
+  ["kindel", "Kas sa oled kindel?", "Are you sure?"],
+  ["selge", "Jah, see on selge.", "Yes, that is clear."],
+  ["võimalik", "See ei ole võimalik.", "That is not possible."],
+  ["tubli", "Sa oled väga tubli!", "Well done, you are doing great!"],
+  ["vale", "See on vale number.", "That is the wrong number."],
+  ["näljane", "Ma olen väga näljane.", "I am very hungry."],
+  // ilm
+  ["väljas", "Väljas on külm.", "It is cold outside."],
+  ["õues", "Lapsed on õues.", "The children are outside."],
+  // kus-ja-kuhu
+  ["kaugel", "Kas jaam on kaugel?", "Is the station far away?"],
+  // umbmaarased
+  ["kogu", "Kogu pere on kodus.", "The whole family is at home."],
+  ["selline", "Mul on selline tunne.", "I have that kind of feeling."],
+  // kohasonad
+  ["eest", "Aitäh selle eest!", "Thank you for that!"],
+  // viisisonad
+  ["täpselt", "Kell on täpselt kaks.", "It is exactly two o'clock."],
+  // osakesed
+  ["ära", "Ära mine sinna!", "Do not go there!"],
+  // A2
+  ["suutma", "Ma ei suuda enam oodata.", "I cannot wait any longer."],
+  ["laskma", "Lase mul minna!", "Let me go!"],
+  ["üritama", "Ma üritan homme uuesti.", "I will try again tomorrow."],
+  ["nägu", "Tal on ilus nägu.", "She has a lovely face."],
+  ["muretsema", "Ema muretseb alati.", "Mum always worries."],
+  // B1
+  ["tark", "Ta on väga tark.", "She is very clever."],
+  ["rumal", "See oli rumal küsimus.", "That was a silly question."],
+  ["naljakas", "See film on väga naljakas.", "This film is very funny."],
+  ["tõsine", "See on tõsine haigus.", "This is a serious illness."],
+  ["lahke", "Te olete väga lahke.", "You are very kind."],
 ];

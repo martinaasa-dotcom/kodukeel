@@ -187,6 +187,14 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
     tryThis: "Say where you are from and which languages you speak, and ask the same back.",
     expect: "Interest, a question about how long you have been here, and a compliment on your Estonian.",
   },
+  "veel-verbe": {
+    live: false, needs: [], cases: [],
+    tryThis: "Say three things you can do and one you cannot, and ask whether you may sit down.",
+  },
+  "tahtsad-sonad": {
+    live: false, needs: [], cases: [],
+    tryThis: "Tell somebody what the most interesting thing in your week was, and what is next.",
+  },
   "vaikesed-sonad": {
     live: false, needs: [], cases: [],
     tryThis: "Say three things about yourself, one with ja, one with aga and one with ka.",

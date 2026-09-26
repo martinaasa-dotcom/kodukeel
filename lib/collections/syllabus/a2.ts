@@ -108,6 +108,7 @@ export const A2 = [
       ["väsinud", "tired", "ADJECTIVE"],
       ["valutama", "to hurt, to ache"],
       ["tablett", "tablet"],
+      ["nägu", "face"],
     ],
   }),
 
@@ -377,6 +378,9 @@ export const A2 = [
       ["tervitama", "to greet"],
       // "Kas ma tohin?" is the polite ask this unit is about.
       ["tohtima", "to be allowed to"],
+      ["suutma", "to manage to, to be able to"],
+      ["laskma", "to let, to have (something done)"],
+      ["üritama", "to try, to attempt"],
     ],
   }),
 
@@ -440,6 +444,7 @@ export const A2 = [
       ["rahulik", "calm", "ADJECTIVE"],
       ["üllatunud", "surprised", "ADJECTIVE"],
       ["tunduma", "to seem"],
+      ["muretsema", "to worry"],
     ],
   }),
 

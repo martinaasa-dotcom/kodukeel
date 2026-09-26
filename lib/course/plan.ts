@@ -247,7 +247,7 @@ export const PARTS: readonly PartSpec[] = [
       "Your name and address, the numbers, the room you are standing in, and the eleven verbs "
       + "an Estonian sentence cannot avoid. At the end you can introduce yourself, count, and "
       + "describe your home.",
-    units: ["tutvumine", "arvud", "kodu", "pohiverbid"],
+    units: ["tutvumine", "arvud", "kodu", "pohiverbid", "veel-verbe"],
   },
   {
     id: "a1.3", level: "A1",
@@ -256,7 +256,7 @@ export const PARTS: readonly PartSpec[] = [
       "The words for ordering, the days and the hours, the verbs of an ordinary day, and the "
       + "first adjectives and colors. At the end you can say what you are doing, when, and what "
       + "it is like.",
-    units: ["sook-ja-jook", "aeg", "iga-paev", "omadussonad", "varvid"],
+    units: ["sook-ja-jook", "aeg", "iga-paev", "omadussonad", "varvid", "tahtsad-sonad"],
   },
   {
     id: "a1.4", level: "A1",

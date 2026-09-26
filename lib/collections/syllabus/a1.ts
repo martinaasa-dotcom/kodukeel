@@ -228,10 +228,18 @@ export const A1 = [
       ["hästi", "well", "ADVERB"],
       // Not the steel rail a curtain runs along.
       ["siin", "here", "ADVERB", 233338],
+      // There, beside here: `siin` without `seal` is half a sentence.
+      ["seal", "there", "ADVERB"],
+      ["sealt", "from there", "ADVERB"],
       ["nüüd", "now", "ADVERB"],
       ["täna", "today", "ADVERB", 249773],
       ["veel", "still, yet, more", "ADVERB"],
       ["ainult", "only", "ADVERB"],
+    ],
+    evenings: [
+      ["ja", "aga", "ka", "väga"],
+      ["hästi", "siin", "seal", "sealt"],
+      ["nüüd", "täna", "veel", "ainult"],
     ],
   }),
 
@@ -330,6 +338,11 @@ export const A1 = [
       ["õpetaja", "teacher"],
       ["õpilane", "pupil, student"],
       ["arst", "doctor"],
+      ["poiss", "boy"],
+      ["tüdruk", "girl"],
+      ["abikaasa", "spouse, husband or wife"],
+      ["onu", "uncle"],
+      ["tädi", "aunt"],
     ],
   }),
 
@@ -582,6 +595,41 @@ export const A1 = [
   }),
 
   unit({
+    /*
+      THE VERBS EVERY SENTENCE REACHES FOR AND THE COURSE DID NOT TEACH.
+
+      `võima`, `oskama`, `vaatama`, `käima`, `hakkama` and `tähendama` were
+      among the commonest verbs in Estonian (`lib/collections/frequency.ts`)
+      and in no unit at any level, so `Kas ma võin?`, `Ma oskan eesti keelt`
+      and `Mida see tähendab?` were sentences nobody could be taught. Found by
+      writing a beginner's sentences and watching the checker refuse them.
+    */
+    id: "veel-verbe",
+    title: "Veel verbe",
+    subtitle: "Can, know how, watch, listen, go, begin",
+    icon: "Zap",
+    level: "A1",
+    module: "Tegevused",
+    canDo: "Say what you can do, what you are allowed to do, and what you watch and listen to.",
+    blurb: "Ten verbs you will use every day: may, can, watch, listen, go, begin, show, mean, leave and happen.",
+    grammar: ["present-tense"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION"],
+    requires: ["pohiverbid"],
+    words: [
+      ["võima", "can, may, to be allowed to"],
+      ["oskama", "to know how to, to be able to"],
+      ["vaatama", "to look, to watch"],
+      ["kuulama", "to listen"],
+      ["käima", "to go (regularly), to visit, to walk"],
+      ["hakkama", "to begin, to start (doing)"],
+      ["näitama", "to show"],
+      ["tähendama", "to mean"],
+      ["jätma", "to leave (something), to let"],
+      ["toimuma", "to take place, to happen"],
+    ],
+  }),
+
+  unit({
     id: "iga-paev",
     title: "Iga päev",
     subtitle: "Everyday actions",
@@ -691,6 +739,49 @@ export const A1 = [
   }),
 
   unit({
+    /*
+      THE WORDS A SENTENCE ABOUT ANYTHING NEEDS, WHICH NO UNIT HAD.
+
+      `tähtis`, `huvitav`, `järgmine`, `viimane`, `asi` and `elu` are among the
+      commonest words in the language, and a learner could reach B2 without
+      being taught one of them: the course's adjectives were sizes and colours.
+    */
+    id: "tahtsad-sonad",
+    title: "Tähtsad sõnad",
+    subtitle: "Important, interesting, next, last, thing and life",
+    icon: "Sparkles",
+    level: "A1",
+    module: "Igapäevaelu",
+    canDo: "Say whether something is important, interesting, easy to understand or boring, and which one is next.",
+    blurb: "The words you reach for in every conversation, whatever it is about.",
+    grammar: ["nominative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["omadussonad"],
+    words: [
+      ["asi", "thing, matter"],
+      ["elu", "life"],
+      ["osa", "part"],
+      ["paar", "pair, a couple of"],
+      ["lõpp", "end"],
+      ["tähtis", "important", "ADJECTIVE"],
+      ["oluline", "significant, important", "ADJECTIVE"],
+      ["huvitav", "interesting", "ADJECTIVE"],
+      ["igav", "boring", "ADJECTIVE"],
+      ["õnnelik", "happy", "ADJECTIVE"],
+      ["vaba", "free", "ADJECTIVE"],
+      ["järgmine", "next", "ADJECTIVE"],
+      ["eelmine", "previous, last", "ADJECTIVE"],
+      ["viimane", "last, final", "ADJECTIVE"],
+      ["kindel", "sure, certain", "ADJECTIVE"],
+      ["selge", "clear", "ADJECTIVE"],
+      ["võimalik", "possible", "ADJECTIVE"],
+      ["tubli", "good, well done (of a person)", "ADJECTIVE"],
+      ["vale", "wrong", "ADJECTIVE"],
+      ["näljane", "hungry", "ADJECTIVE"],
+    ],
+  }),
+
+  unit({
     id: "riided",
     title: "Riided",
     subtitle: "Clothes and what you wear",
@@ -757,6 +848,8 @@ export const A1 = [
       ["kuum", "hot", "ADJECTIVE"],
       ["märg", "wet", "ADJECTIVE"],
       ["kuiv", "dry", "ADJECTIVE"],
+      ["väljas", "outside", "ADVERB"],
+      ["õues", "outdoors, outside", "ADVERB"],
     ],
   }),
 
@@ -886,6 +979,7 @@ export const A1 = [
       ["asuma", "to be located"],
       ["mujal", "elsewhere", "ADVERB"],
       ["siia", "to here", "ADVERB"],
+      ["kaugel", "far away", "ADVERB"],
     ],
   }),
 
@@ -970,6 +1064,8 @@ export const A1 = [
       ["iga", "every, each", "PRONOUN", 171378],
       // Three Ekilex entries carry this; 211037 is the possessive.
       ["oma", "one's own", "PRONOUN", 211037],
+      ["kogu", "the whole, all of", "PRONOUN"],
+      ["selline", "such, like this", "PRONOUN"],
     ],
   }),
 
@@ -1054,6 +1150,7 @@ export const A1 = [
       ["kaasas", "along, with you", "ADVERB"],
       // `valu vastu`, which is how a pharmacist says what a medicine is for.
       ["vastu", "against, for (a pain)", "ADVERB"],
+      ["eest", "for (in return for), from in front of", "ADVERB"],
     ],
   }),
 
@@ -1409,6 +1506,7 @@ export const A1 = [
       ["taha", "to behind", "ADVERB"],
       ["juurde", "over to, up to", "ADVERB"],
       ["järele", "after, to fetch", "ADVERB"],
+      ["ära", "away, off (finishing a verb); don't (with a command)", "ADVERB"],
     ],
   }),
 
@@ -1458,6 +1556,7 @@ export const A1 = [
       ["alles", "only just, still", "ADVERB"],
       ["taas", "again", "ADVERB"],
       ["pigem", "rather", "ADVERB"],
+      ["täpselt", "exactly", "ADVERB"],
     ],
   }),
 ] as const;

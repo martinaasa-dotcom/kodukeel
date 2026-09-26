@@ -378,6 +378,11 @@ export const B1 = [
       ["range", "strict", "ADJECTIVE"],
       ["leebe", "gentle, mild", "ADJECTIVE"],
       ["andekas", "talented", "ADJECTIVE"],
+      ["tark", "wise, clever", "ADJECTIVE"],
+      ["rumal", "stupid, foolish", "ADJECTIVE"],
+      ["naljakas", "funny", "ADJECTIVE"],
+      ["tõsine", "serious", "ADJECTIVE"],
+      ["lahke", "kind", "ADJECTIVE"],
     ],
   }),
 

@@ -216,7 +216,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Negated with its own word": [
       { lemma: "vaatama", et: "Ära otse päikesesse vaata!", form: "Ära" },
-      { lemma: "rumal", et: "Ära ole rumal!", form: "Ära" },
+      { lemma: "muretsema", et: "Ära muretse, kõik läheb hästi.", form: "Ära" },
     ],
   },
   impersonal: {
@@ -302,7 +302,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "The -da one follows wanting and being able": [
       { lemma: "valuuta", et: "Kus saab valuutat vahetada?", form: "vahetada", slot: "VERB:Inf" },
-      { lemma: "võima", et: "Ma võin jälle kõndida!", form: "kõndida", slot: "VERB:Inf" },
+      { lemma: "võima", et: "Haige võib varsti surra.", form: "surra", slot: "VERB:Inf" },
     ],
   },
   "particle-verbs": {
@@ -374,7 +374,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   "word-order": {
     "Endings mark who did what, so order is free for other work": [
       { lemma: "talv", et: "Talvel sadas palju lund.", form: "Talvel", slot: "CASE:ADESSIVE" },
-      { lemma: "toimuma", et: "Eile toimus mitu õnnetust.", form: "Eile" },
+      { lemma: "toimuma", et: "Varahommikul toimus raske liiklusõnnetus.", form: "Varahommikul" },
     ],
     "The verb tends to sit second in a main clause": [
       { lemma: "alustama", et: "Homme alustan dieeti.", form: "alustan", slot: "VERB:IndPrSg1" },
