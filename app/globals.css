@@ -1921,11 +1921,21 @@
 
   .tnum { font-variant-numeric: tabular-nums; }
 
+  /*
+    THE SMALL LABEL, IN SENTENCE CASE.
+
+    It was bold, tracked out and uppercased, on every card heading, every chip
+    and every figure's caption: "35 WAITING", "FIVE TO EIGHT MINUTES", "4
+    LAPSES". That is the texture of a generated dashboard, and a screen where
+    every other word shouts is one where nothing does. Weight and colour say
+    "label" well enough at this size; the capitals were only volume. It also
+    ends the class of fault this file has a paragraph about elsewhere, an
+    Estonian ending like "-sse" printed as "-SSE".
+  */
   .label-xs {
     font-size: var(--text-2xs);
-    font-weight: 700;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
+    font-weight: 650;
+    letter-spacing: 0.005em;
   }
 
   /*
@@ -2536,14 +2546,14 @@
   /*
     The mark beside a page's heading: the rail's own icon, in the rail's own
     hue, at the size of a title. It is how the page a learner pressed and the
-    row they pressed are visibly one place. Tilted a few degrees and settled on
-    arrival, which is the one flourish a heading gets.
+    row they pressed are visibly one place. It settles in on arrival, which is
+    the one flourish a heading gets; it is not tilted, since a rotated icon
+    measures larger than it was drawn and reads as a rendering fault.
   */
   .page-mark {
     width: 52px;
     height: 52px;
     border-radius: var(--r-lg);
-    transform: rotate(-4deg);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, currentColor 14%, transparent);
     animation: mark-settle 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
@@ -2836,8 +2846,8 @@
 }
 
 @keyframes mark-settle {
-  from { transform: rotate(-12deg) scale(0.82); opacity: 0; }
-  to { transform: rotate(-4deg) scale(1); opacity: 1; }
+  from { transform: scale(0.82); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes fade-up {

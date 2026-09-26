@@ -217,7 +217,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/review/listening", title: "Listening", subtitle: "Hear it, pick it", icon: "Headphones",
-    tone: "sky", group: "quick", note: "Audio from TartuNLP",
+    tone: "sky", group: "quick", note: "Twenty words",
     blurb: "Hear a word with nothing written down, and pick what it means.",
   },
   {
@@ -227,7 +227,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/review/speaking", title: "Speaking", subtitle: "Out loud", icon: "Mic", tone: "blush",
-    group: "quick", note: "Say it, then hear it",
+    group: "quick", note: "Then hear it said",
     blurb: "Say it, then compare yourself with a native rendering. Nothing scores your pronunciation.",
   },
   {

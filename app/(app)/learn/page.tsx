@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Check, Compass, Lock } from "lucide-react";
+import { ArrowRight, Check, Compass, Eye, Lock, MousePointerClick, PenLine } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { unitById } from "@/lib/collections/syllabus";
@@ -139,7 +139,7 @@ export default async function LearnPage() {
         {next && (
           <ButtonLink
             href={`/learn/${next.id}/lesson`}
-            variant="primary"
+            variant={counts.waiting + counts.started > 0 ? "secondary" : "primary"}
             className="w-full justify-center sm:w-auto"
           >
             {startedIds.has(next.id) ? "Continue" : "Start"}: {uiText(placement, next.title, next.subtitle)}
@@ -380,11 +380,26 @@ function LearnCard({
         <p className="text-base font-bold" style={{ color: "var(--ink)" }}>
           {ready > 0 ? "New words" : "No new words waiting"}
         </p>
-        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-          {ready > 0
-            ? "Meet it, then pick what it means, then put it back in the sentence. Words you can produce move over to practice."
-            : "Open a unit below and its words arrive here, ready to be met."}
-        </p>
+        {/*
+          THE LADDER AS THREE STEPS YOU CAN SEE, RATHER THAN A SENTENCE ABOUT IT.
+          The words are the same three the round is made of, in its order.
+        */}
+        {ready > 0 ? (
+          <ol className="mt-2 flex flex-wrap items-center gap-1.5 text-sm" aria-label="Each word is met, then picked out of four, then put back in its sentence">
+            {([[Eye, "Meet it"], [MousePointerClick, "Pick it"], [PenLine, "Use it"]] as const).map(([Glyph, label], i) => (
+              <li key={label} className="flex items-center gap-1.5">
+                {i > 0 && <ArrowRight size={13} aria-hidden style={{ color: "var(--ink-3)" }} />}
+                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
+                  <Glyph size={13} aria-hidden /> {label}
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+            Open a unit below and its words arrive here, ready to be met.
+          </p>
+        )}
         {ready > 0 && (
           <p className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--ink-3)" }}>
             <Chip tone="accent">{waiting} never seen</Chip>

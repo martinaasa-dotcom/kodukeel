@@ -318,24 +318,31 @@ export function Stat({ value, label, tone, icon }: {
 export function StatTile({ value, label, tone = "accent", icon, hint }: {
   value: ReactNode; label: string; tone?: Exclude<CardTone, "plain">; icon?: ReactNode; hint?: string;
 }) {
-  // The ink, not the hue: a tile's label and figure sit on that hue's own tint,
-  // where the hue itself lands near 2.5:1 (see the token block in globals.css).
-  const fg = {
-    accent: "var(--accent-deep)", mint: "var(--mint-ink)", butter: "var(--butter-ink)",
-    peach: "var(--peach-ink)", blush: "var(--blush-ink)", sky: "var(--sky-ink)",
-  }[tone];
+  /*
+    A FIGURE SET LIKE TYPE, NOT A PASTEL BOX.
 
+    These were a hue's tint with the label and the number written in that
+    hue's ink, four or five across: the tinted-tile dashboard every generated
+    admin panel has, and the first thing a reader takes it for. The number is
+    what the tile is about, so it is set large in the display face on the
+    card's own ground, in ink; the hue is a rule along the top, where it still
+    says which kind of figure this is without painting the whole square; and
+    the label is quiet sentence-case rather than tracked capitals. Contrast
+    stops being a question, since everything is ink on the ground it was
+    measured against.
+  */
+  const rule = tone === "accent" ? "var(--accent)" : `var(--${tone})`;
   return (
     <div
-      className="flex flex-col gap-1 rounded-[var(--r)] px-3 py-3 sm:px-4 sm:py-3.5"
-      style={{ background: CARD_TONES[tone].background }}
+      className="stat-tile flex flex-col gap-1.5 rounded-[var(--r)] border px-3 py-3 sm:px-4 sm:py-3.5"
+      style={{ borderColor: "var(--rule-soft)", borderTopColor: rule, borderTopWidth: 3, background: "var(--surface)" }}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="label-xs min-w-0" style={{ color: fg }}>{label}</span>
-        {icon && <span aria-hidden className="shrink-0" style={{ color: fg, opacity: 0.75 }}>{icon}</span>}
+        <span className="min-w-0 text-sm font-medium" style={{ color: "var(--ink-2)" }}>{label}</span>
+        {icon && <span aria-hidden className="shrink-0" style={{ color: toneInk(tone) }}>{icon}</span>}
       </div>
-      <span className="tnum text-2xl font-bold leading-none" style={{ color: fg }}>{value}</span>
-      {hint && <span className="text-2xs" style={{ color: fg }}>{hint}</span>}
+      <span className="tnum font-display text-3xl font-bold leading-none tracking-tight" style={{ color: "var(--ink)" }}>{value}</span>
+      {hint && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint}</span>}
     </div>
   );
 }

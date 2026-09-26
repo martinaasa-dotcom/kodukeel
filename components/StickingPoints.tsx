@@ -106,9 +106,36 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                   ? <Chip tone="again">{point.lapses} lapses</Chip>
                   : <Chip tone="hard">{point.accuracy}%</Chip>}
               </p>
-              <p className="mt-0.5 text-xs" style={{ color: "var(--ink-2)" }}>
-                {isSuspended ? "Set aside. It will not come up until you put it back." : stickingNote(point)}
-              </p>
+              {/*
+                A METER RATHER THAN A SENTENCE.
+
+                Every row said "Learned and forgotten again, 67% recalled over
+                12 reviews", six times down the page, and the one figure in it
+                was the thing worth seeing. The bar shows it, the small print
+                says what it is out of, and `stickingNote` is still the whole
+                sentence for a screen reader, which is who the words were for.
+              */}
+              {isSuspended ? (
+                <p className="mt-0.5 text-xs" style={{ color: "var(--ink-2)" }}>
+                  Set aside. It will not come up until you put it back.
+                </p>
+              ) : (
+                <p className="mt-1.5 flex items-center gap-2">
+                  <span className="sr-only">{stickingNote(point)}</span>
+                  {point.accuracy !== null && (
+                    <span aria-hidden className="block h-1.5 w-28 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
+                      <span
+                        className="block h-full rounded-full"
+                        style={{ width: `${point.accuracy}%`, background: point.accuracy >= 80 ? "var(--mint)" : point.accuracy >= 60 ? "var(--butter)" : "var(--peach)" }}
+                      />
+                    </span>
+                  )}
+                  <span aria-hidden className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+                    {point.accuracy === null ? "not seen lately" : `${point.accuracy}% of ${point.reviews}`}
+                    {point.siblings > 0 ? ` · ${point.siblings + 1} cards stuck` : ""}
+                  </span>
+                </p>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">

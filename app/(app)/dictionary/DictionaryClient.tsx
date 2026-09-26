@@ -288,36 +288,38 @@ export function DictionaryClient({
 
       {!showingEntry && initialQuery === "" && (
         <div className="flex flex-col gap-3">
-          <AddWord />
-          {canScan && (
-            <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-              Got it on paper?{" "}
+          {/*
+            THREE WAYS IN, ONE ROW.
+
+            Adding a word, photographing a list and pasting a passage are all
+            "bring your own Estonian", and they were a full-width button and
+            two sentences explaining the other two. They are three buttons side
+            by side now, each saying what it does; the scanner's own page says
+            the picture is never stored, at the moment somebody is about to
+            take one. The add form still opens in place.
+          */}
+          <div className="flex flex-wrap items-start gap-2">
+            <AddWord />
+            {canScan && (
               <Link
                 href="/scan"
-                className="inline-flex items-center gap-1.5 font-semibold underline underline-offset-2"
-                style={{ color: "var(--accent-deep)" }}
+                className="choice-btn press inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-sm font-semibold"
+                style={{ color: "var(--ink)" }}
               >
-                <Camera size={14} aria-hidden /> Photograph a word list
-              </Link>{" "}
-              and tick the words you want. Nothing is added until you do, and the picture is never
-              stored.
-            </p>
-          )}
-          {/* The other way of bringing your own Estonian in, and the reason it
-              is here rather than on the practice menu: both of these turn
-              something you already have into something you can study, which is
-              what this page is for. */}
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Reading something already?{" "}
+                <Camera size={15} aria-hidden /> Photograph a list
+              </Link>
+            )}
+            {/* The other way of bringing your own Estonian in, and the reason it
+                is here rather than on the practice menu: both of these turn
+                something you already have into something you can study. */}
             <Link
               href="/review/cloze"
-              className="inline-flex items-center gap-1.5 font-semibold underline underline-offset-2"
-              style={{ color: "var(--accent-deep)" }}
+              className="choice-btn press inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-sm font-semibold"
+              style={{ color: "var(--ink)" }}
             >
-              <ScissorsLineDashed size={14} aria-hidden /> Paste a passage
-            </Link>{" "}
-            and the words already in your deck are blanked out for you to fill back in.
-          </p>
+              <ScissorsLineDashed size={15} aria-hidden /> Paste a passage
+            </Link>
+          </div>
         </div>
       )}
 

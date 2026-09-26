@@ -181,14 +181,21 @@ export default async function ExamPage() {
                     </Ring>
                   </div>
 
-                  <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{level.verdict}</p>
                   {/* The tier beside every figure (ADR-022), per level: a sat level
                       can read up to 85 while the page's evidence is still thin,
-                      so the section's one hint could not speak for this ring. */}
-                  <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
-                    {level.measured ? "Resting on a paper you sat." : `That figure is ${EVIDENCE_LABEL[readiness.evidence]}.`}
+                      so the section's one hint could not speak for this ring.
+                      One line with the verdict rather than a second paragraph. */}
+                  <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
+                    {level.verdict}{" "}
+                    <span style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
+                      {level.measured ? "Resting on a paper you sat." : `That figure is ${EVIDENCE_LABEL[readiness.evidence]}.`}
+                    </span>
                   </p>
 
+                  {/* The four parts only once one of them has a figure: four
+                      labels over four empty tracks said "nothing measured" in
+                      the loudest way the card had. */}
+                  {SKILLS.some((skill) => level.seen[skill]) && (
                   <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
                     {SKILLS.map((skill) => (
                       <div key={skill}>
@@ -212,6 +219,7 @@ export default async function ExamPage() {
                       </div>
                     ))}
                   </dl>
+                  )}
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <span className="text-xs" style={{ color: "var(--ink-3)" }}>
