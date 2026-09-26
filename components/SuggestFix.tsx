@@ -228,7 +228,7 @@ export function SuggestFix({
     <div
       ref={panel}
       className="w-full rounded-[var(--r-lg)] border p-5 text-left"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <div className="flex items-start justify-between gap-3">
         <div>

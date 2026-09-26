@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ClipboardCheck, Layers, Play, TrendingUp } from "lucide-react";
+import { ArrowRight, ClipboardCheck, Layers, Play, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot } from "@/lib/progress/summary";
@@ -178,17 +178,23 @@ export default async function PracticePage() {
             confident the word is known. See lib/srs/mastery.ts for what
             confident means.
           */}
-          <ModeCard
-            href="/review"
-            iconName="GraduationCap"
-            tone="accent"
-            title="Review"
-            // No subtitle: "Everything due" was a third way of saying what the
-            // meta counts and the body explains, on one card.
-            body="Timed to the moment before you forget. The schedule decides what comes back, not you."
-            meta={ready > 0 ? `${ready} waiting` : "Nothing due"}
-            primary={ready > 0}
-          />
+          <section className="night rounded-[var(--r-xl)] border p-6 md:p-9" aria-labelledby="practice-review">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div className="min-w-0">
+                <p className="label-xs" style={{ color: "var(--butter-ink)" }}>Review</p>
+                <h2 id="practice-review" className="font-display mt-3 flex items-baseline gap-3 font-bold leading-none" style={{ color: "var(--ink)" }}>
+                  <span className="text-7xl tabular-nums md:text-8xl">{ready}</span>
+                  <span className="text-2xl md:text-3xl">{ready === 1 ? "card waiting" : "cards waiting"}</span>
+                </h2>
+                <p className="mt-4 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  Timed to the moment before you forget. The schedule decides what comes back, not you.
+                </p>
+              </div>
+              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full shrink-0 justify-center whitespace-nowrap lg:w-auto">
+                {ready > 0 ? "Review now" : "Nothing due, open review"} <ArrowRight size={17} aria-hidden />
+              </ButtonLink>
+            </div>
+          </section>
 
           {/*
             THE ROUND THAT IS NOT A ROUND. A situation is five to eight minutes
@@ -266,8 +272,8 @@ export default async function PracticePage() {
               href="/words/mastery"
               className="lift flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[var(--r-lg)] border p-4"
               style={{
-                borderColor: "var(--rule)", background: "var(--surface)",
-                boxShadow: "var(--shadow-sm)",
+                borderColor: "var(--edge)", background: "var(--surface)",
+                boxShadow: "var(--depth-sm)",
               }}
             >
               <span className="text-base font-semibold" style={{ color: "var(--ink)" }}>
@@ -320,7 +326,7 @@ export default async function PracticePage() {
             <Link
               href="/exam"
               className="lift flex items-center gap-3 rounded-[var(--r-lg)] border p-4"
-              style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
             >
               <span
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
@@ -383,7 +389,7 @@ function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
          is what a thumb aims at and the name is read under it. Side by side
          from `sm`, where a row has the width for it. */
       className="lift flex h-full flex-col items-start gap-2.5 rounded-[var(--r-lg)] border p-3.5 sm:flex-row sm:items-center sm:gap-3 sm:p-4"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <span
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
@@ -426,7 +432,7 @@ function CommonWordsCard() {
   return (
     <section
       className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-5"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span
@@ -499,7 +505,7 @@ function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: nu
   return (
     <section
       className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-5"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span
@@ -567,9 +573,9 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
       href={href}
       className="lift flex h-full flex-col gap-2 rounded-[var(--r-lg)] border p-5"
       style={{
-        borderColor: primary ? "var(--accent)" : "var(--rule)",
+        borderColor: primary ? "var(--accent)" : "var(--edge)",
         background: "var(--surface)",
-        boxShadow: "var(--shadow-sm)",
+        boxShadow: "var(--depth-sm)",
       }}
     >
       {/* One row whatever the width: on a phone the chip wrapped onto a line

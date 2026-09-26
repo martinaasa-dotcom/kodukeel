@@ -90,9 +90,9 @@ export default async function ExceptionsPage() {
                         href={`/grammar/exceptions/${group.kind.toLowerCase()}`}
                         className="lift flex h-full flex-col gap-2 rounded-[var(--r-lg)] border p-4"
                         style={{
-                          borderColor: "var(--rule)",
+                          borderColor: "var(--edge)",
                           background: "var(--surface)",
-                          boxShadow: "var(--shadow-sm)",
+                          boxShadow: "var(--depth-sm)",
                         }}
                       >
                         <span className="flex flex-wrap items-baseline justify-between gap-2">

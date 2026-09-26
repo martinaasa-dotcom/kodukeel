@@ -14,7 +14,6 @@ import { Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { learnCounts } from "@/lib/progress/learn";
 import { learnerModuleScope } from "@/lib/progress/moduleScope";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
-import { Sparkles } from "lucide-react";
 import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Learn" };
@@ -168,7 +167,7 @@ export default async function LearnPage() {
               key={level}
               open={open}
               className="rounded-[var(--r-lg)] border"
-              style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
             >
               <summary className="flex min-h-[56px] cursor-pointer flex-wrap items-center gap-3 p-4 sm:gap-4">
                 <span
@@ -389,68 +388,78 @@ function LearnCard({
 }) {
   const ready = waiting + started;
   const phrasesReady = phrases.waiting + phrases.started;
+  const batch = Math.min(ready, LEARN_BATCH);
   return (
-    <div
-      className="mb-7 flex flex-wrap items-center gap-4 rounded-[var(--r-lg)] border p-5 sm:flex-nowrap"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
-    >
-      <span
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-        style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-      >
-        <Sparkles size={20} aria-hidden />
-      </span>
-      <div className="min-w-0 flex-1 basis-[calc(100%-3.75rem)] sm:basis-0">
-        <p className="text-base font-bold" style={{ color: "var(--ink)" }}>
-          {ready > 0 ? "New words" : "No new words waiting"}
-        </p>
-        {/*
-          THE LADDER AS THREE STEPS YOU CAN SEE, RATHER THAN A SENTENCE ABOUT IT.
-          The words are the same three the round is made of, in its order.
-        */}
-        {ready > 0 ? (
-          <ol className="mt-2 flex flex-wrap items-center gap-1 text-sm sm:gap-1.5" aria-label="Each word is met, then picked out of four, then put back in its sentence">
-            {([[Eye, "Meet it"], [MousePointerClick, "Pick it"], [PenLine, "Use it"]] as const).map(([Glyph, label], i) => (
-              <li key={label} className="flex items-center gap-1 sm:gap-1.5">
-                {i > 0 && <ArrowRight size={13} aria-hidden style={{ color: "var(--ink-3)" }} />}
-                <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 font-semibold sm:gap-1.5 sm:px-2.5" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
-                  <Glyph size={13} aria-hidden className="hidden sm:inline" /> {label}
-                </span>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            Open a unit below and its words arrive here, ready to be met.
+    <div className="night mb-10 rounded-[var(--r-xl)] border p-6 md:p-9">
+      <div className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <p className="label-xs" style={{ color: "var(--butter-ink)" }}>
+            {ready > 0 ? "Tonight\u2019s new words" : "New words"}
           </p>
-        )}
-        {ready > 0 && (
-          <p className="mt-2 flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--ink-3)" }}>
-            <Chip tone="accent">{waiting} never seen</Chip>
-            {started > 0 && <Chip tone="hard">{started} part way</Chip>}
-          </p>
-        )}
+          <h2 className="font-display mt-3 text-4xl font-bold leading-[1] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+            {ready > 0 ? <>{batch} words are waiting</> : <>Nothing waiting yet</>}
+          </h2>
+          {ready > 0 ? (
+            <p className="mt-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
+              <Chip tone="accent">{waiting} never seen</Chip>
+              {started > 0 && <Chip tone="hard">{started} part way</Chip>}
+            </p>
+          ) : (
+            <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
+              Open a unit below and its words arrive here, ready to be met.
+            </p>
+          )}
+        </div>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          {/*
+            A whole phrase (`Kas sa räägid inglise keelt?`) is taught on the same
+            ladder as a word, and for a while that meant "learn 5 new words" could
+            hand over five phrases in a row, the entire `tervitused` unit and
+            nothing else: a learner pressing "words" expecting words. So a phrase
+            is its own quieter button here rather than folded into the count
+            above, only where one is actually waiting.
+          */}
+          {phrasesReady > 0 && (
+            <ButtonLink href="/learn/new?kind=phrase" variant="secondary" className="w-full justify-center sm:w-auto">
+              Learn {Math.min(phrasesReady, LEARN_BATCH)} phrases
+            </ButtonLink>
+          )}
+          {ready > 0 && (
+            <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center sm:w-auto">
+              Learn {batch} words <ArrowRight size={17} aria-hidden />
+            </ButtonLink>
+          )}
+        </div>
       </div>
-      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-        {/*
-          A whole phrase (`Kas sa räägid inglise keelt?`) is taught on the same
-          ladder as a word, and for a while that meant "learn 5 new words" could
-          hand over five phrases in a row, the entire `tervitused` unit and
-          nothing else: a learner pressing "words" expecting words. So a phrase
-          is its own quieter button here rather than folded into the count
-          above, only where one is actually waiting.
-        */}
-        {phrasesReady > 0 && (
-          <ButtonLink href="/learn/new?kind=phrase" variant="secondary" className="w-full justify-center sm:w-auto">
-            Learn {Math.min(phrasesReady, LEARN_BATCH)} phrases
-          </ButtonLink>
-        )}
-        {ready > 0 && (
-          <ButtonLink href="/learn/new" variant="primary" className="w-full justify-center sm:w-auto">
-            Learn {Math.min(ready, LEARN_BATCH)} words
-          </ButtonLink>
-        )}
-      </div>
+      {/*
+        THE LADDER AS THREE STEPS YOU CAN SEE, RATHER THAN A SENTENCE ABOUT IT.
+        The words are the same three the round is made of, in its order.
+      */}
+      {ready > 0 && (
+        <ol
+          className="ladder-steps mt-8 grid gap-3 xl:grid-cols-3"
+          aria-label="Each word is met, then picked out of four, then put back in its sentence"
+        >
+          {([[Eye, "Meet it", "See it, hear it, in a sentence"], [MousePointerClick, "Pick it", "Find its meaning among four"], [PenLine, "Use it", "Put it back in the sentence"]] as const).map(([Glyph, label, line], i) => (
+            <li
+              key={label}
+              className="flex items-center gap-3 rounded-[var(--r-lg)] p-3.5"
+              style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.1)" }}
+            >
+              <span
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full"
+                style={{ background: ["var(--cta)", "var(--blush)", "var(--sky)"][i], color: "var(--on-hue)" }}
+              >
+                <Glyph size={18} aria-hidden />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{label}</span>
+                <span className="block text-sm" style={{ color: "var(--ink-2)" }}>{line}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }

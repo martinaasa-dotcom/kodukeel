@@ -61,6 +61,7 @@
   --text-5xl: 52px;     /* landing hero */
   --text-6xl: 68px;     /* the same hero, once there is room for it */
   --text-7xl: 88px;     /* and again, once the window is wide and tall enough */
+  --text-8xl: 112px;    /* the landing stage on a desktop, set left in the condensed cut */
 
   /* Tailwind's radius names, mapped onto the four the system actually has, so
      a stray `rounded-md` lands on 10px rather than inventing a 6px corner. */
@@ -76,58 +77,58 @@
   --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   /* Display sizes only. See app/layout.tsx for why there are two, and why the
      second has Onest behind it rather than a system face. */
-  --font-display: var(--font-bricolage), var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anybody), var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
-  --color-ground: #f7f7f4;
+  --color-ground: #fcfbf7;
   --color-surface: #ffffff;
-  --color-raised: #f0f0ec;
-  --color-ink: #111216;
-  --color-ink-2: #43454d;
-  --color-ink-3: #5c5e67;
-  --color-rule: #e4e4de;
-  --color-rule-soft: #eeeee9;
+  --color-raised: #f3f0fa;
+  --color-ink: #0f1233;
+  --color-ink-2: #3e4166;
+  --color-ink-3: #585b80;
+  --color-rule: #e7e3ef;
+  --color-rule-soft: #f2eff6;
 
-  --color-accent: #2f55f5;
+  --color-accent: #5b2eff;
   --color-accent-ink: #ffffff;
-  --color-accent-soft: #e9eeff;
+  --color-accent-soft: #ece5ff;
 
-  --color-mint: #16b58c;
-  --color-mint-soft: #dcf5ec;
-  --color-mint-ink: #0b6b54;
-  --color-peach: #ef6a4c;
-  --color-peach-soft: #ffe7df;
-  --color-peach-ink: #a93318;
-  --color-butter: #d99a14;
-  --color-butter-soft: #fdf0d2;
-  --color-butter-ink: #7c560a;
-  --color-sky: #2a90d8;
-  --color-sky-soft: #e0f0fc;
-  --color-sky-ink: #155f95;
-  --color-blush: #e0508f;
-  --color-blush-soft: #fde5f0;
-  --color-blush-ink: #9f2a64;
+  --color-mint: #00c2a8;
+  --color-mint-soft: #d6f7f1;
+  --color-mint-ink: #03695c;
+  --color-peach: #ef3e36;
+  --color-peach-soft: #ffe2df;
+  --color-peach-ink: #a81e18;
+  --color-butter: #ffc400;
+  --color-butter-soft: #fff3c2;
+  --color-butter-ink: #735000;
+  --color-sky: #17bfd9;
+  --color-sky-soft: #d8f5fa;
+  --color-sky-ink: #0a6273;
+  --color-blush: #ff3d8b;
+  --color-blush-soft: #ffe2ee;
+  --color-blush-ink: #ad1257;
 
-  --color-again: #ef6a4c;
-  --color-hard: #d99a14;
-  --color-good: #16b58c;
-  --color-easy: #2a90d8;
+  --color-again: #ef3e36;
+  --color-hard: #ffc400;
+  --color-good: #00c2a8;
+  --color-easy: #17bfd9;
 
-  --color-again-soft: #ffe7df;
-  --color-hard-soft: #fdf0d2;
-  --color-good-soft: #dcf5ec;
-  --color-easy-soft: #e0f0fc;
+  --color-again-soft: #ffe2df;
+  --color-hard-soft: #fff3c2;
+  --color-good-soft: #d6f7f1;
+  --color-easy-soft: #d8f5fa;
 }
 
 @layer base {
   :root {
     color-scheme: light;
 
-    --ground: #f7f7f4;
+    --ground: #fcfbf7;
     --surface: #ffffff;
-    --raised: #f0f0ec;
-    --ink: #111216;
-    --ink-2: #43454d;
+    --raised: #f3f0fa;
+    --ink: #0f1233;
+    --ink-2: #3e4166;
     /* Tertiary ink, chosen against every surface in the system rather than
        against white: 4.59:1 on the softest tint (blush) and better everywhere
        else, so a caption stays legible on a pastel tile. */
@@ -142,30 +143,32 @@
       Same hue, one step down: it clears 4.5 on the wash, both grounds, both
       surfaces, the raised fill and the softest tint.
     */
-    --ink-3: #5c5e67;
-    --rule: #e4e4de;
-    --rule-soft: #eeeee9;
+    --ink-3: #585b80;
+    --rule: #e7e3ef;
+    --rule-soft: #f2eff6;
 
     /*
-      Rukkilill, sharpened. The cornflower stays the app's voice, taken from a
-      lilac pastel to the saturated blue of the flower itself: 5.62:1 under
-      white text on a button, and its deep ink 7.08 on its own tint.
+      Mustikamoos: an electric bilberry violet as the app's voice, a hot coral
+      (`--blush`) as its companion, and the answer colours kept to their
+      meanings. Missed moved from coral to raspberry so it can never be read
+      as the brand's own warm colour. White on the violet is 6.4:1.
     */
-    --accent: #2f55f5;
+    --accent: #5b2eff;
     --accent-ink: #ffffff;
-    --accent-soft: #e9eeff;
-    --accent-deep: #1e3fc4;
+    --accent-soft: #ece5ff;
+    --accent-deep: #4719e0;
+    --accent-lip: #3a16b3;
 
-    --mint: #16b58c;
-    --mint-soft: #dcf5ec;
-    --peach: #ef6a4c;
-    --peach-soft: #ffe7df;
-    --butter: #d99a14;
-    --butter-soft: #fdf0d2;
-    --sky: #2a90d8;
-    --sky-soft: #e0f0fc;
-    --blush: #e0508f;
-    --blush-soft: #fde5f0;
+    --mint: #00c2a8;
+    --mint-soft: #d6f7f1;
+    --peach: #ef3e36;
+    --peach-soft: #ffe2df;
+    --butter: #ffc400;
+    --butter-soft: #fff3c2;
+    --sky: #17bfd9;
+    --sky-soft: #d8f5fa;
+    --blush: #ff3d8b;
+    --blush-soft: #ffe2ee;
 
     /*
       Text on a pastel tile.
@@ -176,11 +179,11 @@
       has an ink: the same colour walked down until it clears 4.5:1 on its own
       tint, so a chip, a stat tile and a grade button can all be read.
     */
-    --mint-ink: #0b6b54;
-    --peach-ink: #a93318;
-    --butter-ink: #7c560a;
-    --sky-ink: #155f95;
-    --blush-ink: #9f2a64;
+    --mint-ink: #03695c;
+    --peach-ink: #a81e18;
+    --butter-ink: #735000;
+    --sky-ink: #0a6273;
+    --blush-ink: #ad1257;
     --good-ink: var(--mint-ink);
     --hard-ink: var(--butter-ink);
     --again-ink: var(--peach-ink);
@@ -202,7 +205,7 @@
       theme's #5fe3bc. It is the light theme's `--ink`, written out, because
       `var(--ink)` inverts with the theme and would take the tick with it.
     */
-    --on-mint: #151021;
+    --on-mint: #0f1233;
 
     --again: var(--peach);
     --hard: var(--butter);
@@ -214,9 +217,9 @@
     --easy-soft: var(--sky-soft);
 
     /* Pastel washes for the decorative blobs behind the page. */
-    --wash-1: #e6ecff;
-    --wash-2: #eceef4;
-    --wash-3: #f0eee6;
+    --wash-1: #fff0c9;
+    --wash-2: #f5f0ff;
+    --wash-3: #ffe6f0;
 
     --r-sm: 8px;
     --r: 12px;
@@ -230,7 +233,36 @@
     --shadow-sm: 0 0 0 1px rgb(17 18 22 / 0.04), 0 1px 2px rgb(17 18 22 / 0.06);
     --shadow: 0 0 0 1px rgb(17 18 22 / 0.04), 0 2px 4px rgb(17 18 22 / 0.04), 0 12px 28px -12px rgb(17 18 22 / 0.16);
     --shadow-lg: 0 0 0 1px rgb(17 18 22 / 0.05), 0 4px 8px rgb(17 18 22 / 0.04), 0 28px 56px -24px rgb(17 18 22 / 0.26);
-    --shadow-accent: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 20px -10px rgb(47 85 245 / 0.7);
+    --shadow-accent: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 20px -10px rgb(91 46 255 / 0.6);
+
+    /*
+      The sticker edge. A card is an object with an outline and a hard shadow
+      that does not blur, which is what a printed sticker or a key looks like
+      and what no generic dashboard does. `--hard` is the resting shadow and
+      `--hard-lift` the one under a pointer; the edge is the same ink either
+      way so a hover moves the object rather than repainting it.
+    */
+    --edge: rgb(15 18 51 / 0.1);
+    --depth: 0 1px 2px rgb(15 18 51 / 0.05), 0 12px 32px -16px rgb(15 18 51 / 0.22);
+    --depth-sm: 0 1px 2px rgb(15 18 51 / 0.06), 0 4px 12px -6px rgb(15 18 51 / 0.14);
+    --depth-lift: 0 2px 4px rgb(15 18 51 / 0.06), 0 24px 48px -20px rgb(52 24 150 / 0.34);
+
+    /* The one button a screen is built around is a firework: gold, with the
+       night's ink on it, in both themes. The accent keeps every other job. */
+    --cta: #ffd23f;
+    /* Ink on a solid hue, the same night ink in both themes: every hue is
+       light enough for it, and it is what makes a coloured sticker read. */
+    --on-hue: #0f1233;
+    --cta-ink: #0f1233;
+    --cta-lip: #b88a00;
+
+    /* The landing stage: a night band the page scrolls out of, the same in
+       both themes, because it is a place rather than a surface. */
+    --stage: #0b0e2e;
+    --stage-ink: #fbfaff;
+    --stage-ink-2: #d2d5f2;
+    --stage-tick: #3fe6ce;
+    --stage-glow: #ff3d8b;
 
     /*
       The key cap on a primary button, which is the one surface whose ink
@@ -267,34 +299,40 @@
     reads.
   */
 
+  /*
+    `.night` borrows the whole dark palette for one panel on a light page:
+    the rainbow-at-night hero each screen leads with. Every token inside it
+    resolves to its dark value, so a card drawn in it needs no second style.
+  */
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --ground: #0c0d10;
-    --surface: #141519;
-    --raised: #1c1d22;
-    --ink: #f3f3ef;
-    --ink-2: #c2c3cb;
+    --ground: #080a1f;
+    --surface: #101433;
+    --raised: #1a1f4a;
+    --ink: #f2f3ff;
+    --ink-2: #c4c8ec;
     /* The same nudge as the media-query block above, for the same numbers. */
-    --ink-3: #a2a4ae;
-    --rule: #2a2b31;
-    --rule-soft: #1f2025;
+    --ink-3: #a0a5d2;
+    --rule: #262b5a;
+    --rule-soft: #171b40;
 
-    --accent: #7e97ff;
-    --accent-ink: #0c0d10;
-    --accent-soft: #1f2645;
-    --accent-deep: #b3c2ff;
+    --accent: #9c8cff;
+    --accent-ink: #0c0a36;
+    --accent-soft: #26215c;
+    --accent-deep: #beb3ff;
+    --accent-lip: #5a49c9;
 
-    --mint: #5fe3bc;
-    --mint-soft: #10332a;
-    --peach: #ff9f86;
-    --peach-soft: #38211b;
-    --butter: #ffcd6e;
-    --butter-soft: #372c14;
-    --sky: #7cc6f5;
-    --sky-soft: #132a3d;
-    --blush: #ff9cc7;
-    --blush-soft: #371c2c;
+    --mint: #3fe6ce;
+    --mint-soft: #0b3530;
+    --peach: #ff7a70;
+    --peach-soft: #3d1717;
+    --butter: #ffd35c;
+    --butter-soft: #3a2f0e;
+    --sky: #4fe3f5;
+    --sky-soft: #0b3140;
+    --blush: #ff6ba8;
+    --blush-soft: #3d1328;
 
     --mint-ink: var(--mint);
     --peach-ink: var(--peach);
@@ -306,14 +344,102 @@
     --again-ink: var(--peach);
     --easy-ink: var(--sky);
 
-    --wash-1: #171c3a;
-    --wash-2: #16181f;
-    --wash-3: #1a1916;
+    --wash-1: #1d1a4a;
+    --wash-2: #0f1230;
+    --wash-3: #2a1330;
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px -8px rgb(0 0 0 / 0.6);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 14px 34px -18px rgb(0 0 0 / 0.8);
     --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.5), 0 30px 60px -28px rgb(0 0 0 / 0.9);
-    --shadow-accent: 0 8px 20px -10px rgb(126 151 255 / 0.5);
+    --shadow-accent: 0 8px 20px -10px rgb(156 140 255 / 0.45);
+
+    --edge: rgb(210 214 255 / 0.12);
+    --depth: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 36px -18px rgb(0 0 0 / 0.7);
+    --depth-sm: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 14px -8px rgb(0 0 0 / 0.6);
+    --depth-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 26px 50px -20px rgb(80 50 220 / 0.45);
+
+    --cta: #ffd35c;
+    --cta-ink: #14110a;
+    --cta-lip: #a8841c;
+
+    --stage: #04051a;
+    --stage-glow: #ff3d8b;
+
+    --key-cap: rgb(255 255 255 / 0.28);
+  }
+  /* The same palette, lent to one panel on a light page. Kept a copy of the
+     block above rather than a second selector on it, because the letter
+     palette test reads that block by its exact opening line. */
+  .night {
+    /* Aliases resolve where they are declared, so the grade names are
+       declared again here or they keep the light theme's values. */
+    --again: var(--peach);
+    --hard: var(--butter);
+    --good: var(--mint);
+    --easy: var(--sky);
+    --again-soft: var(--peach-soft);
+    --hard-soft: var(--butter-soft);
+    --good-soft: var(--mint-soft);
+    --easy-soft: var(--sky-soft);
+    color-scheme: dark;
+
+    --ground: #080a1f;
+    --surface: #101433;
+    --raised: #1a1f4a;
+    --ink: #f2f3ff;
+    --ink-2: #c4c8ec;
+    /* The same nudge as the media-query block above, for the same numbers. */
+    --ink-3: #a0a5d2;
+    --rule: #262b5a;
+    --rule-soft: #171b40;
+
+    --accent: #9c8cff;
+    --accent-ink: #0c0a36;
+    --accent-soft: #26215c;
+    --accent-deep: #beb3ff;
+    --accent-lip: #5a49c9;
+
+    --mint: #3fe6ce;
+    --mint-soft: #0b3530;
+    --peach: #ff7a70;
+    --peach-soft: #3d1717;
+    --butter: #ffd35c;
+    --butter-soft: #3a2f0e;
+    --sky: #4fe3f5;
+    --sky-soft: #0b3140;
+    --blush: #ff6ba8;
+    --blush-soft: #3d1328;
+
+    --mint-ink: var(--mint);
+    --peach-ink: var(--peach);
+    --butter-ink: var(--butter);
+    --sky-ink: var(--sky);
+    --blush-ink: var(--blush);
+    --good-ink: var(--mint);
+    --hard-ink: var(--butter);
+    --again-ink: var(--peach);
+    --easy-ink: var(--sky);
+
+    --wash-1: #1d1a4a;
+    --wash-2: #0f1230;
+    --wash-3: #2a1330;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px -8px rgb(0 0 0 / 0.6);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 14px 34px -18px rgb(0 0 0 / 0.8);
+    --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.5), 0 30px 60px -28px rgb(0 0 0 / 0.9);
+    --shadow-accent: 0 8px 20px -10px rgb(156 140 255 / 0.45);
+
+    --edge: rgb(210 214 255 / 0.12);
+    --depth: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 36px -18px rgb(0 0 0 / 0.7);
+    --depth-sm: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 14px -8px rgb(0 0 0 / 0.6);
+    --depth-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 26px 50px -20px rgb(80 50 220 / 0.45);
+
+    --cta: #ffd35c;
+    --cta-ink: #14110a;
+    --cta-lip: #a8841c;
+
+    --stage: #04051a;
+    --stage-glow: #ff3d8b;
 
     --key-cap: rgb(255 255 255 / 0.28);
   }
@@ -478,8 +604,10 @@
   */
   h1, h2, .font-display {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    letter-spacing: -0.015em;
+    /* A little condensed and set tight: the width axis is the face's voice,
+       and it is what keeps a long Estonian word whole at display sizes. */
+    font-stretch: 88%;
+    letter-spacing: -0.02em;
   }
 
   /*
@@ -1914,6 +2042,17 @@
     border-radius: var(--r-sm);
   }
 
+  /* The gold button: a firework on every screen, the night's ink on it. */
+  .btn-cta {
+    background-color: var(--cta);
+    color: var(--cta-ink);
+    background-image: linear-gradient(180deg, rgb(255 255 255 / 0.28), rgb(255 255 255 / 0) 55%);
+    background-origin: border-box;
+    background-repeat: no-repeat;
+  }
+  .key-cta { --lip: var(--cta-lip); }
+  .btn-cta .key-cap { border-color: color-mix(in srgb, var(--cta-ink) 35%, transparent); }
+
   .grad-accent .key-cap {
     background: var(--key-cap);
     border-color: transparent;
@@ -2053,33 +2192,212 @@
     rises in over 420ms and the question under it fades, both on the
     compositor, and the row holds a fixed height so nothing below it moves.
   */
-  .hero-word { margin-top: clamp(1.25rem, 3svh, 2rem); display: flex; flex-direction: column; align-items: center; }
-  .hero-word-row {
-    display: inline-flex; align-items: baseline; gap: 0.6em;
-    padding: 0.55rem 1.1rem; border-radius: 9999px;
-    background: var(--surface); border: 1px solid var(--rule); box-shadow: var(--shadow-sm);
-    font-size: var(--text-xl); line-height: 1.2; min-height: 3.1rem;
+  /*
+    THE LANDING STAGE.
+
+    A full-bleed band in the night violet, pulled up under the floating nav by
+    exactly the nav's own height so the pill sits on the dark rather than on a
+    seam. Two glows in it, the accent from the top left and the coral from the
+    bottom right, and a grid of dots so the dark has a texture rather than a
+    fill. Everything on it reads its own ink, since `--ink` is the page's and
+    this is not the page.
+  */
+  .hero-stage {
+    position: relative;
+    isolation: isolate;
+    margin-top: calc(-1 * var(--landing-nav));
+    padding-top: calc(var(--landing-nav) + clamp(2rem, 5svh, 3.75rem));
+    padding-bottom: clamp(3.5rem, 9svh, 7rem);
+    background:
+      radial-gradient(40% 55% at 6% 0%, color-mix(in srgb, var(--stage-glow) 45%, transparent), transparent 70%),
+      radial-gradient(35% 45% at 88% 12%, color-mix(in srgb, #ffd23f 22%, transparent), transparent 70%),
+      radial-gradient(45% 55% at 100% 100%, color-mix(in srgb, #17bfd9 38%, transparent), transparent 70%),
+      var(--stage);
+    color: var(--stage-ink);
+    border-radius: 0 0 clamp(28px, 5vw, 64px) clamp(28px, 5vw, 64px);
   }
-  .hero-word-lemma { color: var(--ink-3); font-weight: 500; }
-  .hero-word-arrow { color: var(--ink-3); font-size: var(--text-md); }
+  .hero-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(color-mix(in srgb, var(--stage-ink) 14%, transparent) 1px, transparent 1.5px);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+  }
+  .hero-grid { display: grid; gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
+  @media (min-width: 1024px) {
+    .hero-grid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+  }
+  .hero-copy { min-width: 0; }
+  .hero-stage .hero-lead { margin-top: clamp(1.25rem, 2.6svh, 2rem); }
+  .hero-stage .hero-action { margin-top: clamp(1.5rem, 3.6svh, 2.5rem); }
+  .hero-stage .hero-claims { margin-top: clamp(1.5rem, 3.4svh, 2.25rem); }
+  .hero-kicker {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.4rem 0.9rem; border-radius: 9999px;
+    border: 1.5px solid color-mix(in srgb, var(--stage-ink) 30%, transparent);
+    font-size: var(--text-sm); font-weight: 600; color: var(--stage-ink);
+    margin-bottom: clamp(1rem, 2.4svh, 1.5rem);
+  }
+  .hero-kicker-dot {
+    width: 8px; height: 8px; border-radius: 9999px; background: var(--stage-tick);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--stage-tick) 28%, transparent);
+  }
+  .hero-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-stretch: 78%;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    color: var(--stage-ink);
+    text-wrap: balance;
+  }
+  /* The word the page is about, lit: firework gold with a blush halo. */
+  .hero-sticker {
+    display: inline-block;
+    color: var(--cta);
+    text-shadow: 0 0 0.6em rgb(255 61 139 / 0.45);
+    position: relative;
+  }
+  .hero-sticker::after {
+    content: ""; position: absolute; left: 0.04em; right: 0.04em; bottom: -0.02em; height: 0.09em;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--cta), #ff3d8b 45%, #7b5bff 75%, #17bfd9);
+    transform-origin: left; animation: hero-underline 900ms 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes hero-underline { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) { .hero-sticker::after { animation: none; } }
+  .hero-sub { color: var(--stage-ink-2); }
+  .hero-claims {
+    display: grid; gap: 0.55rem 1.5rem; font-size: var(--text-sm);
+    color: var(--stage-ink-2); max-width: 44rem;
+  }
+  @media (min-width: 640px) { .hero-claims { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* The machine: one real word turning through its cases, on a sticker. */
+  .hero-machine { min-width: 0; display: flex; justify-content: center; }
+  .hero-word { width: 100%; max-width: 26rem; }
+  .hero-word-stack { position: relative; }
+  /* The glow the card floats in: the four night colours, blurred into light. */
+  .hero-word-back {
+    position: absolute; inset: 8% 4%;
+    border-radius: 50%;
+    background: conic-gradient(from 120deg, #ffd23f, #ff3d8b, #5b2eff, #17bfd9, #ffd23f);
+    filter: blur(56px);
+    opacity: 0.55;
+    animation: night-drift 14s ease-in-out infinite alternate;
+  }
+  .hero-word-card {
+    position: relative;
+    display: flex; flex-direction: column; gap: 0.9rem;
+    padding: 1.7rem 1.7rem 1.6rem;
+    border-radius: var(--r-xl);
+    background: rgb(255 255 255 / 0.07);
+    color: var(--stage-ink);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 40px 80px -30px rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .hero-word:hover .hero-word-card { transform: translateY(-4px); }
+  @media (prefers-reduced-motion: reduce) { .hero-word-back { animation: none; } }
+  .hero-word-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .hero-word-label {
+    font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #4fe3f5;
+  }
+  .hero-word-lemma { font-size: var(--text-xl); font-weight: 600; color: var(--stage-ink-2); }
   .hero-word-form {
-    color: var(--accent-deep); font-weight: 700; display: inline-block;
-    animation: hero-word-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    display: block;
+    font-family: var(--font-display);
+    font-stretch: 78%;
+    font-weight: 700;
+    font-size: var(--text-6xl);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--stage-ink);
+    animation: hero-word-in 460ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
   .hero-word-question {
-    margin-top: 0.6rem; font-size: var(--text-sm); color: var(--ink-3);
+    font-size: var(--text-md); font-weight: 600; color: var(--cta);
     animation: hero-word-fade 420ms ease both;
   }
-  @keyframes hero-word-in { from { opacity: 0; transform: translateY(0.45em); } to { opacity: 1; transform: none; } }
+  .hero-word-track {
+    display: block; height: 6px; border-radius: 9999px; overflow: hidden;
+    background: rgb(255 255 255 / 0.12);
+  }
+  .hero-word-tick {
+    display: block; height: 100%; width: 100%; border-radius: inherit;
+    background: linear-gradient(90deg, #ffd23f, #ff3d8b, #7b5bff, #17bfd9); transform-origin: left center;
+    animation: hero-word-tick 1700ms linear both;
+  }
+  .hero-word-tick[data-held] { animation-play-state: paused; }
+  @keyframes hero-word-tick { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes hero-word-in {
+    from { opacity: 0; transform: translateY(0.3em); filter: blur(6px); }
+    to { opacity: 1; transform: none; }
+  }
   @keyframes hero-word-fade { from { opacity: 0; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) {
-    .hero-word-form, .hero-word-question { animation: none; }
+    .hero-word-form, .hero-word-question, .hero-word-tick { animation: none; }
+    .hero-word-card { transition: none; }
   }
 
-  .who-card { background: var(--surface); border-color: var(--rule); }
-  .compare-ours { background: var(--accent); color: var(--accent-ink); box-shadow: var(--shadow-accent); }
-  .plan-card { background: var(--surface); border-color: var(--rule); box-shadow: var(--shadow); }
-  .plan-calc-answer { background: var(--accent-soft); }
+  /*
+    A section opens on a sticker and a heading set in the display cut, flush
+    left. Centred eyebrow, centred heading, centred paragraph is the rhythm
+    of every generated page, and a column that starts at the same edge as the
+    cards under it reads as one object rather than a caption over a grid.
+  */
+  .section-head { max-width: 54rem; }
+  .cta-stage {
+    background:
+      radial-gradient(60% 80% at 0% 0%, color-mix(in srgb, var(--stage-glow) 50%, transparent), transparent 70%),
+      radial-gradient(50% 70% at 100% 100%, color-mix(in srgb, #17bfd9 40%, transparent), transparent 70%),
+      var(--stage);
+    color: var(--stage-ink);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    box-shadow: 0 40px 80px -40px rgb(91 46 255 / 0.6);
+  }
+  .landing-title.cta-title { color: var(--stage-ink); }
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.3rem 0.85rem 0.3rem 0.65rem; border-radius: 9999px;
+    border: 1px solid var(--edge); box-shadow: var(--depth-sm);
+    font-size: var(--text-sm); font-weight: 600;
+    color: var(--ink); background: var(--surface);
+    --tag: var(--accent);
+  }
+  .section-tag::before {
+    content: ""; width: 0.55rem; height: 0.55rem; border-radius: 9999px;
+    background: var(--tag);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tag) 22%, transparent);
+  }
+  .section-tag[data-tone="blush"] { --tag: var(--blush); }
+  .section-tag[data-tone="sky"] { --tag: var(--sky); }
+  .section-tag[data-tone="mint"] { --tag: var(--mint); }
+  .section-tag[data-tone="butter"] { --tag: var(--cta); }
+  .section-tag[data-tone="accent"] { --tag: var(--accent); }
+  .landing-title {
+    margin-top: 1.1rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-stretch: 80%;
+    font-size: var(--text-4xl);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  @media (min-width: 768px) { .landing-title { font-size: var(--text-6xl); } }
+
+  .who-card { background: var(--surface); border-color: var(--edge); border-width: 2px; box-shadow: var(--depth); }
+  .compare-ours { color: var(--ink); }
+  .plan-card { background: var(--surface); border-color: var(--edge); border-width: 2px; box-shadow: var(--depth); }
+  .plan-calc-answer { min-height: 16rem; }
   .plan-calc-figure { font-size: var(--text-4xl); line-height: 1.05; }
   @media (min-width: 768px) {
     .plan-calc-figure { font-size: var(--text-5xl); }
@@ -2087,7 +2405,6 @@
   .landing-foot { margin-top: var(--section-gap); }
   .hero-open {
     --landing-nav: 83px;
-    padding-top: clamp(2.5rem, 8svh, 5.5rem);
   }
 
   @media (min-width: 768px) {
@@ -2173,6 +2490,11 @@
   */
   @media (min-width: 768px) and (min-height: 740px) {
     .hero-display { font-size: var(--text-7xl); }
+  }
+  @media (min-width: 1024px) and (min-height: 740px) {
+    .hero-display { font-size: var(--text-8xl); }
+  }
+  @media (min-width: 768px) and (min-height: 740px) {
     .hero-sub { font-size: var(--text-lg); }
     .hero-claims { font-size: var(--text-sm); }
 
@@ -2211,8 +2533,31 @@
     centre instead, so hovering can only gain contact, and the shadow alone
     already carries most of what "lifted" reads as.
   */
-  .lift:hover { transform: scale(1.008); box-shadow: var(--shadow-lg); }
+  .lift:hover { transform: scale(1.012); box-shadow: var(--depth-lift); }
+  .lift:active { transform: scale(0.995); box-shadow: 1px 1px 0 0 var(--edge); }
   .press:active { transform: translateY(1px) scale(0.985); }
+
+  /*
+    A KEY: A BUTTON STANDING ON ITS OWN LIP.
+
+    The lip is a hard shadow in a deeper shade of the button's own colour,
+    and a press sinks the key into it. It is the one physical gesture the app
+    repeats everywhere, and it replaces a soft glow under a glossy pill, which
+    is what every quickly built product looks like. Transform and shadow only,
+    so nothing around the key moves when it is pressed.
+  */
+  .key {
+    --lip: color-mix(in srgb, var(--ink) 10%, transparent);
+    box-shadow: 0 2px 0 0 var(--lip), 0 10px 22px -14px color-mix(in srgb, var(--ink) 40%, transparent);
+    transform: translateY(-1px);
+  }
+  .key:hover { transform: translateY(-1px); box-shadow: 0 3px 0 0 var(--lip), 0 16px 28px -14px color-mix(in srgb, var(--ink) 45%, transparent); }
+  .key:active { transform: translateY(1px); box-shadow: 0 0 0 0 var(--lip); }
+  .key-primary { --lip: var(--accent-lip); }
+  .key-paper { border-color: color-mix(in srgb, var(--ink) 11%, transparent); }
+  @media (prefers-reduced-motion: reduce) {
+    .key, .key:hover, .key:active { transform: none; }
+  }
 
   /*
     An option in a multiple-choice question: a tappable answer among several,
@@ -2236,7 +2581,7 @@
     chip and card below layer their chosen state on this.
   */
   .choice-btn {
-    --choice-border: var(--rule);
+    --choice-border: var(--edge);
     --choice-bg: var(--surface);
     border-color: var(--choice-border);
     background: var(--choice-bg);
@@ -2258,9 +2603,9 @@
     border-color: var(--accent);
     background: var(--accent-soft);
     transform: scale(1.015);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--depth-sm);
   }
-  .choice-btn:active:not(:disabled) { transform: translateY(0) scale(0.99); }
+  .choice-btn:active:not(:disabled) { transform: translateY(0) scale(0.99); box-shadow: none; }
 
   /*
     A VERDICT, PAINTED ONCE.
@@ -2544,19 +2889,29 @@
   .stack-rise > :nth-child(n + 6) { animation-delay: 400ms; }
 
   /*
-    The mark beside a page's heading: the rail's own icon, in the rail's own
-    hue, at the size of a title. It is how the page a learner pressed and the
-    row they pressed are visibly one place. It settles in on arrival, which is
-    the one flourish a heading gets; it is not tilted, since a rotated icon
-    measures larger than it was drawn and reads as a rendering fault.
+    The page's mark: the rail's own icon on a solid square of the
+    destination's colour. It pops in once as the page arrives and rises
+    under a pointer. It is not tilted: a rotated icon measures larger than it
+    was drawn, which the containment suite reads as a deformed glyph.
   */
   .page-mark {
-    width: 52px;
-    height: 52px;
+    width: 58px;
+    height: 58px;
     border-radius: var(--r-lg);
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, currentColor 14%, transparent);
-    animation: mark-settle 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.35) inset, 0 10px 24px -12px color-mix(in srgb, var(--ink) 45%, transparent);
+    animation: mark-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+  header:hover .page-mark { transform: translateY(-2px) scale(1.04); }
+  @keyframes mark-pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.06); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .page-mark { animation: none; transition: none; }
+  }
+
 
   /* Scroll-driven reveal, done in CSS so the content is never hidden behind a
      script. Browsers without scroll timelines simply get the finished state.
@@ -2832,6 +3187,9 @@
     --shadow: none;
     --shadow-lg: none;
     --shadow-accent: none;
+    --depth: none;
+    --depth-sm: none;
+    --depth-lift: none;
   }
 
   body { background: #fff; color: var(--ink); }
@@ -3281,3 +3639,61 @@
 @media (hover: none) and (pointer: coarse) {
   :is(button, a, [role="radio"], [role="button"]) .key-cap { display: none; }
 }
+
+@keyframes mark-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { [style*="mark-turn"] { animation: none !important; } }
+
+/*
+  VIKERKAAR ÖÖS: the rainbow at night. One panel per screen is lit this way,
+  the thing the screen is for, on a deep ink ground with the four hues as
+  light rather than paint. Two glows and a fine grain; nothing moves unless
+  the reader asked for motion.
+*/
+.night {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(70% 90% at 100% 0%, rgb(91 46 255 / 0.55), transparent 60%),
+    radial-gradient(55% 80% at 0% 100%, rgb(255 61 139 / 0.28), transparent 65%),
+    radial-gradient(40% 60% at 70% 110%, rgb(23 191 217 / 0.22), transparent 70%),
+    #0b0e2e;
+  color: var(--ink);
+  border-color: rgb(255 255 255 / 0.08) !important;
+  box-shadow: 0 30px 60px -30px rgb(40 20 140 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.04) inset !important;
+}
+.night::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to bottom left, black, transparent 70%);
+}
+.night::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 60%;
+  aspect-ratio: 1;
+  right: -18%;
+  top: -40%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(from 200deg, #ffd23f, #ff3d8b, #5b2eff, #17bfd9, #ffd23f);
+  filter: blur(70px);
+  opacity: 0.35;
+  animation: night-drift 18s ease-in-out infinite alternate;
+}
+/* A night panel something opens out of (a menu anchored inside it) cannot
+   clip, so it gives up the drifting glow that needed the clip. */
+.night.night-open { overflow: visible; }
+.night.night-open::after { display: none; }
+@keyframes night-drift {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to { transform: translate(-12%, 18%) rotate(40deg); }
+}
+@media (prefers-reduced-motion: reduce) { .night::after { animation: none; } }
+@media print { .night { background: none !important; } .night::before, .night::after { display: none; } }

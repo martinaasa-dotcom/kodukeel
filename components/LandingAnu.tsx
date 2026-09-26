@@ -97,7 +97,7 @@ export function LandingAnu({ lines }: { lines: readonly AnuLine[] }) {
         key={line.at}
         aria-hidden
         className="anu-say max-w-[15rem] rounded-[var(--r-lg)] rounded-br-md border px-3.5 py-2 text-sm leading-snug"
-        style={{ background: "var(--surface)", borderColor: "var(--rule)", color: "var(--ink-2)", boxShadow: "var(--shadow-sm)" }}
+        style={{ background: "var(--surface)", borderColor: "var(--edge)", color: "var(--ink-2)", boxShadow: "var(--depth-sm)" }}
       >
         {line.text}
       </p>

@@ -221,7 +221,7 @@ export default async function ProgressPage() {
             one; one row where there is room. The share button closes the row
             on a wide screen and takes its own line under the figures on a
             phone, where it is easiest to reach. */}
-        <Card className="grid grid-cols-2 items-center gap-x-6 gap-y-5 sm:flex sm:flex-wrap sm:gap-7">
+        <Card tone="night" className="grid grid-cols-2 items-center gap-x-6 gap-y-6 sm:flex sm:flex-wrap sm:gap-10">
           <Stat
             value={<span className="inline-flex items-center gap-1.5">{summary.streak}<Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
             label="Day streak"

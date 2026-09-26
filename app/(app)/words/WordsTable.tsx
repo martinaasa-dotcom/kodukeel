@@ -91,7 +91,7 @@ export function WordsTable({ rows }: { rows: CardRow[] }) {
            edges to read past before the words. */
         <ul
           className="overflow-hidden rounded-[var(--r-lg)] border"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
           {visible.map((r) => <Row key={r.id} row={r} />)}
         </ul>

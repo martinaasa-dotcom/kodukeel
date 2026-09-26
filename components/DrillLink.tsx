@@ -31,7 +31,7 @@ export function DrillLink({ href }: { href: string }) {
     <Link
       href={mode.href}
       className="lift grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2.5 rounded-[var(--r-lg)] border p-5 sm:items-start"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <span
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full sm:row-span-2"

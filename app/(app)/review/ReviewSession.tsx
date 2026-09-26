@@ -1349,9 +1349,9 @@ export function ReviewSession({
     const accuracy = done > 0 ? Math.round((correct / done) * 100) : 0;
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="pop-in text-center">
+        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={72} mood="cheer" className="float mx-auto" />
-          <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
             Session complete
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
@@ -1436,7 +1436,7 @@ export function ReviewSession({
       <div className="mb-7 flex items-center gap-4">
         <EndSession />
         <div className="flex-1">
-          <Meter pct={progress} label={`Session progress: ${index} of ${queue.length}`} height={10} />
+          <Meter pct={progress} label={`Session progress: ${index} of ${queue.length}`} height={10} tone="linear-gradient(90deg, var(--cta), var(--blush), var(--accent), var(--sky))" />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
@@ -1535,9 +1535,9 @@ export function ReviewSession({
               className={
                 // A gap-fill prompt is a whole sentence: at flashcard size it
                 // wraps to four lines and stops being readable at a glance.
-                card.cardType === "CLOZE"
+                card.cardType === "CLOZE" || isGap(card)
                   ? "text-xl font-semibold leading-snug tracking-tight md:text-2xl"
-                  : "text-3xl font-bold leading-tight tracking-tight md:text-4xl"
+                  : "font-display text-4xl font-bold leading-none tracking-tight xl:text-6xl"
               }
               style={{ color: "var(--ink)" }}
             >
@@ -1725,9 +1725,9 @@ export function ReviewSession({
                       ? `${OPTION_CLASS[state]} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium`
                       : `choice-btn ${struck.includes(choice) ? "line-through" : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium`}
                     style={state ? undefined : {
-                      "--choice-bg": "var(--accent-soft)",
-                      "--choice-border": "transparent",
-                      color: struck.includes(choice) ? "var(--ink-3)" : "var(--accent-deep)",
+                      "--choice-bg": "var(--surface)",
+                      "--choice-border": "var(--edge)",
+                      color: struck.includes(choice) ? "var(--ink-3)" : "var(--ink)",
                       boxShadow: "var(--shadow-sm)",
                     } as CSSProperties}
                   >

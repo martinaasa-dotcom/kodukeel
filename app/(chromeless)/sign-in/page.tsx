@@ -99,7 +99,7 @@ export default async function SignInPage({ searchParams }: {
   const bounced = params.bounced !== undefined;
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
+    <main className="night relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -117,10 +117,15 @@ export default async function SignInPage({ searchParams }: {
 
         <div
           className="pop-in rounded-[var(--r-xl)] border p-8 text-center"
-          style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow-lg)" }}
+          style={{
+            background: "rgb(255 255 255 / 0.06)",
+            borderColor: "rgb(255 255 255 / 0.14)",
+            boxShadow: "0 1px 0 rgb(255 255 255 / 0.12) inset, 0 40px 80px -30px rgb(0 0 0 / 0.6)",
+            backdropFilter: "blur(18px)",
+          }}
         >
           <MascotWatch size={62} className="float mx-auto" />
-          <h1 className="mt-5 text-2xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-4xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
             Tere tulemast tagasi
           </h1>
           <p className="mx-auto mt-2 max-w-[36ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

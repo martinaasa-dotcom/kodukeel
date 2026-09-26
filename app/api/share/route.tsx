@@ -50,7 +50,7 @@ export async function GET() {
   const stats: [string, string, string][] = [
     [String(summary.streak), "day streak", "#cf9114"],
     [String(snapshot.knownCards), "cards known", "#1fb894"],
-    [String(summary.reviewsAllTime), "reviews", "#7a6bf0"],
+    [String(summary.reviewsAllTime), "reviews", "#5b2eff"],
   ];
 
   return new ImageResponse(
@@ -62,7 +62,7 @@ export async function GET() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#fbf9ff",
+          background: "#fcfbf7",
           padding: 64,
           fontFamily: "sans-serif",
         }}
@@ -75,7 +75,7 @@ export async function GET() {
                 width: 56,
                 height: 56,
                 borderRadius: 16,
-                backgroundImage: "linear-gradient(135deg, #7a6bf0 0%, #e2559a 100%)",
+                backgroundImage: "linear-gradient(135deg, #5b2eff 0%, #ff3d8b 100%)",
                 color: "#fff",
                 fontSize: 36,
                 fontWeight: 700,
@@ -86,12 +86,12 @@ export async function GET() {
               õ
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: "#241f35" }}>Kodukeel</div>
+              <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: "#0f1233" }}>Kodukeel</div>
               <div style={{ display: "flex", fontSize: 17, color: "#8b84a3", letterSpacing: 2 }}>ESTONIAN, DAILY</div>
             </div>
           </div>
 
-          <div style={{ display: "flex", marginTop: 44, fontSize: 54, fontWeight: 700, color: "#241f35", lineHeight: 1.1 }}>
+          <div style={{ display: "flex", marginTop: 44, fontSize: 54, fontWeight: 700, color: "#0f1233", lineHeight: 1.1 }}>
             {name ? `${name} is learning Estonian` : "Learning Estonian"}
           </div>
         </div>

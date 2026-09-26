@@ -77,7 +77,7 @@ export function EstonianInput({
           if (e.key === "Enter" && onEnter) { e.preventDefault(); onEnter(); }
         }}
         className={`w-full ${large ? "field-lg text-xl" : compact ? "field text-sm" : "field-lg text-md"}`}
-        style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)", boxShadow: "var(--shadow-sm)" }}
+        style={{ borderColor: "var(--edge)", background: "var(--surface)", color: "var(--ink)", boxShadow: "var(--depth-sm)" }}
       />
       {bar && !disabled && <div className="under-field"><DiacriticBar standalone={false} fallbackRef={ref} /></div>}
     </div>

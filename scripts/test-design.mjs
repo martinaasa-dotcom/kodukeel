@@ -265,12 +265,12 @@ const hydrated = (page) => page.evaluate(() => {
 */
 const SCALE_STEPS = await p.evaluate(() => {
   const cs = getComputedStyle(document.documentElement);
-  return ["2xs", "xs", "sm", "base", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", "7xl"]
+  return ["2xs", "xs", "sm", "base", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", "7xl", "8xl"]
     .map((name) => cs.getPropertyValue(`--text-${name}`).trim())
     .filter(Boolean);
 });
-if (SCALE_STEPS.length !== 13) {
-  throw new Error(`the page declares ${SCALE_STEPS.length} type steps, not 13: the scale moved or --text-* stopped reaching :root`);
+if (SCALE_STEPS.length !== 14) {
+  throw new Error(`the page declares ${SCALE_STEPS.length} type steps, not 14: the scale moved or --text-* stopped reaching :root`);
 }
 const SCALE = new Set(SCALE_STEPS);
 const FLOOR = Math.min(...SCALE_STEPS.map((s) => parseFloat(s)));
@@ -452,6 +452,17 @@ const adrift = [], onInk = [], clipped = [], sides = [];
 for (const width of live ? [640, 768, 1280] : []) {
   await p.setViewportSize({ width, height: 1000 });
   await p.goto(`${B}/welcome`, { waitUntil: "load", timeout: 60000 });
+  /* Wait for what is about to be measured rather than for a fixed 200ms: the
+     letters pop in, and a letter sampled at scale 0 has no box, which read as
+     four letters missing the card on a busy machine. Best effort, so a page
+     that never draws them still reaches the check and is reported by it. */
+  await p.waitForFunction(() => {
+    const els = [...document.querySelectorAll("#cases span.drift")];
+    return els.length === 4 && els.every((el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 8 && r.height > 8;
+    });
+  }, null, { timeout: 5000 }).catch(() => {});
   await p.waitForTimeout(200);
   for (let frame = 0; frame < 12; frame++) {
     const seen = await p.evaluate((frac) => {
@@ -603,8 +614,9 @@ const heroFit = [];
   there, which a check at one comfortable desktop size cannot see.
 */
 for (const [width, height, display] of [
-  [390, 844, "52px"], [768, 1024, "88px"], [1024, 600, "68px"], [1280, 800, "88px"],
-  [1512, 982, "88px"], [1920, 1080, "88px"], [1000, 740, "88px"], [1000, 739, "68px"],
+  [390, 844, "52px"], [768, 1024, "88px"], [1024, 600, "68px"], [1280, 800, "112px"],
+  [1512, 982, "112px"], [1920, 1080, "112px"], [1000, 740, "88px"], [1000, 739, "68px"],
+  [1024, 740, "112px"], [1024, 739, "68px"],
 ]) {
   await p.setViewportSize({ width, height });
   await p.goto(`${B}/welcome`, { waitUntil: "load", timeout: 60000 });

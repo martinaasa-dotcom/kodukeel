@@ -246,7 +246,7 @@ export function SonadSession({ puzzle, day, guessable }: {
 
   return (
     <div className="flex flex-col gap-5">
-      <Card>
+      <Card tone="night">
         <div className="flex flex-wrap items-center gap-2">
           {/*
             What is known from the first row: what kind of word and how hard it

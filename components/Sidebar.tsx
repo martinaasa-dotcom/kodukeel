@@ -190,7 +190,7 @@ export function Sidebar() {
           style={
             {
               "--nav-marker-bg": "var(--surface)",
-              "--nav-marker-shadow": "var(--shadow-sm)",
+              "--nav-marker-shadow": "0 0 0 1px var(--edge), var(--depth-sm)",
             } as CSSProperties
           }
         >
@@ -311,10 +311,10 @@ export function Sidebar() {
           className="relative isolate flex justify-around rounded-full border px-1.5 py-1.5"
           style={
             {
-              borderColor: "var(--rule)",
+              borderColor: "var(--edge)",
               background: "var(--surface)",
-              boxShadow: "var(--shadow)",
-              "--nav-marker-bg": "var(--raised)",
+              boxShadow: "var(--depth)",
+              "--nav-marker-bg": "var(--accent-soft)",
             } as CSSProperties
           }
         >

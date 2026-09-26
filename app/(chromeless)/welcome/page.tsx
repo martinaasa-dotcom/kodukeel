@@ -23,7 +23,6 @@ import { CaseExplorer, TutorPeek, type DemoCase, type DemoWord } from "./Landing
 import { HeroWord, PlanCalculator } from "./LandingMotion";
 import { LetterTile } from "@/components/LetterTile";
 import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
-import { toneInk } from "@/components/ui";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { Explain } from "@/components/Explain";
 import { SOURCE_CREDITS } from "@/lib/legal/credits";
@@ -138,10 +137,10 @@ function Nav() {
       <nav
         className="mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border px-4 py-2.5 md:px-5"
         style={{
-          borderColor: "var(--rule)",
+          borderColor: "var(--edge)",
           background: "color-mix(in oklab, var(--surface) 82%, transparent)",
           backdropFilter: "blur(16px)",
-          boxShadow: "var(--shadow-sm)",
+          boxShadow: "var(--depth-sm)",
         }}
       >
         {/*
@@ -264,98 +263,54 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
     way the three gaps inside the column do.
   */
   return (
-    <section id="top" className="hero-open mx-auto flex max-w-3xl flex-col items-center px-5 text-center md:px-8">
+    <section id="top" className="hero-open hero-stage">
       {/*
-        No badge over the headline. It read "for everyone who bounced off
-        Estonian once already", which is the same sentiment as the heading one
-        section down, in weaker words: "You didn't fail Estonian. Your tools
-        did." They used to be two screens apart and the echo was a theme; on a
-        page this length they are within one screen of each other, and the echo
-        is a page saying its best line twice, second-best first.
-      */}
-      {/*
-        A WORD AT A TIME, AND NO FULL STOP.
+        THE HERO IS A STAGE NOW, NOT A COLUMN.
 
-        The headline used to fade up as one block. It arrives a word at a
-        time now, each a beat behind the last, so the first thing on the page
-        is something happening rather than something that has happened. The
-        full stop after "sticks" went with it: a headline is not a sentence,
-        and a mark that size after a gradient word read as a smudge under it.
-        The spans are inline blocks so each can move on its own without the
-        line breaking anywhere new, and the break between the two lines is
-        the one the hero already placed.
+        A centred headline over a centred paragraph over a centred button is
+        the shape every generated landing page takes, and it was reported as
+        exactly that. So the opening is a full-bleed night-violet band that the
+        rest of the page scrolls out of, the headline is set left and huge in
+        the condensed display cut, the one word the page is about is a sticker
+        slapped on at an angle, and the right half is the thing itself: a real
+        word turning through its cases, read out of the dictionary.
       */}
-      <h1
-        className="hero-display font-bold leading-[1.02] tracking-[-0.02em]"
-        style={{ color: "var(--ink)" }}
-      >
-        <span className="word-in" style={{ "--w": "60ms" } as React.CSSProperties}>Estonian</span>{" "}
-        <span className="word-in" style={{ "--w": "160ms" } as React.CSSProperties}>that</span>
-        <br />
-        <span className="word-in" style={{ "--w": "220ms" } as React.CSSProperties}>finally</span>{" "}
-        <span className="word-in grad-text grad-sweep" style={{ "--w": "380ms" } as React.CSSProperties}>sticks</span>.
-      </h1>
-
-      {/*
-        The claim, shown. One real word turning through its cases, read out of
-        the same rows the explorer below is built from, so the first thing a
-        visitor watches is the thing this app is for.
-      */}
-      <div className="fade-up" style={{ animationDelay: "300ms" }}>
-        <HeroWord words={words.filter((w) => w.cases.some((c) => !c.principal && c.singular))} />
+      <div className="hero-grid mx-auto w-full max-w-6xl px-5 md:px-8">
+        <div className="hero-copy">
+          <p className="hero-kicker fade-up">
+            <span className="hero-kicker-dot" aria-hidden />
+            Estonian for the life you live here
+          </p>
+          <h1 className="hero-display">
+            <span className="word-in" style={{ "--w": "60ms" } as React.CSSProperties}>Estonian</span>{" "}
+            <span className="word-in" style={{ "--w": "160ms" } as React.CSSProperties}>that</span>{" "}
+            <span className="word-in" style={{ "--w": "220ms" } as React.CSSProperties}>finally</span>{" "}
+            <span className="word-in hero-sticker" style={{ "--w": "380ms" } as React.CSSProperties}>sticks</span>
+          </h1>
+          <p className="fade-up hero-lead hero-sub max-w-[44ch] leading-relaxed" style={{ animationDelay: "420ms" }}>
+            The neighbor says hello. Your coworker asks you a question. The dog wants to be petted.
+            You need the right words when someone&rsquo;s actually looking at you. Kodukeel gets you
+            there, fifteen minutes at a time.
+          </p>
+          <div className="fade-up hero-action flex flex-wrap items-center gap-x-5 gap-y-3" style={{ animationDelay: "520ms" }}>
+            <ButtonLink href="/sign-in" variant="primary" size="lg" className="hero-cta group w-full sm:w-auto">
+              Start learning for free{" "}
+              <ArrowRight size={17} aria-hidden className="transition-transform group-hover:translate-x-1" />
+            </ButtonLink>
+          </div>
+          <ul className="fade-up hero-claims" style={{ animationDelay: "640ms" }}>
+            {claims.map((t) => (
+              <li key={t} className="flex items-start gap-2">
+                <Check size={16} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--stage-tick)" }} />
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="hero-machine fade-up" style={{ animationDelay: "300ms" }}>
+          <HeroWord words={words.filter((w) => w.cases.some((c) => !c.principal && c.singular))} />
+        </div>
       </div>
-
-      <p
-        className="fade-up hero-lead hero-sub max-w-[52ch] leading-relaxed"
-        style={{ color: "var(--ink-2)", animationDelay: "420ms" }}
-      >
-        The neighbor says hello. Your coworker asks you a question. The dog wants to be petted.
-        You need the right words when someone&rsquo;s actually looking at you. Kodukeel gets you
-        there, fifteen minutes at a time.
-      </p>
-
-      {/*
-        One loud action, and nothing beside it.
-
-        It was two heavy pills of different widths, which on a 360px screen wrap
-        into a lopsided stack: a gradient button, then a bordered white one
-        under it ending somewhere else entirely, both shouting at the same
-        volume about two things that are not equally important. The rule the
-        button primitive is written under is one loud action per screen. So the
-        second became a link, "Show me a word", and now it is gone too: it
-        jumped to the case explorer, which on a page this length is one flick
-        down and the next thing a reader meets anyway, and the nav carries the
-        same jump under "The cases" for anybody who wants to aim.
-      */}
-      <div className="fade-up hero-action w-full sm:w-auto" style={{ animationDelay: "520ms" }}>
-        <ButtonLink href="/sign-in" variant="primary" size="lg" className="hero-cta group w-full sm:w-auto">
-          Start learning for free{" "}
-          <ArrowRight size={17} aria-hidden className="transition-transform group-hover:translate-x-1" />
-        </ButtonLink>
-      </div>
-
-      {/*
-        Balanced rather than wrapped, because four claims of four lengths
-        wrap three and one at every desktop width, and a line with one item
-        on it under a line with three reads as something fell off. A grid was
-        the first answer and sized each column to its longest claim, which
-        put the longest one back on two lines. `text-wrap: balance` breaks
-        the four into two lines of about the same width, whatever the widths
-        are, and the list stays a list. Below `sm` the column is too narrow
-        for two on a line, so each claim takes a centred line of its own
-        rather than breaking inside itself with the tick left hanging.
-      */}
-      <ul
-        className="fade-up hero-claims mx-auto w-fit max-w-full text-xs sm:w-auto sm:[text-wrap:balance]"
-        style={{ color: "var(--ink-3)", animationDelay: "640ms" }}
-      >
-        {claims.map((t) => (
-          <li key={t} className="my-1 flex items-start gap-1.5 sm:mx-2.5 sm:justify-center sm:inline-flex sm:items-center sm:align-middle">
-            <Check size={14} aria-hidden className="mt-0.5 sm:mt-0" style={{ color: "var(--mint-ink)" }} />
-            <span className="max-w-[30ch] text-left sm:max-w-none">{t}</span>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
@@ -404,9 +359,9 @@ function WhoFor() {
   return (
     <section id="who" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>Who it is for</p>
-          <h2 className="mt-4 text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+        <div className="section-head">
+          <p className="section-tag" data-tone="blush">Who it is for</p>
+          <h2 className="landing-title">
             Anybody making a home in Estonian
           </h2>
         </div>
@@ -416,14 +371,21 @@ function WhoFor() {
           const Icon = who.icon;
           return (
             <Reveal key={who.title}>
-              <article className="who-card lift flex h-full flex-col rounded-[var(--r-xl)] border p-6">
+              <article
+                className="who-card lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
+                style={{ background: `var(--${who.tone}-soft)` }}
+              >
                 <span
-                  className="flex h-11 w-11 items-center justify-center rounded-[var(--r)]"
-                  style={{ background: `var(--${who.tone}-soft)`, color: toneInk(who.tone) }}
+                  className="flex h-12 w-12 items-center justify-center rounded-[var(--r)] border"
+                  style={{
+                    background: `var(--${who.tone})`,
+                    borderColor: "var(--edge)",
+                    color: who.tone === "accent" ? "var(--accent-ink)" : "var(--on-hue)",
+                  }}
                 >
-                  <Icon size={20} aria-hidden />
+                  <Icon size={22} strokeWidth={2.25} aria-hidden />
                 </span>
-                <h3 className="mt-5 text-lg font-semibold leading-snug" style={{ color: "var(--ink)" }}>{who.title}</h3>
+                <h3 className="font-display mt-5 text-xl font-bold leading-tight" style={{ color: "var(--ink)" }}>{who.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{who.body}</p>
                 {"href" in who && (
                   <Link
@@ -467,9 +429,9 @@ function Compare() {
   return (
     <section id="compare" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>How it compares</p>
-          <h2 className="mt-4 text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+        <div className="section-head">
+          <p className="section-tag" data-tone="sky">How it compares</p>
+          <h2 className="landing-title">
             Keep what you use now. This is the missing part.
           </h2>
         </div>
@@ -477,7 +439,7 @@ function Compare() {
       <Reveal>
         <div className="compare-grid mt-10 grid gap-4 md:mt-12 lg:grid-cols-4">
           {KINDS.map((kind) => (
-            <div key={kind.name} className="rounded-[var(--r-xl)] border p-6" style={{ background: "var(--surface)", borderColor: "var(--rule)" }}>
+            <div key={kind.name} className="rounded-[var(--r-xl)] border p-6" style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}>
               <h3 className="text-md font-semibold" style={{ color: "var(--ink)" }}>{kind.name}</h3>
               <p className="mt-4 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 <Check size={16} aria-label="Good at" className="mt-0.5 shrink-0" style={{ color: "var(--mint-ink)" }} />
@@ -489,9 +451,9 @@ function Compare() {
               </p>
             </div>
           ))}
-          <div className="compare-ours rounded-[var(--r-xl)] p-6">
-            <h3 className="text-md font-semibold">Kodukeel</h3>
-            <p className="mt-4 text-sm leading-relaxed">
+          <div className="compare-ours night rounded-[var(--r-xl)] border p-6">
+            <h3 className="font-display text-xl font-bold" style={{ color: "var(--cta)" }}>Kodukeel</h3>
+            <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
               The cases taught one by one, a scheduler that brings every word back, a tutor at any
               hour, and every form from a dictionary rather than a model. Free, and it keeps working
               offline.
@@ -499,7 +461,7 @@ function Compare() {
           </div>
         </div>
       </Reveal>
-      <p className="mx-auto mt-6 max-w-[60ch] text-center text-sm" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-6 max-w-[60ch] text-sm" style={{ color: "var(--ink-3)" }}>
         Comparing named apps? The table is under{" "}
         <a href="#faq" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>the questions</a>,
         checked against each one&rsquo;s own pages.
@@ -514,12 +476,12 @@ function Plan() {
   return (
     <section id="plan" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>Your plan</p>
-          <h2 className="mt-4 text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+        <div className="section-head">
+          <p className="section-tag" data-tone="mint">Your plan</p>
+          <h2 className="landing-title">
             When could you get there?
           </h2>
-          <p className="mx-auto mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             Four answers, and the page does the sum the app does inside. A range, because anybody
             quoting you one number is guessing.
           </p>
@@ -579,12 +541,12 @@ function Cases({ words }: { words: DemoWord[] }) {
           keeps its own measure: a 48ch box around both was what forced the
           heading into two lines in the first place.
         */}
-        <div className="mx-auto max-w-4xl text-center">
-          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>Learn three forms, get most of the rest</p>
-          <h2 className="mt-4 text-3xl font-bold leading-tight tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+        <div className="section-head">
+          <p className="section-tag" data-tone="accent">Learn three forms, get most of the rest</p>
+          <h2 className="landing-title">
             You didn&rsquo;t fail Estonian.<br className="lg:hidden" /> Your tools did.
           </h2>
-          <p className="mx-auto mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             You can hold a 400-day streak and still freeze when somebody speaks to you at the
             counter. Three forms of a word are yours to learn, sometimes four. After that it is
             the same regular endings every time. Where a word breaks the pattern, you get the form
@@ -767,12 +729,12 @@ function Features() {
           skipped, on the way to the button. So it says what the cards say,
           one clause each, and the line under it says how the three fit.
         */}
-        <div className="mx-auto max-w-[52ch] text-center">
-          <p className="label-xs" style={{ color: "var(--blush-ink)" }}>What you get</p>
-          <h2 className="mt-4 text-3xl font-bold leading-tight tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+        <div className="section-head">
+          <p className="section-tag" data-tone="butter">What you get</p>
+          <h2 className="landing-title">
             Someone to ask, something to practice, and a date to aim at
           </h2>
-          <p className="mx-auto mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             Three parts, and they work together. A word you ask Anu about becomes a card, and the
             plan decides which evening it comes back.
           </p>
@@ -831,16 +793,20 @@ function Feature({ tone, icon, title, body, children }: {
   return (
     <div
       className="lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
-      style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow-sm)" }}
+      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <span
-          className="feature-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-          style={{ background: `var(--${tone}-soft)`, color: toneInk(tone) }}
+          className="feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)] border"
+          style={{
+            background: `var(--${tone})`,
+            borderColor: "var(--edge)",
+            color: tone === "accent" ? "var(--accent-ink)" : "var(--on-hue)",
+          }}
         >
           {icon}
         </span>
-        <h3 className="text-lg font-bold leading-snug" style={{ color: "var(--ink)" }}>
+        <h3 className="font-display text-xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
           {title}
         </h3>
       </div>
@@ -1050,7 +1016,7 @@ function Comparison() {
 
       <div
         className="mt-7 hidden overflow-hidden rounded-[var(--r-xl)] border md:block"
-        style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow)" }}
+        style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
       >
         {/* 7rem a column rather than 88px: the header names are set in
             label-xs, which grew to 14px with the type scale, and at 88px
@@ -1173,7 +1139,7 @@ function FaqItem({ question, children }: { question: string; children: React.Rea
   return (
     <details
       className="group rounded-[var(--r-lg)] border px-5 py-4"
-      style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow-sm)" }}
+      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth-sm)" }}
     >
       <summary
         className="flex cursor-pointer list-none items-center justify-between gap-4 text-md font-semibold"
@@ -1235,12 +1201,12 @@ function Questions() {
           different page starting. Sky, since that hue is reference material
           and this is the reference part of the page.
         */}
-        <div className="mx-auto max-w-[52ch] text-center">
-          <p className="label-xs" style={{ color: "var(--sky-ink)" }}>Questions</p>
-          <h2 className="mt-4 text-3xl font-bold leading-tight tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+        <div className="section-head">
+          <p className="section-tag" data-tone="accent">Questions</p>
+          <h2 className="landing-title">
             The questions people ask
           </h2>
-          <p className="mx-auto mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             Short answers, and how this compares with the other apps is at the end.
           </p>
         </div>
@@ -1283,8 +1249,7 @@ function FinalCta() {
     <section id="start" className="w-full px-5 md:px-8">
       <Reveal>
         <div
-          className="relative mx-auto max-w-5xl overflow-hidden rounded-[var(--r-xl)] px-6 py-9 text-center md:px-16 md:py-12"
-          style={{ background: "var(--accent-soft)" }}
+          className="cta-stage night relative mx-auto max-w-5xl overflow-hidden rounded-[var(--r-xl)] px-6 py-10 text-center md:px-16 md:py-16"
         >
 
           <div className="relative">
@@ -1301,8 +1266,8 @@ function FinalCta() {
               Two sentences break at the full stop between them or they do not
               break at all, and only one of those is available at every width.
             */}
-            <h2 className="mx-auto mt-6 text-3xl font-bold leading-[1.08] tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-              Fifteen minutes here.<br />Then say it to somebody.
+            <h2 className="landing-title cta-title mx-auto mt-6">
+              Fifteen minutes here.<br />Then <span className="hero-sticker">say it</span> to somebody.
             </h2>
             {/*
               The close pays off the section that opens the page's argument.
@@ -1321,7 +1286,7 @@ function FinalCta() {
               said. The heading carries the date, so the line under it carries
               the payoff and nothing else.
             */}
-            <p className="mx-auto mt-4 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            <p className="mx-auto mt-6 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--stage-ink-2)" }}>
               The next time somebody speaks to you in Estonian, you will have something to say
               back, and you will have said it before.
             </p>
@@ -1330,7 +1295,7 @@ function FinalCta() {
                 Start learning for free <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             </div>
-            <p className="mt-5 text-xs" style={{ color: "var(--ink-3)" }}>
+            <p className="mt-5 text-xs" style={{ color: "var(--stage-ink-2)" }}>
               Google sign-in &middot; nothing to install &middot; export whenever you like
             </p>
           </div>

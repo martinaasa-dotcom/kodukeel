@@ -72,9 +72,9 @@ export function WorkplaceView({ summary, sponsor }: {
                   key={member.ownerId}
                   className="flex flex-wrap items-center gap-3 rounded-[var(--r)] border px-4 py-3"
                   style={{
-                    borderColor: "var(--rule)",
+                    borderColor: "var(--edge)",
                     background: "var(--surface)",
-                    boxShadow: "var(--shadow-sm)",
+                    boxShadow: "var(--depth-sm)",
                   }}
                 >
                   <span className="min-w-0 flex-1">

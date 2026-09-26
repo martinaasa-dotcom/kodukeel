@@ -344,7 +344,7 @@ export default async function CoursePage({
       lead={uiWantsEnglish(level) ? undefined : day.subtitle}
     >
       <Stack>
-        <Card tone="accent">
+        <Card tone="night" className="md:p-9">
           {/*
             AND WHICH EVENING OF THE UNIT THIS IS, BESIDE WHICH DAY OF THE PART.
 
@@ -373,21 +373,21 @@ export default async function CoursePage({
             home" is, and inventing one would be the app claiming something a
             person did not write.
           */}
-          <p className="mt-2 text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
+          <p className="font-display mt-2 text-2xl font-bold leading-snug md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
             {day.canDo}
           </p>
           {/* Three figures on one line, set as type rather than three boxes:
               three tiles broke onto two rows on a phone, one alone under two,
               and "tonight" said three times over was the card's heading again. */}
-          <dl className="mt-4 grid grid-cols-3 divide-x rounded-[var(--r)] border py-3" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}>
+          <dl className="mt-6 grid grid-cols-3 divide-x rounded-[var(--r-lg)] border py-4" style={{ borderColor: "rgb(255 255 255 / 0.12)", background: "rgb(255 255 255 / 0.06)" }}>
             {[
               { value: String(day.words.length), label: "new words" },
               { value: standing.complete ? "0m" : `${standing.minutesLeft}m`, label: "left" },
               { value: `${standing.pct}%`, label: "done" },
             ].map((figure) => (
-              <div key={figure.label} className="flex flex-col-reverse items-center gap-1 px-2" style={{ borderColor: "var(--rule-soft)" }}>
-                <dt className="text-sm" style={{ color: "var(--ink-3)" }}>{figure.label}</dt>
-                <dd className="tnum font-display text-2xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}</dd>
+              <div key={figure.label} className="flex flex-col-reverse items-center gap-1.5 px-2" style={{ borderColor: "rgb(255 255 255 / 0.12)" }}>
+                <dt className="text-sm" style={{ color: "var(--ink-2)" }}>{figure.label}</dt>
+                <dd className="tnum font-display text-4xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}</dd>
               </div>
             ))}
           </dl>

@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Onest } from "next/font/google";
+import { Anybody, Onest } from "next/font/google";
 import { OfflineProvider } from "@/components/OfflineProvider";
 import { canonicalOrigin } from "@/lib/auth/canonical";
 import "./globals.css";
 
 /**
- * Onest for all of the reading, Bricolage Grotesque for the few words set large.
+ * Onest for all of the reading, Anybody for the few words set large.
  *
  * Onest carries Cyrillic as well as Latin Extended, and that decided it: most
  * people learning Estonian here read Russian or Ukrainian first, and an
@@ -13,11 +13,13 @@ import "./globals.css";
  * It was Plus Jakarta Sans, which is also the face of a great many product
  * templates, and a page that looks like a template is read like one.
  *
- * Bricolage Grotesque is for display sizes alone (`--font-display`): it has an
- * optical size axis, so a headline at 88px is drawn tighter and more
- * characterful than the same face would be at 17px, and it is what gives the
- * front of the app a voice of its own. It has no Cyrillic, so the stack falls
- * back to Onest for a headline in Russian rather than to a system face.
+ * Anybody is for display sizes alone (`--font-display`). It has a width
+ * axis, and headlines are set heavy and a little condensed: that is the voice
+ * of the app, and it is what lets a long Estonian word like `raamatusse` sit
+ * large on a phone where a wide face would have to break it. Bricolage
+ * Grotesque had the job before and had become the face of half the quickly
+ * built apps on the web. Anybody has no Cyrillic, so the stack falls back to
+ * Onest for a headline in Russian rather than to a system face.
  *
  * latin-ext is not optional in either: without it õ ä ö ü š ž fall back to a
  * different face mid-word, which is the fault this rule exists to prevent.
@@ -30,11 +32,11 @@ const onest = Onest({
   display: "swap",
 });
 
-const bricolage = Bricolage_Grotesque({
+const anybody = Anybody({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-bricolage",
+  variable: "--font-anybody",
   display: "swap",
-  axes: ["opsz", "wdth"],
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -113,7 +115,7 @@ export const viewport: Viewport = {
     here would paint the browser chrome for a theme the page is not wearing.
     The toggle in the rail rewrites this tag when somebody chooses dark.
   */
-  themeColor: "#fbf9ff",
+  themeColor: "#fcfbf7",
   // The review screen is thumb-driven; zoom stays enabled because disabling it
   // is an accessibility failure, not a polish detail.
   width: "device-width",
@@ -150,7 +152,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // The font variable goes on <html>, not <body>: `--font-sans` is declared on
     // :root and references `--font-onest`, and a custom property is
     // substituted where it is *declared*, so the face has to be in scope there.
-    <html lang="en" className={`${onest.variable} ${bricolage.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${onest.variable} ${anybody.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>

@@ -38,6 +38,10 @@ export const metadata = {
  * The strip at the top is the argument in one object: one real word out of the
  * dictionary, wearing every ending. Nothing on it is written here.
  */
+/* The endings take the night's four colours in turn, each in its ink so it
+   reads on the dark panel. */
+const ENDING_HUES = ["var(--butter-ink)", "var(--blush-ink)", "var(--sky-ink)", "var(--accent-deep)"];
+
 export default async function GrammarIndexPage() {
   const ownerId = await requireUserId();
 
@@ -57,40 +61,43 @@ export default async function GrammarIndexPage() {
       lead="Fourteen endings. Three you memorize, and eleven you can work out."
     >
       <Stack>
-        <Card tone="accent">
-          <div>
-            <div className="min-w-0">
-              <p className="flex items-center gap-2.5 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                <Sparkles size={20} aria-hidden className="shrink-0" style={{ color: "var(--accent-deep)" }} />
-                One word, eleven endings
-              </p>
-              <p className="mt-2 max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Three forms of a word are memorized. Every other case is one of those three with an
-                ending stuck on, and it is the same ending for every word in the language.
-              </p>
-              {demo && (
-                <ul className="mt-4 flex flex-wrap gap-1.5">
-                  {demo.forms.map((row) => (
-                    <li
-                      key={row.suffix}
-                      className="rounded-[var(--r-sm)] px-2 py-1"
-                      style={{ background: "var(--surface)" }}
-                    >
-                      <span lang="et" className="text-sm" style={{ color: "var(--ink-2)" }}>
-                        {row.stem}
-                      </span>
-                      <span lang="et" className="text-sm font-bold" style={{ color: "var(--accent-deep)" }}>
-                        {row.suffix}
-                      </span>
-                      <span className="ml-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-                        {row.plain}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
+        <Card tone="night" className="md:p-9">
+          <p className="label-xs flex items-center gap-2" style={{ color: "var(--butter-ink)" }}>
+            <Sparkles size={14} aria-hidden className="shrink-0" />
+            How the cases work
+          </p>
+          <h2 className="font-display mt-3 text-3xl font-bold leading-[1.02] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+            One word, eleven endings
+          </h2>
+          <p className="mt-3 max-w-[58ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            Three forms of a word are memorized. Every other case is one of those three with an
+            ending stuck on, and it is the same ending for every word in the language.
+          </p>
+          {demo && (
+            <ul className="mt-6 flex flex-wrap gap-2">
+              {demo.forms.map((row, i) => (
+                <li
+                  key={row.suffix}
+                  className="pop-in rounded-full px-3 py-1.5"
+                  style={{
+                    background: "rgb(255 255 255 / 0.07)",
+                    border: "1px solid rgb(255 255 255 / 0.1)",
+                    animationDelay: `${i * 45}ms`,
+                  }}
+                >
+                  <span lang="et" className="text-base" style={{ color: "var(--ink-2)" }}>
+                    {row.stem}
+                  </span>
+                  <span lang="et" className="text-base font-bold" style={{ color: ENDING_HUES[i % ENDING_HUES.length] }}>
+                    {row.suffix}
+                  </span>
+                  <span className="ml-2 text-sm" style={{ color: "var(--ink-3)" }}>
+                    {row.plain}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         {/*
@@ -108,7 +115,7 @@ export default async function GrammarIndexPage() {
         <Link
           href="/grammar/build-a-word"
           className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
           <span
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
@@ -140,7 +147,7 @@ export default async function GrammarIndexPage() {
         <Link
           href="/grammar/exceptions"
           className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
           <span
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
@@ -239,9 +246,9 @@ export default async function GrammarIndexPage() {
                       href={`/grammar/${key.toLowerCase()}`}
                       className="lift flex h-full flex-col gap-2 rounded-[var(--r-lg)] border p-4"
                       style={{
-                        borderColor: "var(--rule)",
+                        borderColor: "var(--edge)",
                         background: "var(--surface)",
-                        boxShadow: "var(--shadow-sm)",
+                        boxShadow: "var(--depth-sm)",
                       }}
                     >
                       <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -334,9 +341,9 @@ export default async function GrammarIndexPage() {
                             href={`/grammar/topic/${id}`}
                             className="lift flex h-full flex-col gap-1.5 rounded-[var(--r-lg)] border p-4"
                             style={{
-                              borderColor: "var(--rule)",
+                              borderColor: "var(--edge)",
                               background: "var(--surface)",
-                              boxShadow: "var(--shadow-sm)",
+                              boxShadow: "var(--depth-sm)",
                             }}
                           >
                             <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">

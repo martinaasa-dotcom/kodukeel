@@ -64,14 +64,29 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         For example, <span lang="et">{first.lemma}</span> becomes{" "}
         <span lang="et">{first.form}</span>, {first.question}
       </p>
-      <div aria-hidden className="hero-word-row">
-        <span lang="et" className="hero-word-lemma">{frame.lemma}</span>
-        <span className="hero-word-arrow">→</span>
-        <span key={`${frame.lemma}-${frame.form}`} lang="et" className="hero-word-form">
-          {frame.form}
-        </span>
+      {/*
+        The card is a sticker on a sticker: a coral one tilted behind it and the
+        word on top, so the thing the page is about is the most physical object
+        on the screen. The bar under the question fills while a form is up and
+        restarts with the next one, which is the only clock on it; it stops with
+        the word under a pointer and for anybody who asked for less movement.
+      */}
+      <div aria-hidden className="hero-word-stack">
+        <div className="hero-word-back" />
+        <div className="hero-word-card">
+          <div className="hero-word-top">
+            <span className="hero-word-label">Dictionary word</span>
+            <span lang="et" className="hero-word-lemma">{frame.lemma}</span>
+          </div>
+          <span key={`${frame.lemma}-${frame.form}`} lang="et" className="hero-word-form">
+            {frame.form}
+          </span>
+          <p key={`q-${i}`} className="hero-word-question">{frame.question}</p>
+          <span className="hero-word-track">
+            <span key={`t-${i}`} className="hero-word-tick" data-held={held ? "" : undefined} />
+          </span>
+        </div>
       </div>
-      <p aria-hidden key={`q-${i}`} className="hero-word-question">{frame.question}</p>
     </div>
   );
 }
@@ -165,10 +180,10 @@ export function PlanCalculator() {
         </ChoiceGroup>
       </div>
 
-      <div className="plan-calc-answer flex flex-col justify-center rounded-[var(--r-xl)] p-6 md:p-8" aria-live="polite">
+      <div className="plan-calc-answer night flex flex-col justify-center rounded-[var(--r-xl)] border p-6 md:p-8" aria-live="polite">
         {arrived ? (
           <>
-            <p className="label-xs" style={{ color: "var(--accent-deep)" }}>You are there</p>
+            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>You are there</p>
             <p className="mt-3 text-2xl font-bold leading-tight font-display" style={{ color: "var(--ink)" }}>
               {target} is behind you already.
             </p>
@@ -178,7 +193,7 @@ export function PlanCalculator() {
           </>
         ) : (
           <>
-            <p className="label-xs" style={{ color: "var(--accent-deep)" }}>{target}, in about</p>
+            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{target}, in about</p>
             <p className="plan-calc-figure mt-2 font-display font-bold" style={{ color: "var(--ink)" }}>
               {span}
             </p>
