@@ -1,4 +1,4 @@
-import { useId, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 
 /**
  * Õ — the mascot.
@@ -14,12 +14,6 @@ import { useId, type CSSProperties } from "react";
  * growing out of the scalp instead of a mark over a letter. Clearing it is also
  * what makes it animatable: a stroke fused to the head has nothing it can do,
  * and a stroke with daylight under it can bounce.
- *
- * The gradient is in `userSpaceOnUse` over the whole mark, not the default
- * `objectBoundingBox`. Painted per element, the tilde ran the full violet to
- * blush ramp across its own 22 units while the head beneath it was still
- * violet, so the two pieces were lit differently. Touching the head that was
- * invisible. Clear of it, it is the first thing anybody would see.
  *
  * Every moving part is its own group. They all animate `transform`, and the last
  * declaration on an element wins, so the eyes can only glance and blink at once
@@ -59,20 +53,6 @@ export function Mascot({
   /* Moods scale every facial period by one factor, so cheering speeds the whole
      face up together rather than leaving the blink at its idle rate while the
      hair hops. */
-  /*
-    A DOCUMENT HOLDS SEVERAL OF THESE AND `url(#id)` RESOLVES AGAINST ALL OF IT.
-
-    The gradient's id was a fixed string, so the first element carrying it won
-    for every mascot on the page. The rail draws one and the rail is
-    `hidden md:flex`, so below 768 the winning gradient sat inside a
-    `display: none` subtree and Chromium painted nothing with it: measured at
-    390, two of them in the document with the first one hidden, which left the
-    Ask Anu button in the corner of every phone screen an empty circle and the
-    empty state on /suggestions two eyes floating on a white card. The brand
-    mark was broken at the width this app is measured at.
-  */
-  const faceId = useId();
-
   const beat = (seconds: number) => `${(seconds * Number(t.face)).toFixed(2)}s`;
   const on = (name: string, seconds: number, origin: string): CSSProperties | undefined =>
     animate ? { animation: `${name} ${beat(seconds)} ease-in-out infinite`, transformOrigin: origin } : undefined;
@@ -87,59 +67,53 @@ export function Mascot({
       role="img"
       aria-label="Kodukeel"
     >
-      <defs>
-        <linearGradient id={faceId} gradientUnits="userSpaceOnUse" x1="12" y1="6" x2="52" y2="58">
-          <stop offset="0%" stopColor="var(--accent)" />
-          <stop offset="100%" stopColor="var(--blush)" />
-        </linearGradient>
-      </defs>
-
       {/* The bowl of the õ, and everything drawn on it, breathing as one piece so
-          the features do not swim about inside the head. */}
+          the features do not swim about inside the head. Firework gold with an
+          ink edge, which is the sticker the rest of the app is made of, and the
+          same four hues as the letter tiles: gold, blush, violet and cyan. */}
       <g style={on("mascot-breathe", 4, "32px 40px")}>
-        <circle cx="32" cy="40" r="18" fill={`url(#${faceId})`} />
-        <circle cx="32" cy="40" r="8.1" fill="var(--surface)" opacity="0.16" />
+        <circle cx="32" cy="40" r="18" fill="var(--cta)" stroke="var(--on-hue)" strokeWidth="2.6" />
 
+        {/* Eyes are ink dots with a glint, never white discs: a white eye with
+            no pupil on a coloured face is the blank stare that reads as creepy. */}
         <g style={watch ? { transform: "translate(var(--watch-x, 0px), var(--watch-y, 0px))" } : undefined}>
           <g style={watch ? undefined : on("mascot-look", 7.3, "32px 37px")}>
-            <g fill="var(--surface)" style={on("blink", 5.5, "32px 37px")}>
-              <circle cx="26" cy="37" r="2.9" />
-              <circle cx="38" cy="37" r="2.9" />
+            <g style={on("blink", 5.5, "32px 37px")}>
+              <circle cx="25.6" cy="37.4" r="2.7" fill="var(--on-hue)" />
+              <circle cx="38.4" cy="37.4" r="2.7" fill="var(--on-hue)" />
+              <circle cx="26.5" cy="36.4" r="0.9" fill="white" />
+              <circle cx="39.3" cy="36.4" r="0.9" fill="white" />
             </g>
           </g>
         </g>
 
-        <g fill="var(--surface)" opacity="0.35">
-          <circle cx="22.1" cy="43.4" r="2.2" />
-          <circle cx="41.9" cy="43.4" r="2.2" />
+        <g fill="var(--blush)">
+          <ellipse cx="21.4" cy="43.2" rx="3" ry="2" />
+          <ellipse cx="42.6" cy="43.2" rx="3" ry="2" />
         </g>
 
         {/* Thinking is a straight line, and a straight line widening is a mouth
             being stretched rather than a face pulling one, so it holds still. */}
         {mood === "thinking" ? (
-          <path d="M26.8 45.4h10.4" stroke="var(--surface)" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+          <path d="M28.4 45.2h7.2" stroke="var(--on-hue)" strokeWidth="2.4" strokeLinecap="round" fill="none" />
         ) : (
           <path
-            d={mood === "cheer" ? "M25.8 44.4c2.2 4.4 10.2 4.4 12.4 0" : "M26.6 45.4c1.9 3.2 8.9 3.2 10.8 0"}
-            stroke="var(--surface)"
-            strokeWidth="2.6"
+            d={mood === "cheer" ? "M27 43.8c1.8 3.6 8.2 3.6 10 0" : "M28.2 44.4c1.4 2.4 6.2 2.4 7.6 0"}
+            stroke="var(--on-hue)"
+            strokeWidth="2.4"
             strokeLinecap="round"
             fill="none"
-            style={on("mascot-smile", 6.1, "32px 45.4px")}
+            style={on("mascot-smile", 6.1, "32px 45px")}
           />
         )}
       </g>
 
-      {/* The hair. The only part with daylight under it, so the only part that
-          can properly move. */}
-      <path
-        d="M21 15.15q5.5-6.5 11 0t11 0"
-        fill="none"
-        stroke={`url(#${faceId})`}
-        strokeWidth="4.2"
-        strokeLinecap="round"
-        style={animate ? { animation: t.tilde, transformOrigin: "32px 15.15px" } : undefined}
-      />
+      {/* The hair: a violet tilde with the same ink edge as the head. The only
+          part with daylight under it, so the only part that can properly move. */}
+      <g style={animate ? { animation: t.tilde, transformOrigin: "32px 15.15px" } : undefined}>
+        <path d="M21 15.15q5.5-6.5 11 0t11 0" fill="none" stroke="var(--on-hue)" strokeWidth="7" strokeLinecap="round" />
+        <path d="M21 15.15q5.5-6.5 11 0t11 0" fill="none" stroke="var(--accent)" strokeWidth="4.2" strokeLinecap="round" />
+      </g>
     </svg>
   );
 }
@@ -158,6 +132,19 @@ export function Mascot({
  * wordmark squeezed by its neighbor is a property of the wordmark, and the
  * next row somebody puts it in would break it again.
  */
+/*
+  The name in the four hues of the letter tiles, gold, blush, violet and cyan,
+  walked in that order. Each letter carries an ink outline (`.wordmark` in
+  app/globals.css), which is what a reader actually reads it by: gold on the
+  cream ground is a poster colour rather than an ink, so the outline carries
+  the contrast and the wrapper says `data-ornament` for the measuring suites.
+  The spans are inside one word, so it is still read out as one word.
+*/
+const NAME: ReadonlyArray<readonly [string, string]> = [
+  ["K", "cta"], ["o", "blush"], ["d", "accent"], ["u", "sky"],
+  ["k", "cta"], ["e", "blush"], ["e", "accent"], ["l", "sky"],
+];
+
 export function Wordmark({ size = 34, subtitle }: { size?: number; subtitle?: string }) {
   return (
     <span className="flex shrink-0 items-center gap-2.5">
@@ -165,10 +152,12 @@ export function Wordmark({ size = 34, subtitle }: { size?: number; subtitle?: st
       <span className="flex flex-col">
         <span
           lang="et"
-          className="whitespace-nowrap text-xl font-bold leading-none tracking-tight"
-          style={{ color: "var(--ink)" }}
+          data-ornament
+          className="wordmark whitespace-nowrap text-xl font-bold leading-none tracking-tight"
         >
-          Kodukeel
+          {NAME.map(([letter, hue], i) => (
+            <span key={i} style={{ color: `var(--${hue})` }}>{letter}</span>
+          ))}
         </span>
         {subtitle && (
           <span className="label-xs mt-1" style={{ color: "var(--ink-3)" }}>

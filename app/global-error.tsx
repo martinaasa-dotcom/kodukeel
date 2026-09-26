@@ -30,8 +30,8 @@ export default function GlobalError({
           display: "grid",
           placeItems: "center",
           fontFamily: "system-ui, sans-serif",
-          background: "#fbf9ff",
-          color: "#241f35",
+          background: "#fffbf2",
+          color: "#0f1233",
         }}
       >
         <main style={{ maxWidth: "34rem", padding: "2rem", textAlign: "center" }}>
@@ -44,8 +44,8 @@ export default function GlobalError({
             onClick={reset}
             style={{
               marginTop: "1.5rem", padding: ".55rem 1rem", fontSize: "1.0625rem",
-              borderRadius: ".375rem", border: "1px solid #241f35",
-              background: "#241f35", color: "#fbf9ff", cursor: "pointer",
+              borderRadius: ".375rem", border: "1px solid #0f1233",
+              background: "#0f1233", color: "#fffbf2", cursor: "pointer",
             }}
           >
             Try again

@@ -115,7 +115,7 @@ export const viewport: Viewport = {
     here would paint the browser chrome for a theme the page is not wearing.
     The toggle in the rail rewrites this tag when somebody chooses dark.
   */
-  themeColor: "#fbf9ff",
+  themeColor: "#fffbf2",
   // The review screen is thumb-driven; zoom stays enabled because disabling it
   // is an accessibility failure, not a polish detail.
   width: "device-width",

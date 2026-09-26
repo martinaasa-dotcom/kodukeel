@@ -3552,3 +3552,16 @@
 @media (hover: none) and (pointer: coarse) {
   :is(button, a, [role="radio"], [role="button"]) .key-cap { display: none; }
 }
+
+/* The name, lettered like the tiles: each glyph in its hue with an ink edge.
+   `paint-order` puts the stroke under the fill so the outline reads as an edge
+   rather than eating into thin strokes. In the dark theme the fills carry
+   themselves and the edge is the dark theme's own. */
+.wordmark > span {
+  -webkit-text-stroke: 0.07em var(--on-hue);
+  paint-order: stroke fill;
+  letter-spacing: 0.01em;
+}
+:root[data-theme="dark"] .wordmark > span {
+  -webkit-text-stroke-color: var(--edge);
+}
