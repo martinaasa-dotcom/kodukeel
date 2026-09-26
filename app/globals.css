@@ -3241,3 +3241,43 @@
     padding-block: 0.625rem;
   }
 }
+
+/*
+  Anu's button tucks off the right edge while a phone scrolls down and comes
+  back on the way up (components/anu/AnuFab.tsx). Transform and opacity only,
+  so nothing is laid out again, and never while a keyboard is on it.
+*/
+.anu-fab { transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease; }
+@media (max-width: 767px) {
+  .anu-fab[data-tucked]:not(:focus-within) {
+    transform: translateX(calc(100% + 1.5rem));
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/*
+  A ROUND ON A PHONE IS THE WHOLE SCREEN.
+
+  The cross that ends a session (`EndSession`) is drawn only while a round is
+  being played, so it is the marker: on a phone the tab bar and Anu's button
+  step aside for as long as it is there, the way the module and a
+  conversation already take the furniture away. The card is the one thing on
+  the screen and the cross is the way out. From the width the rail appears at,
+  there is room for both and nothing changes.
+*/
+@media (max-width: 767px) {
+  body:has([data-round-live]) [data-chrome="dock"],
+  body:has([data-round-live]) [data-chrome="anu"] { display: none !important; }
+}
+
+/*
+  A key cap on a control is a keyboard's shortcut, and a touch screen has no
+  keyboard to press it with: "1" beside an answer and "↵" inside a button are
+  noise under a thumb. Hidden where the only pointer is a finger, and only
+  inside a control, so a list of shortcuts written out as a reference still
+  shows what it is listing.
+*/
+@media (hover: none) and (pointer: coarse) {
+  :is(button, a, [role="radio"], [role="button"]) .key-cap { display: none; }
+}

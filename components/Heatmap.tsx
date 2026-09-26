@@ -61,15 +61,21 @@ export function Heatmap({ days }: { days: DayBucket[] }) {
       */}
       {/* A region a keyboard can reach, since on a phone it scrolls: a box
           that scrolls and cannot take focus is a box a keyboard cannot read. */}
-      <div className="overflow-x-auto pb-1" tabIndex={0} role="region" aria-label="Reviews per day, last six months">
-        <div style={{ minWidth: weeks.length * 13 }}>
+      {/* Written right to left and read left to right, so a box that scrolls
+          opens on this week rather than on the one six months ago: the edge a
+          phone shows first is the edge anybody is looking for. */}
+      <div dir="rtl" className="overflow-x-auto pb-1" tabIndex={0} role="region" aria-label="Reviews per day, last six months">
+        <div dir="ltr" style={{ minWidth: weeks.length * 13 }}>
           <div
             aria-hidden
             className="mb-1.5 grid gap-[3px] text-2xs"
             style={{ gridTemplateColumns: `repeat(${weeks.length}, minmax(10px, 1fr))`, color: "var(--ink-3)" }}
           >
-            {monthAt.map((m, i) => (
-              <span key={i} className="overflow-visible whitespace-nowrap">{m}</span>
+            {/* Only the weeks that start a month get a label, placed on their
+                own column: an empty span for every other week sat over the
+                name spilling into it, so a hit test read the month as covered. */}
+            {monthAt.map((m, i) => m && (
+              <span key={i} className="overflow-visible whitespace-nowrap" style={{ gridColumnStart: i + 1, gridRowStart: 1 }}>{m}</span>
             ))}
           </div>
           <div

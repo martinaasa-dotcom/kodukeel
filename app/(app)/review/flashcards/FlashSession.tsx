@@ -293,14 +293,19 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div
-          className="flex flex-wrap items-center gap-2 border-b px-6 py-3"
+          className="flex items-center gap-2 border-b px-6 py-3"
           style={{ borderColor: "var(--rule-soft)" }}
         >
-          <Chip tone="accent">{askLine({ ...task, shape: shape ?? task.shape })}</Chip>
-          {task.provenance === "derived" && <Chip>worked out from the stem</Chip>}
+          {/* The chips wrap among themselves and the star keeps its corner:
+              on a phone the whole row wrapped and left the star alone on a
+              line of its own. */}
+          <span className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            <Chip tone="accent">{askLine({ ...task, shape: shape ?? task.shape })}</Chip>
+            {task.provenance === "derived" && <Chip>worked out from the stem</Chip>}
+          </span>
           {/* The corner of the card, which is where somebody looks for this the
               moment a word turns out to be worth keeping. */}
-          <div className="ml-auto">
+          <div className="shrink-0">
             <StarWord lexemeId={task.lexemeId} starred={task.starred} label={task.lemma} />
           </div>
         </div>
@@ -533,7 +538,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
           </p>
           <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
             {task.label}
-            {english && <span lang="en"> · the {english}</span>}
+            {english && <span lang="en"> · {english}</span>}
           </p>
         </>
       ) : (
@@ -542,7 +547,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
             {task.label}
           </p>
           {english && (
-            <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>the {english}</p>
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{english}</p>
           )}
         </>
       )}
@@ -624,7 +629,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         {isForm(task.slot) && (
           <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
             <span lang="et" data-flash-slot="">{task.label}</span>
-            {english && <> · the {english}</>}
+            {english && <> · {english}</>}
           </p>
         )}
       </div>

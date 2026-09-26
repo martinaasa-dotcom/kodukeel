@@ -58,10 +58,10 @@ export default async function GrammarIndexPage() {
     >
       <Stack>
         <Card tone="accent">
-          <div className="flex items-start gap-3">
-            <Sparkles size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
+          <div>
             <div className="min-w-0">
-              <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
+              <p className="flex items-center gap-2.5 text-lg font-bold" style={{ color: "var(--ink)" }}>
+                <Sparkles size={20} aria-hidden className="shrink-0" style={{ color: "var(--accent-deep)" }} />
                 One word, eleven endings
               </p>
               <p className="mt-2 max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

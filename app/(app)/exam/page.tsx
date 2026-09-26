@@ -90,7 +90,10 @@ export default async function ExamPage() {
       <section className="mb-10">
         <SectionTitle hint={evidenceNote}>Where you are</SectionTitle>
         <Card tone={readiness.assessed ? "mint" : "accent"}>
-          <div className="flex flex-wrap items-center gap-5">
+          {/* The ring and the verdict share a row; what follows takes the
+              card's width on a phone rather than a column beside the ring. */}
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-5 gap-y-2">
+            <span className="sm:row-span-2">
             <Ring
               pct={readiness.assessed ? 100 : 0}
               size={72}
@@ -101,12 +104,13 @@ export default async function ExamPage() {
                 {readiness.assessed ?? "?"}
               </span>
             </Ring>
-            <div className="min-w-[16rem] flex-1">
-              <p className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-                {readiness.assessed
-                  ? `We'd bet on you passing ${readiness.assessed} today.`
-                  : "We wouldn't bet on any paper yet."}
-              </p>
+            </span>
+            <p className="text-lg font-bold sm:self-end sm:text-xl" style={{ color: "var(--ink)" }}>
+              {readiness.assessed
+                ? `We'd bet on you passing ${readiness.assessed} today.`
+                : "We wouldn't bet on any paper yet."}
+            </p>
+            <div className="col-span-2 sm:col-span-1 sm:col-start-2 sm:self-start">
               <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {!readiness.next
                   ? "You could pass every paper here. That's as far as we can tell."
@@ -165,9 +169,6 @@ export default async function ExamPage() {
                           : <Chip tone="neutral">Not examined</Chip>}
                         {level.measured && <Chip tone="accent">Sat</Chip>}
                       </div>
-                      <p className="mt-2 max-w-[44ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                        {spec.summary}
-                      </p>
                     </div>
                     <span className="flex shrink-0 flex-col items-center gap-1">
                     <Ring
@@ -189,6 +190,12 @@ export default async function ExamPage() {
                     </span>
                     </span>
                   </div>
+                  {/* Under the header rather than beside the ring, so it has
+                      the card's whole width: squeezed beside a 62px ring on a
+                      phone it ran to six lines of four words. */}
+                  <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                    {spec.summary}
+                  </p>
 
                   {/* The verdict where it says something: a paper sat, or a
                       level close enough to be worth aiming at. On the other

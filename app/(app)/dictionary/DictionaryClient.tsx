@@ -230,8 +230,10 @@ export function DictionaryClient({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-start">
-        <div className="flex-1">
+      {/* One row at every width: on a phone the button is its icon beside
+          the field rather than a full-width bar under it. */}
+      <div className="flex items-start gap-2 md:gap-3">
+        <div className="min-w-0 flex-1">
           {/*
             Not `large`: that size step is `field-lg` at 24px, which is what a
             review round's own answer box reads from — the one field in this
@@ -250,8 +252,8 @@ export function DictionaryClient({
             autoFocus={!initialQuery}
           />
         </div>
-        <Button variant="primary" onClick={() => go(query)} disabled={pending} className="py-3">
-          <Search size={16} aria-hidden /> Search
+        <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label="Search">
+          <Search size={16} aria-hidden /> <span className="hidden sm:inline">Search</span>
         </Button>
       </div>
 
@@ -783,10 +785,13 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                   style={{ background: value ? "var(--accent-soft)" : "var(--raised)" }}
                 >
                   {value ? (
-                    <>
-                      <span lang="et" className="block text-lg font-bold" style={{ color: "var(--accent-deep)" }}>{value}</span>
+                    // The form and its speaker on one line: stacked, every
+                    // tile on a phone was a column of three with an icon alone
+                    // in the middle of it.
+                    <span className="flex items-center justify-center gap-1">
+                      <span lang="et" className="text-lg font-bold" style={{ color: "var(--accent-deep)" }}>{value}</span>
                       <Speak text={value} />
-                    </>
+                    </span>
                   ) : (
                     <span className="block text-lg" style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>
                   )}
