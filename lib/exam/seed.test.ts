@@ -28,3 +28,36 @@ describe("a paper's seed", () => {
     expect(freshSeed(NOW).length).toBeLessThanOrEqual(24);
   });
 });
+
+describe("a numbered paper's seed", () => {
+  it("round-trips a number and a part, and keeps the moment", async () => {
+    const { numberedSeed, numberedOf, drawKeyOf, PAPERS_PER_LEVEL } = await import("./seed");
+    const whole = numberedSeed(7, null, NOW);
+    const reading = numberedSeed(7, "reading", NOW);
+    expect(numberedOf(whole)).toEqual({ number: 7, part: null });
+    expect(numberedOf(reading)).toEqual({ number: 7, part: "reading" });
+    expect(seedIssuedAt(reading, NOW)?.getTime()).toBe(NOW.getTime());
+    // What decides the questions is the number, not the moment or the part.
+    expect(drawKeyOf(whole)).toBe("set-7");
+    expect(drawKeyOf(numberedSeed(7, "speaking", new Date(NOW.getTime() - 86_400_000)))).toBe("set-7");
+    expect(() => numberedSeed(0, null, NOW)).toThrow();
+    expect(() => numberedSeed(PAPERS_PER_LEVEL + 1, null, NOW)).toThrow();
+    expect(numberedOf(`p${PAPERS_PER_LEVEL + 1}-${NOW.getTime().toString(36)}`)).toBeNull();
+  });
+
+  it("leaves every random seed drawn on itself, as it always was", async () => {
+    const { numberedOf, drawKeyOf } = await import("./seed");
+    for (const seed of ["suite", "k3j9x0a1", "containment-result", freshSeed(NOW, () => 0.5)]) {
+      expect(numberedOf(seed)).toBeNull();
+      expect(drawKeyOf(seed)).toBe(seed);
+    }
+  });
+
+  it("never issues a random seed that reads as a numbered one", async () => {
+    const { numberedOf } = await import("./seed");
+    // A draw that comes out as "p7" in base 36 is the one shape that could.
+    const p7 = (parseInt("p7", 36) / 36 ** 2);
+    const seed = freshSeed(NOW, () => p7);
+    expect(numberedOf(seed)).toBeNull();
+  });
+});
