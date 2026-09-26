@@ -55,6 +55,17 @@ export interface PastAttempt {
    * flip of the same card are indistinguishable in the log.
    */
   parts?: Partial<Record<SkillKey, number>>;
+  /**
+   * False when one part was sat on its own. Such a sitting is evidence about
+   * that part and never a paper sat: its `passed` says the part reached the
+   * pass mark, which is not the examination passed. Absent is a whole paper,
+   * which every sitting was before parts could be sat alone.
+   */
+  whole?: boolean;
+  /** Which numbered paper, when it was one. */
+  number?: number | null;
+  /** The part sat alone, when it was. */
+  part?: SkillKey | null;
 }
 
 export interface CaseSignal {
@@ -348,7 +359,7 @@ export function readinessFor(signals: ReadinessSignals, level: ExamLevel): Level
     a paper failed cannot be modelled above one. Where the two agree, which is
     most of the time, nothing changes at all.
   */
-  const sat = signals.attempts.find((a) => a.level === level);
+  const sat = signals.attempts.find((a) => a.level === level && a.whole !== false);
   const blended = sat ? Math.round(0.65 * sat.pct + 0.35 * modelled) : modelled;
   const expectedTotal = !sat
     ? blended

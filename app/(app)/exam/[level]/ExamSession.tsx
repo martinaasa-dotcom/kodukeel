@@ -21,7 +21,7 @@ import { usesRequiredWord, wordsOf } from "@/lib/exam/written";
 import {
   BREAK_MINUTES, LISTEN_PLAYS, PASS_PCT, READ_QUESTIONS_SECONDS, speakingCriteria, writtenMinutes,
 } from "@/lib/exam/spec";
-import { SKILL_ET } from "@/lib/exam/types";
+import { SKILL_ET, SKILL_LABEL } from "@/lib/exam/types";
 import { answeredIn, clearSitting, loadSitting, saveSitting, type SavedSitting } from "./resume";
 import { Explain } from "@/components/Explain";
 
@@ -526,6 +526,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
       </p>
       <h1 className="text-3xl font-bold tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
         {paper.level}
+        {paper.number ? `, paper ${paper.number}` : ""}
+        {paper.part ? `, ${SKILL_LABEL[paper.part].toLowerCase()} only` : ""}
       </h1>
       <p className="mt-3 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {paper.spec.summary}
@@ -577,6 +579,14 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
       </ul>
 
       <div className="mt-6 grid gap-3">
+        {paper.part ? (
+          <Note tone="sky">
+            One part on its own, on its own clock of {paper.parts[0]?.spec.minutes ?? 0} minutes.
+            The real paper marks all four parts together, so what you get back is a mark for this
+            part rather than a pass or a fail. Once its time runs out, it closes. Your answers are
+            saved on this device as you go.
+          </Note>
+        ) : (
         <Note tone="sky">
           {writtenMinutes(paper.spec)} minutes of written paper, then a {BREAK_MINUTES} minute
           break, then {speaking?.spec.minutes ?? 15} minutes of speaking. That&apos;s the order, and
@@ -585,6 +595,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           this device as you go, so closing the tab or reloading won&apos;t lose your paper, and the
           clock keeps running even while it is closed.
         </Note>
+        )}
+        {partOf(paper, "writing") && (
         <Note tone="neutral">
           <PenLine size={14} className="mr-1.5 inline" aria-hidden />
           The real writing part is just two pieces of writing, and the clock is only for those two.
@@ -592,6 +604,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           your grammar by reading what you wrote, and nothing here can do that. They come last, so
           use whatever time the two texts leave you.
         </Note>
+        )}
+        {partOf(paper, "listening") && (
         <Note tone="neutral">
           <Headphones size={14} className="mr-1.5 inline" aria-hidden />
           Each recording plays {LISTEN_PLAYS} times and no more, just like the real exam. Every
@@ -605,6 +619,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             listening part is a little easier than the real thing.</>
           )}
         </Note>
+        )}
         <Note tone="neutral">
           <WifiOff size={14} className="mr-1.5 inline" aria-hidden />
           Unlike everyday review, this needs a live connection. The recordings load as you play
@@ -612,6 +627,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           If handing in fails, your answers stay right here on the page, and you can just press the
           button again.
         </Note>
+        {speaking && (
         <Note tone="neutral">
           <Mic size={14} className="mr-1.5 inline" aria-hidden />
           You mark the spoken part yourself. We tested a speech recognizer for Estonian and it
@@ -620,6 +636,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           real spoken exam opens with a few minutes of chat with the examiner before the tasks
           start. There&apos;s no examiner here, so we go straight to the first task.
         </Note>
+        )}
         {paper.substituted && (
           <Note tone="hard">
             <FileWarning size={14} className="mr-1.5 inline" aria-hidden />

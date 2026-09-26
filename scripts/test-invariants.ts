@@ -3276,8 +3276,19 @@ check("the paper's pool is drawn from its own seed, not from what was read last"
     rule rather than a copy of it.
   */
   assert.match(
-    pool, /drawPool\(ids, level, seed\)/,
+    pool, /poolForSeed\(ids, level, seed\)/,
     "the exam pool no longer draws through lib/exam/pool.ts with the paper's seed",
+  );
+  /*
+    And a random seed is still drawn the way it always was. A numbered paper
+    (`lib/exam/seed.ts`) draws on its number through a stable pool, and every
+    other seed has to reach the old shuffle unchanged, because a paper started
+    before numbered papers existed is rebuilt by it to be marked.
+  */
+  assert.match(
+    code("lib/exam/pool.ts"),
+    /numberedOf\(seed\)\s*\?\s*drawStablePool\(rows, level, drawKeyOf\(seed\)\)\s*:\s*drawPool\(rows\.map\(\(r\) => r\.id\), level, seed\)/,
+    "poolForSeed no longer sends a random seed to the unchanged drawPool",
   );
   assert.match(pool, /eligibleLevels\(level\)/, "the exam pool decides its own bands again");
   assert.match(
@@ -3290,7 +3301,7 @@ check("the paper's pool is drawn from its own seed, not from what was read last"
     "the pool rule no longer shuffles on the paper's own seed",
   );
   const measure = code("scripts/measure-exam-volume.ts");
-  assert.match(measure, /drawPool\(/, "measure:exam-volume builds a pool the app does not draw");
+  assert.match(measure, /poolForSeed\(/, "measure:exam-volume builds a pool the app does not draw");
   assert.match(measure, /eligibleFor\(level/, "measure:exam-volume stopped filtering the pool to the level");
   /*
     And a word added mid-sitting does not reach it. The shuffle walks the whole
