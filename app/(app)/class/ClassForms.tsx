@@ -178,7 +178,7 @@ export function CopyCode({ code }: { code: string }) {
     <button
       type="button"
       onClick={() => copy(code)}
-      className="press inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-ui hover:-translate-y-px"
+      className="press inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", color: copied === "copied" ? "var(--good-ink)" : "var(--ink-2)" }}
     >
       {copied === "copied" ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}

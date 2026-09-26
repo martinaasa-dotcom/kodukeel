@@ -130,20 +130,21 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
         )}
 
         {isTeacher && !classroom.archived && (
-          <Card tone="accent">
-            <div className="flex flex-wrap items-center gap-4">
-              <div>
-                <SectionTitle>Join code</SectionTitle>
-                <p className="text-3xl font-bold tracking-[0.25em]" style={{ color: "var(--accent-deep)" }}>
+          <Card tone="night">
+            <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+              <div className="min-w-0">
+                <p className="label-xs" style={{ color: "var(--cta)" }}>Join code</p>
+                <p
+                  className="font-display tnum mt-1 text-4xl font-bold tracking-[0.22em] md:text-5xl"
+                  style={{ color: "var(--ink)" }}
+                >
                   {classroom.code}
                 </p>
+                <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+                  {workplace ? "Colleagues" : "Students"} enter this under Classes, then Join.
+                </p>
               </div>
-              <div className="flex flex-col gap-2">
-                <CopyCode code={classroom.code} />
-                <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                  {workplace ? "Colleagues" : "Students"} enter this under Classes → Join.
-                </span>
-              </div>
+              <CopyCode code={classroom.code} />
             </div>
           </Card>
         )}

@@ -2722,15 +2722,17 @@
   .choice-chip:disabled, .choice-card:disabled { opacity: 0.45; }
 
   /*
-    A disabled primary on a night panel. Everywhere else it is the gold at
-    45 percent, which on a light ground is a pale gold and reads as waiting;
-    over navy the same fade mixes to olive, which reads as broken. On the
+    A disabled primary on a night panel, and anywhere in the dark theme,
+    which is the same navy under it. On the light ground it is the gold at
+    45 percent, a pale gold that reads as waiting; over navy the same fade
+    mixes to olive, which reads as broken. On the
     night it is a glass pill like the panel's own chips instead, with the
     words in the quiet ink, and it turns gold the moment there is something
     to send. The fill has to win over the button's inline one, hence the
     importance.
   */
-  .night .btn-cta:disabled {
+  .night .btn-cta:disabled,
+  [data-theme="dark"] .btn-cta:disabled {
     opacity: 1;
     background: rgb(255 255 255 / 0.08) !important;
     border-color: rgb(255 255 255 / 0.16) !important;

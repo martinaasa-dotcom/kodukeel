@@ -96,7 +96,16 @@ export function CalendarWeek({
         title beside the control: at 1024 the row is 55px and the button and
         its gap take 50 of them.
       */}
-      <div className="mt-4 grid gap-2 xl:gap-1.5 xl:grid-cols-7">
+      {/*
+        AND THE WIDTH THAT DECIDES IT IS THE CARD'S, NOT THE WINDOW'S. At 1280
+        the window is wide and the column this card sits in is not: seven
+        columns there were about a hundred pixels each and a two-word event
+        wrapped down four lines. So the grid asks its own container, and a week
+        in a normal column is a list of days, each a row with its date on the
+        left and its events flowing beside it, which reads at every width.
+      */}
+      <div className="@container mt-4">
+      <div className="grid gap-2 @min-[64rem]:grid-cols-7 @min-[64rem]:gap-1.5">
           {days.map((key) => (
             <DayColumn
               key={key}
@@ -107,6 +116,7 @@ export function CalendarWeek({
             />
           ))}
         </div>
+      </div>
       </Card>
 
       {adding ? (
@@ -167,7 +177,7 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
         floors a flex item rather than capping what the column is sized to.
         The same fault the shell had against `main`, one container in.
       */
-      className={`min-w-0 rounded-[var(--r)] border ${quiet ? "border-transparent px-2 py-1 xl:border-[var(--rule-soft)] xl:bg-[var(--surface)] xl:py-2" : "p-2"}`}
+      className={`flex min-w-0 flex-wrap items-baseline gap-x-4 gap-y-2 rounded-[var(--r)] border @min-[64rem]:block ${quiet ? "border-transparent px-3 py-1.5 @min-[64rem]:border-[var(--rule-soft)] @min-[64rem]:bg-[var(--surface)] @min-[64rem]:px-2 @min-[64rem]:py-2" : "p-3 @min-[64rem]:p-2"}`}
       style={{
         // An empty day in a list is a date and nothing else, so on a phone it
         // loses its box: seven boxes, five of them empty, read as a form.
@@ -178,15 +188,18 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
         }),
       }}
     >
-      <p className="label-xs" style={{ color: isToday ? "var(--cta)" : "var(--ink-3)" }}>
+      <p className="label-xs w-32 shrink-0 @min-[64rem]:w-auto" style={{ color: isToday ? "var(--cta)" : "var(--ink-3)" }}>
         {/* The short name is for a column, so it arrives with the columns. */}
-        <span className="xl:hidden">{WEEKDAY_LONG[weekday]}</span>
-        <span className="hidden xl:inline">{WEEKDAY_SHORT[weekday]}</span>{" "}
+        <span className="@min-[64rem]:hidden">{WEEKDAY_LONG[weekday]}</span>
+        <span className="hidden @min-[64rem]:inline">{WEEKDAY_SHORT[weekday]}</span>{" "}
         {Number(dayKey.slice(8, 10))}
       </p>
 
       {!empty && (
-        <ul className="mt-2 flex flex-col gap-1.5">
+        <ul
+          className="grid min-w-[12rem] flex-1 gap-1.5 @min-[64rem]:mt-2"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 13rem), 1fr))" }}
+        >
           {events.map((e) => <EventRow key={e.id} event={e} />)}
           {reminders.map((r) => <ReminderRow key={r.id} reminder={r} />)}
         </ul>
@@ -197,7 +210,7 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
       {/* An empty day is a line with its date on it in a list, and an empty
           slot only where the week is drawn as columns. */}
       {empty && (
-        <p className="mt-2 hidden h-6 rounded-[var(--r-sm)] border border-dashed xl:block" style={{ borderColor: "var(--rule-soft)" }} aria-hidden />
+        <p className="mt-2 hidden h-6 rounded-[var(--r-sm)] border border-dashed @min-[64rem]:block" style={{ borderColor: "var(--rule-soft)" }} aria-hidden />
       )}
       {empty && <span className="sr-only">Nothing</span>}
     </div>
@@ -210,10 +223,10 @@ function EventRow({ event }: { event: StudyEvent }) {
 
   return (
     <li
-      className="rounded-[var(--r-sm)] px-1.5 py-1.5"
+      className="rounded-[var(--r-sm)] px-2.5 py-2 @min-[64rem]:px-1.5 @min-[64rem]:py-1.5"
       style={{ background: `var(--${KIND_TONE[event.kind]}-soft)` }}
     >
-      <p className="text-xs font-semibold leading-snug" style={{ color: "var(--ink)" }}>{event.title}</p>
+      <p className="text-sm font-semibold leading-snug @min-[64rem]:text-xs" style={{ color: "var(--ink)" }}>{event.title}</p>
       {/* The remove button sits on the line under the title, so the title has
           the whole width of a column that is about ninety pixels wide. */}
       <div className="flex items-center justify-between gap-1.5">
@@ -244,9 +257,9 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
   const router = useRouter();
 
   return (
-    <li className="rounded-[var(--r-sm)] px-1.5 py-1.5" style={{ background: "var(--raised)" }}>
+    <li className="rounded-[var(--r-sm)] px-2.5 py-2 @min-[64rem]:px-1.5 @min-[64rem]:py-1.5" style={{ background: "var(--raised)" }}>
       <p
-        className="text-xs font-semibold leading-snug"
+        className="text-sm font-semibold leading-snug @min-[64rem]:text-xs"
         style={{
           color: reminder.completed ? "var(--ink-3)" : "var(--ink)",
           textDecoration: reminder.completed ? "line-through" : undefined,
