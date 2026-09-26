@@ -2512,3 +2512,58 @@ proposes `aste` and `põtk`. `aste` is the case the script's own header argues a
 the stored word is the one Ekilex defines as "jalg, koib", which is the gloss "foot, leg". The
 page's `põtku` belongs to a fishing spot. The other 78 disagreements are the page's own slips, as
 before.
+
+## 40. The thirty-fourth pass: a beginner's sentences, written and checked
+
+**A1 had no sentence a beginner could read, so every A1 word was met alone.** An Ekilex usage is
+written to illustrate a word to somebody who already reads Estonian, and 55 of the 499 A1 words a gap
+can be cut for had a sentence made of words the course had taught by that evening. The app's answer
+had been to show A1 words no sentence at all.
+
+**The sentences are written now, under ADR-005 amendment 4.** `lib/dict/authored.ts` holds 925 rows,
+one or more per A1 and A2 word, each checked by `npm run check:authored` against the module's own walk and
+read by the native speaker who develops the app in the pull request that adds them. They are shown on
+the Learn ladder, the review card's first meeting and the unit lesson, and on nothing that marks,
+measures, builds a card or plays a scene, asserted. 489 of 511 A1 words now have a readable sentence,
+and 241 of 245 at A2, and 196 of 203 at B1. All three levels have been read.
+
+**"Taught" covers the forms the app derives** (`readableSpellings`), so `elab` counts once `elama`
+is taught, and **the glue words moved to the fourth unit** (`vaikesed-sonad`), with the question
+words sixth. Day ids from a1.1's fifth evening on, and in a1.5 and a1.6, shifted by agreement.
+
+**And the course gained the words it was missing.** Writing the sentences showed that 55 of the 400
+commonest Estonian words were in no unit (`võima`, `oskama`, `seal`, `tähtis`, `asi`, `elu`,
+`huvitav`), and a second pass found 24 more (`mõte`, `maailm`, `kena`, `paistma`). New units
+`veel-verbe`, `tahtsad-sonad` and `kirjeldamine`, and additions to eleven others carry them, harvested from Ekilex, with sentences written and checked for each.
+
+
+**The subtitle frequency list could not see the words a household needs, so the course's own
+corpus was asked instead.** Ranking every dictionary entry no unit teaches by how often it turns up
+in the 12,000 sentences the Institute recorded put `firma`, `aed`, `küla`, `klass`, `taevas`,
+`hammas`, `kino`, `õlu` and `kook` near the top: words a subtitle corpus drowns in `kurat` and
+`kapten`. 86 more words joined sixteen existing units, all of them harvested from Ekilex, and two
+entries the dictionary did not hold (`ülemus`, `taotlus`) came with them. `jaoks` needed `postp`
+in the coarsening table, since Ekilex calls it a postposition and nothing else. Growing the units
+moved `kodutood` to the end of a2.1 and `vordlemine` to the end of a2.2, and the restaurant scene
+now closes `kirjeldamine`. The travel unit grew an evening, so the terminative page it used to lose
+to its scene is read.
+
+**B2 and C1 have their sentences as well.** 215 rows at B2 and 244 at C1, one per word, under
+the same checker: above B1 nearly
+every word is taught by the evening it is met, so what the check found there was the course, not
+the sentence. That is where `küla`, `jaoks`, `teema` and `plaanima` were first noticed.
+
+**And the level check stopped asking what `august` means with "August" among the options.** The
+guard against a word spelled alike in both languages was `sameSpelling`, which keeps case on
+purpose, since on a card the capital is the lesson. A question is not a card: nobody reading
+`august` picks anything but "August". `givesItselfAway` folds case and is what the level check and
+the mock exam ask now, and `sameSpelling` still decides what a screen says. The question audit
+found it, on the run whose new words shifted the draw onto it.
+
+**And the long tail got units of its own.** Rooms and furniture (`kodus`), farm and forest animals
+with the rest of the body (`loomad-ja-keha`), the market (`rohkem-toitu`), places in town and the
+people who work there (`kohad-ja-ametid`), ten verbs (`tegusonad`) and ten adjectives
+(`veel-omadussonu`) are six new A1 units in the parts that had room, and `oma` and `küla` moved
+to the second part's first unit, because a sentence a beginner reads on the first evenings needs
+both. The course is 102 units.
+

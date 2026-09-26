@@ -194,6 +194,59 @@ export const A1 = [
   }),
 
   unit({
+    /*
+      TEN SMALL WORDS, STRAIGHT AFTER THE FIRST VERBS, BECAUSE THEY ARE WHAT A
+      SENTENCE IS HELD TOGETHER WITH.
+
+      `ja` sat in the twenty-second unit of A1 and `ka` and `väga` in the
+      twenty-fourth, so for three months of evenings a learner holding
+      `mina`, `olema`, `elama` and a family's worth of nouns could not say
+      "and", "too" or "very", and no sentence the course could show them was
+      one they could read: `npm run audit:readable` ranked `ja` the commonest
+      word keeping a beginner's sentence out of reach. These ten are the ones
+      that turn a list of words into something said, and they are taken out
+      of the units that used to teach them (`sidesonad`, `maaramine`,
+      `millal`) rather than taught twice.
+    */
+    id: "vaikesed-sonad",
+    title: "Väikesed sõnad",
+    subtitle: "And, but, too, very, here and now, and don't",
+    icon: "Link",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Join two words with and or but, say too and very, and say here, now and today.",
+    blurb: "Thirteen small words that turn the words you have into sentences.",
+    grammar: ["word-order"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["esimesed-verbid"],
+    words: [
+      ["ja", "and", "ADVERB"],
+      // Also a noun meaning a troubling circumstance, and a district in Russia.
+      ["aga", "but", "ADVERB", 155181],
+      ["ka", "also, too", "ADVERB"],
+      ["väga", "very", "ADVERB"],
+      ["hästi", "well", "ADVERB"],
+      // Not the steel rail a curtain runs along.
+      ["siin", "here", "ADVERB", 233338],
+      // There, beside here: `siin` without `seal` is half a sentence.
+      ["seal", "there", "ADVERB"],
+      ["sealt", "from there", "ADVERB"],
+      ["nüüd", "now", "ADVERB"],
+      ["täna", "today", "ADVERB", 249773],
+      ["veel", "still, yet, more", "ADVERB"],
+      ["ainult", "only", "ADVERB"],
+      // Don't, beside the commands the verbs already give: `Ära mine!` is the
+      // commonest negative a beginner hears, and it sat at the end of A1.
+      ["ära", "away, off (finishing a verb); don't (with a command)", "ADVERB"],
+    ],
+    evenings: [
+      ["ja", "aga", "ka", "väga"],
+      ["hästi", "siin", "seal", "sealt"],
+      ["nüüd", "täna", "veel", "ainult", "ära"],
+    ],
+  }),
+
+  unit({
     id: "tervitused",
     title: "Tervitused",
     subtitle: "Putting words together",
@@ -228,6 +281,36 @@ export const A1 = [
   }),
 
   unit({
+    id: "kusisonad",
+    title: "Küsisõnad",
+    subtitle: "Question words",
+    icon: "CircleHelp",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Ask who, what, where, when, why and how, and follow the question when it comes back.",
+    blurb: "Every conversation is a question first. These are the words it starts with.",
+    grammar: ["word-order"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["tervitused"],
+    words: [
+      ["kes", "who", "PRONOUN"],
+      ["mis", "what", "PRONOUN"],
+      ["kus", "where", "ADVERB"],
+      ["kuhu", "where to", "ADVERB"],
+      ["kust", "where from", "ADVERB"],
+      ["millal", "when", "ADVERB"],
+      ["miks", "why", "ADVERB", 202839],
+      ["kuidas", "how", "ADVERB"],
+      ["kas", "whether (opens a yes or no question)", "ADVERB"],
+      ["milline", "which, what kind of", "PRONOUN"],
+      ["kumb", "which of the two", "PRONOUN"],
+      ["mitu", "how many", "PRONOUN"],
+      ["palju", "much, many, a lot", "ADVERB", 213272],
+      ["kui", "how, as, if, than", "ADVERB", 187052],
+    ],
+  }),
+
+  unit({
     id: "inimesed",
     title: "Inimesed",
     subtitle: "People and family",
@@ -258,6 +341,12 @@ export const A1 = [
       ["õpetaja", "teacher"],
       ["õpilane", "pupil, student"],
       ["arst", "doctor"],
+      ["poiss", "boy"],
+      ["tüdruk", "girl"],
+      ["abikaasa", "spouse, husband or wife"],
+      ["onu", "uncle"],
+      ["tädi", "aunt"],
+      ["perekond", "family, household"],
     ],
   }),
 
@@ -292,6 +381,10 @@ export const A1 = [
       ["meeldiv", "pleasant", "ADJECTIVE"],
       ["abielus", "married", "ADVERB"],
       ["vallaline", "unmarried, single", "ADJECTIVE"],
+      ["vanem", "parent", "NOUN", 253965],
+      ["liige", "member"],
+      ["oma", "one's own", "PRONOUN", 211037],
+      ["küla", "village"],
     ],
   }),
 
@@ -393,6 +486,10 @@ export const A1 = [
       ["sein", "wall"],
       ["põrand", "floor"],
       ["korrus", "floor, story"],
+      ["aed", "garden"],
+      ["õu", "yard"],
+      ["kapp", "cupboard"],
+      ["kott", "bag"],
     ],
   }),
 
@@ -430,6 +527,11 @@ export const A1 = [
       ["sool", "salt", "NOUN", 235271],
       ["suhkur", "sugar"],
       ["supp", "soup"],
+      ["õlu", "beer"],
+      ["vein", "wine"],
+      ["kook", "cake"],
+      ["tomat", "tomato"],
+      ["riis", "rice"],
     ],
   }),
 
@@ -474,6 +576,7 @@ export const A1 = [
       ["pool", "half", "NOUN", 218778],
       // "Üks hetk" is what anybody behind a counter says while they look.
       ["hetk", "moment"],
+      ["tulevik", "future"],
     ],
   }),
 
@@ -506,6 +609,48 @@ export const A1 = [
       ["võtma", "to take"],
       ["panema", "to put"],
       ["jääma", "to stay, to remain"],
+    ],
+  }),
+
+  unit({
+    /*
+      THE VERBS EVERY SENTENCE REACHES FOR AND THE COURSE DID NOT TEACH.
+
+      `võima`, `oskama`, `vaatama`, `käima`, `hakkama` and `tähendama` were
+      among the commonest verbs in Estonian (`lib/collections/frequency.ts`)
+      and in no unit at any level, so `Kas ma võin?`, `Ma oskan eesti keelt`
+      and `Mida see tähendab?` were sentences nobody could be taught. Found by
+      writing a beginner's sentences and watching the checker refuse them.
+    */
+    id: "veel-verbe",
+    title: "Veel verbe",
+    subtitle: "Can, know how, watch, listen, go, begin",
+    icon: "Zap",
+    level: "A1",
+    module: "Tegevused",
+    canDo: "Say what you can do, what you are allowed to do, and what you watch and listen to.",
+    blurb: "Ten verbs you will use every day: may, can, watch, listen, go, begin, show, mean, leave and happen.",
+    grammar: ["present-tense"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION"],
+    requires: ["pohiverbid"],
+    words: [
+      ["võima", "can, may, to be allowed to"],
+      ["oskama", "to know how to, to be able to"],
+      ["vaatama", "to look, to watch"],
+      ["kuulama", "to listen"],
+      ["käima", "to go (regularly), to visit, to walk"],
+      ["hakkama", "to begin, to start (doing)"],
+      ["näitama", "to show"],
+      ["tähendama", "to mean"],
+      ["jätma", "to leave (something), to let"],
+      ["toimuma", "to take place, to happen"],
+      ["kuuluma", "to belong"],
+      ["lisama", "to add"],
+      ["tõmbama", "to pull"],
+      ["viskama", "to throw"],
+      ["kasvatama", "to grow, to raise"],
+      ["jagama", "to share, to divide"],
+      ["tõusma", "to rise, to get up"],
     ],
   }),
 
@@ -586,6 +731,8 @@ export const A1 = [
       ["lihtne", "simple", "ADJECTIVE"],
       ["valmis", "ready", "ADJECTIVE"],
       ["keeruline", "complicated", "ADJECTIVE"],
+      ["võõras", "strange, unfamiliar", "ADJECTIVE"],
+      ["kõva", "hard, loud", "ADJECTIVE"],
     ],
   }),
 
@@ -615,6 +762,53 @@ export const A1 = [
       ["lilla", "purple", "ADJECTIVE"],
       ["hele", "light, pale", "ADJECTIVE"],
       ["tume", "dark", "ADJECTIVE"],
+    ],
+  }),
+
+  unit({
+    /*
+      THE WORDS A SENTENCE ABOUT ANYTHING NEEDS, WHICH NO UNIT HAD.
+
+      `tähtis`, `huvitav`, `järgmine`, `viimane`, `asi` and `elu` are among the
+      commonest words in the language, and a learner could reach B2 without
+      being taught one of them: the course's adjectives were sizes and colours.
+    */
+    id: "tahtsad-sonad",
+    title: "Tähtsad sõnad",
+    subtitle: "Important, interesting, next, last, thing and life",
+    icon: "Sparkles",
+    level: "A1",
+    module: "Igapäevaelu",
+    canDo: "Say whether something is important, interesting, easy to understand or boring, and which one is next.",
+    blurb: "The words you reach for in every conversation, whatever it is about.",
+    grammar: ["nominative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["omadussonad"],
+    words: [
+      ["asi", "thing, matter"],
+      ["elu", "life"],
+      ["osa", "part"],
+      ["paar", "pair, a couple of"],
+      ["lõpp", "end"],
+      ["tähtis", "important", "ADJECTIVE"],
+      ["oluline", "significant, important", "ADJECTIVE"],
+      ["huvitav", "interesting", "ADJECTIVE"],
+      ["igav", "boring", "ADJECTIVE"],
+      ["õnnelik", "happy", "ADJECTIVE"],
+      ["vaba", "free", "ADJECTIVE"],
+      ["järgmine", "next", "ADJECTIVE"],
+      ["eelmine", "previous, last", "ADJECTIVE"],
+      ["viimane", "last, final", "ADJECTIVE"],
+      ["kindel", "sure, certain", "ADJECTIVE"],
+      ["selge", "clear", "ADJECTIVE"],
+      ["võimalik", "possible", "ADJECTIVE"],
+      ["tubli", "good, well done (of a person)", "ADJECTIVE"],
+      ["vale", "wrong", "ADJECTIVE"],
+      ["näljane", "hungry", "ADJECTIVE"],
+      ["ots", "end, tip"],
+      ["algus", "beginning"],
+      ["soov", "wish"],
+      ["lubadus", "promise"],
     ],
   }),
 
@@ -685,6 +879,9 @@ export const A1 = [
       ["kuum", "hot", "ADJECTIVE"],
       ["märg", "wet", "ADJECTIVE"],
       ["kuiv", "dry", "ADJECTIVE"],
+      ["väljas", "outside", "ADVERB"],
+      ["õues", "outdoors, outside", "ADVERB"],
+      ["paistma", "to shine, to seem"],
     ],
   }),
 
@@ -725,6 +922,8 @@ export const A1 = [
       ["üheksas", "ninth", "ADJECTIVE"],
       ["kümnes", "tenth", "ADJECTIVE"],
       ["miljon", "million"],
+      ["meeter", "metre"],
+      ["kilomeeter", "kilometre"],
     ],
   }),
 
@@ -814,6 +1013,7 @@ export const A1 = [
       ["asuma", "to be located"],
       ["mujal", "elsewhere", "ADVERB"],
       ["siia", "to here", "ADVERB"],
+      ["kaugel", "far away", "ADVERB"],
     ],
   }),
 
@@ -877,36 +1077,6 @@ export const A1 = [
   }),
 
   unit({
-    id: "kusisonad",
-    title: "Küsisõnad",
-    subtitle: "Question words",
-    icon: "CircleHelp",
-    level: "A1",
-    module: "Esimesed sammud",
-    canDo: "Ask who, what, where, when, why and how, and follow the question when it comes back.",
-    blurb: "Every conversation is a question first. These are the words it starts with.",
-    grammar: ["word-order"],
-    cardTypes: ["RECOGNITION", "PRODUCTION"],
-    requires: ["tervitused"],
-    words: [
-      ["kes", "who", "PRONOUN"],
-      ["mis", "what", "PRONOUN"],
-      ["kus", "where", "ADVERB"],
-      ["kuhu", "where to", "ADVERB"],
-      ["kust", "where from", "ADVERB"],
-      ["millal", "when", "ADVERB"],
-      ["miks", "why", "ADVERB", 202839],
-      ["kuidas", "how", "ADVERB"],
-      ["kas", "whether (opens a yes or no question)", "ADVERB"],
-      ["milline", "which, what kind of", "PRONOUN"],
-      ["kumb", "which of the two", "PRONOUN"],
-      ["mitu", "how many", "PRONOUN"],
-      ["palju", "much, many, a lot", "ADVERB", 213272],
-      ["kui", "how, as, if, than", "ADVERB", 187052],
-    ],
-  }),
-
-  unit({
     id: "umbmaarased",
     title: "Keegi, miski, kõik",
     subtitle: "Somebody, something, everybody",
@@ -927,7 +1097,8 @@ export const A1 = [
       ["mõni", "some, a few", "PRONOUN"],
       ["iga", "every, each", "PRONOUN", 171378],
       // Three Ekilex entries carry this; 211037 is the possessive.
-      ["oma", "one's own", "PRONOUN", 211037],
+      ["kogu", "the whole, all of", "PRONOUN"],
+      ["selline", "such, like this", "PRONOUN"],
     ],
   }),
 
@@ -944,12 +1115,10 @@ export const A1 = [
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["aeg"],
     words: [
-      ["täna", "today", "ADVERB", 249773],
       ["homme", "tomorrow", "ADVERB", 169836],
       ["eile", "yesterday", "ADVERB", 162889],
       ["ülehomme", "the day after tomorrow", "ADVERB"],
       ["üleeile", "the day before yesterday", "ADVERB"],
-      ["nüüd", "now", "ADVERB"],
       ["praegu", "right now, at the moment", "ADVERB"],
       ["kohe", "at once, straight away", "ADVERB", 183252],
       ["varsti", "soon", "ADVERB"],
@@ -961,10 +1130,10 @@ export const A1 = [
       ["mõnikord", "sometimes", "ADVERB"],
       ["kunagi", "ever, at some time; never (with a negative)", "ADVERB"],
       ["juba", "already", "ADVERB"],
-      ["veel", "still, yet, more", "ADVERB"],
       ["jälle", "again", "ADVERB"],
       ["ammu", "long ago, for a long time", "ADVERB"],
       ["vanasti", "in the old days, once", "ADVERB"],
+      ["tänapäev", "today, the present day"],
     ],
   }),
 
@@ -1015,6 +1184,7 @@ export const A1 = [
       ["kaasas", "along, with you", "ADVERB"],
       // `valu vastu`, which is how a pharmacist says what a medicine is for.
       ["vastu", "against, for (a pain)", "ADVERB"],
+      ["eest", "for (in return for), from in front of", "ADVERB"],
     ],
   }),
 
@@ -1031,10 +1201,7 @@ export const A1 = [
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["tervitused"],
     words: [
-      ["ja", "and", "ADVERB"],
       ["ning", "and (joining the last of a list)", "ADVERB"],
-      // Also a noun meaning a troubling circumstance, and a district in Russia.
-      ["aga", "but", "ADVERB", 155181],
       ["vaid", "only, and nothing else", "ADVERB"],
       // Also the ISO code for Estonian, which Ekilex holds as a word.
       ["et", "that", "ADVERB", 165201],
@@ -1100,12 +1267,8 @@ export const A1 = [
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["tervitused"],
     words: [
-      ["ka", "also, too", "ADVERB"],
       ["ju", "you know (a softening word)", "ADVERB"],
       ["just", "just, exactly", "ADVERB"],
-      ["väga", "very", "ADVERB"],
-      ["hästi", "well", "ADVERB"],
-      ["ainult", "only", "ADVERB"],
       ["enam", "any more", "ADVERB", 164013],
       ["isegi", "even", "ADVERB"],
       ["ikka", "still, always", "ADVERB"],
@@ -1120,8 +1283,6 @@ export const A1 = [
       ["uuesti", "again", "ADVERB"],
       ["varem", "earlier", "ADVERB", 254247],
       ["kaua", "for a long time", "ADVERB"],
-      // Not the steel rail a curtain runs along.
-      ["siin", "here", "ADVERB", 233338],
       ["siit", "from here", "ADVERB"],
       ["sinna", "to there", "ADVERB"],
       /*
@@ -1139,6 +1300,8 @@ export const A1 = [
       */
       ["üksi", "alone", "ADVERB"],
       ["aeglaselt", "slowly", "ADVERB"],
+      ["hulk", "amount, a lot"],
+      ["tükk", "piece"],
     ],
   }),
   /*
@@ -1202,6 +1365,7 @@ export const A1 = [
       ["jaanipäev", "Midsummer Day"],
       ["nädalavahetus", "weekend"],
       ["puhkepäev", "day off"],
+      ["jõulud", "Christmas"],
     ],
   }),
 
@@ -1323,6 +1487,8 @@ export const A1 = [
       ["eksima", "to get lost, to go wrong"],
       ["helistama", "to call, to phone"],
       ["vaja", "necessary, needed", "ADVERB"],
+      ["päästma", "to save, to rescue"],
+      ["jaoks", "for (somebody)", "ADVERB"],
     ],
   }),
 
@@ -1428,6 +1594,180 @@ export const A1 = [
       ["alles", "only just, still", "ADVERB"],
       ["taas", "again", "ADVERB"],
       ["pigem", "rather", "ADVERB"],
+      ["täpselt", "exactly", "ADVERB"],
+      ["valesti", "wrong, wrongly", "ADVERB"],
+      ["õigesti", "right, correctly", "ADVERB"],
+    ],
+  }),
+  unit({
+    id: "kodus",
+    title: "Kodus",
+    subtitle: "Rooms, furniture and the things in them",
+    icon: "House",
+    level: "A1",
+    module: "Igapäevaelu",
+    canDo: "Name the rooms of a flat and the everyday things you keep in them.",
+    blurb: "The second half of the home: the rooms by name, and what is in the drawers and the pockets.",
+    grammar: ["nominative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["kodu"],
+    words: [
+      ["magamistuba", "bedroom"],
+      ["elutuba", "living room"],
+      ["vannituba", "bathroom"],
+      ["külmkapp", "fridge"],
+      ["diivan", "sofa"],
+      ["lamp", "lamp"],
+      ["trepp", "stairs"],
+      ["katus", "roof"],
+      ["lagi", "ceiling"],
+      ["peegel", "mirror"],
+      ["seep", "soap"],
+      ["nuga", "knife"],
+      ["raadio", "radio"],
+      ["kingitus", "present, gift"],
+      ["prillid", "glasses (spectacles)"],
+      ["tasku", "pocket"],
+      ["vihmavari", "umbrella"],
+    ],
+  }),
+
+  unit({
+    id: "loomad-ja-keha",
+    title: "Loomad ja keha",
+    subtitle: "Farm animals, wild animals, and the rest of the body",
+    icon: "Leaf",
+    level: "A1",
+    module: "Igapäevaelu",
+    canDo: "Name the animals of an Estonian farm and forest, and say where it hurts.",
+    blurb: "Pigs and cows, wolves and foxes, and the parts of the body the first body words left out.",
+    grammar: ["nominative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["inimesed"],
+    words: [
+      ["siga", "pig"],
+      ["lehm", "cow"],
+      ["lammas", "sheep"],
+      ["hunt", "wolf"],
+      ["rebane", "fox"],
+      ["hiir", "mouse"],
+      ["sõrm", "finger"],
+      ["põlv", "knee"],
+      ["õlg", "shoulder"],
+      ["habe", "beard"],
+      ["nahk", "skin"],
+      ["veri", "blood"],
+      ["hääl", "voice"],
+      ["uni", "sleep"],
+    ],
+  }),
+
+  unit({
+    id: "rohkem-toitu",
+    title: "Rohkem toitu",
+    subtitle: "Vegetables, sweets and what goes on bread",
+    icon: "Utensils",
+    level: "A1",
+    module: "Igapäevaelu",
+    canDo: "Say what you would like from the market and what you put in a soup.",
+    blurb: "The shopping list after the first one: onions and carrots, honey and ham, and something sweet.",
+    grammar: ["nominative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["sook-ja-jook"],
+    words: [
+      ["sibul", "onion"],
+      ["porgand", "carrot"],
+      ["küüslauk", "garlic"],
+      ["pipar", "pepper"],
+      ["maasikas", "strawberry"],
+      ["mesi", "honey"],
+      ["sink", "ham"],
+      ["šokolaad", "chocolate"],
+      ["pannkook", "pancake"],
+      ["tort", "gateau, layer cake"],
+    ],
+  }),
+
+  unit({
+    id: "kohad-ja-ametid",
+    title: "Kohad ja ametid",
+    subtitle: "Places in town and the people who work in them",
+    icon: "Building2",
+    level: "A1",
+    module: "Igapäevaelu",
+    canDo: "Say where somebody works and which places in town you have been to.",
+    blurb: "The museum, the old town and the zoo, and the cook, the singer and the police officer you meet there.",
+    grammar: ["nominative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["ostmine"],
+    words: [
+      ["pealinn", "capital city"],
+      ["vanalinn", "old town"],
+      ["muuseum", "museum"],
+      ["loomaaed", "zoo"],
+      ["lasteaed", "kindergarten"],
+      ["tehas", "factory"],
+      ["maantee", "main road, highway"],
+      ["talu", "farm"],
+      ["loss", "castle"],
+      ["turist", "tourist"],
+      ["näitleja", "actor"],
+      ["laulja", "singer"],
+      ["kokk", "cook, chef"],
+      ["politseinik", "police officer"],
+      ["sugulane", "relative"],
+    ],
+  }),
+
+  unit({
+    id: "tegusonad",
+    title: "Tegusõnad",
+    subtitle: "Laugh, jump, fall, draw and swap",
+    icon: "Zap",
+    level: "A1",
+    module: "Tegevused",
+    canDo: "Say what you and the people around you are doing, beyond the everyday verbs.",
+    blurb: "Ten verbs a child uses and a textbook forgets: laugh, jump, fall, rain, draw, swap, lie, pick, turn and hit.",
+    grammar: ["present-tense"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION"],
+    requires: ["veel-verbe"],
+    words: [
+      ["naerma", "to laugh"],
+      ["hüppama", "to jump"],
+      ["kukkuma", "to fall (over, down)"],
+      ["sadama", "to fall (of rain or snow)"],
+      ["joonistama", "to draw"],
+      ["vahetama", "to exchange, to swap"],
+      ["valetama", "to lie (tell lies)"],
+      ["korjama", "to pick, to gather"],
+      ["keerama", "to turn"],
+      ["lööma", "to hit"],
+    ],
+  }),
+
+  unit({
+    id: "veel-omadussonu",
+    title: "Veel omadussõnu",
+    subtitle: "Sharp, far, comfortable, excellent and personal",
+    icon: "Palette",
+    level: "A1",
+    module: "Igapäevaelu",
+    canDo: "Say what something is like beyond big and small: comfortable, healthy, far away, excellent.",
+    blurb: "Ten more words for describing things, the ones that answer what it was like.",
+    grammar: ["nominative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["omadussonad"],
+    words: [
+      ["terav", "sharp", "ADJECTIVE"],
+      ["kauge", "far, distant", "ADJECTIVE"],
+      ["mugav", "comfortable", "ADJECTIVE"],
+      ["suurepärane", "excellent", "ADJECTIVE"],
+      ["tervislik", "healthy (good for you)", "ADJECTIVE"],
+      ["igapäevane", "everyday", "ADJECTIVE"],
+      ["isiklik", "personal", "ADJECTIVE"],
+      ["praegune", "current, present", "ADJECTIVE"],
+      ["kuri", "angry, evil", "ADJECTIVE"],
+      ["paha", "bad, naughty", "ADJECTIVE"],
     ],
   }),
 ] as const;

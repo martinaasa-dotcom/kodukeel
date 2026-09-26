@@ -105,7 +105,7 @@ export function borrowSentences(entries: readonly BorrowEntry[]): Map<string, Ex
     // better as a borrowed sentence than as an own one.
     const opener = nominalOpener(owner.pos, [owner.lemma, ...owner.forms.map((f) => f.value)]);
     for (const example of usableExamples([...owner.examples])) {
-      if (example.source === "USER" || example.source === "AI") continue;
+      if (example.source === "USER" || example.source === "AI" || example.source === "AUTHORED") continue;
       if (!naturalSentence(example.et, opener)) continue;
       for (const word of new Set(sentenceWords(example.et))) {
         const claimed = claims.get(word);

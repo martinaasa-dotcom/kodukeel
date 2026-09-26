@@ -27,11 +27,31 @@ import { A2 } from "./a2";
 import { B1 } from "./b1";
 import { B2 } from "./b2";
 import { C1 } from "./c1";
+import { PARTS } from "@/lib/course/plan";
 
 export type { Level, SyllabusUnit, UnitSpec, WordSpec, Pos };
 export { LEVELS, unit };
 
-export const SYLLABUS: readonly SyllabusUnit[] = [...A1, ...A2, ...B1, ...B2, ...C1];
+/*
+  ONE ORDER, AND IT IS THE COURSE'S. The level files list their units in the
+  order they were written, and `lib/course/plan.ts` deals them into parts in
+  the order a learner meets them. Two orders meant two answers to "what has
+  this learner been taught by now": the unit lesson read the file's and the
+  module read the plan's, so a sentence written to be readable on the evening
+  the module teaches a word was unreadable in that same word's unit lesson
+  (thirteen of the food unit's twenty-four, because the file put food before
+  the verbs the plan teaches first). So each level is sorted by where the plan
+  puts its units, and a unit the plan does not name keeps its place after them.
+*/
+const COURSE_POSITION = new Map(PARTS.flatMap((part) => part.units).map((id, i) => [id, i]));
+const inCourseOrder = (units: readonly SyllabusUnit[]): SyllabusUnit[] =>
+  [...units].sort(
+    (a, b) =>
+      (COURSE_POSITION.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+      (COURSE_POSITION.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+  );
+
+export const SYLLABUS: readonly SyllabusUnit[] = [A1, A2, B1, B2, C1].flatMap(inCourseOrder);
 
 /** What each level is for, in the words a learner would use about themselves. */
 export interface LevelInfo {

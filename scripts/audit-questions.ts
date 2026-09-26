@@ -49,6 +49,7 @@
  * questions. That is what let `kes` and `mis` keep a gradation card asking the
  * genitive as `kelle? mille?`, which are the two words it wants back.
  */
+import { readableSpellings } from "../lib/estonian/gapForms";
 import { dictionaryRows, type DictionaryRow } from "./lib/dictionary";
 import { exceptionsFor } from "../lib/estonian/exceptions";
 import { drillable, tasksFor } from "../lib/games/exceptions";
@@ -787,11 +788,7 @@ function lessonWord(lemma: string, pos: string): LessonWord | null {
 const spellingsByLemma = new Map<string, Set<string>>();
 for (const e of entries) {
   const held = spellingsByLemma.get(e.lemma) ?? new Set<string>();
-  const add = (text: string) => {
-    for (const word of text.toLowerCase().split(/[^\p{L}\p{M}]+/u)) if (word) held.add(word);
-  };
-  add(e.lemma);
-  for (const f of e.forms ?? []) add(f.value);
+  for (const word of readableSpellings({ lemma: e.lemma, pos: e.pos, forms: e.forms ?? [] })) held.add(word);
   spellingsByLemma.set(e.lemma, held);
 }
 

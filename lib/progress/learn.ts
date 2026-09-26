@@ -13,6 +13,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { parseExamples, teachingSentence, usableExamples } from "@/lib/dict/examples";
+import { authoredFor, isAuthored } from "@/lib/dict/authored";
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { isPhrase } from "@/lib/dict/pos";
 import { resolveProvider } from "@/lib/tutor/provider";
@@ -113,8 +114,12 @@ export interface LearnWord {
   equivalent: { text: string; lang: string } | null;
   /** A whole utterance rather than a word: `Tere!` has no example and never will. */
   isPhrase: boolean;
-  /** An attested sentence, and which form of the word it carries. */
-  sentence: { et: string; en: string | null; form: string | null } | null;
+  /**
+   * A sentence, which form of the word it carries, and whether it was written
+   * for a beginner (`lib/dict/authored.ts`) rather than recorded by a
+   * lexicographer: the one kind an A1 word is shown with.
+   */
+  sentence: { et: string; en: string | null; form: string | null; authored: boolean } | null;
   /** The word's own band, so `WordIntro` can decide whether to show that sentence at all. */
   cefr: string | null;
   /** Whether this is the very first word the learner has ever met, anywhere in the app. */
@@ -309,8 +314,21 @@ function sentenceAndGap(
     one and not the other would quietly make the readable branch the shortest
     sentence and the fallback the plainest.
   */
-  const taught = teachingSentence(examples.filter((e) => readable(e.et)), [lexeme.lemma], opener, plainest)
+  /*
+    A SENTENCE WRITTEN FOR A BEGINNER COMES FIRST, WHERE THERE IS ONE.
+
+    `lib/dict/authored.ts` holds a sentence per A1 word made only of words the
+    course has taught by the evening the word arrives, so it is the one kind
+    this rung can always read and the one kind an A1 word is shown with at
+    all. Readable is still asked of it, since standalone Learn and the module
+    walk the course differently, and a recorded sentence the learner can read
+    is the next best thing.
+  */
+  const written = authoredFor(lexeme.lemma);
+  const taught = teachingSentence(written.filter((e) => readable(e.et)), [lexeme.lemma], opener)
+    ?? teachingSentence(examples.filter((e) => readable(e.et)), [lexeme.lemma], opener, plainest)
     ?? teachingSentence(examples, [lexeme.lemma], opener, plainest);
+  const authored = taught !== null && isAuthored(taught.example);
   const word: WordRow = {
     id: lexeme.id, lemma: lexeme.lemma, translation: lexeme.translation,
     pos: lexeme.pos, cefr: lexeme.cefr, government: null,
@@ -340,7 +358,19 @@ function sentenceAndGap(
     nothing to show; only the gap this same sentence would have built is
     withheld.
   */
-  const gappable = lexeme.cefr !== "A1";
+  /*
+    EXCEPT WHERE THE SENTENCE WAS WRITTEN FOR THEM, AND THE GAP IS NOT A CASE.
+
+    The reason above was that the meet rung showed an A1 word nothing, so a gap
+    two screens later handed over a sentence nobody had read. A written
+    sentence is shown at the meet rung (`WordIntro` reads `authored`), so the
+    gap is the same sentence met a minute before, which is what this rung is
+    for. It stays off where the gap is a case, because A1 asks for no case
+    (`lib/collections/syllabus/a1.ts`): `elan` in `Ma ____ siin.` is the
+    present tense the fourth evening teaches, and `toas` is not yet anybody's.
+  */
+  const gapCase = taught?.form ? hideable.get(taught.form.trim().toLowerCase()) : undefined;
+  const gappable = lexeme.cefr !== "A1" || (authored && gapCase === null);
 
   if (gappable && taught?.form && readable(taught.example.et) && hideable.has(taught.form.trim().toLowerCase())) {
     const example = taught.example;
@@ -366,7 +396,7 @@ function sentenceAndGap(
         ? null
         : explainForm(word, cloze.answer);
       return {
-        sentence: { et: example.et, en: example.en ?? null, form: taught.form },
+        sentence: { et: example.et, en: example.en ?? null, form: taught.form, authored },
         gap: {
           text: cloze.text, answer: cloze.answer, full: cloze.full,
           en, fullEn: example.en ?? null, hint: cue, explanation,
@@ -379,7 +409,7 @@ function sentenceAndGap(
 
   return {
     sentence: taught
-      ? { et: taught.example.et, en: taught.example.en ?? null, form: taught.form }
+      ? { et: taught.example.et, en: taught.example.en ?? null, form: taught.form, authored }
       : null,
     gap: null,
   };

@@ -1733,7 +1733,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,563 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,805 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1959,8 +1959,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,767 forms across 378 of the
-1,563 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,926 forms across 420 of the
+1,805 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -5196,6 +5196,50 @@ sentences, was reading the per-part fault above rather than the course: `olema` 
 counts from a1.3 on. Read the list, and read it off a run of the script rather than off this
 paragraph.
 
+**And then the sentences were written, because the supply was never going to arrive by itself.**
+The two paragraphs above end on the same instruction, write the sentences down, and for months
+nothing did. `lib/dict/authored.ts` is ADR-005 amendment 4: a sentence per A1 and A2 word, drafted and read
+by the native Estonian speaker who develops this app in the pull request that adds it, which is the
+standing ADR-025 amendment 1 gave the scene bank. **The rules are mechanical and every row is held to
+them** by `scripts/lib/authoredCheck.ts`, run by the unit suite and printed by
+`npm run check:authored`: every word is taught by the evening the sentence is for, through the
+module's own walk; the sentence carries a form of its word, passes `naturalSentence` and opens on a
+capital; it has an English line with no Estonian letter; and it is not a sentence Ekilex recorded, a
+duplicate, or one refused. Measured after: 489 of the 511 A1 words a gap can be cut for have a
+sentence made of words given by then, against 55, and 241 of 245 at A2, against 100, where a
+written sentence is what lets the module's gap rung ask at all. **Where they may go is the half that keeps the
+amendment narrow**: the Learn ladder, the review card's first meeting and the unit lesson, which are
+the screens that introduce a word, and no exam, level check, scene, card builder or borrowed pool,
+since each says its Estonian was recorded; the invariant is a closed list of three readers.
+`WordIntro` shows an A1 word a written sentence and still no recorded one, the flag is required on
+its prop, and the ladder's gap rung returns at A1 on a written sentence where the gap is not a case,
+since A1 asks for none. Adding a row is `npm run check:authored` until it prints nothing, then a
+person reading it.
+
+**And "taught" covers the forms the app derives, which is what made the sentences writable.** A
+regular verb stores five principal parts, so read off the stored rows alone `elab` was a word nobody
+had been taught three evenings after `elama`, and the top blocker on the list above was `tuleb`, the
+third person of a verb the fourth evening teaches. `readableSpellings` in `lib/estonian/gapForms.ts`
+is `gapForms`'s own list, stored forms and the persons and cases amendment 1 licenses, and
+`courseFormsByLemma`, `audit:readable` and the checker all read it, so the app and its measurements
+answer "has this learner been taught this spelling" one way. **And the glue moved to the front**:
+`ja`, `aga`, `ka`, `väga`, `hästi`, `siin`, `seal`, `nüüd`, `täna`, `veel`, `ainult` and `ära` are `vaikesed-sonad`,
+the fourth unit of the course rather than scattered through the twenty-second and later, and the
+question words are the sixth, since a beginner who can say `ma elan siin` and `kus sa töötad?` in
+their first fortnight is the whole point. That shifted a1.1's day ids from the fifth evening on, and
+a1.5's and a1.6's, agreed through `npm run course:ids` rather than left for the snapshot test to find.
+
+**And writing the sentences found the words the course did not teach, which is the better finding.**
+The checker refused sentence after sentence over `tähtis`, `seal`, `võima` and `ära`, and read
+against `lib/collections/frequency.ts` the course was missing 55 of the four hundred commonest
+words in Estonian outright: `võima`, `oskama`, `vaatama`, `käima`, `hakkama`, `asi`, `elu`,
+`huvitav`, `järgmine`, `poiss`. Two A1 units hold most of them (`veel-verbe` after the core verbs,
+`tahtsad-sonad` after the colours) and the rest joined the unit they belong to; all came back from
+Ekilex, and the 150 new usages were given English through `npm run translate:examples`. **What the
+frequency list names and the course still does not is a list worth reading rather than a total**:
+most of what is left is subtitle vocabulary (`kurat`, `relv`, `kolonel`) that a course has no
+business teaching early, and the rest is the next place to look.
+
 **And one word in the whole of A1 is asked a question nobody can fail, which is stated rather than
 special-cased.** Three A1 module words are spelled the same in both languages, `number`, `park` and
 `euro`, and the ladder already knows what that costs: `free` sends such a word straight past the
@@ -5873,8 +5917,9 @@ list reads nothing, which the fifteen-minute test allows
 at every level now rather than at A1 alone. The scene evening takes no page off the plan, since
 the conversation replaces the reading (`day()`): the first version handed it one, counted it read
 in the ledger, and showed it to nobody, so a round on the evening after was dealt a case nobody had
-been shown. One page is lost to that, the terminative on the travel unit, whose four pages meet
-four evenings and a scene on the last, and it is named in the test rather than waived. Fresh pages
+been shown. One page was lost to that, the terminative on the travel unit, whose four pages met
+four evenings and a scene on the last; the unit grew the compass points and has the evening now,
+and the test still fails on a page a scene takes, naming it rather than waiving it. Fresh pages
 first was tried and reverted: it put the conditional in front of the imperative on the request unit
 because the imperative had been met at A1, and a unit's list is a lesson plan whose revision at the
 front is the revision its author wanted first. **And a verb

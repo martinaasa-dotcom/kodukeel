@@ -103,7 +103,7 @@ export interface ReviewCard {
      */
     equivalent: { text: string; lang: string } | null;
     /** An attested sentence, and which form of the word it carries. */
-    sentence: { et: string; en: string | null; form: string | null } | null;
+    sentence: { et: string; en: string | null; form: string | null; authored: boolean } | null;
     /** The entry it hangs off, so the sentence can be asked about in English. */
     lexemeId: string | null;
     /**

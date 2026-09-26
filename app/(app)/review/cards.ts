@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { parseExamples, sentenceEnglish, teachingSentence } from "@/lib/dict/examples";
+import { authoredFor, isAuthored } from "@/lib/dict/authored";
 import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { glossSentences } from "@/lib/dict/glossed";
 import { resolveProvider } from "@/lib/tutor/provider";
@@ -108,9 +109,13 @@ function introFor(
     `Tere, mina olen Katrin.` See lib/dict/plainness.ts.
   */
   const plainest = reach ? plainerFirst(c.lexeme.cefr, reach) : undefined;
-  const found = teachingSentence(
-    parseExamples(c.lexeme.examples), [asked, c.lexeme.lemma], undefined, plainest,
-  );
+  /*
+    A sentence written for a beginner first (`lib/dict/authored.ts`), since it
+    is the one kind `WordIntro` shows an A1 word with and is made of words the
+    course teaches before this one, then the dictionary's own.
+  */
+  const found = teachingSentence(authoredFor(c.lexeme.lemma), [asked, c.lexeme.lemma])
+    ?? teachingSentence(parseExamples(c.lexeme.examples), [asked, c.lexeme.lemma], undefined, plainest);
 
   const equivalent = equivalentIn(c.lexeme, glossLanguage);
 
@@ -120,7 +125,7 @@ function introFor(
     lexemeId: c.lexemeId,
     equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
     sentence: found
-      ? { et: found.example.et, en: found.example.en ?? null, form: found.form }
+      ? { et: found.example.et, en: found.example.en ?? null, form: found.form, authored: isAuthored(found.example) }
       : null,
     /*
       Filled in by `withGlosses`, in one query for the whole session rather

@@ -148,7 +148,7 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   reisimine: "bussipilet",
   "linn-ja-teenused": "tee-kusimine",
   restoranis: "kohvikus",
-  vordlemine: "restoranis-tellimine",
+  kirjeldamine: "restoranis-tellimine",
   plaanid: "arsti-aeg",
   suhtlemine: "helistamine",
   tunded: "apteek",
@@ -232,13 +232,13 @@ export interface PartSpec {
 export const PARTS: readonly PartSpec[] = [
   {
     id: "a1.1", level: "A1",
-    title: "Esimesed sõnad", subtitle: "Hello, I and you, to be, and who is in the room",
+    title: "Esimesed sõnad", subtitle: "Hello, I and you, to be, and, and who is in the room",
     blurb:
       "From nothing, in the order a sentence needs: five words on the first evening, the "
       + "six pronouns on the second, the verb to be and its six endings straight after. Then the "
-      + "greetings, and the people around you. At the end you can say hello, say who you "
-      + "are, and say who is in your family.",
-    units: ["vastused", "asesonad", "esimesed-verbid", "tervitused", "inimesed"],
+      + "small words that join them, the greetings, the question words, and the people around "
+      + "you. At the end you can say hello, ask where somebody lives, and say who is in your family.",
+    units: ["vastused", "asesonad", "esimesed-verbid", "vaikesed-sonad", "tervitused", "kusisonad", "inimesed"],
   },
   {
     id: "a1.2", level: "A1",
@@ -247,7 +247,7 @@ export const PARTS: readonly PartSpec[] = [
       "Your name and address, the numbers, the room you are standing in, and the eleven verbs "
       + "an Estonian sentence cannot avoid. At the end you can introduce yourself, count, and "
       + "describe your home.",
-    units: ["tutvumine", "arvud", "kodu", "pohiverbid"],
+    units: ["tutvumine", "arvud", "kodu", "pohiverbid", "veel-verbe"],
   },
   {
     id: "a1.3", level: "A1",
@@ -256,7 +256,7 @@ export const PARTS: readonly PartSpec[] = [
       "The words for ordering, the days and the hours, the verbs of an ordinary day, and the "
       + "first adjectives and colors. At the end you can say what you are doing, when, and what "
       + "it is like.",
-    units: ["sook-ja-jook", "aeg", "iga-paev", "omadussonad", "varvid"],
+    units: ["sook-ja-jook", "aeg", "iga-paev", "omadussonad", "varvid", "tahtsad-sonad"],
   },
   {
     id: "a1.4", level: "A1",
@@ -264,15 +264,15 @@ export const PARTS: readonly PartSpec[] = [
     blurb:
       "Clothes and weather, the numbers a price needs, and then the shop where you use all of "
       + "them. At the end you can say what something is like and buy it.",
-    units: ["riided", "ilm", "suured-arvud", "ostmine"],
+    units: ["riided", "ilm", "suured-arvud", "ostmine", "kodus"],
   },
   {
     id: "a1.5", level: "A1",
-    title: "Kus, kes, millal", subtitle: "Places, the bus, questions, the rest of the pronouns, and when",
+    title: "Kus ja millal", subtitle: "Places, the bus, the rest of the pronouns, and when",
     blurb:
       "The words a sentence is built out of rather than the ones it is about. At the end you "
       + "can ask where something is, catch a bus to it, and say when you got there.",
-    units: ["kus-ja-kuhu", "transport", "kusisonad", "umbmaarased", "millal", "kohasonad"],
+    units: ["kus-ja-kuhu", "transport", "umbmaarased", "millal", "kohasonad"],
   },
   {
     id: "a1.6", level: "A1",
@@ -281,11 +281,11 @@ export const PARTS: readonly PartSpec[] = [
       "The words that join two sentences or say how sure you are, the months and the holidays, "
       + "and where people are from. At the end you can put two thoughts together and say when "
       + "something happens.",
-    units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid"],
+    units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid", "loomad-ja-keha"],
   },
   {
     id: "a1.7", level: "A1",
-    title: "Kuidas, kinni ja abi", subtitle: "How something was done, the word that finishes a verb, and asking for help",
+    title: "Kuidas, kinni ja abi", subtitle: "How something was done, the words a household needs, and asking for help",
     /*
       A seventh part rather than two more units inside the sixth, and that is
       about the day ids rather than about the shape. `CourseStep` rows are
@@ -296,41 +296,43 @@ export const PARTS: readonly PartSpec[] = [
       simply stops earlier.
 
       The order inside it is the argument. The manner words and the particles
-      are the last of the machinery, and A1 still ends on asking for help,
-      which is where it ended before.
+      are the last of the machinery, then the everyday words the course had
+      been missing (the market, the town, ten verbs and ten adjectives), and
+      A1 still ends on asking for help, which is where it ended before.
     */
     blurb:
-      "The last of A1: how something was done, the little word that finishes a verb, and how to "
-      + "ask somebody for help. At the end you have every word A1 asks for.",
-    units: ["viisisonad", "osakesed", "abi"],
+      "The last of A1: how something was done, the little word that finishes a verb, the market, "
+      + "the town and ten verbs a child uses, and how to ask somebody for help. At the end you have "
+      + "every word A1 asks for.",
+    units: ["viisisonad", "osakesed", "rohkem-toitu", "kohad-ja-ametid", "tegusonad", "veel-omadussonu", "abi"],
   },
 
   {
     id: "a2.1", level: "A2",
-    title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors and the body",
+    title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors, the body and the house",
     blurb:
       "A2 opens with the unit that makes a conversation possible, asking somebody for something "
       + "without sounding like a machine, and then the past tense. Then the first case pages, the "
       + "stem first. At the end you can say what you did yesterday and what is wrong with you, and "
       + "the first two conversations open.",
-    units: ["korraldused", "minevik", "loodus", "keha-ja-tervis"],
+    units: ["korraldused", "minevik", "loodus", "keha-ja-tervis", "kodutood"],
   },
   {
     id: "a2.2", level: "A2",
-    title: "Linn ja liikumine", subtitle: "School, travel, the house, the town and a free afternoon",
+    title: "Linn ja liikumine", subtitle: "School, travel, the town, a free afternoon and comparing things",
     blurb:
       "Everything that happens outside your own front door, and three conversations to have "
       + "there. At the end you can buy a ticket, ask the way and say what you did on Saturday.",
-    units: ["kool-ja-keel", "reisimine", "kodutood", "linn-ja-teenused", "vaba-aeg"],
+    units: ["kool-ja-keel", "reisimine", "linn-ja-teenused", "vaba-aeg", "vordlemine"],
   },
   {
     id: "a2.3", level: "A2",
-    title: "Söök, plaanid ja tunded", subtitle: "Eating out, comparing things, what is next, and how you feel",
+    title: "Söök, plaanid ja tunded", subtitle: "Eating out, what is next, talking to people, and how you feel",
     blurb:
-      "Comparing two things, talking about what has not happened yet, and saying how you feel "
+      "Talking about what has not happened yet, keeping in touch, and saying how you feel "
       + "about either. Five conversations, more than any other part: at the end you can hold a "
       + "whole meal in Estonian, book an appointment and ring somebody about it.",
-    units: ["restoranis", "vordlemine", "plaanid", "suhtlemine", "tunded", "kuivord"],
+    units: ["restoranis", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
   },
 
   {

@@ -42,7 +42,8 @@ import { PROGRAMMES, taughtThrough } from "../lib/course";
 import { dictionaryRows } from "./lib/dictionary";
 import { buildCloze, naturalSentence, nominalOpener, sentenceTiles } from "../lib/estonian/cloze";
 import { usableExamples } from "../lib/dict/examples";
-import { gapFormsFromParts } from "../lib/estonian/gapForms";
+import { authoredFor } from "../lib/dict/authored";
+import { gapFormsFromParts, readableSpellings } from "../lib/estonian/gapForms";
 import { isPrincipalFormType } from "../lib/estonian/types";
 
 const rows = dictionaryRows();
@@ -53,14 +54,15 @@ for (const row of rows) {
   byLemma.set(row.lemma, held);
 }
 
+/*
+  Every spelling a learner taught this word can read, which is what the app's
+  own `courseFormsByLemma` hands the rule: stored forms and the ones the app
+  derives off them (`readableSpellings`).
+*/
 const spellingsOf = (lemma: string): string[] => {
-  const out: string[] = [];
-  const add = (text: string) => {
-    for (const word of text.toLowerCase().split(/[^\p{L}\p{M}]+/u)) if (word) out.push(word);
-  };
-  add(lemma);
-  for (const row of byLemma.get(lemma) ?? []) for (const form of row.forms) add(form.value);
-  return out;
+  const out = new Set<string>(lemma.toLowerCase().split(/[^\p{L}\p{M}]+/u).filter(Boolean));
+  for (const row of byLemma.get(lemma) ?? []) for (const w of readableSpellings(row)) out.add(w);
+  return [...out];
 };
 
 /**
@@ -88,7 +90,11 @@ function readWord(
     ranks on; the shipped-file adapter drops it, so it is put back as the one
     thing every row here is: a sentence Ekilex recorded.
   */
-  const examples = row.examples.map((e) => ({ ...e, source: "EKILEX" as const }));
+  const examples = [
+    // The sentences written for a beginner count too, since the app shows them first (`lib/dict/authored.ts`).
+    ...authoredFor(lemma),
+    ...row.examples.map((e) => ({ ...e, source: "EKILEX" as const })),
+  ];
   for (const example of usableExamples(examples)) {
     if (!naturalSentence(example.et, opener)) continue;
     if (!buildCloze(example.et, hideable)) continue;
@@ -149,6 +155,7 @@ for (const unit of SYLLABUS) {
 const dayBlockers = new Map<string, number>();
 interface Tally { words: number; gappable: number; readable: number }
 const byLevel = new Map<string, Tally>();
+const dayMisses = new Map<string, string[]>();
 
 for (const programme of PROGRAMMES) {
   const tally = byLevel.get(programme.level) ?? { words: 0, gappable: 0, readable: 0 };
@@ -164,6 +171,11 @@ for (const programme of PROGRAMMES) {
       const { any, ok } = readWord(lemma, given, dayBlockers);
       if (any) tally.gappable++;
       if (ok) tally.readable++;
+      else if (any) {
+        const list = dayMisses.get(programme.level) ?? [];
+        list.push(`${lemma} (${day.id})`);
+        dayMisses.set(programme.level, list);
+      }
     }
   }
 }
@@ -176,7 +188,10 @@ for (const [level, t] of byLevel) {
   console.log(`  ${level}: the dictionary can gap ${t.gappable} of ${t.words} words; ${t.readable} with a sentence made only of words given by then`);
 }
 
-console.log("\nWords with nothing readable, by unit:");
+console.log("\nThe module's own misses, by level: the words an evening meets with no sentence it can read.");
+for (const [level, list] of dayMisses) console.log(`  ${level}  ${list.join(", ")}`);
+
+console.log("\nThe unit lesson's misses, by unit:");
 console.log(thin.join("\n"));
 
 const ranked = [...dayBlockers].sort((a, b) => b[1] - a[1]).slice(0, 30);

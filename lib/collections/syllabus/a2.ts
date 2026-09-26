@@ -72,6 +72,11 @@ export const A2 = [
       ["suvi", "summer"],
       ["sügis", "autumn"],
       ["talv", "winter"],
+      ["taevas", "sky"],
+      ["õhk", "air"],
+      ["kivi", "stone"],
+      ["taim", "plant"],
+      ["karu", "bear"],
     ],
   }),
 
@@ -108,6 +113,10 @@ export const A2 = [
       ["väsinud", "tired", "ADJECTIVE"],
       ["valutama", "to hurt, to ache"],
       ["tablett", "tablet"],
+      ["nägu", "face"],
+      ["hammas", "tooth"],
+      ["kõht", "stomach, belly"],
+      ["kael", "neck"],
     ],
   }),
 
@@ -142,6 +151,11 @@ export const A2 = [
       ["seletama", "to explain"],
       ["kordama", "to repeat"],
       ["tõlkima", "to translate"],
+      ["klass", "class"],
+      ["teema", "topic", "NOUN"],
+      ["paber", "paper"],
+      ["õpik", "textbook"],
+      ["lehekülg", "page"],
     ],
   }),
 
@@ -175,6 +189,13 @@ export const A2 = [
       ["leidma", "to find"],
       ["jõudma", "to arrive, to manage"],
       ["broneerima", "to book"],
+      ["põhi", "north"],
+      ["lõuna", "south"],
+      ["ida", "east"],
+      ["lääs", "west"],
+      ["saar", "island"],
+      ["välismaa", "abroad, foreign country"],
+      ["kaugus", "distance"],
     ],
   }),
 
@@ -241,6 +262,9 @@ export const A2 = [
       ["saatma", "to send"],
       ["tellima", "to order", "VERB", 243828],
       ["esitama", "to submit, to hand in"],
+      ["hoone", "building"],
+      ["taotlus", "application"],
+      ["kohalik", "local", "ADJECTIVE"],
     ],
   }),
 
@@ -272,6 +296,7 @@ export const A2 = [
       ["parool", "password"],
       ["pilt", "picture"],
       ["heli", "sound"],
+      ["kohtama", "to meet, to come across"],
     ],
   }),
 
@@ -306,6 +331,12 @@ export const A2 = [
       ["sõitma", "to ride"],
       ["võitma", "to win"],
       ["kaotama", "to lose"],
+      ["koguma", "to collect, to gather"],
+      ["kino", "cinema"],
+      ["kontsert", "concert"],
+      ["pall", "ball"],
+      ["foto", "photo"],
+      ["saun", "sauna"],
     ],
   }),
 
@@ -345,6 +376,11 @@ export const A2 = [
       ["tellima", "to order", "VERB", 243828],
       ["soovitama", "to recommend"],
       ["maitsma", "to taste"],
+      ["kana", "chicken"],
+      ["pudel", "bottle"],
+      ["hommikusöök", "breakfast"],
+      ["lõunasöök", "lunch"],
+      ["õhtusöök", "dinner"],
     ],
   }),
 
@@ -377,6 +413,9 @@ export const A2 = [
       ["tervitama", "to greet"],
       // "Kas ma tohin?" is the polite ask this unit is about.
       ["tohtima", "to be allowed to"],
+      ["suutma", "to manage to, to be able to"],
+      ["laskma", "to let, to have (something done)"],
+      ["üritama", "to try, to attempt"],
     ],
   }),
 
@@ -408,6 +447,9 @@ export const A2 = [
       ["tühi", "empty", "ADJECTIVE"],
       ["sarnane", "similar", "ADJECTIVE"],
       ["erinev", "different", "ADJECTIVE"],
+      ["parem", "better", "ADJECTIVE", 213895],
+      ["halvem", "worse", "ADJECTIVE"],
+      ["rikas", "rich", "ADJECTIVE"],
     ],
   }),
 
@@ -440,6 +482,9 @@ export const A2 = [
       ["rahulik", "calm", "ADJECTIVE"],
       ["üllatunud", "surprised", "ADJECTIVE"],
       ["tunduma", "to seem"],
+      ["muretsema", "to worry"],
+      ["tuju", "mood"],
+      ["hing", "soul"],
     ],
   }),
 
@@ -473,6 +518,9 @@ export const A2 = [
       ["nõus", "in agreement (ma olen nõus: I agree)", "ADVERB"],
       ["sobima", "to suit, to be convenient"],
       ["kestma", "to last, to go on"],
+      ["plaanima", "to plan"],
+      ["tegevus", "activity"],
+      ["võit", "win, victory"],
     ],
   }),
   /*
@@ -485,6 +533,54 @@ export const A2 = [
     id before it moves. Each is `ADVERB` for the reason the connectives are: an
     Estonian adverb does not inflect, and the label says which cards it takes.
   */
+  unit({
+    /*
+      THE WORDS FOR SAYING WHAT SOMETHING WAS LIKE, AND WHAT YOU THOUGHT.
+
+      Another handful off `lib/collections/frequency.ts` that no unit taught:
+      `mõte`, `idee`, `maailm`, `jutt`, `kena`, `lõbus`, `imelik`. A learner
+      at A2 tells somebody about their weekend, and these are the words that
+      conversation is made of.
+    */
+    id: "kirjeldamine",
+    title: "Kirjeldamine",
+    subtitle: "Ideas, the world, and what something was like",
+    icon: "MessageCircle",
+    level: "A2",
+    module: "Suhtlemine",
+    canDo: "Say what you thought of something and describe it in a few words: nice, fun, strange, famous.",
+    blurb: "The words a story about your weekend is made of.",
+    grammar: ["adjective-agreement"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM"],
+    requires: ["tunded"],
+    words: [
+      ["mõte", "thought, idea"],
+      ["idee", "idea"],
+      ["maailm", "world"],
+      ["jutt", "talk, story"],
+      ["tänu", "gratitude, thanks"],
+      ["tähelepanu", "attention"],
+      ["mingi", "some, some kind of", "PRONOUN"],
+      ["kena", "nice, pretty", "ADJECTIVE"],
+      ["armas", "dear, sweet", "ADJECTIVE"],
+      ["lõbus", "fun", "ADJECTIVE"],
+      ["imelik", "strange", "ADJECTIVE"],
+      ["eriline", "special", "ADJECTIVE"],
+      ["normaalne", "normal", "ADJECTIVE"],
+      ["vaene", "poor", "ADJECTIVE"],
+      ["kuulus", "famous", "ADJECTIVE"],
+      ["pime", "dark (without light), blind", "ADJECTIVE"],
+      ["ohutu", "safe", "ADJECTIVE"],
+      ["tänulik", "grateful", "ADJECTIVE"],
+      ["ettevaatlik", "careful", "ADJECTIVE"],
+      ["uhke", "proud, splendid", "ADJECTIVE"],
+      ["värske", "fresh"],
+      ["vaikne", "quiet", "ADJECTIVE"],
+      ["pehme", "soft", "ADJECTIVE"],
+      ["magus", "sweet"],
+    ],
+  }),
+
   unit({
     id: "kuivord",
     title: "Kui väga",

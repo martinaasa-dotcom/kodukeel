@@ -216,7 +216,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Negated with its own word": [
       { lemma: "vaatama", et: "Ära otse päikesesse vaata!", form: "Ära" },
-      { lemma: "rumal", et: "Ära ole rumal!", form: "Ära" },
+      { lemma: "muretsema", et: "Ära muretse, kõik läheb hästi.", form: "Ära" },
     ],
   },
   impersonal: {
@@ -232,7 +232,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   "past-participle": {
     "Combines with to be for have done and had done": [
       { lemma: "vale", et: "Oled elanud vales.", form: "elanud", slot: "VERB:PtsPtPs" },
-      { lemma: "jutt", et: "Meil pole sellest juttu olnud.", form: "olnud", slot: "VERB:PtsPtPs" },
+      { lemma: "alati", et: "Mulle on alati meeldinud tantsida.", form: "meeldinud", slot: "VERB:PtsPtPs" },
     ],
     "Describes a noun as having done something": [
       { lemma: "vihik", et: "Ilmunud vihik tegi luuletajale palju rõõmu.", form: "Ilmunud", slot: "VERB:PtsPtPs" },
@@ -302,7 +302,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "The -da one follows wanting and being able": [
       { lemma: "valuuta", et: "Kus saab valuutat vahetada?", form: "vahetada", slot: "VERB:Inf" },
-      { lemma: "võima", et: "Ma võin jälle kõndida!", form: "kõndida", slot: "VERB:Inf" },
+      { lemma: "võima", et: "Haige võib varsti surra.", form: "surra", slot: "VERB:Inf" },
     ],
   },
   "particle-verbs": {
@@ -312,7 +312,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Often the difference between doing and finishing": [
       { lemma: "lamp", et: "Lamp põles läbi.", form: "läbi" },
-      { lemma: "talu", et: "Talu põles maha.", form: "maha", slot: "CASE:ILLATIVE" },
+      { lemma: "ostma", et: "Etenduse piletid osteti kiiresti ära.", form: "ära" },
     ],
     "It moves around the sentence rather than staying put": [
       { lemma: "televiisor", et: "Pane televiisor kinni.", form: "kinni" },
@@ -363,7 +363,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "harjumus", et: "Suitsetamine on kahjulik harjumus.", form: "Suitsetamine" },
     ],
     "Adjectives meaning like it, and meaning without it": [
-      { lemma: "idee", et: "Toetan demokraatlikke ideid.", form: "demokraatlikke", slot: "CASE:PARTITIVE" },
+      { lemma: "arglik", et: "Kõlas arglik koputus.", form: "arglik" },
       { lemma: "abikaasa", et: "Abikaasad on võrdõiguslikud.", form: "võrdõiguslikud" },
     ],
     "A quality noun from an adjective": [
@@ -374,7 +374,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   "word-order": {
     "Endings mark who did what, so order is free for other work": [
       { lemma: "talv", et: "Talvel sadas palju lund.", form: "Talvel", slot: "CASE:ADESSIVE" },
-      { lemma: "toimuma", et: "Eile toimus mitu õnnetust.", form: "Eile" },
+      { lemma: "toimuma", et: "Varahommikul toimus raske liiklusõnnetus.", form: "Varahommikul" },
     ],
     "The verb tends to sit second in a main clause": [
       { lemma: "alustama", et: "Homme alustan dieeti.", form: "alustan", slot: "VERB:IndPrSg1" },
@@ -436,7 +436,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Verbs of planning and intending carry the rest": [
       { lemma: "kook", et: "Ema hakkab kooki küpsetama.", form: "hakkab", slot: "VERB:IndPrSg3" },
-      { lemma: "koguma", et: "Kogun raha, et uut autot osta.", form: "Kogun", slot: "VERB:IndPrSg1" },
+      { lemma: "kavatsema", et: "Valitsus kavatseb eelarvekulud tõsise kontrolli alla võtta.", form: "kavatseb", slot: "VERB:IndPrSg3" },
     ],
     "A particle can imply something is going to finish": [
       { lemma: "kütus", et: "Autol hakkab kütus otsa saama.", form: "otsa" },
@@ -577,7 +577,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "algus", et: "Ootasime kontserdi algust.", form: "algust" },
     ],
     "After any number above one": [
-      { lemma: "kott", et: "Kolm kotti kartuleid.", form: "kotti" },
+      { lemma: "neli", et: "Autol on neli ratast.", form: "ratast" },
       { lemma: "pere", et: "Nende peres on viis last.", form: "last" },
     ],
   },
@@ -635,7 +635,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "poolteist", et: "Linnani on poolteist kilomeetrit.", form: "Linnani" },
     ],
     "Until a moment": [
-      { lemma: "lõuna", et: "Ta magas lõunani.", form: "lõunani" },
+      { lemma: "varahommik", et: "Ta töötab varahommikust hilisõhtuni.", form: "hilisõhtuni" },
       { lemma: "näitus", et: "Näitus jääb avatuks sügiseni.", form: "sügiseni" },
     ],
     "Up to an amount": [

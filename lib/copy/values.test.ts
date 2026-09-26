@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { plainPhrase, sameSpelling, SpelledCount, spelledCount } from "./values";
+import { givesItselfAway, plainPhrase, sameSpelling, SpelledCount, spelledCount } from "./values";
 
 describe("a word spelled the same in both languages", () => {
   /*
@@ -25,6 +25,18 @@ describe("a word spelled the same in both languages", () => {
       ["september", "September"], ["islam", "Islam"], ["muslim", "Muslim"]] as const) {
       expect(sameSpelling(et, en)).toBe(false);
     }
+  });
+
+  /*
+    AND A QUESTION IS NOT A CAPTION. The level check asked what `august` means
+    with "August" among the options, which nobody can get wrong.
+  */
+  it("folds case when the question is whether a question gives itself away", () => {
+    for (const [et, en] of [["august", "August"], ["film", "film"], ["islam", "Islam"]] as const) {
+      expect(givesItselfAway(et, en)).toBe(true);
+    }
+    expect(givesItselfAway("norm", "norm, quota, standard")).toBe(false);
+    expect(givesItselfAway("", "")).toBe(false);
   });
 
   it("says nothing about a gloss that merely contains the word", () => {
