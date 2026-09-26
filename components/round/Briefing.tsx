@@ -107,12 +107,9 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
           which is not mounted yet. Two steps rather than two paragraphs:
           what arrives on the screen, and what the learner does about it,
           each beside a mark that says which of the two it is. */}
-      <div
-        className="pop-in rounded-[var(--r-xl)] border px-4 py-7 text-center sm:px-6 md:px-8"
-        style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
-      >
-        <Mascot size={56} className="mx-auto" />
-        <h1 className="mt-4 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+      <div className="night pop-in rounded-[var(--r-xl)] border px-5 py-9 text-center sm:px-8 md:px-10 md:py-11">
+        <Mascot size={64} className="mx-auto" />
+        <h1 className="font-display mt-5 text-4xl font-bold leading-[1.02] tracking-tight md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {brief.title}
         </h1>
         {count && count.n > 0 && (
@@ -121,14 +118,14 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
           </p>
         )}
         <ol className="mt-6 flex flex-col gap-2.5 text-left">
-          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-3 sm:px-4 sm:py-3.5" style={{ background: "var(--raised)" }}>
-            <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}>
+          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-3 sm:px-4 sm:py-3.5" style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.1)" }}>
+            <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--sky)", color: "var(--on-hue)" }}>
               <Eye size={16} />
             </span>
             <span className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{brief.what}</span>
           </li>
-          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-3 sm:px-4 sm:py-3.5" style={{ background: "var(--accent-soft)" }}>
-            <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--surface)", color: "var(--accent-deep)" }}>
+          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-3 sm:px-4 sm:py-3.5" style={{ background: "rgb(255 255 255 / 0.1)", border: "1px solid rgb(255 255 255 / 0.16)" }}>
+            <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--cta)", color: "var(--on-hue)" }}>
               <MousePointerClick size={16} />
             </span>
             <span className="text-base font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>{brief.you}</span>

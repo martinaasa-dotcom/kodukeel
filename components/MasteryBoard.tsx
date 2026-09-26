@@ -52,7 +52,7 @@ export function MasteryBoard({
 }: { words: readonly MasteredWord[]; counts: Record<Mastery, number> }) {
   return (
     <>
-      <Card>
+      <Card tone="night">
         <SectionTitle hint="counted in words, not cards">At a glance</SectionTitle>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {MASTERY_ORDER.map((tier) => (

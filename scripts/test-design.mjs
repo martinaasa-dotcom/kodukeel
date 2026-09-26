@@ -452,6 +452,17 @@ const adrift = [], onInk = [], clipped = [], sides = [];
 for (const width of live ? [640, 768, 1280] : []) {
   await p.setViewportSize({ width, height: 1000 });
   await p.goto(`${B}/welcome`, { waitUntil: "load", timeout: 60000 });
+  /* Wait for what is about to be measured rather than for a fixed 200ms: the
+     letters pop in, and a letter sampled at scale 0 has no box, which read as
+     four letters missing the card on a busy machine. Best effort, so a page
+     that never draws them still reaches the check and is reported by it. */
+  await p.waitForFunction(() => {
+    const els = [...document.querySelectorAll("#cases span.drift")];
+    return els.length === 4 && els.every((el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 8 && r.height > 8;
+    });
+  }, null, { timeout: 5000 }).catch(() => {});
   await p.waitForTimeout(200);
   for (let frame = 0; frame < 12; frame++) {
     const seen = await p.evaluate((frac) => {
