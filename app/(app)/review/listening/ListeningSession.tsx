@@ -301,7 +301,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-2 border-t px-6 py-4 sm:grid-cols-2" style={{ borderColor: "var(--rule-soft)" }}>
+        <div className="grid grid-cols-1 gap-2 border-t px-6 py-4 lg:grid-cols-2" style={{ borderColor: "var(--rule-soft)" }}>
           {card.choices.map((choice, i) => {
             const isCorrectChoice = choice === card.correct;
             const isPicked = choice === selected;
