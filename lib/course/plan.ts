@@ -264,7 +264,7 @@ export const PARTS: readonly PartSpec[] = [
     blurb:
       "Clothes and weather, the numbers a price needs, and then the shop where you use all of "
       + "them. At the end you can say what something is like and buy it.",
-    units: ["riided", "ilm", "suured-arvud", "ostmine"],
+    units: ["riided", "ilm", "suured-arvud", "ostmine", "kodus"],
   },
   {
     id: "a1.5", level: "A1",
@@ -281,11 +281,11 @@ export const PARTS: readonly PartSpec[] = [
       "The words that join two sentences or say how sure you are, the months and the holidays, "
       + "and where people are from. At the end you can put two thoughts together and say when "
       + "something happens.",
-    units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid"],
+    units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid", "loomad-ja-keha"],
   },
   {
     id: "a1.7", level: "A1",
-    title: "Kuidas, kinni ja abi", subtitle: "How something was done, the word that finishes a verb, and asking for help",
+    title: "Kuidas, kinni ja abi", subtitle: "How something was done, the words a household needs, and asking for help",
     /*
       A seventh part rather than two more units inside the sixth, and that is
       about the day ids rather than about the shape. `CourseStep` rows are
@@ -296,13 +296,15 @@ export const PARTS: readonly PartSpec[] = [
       simply stops earlier.
 
       The order inside it is the argument. The manner words and the particles
-      are the last of the machinery, and A1 still ends on asking for help,
-      which is where it ended before.
+      are the last of the machinery, then the everyday words the course had
+      been missing (the market, the town, ten verbs and ten adjectives), and
+      A1 still ends on asking for help, which is where it ended before.
     */
     blurb:
-      "The last of A1: how something was done, the little word that finishes a verb, and how to "
-      + "ask somebody for help. At the end you have every word A1 asks for.",
-    units: ["viisisonad", "osakesed", "abi"],
+      "The last of A1: how something was done, the little word that finishes a verb, the market, "
+      + "the town and ten verbs a child uses, and how to ask somebody for help. At the end you have "
+      + "every word A1 asks for.",
+    units: ["viisisonad", "osakesed", "rohkem-toitu", "kohad-ja-ametid", "tegusonad", "veel-omadussonu", "abi"],
   },
 
   {

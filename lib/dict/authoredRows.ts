@@ -368,7 +368,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["igaüks", "Igaüks teab seda.", "Everyone knows that."],
   ["mõni", "Mõni päev on raske.", "Some days are hard."],
   ["iga", "Ma ärkan iga päev kell seitse.", "I wake up at seven every day."],
-  ["oma", "Ma elan oma korteris.", "I live in my own flat."],
+  ["oma", "See on minu oma.", "It is mine."],
   // millal
   ["homme", "Homme ma ei tööta.", "Tomorrow I am not working."],
   ["eile", "Eile oli külm.", "It was cold yesterday."],
@@ -999,12 +999,6 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["ette valmistama", "Ema valmistab söögi ette.", "Mum is preparing the food."],
   ["sisse astuma", "Astu sisse!", "Come in!"],
   ["edasi andma", "Anna see teade edasi.", "Pass on this message."],
-  /*
-    EVERY ROW ABOVE WAS READ, on 2026-09-26, by the native Estonian speaker
-    who develops this app, A1 and A2 first and B1 after, and every change
-    asked for is in. A row added below this line is drafted and checked by
-    machine and waits for the same reading.
-  */
   // The words added to the course on 2026-09-26.
   // vaikesed-sonad
   ["seal", "Ta elab seal.", "She lives there."],
@@ -1012,7 +1006,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   // inimesed
   ["poiss", "See poiss on minu vend.", "That boy is my brother."],
   ["tüdruk", "See tüdruk õpib siin.", "That girl studies here."],
-  ["abikaasa", "Minu abikaasa töötab täna.", "My husband is working today."],
+  ["abikaasa", "Minu abikaasa töötab täna.", "My husband or wife is working today."],
   ["onu", "Minu onu elab siin.", "My uncle lives here."],
   ["tädi", "Tädi tuleb täna.", "My aunt is coming today."],
   // veel-verbe
@@ -1020,9 +1014,9 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["oskama", "Ma oskan eesti keelt.", "I can speak Estonian."],
   ["vaatama", "Vaata seda raamatut!", "Look at this book!"],
   ["kuulama", "Palun kuula mind.", "Please listen to me."],
-  ["käima", "Sõber käib täna meil.", "A friend is coming round to ours today."],
+  ["käima", "Sõber käib täna meil külas.", "A friend is coming round to ours today."],
   ["hakkama", "Ma hakkan eesti keelt õppima.", "I am going to start learning Estonian."],
-  ["näitama", "Näita mulle sinu tuba!", "Show me your room!"],
+  ["näitama", "Näita mulle oma tuba!", "Show me your room!"],
   ["tähendama", "Mida see tähendab?", "What does that mean?"],
   ["jätma", "Jäta raamat lauale.", "Leave the book on the table."],
   ["toimuma", "Mis siin toimub?", "What is going on here?"],
@@ -1033,7 +1027,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["paar", "Mul on paar raamatut.", "I have a couple of books."],
   ["lõpp", "See on raamatu lõpp.", "This is the end of the book."],
   ["tähtis", "See on väga tähtis.", "This is very important."],
-  ["oluline", "See on väga oluline.", "This is very important."],
+  ["oluline", "Vesi on väga oluline.", "Water matters a great deal."],
   ["huvitav", "See raamat on huvitav.", "This book is interesting."],
   ["igav", "Täna on igav päev.", "Today is a boring day."],
   ["õnnelik", "Ma olen väga õnnelik.", "I am very happy."],
@@ -1054,7 +1048,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["kaugel", "Kas jaam on kaugel?", "Is the station far away?"],
   // umbmaarased
   ["kogu", "Kogu pere on kodus.", "The whole family is at home."],
-  ["selline", "Mul on selline tunne.", "I have that kind of feeling."],
+  ["selline", "Mul on selline tunne.", "That's how I feel."],
   // kohasonad
   ["eest", "Aitäh selle eest!", "Thank you for that!"],
   // viisisonad
@@ -1104,7 +1098,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["kehtestama", "Linn kehtestas uued reeglid.", "The city established new rules."],
   ["määrama", "Arst määras mulle uue ravimi.", "The doctor prescribed me a new medicine."],
   ["tühistama", "Ma pean koosoleku tühistama.", "I have to cancel the meeting."],
-  ["algatama", "Kes selle idee algatas?", "Who started this idea?"],
+  ["algatama", "Kes selle projekti algatas?", "Who started this project?"],
   ["menetlema", "Me menetleme teie taotlust.", "We are processing your application."],
   ["korraldus", "Ülemus andis uue korralduse.", "The boss gave a new order."],
   ["otsustamine", "Otsustamine ei ole alati lihtne.", "Deciding is not always easy."],
@@ -1131,6 +1125,13 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["osutama", "Ta osutas käega aknale.", "He pointed at the window with his hand."],
   ["rõhutama", "Õpetaja rõhutas seda mitu korda.", "The teacher stressed it several times."],
   ["kuuldus", "See on ainult kuuldus.", "It is only a rumor."],
+  /*
+    EVERY ROW ABOVE WAS READ, on 2026-09-26, by the native Estonian speaker
+    who develops this app: A1 and A2 first, B1 after, then the first words
+    added to the course and the start of B2. Every change asked for is in. A
+    row added below this line is drafted and checked by machine and waits for
+    the same reading.
+  */
   ["tunnistaja", "Ta oli õnnetuse tunnistaja.", "She was a witness to the accident."],
   ["väide", "See väide ei ole õige.", "This claim is not true."],
   ["tõendus", "Mul ei ole selle kohta tõendust.", "I have no evidence of that."],
@@ -1199,7 +1200,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["ida", "Tuul tuleb idast.", "The wind is coming from the east."],
   ["lääs", "Meri on läänes.", "The sea is to the west."],
   ["saar", "Me sõidame saarele.", "We are going to the island."],
-  ["küla", "Mu vanaema elab väikeses külas.", "My grandmother lives in a small village."],
+  ["küla", "Ma elan külas.", "I live in a village."],
   ["hoone", "See hoone on väga vana.", "This building is very old."],
   ["taotlus", "Palun täitke see taotlus.", "Please fill in this application."],
   ["kino", "Me läheme õhtul kinno.", "We are going to the cinema tonight."],

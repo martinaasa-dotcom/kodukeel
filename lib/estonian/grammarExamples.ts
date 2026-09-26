@@ -312,7 +312,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Often the difference between doing and finishing": [
       { lemma: "lamp", et: "Lamp põles läbi.", form: "läbi" },
-      { lemma: "talu", et: "Talu põles maha.", form: "maha", slot: "CASE:ILLATIVE" },
+      { lemma: "ostma", et: "Etenduse piletid osteti kiiresti ära.", form: "ära" },
     ],
     "It moves around the sentence rather than staying put": [
       { lemma: "televiisor", et: "Pane televiisor kinni.", form: "kinni" },

@@ -154,6 +154,8 @@ export const A2 = [
       ["klass", "class"],
       ["teema", "topic", "NOUN"],
       ["paber", "paper"],
+      ["õpik", "textbook"],
+      ["lehekülg", "page"],
     ],
   }),
 
@@ -260,7 +262,6 @@ export const A2 = [
       ["saatma", "to send"],
       ["tellima", "to order", "VERB", 243828],
       ["esitama", "to submit, to hand in"],
-      ["küla", "village"],
       ["hoone", "building"],
       ["taotlus", "application"],
       ["kohalik", "local", "ADJECTIVE"],

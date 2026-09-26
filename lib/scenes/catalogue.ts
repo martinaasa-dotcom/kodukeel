@@ -50,7 +50,7 @@ import type { Feel, SaysPart, SceneSpec } from "./types";
 */
 const COMMON = [
   "tervitused", "kusisonad", "asesonad", "umbmaarased", "aeg", "arvud", "korraldused", "pohiverbid",
-  "esimesed-verbid", "vaikesed-sonad", "veel-verbe", "tahtsad-sonad", "sidesonad", "vastused", "kindlus", "maaramine", "millal", "kohasonad", "kus-ja-kuhu",
+  "esimesed-verbid", "vaikesed-sonad", "veel-verbe", "tahtsad-sonad", "sidesonad", "vastused", "kindlus", "maaramine", "millal", "kohasonad", "kus-ja-kuhu", "tutvumine",
   /*
     Two more once the curveballs were played rather than drawn. `ilm` is the
     weather, which is what small talk is about in every scene; `iga-paev`

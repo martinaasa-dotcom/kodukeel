@@ -191,6 +191,30 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
     live: false, needs: [], cases: [],
     tryThis: "Say three things you can do and one you cannot, and ask whether you may sit down.",
   },
+  kodus: {
+    live: false, needs: [], cases: [],
+    tryThis: "Walk round your flat naming each room and three things in it.",
+  },
+  "loomad-ja-keha": {
+    live: false, needs: [], cases: [],
+    tryThis: "Name the animals in a picture book, and say which part of you is tired.",
+  },
+  "rohkem-toitu": {
+    live: false, needs: [], cases: [],
+    tryThis: "Write your next shopping list without a single English word on it.",
+  },
+  "kohad-ja-ametid": {
+    live: false, needs: [], cases: [],
+    tryThis: "Say where three people you know work, and which place in town you like best.",
+  },
+  tegusonad: {
+    live: false, needs: [], cases: [],
+    tryThis: "Describe what the children in a playground are doing.",
+  },
+  "veel-omadussonu": {
+    live: false, needs: [], cases: [],
+    tryThis: "Say what your chair, your bag and your street are like, one word each.",
+  },
   "tahtsad-sonad": {
     live: false, needs: [], cases: [],
     tryThis: "Tell somebody what the most interesting thing in your week was, and what is next.",

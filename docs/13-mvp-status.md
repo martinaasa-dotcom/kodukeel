@@ -2560,3 +2560,10 @@ purpose, since on a card the capital is the lesson. A question is not a card: no
 the mock exam ask now, and `sameSpelling` still decides what a screen says. The question audit
 found it, on the run whose new words shifted the draw onto it.
 
+**And the long tail got units of its own.** Rooms and furniture (`kodus`), farm and forest animals
+with the rest of the body (`loomad-ja-keha`), the market (`rohkem-toitu`), places in town and the
+people who work there (`kohad-ja-ametid`), ten verbs (`tegusonad`) and ten adjectives
+(`veel-omadussonu`) are six new A1 units in the parts that had room, and `oma` and `küla` moved
+to the second part's first unit, because a sentence a beginner reads on the first evenings needs
+both. The course is 102 units.
+
