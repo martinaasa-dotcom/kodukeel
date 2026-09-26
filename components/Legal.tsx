@@ -50,9 +50,9 @@ export function Legal({ title, updated, children }: {
   );
 }
 
-export function S({ title, children }: { title: string; children: ReactNode }) {
+export function S({ title, children, id }: { title: string; children: ReactNode; id?: string }) {
   return (
-    <section>
+    <section id={id} className="scroll-mt-6">
       <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
         {title}
       </h2>
