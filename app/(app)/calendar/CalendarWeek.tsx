@@ -96,7 +96,7 @@ export function CalendarWeek({
         title beside the control: at 1024 the row is 55px and the button and
         its gap take 50 of them.
       */}
-      <div className="mt-4 grid gap-2 xl:grid-cols-7">
+      <div className="mt-4 grid gap-2 xl:gap-1.5 xl:grid-cols-7">
           {days.map((key) => (
             <DayColumn
               key={key}
@@ -166,7 +166,7 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
         floors a flex item rather than capping what the column is sized to.
         The same fault the shell had against `main`, one container in.
       */
-      className="min-w-0 rounded-[var(--r)] border p-2.5"
+      className="min-w-0 rounded-[var(--r)] border p-2"
       style={{
         borderColor: isToday ? "var(--accent)" : "var(--rule-soft)",
         background: isToday ? "var(--accent-soft)" : "var(--surface)",
@@ -201,7 +201,7 @@ function EventRow({ event }: { event: StudyEvent }) {
 
   return (
     <li
-      className="rounded-[var(--r-sm)] px-2 py-1.5"
+      className="rounded-[var(--r-sm)] px-1.5 py-1.5"
       style={{ background: `var(--${KIND_TONE[event.kind]}-soft)` }}
     >
       <p className="text-xs font-semibold leading-snug" style={{ color: "var(--ink)" }}>{event.title}</p>
@@ -235,7 +235,7 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
   const router = useRouter();
 
   return (
-    <li className="rounded-[var(--r-sm)] px-2 py-1.5" style={{ background: "var(--raised)" }}>
+    <li className="rounded-[var(--r-sm)] px-1.5 py-1.5" style={{ background: "var(--raised)" }}>
       <p
         className="text-xs font-semibold leading-snug"
         style={{

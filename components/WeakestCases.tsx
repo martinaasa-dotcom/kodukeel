@@ -119,7 +119,7 @@ export function WeakestCases({ cases, empty }: {
                   height={5}
                 />
               </span>
-              <span className="tnum w-16 shrink-0 text-right text-xs" style={{ color: "var(--ink-3)" }}>
+              <span className="tnum w-20 shrink-0 whitespace-nowrap text-right text-xs" style={{ color: "var(--ink-3)" }}>
                 {c.accuracy}% · {c.total}
               </span>
             </Link>

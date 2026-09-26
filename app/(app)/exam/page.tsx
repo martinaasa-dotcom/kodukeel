@@ -261,17 +261,17 @@ export default async function ExamPage() {
               Nothing here yet. Review for a week or two and it will start to fill in.
             </Note>
           ) : (
-            <ul className="grid gap-3">
+            <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
               {readiness.strengths.map((item) => (
-                <Card as="li" key={item.id} tone="mint">
-                  <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--mint-ink)" }}>
-                    <BadgeCheck size={16} aria-hidden />
-                    {item.title}
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--mint-ink)" }}>
-                    {item.detail}
-                  </p>
-                </Card>
+                <li key={item.id} className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+                  <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
+                    <BadgeCheck size={16} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{item.title}</span>
+                    <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.detail}</span>
+                  </span>
+                </li>
               ))}
             </ul>
           )}
@@ -282,26 +282,26 @@ export default async function ExamPage() {
           {readiness.gaps.length === 0 ? (
             <Note tone="good">Nothing here is holding you back. Go sit the paper.</Note>
           ) : (
-            <ul className="grid gap-3">
+            <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
               {readiness.gaps.map((item) => (
-                <Card as="li" key={item.id} tone="peach">
-                  <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--peach-ink)" }}>
-                    <TriangleAlert size={16} aria-hidden />
-                    {item.title}
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--peach-ink)" }}>
-                    {item.detail}
-                  </p>
-                  {item.href && (
-                    <Link
-                      href={item.href}
-                      className="mt-3 inline-flex items-center gap-1 text-sm font-semibold underline underline-offset-4"
-                      style={{ color: "var(--peach-ink)" }}
-                    >
-                      {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden />
-                    </Link>
-                  )}
-                </Card>
+                <li key={item.id} className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+                  <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--peach-soft)", color: "var(--peach-ink)" }}>
+                    <TriangleAlert size={16} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{item.title}</span>
+                    <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.detail}</span>
+                    {item.href && (
+                      <Link
+                        href={item.href}
+                        className="mt-2 inline-flex items-center gap-1 text-sm font-semibold underline underline-offset-4"
+                        style={{ color: "var(--accent-deep)" }}
+                      >
+                        {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden />
+                      </Link>
+                    )}
+                  </span>
+                </li>
               ))}
             </ul>
           )}

@@ -198,6 +198,7 @@ export default async function PracticePage() {
             screen somebody is on when they have ten minutes and want to use
             them.
           */}
+          <div className="@container"><div className="grid gap-4 @2xl:grid-cols-2 [&>*]:h-full">
           <ModeCard
             href="/situations"
             iconName="MessagesSquare"
@@ -218,6 +219,7 @@ export default async function PracticePage() {
             meta={flashMeta}
             primary={unfinished > 0 && ready === 0}
           />
+          </div></div>
 
           {/*
             THE SAME ROUND, POINTED AT THE WORDS EVERYBODY MEETS FIRST.
@@ -234,6 +236,7 @@ export default async function PracticePage() {
             goes to the index, which carries the counts and the way to build
             the next twenty out.
           */}
+          <div className={`grid gap-4 [&>*]:h-full ${decks.length > 0 ? "md:grid-cols-2" : ""}`}>
           <CommonWordsCard />
 
           {/*
@@ -247,6 +250,7 @@ export default async function PracticePage() {
             checkbox list.
           */}
           {decks.length > 0 && <DecksCard decks={decks} />}
+          </div>
 
           {/*
             AND WHERE THOSE WORDS STAND, BESIDE THE ROUNDS THAT MOVE THEM.

@@ -55,7 +55,8 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
         form to fill in; a grid of numbered tiles reads as a set to work
         through, and the one sat last is the one that stands out.
       */}
-      <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="@container mt-6">
+      <ol className="grid gap-3 @xl:grid-cols-2 @3xl:grid-cols-3">
         {papers.map((paper) => (
           <li
             key={paper.number}
@@ -100,6 +101,7 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
           </li>
         ))}
       </ol>
+      </div>
     </Page>
   );
 }

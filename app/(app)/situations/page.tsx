@@ -10,9 +10,8 @@ import { ButtonLink } from "@/components/Button";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import { errandForScene } from "@/lib/collections/errands";
 import { practises } from "@/lib/scenes/practises";
-import { joinWithAnd } from "@/lib/copy/values";
+import { CASES } from "@/lib/estonian/cases";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
-import { SceneMotif } from "@/components/scene/SceneMotif";
 import { SceneVignette } from "@/components/scene/SceneVignette";
 import { Explain } from "@/components/Explain";
 
@@ -138,7 +137,10 @@ function SceneTile({ scene, history, learnerLevel }: {
 }) {
   const unit = unitById(scene.tests);
   const objectives = scene.beats.filter((beat) => beat.required).length;
-  const drills = practises(scene);
+  // What it asks for, as a row of tags rather than a sentence. "A word off
+  // your card" is true of nearly every scene and says nothing, so it is left
+  // out; the rest is what somebody looks for.
+  const chips = practises(scene).filter((d) => d !== "a word off your card").slice(0, 4);
   const errand = errandForScene(scene.id);
   return (
     <li>
@@ -169,7 +171,6 @@ function SceneTile({ scene, history, learnerLevel }: {
               one and being in it are the same place. Decoration: the title,
               the place and the kind of place are all written out beside it.
             */}
-            <SceneMotif sceneId={scene.id} />
             {/*
               On the scale, which it was not: a bare `h2` inherits the
               document's own 16px and the type scale has no such step, so
@@ -185,12 +186,19 @@ function SceneTile({ scene, history, learnerLevel }: {
             words a class uses: a learner who was told about the seesütlev on
             Tuesday should be able to find the conversation that asks for it.
           */}
-          {drills.length > 0 && (
-            <p className="text-xs" style={{ color: "var(--ink-2)" }}>
-              {drills.length > 4
-                ? `Practices ${drills.slice(0, 4).join(", ")}, and more.`
-                : `Practices ${joinWithAnd(drills)}.`}
-            </p>
+          {chips.length > 0 && (
+            <ul className="flex flex-wrap gap-1.5" aria-label="What it practices">
+              {chips.map((d) => (
+                <li
+                  key={d}
+                  lang={CASES.some((c) => c.et === d) ? "et" : undefined}
+                  className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  style={{ background: "var(--raised)", color: "var(--ink-2)" }}
+                >
+                  {d}
+                </li>
+              ))}
+            </ul>
           )}
           {/*
             The real one, on the tile, so a scene is read as a rehearsal of

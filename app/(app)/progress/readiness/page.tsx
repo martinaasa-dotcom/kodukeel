@@ -124,11 +124,13 @@ export default async function ReadinessPage() {
                   {uiText(picture.level, LEVEL_INFO[level].title, LEVEL_INFO[level].titleEn)}
                 </span>
               </SectionTitle>
-              <ul className="grid gap-3 lg:grid-cols-2">
-                {rows.map((r) => (
-                  <li key={r.situation.id}><SituationRow reading={r} learnerLevel={picture.level} /></li>
-                ))}
-              </ul>
+              <div className="@container">
+                <ul className="grid gap-3 @3xl:grid-cols-2">
+                  {rows.map((r) => (
+                    <li key={r.situation.id}><SituationRow reading={r} learnerLevel={picture.level} /></li>
+                  ))}
+                </ul>
+              </div>
             </section>
           );
         })}

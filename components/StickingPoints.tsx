@@ -51,14 +51,14 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
   };
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
       {rows.map((point) => {
         const isSuspended = suspended[point.id] ?? false;
         const word = point.lemma ?? point.front;
         return (
           <li
             key={point.id}
-            className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[var(--r)] px-4 py-3"
+            className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3"
             /*
               NO `opacity` ON A BOX THAT HOLDS WORDS.
 
@@ -71,7 +71,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
             */
             style={{
               background: isSuspended ? "var(--raised)" : "var(--surface)",
-              border: "1px solid var(--rule)",
+              borderColor: "var(--rule-soft)",
             }}
           >
             {/*
@@ -103,9 +103,12 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                 <span className="text-xs" style={{ color: "var(--ink-3)" }}>
                   {TYPE_LABEL[point.cardType] ?? point.cardType}
                 </span>
-                {point.reason === "lapses" || point.accuracy === null
-                  ? <Chip tone="again">{point.lapses} lapses</Chip>
-                  : <Chip tone="hard">{point.accuracy}%</Chip>}
+                {/* The percentage is the meter under the word, so the chip
+                    names the one thing the meter cannot: how often it has
+                    been forgotten, where that is the reason it is here. */}
+                {(point.reason === "lapses" || point.accuracy === null) && (
+                  <Chip tone="again">{point.lapses} lapses</Chip>
+                )}
               </p>
               {/*
                 A METER RATHER THAN A SENTENCE.

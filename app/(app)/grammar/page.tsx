@@ -229,7 +229,7 @@ export default async function GrammarIndexPage() {
             <p className="mb-3 max-w-[68ch] text-sm" style={{ color: "var(--ink-2)" }}>
               {group.blurb}
             </p>
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {group.keys.map((key) => {
                 const ref = caseReference(key);
                 if (!ref) return null;
