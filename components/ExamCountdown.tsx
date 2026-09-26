@@ -35,8 +35,8 @@ import { Card, CardLink, Ring, SectionTitle } from "@/components/ui";
  * from the same table the examination hub reads.
  *
  * The color is a claim rather than decoration: mint means "you would pass"
- * and the accent means "not yet", which is the palette's own rule about a hue
- * carrying meaning, and the percentage says the same thing in digits so the
+ * and gold means "not yet", on the ring rather than the whole card, and the
+ * percentage says the same thing in digits so the
  * color is never the only channel.
  */
 export function ExamCountdownCard({ countdown, zone, className }: {
@@ -49,7 +49,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
   const gone = countdown.daysLeft !== null && countdown.daysLeft < 0;
 
   return (
-    <Card tone={passing ? "mint" : "accent"} className={className}>
+    <Card tone="night" className={className}>
       <SectionTitle hint={countdown.chosen ? countdown.phrase ?? "no date set" : "no target set"}>
         {countdown.chosen ? "Your exam" : "Where you stand"}
       </SectionTitle>
@@ -57,18 +57,19 @@ export function ExamCountdownCard({ countdown, zone, className }: {
       <div className="flex flex-wrap items-center gap-4">
         <Ring
           pct={countdown.confidence}
-          size={68}
-          tone={passing ? "var(--mint)" : "var(--accent)"}
-          // This card is tinted, so the ring's own default track vanishes into it.
-          track="var(--rule)"
+          size={92}
+          thickness={8}
+          tone={passing ? "var(--mint)" : "var(--cta)"}
+          // A night panel: the track is a faint light rather than a rule.
+          track="rgb(255 255 255 / 0.1)"
           label={`${countdown.confidence} percent likely to pass ${countdown.band}`}
         >
-          <span className="tnum text-md font-bold" style={{ color: "var(--ink)" }}>
+          <span className="tnum font-display text-xl font-bold" style={{ color: "var(--ink)" }}>
             {countdown.confidence}%
           </span>
         </Ring>
         <div className="min-w-0 flex-1">
-          <p className="text-lg font-bold leading-tight" style={{ color: "var(--ink)" }}>
+          <p className="font-display text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             {countdown.band}, {countdown.label}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>

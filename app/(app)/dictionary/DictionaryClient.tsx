@@ -626,10 +626,10 @@ function Entry({ entry, tutorReady, glossLanguage }: {
         children wrap, so anchoring there is anchoring is guaranteed rather
         than incidental.
       */}
-      <header className="relative flex flex-wrap items-start justify-between gap-4">
+      <header className="night night-open relative -mx-5 -mt-5 flex flex-wrap items-start justify-between gap-4 rounded-t-[var(--r-xl)] px-5 pb-6 pt-7 md:-mx-7 md:-mt-7 md:px-7 md:pb-8 md:pt-9">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 lang="et" className="text-3xl font-bold leading-none" style={{ color: "var(--ink)" }}>
+          <div className="flex items-center gap-3">
+            <h2 lang="et" className="font-display text-5xl font-bold leading-none md:text-6xl" style={{ color: "var(--ink)" }}>
               {entry.lemma}
             </h2>
             <SpeakPair text={entry.lemma} />
@@ -640,7 +640,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             the fact about the word that it is. Thirty entries here, twelve of
             them taught by the course.
           */}
-          <p className="mt-2 text-md" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-3 text-lg" style={{ color: "var(--ink-2)" }}>
             {sameSpelling(entry.lemma, entry.translation) ? SAME_SPELLING : entry.translation}
           </p>
           {/*

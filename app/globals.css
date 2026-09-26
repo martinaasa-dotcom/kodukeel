@@ -80,14 +80,14 @@
   --font-display: var(--font-anybody), var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
-  --color-ground: #fffbf2;
+  --color-ground: #fcfbf7;
   --color-surface: #ffffff;
-  --color-raised: #fff1d9;
+  --color-raised: #f3f0fa;
   --color-ink: #0f1233;
   --color-ink-2: #3e4166;
   --color-ink-3: #585b80;
-  --color-rule: #eee3ca;
-  --color-rule-soft: #f6eedb;
+  --color-rule: #e7e3ef;
+  --color-rule-soft: #f2eff6;
 
   --color-accent: #5b2eff;
   --color-accent-ink: #ffffff;
@@ -124,9 +124,9 @@
   :root {
     color-scheme: light;
 
-    --ground: #fffbf2;
+    --ground: #fcfbf7;
     --surface: #ffffff;
-    --raised: #fff1d9;
+    --raised: #f3f0fa;
     --ink: #0f1233;
     --ink-2: #3e4166;
     /* Tertiary ink, chosen against every surface in the system rather than
@@ -144,8 +144,8 @@
       surfaces, the raised fill and the softest tint.
     */
     --ink-3: #585b80;
-    --rule: #eee3ca;
-    --rule-soft: #f6eedb;
+    --rule: #e7e3ef;
+    --rule-soft: #f2eff6;
 
     /*
       Mustikamoos: an electric bilberry violet as the app's voice, a hot coral
@@ -371,6 +371,16 @@
      block above rather than a second selector on it, because the letter
      palette test reads that block by its exact opening line. */
   .night {
+    /* Aliases resolve where they are declared, so the grade names are
+       declared again here or they keep the light theme's values. */
+    --again: var(--peach);
+    --hard: var(--butter);
+    --good: var(--mint);
+    --easy: var(--sky);
+    --again-soft: var(--peach-soft);
+    --hard-soft: var(--butter-soft);
+    --good-soft: var(--mint-soft);
+    --easy-soft: var(--sky-soft);
     color-scheme: dark;
 
     --ground: #080a1f;
@@ -2537,14 +2547,14 @@
     so nothing around the key moves when it is pressed.
   */
   .key {
-    --lip: color-mix(in srgb, var(--ink) 18%, transparent);
-    box-shadow: 0 3px 0 0 var(--lip);
+    --lip: color-mix(in srgb, var(--ink) 10%, transparent);
+    box-shadow: 0 2px 0 0 var(--lip), 0 10px 22px -14px color-mix(in srgb, var(--ink) 40%, transparent);
     transform: translateY(-1px);
   }
-  .key:hover { transform: translateY(-2px); box-shadow: 0 4px 0 0 var(--lip); }
-  .key:active { transform: translateY(2px); box-shadow: 0 0 0 0 var(--lip); }
+  .key:hover { transform: translateY(-1px); box-shadow: 0 3px 0 0 var(--lip), 0 16px 28px -14px color-mix(in srgb, var(--ink) 45%, transparent); }
+  .key:active { transform: translateY(1px); box-shadow: 0 0 0 0 var(--lip); }
   .key-primary { --lip: var(--accent-lip); }
-  .key-paper { border-color: color-mix(in srgb, var(--ink) 16%, transparent); }
+  .key-paper { border-color: color-mix(in srgb, var(--ink) 11%, transparent); }
   @media (prefers-reduced-motion: reduce) {
     .key, .key:hover, .key:active { transform: none; }
   }
@@ -3677,6 +3687,10 @@
   opacity: 0.35;
   animation: night-drift 18s ease-in-out infinite alternate;
 }
+/* A night panel something opens out of (a menu anchored inside it) cannot
+   clip, so it gives up the drifting glow that needed the clip. */
+.night.night-open { overflow: visible; }
+.night.night-open::after { display: none; }
 @keyframes night-drift {
   from { transform: translate(0, 0) rotate(0deg); }
   to { transform: translate(-12%, 18%) rotate(40deg); }

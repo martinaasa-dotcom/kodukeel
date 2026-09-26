@@ -62,7 +62,7 @@ export async function GET() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#fffbf2",
+          background: "#fcfbf7",
           padding: 64,
           fontFamily: "sans-serif",
         }}

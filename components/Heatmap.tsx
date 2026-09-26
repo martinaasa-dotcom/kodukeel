@@ -1,11 +1,13 @@
 import type { DayBucket } from "@/lib/stats/history";
 
 const LEVEL_COLOR: Record<number, string> = {
-  0: "var(--raised)",
-  1: "color-mix(in srgb, var(--accent) 25%, var(--raised))",
-  2: "color-mix(in srgb, var(--accent) 50%, var(--raised))",
-  3: "color-mix(in srgb, var(--accent) 75%, var(--raised))",
-  4: "var(--accent)",
+  /* A quiet day is barely there, and a busy one runs cyan to violet to
+     blush: the night's colours as a ramp rather than one hue in four strengths. */
+  0: "color-mix(in srgb, var(--ink) 6%, var(--surface))",
+  1: "color-mix(in srgb, var(--sky) 45%, var(--surface))",
+  2: "color-mix(in srgb, var(--accent) 50%, var(--surface))",
+  3: "var(--accent)",
+  4: "var(--blush)",
 };
 
 /**

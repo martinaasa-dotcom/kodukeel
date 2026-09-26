@@ -155,8 +155,7 @@ function SceneTile({ scene, history, learnerLevel }: {
             fact it shows is written on the tile under it.
           */}
           <div
-            className="-mx-5 -mt-5 mb-2 flex justify-center border-b px-5 pb-1 pt-4 md:-mx-6 md:-mt-6"
-            style={{ background: "var(--raised)", borderColor: "var(--rule-soft)" }}
+            className="night -mx-5 -mt-5 mb-3 flex justify-center px-5 pb-1 pt-5 md:-mx-7 md:-mt-7"
           >
             <SceneVignette sceneId={scene.id} fit="inset" />
           </div>

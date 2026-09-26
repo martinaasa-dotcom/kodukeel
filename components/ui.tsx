@@ -306,7 +306,7 @@ export function Stat({ value, label, tone, icon }: {
   return (
     <div>
       {icon && <div className="mb-2">{icon}</div>}
-      <div className="tnum text-3xl font-bold leading-none tracking-tight" style={{ color: tone ?? "var(--ink)" }}>
+      <div className="tnum font-display text-4xl font-bold leading-none tracking-tight" style={{ color: tone ?? "var(--ink)" }}>
         {value}
       </div>
       <div className="label-xs mt-2" style={{ color: "var(--ink-3)" }}>{label}</div>
@@ -358,7 +358,7 @@ export function StatTile({ value, label, tone = "accent", icon, hint }: {
  * which all want the same shape — a conic gradient rather than an SVG arc,
  * because it animates cheaply and needs no viewBox arithmetic.
  */
-export function Ring({ pct, size = 64, thickness = 6, label, children, tone = "var(--accent)", track = "var(--raised)" }: {
+export function Ring({ pct, size = 64, thickness = 6, label, children, tone = "var(--accent)", track = "color-mix(in srgb, var(--ink) 8%, transparent)" }: {
   pct: number;
   size?: number;
   thickness?: number;
@@ -408,7 +408,7 @@ export function Meter({ pct, label, tone = "var(--accent)", height = 8 }: {
   return (
     <div
       className="meter-fill w-full overflow-hidden rounded-full"
-      style={{ background: "var(--raised)", height }}
+      style={{ background: "color-mix(in srgb, var(--ink) 8%, transparent)", height }}
       role="progressbar"
       aria-label={label}
       aria-valuenow={Math.round(clamped)}

@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ClipboardCheck, Layers, Play, TrendingUp } from "lucide-react";
+import { ArrowRight, ClipboardCheck, Layers, Play, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot } from "@/lib/progress/summary";
@@ -178,17 +178,23 @@ export default async function PracticePage() {
             confident the word is known. See lib/srs/mastery.ts for what
             confident means.
           */}
-          <ModeCard
-            href="/review"
-            iconName="GraduationCap"
-            tone="accent"
-            title="Review"
-            // No subtitle: "Everything due" was a third way of saying what the
-            // meta counts and the body explains, on one card.
-            body="Timed to the moment before you forget. The schedule decides what comes back, not you."
-            meta={ready > 0 ? `${ready} waiting` : "Nothing due"}
-            primary={ready > 0}
-          />
+          <section className="night rounded-[var(--r-xl)] border p-6 md:p-9" aria-labelledby="practice-review">
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <div className="min-w-0">
+                <p className="label-xs" style={{ color: "var(--butter-ink)" }}>Review</p>
+                <h2 id="practice-review" className="font-display mt-3 flex items-baseline gap-3 font-bold leading-none" style={{ color: "var(--ink)" }}>
+                  <span className="text-7xl tabular-nums md:text-8xl">{ready}</span>
+                  <span className="text-2xl md:text-3xl">{ready === 1 ? "card waiting" : "cards waiting"}</span>
+                </h2>
+                <p className="mt-4 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  Timed to the moment before you forget. The schedule decides what comes back, not you.
+                </p>
+              </div>
+              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full justify-center md:w-auto">
+                {ready > 0 ? "Review now" : "Nothing due, open review"} <ArrowRight size={17} aria-hidden />
+              </ButtonLink>
+            </div>
+          </section>
 
           {/*
             THE ROUND THAT IS NOT A ROUND. A situation is five to eight minutes

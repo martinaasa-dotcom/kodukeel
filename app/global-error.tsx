@@ -30,7 +30,7 @@ export default function GlobalError({
           display: "grid",
           placeItems: "center",
           fontFamily: "system-ui, sans-serif",
-          background: "#fffbf2",
+          background: "#fcfbf7",
           color: "#0f1233",
         }}
       >
@@ -45,7 +45,7 @@ export default function GlobalError({
             style={{
               marginTop: "1.5rem", padding: ".55rem 1rem", fontSize: "1.0625rem",
               borderRadius: ".375rem", border: "1px solid #0f1233",
-              background: "#0f1233", color: "#fffbf2", cursor: "pointer",
+              background: "#0f1233", color: "#fcfbf7", cursor: "pointer",
             }}
           >
             Try again
