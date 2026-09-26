@@ -155,6 +155,7 @@ for (const unit of SYLLABUS) {
 const dayBlockers = new Map<string, number>();
 interface Tally { words: number; gappable: number; readable: number }
 const byLevel = new Map<string, Tally>();
+const dayMisses = new Map<string, string[]>();
 
 for (const programme of PROGRAMMES) {
   const tally = byLevel.get(programme.level) ?? { words: 0, gappable: 0, readable: 0 };
@@ -170,6 +171,11 @@ for (const programme of PROGRAMMES) {
       const { any, ok } = readWord(lemma, given, dayBlockers);
       if (any) tally.gappable++;
       if (ok) tally.readable++;
+      else if (any) {
+        const list = dayMisses.get(programme.level) ?? [];
+        list.push(`${lemma} (${day.id})`);
+        dayMisses.set(programme.level, list);
+      }
     }
   }
 }
@@ -182,7 +188,10 @@ for (const [level, t] of byLevel) {
   console.log(`  ${level}: the dictionary can gap ${t.gappable} of ${t.words} words; ${t.readable} with a sentence made only of words given by then`);
 }
 
-console.log("\nWords with nothing readable, by unit:");
+console.log("\nThe module's own misses, by level: the words an evening meets with no sentence it can read.");
+for (const [level, list] of dayMisses) console.log(`  ${level}  ${list.join(", ")}`);
+
+console.log("\nThe unit lesson's misses, by unit:");
 console.log(thin.join("\n"));
 
 const ranked = [...dayBlockers].sort((a, b) => b[1] - a[1]).slice(0, 30);
