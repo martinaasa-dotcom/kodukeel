@@ -82,7 +82,7 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
     <div className="flex flex-col gap-5">
       <Card tone="night" className="md:p-9">
         <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{heading}</p>
-        <p className="font-display mt-3 text-7xl font-bold leading-none md:text-8xl" style={{ color: "var(--ink)" }}>
+        <p className="font-display mt-3 text-6xl font-bold leading-none xl:text-8xl" style={{ color: "var(--ink)" }}>
           {overall}
         </p>
         {result.nearly && (

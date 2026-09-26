@@ -1537,7 +1537,7 @@ export function ReviewSession({
                 // wraps to four lines and stops being readable at a glance.
                 card.cardType === "CLOZE" || isGap(card)
                   ? "text-xl font-semibold leading-snug tracking-tight md:text-2xl"
-                  : "font-display text-5xl font-bold leading-none tracking-tight md:text-6xl"
+                  : "font-display text-4xl font-bold leading-none tracking-tight xl:text-6xl"
               }
               style={{ color: "var(--ink)" }}
             >
