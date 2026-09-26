@@ -102,6 +102,11 @@ export type StepKind =
 export interface LessonExample {
   et: string;
   en: string | null;
+  /**
+   * Written for a beginner rather than recorded (`lib/dict/authored.ts`), and
+   * so the one kind of sentence an A1 word is met with. Absent is recorded.
+   */
+  authored?: boolean;
 }
 
 /** A dictionary word, resolved, as the lesson needs it. */
@@ -191,7 +196,7 @@ export interface MeetStep extends StepBase {
    * the Estonian, its English, and which form of the word it carries so the
    * screen can mark it. Drawn by `WordIntro` like every other first meeting.
    */
-  example: (LessonExample & { form: string | null }) | null;
+  example: (LessonExample & { form: string | null; authored: boolean }) | null;
   /** A whole utterance rather than a word, which is why it has no example. */
   isPhrase: boolean;
 }
@@ -629,13 +634,21 @@ const usable = (word: LessonWord, rules: LessonRules): LessonExample[] =>
  * here is already attested. The source is filled in as `EKILEX` for the call
  * alone and reaches no screen.
  */
-function meetSentence(word: LessonWord): (LessonExample & { form: string | null }) | null {
-  const found = teachingSentence(
-    word.examples.map((e) => ({ et: e.et, en: e.en, source: "EKILEX" as const })),
-    [word.lemma],
-  );
+function meetSentence(word: LessonWord): (LessonExample & { form: string | null; authored: boolean }) | null {
+  /*
+    A written sentence first, where the page handed one over, since it is the
+    one kind an A1 word is shown with at all (`WordIntro`).
+  */
+  const asExample = (e: LessonExample) => ({
+    et: e.et, en: e.en, source: e.authored ? "AUTHORED" as const : "EKILEX" as const,
+  });
+  const found = teachingSentence(word.examples.filter((e) => e.authored).map(asExample), [word.lemma])
+    ?? teachingSentence(word.examples.filter((e) => !e.authored).map(asExample), [word.lemma]);
   if (!found) return null;
-  return { et: found.example.et, en: found.example.en ?? null, form: found.form };
+  return {
+    et: found.example.et, en: found.example.en ?? null, form: found.form,
+    authored: found.example.source === "AUTHORED",
+  };
 }
 
 /**

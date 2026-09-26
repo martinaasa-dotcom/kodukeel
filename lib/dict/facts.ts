@@ -12,6 +12,7 @@ import {
 } from "@/lib/collections/senses";
 import { heardIndex, type HeardIndex } from "@/lib/assessment/heard";
 import { PRINCIPAL_FORM_TYPES } from "@/lib/estonian/types";
+import { readableSpellings } from "@/lib/estonian/gapForms";
 import { exceptionsFor, type WordException } from "@/lib/estonian/exceptions";
 import { borrowSentences } from "@/lib/dict/borrow";
 import { plainReach, type PlainReach } from "@/lib/dict/plainness";
@@ -226,37 +227,45 @@ export async function courseFormsByLemma(): Promise<ReadonlyMap<string, Readonly
   return remember("courseFormsByLemma", FACTS_TTL_MS, async () => {
     const lemmas = [...new Set(SYLLABUS.flatMap((unit) => unit.lemmas))];
     /*
-      Scalars only, and the lemma resolved through the dictionary this module
-      already holds. `select: { lexeme: { select: { lemma: true } } }` reads as
-      one query and is two, for the reason `lemmasByCardLexeme` gives at
-      length: Prisma fetches the forms, collects their `lexemeId`s and sends a
-      second statement carrying every one of them.
-
-      A form whose entry the cached dictionary does not know yet is dropped
-      rather than asked for, which is the one place this is looser than the
-      join. It can only be a course word created in the last minute, and the
-      lemma itself is added below whatever happens, so what a miss costs is a
-      word counting as taught by its headword alone for up to a minute.
+      Scalars only, in two statements asked at once rather than a nested
+      select, for the reason `lemmasByCardLexeme` gives at length: a nested
+      select is two statements anyway and the second carries every id.
     */
-    const [rows, { byId }] = await Promise.all([
+    /*
+      AND EVERY FORM THE APP DERIVES FOR THE WORD, which is `readableSpellings`:
+      a regular verb stores five principal parts and nothing else, so read off
+      the stored rows alone `elab` was a word nobody had been taught three
+      evenings after `elama`. Each entry's rows are grouped first, since the
+      derivation needs the principal parts together, and the part of speech
+      is read beside them.
+    */
+    const [rows, entries] = await Promise.all([
       prisma.form.findMany({
         where: { lexeme: { lemma: { in: lemmas } } },
-        select: { value: true, lexemeId: true },
+        select: { value: true, lexemeId: true, formType: true, morphCode: true },
       }),
-      dictionary(),
+      prisma.lexeme.findMany({
+        where: { lemma: { in: lemmas } },
+        select: { id: true, lemma: true, pos: true },
+      }),
     ]);
+    const formsOf = new Map<string, { formType: string; value: string; morphCode: string | null }[]>();
+    for (const row of rows) {
+      const held = formsOf.get(row.lexemeId) ?? [];
+      held.push(row);
+      formsOf.set(row.lexemeId, held);
+    }
     const out = new Map<string, Set<string>>();
-    const add = (lemma: string, text: string) => {
+    const add = (lemma: string, spellings: Iterable<string>) => {
       const held = out.get(lemma) ?? new Set<string>();
-      for (const word of spellingsIn(text)) held.add(word);
+      for (const word of spellings) held.add(word);
       out.set(lemma, held);
     };
     // The lemma itself first, so a word the dictionary holds no forms for
     // still counts as taught by the unit that names it.
-    for (const lemma of lemmas) add(lemma, lemma);
-    for (const row of rows) {
-      const lemma = byId.get(row.lexemeId)?.lemma;
-      if (lemma !== undefined) add(lemma, row.value);
+    for (const lemma of lemmas) add(lemma, spellingsIn(lemma));
+    for (const entry of entries) {
+      add(entry.lemma, readableSpellings({ lemma: entry.lemma, pos: entry.pos, forms: formsOf.get(entry.id) ?? [] }));
     }
     return out;
   });

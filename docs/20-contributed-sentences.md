@@ -107,6 +107,17 @@ person is generating Estonian, which this project does not do. Nothing under
 `lib/collections/` can reach a provider, `lib/collections/sceneAnswers.ts` is
 generated and imports nothing, and an invariant fails on either changing.
 
+**The one exception is a beginner's first sentences, and it is narrow.**
+`lib/dict/authored.ts` holds sentences written for A1 words, because no
+lexicographer's sentence for those words is one a learner three weeks in can
+read (ADR-005 amendment 4). They are drafted, checked row by row by
+`npm run check:authored` against the words the course has taught by that
+evening, and read by the native Estonian speaker who develops this app in the
+pull request that adds them. They introduce a word and do nothing else: no
+exam, no level check, no scene and no card may read them, asserted. A sentence
+a native speaker contributes through this channel is still worth more, and
+where one exists for a word it is the sentence to prefer.
+
 **The scene table writes no Estonian either.** A scene names three lemmas, and
 naming one is a *request* rather than a claim, exactly as a syllabus unit's
 lemmas are: `scenes.test.ts` fails on a word `lib/collections/emoji.ts` does

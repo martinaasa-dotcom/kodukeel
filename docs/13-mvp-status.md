@@ -2512,3 +2512,21 @@ proposes `aste` and `põtk`. `aste` is the case the script's own header argues a
 the stored word is the one Ekilex defines as "jalg, koib", which is the gloss "foot, leg". The
 page's `põtku` belongs to a fishing spot. The other 78 disagreements are the page's own slips, as
 before.
+
+## 40. The thirty-fourth pass: a beginner's sentences, written and checked
+
+**A1 had no sentence a beginner could read, so every A1 word was met alone.** An Ekilex usage is
+written to illustrate a word to somebody who already reads Estonian, and 55 of the 499 A1 words a gap
+can be cut for had a sentence made of words the course had taught by that evening. The app's answer
+had been to show A1 words no sentence at all.
+
+**The sentences are written now, under ADR-005 amendment 4.** `lib/dict/authored.ts` holds 505 rows,
+one or more per A1 word, each checked by `npm run check:authored` against the module's own walk and
+read by the native speaker who develops the app in the pull request that adds them. They are shown on
+the Learn ladder, the review card's first meeting and the unit lesson, and on nothing that marks,
+measures, builds a card or plays a scene, asserted. 489 of 511 A1 words now have a readable sentence.
+
+**"Taught" covers the forms the app derives** (`readableSpellings`), so `elab` counts once `elama`
+is taught, and **the glue words moved to the fourth unit** (`vaikesed-sonad`), with the question
+words sixth. Day ids from a1.1's fifth evening on, and in a1.5 and a1.6, shifted by agreement.
+

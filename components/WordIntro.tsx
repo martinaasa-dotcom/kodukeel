@@ -34,7 +34,7 @@ import { firstMeetingNote } from "@/lib/copy/firstMeeting";
  * answers to how a word is introduced, and the one nobody was looking at would
  * be the one that stopped saying where its sentence came from.
  *
- * A1 SHOWS NO SENTENCE AT ALL. A beginner three weeks in, or three minutes
+ * A1 SHOWS NO RECORDED SENTENCE. A beginner three weeks in, or three minutes
  * in, does not yet have anywhere to hang a whole line of Estonian: a
  * sentence is context for somebody who already has some words to place it
  * against, and the first fifty of them are not that yet. It was reported off
@@ -71,8 +71,13 @@ export function WordIntro({
   alsoSaid: string | null;
   /** The Institute's own equivalent in the learner's chosen language, or null. */
   equivalent: { text: string; lang: string } | null;
-  /** An attested sentence, and which form of the word it carries. */
-  sentence: { et: string; en: string | null; form: string | null } | null;
+  /**
+   * A sentence, which form of the word it carries, and whether it was written
+   * for a beginner rather than recorded (`lib/dict/authored.ts`). Required, so
+   * a screen that has not decided cannot show an A1 word a lexicographer's
+   * sentence by forgetting to say.
+   */
+  sentence: { et: string; en: string | null; form: string | null; authored: boolean } | null;
   /**
    * That same sentence with the dictionary under it, when the page looked.
    *
@@ -88,7 +93,7 @@ export function WordIntro({
   /** A whole utterance rather than a word, which is why it has no example. */
   isPhrase: boolean;
   autoplay?: boolean;
-  /** The word's own band. A1 hides the sentence; everything else keeps it. */
+  /** The word's own band. A1 shows only a sentence written for a beginner; everything else keeps it. */
   cefr?: string | null;
   /** Whether this is the very first word the learner has ever met, anywhere. */
   firstCardEver?: boolean;
@@ -97,7 +102,13 @@ export function WordIntro({
 }) {
   // A phrase has no sentence to hide in the first place (`isPhrase` already
   // says so below), so the A1 gate only ever applies to a genuine word.
-  const showSentence = sentence !== null && cefr !== "A1";
+  /*
+    AND A SENTENCE WRITTEN FOR THEM IS THE EXCEPTION. `lib/dict/authored.ts`
+    holds one per A1 word made only of words the course has taught by the
+    evening it arrives, which is exactly the sentence the paragraph above says
+    a beginner could not be given: a word doing something, in words they have.
+  */
+  const showSentence = sentence !== null && (cefr !== "A1" || sentence.authored);
   // A sentence exists and is deliberately not shown: an A1 word is met on
   // its own. "No example sentence for this one yet" would be untrue here,
   // since the dictionary has one, so this is drawn apart from the real

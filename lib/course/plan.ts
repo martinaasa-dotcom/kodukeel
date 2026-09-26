@@ -232,13 +232,13 @@ export interface PartSpec {
 export const PARTS: readonly PartSpec[] = [
   {
     id: "a1.1", level: "A1",
-    title: "Esimesed sõnad", subtitle: "Hello, I and you, to be, and who is in the room",
+    title: "Esimesed sõnad", subtitle: "Hello, I and you, to be, and, and who is in the room",
     blurb:
       "From nothing, in the order a sentence needs: five words on the first evening, the "
       + "six pronouns on the second, the verb to be and its six endings straight after. Then the "
-      + "greetings, and the people around you. At the end you can say hello, say who you "
-      + "are, and say who is in your family.",
-    units: ["vastused", "asesonad", "esimesed-verbid", "tervitused", "inimesed"],
+      + "small words that join them, the greetings, the question words, and the people around "
+      + "you. At the end you can say hello, ask where somebody lives, and say who is in your family.",
+    units: ["vastused", "asesonad", "esimesed-verbid", "vaikesed-sonad", "tervitused", "kusisonad", "inimesed"],
   },
   {
     id: "a1.2", level: "A1",
@@ -268,11 +268,11 @@ export const PARTS: readonly PartSpec[] = [
   },
   {
     id: "a1.5", level: "A1",
-    title: "Kus, kes, millal", subtitle: "Places, the bus, questions, the rest of the pronouns, and when",
+    title: "Kus ja millal", subtitle: "Places, the bus, the rest of the pronouns, and when",
     blurb:
       "The words a sentence is built out of rather than the ones it is about. At the end you "
       + "can ask where something is, catch a bus to it, and say when you got there.",
-    units: ["kus-ja-kuhu", "transport", "kusisonad", "umbmaarased", "millal", "kohasonad"],
+    units: ["kus-ja-kuhu", "transport", "umbmaarased", "millal", "kohasonad"],
   },
   {
     id: "a1.6", level: "A1",

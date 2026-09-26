@@ -5196,6 +5196,38 @@ sentences, was reading the per-part fault above rather than the course: `olema` 
 counts from a1.3 on. Read the list, and read it off a run of the script rather than off this
 paragraph.
 
+**And then the sentences were written, because the supply was never going to arrive by itself.**
+The two paragraphs above end on the same instruction, write the sentences down, and for months
+nothing did. `lib/dict/authored.ts` is ADR-005 amendment 4: a sentence per A1 word, drafted and read
+by the native Estonian speaker who develops this app in the pull request that adds it, which is the
+standing ADR-025 amendment 1 gave the scene bank. **The rules are mechanical and every row is held to
+them** by `scripts/lib/authoredCheck.ts`, run by the unit suite and printed by
+`npm run check:authored`: every word is taught by the evening the sentence is for, through the
+module's own walk; the sentence carries a form of its word, passes `naturalSentence` and opens on a
+capital; it has an English line with no Estonian letter; and it is not a sentence Ekilex recorded, a
+duplicate, or one refused. Measured after: 489 of the 511 A1 words a gap can be cut for have a
+sentence made of words given by then, against 55. **Where they may go is the half that keeps the
+amendment narrow**: the Learn ladder, the review card's first meeting and the unit lesson, which are
+the screens that introduce a word, and no exam, level check, scene, card builder or borrowed pool,
+since each says its Estonian was recorded; the invariant is a closed list of three readers.
+`WordIntro` shows an A1 word a written sentence and still no recorded one, the flag is required on
+its prop, and the ladder's gap rung returns at A1 on a written sentence where the gap is not a case,
+since A1 asks for none. Adding a row is `npm run check:authored` until it prints nothing, then a
+person reading it.
+
+**And "taught" covers the forms the app derives, which is what made the sentences writable.** A
+regular verb stores five principal parts, so read off the stored rows alone `elab` was a word nobody
+had been taught three evenings after `elama`, and the top blocker on the list above was `tuleb`, the
+third person of a verb the fourth evening teaches. `readableSpellings` in `lib/estonian/gapForms.ts`
+is `gapForms`'s own list, stored forms and the persons and cases amendment 1 licenses, and
+`courseFormsByLemma`, `audit:readable` and the checker all read it, so the app and its measurements
+answer "has this learner been taught this spelling" one way. **And the glue moved to the front**:
+`ja`, `aga`, `ka`, `väga`, `hästi`, `siin`, `nüüd`, `täna`, `veel` and `ainult` are `vaikesed-sonad`,
+the fourth unit of the course rather than scattered through the twenty-second and later, and the
+question words are the sixth, since a beginner who can say `ma elan siin` and `kus sa töötad?` in
+their first fortnight is the whole point. That shifted a1.1's day ids from the fifth evening on, and
+a1.5's and a1.6's, agreed through `npm run course:ids` rather than left for the snapshot test to find.
+
 **And one word in the whole of A1 is asked a question nobody can fail, which is stated rather than
 special-cased.** Three A1 module words are spelled the same in both languages, `number`, `park` and
 `euro`, and the ladder already knows what that costs: `free` sends such a word straight past the

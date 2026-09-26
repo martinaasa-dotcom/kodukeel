@@ -17,7 +17,12 @@ import { naturalSentence } from "@/lib/estonian/cloze";
 import { isRefusedSentence } from "@/lib/dict/refused";
 import { englishFor } from "@/lib/dict/exampleEnglish";
 
-export type ExampleSource = "EKILEX" | "SEED" | "USER" | "AI";
+/**
+ * Where a sentence came from. `AUTHORED` is written for a beginner and never
+ * stored (`lib/dict/authored.ts`, ADR-005 amendment 4); every other value is
+ * a row of `Lexeme.examples`.
+ */
+export type ExampleSource = "EKILEX" | "SEED" | "USER" | "AI" | "AUTHORED";
 
 export interface Example {
   /** The Estonian sentence, exactly as recorded. */

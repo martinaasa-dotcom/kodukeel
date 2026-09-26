@@ -12,6 +12,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { taughtSpellings } from "@/lib/progress/lessonWords";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { parseExamples, teachableSentences } from "@/lib/dict/examples";
+import { authoredFor } from "@/lib/dict/authored";
 import { nominalOpener, sentenceTiles, tileFaces } from "@/lib/estonian/cloze";
 import { everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
@@ -178,11 +179,19 @@ export default async function LessonPage({
       jah.` in the smallest type on the card with nothing to say what it
       meant, and the answer had been sitting in the row the whole time.
     */
-    examples: teachableSentences(
-      parseExamples(row.examples),
-      nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]),
-      plainerFirst(row.cefr, reach),
-    ).map((e) => ({ et: e.et, en: e.en ?? null })),
+    /*
+      A sentence written for a beginner first (`lib/dict/authored.ts`), marked
+      as one, so the meeting step can show an A1 word the sentence written for
+      it and the gap steps, which read `readable`, can use it like any other.
+    */
+    examples: [
+      ...authoredFor(row.lemma).map((e) => ({ et: e.et, en: e.en ?? null, authored: true })),
+      ...teachableSentences(
+        parseExamples(row.examples),
+        nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]),
+        plainerFirst(row.cefr, reach),
+      ).map((e) => ({ et: e.et, en: e.en ?? null })),
+    ],
     parts: Object.fromEntries(
       row.forms.filter((f) => isPrincipalFormType(f.formType)).map((f) => [f.formType, f.value]),
     ),

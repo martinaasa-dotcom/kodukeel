@@ -209,3 +209,33 @@ export function twinsOf(word: GapWord, answer: string): Set<string> {
   }
   return out;
 }
+
+/**
+ * EVERY SPELLING SOMEBODY WHO HAS BEEN TAUGHT THIS WORD CAN READ.
+ *
+ * "Taught" used to mean the headword and the forms the dictionary stores, and
+ * for a regular verb that is five principal parts and nothing else. So a
+ * learner three weeks in who had been taught `elama` and `tema` could not be
+ * shown `Ta elab siin.`, because `elab` is stored nowhere: the rule held a
+ * beginner's sentence to a list that could not contain the third person of a
+ * single regular verb, and `npm run audit:readable` ranked `tuleb` the
+ * commonest word keeping an A1 sentence out of reach, which is the verb the
+ * course teaches on its fourth evening.
+ *
+ * A form the app derives off a stored stem is a form of the same word, on the
+ * entry and on the card alike (ADR-005 amendment 1), and the dictionary is
+ * underneath every word of a sentence a learner is shown, so meeting `elab`
+ * after `elama` is meeting a word they have, in the shape the present-tense
+ * page they read that evening teaches. This is `gapForms`'s own list, split
+ * into single words the way a sentence is, so "ei loe" is `ei` and `loe`.
+ */
+export function readableSpellings(word: GapWord): Set<string> {
+  const out = new Set<string>();
+  const add = (text: string) => {
+    for (const w of text.toLowerCase().split(/[^\p{L}\p{M}]+/u)) if (w) out.add(w);
+  };
+  add(word.lemma);
+  for (const form of word.forms) add(form.value);
+  for (const spelling of gapForms(word).keys()) add(spelling);
+  return out;
+}

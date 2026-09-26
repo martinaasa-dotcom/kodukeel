@@ -194,6 +194,48 @@ export const A1 = [
   }),
 
   unit({
+    /*
+      TEN SMALL WORDS, STRAIGHT AFTER THE FIRST VERBS, BECAUSE THEY ARE WHAT A
+      SENTENCE IS HELD TOGETHER WITH.
+
+      `ja` sat in the twenty-second unit of A1 and `ka` and `väga` in the
+      twenty-fourth, so for three months of evenings a learner holding
+      `mina`, `olema`, `elama` and a family's worth of nouns could not say
+      "and", "too" or "very", and no sentence the course could show them was
+      one they could read: `npm run audit:readable` ranked `ja` the commonest
+      word keeping a beginner's sentence out of reach. These ten are the ones
+      that turn a list of words into something said, and they are taken out
+      of the units that used to teach them (`sidesonad`, `maaramine`,
+      `millal`) rather than taught twice.
+    */
+    id: "vaikesed-sonad",
+    title: "Väikesed sõnad",
+    subtitle: "And, but, too, very, here and now",
+    icon: "Link",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Join two words with and or but, say too and very, and say here, now and today.",
+    blurb: "Ten small words that turn the words you have into sentences.",
+    grammar: ["word-order"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["esimesed-verbid"],
+    words: [
+      ["ja", "and", "ADVERB"],
+      // Also a noun meaning a troubling circumstance, and a district in Russia.
+      ["aga", "but", "ADVERB", 155181],
+      ["ka", "also, too", "ADVERB"],
+      ["väga", "very", "ADVERB"],
+      ["hästi", "well", "ADVERB"],
+      // Not the steel rail a curtain runs along.
+      ["siin", "here", "ADVERB", 233338],
+      ["nüüd", "now", "ADVERB"],
+      ["täna", "today", "ADVERB", 249773],
+      ["veel", "still, yet, more", "ADVERB"],
+      ["ainult", "only", "ADVERB"],
+    ],
+  }),
+
+  unit({
     id: "tervitused",
     title: "Tervitused",
     subtitle: "Putting words together",
@@ -224,6 +266,36 @@ export const A1 = [
       ["Palju õnne!", "Congratulations!", "PHRASE"],
       ["Mul on hea meel", "I'm glad", "PHRASE"],
       ["Ma ei tea veel", "I don't know yet", "PHRASE"],
+    ],
+  }),
+
+  unit({
+    id: "kusisonad",
+    title: "Küsisõnad",
+    subtitle: "Question words",
+    icon: "CircleHelp",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Ask who, what, where, when, why and how, and follow the question when it comes back.",
+    blurb: "Every conversation is a question first. These are the words it starts with.",
+    grammar: ["word-order"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["tervitused"],
+    words: [
+      ["kes", "who", "PRONOUN"],
+      ["mis", "what", "PRONOUN"],
+      ["kus", "where", "ADVERB"],
+      ["kuhu", "where to", "ADVERB"],
+      ["kust", "where from", "ADVERB"],
+      ["millal", "when", "ADVERB"],
+      ["miks", "why", "ADVERB", 202839],
+      ["kuidas", "how", "ADVERB"],
+      ["kas", "whether (opens a yes or no question)", "ADVERB"],
+      ["milline", "which, what kind of", "PRONOUN"],
+      ["kumb", "which of the two", "PRONOUN"],
+      ["mitu", "how many", "PRONOUN"],
+      ["palju", "much, many, a lot", "ADVERB", 213272],
+      ["kui", "how, as, if, than", "ADVERB", 187052],
     ],
   }),
 
@@ -877,36 +949,6 @@ export const A1 = [
   }),
 
   unit({
-    id: "kusisonad",
-    title: "Küsisõnad",
-    subtitle: "Question words",
-    icon: "CircleHelp",
-    level: "A1",
-    module: "Esimesed sammud",
-    canDo: "Ask who, what, where, when, why and how, and follow the question when it comes back.",
-    blurb: "Every conversation is a question first. These are the words it starts with.",
-    grammar: ["word-order"],
-    cardTypes: ["RECOGNITION", "PRODUCTION"],
-    requires: ["tervitused"],
-    words: [
-      ["kes", "who", "PRONOUN"],
-      ["mis", "what", "PRONOUN"],
-      ["kus", "where", "ADVERB"],
-      ["kuhu", "where to", "ADVERB"],
-      ["kust", "where from", "ADVERB"],
-      ["millal", "when", "ADVERB"],
-      ["miks", "why", "ADVERB", 202839],
-      ["kuidas", "how", "ADVERB"],
-      ["kas", "whether (opens a yes or no question)", "ADVERB"],
-      ["milline", "which, what kind of", "PRONOUN"],
-      ["kumb", "which of the two", "PRONOUN"],
-      ["mitu", "how many", "PRONOUN"],
-      ["palju", "much, many, a lot", "ADVERB", 213272],
-      ["kui", "how, as, if, than", "ADVERB", 187052],
-    ],
-  }),
-
-  unit({
     id: "umbmaarased",
     title: "Keegi, miski, kõik",
     subtitle: "Somebody, something, everybody",
@@ -944,12 +986,10 @@ export const A1 = [
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["aeg"],
     words: [
-      ["täna", "today", "ADVERB", 249773],
       ["homme", "tomorrow", "ADVERB", 169836],
       ["eile", "yesterday", "ADVERB", 162889],
       ["ülehomme", "the day after tomorrow", "ADVERB"],
       ["üleeile", "the day before yesterday", "ADVERB"],
-      ["nüüd", "now", "ADVERB"],
       ["praegu", "right now, at the moment", "ADVERB"],
       ["kohe", "at once, straight away", "ADVERB", 183252],
       ["varsti", "soon", "ADVERB"],
@@ -961,7 +1001,6 @@ export const A1 = [
       ["mõnikord", "sometimes", "ADVERB"],
       ["kunagi", "ever, at some time; never (with a negative)", "ADVERB"],
       ["juba", "already", "ADVERB"],
-      ["veel", "still, yet, more", "ADVERB"],
       ["jälle", "again", "ADVERB"],
       ["ammu", "long ago, for a long time", "ADVERB"],
       ["vanasti", "in the old days, once", "ADVERB"],
@@ -1031,10 +1070,7 @@ export const A1 = [
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["tervitused"],
     words: [
-      ["ja", "and", "ADVERB"],
       ["ning", "and (joining the last of a list)", "ADVERB"],
-      // Also a noun meaning a troubling circumstance, and a district in Russia.
-      ["aga", "but", "ADVERB", 155181],
       ["vaid", "only, and nothing else", "ADVERB"],
       // Also the ISO code for Estonian, which Ekilex holds as a word.
       ["et", "that", "ADVERB", 165201],
@@ -1100,12 +1136,8 @@ export const A1 = [
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["tervitused"],
     words: [
-      ["ka", "also, too", "ADVERB"],
       ["ju", "you know (a softening word)", "ADVERB"],
       ["just", "just, exactly", "ADVERB"],
-      ["väga", "very", "ADVERB"],
-      ["hästi", "well", "ADVERB"],
-      ["ainult", "only", "ADVERB"],
       ["enam", "any more", "ADVERB", 164013],
       ["isegi", "even", "ADVERB"],
       ["ikka", "still, always", "ADVERB"],
@@ -1120,8 +1152,6 @@ export const A1 = [
       ["uuesti", "again", "ADVERB"],
       ["varem", "earlier", "ADVERB", 254247],
       ["kaua", "for a long time", "ADVERB"],
-      // Not the steel rail a curtain runs along.
-      ["siin", "here", "ADVERB", 233338],
       ["siit", "from here", "ADVERB"],
       ["sinna", "to there", "ADVERB"],
       /*

@@ -134,7 +134,7 @@ are worth the top model (a wrong case explanation is actively harmful to a learn
 means the multi-thousand-token grammar prompt is paid for once per session rather than per turn.
 Details and cost model in `06-anu-tutor.md`.
 
-**ADR-005: Retrieve morphology, never generate it. (AMENDED, three times, below.)**
+**ADR-005: Retrieve morphology, never generate it. (AMENDED, four times, below.)**
 *Context:* an LLM will happily produce a plausible, wrong partitive plural. *Decision:* authoritative
 forms come from Ekilex only; AI output is tagged `provenance: AI` and requires explicit confirmation
 before entering a card's answer field. *Consequences:* the dictionary is bounded by Ekilex coverage;
@@ -188,6 +188,30 @@ not be, is the simple past: `lugesin` goes to `luges` but `tahtsin` to `tahtis` 
 form always answers ahead of the rule, every derived form says so on screen, and the moment an entry
 is enriched from Ekilex the rule steps aside. The same principle as the ten regular cases on the
 genitive: one bug for the whole language rather than one word wrong unpredictably.
+
+*Amendment 4: a beginner's sentences may be written, by the rules the scene bank already set.* Every
+sentence the app showed a learner was one a lexicographer recorded, and for the first five hundred
+words of the course that meant a sentence made of words from further up it: `npm run
+audit:readable` found 55 of the 499 A1 words the dictionary can gap with a sentence a learner could
+read by the evening they meet the word, so every A1 screen showed the word alone for three months.
+*Decision:* `lib/dict/authored.ts` holds sentences written for a beginner, one or more per A1 word,
+drafted and then read by the native Estonian speaker who develops this app in the pull request that
+adds them, which is the standing ADR-025 amendment 1 gave the scene bank. **A machine holds every row
+to four rules before a person reads it** (`scripts/lib/authoredCheck.ts`, run by the unit suite and by
+`npm run check:authored`): every word is one the course has taught by the evening the sentence is
+for, through the module's own walk, where taught covers a word's stored forms and the forms the app
+derives off them (`readableSpellings`, amendment 1's licence); the sentence carries the word it is
+filed under and passes `naturalSentence`; it has an English line with no Estonian letter; and it is
+not a sentence Ekilex already recorded, a duplicate, or one somebody refused. **Where they may go is
+the other half and is asserted**: the Learn ladder, the first meeting on a review card and the unit
+lesson, which are the screens that introduce a word, and nowhere that marks, measures, builds a card,
+lends a sentence or plays a scene, because each of those says its Estonian was recorded.
+*Consequences:* the rule this ADR exists for is untouched, since no form is written, no model writes
+a row at runtime, and every word in a written sentence is one the dictionary vouches for. What is new
+is that the app now authors Estonian *sentences* out of attested words, and whether each is
+grammatical and natural is a person's judgement rather than a lexicographer's, which is why the rows
+are few, short, reviewed, never stored in `Lexeme.examples`, and removable through
+`lib/dict/refused.ts` like any other sentence somebody reads and refuses.
 
 **ADR-006: Generic importer instead of a Speakly integration.**
 *Context:* Speakly has no public API and no verifiable export (audit A3). *Decision:* one

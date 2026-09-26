@@ -187,6 +187,10 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
     tryThis: "Say where you are from and which languages you speak, and ask the same back.",
     expect: "Interest, a question about how long you have been here, and a compliment on your Estonian.",
   },
+  "vaikesed-sonad": {
+    live: false, needs: [], cases: [],
+    tryThis: "Say three things about yourself, one with ja, one with aga and one with ka.",
+  },
   sidesonad: {
     live: false, needs: [], cases: [],
     tryThis: "Write four sentences about your week, each joined to the next with a different connective.",
