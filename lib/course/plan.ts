@@ -330,7 +330,7 @@ export const PARTS: readonly PartSpec[] = [
       "Comparing two things, talking about what has not happened yet, and saying how you feel "
       + "about either. Five conversations, more than any other part: at the end you can hold a "
       + "whole meal in Estonian, book an appointment and ring somebody about it.",
-    units: ["restoranis", "vordlemine", "plaanid", "suhtlemine", "tunded", "kuivord"],
+    units: ["restoranis", "vordlemine", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
   },
 
   {

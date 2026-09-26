@@ -195,6 +195,11 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
     live: false, needs: [], cases: [],
     tryThis: "Tell somebody what the most interesting thing in your week was, and what is next.",
   },
+  kirjeldamine: {
+    live: true, needs: ["replies"], cases: ["PARTITIVE"],
+    expect: "A question back about what you did, and what you thought of it.",
+    tryThis: "Tell somebody about your weekend in four sentences, and say what was fun and what was strange.",
+  },
   "vaikesed-sonad": {
     live: false, needs: [], cases: [],
     tryThis: "Say three things about yourself, one with ja, one with aga and one with ka.",

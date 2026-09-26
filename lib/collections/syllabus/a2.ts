@@ -273,6 +273,7 @@ export const A2 = [
       ["parool", "password"],
       ["pilt", "picture"],
       ["heli", "sound"],
+      ["kohtama", "to meet, to come across"],
     ],
   }),
 
@@ -307,6 +308,7 @@ export const A2 = [
       ["sõitma", "to ride"],
       ["võitma", "to win"],
       ["kaotama", "to lose"],
+      ["koguma", "to collect, to gather"],
     ],
   }),
 
@@ -490,6 +492,50 @@ export const A2 = [
     id before it moves. Each is `ADVERB` for the reason the connectives are: an
     Estonian adverb does not inflect, and the label says which cards it takes.
   */
+  unit({
+    /*
+      THE WORDS FOR SAYING WHAT SOMETHING WAS LIKE, AND WHAT YOU THOUGHT.
+
+      Another handful off `lib/collections/frequency.ts` that no unit taught:
+      `mõte`, `idee`, `maailm`, `jutt`, `kena`, `lõbus`, `imelik`. A learner
+      at A2 tells somebody about their weekend, and these are the words that
+      conversation is made of.
+    */
+    id: "kirjeldamine",
+    title: "Kirjeldamine",
+    subtitle: "Ideas, the world, and what something was like",
+    icon: "MessageCircle",
+    level: "A2",
+    module: "Suhtlemine",
+    canDo: "Say what you thought of something and describe it in a few words: nice, fun, strange, famous.",
+    blurb: "The words a story about your weekend is made of.",
+    grammar: ["adjective-agreement"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM"],
+    requires: ["tunded"],
+    words: [
+      ["mõte", "thought, idea"],
+      ["idee", "idea"],
+      ["maailm", "world"],
+      ["jutt", "talk, story"],
+      ["tänu", "gratitude, thanks"],
+      ["tähelepanu", "attention"],
+      ["mingi", "some, some kind of", "PRONOUN"],
+      ["kena", "nice, pretty", "ADJECTIVE"],
+      ["armas", "dear, sweet", "ADJECTIVE"],
+      ["lõbus", "fun", "ADJECTIVE"],
+      ["imelik", "strange", "ADJECTIVE"],
+      ["eriline", "special", "ADJECTIVE"],
+      ["normaalne", "normal", "ADJECTIVE"],
+      ["vaene", "poor", "ADJECTIVE"],
+      ["kuulus", "famous", "ADJECTIVE"],
+      ["pime", "dark (without light), blind", "ADJECTIVE"],
+      ["ohutu", "safe", "ADJECTIVE"],
+      ["tänulik", "grateful", "ADJECTIVE"],
+      ["ettevaatlik", "careful", "ADJECTIVE"],
+      ["uhke", "proud, splendid", "ADJECTIVE"],
+    ],
+  }),
+
   unit({
     id: "kuivord",
     title: "Kui väga",

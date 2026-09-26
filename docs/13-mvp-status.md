@@ -2533,6 +2533,6 @@ words sixth. Day ids from a1.1's fifth evening on, and in a1.5 and a1.6, shifted
 
 **And the course gained the words it was missing.** Writing the sentences showed that 55 of the 400
 commonest Estonian words were in no unit (`võima`, `oskama`, `seal`, `tähtis`, `asi`, `elu`,
-`huvitav`). Two new A1 units, `veel-verbe` and `tahtsad-sonad`, and additions to seven others carry
-them, harvested from Ekilex, with sentences written and checked for each.
+`huvitav`), and a second pass found 24 more (`mõte`, `maailm`, `kena`, `paistma`). New units
+`veel-verbe`, `tahtsad-sonad` and `kirjeldamine`, and additions to eleven others carry them, harvested from Ekilex, with sentences written and checked for each.
 

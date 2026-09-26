@@ -1059,8 +1059,8 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["eest", "Aitäh selle eest!", "Thank you for that!"],
   // viisisonad
   ["täpselt", "Kell on täpselt kaks.", "It is exactly two o'clock."],
-  // osakesed
-  ["ära", "Ära mine sinna!", "Do not go there!"],
+  // vaikesed-sonad, moved from osakesed
+  ["ära", "Ära mine veel!", "Do not go yet!"],
   // A2
   ["suutma", "Ma ei suuda enam oodata.", "I cannot wait any longer."],
   ["laskma", "Lase mul minna!", "Let me go!"],
@@ -1073,4 +1073,29 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["naljakas", "See film on väga naljakas.", "This film is very funny."],
   ["tõsine", "See on tõsine haigus.", "This is a serious illness."],
   ["lahke", "Te olete väga lahke.", "You are very kind."],
+  // The second batch of words added on 2026-09-26.
+  ["paistma", "Täna paistab päike.", "The sun is shining today."],
+  ["päästma", "Arst päästis tema elu.", "The doctor saved his life."],
+  ["koguma", "Ma kogun raha reisiks.", "I am saving money for a trip."],
+  ["kohtama", "Ma kohtasin eile vana sõpra.", "I ran into an old friend yesterday."],
+  ["mõte", "See on hea mõte.", "That is a good idea."],
+  ["idee", "Mul on üks idee.", "I have an idea."],
+  ["maailm", "Maailm on suur.", "The world is big."],
+  ["jutt", "See on pikk jutt.", "It is a long story."],
+  ["tänu", "Suur tänu!", "Many thanks!"],
+  ["tähelepanu", "Lapsel on vaja palju tähelepanu.", "The child needs a lot of attention."],
+  ["mingi", "Mul on mingi mure.", "Something is worrying me."],
+  ["kena", "Sa oled väga kena.", "You are very nice."],
+  ["armas", "Teie laps on väga armas.", "Your child is very sweet."],
+  ["lõbus", "Meil oli väga lõbus.", "We had great fun."],
+  ["imelik", "See on imelik.", "That is strange."],
+  ["eriline", "Täna on eriline päev.", "Today is a special day."],
+  ["normaalne", "See on täiesti normaalne.", "That is completely normal."],
+  ["vaene", "Nad on väga vaesed.", "They are very poor."],
+  ["kuulus", "Ta on väga kuulus.", "She is very famous."],
+  ["pime", "Väljas on juba pime.", "It is already dark outside."],
+  ["ohutu", "See tee on ohutu.", "This road is safe."],
+  ["tänulik", "Ma olen sulle väga tänulik.", "I am very grateful to you."],
+  ["ettevaatlik", "Ole ettevaatlik!", "Be careful!"],
+  ["uhke", "Ma olen sinu üle uhke.", "I am proud of you."],
 ];

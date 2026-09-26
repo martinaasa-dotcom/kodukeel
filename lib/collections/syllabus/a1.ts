@@ -210,12 +210,12 @@ export const A1 = [
     */
     id: "vaikesed-sonad",
     title: "Väikesed sõnad",
-    subtitle: "And, but, too, very, here and now",
+    subtitle: "And, but, too, very, here and now, and don't",
     icon: "Link",
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Join two words with and or but, say too and very, and say here, now and today.",
-    blurb: "Ten small words that turn the words you have into sentences.",
+    blurb: "Thirteen small words that turn the words you have into sentences.",
     grammar: ["word-order"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["esimesed-verbid"],
@@ -235,11 +235,14 @@ export const A1 = [
       ["täna", "today", "ADVERB", 249773],
       ["veel", "still, yet, more", "ADVERB"],
       ["ainult", "only", "ADVERB"],
+      // Don't, beside the commands the verbs already give: `Ära mine!` is the
+      // commonest negative a beginner hears, and it sat at the end of A1.
+      ["ära", "away, off (finishing a verb); don't (with a command)", "ADVERB"],
     ],
     evenings: [
       ["ja", "aga", "ka", "väga"],
       ["hästi", "siin", "seal", "sealt"],
-      ["nüüd", "täna", "veel", "ainult"],
+      ["nüüd", "täna", "veel", "ainult", "ära"],
     ],
   }),
 
@@ -850,6 +853,7 @@ export const A1 = [
       ["kuiv", "dry", "ADJECTIVE"],
       ["väljas", "outside", "ADVERB"],
       ["õues", "outdoors, outside", "ADVERB"],
+      ["paistma", "to shine, to seem"],
     ],
   }),
 
@@ -1450,6 +1454,7 @@ export const A1 = [
       ["eksima", "to get lost, to go wrong"],
       ["helistama", "to call, to phone"],
       ["vaja", "necessary, needed", "ADVERB"],
+      ["päästma", "to save, to rescue"],
     ],
   }),
 
@@ -1506,7 +1511,6 @@ export const A1 = [
       ["taha", "to behind", "ADVERB"],
       ["juurde", "over to, up to", "ADVERB"],
       ["järele", "after, to fetch", "ADVERB"],
-      ["ära", "away, off (finishing a verb); don't (with a command)", "ADVERB"],
     ],
   }),
 

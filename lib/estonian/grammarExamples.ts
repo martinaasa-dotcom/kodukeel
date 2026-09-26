@@ -232,7 +232,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   "past-participle": {
     "Combines with to be for have done and had done": [
       { lemma: "vale", et: "Oled elanud vales.", form: "elanud", slot: "VERB:PtsPtPs" },
-      { lemma: "jutt", et: "Meil pole sellest juttu olnud.", form: "olnud", slot: "VERB:PtsPtPs" },
+      { lemma: "alati", et: "Mulle on alati meeldinud tantsida.", form: "meeldinud", slot: "VERB:PtsPtPs" },
     ],
     "Describes a noun as having done something": [
       { lemma: "vihik", et: "Ilmunud vihik tegi luuletajale palju rõõmu.", form: "Ilmunud", slot: "VERB:PtsPtPs" },
@@ -363,7 +363,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "harjumus", et: "Suitsetamine on kahjulik harjumus.", form: "Suitsetamine" },
     ],
     "Adjectives meaning like it, and meaning without it": [
-      { lemma: "idee", et: "Toetan demokraatlikke ideid.", form: "demokraatlikke", slot: "CASE:PARTITIVE" },
+      { lemma: "arglik", et: "Kõlas arglik koputus.", form: "arglik" },
       { lemma: "abikaasa", et: "Abikaasad on võrdõiguslikud.", form: "võrdõiguslikud" },
     ],
     "A quality noun from an adjective": [
@@ -436,7 +436,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Verbs of planning and intending carry the rest": [
       { lemma: "kook", et: "Ema hakkab kooki küpsetama.", form: "hakkab", slot: "VERB:IndPrSg3" },
-      { lemma: "koguma", et: "Kogun raha, et uut autot osta.", form: "Kogun", slot: "VERB:IndPrSg1" },
+      { lemma: "kavatsema", et: "Valitsus kavatseb eelarvekulud tõsise kontrolli alla võtta.", form: "kavatseb", slot: "VERB:IndPrSg3" },
     ],
     "A particle can imply something is going to finish": [
       { lemma: "kütus", et: "Autol hakkab kütus otsa saama.", form: "otsa" },
