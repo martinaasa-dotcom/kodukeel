@@ -46,7 +46,7 @@ export default async function ExceptionsPage() {
   const families = [...new Set(live.map((g) => g.family))] as ExceptionFamily[];
 
   return (
-    <Page
+    <Page route="/grammar/exceptions"
       eyebrow="Reference"
       title="Exceptions"
       lead="Where the endings stop being predictable, and which words to learn one at a time."

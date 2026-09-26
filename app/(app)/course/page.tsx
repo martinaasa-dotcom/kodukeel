@@ -449,7 +449,7 @@ export default async function CoursePage({
           <div className="mt-3">
             <Meter pct={Math.round((reading.daysDone / total) * 100)} label={programme.subtitle} />
           </div>
-          <ol className="mt-4 flex flex-col gap-1.5">
+          <ol className="mt-4 grid gap-x-4 gap-y-0.5 sm:grid-cols-2">
             {programme.days.map((d) => {
               const state = d.index < day.index ? "done" : d.index === day.index ? "now" : "ahead";
               return (
@@ -466,7 +466,7 @@ export default async function CoursePage({
                   get right. The caption gets its own line, indented under
                   the badge, and wraps instead of clipping.
                 */
-                <li key={d.id} data-course-day className="flex flex-col gap-0.5 text-sm">
+                <li key={d.id} data-course-day className="flex flex-col gap-0.5 rounded-[var(--r)] px-2 py-1.5 text-sm" style={state === "now" ? { background: "var(--accent-soft)" } : undefined}>
                   <div className="flex items-start gap-2">
                     <span
                       aria-hidden
@@ -495,14 +495,17 @@ export default async function CoursePage({
                       >
                         {uiText(level, d.title, d.subtitle)}
                       </span>
+                      {uiWantsEnglish(level) && d.part.of > 1 && (
+                        <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+                          {d.part.n} of {d.part.of}
+                        </span>
+                      )}
                       {state === "now" && <Chip tone="accent">Tonight</Chip>}
                     </span>
                   </div>
-                  {(uiWantsEnglish(level) ? d.part.of > 1 : true) && (
+                  {!uiWantsEnglish(level) && (
                     <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>
-                      {uiWantsEnglish(level)
-                        ? `${d.part.n}/${d.part.of}`
-                        : d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
+                      {d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
                     </span>
                   )}
                 </li>
@@ -555,7 +558,7 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
                       title that did not fit beside it left it alone on a line. */}
                   <span
                     data-course-badge
-                    className="tnum w-9 shrink-0 font-semibold"
+                    className="tnum w-12 shrink-0 whitespace-nowrap font-semibold"
                     style={{ color: p.id === here ? "var(--accent-deep)" : "var(--ink-2)" }}
                   >
                     {p.id.toUpperCase()}

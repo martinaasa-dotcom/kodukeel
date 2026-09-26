@@ -41,7 +41,7 @@ export default async function ScanPage() {
   const configured = resolveProvider() !== null;
 
   return (
-    <Page
+    <Page route="/scan"
       eyebrow="From paper"
       title="Scan a page"
       lead="Photograph a word list or your homework, and study what is on it."

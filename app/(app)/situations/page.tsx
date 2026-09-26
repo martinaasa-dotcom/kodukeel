@@ -13,6 +13,7 @@ import { practises } from "@/lib/scenes/practises";
 import { joinWithAnd } from "@/lib/copy/values";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
 import { SceneMotif } from "@/components/scene/SceneMotif";
+import { SceneVignette } from "@/components/scene/SceneVignette";
 import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Situations" };
@@ -47,7 +48,7 @@ export default async function SituationsPage() {
   const scenes = [...SCENES].sort((a, b) => a.title.localeCompare(b.title));
 
   return (
-    <Page
+    <Page route="/situations"
       title="Situations"
       lead="Somebody wants something from you, and you have to sort it out in Estonian."
     >
@@ -142,7 +143,21 @@ function SceneTile({ scene, history, learnerLevel }: {
   return (
     <li>
       <Link href={`/situations/${scene.id}`} className="block h-full">
-        <Card hover className="flex h-full flex-col gap-2">
+        <Card hover className="flex h-full flex-col gap-2 overflow-hidden">
+          {/*
+            THE ROOM ITSELF, AT THE TOP OF THE TILE.
+
+            The same drawing the conversation opens on, at the size the cover
+            uses, so the fifteen tiles are fifteen places before a word of them
+            is read. Decoration, and aria-hidden inside the drawing: every
+            fact it shows is written on the tile under it.
+          */}
+          <div
+            className="-mx-5 -mt-5 mb-2 flex justify-center border-b px-5 pb-1 pt-4 md:-mx-6 md:-mt-6"
+            style={{ background: "var(--raised)", borderColor: "var(--rule-soft)" }}
+          >
+            <SceneVignette sceneId={scene.id} fit="inset" />
+          </div>
           <div className="flex items-start gap-3">
             {/*
               WHICH ROOM THIS IS, BEFORE THE TITLE IS READ.
@@ -162,7 +177,7 @@ function SceneTile({ scene, history, learnerLevel }: {
               uses. Found the day `/situations` joined the design sweep,
               which is the argument for putting it there.
             */}
-            <h2 className="min-w-0 flex-1 text-md font-medium">{scene.title}</h2>
+            <h2 className="min-w-0 flex-1 text-lg font-bold tracking-tight">{scene.title}</h2>
           </div>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{scene.place}</p>
           {/*

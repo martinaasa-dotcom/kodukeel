@@ -25,7 +25,7 @@ export default async function DecksPage() {
   const decks = await listDecks(ownerId);
 
   return (
-    <Page
+    <Page route="/words/decks"
       title="Decks"
       lead="Name a shelf, and put words on it as you add them or any time after."
     >

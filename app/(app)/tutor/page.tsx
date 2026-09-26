@@ -24,7 +24,7 @@ export default async function TutorPage({ searchParams }: {
   const history = await loadRecentMessages(ownerId);
 
   return (
-    <Page
+    <Page route="/tutor"
       title="Anu"
       lead="Ask why a case is what it is, check a sentence, or get a stem explained."
     >

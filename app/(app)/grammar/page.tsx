@@ -51,7 +51,7 @@ export default async function GrammarIndexPage() {
   const weakest = caseAccuracy(reviews).slice(0, 3);
 
   return (
-    <Page
+    <Page route="/grammar"
       eyebrow="Reference"
       title="Grammar"
       lead="Fourteen endings. Three you memorize, and eleven you can work out."

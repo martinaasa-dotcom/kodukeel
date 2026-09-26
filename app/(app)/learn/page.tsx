@@ -86,7 +86,7 @@ export default async function LearnPage() {
   });
 
   return (
-    <Page
+    <Page route="/learn"
       title="Learn"
       lead="New words, one small round at a time, and the course they come out of."
     >
@@ -236,7 +236,7 @@ export default async function LearnPage() {
                         the padlock, which carries no words.
                       */
                       style={{
-                        borderColor: complete ? "var(--mint)" : u.state === "learning" ? "var(--accent)" : "var(--rule)",
+                        borderColor: next && u.unit.id === next.id ? "var(--accent)" : "var(--rule)",
                         background: "var(--surface)",
                       }}
                     >
@@ -267,6 +267,11 @@ export default async function LearnPage() {
                         <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
                           {u.unit.canDo}
                         </span>
+                        {u.available > 0 && (u.known > 0 || u.state === "learning") && (
+                          <span aria-hidden className="mt-2 block h-1 max-w-[16rem] overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
+                            <span className="block h-full rounded-full" style={{ width: `${Math.max(4, Math.round((u.known / u.available) * 100))}%`, background: complete ? "var(--mint)" : "var(--accent)" }} />
+                          </span>
+                        )}
                         <span className="tnum mt-1 block text-xs @md:hidden" style={{ color: "var(--ink-3)" }}>
                           {u.known}/{u.available}
                         </span>
@@ -288,7 +293,7 @@ export default async function LearnPage() {
                           and broke every word of it. The row is the container. */}
                       <ButtonLink
                         href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
-                        variant={u.state === "learning" ? "primary" : "ghost"}
+                        variant={next && u.unit.id === next.id ? "primary" : u.state === "learning" ? "secondary" : "ghost"}
                         size="sm"
                         className="w-full justify-center @md:w-32"
                       >

@@ -33,7 +33,7 @@ export default async function CommonWordsPage() {
   const found = sections.reduce((sum, s) => sum + s.found, 0);
 
   return (
-    <Page
+    <Page route="/dictionary/common"
       title="The words you will hear most"
       lead="Counted over film and television subtitles, so this is the language people speak."
     >

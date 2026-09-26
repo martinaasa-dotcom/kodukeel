@@ -165,7 +165,7 @@ export default async function ProgressPage() {
 
   if (reviews.length === 0 && snapshot.totalCards === 0) {
     return (
-      <Page title="Progress" lead="Worked out fresh from your reviews every time you check.">
+      <Page route="/progress" title="Progress" lead="Worked out fresh from your reviews every time you check.">
         <Empty
           title="No history yet"
           body="Charts appear after your first review."
@@ -176,7 +176,7 @@ export default async function ProgressPage() {
   }
 
   return (
-    <Page
+    <Page route="/progress"
       title="Progress"
       lead="Worked out fresh from your reviews every time you check."
       /*

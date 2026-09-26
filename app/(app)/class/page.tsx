@@ -54,7 +54,7 @@ export default async function ClassIndexPage() {
   const shareable = supabaseConfigured();
 
   return (
-    <Page
+    <Page route="/class"
       eyebrow="Learn together"
       title="Classes"
       lead="A class shares progress, not data. Your deck, your searches and your history stay yours."

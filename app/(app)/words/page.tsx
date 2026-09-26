@@ -67,7 +67,7 @@ export default async function WordsPage() {
   const totalCards = counts.reduce((sum, c) => sum + c._count, 0);
 
   return (
-    <Page
+    <Page route="/words"
       title="My words"
       lead="Everything in your deck, and how well it is sticking."
       actions={

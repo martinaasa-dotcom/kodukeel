@@ -70,7 +70,7 @@ export default async function ExamPage() {
   const evidenceNote = EVIDENCE_NOTE[readiness.evidence];
 
   return (
-    <Page
+    <Page route="/exam"
       eyebrow="Mock examination"
       title="Practice the state exam, before you sit the real one"
       /*

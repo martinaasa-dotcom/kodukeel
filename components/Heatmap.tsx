@@ -33,29 +33,67 @@ export function Heatmap({ days }: { days: DayBucket[] }) {
   const total = days.reduce((sum, d) => sum + d.count, 0);
   const active = days.filter((d) => d.count > 0).length;
 
+  /*
+    Months across the top, one label on the week each month starts in. Read off
+    the day string rather than a Date, so no zone can move a label a column.
+  */
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthAt = weeks.map((week) => {
+    const firstOfMonth = week.find((c) => c && c.day.endsWith("-01"));
+    if (firstOfMonth) return MONTHS[Number(firstOfMonth.day.slice(5, 7)) - 1] ?? "";
+    return "";
+  });
+  /* The window opens mid-month, so the first column names its month too,
+     unless a label is due within three weeks and the two would collide. */
+  const firstLabelAt = monthAt.findIndex((m) => m !== "");
+  if (firstLabelAt === -1 || firstLabelAt >= 3) {
+    const c = weeks[0]?.find(Boolean);
+    if (c) monthAt[0] = MONTHS[Number(c.day.slice(5, 7)) - 1] ?? "";
+  }
+
   return (
     <div>
-      <div className="overflow-x-auto pb-1">
-        <div className="flex gap-[3px]" style={{ minWidth: weeks.length * 13 }}>
-          {weeks.map((week, wi) => (
-            <div key={wi} className="flex flex-col gap-[3px]">
-              {Array.from({ length: 7 }, (_, di) => {
+      {/*
+        The grid fills its card. It drew fixed 10px squares and so filled
+        about half of it on a desktop, a small patch in a wide empty box; the
+        columns are shares of the width now, square by their own aspect ratio,
+        and never under 10px, where the box scrolls rather than squeezes.
+      */}
+      {/* A region a keyboard can reach, since on a phone it scrolls: a box
+          that scrolls and cannot take focus is a box a keyboard cannot read. */}
+      <div className="overflow-x-auto pb-1" tabIndex={0} role="region" aria-label="Reviews per day, last six months">
+        <div style={{ minWidth: weeks.length * 13 }}>
+          <div
+            aria-hidden
+            className="mb-1.5 grid gap-[3px] text-2xs"
+            style={{ gridTemplateColumns: `repeat(${weeks.length}, minmax(10px, 1fr))`, color: "var(--ink-3)" }}
+          >
+            {monthAt.map((m, i) => (
+              <span key={i} className="overflow-visible whitespace-nowrap">{m}</span>
+            ))}
+          </div>
+          <div
+            className="grid gap-[3px]"
+            style={{ gridTemplateColumns: `repeat(${weeks.length}, minmax(10px, 1fr))`, gridTemplateRows: "repeat(7, auto)", gridAutoFlow: "column" }}
+          >
+            {weeks.flatMap((week, wi) =>
+              Array.from({ length: 7 }, (_, di) => {
                 const cell = week[di] ?? null;
-                if (!cell) return <span key={di} className="block h-[10px] w-[10px]" aria-hidden />;
+                if (!cell) return <span key={`${wi}-${di}`} className="block aspect-square" aria-hidden />;
                 return (
                   <span
-                    key={di}
-                    /* 2px, not a token radius: at 10px square anything larger
-                       rounds the cell into a dot and the grid stops reading as
-                       a calendar. Data cells are the one exception (docs §2). */
-                    className="block h-[10px] w-[10px] rounded-[2px]"
+                    key={`${wi}-${di}`}
+                    /* 2px, not a token radius: anything larger rounds a small
+                       cell into a dot and the grid stops reading as a
+                       calendar. Data cells are the one exception (docs §2). */
+                    className="heat-cell block aspect-square rounded-[2px]"
                     style={{ background: LEVEL_COLOR[cell.level] }}
                     title={`${cell.day}: ${cell.count} review${cell.count === 1 ? "" : "s"}`}
                   />
                 );
-              })}
-            </div>
-          ))}
+              }),
+            )}
+          </div>
         </div>
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-3 text-2xs" style={{ color: "var(--ink-3)" }}>

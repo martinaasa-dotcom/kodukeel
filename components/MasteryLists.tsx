@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Card, Chip, SectionTitle, StatTile } from "@/components/ui";
+import { Card, Chip, SectionTitle } from "@/components/ui";
 import { MASTERY_LABEL, MASTERY_ORDER, MASTERY_CORRECT, MASTERY_SLOTS, type Mastery } from "@/lib/srs/mastery";
 import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
 
@@ -52,14 +52,14 @@ export function MasteryLists({
     <Card>
       <SectionTitle hint="counted in words, not cards">How well each word is sticking</SectionTitle>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {/*
+        One row per tier, and the row is the count. This drew four tiles of
+        the numbers and then the same four numbers again as the rows that open,
+        so every figure on the card was printed twice. A tier with nothing in
+        it is still a row, quieter, because "none mastered yet" is a fact.
+      */}
+      <div className="flex flex-col gap-2">
         {MASTERY_ORDER.map((tier) => (
-          <StatTile key={tier} value={counts[tier]} label={MASTERY_LABEL[tier]} tone={TONES[tier]} />
-        ))}
-      </div>
-
-      <div className="mt-4 flex flex-col gap-2">
-        {MASTERY_ORDER.filter((tier) => counts[tier] > 0).map((tier) => (
           <TierRow key={tier} tier={tier} words={wordsAt(words, tier)} total={counts[tier]} />
         ))}
       </div>
@@ -84,19 +84,34 @@ export function MasteryLists({
 }
 
 function TierRow({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; total: number }) {
+  const tone = TONES[tier];
+  const head = (
+    <>
+      <span aria-hidden className="h-9 w-1.5 shrink-0 rounded-full" style={{ background: `var(--${tone})` }} />
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{MASTERY_LABEL[tier]}</span>
+        <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{EXPLAINS[tier]}</span>
+      </span>
+      <span className="tnum font-display text-2xl font-bold" style={{ color: total > 0 ? `var(--${tone}-ink)` : "var(--ink-3)" }}>
+        {total}
+      </span>
+    </>
+  );
+  if (total === 0) {
+    return (
+      <div className="flex items-center gap-3 rounded-[var(--r)] border px-4 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+        {head}
+      </div>
+    );
+  }
   return (
     <details className="rounded-[var(--r)] border" style={{ borderColor: "var(--rule-soft)" }}>
-      <summary className="tap-tint flex cursor-pointer items-center justify-between gap-3 rounded-[var(--r)] px-4 py-3">
-        <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-          {MASTERY_LABEL[tier]}
-        </span>
-        <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-          {total} {total === 1 ? "word" : "words"}
-        </span>
+      <summary className="tap-tint flex cursor-pointer items-center gap-3 rounded-[var(--r)] px-4 py-3">
+        {head}
+        <span className="sr-only">{total === 1 ? "word" : "words"}</span>
       </summary>
 
       <div className="px-4 pb-4">
-        <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>{EXPLAINS[tier]}</p>
         <ul className="flex flex-wrap gap-2">
           {words.map((word) => (
             <li key={word.lexemeId}>

@@ -151,7 +151,7 @@ export default async function PracticePage() {
     mode.href === "/review/sprint" ? { ...mode, subtitle: sprintLength } : mode;
 
   return (
-    <Page title="Practice" lead="Words you have already learned, asked every way there is.">
+    <Page route="/practice" title="Practice" lead="Words you have already learned, asked every way there is.">
       {snapshot.totalCards === 0 ? (
         <Empty
           title="Nothing to practice yet"

@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
 import { WayOut } from "@/components/round/RoundExit";
 import { PrefetchLink } from "@/components/PrefetchLink";
+import { NamedIcon } from "@/components/icons";
+import { DESTINATIONS } from "@/lib/ux/nav";
 
 /**
  * One faint light in the top corner, fixed behind the page content.
@@ -21,7 +23,7 @@ export function Wash() {
   );
 }
 
-export function Page({ title, titleLang, lead, actions, children, eyebrow }: {
+export function Page({ title, titleLang, lead, actions, children, eyebrow, route }: {
   title: string;
   /**
    * Set to "et" where the heading is the Estonian name of a grammar point
@@ -36,22 +38,44 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow }: {
    * dates, which only their own browser knows. See components/LocalDate.tsx.
    */
   eyebrow?: ReactNode;
+  /**
+   * The destination this page is, as `lib/ux/nav.ts` names it. The heading
+   * then carries the same icon in the same hue as the row in the rail, so the
+   * place a learner pressed and the page that opened are visibly one thing.
+   * Read off the table rather than passed as an icon, so the two cannot drift.
+   */
+  route?: string;
 }) {
+  const place = route ? DESTINATIONS.find((d) => d.href === route) : undefined;
   return (
     <div className="mx-auto max-w-5xl px-5 py-8 md:px-10 md:py-12">
-      <header className="fade-up mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          {eyebrow && (
-            <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
+      <header className="fade-up mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="flex min-w-0 items-start gap-4">
+          {place && (
+            <span
+              aria-hidden
+              className="page-mark mt-1 hidden shrink-0 place-items-center sm:grid"
+              style={{
+                background: place.tone === "ink" ? "var(--raised)" : `var(--${place.tone}-soft)`,
+                color: place.tone === "ink" ? "var(--ink)" : toneInk(place.tone),
+              }}
+            >
+              <NamedIcon name={place.icon} size={24} strokeWidth={2} />
+            </span>
           )}
-          <h1 lang={titleLang} className="text-3xl font-bold leading-[1.1] tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
-            {title}
-          </h1>
-          {lead && <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
+          <div className="min-w-0">
+            {eyebrow && (
+              <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
+            )}
+            <h1 lang={titleLang} className="text-3xl font-bold leading-[1.05] tracking-tight md:text-4xl lg:text-5xl" style={{ color: "var(--ink)" }}>
+              {title}
+            </h1>
+            {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
+          </div>
         </div>
         {actions}
       </header>
-      {children}
+      <div className="page-body">{children}</div>
     </div>
   );
 }
@@ -113,7 +137,7 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
  * reason a reader could name. A rhythm nobody can predict is one more thing to
  * absorb on every screen.
  *
- * So this is the rhythm, and it is deliberately generous: 32px between one
+ * So this is the rhythm, and it is deliberately generous: 40px between one
  * section and the next, which is comfortably more than the 20px inside a card
  * and the 8px between rows in a list. Space is what says "these are separate
  * things" before a heading has to.
@@ -123,7 +147,7 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
  * says those belong together.
  */
 export function Stack({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`flex flex-col gap-8 ${className}`}>{children}</div>;
+  return <div className={`stack-rise flex flex-col gap-10 ${className}`}>{children}</div>;
 }
 
 /**
@@ -175,9 +199,9 @@ export function Columns({ children, className = "" }: { children: ReactNode; cla
  */
 export function SectionTitle({ children, hint }: { children: ReactNode; hint?: ReactNode }) {
   return (
-    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <h2 className="label-xs" style={{ color: "var(--ink-3)" }}>{children}</h2>
-      {hint && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint}</span>}
+    <div className="section-title mb-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <h2 className="text-lg font-bold tracking-tight md:text-xl" style={{ color: "var(--ink)" }}>{children}</h2>
+      {hint && <span className="text-sm" style={{ color: "var(--ink-3)" }}>{hint}</span>}
     </div>
   );
 }

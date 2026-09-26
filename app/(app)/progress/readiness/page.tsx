@@ -36,7 +36,7 @@ export default async function ReadinessPage() {
 
   if (picture.totalReviews === 0) {
     return (
-      <Page
+      <Page route="/progress/readiness"
         eyebrow="Readiness"
         title="In real life"
         lead="Which situations you could follow, take part in or lead, based on your own answers."
@@ -54,7 +54,7 @@ export default async function ReadinessPage() {
   const worthTrying = picture.summary.couldTry.slice(0, 3);
 
   return (
-    <Page
+    <Page route="/progress/readiness"
       eyebrow="Readiness"
       title="In real life"
       lead="Which situations you could follow, take part in or lead, based on your own answers."

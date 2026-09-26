@@ -209,7 +209,7 @@ export default async function SettingsPage() {
   const measuredIsCurrent = (latestCheck?.overall ?? null) === courseLevel;
 
   return (
-    <Page
+    <Page route="/settings"
       title="Settings"
       lead={
         hosted

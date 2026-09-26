@@ -178,7 +178,7 @@ export default async function DictionaryPage({
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
 
   return (
-    <Page
+    <Page route="/dictionary"
       title="Dictionary"
       lead={
         ekilexConfigured()
