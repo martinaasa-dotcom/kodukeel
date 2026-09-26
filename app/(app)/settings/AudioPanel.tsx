@@ -37,13 +37,28 @@ export function VoicePanel({ current }: { current: string }) {
   };
 
   return (
-    <ChoiceGroup ariaLabel="Which voice reads Estonian" className="flex flex-wrap gap-2">
+    /*
+      Each voice is one object with two presses in it, the name to keep and
+      the ear to hear, sitting in a shared pill so the speaker reads as that
+      voice's and not the next one's. In a grid, so ten names line up in
+      columns rather than wrapping into a ragged paragraph.
+    */
+    <ChoiceGroup
+      ariaLabel="Which voice reads Estonian"
+      className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,8.5rem),1fr))] gap-2"
+    >
       {VOICES.map((v) => (
-        <span key={v.id} className="inline-flex items-center gap-1">
+        <span
+          key={v.id}
+          className="flex items-center gap-1 rounded-full pr-1"
+          style={{ background: "var(--raised)" }}
+        >
           <ChoiceChip selected={voice === v.id} disabled={pending} onSelect={() => pick(v.id)}>
             {v.name}
           </ChoiceChip>
-          <Speak text={SAMPLE} voice={v.id} label={`Hear ${v.name}`} size={14} />
+          <span className="ml-auto">
+            <Speak text={SAMPLE} voice={v.id} label={`Hear ${v.name}`} size={14} />
+          </span>
         </span>
       ))}
     </ChoiceGroup>

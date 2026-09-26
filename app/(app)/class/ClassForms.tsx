@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Check, Copy, LogOut, Plus, Printer } from "lucide-react";
+import { Archive, Check, Copy, LogOut, Plus, Printer } from "lucide-react";
 import { archiveClassroom, assignHomework, assignUnit, createClassroom, joinClassroom, leaveClassroom, setEmailKind } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { COPY_LABEL, useCopy } from "@/components/useCopy";
@@ -202,10 +202,10 @@ export function LeaveClass({ classroomId }: { classroomId: string }) {
           router.push("/class");
           router.refresh();
         })}
-        className="tap-tint inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
+        className="tap-tint inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm"
         style={{ color: "var(--ink-3)" }}
       >
-        <LogOut size={12} aria-hidden /> Leave this class
+        <LogOut size={14} aria-hidden /> Leave this class
       </button>
       {error && <p role="alert" className="mt-1 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
     </>
@@ -222,16 +222,16 @@ export function ArchiveClass({ classroomId }: { classroomId: string }) {
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="tap-tint rounded-md px-1.5 py-0.5 text-xs"
+        className="tap-tint inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm"
         style={{ color: "var(--ink-3)" }}
       >
-        Archive this class
+        <Archive size={14} aria-hidden /> Archive this class
       </button>
     );
   }
 
   return (
-    <span className="flex items-center gap-2 text-xs" style={{ color: "var(--ink-2)" }}>
+    <span className="flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
       The join code stops working. Nobody loses any work.
       <Button variant="danger" disabled={pending} onClick={() => start(async () => {
         const landed = await archiveClassroom(classroomId).then(() => true).catch(() => false);
@@ -410,9 +410,11 @@ export function ClassDigest({ on }: { on: boolean }) {
   const [, start] = useTransition();
 
   return (
-    <label className="flex cursor-pointer items-center gap-2 text-xs" style={{ color: "var(--ink-2)" }}>
+    <label className="flex cursor-pointer items-center gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
       <input
         type="checkbox"
+        className="h-4 w-4 shrink-0"
+        style={{ accentColor: "var(--accent)" }}
         checked={want}
         onChange={(event) => {
           const next = event.target.checked;

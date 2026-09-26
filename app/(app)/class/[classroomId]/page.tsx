@@ -13,7 +13,7 @@ import type { ExamLevel } from "@/lib/exam/spec";
 import { WorkplaceView } from "./WorkplaceView";
 import { LocalDate } from "@/components/LocalDate";
 import { DUE_DATE_FORMAT } from "@/lib/ux/agenda";
-import { Card, Chip, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { ArchiveClass, AssignHomework, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { counted } from "@/lib/copy/values";
 import { Explain } from "@/components/Explain";
@@ -338,20 +338,30 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           </section>
         )}
 
-        <div className="flex flex-wrap items-center gap-4 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
+        {/*
+          The housekeeping, in one card with the way out last: when you joined
+          and the Monday letter on the left, the quiet door on the right. Laid
+          loose along a rule it read as four unrelated scraps.
+        */}
+        <Card className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <div className="flex min-w-[14rem] flex-1 flex-col gap-2">
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+              You joined on{" "}
+              <span className="font-semibold" style={{ color: "var(--ink)" }}>
+                <LocalDate
+                  iso={membership.joinedAt.toISOString()}
+                  options={{ day: "numeric", month: "long", year: "numeric" }}
+                  fallback={membership.joinedAt.toLocaleDateString(undefined, {
+                    day: "numeric", month: "long", year: "numeric",
+                  })}
+                />
+              </span>
+              .
+            </p>
+            {isTeacher && <ClassDigest on={digest} />}
+          </div>
           {isTeacher ? <ArchiveClass classroomId={classroomId} /> : <LeaveClass classroomId={classroomId} />}
-          {isTeacher && <ClassDigest on={digest} />}
-          <Chip>
-            joined{" "}
-            <LocalDate
-              iso={membership.joinedAt.toISOString()}
-              options={{ day: "numeric", month: "short", year: "numeric" }}
-              fallback={membership.joinedAt.toLocaleDateString(undefined, {
-                day: "numeric", month: "short", year: "numeric",
-              })}
-            />
-          </Chip>
-        </div>
+        </Card>
       </Stack>
     </Page>
   );
