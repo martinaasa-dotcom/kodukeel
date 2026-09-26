@@ -18,7 +18,7 @@ export function Wash() {
     <div
       aria-hidden
       className="no-print pointer-events-none fixed inset-0 -z-10"
-      style={{ background: "radial-gradient(70% 55% at 0% 0%, var(--wash-1), transparent 72%)" }}
+      style={{ background: "radial-gradient(60% 50% at 0% 0%, var(--wash-1), transparent 70%), radial-gradient(45% 40% at 100% 100%, var(--wash-3), transparent 70%)" }}
     />
   );
 }
@@ -56,18 +56,18 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
               aria-hidden
               className="page-mark mt-1 hidden shrink-0 place-items-center sm:grid"
               style={{
-                background: place.tone === "ink" ? "var(--raised)" : `var(--${place.tone}-soft)`,
-                color: place.tone === "ink" ? "var(--ink)" : toneInk(place.tone),
+                background: place.tone === "ink" ? "var(--ink)" : `var(--${place.tone})`,
+                color: place.tone === "mint" || place.tone === "butter" ? "var(--on-mint)" : "var(--surface)",
               }}
             >
-              <NamedIcon name={place.icon} size={24} strokeWidth={2} />
+              <NamedIcon name={place.icon} size={26} strokeWidth={2.25} />
             </span>
           )}
           <div className="min-w-0">
             {eyebrow && (
               <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
             )}
-            <h1 lang={titleLang} className="text-3xl font-bold leading-[1.05] tracking-tight md:text-4xl lg:text-5xl" style={{ color: "var(--ink)" }}>
+            <h1 lang={titleLang} className="text-4xl font-bold leading-[0.95] md:text-5xl lg:text-6xl" style={{ color: "var(--ink)" }}>
               {title}
             </h1>
             {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
@@ -94,13 +94,13 @@ export function toneInk(tone: string): string {
 }
 
 const CARD_TONES = {
-  plain: { background: "var(--surface)", borderColor: "var(--rule)" },
-  accent: { background: "var(--accent-soft)", borderColor: "transparent" },
-  mint: { background: "var(--mint-soft)", borderColor: "transparent" },
-  butter: { background: "var(--butter-soft)", borderColor: "transparent" },
-  peach: { background: "var(--peach-soft)", borderColor: "transparent" },
-  blush: { background: "var(--blush-soft)", borderColor: "transparent" },
-  sky: { background: "var(--sky-soft)", borderColor: "transparent" },
+  plain: { background: "var(--surface)" },
+  accent: { background: "var(--accent-soft)" },
+  mint: { background: "var(--mint-soft)" },
+  butter: { background: "var(--butter-soft)" },
+  peach: { background: "var(--peach-soft)" },
+  blush: { background: "var(--blush-soft)" },
+  sky: { background: "var(--sky-soft)" },
 } as const;
 
 export type CardTone = keyof typeof CARD_TONES;
@@ -116,10 +116,11 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
 }) {
   return (
     <Tag
-      className={`rounded-[var(--r-lg)] border p-5 md:p-6 ${hover ? "lift" : ""} ${className}`}
+      className={`rounded-[var(--r-lg)] border-2 p-5 md:p-6 ${hover ? "lift" : ""} ${className}`}
       style={{
         ...CARD_TONES[tone],
-        boxShadow: tone === "plain" ? "var(--shadow-sm)" : "none",
+        borderColor: "var(--edge)",
+        boxShadow: "var(--hard)",
         ...style,
       }}
     >

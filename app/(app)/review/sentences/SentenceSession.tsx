@@ -361,10 +361,10 @@ export function SentenceSession(
                   aria-label={`Remove ${tile.word}`}
                   className="press rounded-[var(--r-sm)] border px-3 py-1.5 text-md transition-ui hover:-translate-y-px"
                   style={{
-                    borderColor: "var(--rule)",
+                    borderColor: "var(--edge)",
                     background: "var(--surface)",
                     color: "var(--ink)",
-                    boxShadow: "var(--shadow-sm)",
+                    boxShadow: "var(--hard-sm)",
                   }}
                 >
                   {tile.word}

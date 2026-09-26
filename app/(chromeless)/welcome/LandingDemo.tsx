@@ -168,8 +168,8 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
   return (
     <div
       ref={root}
-      className="case-explorer overflow-hidden rounded-[var(--r-xl)] border"
-      style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow)" }}
+      className="case-explorer overflow-hidden rounded-[var(--r-xl)] border-2"
+      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--hard)" }}
     >
       <div className="flex flex-wrap items-center gap-2 border-b px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
         <span className="label-xs mr-1" style={{ color: "var(--ink-3)" }}>Try a word</span>

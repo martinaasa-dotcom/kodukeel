@@ -111,7 +111,7 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
 
   return (
     <>
-      <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
+      <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}>
         <table className="w-full min-w-[340px] text-sm">
           <thead>
             <tr>
@@ -202,7 +202,7 @@ function VerbTable({ forms }: { forms: WordForm[] }) {
   return (
     <>
       {groups.length > 0 && (
-        <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
+        <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}>
           <table className="w-full min-w-[420px] text-sm">
             <thead>
               <tr>
@@ -355,7 +355,7 @@ export function DerivedVerbForms({ lemma, forms }: {
           ? "Take the n off the first person and the other five persons, the negative and the conditional are regular endings on what is left. The simple past has to be learned per verb."
           : "This is the one verb whose present tense does not follow the rule. The conditional still does; the rest is stored."}
       </p>
-      <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
+      <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}>
         <table className="w-full min-w-[360px] text-sm">
           <thead>
             <tr>

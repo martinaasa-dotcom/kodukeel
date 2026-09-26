@@ -24,30 +24,30 @@
 
 /** The light theme, as `app/globals.css` declares it. Asserted, value by value. */
 export const PALETTE = {
-  ground: "#f7f7f4",
+  ground: "#fffbf2",
   /** The card a letter is drawn on, which is the app's own card colour. */
   surface: "#ffffff",
-  raised: "#f0f0ec",
-  ink: "#111216",
-  ink2: "#43454d",
-  ink3: "#5c5e67",
+  raised: "#fff1d9",
+  ink: "#0f1233",
+  ink2: "#3e4166",
+  ink3: "#585b80",
 
-  accent: "#2f55f5",
+  accent: "#5b2eff",
   accentInk: "#ffffff",
-  accentSoft: "#e9eeff",
-  accentDeep: "#1e3fc4",
+  accentSoft: "#ece5ff",
+  accentDeep: "#4719e0",
 
-  mint: "#16b58c",
-  mintSoft: "#dcf5ec",
-  mintInk: "#0b6b54",
+  mint: "#00c2a8",
+  mintSoft: "#d6f7f1",
+  mintInk: "#03695c",
 
-  peach: "#ef6a4c",
-  peachSoft: "#ffe7df",
-  peachInk: "#a93318",
+  peach: "#ef3e36",
+  peachSoft: "#ffe2df",
+  peachInk: "#a81e18",
 
-  butter: "#d99a14",
-  butterSoft: "#fdf0d2",
-  butterInk: "#7c560a",
+  butter: "#ffc400",
+  butterSoft: "#fff3c2",
+  butterInk: "#735000",
 } as const;
 
 /**
@@ -87,12 +87,12 @@ export const TOKEN_OF: Readonly<Record<keyof typeof PALETTE, string>> = {
  * them is measured in the stylesheet against the same ground the app uses.
  */
 export const DARK = {
-  ground: "#0c0d10",
-  surface: "#141519",
-  raised: "#1c1d22",
-  ink: "#f3f3ef",
-  ink2: "#c2c3cb",
-  accentSoft: "#1f2645",
+  ground: "#080a1f",
+  surface: "#101433",
+  raised: "#1a1f4a",
+  ink: "#f2f3ff",
+  ink2: "#c4c8ec",
+  accentSoft: "#26215c",
 } as const;
 
 export const DARK_TOKEN_OF: Readonly<Record<keyof typeof DARK, string>> = {

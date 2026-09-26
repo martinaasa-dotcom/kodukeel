@@ -219,7 +219,8 @@ export function LetterTile({
         style={{
           background: HUES[hue].fill,
           color: HUES[hue].ink,
-          boxShadow: "var(--shadow-sm)",
+          border: "2px solid var(--edge)",
+          boxShadow: "var(--hard-sm)",
           ...(vars as CSSProperties),
         }}
       >

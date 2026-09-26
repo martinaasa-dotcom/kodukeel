@@ -249,7 +249,7 @@ export default async function CasePage({
           ) : (
             <div
               className="overflow-x-auto rounded-[var(--r-lg)] border"
-              style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
             >
               <table className="w-full min-w-[360px] text-sm">
                 <thead>

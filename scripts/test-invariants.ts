@@ -5608,7 +5608,7 @@ check("the smallest step on the scale is one a reader can actually see", () => {
   */
   const FLOOR = 14;
   const NAMES = [
-    "2xs", "xs", "sm", "base", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", "7xl",
+    "2xs", "xs", "sm", "base", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", "7xl", "8xl",
   ] as const;
 
   const css = read("app/globals.css");

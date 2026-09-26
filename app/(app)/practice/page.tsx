@@ -266,8 +266,8 @@ export default async function PracticePage() {
               href="/words/mastery"
               className="lift flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[var(--r-lg)] border p-4"
               style={{
-                borderColor: "var(--rule)", background: "var(--surface)",
-                boxShadow: "var(--shadow-sm)",
+                borderColor: "var(--edge)", background: "var(--surface)",
+                boxShadow: "var(--hard-sm)",
               }}
             >
               <span className="text-base font-semibold" style={{ color: "var(--ink)" }}>
@@ -320,7 +320,7 @@ export default async function PracticePage() {
             <Link
               href="/exam"
               className="lift flex items-center gap-3 rounded-[var(--r-lg)] border p-4"
-              style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
             >
               <span
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
@@ -383,7 +383,7 @@ function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
          is what a thumb aims at and the name is read under it. Side by side
          from `sm`, where a row has the width for it. */
       className="lift flex h-full flex-col items-start gap-2.5 rounded-[var(--r-lg)] border p-3.5 sm:flex-row sm:items-center sm:gap-3 sm:p-4"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
     >
       <span
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
@@ -426,7 +426,7 @@ function CommonWordsCard() {
   return (
     <section
       className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-5"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span
@@ -499,7 +499,7 @@ function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: nu
   return (
     <section
       className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-5"
-      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span
@@ -567,9 +567,9 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
       href={href}
       className="lift flex h-full flex-col gap-2 rounded-[var(--r-lg)] border p-5"
       style={{
-        borderColor: primary ? "var(--accent)" : "var(--rule)",
+        borderColor: primary ? "var(--accent)" : "var(--edge)",
         background: "var(--surface)",
-        boxShadow: "var(--shadow-sm)",
+        boxShadow: "var(--hard-sm)",
       }}
     >
       {/* One row whatever the width: on a phone the chip wrapped onto a line

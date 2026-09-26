@@ -168,7 +168,7 @@ export default async function LearnPage() {
               key={level}
               open={open}
               className="rounded-[var(--r-lg)] border"
-              style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
             >
               <summary className="flex min-h-[56px] cursor-pointer flex-wrap items-center gap-3 p-4 sm:gap-4">
                 <span

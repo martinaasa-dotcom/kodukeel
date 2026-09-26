@@ -64,14 +64,29 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         For example, <span lang="et">{first.lemma}</span> becomes{" "}
         <span lang="et">{first.form}</span>, {first.question}
       </p>
-      <div aria-hidden className="hero-word-row">
-        <span lang="et" className="hero-word-lemma">{frame.lemma}</span>
-        <span className="hero-word-arrow">→</span>
-        <span key={`${frame.lemma}-${frame.form}`} lang="et" className="hero-word-form">
-          {frame.form}
-        </span>
+      {/*
+        The card is a sticker on a sticker: a coral one tilted behind it and the
+        word on top, so the thing the page is about is the most physical object
+        on the screen. The bar under the question fills while a form is up and
+        restarts with the next one, which is the only clock on it; it stops with
+        the word under a pointer and for anybody who asked for less movement.
+      */}
+      <div aria-hidden className="hero-word-stack">
+        <div className="hero-word-back" />
+        <div className="hero-word-card">
+          <div className="hero-word-top">
+            <span className="hero-word-label">Dictionary word</span>
+            <span lang="et" className="hero-word-lemma">{frame.lemma}</span>
+          </div>
+          <span key={`${frame.lemma}-${frame.form}`} lang="et" className="hero-word-form">
+            {frame.form}
+          </span>
+          <p key={`q-${i}`} className="hero-word-question">{frame.question}</p>
+          <span className="hero-word-track">
+            <span key={`t-${i}`} className="hero-word-tick" data-held={held ? "" : undefined} />
+          </span>
+        </div>
       </div>
-      <p aria-hidden key={`q-${i}`} className="hero-word-question">{frame.question}</p>
     </div>
   );
 }

@@ -7,19 +7,19 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "soft";
 type Size = "sm" | "md" | "lg";
 
 /**
- * Buttons are fully rounded, and only the primary one carries the gradient —
- * one loud action per screen, everything else quiet. `press` gives every button
- * the same small physical dip on click, which is most of what makes the app feel
- * responsive rather than merely fast.
+ * Buttons are keys. The primary is firework gold and the secondary is paper,
+ * and both stand on a lip of their own colour that sinks when pressed
+ * (`.key` in app/globals.css): a physical press rather than a glossy pill,
+ * which is most of what makes the app feel like an object and not a
+ * template. One loud action per screen, everything else quiet.
  */
 const STYLES: Record<Variant, CSSProperties & { className?: string }> = {
   primary: {
-    color: "var(--accent-ink)",
-    borderColor: "transparent",
-    boxShadow: "var(--shadow-accent)",
-    className: "grad-accent",
+    color: "var(--cta-ink)",
+    borderColor: "var(--edge)",
+    className: "btn-cta key key-cta",
   },
-  secondary: { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--rule)", boxShadow: "var(--shadow-sm)" },
+  secondary: { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--edge)", className: "key key-paper" },
   soft: { background: "var(--accent-soft)", color: "var(--accent-deep)", borderColor: "transparent" },
   ghost: { background: "transparent", color: "var(--ink-2)", borderColor: "transparent" },
   danger: { background: "var(--again-soft)", color: "var(--again-ink)", borderColor: "transparent" },
@@ -65,8 +65,8 @@ const SIZES: Record<Size, string> = {
 };
 
 const base =
-  "press inline-flex items-center justify-center gap-2 rounded-full border font-semibold " +
-  "transition-ui hover:brightness-[1.04] hover:-translate-y-px " +
+  "press inline-flex items-center justify-center gap-2 rounded-[var(--r)] border font-semibold " +
+  "transition-ui hover:brightness-[1.04] " +
   "disabled:pointer-events-none disabled:opacity-45";
 
 function split(variant: Variant) {

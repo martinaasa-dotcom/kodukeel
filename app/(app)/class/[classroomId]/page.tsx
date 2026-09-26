@@ -177,9 +177,9 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                     key={entry.ownerId}
                     className="flex flex-wrap items-center gap-3 rounded-[var(--r)] border px-4 py-3"
                     style={{
-                      borderColor: isYou ? "transparent" : "var(--rule)",
+                      borderColor: isYou ? "transparent" : "var(--edge)",
                       background: isYou ? "var(--accent-soft)" : "var(--surface)",
-                      boxShadow: isYou ? "none" : "var(--shadow-sm)",
+                      boxShadow: isYou ? "none" : "var(--hard-sm)",
                     }}
                   >
                     <span className="tnum w-6 text-xs" style={{ color: "var(--ink-3)" }}>{i + 1}</span>

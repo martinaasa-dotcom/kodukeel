@@ -73,7 +73,7 @@ export default async function ClassIndexPage() {
                   <Link
                     href={`/class/${m.classroomId}`}
                     className="lift flex flex-wrap items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3.5"
-                    style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+                    style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
                   >
                     <span
                       className="flex h-10 w-10 items-center justify-center rounded-full"

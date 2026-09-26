@@ -118,7 +118,7 @@ export function CostExplorer() {
     <div className="space-y-6">
       <div
         className="rounded-[var(--r-lg)] border p-5"
-        style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow-sm)" }}
+        style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--hard-sm)" }}
       >
         <label htmlFor="learners" className="label-xs block" style={{ color: "var(--ink-3)" }}>
           People using it in a month

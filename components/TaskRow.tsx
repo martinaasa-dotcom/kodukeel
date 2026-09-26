@@ -37,8 +37,8 @@ export function TaskRow({ task }: { task: TaskView }) {
     <li
       className="lift flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3.5"
       style={{
-        borderColor: "var(--rule)", background: "var(--surface)",
-        boxShadow: "var(--shadow-sm)", opacity: pending ? 0.5 : 1,
+        borderColor: "var(--edge)", background: "var(--surface)",
+        boxShadow: "var(--hard-sm)", opacity: pending ? 0.5 : 1,
       }}
     >
       <button

@@ -49,7 +49,7 @@ export function EntryPage({ locale }: { locale: EntryLocale }) {
         <nav
           aria-label="Main"
           className="mx-auto flex max-w-5xl items-center justify-between gap-3 rounded-full border px-4 py-2.5"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+          style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--hard-sm)" }}
         >
           <Link href="/welcome" aria-label="Kodukeel" className="flex min-h-11 items-center">
             <Wordmark size={30} />
