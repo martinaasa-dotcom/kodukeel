@@ -1934,7 +1934,7 @@
   */
   .label-xs {
     font-size: var(--text-2xs);
-    font-weight: 650;
+    font-weight: 600;
     letter-spacing: 0.005em;
   }
 
