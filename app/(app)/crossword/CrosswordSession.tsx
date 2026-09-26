@@ -308,7 +308,14 @@ function Clues({ puzzle, active, solved, onPick }: {
     puzzle.entries.map((e, i) => ({ e, i })).filter(({ e }) => e.direction === direction);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    /*
+      Side by side from `lg` rather than `sm`. At 768 the rail takes the side
+      of the screen and two clue cards left each clue about 93px, which is
+      narrower than "grandmother": the word was broken across two lines,
+      which is what `test-containment.mjs` refuses. A clue list is read top
+      to bottom anyway, so a phone and a tablet get one column.
+    */
+    <div className="grid gap-4 lg:grid-cols-2">
       {(["across", "down"] as const).map((direction) => (
         <Card key={direction}>
           <SectionTitle>{direction === "across" ? "Across" : "Down"}</SectionTitle>
@@ -325,7 +332,7 @@ function Clues({ puzzle, active, solved, onPick }: {
                   }}
                 >
                   <span className="font-bold" style={{ color: "var(--ink-3)" }}>{e.number}</span>
-                  <span>{e.clue}</span>
+                  <span className="min-w-0 flex-1">{e.clue}</span>
                   {solved.has(i) && <Check size={13} aria-hidden style={{ color: VERDICT_INK.right }} />}
                 </button>
               </li>
