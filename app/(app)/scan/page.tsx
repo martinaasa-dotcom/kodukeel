@@ -71,7 +71,7 @@ export default async function ScanPage() {
                 can still come in as a pasted list.
               </span>
             </span>
-            <ButtonLink href="/settings#import" variant="primary">
+            <ButtonLink href="/settings?tab=words#import" variant="primary">
               <ClipboardPaste size={15} aria-hidden /> Paste a word list
             </ButtonLink>
           </Card>

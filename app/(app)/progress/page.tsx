@@ -249,11 +249,13 @@ export default async function ProgressPage() {
             above the charts because it is the one that changes what to do. */}
         <section>
           <SectionTitle hint="cards we thought you knew">How much is actually sticking</SectionTitle>
-          <Card tone={
-            retention.verdict === "below" ? "peach"
-              : retention.verdict === "above" ? "butter"
-                : retention.verdict === "on-target" ? "mint" : "plain"
-          }>
+          {/*
+            On the card's own surface, with the verdict carried by the ring's
+            colour and the headline. A whole panel painted peach was the
+            loudest thing on the page, and loud in the direction of alarm, over
+            a number that asks for a week of fewer new words.
+          */}
+          <Card>
             {/* The ring and the headline share a row; the advice under them
                 takes the card's whole width on a phone, where beside a 78px
                 ring it ran to nine lines of four words. */}
@@ -390,7 +392,7 @@ export default async function ProgressPage() {
         {(pace.slow.length > 0 || mixedUp.length > 0) && (
           <section>
             <SectionTitle hint="from answers a round timed">Right, but still slow</SectionTitle>
-            <Card tone="butter">
+            <Card>
               <NotAutomatic slow={pace.slow} mixedUp={mixedUp} medianMs={pace.medianMs} />
             </Card>
           </section>

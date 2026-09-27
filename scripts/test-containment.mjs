@@ -201,6 +201,9 @@ const ROUTES = [
 
   // Everything else a signed-in learner can reach.
   "/settings",
+  "/settings?tab=sound",
+  "/settings?tab=words",
+  "/settings?tab=account",
   "/class",
   "/tutor",
   "/scan",
@@ -1105,6 +1108,116 @@ function survey({ stress }) {
 }
 
 /**
+ * A MARKER AND ITS LABEL ARE ONE LINE, AND RELATIVES LOOK ALIKE.
+ *
+ * Reported off Practice: four buttons, each a coloured dot and a word, and on
+ * one of them the word had wrapped onto a line of its own under the dot,
+ * because the row was `flex-wrap` and "Describing words" was the one label too
+ * long to sit beside it. Nothing above could see it: nothing is cut off,
+ * nothing bleeds, no word breaks, and the button is exactly the size it was
+ * given. It is a fault of relation rather than of size, so it gets questions of
+ * its own.
+ *
+ * A marker is a leading child with no text of its own and no more than 48px
+ * each way: a dot, an icon, an icon on a tint. Two questions about one:
+ *
+ * - the text that follows it starts on the marker's line and to its right,
+ *   never underneath it; and
+ * - where several items share a class and each leads with a marker, the label
+ *   starts at the same distance in on every one of them and the marker sits at
+ *   the same height against the label's first line. One item doing something
+ *   its relatives do not is the sore thumb.
+ */
+function relatives() {
+  const EPS = 2;
+  const wrapped = [];
+  const unlike = [];
+  const shown = (el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+    && (el.getBoundingClientRect().width > 0.5 || el.getBoundingClientRect().height > 0.5);
+  const named = (el) => {
+    const text = (el.getAttribute("aria-label") || el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 28);
+    return `${el.tagName.toLowerCase()}${text ? ` "${text}"` : ""}`;
+  };
+  // A control is not a marker: a star button beside a text button is a row of
+  // two controls, and a row of controls may wrap. A radio or a checkbox beside
+  // its label is the relation this asks about, so an input still counts.
+  const isMarker = (el) => {
+    if (!el || (el.textContent || "").trim()) return false;
+    if (el.matches("button, a, [role='button']") || el.querySelector("button, a, [role='button']")) return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && r.width <= 48 && r.height <= 48;
+  };
+  const firstLine = (el) => {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const i = n.textContent.search(/\S/);
+      if (i < 0) continue;
+      const range = document.createRange();
+      range.setStart(n, i);
+      range.setEnd(n, i + 1);
+      const r = range.getClientRects()[0];
+      if (r) return r;
+    }
+    return null;
+  };
+  // Every row that leads with a marker, whatever it is.
+  const rows = [];
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.closest("[aria-hidden='true'], .sr-only, table, svg")) continue;
+    const kids = [...el.children].filter(shown);
+    if (kids.length < 2 || !isMarker(kids[0])) continue;
+    // The label is the first text after the marker, bare or wrapped: a legend
+    // row is often a dot, a bare word, then a count in a span of its own.
+    if (!(el.textContent || "").trim() || !shown(el)) continue;
+    const cs = getComputedStyle(el);
+    const row = (cs.display === "flex" || cs.display === "inline-flex") && cs.flexDirection.startsWith("row");
+    const grid = cs.display === "grid" || cs.display === "inline-grid";
+    if (!row && !grid) continue;
+    const m = kids[0].getBoundingClientRect();
+    const line = firstLine(el);
+    if (!line) continue;
+    rows.push({ el, m, line });
+    // Under the marker is the fault; a stacked layout says so with `flex-col`
+    // and never reaches here.
+    if (row && line.top >= m.bottom - EPS && line.left < m.right - EPS) {
+      wrapped.push(`${named(el)}: its words wrapped under the marker`);
+    }
+  }
+  // Relatives: rows sharing a parent and a class.
+  const groups = new Map();
+  for (const r of rows) {
+    const cls = r.el.getAttribute("class");
+    if (!cls || !r.el.parentElement) continue;
+    const key = r.el.parentElement;
+    const list = groups.get(key) ?? new Map();
+    const same = list.get(cls) ?? [];
+    same.push(r);
+    list.set(cls, same);
+    groups.set(key, list);
+  }
+  for (const list of groups.values()) {
+    for (const same of list.values()) {
+      if (same.length < 2) continue;
+      const box = (r) => r.el.getBoundingClientRect();
+      const inset = same.map((r) => r.line.left - box(r).left);
+      const level = same.map((r) => (r.m.top + r.m.height / 2) - (r.line.top + r.line.height / 2));
+      const spread = (xs) => Math.max(...xs) - Math.min(...xs);
+      if (spread(inset) > EPS || spread(level) > EPS) {
+        const odd = same[inset.indexOf(Math.max(...inset))] ?? same[0];
+        unlike.push(`${named(odd.el)} sits unlike its ${same.length - 1} relatives`);
+      }
+    }
+  }
+  const first = (list) => [...new Set(list)].slice(0, 3).join(" · ");
+  return {
+    wrapped: [...new Set(wrapped)].length,
+    unlike: [...new Set(unlike)].length,
+    rows: rows.length,
+    say: { wrapped: first(wrapped), unlike: first(unlike) },
+  };
+}
+
+/**
  * One pass over whatever a page is showing: the four questions, then the same
  * four with every run of text swapped for one of the same length that cannot
  * break.
@@ -1127,6 +1240,9 @@ async function measure(page, label, atLeast = 25) {
   check(`nothing is drawn into its neighbor on ${label}`, rest.collided === 0, rest.say.collided);
   check(`no icon is deformed on ${label}`, rest.deformed === 0, rest.say.deformed);
   check(`no ordinary word is broken across lines on ${label}`, rest.split === 0, rest.say.split);
+  const kin = await page.evaluate(relatives);
+  check(`no label wraps under its own marker on ${label}`, kin.wrapped === 0, kin.say.wrapped);
+  check(`relatives sit alike, marker to label, on ${label}`, kin.unlike === 0, kin.say.unlike);
 
   const hard = await page.evaluate(survey, { stress: true });
   check(

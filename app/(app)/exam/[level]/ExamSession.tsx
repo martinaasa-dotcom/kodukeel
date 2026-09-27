@@ -1198,7 +1198,7 @@ function Options({ name, options, selected, onSelect, columns, english }: {
         return (
           <label
             key={option.value}
-            className="choice-btn flex min-h-[44px] cursor-pointer items-center gap-3 rounded-[var(--r)] border px-3 py-2.5 text-sm"
+            className="choice-btn flex min-h-[44px] cursor-pointer items-start gap-3 rounded-[var(--r)] border px-3 py-2.5 text-sm"
             style={active ? {
               borderColor: "var(--accent)",
               background: "var(--accent-soft)",
@@ -1211,7 +1211,10 @@ function Options({ name, options, selected, onSelect, columns, english }: {
               value={option.value}
               checked={active}
               onChange={() => onSelect(option.value)}
-              className="size-4 shrink-0 accent-[var(--accent)]"
+              /* Level with the first line of the label, however many lines it
+                 runs to, so a two-line option puts its radio where a one-line
+                 neighbour does rather than halfway down its own text. */
+              className="mt-0.5 size-4 shrink-0 accent-[var(--accent)]"
             />
             <span className="min-w-0">
               <span lang={english ? undefined : "et"}>

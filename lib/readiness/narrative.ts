@@ -42,13 +42,6 @@ export function standingLine(reading: Reading): string {
   return `${RUNG_LABEL[reading.rung]} · ${EVIDENCE_LABEL[reading.evidence]}`;
 }
 
-/** The one line that stands in the way, for a row that has room for one. */
-export function nextStep(reading: Reading): string | null {
-  if (reading.rung === "lead") return null;
-  const blocker = reading.struggles[0];
-  return blocker ? blocker.title : null;
-}
-
 /**
  * The headline over a level. Counts, never a percentage, because "80 percent
  * ready" is the sentence this whole screen exists to replace: it averages

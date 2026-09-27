@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { CaseQuestion } from "@/components/CaseQuestion";
-import { Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
+import { ChevronRight, Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -284,7 +284,13 @@ export default async function GrammarIndexPage() {
           );
         })}
 
-        <Card tone="butter">
+        {/*
+          On the page's own surface, set as a definition list rather than four
+          boxes inside a yellow box: it was the one filled panel in a reference
+          that is otherwise type on paper, and a box inside a box for each of
+          four terms.
+        */}
+        <Card>
           <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
             The verb has two tenses, not six
           </p>
@@ -292,9 +298,9 @@ export default async function GrammarIndexPage() {
             Two more are built with a helper verb. Mood, voice and person are separate switches
             crossing all four, so a form is named by saying where it sits on each.
           </p>
-          <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+          <dl className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
             {VERB_AXES.map((axis) => (
-              <div key={axis.et} className="min-w-0 rounded-[var(--r-sm)] p-3" style={{ background: "var(--surface)" }}>
+              <div key={axis.et} className="min-w-0">
                 <dt className="flex flex-wrap items-baseline gap-2">
                   <span className="text-md font-bold" style={{ color: "var(--ink)" }}>
                     {axis.en}
@@ -330,7 +336,21 @@ export default async function GrammarIndexPage() {
                   <p className="mt-1 max-w-[68ch] text-sm" style={{ color: "var(--ink-3)" }}>
                     {group.blurb}
                   </p>
-                  <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {/*
+                    ONE LINE A POINT. Each was a card carrying a paragraph,
+                    forty-four of them: a page of summaries to read before
+                    finding the one you came for. The summary is the first
+                    thing the point's own page says; here it is the name, the
+                    Estonian a class calls it, and the ending where there is one.
+                  */}
+                  {/* Two columns by the room the list has, not the window: at
+                      768 the rail takes a column and two columns of rows broke
+                      "täisminevik" to fit beside its ending. */}
+                  <div className="@container">
+                  <ul
+                    className="mt-3 grid gap-x-6 rounded-[var(--r-lg)] border px-2 py-1.5 @2xl:grid-cols-2"
+                    style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+                  >
                     {group.ids.map((id) => {
                       const topic = grammarTopic(id);
                       if (!topic) return null;
@@ -339,37 +359,28 @@ export default async function GrammarIndexPage() {
                         <li key={id}>
                           <Link
                             href={`/grammar/topic/${id}`}
-                            className="lift flex h-full flex-col gap-1.5 rounded-[var(--r-lg)] border p-4"
-                            style={{
-                              borderColor: "var(--edge)",
-                              background: "var(--surface)",
-                              boxShadow: "var(--depth-sm)",
-                            }}
+                            className="tap-tint group flex min-h-11 items-center gap-3 rounded-[var(--r-sm)] px-2.5 py-2"
                           >
-                            <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                              <span className="text-md font-bold" style={{ color: "var(--ink)" }}>
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-base font-semibold group-hover:underline" style={{ color: "var(--ink)" }}>
                                 {topic.title}
                               </span>
-                              {topic.marker && (
-                                <span className="ml-auto">
-                                  <Chip tone="accent" caseSensitive>{topic.marker}</Chip>
-                                </span>
+                              {term && (
+                                <span lang="et" className="block text-xs" style={{ color: "var(--ink-3)" }}>{term.et}</span>
                               )}
                             </span>
-                            <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                              {topic.summary}
-                            </span>
-                            {term && (
-                              <span className="mt-auto pt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-                                <span lang="et">{term.et}</span>
-                                {term.question && <> · <CaseQuestion question={term.question} inline /></>}
+                            {topic.marker && (
+                              <span className="shrink-0">
+                                <Chip tone="accent" caseSensitive>{topic.marker}</Chip>
                               </span>
                             )}
+                            <ChevronRight size={16} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
                           </Link>
                         </li>
                       );
                     })}
                   </ul>
+                  </div>
                 </div>
               );
             })}

@@ -1,5 +1,4 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import type { ReactNode } from "react";
 import { Download, Keyboard, Smartphone } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
@@ -86,38 +85,33 @@ const SHORTCUTS: [string, string][] = [
 ];
 
 /**
- * A landmark above a cluster of sections, nothing more.
+ * FOUR ROOMS, ONE OPEN AT A TIME.
+
+ * This was one page of some twenty-five sections under four headings, with a
+ * row of jump links at the top: 11,000 pixels of controls, every one of them
+ * reasonable and the whole of them a wall. A jump link does not make a page
+ * shorter, it only makes it quicker to scroll past what you did not come for.
  *
- * Twelve sections in one unbroken scroll is a real usability cost, and
- * grouping them fixes exactly that without the churn a restructure would
- * cost: every section below keeps its own `SectionTitle`, its own anchor,
- * its own content, in the same order it was in before. This adds a label to
- * jump to, not a click to open — nothing here is collapsed or hidden, which
- * is the same argument `lib/ux/disclosure.ts` makes about withholding a
- * panel rather than deleting it.
+ * So the four groups are four tabs, each an address of its own
+ * (`/settings?tab=sound`), and only one is drawn. They are grouped by what
+ * somebody is looking for rather than by where the code happened to put them:
+ * how the studying works, how Estonian sounds and reads, the words and the
+ * tutor, and the account. A section that other screens link to keeps its
+ * anchor, and the link names the tab it lives in.
  */
-const GROUPS = ["Study", "Sharing", "Words and Anu", "Device and data"] as const;
-const groupId = (title: string) => `group-${title.toLowerCase().replace(/[^a-z]+/g, "-")}`;
+const TABS = [
+  { id: "study", label: "Study" },
+  { id: "sound", label: "Sound and meaning" },
+  { id: "words", label: "Words and Anu" },
+  { id: "account", label: "Account and data" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
+const tabFrom = (raw: unknown): TabId =>
+  TABS.find((t) => t.id === raw)?.id ?? "study";
 
-/** One of the four night colours per group, so the jump row and the heading it lands on match. */
-const GROUP_HUES: Record<(typeof GROUPS)[number], string> = {
-  "Study": "var(--cta)", "Sharing": "var(--sky)", "Words and Anu": "var(--blush)", "Device and data": "var(--mint)",
-};
-
-function Group({ title, children }: { title: (typeof GROUPS)[number]; children: ReactNode }) {
-  return (
-    <div id={groupId(title)} className="flex scroll-mt-6 flex-col gap-8 border-t pt-10 first:border-t-0 first:pt-0" style={{ borderColor: "var(--rule-soft)" }}>
-      <h2 className="font-display flex items-center gap-3 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-        <span aria-hidden className="h-3 w-3 shrink-0 rounded-full" style={{ background: GROUP_HUES[title], boxShadow: `0 0 0 4px color-mix(in srgb, ${GROUP_HUES[title]} 22%, transparent)` }} />
-        {title}
-      </h2>
-      {children}
-    </div>
-  );
-}
-
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ tab?: string | string[] }> }) {
   const ownerId = await requireUserId();
+  const tab = tabFrom((await searchParams).tab);
   /*
     Anu's own chain, not the general one. The general chain leads with Groq
     and includes the paid keys, and Anu's is Gemini then Groq and nothing
@@ -229,21 +223,21 @@ export default async function SettingsPage() {
       }
     >
       <Stack>
-        {/* Four places on a long page, one press each. A jump rather than a
-            tab, so nothing is hidden and a search in the page still finds it. */}
         <nav aria-label="Settings sections" className="flex flex-wrap gap-2">
-          {GROUPS.map((g) => (
-            <a
-              key={g}
-              href={`#${groupId(g)}`}
-              className="choice-btn press inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold"
+          {TABS.map((t) => (
+            <Link
+              key={t.id}
+              href={t.id === "study" ? "/settings" : `/settings?tab=${t.id}`}
+              aria-current={t.id === tab ? "page" : undefined}
+              data-on={t.id === tab ? "" : undefined}
+              className="choice-btn choice-chip press inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold"
             >
-              <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: GROUP_HUES[g] }} />
-              {g}
-            </a>
+              {t.label}
+            </Link>
           ))}
         </nav>
-        <Group title="Study">
+        {tab === "study" && (
+          <div className="flex flex-col gap-8">
           <section>
             <SectionTitle hint={mode === "type" ? "typing" : "flipping"}>How review asks</SectionTitle>
             <Card>
@@ -255,6 +249,143 @@ export default async function SettingsPage() {
             </Card>
           </section>
 
+          <section id="level">
+            <SectionTitle hint={courseLevel}>Your level</SectionTitle>
+            <Card>
+              <LevelPanel current={courseLevel} measured={measuredIsCurrent} />
+            </Card>
+          </section>
+
+          <section id="goals">
+            <SectionTitle
+              hint={latestCheck ? `measured ${levelLabel((latestCheck.overall ?? null) as never)}` : "not measured yet"}
+            >
+              Why you are here
+            </SectionTitle>
+            <Card>
+              <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                These answers build the timeline on the level check screen. It says how many hours
+                the level you want usually takes, how many your daily goal covers, and how many are
+                left to find elsewhere. Change them whenever the answer changes.
+              </p>
+              <GoalsPanel current={goals} />
+              <p className="mt-5 text-sm" style={{ color: "var(--ink-3)" }}>
+                <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+                  Take the level check
+                </Link>{" "}
+                to measure where you are.
+              </p>
+            </Card>
+          </section>
+
+          <section>
+            <SectionTitle hint={`${dailyGoal} reviews/day`}>Daily goal</SectionTitle>
+            <Card>
+              <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
+                This sets how full the ring on Today gets, and what your first daily quest aims for.
+                It is only there to motivate you. It never stops you from reviewing more.
+              </p>
+              <DailyGoalPanel currentGoal={dailyGoal} />
+            </Card>
+          </section>
+
+          {/*
+            THE PLANNED COURSE, ON OR OFF, AND NOTHING IN BETWEEN.
+
+            Turning it off changes nothing else: Learn, Practice, Review and
+            every round stay where they are and work as they do, and the work
+            done that way still counts toward a module the day it is turned
+            back on, because the two steps a review log can prove are read off
+            the log whichever screen the answers came from.
+          */}
+          <section id="course">
+            <SectionTitle hint={programme ? `day ${programmeDay} of ${programme.days.length}` : "off"}>
+              Being led through it
+            </SectionTitle>
+            <Card>
+              <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                {programme
+                  ? <>You are on {uiText(courseLevel, programme.title, programme.subtitle)}. Today lends its
+                      first card to the module, and the module picks the words and the rounds for the
+                      evening.</>
+                  : <>{opening?.blurb ?? "The ladder stops at C1 and you are past it."}</>}
+              </p>
+              <div className="mt-4">
+                {(programme ?? opening) && (
+                  <StartProgramme
+                    programmeId={(programme ?? opening)!.id}
+                    on={Boolean(programme)}
+                  />
+                )}
+              </div>
+            </Card>
+          </section>
+
+          <section id="today">
+            <SectionTitle hint={isDefaultTodayOrder(todayOrder) ? "the usual order" : "your order"}>
+              Today
+            </SectionTitle>
+            <Card>
+              <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+                Which card comes first on your home page. The button to review always stays at the
+                top, and Today draws the first {TODAY_CARDS} of these that have something to say.
+              </p>
+              <TodayOrderPanel current={todayOrder} />
+            </Card>
+          </section>
+
+          {/*
+            HOW LONG A TIMED ROUND RUNS, WHICH IS WCAG 2.2.1 RATHER THAN A
+            DIFFICULTY DIAL.
+
+            The Case Sprint, the daily quest and Target each ran to a clock
+            nobody could change, and a learner who reads slowly or types with one
+            hand was not playing a harder round, they were shut out of it. The
+            criterion is met by letting the limit be adjusted before it is
+            met, which is what this is; see lib/ux/roundClock.ts for why
+            adjusting rather than removing. The mock examination keeps its own
+            clock, because a paper is imitating a timed examination.
+          */}
+          <section id="round-pace">
+            <SectionTitle hint={roundPaceName}>Time in a timed round</SectionTitle>
+            <Card>
+              <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+                The Case Sprint, the daily quest and Target run to a clock. This is how long
+                that clock gives you, and it changes nothing else about any of them.
+              </p>
+              <RoundPacePanel current={roundPace} />
+              <Explain label="The one clock this leaves alone">
+                The mock examination is the one clock this leaves alone. That paper is
+                imitating a timed state examination, so its parts keep the real timings.
+              </Explain>
+            </Card>
+          </section>
+
+          <section id="case-questions">
+            <SectionTitle
+              hint={
+                caseGlossPref
+                  ? caseGlossPref === "on" ? "always shown" : "always hidden"
+                  : caseGlossDefaultFor(courseLevel) ? "shown at your level" : "hidden at your level"
+              }
+            >
+              English under a case question
+            </SectionTitle>
+            <Card>
+              <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                Every screen that asks <span lang="et">milles? kus?</span> keeps asking it in Estonian,
+                always. This only decides whether the English reading sits under it. It shows by
+                default through B1, while the fourteen forms are still new, and hides itself from B2
+                on, when a class expects you to know what they ask without it.
+              </p>
+              <CaseGlossPanel current={caseGlossPref} level={courseLevel} />
+            </Card>
+          </section>
+
+          </div>
+        )}
+        {tab === "sound" && (
+          <div className="flex flex-col gap-8">
           {/*
             How Estonian sounds. Four questions in one section because they
             are one decision about the same thing: who says it, how fast,
@@ -321,19 +452,6 @@ export default async function SettingsPage() {
             response as the forms and the sentences: no model is anywhere near
             them.
           */}
-          <section id="today">
-            <SectionTitle hint={isDefaultTodayOrder(todayOrder) ? "the usual order" : "your order"}>
-              Today
-            </SectionTitle>
-            <Card>
-              <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Which card comes first on your home page. The button to review always stays at the
-                top, and Today draws the first {TODAY_CARDS} of these that have something to say.
-              </p>
-              <TodayOrderPanel current={todayOrder} />
-            </Card>
-          </section>
-
           <section id="meanings">
             <SectionTitle hint={wordGloss === "off" ? `${glossLanguageName}, no underlines` : glossLanguageName}>
               Meanings
@@ -361,123 +479,60 @@ export default async function SettingsPage() {
           </section>
 
           {/*
-            THE PLANNED COURSE, ON OR OFF, AND NOTHING IN BETWEEN.
-
-            Turning it off changes nothing else: Learn, Practice, Review and
-            every round stay where they are and work as they do, and the work
-            done that way still counts toward a module the day it is turned
-            back on, because the two steps a review log can prove are read off
-            the log whichever screen the answers came from.
+            Desktop only, and the whole section goes with the choice rather than
+            being left as a heading over nothing. See app/globals.css: a phone
+            draws no letter bar, so there is nothing here to decide.
           */}
-          <section id="course">
-            <SectionTitle hint={programme ? `day ${programmeDay} of ${programme.days.length}` : "off"}>
-              Being led through it
-            </SectionTitle>
+          <section className="letters-choice">
+            <SectionTitle hint={letters === "on" ? "shown" : "hidden"}>Typing Estonian</SectionTitle>
             <Card>
-              <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {programme
-                  ? <>You are on {uiText(courseLevel, programme.title, programme.subtitle)}. Today lends its
-                      first card to the module, and the module picks the words and the rounds for the
-                      evening.</>
-                  : <>{opening?.blurb ?? "The ladder stops at C1 and you are past it."}</>}
-              </p>
-              <div className="mt-4">
-                {(programme ?? opening) && (
-                  <StartProgramme
-                    programmeId={(programme ?? opening)!.id}
-                    on={Boolean(programme)}
-                  />
-                )}
-              </div>
-            </Card>
-          </section>
-
-          <section id="level">
-            <SectionTitle hint={courseLevel}>Your level</SectionTitle>
-            <Card>
-              <LevelPanel current={courseLevel} measured={measuredIsCurrent} />
-            </Card>
-          </section>
-
-          <section id="case-questions">
-            <SectionTitle
-              hint={
-                caseGlossPref
-                  ? caseGlossPref === "on" ? "always shown" : "always hidden"
-                  : caseGlossDefaultFor(courseLevel) ? "shown at your level" : "hidden at your level"
-              }
-            >
-              English under a case question
-            </SectionTitle>
-            <Card>
-              <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Every screen that asks <span lang="et">milles? kus?</span> keeps asking it in Estonian,
-                always. This only decides whether the English reading sits under it. It shows by
-                default through B1, while the fourteen forms are still new, and hides itself from B2
-                on, when a class expects you to know what they ask without it.
-              </p>
-              <CaseGlossPanel current={caseGlossPref} level={courseLevel} />
-            </Card>
-          </section>
-
-          <section id="goals">
-            <SectionTitle
-              hint={latestCheck ? `measured ${levelLabel((latestCheck.overall ?? null) as never)}` : "not measured yet"}
-            >
-              Why you are here
-            </SectionTitle>
-            <Card>
-              <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                These answers build the timeline on the level check screen. It says how many hours
-                the level you want usually takes, how many your daily goal covers, and how many are
-                left to find elsewhere. Change them whenever the answer changes.
-              </p>
-              <GoalsPanel current={goals} />
-              <p className="mt-5 text-sm" style={{ color: "var(--ink-3)" }}>
-                <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
-                  Take the level check
-                </Link>{" "}
-                to measure where you are.
-              </p>
+              <LetterBarPanel current={letters} />
+              <Explain label="Why only on a computer">
+                These only ever show up on a computer. A phone keyboard already has these letters,
+                on a long press or with the keyboard switched to Estonian.
+              </Explain>
             </Card>
           </section>
 
           <section>
-            <SectionTitle hint={`${dailyGoal} reviews/day`}>Daily goal</SectionTitle>
+            <SectionTitle>Keyboard</SectionTitle>
             <Card>
-              <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                This sets how full the ring on Today gets, and what your first daily quest aims for.
-                It is only there to motivate you. It never stops you from reviewing more.
-              </p>
-              <DailyGoalPanel currentGoal={dailyGoal} />
+              <div className="flex items-start gap-3">
+                <Keyboard size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                    A whole session can be done without touching the mouse.
+                  </p>
+                  {/* Keyed on the room the list has rather than the window, and
+                      the key column held to one width: at 768 Settings is two
+                      columns of panels, and `sm:grid-cols-2` there squeezed
+                      each key cap to 8px, so "Enter" was drawn a letter a line. */}
+                  <dl className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-x-6 gap-y-1.5">
+                    {SHORTCUTS.map(([keys, what]) => (
+                      <div key={keys} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                        <dt>
+                          <KeyCap>{keys}</KeyCap>
+                        </dt>
+                        {/* A basis rather than `flex-1` alone, so a long key takes its
+                            own line and the words under it wrap onto the next one:
+                            "1-4 (listening, choice)" left its description 28px at 360,
+                            and `min-w-0` let it shrink into that instead of moving down. */}
+                        <dd className="min-w-0 flex-[1_1_10rem] text-xs" style={{ color: "var(--ink-3)" }}>{what}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              </div>
             </Card>
           </section>
 
-          {/*
-            HOW LONG A TIMED ROUND RUNS, WHICH IS WCAG 2.2.1 RATHER THAN A
-            DIFFICULTY DIAL.
-
-            The Case Sprint, the daily quest and Target each ran to a clock
-            nobody could change, and a learner who reads slowly or types with one
-            hand was not playing a harder round, they were shut out of it. The
-            criterion is met by letting the limit be adjusted before it is
-            met, which is what this is; see lib/ux/roundClock.ts for why
-            adjusting rather than removing. The mock examination keeps its own
-            clock, because a paper is imitating a timed examination.
-          */}
-          <section id="round-pace">
-            <SectionTitle hint={roundPaceName}>Time in a timed round</SectionTitle>
-            <Card>
-              <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                The Case Sprint, the daily quest and Target run to a clock. This is how long
-                that clock gives you, and it changes nothing else about any of them.
-              </p>
-              <RoundPacePanel current={roundPace} />
-              <Explain label="The one clock this leaves alone">
-                The mock examination is the one clock this leaves alone. That paper is
-                imitating a timed state examination, so its parts keep the real timings.
-              </Explain>
-            </Card>
+          </div>
+        )}
+        {tab === "words" && (
+          <div className="flex flex-col gap-8">
+          <section id="import">
+            <SectionTitle>Import words</SectionTitle>
+            <ImportPanel />
           </section>
 
           <section>
@@ -511,23 +566,6 @@ export default async function SettingsPage() {
               )}
             </Card>
           </section>
-        </Group>
-
-        <Group title="Sharing">
-          <section>
-            <SectionTitle>Your name in a class</SectionTitle>
-            <Card>
-              <ClassNamePanel currentName={displayName} />
-            </Card>
-          </section>
-        </Group>
-
-        <Group title="Words and Anu">
-          <section id="import">
-            <SectionTitle>Import words</SectionTitle>
-            <ImportPanel />
-          </section>
-
           <section>
             {/* Named the way every other screen names her. "AI tutor" here
                 against "Anu" everywhere else made two things out of one. */}
@@ -581,9 +619,42 @@ export default async function SettingsPage() {
             one they were approaching.
           */}
           {provider && <UsagePanel ownerId={ownerId} />}
-        </Group>
+          </div>
+        )}
+        {tab === "account" && (
+          <div className="flex flex-col gap-8">
+          <section>
+            <SectionTitle>Your name in a class</SectionTitle>
+            <Card>
+              <ClassNamePanel currentName={displayName} />
+            </Card>
+          </section>
+          <section id="email">
+            <SectionTitle hint="you choose which, and the hour">Emails and reminders</SectionTitle>
+            <Card>
+              <EmailPanel
+                on={
+                  /*
+                    WHAT IS ON, RATHER THAN WHAT IS OFF, WHICH IS NOT THE SAME
+                    QUESTION ANY MORE.
 
-        <Group title="Device and data">
+                    It used to hand over the off-set and let the panel invert
+                    it, which was true while every kind was on by default. The
+                    daily word is not: it is absent from both rows until
+                    somebody asks for it, so "not switched off" and "switched
+                    on" are different answers about it and only `wants` knows
+                    which. `kindStates` is that function asked of every kind at
+                    once, which also retires the `all-off` special case this
+                    prop used to carry.
+                  */
+                  new Set(kindStates(emailPrefs).filter((s) => s.on).map((s) => s.kind))
+                }
+                reminderAt={settings[SETTING_KEYS.reminderAt] ?? null}
+                sending={canSend}
+              />
+            </Card>
+          </section>
+
           <section>
             <SectionTitle>Your data</SectionTitle>
             <Card>
@@ -620,80 +691,6 @@ export default async function SettingsPage() {
             </Card>
           </section>
 
-          {/*
-            Desktop only, and the whole section goes with the choice rather than
-            being left as a heading over nothing. See app/globals.css: a phone
-            draws no letter bar, so there is nothing here to decide.
-          */}
-          <section className="letters-choice">
-            <SectionTitle hint={letters === "on" ? "shown" : "hidden"}>Typing Estonian</SectionTitle>
-            <Card>
-              <LetterBarPanel current={letters} />
-              <Explain label="Why only on a computer">
-                These only ever show up on a computer. A phone keyboard already has these letters,
-                on a long press or with the keyboard switched to Estonian.
-              </Explain>
-            </Card>
-          </section>
-
-          <section>
-            <SectionTitle>Keyboard</SectionTitle>
-            <Card>
-              <div className="flex items-start gap-3">
-                <Keyboard size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    A whole session can be done without touching the mouse.
-                  </p>
-                  {/* Keyed on the room the list has rather than the window, and
-                      the key column held to one width: at 768 Settings is two
-                      columns of panels, and `sm:grid-cols-2` there squeezed
-                      each key cap to 8px, so "Enter" was drawn a letter a line. */}
-                  <dl className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-x-6 gap-y-1.5">
-                    {SHORTCUTS.map(([keys, what]) => (
-                      <div key={keys} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-                        <dt>
-                          <KeyCap>{keys}</KeyCap>
-                        </dt>
-                        {/* A basis rather than `flex-1` alone, so a long key takes its
-                            own line and the words under it wrap onto the next one:
-                            "1-4 (listening, choice)" left its description 28px at 360,
-                            and `min-w-0` let it shrink into that instead of moving down. */}
-                        <dd className="min-w-0 flex-[1_1_10rem] text-xs" style={{ color: "var(--ink-3)" }}>{what}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              </div>
-            </Card>
-          </section>
-
-          <section id="email">
-            <SectionTitle hint="you choose which, and the hour">Emails and reminders</SectionTitle>
-            <Card>
-              <EmailPanel
-                on={
-                  /*
-                    WHAT IS ON, RATHER THAN WHAT IS OFF, WHICH IS NOT THE SAME
-                    QUESTION ANY MORE.
-
-                    It used to hand over the off-set and let the panel invert
-                    it, which was true while every kind was on by default. The
-                    daily word is not: it is absent from both rows until
-                    somebody asks for it, so "not switched off" and "switched
-                    on" are different answers about it and only `wants` knows
-                    which. `kindStates` is that function asked of every kind at
-                    once, which also retires the `all-off` special case this
-                    prop used to carry.
-                  */
-                  new Set(kindStates(emailPrefs).filter((s) => s.on).map((s) => s.kind))
-                }
-                reminderAt={settings[SETTING_KEYS.reminderAt] ?? null}
-                sending={canSend}
-              />
-            </Card>
-          </section>
-
           <section>
             <SectionTitle>Install it</SectionTitle>
             <Card>
@@ -724,7 +721,8 @@ export default async function SettingsPage() {
             whoever runs the deployment.
           */}
           <DangerZone counts={{ cards, reviews }} />
-        </Group>
+          </div>
+        )}
       </Stack>
     </Page>
   );

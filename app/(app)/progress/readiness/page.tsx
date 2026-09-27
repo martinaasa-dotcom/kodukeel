@@ -113,25 +113,59 @@ export default async function ReadinessPage() {
           </section>
         )}
 
+        {/*
+          YOUR LEVEL IN FULL, AND EVERY OTHER LEVEL AS ONE ROW.
+
+          All eighty-two situations used to be drawn at once, five levels of
+          cards, twelve thousand pixels of them. The ones at your level are the
+          ones you meet this week; the rest are there when you want them, one
+          press away, with the count of where you stand on them in the row.
+        */}
         {ordered.map((level) => {
           const rows = picture.readings.filter((r) => r.situation.level === level);
           if (rows.length === 0) return null;
+          const name = (
+            <>
+              {level} ·{" "}
+              <span lang={uiWantsEnglish(picture.level) ? undefined : "et"}>
+                {uiText(picture.level, LEVEL_INFO[level].title, LEVEL_INFO[level].titleEn)}
+              </span>
+            </>
+          );
+          const list = (
+            <div className="@container">
+              <ul className="grid gap-3 @3xl:grid-cols-2">
+                {rows.map((r) => (
+                  <li key={r.situation.id}><SituationRow reading={r} /></li>
+                ))}
+              </ul>
+            </div>
+          );
+          if (level === picture.level) {
+            return (
+              <section key={level}>
+                <SectionTitle hint={LEVEL_INFO[level].arrival}>{name}</SectionTitle>
+                {list}
+              </section>
+            );
+          }
+          // "Not yet" is a rung the learner would be lost on, so it is not
+          // counted as anywhere near: only what they could at least follow.
+          const reached = rows.filter((r) => r.rung === "follow" || r.rung === "takePart" || r.rung === "lead").length;
           return (
-            <section key={level}>
-              <SectionTitle hint={LEVEL_INFO[level].arrival}>
-                {level} ·{" "}
-                <span lang={uiWantsEnglish(picture.level) ? undefined : "et"}>
-                  {uiText(picture.level, LEVEL_INFO[level].title, LEVEL_INFO[level].titleEn)}
+            <details
+              key={level}
+              className="rounded-[var(--r-lg)] border"
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+            >
+              <summary className="flex min-h-[56px] cursor-pointer flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3">
+                <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{name}</span>
+                <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
+                  {rows.length} situations · {reached} you could follow
                 </span>
-              </SectionTitle>
-              <div className="@container">
-                <ul className="grid gap-3 @3xl:grid-cols-2">
-                  {rows.map((r) => (
-                    <li key={r.situation.id}><SituationRow reading={r} learnerLevel={picture.level} /></li>
-                  ))}
-                </ul>
-              </div>
-            </section>
+              </summary>
+              <div className="border-t p-4" style={{ borderColor: "var(--rule)" }}>{list}</div>
+            </details>
           );
         })}
 

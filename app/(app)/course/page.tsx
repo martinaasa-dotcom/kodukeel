@@ -499,20 +499,25 @@ export default async function CoursePage({
                     <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>{first.subtitle}</span>
                   )}
                   {run.length > 1 && (
-                    <span className="flex flex-wrap items-center gap-1 pl-7">
-                      {run.map((d) => (
-                        <span
-                          key={d.id}
-                          aria-hidden
-                          className="h-1.5 w-4 rounded-full"
-                          style={{
-                            background: d.index < day.index ? "var(--good)"
-                              : d.index === day.index ? "var(--accent)" : "var(--rule)",
-                          }}
-                        />
-                      ))}
-                      <span className="tnum ml-1 text-xs" style={{ color: "var(--ink-3)" }}>
+                    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-7">
+                      {/* The words first and the strip after them: where the
+                          row runs out of room the strip wraps under the words,
+                          never the words under the strip, and nothing is held
+                          to one line past the card's edge. */}
+                      <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
                         evenings {first.index} to {last.index}
+                      </span>
+                      <span aria-hidden className="flex shrink-0 items-center gap-1">
+                        {run.map((d) => (
+                          <span
+                            key={d.id}
+                            className="h-1.5 w-4 rounded-full"
+                            style={{
+                              background: d.index < day.index ? "var(--good)"
+                                : d.index === day.index ? "var(--accent)" : "var(--rule)",
+                            }}
+                          />
+                        ))}
                       </span>
                     </span>
                   )}

@@ -40,7 +40,7 @@ const oldFormat = JSON.stringify({
   tasks: [],
 });
 
-await page.goto(`${B}/settings`, { waitUntil: "networkidle" });
+await page.goto(`${B}/settings?tab=account`, { waitUntil: "networkidle" });
 await page.getByLabel("Choose a backup file").setInputFiles({
   name: "old.json", mimeType: "application/json", buffer: Buffer.from(oldFormat),
 });

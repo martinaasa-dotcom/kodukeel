@@ -8,7 +8,6 @@ import { uiText } from "@/lib/copy/uiLanguage";
 import { Card, Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
-import { errandForScene } from "@/lib/collections/errands";
 import { distinctive } from "@/lib/scenes/practises";
 import { CASES } from "@/lib/estonian/cases";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
@@ -141,7 +140,6 @@ function SceneTile({ scene, history, learnerLevel }: {
   // ones that tell this scene from the other fourteen: rarest first, and a
   // tag every scene carries is not a tag. See `lib/scenes/practises.ts`.
   const chips = distinctive(scene, SCENES);
-  const errand = errandForScene(scene.id);
   return (
     <li>
       <Link href={`/situations/${scene.id}`} className="block h-full">
@@ -200,15 +198,10 @@ function SceneTile({ scene, history, learnerLevel }: {
             </ul>
           )}
           {/*
-            The real one, on the tile, so a scene is read as a rehearsal of
-            something rather than as a game: the errand this scene rehearses
-            is what the debrief offers once it has gone well.
+            The errand this rehearses is on the debrief, where it is earned,
+            and not on the tile: a sixth line on each of fifteen tiles made a
+            menu to read rather than a place to pick.
           */}
-          {errand && (
-            <p className="text-xs" style={{ color: "var(--ink-2)" }}>
-              Then for real: {errand.says}
-            </p>
-          )}
           <p className="mt-auto text-xs" style={{ color: "var(--ink-3)" }}>
             {objectives} things to get done · about {minutesFor(scene)} min
             {unit ? ` · ${uiText(learnerLevel, unit.title, unit.subtitle)}` : ""}

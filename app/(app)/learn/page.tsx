@@ -1,8 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, Check, ChevronRight, Compass, Eye, Lock, MousePointerClick, PenLine } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Compass, Flag, Lock } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
-import { unitById } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import {
@@ -10,7 +9,7 @@ import {
 } from "@/lib/collections/syllabus";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
-import { Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
+import { Chip, Meter, Page, SectionTitle } from "@/components/ui";
 import { learnCounts } from "@/lib/progress/learn";
 import { learnerModuleScope } from "@/lib/progress/moduleScope";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
@@ -69,7 +68,6 @@ export default async function LearnPage() {
   };
 
   const { words: totalWords, known: knownWords } = countWords(units);
-  const overall = totalWords > 0 ? Math.round((knownWords / totalWords) * 100) : 0;
 
   const byLevel = LEVELS.map((level) => {
     const rows = units.filter((u) => u.unit.level === level);
@@ -101,67 +99,29 @@ export default async function LearnPage() {
       */}
       <LearnCard waiting={counts.waiting} started={counts.started} phrases={counts.phrases} />
 
-      {/* The level is on the card three lines below, so the hint says the span
-          and stops. It read "A1 to C1 · working at B1" over "You are working at
-          B1", which is the same fact twice inside one screenful. */}
-      <SectionTitle hint="A1 to C1">The course</SectionTitle>
       {/*
-        One row that wraps, with the text told how wide to be. `flex-wrap`
-        alone looked right and was not: at 390px the ring and the button both
-        stayed on the row and squeezed the text between them into a column
-        four words wide. A basis of the line less the ring keeps the text
-        beside the ring and sends the button to a line of its own.
+        THE COURSE IS A LIST, AND THE LIST IS ALL IT NEEDS.
+
+        A card sat between the heading and the list with a ring, the level,
+        the words known, a disclosure about what counts as known, a link to
+        the level check and a button to continue the next unit, which is the
+        same button the next unit carries two inches lower. Six things before
+        the list, one of them a second copy of the list's own primary. The
+        level and the count are the heading's hint now; the level check and
+        the explanation are at the foot of the page, where somebody who wants
+        them goes looking.
       */}
-      <div
-        className="mb-7 flex flex-wrap items-center gap-4 rounded-[var(--r-lg)] border p-5 sm:gap-5"
-        style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
-      >
-        <Ring pct={overall} size={64} label={`${overall}% of the course learned`}>
-          <span className="tnum text-sm font-bold" style={{ color: "var(--ink)" }}>{overall}%</span>
-        </Ring>
-        {/* Beside the ring on a phone too: the text takes the rest of the line
-            rather than a line under a ring standing alone. */}
-        <div className="min-w-0 flex-1 basis-[calc(100%-5.5rem)] sm:basis-[18rem]">
-          <p className="text-base" style={{ color: "var(--ink)" }}>
-            You are working at {placement} · {knownWords} of {totalWords} words known
-          </p>
-          <Explain label="What counts as known">
-            A word counts as known once every card made from it has moved past the learning stage,
-            not just been answered right once.
-          </Explain>
-          <Link
-            href="/assess"
-            className="mt-1.5 inline-flex items-center gap-1.5 text-xs underline"
-            style={{ color: "var(--accent-deep)" }}
-          >
-            <Compass size={13} aria-hidden /> Not sure? Take the level check
-          </Link>
-        </div>
-        {next && (
-          <ButtonLink
-            href={`/learn/${next.id}/lesson`}
-            variant={counts.waiting + counts.started > 0 ? "secondary" : "primary"}
-            className="w-full justify-center sm:w-auto"
-          >
-            {/* The unit's name is the highlighted row right under this card on a
-                phone, and at 390px it wrapped the button onto two lines. One
-                span round both halves: as two children of a flex button each
-                was its own flex item and "Continue" shrank on its own. */}
-            <span>
-              {startedIds.has(next.id) ? "Continue" : "Start"}
-              <span className="sr-only sm:not-sr-only">: {uiText(placement, next.title, next.subtitle)}</span>
-            </span>
-          </ButtonLink>
-        )}
-      </div>
+      <SectionTitle hint={`${placement} · ${knownWords} of ${totalWords} words known`}>The course</SectionTitle>
 
       <div className="flex flex-col gap-3">
         {byLevel.map(({ level, rows, words, known, pct, finished }) => {
           const info = LEVEL_INFO[level];
           const checkpoint = CHECKPOINTS.find((c) => c.level === level);
-          // The learner's own level is open on arrival; so is anything they have
-          // already started, so work in progress is never hidden behind a click.
-          const open = level === placement || rows.some((u) => u.state === "learning");
+          // The learner's own level is open on arrival and nothing else is: three
+          // levels open at once was a hundred rows before the page ended. A level
+          // with work in progress says so on its own closed row.
+          const open = level === placement;
+          const inProgress = rows.filter((u) => u.state === "learning").length;
           return (
             <details
               key={level}
@@ -215,12 +175,13 @@ export default async function LearnPage() {
                         the only place a sighted reader sees them. */}
                     <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
                       {rows.length} units · {known}/{words} words
+                      {!open && inProgress > 0 && <> · {inProgress} in progress</>}
                     </span>
                   </span>
                 </span>
               </summary>
 
-              <ol className="flex flex-col gap-2 border-t p-4" style={{ borderColor: "var(--rule)" }}>
+              <ol className="flex flex-col border-t px-2 py-2 sm:px-3" style={{ borderColor: "var(--rule)" }}>
                 {rows.map((u) => {
                   const locked = !isUnitOpen({ unit: u.unit, doneUnitIds: doneIds, placement });
                   const complete = u.state === "done";
@@ -228,51 +189,40 @@ export default async function LearnPage() {
                   return (
                     <li
                       key={u.unit.id}
-                      className="@container relative flex flex-wrap items-start gap-3 rounded-[var(--r-sm)] border p-3 @md:items-center @md:gap-4"
+                      className="@container flex flex-wrap items-center gap-3 rounded-[var(--r-sm)] px-3 py-2.5 @md:flex-nowrap"
                       /*
-                        A locked unit is quieter, and the quiet used to be an
-                        `opacity: 0.6` on the whole row. That fades the words:
-                        the unit's own name came out at 4.25, its can-do
-                        statement at 2.8 and, worst of all, the line saying
-                        "Builds on X. You can still open it." at 2.63 against a
-                        bar of 4.5. The app was telling somebody this unit is
-                        available to them in the least readable text on the
-                        page, on every locked row of a 73-unit course.
+                        ONE LINE A UNIT, AND ONE BUTTON IN THE WHOLE LIST.
 
-                        The row already says "not yet" four other ways: a
-                        padlock, a plain border, that sentence, and a button
-                        reading Learn rather than Continue. The fade moves onto
-                        the padlock, which carries no words.
+                        Every row carried its can-do statement, a progress bar,
+                        a count, a "Builds on" sentence when it was locked and
+                        a button of its own, so a level of twenty-nine units
+                        was a column of twenty-nine buttons with paragraphs
+                        between them. The row is the way in and says what the
+                        unit is called and how far through it you are. The
+                        next unit alone says what it is for and carries the
+                        one button, because that is the one row somebody
+                        should press.
+
+                        A locked unit is quieter through its padlock rather
+                        than a fade on the row: `opacity` multiplies through
+                        the words and took the unit's name under 4.5:1.
                       */
-                      style={{
-                        borderColor: next && u.unit.id === next.id ? "var(--accent)" : "var(--rule)",
-                        background: "var(--surface)",
-                      }}
+                      style={{ background: isNext ? "var(--accent-soft)" : undefined }}
                     >
-                      {/* On a phone the whole row is the way in: the icon, the
-                          words and a chevron are one link, and only the next
-                          unit keeps a full-width button beside it. Twenty rows
-                          each ending in a button the width of the screen was a
-                          column of buttons with some text between them. A link
-                          stretched over the row with a pseudo-element was the
-                          first try, and it lay over every word in the row. */}
                       <Link
                         href={`/learn/${u.unit.id}`}
-                        className="group flex min-w-0 flex-1 basis-full items-start gap-3 @md:basis-0 @md:items-center @md:gap-4"
+                        className="group flex min-w-0 flex-1 basis-full items-center gap-3 @md:basis-0"
                       >
                         <span
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full @md:h-10 @md:w-10"
+                          aria-hidden
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                           style={{
-                            background: complete ? "var(--mint)" : u.state === "learning" ? "var(--accent)" : "var(--raised)",
-                            color: complete || u.state === "learning" ? "var(--surface)" : "var(--ink-3)",
-                            opacity: locked ? 0.6 : 1,
+                            background: complete ? "var(--mint-soft)" : u.state === "learning" ? "var(--accent-soft)" : "var(--raised)",
+                            color: complete ? "var(--mint-ink)" : u.state === "learning" ? "var(--accent-deep)" : "var(--ink-3)",
                           }}
                         >
-                          {locked ? <Lock size={16} aria-hidden /> : complete ? <Check size={18} aria-hidden /> : <NamedIcon name={u.unit.icon} size={17} aria-hidden />}
+                          {locked ? <Lock size={15} aria-hidden /> : complete ? <Check size={17} aria-hidden /> : <NamedIcon name={u.unit.icon} size={16} aria-hidden />}
                         </span>
-                        {/* Under @md the count moves inside the words: a count and a
-                            button beside the name left it 115px at 320 and broke
-                            "Environment" and "responsibility" in half. */}
                         <span className="min-w-0 flex-1">
                           <span
                             lang={uiWantsEnglish(placement) ? undefined : "et"}
@@ -281,76 +231,69 @@ export default async function LearnPage() {
                           >
                             {uiText(placement, u.unit.title, u.unit.subtitle)}
                           </span>
-                          <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
-                            {u.unit.canDo}
-                          </span>
-                          {u.available > 0 && (u.known > 0 || u.state === "learning") && (
-                            <span aria-hidden className="mt-2 block h-1 max-w-[16rem] overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-                              <span className="block h-full rounded-full" style={{ width: `${Math.max(4, Math.round((u.known / u.available) * 100))}%`, background: complete ? "var(--mint)" : "var(--accent)" }} />
+                          {isNext && (
+                            <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
+                              {u.unit.canDo}
                             </span>
                           )}
-                          <span className="tnum mt-1 block text-xs @md:hidden" style={{ color: "var(--ink-3)" }}>
+                          {/* Under the name in a narrow row, beside it in a wide
+                              one: beside it at 320 left "sustainability" a box
+                              too narrow for the word. */}
+                          <span className="tnum block text-xs @md:hidden" style={{ color: "var(--ink-3)" }}>
                             {u.known}/{u.available}
                           </span>
-                          {locked && (
-                            <span className="mt-1 block text-xs" style={{ color: "var(--ink-3)" }}>
-                              Builds on {u.unit.requires.map((id) => {
-                                const required = unitById(id);
-                                return required ? uiText(placement, required.title, required.subtitle) : id;
-                              }).join(", ")}. You can still open it.
-                            </span>
-                          )}
                         </span>
-                        <span className="tnum hidden text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
+                        <span className="tnum hidden shrink-0 text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
                           {u.known}/{u.available}
                         </span>
+                        {locked && <span className="sr-only">, builds on an earlier unit, and opens anyway</span>}
                         {!isNext && (
-                          <ChevronRight size={18} aria-hidden className="shrink-0 self-center @md:hidden" style={{ color: "var(--ink-3)" }} />
+                          <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
                         )}
                       </Link>
-                      {/* The button sits beside the words only where the row has
-                          room for both, which is the row's width rather than the
-                          window's: at 768 a 128px button beside the count left
-                          the unit's name 59px and broke every word of it. */}
-                      <span className={isNext ? "w-full @md:w-auto" : "hidden @md:block"}>
-                        <ButtonLink
-                          href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
-                          variant={isNext ? "primary" : u.state === "learning" ? "secondary" : "ghost"}
-                          size="sm"
-                          className="w-full justify-center @md:w-32"
-                        >
-                          {complete ? "Revisit" : u.state === "learning" ? "Continue" : "Learn"}
-                        </ButtonLink>
-                      </span>
+                      {isNext && (
+                        <span className="w-full @md:w-auto">
+                          <ButtonLink
+                            href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
+                            variant="primary"
+                            size="sm"
+                            className="w-full justify-center @md:w-32"
+                          >
+                            {u.state === "learning" ? "Continue" : "Start"}
+                          </ButtonLink>
+                        </span>
+                      )}
                     </li>
                   );
                 })}
 
                 {checkpoint && (
-                  <li
-                    className="@container flex flex-wrap items-center gap-4 rounded-[var(--r-sm)] border border-dashed p-3"
-                    style={{ borderColor: "var(--rule)" }}
-                  >
-                    <span className="min-w-[12rem] flex-1">
-                      <span
-                        lang={uiWantsEnglish(placement) ? undefined : "et"}
-                        className="text-md font-bold"
-                        style={{ color: "var(--ink)" }}
-                      >
-                        {uiText(placement, checkpoint.title, checkpoint.titleEn)}
-                      </span>
-                      <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
-                        {checkpoint.blurb} {checkpoint.questions} questions, {checkpoint.passMark}% to pass.
-                      </span>
-                    </span>
-                    <ButtonLink
+                  <li className="mt-1 flex items-center gap-3 rounded-[var(--r-sm)] border-t px-3 pb-1 pt-3" style={{ borderColor: "var(--rule-soft)" }}>
+                    <Link
                       href={`/learn/checkpoint/${level.toLowerCase()}`}
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-center @md:w-32"
+                      className="group flex min-w-0 flex-1 items-center gap-3"
                     >
-                      Take it
-                    </ButtonLink>
+                      <span
+                        aria-hidden
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                        style={{ background: "var(--raised)", color: "var(--ink-3)" }}
+                      >
+                        <Flag size={15} aria-hidden />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span
+                          lang={uiWantsEnglish(placement) ? undefined : "et"}
+                          className="block text-md font-bold group-hover:underline"
+                          style={{ color: "var(--ink)" }}
+                        >
+                          {uiText(placement, checkpoint.title, checkpoint.titleEn)}
+                        </span>
+                        <span className="tnum block text-xs" style={{ color: "var(--ink-3)" }}>
+                          {checkpoint.questions} questions · {checkpoint.passMark}% to pass
+                        </span>
+                      </span>
+                      <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
+                    </Link>
                   </li>
                 )}
               </ol>
@@ -359,12 +302,25 @@ export default async function LearnPage() {
         })}
       </div>
 
-      <Explain label="How a unit relates to the dictionary">
-        Units are shortcuts into the same dictionary, not a separate course. Everything in them can
-        also be found by searching, and anything missing you can{" "}
-        <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>add yourself</Link>.
-        Nothing is ever truly locked: a unit above your level shows what it builds on, and opens anyway.
-      </Explain>
+      <div className="mt-2 flex flex-col gap-1">
+        <Explain label="What counts as known">
+          A word counts as known once every card made from it has moved past the learning stage,
+          not just been answered right once.
+        </Explain>
+        <Explain label="How a unit relates to the dictionary">
+          Units are shortcuts into the same dictionary, not a separate course. Everything in them can
+          also be found by searching, and anything missing you can{" "}
+          <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>add yourself</Link>.
+          Nothing is ever truly locked: a unit above your level shows what it builds on, and opens anyway.
+        </Explain>
+        <Link
+          href="/assess"
+          className="mt-1 inline-flex items-center gap-1.5 self-start text-sm underline"
+          style={{ color: "var(--accent-deep)" }}
+        >
+          <Compass size={14} aria-hidden /> Not sure of your level? Take the level check
+        </Link>
+      </div>
     </Page>
   );
 }
@@ -399,10 +355,15 @@ function LearnCard({
           <h2 className="font-display mt-3 text-4xl font-bold leading-[1] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
             {ready > 0 ? <>{batch} words are waiting</> : <>Nothing waiting yet</>}
           </h2>
+          {/*
+            One line for what happens next, where there used to be two chips of
+            counts and three boxes spelling out the ladder under the button:
+            five things to read before pressing the one thing on the card.
+          */}
           {ready > 0 ? (
-            <p className="mt-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-              <Chip tone="accent">{waiting} never seen</Chip>
-              {started > 0 && <Chip tone="hard">{started} part way</Chip>}
+            <p className="mt-3 max-w-[48ch] text-md" style={{ color: "var(--ink-2)" }}>
+              Meet each one, pick its meaning, then put it back in a sentence.
+              {started > 0 && <> {started} already part way.</>}
             </p>
           ) : (
             <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
@@ -425,41 +386,12 @@ function LearnCard({
             </ButtonLink>
           )}
           {ready > 0 && (
-            <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center sm:w-auto">
+            <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap sm:w-auto">
               Learn {batch} words <ArrowRight size={17} aria-hidden />
             </ButtonLink>
           )}
         </div>
       </div>
-      {/*
-        THE LADDER AS THREE STEPS YOU CAN SEE, RATHER THAN A SENTENCE ABOUT IT.
-        The words are the same three the round is made of, in its order.
-      */}
-      {ready > 0 && (
-        <ol
-          className="ladder-steps mt-8 grid gap-3 xl:grid-cols-3"
-          aria-label="Each word is met, then picked out of four, then put back in its sentence"
-        >
-          {([[Eye, "Meet it", "See it, hear it, in a sentence"], [MousePointerClick, "Pick it", "Find its meaning among four"], [PenLine, "Use it", "Put it back in the sentence"]] as const).map(([Glyph, label, line], i) => (
-            <li
-              key={label}
-              className="flex items-center gap-3 rounded-[var(--r-lg)] p-3.5"
-              style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.1)" }}
-            >
-              <span
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full"
-                style={{ background: ["var(--cta)", "var(--blush)", "var(--sky)"][i], color: "var(--on-hue)" }}
-              >
-                <Glyph size={18} aria-hidden />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{label}</span>
-                <span className="block text-sm" style={{ color: "var(--ink-2)" }}>{line}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      )}
     </div>
   );
 }
