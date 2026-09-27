@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" fill="#0f1233"/>
-  <g transform="translate(8 6.9) scale(0.75)">
-  <circle cx="32" cy="40" r="15" fill="none" stroke="#ffd23f" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(-90 32 40)"/>
-  <circle cx="32" cy="40" r="15" fill="none" stroke="#ff3d8b" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(0 32 40)"/>
-  <circle cx="32" cy="40" r="15" fill="none" stroke="#7b5bff" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(90 32 40)"/>
-  <circle cx="32" cy="40" r="15" fill="none" stroke="#17bfd9" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(180 32 40)"/>
-  <path d="M20 15.5q6 -7 12 0t12 0" fill="none" stroke="#ffffff" stroke-width="5.2" stroke-linecap="round"/>
+  <g transform="translate(5.12 5.12) scale(0.84)">
+  <rect width="64" height="64" fill="#ffd23f"/>
+  <circle cx="32" cy="38" r="13" fill="none" stroke="#0f1233" stroke-width="7"/>
+  <path d="M20 17q6-7 12 0t12 0" fill="none" stroke="#0f1233" stroke-width="6" stroke-linecap="round"/>
   </g>
 </svg>

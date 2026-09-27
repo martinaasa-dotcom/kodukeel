@@ -132,10 +132,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
         {isTeacher && !classroom.archived && (
           <Card tone="night">
             <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
-              <div className="min-w-0">
+              <div>
                 <p className="label-xs" style={{ color: "var(--cta)" }}>Join code</p>
                 <p
-                  className="font-display tnum mt-1 text-4xl font-bold tracking-[0.22em] md:text-5xl"
+                  className="font-display tnum mt-1 whitespace-nowrap text-4xl font-bold tracking-[0.22em] md:text-5xl"
                   style={{ color: "var(--ink)" }}
                 >
                   {classroom.code}

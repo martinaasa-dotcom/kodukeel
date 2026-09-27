@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Anybody, Onest } from "next/font/google";
+import { Onest, Schibsted_Grotesk } from "next/font/google";
 import { OfflineProvider } from "@/components/OfflineProvider";
 import { canonicalOrigin } from "@/lib/auth/canonical";
 import "./globals.css";
 
 /**
- * Onest for all of the reading, Anybody for the few words set large.
+ * Onest for all of the reading, Schibsted Grotesk for the few words set large.
  *
  * Onest carries Cyrillic as well as Latin Extended, and that decided it: most
  * people learning Estonian here read Russian or Ukrainian first, and an
@@ -13,18 +13,19 @@ import "./globals.css";
  * It was Plus Jakarta Sans, which is also the face of a great many product
  * templates, and a page that looks like a template is read like one.
  *
- * Anybody is for display sizes alone (`--font-display`). It has a width
- * axis, and headlines are set heavy and a little condensed: that is the voice
- * of the app, and it is what lets a long Estonian word like `raamatusse` sit
- * large on a phone where a wide face would have to break it. Bricolage
- * Grotesque had the job before and had become the face of half the quickly
- * built apps on the web. Anybody has no Cyrillic, so the stack falls back to
- * Onest for a headline in Russian rather than to a system face.
+ * Schibsted Grotesk is for display sizes alone (`--font-display`): the
+ * wordmark, headings and the word set large on a card. It is a Nordic
+ * newspaper grotesque, compact and confident, and unlike Anybody and
+ * Bricolage Grotesque before it, its lowercase t ends in a real curved tail
+ * rather than a flat cut, which is the whole reason it replaced them.
+ * Schibsted Grotesk has no Cyrillic, so the stack falls back to Onest for a
+ * headline in Russian rather than to a system face, exactly as before.
  *
- * latin-ext is not optional in either: without it õ ä ö ü š ž fall back to a
- * different face mid-word, which is the fault this rule exists to prevent.
- * Estonian and the English around it stay in one face, since a prompt in one
- * typeface and its four answers in another is most of this app.
+ * latin-ext is not optional here or on Onest: without it õ ä ö ü š ž fall
+ * back to a different face mid-word, which is the fault this rule exists to
+ * prevent. Estonian and the English around it stay in one face, since a
+ * prompt in one typeface and its four answers in another is most of this
+ * app.
  */
 const onest = Onest({
   subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
@@ -32,11 +33,11 @@ const onest = Onest({
   display: "swap",
 });
 
-const anybody = Anybody({
+const schibstedGrotesk = Schibsted_Grotesk({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-anybody",
+  variable: "--font-schibsted",
   display: "swap",
-  axes: ["wdth"],
+  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -74,21 +75,21 @@ export const metadata: Metadata = {
     page and nothing else worth naming.
   */
   title: {
-    default: "Kodukeel. Estonian that finally sticks",
-    template: "%s · Kodukeel",
+    default: "kodukeel. Estonian that finally sticks",
+    template: "%s · kodukeel",
   },
   description:
     "Estonian for the counter, the clinic and the neighbor: practice that sticks, a conversation " +
     "to rehearse with somebody who has an agenda of their own, and one thing to say out loud today.",
   icons: { icon: "/icon.svg" },
-  applicationName: "Kodukeel",
-  appleWebApp: { capable: true, title: "Kodukeel", statusBarStyle: "default" },
+  applicationName: "kodukeel",
+  appleWebApp: { capable: true, title: "kodukeel", statusBarStyle: "default" },
   openGraph: {
-    title: "Kodukeel. Estonian that finally sticks",
+    title: "kodukeel. Estonian that finally sticks",
     description:
       "Practice that sticks, a conversation to rehearse, and one thing to say to a real person today.",
     type: "website",
-    siteName: "Kodukeel",
+    siteName: "kodukeel",
     /*
       The app is written in English about Estonian, and it is read in Estonia.
       A share card says which language it is in so a reader in a Russian or
@@ -152,7 +153,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // The font variable goes on <html>, not <body>: `--font-sans` is declared on
     // :root and references `--font-onest`, and a custom property is
     // substituted where it is *declared*, so the face has to be in scope there.
-    <html lang="en" className={`${onest.variable} ${anybody.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${onest.variable} ${schibstedGrotesk.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
