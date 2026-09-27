@@ -17,7 +17,7 @@ import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { WeakestCases } from "@/components/WeakestCases";
-import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
+import { Card, Chip, Empty, Page, SectionTitle, Stack, toneInk } from "@/components/ui";
 
 export const metadata = { title: "Practice" };
 
@@ -330,7 +330,7 @@ export default async function PracticePage() {
             >
               <span
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                style={{ background: "var(--blush)", color: "var(--surface)" }}
+                style={{ background: "var(--blush-soft)", color: toneInk("blush") }}
               >
                 <ClipboardCheck size={18} aria-hidden />
               </span>
@@ -393,7 +393,7 @@ function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
     >
       <span
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-        style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
+        style={{ background: `var(--${mode.tone}-soft)`, color: toneInk(mode.tone) }}
       >
         <NamedIcon name={mode.icon} size={18} aria-hidden />
       </span>
@@ -437,7 +437,7 @@ function CommonWordsCard() {
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-          style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
+          style={{ background: `var(--${mode.tone}-soft)`, color: toneInk(mode.tone) }}
         >
           <TrendingUp size={19} aria-hidden />
         </span>
@@ -510,7 +510,7 @@ function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: nu
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-          style={{ background: "var(--sky)", color: "var(--surface)" }}
+          style={{ background: "var(--sky-soft)", color: toneInk("sky") }}
         >
           <Layers size={19} aria-hidden />
         </span>
@@ -587,7 +587,7 @@ function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }
       <span className="flex flex-wrap items-center gap-3">
         <span
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-          style={{ background: `var(--${tone})`, color: "var(--surface)" }}
+          style={{ background: `var(--${tone}-soft)`, color: toneInk(tone) }}
         >
           <NamedIcon name={iconName} size={19} aria-hidden />
         </span>

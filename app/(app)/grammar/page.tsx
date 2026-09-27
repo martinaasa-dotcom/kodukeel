@@ -151,7 +151,7 @@ export default async function GrammarIndexPage() {
         >
           <span
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-            style={{ background: "var(--butter)", color: "var(--surface)" }}
+            style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}
           >
             <TriangleAlert size={19} aria-hidden />
           </span>
