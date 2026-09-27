@@ -291,6 +291,24 @@ export const SETTING_KEYS = {
    * whether anybody is on one.
    */
   programme: "programme",
+  /**
+   * When the learner last moved part through an offer on the module screen.
+   *
+   * The reading of how somebody is doing (`lib/course/adapt.ts`) counts only
+   * answers given after it, so a learner who steps down to refresh a level is
+   * judged on the refresher rather than on the fortnight that led to it, and
+   * is not offered the same move again the next morning on the same evidence.
+   */
+  adaptMovedAt: "adaptMovedAt",
+  /**
+   * Until when the offer on the module screen is kept quiet, as an instant.
+   *
+   * "Not now" is an answer and it is honored for a week, because a card that
+   * reappears every evening after somebody has said no to it is nagging. The
+   * gentler or harder delivery carries on regardless: it is not a question,
+   * and the module screen still names it.
+   */
+  adaptSnoozedUntil: "adaptSnoozedUntil",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];

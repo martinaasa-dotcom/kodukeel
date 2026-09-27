@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, CalendarCheck, Check, GraduationCap } from "lucid
 import { requireUserId } from "@/lib/auth/session";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import {
-  closingProgress, courseReading, hasChosenProgramme, ladderReading, missingWords, openingPart,
+  closingProgress, courseReading, hasChosenProgramme, ladderReading, missingWords, openingPartFor,
   programmeFor,
 } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -16,6 +16,9 @@ import { Explain } from "@/components/Explain";
 import { StepList } from "@/components/course/StepList";
 import { StartProgramme } from "@/components/course/StartProgramme";
 import { NextPart } from "@/components/course/NextPart";
+import { CourseMove } from "@/components/course/CourseMove";
+import { adaptOfferFor } from "@/lib/progress/adapt";
+import { leanSentence, moveLabel, offerParts, offerTitle, type AdaptOffer, type LeanEffects, type Tilt } from "@/lib/course";
 import { Speak } from "@/components/Speak";
 
 export const metadata = { title: "Today's module" };
@@ -62,46 +65,40 @@ export default async function CoursePage({
 
   if (!programme) {
     /*
-      WHERE SOMEBODY STARTS IS THEIR OWN LEVEL, NOT THE BOTTOM. A learner a
-      paper has measured at B1 does not want five parts of A1 to reach the
-      material they came for, and a beginner does not want the impersonal. The
-      whole ladder is on the screen underneath either way, because what makes
-      this worth starting is seeing that it ends.
+      WHERE SOMEBODY STARTS IS PAST THE LEVEL THEY HOLD, NOT THE BOTTOM. A
+      learner a paper has measured at B1 does not want B1 again, let alone
+      five parts of A1, and a beginner does not want the impersonal
+      (`lib/course/placement.ts`). The whole ladder is on the screen
+      underneath either way, because what makes this worth starting is seeing
+      that it ends.
     */
-    const opening = openingPart(level);
+    const opening = await openingPartFor(ownerId);
     return (
       <Page
         title="A course planned for you"
         lead={`${evenings} evenings from your first word to C1, each one already planned.`}
       >
         <Stack>
-          {opening ? (
-            <Card tone="accent">
-              <SectionTitle hint={`${opening.id.toUpperCase()}, ${opening.days.length} evenings`}>
-                <span lang={uiWantsEnglish(level) ? undefined : "et"}>
-                  {uiText(level, opening.title, opening.subtitle)}
-                </span>
-              </SectionTitle>
-              <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {opening.blurb}
-              </p>
-              <div className="mt-4">
-                <StartProgramme programmeId={opening.id} />
-              </div>
-              <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-                {chosen
-                  ? "You chose to plan your own evenings. Nothing else in the app changed, and nothing will change if you start this."
-                  : `It starts at ${opening.level}, which is where you stand. It is a suggestion, not a track, and everything you already use stays where it is.`}
-              </p>
-            </Card>
-          ) : (
-            <Card>
-              <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                The course stops at C1 and you are past it, so there is nothing here you have
-                not already met.
-              </p>
-            </Card>
-          )}
+          <Card tone="accent">
+            <SectionTitle hint={`${opening.id.toUpperCase()}, ${opening.days.length} evenings`}>
+              <span lang={uiWantsEnglish(level) ? undefined : "et"}>
+                {uiText(level, opening.title, opening.subtitle)}
+              </span>
+            </SectionTitle>
+            <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              {opening.blurb}
+            </p>
+            <div className="mt-4">
+              <StartProgramme programmeId={opening.id} />
+            </div>
+            <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
+              {chosen
+                ? "You chose to plan your own evenings. Nothing else in the app changed, and nothing will change if you start this."
+                : opening.level === level
+                  ? `It starts at ${opening.level}, which is where you stand. It is a suggestion, not a track, and everything you already use stays where it is.`
+                  : `It starts at ${opening.level}, the level after the ${level} you already have. It is a suggestion, not a track, and everything you already use stays where it is.`}
+            </p>
+          </Card>
 
           <Ladder learnerLevel={level} />
         </Stack>
@@ -118,7 +115,10 @@ export default async function CoursePage({
      lets the count behind them be memoised, since the cache is keyed on the
      instant (`lib/progress/closing.ts`). */
   const now = new Date();
-  const reading = await courseReading(ownerId, programme, clock, now);
+  const [reading, fit] = await Promise.all([
+    courseReading(ownerId, programme, clock, now),
+    adaptOfferFor(ownerId, programme, now),
+  ]);
   const total = programme.days.length;
 
   if (reading.finished) {
@@ -314,6 +314,8 @@ export default async function CoursePage({
             </div>
           </Card>
 
+          <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} />
+
           <Card>
             <SectionTitle hint={`${reading.daysDone} of ${total}`}>Where you are</SectionTitle>
             <div className="mt-3">
@@ -344,6 +346,15 @@ export default async function CoursePage({
       lead={uiWantsEnglish(level) ? undefined : day.subtitle}
     >
       <Stack>
+        {/*
+          WHETHER THIS IS THE RIGHT PART, BEFORE TONIGHT STARTS. The offer to
+          step down or skip ahead goes above the evening rather than under it,
+          because a learner who is going to move should not do tonight's module
+          of the part they are about to leave. Nothing at all here for a steady
+          learner, which is nearly everybody nearly always.
+        */}
+        <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} />
+
         <Card tone="night" className="md:p-9">
           {/*
             AND WHICH EVENING OF THE UNIT THIS IS, BESIDE WHICH DAY OF THE PART.
@@ -636,4 +647,63 @@ function courseRuns<T extends { title: string; part: { n: number; of: number } }
     else runs.push([d]);
   }
   return runs;
+}
+
+/**
+ * THE COURSE MEETING SOMEBODY WHERE THEIR ANSWERS SAY THEY ARE.
+ *
+ * Three shapes and one silence. An offer with a move is a card saying what the
+ * answers show, what the delivery is already doing about it and why the move
+ * would help, with the move beside "not now". An offer with no move honest to
+ * make is the same card as news, with an acknowledgement. A snoozed offer is
+ * one line saying the lean is still on, because the lean is not a question and
+ * a learner who said "not now" is still owed the truth about how they are being
+ * treated. And a steady learner gets nothing (`lib/course/adapt.ts`).
+ *
+ * Butter for running hard and mint for flying, which is what those two hues
+ * already mean on every marked answer in the app, and the heading says it in
+ * words as well, since a hue is never the only thing carrying a distinction.
+ */
+function CourseFit({ offer, tilt, snoozed, effects }: {
+  offer: AdaptOffer | null;
+  tilt: Tilt;
+  snoozed: boolean;
+  effects: LeanEffects;
+}) {
+  if (offer) {
+    const text = offerParts(offer, effects);
+    return (
+      <Card tone={offer.reading.kind === "struggling" ? "butter" : "mint"}>
+        <div data-course-fit={offer.reading.kind}>
+          <SectionTitle hint="a reading of your last two weeks">{offerTitle(offer)}</SectionTitle>
+          <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            {text.lead}
+          </p>
+          <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            {text.advice}
+          </p>
+          {text.lean && (
+            <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              {text.lean}
+            </p>
+          )}
+          <div className="mt-4">
+            <CourseMove
+              kind={offer.move?.kind ?? null}
+              label={offer.move ? moveLabel(offer.move) : null}
+            />
+          </div>
+        </div>
+      </Card>
+    );
+  }
+  const lean = snoozed ? leanSentence(tilt, effects) : "";
+  if (lean) {
+    return (
+      <p className="text-sm" data-course-fit="lean" style={{ color: "var(--ink-2)" }}>
+        {lean}
+      </p>
+    );
+  }
+  return null;
 }

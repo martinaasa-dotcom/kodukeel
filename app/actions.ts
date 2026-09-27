@@ -81,26 +81,19 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, MODULE_HOME, PROGRAMMES, continueHref, dayById, programmeById,
+  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, programmeById,
 } from "@/lib/course";
-import { dayIsInPlay } from "@/lib/progress/course";
+import { dayIsInPlay, openingPart, programmeFor } from "@/lib/progress/course";
+import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
 
-/**
- * The part of the ladder a level starts on, for first run.
- *
- * The same rule `openingPart` applies on the server, kept here rather than
- * imported from `lib/progress/course.ts` because that module reads a database
- * and this needs only the list.
- */
-const openingPartId = (level: string): string =>
-  (PROGRAMMES.find((p) => p.level === level) ?? DEFAULT_PROGRAMME).id;
 import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
 import { solvedEntries } from "@/lib/games/crossword";
 import { crosswordFor } from "@/lib/progress/crossword";
 import { puzzleFor } from "@/lib/progress/sonad";
-import { courseLevelFor } from "@/lib/progress/level";
+import { courseLevelFor, courseStandingFor, currentLevelAnswer } from "@/lib/progress/level";
+import { heldLevel } from "@/lib/course/placement";
 import type { DayKey } from "@/lib/time/day";
 import { FREQUENCY_GROUPS, type FrequencyGroup } from "@/lib/collections/frequency";
 import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
@@ -2175,17 +2168,6 @@ export async function completeOnboarding(input: {
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
     writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(text(input.glossLanguage))),
     writeSetting(ownerId, SETTING_KEYS.onboardedAt, new Date().toISOString()),
-    /*
-      AND THE PART OF THE LADDER THEY OPEN ON, WRITTEN RATHER THAN INFERRED.
-
-      `programmeFor` falls back to the first part at or below the learner's
-      level where nothing is stored, so leaving this out would work today and
-      be wrong the first time somebody's level moves: a learner measured up to
-      B1 in March would silently be handed B1.1 having done four parts of A1.
-      Writing it at the end of first run pins where they actually started, and
-      finishing a part is the only thing that moves it.
-    */
-    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(input.cefr)),
     input.goals
       ? saveGoals(ownerId, normaliseGoals({
           reason: input.goals.reason ?? null,
@@ -2196,6 +2178,29 @@ export async function completeOnboarding(input: {
         }))
       : Promise.resolve(),
   ]);
+
+  /*
+    AND THE PART OF THE LADDER THEY OPEN ON, WRITTEN RATHER THAN INFERRED.
+
+    `programmeFor` falls back to `openingPartFor` where nothing is stored, so
+    leaving this out would work today and be wrong the first time somebody's
+    level moves: a learner measured up to B1 in March would silently be handed
+    a different part from the one they started. Writing it at the end of first
+    run pins where they actually started, and moving on is what moves it.
+
+    WHICH PART IS WORKED OUT HERE, NOT SENT. The level a learner holds is the
+    check they just sat if there was one, since a declaration made in this
+    wizard is written unstamped and never outranks it, and otherwise the level
+    they named. A level named is a level held, so a B1 speaker aiming at B2
+    opens on B2.1 rather than on B1.1 (`lib/course/placement.ts`). Read after
+    the batch above, which is what wrote the declaration it reads.
+  */
+  const answer = await currentLevelAnswer(ownerId);
+  await writeSetting(
+    ownerId,
+    SETTING_KEYS.programme,
+    openingPart(heldLevel(answer), input.goals?.target ?? null).id,
+  );
 
   /*
     One batched build rather than a call per unit.
@@ -3938,6 +3943,84 @@ export async function setProgramme(value: string) {
   revalidatePath("/course");
   revalidatePath("/");
   revalidatePath("/settings");
+  return { ok: true as const };
+}
+
+/**
+ * MAKES THE MOVE THE MODULE SCREEN OFFERED, AND ONLY THAT ONE.
+ *
+ * Step down a level to refresh it, go back to a part that was skipped, or skip
+ * ahead one (`lib/course/adapt.ts`). The move is worked out again here from
+ * the learner's own answers rather than taken from the caller: every export in
+ * this file is a public endpoint, and what a caller may say is which kind of
+ * move they are accepting, never where it goes. A kind the reading no longer
+ * offers is refused, because the answers moved under the card between the
+ * render and the press, and saying so is better than moving somebody on a
+ * reading that has stopped being true.
+ *
+ * What changes: the part they are on, and, where the move crosses a level, the
+ * level they hold, through `recordCourseLevel` like every other writer of it,
+ * so the climb, the pace a clip is read at and the band a conversation opens
+ * at all follow the step they took. Nothing in the review log moves and no
+ * tick is written or removed: the part they leave keeps its evenings and waits
+ * where they left it.
+ */
+export async function acceptCourseMove(kind: string) {
+  const ownerId = await requireUserId();
+  const wanted = text(kind);
+  if (!["down", "back", "ahead"].includes(wanted)) return { ok: false as const, error: "That is not a move." };
+
+  const programme = await programmeFor(ownerId);
+  if (!programme) return { ok: false as const, error: "You are not following the course at the moment." };
+  const [{ offer }, standing] = await Promise.all([
+    adaptOfferFor(ownerId, programme),
+    courseStandingFor(ownerId),
+  ]);
+  const move = offer?.move;
+  if (!move || move.kind !== wanted) {
+    return { ok: false as const, error: "That move is not on offer any more. Your recent answers have changed since this screen was drawn." };
+  }
+
+  /*
+    THE LEVEL, WHERE THE MOVE CHANGES IT. Null is nothing held yet, which is
+    how a beginner's A1 is written, so a step down to the first part of A1
+    stores A1 and the course reads it as a beginner. A held A1 cannot be
+    declared (a stated A1 reads as "just starting"), so a skip out of A1 leaves
+    the level alone rather than write one that means the opposite.
+  */
+  const now = new Date();
+  const was = standing?.held ?? null;
+  const levelWrite = move.held === was ? null
+    : move.held === null ? "A1" as const
+    : move.held === "A1" ? null
+    : move.held;
+
+  await Promise.all([
+    writeSetting(ownerId, SETTING_KEYS.programme, move.to.id),
+    writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
+    writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
+    levelWrite ? recordCourseLevel(ownerId, levelWrite, now) : Promise.resolve(),
+  ]);
+
+  revalidatePath("/course");
+  revalidatePath("/");
+  revalidatePath("/settings");
+  revalidatePath("/learn");
+  revalidatePath("/review");
+  return { ok: true as const, to: move.to.id };
+}
+
+/**
+ * "Not now", for a week.
+ *
+ * The card goes quiet and the delivery keeps leaning, which the screen says
+ * in the same breath: the lean is not a question, only the move is.
+ */
+export async function snoozeCourseMove() {
+  const ownerId = await requireUserId();
+  const until = new Date(Date.now() + SNOOZE_DAYS * 86_400_000);
+  await writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, until.toISOString());
+  revalidatePath("/course");
   return { ok: true as const };
 }
 
