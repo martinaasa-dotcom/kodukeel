@@ -1,3 +1,4 @@
+import { InsideHere } from "@/components/InsideHere";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { dictionaryLemmas, sentenceReach } from "@/lib/dict/facts";
@@ -207,6 +208,13 @@ export default async function DictionaryPage({
         feedHost={feedHost()}
         starred={starred.map((s) => ({ lemma: s.lexeme.lemma, translation: s.lexeme.translation }))}
       />
+      {/* The rules and the other ways in, which left the rail for this page.
+          Only on the landing view: with an entry open, the page is about it. */}
+      {!q && !opened && (
+        <div className="mt-10">
+          <InsideHere place="/dictionary" title="Also in the dictionary" />
+        </div>
+      )}
     </Page>
   );
 }

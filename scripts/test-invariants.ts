@@ -5223,7 +5223,7 @@ check("the rail shows every place, rather than hiding some behind a button", () 
     table is a link you can see.
   */
   const rail = code("components/Sidebar.tsx");
-  assert.match(rail, /PLACES\.map/, "the rail stopped drawing the sections it is given");
+  assert.match(rail, /railRows\(/, "the rail stopped drawing the rows lib/ux/navOrder.ts gives it");
   for (const gate of ["railOpen", "showRest", "secondaryActive"]) {
     assert.equal(
       rail.includes(gate),
@@ -14192,6 +14192,7 @@ check("a workflow that reads a secret never runs from a branch somebody pushed",
   const READS_A_SECRET: Record<string, string[]> = {
     "audit-decks.yml": ["workflow_dispatch"],
     "mailout.yml": ["schedule", "workflow_dispatch"],
+    "reset-course.yml": ["workflow_dispatch"],
     "seed-production.yml": ["workflow_dispatch"],
   };
   const dir = ".github/workflows";
@@ -21163,12 +21164,22 @@ check("a destination reached from another one really is linked from there", () =
   assert.ok(inside.length >= 4, `only ${inside.length} destinations live inside another one`);
 
   for (const item of inside) {
-    const segment = item.within!.split("/").filter(Boolean)[0]!;
-    const dir = join("app", "(app)", segment);
+    /*
+      Today is the one place with no directory of its own, so its files are
+      the root page alone. And `<InsideHere place="..."/>` counts as a link to
+      every destination living inside that place, because it draws them off
+      the table itself (components/InsideHere.tsx).
+    */
+    const segment = item.within!.split("/").filter(Boolean)[0];
+    const dir = segment ? join("app", "(app)", segment) : join("app", "(app)", "page.tsx");
     assert.ok(existsSync(dir), `${item.href} says it is reached from ${item.within}, which is not a route`);
+    const inside = `<InsideHere place="${item.within}"`;
     const linked = ALL
-      .filter((f) => f.startsWith(dir.replace(/\\/g, "/")) || f.startsWith(`${dir}/`))
-      .some((f) => code(f).includes(`"${item.href}"`) || code(f).includes(`\`${item.href}`));
+      .filter((f) => segment
+        ? f.startsWith(dir.replace(/\\/g, "/")) || f.startsWith(`${dir}/`)
+        : f === dir.replace(/\\/g, "/"))
+      .some((f) => code(f).includes(`"${item.href}"`) || code(f).includes(`\`${item.href}`)
+        || code(f).includes(inside));
     assert.ok(
       linked,
       `${item.href} is kept out of the rail because it is reached from ${item.within}, `

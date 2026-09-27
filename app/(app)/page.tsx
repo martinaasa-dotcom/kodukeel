@@ -1,3 +1,4 @@
+import { HeroLetters } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { lengthAtPace, QUEST_SECONDS } from "@/lib/ux/roundClock";
 import { redirect } from "next/navigation";
@@ -1002,7 +1003,14 @@ export default async function TodayPage() {
         anything.
       */}
       <Stack className="min-w-0">
-        {doNowCard}
+        {/* Tonight's card is the one big thing on this page, and the only one
+            the letters lie on. See components/HeroLetters.tsx. */}
+        {courseCard ? (
+          <div className="relative">
+            {doNowCard}
+            <HeroLetters />
+          </div>
+        ) : doNowCard}
         <Columns>
           {orderTodayCards({
             ladder: ladderCard,

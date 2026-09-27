@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, ListChecks } from "lucide-react";
+import { ArrowRight, ListChecks, X } from "lucide-react";
 import { advanceCourseStep } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { MODULE_HOME, MODULE_PARAM, readFocus, type ModuleFocus } from "@/lib/course/focus";
 import { ModuleContext } from "./moduleFocus";
 
@@ -23,9 +24,11 @@ import { ModuleContext } from "./moduleFocus";
  * So a step opened from the module is a room rather than a page. The rail, the
  * bar along the bottom of a phone and the tutor's button in the corner go, the
  * way on is one button pinned to the foot of the screen, and pressing it ticks
- * the step and opens the next one in the same press. There is nothing else to
- * press, which is the whole of the ask: an evening with one thing to do at a
- * time, from the first step to the last.
+ * the step and opens the next one in the same press. Nothing else is there to
+ * decide, which is the whole of the ask: an evening with one thing to do at a
+ * time, from the first step to the last. The two quiet exceptions are ways
+ * out rather than things to do: back to tonight's list, and one cross that
+ * leaves the module for the app when the evening is over for other reasons.
  *
  * HOW THE WEBSITE GOES, AND WHY IT IS CSS. `.module-step` is the one element
  * this draws and `body:has(...)` is what reads it, exactly as `.scene-room`
@@ -238,9 +241,48 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
           boxShadow: "var(--shadow-lg)",
         }}
       >
-        <div className="flex items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>
+        {/*
+          One row where there is room for it and two on a phone: the two
+          buttons wrap onto a row of their own rather than squeezing the step
+          count into a column of single letters, which is what one row did at
+          360 once the cross joined it. `ml-auto` keeps them on the right on
+          either row, so the way on stays where a thumb ends up.
+        */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          {/*
+            AND ONE DOOR BACK INTO THE APP, BECAUSE A ROOM WITH NO WAY OUT IS A
+            TRAP RATHER THAN A FOCUS.
+
+            Everything else that leaves is gone on purpose, and the way back to
+            the list is still inside the evening. What was missing is the press
+            for somebody whose evening has ended: the doorbell went, the bus
+            stop arrived, or they simply want the dictionary. Taking them to the
+            list first and making them find the rail from there is two presses
+            to do the one thing a person expects a cross in a corner to do.
+
+            So it is at the far left, where the weakest choice in a row sits in
+            this app, drawn as a cross and a word rather than a button, so it is
+            findable and never competes with the way on. It goes to Today,
+            which is the app's own front door, and it asks nothing: every step
+            already ticked is stored, and the module is where they left it.
+            The word goes at phone width and the cross stays, since the name in
+            `aria-label` begins with the word a sighted reader sees.
+
+            `data-module-leave` is what `scripts/test-module.mjs` reads to tell
+            this door, which is deliberate, from a door a round left open.
+          */}
+          <Link
+            href="/"
+            data-module-leave=""
+            aria-label="Leave the module and go to Today"
+            className="tap-tint inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 text-sm font-semibold"
+            style={{ color: "var(--ink-3)" }}
+          >
+            <X size={16} aria-hidden />
+            <span className="hidden sm:inline">Leave</span>
+          </Link>
+          <div className="min-w-[7rem] flex-1">
+            <p className="label-xs whitespace-nowrap" style={{ color: "var(--ink-3)" }}>
               Step {focus.n} of {focus.of}
             </p>
             {/* A meter rather than a row of dots, because an evening runs to
@@ -257,18 +299,20 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
             </div>
           </div>
           {/*
-            THE QUIET WAY BACK, AND IT IS THE ONLY ONE. It goes to the module's
-            own screen rather than to Today, because leaving a step is not
-            leaving the evening: the list is where the rest of tonight is, and
+            THE QUIET WAY BACK TO THE LIST. It goes to the module's own screen
+            rather than to Today, because leaving a step is not leaving the
+            evening: the list is where the rest of tonight is, and
             an app that answered "I am done with this bit" with its home page
             would be the exit this frame exists to remove.
           */}
-          <ButtonLink href={MODULE_HOME} variant="ghost">
-            <ListChecks size={15} aria-hidden /> Tonight
-          </ButtonLink>
-          <Button variant="primary" onClick={carryOn} disabled={pending}>
-            {last ? "Finish" : "Continue"} <ArrowRight size={15} aria-hidden />
-          </Button>
+          <div className="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap">
+            <ButtonLink href={MODULE_HOME} variant="ghost">
+              <ListChecks size={15} aria-hidden /> Tonight
+            </ButtonLink>
+            <Button variant="primary" onClick={carryOn} disabled={pending}>
+              {last ? "Finish" : "Continue"} <ArrowRight size={15} aria-hidden />
+            </Button>
+          </div>
         </div>
         {/*
           AND A STEP THE LOG FINISHES SAYS SO BEFORE IT IS PRESSED PAST.

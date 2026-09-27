@@ -36,6 +36,7 @@ import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
+import { resetCourseProgress } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory,
@@ -69,6 +70,7 @@ import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
@@ -1939,6 +1941,22 @@ export async function setTodayOrder(value: string) {
   revalidatePath("/");
   revalidatePath("/settings");
   return { ok: true as const, order };
+}
+
+/**
+ * Which rows the rail carries, and in what order.
+ *
+ * Normalized through the one reader on the way in, so a request cannot pin a
+ * control, pin past the cap, or take one of the five places away. Revalidated
+ * across the layout, because the rail is drawn by it and the next page a
+ * learner opens should carry the order they have just set.
+ */
+export async function setNavOrder(value: string) {
+  const ownerId = await requireUserId();
+  const stored = serialiseNavOrder(text(value).split(/\s+/));
+  await writeSetting(ownerId, SETTING_KEYS.navOrder, stored);
+  revalidatePath("/", "layout");
+  return { ok: true as const, order: stored.split(" ") };
 }
 
 /**
@@ -4635,4 +4653,24 @@ export async function reviewSuggestion(input: unknown) {
     resolved: resolved.count,
     applied,
   };
+}
+
+/**
+ * Put learners back at the start of the current planned course, from the admin
+ * page: one learner per press, or everybody on a press of its own. Course
+ * progress only: decks, the words in them, the dictionary and the review log
+ * are not touched (`lib/progress/courseReset.ts`).
+ */
+export async function resetCourseFor(target: unknown) {
+  await requireAdminId();
+  const all = target === "all";
+  const ownerId = all ? "" : text(target).trim();
+  if (!all && !ownerId) return { ok: false as const, error: "Nobody was named, so nothing was reset." };
+  try {
+    const done = await resetCourseProgress(all ? "all" : [ownerId]);
+    revalidatePath("/admin/suggestions");
+    return { ok: true as const, ...done };
+  } catch (error) {
+    return { ok: false as const, error: `Nothing was reset. ${safeMessage(error)}`.trim() };
+  }
 }
