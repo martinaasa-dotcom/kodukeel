@@ -243,9 +243,24 @@
   than a light gradient dimmed.
 */
 @layer components {
+  /*
+    A layer under the column rather than the column's own background: a
+    gradient on the element itself defeats every contrast check that reads the
+    colour behind a word, and it would have been the one surface in the app
+    whose text nothing measured.
+  */
   .rail {
     --rail-glow: color-mix(in oklab, var(--butter-soft) 75%, transparent);
-    background: linear-gradient(180deg, var(--rail-glow) 0, transparent 15rem);
+    isolation: isolate;
+  }
+  .rail::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 15rem;
+    background: linear-gradient(180deg, var(--rail-glow) 0, transparent);
+    pointer-events: none;
+    z-index: -1;
   }
   /* In the dark the gold tint is a brown one; the violet the rest of the dark
      palette is built from is what reads as the same warmth. */

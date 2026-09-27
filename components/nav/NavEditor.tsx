@@ -182,7 +182,7 @@ export function NavEditor({
                   <span
                     aria-hidden
                     className="h-2 w-2 shrink-0"
-                    style={{ borderRadius: core ? "999px" : "2px", background: `var(--${row.tone})` }}
+                    style={{ borderRadius: core ? "50%" : "2px", background: row.href === "/" ? "var(--butter)" : "var(--accent)" }}
                   />
                   <span className="min-w-0">{row.label}</span>
                   {!core && <span className="sr-only">, pinned</span>}

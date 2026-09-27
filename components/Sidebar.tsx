@@ -162,7 +162,7 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
       <nav
         data-chrome="rail"
         aria-label="Main"
-        className="rail sticky top-0 hidden h-screen w-[17rem] shrink-0 flex-col border-r px-4 pb-4 pt-6 md:flex"
+        className="rail sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r px-4 pb-4 pt-6 md:flex"
         style={{ borderColor: "var(--rule-soft)" }}
       >
         {/*
@@ -249,7 +249,7 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
                   {name ?? "You"}
                 </span>
                 <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                  Settings and more
+                  Settings, theme
                 </span>
               </span>
             </button>
@@ -489,8 +489,10 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
  * A dot rather than an icon, and that was chosen rather than settled for.
  * Five glyphs down a column are five small pictures to decode, where five
  * words are read at a glance; the dot is what still marks a row as a place,
- * round for the five and square for a pin, and Today's is always gold because
- * it is home. Nothing about it carries meaning on its own: the words do.
+ * round for the five and square for a pin. Today's is always gold because it
+ * is home, the row you are on wears the accent, and no row wears a hue that
+ * means something elsewhere: peach is "missed" on every other screen, and a
+ * red dot beside Practice read as an error. The words carry the meaning.
  *
  * The ink reads `--nav-ink` rather than naming its resting color, because an
  * inline style beats a class hover, silently. `app/nav.css` spends it when
@@ -516,9 +518,9 @@ function RailLink({ item, active, pinned }: { item: Destination; active: boolean
         aria-hidden
         className="nav-glyph h-2.5 w-2.5 shrink-0 transition-colors"
         style={{
-          borderRadius: pinned ? "3px" : "999px",
-          background: home || active ? `var(--${item.tone})` : "color-mix(in oklab, var(--ink-3) 42%, transparent)",
-          boxShadow: active ? `0 0 0 4px color-mix(in oklab, var(--${item.tone}) 22%, transparent)` : undefined,
+          borderRadius: pinned ? "2px" : "50%",
+          background: home ? "var(--butter)" : active ? "var(--accent)" : "color-mix(in oklab, var(--ink-3) 42%, transparent)",
+          boxShadow: active ? `0 0 0 4px color-mix(in oklab, var(${home ? "--butter" : "--accent"}) 24%, transparent)` : undefined,
         }}
       />
       <span className="min-w-0">{item.label}</span>
