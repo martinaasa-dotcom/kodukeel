@@ -299,7 +299,7 @@ export function formatGovernment(governments: string[]): string | null {
     const c = caseOf(g);
     return c ? `${g} (${c})` : g;
   });
-  return parts.join(" · ");
+  return parts.join(", ");
 }
 
 function normaliseCefr(code: string | null): string | null {

@@ -10,7 +10,7 @@ import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Exceptions · the words the endings do not reach",
+  title: "Exceptions, the words the endings do not reach",
   description:
     "Where the three principal parts and eleven endings stop being predictable, grouped by what breaks and drawn from the dictionary rather than written by hand.",
 };

@@ -189,6 +189,9 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
         looks like on the row above, and the swatches are `aria-hidden` because
         the words already say it.
       */}
+      {/* Each number says what it is rather than naming a state: "assumed"
+          beside a count of words read as though that count were all the app
+          had taken on trust, when the solid part is what it has confirmed. */}
       {assumed > 0 && (
         <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm" style={{ color: "var(--ink-2)" }}>
           <span className="inline-flex items-center gap-2">
@@ -197,7 +200,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: "linear-gradient(90deg, var(--mint) 0%, var(--accent) 100%)" }}
             />
-            <span className="tnum">{verified} checked</span>
+            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{verified}</span> confirmed by your reviews</span>
           </span>
           <span className="inline-flex items-center gap-2">
             <span
@@ -205,7 +208,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: HATCH }}
             />
-            <span className="tnum">{assumed} assumed</span>
+            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{assumed}</span> counted from your level, not checked yet</span>
           </span>
         </p>
       )}
@@ -249,7 +252,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
             <span lang={wantsEnglish ? undefined : "et"}>
               {stop.level}, {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}
             </span>
-            {stop.state === "passed" ? ", done. " : stop.state === "here" ? `, ${stop.pct}%. ` : stop.state === "assumed" ? `, assumed, ${stop.verified} of ${stop.words} checked. ` : ". "}
+            {stop.state === "passed" ? ", done. " : stop.state === "here" ? `, ${stop.pct}%. ` : stop.state === "assumed" ? `, counted from your level, ${stop.verified} of ${stop.words} confirmed. ` : ". "}
             {stop.state === "ahead" ? `${stop.parts} parts. ` : ""}{stop.arrival}
           </li>
         ))}

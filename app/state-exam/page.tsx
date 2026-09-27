@@ -146,7 +146,7 @@ export default function StateExamPage() {
           </P>
           <P>
             <Link href="/exam" className="underline underline-offset-2">Sit a mock paper</Link>
-            {" · "}
+            {", "}
             <Link href="/welcome" className="underline underline-offset-2">What Kodukeel is</Link>
           </P>
         </S>
@@ -154,11 +154,11 @@ export default function StateExamPage() {
 
       <p className="mt-14 text-sm" style={{ color: "var(--ink-3)" }}>
         <Link href="/privacy" className="underline underline-offset-2">Privacy</Link>
-        {" · "}
+        {", "}
         <Link href="/terms" className="underline underline-offset-2">Terms</Link>
-        {" · "}
+        {", "}
         <Link href="/accessibility" className="underline underline-offset-2">Accessibility</Link>
-        {" · "}
+        {", "}
         <Link href="/sign-in" className="underline underline-offset-2">Sign in</Link>
       </p>
     </main>

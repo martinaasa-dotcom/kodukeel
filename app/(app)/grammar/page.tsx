@@ -17,7 +17,7 @@ import { Card, Chip, Meter, Note, Page, SectionTitle, Stack } from "@/components
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Grammar · the endings, and what each one means",
+  title: "Grammar, the endings, and what each one means",
   description:
     "Fourteen endings in plain English, each with its Estonian name and the question it answers, shown on real words from the dictionary.",
 };
@@ -228,7 +228,7 @@ export default async function GrammarIndexPage() {
               hint={endings.length > 0 ? (
                 // As written, for the reason the case page's eyebrow is: a
                 // heading is uppercased and an ending is not a label.
-                <span lang="et" style={{ textTransform: "none" }}>{endings.join(" · ")}</span>
+                <span lang="et" style={{ textTransform: "none" }}>{endings.join(", ")}</span>
               ) : undefined}
             >
               {group.title}
@@ -272,7 +272,7 @@ export default async function GrammarIndexPage() {
                           and neither has any business being the headline. */}
                       <span className="mt-auto pt-1 text-xs" style={{ color: "var(--ink-3)" }}>
                         <span lang="et">{ref.spec.et}</span>
-                        {" · "}
+                        {", "}
                         <CaseQuestion question={ref.spec.question} inline />
                       </span>
                     </Link>

@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   */
   title: {
     default: "kodukeel. Estonian that finally sticks",
-    template: "%s · kodukeel",
+    template: "%s | kodukeel",
   },
   description:
     "Estonian for the counter, the clinic and the neighbor: practice that sticks, a conversation " +

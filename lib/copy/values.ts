@@ -173,7 +173,7 @@ function onePhrase(text: string): string {
  * writes it, since a scanned page now writes it too, and two spellings of the
  * same gap is how `isPlaceholder` starts missing one of them.
  */
-export const NEEDS_TRANSLATION = `${NO_VALUE} · add a translation`;
+export const NEEDS_TRANSLATION = `${NO_VALUE}, add a translation`;
 
 /**
  * A count and the thing it counts, agreeing with each other.

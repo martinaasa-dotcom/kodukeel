@@ -150,8 +150,8 @@ export default async function AssessPage({
                         {row.overall === PRE_A1 ? "below A1" : (row.overall ?? "not measured")}
                       </Chip>
                       <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                        reading {levelLabel(row.reading as Placement["overall"])} · listening{" "}
-                        {levelLabel(row.listening as Placement["overall"])} · writing{" "}
+                        reading {levelLabel(row.reading as Placement["overall"])}, listening{" "}
+                        {levelLabel(row.listening as Placement["overall"])}, writing{" "}
                         {levelLabel(row.writing as Placement["overall"])}
                       </span>
                     </span>

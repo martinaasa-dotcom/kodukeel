@@ -133,7 +133,7 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
             )}
           </div>
           <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            {row.context ?? "somewhere in the app"} · <LocalDate iso={new Date(row.createdAt).toISOString()} fallback={stableDate(new Date(row.createdAt), DATE_TIME_SHAPE)} options={DATE_TIME_SHAPE} />
+            {row.context ?? "somewhere in the app"}, <LocalDate iso={new Date(row.createdAt).toISOString()} fallback={stableDate(new Date(row.createdAt), DATE_TIME_SHAPE)} options={DATE_TIME_SHAPE} />
           </p>
         </div>
 

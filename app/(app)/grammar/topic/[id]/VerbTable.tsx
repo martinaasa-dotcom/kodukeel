@@ -88,10 +88,10 @@ export function VerbTable({ verbs, show }: {
   const headers = persons
     ? ["Verb", ...PERSONS.map((p) => p.label), "From"]
     : show === "negative"
-      ? ["Verb", "olevik · ma", "eitus", "From"]
+      ? ["Verb", "olevik, ma", "eitus", "From"]
       : show === "past"
-        ? ["Verb", "olevik · ma", "lihtminevik · ma", "lihtminevik · ta", "From"]
-        : ["Verb", "olevik · ma", "käskiv kõneviis · sa", "From"];
+        ? ["Verb", "olevik, ma", "lihtminevik, ma", "lihtminevik, ta", "From"]
+        : ["Verb", "olevik, ma", "käskiv kõneviis, sa", "From"];
 
   return (
     <div

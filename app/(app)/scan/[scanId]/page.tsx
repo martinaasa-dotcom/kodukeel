@@ -120,7 +120,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
           </Ring>
           <div className="min-w-0 flex-1">
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {progress.known} of {progress.available} known · {inDeck} in your deck
+              {progress.known} of {progress.available} known, {inDeck} in your deck
             </p>
             <div className="mt-2 max-w-sm">
               <Meter

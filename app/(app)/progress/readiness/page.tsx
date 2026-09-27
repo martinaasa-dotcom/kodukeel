@@ -66,7 +66,7 @@ export default async function ReadinessPage() {
     >
       <Stack>
         <section>
-          <SectionTitle hint={`at ${picture.level} · your level, from Settings`}>Where you stand</SectionTitle>
+          <SectionTitle hint={`at ${picture.level}, your level, from Settings`}>Where you stand</SectionTitle>
           <Card tone="night">
             <ReadinessSummary summary={picture.summary} />
             <Explain label="What the three rungs mean">
@@ -126,7 +126,7 @@ export default async function ReadinessPage() {
           if (rows.length === 0) return null;
           const name = (
             <>
-              {level} ·{" "}
+              {level},{" "}
               <span lang={uiWantsEnglish(picture.level) ? undefined : "et"}>
                 {uiText(picture.level, LEVEL_INFO[level].title, LEVEL_INFO[level].titleEn)}
               </span>
@@ -161,7 +161,7 @@ export default async function ReadinessPage() {
               <summary className="flex min-h-[56px] cursor-pointer flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3">
                 <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{name}</span>
                 <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-                  {rows.length} situations · {reached} you could follow
+                  {rows.length} situations, {reached} you could follow
                 </span>
               </summary>
               <div className="border-t p-4" style={{ borderColor: "var(--rule)" }}>{list}</div>

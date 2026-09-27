@@ -126,8 +126,8 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
               </p>
             )}
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
-              {progress.known} of {progress.available} words known · {progress.started} started
-              {lessons > 1 && ` · ${lessons} lessons`}
+              {progress.known} of {progress.available} words known, {progress.started} started
+              {lessons > 1 && `, ${lessons} lessons`}
             </p>
             <div className="mt-2 max-w-sm">
               <Meter
@@ -216,7 +216,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
 
         <div className="@container">
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            {words.length} words · {offered.map(cardTypeLabel).join(", ")} cards
+            {words.length} words, {offered.map(cardTypeLabel).join(", ")} cards
           </p>
           <ul className="grid gap-2 @lg:grid-cols-2 @3xl:grid-cols-3">
             {words.map((l) => {

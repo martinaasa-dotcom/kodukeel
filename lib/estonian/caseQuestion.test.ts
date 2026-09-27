@@ -114,6 +114,6 @@ describe("how the question is worded", () => {
   });
 
   it("labels a case for a word with its Estonian name and that word's question", () => {
-    expect(caseLabelFor(caseByKey("ADESSIVE")!, horse)).toBe("alalütlev · kellel?");
+    expect(caseLabelFor(caseByKey("ADESSIVE")!, horse)).toBe("alalütlev, kellel?");
   });
 });

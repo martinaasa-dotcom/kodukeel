@@ -458,7 +458,7 @@ export default async function TodayPage() {
       <div className="min-w-0 flex-1">
         <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
           <span style={{ color: "var(--cta)" }}>Today&rsquo;s module</span>
-          <span aria-hidden>·</span>
+          <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
           <span>Day {courseDay.day.index} of {programme!.days.length}</span>
         </p>
         <h2
@@ -640,7 +640,7 @@ export default async function TodayPage() {
                 }}
                 aria-hidden
               >
-                {d.done ? "✓" : "·"}
+                {d.done ? "✓" : ""}
               </span>
               <span className="sr-only">
                 {d.day}{d.isToday ? " (today)" : ""}: {d.done ? "reviewed" : "no reviews"}

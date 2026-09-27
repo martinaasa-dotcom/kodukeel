@@ -539,7 +539,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
           cardType: type,
           front,
           back: genSg,
-          hint: meaning ? `${meaning} · astmevaheldus` : "astmevaheldus · consonant gradation",
+          hint: meaning ? `${meaning}, astmevaheldus` : "astmevaheldus, consonant gradation",
           targetCase: "GENITIVE",
           slot: null,
         });
@@ -781,7 +781,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
             reading onto the cards built before this.
           */
           back: readableGovernment(lex.government),
-          hint: `${term?.alsoCalled ?? "verb government"} · ${lex.translation}`,
+          hint: `${term?.alsoCalled ?? "verb government"}, ${lex.translation}`,
           targetCase: null,
           slot: null,
         });

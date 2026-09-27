@@ -120,7 +120,7 @@ export default async function SignInPage({ searchParams }: {
           style={{
             background: "rgb(255 255 255 / 0.06)",
             borderColor: "rgb(255 255 255 / 0.14)",
-            boxShadow: "0 1px 0 rgb(255 255 255 / 0.12) inset, 0 40px 80px -30px rgb(0 0 0 / 0.6)",
+            boxShadow: "none",
             backdropFilter: "blur(18px)",
           }}
         >

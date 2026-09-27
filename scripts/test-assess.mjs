@@ -223,7 +223,7 @@ check("goals are editable for ever, not just at first run",
 // here with an Estonian partner and Estonian meetings at work has three true
 // answers, so that set is toggles and says so. See components/Choice.tsx.
 await page.getByRole("button", { name: /Citizenship or residence/ }).click();
-await page.getByRole("radio", { name: /^B1 · Live in the language$/ }).click();
+await page.getByRole("radio", { name: /^B1, Live in the language$/ }).click();
 await page.getByRole("radio", { name: /In six months/ }).click();
 await page.getByRole("button", { name: /^Save goals$/ }).click();
 await page.waitForTimeout(900);

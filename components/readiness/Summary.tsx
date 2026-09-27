@@ -89,7 +89,7 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
 export function ReadinessPanel({ summary }: { summary: Summary }) {
   return (
     <section>
-      <SectionTitle hint={`at ${summary.level} · counted in situations`}>In real life</SectionTitle>
+      <SectionTitle hint={`at ${summary.level}, counted in situations`}>In real life</SectionTitle>
       <Card>
         <ReadinessSummary summary={summary} />
         <div className="mt-4">

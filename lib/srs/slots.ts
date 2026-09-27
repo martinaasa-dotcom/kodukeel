@@ -61,9 +61,9 @@ export interface ConjugationSlot {
 }
 
 export const CONJUGATION_SLOTS: readonly ConjugationSlot[] = [
-  { code: "IndPrSg1", formType: "PRES_1SG", label: "olevik · ma" },
-  { code: "IndPrSg3", label: "olevik · ta" },
-  { code: "IndPrPl1", label: "olevik · me" },
+  { code: "IndPrSg1", formType: "PRES_1SG", label: "olevik, ma" },
+  { code: "IndPrSg3", label: "olevik, ta" },
+  { code: "IndPrPl1", label: "olevik, me" },
   // The negative is one form for every person, said after `ei`. The card
   // shows and accepts the two words together, since `loe` on its own is not
   // what anybody says.
@@ -75,11 +75,11 @@ export const CONJUGATION_SLOTS: readonly ConjugationSlot[] = [
   // else the course asks about, and the card carries both answers the way the
   // illative does: joined with the separator `acceptedAnswers` splits on, so
   // what the screen shows and what the marker takes are one string.
-  { code: "IndPrPs_", label: "eitus · ma ei", negative: true, alsoCode: "IndPrPsN" },
-  { code: "IndIpfSg1", formType: "PAST_1SG", label: "lihtminevik · ma" },
-  { code: "IndIpfSg3", label: "lihtminevik · ta" },
-  { code: "KndPrSg1", label: "tingiv kõneviis · ma" },
-  { code: "ImpPrSg2", label: "käskiv kõneviis · sa!" },
+  { code: "IndPrPs_", label: "eitus, ma ei", negative: true, alsoCode: "IndPrPsN" },
+  { code: "IndIpfSg1", formType: "PAST_1SG", label: "lihtminevik, ma" },
+  { code: "IndIpfSg3", label: "lihtminevik, ta" },
+  { code: "KndPrSg1", label: "tingiv kõneviis, ma" },
+  { code: "ImpPrSg2", label: "käskiv kõneviis, sa!" },
   /*
     The polite imperative, which is the one a learner is addressed with. Every
     counter, every receptionist and every official in the country says `öelge`,
@@ -90,7 +90,7 @@ export const CONJUGATION_SLOTS: readonly ConjugationSlot[] = [
     `eval:scene`, where a model writing a `teie` scene reached for it over and
     over and the gate withheld every line.
   */
-  { code: "ImpPrPl2", label: "käskiv kõneviis · te!" },
+  { code: "ImpPrPl2", label: "käskiv kõneviis, te!" },
 ];
 /**
  * Slots that are not a form of the word: the questions every word can be asked
@@ -196,7 +196,7 @@ export function conjugationSlotFromFront(front: string): string | null {
 /** What a slot is called on a screen. The Estonian name leads, as everywhere. */
 export function slotLabel(slot: string): string {
   const spec = caseByKey(slot);
-  if (spec) return `${spec.et} · ${spec.question}`;
+  if (spec) return `${spec.et}, ${spec.question}`;
 
   const verb = CONJUGATION_SLOTS.find((s) => s.code === slot);
   if (verb) return verb.label;

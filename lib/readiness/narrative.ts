@@ -39,7 +39,7 @@ export function verdictFor(reading: Reading): string {
 /** The rung and its evidence, as one short phrase for a row. */
 export function standingLine(reading: Reading): string {
   if (reading.rung === "unmet") return RUNG_LABEL.unmet;
-  return `${RUNG_LABEL[reading.rung]} · ${EVIDENCE_LABEL[reading.evidence]}`;
+  return `${RUNG_LABEL[reading.rung]}, ${EVIDENCE_LABEL[reading.evidence]}`;
 }
 
 /**

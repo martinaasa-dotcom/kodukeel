@@ -120,7 +120,7 @@ export default async function PracticePage() {
   const lineFor = (mode: PracticeMode) => {
     const what = mode.href === "/review/sprint" ? sprintLength : mode.subtitle;
     const now = live[mode.href];
-    return now ? `${what} · ${now}` : what;
+    return now ? `${what}, ${now}` : what;
   };
   const stocked = decks.filter((d) => d.wordCount > 0);
   const flash = modeAt("/review/flashcards");

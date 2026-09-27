@@ -114,7 +114,7 @@ export default async function LearnPage() {
         the explanation are at the foot of the page, where somebody who wants
         them goes looking.
       */}
-      <SectionTitle hint={`${placement} · ${knownWords} of ${totalWords} words known`}>The course</SectionTitle>
+      <SectionTitle hint={`${placement}, ${knownWords} of ${totalWords} words known`}>The course</SectionTitle>
 
       <div className="flex flex-col gap-3">
         {byLevel.map(({ level, rows, words, known, pct, finished }) => {
@@ -274,8 +274,8 @@ export default async function LearnPage() {
                         carries its figures in an `aria-label`, so this line is
                         the only place a sighted reader sees them. */}
                     <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                      {rows.length} units · {known}/{words} words
-                      {!open && inProgress > 0 && <> · {inProgress} in progress</>}
+                      {rows.length} units, {known}/{words} words
+                      {!open && inProgress > 0 && <>, {inProgress} in progress</>}
                     </span>
                   </span>
                 </span>
@@ -317,7 +317,7 @@ export default async function LearnPage() {
                           {uiText(placement, checkpoint.title, checkpoint.titleEn)}
                         </span>
                         <span className="tnum block text-xs" style={{ color: "var(--ink-3)" }}>
-                          {checkpoint.questions} questions · {checkpoint.passMark}% to pass
+                          {checkpoint.questions} questions, {checkpoint.passMark}% to pass
                         </span>
                       </span>
                       <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />

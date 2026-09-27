@@ -41,7 +41,7 @@ export function EkilexSetupGuide() {
       <ul className="mt-3 flex flex-col gap-1.5">
         {UNLOCKS.map((u) => (
           <li key={u} className="flex gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-            <span aria-hidden style={{ color: "var(--accent-deep)" }}>·</span>
+            <Check size={14} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
             <span>{u}</span>
           </li>
         ))}

@@ -483,5 +483,5 @@ function weekLabel(days: string[], offset: number): string {
   const d = (key: string) => Number(key.slice(8, 10));
   const m = (key: string) => MONTHS[Number(key.slice(5, 7)) - 1] ?? "";
   const range = m(first) === m(last) ? `${d(first)} to ${d(last)} ${m(last)}` : `${d(first)} ${m(first)} to ${d(last)} ${m(last)}`;
-  return `${range} · ${when}`;
+  return `${range}, ${when}`;
 }

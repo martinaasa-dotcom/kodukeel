@@ -14,7 +14,7 @@ import { courseProgressRoster } from "@/lib/progress/courseReset";
 import { hardWordReadings } from "@/lib/progress/hard";
 import { firstParams } from "@/lib/ux/queryParam";
 
-export const metadata = { title: "Suggested fixes · review queue" };
+export const metadata = { title: "Suggested fixes, review queue" };
 
 export const dynamic = "force-dynamic";
 

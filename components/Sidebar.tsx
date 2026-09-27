@@ -197,10 +197,17 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
           any laptop: the scroll is the backstop for a window somebody has
           dragged short, not the design.
         */}
+        {/*
+          Room on every side for the marker's ring and its shadow. This is a
+          scroll container, so it clips whatever is drawn past its padding
+          box: with none above the first row, the 1px outline round Today was
+          cut off along its top, in both themes. The negative margins give the
+          room back so the rows stay where they were.
+        */}
         <div
           ref={railMarker.ref}
           data-nav-marked={railMarker.mark ? "" : undefined}
-          className="scroll-host relative isolate -ml-2 -mr-4 flex min-h-0 flex-1 flex-col gap-1 pl-2 pr-4"
+          className="scroll-host relative isolate -ml-2 -mr-4 -mt-2 -mb-3 flex min-h-0 flex-1 flex-col gap-1 pb-3 pl-2 pr-4 pt-2"
           style={
             {
               "--nav-marker-bg": "var(--surface)",

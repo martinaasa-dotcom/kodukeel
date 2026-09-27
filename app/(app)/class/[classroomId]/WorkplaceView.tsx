@@ -98,7 +98,7 @@ export function WorkplaceView({ summary, sponsor }: {
                         : member.daysSinceLastReview === 0
                           ? "reviewed today"
                           : `last review ${member.daysSinceLastReview} day${member.daysSinceLastReview === 1 ? "" : "s"} ago`}
-                      {member.reviewsThisWeek > 0 && ` · ${member.reviewsThisWeek} this week`}
+                      {member.reviewsThisWeek > 0 && `, ${member.reviewsThisWeek} this week`}
                     </span>
                   </span>
                   <Chip tone={BAND_TONE[member.band]}>{BAND_LABEL[member.band]}</Chip>

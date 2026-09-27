@@ -42,7 +42,7 @@ export default async function TutorPage({ searchParams }: {
         readerCanConfigure={!supabaseConfigured()}
         // What is configured, which is not yet what answered. The chat replaces
         // this with the model the reply actually came from as soon as one has.
-        plannedLabel={chain[0] ? `${chain[0].label} · ${chain[0].model}` : null}
+        plannedLabel={chain[0] ? `${chain[0].label}, ${chain[0].model}` : null}
         history={history}
         // Prefilled, not sent. A review card can hand Anu the question a
         // learner just failed to answer; pressing send is still their call,

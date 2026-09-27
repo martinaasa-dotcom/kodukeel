@@ -222,7 +222,7 @@ export default async function CoursePage({
       <Page
         eyebrow={
           <span lang={uiWantsEnglish(level) ? undefined : "et"}>
-            {programme.id.toUpperCase()} · {uiText(level, programme.title, programme.subtitle)}
+            {programme.id.toUpperCase()}, {uiText(level, programme.title, programme.subtitle)}
           </span>
         }
         title="Today's module is learned"
@@ -336,7 +336,7 @@ export default async function CoursePage({
     <Page
       eyebrow={
         <span lang={uiWantsEnglish(level) ? undefined : "et"}>
-          {programme.id.toUpperCase()} · {uiText(level, programme.title, programme.subtitle)}
+          {programme.id.toUpperCase()}, {uiText(level, programme.title, programme.subtitle)}
         </span>
       }
       title={uiText(level, day.title, day.subtitle)}
@@ -358,7 +358,7 @@ export default async function CoursePage({
           */}
           <SectionTitle
             hint={day.part.of > 1
-              ? `Day ${day.index} of ${total} · part ${day.part.n} of ${day.part.of}`
+              ? `Day ${day.index} of ${total}, part ${day.part.n} of ${day.part.of}`
               : `Day ${day.index} of ${total}`}
           >
             {day.part.of > 1 ? "By the end of this unit" : "By the end of tonight"}

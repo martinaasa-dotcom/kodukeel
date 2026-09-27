@@ -5,7 +5,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type React
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { useRouter } from "next/navigation";
 import {
-  CircleAlert, Clock, Coffee, Ear, FileWarning, Headphones, Loader2, Mic, PenLine, RotateCcw, Save,
+  Check, CircleAlert, Clock, Coffee, Ear, FileWarning, Headphones, Loader2, Mic, PenLine, RotateCcw, Save,
   Send, TriangleAlert, VolumeX, WifiOff,
 } from "lucide-react";
 import { submitExam } from "@/app/actions";
@@ -237,7 +237,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-              {paper.level} · part {partIndex + 1} of {paper.parts.length} · {SKILL_ET[part.spec.skill]}
+              {paper.level}, part {partIndex + 1} of {paper.parts.length}, {SKILL_ET[part.spec.skill]}
             </p>
             <h1 className="text-xl font-bold" style={{ color: "var(--ink)" }}>
               {part.spec.label}
@@ -639,17 +639,17 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
                   <span className="font-semibold" style={{ color: "var(--ink)" }}>{task.spec.title}</span>
                   {times > 1 && <span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{` × ${times}`}</span>}
                   <span style={{ color: "var(--ink-3)" }}>
-                    {" · "}stands for {task.spec.standsFor}
+                    {", "}stands for {task.spec.standsFor}
                   </span>
                   {task.fallbackFrom && (
                     <span style={{ color: "var(--butter-ink)" }}>
-                      {" · "}made from single words, not full sentences, since we don&apos;t have a
+                      {", "}made from single words, not full sentences, since we don&apos;t have a
                       recorded sentence for this one yet
                     </span>
                   )}
                   {task.shortfall > 0 && (
                     <span style={{ color: "var(--peach-ink)" }}>
-                      {" · "}{task.shortfallReason}
+                      {", "}{task.shortfallReason}
                     </span>
                   )}
                 </li>
@@ -992,7 +992,7 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
             options={item.options.map((o) => ({
               value: o.key,
               label: o.et,
-              hint: [o.question, questionInEnglish(o.question)].filter(Boolean).join(" · "),
+              hint: [o.question, questionInEnglish(o.question)].filter(Boolean).join(", "),
             }))}
             selected={response?.kind === "chosen" ? response.value : null}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
@@ -1368,7 +1368,7 @@ function MessageQuestion({ item, text, onWrite }: {
       <ul className="mt-2 grid gap-1 text-sm" style={{ color: "var(--ink-2)" }}>
         {item.cover.map((point) => (
           <li key={point} className="flex items-start gap-2">
-            <span aria-hidden style={{ color: "var(--accent)" }}>&middot;</span>
+            <Check size={14} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
             {point}
           </li>
         ))}

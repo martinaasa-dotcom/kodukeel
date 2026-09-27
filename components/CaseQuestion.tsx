@@ -51,7 +51,7 @@ export function CaseQuestion({ question, className = "", inline = false }: {
     return (
       <span className={className}>
         <span lang="et">{question}</span>
-        <span style={{ color: "var(--ink-3)" }}> · {english}</span>
+        <span style={{ color: "var(--ink-3)" }}>, {english}</span>
       </span>
     );
   }

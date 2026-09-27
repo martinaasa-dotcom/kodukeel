@@ -150,7 +150,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             return (
               <li key={beat.id} className="flex items-center gap-2 text-sm">
                 <span aria-hidden style={{ color: met ? "var(--mint-ink)" : "var(--ink-3)" }}>
-                  {met ? "✓" : "·"}
+                  {met ? "✓" : "○"}
                 </span>
                 <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{beat.goal}</span>
                 <span className="sr-only">{met ? "done" : "not this time"}</span>
@@ -176,7 +176,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
               return (
                 <li key={`${hurdle.id}-${hurdle.beat}`} className="flex items-start gap-2 text-sm">
                   <span aria-hidden style={{ color: hurdle.met ? "var(--mint-ink)" : "var(--ink-3)" }}>
-                    {hurdle.met ? "✓" : "·"}
+                    {hurdle.met ? "✓" : "○"}
                   </span>
                   <span style={{ color: hurdle.met ? "var(--ink)" : "var(--ink-3)" }}>
                     {spec.says} {hurdle.met ? "You handled it." : "They let it go."}

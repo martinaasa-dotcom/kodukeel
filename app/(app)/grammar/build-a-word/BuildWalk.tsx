@@ -125,7 +125,7 @@ export function BuildWalk({ walk, canTranslate }: {
         </ChoiceGroup>
         {word.translation && (
           <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-            <span lang="et">{word.lemma}</span> · {word.translation}
+            <span lang="et">{word.lemma}</span>, {word.translation}
           </p>
         )}
       </Card>
@@ -318,7 +318,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
                 <span className="flex w-full items-baseline justify-between gap-2">
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
                     <span lang="et">{ref?.spec.et}</span>
-                    {" · "}
+                    {", "}
                     <CaseQuestion question={form.question} inline />
                   </span>
                   {n === at && <Check size={14} aria-hidden style={{ color: "var(--accent-deep)" }} />}
@@ -482,7 +482,7 @@ function FormPanel({ word, form, sentence, canTranslate }: {
       */}
       <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
         <span lang="et">{ref.spec.et}</span>
-        {" · "}
+        {", "}
         <CaseQuestion question={form.question} inline />
       </p>
       {sentence && <Attested sentence={sentence} lemma={word.lemma} canTranslate={canTranslate} />}
@@ -744,7 +744,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
             <span className="text-xl font-bold" style={{ color: "var(--accent-deep)" }}>{ref.plain}</span>
             <span className="text-xs" style={{ color: "var(--ink-3)" }}>
               <span lang="et">{ref.spec.et}</span>
-              {" · "}
+              {", "}
               <CaseQuestion question={form.question} inline />
             </span>
           </div>
@@ -896,7 +896,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         </p>
         <p className="mt-1 text-sm" data-ask={form.question} style={{ color: "var(--ink-3)" }}>
           <CaseQuestion question={form.question} inline />
-          {word.translation && <> · <span lang="et">{word.lemma}</span>, {word.translation}</>}
+          {word.translation && <>, <span lang="et">{word.lemma}</span>, {word.translation}</>}
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">

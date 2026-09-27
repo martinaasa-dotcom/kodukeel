@@ -112,7 +112,7 @@ export function CheckpointSession({
           <div className="flex items-center gap-2 text-sm" style={{ color: "var(--accent-deep)" }}>
             <Award size={16} aria-hidden /> {done.passed ? "Passed" : "Not this time"}
           </div>
-          <h2 className="text-3xl tnum">{correct} of {total} · {pct}%</h2>
+          <h2 className="text-3xl tnum">{correct} of {total}, {pct}%</h2>
           <p className="text-lg">
             {done.passed
               ? `${level} is behind you. The course now opens at ${done.level}.`
@@ -155,7 +155,7 @@ export function CheckpointSession({
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
             Question {at + 1} of {total}
-            {question.kind === "gap" ? " · fill the gap" : " · write it in Estonian"}
+            {question.kind === "gap" ? ", fill the gap" : ", write it in Estonian"}
           </span>
           {question.kind === "gap" ? (
             <>

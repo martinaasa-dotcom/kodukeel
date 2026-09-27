@@ -468,7 +468,7 @@ check("and the caret is back in the box, ready for the next turn",
 await page.getByRole("button", { name: /I need a word/i }).click();
 await page.waitForTimeout(2_000);
 const lent = await page.locator("main").innerText();
-check("asking for a word gives you a word, with its meaning", / · /.test(lent)
+check("asking for a word gives you a word, with its meaning", /The word you were reaching for: \S+, \S/.test(lent)
   && !/\bgreet\b|\breason\b/.test(lent.split("\n").slice(-8).join(" ")));
 
 // ── A turn that repairs ─────────────────────────────────────────────────────

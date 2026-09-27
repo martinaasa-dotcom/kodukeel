@@ -33,17 +33,17 @@ export function Legal({ title, updated, children }: {
       <div className="mt-8 space-y-8">{children}</div>
       <p className="mt-14 text-sm" style={{ color: "var(--ink-3)" }}>
         <Link href="/privacy" className="underline underline-offset-2">Privacy</Link>
-        {" · "}
+        {", "}
         <Link href="/terms" className="underline underline-offset-2">Terms</Link>
-        {" · "}
+        {", "}
         <Link href="/funding" className="underline underline-offset-2">Funding</Link>
-        {" · "}
+        {", "}
         <Link href="/trust" className="underline underline-offset-2">Trust</Link>
-        {" · "}
+        {", "}
         <Link href="/accessibility" className="underline underline-offset-2">Accessibility</Link>
-        {" · "}
+        {", "}
         <Link href="/state-exam" className="underline underline-offset-2">The state examination</Link>
-        {" · "}
+        {", "}
         <Link href="/sign-in" className="underline underline-offset-2">Sign in</Link>
       </p>
     </main>

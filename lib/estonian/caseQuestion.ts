@@ -232,5 +232,5 @@ export function caseQuestionEnglishFor(spec: CaseSpec, subject: CaseSubject): st
 
 /** The Estonian case name and the question this word answers with it. */
 export function caseLabelFor(spec: CaseSpec, subject: CaseSubject): string {
-  return `${spec.et} · ${caseQuestionFor(spec, subject)}`;
+  return `${spec.et}, ${caseQuestionFor(spec, subject)}`;
 }

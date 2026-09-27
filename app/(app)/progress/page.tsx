@@ -294,7 +294,7 @@ export default async function ProgressPage() {
                       {retention.advice}
                     </p>
                     <p className="tnum mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                      {retention.recalled} recalled of {retention.reviews} long-term reviews · target {retention.target}%
+                      {retention.recalled} recalled of {retention.reviews} long-term reviews, target {retention.target}%
                     </p>
                   </div>
                 </div>
@@ -329,7 +329,7 @@ export default async function ProgressPage() {
         </div>
 
         <section>
-          <SectionTitle hint={hour === null ? `last ${HEATMAP_DAYS} days` : `${HEATMAP_DAYS} days · most at ${formatHour(hour)}`}>
+          <SectionTitle hint={hour === null ? `last ${HEATMAP_DAYS} days` : `${HEATMAP_DAYS} days, most at ${formatHour(hour)}`}>
             Study history
           </SectionTitle>
           <Card>

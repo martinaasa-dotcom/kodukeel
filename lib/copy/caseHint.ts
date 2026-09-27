@@ -40,13 +40,17 @@ const BY_LATIN: ReadonlyMap<string, string> = new Map(
   CASES.map((c) => [c.en.toLowerCase(), c.questionEn]),
 );
 
-/** The separator the card builders join a hint's parts with. */
-const SEP = " · ";
+/**
+ * What a hint's parts are joined with on the way to a screen. Cards built
+ * before the middot went from every screen were stored with it, so the
+ * stored string is still split on it; what is printed is a comma.
+ */
+const SEP = ", ";
 
 export function readableHint(raw: string | null | undefined): string | null {
   if (!raw) return null;
   let changed = false;
-  const parts = raw.split("·").map((part) => {
+  const parts = raw.split(/·|, /).map((part) => {
     const named = BY_LATIN.get(part.trim().toLowerCase().replace(/^the\s+/, ""));
     if (!named) return part;
     changed = true;
@@ -54,5 +58,5 @@ export function readableHint(raw: string | null | undefined): string | null {
   });
   // Nothing to say about this hint, so it reaches the screen exactly as it was
   // stored, spacing and all.
-  return changed ? parts.map((p) => p.trim()).join(SEP) : raw;
+  return changed || raw.includes("·") ? parts.map((p) => p.trim()).join(SEP) : raw;
 }

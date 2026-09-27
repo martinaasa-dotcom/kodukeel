@@ -9867,8 +9867,11 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   in `lib/copy/voice.ts`; its `ALLOWED` list is now the table itself, the one file that has to name
   what it bans, and a test fails if an entry there stops containing one, so it cannot become a
   parking space. Replacing a dash between two independent clauses with a comma
-  makes a splice and reads worse than the dash did: use a full stop. A separator in a label takes
-  the middot the app already uses.
+  makes a splice and reads worse than the dash did: use a full stop. A separator in a label is a
+  comma, and **the middot is on no screen**: it was reported as the mark that makes a page read as
+  machine-made. `scripts/invariants/no-middot-on-screen.ts` fails on it in `app/`, `components/`
+  and `lib/` in any spelling, the two readers of stored hints and governments excepted, and
+  `test-containment.mjs` fails on one drawn on any route, which is what catches a stored row.
 - **A paragraph a tool writes lives in `AGENTS.md`, and that is what keeps this file its own.**
   `next dev` upserts a managed block between two HTML comment markers whenever it sees an agent at
   work, and the paragraph inside it carries an em dash, so `npm test` failed on `CLAUDE.md` for

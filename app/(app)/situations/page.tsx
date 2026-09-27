@@ -203,8 +203,8 @@ function SceneTile({ scene, history, learnerLevel }: {
             menu to read rather than a place to pick.
           */}
           <p className="mt-auto text-xs" style={{ color: "var(--ink-3)" }}>
-            {objectives} things to get done · about {minutesFor(scene)} min
-            {unit ? ` · ${uiText(learnerLevel, unit.title, unit.subtitle)}` : ""}
+            {objectives} things to get done, about {minutesFor(scene)} min
+            {unit ? `, ${uiText(learnerLevel, unit.title, unit.subtitle)}` : ""}
           </p>
           {/*
             How it went last time, derived from the runs and never counted

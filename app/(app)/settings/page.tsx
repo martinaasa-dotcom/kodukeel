@@ -79,7 +79,7 @@ const SHORTCUTS: [string, string][] = [
      because this is a reference; a button says one of them (`ADVANCE_KEY_LABEL`). */
   ["Enter", "Show the answer, check what you typed, then carry on"],
   ["Space", "The same, wherever you are not typing"],
-  ["1-4", "Again · Hard · Good · Easy"],
+  ["1-4", "Again, Hard, Good, Easy"],
   ["U", "Undo the last grade"],
   ["1-4 (listening, choice)", "Pick an option"],
 ];
@@ -576,7 +576,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   <div className="flex flex-wrap items-center gap-3">
                     <Chip tone="good">Connected</Chip>
                     <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-                      {provider.label} · <code className="text-xs">{provider.model}</code>
+                      {provider.label}, <code className="text-xs">{provider.model}</code>
                     </span>
                   </div>
                   <Explain label="What happens when a model is busy">
@@ -660,8 +660,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  <span className="tnum" style={{ color: "var(--ink)" }}>{words}</span> words ·{" "}
-                  <span className="tnum" style={{ color: "var(--ink)" }}>{cards}</span> cards ·{" "}
+                  <span className="tnum" style={{ color: "var(--ink)" }}>{words}</span> words,{" "}
+                  <span className="tnum" style={{ color: "var(--ink)" }}>{cards}</span> cards,{" "}
                   <span className="tnum" style={{ color: "var(--ink)" }}>{reviews}</span> reviews
                 </p>
                 <a

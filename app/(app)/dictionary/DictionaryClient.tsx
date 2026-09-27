@@ -714,7 +714,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.definition && (
         <div>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Seletus · what the dictionary says
+            Seletus, what the dictionary says
           </h3>
           <p
             lang="et"
@@ -748,7 +748,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.government && (
         <div>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Government · rektsioon
+            Government, rektsioon
           </h3>
           {/*
             EKILEX'S OWN QUESTION WORDS, WITH THE BRACKET SAYING WHAT THEY ASK.

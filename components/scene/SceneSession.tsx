@@ -1321,7 +1321,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
           {dealt.length > 0 ? (
             <>
               <span style={{ color: "var(--ink-3)" }}>Your card: </span>
-              <span className="font-medium" style={{ color: "var(--ink)" }}>{dealt.join(" · ")}</span>
+              <span className="font-medium" style={{ color: "var(--ink)" }}>{dealt.join(", ")}</span>
             </>
           ) : (
             "Your card"
@@ -1369,7 +1369,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
                 */}
                 {prop.given.length > 0 && (
                   <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                    {prop.given.join(" · ")}
+                    {prop.given.join(", ")}
                   </p>
                 )}
                 {/* The word came back because it was missing last time. Said, so the card reads as remembering rather than repeating. */}
@@ -1399,7 +1399,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
           */}
           <div className="mt-1 flex flex-col gap-1">
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-              What to get done · {metCount} of {objectives.length}
+              What to get done, {metCount} of {objectives.length}
             </p>
             <ul className="flex flex-col gap-1">
               {objectives.map((beat) => {
@@ -1417,7 +1417,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
                       a list that has come apart.
                     */}
                     <span aria-hidden className="shrink-0" style={{ color: met ? "var(--mint-ink)" : now ? "var(--accent-deep)" : "var(--ink-3)" }}>
-                      {met ? "✓" : now ? "→" : "·"}
+                      {met ? "✓" : now ? "→" : "○"}
                     </span>
                     <span className="flex min-w-0 flex-wrap items-center gap-x-2">
                       <span style={{ color: met || now ? "var(--ink)" : "var(--ink-3)" }} className={now ? "font-medium" : undefined}>
@@ -1435,7 +1435,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
                       */}
                       {value.length > 0 && (
                         <span className="font-semibold" style={{ color: met || now ? "var(--ink)" : "var(--ink-3)" }}>
-                          {value.join(" · ")}
+                          {value.join(", ")}
                         </span>
                       )}
                       <span className="sr-only">{met ? "done" : now ? "this is the one they are waiting on" : "not yet"}</span>
@@ -1693,7 +1693,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
                       {reportable(line) && (
                         <SuggestFix
                           category="WRONG_CONTENT"
-                          trigger={`Situations · ${scene.id} · ${line.text}`}
+                          trigger={`Situations, ${scene.id}, ${line.text}`}
                           label="Report"
                         />
                       )}
@@ -1908,7 +1908,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
                   this a reminder rather than a second answer.
                 */}
                 {dealtNow.length > 0 && (
-                  <span style={{ color: "var(--accent-deep)" }}> {dealtNow.join(" · ")}</span>
+                  <span style={{ color: "var(--accent-deep)" }}> {dealtNow.join(", ")}</span>
                 )}
               </p>
             )}
@@ -1917,7 +1917,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
             <p className="text-sm" aria-live="polite">
               <span style={{ color: "var(--ink-2)" }}>The word you were reaching for: </span>
               <span lang="et" className="font-medium">{lent.lemma}</span>
-              <span style={{ color: "var(--ink-2)" }}> · {lent.gloss}</span>
+              <span style={{ color: "var(--ink-2)" }}>, {lent.gloss}</span>
             </p>
           )}
           {error && <p className="text-sm" style={{ color: "var(--peach-ink)" }}>{error}</p>}

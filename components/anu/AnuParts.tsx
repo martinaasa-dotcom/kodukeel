@@ -256,7 +256,7 @@ export function Bubble({ message, streaming }: { message: Msg; streaming: boolea
       >
         <p className="label-xs mb-1.5" style={{ color: isUser ? "var(--accent-deep)" : "var(--blush-ink)" }}>
           {isUser
-            ? message.content.startsWith("Check this sentence for me.") ? "You · sentence to check" : "You"
+            ? message.content.startsWith("Check this sentence for me.") ? "You, sentence to check" : "You"
             : "Anu"}
         </p>
         {writing ? (

@@ -164,7 +164,7 @@ function Timeline({ history }: { history: { rating: number; at: string }[] }) {
           return (
             <span
               key={i}
-              title={`${readerDate(new Date(h.at), { day: "numeric", month: "short", year: "numeric" })} · ${failed ? "failed" : "recalled"}`}
+              title={`${readerDate(new Date(h.at), { day: "numeric", month: "short", year: "numeric" })}, ${failed ? "failed" : "recalled"}`}
               className={`w-2.5 rounded-[2px] ${failed ? "h-2.5" : "h-1"}`}
               style={{ background: failed ? "var(--again)" : "var(--good)" }}
             />

@@ -82,7 +82,7 @@ export function useAnuChat(initialMessages: Msg[]) {
 
       const provider = res.headers.get("x-model-provider");
       const model = res.headers.get("x-model-id");
-      if (provider && model) setAnsweredBy(`${provider} · ${model}`);
+      if (provider && model) setAnsweredBy(`${provider}, ${model}`);
 
       if (!res.ok || !res.body) {
         const { error } = await res.json().catch(() => ({ error: "Anu could not be reached." }));

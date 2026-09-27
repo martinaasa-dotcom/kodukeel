@@ -223,7 +223,11 @@ export function readableGovernment(raw: string | null | undefined): string {
     const isLabel = BY_NAME.some((c) => c.en === label)
       || ["location", "direction", "source"].includes(label);
     return isLabel ? `${before}(${asks})` : whole;
-  });
+  })
+    // Ekilex's own separator between two governments is a middot, and the
+    // middot is on no screen here: the stored column keeps it, the reading
+    // prints a comma.
+    .replace(/\s*·\s*/g, ", ");
 }
 
 /** Hardest to tell from the answer first. Ties keep the order they came in. */

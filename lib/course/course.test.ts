@@ -778,8 +778,8 @@ describe("what a day reads and where it goes", () => {
     const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
     const scope = moduleScopeFrom({ module: `${a2.id}~${a2.days[0]!.id}~do:review~3~5~0` })!;
     const old = { cardType: "CONJUGATION", targetCase: null, slot: null };
-    expect(cardWithin(scope, { ...old, front: "lugema \u2192 lihtminevik · ma" }, null)).toBe(false);
-    expect(cardWithin(scope, { ...old, front: "lugema \u2192 olevik · ta" }, null)).toBe(true);
+    expect(cardWithin(scope, { ...old, front: "lugema \u2192 lihtminevik, ma" }, null)).toBe(false);
+    expect(cardWithin(scope, { ...old, front: "lugema \u2192 olevik, ta" }, null)).toBe(true);
   });
 
   it("conjugates a unit of verbs, and not a grammar unit that happens to hold verbs", () => {

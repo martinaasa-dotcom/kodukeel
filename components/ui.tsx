@@ -61,13 +61,18 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
           {eyebrow && (
             <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
           )}
-          <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex min-w-0 items-start gap-2.5">
+            {/* The dot sits on the heading's first line rather than the middle
+                of the block: a box as tall as one line of the heading, at the
+                heading's own size and leading, centres it there whether the
+                title is one line or wraps to three. */}
             {place && (
-              <span
-                aria-hidden
-                className="h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ background: place.tone === "ink" ? "var(--ink)" : `var(--${place.tone})` }}
-              />
+              <span aria-hidden className="flex h-[1.05em] shrink-0 items-center text-3xl">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ background: place.tone === "ink" ? "var(--ink)" : `var(--${place.tone})` }}
+                />
+              </span>
             )}
             <h1 lang={titleLang} className="min-w-0 text-3xl font-bold leading-[1.05]" style={{ color: "var(--ink)" }}>
               {title}

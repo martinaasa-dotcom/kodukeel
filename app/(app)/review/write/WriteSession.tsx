@@ -167,7 +167,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       look.record({
         of: prompt.cardId,
         label: "Write a sentence",
-        question: `${prompt.lemma}, ${prompt.translation} · ${prompt.caseEt}`,
+        question: `${prompt.lemma}, ${prompt.translation}, ${prompt.caseEt}`,
         answer: sentence.trim() || prompt.lemma,
         note: prompt.caseQuestion,
         questionLang: "et",
@@ -279,13 +279,13 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
                   `smoke-interact.mjs` reads the task off; the English name is
                   marked back as English inside it. */}
               <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                {prompt.caseEt} · {prompt.caseQuestion}
+                {prompt.caseEt}, {prompt.caseQuestion}
                 {/* What the question is asking rather than the Latin name,
                     which was the only English on this line and the one word
                     here nobody can cash in. The Latin name is on the grammar
                     page for the ending, labelled. */}
                 {questionInEnglish(prompt.caseQuestion) && (
-                  <span lang="en"> · {questionInEnglish(prompt.caseQuestion)}</span>
+                  <span lang="en">, {questionInEnglish(prompt.caseQuestion)}</span>
                 )}
               </p>
             </>

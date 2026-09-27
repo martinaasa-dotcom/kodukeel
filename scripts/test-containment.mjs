@@ -1132,6 +1132,7 @@ function relatives() {
   const EPS = 2;
   const wrapped = [];
   const unlike = [];
+  const unbalanced = [];
   const shown = (el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })
     && (el.getBoundingClientRect().width > 0.5 || el.getBoundingClientRect().height > 0.5);
   const named = (el) => {
@@ -1183,6 +1184,50 @@ function relatives() {
       wrapped.push(`${named(el)}: its words wrapped under the marker`);
     }
   }
+  /*
+    A MARK BESIDE A HEADING IS BALANCED AGAINST IT.
+
+    Reported three times off the page heading: a filled tile of an icon beside
+    a heading several times its height, sitting on neither the heading's line
+    nor its block, so the pair read as two things that happened to be near each
+    other. Balanced is one of three states and nothing else: centred on the
+    first line of the words beside it, centred on the whole block of them, or
+    level with its top, which is how a tile beside a title and a line under it
+    is drawn. A mark as big as a tile is asked this too, so the question is not
+    limited to the 48px a marker is held to above.
+  */
+  const isMark = (el) => {
+    if (!el || (el.textContent || "").trim()) return false;
+    if (el.matches("button, a, [role='button'], input") || el.querySelector("button, a, [role='button'], input")) return false;
+    const r = el.getBoundingClientRect();
+    return r.width >= 6 && r.height >= 6 && r.width <= 96 && r.height <= 96;
+  };
+  const headingLike = (el) => {
+    const h = el.matches("h1, h2, h3, h4") ? el : el.querySelector("h1, h2, h3, h4");
+    if (h && shown(h)) return h;
+    return null;
+  };
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.closest("[aria-hidden='true'], .sr-only, table, svg")) continue;
+    const kids = [...el.children].filter(shown);
+    if (kids.length < 2 || !isMark(kids[0]) || !shown(el)) continue;
+    const cs = getComputedStyle(el);
+    if (!((cs.display === "flex" || cs.display === "inline-flex") && cs.flexDirection.startsWith("row"))) continue;
+    const h = headingLike(kids[1]);
+    if (!h) continue;
+    const line = firstLine(h);
+    if (!line) continue;
+    const m = kids[0].getBoundingClientRect();
+    const words = kids[1].getBoundingClientRect();
+    const mid = m.top + m.height / 2;
+    const onLine = Math.abs(mid - (line.top + line.height / 2)) <= 3;
+    const onBlock = Math.abs(mid - (words.top + words.height / 2)) <= 3;
+    const onTop = Math.abs(m.top - words.top) <= 3 && m.height >= line.height;
+    if (!onLine && !onBlock && !onTop) {
+      unbalanced.push(`${named(h)}: its mark sits ${Math.round(mid - (line.top + line.height / 2))}px off the first line`);
+    }
+  }
+
   // Relatives: rows sharing a parent and a class.
   const groups = new Map();
   for (const r of rows) {
@@ -1212,8 +1257,9 @@ function relatives() {
   return {
     wrapped: [...new Set(wrapped)].length,
     unlike: [...new Set(unlike)].length,
+    unbalanced: [...new Set(unbalanced)].length,
     rows: rows.length,
-    say: { wrapped: first(wrapped), unlike: first(unlike) },
+    say: { wrapped: first(wrapped), unlike: first(unlike), unbalanced: first(unbalanced) },
   };
 }
 
@@ -1243,6 +1289,19 @@ async function measure(page, label, atLeast = 25) {
   const kin = await page.evaluate(relatives);
   check(`no label wraps under its own marker on ${label}`, kin.wrapped === 0, kin.say.wrapped);
   check(`relatives sit alike, marker to label, on ${label}`, kin.unlike === 0, kin.say.unlike);
+  check(`every mark beside a heading is balanced against it on ${label}`, kin.unbalanced === 0, kin.say.unbalanced);
+  /*
+    The middot is on no screen, and this is the half the source check cannot
+    reach: a hint or a government string stored in somebody's deck before the
+    dot went still carries it, and only what the page actually drew says
+    whether it arrived.
+  */
+  const dotted = await page.evaluate(() => {
+    const text = document.body.innerText;
+    const at = text.indexOf("\u00b7");
+    return at < 0 ? "" : text.slice(Math.max(0, at - 30), at + 30).replace(/\s+/g, " ");
+  });
+  check(`no middot is drawn on ${label}`, dotted === "", dotted);
 
   const hard = await page.evaluate(survey, { stress: true });
   check(
