@@ -2,33 +2,37 @@
 
 import { useEffect, useRef } from "react";
 import { Mascot } from "@/components/brand";
+import { AnuFace } from "@/components/anu/AnuFace";
 
 /**
- * The mascot, watching the pointer.
+ * The mark, leaning toward the pointer.
  *
  * A separate client component rather than a flag inside `Mascot`, because the
  * mark is drawn on nearly every screen in the app and a pointer listener does
- * not belong in any of them. This one is used where the mascot is large and is
+ * not belong in any of them. This one is used where the mark is large and is
  * the thing you are looking at: the landing page's closing panel and sign-in.
  *
- * The eyes are aimed by two custom properties on the wrapper. They inherit down
- * into the SVG, so nothing here reaches into the mark's own geometry, and the
- * mark stays one drawing shared with the four icon files.
+ * The tilde is moved by two custom properties on the wrapper. They inherit
+ * down into the SVG, so nothing here reaches into the mark's own geometry, and
+ * the mark stays one drawing shared with the icon files.
  *
- * Two details that are decisions rather than defaults. The travel is capped at
- * 1.7 user units, which is a little over half an eye's radius: further and the
- * eyes leave the face. And it settles once the pointer is a few hundred pixels
- * away rather than tracking to the edge of the screen, because a face that
- * keeps staring from across a page is unsettling rather than friendly.
+ * The travel is capped at a few units, under a pixel of the tilde: further and
+ * the stroke looks loose on its tile. And it settles once the pointer is a few
+ * hundred pixels away rather than tracking to the edge of the screen, because
+ * a mark that keeps leaning from across a page is restless rather than
+ * friendly.
  */
 export function MascotWatch({
   size = 68,
   className = "",
   mood = "happy",
+  who = "mark",
 }: {
   size?: number;
   className?: string;
   mood?: "happy" | "thinking" | "cheer";
+  /** The app's mark leans its tilde; Anu follows the pointer with her eyes. */
+  who?: "mark" | "anu";
 }) {
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -72,7 +76,7 @@ export function MascotWatch({
 
   return (
     <span ref={ref} className={className} style={{ display: "inline-block", lineHeight: 0 }}>
-      <Mascot size={size} mood={mood} watch />
+      {who === "anu" ? <AnuFace size={size} mood={mood} /> : <Mascot size={size} mood={mood} watch />}
     </span>
   );
 }

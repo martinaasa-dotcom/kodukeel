@@ -86,7 +86,13 @@ export function VoicePanel({ current }: { current: string }) {
  */
 const PACE_SAMPLE = "Kuidas läheb?";
 
-export function SpeechPacePanel({ current, fromLevel, level }: { current: Pace; fromLevel: Pace; level: string }) {
+export function SpeechPacePanel({ current, fromLevel, level, tilt }: {
+  current: Pace;
+  fromLevel: Pace;
+  level: string;
+  /** Which way the course is leaning the delivery just now (`lib/course/adapt.ts`). */
+  tilt: -1 | 0 | 1;
+}) {
   const [value, setValue] = useState<SpeechPaceId | "auto">(current.chosen ? current.id : "auto");
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -116,7 +122,14 @@ export function SpeechPacePanel({ current, fromLevel, level }: { current: Pace; 
           id: "auto" as const,
           title: "Follow my level",
           icon: <Gauge size={15} aria-hidden />,
-          detail: `At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`,
+          /* The lean is said here because this is the row it changes, and a
+             pace that played a notch slower than the level promises with no
+             word about why would read as the setting not working. */
+          detail: tilt === 0
+            ? `At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`
+            : tilt < 0
+              ? `${levelPace?.label ?? "Slower"} for now, a notch slower than ${level} while your recent answers are hard. It moves back on its own.`
+              : `${levelPace?.label ?? "Natural"} for now, a notch quicker than ${level} while you are getting nearly everything right.`,
         },
         ...SPEECH_PACES.map((p) => ({ id: p.id, title: p.label, detail: p.detail })),
       ]}

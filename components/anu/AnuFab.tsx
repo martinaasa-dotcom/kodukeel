@@ -2,7 +2,7 @@
 
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Mascot } from "@/components/brand";
+import { AnuFace } from "./AnuFace";
 
 /*
   The panel (the conversation, the starters, the sentence check, the
@@ -103,10 +103,10 @@ export function AnuFab({
           onClick={() => { setLoaded(true); setOpen(true); }}
           aria-label="Ask Anu"
           title="Ask Anu"
-          className="press lift flex h-12 w-12 items-center justify-center rounded-full border md:h-14 md:w-14"
+          className="anu-call press lift flex h-14 w-14 items-center justify-center rounded-full border"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
         >
-          <Mascot size={28} />
+          <AnuFace size={46} />
         </button>
       )}
     </div>

@@ -2567,3 +2567,26 @@ people who work there (`kohad-ja-ametid`), ten verbs (`tegusonad`) and ten adjec
 to the second part's first unit, because a sentence a beginner reads on the first evenings needs
 both. The course is 102 units.
 
+## 41. The thirty-fifth pass: a named level is held, and the course watches it
+
+**A B1 speaker aiming for B2 was opened on B1.1.** The first-run chips describe what somebody can
+already do and a level check reports the highest band passed, and both opened the course on the
+first part of that same level. `lib/course/placement.ts` opens it on the first part of the level
+above instead, except for a beginner, who opens on A1.1, and somebody aiming at the level they
+hold, who opens on its first part to make it solid. The server works the part out itself, the
+wizard shows it with one sentence saying why, and the climb on Today counts the level held as the
+learner's own, capped below whatever the course is teaching.
+
+**The course now notices when the guess was wrong.** `lib/course/adapt.ts` reads the last fortnight
+of answers into struggling, steady or flying, with a floor of thirty answers. A struggling or flying
+learner has the delivery leaned one band on its own, slower or quicker recordings and a plainer or
+harder conversation, named on the module screen, in Settings and on the briefing. The module
+screen offers a move beside it: refresh the level below, go back to a skipped part, or skip ahead,
+with "not now" quieting it for a week. A move lands only on a part never started, is worked out on
+the server off the learner's own answers, and restarts the reading.
+
+**What it does not do.** It never moves anybody without a press, never changes what a part teaches,
+and never offers a part the learner has already walked, since a part's progress is read off
+append-only ticks and there is no way to walk one again yet. A learner who started at A1.1 and
+struggles gets the lean and a sentence, not a move.
+

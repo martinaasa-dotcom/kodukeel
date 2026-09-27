@@ -230,7 +230,7 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene, minutes, unit, learnerLevel }: {
+export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   scene: SceneSpec;
   /** How long it takes, printed on the briefing beside where you are standing. */
   minutes: number;
@@ -253,13 +253,22 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
    * which scene this is. The learner can still move it before they start.
    */
   learnerLevel: Level;
+  /**
+   * The band the briefing opens at, which is `learnerLevel` leaned one band
+   * for somebody whose recent answers are mostly wrong or nearly all right
+   * (`lib/course/adapt.ts`). Required rather than defaulted, for the reason
+   * `illSgShort` is required: a caller that has not thought about the lean
+   * opens every conversation at the level and nothing says the lean was lost.
+   * The learner moves it before they start like any default.
+   */
+  openAt: Level;
 }) {
   /* Whether this conversation is a step of tonight's module, which decides
      whether the briefing carries a door out of it. See
      components/course/moduleFocus.ts. */
   const inModule = useModuleFocus() !== null;
   const [phase, setPhase] = useState<Phase>("briefing");
-  const [difficulty, setDifficulty] = useState<Difficulty>(() => defaultDifficultyFor(learnerLevel));
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => defaultDifficultyFor(openAt));
   /*
     HOW THE OTHER SIDE TALKS, WHICH IS THE LEARNER'S OWN LEVEL UNLESS THEY
     SAY OTHERWISE. A scene carries no band of its own: the person behind the
@@ -270,7 +279,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
     sits beside the difficulty dial rather than in Settings, and for the same
     reason.
   */
-  const [level, setLevel] = useState<Level>(learnerLevel);
+  const [level, setLevel] = useState<Level>(openAt);
   const [opened, setOpened] = useState<Opened | null>(null);
   const [turns, setTurnsState] = useState<Turn[]>([]);
   /*
@@ -1111,7 +1120,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
         */}
         <ChoiceGroup
           label="How they talk to you"
-          hint={`Your level is ${learnerLevel}. Go lower for plainer sentences, higher to be spoken to like anybody else.`}
+          hint={openAt === learnerLevel
+            ? `Your level is ${learnerLevel}. Go lower for plainer sentences, higher to be spoken to like anybody else.`
+            : openAt < learnerLevel
+              ? `Your level is ${learnerLevel}, and this opens at ${openAt} for now while your recent answers are hard. Move it whenever you like.`
+              : `Your level is ${learnerLevel}, and this opens at ${openAt} for now while you are getting nearly everything right. Move it whenever you like.`}
         >
           {LEVELS.map((one) => (
             <ChoiceChip key={one} selected={level === one} onSelect={() => setLevel(one)} even>

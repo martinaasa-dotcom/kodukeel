@@ -230,8 +230,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(cacheFirst(request, STATIC));
     return;
   }
+  // The icon is served from the cache and refreshed behind it, not held for
+  // good: its name never changes, so a copy kept cache-first would show the
+  // old mark on a phone for as long as the worker's version stayed the same.
   if (url.pathname === "/app-icon.svg") {
-    event.respondWith(cacheFirst(request, SHELL));
+    event.respondWith(staleWhileRevalidate(request, SHELL));
     return;
   }
 
@@ -239,6 +242,21 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(navigateWithFallback(request));
   }
 });
+
+async function staleWhileRevalidate(request, cacheName) {
+  const cached = await caches.match(request);
+  const fresh = fetch(request)
+    .then(async (response) => {
+      if (keepable(response)) {
+        const cache = await caches.open(cacheName);
+        await cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => undefined);
+  if (keepable(cached)) return cached;
+  return (await fresh) ?? Response.error();
+}
 
 async function cacheFirst(request, cacheName) {
   const cached = await caches.match(request);

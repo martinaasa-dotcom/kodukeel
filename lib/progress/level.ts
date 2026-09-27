@@ -4,6 +4,7 @@ import { wakeForLevel } from "@/lib/progress/deferrals";
 import { LEVELS, type Level } from "@/lib/collections/syllabus";
 import { BANDS, PRE_A1, type Level as AssessedLevel } from "@/lib/assessment/types";
 import type { LadderStanding } from "@/lib/course/milestones";
+import { heldLevel } from "@/lib/course/placement";
 
 /**
  * The level the course opens at.
@@ -102,11 +103,22 @@ export async function currentLevelAnswer(ownerId: string): Promise<LevelAnswer |
  * opens at A1, and a climb reading the raw answer would look for a stop the
  * ladder does not have.
  */
-export async function courseStandingFor(ownerId: string): Promise<LadderStanding | null> {
+export interface CourseStanding extends Omit<LadderStanding, "through"> {
+  /**
+   * The level they hold, or null for a beginner (`heldLevel`). What the course
+   * opens past and what the climb may count as theirs, which is the reading
+   * the rest of this module does not need: every other reader wants a band to
+   * pitch at and takes `level`.
+   */
+  held: Level | null;
+}
+
+export async function courseStandingFor(ownerId: string): Promise<CourseStanding | null> {
   const answer = await currentLevelAnswer(ownerId);
   if (!answer) return null;
-  if (answer.kind === "declared") return { level: answer.level, kind: "declared" };
-  return { level: answer.level === PRE_A1 ? "A1" : answer.level, kind: "measured" };
+  const held = heldLevel(answer);
+  if (answer.kind === "declared") return { level: answer.level, kind: "declared", held };
+  return { level: answer.level === PRE_A1 ? "A1" : answer.level, kind: "measured", held };
 }
 
 export async function courseLevelFor(ownerId: string): Promise<Level> {

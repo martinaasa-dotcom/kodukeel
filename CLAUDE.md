@@ -6096,10 +6096,53 @@ answering one step and fixing one is a fault that shows on half the evenings. No
 anybody else: opened from the reference, from a card or from a search, each page is exactly what it
 was.
 
-**It is a suggestion, not a track.** It is offered at the first part of the learner's own level, so
-a B1 speaker who turns it on gets B1.1 rather than five parts of greetings, and it is one setting to
-turn off. Off changes nothing else, and the work done the other way still counts toward a module the
-day it is turned back on.
+**It is a suggestion, not a track.** It is offered past the level the learner holds, and it is one
+setting to turn off. Off changes nothing else, and the work done the other way still counts toward a
+module the day it is turned back on.
+
+**A level somebody names is a level they hold, so the course opens past it.** The chips in first run
+describe what a person can already do ("B1, conversational") and a check reports the highest band
+passed, and both used to open the course on the first part of that same level: a B1 speaker aiming
+for B2 was handed B1.1, which reads as the app not believing them. `lib/course/placement.ts` is the
+rule. The course opens on the first part of the level above the one held, with two exceptions, each
+a thing the learner said: "just starting" and a check that found nothing yet hold nothing and open on
+A1.1, and somebody aiming at the level they already hold opens on its first part to make it solid.
+C1 is the top, so holding it opens on C1.1. `completeOnboarding` works the part out on the server
+off `currentLevelAnswer` rather than off the level a browser sent, the wizard shows the same part
+off the same function and says in one sentence why, and `openingPartFor` is the one reader for the
+course screen, Settings and the fallback. **The climb credits the level held**, capped below the
+level of the part in play (`creditedThrough`), because a bar calling B1 done over an evening
+teaching B1 is two answers on one screen. A declared A1 reads as a beginner rather than as A1 held,
+since the chip that stores it says "tere, aitäh, and not much else yet".
+
+**And believing somebody is only kind if the app then watches whether it was right.**
+`lib/course/adapt.ts` reads the last fortnight of answers, or since the last move, into struggling,
+steady or flying, and says nothing under thirty answers. Struggling is under six in ten right or
+three in ten missed outright, deliberately under the hand-off gate's seven in ten, because this is
+asked every evening and a reading that fired on an ordinary hard week would tell somebody learning
+perfectly well that they are failing. Flying is sixty answers, nearly all right, almost none missed.
+It does two different kinds of thing on purpose. **It leans the delivery on its own**, one band and
+never more: recordings a notch slower or quicker where the learner has not chosen a pace, and a
+conversation's briefing opening a band plainer or higher with the difficulty to match. That changes
+how hard the delivery is and never what is taught, so it is safe without asking, it undoes itself
+when the answers change, and the module screen, Settings and the briefing each say it is on, naming
+only the levers that really moved (`LeanEffects`), since a slower recording is false at A1. **And it
+offers a move, never makes one**: on the module screen, above tonight's evening, step down to the
+first part of the level below and refresh it, go back to a part that was skipped, or skip ahead one,
+beside "not now", which quiets the card for a week while the lean carries on.
+
+**A step down is a refresher, and that is an amendment to a rule, not a breach of one.** The hand-off
+gate may never advise starting a part again, because nothing there repeats a fortnight somebody has
+done, and it still may not. This is the operator's own ask about the other case: somebody placed
+above where their answers are is offered the level below, framed as ground they very likely know,
+and told the level they named was a first guess where it was. A move lands only on a part the learner
+has never ticked a step of, because the course reads a part's progress off its append-only ticks and
+a part already walked would open on "finished"; a learner who walked up from A1.1 is offered no part
+to redo and gets the lean and a sentence instead. `acceptCourseMove` works the move out again off the
+learner's own answers and takes nothing from the caller but which kind they accept, refuses one the
+reading no longer offers, writes the level through `recordCourseLevel` where the move crosses one, and
+restarts the reading (`adaptMovedAt`) so a refresher is judged on itself. Asserted in
+`scripts/invariants/a-named-level-is-held.ts`.
 
 **Learning a word and reviewing one are two jobs, and one screen was doing both.** The daily row in
 the rail said Review, and what it opened was everything at once: the cards that were due, and a

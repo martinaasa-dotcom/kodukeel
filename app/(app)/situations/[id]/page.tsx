@@ -4,6 +4,8 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
+import { adaptTiltFor } from "@/lib/progress/adapt";
+import { tiltedLevel } from "@/lib/course/adapt";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { SceneSession } from "@/components/scene/SceneSession";
 
@@ -45,7 +47,7 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
   if (!scene) notFound();
 
   const unit = unitById(scene.tests);
-  const learnerLevel = await courseLevelFor(ownerId);
+  const [learnerLevel, tilt] = await Promise.all([courseLevelFor(ownerId), adaptTiltFor(ownerId)]);
 
   return (
     <SceneSession
@@ -53,6 +55,7 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
       minutes={minutesFor(scene)}
       unit={unit ? { id: unit.id, title: uiText(learnerLevel, unit.title, unit.subtitle) } : null}
       learnerLevel={learnerLevel}
+      openAt={tiltedLevel(learnerLevel, tilt)}
     />
   );
 }
