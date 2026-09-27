@@ -321,7 +321,7 @@ describe("repairGovernmentBacks", () => {
     expect(await repairGovernmentBacks(prisma)).toBeGreaterThan(0);
 
     const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
-    expect(after.back).toBe("millega (with what?) · millest (out of what?)");
+    expect(after.back).toBe("millega (with what?), millest (out of what?)");
     // The question and the cue are not this repair's to touch, and neither is
     // anything the scheduler wrote.
     expect(after.front).toBe(card.front);

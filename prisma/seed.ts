@@ -11,7 +11,7 @@ import { applyExpandedEquivalents, applyGlossCorrections, applyNotesCorrections,
 import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
-  repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
+  repairCardSeparators, repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
   repairThinExamples,
   clearModelBands,
 } from "./repair";
@@ -164,6 +164,16 @@ async function main() {
   const respelled = await repairCardSpelling(prisma);
   if (respelled > 0) {
     console.log(`Put ${respelled} cards back to the spelling the builder writes today.`);
+  }
+
+  /*
+    And the middot, which is on no screen now: a card keeps the text it was
+    built with, so the separator the builders used to write stays in a deck
+    until something rewrites it. Here for the reason every repair above is.
+  */
+  const unDotted = await repairCardSeparators(prisma);
+  if (unDotted > 0) {
+    console.log(`Took the middot out of ${unDotted} cards.`);
   }
 
   /*

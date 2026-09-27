@@ -188,7 +188,9 @@ export function slotOfCard(
  * way into the one table that cannot be repaired.
  */
 export function conjugationSlotFromFront(front: string): string | null {
-  const tail = front.split("\u2192").pop()?.trim();
+  // A deck built before the middot left the screens stored its fronts as
+  // `olevik · ta`; the table spells them `olevik, ta` now, and both are read.
+  const tail = front.split("\u2192").pop()?.trim().replace(/\s*·\s*/g, ", ");
   if (!tail) return null;
   return CONJUGATION_SLOTS.find((s) => s.label === tail)?.code ?? null;
 }

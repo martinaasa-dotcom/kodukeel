@@ -11,9 +11,9 @@ import type { InvariantKit } from "../lib/invariantKit";
  * side by side take a comma, or a line of their own, or a hairline drawn as an
  * element; a placeholder takes nothing.
  *
- * Two modules still *read* it, and are the only ones allowed to name it: cards
+ * Three modules still *read* it, and are the only ones allowed to name it: cards
  * and dictionary entries stored before this carry it in `Card.hint` and in
- * Ekilex's `Lexeme.government`, so the functions turning those into a screen's
+ * Ekilex's `Lexeme.government` (and a verb card's old front), so the functions turning those into a screen's
  * words split on it and print a comma. The stored rows are never rewritten.
  *
  * Read off the code rather than the file, so a comment quoting the old copy
@@ -23,12 +23,13 @@ import type { InvariantKit } from "../lib/invariantKit";
 const READERS = new Set([
   "lib/copy/caseHint.ts",
   "lib/estonian/government.ts",
+  "lib/srs/slots.ts",
 ]);
 
 const DOT = /·|&middot;|&#183;|\\u00b7/i;
 
 export default function noMiddotOnScreen({ check, ALL, code }: InvariantKit) {
-  check("the middot is on no screen, and only the two readers of stored data name it", () => {
+  check("the middot is on no screen, and only the readers of stored data name it", () => {
     const scanned = ALL.filter((f) =>
       /^(app|components|lib)\//.test(f) && /\.(ts|tsx)$/.test(f)
       && !/\.(test|itest)\.tsx?$/.test(f));
