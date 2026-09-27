@@ -21424,7 +21424,6 @@ check("a correction rewrites only the cards that show the headword", () => {
 check("everything that deletes rows for a test refuses a remote database", () => {
   const EXEMPT: Record<string, string> = {
     "scripts/audit-decks.ts": "the production deck audit; reports first and removes only with --write",
-    "scripts/reset-course.ts": "the production course reset; reports first and deletes only with --write",
   };
   const deleting = readdirSync("scripts")
     .filter((f) => /\.(mjs|ts)$/.test(f) && f !== "test-invariants.ts")

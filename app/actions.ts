@@ -36,6 +36,7 @@ import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
+import { resetCourseProgress } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory,
@@ -4635,4 +4636,21 @@ export async function reviewSuggestion(input: unknown) {
     resolved: resolved.count,
     applied,
   };
+}
+
+/**
+ * Put every learner back at the start of the current planned course, from the
+ * admin page. Course progress only: decks, the words in them and the review
+ * log are not touched (`lib/progress/courseReset.ts`). Learners whose display
+ * name contains `keep` are left alone entirely.
+ */
+export async function resetEveryonesCourse(keep: unknown) {
+  await requireAdminId();
+  try {
+    const done = await resetCourseProgress(text(keep));
+    revalidatePath("/admin/suggestions");
+    return { ok: true as const, ...done };
+  } catch (error) {
+    return { ok: false as const, error: `Nothing was reset. ${safeMessage(error)}`.trim() };
+  }
 }
