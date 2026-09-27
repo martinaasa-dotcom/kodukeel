@@ -108,9 +108,22 @@ check("the drill only contains that case's cards",
   drillName.length > 2 && drillBody.toLowerCase().includes(drillName.toLowerCase()),
   `${drilledCase} as ${drillName}`);
 const cardFront = (await page.locator("main").textContent()) ?? "";
+/*
+  A SENTENCE WITH A GAP, OR THE ONE CARD A GENITIVE DRILL HOLDS THAT IS NOT ONE.
+
+  Which drill this lands in is the first case link on Progress, and that moved
+  when the page put its Cases panel beside the retention reading: on a fixture
+  whose weakest case is the omastav, the drill opens on a gradation card,
+  `hammas → kelle? mille?`, which asks for the genitive stem by the question
+  it answers and has no sentence behind it by design (lib/srs/cards.ts). That
+  is still a question a class asks rather than a Latin name, which is the half
+  of this check that matters; what it may not be is a bare case card.
+*/
+const gradationAsk = drilledCase === "genitive" && /→ kelle\? mille\?/.test(cardFront);
 check("and asks for it in a sentence with a gap, never by its Latin name",
-  cardFront.includes("____") && !new RegExp(`→ ${drilledCase}`, "i").test(cardFront),
-  cardFront.match(/[^\n]{0,30}____[^\n]{0,30}/)?.[0]?.trim() ?? "no gap found");
+  (cardFront.includes("____") || gradationAsk) && !new RegExp(`→ ${drilledCase}`, "i").test(cardFront),
+  cardFront.match(/[^\n]{0,30}____[^\n]{0,30}/)?.[0]?.trim()
+    ?? `no gap found, the card read: ${cardFront.replace(/\s+/g, " ").trim().slice(0, 120)}`);
 
 // A card you are struggling with should reach its full entry in one click.
 check("a review card links to the full dictionary entry",
