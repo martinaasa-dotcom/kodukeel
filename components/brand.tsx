@@ -1,25 +1,41 @@
 import type { CSSProperties } from "react";
 
 /**
- * The mark: the letter õ, drawn as a ring of the four night colours with an
- * ink tilde over it.
+ * The mark: the letter õ, drawn in ink on a gold tile.
  *
- * Estonian's most recognizable letter is the brand, and it used to be a face:
- * eyes, cheeks and a smile on the bowl. That read as an app for children, so
- * the bowl is a ring now, a quarter in each of gold, blush, violet and cyan,
- * the same four hues as the letter tiles. It is still alive: the ring turns
- * slowly and the tilde drifts, hops when there is something to celebrate and
- * sways while thinking.
+ * It used to be a ring of four hues turning on a bare background, drawn
+ * that way so it would not read as a face. That argument held while the
+ * mark stood alone in the rail; it stopped holding the day the same brand
+ * needed a favicon, a home-screen icon and a share image, and each of
+ * those is a fixed square somebody looks at without ever seeing the
+ * wordmark beside it. Three different treatments of one brand read as
+ * three brands, which is the reasoning behind the design settled on: one
+ * flat glyph, on one tile, everywhere the mark appears. Every other
+ * place that draws this mark (app/icon.svg, app/apple-icon.tsx,
+ * app/opengraph-image.tsx, public/app-icon.svg,
+ * public/app-icon-maskable.svg) draws it in the same gold and ink as
+ * literal hexes, because those are static files with no theme to read;
+ * this component reads the tokens those hexes are the light theme's own
+ * values of, so the two never drift apart.
  *
- * The tilde sits clear of the bowl, and that is the letter rather than a
- * preference. On an õ the diacritic is a separate stroke above the bowl, and a
- * stroke with daylight under it is the one part that can move on its own.
- * Keyframes live in app/globals.css.
+ * The tilde sits clear of the ring, which is the letter rather than a
+ * preference: on an õ the diacritic is a separate stroke above the bowl,
+ * and a stroke with daylight under it is the one part that can move on
+ * its own. The ring is a single closed stroke now rather than four
+ * turning quarters, and a closed circle spinning shows no motion at all,
+ * so only the tilde still drifts. Keyframes live in app/globals.css.
+ *
+ * The fill is `var(--cta)` and the strokes are `var(--cta-ink)`, the
+ * token this app already reads wherever text sits on that gold, held at
+ * a contrast that clears 4.5:1 on the fill in both themes rather than
+ * flipping to near-white the way `--ink` does. A colour typed here
+ * instead would be the sixth hue meaning the design system's own rule
+ * refuses.
  */
-const TIMING: Record<string, { tilde: string; face: string }> = {
-  happy: { tilde: "tilde-drift 4.2s ease-in-out infinite", face: "1" },
-  cheer: { tilde: "tilde-hop 1.9s cubic-bezier(0.34, 1.56, 0.64, 1) infinite", face: "0.25" },
-  thinking: { tilde: "tilde-sway 5.4s ease-in-out infinite", face: "1.35" },
+const TILDE_ANIMATION: Record<string, string> = {
+  happy: "tilde-drift 4.2s ease-in-out infinite",
+  cheer: "tilde-hop 1.9s cubic-bezier(0.34, 1.56, 0.64, 1) infinite",
+  thinking: "tilde-sway 5.4s ease-in-out infinite",
 };
 
 export function Mascot({
@@ -33,22 +49,15 @@ export function Mascot({
   size?: number;
   className?: string;
   style?: CSSProperties;
-  /** The turning ring and the drifting tilde. Off wherever the mark is a label
-   *  rather than a moment: a chat avatar repeated down a thread, the offline
-   *  screen, anything favicon-sized. */
+  /** The drifting tilde. Off wherever the mark is a label rather than a
+   *  moment: a chat avatar repeated down a thread, the offline screen,
+   *  anything favicon-sized. */
   animate?: boolean;
   /** Kept for callers that aimed the old face's eyes; the mark has none. */
   watch?: boolean;
   mood?: "happy" | "thinking" | "cheer";
 }) {
-  const t = TIMING[mood] ?? TIMING.happy!;
   void watch;
-  /* A mood scales the ring's turn by the same factor as the tilde, so a cheer
-     speeds the whole mark up together. */
-  const turn: CSSProperties | undefined = animate
-    ? { animation: `mark-turn ${(24 * Number(t.face)).toFixed(2)}s linear infinite`, transformOrigin: "32px 40px" }
-    : undefined;
-
   return (
     <svg
       viewBox="0 0 64 64"
@@ -59,45 +68,23 @@ export function Mascot({
       role="img"
       aria-label="Kodukeel"
     >
-      {/* The bowl of the õ as a ring of the four night colours, a quarter
-          each, turning slowly as one piece. It is the letter tiles' palette
-          made into the letter, with no face drawn on it: a mark rather than a
-          character, which is what keeps it from reading as a children's app. */}
-      <g style={turn}>
-        {RING.map(([hue, turn]) => (
-          <circle
-            key={hue}
-            cx="32"
-            cy="40"
-            r="15"
-            fill="none"
-            stroke={`var(--${hue})`}
-            strokeWidth="8.5"
-            strokeDasharray={`${QUARTER} ${CIRCUMFERENCE - QUARTER}`}
-            transform={`rotate(${turn - 90} 32 40)`}
-          />
-        ))}
-      </g>
-
-      {/* The tilde, in ink, clear of the bowl. The only part with daylight
-          under it, so the only part that moves on its own. */}
+      <rect width="64" height="64" rx="16" fill="var(--cta)" />
+      {/* The bowl of the õ, one closed ring in ink rather than the four
+          turning quarters this used to be. */}
+      <circle cx="32" cy="38" r="13" fill="none" stroke="var(--cta-ink)" strokeWidth="7" />
+      {/* The tilde, clear of the bowl, the only part with daylight under it
+          and so the only part that moves on its own. */}
       <path
-        d="M20 15.5q6-7 12 0t12 0"
+        d="M20 17q6-7 12 0t12 0"
         fill="none"
-        stroke="var(--ink)"
-        strokeWidth="5.2"
+        stroke="var(--cta-ink)"
+        strokeWidth="6"
         strokeLinecap="round"
-        style={animate ? { animation: t.tilde, transformOrigin: "32px 15.5px" } : undefined}
+        style={animate ? { animation: TILDE_ANIMATION[mood] ?? TILDE_ANIMATION.happy, transformOrigin: "32px 17px" } : undefined}
       />
     </svg>
   );
 }
-
-const CIRCUMFERENCE = 2 * Math.PI * 15;
-const QUARTER = CIRCUMFERENCE / 4;
-const RING: ReadonlyArray<readonly [string, number]> = [
-  ["cta", 0], ["blush", 90], ["accent", 180], ["sky", 270],
-];
 
 /**
  * The mascot plus the name, as used in the sidebar and the landing nav.

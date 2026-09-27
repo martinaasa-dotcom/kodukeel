@@ -14,9 +14,9 @@ import { ImageResponse } from "next/og";
  * thing to fix.
  *
  * Drawn rather than shipped as a file, for the reason `apple-icon.tsx` is
- * drawn: the mark is a gradient and a tilde, the wording is the landing page's
- * own, and a PNG checked into the repository is a second copy of both that
- * goes stale the first time either changes.
+ * drawn: the mark is a gold tile with a ring and a tilde, the wording is the
+ * landing page's own, and a PNG checked into the repository is a second copy
+ * of both that goes stale the first time either changes.
  *
  * Nothing on it is about a learner. This is the front of the site, requested
  * by a crawler with no session, and it must read the same for everybody:
@@ -28,11 +28,9 @@ export const contentType = "image/png";
 export const alt = "kodukeel. Estonian that finally sticks";
 
 const MARK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
-  <circle cx="32" cy="40" r="15" fill="none" stroke="#ffd23f" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(-90 32 40)"/>
-  <circle cx="32" cy="40" r="15" fill="none" stroke="#ff3d8b" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(0 32 40)"/>
-  <circle cx="32" cy="40" r="15" fill="none" stroke="#5b2eff" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(90 32 40)"/>
-  <circle cx="32" cy="40" r="15" fill="none" stroke="#17bfd9" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(180 32 40)"/>
-  <path d="M20 15.5q6 -7 12 0t12 0" fill="none" stroke="#0f1233" stroke-width="5.2" stroke-linecap="round"/>
+  <rect width="64" height="64" rx="16" fill="#ffd23f"/>
+  <circle cx="32" cy="38" r="13" fill="none" stroke="#0f1233" stroke-width="7"/>
+  <path d="M20 17q6-7 12 0t12 0" fill="none" stroke="#0f1233" stroke-width="6" stroke-linecap="round"/>
 </svg>`;
 
 export default function OpenGraphImage() {

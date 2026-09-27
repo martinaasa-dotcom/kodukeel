@@ -3667,9 +3667,6 @@
   :is(button, a, [role="radio"], [role="button"]) .key-cap { display: none; }
 }
 
-@keyframes mark-turn { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { [style*="mark-turn"] { animation: none !important; } }
-
 /*
   VIKERKAAR ÖÖS: the rainbow at night, flattened. One panel per screen is
   lit this way, the thing the screen is for, and for a while that meant two

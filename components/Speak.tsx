@@ -239,7 +239,7 @@ export function SpeakPair({
         disabled={disabled}
         onPlay={onPlay}
         onUnavailable={lost}
-        className={`${half} gap-1 px-2.5 py-1.5 text-xs font-semibold`}
+        className={`${half} gap-1 whitespace-nowrap px-2.5 py-1.5 text-xs font-semibold`}
         style={{ color: "var(--ink-3)" }}
       >
         Slow
