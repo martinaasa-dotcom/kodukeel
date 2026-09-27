@@ -2,7 +2,7 @@
 
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, MoreHorizontal, Moon, Sun, X } from "lucide-react";
+import { LogOut, MessageSquareWarning, MoreHorizontal, Moon, Settings, SlidersHorizontal, Sun, X } from "lucide-react";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { useDockClearance } from "@/lib/layout/dockClearance";
@@ -10,7 +10,9 @@ import { useNavMarker } from "@/lib/layout/navMarker";
 import { useOffline } from "@/components/OfflineProvider";
 import { outboxSize } from "@/lib/offline/db";
 import { forgetThisDevice } from "@/lib/offline/forget";
-import { BAR, isUnder, LISTED, PLACES, SECTIONS, type Destination, type NavSection } from "@/lib/ux/nav";
+import { BAR, CORE, DESTINATIONS, isUnder, litRow, PINNABLE, SECTIONS, type Destination, type NavSection } from "@/lib/ux/nav";
+import { isCoreRow, railRows } from "@/lib/ux/navOrder";
+import { NavEditor } from "@/components/nav/NavEditor";
 import { NavMarker } from "@/components/NavMarker";
 import { Wordmark } from "@/components/brand";
 import { NamedIcon } from "@/components/icons";
@@ -41,9 +43,19 @@ import { useModalFocus } from "@/components/useModalFocus";
  * setup — live in `app/(chromeless)/` and never render this at all, which is
  * why there is no path list here to keep in sync.
  */
-export function Sidebar() {
+export function Sidebar({ order: stored, name }: { order: readonly string[]; name: string | null }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  /*
+    The learner's own order, held here so a change in the editor moves the
+    rail under their hand rather than on the next page. The layout's value
+    replaces it whenever the server sends a new one.
+  */
+  const [order, setOrder] = useState<readonly string[]>(stored);
+  const storedKey = stored.join(" ");
+  useEffect(() => setOrder(storedKey.split(" ")), [storedKey]);
+  const [editing, setEditing] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [bar, setBar] = useState<HTMLElement | null>(null);
   /*
     One pill per surface, traveling from the place you left to the place you
@@ -58,7 +70,7 @@ export function Sidebar() {
   // toasts can sit clear of this bar rather than each guessing its height.
   useDockClearance(bar);
 
-  useEffect(() => setMoreOpen(false), [pathname]);
+  useEffect(() => { setMoreOpen(false); setMenuOpen(false); }, [pathname]);
 
   /*
     The sheet takes the caret on the cross in its corner rather than on the
@@ -93,16 +105,26 @@ export function Sidebar() {
   const measure = useCallback((node: HTMLElement | null) => setBar(node), []);
 
   const active = (href: string) => isUnder(href, pathname);
+  const rows = railRows(order);
+  const lit = litRow(rows, pathname);
   /*
-    The sheet holds everything the four cells of the bar do not, minus anything
-    with a button of its own. Anu's is on this screen too, so listing her here
-    would be the same duplicate the rail just lost.
+    The phone sheet is every place under the five homes, whether or not the
+    learner pinned it: the rail is a column somebody chose, and the sheet is
+    where a phone goes looking for everything else. A home that sits in the
+    bar heads its group without repeating its own link.
   */
-  const sheet: NavSection[] = SECTIONS.map((section) => ({
-    ...section,
-    items: section.items.filter((item) => LISTED.includes(item) && !item.bar),
+  const sheet: NavSection[] = CORE.map((place) => ({
+    id: place.href,
+    title: place.label,
+    blurb: "",
+    items: [
+      ...(place.bar ? [] : [place]),
+      ...PINNABLE.filter((d) => d.within === place.href),
+    ],
   })).filter((section) => section.items.length > 0);
-  const restActive = sheet.some((s) => s.items.some((i) => active(i.href)));
+  const app = SECTIONS.find((s) => s.id === "app")?.items ?? [];
+  const barLit = litRow(BAR, pathname);
+  const restActive = barLit === null && DESTINATIONS.some((d) => active(d.href));
 
   return (
     <>
@@ -140,60 +162,45 @@ export function Sidebar() {
       <nav
         data-chrome="rail"
         aria-label="Main"
-        className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col p-4 md:flex"
+        className="rail sticky top-0 hidden h-screen w-[17rem] shrink-0 flex-col border-r px-4 pb-4 pt-6 md:flex"
+        style={{ borderColor: "var(--rule-soft)" }}
       >
         {/*
-          A link to Today, which nothing about it used to say. See `.brand-tap`
-          in app/globals.css for the tint and the growth, and `title` for where
-          it goes, which is what every row of this rail carries too.
-
-          Outside the well below, deliberately. It is not a nav cell, so the
-          pointer's pane has no business following on to it, and it is the one
-          row in this column that does not scroll.
+          A link to Today, and the largest thing in the column on purpose: the
+          name of the app is the one object on every screen, and at the size a
+          row is drawn it read as one more row. See `.brand-tap` in
+          app/globals.css for the tint and the growth.
         */}
         <Link
           href="/"
           title="Today"
-          className="brand-tap tap-tint mb-5 mr-1 block shrink-0 cursor-pointer rounded-[var(--r)] px-2 py-2.5"
+          className="brand-tap tap-tint mb-7 mr-1 block shrink-0 cursor-pointer rounded-[var(--r)] px-2 py-2"
         >
           <span className="brand-mark">
-            <Wordmark subtitle="Estonian, daily" />
+            <Wordmark size={48} subtitle="Estonian, daily" />
           </span>
         </Link>
 
         {/*
-          The list, and the well the marker is measured against.
+          FIVE ROWS AND WHATEVER THE LEARNER PINNED, IN THE ORDER THEY SET.
 
-          `min-h-0` is what makes this scroll at all: a flex item's automatic
-          minimum is its content, so without it the list sets the height of a
-          column that is already fixed to the screen and nothing overflows
-          anywhere. `-mr-4` gives the scrollbar back the nav's own right
-          padding, so the thumb sits at the edge of the rail rather than
-          floating a centimetre inside it; `.scroll-host` then puts the rows
-          back a comfortable distance from it.
+          No headings and nothing to open. Fourteen rows under four headings
+          were four short answers to "where do I go for this", and together a
+          column somebody had to read before pressing anything. Five rows are
+          read at a glance, and everything else is inside one of them
+          (`lib/ux/nav.ts`), on the screen of the place it belongs to. The page
+          you are on lights its home row, so the grammar reference still says
+          you are in the dictionary.
 
-          THE WELL AND THE SCROLL CONTAINER HAVE TO BE THE SAME BOX. The panes
-          are placed by `offsetTop` and drawn absolutely, so they travel with
-          the rows only while the rows' offset parent is the thing that
-          scrolls; hang them off the nav instead and the pill stays where the
-          window is while the row it names slides out from under it. That was
-          free when the nav was itself the scroller. It is not free now, so
-          this box takes it on: `relative` to be the offset parent the cells
-          measure from, and `isolate` for the stacking context that keeps a
-          `z-index: -1` pane behind the rows rather than behind the page. The
-          nav's own `sticky` used to be quietly supplying both.
+          The well is still the offset parent the marker measures from, and
+          still a scroller, though at five rows and at most four pins it fits
+          any laptop: the scroll is the backstop for a window somebody has
+          dragged short, not the design.
         */}
         <div
           ref={railMarker.ref}
           data-nav-marked={railMarker.mark ? "" : undefined}
-          /*
-            `-ml-2 pl-2` is room for the marker's ring and its shadow. The
-            scroller clips at its padding box, and a pane measured flush
-            against the left of it drew the card with its left side sheared
-            off; the padding moves every cell eight pixels in and the margin
-            moves them back, so nothing on the rail shifts but the clip.
-          */
-          className="scroll-host relative isolate -ml-2 -mr-4 flex min-h-0 flex-1 flex-col pl-2"
+          className="scroll-host relative isolate -ml-2 -mr-4 flex min-h-0 flex-1 flex-col gap-1 pl-2 pr-4"
           style={
             {
               "--nav-marker-bg": "var(--surface)",
@@ -201,61 +208,66 @@ export function Sidebar() {
             } as CSSProperties
           }
         >
-          {/*
-            The panes come before the rows, since a row draws over whichever
-            pane it is standing on. Both are placed entirely by measurement, so
-            the pill is exactly the row it is under. The marker is the card the
-            current row used to paint for itself, and one of them travelling is
-            the whole difference between this and a light going out over here
-            as another comes on over there.
-          */}
           <NavMarker state={railMarker} />
-          {/*
-            The gap between sections is doing the work the headings only label.
-            Four groups two rows apart read as one list with words in it; four
-            groups with air around them read as four, which is the whole point of
-            grouping them. It is the largest space in the column on purpose, and
-            it is wider than the row rhythm inside a group by a clear margin
-            rather than by one notch, or the eye cannot tell "new group" from
-            "next row" at a glance.
-          */}
-          {PLACES.map((section) => (
-            <section key={section.id} aria-labelledby={`rail-${section.id}`} className="mb-7">
-              <h2 id={`rail-${section.id}`} className="label-xs px-3 pb-3" style={{ color: "var(--ink-3)" }}>
-                {section.title}
-              </h2>
-              <div className="flex flex-col gap-0.5">
-                {section.items.map((item) => (
-                  <RailLink key={item.href} item={item} active={active(item.href)} />
-                ))}
-              </div>
-            </section>
+          {rows.map((item) => (
+            <RailLink key={item.href} item={item} active={lit === item.href} pinned={!isCoreRow(item.href)} />
           ))}
+        </div>
 
-          {/*
-            Settings, your reports, and what this thing is. Pinned under the
-            sections when they fit and simply last when they do not, since the
-            rail is a scroll container: fourteen rows with air between their
-            groups are taller than a short laptop, and the answer to that is a
-            scrollbar rather than a disclosure.
-
-            A rule rather than another heading. This is the quiet end of the
-            column and three more uppercase words at the bottom of it would be
-            one label too many.
-          */}
-          <div className="mt-auto border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
-            {SECTIONS.filter((s) => s.id === "app").map((section) =>
-              section.items.map((item) => (
-                <RailLink key={item.href} item={item} active={active(item.href)} />
-              )),
-            )}
-            <div className="mt-2 flex items-center gap-1 px-1">
-              <ThemeToggle labelled />
-              <SignOutButton />
-            </div>
+        {/*
+          Everything that is about the learner rather than about Estonian, under
+          their name: pinning and ordering this column, Settings, what they have
+          reported, the theme and signing out. They are opened a few times a
+          year, and a row each was most of the old column's clutter.
+        */}
+        <div className="relative mt-3 border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
+          {menuOpen && (
+            <AccountMenu
+              onClose={() => setMenuOpen(false)}
+              onEdit={() => { setMenuOpen(false); setEditing(true); }}
+              active={active}
+            />
+          )}
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              data-account
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              onClick={() => setMenuOpen((open) => !open)}
+              className="tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-2 text-left"
+            >
+              <span
+                aria-hidden
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+              >
+                {(name ?? "You").trim().charAt(0).toUpperCase() || "Y"}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold" style={{ color: "var(--ink)" }}>
+                  {name ?? "You"}
+                </span>
+                <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
+                  Settings and more
+                </span>
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              aria-label="Edit sidebar"
+              title="Edit sidebar"
+              className="tap-tint flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+              style={{ color: "var(--ink-3)" }}
+            >
+              <SlidersHorizontal size={17} strokeWidth={2} aria-hidden />
+            </button>
           </div>
         </div>
       </nav>
+
+      {editing && <NavEditor order={order} onChange={setOrder} onClose={() => setEditing(false)} />}
 
       {/*
         Phone bar: four destinations plus everything else behind one button, so
@@ -336,7 +348,7 @@ export function Sidebar() {
             44px wide. Measured in `scripts/test-mobile.mjs`.
           */}
           {BAR.map((item) => {
-            const on = active(item.href);
+            const on = barLit === item.href;
             return (
               <Link
                 key={item.href}
@@ -420,7 +432,7 @@ export function Sidebar() {
             }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <span className="label-xs" style={{ color: "var(--ink-3)" }}>Everywhere else</span>
+              <span className="label-xs" style={{ color: "var(--ink-3)" }}>Everything, by where it lives</span>
               <button
                 ref={sheetClose}
                 type="button"
@@ -438,15 +450,23 @@ export function Sidebar() {
                   <h3 id={`sheet-${section.id}`} className="text-base font-bold" style={{ color: "var(--ink)" }}>
                     {section.title}
                   </h3>
-                  <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-                    {section.blurb}
-                  </p>
+                  {section.blurb && (
+                    <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+                      {section.blurb}
+                    </p>
+                  )}
                   <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
                     {section.items.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
                   </div>
                 </section>
               ))}
             </div>
+            <section aria-labelledby="sheet-app" className="mt-5">
+              <h3 id="sheet-app" className="text-base font-bold" style={{ color: "var(--ink)" }}>You</h3>
+              <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+                {app.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
+              </div>
+            </section>
             <div className="mt-5 flex items-center gap-2">
               <ThemeToggle labelled />
               <SignOutButton labelled />
@@ -459,29 +479,25 @@ export function Sidebar() {
 }
 
 /**
- * One row of the desktop rail.
+ * One row of the desktop rail: a dot and a word.
  *
- * It paints no background of its own in either state now. The card the
- * current row used to draw for itself is one pane that the marker places, and
- * a row that also painted itself would be a second answer to the same
- * question arriving a beat later. What is left here is what a pane cannot
- * say: which row is bold, and which glyph wears its own color. Those two are
- * also the whole of what tells the row you are on from the row you are
- * pointing at, since both now carry the same pane; see `app/nav.css`.
+ * It paints no background of its own. The card the current row wears is one
+ * pane that the marker places, and a row that also painted itself would be a
+ * second answer to the same question arriving a beat later. What is left here
+ * is what a pane cannot say: which row is bold, and which dot wears its hue.
+ *
+ * A dot rather than an icon, and that was chosen rather than settled for.
+ * Five glyphs down a column are five small pictures to decode, where five
+ * words are read at a glance; the dot is what still marks a row as a place,
+ * round for the five and square for a pin, and Today's is always gold because
+ * it is home. Nothing about it carries meaning on its own: the words do.
  *
  * The ink reads `--nav-ink` rather than naming its resting color, because an
- * inline style beats a class hover, silently, which is the mechanism that
- * left half the controls in this app dead under a pointer. A custom property
- * is how a caller passes a tone *through* one, and `app/nav.css` spends it
- * when the pointer's pane arrives underneath.
- *
- * `text-sm` rather than `text-base`: a rail is read down a column at a
- * glance, not read line by line the way a paragraph is, so it takes the
- * "dense UI" step the scale names for exactly this rather than the body
- * step. That is still 16px, above the 14px floor `--text-2xs` sets for the
- * whole app; nothing here goes near it.
+ * inline style beats a class hover, silently. `app/nav.css` spends it when
+ * the pointer's pane arrives underneath.
  */
-function RailLink({ item, active }: { item: Destination; active: boolean }) {
+function RailLink({ item, active, pinned }: { item: Destination; active: boolean; pinned: boolean }) {
+  const home = item.href === "/";
   return (
     <Link
       href={item.href}
@@ -490,23 +506,75 @@ function RailLink({ item, active }: { item: Destination; active: boolean }) {
       data-nav-on={active ? "" : undefined}
       aria-current={active ? "page" : undefined}
       title={item.blurb}
-      className="nav-cell flex items-center gap-3 rounded-full px-3 py-2 text-sm"
+      className="nav-cell flex min-h-12 items-center gap-3.5 rounded-[var(--r)] px-3.5 py-2.5 text-base"
       style={{
         color: active ? "var(--ink)" : "var(--nav-ink, var(--ink-2))",
-        fontWeight: active ? 700 : 500,
+        fontWeight: active ? 700 : 600,
       }}
     >
       <span
-        className="nav-glyph flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors"
+        aria-hidden
+        className="nav-glyph h-2.5 w-2.5 shrink-0 transition-colors"
         style={{
-          background: active ? `var(--${item.tone})` : "var(--raised)",
-          color: active ? "var(--surface)" : "var(--ink-3)",
+          borderRadius: pinned ? "3px" : "999px",
+          background: home || active ? `var(--${item.tone})` : "color-mix(in oklab, var(--ink-3) 42%, transparent)",
+          boxShadow: active ? `0 0 0 4px color-mix(in oklab, var(--${item.tone}) 22%, transparent)` : undefined,
         }}
-      >
-        <NamedIcon name={item.icon} size={14} strokeWidth={2.2} aria-hidden />
-      </span>
-      {item.label}
+      />
+      <span className="min-w-0">{item.label}</span>
+      {pinned && <span className="sr-only">, pinned</span>}
     </Link>
+  );
+}
+
+/**
+ * The menu under the learner's name.
+ *
+ * A popover rather than a page, because everything in it is one press: edit
+ * the column above it, open Settings or your reports, switch the theme, sign
+ * out. Escape and a press outside close it, and it takes the caret on open so
+ * a keyboard lands inside rather than behind it.
+ */
+function AccountMenu({ onClose, onEdit, active }: {
+  onClose: () => void; onEdit: () => void; active: (href: string) => boolean;
+}) {
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    box.current?.querySelector<HTMLElement>("button, a")?.focus();
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (box.current && !box.current.contains(target) && !(target as HTMLElement).closest?.("[data-account]")) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => { window.removeEventListener("keydown", onKey); window.removeEventListener("pointerdown", onDown); };
+  }, [onClose]);
+  const item = "tap-tint flex w-full items-center gap-3 rounded-[var(--r)] px-3 py-2.5 text-left text-sm font-semibold";
+  return (
+    <div
+      ref={box}
+      role="menu"
+      aria-label="You"
+      className="menu-pop absolute bottom-full left-0 z-50 mb-2 w-72 rounded-[var(--r-lg)] border p-2"
+      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--shadow-lg)" }}
+    >
+      <button type="button" role="menuitem" onClick={onEdit} className={item} style={{ color: "var(--ink)" }}>
+        <SlidersHorizontal size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
+        Edit sidebar
+      </button>
+      <Link href="/settings" role="menuitem" className={item} aria-current={active("/settings") ? "page" : undefined} style={{ color: "var(--ink)" }}>
+        <Settings size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
+        Settings
+      </Link>
+      <Link href="/suggestions" role="menuitem" className={item} aria-current={active("/suggestions") ? "page" : undefined} style={{ color: "var(--ink)" }}>
+        <MessageSquareWarning size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
+        Suggested fixes
+      </Link>
+      <div className="my-1 border-t" style={{ borderColor: "var(--rule-soft)" }} />
+      <ThemeChoice />
+      <SignOutButton menu />
+    </div>
   );
 }
 
@@ -569,7 +637,7 @@ function IconButton({ onClick, label, labelled, children }: {
  * quietly drop, so it asks: the person pressing this on a train may prefer to
  * stay signed in until the tunnel ends.
  */
-function SignOutButton({ labelled }: { labelled?: boolean }) {
+function SignOutButton({ labelled, menu }: { labelled?: boolean; menu?: boolean }) {
   const router = useRouter();
   const { flush } = useOffline();
   // Local installs have no accounts to sign out of — see lib/auth/mode.ts.
@@ -609,6 +677,20 @@ function SignOutButton({ labelled }: { labelled?: boolean }) {
     router.push("/welcome");
     router.refresh();
   };
+  if (menu) {
+    return (
+      <button
+        type="button"
+        role="menuitem"
+        onClick={() => void signOut()}
+        className="tap-tint flex w-full items-center gap-3 rounded-[var(--r)] px-3 py-2.5 text-left text-sm font-semibold"
+        style={{ color: "var(--ink)" }}
+      >
+        <LogOut size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
+        Sign out
+      </button>
+    );
+  }
   return (
     <IconButton onClick={() => void signOut()} label="Sign out" labelled={labelled}>
       <LogOut size={16} strokeWidth={2} aria-hidden />
@@ -627,6 +709,18 @@ function SignOutButton({ labelled }: { labelled?: boolean }) {
   and the value written here is read off the stylesheet once the attribute has
   flipped, so the tag says whatever `--ground` says and no hex is typed twice.
 */
+
+function applyTheme(next: "light" | "dark") {
+  document.documentElement.dataset.theme = next;
+  const ground = getComputedStyle(document.documentElement).getPropertyValue("--ground").trim();
+  if (ground) document.querySelector('meta[name="theme-color"]')?.setAttribute("content", ground);
+  try {
+    window.localStorage.setItem("theme", next);
+  } catch {
+    // Private browsing in Safari throws here; the theme still applies for
+    // this page and simply is not remembered.
+  }
+}
 
 function ThemeToggle({ labelled }: { labelled?: boolean }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -648,15 +742,7 @@ function ThemeToggle({ labelled }: { labelled?: boolean }) {
   const toggle = () => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
-    document.documentElement.dataset.theme = next;
-    const ground = getComputedStyle(document.documentElement).getPropertyValue("--ground").trim();
-    if (ground) document.querySelector('meta[name="theme-color"]')?.setAttribute("content", ground);
-    try {
-      window.localStorage.setItem("theme", next);
-    } catch {
-      // Private browsing in Safari throws here; the theme still applies for
-      // this page and simply is not remembered.
-    }
+    applyTheme(next);
   };
 
   return (
@@ -666,5 +752,45 @@ function ThemeToggle({ labelled }: { labelled?: boolean }) {
         : <Moon size={16} strokeWidth={2} aria-hidden />}
       {labelled && "Theme"}
     </IconButton>
+  );
+}
+
+/**
+ * Light or dark, as two halves of one control rather than a button whose
+ * label never says which it is on. The same storage and the same rewrite of
+ * the browser's own colour as the toggle, through `applyTheme`.
+ */
+function ThemeChoice() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  useEffect(() => {
+    // Read after mount: the server cannot see localStorage, and the page's
+    // own inline script has already painted whichever this says.
+    setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+  }, []);
+  const pick = (next: "light" | "dark") => { setTheme(next); applyTheme(next); };
+  return (
+    <div className="flex items-center justify-between gap-3 px-3 py-2">
+      <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>Theme</span>
+      <span role="radiogroup" aria-label="Theme" className="flex rounded-full p-1" style={{ background: "var(--raised)" }}>
+        {(["light", "dark"] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={theme === option}
+            onClick={() => pick(option)}
+            className="tap-tint flex min-h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold"
+            style={{
+              background: theme === option ? "var(--surface)" : undefined,
+              color: theme === option ? "var(--ink)" : "var(--ink-3)",
+              boxShadow: theme === option ? "var(--depth-sm)" : undefined,
+            }}
+          >
+            {option === "light" ? <Sun size={14} aria-hidden /> : <Moon size={14} aria-hidden />}
+            {option === "light" ? "Light" : "Dark"}
+          </button>
+        ))}
+      </span>
+    </div>
   );
 }

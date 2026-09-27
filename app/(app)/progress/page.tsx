@@ -1,3 +1,4 @@
+import { InsideHere } from "@/components/InsideHere";
 import { Suspense } from "react";
 import { ClipboardCheck, Compass, FileText, Flame, Footprints, Shield } from "lucide-react";
 import { outThere } from "@/lib/progress/outThere";
@@ -530,6 +531,8 @@ export default async function ProgressPage() {
         <Suspense fallback={<BoardSkeleton />}>
           <Board ownerId={ownerId} now={now} />
         </Suspense>
+
+        <InsideHere place="/progress" title="Also in progress" />
       </Stack>
     </Page>
   );

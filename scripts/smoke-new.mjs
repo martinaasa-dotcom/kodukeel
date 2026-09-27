@@ -185,7 +185,9 @@ const rail = await page.evaluate(() => {
       .map((a) => a.getAttribute("href")),
     headings: [...nav.querySelectorAll("h2")].map((h) => h.textContent.trim()),
     // A control that decides which links exist. The bug was one of these.
-    toggles: nav.querySelectorAll("button[aria-expanded]").length,
+    // The menu under the learner's name is not one: it opens settings and
+    // the theme, and every place is still in the rail or on its home page.
+    toggles: nav.querySelectorAll("button[aria-expanded]:not([data-account])").length,
   };
 });
 check("the desktop rail is drawn", rail !== null);
@@ -193,26 +195,16 @@ if (rail) {
   check("the rail shows its links with nothing to open first",
     rail.toggles === 0, `${rail.toggles} disclosures in the rail`);
   /*
-    Three: what you do every day, where you are in the course, and looking
-    something up. It was four, and two of them had been reduced to a single row
-    each, which is a heading doing no work: a heading earns itself by telling
-    two or three rows apart, and one over a lone row is furniture. What this is
-    really guarding is that the rail groups at all rather than presenting a flat
-    column, which is the thing that made sixteen links unreadable.
+    Five places and no headings. The rail was fourteen rows under four
+    headings, and it was reported as too busy by the person using it: a column
+    read before anything could be pressed. What it holds now is the five
+    places an evening goes, in the order the learner set, and everything else
+    lives inside one of them (lib/ux/nav.ts). Five is the floor: a rail with
+    fewer has lost a way home. A heading over five rows is furniture, so none.
   */
-  check("the rail groups what it shows under headings",
-    rail.headings.length >= 3, `${rail.headings.length} headings`);
-  /*
-    Nine: seven places under those headings, then Settings and the reports
-    queue in the footer. It was fourteen, and the five that went are not
-    hidden, they are inside the place they belong to and carry `within` saying
-    which: homework under Today, and the deck, the level check, the mock exam
-    and a class under Progress, which is the screen that asks the question all
-    four of them answer. The number this floor is really guarding against is
-    four, which is what the rail led with when the rest sat behind a button
-    marked "More".
-  */
-  check("the rail shows the whole app", rail.links.length >= 9, `${rail.links.length} links`);
+  check("the rail shows the five places", rail.links.length >= 5, `${rail.links.length} links`);
+  check("the rail reads as one short list rather than groups", rail.headings.length === 0,
+    `${rail.headings.length} headings`);
 }
 
 // The phone cannot show every link at once, so it shows them under the same
@@ -278,7 +270,7 @@ const aimed = await page.evaluate(async () => {
   const nav = document.querySelector('nav[aria-label="Main"]');
   const pane = nav.querySelector(".nav-marker");
   const to = [...nav.querySelectorAll("[data-nav-goes]")]
-    .find((c) => c.getAttribute("href") === "/settings");
+    .find((c) => c.getAttribute("href") === "/progress");
   /*
     A press and nothing else: no click, so nothing navigates, and the marker
     has only the bet to go on. Read on the second frame rather than over a
@@ -340,12 +332,12 @@ await page.evaluate(() => {
     }
   }).observe(pane, { attributes: true, attributeFilter: ["style"] });
 });
-await page.locator('nav[aria-label="Main"] a[href="/settings"]').click();
+await page.locator('nav[aria-label="Main"] a[href="/progress"]').click();
 await page.waitForTimeout(60);
 await page.evaluate(() =>
   document.dispatchEvent(new PointerEvent("pointercancel", { bubbles: true, pointerType: "touch" })),
 );
-await page.waitForURL("**/settings", { timeout: 15000 }).catch(() => {});
+await page.waitForURL("**/progress", { timeout: 15000 }).catch(() => {});
 await page.waitForTimeout(900);
 const places = await page.evaluate(() => window.__places ?? []);
 check("a navigation puts the marker in one place, not three", places.length === 1,
@@ -394,7 +386,7 @@ const arrived = await calm.evaluate(async () => {
   const nav = document.querySelector('nav[aria-label="Main"]');
   const pane = nav.querySelector(".nav-marker");
   const to = [...nav.querySelectorAll("[data-nav-goes]")]
-    .find((c) => c.getAttribute("href") === "/settings");
+    .find((c) => c.getAttribute("href") === "/progress");
   to.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerType: "mouse" }));
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   return {

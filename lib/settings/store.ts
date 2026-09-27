@@ -263,6 +263,15 @@ export const SETTING_KEYS = {
    */
   todayOrder: "todayOrder",
   /**
+   * Which rows the rail carries and in what order, as hrefs space separated.
+   *
+   * A missing row is the five places the rail ships with. A row is written
+   * only by somebody who opened "Edit sidebar" under their name and moved or
+   * pinned something. The reader, the cap on pins and the rule that the five
+   * cannot be removed live in lib/ux/navOrder.ts.
+   */
+  navOrder: "navOrder",
+  /**
    * How long a timed round runs, as a pace rather than a number of seconds.
    *
    * The Case Sprint, the daily quest and Target each had a fixed clock, which
