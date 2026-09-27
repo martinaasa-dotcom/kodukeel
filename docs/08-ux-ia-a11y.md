@@ -8,19 +8,23 @@ keyboard.
 
 The first version of this page drew a sidebar of eight tabs. What the app has instead is one table,
 `SECTIONS` in `lib/ux/nav.ts`, grouped by the question each place answers. The desktop rail draws
-all of it and the phone bar draws the places marked `bar`, with the rest one press away under the
-same headings. As built:
+five places, in the order the learner set, plus up to four pins (`lib/ux/navOrder.ts`); the phone
+bar draws the places marked `bar`, with everything else one press away under its five homes. As
+built:
 
 ```
-Every day         Today (default route), Today's module, Learn, Practice, Situations
-How it is going   Calendar, Progress, Word mastery, Decks
-Look it up        Dictionary, Grammar
+Every day         Today (default route), Learn, Practice
+Look it up        Dictionary
+How it is going   Progress
 This app          Settings, Suggested fixes
 ```
 
-Anu is not a row: her button is in the corner of every signed-in screen. A place that lives inside
-another (the scanner, the deck, a practice mode) carries `within` and is linked from the screen
-somebody is standing on when they want it.
+Everything else carries `within` and lives on the screen of the place it belongs to, where
+`components/InsideHere.tsx` lists it: Today's module under Today, Situations and Review under
+Practice, Grammar and the scanner under Dictionary, the calendar, the deck and the exam under
+Progress. Settings and the reports are under the learner's name at the foot of the rail, with the
+theme, signing out and "Edit sidebar", which is where a place is pinned back into the column. Anu is
+not a row: her button is in the corner of every signed-in screen.
 
 **Today is the default route**, not Tasks. This is the fix for audit gap D2: a dashboard whose front
 door is a list of tabs makes the user decide what to do before they have done anything. Today answers

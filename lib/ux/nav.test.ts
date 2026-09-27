@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { BAR, DESTINATIONS, isUnder, LISTED, PLACES, SECTIONS } from "./nav";
+import { BAR, CORE, DESTINATIONS, isUnder, LISTED, litRow, PLACES, SECTIONS } from "./nav";
 import { GAMES, PRACTICE_MODES, QUICK_MODES, TARGETED_MODES } from "./modes";
 import { SYLLABUS } from "../collections/syllabus/index";
 import { ICONS } from "../../components/icons";
@@ -78,6 +78,13 @@ describe("the navigation table", () => {
     for (const section of SECTIONS) expect(section.items.length, section.id).toBeGreaterThan(0);
   });
 
+  it("keeps the rail to five places", () => {
+    // Five because a rail is read at a glance; everything else lives inside
+    // one of them. A sixth place is a decision about everybody's column, and
+    // a pin is how one learner makes it about theirs (lib/ux/navOrder.ts).
+    expect(CORE.map((d) => d.href)).toEqual(["/", "/learn", "/practice", "/dictionary", "/progress"]);
+  });
+
   it("keeps the app's own settings out of the places a learner navigates by", () => {
     expect(PLACES.map((s) => s.id)).not.toContain("app");
     expect(SECTIONS.map((s) => s.id)).toContain("app");
@@ -129,8 +136,20 @@ describe("the navigation table", () => {
 
       expect(files.length > 0 && files.every((f) => existsSync(f)),
         `${item.href} says it is reached from ${item.within}, which is not a route`).toBe(true);
+      /*
+        Two ways a page can link to a destination, and both count: the href
+        written out, or `<InsideHere place="..."/>` naming this destination's
+        own home, which draws every destination whose `within` is that place
+        off this very table (components/InsideHere.tsx). The element and the
+        attribute together, read through `code()`, so an import nobody renders
+        and a comment naming the component cannot vouch for a link.
+      */
+      const inside = new RegExp(`<InsideHere\\s+place="${item.within!.replace(/[/]/g, "\\/")}"`);
       expect(
-        files.some((f) => code(readFileSync(f, "utf8")).includes(item.href)),
+        files.some((f) => {
+          const source = code(readFileSync(f, "utf8"));
+          return source.includes(item.href) || inside.test(source);
+        }),
         `${item.href} is reached from ${item.within} and nothing there links to it`,
       ).toBe(true);
     }
@@ -181,6 +200,26 @@ describe("the navigation table", () => {
     for (const item of DESTINATIONS) {
       expect(SECTIONS.flatMap((s) => s.items)).toContain(item);
     }
+  });
+});
+
+describe("litRow", () => {
+  it("lights the home of a page that lives inside a place", () => {
+    expect(litRow(CORE, "/grammar/exceptions")).toBe("/dictionary");
+    expect(litRow(CORE, "/review/sprint")).toBe("/practice");
+    expect(litRow(CORE, "/words/mastery")).toBe("/progress");
+    expect(litRow(CORE, "/course")).toBe("/");
+    expect(litRow(CORE, "/")).toBe("/");
+  });
+
+  it("lights a pinned row over its home", () => {
+    const rows = [...CORE, DESTINATIONS.find((d) => d.href === "/grammar")!];
+    expect(litRow(rows, "/grammar")).toBe("/grammar");
+    expect(litRow(rows, "/dictionary/common")).toBe("/dictionary");
+  });
+
+  it("lights nothing on a page no row names", () => {
+    expect(litRow(CORE, "/settings")).toBeNull();
   });
 });
 

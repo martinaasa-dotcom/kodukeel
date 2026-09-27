@@ -15,6 +15,8 @@ import { requireUserId } from "@/lib/auth/session";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { letterBarFrom } from "@/lib/ux/letterBar";
+import { navOrderFrom } from "@/lib/ux/navOrder";
+import { visibleLine } from "@/lib/security/visibleText";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
@@ -79,7 +81,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         SETTING_KEYS.letterBar, SETTING_KEYS.timeZone,
         SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
         SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
-        SETTING_KEYS.caseQuestionGloss,
+        SETTING_KEYS.caseQuestionGloss, SETTING_KEYS.navOrder, SETTING_KEYS.displayName,
       ],
     ),
     courseLevelFor(ownerId),
@@ -112,7 +114,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </a>
       <div className="flex min-h-screen flex-col md:flex-row">
         <Wash />
-        <Sidebar />
+        <Sidebar
+          order={navOrderFrom(settings[SETTING_KEYS.navOrder])}
+          name={visibleLine(settings[SETTING_KEYS.displayName], 40) || null}
+        />
         {/*
           `dock-pad` is the phone bar's measured height, so the last card in a
           list is never left under it. See lib/layout/dockClearance.ts.

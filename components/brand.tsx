@@ -107,7 +107,7 @@ export function Wordmark({ size = 34, subtitle }: { size?: number; subtitle?: st
       <span className="flex flex-col">
         <span
           lang="et"
-          className="font-display whitespace-nowrap text-xl font-bold leading-none tracking-tight"
+          className={`font-display whitespace-nowrap font-bold leading-none tracking-tight ${size >= 44 ? "text-2xl" : "text-xl"}`}
           style={{ color: "var(--ink)" }}
         >
           kodukeel

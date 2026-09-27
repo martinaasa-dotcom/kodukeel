@@ -70,6 +70,7 @@ import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
@@ -1940,6 +1941,22 @@ export async function setTodayOrder(value: string) {
   revalidatePath("/");
   revalidatePath("/settings");
   return { ok: true as const, order };
+}
+
+/**
+ * Which rows the rail carries, and in what order.
+ *
+ * Normalized through the one reader on the way in, so a request cannot pin a
+ * control, pin past the cap, or take one of the five places away. Revalidated
+ * across the layout, because the rail is drawn by it and the next page a
+ * learner opens should carry the order they have just set.
+ */
+export async function setNavOrder(value: string) {
+  const ownerId = await requireUserId();
+  const stored = serialiseNavOrder(text(value).split(/\s+/));
+  await writeSetting(ownerId, SETTING_KEYS.navOrder, stored);
+  revalidatePath("/", "layout");
+  return { ok: true as const, order: stored.split(" ") };
 }
 
 /**
