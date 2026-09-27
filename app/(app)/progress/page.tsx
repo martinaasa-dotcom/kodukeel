@@ -352,7 +352,7 @@ export default async function ProgressPage() {
                 { fill: "var(--again)", label: "most forgotten" },
               ].map((k) => (
                 <span key={k.label} className="flex items-center gap-1.5">
-                  <span aria-hidden className="h-2.5 w-2.5 rounded-[3px]" style={{ background: k.fill }} />
+                  <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: k.fill }} />
                   {k.label}
                 </span>
               ))}
