@@ -124,6 +124,9 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
   })).filter((section) => section.items.length > 0);
   const app = SECTIONS.find((s) => s.id === "app")?.items ?? [];
   const barLit = litRow(BAR, pathname);
+  const today = BAR.find((d) => d.href === "/");
+  const others = BAR.filter((d) => d.href !== "/");
+  const dock = today ? [...others.slice(0, 2), today, ...others.slice(2)] : BAR;
   const restActive = barLit === null && DESTINATIONS.some((d) => active(d.href));
 
   return (
@@ -233,7 +236,6 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
               type="button"
               data-account
               aria-expanded={menuOpen}
-              aria-haspopup="menu"
               onClick={() => setMenuOpen((open) => !open)}
               className="tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-2 text-left"
             >
@@ -306,6 +308,17 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
         ref={measure}
         data-chrome="dock"
         aria-label="Main"
+        /*
+          The raised Today button stands up out of this box rather than being
+          measured into it. Padding here for it was tried: it put a 36px
+          strip across the whole width into the clearance `useDockClearance`
+          publishes, which lifted Anu's button, the toasts and the offline
+          banner by the same 36px at the edges, where nothing stands up at
+          all, and set Anu's button over the hero's own button at 360. The
+          overhang is 2.25rem wide of a whole screen, so it is `.dock-pad`
+          that makes room for it, at the foot of a page, which is the only
+          place something could end up under it.
+        */
         className="fixed left-3 right-3 z-40 md:hidden"
         style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
@@ -327,13 +340,16 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
         <div
           ref={barMarker.ref}
           data-nav-marked={barMarker.mark ? "" : undefined}
-          className="relative isolate flex justify-around rounded-full border px-1.5 py-1.5"
+          className="relative isolate flex items-end justify-around rounded-full border px-1.5 py-1.5"
           style={
             {
               borderColor: "var(--edge)",
               background: "var(--surface)",
               boxShadow: "var(--depth)",
-              "--nav-marker-bg": "var(--accent-soft)",
+              /* On Today the raised gold button is the marker, so the pill
+                 stands down there rather than drawing a second one behind it,
+                 and fades back in as it travels off. */
+              "--nav-marker-bg": barLit === "/" ? "transparent" : "var(--accent-soft)",
             } as CSSProperties
           }
         >
@@ -347,8 +363,19 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
             down to the narrowest phone sold, and the narrowest cell is still
             44px wide. Measured in `scripts/test-mobile.mjs`.
           */}
-          {BAR.map((item) => {
+          {/*
+            TODAY IN THE MIDDLE, RAISED, AND GOLD.
+
+            Home is the one cell a thumb should never have to look for, so it
+            sits where the thumb already rests and stands up out of the bar as
+            the app's own gold, the colour of the mark and of every primary
+            button. The other three keep the quiet glyph and the travelling
+            pill. Order is Learn, Practice, Today, Dictionary, then More, which
+            is the table's four read with home moved to the centre.
+          */}
+          {dock.map((item) => {
             const on = barLit === item.href;
+            const home = item.href === "/";
             return (
               <Link
                 key={item.href}
@@ -357,18 +384,24 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
                 data-nav-goes
                 data-nav-on={on ? "" : undefined}
                 aria-current={on ? "page" : undefined}
-                className="nav-cell flex flex-auto flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold"
+                className={`nav-cell flex flex-auto flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold ${home ? "dock-home" : ""}`}
                 style={{ color: on ? "var(--ink)" : "var(--ink-3)" }}
               >
-                <span
-                  className="nav-glyph flex h-7 w-7 items-center justify-center rounded-full"
-                  style={{
-                    background: on ? `var(--${item.tone})` : "transparent",
-                    color: on ? "var(--surface)" : "var(--ink-3)",
-                  }}
-                >
-                  <NamedIcon name={item.icon} size={16} strokeWidth={2.2} aria-hidden />
-                </span>
+                {home ? (
+                  <span aria-hidden className="dock-sun nav-glyph flex items-center justify-center rounded-full">
+                    <NamedIcon name={item.icon} size={24} strokeWidth={2.5} aria-hidden />
+                  </span>
+                ) : (
+                  <span
+                    className="nav-glyph flex h-7 w-7 items-center justify-center rounded-full"
+                    style={{
+                      background: on ? "var(--accent)" : "transparent",
+                      color: on ? "var(--surface)" : "var(--ink-3)",
+                    }}
+                  >
+                    <NamedIcon name={item.icon} size={16} strokeWidth={2.2} aria-hidden />
+                  </span>
+                )}
                 {item.label}
               </Link>
             );
@@ -432,7 +465,7 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
             }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <span className="label-xs" style={{ color: "var(--ink-3)" }}>Everything, by where it lives</span>
+              <h2 className="font-display text-2xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>More</h2>
               <button
                 ref={sheetClose}
                 type="button"
@@ -447,7 +480,7 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
             <div className="flex flex-col gap-5">
               {sheet.map((section) => (
                 <section key={section.id} aria-labelledby={`sheet-${section.id}`}>
-                  <h3 id={`sheet-${section.id}`} className="text-base font-bold" style={{ color: "var(--ink)" }}>
+                  <h3 id={`sheet-${section.id}`} className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>
                     {section.title}
                   </h3>
                   {section.blurb && (
@@ -455,21 +488,21 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
                       {section.blurb}
                     </p>
                   )}
-                  <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+                  <div className="mt-2 grid grid-cols-2 gap-2">
                     {section.items.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
                   </div>
                 </section>
               ))}
             </div>
             <section aria-labelledby="sheet-app" className="mt-5">
-              <h3 id="sheet-app" className="text-base font-bold" style={{ color: "var(--ink)" }}>You</h3>
-              <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+              <h3 id="sheet-app" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>You</h3>
+              <div className="mt-2 grid grid-cols-2 gap-2">
                 {app.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
               </div>
             </section>
-            <div className="mt-5 flex items-center gap-2">
-              <ThemeToggle labelled />
-              <SignOutButton labelled />
+            <div className="mt-4 flex flex-col gap-1 border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
+              <ThemeChoice />
+              <SignOutButton />
             </div>
           </div>
         </div>
@@ -556,78 +589,64 @@ function AccountMenu({ onClose, onEdit, active }: {
   return (
     <div
       ref={box}
-      role="menu"
+      role="group"
       aria-label="You"
       className="menu-pop absolute bottom-full left-0 z-50 mb-2 w-72 rounded-[var(--r-lg)] border p-2"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--shadow-lg)" }}
     >
-      <button type="button" role="menuitem" onClick={onEdit} className={item} style={{ color: "var(--ink)" }}>
+      <button type="button" onClick={onEdit} className={item} style={{ color: "var(--ink)" }}>
         <SlidersHorizontal size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
         Edit sidebar
       </button>
-      <Link href="/settings" role="menuitem" className={item} aria-current={active("/settings") ? "page" : undefined} style={{ color: "var(--ink)" }}>
+      <Link href="/settings" className={item} aria-current={active("/settings") ? "page" : undefined} style={{ color: "var(--ink)" }}>
         <Settings size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
         Settings
       </Link>
-      <Link href="/suggestions" role="menuitem" className={item} aria-current={active("/suggestions") ? "page" : undefined} style={{ color: "var(--ink)" }}>
+      <Link href="/suggestions" className={item} aria-current={active("/suggestions") ? "page" : undefined} style={{ color: "var(--ink)" }}>
         <MessageSquareWarning size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
         Suggested fixes
       </Link>
       <div className="my-1 border-t" style={{ borderColor: "var(--rule-soft)" }} />
       <ThemeChoice />
-      <SignOutButton menu />
+      <SignOutButton />
     </div>
   );
 }
 
 /**
- * One card in the phone sheet.
+ * One tile in the phone sheet: an icon and a name, two to a row.
  *
- * It carries the blurb where the rail only has room for a title, because the
- * sheet is the surface somebody opens when they are not sure where a thing is,
- * and "Level check" beside "Mock exam" needs a line to tell them apart.
+ * It used to carry the destination's blurb as well, which made the sheet
+ * nineteen cards of two-line prose: the busy rail again, one surface over.
+ * The desktop rail answers with a word per row and the sheet does the same,
+ * grouped under the five homes so the heading is the explanation. The blurb
+ * is still the tile's `title` and still what the command palette searches.
  */
 function SheetLink({ item, active }: { item: Destination; active: boolean }) {
   return (
     <Link
       href={item.href}
+      title={item.blurb}
       aria-current={active ? "page" : undefined}
-      className="flex items-start gap-3 rounded-[var(--r)] px-4 py-3"
+      className="choice-btn flex min-h-12 items-center gap-2 rounded-[var(--r)] border px-3 py-2 text-sm font-semibold"
       style={{
-        color: active ? "var(--accent-deep)" : "var(--ink-2)",
-        background: active ? "var(--accent-soft)" : "var(--raised)",
-      }}
+        color: active ? "var(--accent-deep)" : "var(--ink)",
+        borderColor: active ? "var(--accent)" : "var(--edge)",
+        ["--choice-bg" as string]: active ? "var(--accent-soft)" : "var(--surface)",
+      } as CSSProperties}
     >
-      <span className="mt-0.5" style={{ color: active ? "var(--accent-deep)" : `var(--${item.tone})` }}>
-        <NamedIcon name={item.icon} size={16} strokeWidth={2.2} aria-hidden />
-      </span>
-      <span className="min-w-0">
-        <span className="block text-base font-semibold">{item.label}</span>
-        <span className="mt-0.5 block text-xs leading-snug" style={{ color: "var(--ink-3)" }}>
-          {item.blurb}
-        </span>
-      </span>
+      <NamedIcon
+        name={item.icon}
+        size={16}
+        strokeWidth={2.2}
+        aria-hidden
+        style={{ color: active ? "var(--accent-deep)" : "var(--ink-3)" }}
+      />
+      <span className="min-w-0">{item.label}</span>
     </Link>
   );
 }
 
-function IconButton({ onClick, label, labelled, children }: {
-  onClick: () => void; label: string; labelled?: boolean; children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      className={`press flex items-center gap-2 rounded-full p-2 transition-colors hover:bg-[var(--raised)] ${
-        labelled ? "px-4 text-sm font-medium" : ""
-      }`}
-      style={{ color: "var(--ink-3)", background: labelled ? "var(--raised)" : undefined }}
-    >
-      {children}
-    </button>
-  );
-}
 
 /**
  * Signing out leaves the device the way a stranger should find it.
@@ -639,7 +658,7 @@ function IconButton({ onClick, label, labelled, children }: {
  * quietly drop, so it asks: the person pressing this on a train may prefer to
  * stay signed in until the tunnel ends.
  */
-function SignOutButton({ labelled, menu }: { labelled?: boolean; menu?: boolean }) {
+function SignOutButton() {
   const router = useRouter();
   const { flush } = useOffline();
   // Local installs have no accounts to sign out of — see lib/auth/mode.ts.
@@ -679,25 +698,17 @@ function SignOutButton({ labelled, menu }: { labelled?: boolean; menu?: boolean 
     router.push("/welcome");
     router.refresh();
   };
-  if (menu) {
-    return (
-      <button
-        type="button"
-        role="menuitem"
-        onClick={() => void signOut()}
-        className="tap-tint flex w-full items-center gap-3 rounded-[var(--r)] px-3 py-2.5 text-left text-sm font-semibold"
-        style={{ color: "var(--ink)" }}
-      >
-        <LogOut size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-        Sign out
-      </button>
-    );
-  }
   return (
-    <IconButton onClick={() => void signOut()} label="Sign out" labelled={labelled}>
-      <LogOut size={16} strokeWidth={2} aria-hidden />
-      {labelled && "Sign out"}
-    </IconButton>
+    <button
+      type="button"
+     
+      onClick={() => void signOut()}
+      className="tap-tint flex w-full items-center gap-3 rounded-[var(--r)] px-3 py-2.5 text-left text-sm font-semibold"
+      style={{ color: "var(--ink)" }}
+    >
+      <LogOut size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
+      Sign out
+    </button>
   );
 }
 
@@ -724,38 +735,6 @@ function applyTheme(next: "light" | "dark") {
   }
 }
 
-function ThemeToggle({ labelled }: { labelled?: boolean }) {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    let stored: string | null = null;
-    try {
-      stored = window.localStorage.getItem("theme");
-    } catch {
-      // Blocked storage throws on a read as well as on the write below; the
-      // toggle then starts from light, which is what the page painted.
-    }
-    if (stored === "light" || stored === "dark") {
-      setTheme(stored);
-      document.documentElement.dataset.theme = stored;
-    }
-  }, []);
-
-  const toggle = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    applyTheme(next);
-  };
-
-  return (
-    <IconButton onClick={toggle} label="Switch between light and dark theme" labelled={labelled}>
-      {theme === "dark"
-        ? <Sun size={16} strokeWidth={2} aria-hidden />
-        : <Moon size={16} strokeWidth={2} aria-hidden />}
-      {labelled && "Theme"}
-    </IconButton>
-  );
-}
 
 /**
  * Light or dark, as two halves of one control rather than a button whose

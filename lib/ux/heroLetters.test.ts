@@ -26,6 +26,16 @@ describe("dealing the hero's letters", () => {
     expect(dealt).toBe(399 * 4);
   });
 
+  it("keeps to the top and bottom on a phone, all four placed", () => {
+    for (let seed = 1; seed < 200; seed++) {
+      const deal = dealHeroLetters(seeded(seed), { sides: false });
+      expect(deal).toHaveLength(4);
+      expect(deal.every((d) => d.edge === "top" || d.edge === "bottom")).toBe(true);
+      // Anu's button floats over the bottom right of a phone.
+      expect(deal.filter((d) => d.edge === "bottom").every((d) => d.at <= 0.6)).toBe(true);
+    }
+  });
+
   it("does not deal the same card twice in a row", () => {
     const a = dealHeroLetters(seeded(7));
     const b = dealHeroLetters(seeded(8));

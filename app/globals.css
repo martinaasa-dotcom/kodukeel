@@ -885,7 +885,9 @@
   */
   .dock-pad { padding-bottom: 1.5rem; }
   @media (max-width: 767px) { .dock-pad { padding-bottom: 7rem; } }
-  :root[data-dock] .dock-pad { padding-bottom: calc(var(--dock-clearance) + 1.5rem); }
+  /* Plus the 2.25rem the phone bar's raised Today button stands up out of the
+     bar (app/nav.css), so the last line of a page can scroll clear of it. */
+  :root[data-dock] .dock-pad { padding-bottom: calc(var(--dock-clearance) + 3.75rem); }
 
   /*
     THE SAME MEASUREMENT AGAIN, SPENT AS SCROLL MARGIN.

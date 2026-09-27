@@ -18,8 +18,9 @@ import type { LetterEdge } from "@/lib/ux/letterMotion";
  * do not hop in: a hop on every visit to Today is a hop somebody sees ten
  * times an evening.
  *
- * Wider than a phone only. On a phone the card is the width of the screen and
- * a letter over its side edge is a letter off the screen.
+ * On a phone they are smaller and keep to the top and bottom edges, since the
+ * card is the width of the screen and a letter over its side would hang off
+ * it.
  */
 const LOOK: Record<string, { hue: LetterHue; character: string }> = {
   "õ": { hue: "butter", character: "wander" },
@@ -31,8 +32,8 @@ const LOOK: Record<string, { hue: LetterHue; character: string }> = {
 function placement(spot: HeroLetterSpot): React.CSSProperties {
   const along = `calc(${(spot.at * 100).toFixed(1)}% - 1.25rem)`;
   switch (spot.edge) {
-    case "top": return { top: "-1.35rem", left: along };
-    case "bottom": return { bottom: "-1.35rem", left: along };
+    case "top": return { top: "-1.1rem", left: along };
+    case "bottom": return { bottom: "-1.1rem", left: along };
     case "left": return { left: "-1.1rem", top: along };
     default: return { right: "-1.1rem", top: along };
   }
@@ -45,10 +46,13 @@ function travelFor(edge: LetterEdge): { x: number; y: number } {
 export function HeroLetters() {
   const [deal, setDeal] = useState<HeroLetterSpot[] | null>(null);
   // Dealt after mount, for the reason in the header.
-  useEffect(() => setDeal(dealHeroLetters()), []);
+  useEffect(() => {
+    const phone = window.matchMedia("(max-width: 767px)").matches;
+    setDeal(dealHeroLetters(Math.random, { sides: !phone }));
+  }, []);
   if (!deal) return null;
   return (
-    <span aria-hidden className="hero-letters pointer-events-none absolute inset-0 z-20 hidden md:block">
+    <span aria-hidden className="hero-letters pointer-events-none absolute inset-0 z-20">
       {deal.map((spot, i) => {
         const look = LOOK[spot.letter]!;
         return (
@@ -63,7 +67,7 @@ export function HeroLetters() {
             room={0.7}
             delay={i * 0.6}
             reach={260}
-            className="h-10 w-10 text-xl"
+            className="h-8 w-8 text-base md:h-10 md:w-10 md:text-xl"
             style={placement(spot)}
           />
         );
