@@ -121,7 +121,7 @@ export default async function LearnPage() {
         </Ring>
         {/* Beside the ring on a phone too: the text takes the rest of the line
             rather than a line under a ring standing alone. */}
-        <div className="min-w-0 flex-1 basis-[calc(100%-5.5rem)] sm:basis-0">
+        <div className="min-w-0 flex-1 basis-[calc(100%-5.5rem)] sm:basis-[18rem]">
           <p className="text-base" style={{ color: "var(--ink)" }}>
             You are working at {placement} · {knownWords} of {totalWords} words known
           </p>

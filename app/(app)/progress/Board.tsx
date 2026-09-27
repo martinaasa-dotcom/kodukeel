@@ -92,7 +92,7 @@ export async function Board({ ownerId, now }: { ownerId: string; now: Date }) {
                   {i === 0 && row.reviewsThisWeek > 0
                     ? <Trophy size={15} aria-hidden style={{ color: "var(--hard-ink)" }} />
                     : <Users size={15} aria-hidden style={{ opacity: 0.5 }} />}
-                  <span className="min-w-0 flex-1 truncate text-sm">{row.displayName}</span>
+                  <span className="min-w-0 flex-1 text-sm">{row.displayName}</span>
                   <span className="tnum text-xs">{row.reviewsThisWeek}</span>
                 </li>
               ))}

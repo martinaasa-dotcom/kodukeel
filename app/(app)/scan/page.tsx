@@ -1,11 +1,12 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Camera, ChevronRight, Layers } from "lucide-react";
+import { Camera, ChevronRight, ClipboardPaste, Layers } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
-import { Card, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { ButtonLink } from "@/components/Button";
+import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { ScanCapture } from "./ScanCapture";
 
 export const dynamic = "force-dynamic";
@@ -48,10 +49,32 @@ export default async function ScanPage() {
     >
       <Stack>
         {!configured && (
-          <Note tone="hard">
-            Reading a photo needs an AI key, which this copy has not set up. A word list can be
-            pasted into Settings instead.
-          </Note>
+          /*
+            A panel with a way forward rather than a warning with none: the
+            camera needs a model to read the page, and the list on the paper can
+            still be typed or pasted in, which is the same words by another door.
+          */
+          <Card tone="night" className="flex flex-wrap items-center gap-5">
+            <span
+              aria-hidden
+              className="grid h-14 w-14 shrink-0 place-items-center rounded-[var(--r-lg)]"
+              style={{ background: "var(--sky)", color: "var(--on-hue)" }}
+            >
+              <Camera size={24} />
+            </span>
+            <span className="min-w-0 flex-1 basis-[16rem]">
+              <span className="font-display block text-xl font-bold" style={{ color: "var(--ink)" }}>
+                The camera is off on this copy
+              </span>
+              <span className="mt-1 block text-sm" style={{ color: "var(--ink-2)" }}>
+                Reading a photo needs an AI key, which nobody has set up here. The words on your page
+                can still come in as a pasted list.
+              </span>
+            </span>
+            <ButtonLink href="/settings#import" variant="primary">
+              <ClipboardPaste size={15} aria-hidden /> Paste a word list
+            </ButtonLink>
+          </Card>
         )}
 
         {configured && <ScanCapture />}
@@ -69,7 +92,9 @@ export default async function ScanPage() {
           ) : (
             <ul className="flex flex-col gap-2">
               {scans.map((scan) => {
-                const summary = summarise(parseItems(scan.items, MAX_ITEMS));
+                const items = parseItems(scan.items, MAX_ITEMS);
+                const summary = summarise(items);
+                const shown = items.slice(0, 6).map((item) => item.lemma ?? item.et);
                 return (
                   <li key={scan.id}>
                     <Card as="div" hover className="p-0">
@@ -78,8 +103,8 @@ export default async function ScanPage() {
                         className="flex min-h-16 items-center gap-4 px-5 py-4"
                       >
                         <span
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                          style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)]"
+                          style={{ background: "var(--sky)", color: "var(--on-hue)" }}
                         >
                           <Camera size={17} aria-hidden />
                         </span>
@@ -92,6 +117,20 @@ export default async function ScanPage() {
                             {summary.total} word{summary.total === 1 ? "" : "s"}
                             {summary.unknown > 0 && <> · {summary.unknown} unverified</>}
                           </span>
+                          {shown.length > 0 && (
+                            <span className="mt-2 flex flex-wrap gap-1.5">
+                              {shown.map((word, i) => (
+                                <span
+                                  key={`${word}-${i}`}
+                                  lang="et"
+                                  className="rounded-full border px-2.5 py-0.5 text-sm"
+                                  style={{ borderColor: "var(--rule-soft)", background: "var(--raised)", color: "var(--ink)" }}
+                                >
+                                  {word}
+                                </span>
+                              ))}
+                            </span>
+                          )}
                         </span>
                         <ChevronRight size={16} aria-hidden style={{ color: "var(--ink-3)" }} />
                       </Link>

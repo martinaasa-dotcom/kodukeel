@@ -336,6 +336,27 @@ export default async function ProgressPage() {
                 </div>
               ))}
             </div>
+            {/* When the bars are and what their colour means, since a column of
+                heights with no dates under it and three hues nobody named is a
+                picture rather than a chart. */}
+            {trend.length > 0 && (
+              <div className="mt-2 flex justify-between text-xs tnum" style={{ color: "var(--ink-3)" }}>
+                <span>{shortDay(trend[0]!.day)}</span>
+                <span>today</span>
+              </div>
+            )}
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs" style={{ color: "var(--ink-2)" }}>
+              {[
+                { fill: "var(--good)", label: "most recalled" },
+                { fill: "var(--hard)", label: "some slipped" },
+                { fill: "var(--again)", label: "most forgotten" },
+              ].map((k) => (
+                <span key={k.label} className="flex items-center gap-1.5">
+                  <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: k.fill }} />
+                  {k.label}
+                </span>
+              ))}
+            </div>
             {breakdown.total === 0 && (
               <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
                 No reviews yet. Each bar is a day, colored by how much you recalled.
@@ -512,4 +533,12 @@ export default async function ProgressPage() {
       </Stack>
     </Page>
   );
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+
+/** "Sep 1" off a day key, in English because the chart's words are. */
+function shortDay(key: string): string {
+  const month = MONTHS[Number(key.slice(5, 7)) - 1];
+  return month ? `${month} ${Number(key.slice(8, 10))}` : key;
 }

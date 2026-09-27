@@ -9,7 +9,7 @@ import { Card, Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import { errandForScene } from "@/lib/collections/errands";
-import { practises } from "@/lib/scenes/practises";
+import { distinctive } from "@/lib/scenes/practises";
 import { CASES } from "@/lib/estonian/cases";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
 import { SceneVignette } from "@/components/scene/SceneVignette";
@@ -137,10 +137,10 @@ function SceneTile({ scene, history, learnerLevel }: {
 }) {
   const unit = unitById(scene.tests);
   const objectives = scene.beats.filter((beat) => beat.required).length;
-  // What it asks for, as a row of tags rather than a sentence. "A word off
-  // your card" is true of nearly every scene and says nothing, so it is left
-  // out; the rest is what somebody looks for.
-  const chips = practises(scene).filter((d) => d !== "a word off your card").slice(0, 4);
+  // What it asks for, as a row of tags rather than a sentence, and only the
+  // ones that tell this scene from the other fourteen: rarest first, and a
+  // tag every scene carries is not a tag. See `lib/scenes/practises.ts`.
+  const chips = distinctive(scene, SCENES);
   const errand = errandForScene(scene.id);
   return (
     <li>

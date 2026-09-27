@@ -77,8 +77,19 @@ export function WorkplaceView({ summary, sponsor }: {
                     boxShadow: "var(--depth-sm)",
                   }}
                 >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-base" style={{ color: "var(--ink)" }}>
+                  {/* An initial on one of the four night colours, chosen by the
+                      id so a person keeps theirs, which is what makes a list of
+                      names read as people at a glance. Decoration: the name is
+                      beside it in words. */}
+                  <span
+                    aria-hidden
+                    className="font-display grid h-10 w-10 shrink-0 place-items-center rounded-full text-md font-bold"
+                    style={{ background: `var(--${PERSON_HUES[hueOf(member.ownerId)]})`, color: "var(--on-hue)" }}
+                  >
+                    {initialOf(member.displayName)}
+                  </span>
+                  <span className="min-w-[8rem] flex-1">
+                    <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>
                       {member.displayName}
                     </span>
                     <span className="block text-xs" style={{ color: quiet ? "var(--hard-ink)" : "var(--ink-3)" }}>
@@ -119,9 +130,8 @@ export function WorkplaceView({ summary, sponsor }: {
       {sponsor && (
         <Note tone="neutral">
           You see who is practicing and roughly where they stand. You do not see anybody&rsquo;s deck,
-          their searches, their answers, or which grammar they personally find hard. That line is a
-          different query rather than a hidden column, see{" "}
-          <code className="text-xs">lib/classroom/roster.ts</code>.
+          their searches, their answers, or which grammar they personally find hard. Those are never
+          read for this page at all, rather than read and hidden.
         </Note>
       )}
 
@@ -162,3 +172,16 @@ const BAND_TONE: Record<ReadinessBand, "good" | "hard" | "again" | "neutral"> = 
   unknown: "neutral",
 };
 
+const PERSON_HUES = ["cta", "sky", "blush", "mint"] as const;
+
+function hueOf(id: string): number {
+  let h = 0;
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h % PERSON_HUES.length;
+}
+
+/** The first letter of a name, whole even where it is two code units. */
+function initialOf(name: string): string {
+  const first = Array.from(name.trim())[0];
+  return first ? first.toUpperCase() : "?";
+}

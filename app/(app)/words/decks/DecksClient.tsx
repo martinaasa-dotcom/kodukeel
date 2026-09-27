@@ -39,11 +39,15 @@ export function DecksClient({ decks: initial }: { decks: DeckSummary[] }) {
               deck={deck}
               onRenamed={(name) => setDecks((d) => d.map((x) => (x.id === deck.id ? { ...x, name } : x)))}
               onDeleted={() => setDecks((d) => d.filter((x) => x.id !== deck.id))}
-              onWordRemoved={() =>
-                setDecks((d) => d.map((x) => (x.id === deck.id ? { ...x, wordCount: Math.max(0, x.wordCount - 1) } : x)))
+              onWordRemoved={(lemma) =>
+                setDecks((d) => d.map((x) => (x.id === deck.id
+                  ? { ...x, wordCount: Math.max(0, x.wordCount - 1), preview: x.preview.filter((w) => w !== lemma) }
+                  : x)))
               }
-              onWordFiled={() =>
-                setDecks((d) => d.map((x) => (x.id === deck.id ? { ...x, wordCount: x.wordCount + 1 } : x)))
+              onWordFiled={(lemma) =>
+                setDecks((d) => d.map((x) => (x.id === deck.id
+                  ? { ...x, wordCount: x.wordCount + 1, preview: [lemma, ...x.preview.filter((w) => w !== lemma)].slice(0, 5) }
+                  : x)))
               }
             />
           ))}
@@ -110,8 +114,8 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
   deck: DeckSummary;
   onRenamed: (name: string) => void;
   onDeleted: () => void;
-  onWordRemoved: () => void;
-  onWordFiled: () => void;
+  onWordRemoved: (lemma: string) => void;
+  onWordFiled: (lemma: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [filing, setFiling] = useState(false);
@@ -189,7 +193,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="tap-tint font-display truncate rounded-md px-1.5 py-0.5 text-left text-xl font-bold"
+              className="tap-tint font-display rounded-md px-1.5 py-0.5 text-left text-xl font-bold"
               style={{ color: "var(--ink)" }}
             >
               {deck.name}
@@ -246,11 +250,33 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
         )}
         {error && <p role="alert" className="w-full text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       </div>
+      {/* What is on the shelf, newest first, so a deck reads as its words
+          rather than as a count. Hidden while the full list is open, which
+          says the same thing at length. */}
+      {!expanded && deck.preview.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-1.5" aria-label={`Newest on ${deck.name}`}>
+          {deck.preview.map((lemma) => (
+            <li
+              key={lemma}
+              lang="et"
+              className="rounded-full border px-2.5 py-1 text-sm font-medium"
+              style={{ borderColor: "var(--rule-soft)", background: "var(--raised)", color: "var(--ink)" }}
+            >
+              {lemma}
+            </li>
+          ))}
+          {deck.wordCount > deck.preview.length && (
+            <li className="px-1.5 py-1 text-sm" style={{ color: "var(--ink-3)" }}>
+              and {deck.wordCount - deck.preview.length} more
+            </li>
+          )}
+        </ul>
+      )}
       {filing && (
         <FileWords
           deckId={deck.id}
           deckName={deck.name}
-          onFiled={() => { setVersion((v) => v + 1); onWordFiled(); }}
+          onFiled={(lemma) => { setVersion((v) => v + 1); onWordFiled(lemma); }}
         />
       )}
       {expanded && deck.wordCount > 0 && (
@@ -268,7 +294,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
  * disclosure above rather than passed down from the server render.
  */
 function DeckWordList({ deckId, version, onWordRemoved }: {
-  deckId: string; version: number; onWordRemoved: () => void;
+  deckId: string; version: number; onWordRemoved: (lemma: string) => void;
 }) {
   /*
     Three states rather than two. A read that failed used to be written as an
@@ -291,8 +317,9 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
     setPendingId(lexemeId);
     removeMyDeckWord(deckId, lexemeId)
       .then(() => {
+        const lemma = Array.isArray(words) ? words.find((x) => x.lexemeId === lexemeId)?.lemma : undefined;
         setWords((w) => (Array.isArray(w) ? w.filter((x) => x.lexemeId !== lexemeId) : w));
-        onWordRemoved();
+        if (lemma) onWordRemoved(lemma);
       })
       // A press that never reached the server leaves the word where it was,
       // which is the truth, rather than an unhandled rejection.
@@ -322,7 +349,7 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
     <ul className="mt-3 flex flex-col gap-1 border-t pt-3" style={{ borderColor: "var(--rule)" }}>
       {words.map((word) => (
         <li key={word.lexemeId} className="flex items-center justify-between gap-2 text-sm">
-          <Link href={`/dictionary?q=${encodeURIComponent(word.lemma)}`} lang="et" className="truncate underline" style={{ color: "var(--ink)" }}>
+          <Link href={`/dictionary?q=${encodeURIComponent(word.lemma)}`} lang="et" className="underline" style={{ color: "var(--ink)" }}>
             {word.lemma}
           </Link>
           <button
@@ -364,7 +391,7 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
  * in the list above.
  */
 function FileWords({ deckId, deckName, onFiled }: {
-  deckId: string; deckName: string; onFiled: () => void;
+  deckId: string; deckName: string; onFiled: (lemma: string) => void;
 }) {
   const [query, setQuery] = useState("");
   // "failed" rather than an empty list, which read as "every word you have is
@@ -402,7 +429,7 @@ function FileWords({ deckId, deckName, onFiled }: {
         */
         setWords((w) => (Array.isArray(w) ? w.filter((x) => x.lexemeId !== word.lexemeId) : w));
         setSaid(`${word.lemma} is on ${deckName}.`);
-        onFiled();
+        onFiled(word.lemma);
       })
       .catch(() => setError("That did not save. Try again in a moment."))
       .finally(() => setPendingId(null));
@@ -445,8 +472,8 @@ function FileWords({ deckId, deckName, onFiled }: {
                 className="tap-tint flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm"
               >
                 <Plus size={13} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
-                <span className="truncate" lang="et" style={{ color: "var(--ink)" }}>{word.lemma}</span>
-                <span className="truncate text-xs" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
+                <span className="" lang="et" style={{ color: "var(--ink)" }}>{word.lemma}</span>
+                <span className="text-xs" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
               </button>
             </li>
           ))}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Send, Sparkles } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Card, Empty } from "@/components/ui";
+import { Card } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { useAnuChat, type Msg } from "@/components/anu/useAnuChat";
 import { useStickToBottom } from "@/components/anu/useStickToBottom";
@@ -43,29 +43,40 @@ export function TutorChat({
   const conversation = useStickToBottom(messages);
 
   if (!configured) {
+    /*
+      A night panel rather than an empty state: this is the one screen whose
+      whole content is her, so saying she is off is the page. It says what she
+      is for in the reader's own terms, what still works, and the one way on.
+    */
     return (
-      <Empty
-        title={readerCanConfigure ? "Anu needs an AI key" : "Anu is not available"}
-        body={readerCanConfigure
-          ? "Everything else works without one. Settings has a walkthrough for getting a free key."
-          : "Everything else here works without her."}
-        action={
-          <div className="flex flex-col items-center gap-4">
-            {/* A question handed over by the card the learner just got wrong.
-                Dropping it because this deployment has no key throws away the
-                one thing they came here with, and the wording is gone by the
-                time they get back. Shown, so it can be read and copied. */}
-            {initialQuestion && (
-              <p className="max-w-[48ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                You arrived with a question: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span>
-              </p>
-            )}
-            {readerCanConfigure && (
-              <ButtonLink href="/settings">Open Settings</ButtonLink>
-            )}
-          </div>
-        }
-      />
+      <Card tone="night" className="flex flex-col items-center gap-5 px-6 py-10 text-center md:py-12">
+        <Mascot size={64} className="float" />
+        <div className="max-w-[46ch]">
+          <h2 className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>
+            {readerCanConfigure ? "Anu needs an AI key" : "Anu is not available"}
+          </h2>
+          <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            {readerCanConfigure
+              ? "She explains why a form is what it is and checks a sentence you wrote. Everything else works without her, and Settings has a walkthrough for getting a free key."
+              : "Everything else here works without her."}
+          </p>
+        </div>
+        {/* A question handed over by the card the learner just got wrong.
+            Dropping it because this deployment has no key throws away the
+            one thing they came here with, and the wording is gone by the
+            time they get back. Shown, so it can be read and copied. */}
+        {initialQuestion && (
+          <p
+            className="max-w-[52ch] rounded-[var(--r-lg)] px-4 py-3 text-sm leading-relaxed"
+            style={{ background: "rgb(255 255 255 / 0.08)", border: "1px solid rgb(255 255 255 / 0.14)", color: "var(--ink-2)" }}
+          >
+            You arrived with a question: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span>
+          </p>
+        )}
+        {readerCanConfigure && (
+          <ButtonLink href="/settings" variant="primary">Open Settings</ButtonLink>
+        )}
+      </Card>
     );
   }
 

@@ -112,11 +112,18 @@ export default async function SuggestionsQueuePage({
         ))}
       </div>
 
+      {/*
+        The filter offers only what there is to filter to. Fourteen chips each
+        reading nought is a form with nothing in it, drawn above the sentence
+        saying the queue is empty; a category shows once it has an open report,
+        or while it is the one chosen, and a group with nothing to show goes.
+      */}
+      {CATEGORY_GROUPS.some((group) => categoriesInGroup(group).some((c) => queue.openByCategory[c] > 0 || category === c)) && (
       <div className="mb-6 flex flex-col gap-3">
-        {CATEGORY_GROUPS.map((group) => (
+        {CATEGORY_GROUPS.filter((group) => categoriesInGroup(group).some((c) => queue.openByCategory[c] > 0 || category === c)).map((group) => (
           <div key={group} className="flex flex-wrap items-center gap-2">
             <span className="label-xs min-w-20 shrink-0" style={{ color: "var(--ink-3)" }}>{group}</span>
-            {categoriesInGroup(group).map((c) => (
+            {categoriesInGroup(group).filter((c) => queue.openByCategory[c] > 0 || category === c).map((c) => (
               <Link key={c} href={href({ category: category === c ? null : c, page: 0 })}>
                 <span
                   className="label-xs inline-flex items-center gap-2 rounded-full px-3 py-1.5"
@@ -133,6 +140,7 @@ export default async function SuggestionsQueuePage({
           </div>
         ))}
       </div>
+      )}
 
       {/*
         Always mounted, empty state and all. The alternative is

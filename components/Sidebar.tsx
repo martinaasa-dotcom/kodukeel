@@ -186,7 +186,14 @@ export function Sidebar() {
         <div
           ref={railMarker.ref}
           data-nav-marked={railMarker.mark ? "" : undefined}
-          className="scroll-host relative isolate -mr-4 flex min-h-0 flex-1 flex-col"
+          /*
+            `-ml-2 pl-2` is room for the marker's ring and its shadow. The
+            scroller clips at its padding box, and a pane measured flush
+            against the left of it drew the card with its left side sheared
+            off; the padding moves every cell eight pixels in and the margin
+            moves them back, so nothing on the rail shifts but the clip.
+          */
+          className="scroll-host relative isolate -ml-2 -mr-4 flex min-h-0 flex-1 flex-col pl-2"
           style={
             {
               "--nav-marker-bg": "var(--surface)",
@@ -213,7 +220,7 @@ export function Sidebar() {
             "next row" at a glance.
           */}
           {PLACES.map((section) => (
-            <section key={section.id} aria-labelledby={`rail-${section.id}`} className="mb-9">
+            <section key={section.id} aria-labelledby={`rail-${section.id}`} className="mb-7">
               <h2 id={`rail-${section.id}`} className="label-xs px-3 pb-3" style={{ color: "var(--ink-3)" }}>
                 {section.title}
               </h2>
@@ -236,7 +243,7 @@ export function Sidebar() {
             column and three more uppercase words at the bottom of it would be
             one label too many.
           */}
-          <div className="mt-auto border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
+          <div className="mt-auto border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
             {SECTIONS.filter((s) => s.id === "app").map((section) =>
               section.items.map((item) => (
                 <RailLink key={item.href} item={item} active={active(item.href)} />

@@ -34,20 +34,35 @@ export interface DeckSummary {
   name: string;
   createdAt: string;
   wordCount: number;
+  /**
+   * The newest few words on the shelf, so a deck reads as what is on it
+   * rather than as a number. Five is what fits one line of a phone.
+   */
+  preview: string[];
 }
+
+const PREVIEW_WORDS = 5;
 
 /** Every deck this learner has named, with how many words sit in each. */
 export async function listDecks(ownerId: string): Promise<DeckSummary[]> {
   const decks = await prisma.deck.findMany({
     where: { ownerId },
     orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-    include: { _count: { select: { words: true } } },
+    include: {
+      _count: { select: { words: true } },
+      words: {
+        take: PREVIEW_WORDS,
+        orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+        select: { lexeme: { select: { lemma: true } } },
+      },
+    },
   });
   return decks.map((d) => ({
     id: d.id,
     name: d.name,
     createdAt: d.createdAt.toISOString(),
     wordCount: d._count.words,
+    preview: d.words.map((w) => w.lexeme.lemma),
   }));
 }
 
@@ -79,7 +94,7 @@ export async function createDeck(
     return { ok: false, error: `That is as many decks as one learner needs. You already have ${outcome.existing}.` };
   }
   const { deck } = outcome;
-  return { ok: true, deck: { id: deck.id, name: deck.name, createdAt: deck.createdAt.toISOString(), wordCount: 0 } };
+  return { ok: true, deck: { id: deck.id, name: deck.name, createdAt: deck.createdAt.toISOString(), wordCount: 0, preview: [] } };
 }
 
 export async function renameDeck(

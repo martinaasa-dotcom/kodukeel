@@ -164,7 +164,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
           {milestones.map((stop) => (
             <span
               key={stop.level}
-              className="tnum flex min-w-0 items-center justify-center gap-0.5 text-xs font-semibold"
+              className="tnum flex min-w-0 items-center justify-center gap-0.5 whitespace-nowrap text-xs font-semibold"
               style={{
                 width: `${stop.share}%`,
                 color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink-2)",
@@ -225,7 +225,15 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
         one a learner acts on tonight; and the arithmetic is behind a press.
         A screen reader still hears every stop's sentence.
       */}
-      <ol className="mt-5 grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(milestones.length, 5)}, minmax(0, 1fr))` }}>
+      {/*
+        AS MANY ACROSS AS FIT, NEVER AS MANY AS THERE ARE.
+
+        Five columns whatever the card's width was a promise the card could
+        not keep: on a narrow dashboard each box came out a few characters
+        wide and its words were broken to fit. A box is never narrower than
+        its name needs, and the row wraps instead.
+      */}
+      <ol className="mt-5 grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(7.5rem, 1fr))" }}>
         {milestones.map((stop) => (
           <li
             key={stop.level}
@@ -247,7 +255,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
             </span>
             <span
               lang={wantsEnglish ? undefined : "et"}
-              className="hidden text-xs leading-snug @min-[7rem]:block"
+              className="text-xs leading-snug @min-[9rem]:text-sm"
               style={{ color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink-2)" }}
             >
               {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}

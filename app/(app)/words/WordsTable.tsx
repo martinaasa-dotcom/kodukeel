@@ -100,6 +100,14 @@ export function WordsTable({ rows }: { rows: CardRow[] }) {
   );
 }
 
+/** The fill the deck panel draws each state in, so a row and the bar agree. */
+function stateHue(row: CardRow): string {
+  if (row.lapses > 0) return "var(--peach)";
+  if (row.stateLabel === "New") return "var(--sky)";
+  if (row.stateLabel === "Review" || row.stateLabel === "Known") return "var(--mint)";
+  return "var(--cta)";
+}
+
 function Row({ row }: { row: CardRow }) {
   const [pending, start] = useTransition();
   const [gone, setGone] = useState(false);
@@ -111,7 +119,7 @@ function Row({ row }: { row: CardRow }) {
 
   return (
     <li
-      className="flex items-center gap-3 border-b px-4 py-3 transition-colors last:border-b-0"
+      className="relative flex items-center gap-3 border-b py-3 pl-5 pr-3 transition-colors last:border-b-0"
       style={{
         borderColor: "var(--rule-soft)",
         /* A set-aside row is a quieter ground, never a fade: an opacity on a
@@ -120,15 +128,22 @@ function Row({ row }: { row: CardRow }) {
         opacity: pending ? 0.5 : 1,
       }}
     >
+      {/* Where the card stands, as the colour the deck panel above uses for
+          it: new, learning, known, and a lapse wearing the missed hue. */}
+      <span
+        aria-hidden
+        className="absolute inset-y-2.5 left-2 w-1 rounded-full"
+        style={{ background: suspended ? "var(--rule)" : stateHue(row) }}
+      />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-base" style={{ color: "var(--ink)" }}>
-          <span lang="et">{row.front}</span>
+        <p className="text-base" style={{ color: "var(--ink)" }}>
+          <span lang="et" className="font-semibold">{row.front}</span>
           <span style={{ color: "var(--ink-3)" }}> → {row.back}</span>
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-2xs" style={{ color: "var(--ink-3)" }}>
           <span>{row.cardType.toLowerCase().replace("_", " ")}</span>
           <span>{row.stateLabel}</span>
-          <span>
+          <span style={isDue ? { color: "var(--accent-deep)", fontWeight: 600 } : undefined}>
             {isDue ? "due now" : (
               <>due <LocalDate iso={dueDate.toISOString()} fallback={stableDate(dueDate, DUE_SHAPE)} options={DUE_SHAPE} /></>
             )}

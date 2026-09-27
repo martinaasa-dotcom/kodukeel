@@ -171,9 +171,8 @@ export default async function ClassIndexPage() {
           percentage across all their reviews. Whoever runs a workplace group sees less than
           that, never more: a name, whether somebody has been practicing, and one of four bands
           for the paper the group works toward. Never a search, a deck or a single answer, and
-          never a colleague&rsquo;s weak grammar. Both of those lines are drawn in the code
-          rather than only in a policy. See{" "}
-          <code className="text-xs">lib/classroom/roster.ts</code>.
+          never a colleague&rsquo;s weak grammar. Both lines are held by what the app reads,
+          not only by a policy: what a page may not show is never fetched for it.
         </Explain>
       </Stack>
     </Page>

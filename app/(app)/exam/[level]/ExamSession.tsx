@@ -5,7 +5,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type React
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { useRouter } from "next/navigation";
 import {
-  CircleAlert, Clock, Coffee, Ear, FileWarning, Headphones, Loader2, Mic, PenLine, RotateCcw,
+  CircleAlert, Clock, Coffee, Ear, FileWarning, Headphones, Loader2, Mic, PenLine, RotateCcw, Save,
   Send, TriangleAlert, VolumeX, WifiOff,
 } from "lucide-react";
 import { submitExam } from "@/app/actions";
@@ -499,16 +499,19 @@ function Break({ until, now, nextLabel, onResume }: {
 const PART_HUES = ["cta", "blush", "accent", "sky"] as const;
 
 /** One thing worth knowing before the clock starts, beside a mark saying what about. */
-function Fact({ icon, hue, children }: { icon: ReactNode; hue: "butter" | "blush" | "sky" | "accent"; children: ReactNode }) {
+function Fact({ icon, hue, title, children }: { icon: ReactNode; hue: "butter" | "blush" | "sky" | "accent"; title: string; children: ReactNode }) {
   return (
     <div
       className="flex items-start gap-3 rounded-[var(--r-lg)] border p-4"
       style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
-      <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-full" style={{ background: `var(--${hue}-soft)`, color: `var(--${hue === "accent" ? "accent-deep" : `${hue}-ink`})` }}>
+      <span aria-hidden className="grid h-10 w-10 shrink-0 place-items-center rounded-[var(--r)]" style={{ background: `var(--${hue === "butter" ? "cta" : hue})`, color: "var(--on-hue)" }}>
         {icon}
       </span>
-      <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{children}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-md font-bold" style={{ color: "var(--ink)" }}>{title}</p>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{children}</p>
+      </div>
     </div>
   );
 }
@@ -625,9 +628,16 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
               </span>
             </div>
             <ul className="mt-4 grid gap-2.5">
-              {part.tasks.map((task) => (
+              {/* Two tasks with one title and one official counterpart are one
+                  line with a count, not the same line printed twice. */}
+              {part.tasks.filter((task, i, all) =>
+                all.findIndex((t) => t.spec.title === task.spec.title && t.spec.standsFor === task.spec.standsFor) === i,
+              ).map((task) => {
+                const times = part.tasks.filter((t) => t.spec.title === task.spec.title && t.spec.standsFor === task.spec.standsFor).length;
+                return (
                 <li key={task.spec.id} className="border-t pt-2.5 text-sm leading-relaxed" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-2)" }}>
                   <span className="font-semibold" style={{ color: "var(--ink)" }}>{task.spec.title}</span>
+                  {times > 1 && <span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{` × ${times}`}</span>}
                   <span style={{ color: "var(--ink-3)" }}>
                     {" · "}stands for {task.spec.standsFor}
                   </span>
@@ -643,7 +653,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
                     </span>
                   )}
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </li>
         ))}
@@ -658,25 +669,48 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             saved on this device as you go.
           </Note>
         ) : (
-        <Note tone="sky">
-          {writtenMinutes(paper.spec)} minutes of written paper, then a {BREAK_MINUTES} minute
-          break, then {speaking?.spec.minutes ?? 15} minutes of speaking. That&apos;s the order, and
-          that&apos;s the whole day. Each part runs on its own clock, and once you leave a part you
-          can&apos;t go back to it. When a part&apos;s time runs out, it closes. Your answers are saved on
-          this device as you go, so closing the tab or reloading won&apos;t lose your paper, and the
-          clock keeps running even while it is closed.
-        </Note>
+        /*
+          The day as three steps rather than a paragraph, since the order is
+          the thing to hold in your head, and then the three rules that come
+          with it as a list a candidate can check off.
+        */
+        <section className="rounded-[var(--r-xl)] border p-5 sm:p-6" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}>
+          <h2 className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>How the day runs</h2>
+          <ol className="mt-4 grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 10rem), 1fr))" }}>
+            {[
+              { label: "Written paper", minutes: writtenMinutes(paper.spec), hue: "accent" },
+              { label: "A break", minutes: BREAK_MINUTES, hue: "raised" },
+              { label: "Speaking", minutes: speaking?.spec.minutes ?? 15, hue: "sky" },
+            ].map((step, i) => (
+              <li
+                key={step.label}
+                className="flex items-center gap-3 rounded-[var(--r-lg)] px-4 py-3"
+                style={{ background: step.hue === "raised" ? "var(--raised)" : `var(--${step.hue}-soft)` }}
+              >
+                <span aria-hidden className="font-display tnum text-2xl font-bold" style={{ color: "var(--ink-3)" }}>{i + 1}</span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold" style={{ color: "var(--ink)" }}>{step.label}</span>
+                  <span className="tnum block text-sm" style={{ color: "var(--ink-2)" }}>{step.minutes} minutes</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <ul className="mt-4 grid gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            <li className="flex gap-2.5"><Clock size={15} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />Each part runs on its own clock and closes when its time runs out. Once you leave a part you can&apos;t go back to it.</li>
+            <li className="flex gap-2.5"><Save size={15} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />Your answers are saved on this device as you go, so a reload loses nothing. The clock keeps running while the tab is closed.</li>
+          </ul>
+        </section>
         )}
+        <div className="grid gap-3 md:grid-cols-2">
         {partOf(paper, "writing") && (
-        <Fact icon={<PenLine size={17} />} hue="butter">
-          The real writing part is just two pieces of writing, and the clock is only for those two.
-          The grammar questions after them are ours, not the real exam&apos;s: a real examiner checks
-          your grammar by reading what you wrote, and nothing here can do that. They come last, so
-          use whatever time the two texts leave you.
+        <Fact icon={<PenLine size={18} />} hue="butter" title="The writing clock is for two texts">
+          The real writing part is two pieces of writing, and the clock is only for those two. The
+          grammar questions after them are ours, since nothing here can read your grammar the way an
+          examiner does. They come last, so give them whatever time is left.
         </Fact>
         )}
         {partOf(paper, "listening") && (
-        <Fact icon={<Headphones size={17} />} hue="blush">
+        <Fact icon={<Headphones size={18} />} hue="blush" title="Two plays per recording">
           Each recording plays {LISTEN_PLAYS} times and no more, just like the real exam. Every
           listening task gives you {READ_QUESTIONS_SECONDS} seconds to read the questions before
           the audio starts.
@@ -689,21 +723,18 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           )}
         </Fact>
         )}
-        <Fact icon={<WifiOff size={17} />} hue="sky">
-          Unlike everyday review, this needs a live connection. The recordings load as you play
-          them, and the paper is marked on our server, so make sure you&apos;re somewhere with signal.
-          If handing in fails, your answers stay right here on the page, and you can just press the
-          button again.
+        <Fact icon={<WifiOff size={18} />} hue="sky" title="Sit it with a connection">
+          The recordings load as you play them and the paper is marked on our server. If handing in
+          fails, your answers stay on the page and you can press the button again.
         </Fact>
         {speaking && (
-        <Fact icon={<Mic size={17} />} hue="accent">
-          You mark the spoken part yourself. We tested a speech recognizer for Estonian and it
-          wasn&apos;t accurate enough, so instead you record yourself, listen back, and tick off what
-          you managed. Your result will show which quarter of your score came from this part. The
-          real spoken exam opens with a few minutes of chat with the examiner before the tasks
-          start. There&apos;s no examiner here, so we go straight to the first task.
+        <Fact icon={<Mic size={18} />} hue="accent" title="Speaking is marked by you">
+          You mark the spoken part yourself: record, listen back, and tick off what you managed. No
+          speech recognizer we tested was accurate enough for Estonian. The break before it rehearses
+          the opening chat a real examiner starts with.
         </Fact>
         )}
+        </div>
         {paper.substituted && (
           <Note tone="hard">
             <FileWarning size={14} className="mr-1.5 inline" aria-hidden />

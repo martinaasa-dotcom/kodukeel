@@ -1,41 +1,163 @@
 /**
- * What a scene practises, in the words a class uses.
+ * What a scene practises, in the words a learner would use for it.
  *
  * Read off the beats' own requirements rather than typed beside the title,
  * so the line on the tile cannot drift from what the marker asks for: a
  * scene that asks for `pood` in three cases says so, and one that asks for
- * the time off the card says that. The case is named the way a class names
- * it (`CASES[].et`, ADR on Estonian terms leading), which is the name a
- * learner sitting in a course will recognize on a tile.
+ * the time off the card says that.
  *
- * Pure: no React, no Next, no Prisma.
+ * THE TAGS ARE WHAT TELLS ONE SCENE FROM ANOTHER, SO A TAG EVERY SCENE CARRIES
+ * IS A TAG THAT SAYS NOTHING. The first version tagged the register, and
+ * fourteen of fifteen scenes are held in the formal you, so every tile read
+ * "the polite you" beside "a word off your card" and "asking a question",
+ * which is three chips describing the module rather than the scene. So:
+ *
+ *   - each beat is named by what the learner does on it (`BEAT_TAGS`),
+ *     "booking a time" or "asking to try it on", rather than by the kind of
+ *     value it asks for;
+ *   - a case is named the way a class names it with what it means beside it;
+ *   - the register is named only where it is the exception, which is the one
+ *     scene played with a friend; and
+ *   - the tile orders its chips by how few scenes share them (`distinctive`),
+ *     so what a scene has that the others do not is what a learner reads.
+ *
+ * Pure: no React, no Next, no Prisma. No Estonian: every label is English,
+ * and a case's name is read off `CASES`.
  */
 import { CASES } from "@/lib/estonian/cases";
+import { CASE_NOTES } from "@/lib/estonian/grammar";
 import { leafNeeds, type SceneSpec } from "./types";
+
+/**
+ * What the learner does on each beat, keyed `scene:beat`, in English and as a
+ * phrase that finishes "You will practise ...". Every beat but the hello and
+ * the goodbye has one, or carries a case (which names itself below), and
+ * `practises.test.ts` fails on a beat with neither: a beat that falls back to
+ * the kind of value it asks for ("a word off your card", "asking a
+ * question") is the label every scene shares and this table exists to
+ * replace.
+ */
+export const BEAT_TAGS: Readonly<Record<string, string>> = {
+  "arsti-aeg:reason": "saying what is wrong",
+  "arsti-aeg:where": "saying where it hurts",
+  "arsti-aeg:since": "saying since when",
+  "arsti-aeg:offer": "booking a time",
+  "arsti-aeg:confirm": "reading a time back",
+
+  "uuri-remont:problem": "saying what has broken",
+  "uuri-remont:where": "which room and floor",
+  "uuri-remont:since": "saying since when",
+  "uuri-remont:refuse": "asking when someone can come",
+  "uuri-remont:agree": "agreeing a day and time",
+
+  "ametiasutus:purpose": "saying why you came",
+  "ametiasutus:document": "handing over a paper",
+  "ametiasutus:wait": "asking how long the wait is",
+  "ametiasutus:fill": "giving your details",
+  "ametiasutus:confirm": "asking when it is ready",
+
+  "kohvikus:order": "ordering a drink",
+  "kohvikus:size": "large or small",
+  "kohvikus:bill": "asking to pay",
+
+  "tee-kusimine:where": "asking the way",
+  "tee-kusimine:way": "following directions",
+  "tee-kusimine:far": "asking whether it is far",
+
+  "bussipilet:want": "asking for a ticket",
+  "bussipilet:to": "saying where you are going",
+  "bussipilet:when": "choosing a departure",
+  "bussipilet:pay": "paying by card or cash",
+
+  "restoranis-tellimine:how-many": "a table for how many",
+  "restoranis-tellimine:order": "ordering food",
+  "restoranis-tellimine:contents": "asking what is in a dish",
+  "restoranis-tellimine:drink": "ordering a drink",
+  "restoranis-tellimine:bill": "asking for the bill",
+
+  "helistamine:why": "saying why you are ringing",
+  "helistamine:have": "asking whether they have it",
+  "helistamine:hours": "asking the opening hours",
+  "helistamine:confirm": "reading a time back",
+
+  "trepikoda:new": "saying you have just moved in",
+  "trepikoda:floor": "saying your floor",
+  "trepikoda:from": "where you are from",
+  "trepikoda:with": "who you live with",
+  "trepikoda:weather": "small talk about the weather",
+
+  "apteek:what": "saying what hurts",
+  "apteek:since": "saying since when",
+  "apteek:medicine": "asking what to take",
+  "apteek:how": "asking how often",
+  "apteek:pay": "paying at the counter",
+
+  "keeletund:name": "saying your name",
+  "keeletund:from": "where you are from",
+  "keeletund:why": "why you are learning",
+  "keeletund:word": "asking what a word means",
+  "keeletund:howlong": "how long you have been learning",
+
+  "toovestlus:before": "where you worked before",
+  "toovestlus:skill": "what you are good at",
+  "toovestlus:why": "why you want the job",
+  "toovestlus:pay": "asking about the pay",
+  "toovestlus:wage": "agreeing the pay",
+  "toovestlus:start": "when you can start",
+
+  "kaebus:problem": "saying what is wrong with it",
+  "kaebus:when": "when you bought it",
+  "kaebus:receipt": "the receipt",
+  "kaebus:want": "asking for your money back",
+  "kaebus:insist": "standing your ground politely",
+
+  "riidepood:want": "asking for a piece of clothing",
+  "riidepood:size": "your size",
+  "riidepood:colour": "the colour you want",
+  "riidepood:proov": "asking to try it on",
+  "riidepood:sobib": "saying whether it fits",
+  "riidepood:hind": "asking the price",
+};
+
+/** A move nobody would put on a tile: every scene opens and closes. */
+const FRAME_MOVES: ReadonlySet<string> = new Set(["greet", "close"]);
 
 export function practises(scene: SceneSpec): string[] {
   const out: string[] = [];
   const seen = new Set<string>();
   const add = (label: string) => { if (!seen.has(label)) { seen.add(label); out.push(label); } };
   for (const beat of scene.beats) {
+    if (FRAME_MOVES.has(beat.move)) continue;
+    // A case names itself, the way a class names it with what it means,
+    // because a scene built on endings is practising those endings.
     for (const { need } of leafNeeds(beat.needs)) {
-      if (need.kind === "case") {
-        const spec = CASES.find((c) => c.key === need.grammCase);
-        if (spec) add(spec.et);
-      } else if (need.kind === "datum") {
-        const prop = scene.props.find((p) => p.slot === need.slot);
-        if (prop?.kind === "time") add("the time");
-        else if (prop?.kind === "weekday") add("a day of the week");
-        else if (prop?.kind === "number") add("a number");
-        else if (prop?.kind === "price") add("a price");
-        else if (prop?.kind === "word") add("a word off your card");
-      } else if (need.kind === "question") {
-        add("asking a question");
-      } else if (need.kind === "negation") {
-        add("saying no");
-      }
+      if (need.kind !== "case") continue;
+      const spec = CASES.find((c) => c.key === need.grammCase);
+      const note = CASE_NOTES.find((n) => n.key === need.grammCase);
+      if (spec) add(note ? `${spec.et} (${note.plain})` : spec.et);
     }
+    const tag = BEAT_TAGS[`${scene.id}:${beat.id}`];
+    if (tag) add(tag);
   }
-  if (scene.register === "teie") add("the polite you");
+  // The exception, never the rule: nearly every scene is held in the formal
+  // you, so naming it on each one says nothing.
+  if (scene.register === "sina") add("talking to a friend");
   return out;
+}
+
+/**
+ * The same tags, rarest first across `all`, for a tile with room for a few.
+ * A tag every scene carries is dropped outright; the order is stable, so two
+ * tags equally rare keep the order the beats met them in.
+ */
+export function distinctive(scene: SceneSpec, all: readonly SceneSpec[], limit = 3): string[] {
+  const count = new Map<string, number>();
+  for (const one of all) for (const tag of practises(one)) count.set(tag, (count.get(tag) ?? 0) + 1);
+  const mine = practises(scene);
+  return mine
+    .map((tag, i) => ({ tag, i, n: count.get(tag) ?? 1 }))
+    .filter(({ n }) => n < all.length)
+    .sort((a, b) => a.n - b.n || a.i - b.i)
+    .slice(0, limit)
+    .map(({ tag }) => tag);
 }
