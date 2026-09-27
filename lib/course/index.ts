@@ -30,16 +30,18 @@ export * from "./build";
 export * from "./gate";
 export * from "./focus";
 export * from "./milestones";
+export * from "./placement";
+export * from "./adapt";
 
 export const PROGRAMMES: readonly Programme[] = buildProgrammes();
 
 /**
  * Where somebody with no history starts, which is the first part of A1.
  *
- * Only ever a default. `lib/progress/course.ts` offers the first part *at or
- * below the learner's own level*, so a B1 speaker who turns the course on gets
- * B1.1 rather than twelve evenings of greetings, and nobody is asked to work
- * up through a level a paper has already measured them past.
+ * Only ever a default. `lib/progress/course.ts` opens the course past the
+ * level somebody holds (`lib/course/placement.ts`), so a B1 speaker who turns
+ * it on gets B2.1 rather than twelve evenings of greetings, and nobody is asked
+ * to work up through a level they have already named or a paper has measured.
  */
 export const DEFAULT_PROGRAMME = PROGRAMMES[0]!;
 
