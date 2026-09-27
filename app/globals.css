@@ -1328,6 +1328,18 @@
   body:has(.module-step) .dock-clear { scroll-margin-bottom: 8rem; }
 
   /*
+    On a phone the bar is two rows, the step count beside the cross and the two
+    buttons under it, so it takes more of the foot of the screen than one row
+    does. The same rule as above with the second row's height added, and
+    written before the short-screen block below so a phone on its side, which
+    is wide enough for one row, still takes that block's figure.
+  */
+  @media (max-width: 639px) {
+    body:has(.module-step) .dock-pad { padding-bottom: 10.5rem; }
+    body:has(.module-step) .dock-clear { scroll-margin-bottom: 10.5rem; }
+  }
+
+  /*
     AND A PHONE ON ITS SIDE IS SHORT RATHER THAN NARROW.
 
     Measured at 844x390, which is a phone turned over: the bar was 91px and the

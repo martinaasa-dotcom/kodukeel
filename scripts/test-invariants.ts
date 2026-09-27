@@ -14192,6 +14192,7 @@ check("a workflow that reads a secret never runs from a branch somebody pushed",
   const READS_A_SECRET: Record<string, string[]> = {
     "audit-decks.yml": ["workflow_dispatch"],
     "mailout.yml": ["schedule", "workflow_dispatch"],
+    "reset-course.yml": ["workflow_dispatch"],
     "seed-production.yml": ["workflow_dispatch"],
   };
   const dir = ".github/workflows";

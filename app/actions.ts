@@ -36,6 +36,7 @@ import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
+import { resetCourseProgress } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory,
@@ -4652,4 +4653,24 @@ export async function reviewSuggestion(input: unknown) {
     resolved: resolved.count,
     applied,
   };
+}
+
+/**
+ * Put learners back at the start of the current planned course, from the admin
+ * page: one learner per press, or everybody on a press of its own. Course
+ * progress only: decks, the words in them, the dictionary and the review log
+ * are not touched (`lib/progress/courseReset.ts`).
+ */
+export async function resetCourseFor(target: unknown) {
+  await requireAdminId();
+  const all = target === "all";
+  const ownerId = all ? "" : text(target).trim();
+  if (!all && !ownerId) return { ok: false as const, error: "Nobody was named, so nothing was reset." };
+  try {
+    const done = await resetCourseProgress(all ? "all" : [ownerId]);
+    revalidatePath("/admin/suggestions");
+    return { ok: true as const, ...done };
+  } catch (error) {
+    return { ok: false as const, error: `Nothing was reset. ${safeMessage(error)}`.trim() };
+  }
 }
