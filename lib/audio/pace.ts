@@ -43,6 +43,7 @@
  *
  * Pure. A level in, two numbers out. No React, no Prisma, no settings store.
  */
+import { tiltedLevel, type Tilt } from "@/lib/course/adapt";
 import type { Level } from "@/lib/collections/syllabus";
 
 /**
@@ -155,9 +156,18 @@ function paceById(id: SpeechPaceId, chosen: boolean): Pace {
   return { id, normal, slow: Math.max(SLOWEST, normal * SLOW_OF_NORMAL), chosen };
 }
 
-/** The pace this level opens at, with nothing stored. */
-export function paceFor(level: Level): Pace {
-  return paceById(PACE_FOR_LEVEL[level], false);
+/**
+ * The pace this level opens at, with nothing stored.
+ *
+ * `tilt` is the course leaning the delivery one band for somebody whose recent
+ * answers say they are struggling or flying (`lib/course/adapt.ts`). It moves
+ * the band the pace is read off and never the learner's own answer, which is
+ * why it is applied here and not in `paceFrom`'s chosen branch: somebody who
+ * picked a pace in Settings has said how fast they want Estonian, and a
+ * reading of their answers does not overrule a thing they said.
+ */
+export function paceFor(level: Level, tilt: Tilt = 0): Pace {
+  return paceById(PACE_FOR_LEVEL[tiltedLevel(level, tilt)], false);
 }
 
 /**
@@ -169,9 +179,9 @@ export function paceFor(level: Level): Pace {
  * Written the other way round, a stored spelling this file stopped offering
  * would silently hold somebody at a pace no screen could name.
  */
-export function paceFrom(value: string | null | undefined, level: Level): Pace {
+export function paceFrom(value: string | null | undefined, level: Level, tilt: Tilt = 0): Pace {
   const chosen = SPEECH_PACES.find((p) => p.id === value);
-  return chosen ? paceById(chosen.id, true) : paceFor(level);
+  return chosen ? paceById(chosen.id, true) : paceFor(level, tilt);
 }
 
 /**

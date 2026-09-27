@@ -20,6 +20,7 @@ import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/
 import { DEFAULT_LETTER_BAR, LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
 import { counted } from "@/lib/copy/values";
 import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course/types";
+import { heldLevel, startingLevel } from "@/lib/course/placement";
 import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
@@ -293,17 +294,29 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   };
 
   /*
-    The deck follows the level, and the level is the answer to the question two
-    screens back. Nothing here is chosen twice.
+    THE LEVEL THEY HOLD, AND THE ONE THE COURSE OPENS ON.
+
+    A level named here is a level held: the chips describe what somebody can
+    already do and a check reports the highest band passed, so a B1 speaker
+    opens on B2.1 rather than being walked back through B1. The exceptions are
+    the beginner, who holds nothing yet, and somebody aiming at the level they
+    already have, who opens on its first part to make it solid. The server
+    works the same answer out for itself (`completeOnboarding`) from the same
+    function, so this screen and the course cannot name two different parts.
   */
-  const deck = starters.find((d) => d.level === startBand) ?? starters[0] ?? null;
+  const held = measured
+    ? heldLevel(measured.overall === null ? null : { kind: "measured", level: measured.overall })
+    : heldLevel(estimated ? { kind: "declared", level: estimated } : null);
+  const openLevel = startingLevel(held, target);
 
   /*
-    Which part of the ladder they open on: the first one of their own level,
-    which is the same rule `openingPart` applies on the server. A B1 speaker is
-    not made to work up through five parts of greetings.
+    The deck follows the level the course opens on, which is the answer to the
+    questions two and three screens back. Nothing here is chosen twice.
   */
-  const openingPart = parts.find((p) => p.level === startBand) ?? parts[0] ?? null;
+  const deck = starters.find((d) => d.level === openLevel) ?? starters[0] ?? null;
+
+  /* Which part of the ladder they open on: the first one of that level. */
+  const openingPart = parts.find((p) => p.level === openLevel) ?? parts[0] ?? null;
   const totalEvenings = parts.reduce((n, p) => n + p.days, 0);
 
   const finish = () => {
@@ -812,6 +825,17 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {openingPart.blurb}
                 </p>
+                {/*
+                  WHY THIS PART, SAID WHERE THE PART IS NAMED. A B1 speaker who
+                  is shown B2.1 without a word about it reads a jump, and one
+                  aiming at B1 who is shown B1.1 reads the app ignoring what
+                  they said. One sentence each, and the last half of it is the
+                  promise the course keeps: if the guess was wrong either way,
+                  it notices and offers to move them (`lib/course/adapt.ts`).
+                */}
+                <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }} data-opening-why>
+                  {openingWhy(held, openLevel, measured !== null)}
+                </p>
                 <p className="mt-3 text-sm" style={{ color: "var(--accent-deep)" }}>
                   {openingPart.days} evenings, about {COURSE_DAY_MINUTES} minutes each.
                   {openingPart.firstDay && (
@@ -844,7 +868,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               <SectionTitle hint="the words tonight comes from">Your first words</SectionTitle>
             </div>
             <p className="mt-1 max-w-[54ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              Your first {counted(deck.units.length, "unit")} at {startBand}. Each word becomes a
+              Your first {counted(deck.units.length, "unit")} at {openLevel}. Each word becomes a
               flashcard, with audio and every form.
             </p>
 
@@ -887,7 +911,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
               {counted(deck.words, "word")}, {counted(deck.cards, "card")}.{" "}
               {deck.remaining > 0 && (
-                <>The other {counted(deck.remaining, "unit")} at {startBand}, and every other level, are on
+                <>The other {counted(deck.remaining, "unit")} at {openLevel}, and every other level, are on
                 the path whenever you want them. </>
               )}
               Nothing here is locked in.
@@ -1027,4 +1051,26 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
       </main>
     </LetterBarScope>
   );
+}
+
+/**
+ * The one sentence under the part first run opens on, saying why that part.
+ *
+ * Out of the component so each branch is plainly one of the four things a
+ * learner can have told the wizard. It never names a level the learner did not
+ * name or a check did not find, and it ends on the same promise each time: the
+ * course watches how the first evenings go and offers to move them either way.
+ */
+function openingWhy(held: Level | null, open: string, measured: boolean): string {
+  const later = "If it turns out too hard or too easy, the course notices and offers to move you.";
+  if (held === null || held === PRE_A1) {
+    return `You start at the very beginning, with the first words anybody needs. ${later}`;
+  }
+  const source = measured ? `Your level check put you at ${held}` : `You said you are at ${held}`;
+  if (open === held) {
+    return held === "C1"
+      ? `${source}, which is the top of this course, so you start on its first part. ${later}`
+      : `${source} and you are aiming for ${held}, so you start at its first part to make it solid. ${later}`;
+  }
+  return `${source}, so ${held} counts as yours and you start on the next level. ${later}`;
 }

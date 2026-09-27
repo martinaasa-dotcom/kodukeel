@@ -6,7 +6,7 @@ import { getTutorHistory } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Empty } from "@/components/ui";
-import { Mascot } from "@/components/brand";
+import { AnuFace } from "./AnuFace";
 import { useAnuChat } from "./useAnuChat";
 import { useStickToBottom } from "./useStickToBottom";
 import { useModalFocus } from "@/components/useModalFocus";
@@ -147,7 +147,7 @@ export function AnuPanel({
         they cost the thread nothing.
       */}
       <header className="flex items-center gap-3 border-b px-5 py-4" style={{ borderColor: "var(--rule)" }}>
-        <Mascot size={28} className="shrink-0" animate={false} />
+        <AnuFace size={40} className="shrink-0" />
         <div className="min-w-0 flex-1">
           <p className="text-base font-bold leading-snug" style={{ color: "var(--ink)" }}>Anu</p>
           {configured && (

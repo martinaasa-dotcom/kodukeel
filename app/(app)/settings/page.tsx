@@ -20,7 +20,7 @@ import { Card, Chip, KeyCap, Page, SectionTitle, Stack } from "@/components/ui";
 import { Explain } from "@/components/Explain";
 import { StartProgramme } from "@/components/course/StartProgramme";
 
-import { courseReading, openingPart, programmeFor } from "@/lib/progress/course";
+import { courseReading, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { DailyGoalPanel } from "./DailyGoalPanel";
 import { LevelPanel } from "./LevelPanel";
@@ -41,6 +41,7 @@ import { TODAY_CARDS } from "@/lib/ux/disclosure";
 import { GLOSS_LANGUAGES, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom, VOICES } from "@/lib/audio/voice";
 import { paceFor, paceFrom } from "@/lib/audio/pace";
+import { adaptTiltFor } from "@/lib/progress/adapt";
 import { RestorePanel } from "./RestorePanel";
 import { UsagePanel } from "./UsagePanel";
 import { DangerZone } from "./DangerZone";
@@ -125,7 +126,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const hosted = supabaseConfigured();
   const ekilexOn = ekilexConfigured();
 
-  const [words, cards, reviews, settings, learner, goals, latestCheck, courseLevel, [programme, programmeDay]] = await Promise.all([
+  const [words, cards, reviews, settings, learner, goals, latestCheck, courseLevel, [programme, programmeDay, opening], tilt] = await Promise.all([
     prisma.lexeme.count(),
     prisma.card.count({ where: { ownerId } }),
     prisma.review.count({ where: { ownerId } }),
@@ -161,7 +162,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     Promise.all([programmeFor(ownerId), learnerDayClock(ownerId)]).then(async ([led, clock]) => [
       led,
       led ? (await courseReading(ownerId, led, clock)).current?.day.index ?? led.days.length : 0,
+      // Where it would open for somebody who turned it off, off the same rule
+      // first run used, so turning it back on lands where they would have.
+      led ? null : await openingPartFor(ownerId),
     ] as const),
+    // Which way the course is leaning the delivery, so the row that follows
+    // the level names the pace actually being played. See lib/course/adapt.ts.
+    adaptTiltFor(ownerId),
   ]);
 
   const dailyGoal = dailyGoalFrom(settings[SETTING_KEYS.dailyGoal]);
@@ -177,7 +184,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   */
   const canSend = mailerConfig() !== null;
 
-  const opening = programme ? null : openingPart(courseLevel);
   const researchExported = researchExportConfigured();
   const voice = voiceFrom(settings[SETTING_KEYS.ttsVoice]);
   const voiceName = VOICES.find((v) => v.id === voice)?.name ?? voice;
@@ -192,8 +198,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     pace off: reading a level of our own here would print one pace in Settings
     and play another on every card.
   */
-  const speechPace = paceFrom(settings[SETTING_KEYS.speechPace], courseLevel);
-  const levelPace = paceFor(courseLevel);
+  const speechPace = paceFrom(settings[SETTING_KEYS.speechPace], courseLevel, tilt);
+  const levelPace = paceFor(courseLevel, tilt);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
   const caseGlossPref = caseGlossFrom(settings[SETTING_KEYS.caseQuestionGloss]);
@@ -308,7 +314,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   ? <>You are on {uiText(courseLevel, programme.title, programme.subtitle)}. Today lends its
                       first card to the module, and the module picks the words and the rounds for the
                       evening.</>
-                  : <>{opening?.blurb ?? "The ladder stops at C1 and you are past it."}</>}
+                  : <>{opening?.blurb}</>}
               </p>
               <div className="mt-4">
                 {(programme ?? opening) && (
@@ -411,7 +417,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   How fast
                   <CurrentPaceSample />
                 </h3>
-                <SpeechPacePanel current={speechPace} fromLevel={levelPace} level={courseLevel} />
+                <SpeechPacePanel
+                  current={speechPace}
+                  fromLevel={levelPace}
+                  level={courseLevel}
+                  // Only where the lean really moved the pace, since at A1 or C1 it cannot.
+                  tilt={levelPace.id === paceFor(courseLevel).id ? 0 : tilt}
+                />
                 <Explain label="How the slow speed is made">
                   Every speed uses the same recording, slowed down in your browser. The voice and the
                   pitch stay as they were, so the consonants stay sharp. The slow button beside a word

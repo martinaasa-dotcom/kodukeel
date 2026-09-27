@@ -3,8 +3,8 @@ import { cache } from "react";
 import { prisma } from "@/lib/db";
 import { deferredWordIds } from "@/lib/progress/deferrals";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
-import { courseLevelFor, courseStandingFor } from "@/lib/progress/level";
-import { LEVELS, LEVEL_INFO, levelIndex, type Level } from "@/lib/collections/syllabus";
+import { courseStandingFor } from "@/lib/progress/level";
+import { LEVELS, LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
 import { computeStreak } from "@/lib/stats/streak";
@@ -12,7 +12,7 @@ import { closingLeft } from "@/lib/progress/closing";
 import { scopeFor } from "@/lib/course/scope";
 import {
   DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, dayById, dayReached, ladderProgress,
-  ladderVerdict, levelsTo, programmeById, programmeStanding, type CourseDay,
+  creditedThrough, ladderVerdict, levelsTo, programmeById, programmeStanding, startingLevel, type CourseDay,
   type LadderProgress, type LadderVerdict, type Programme, type ProgrammeStanding,
 } from "@/lib/course";
 
@@ -77,30 +77,61 @@ const MAX_RESOLVE = 2;
  * three answers to whether anybody is on a programme.
  */
 export async function programmeFor(ownerId: string): Promise<Programme | null> {
-  const [stored, level] = await Promise.all([
-    readSetting(ownerId, SETTING_KEYS.programme),
-    courseLevelFor(ownerId),
-  ]);
+  const stored = await readSetting(ownerId, SETTING_KEYS.programme);
   if (stored === "off") return null;
   if (stored) return programmeById(stored) ?? null;
-  return openingPart(level);
+  /*
+    AND A LEARNER ALREADY PART WAY THROUGH ONE STAYS ON IT. Nothing is stored
+    for somebody who was led here by this fallback without ever pressing
+    Start, and they may have ticked evenings of the part it named at the time.
+    The fallback's rule has changed since (a named level is held now), so
+    reading it again would move them onto a different part and leave their
+    ticks behind. The part they last ticked a step of is where they are.
+  */
+  const last = await prisma.courseStep.findFirst({
+    where: { ownerId },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    select: { programmeId: true },
+  });
+  const inFlight = last ? programmeById(last.programmeId) : undefined;
+  return inFlight ?? openingPartFor(ownerId);
 }
 
 /**
- * Which part of the ladder somebody starts on, given where they stand.
+ * Which part of the ladder somebody starts on, given what they hold and what
+ * they are aiming at.
  *
- * The first part of their own level, which is the only honest answer: a
- * learner a paper has measured at B1 is not made to work up through five parts
- * of A1 to reach the material they came for, and a beginner is not dropped
- * into the impersonal. There is no skipping *within* a level, because the
- * parts of one level are a sequence and the later ones lean on the earlier.
+ * The first part of the level `startingLevel` names, which is the level above
+ * the one they hold (`lib/course/placement.ts` has the argument): a learner
+ * who says B1 opens on B2.1 rather than being walked back through B1, a
+ * beginner opens on A1.1, and somebody aiming at the level they already hold
+ * opens on its first part to make it solid. There is no skipping *within* a
+ * level, because the parts of one level are a sequence and the later ones lean
+ * on the earlier.
  *
- * Above the top of the ladder there is nothing to offer, which is the honest
- * answer for a C1 speaker: the course has no C2 and says so.
+ * Total, and that is the change from what this was: it used to answer nothing
+ * for a C1 speaker, and a named level now always names a part, since holding
+ * C1 opens on the top of the ladder rather than on a screen with nothing on it.
  */
-export function openingPart(level: string): Programme | null {
-  return PROGRAMMES.find((p) => p.level === level)
-    ?? (levelIndex(level as never) < levelIndex(DEFAULT_PROGRAMME.level) ? DEFAULT_PROGRAMME : null);
+export function openingPart(held: Level | null, target: string | null | undefined): Programme {
+  const level = startingLevel(held, target);
+  return PROGRAMMES.find((p) => p.level === level) ?? DEFAULT_PROGRAMME;
+}
+
+/**
+ * The same, read off the learner's own standing and target.
+ *
+ * One reader, because three screens ask it: the course, Settings and the
+ * fallback above, and the one that read the level without the target would
+ * open a learner aiming at their own level one part past where first run put
+ * them.
+ */
+export async function openingPartFor(ownerId: string): Promise<Programme> {
+  const [standing, target] = await Promise.all([
+    courseStandingFor(ownerId),
+    readSetting(ownerId, SETTING_KEYS.goalTarget),
+  ]);
+  return openingPart(standing?.held ?? null, target);
 }
 
 /** Whether a learner has said anything at all about programmes yet. */
@@ -756,7 +787,7 @@ export const ladderPosition = cache(async (
     word is in, which is more work for a smaller number of round trips on a
     query that is already cheap.
   */
-  const [counts, standing] = await Promise.all([
+  const [counts, standing, working] = await Promise.all([
     Promise.all(bands.map((band) => prisma.card.count({
       where: {
         ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 2,
@@ -764,14 +795,25 @@ export const ladderPosition = cache(async (
       },
     }))),
     courseStandingFor(ownerId),
+    programmeFor(ownerId),
   ]);
   const verifiedAt = Object.fromEntries(bands.map((band, at) => [band, counts[at]!]));
 
+  /*
+    WHAT IS COUNTED AS THEIRS IS WHAT THEY HOLD, BELOW WHAT THEY ARE BEING
+    TAUGHT. A learner who says B1 is credited B1 itself, since the course has
+    opened on B2.1 for them; one aiming at B1 and walking B1's parts again is
+    not, or the bar would call a level done over an evening teaching it.
+  */
   return ladderProgress(
     target,
     verifiedAt,
     (level) => ({ title: LEVEL_INFO[level].title, arrival: LEVEL_INFO[level].arrival }),
-    standing,
+    standing && {
+      level: standing.level,
+      kind: standing.kind,
+      through: creditedThrough(standing.held, working?.level ?? null),
+    },
   );
 });
 

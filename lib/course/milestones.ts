@@ -110,6 +110,17 @@ export type MilestoneState = "passed" | "assumed" | "here" | "ahead";
 export interface LadderStanding {
   level: Level;
   kind: "measured" | "declared";
+  /**
+   * The highest level counted as theirs, or null for none.
+   *
+   * Separate from `level` because the two stopped being one fact the day a
+   * named level became a level *held* (`lib/course/placement.ts`): somebody
+   * who says B1 is credited with B1 itself, unless the course is teaching
+   * them B1 again because B1 is what they are aiming at. `creditedThrough`
+   * decides it and `ladderPosition` hands it in. `level` stays what they said
+   * or what a paper measured, which is what the sentence on screen quotes.
+   */
+  through: Level | null;
 }
 
 export interface Milestone {
@@ -237,7 +248,8 @@ export function ladderProgress(
     const pct = words === 0 ? 0
       : verified < words ? Math.min(99, Math.round((verified / words) * 100))
       : 100;
-    const behind = standing !== null && levelIndex(level) < levelIndex(standing.level);
+    const behind = standing !== null && standing.through !== null
+      && levelIndex(level) <= levelIndex(standing.through);
     return {
       level,
       ...levelTitle(level),

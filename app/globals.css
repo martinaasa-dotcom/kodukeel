@@ -126,6 +126,19 @@
 
     --ground: #fcfbf7;
     --surface: #ffffff;
+    /* The mark (components/brand.tsx): the pixel tilde in white on a violet
+       tile. Declared once and never redefined for the dark theme, because a
+       logo is the same object in both, as it is on the home-screen icon. */
+    --mark-from: #9c8cff;
+    --mark-to: #5b2eff;
+    --mark-ink: #ffffff;
+    /* Anu (components/anu/AnuFace.tsx), who is a person rather than the
+       logo: a gold face, a navy line, a pink tilde for hair. Declared once
+       and never redefined for the dark theme, for the mark's reason. */
+    --anu-face: #ffd23f;
+    --anu-line: #0f1233;
+    --anu-hair: #ff3d8b;
+    --anu-cheek: #ff8fb8;
     --raised: #f3f0fa;
     --ink: #0f1233;
     --ink-2: #3e4166;
@@ -3493,35 +3506,116 @@
 }
 
 /*
-  The tilde, which is the only part that can move at all, because it is the only
-  part that is not touching anything.
+  The mark's columns (components/brand.tsx). Each is two pixels of the tilde
+  and moves on its own delay, so a movement runs along the stroke rather than
+  lifting it whole. The travel is small on purpose: a pixel is 6.6 units of a
+  100 unit tile, and a column that leaves its neighbours by more than a third
+  of that stops reading as one tilde.
 
-  It is deliberately not `float`, the 6s, 10px lift the landing page's
-  decorative letters use: that is a whole element moving against the page, and
-  this is one stroke moving inside a mark whose head stays put. Ten pixels there
-  would be a hat coming off. The `scaleX` is the squash that stops it reading as
-  a rigid object being slid up and down, and the second, smaller crest is what
-  makes it hair rather than a metronome.
+  Happy is a slow wave passing through; cheer is a quick hop that runs left to
+  right; thinking lights the columns in turn, like a cursor. Every one ends
+  where it began, so the global reduced-motion rule, which runs an animation
+  once in no time, leaves the still mark.
 */
-@keyframes tilde-drift {
-  0%, 100% { transform: translateY(0) rotate(0deg) scaleX(1); }
-  30% { transform: translateY(-2.4px) rotate(-3.5deg) scaleX(1.05); }
-  64% { transform: translateY(-0.5px) rotate(2.5deg) scaleX(0.97); }
+@keyframes pixel-wave {
+  0%, 60%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-2.2px); }
+}
+@keyframes pixel-hop {
+  0%, 55%, 100% { transform: translateY(0); }
+  18% { transform: translateY(-5px); }
+  32% { transform: translateY(0.8px); }
+  42% { transform: translateY(-0.6px); }
+}
+@keyframes pixel-think {
+  0%, 45%, 100% { opacity: 1; }
+  20% { opacity: 0.45; }
 }
 
-/* Cheering: one real hop, then a smaller one, then settle. */
-@keyframes tilde-hop {
-  0%, 100% { transform: translateY(0) rotate(0deg) scaleX(1); }
-  16% { transform: translateY(-5.5px) rotate(-8deg) scaleX(1.09); }
-  34% { transform: translateY(0.8px) rotate(4deg) scaleX(0.92); }
-  56% { transform: translateY(-2.6px) rotate(-3deg) scaleX(1.03); }
-  78% { transform: translateY(0.3px) rotate(1deg) scaleX(0.98); }
+/*
+  Anu's face (components/anu/AnuFace.tsx). She blinks, breathes, glances and
+  her hair follows her head a beat late; a mood is an expression, not a
+  speed. Every keyframe ends where it began, so the reduced-motion rule leaves
+  her still. Two clocks that do not divide into each other (5.3s blink, 3.9s
+  breath) are what stop her looking like a loop.
+*/
+.anu-face .anu-body { transform-box: view-box; transform-origin: 32px 58px; }
+.anu-face .anu-hair { transform-box: view-box; transform-origin: 32px 13px; }
+.anu-face .anu-eye { transform-box: fill-box; transform-origin: 50% 50%; }
+.anu-face .anu-cheek { transform-box: fill-box; transform-origin: 50% 50%; }
+.anu-face .anu-talk { transform-box: fill-box; transform-origin: 50% 50%; }
+.anu-face .anu-eyes {
+  transform: translate(var(--watch-x, 0px), var(--watch-y, 0px));
+  transition: transform 160ms ease-out;
 }
+.anu-live .anu-body { animation: anu-breathe 3.9s ease-in-out infinite; }
+.anu-live .anu-hair { animation: anu-hair 3.9s ease-in-out 0.18s infinite; }
+.anu-live .anu-eye { animation: anu-blink 5.3s ease-in-out infinite; }
+.anu-live.anu-happy .anu-look { animation: anu-glance 11.7s ease-in-out infinite; }
+.anu-live.anu-cheer .anu-body { animation: anu-hop 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) infinite; }
+.anu-live.anu-cheer .anu-hair { animation: anu-hair-hop 1.5s ease-in-out 0.08s infinite; }
+.anu-live.anu-cheer .anu-cheek { animation: anu-glow 1.5s ease-in-out infinite; }
+.anu-live.anu-thinking .anu-body { animation: anu-ponder 4.6s ease-in-out infinite; }
+.anu-live.anu-thinking .anu-hair { animation: anu-hair-think 4.6s ease-in-out infinite; }
+.anu-live.anu-talking .anu-talk { animation: anu-talk 0.46s ease-in-out infinite; }
+.anu-still.anu-thinking .anu-hair { transform: rotate(-9deg); }
+/* A pointer over the button she sits in gets a wiggle and a flick of hair. */
+.anu-call:hover .anu-live .anu-body,
+.anu-call:focus-visible .anu-live .anu-body { animation: anu-wiggle 0.9s ease-in-out infinite; }
+.anu-call:hover .anu-live .anu-hair,
+.anu-call:focus-visible .anu-live .anu-hair { animation: anu-hair-hop 0.9s ease-in-out infinite; }
 
-/* Thinking: tipped over to one side and swaying, the way a head cocks. */
-@keyframes tilde-sway {
-  0%, 100% { transform: rotate(-7deg) translateY(0.5px); }
+@keyframes anu-breathe {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-1.2px) scale(1.012, 0.99); }
+}
+@keyframes anu-hair {
+  0%, 100% { transform: translateY(0) rotate(0deg) scaleX(1); }
+  30% { transform: translateY(-1.8px) rotate(-4deg) scaleX(1.05); }
+  64% { transform: translateY(-0.4px) rotate(3deg) scaleX(0.97); }
+}
+@keyframes anu-blink {
+  0%, 44%, 49%, 100% { transform: scaleY(1); }
+  46.5% { transform: scaleY(0.1); }
+}
+@keyframes anu-glance {
+  0%, 30%, 64%, 100% { transform: translate(0, 0); }
+  36%, 46% { transform: translate(2px, -0.6px); }
+  52%, 58% { transform: translate(-1.8px, 0.4px); }
+}
+@keyframes anu-hop {
+  0%, 60%, 100% { transform: translateY(0) scale(1, 1); }
+  14% { transform: translateY(0) scale(1.06, 0.92); }
+  30% { transform: translateY(-7px) scale(0.96, 1.05); }
+  48% { transform: translateY(0) scale(1.05, 0.95); }
+}
+@keyframes anu-hair-hop {
+  0%, 100% { transform: translateY(0) rotate(0deg) scaleX(1); }
+  30% { transform: translateY(-3.5px) rotate(-9deg) scaleX(1.1); }
+  50% { transform: translateY(1px) rotate(6deg) scaleX(0.92); }
+  70% { transform: translateY(-1px) rotate(-2deg) scaleX(1.02); }
+}
+@keyframes anu-glow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  30% { transform: scale(1.25); opacity: 0.8; }
+}
+@keyframes anu-ponder {
+  0%, 100% { transform: rotate(0deg); }
+  40% { transform: rotate(-5deg) translateY(-0.6px); }
+  70% { transform: rotate(-3deg); }
+}
+@keyframes anu-hair-think {
+  0%, 100% { transform: rotate(-9deg) translateY(0.4px); }
   50% { transform: rotate(4deg) translateY(-1.4px); }
+}
+@keyframes anu-talk {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.35); }
+}
+@keyframes anu-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-7deg); }
+  60% { transform: rotate(6deg); }
 }
 
 @keyframes grad-sweep {

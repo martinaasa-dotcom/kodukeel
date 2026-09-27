@@ -21,6 +21,7 @@ import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { paceFrom } from "@/lib/audio/pace";
+import { adaptTiltFor } from "@/lib/progress/adapt";
 import { courseLevelFor } from "@/lib/progress/level";
 import { UiLanguageProvider } from "@/components/UiLanguage";
 import { CaseGlossProvider } from "@/components/CaseGloss";
@@ -74,7 +75,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     `support` was in the object below and not in this list, so the conversation
     screens have been reading the default however the learner set it.
   */
-  const [settings, level] = await Promise.all([
+  const [settings, level, tilt] = await Promise.all([
     readSettings(
       ownerId,
       [
@@ -85,6 +86,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       ],
     ),
     courseLevelFor(ownerId),
+    /*
+      AND WHICH WAY THE COURSE IS LEANING THE DELIVERY, one band slower for
+      somebody whose recent answers are mostly wrong and one band quicker for
+      somebody getting nearly all of them right (`lib/course/adapt.ts`). It
+      moves the pace only where the learner has not chosen one, and the module
+      screen names it whenever it is on. Three indexed counts, in this batch.
+    */
+    adaptTiltFor(ownerId),
   ]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   const storedZone = settings[SETTING_KEYS.timeZone] ?? null;
@@ -97,7 +106,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     sounds: feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]),
     hearing: hearingFrom(settings[SETTING_KEYS.hearing]),
     support: supportFrom(settings[SETTING_KEYS.support]),
-    pace: paceFrom(settings[SETTING_KEYS.speechPace], level),
+    pace: paceFrom(settings[SETTING_KEYS.speechPace], level, tilt),
   };
   return (
     <UiLanguageProvider level={level}>

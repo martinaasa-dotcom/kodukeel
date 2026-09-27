@@ -1199,7 +1199,12 @@ check("the pace Estonian is read at is the learner's own, resolved once and pass
   // The shell resolves it, off `courseLevelFor` and not a reading of its own.
   const shell = code("app/(app)/layout.tsx");
   assert.match(shell, /courseLevelFor\(ownerId\)/, "the shell stopped reading the level the rest of the app goes on");
-  assert.match(shell, /pace: paceFrom\(settings\[SETTING_KEYS\.speechPace\], level\)/, "the shell stopped publishing the learner's own pace");
+  assert.match(shell, /pace: paceFrom\(settings\[SETTING_KEYS\.speechPace\], level, tilt\)/, "the shell stopped publishing the learner's own pace");
+  /* And the lean it passes is the course's own reading of the learner's
+     answers (`lib/course/adapt.ts`), not a number of the shell's: a tilt
+     worked out here would lean the pace one way while the module screen
+     told the learner it leaned the other. */
+  assert.match(shell, /adaptTiltFor\(ownerId\)/, "the shell leans the pace off something other than the course's reading");
 
   // And nobody else works one out. `paceFor` is the level's own pace, which the
   // shell does not need and Settings prints beside the row that follows it.
@@ -1209,9 +1214,13 @@ check("the pace Estonian is read at is the learner's own, resolved once and pass
     .filter((file) => file !== join("lib", "audio", "pace.ts"))
     .filter((file) => /\bpaceFrom\(|\bpaceFor\(/.test(code(file)))
     .sort();
+  /* The third reader plays nothing: `lib/progress/adapt.ts` asks whether the
+     course's lean really moved this learner's pace, off the same function the
+     shell plays off, so the module screen never claims a slower recording
+     that is not playing. */
   assert.deepEqual(
     readers,
-    ["app/(app)/layout.tsx", "app/(app)/settings/page.tsx"],
+    ["app/(app)/layout.tsx", "app/(app)/settings/page.tsx", "lib/progress/adapt.ts"],
     "a third screen works out a pace of its own, so two screens can disagree about how fast this learner hears Estonian",
   );
 

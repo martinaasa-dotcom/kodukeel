@@ -14,7 +14,7 @@ import { ImageResponse } from "next/og";
  * thing to fix.
  *
  * Drawn rather than shipped as a file, for the reason `apple-icon.tsx` is
- * drawn: the mark is a gold tile with a ring and a tilde, the wording is the
+ * drawn: the mark is the pixel tilde on its violet tile, the wording is the
  * landing page's own, and a PNG checked into the repository is a second copy
  * of both that goes stale the first time either changes.
  *
@@ -27,10 +27,10 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = "kodukeel. Estonian that finally sticks";
 
-const MARK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
-  <rect width="64" height="64" rx="16" fill="#ffd23f"/>
-  <circle cx="32" cy="38" r="13" fill="none" stroke="#0f1233" stroke-width="7"/>
-  <path d="M20 17q6-7 12 0t12 0" fill="none" stroke="#0f1233" stroke-width="6" stroke-linecap="round"/>
+const MARK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="128" height="128">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9c8cff"/><stop offset="1" stop-color="#5b2eff"/></linearGradient></defs>
+  <rect width="100" height="100" rx="23" fill="url(#g)"/>
+  <path d="M17 46.7H23.6V40.1H30.2V33.5H36.8H43.4V40.1H50V46.7H56.6V53.3H63.2H69.8V46.7H76.4V40.1H83V53.3H76.4V59.9H69.8V66.5H63.2H56.6V59.9H50V53.3H43.4V46.7H36.8H30.2V53.3H23.6V59.9H17Z" fill="#ffffff"/>
 </svg>`;
 
 export default function OpenGraphImage() {

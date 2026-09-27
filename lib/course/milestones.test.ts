@@ -10,6 +10,7 @@ import {
   stopState,
   wordsLeftAt,
 } from "./milestones";
+import { creditedThrough } from "./placement";
 
 const titles = (level: string) => ({ title: level, arrival: `arriving at ${level}` });
 const stop = (progress: ReturnType<typeof ladderProgress>, level: string) =>
@@ -59,7 +60,7 @@ describe("how far the next stop is", () => {
   true about the review log and none of it was true about them.
 */
 describe("a learner who did not start at the bottom", () => {
-  const fresh = () => ladderProgress("B1", {}, titles, { level: "B1", kind: "declared" });
+  const fresh = () => ladderProgress("B1", {}, titles, { level: "B1", kind: "declared", through: "A2" });
 
   it("counts the levels behind them rather than drawing them empty", () => {
     const climb = fresh();
@@ -87,7 +88,7 @@ describe("a learner who did not start at the bottom", () => {
 
   it("turns an assumption into a check one word at a time", () => {
     const some = ladderProgress(
-      "B1", { A1: 40 }, titles, { level: "B1", kind: "declared" },
+      "B1", { A1: 40 }, titles, { level: "B1", kind: "declared", through: "A2" },
     );
     expect(stop(some, "A1").verified).toBe(40);
     expect(stop(some, "A1").state).toBe("assumed");
@@ -100,9 +101,54 @@ describe("a learner who did not start at the bottom", () => {
 
   it("lets a credited level pass outright once its words really are in hand", () => {
     const done = ladderProgress(
-      "B1", { A1: ladderWordsAt("A1") }, titles, { level: "B1", kind: "declared" },
+      "B1", { A1: ladderWordsAt("A1") }, titles, { level: "B1", kind: "declared", through: "A2" },
     );
     expect(stop(done, "A1").state).toBe("passed");
+  });
+});
+
+/*
+  A LEVEL SOMEBODY NAMES IS A LEVEL THEY HOLD.
+
+  A B1 speaker opens on B2.1, so the bar has to count B1 as theirs as well as
+  everything under it, or it would stand them on a level the course has
+  already walked them past. And where the course is teaching the level they
+  hold again, because that is what they are aiming at, the level stays
+  uncredited: a bar showing B1 done over an evening teaching B1 is two answers
+  on one screen. `creditedThrough` is the rule and these are its two shapes.
+*/
+describe("the level somebody holds", () => {
+  it("is counted as theirs when the course has moved them past it", () => {
+    const through = creditedThrough("B1", "B2");
+    expect(through).toBe("B1");
+    const climb = ladderProgress("B2", {}, titles, { level: "B1", kind: "declared", through });
+    expect(stop(climb, "B1").state).toBe("assumed");
+    expect(climb.here?.level).toBe("B2");
+  });
+
+  it("is not counted while the course is teaching it again", () => {
+    const through = creditedThrough("B1", "B1");
+    expect(through).toBe("A2");
+    const climb = ladderProgress("B1", {}, titles, { level: "B1", kind: "declared", through });
+    expect(stop(climb, "B1").state).toBe("here");
+  });
+
+  it("is counted whole where nothing is being taught", () => {
+    expect(creditedThrough("B1", null)).toBe("B1");
+  });
+
+  it("credits nothing to somebody who holds nothing yet", () => {
+    expect(creditedThrough(null, "A1")).toBeNull();
+    const climb = ladderProgress("B1", {}, titles, { level: "A1", kind: "declared", through: null });
+    expect(climb.milestones.some((m) => m.state === "assumed")).toBe(false);
+  });
+
+  it("never credits the level a walked-up learner is working on", () => {
+    // Somebody who started at A1.1 and has reached A2.2 holds nothing and is
+    // credited nothing: every stop they have is one the scheduler checked.
+    expect(creditedThrough(null, "A2")).toBeNull();
+    // And a stated A2 while working on A2 credits the level under it only.
+    expect(creditedThrough("A2", "A2")).toBe("A1");
   });
 });
 
@@ -125,7 +171,7 @@ describe("how wide a level is", () => {
 
   it("is a fact about the climb rather than about the learner", () => {
     const empty = ladderProgress("C1", {}, titles, null);
-    const placed = ladderProgress("C1", { A1: 100 }, titles, { level: "B1", kind: "measured" });
+    const placed = ladderProgress("C1", { A1: 100 }, titles, { level: "B1", kind: "measured", through: "B1" });
     expect(placed.milestones.map((m) => m.share)).toEqual(empty.milestones.map((m) => m.share));
   });
 });
@@ -143,7 +189,7 @@ describe("a learner standing above the target they picked", () => {
   it("has a full bar and has not arrived", () => {
     // `arrived` turns the copy that says they know every word of the climb,
     // and an assumption cannot say that about anybody.
-    const climb = ladderProgress("A2", {}, titles, { level: "B1", kind: "measured" });
+    const climb = ladderProgress("A2", {}, titles, { level: "B1", kind: "measured", through: "B1" });
     expect(climb.pct).toBe(100);
     expect(climb.arrived).toBe(false);
     expect(climb.here).toBeUndefined();
