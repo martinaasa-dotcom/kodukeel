@@ -5,7 +5,7 @@ import { Send, Sparkles } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card } from "@/components/ui";
-import { Mascot } from "@/components/brand";
+import { AnuFace } from "@/components/anu/AnuFace";
 import { useAnuChat, type Msg } from "@/components/anu/useAnuChat";
 import { useStickToBottom } from "@/components/anu/useStickToBottom";
 import { AnuFailure, AnuOffline, Bubble, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
@@ -50,7 +50,7 @@ export function TutorChat({
     */
     return (
       <Card tone="night" className="flex flex-col items-center gap-5 px-6 py-10 text-center md:py-12">
-        <Mascot size={64} className="float" />
+        <AnuFace size={76} mood="thinking" className="float" />
         <div className="max-w-[46ch]">
           <h2 className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>
             {readerCanConfigure ? "Anu needs an AI key" : "Anu is not available"}
@@ -84,7 +84,7 @@ export function TutorChat({
     <div className="flex flex-col gap-4">
       {messages.length === 0 ? (
         <Card tone="blush" className="flex items-start gap-4">
-          <Mascot size={46} className="float shrink-0" />
+          <AnuFace size={60} className="float shrink-0" />
           <div>
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}>Tere! Ma olen Anu.</p>
             <p className="mt-1.5 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

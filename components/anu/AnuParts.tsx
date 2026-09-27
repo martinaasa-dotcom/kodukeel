@@ -7,7 +7,7 @@ import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card } from "@/components/ui";
-import { Mascot } from "@/components/brand";
+import { AnuFace } from "./AnuFace";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Dots } from "@/components/Dots";
 import type { Msg } from "./useAnuChat";
@@ -242,7 +242,12 @@ export function Bubble({ message, streaming }: { message: Msg; streaming: boolea
 
   return (
     <div className={`flex items-start gap-3 ${isUser ? "flex-row-reverse" : ""}`}>
-      {!isUser && <Mascot size={34} className="mt-1 shrink-0" animate={false} />}
+      {/* Still down the thread, and talking in the one bubble that is still
+          being written, so the one face that moves is where the answer is
+          coming from. */}
+      {!isUser && (
+        <AnuFace size={40} className="mt-1 shrink-0" mood={writing ? "talking" : "happy"} animate={writing} />
+      )}
       <div
         className="rounded-[var(--r-lg)] border px-4 py-3.5"
         style={{

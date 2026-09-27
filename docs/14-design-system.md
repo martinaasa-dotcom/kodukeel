@@ -458,10 +458,16 @@ than the bar, because the bar also stands beside a button and under a crossword 
 no field edge. The invariant reads every input and textarea in the tree, so a tenth shape cannot
 arrive by hand, and fails on a bar under a field that types its own margin.
 
-`components/brand.tsx` holds **Õ**, the mascot: Estonian's most recognizable letter is already a
-round face with a squiggle on top, so the mascot is that letter taken literally. It appears in
-the rail, in every empty state, at the end of a session, and on the landing page. It is a
-component rather than an asset so it inherits the theme and can change mood.
+`components/brand.tsx` holds the mark: a tilde drawn in pixels, white on a violet tile. The tilde
+is what the app is about, since `~` means "about this much" and the bar here is Estonian somebody
+can use rather than Estonian without a mistake in it; the pixels are Estonia running its state
+online. The pixels touch, because a hairline between staggered squares is the café wall illusion
+and made the tilde look crooked at favicon size. The tile's colours are `--mark-from`, `--mark-to`
+and `--mark-ink`, declared once and never redefined for the dark theme, since a logo is one object
+in both. The same outline is in `app/icon.svg`, `public/app-icon.svg`, the maskable icon, the Apple
+icon and the share card. It appears in the rail, in every empty state, at the end of a session, and
+on the landing page, and it moves by its columns: a wave while happy, a hop to celebrate, the
+columns lighting in turn while it thinks.
 
 ## 6. Routing and the landing page
 

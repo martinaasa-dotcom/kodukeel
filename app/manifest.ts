@@ -27,9 +27,8 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/app-icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
       // A maskable icon is a separate drawing rather than the same file listed
       // twice. Android crops it to a circle 80% of the icon's width, so the
-      // rounded tile loses its corners and anything near the top goes with
-      // them: pointing both purposes at the standard mark cropped the tilde
-      // off the top of the head on every Android launcher.
+      // maskable drawing is square to the edge and its tilde is drawn smaller,
+      // with its corners inside that circle.
       { src: "/app-icon-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
     ],
     shortcuts: [
