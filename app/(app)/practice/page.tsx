@@ -238,6 +238,16 @@ export default async function PracticePage() {
                 at 768 the rail takes a column and a viewport breakpoint laid
                 out three tiles where two fit. */}
             <div className="@container"><div className="grid grid-cols-1 gap-3 @lg:grid-cols-2 @3xl:grid-cols-3">
+              {/* A conversation is one more way of using a word, so it is on
+                  this shelf rather than a row in the rail (`lib/ux/nav.ts`),
+                  drawn like the rounds under it and across the whole row, so the
+                  twelve under it still fill their rows. */}
+              <div className="@lg:col-span-2 @3xl:col-span-3">
+                <ModeTile
+                  mode={{ href: "/situations", tone: "mint", icon: "MessagesSquare", title: "Situations" }}
+                  line="Somebody behind a desk wants something from you. Five to eight minutes."
+                />
+              </div>
               {QUICK_MODES.map((m) => (
                 <ModeTile key={m.href} mode={m} line={lineFor(m)} />
               ))}
@@ -262,7 +272,7 @@ export default async function PracticePage() {
  * One line under the title, never two: what the round is, and a live figure
  * after it where there is one.
  */
-function ModeTile({ mode, line }: { mode: PracticeMode; line: string }) {
+function ModeTile({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "icon" | "title">; line: string }) {
   return (
     <Link
       href={mode.href}
