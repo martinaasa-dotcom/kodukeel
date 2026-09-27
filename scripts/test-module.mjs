@@ -79,7 +79,7 @@ await requireLocalDatabase(prisma);
   reading, so they are in the floor: 33 was the three-step evening with them
   waived.
 */
-const { check, absent, done } = suite("Tonight's module", { floor: 38 });
+const { check, absent, done } = suite("Tonight's module", { floor: 42 });
 
 /** The module's own screen, with a programme running. */
 async function openModule(page) {
@@ -163,7 +163,11 @@ try {
   check("which opens it inside the module", page.url().includes("module="), decodeURIComponent(page.url().replace(B, "")));
 
   /**
-   * Every link the page offers, minus the module's own way back to the list.
+   * Every link the page offers, minus the module's own way back to the list
+   * and the one deliberate door back into the app, which the bar marks
+   * `data-module-leave` and which is asserted on its own below: a door a
+   * round left open and the door the frame draws on purpose read identically
+   * as hrefs, so the mark is what tells them apart.
    *
    * `MODULE_HOME` is handed in rather than closed over: `evaluateAll` runs its
    * function in the browser, where nothing this file declares exists, and a
@@ -171,7 +175,9 @@ try {
    * the check was supposed to be looking.
    */
   const waysOut = () => page.locator("#main a[href]").evaluateAll(
-    (els, home) => [...new Set(els.map((e) => e.getAttribute("href")))].filter((h) => h !== home),
+    (els, home) => [...new Set(els
+      .filter((e) => !e.hasAttribute("data-module-leave"))
+      .map((e) => e.getAttribute("href")))].filter((h) => h !== home),
     MODULE_HOME,
   );
 
@@ -199,6 +205,11 @@ try {
     check(`step ${walked.length} draws the frame  (${here})`, await page.locator(".module-step").count() === 1);
     const away = await waysOut();
     check(`and nothing on it leads out of the module  (${here})`, away.length === 0, JSON.stringify(away));
+    const leave = page.locator(".module-step [data-module-leave]");
+    check(
+      `and there is exactly one way back into the app, to Today  (${here})`,
+      await leave.count() === 1 && await leave.getAttribute("href") === "/" && await leave.isVisible(),
+    );
     for (const part of ["rail", "dock", "anu"]) {
       check(
         `and the ${part} is off the screen  (${here})`,
