@@ -14192,6 +14192,7 @@ check("a workflow that reads a secret never runs from a branch somebody pushed",
   const READS_A_SECRET: Record<string, string[]> = {
     "audit-decks.yml": ["workflow_dispatch"],
     "mailout.yml": ["schedule", "workflow_dispatch"],
+    "reset-course.yml": ["workflow_dispatch"],
     "seed-production.yml": ["workflow_dispatch"],
   };
   const dir = ".github/workflows";
@@ -21423,6 +21424,7 @@ check("a correction rewrites only the cards that show the headword", () => {
 check("everything that deletes rows for a test refuses a remote database", () => {
   const EXEMPT: Record<string, string> = {
     "scripts/audit-decks.ts": "the production deck audit; reports first and removes only with --write",
+    "scripts/reset-course.ts": "the production course reset; reports first and deletes only with --write",
   };
   const deleting = readdirSync("scripts")
     .filter((f) => /\.(mjs|ts)$/.test(f) && f !== "test-invariants.ts")

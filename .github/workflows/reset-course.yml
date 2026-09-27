@@ -1,0 +1,98 @@
+name: Reset everybody's course progress
+
+# Run by hand, and only by hand.
+#
+# `npm run reset:course` deletes every learner's `CourseStep` ticks, so each of
+# them opens the current planned course at the first evening of their part,
+# and clears a `programme` setting that names a programme the current build no
+# longer has. Decks, the review log, levels and every other setting are not
+# touched. Learners whose display name contains the `keep` input are left alone
+# entirely, and the report names them before anything is deleted.
+#
+# Written to the rules `audit-decks.yml` states: `workflow_dispatch` only, the
+# connection string mapped into the two steps that need a database and no
+# others, the report printed on every run, and the delete only on a second run
+# with `reset` typed in the confirmation box.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Leave blank to see the report. Type reset to delete the progress.
+        required: false
+        default: ""
+      keep:
+        description: Leave alone every learner whose display name contains this
+        required: false
+        default: "amanda"
+
+concurrency:
+  group: reset-course
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  reset:
+    name: Reset
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - name: Check a connection string is configured
+        env:
+          DB_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DB_URL" ]; then
+            echo "No database configured. Add DIRECT_URL (the direct connection," >&2
+            echo "port 5432, not the pooler) as a repository secret, or DATABASE_URL" >&2
+            echo "if that is the only one you have. Nothing was changed." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+        with: { persist-credentials: false }
+
+      - uses: actions/setup-node@v7
+        with: { node-version: "22", cache: npm }
+
+      - run: npm ci
+
+      - run: npx prisma generate
+
+      # Always, whichever way this was run: a reset that printed nothing first
+      # is a reset nobody checked. The inputs reach the script through the
+      # environment, so a crafted one is a string rather than a line of shell.
+      - name: Report who would be reset and who is left alone
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+          KEEP: ${{ inputs.keep }}
+        run: |
+          {
+            echo '```'
+            npm run --silent reset:course -- "--keep=$KEEP"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Reset them
+        if: ${{ inputs.confirm == 'reset' }}
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+          KEEP: ${{ inputs.keep }}
+        run: |
+          {
+            echo '```'
+            npm run --silent reset:course -- "--keep=$KEEP" --write
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Say what was left alone
+        if: ${{ inputs.confirm != 'reset' }}
+        run: |
+          echo "Nothing was changed. Run this again with \`reset\` in the confirmation box to reset the learners listed above." >> "$GITHUB_STEP_SUMMARY"
