@@ -63,7 +63,7 @@ describe("the way out of a letter", () => {
       Its footer points at the preferences screen, and the token path refuses
       the scope outright, so a hand-typed link cannot switch one off either.
     */
-    expect(unsubscribeLink(OWNER, "system", ORIGIN, SECRET).url).toContain("/settings#email");
+    expect(unsubscribeLink(OWNER, "system", ORIGIN, SECRET).url).toContain("/settings?tab=account#email");
     expect(readUnsubscribe({ u: OWNER, k: "system", t: "anything" }, SECRET)).toBeNull();
     expect(kindsInScope(ALL_OPTIONAL)).not.toContain("system");
   });

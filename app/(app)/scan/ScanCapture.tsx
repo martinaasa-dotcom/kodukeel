@@ -239,8 +239,8 @@ export function ScanCapture() {
 
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {summary.total} word{summary.total === 1 ? "" : "s"} ticked
-            {summary.known > 0 && <> · {summary.known} matched the dictionary</>}
-            {summary.inflected > 0 && <> · {summary.inflected} in an inflected form</>}
+            {summary.known > 0 && <>, {summary.known} matched the dictionary</>}
+            {summary.inflected > 0 && <>, {summary.inflected} in an inflected form</>}
           </p>
           {readBy && (
             <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>

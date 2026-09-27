@@ -1,10 +1,8 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, ClipboardCheck, Layers, Play, TrendingUp } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot } from "@/lib/progress/summary";
-import { caseAccuracy } from "@/lib/stats/history";
-import { caseReviewsFor } from "@/lib/progress/cases";
 import { listDecks } from "@/lib/progress/decks";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
@@ -16,8 +14,7 @@ import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
-import { WeakestCases } from "@/components/WeakestCases";
-import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
+import { Empty, Page, SectionTitle, Stack, toneInk } from "@/components/ui";
 
 export const metadata = { title: "Practice" };
 
@@ -25,18 +22,15 @@ export const dynamic = "force-dynamic";
 
 /**
  * Every way to practice, in one place, with the state that decides whether each
- * one is worth doing right now — how many cards are due, your best sprint, your
+ * one is worth doing right now: how many cards are due, your best sprint, your
  * fastest match. A hub that just lists modes makes you guess; this one answers
  * "what should I do with the next five minutes".
  */
 export default async function PracticePage() {
   const ownerId = await requireUserId();
-  const [snapshot, settings, caseReviews, sentenceReady, words, decks] = await Promise.all([
+  const [snapshot, settings, sentenceReady, words, decks] = await Promise.all([
     deckSnapshot(ownerId),
     readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest, SETTING_KEYS.roundPace]),
-    // The one reader, so Practice and Progress cannot disagree about which case
-    // a learner is worst at. See lib/progress/cases.ts.
-    caseReviewsFor(ownerId),
     /*
       The learner's own words, asked for as words.
 
@@ -90,30 +84,7 @@ export default async function PracticePage() {
     return count >= 3 && count <= 9 && e.et.length <= 80;
   })).length;
   const matchBest = numberSetting(settings[SETTING_KEYS.matchBest], 0);
-  const weakCases = caseAccuracy(caseReviews).slice(0, 5);
 
-  /*
-    Grouped, not listed.
-
-    Thirteen cards, each carrying a two sentence paragraph, is thirteen
-    paragraphs to read before pressing anything, and the page's own promise is
-    that it answers "what should I do with the next five minutes". A flat grid
-    cannot answer that; the grouping is the answer. So: the daily loop leads,
-    the games that need nothing but a deck come next as tiles you can scan, the
-    five that work a specific weakness follow with the one line each that says
-    what the weakness is, and the mock paper sits on its own at the bottom
-    because sitting one is an afternoon rather than five minutes.
-
-    The body copy that came off the games is not lost, it was never the reason
-    anybody pressed them: a title, what it does in three words, and whether
-    there is anything ready to play is the whole decision.
-  */
-  /*
-    What the top slot says about itself: how many met words are not yet
-    mastered, which is the number the round is about. `masteryCounts` and the
-    round read one query, so the tile cannot promise words the round will not
-    find.
-  */
   /*
     What Review would put in front of them right now: due cards plus the unseen
     ones it trickles in, drawn the same way Today draws it. A tile saying
@@ -129,10 +100,10 @@ export default async function PracticePage() {
     : words.length > 0 ? "All mastered" : "Nothing met yet";
 
   /*
-    What is ready right now, per mode. The table in lib/ux/modes.ts says what
-    each mode *is*; this says what it is like today, which is a database
-    question and so cannot live beside the copy. Anything absent here falls
-    back to the mode's own standing note.
+    What is ready right now, per round, where there is a figure worth saying.
+    A round with no live figure says only what it is: the standing notes ("No
+    score yet", "Eight words") were a second line of grey on every tile that
+    told nobody anything they needed in order to choose.
   */
   const live: Record<string, string | undefined> = {
     "/review/sprint": sprintBest > 0 ? `Best: ${sprintBest}` : undefined,
@@ -140,43 +111,49 @@ export default async function PracticePage() {
     "/review/sentences": sentenceCount > 0 ? `${sentenceCount} ready` : undefined,
     "/review/dictation": dictationCount > 0 ? `${dictationCount} ready` : undefined,
   };
-  const metaFor = (mode: PracticeMode) => live[mode.href] ?? mode.note;
   /*
     The one tile whose subtitle is a length, and the length is the learner's:
     the sprint runs to whatever pace they set in Settings, so a fixed "60
     seconds" here was wrong for everybody who had asked for longer.
   */
   const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace]);
-  const withLength = (mode: PracticeMode): PracticeMode =>
-    mode.href === "/review/sprint" ? { ...mode, subtitle: sprintLength } : mode;
+  const lineFor = (mode: PracticeMode) => {
+    const what = mode.href === "/review/sprint" ? sprintLength : mode.subtitle;
+    const now = live[mode.href];
+    return now ? `${what}, ${now}` : what;
+  };
+  const stocked = decks.filter((d) => d.wordCount > 0);
+  const flash = modeAt("/review/flashcards");
+  const common = modeAt("/review/common");
 
   return (
-    <Page route="/practice" title="Practice" lead="Words you have already learned, asked every way there is.">
+    <Page route="/practice" title="Practice" lead="Words you have already met, asked every way there is.">
       {snapshot.totalCards === 0 ? (
         <Empty
           title="Nothing to practice yet"
-          body="Every mode here draws on your own deck."
+          body="Every round here draws on your own deck."
           action={<ButtonLink href="/learn" variant="primary">Learn some words first</ButtonLink>}
         />
       ) : (
         <Stack>
           {/*
-            THE TOP SLOT IS THE SCHEDULE, AND IT DID NOT USED TO BE.
+            THREE THINGS, IN THE ORDER THEY ARE WORTH DOING.
 
-            It was Flash cards, on the argument that `/review` is the page most
-            people arrived here from, so leading with it offered somebody the
-            door they had just come through. That was true while Review was a
-            row in the rail. It is not any more: the daily row is Learn, review
-            lives inside this page (`lib/ux/nav.ts`), and a learner who opens
-            Practice with cards due has come here for exactly that. Leaving it
-            out would make the one thing this page is for reachable only from
-            Today.
+            This page used to be eight sections and some twenty doors: the
+            schedule, Situations, Flash cards, the frequency lists, the decks,
+            a mastery strip, six rounds, six games, the mock paper and a
+            weakest-case panel. Every one of them was worth having and together
+            they were a page somebody landed on and did not know where to
+            press. It was reported in exactly those words.
 
-            Flash cards keeps its slot directly under it, which is what it is:
-            the words review has already introduced, asked in a way it does not
-            ask them, across a variety of case endings, until the app can be
-            confident the word is known. See lib/srs/mastery.ts for what
-            confident means.
+            So it answers one question in three steps. What is due, which is
+            the schedule and is the one loud thing here. Then Flash cards,
+            which is one round pointed at different sets of words, so the sets
+            are choices inside one card rather than four cards. Then every
+            other round, in one grid drawn one way. Situations has its own row
+            in the rail, the mock paper and the weakest cases live under
+            Progress, and where each word stands is a link inside the card
+            whose round moves it.
           */}
           <section className="night rounded-[var(--r-xl)] border p-6 md:p-9" aria-labelledby="practice-review">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -196,167 +173,88 @@ export default async function PracticePage() {
             </div>
           </section>
 
-          {/*
-            THE ROUND THAT IS NOT A ROUND. A situation is five to eight minutes
-            with somebody who has an agenda of their own, and it is where the
-            words above get used on a person rather than recalled. It has a
-            row of its own in the rail; it is here too because this is the
-            screen somebody is on when they have ten minutes and want to use
-            them.
-          */}
-          <div className="@container"><div className="grid gap-4 @2xl:grid-cols-2 [&>*]:h-full">
-          <ModeCard
-            href="/situations"
-            iconName="MessagesSquare"
-            tone="blush"
-            title="Situations"
-            subtitle="Somebody behind a desk"
-            body="A receptionist, a landlord, a counter. Get what you came for, in Estonian, with things going wrong on purpose."
-            meta="five to eight minutes"
-          />
-
-          <ModeCard
-            href="/review/flashcards"
-            iconName="Layers"
-            tone="accent"
-            title="Flash cards"
-            subtitle="Words you have met"
-            body="Type it, hear it in a sentence, or write one of your own. A new form each time."
-            meta={flashMeta}
-            primary={unfinished > 0 && ready === 0}
-          />
-          </div></div>
-
-          {/*
-            THE SAME ROUND, POINTED AT THE WORDS EVERYBODY MEETS FIRST.
-
-            Flash cards above works the deck you have. This works a deck
-            nobody has to build a decision about: the hundred commonest words
-            of each kind, counted over a corpus rather than chosen, which is
-            the one question the course cannot answer because it teaches in
-            themes. See lib/collections/frequency.ts.
-
-            Four buttons rather than one, because the four lists are four
-            different sittings and picking one is the whole decision. They go
-            straight to the round, so this is one press; the card's own title
-            goes to the index, which carries the counts and the way to build
-            the next twenty out.
-          */}
-          <div className="@container"><div className={`grid gap-4 [&>*]:h-full ${decks.length > 0 ? "@2xl:grid-cols-2" : ""}`}>
-          <CommonWordsCard />
-
-          {/*
-            AND A SHELF THE LEARNER NAMED THEMSELVES.
-
-            `Deck` is a label over the one review pool (`lib/progress/decks.ts`),
-            so practicing one is the same round as Flash cards pointed at a
-            smaller set of words, the way the frequency lists above already
-            are. Before this, a deck a learner built to make some words stick
-            right away had nowhere to be practiced but `/words/decks` and a
-            checkbox list.
-          */}
-          {decks.length > 0 && <DecksCard decks={decks} />}
-          </div></div>
-
-          {/*
-            AND WHERE THOSE WORDS STAND, BESIDE THE ROUNDS THAT MOVE THEM.
-
-            The lists were on `/words` and nowhere else, three cards down a page
-            about the deck, and the learner reported that they could not find
-            them. This is the screen they were standing on when they wanted
-            them: the two rounds above work on the words that are not done, and
-            this says which those are and what each one is still short of.
-          */}
-          {words.length > 0 && (
-            <Link
-              href="/words/mastery"
-              className="lift flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[var(--r-lg)] border p-4"
-              style={{
-                borderColor: "var(--edge)", background: "var(--surface)",
-                boxShadow: "var(--depth-sm)",
-              }}
+          {flash && common && (
+            <section
+              aria-labelledby="practice-flash"
+              className="flex flex-col gap-5 rounded-[var(--r-lg)] border p-5 md:p-6"
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
             >
-              <span className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                Where your words stand
-              </span>
-              <span className="flex flex-wrap gap-x-3 gap-y-1 text-xs" style={{ color: "var(--ink-3)" }}>
-                <span><span className="tnum" style={{ color: "var(--mint-ink)" }}>{counts.mastered}</span> mastered</span>
-                <span><span className="tnum" style={{ color: "var(--butter-ink)" }}>{counts.almost}</span> almost there</span>
-                <span><span className="tnum" style={{ color: "var(--peach-ink)" }}>{counts.struggling}</span> need work</span>
-              </span>
-            </Link>
-          )}
-
-          <section>
-            <SectionTitle hint="a few minutes each">Rounds</SectionTitle>
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-              {QUICK_MODES.map((m) => (
-                <ModeTile key={m.href} mode={withLength(m)} meta={metaFor(m)} />
-              ))}
-            </div>
-          </section>
-
-          {/*
-            THE GAMES, WHICH ARE ROUNDS THAT ARE NOT ABOUT THE SCHEDULE.
-
-            Drawn from the table rather than listed here, so a game added to
-            `lib/ux/modes.ts` with `within: "/practice"` appears without anybody
-            remembering this file. That is not tidiness: Picture match and Target
-            shipped claiming to be reached from here while nothing here linked to
-            them, so both were unfindable outside the command palette, and
-            `nav.test.ts` is what said so.
-
-            A section of their own rather than seven tiles in the grid above,
-            because the six rounds are six hues and a seventh would have to
-            borrow one and read as a duplicate of whichever it took.
-          */}
-          {GAMES.length > 0 && (
-            <section>
-              <SectionTitle hint="for the fun of it">Games</SectionTitle>
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-                {GAMES.map((m) => (
-                  <ModeTile key={m.href} mode={withLength(m)} meta={metaFor(m)} />
-                ))}
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <h2 id="practice-flash" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{flash.title}</h2>
+                <Link
+                  href="/words/mastery"
+                  className="text-sm font-semibold underline-offset-4 hover:underline"
+                  style={{ color: "var(--accent-deep)" }}
+                >
+                  Where your words stand
+                </Link>
               </div>
+              <p className="-mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
+                Typed, heard in a sentence, or written into one of your own. Pick which words.
+              </p>
+
+              <ChoiceGroup label="Your words">
+                <Choice href={flash.href} title="All your words" meta={flashMeta} />
+                {stocked.map((deck) => (
+                  <Choice
+                    key={deck.id}
+                    href={`/review/deck/${deck.id}`}
+                    title={deck.name}
+                    meta={deck.wordCount === 1 ? "1 word" : `${deck.wordCount} words`}
+                  />
+                ))}
+              </ChoiceGroup>
+
+              <ChoiceGroup label={common.title} href={common.href}>
+                {COMMON_GROUPS.map((group) => (
+                  <Choice
+                    key={group.key}
+                    href={`/review/common/${group.slug}`}
+                    title={group.title}
+                    meta="100 words"
+                    label={`${flash.title}: ${common.title.toLowerCase()}, ${group.title.toLowerCase()}`}
+                  />
+                ))}
+              </ChoiceGroup>
             </section>
           )}
 
-          <section>
-            <SectionTitle hint="an afternoon, not five minutes">Sit the paper</SectionTitle>
-            <Link
-              href="/exam"
-              className="lift flex items-center gap-3 rounded-[var(--r-lg)] border p-4"
-              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
-            >
-              <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                style={{ background: "var(--blush)", color: "var(--surface)" }}
-              >
-                <ClipboardCheck size={18} aria-hidden />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-base font-bold" style={{ color: "var(--ink)" }}>Mock exam</span>
-                <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                  A2 to C1 · four parts · sixty percent to pass
-                </span>
-              </span>
-            </Link>
-          </section>
+          {/*
+            EVERY OTHER ROUND, IN ONE GRID DRAWN ONE WAY.
 
-          <section>
-            <SectionTitle hint="weakest first">Drill one case</SectionTitle>
-            <Card>
-              <WeakestCases
-                cases={weakCases}
-                empty={
-                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    Answer a few case-form cards and the ones you keep missing show up here. Add a
-                    noun unit from the{" "}
-                    <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>path</Link>.
-                  </p>
-                }
-              />
-            </Card>
+            The six rounds and the six games were two sections, each cycling
+            the whole palette, stacked on top of each other: the same six
+            colours twice in a row with two headings over them. What separates
+            a round from a game is not a decision anybody makes before pressing
+            one, so they are one shelf, rounds first. Drawn from the table
+            rather than listed here, so a round added to `lib/ux/modes.ts` with
+            `within: "/practice"` appears without anybody remembering this file.
+          */}
+          <section aria-labelledby="practice-rounds">
+            <SectionTitle hint="a few minutes each">
+              <span id="practice-rounds">Rounds and games</span>
+            </SectionTitle>
+            {/* Columns by the room the page has rather than by the window:
+                at 768 the rail takes a column and a viewport breakpoint laid
+                out three tiles where two fit. */}
+            <div className="@container"><div className="grid grid-cols-1 gap-3 @lg:grid-cols-2 @3xl:grid-cols-3">
+              {/* A conversation is one more way of using a word, so it is on
+                  this shelf rather than a row in the rail (`lib/ux/nav.ts`),
+                  drawn like the rounds under it and across the whole row, so the
+                  twelve under it still fill their rows. */}
+              <div className="@lg:col-span-2 @3xl:col-span-3">
+                <ModeTile
+                  mode={{ href: "/situations", tone: "mint", icon: "MessagesSquare", title: "Situations" }}
+                  line="Somebody behind a desk wants something from you. Five to eight minutes."
+                />
+              </div>
+              {QUICK_MODES.map((m) => (
+                <ModeTile key={m.href} mode={m} line={lineFor(m)} />
+              ))}
+              {GAMES.map((m) => (
+                <ModeTile key={m.href} mode={m} line={lineFor(m)} />
+              ))}
+            </div></div>
           </section>
         </Stack>
       )}
@@ -365,240 +263,78 @@ export default async function PracticePage() {
 }
 
 /**
- * One mode, at the size the decision actually needs.
+ * One round, drawn exactly like every other one.
  *
- * Every mode but the daily loop is drawn this way now. The five targeted ones
- * each carried `blurb` as a two or three line paragraph and the mock paper
- * carried a sixth, on a page whose own promise is answering "what should I do
- * with the next five minutes". Six paragraphs is not an answer to that, and
- * the quick rounds sitting directly above them had already shown what is: a
- * title, three words, and whether there is anything ready to play.
- *
- * The blurbs are not deleted, and this is the argument for the split rather
- * than for cutting them. `components/CommandPalette.tsx` shows one as the hint
- * under each mode and searches its words, which is where somebody is reading a
- * description rather than scanning a grid. A sentence explaining rektsioon
- * earns its place where you are looking for the thing; it does not earn its
- * place eleven times over on the page you press.
+ * The icon sits against the title's line rather than the middle of the tile,
+ * so a tile whose second line wraps puts its icon where every other tile puts
+ * it; `items-center` left the icon level with the middle of a three-line block
+ * on one tile and a two-line block on its neighbour, and the row read uneven.
+ * One line under the title, never two: what the round is, and a live figure
+ * after it where there is one.
  */
-function ModeTile({ mode, meta }: { mode: PracticeMode; meta: string }) {
+function ModeTile({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "icon" | "title">; line: string }) {
   return (
     <Link
       href={mode.href}
-      /* Stacked on a phone, two to a row, the shape of a launcher: the icon
-         is what a thumb aims at and the name is read under it. Side by side
-         from `sm`, where a row has the width for it. */
-      className="lift flex h-full flex-col items-start gap-2.5 rounded-[var(--r-lg)] border p-3.5 sm:flex-row sm:items-center sm:gap-3 sm:p-4"
+      className="lift flex h-full items-start gap-3 rounded-[var(--r-lg)] border p-4"
       style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <span
+        aria-hidden
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-        style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
+        style={{ background: `var(--${mode.tone}-soft)`, color: toneInk(mode.tone) }}
       >
         <NamedIcon name={mode.icon} size={18} aria-hidden />
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-base font-bold" style={{ color: "var(--ink)" }}>{mode.title}</span>
-        <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-          {mode.subtitle} · {meta}
-        </span>
+      <span className="min-w-0 flex-1 pt-0.5">
+        <span className="block text-base font-bold leading-snug" style={{ color: "var(--ink)" }}>{mode.title}</span>
+        <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}>{line}</span>
       </span>
     </Link>
   );
 }
 
 /**
- * THE FOUR FREQUENCY LISTS, AS FOUR DOORS.
+ * A labelled set of word sets inside the Flash cards card.
  *
- * Shaped like `ModeCard` above, and not built out of it, because that one is a
- * `Link` wrapping the whole card and this one has four links inside it. Nesting
- * those would be a link inside a link, which is invalid and which no browser
- * agrees about.
- *
- * Every string comes from `lib/ux/modes.ts` and
- * `lib/collections/commonGroups.ts` rather than from here, so a list renamed
- * once is renamed on the dictionary's page, the round index, the round and this
- * card together. That is the fault this app has fixed four times over: the same
- * mode was called two things on two screens because two files described it.
- *
- * Each button carries its own label for a screen reader, since "Verbs" on its
- * own is a word rather than a destination, and clears the 44px floor under a
- * coarse pointer like every other control here.
+ * The label is small and quiet and says what the buttons under it have in
+ * common; where the set has a page of its own the label goes there.
  */
-function CommonWordsCard() {
-  const mode = modeAt("/review/common");
-  if (!mode) return null;
-
+function ChoiceGroup({ label, href, children }: { label: string; href?: string; children: React.ReactNode }) {
   return (
-    <section
-      className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-5"
-      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
-    >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-          style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
-        >
-          <TrendingUp size={19} aria-hidden />
-        </span>
-        <span className="min-w-0 flex-1">
-          <Link
-            href={mode.href}
-            className="block text-lg font-bold underline-offset-4 hover:underline"
-            style={{ color: "var(--ink)" }}
-          >
-            {mode.title}
-          </Link>
-          <span className="block text-xs font-semibold sm:hidden" style={{ color: "var(--ink-2)" }}>{mode.note}</span>
-        </span>
-        <span className="hidden shrink-0 sm:inline-flex"><Chip tone="neutral">{mode.note}</Chip></span>
+    <div className="flex flex-col gap-2">
+      {href ? (
+        <Link href={href} className="label-xs self-start underline-offset-4 hover:underline" style={{ color: "var(--ink-3)" }}>
+          {label}
+        </Link>
+      ) : (
+        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{label}</p>
+      )}
+      <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 11rem), 1fr))" }}>
+        {children}
       </div>
-
-      {/*
-        "Most common words", then "The ones you hear most", then "These are the
-        words you will hear most often": a title and two restatements of it, on
-        a card whose four buttons are directly underneath. What a reader cannot
-        work out from the title is where the ranking came from, so that is the
-        line, and the subtitle is gone.
-      */}
-      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Counted over film and television subtitles, not picked by hand.
-      </p>
-
-      <div className="grid grid-cols-2 gap-2">
-        {COMMON_GROUPS.map((group) => (
-          <Link
-            key={group.key}
-            href={`/review/common/${group.slug}`}
-            aria-label={`Flash cards: most common ${group.title.toLowerCase()}`}
-            className="tap-tint flex min-h-11 flex-wrap items-center gap-x-2.5 gap-y-1 rounded-[var(--r)] border px-3 py-2"
-            style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
-          >
-            <span
-              className="h-2.5 w-2.5 shrink-0 rounded-full"
-              style={{ background: `var(--${group.tone})` }}
-              aria-hidden
-            />
-            <span className="min-w-0 text-sm font-semibold" style={{ color: "var(--ink)" }}>
-              {group.title}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </section>
+    </div>
   );
 }
 
 /**
- * ONE ROW PER SHELF THE LEARNER HAS NAMED, EACH A DOOR STRAIGHT INTO A ROUND.
+ * One set of words to practise, as a button.
  *
- * Shaped like `CommonWordsCard` above and for the same reason: several
- * buttons on one card rather than several tiles, because the decision is
- * which shelf, not whether to practice at all. A deck with nothing on it is
- * left off the list, since its button would open on an empty round; the
- * count is what makes that a fact and not a filter nobody can see.
+ * Every one is the same shape: a name and one quiet line under it, no dot, no
+ * icon. The four frequency lists used to carry a dot apiece and one of them,
+ * "Describing words", wrapped its name under its dot at every width, which
+ * is the fault `scripts/test-containment.mjs` now asks about on every page.
  */
-function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: number }[] }) {
-  const stocked = decks.filter((d) => d.wordCount > 0);
-  if (stocked.length === 0) return null;
-
-  return (
-    <section
-      className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-5"
-      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
-    >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-          style={{ background: "var(--sky)", color: "var(--surface)" }}
-        >
-          <Layers size={19} aria-hidden />
-        </span>
-        <span className="min-w-0 flex-1">
-          <Link
-            href="/words/decks"
-            className="block text-lg font-bold underline-offset-4 hover:underline"
-            style={{ color: "var(--ink)" }}
-          >
-            Your decks
-          </Link>
-          <span className="block text-xs" style={{ color: "var(--ink-3)" }}>The shelves you named</span>
-        </span>
-        <span className="shrink-0">
-          <Chip tone="neutral">{stocked.length === 1 ? "1 deck" : `${stocked.length} decks`}</Chip>
-        </span>
-      </div>
-
-      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        {"Words you filed together, asked the same way Flash cards asks the rest of your deck."}
-      </p>
-
-      <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 15rem), 1fr))" }}>
-        {stocked.map((deck) => (
-          <Link
-            key={deck.id}
-            href={`/review/deck/${deck.id}`}
-            aria-label={`Practice ${deck.name}`}
-            className="tap-tint flex min-h-11 items-center gap-2.5 rounded-[var(--r)] border px-3 py-2"
-            style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
-          >
-            <Play size={14} aria-hidden className="shrink-0" style={{ color: "var(--sky-ink)" }} />
-            <span className="min-w-[7rem] flex-1 text-sm font-semibold" style={{ color: "var(--ink)" }}>
-              {deck.name}
-            </span>
-            <span className="shrink-0 text-xs" style={{ color: "var(--ink-3)" }}>
-              {deck.wordCount === 1 ? "1 word" : `${deck.wordCount} words`}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/** The daily loop, and only the daily loop. Everything else is a tile. */
-function ModeCard({ href, iconName, tone, title, subtitle, body, meta, primary }: {
-  href: string;
-  iconName: string;
-  tone: string;
-  title: string;
-  /** Left out where the body and the meta already say it. */
-  subtitle?: string;
-  body: string;
-  meta: string;
-  primary?: boolean;
-}) {
+function Choice({ href, title, meta, label }: { href: string; title: string; meta: string; label?: string }) {
   return (
     <Link
       href={href}
-      className="lift flex h-full flex-col gap-2 rounded-[var(--r-lg)] border p-5"
-      style={{
-        borderColor: primary ? "var(--accent)" : "var(--edge)",
-        background: "var(--surface)",
-        boxShadow: "var(--depth-sm)",
-      }}
+      aria-label={label ? `${label}, ${meta}` : undefined}
+      className="tap-tint flex min-h-11 flex-col justify-center rounded-[var(--r)] border px-3.5 py-2.5"
+      style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
     >
-      {/* One row whatever the width: on a phone the chip wrapped onto a line
-          of its own under the title, which read as a second heading. There it
-          sits under the title as plain text instead. */}
-      {/* And the chip wraps under the title rather than squeezing it: at
-          1100 with the rail showing, a two-column card left "Situations" a
-          75px box beside a chip that cannot shrink, and the word broke. */}
-      <span className="flex flex-wrap items-center gap-3">
-        <span
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-          style={{ background: `var(--${tone})`, color: "var(--surface)" }}
-        >
-          <NamedIcon name={iconName} size={19} aria-hidden />
-        </span>
-        <span className="min-w-[9rem] flex-1">
-          <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{title}</span>
-          {subtitle && <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{subtitle}</span>}
-          <span className="block text-xs font-semibold sm:hidden" style={{ color: primary ? "var(--accent-deep)" : "var(--ink-2)" }}>{meta}</span>
-        </span>
-        <span className="hidden shrink-0 sm:inline-flex"><Chip tone={primary ? "accent" : "neutral"}>{meta}</Chip></span>
-      </span>
-      <span className="text-sm" style={{ color: "var(--ink-2)" }}>{body}</span>
+      <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{title}</span>
+      <span className="text-xs" style={{ color: "var(--ink-3)" }}>{meta}</span>
     </Link>
   );
 }

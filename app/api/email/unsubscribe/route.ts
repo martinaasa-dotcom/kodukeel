@@ -63,7 +63,7 @@ function page(title: string, body: string, action?: { label: string; token: URLS
   </div>
   <p style="margin:20px 0 0;font-size:13px;line-height:20px;color:${P.ink3}">
     Your course, your deck and everything you have learned are untouched.
-    <a href="/settings#email" style="color:${P.ink3}">Change this in Settings</a>.
+    <a href="/settings?tab=account#email" style="color:${P.ink3}">Change this in Settings</a>.
   </p>
 </div></body></html>`,
     {

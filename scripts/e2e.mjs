@@ -148,7 +148,7 @@ if (paradigm) {
   in Russian would be handing the next one a screen it was not written for.
 */
 if (paradigm) {
-  await page.goto(`${B}/settings`, { waitUntil: "networkidle" });
+  await page.goto(`${B}/settings?tab=sound`, { waitUntil: "networkidle" });
   const russian = page.locator("#meanings [role=radio]", { hasText: "Russian" }).first();
   if (await russian.count()) {
     await russian.click();
@@ -161,7 +161,7 @@ if (paradigm) {
     check("and the English is still there beside it", /\broom\b/.test(entry),
       "the English gloss is the one every entry has, so it may never be replaced");
 
-    await page.goto(`${B}/settings`, { waitUntil: "networkidle" });
+    await page.goto(`${B}/settings?tab=sound`, { waitUntil: "networkidle" });
     await page.locator("#meanings [role=radio]", { hasText: "English" }).first().click();
     await page.waitForTimeout(1000);
   } else {
@@ -265,7 +265,7 @@ check("the keyboard gets from a question to a graded card", gradedAfter,
   `${gradedBefore} graded -> ${await graded()} graded, ${before} -> ${await page.getByText(/^\d+ left$/).textContent()}`);
 
 // 5 — Import
-await page.goto(`${B}/settings`, { waitUntil: "networkidle" });
+await page.goto(`${B}/settings?tab=words`, { waitUntil: "networkidle" });
 const stamp = Date.now();
 const list = `testsona${stamp} - test word\ntestverb${stamp}ma - to test`;
 await page.getByLabel("Paste word list").fill(list);
@@ -343,7 +343,7 @@ const needsKey = (await page.getByText(/Anu needs an .{1,6} key/).count()) > 0;
   <model>" before a reply and "Answered by" after one, whoever answers, so
   matching that shape cannot fall behind a new provider.
 */
-const connected = (await page.getByText(/(Will ask|Answered by) .+ · .+/).count()) > 0;
+const connected = (await page.getByText(/(Will ask|Answered by) .+, .+/).count()) > 0;
 check("the tutor tab is honest about its key state", needsKey !== connected,
   needsKey ? "no key — shows setup guidance" : "key set — shows the provider");
 

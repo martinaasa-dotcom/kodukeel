@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ unitId: s
   const unit = unitById(unitId);
   if (!unit) return { title: "Lesson" };
   const placement = await courseLevelFor(await requireUserId());
-  return { title: `${uiText(placement, unit.title, unit.subtitle)} · lesson` };
+  return { title: `${uiText(placement, unit.title, unit.subtitle)}, lesson` };
 }
 
 export const dynamic = "force-dynamic";

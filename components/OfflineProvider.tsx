@@ -214,8 +214,8 @@ function OfflineBanner({ online, pending, syncing }: {
 
   const label = !online
     ? pending > 0
-      ? `Offline · ${pending} grade${pending === 1 ? "" : "s"} saved on this device`
-      : "Offline · review still works"
+      ? `Offline, ${pending} grade${pending === 1 ? "" : "s"} saved on this device`
+      : "Offline, review still works"
     : `Syncing ${pending} grade${pending === 1 ? "" : "s"}`;
 
   return (

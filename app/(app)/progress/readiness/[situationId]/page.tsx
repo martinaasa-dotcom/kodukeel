@@ -59,7 +59,7 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
           <span lang={uiWantsEnglish(picture.level) ? undefined : "et"}>
             {uiText(picture.level, situation.title, situation.subtitle)}
           </span>{" "}
-          · {situation.level}
+         , {situation.level}
         </>
       }
       title={situation.claim}

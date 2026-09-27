@@ -59,8 +59,8 @@ const NOUN_FIELDS = [
 const VERB_FIELDS = [
   ["INF_MA", { et: "ma-infinitive", question: null }, "lugema"],
   ["INF_DA", { et: "da-infinitive", question: null }, "lugeda"],
-  ["PRES_1SG", { et: "Olevik · ma", question: null }, "loen"],
-  ["PAST_1SG", { et: "Lihtminevik · ma", question: null }, "lugesin"],
+  ["PRES_1SG", { et: "Olevik, ma", question: null }, "loen"],
+  ["PAST_1SG", { et: "Lihtminevik, ma", question: null }, "lugesin"],
   ["PART_TUD", { et: "tud-kesksõna", question: null }, "loetud"],
 ] as const;
 

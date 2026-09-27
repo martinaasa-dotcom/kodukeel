@@ -60,16 +60,7 @@ export function MasteryBoard({
           ))}
         </div>
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          A word is mastered once you have had it right {MASTERY_CORRECT} times in three different
-          forms, or in every form it has where it has fewer.{" "}
-          <Link
-            href="/review/flashcards"
-            className="font-semibold underline underline-offset-2"
-            style={{ color: "var(--accent-deep)" }}
-          >
-            Flash cards
-          </Link>{" "}
-          asks for the forms you are missing.
+          Mastered is right {MASTERY_CORRECT} times, in three different forms.
         </p>
       </Card>
 
@@ -88,13 +79,18 @@ function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; to
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>{EXPLAINS[tier]}</p>
 
-      <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-        {words.map((word) => (
-          <li key={word.lexemeId}>
-            <Row word={word} tier={tier} />
-          </li>
-        ))}
-      </ul>
+      {/* One list with hairlines rather than a bordered box per word: forty
+          boxes down a page is forty edges to read past before the words. Two
+          columns once the card is wide enough to give each a line of its own. */}
+      <div className="@container mt-4">
+        <ul className="grid gap-x-6 @2xl:grid-cols-2">
+          {words.map((word) => (
+            <li key={word.lexemeId} className="border-b" style={{ borderColor: "var(--rule-soft)" }}>
+              <Row word={word} tier={tier} />
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {total > words.length && (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
@@ -107,46 +103,38 @@ function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; to
 
 function Row({ word, tier }: { word: MasteredWord; tier: Mastery }) {
   const { correct, total, slots, slotsNeeded, filled, progress } = word.verdict;
+  /* Which forms is for a reader who asks, so it rides on the bar's label; the
+     row says the word, what it means, and how far along it is. */
+  const forms = filled.length > 0 ? `: ${filled.map((slot) => slotShort(slot)).join(", ")}` : "";
   return (
     /* Straight to the entry, because the question a list like this raises is
        "which one was that again", and the entry is where every form of it is. */
     <Link
       href={`/dictionary?q=${encodeURIComponent(word.lemma)}`}
-      className="lift block rounded-[var(--r)] border p-3"
-      style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}
+      className="tap-tint flex min-h-11 items-center gap-3 rounded-md px-1 py-2"
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-          {word.lemma}
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-baseline gap-x-2">
+          <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+            {word.lemma}
+          </span>
+          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
         </span>
-        <span className="text-xs" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
-      </div>
-
-      <div className="mt-2">
+        <span className="block text-sm" style={{ color: "var(--ink-3)" }}>
+          <span className="tnum">{correct}</span> of <span className="tnum">{total}</span> right,
+          in <span className="tnum">{slots}</span>
+          {slots < slotsNeeded ? <> of <span className="tnum">{slotsNeeded}</span></> : null}{" "}
+          {slots === 1 ? "form" : "forms"}
+        </span>
+      </span>
+      <span className="w-16 shrink-0">
         <Meter
           pct={Math.round(progress * 100)}
-          label={`${word.lemma} toward mastered`}
+          label={`${word.lemma} toward mastered${forms}`}
           tone={`var(--${TONES[tier]}-ink)`}
           height={5}
         />
-      </div>
-      {/*
-        ONE LINE UNDER THE BAR, WHERE THERE WERE TWO AND A ROW OF CHIPS.
-
-        "4 of 3 different forms" is what a bare fraction prints the moment the
-        variety bar is met and passed, which is most of the words in the two
-        tiers that are not about variety at all. Where the bar is met the
-        fraction has nothing left to say, so it says the count instead. The
-        forms follow as plain words rather than a chip each: a coloured pill
-        per form was four pills a word, forty words down the page.
-      */}
-      <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-        <span className="tnum">{correct}</span> of <span className="tnum">{total}</span> right,
-        in <span className="tnum">{slots}</span>
-        {slots < slotsNeeded ? <> of <span className="tnum">{slotsNeeded}</span></> : null}{" "}
-        {slots === 1 ? "form" : "forms"}
-        {filled.length > 0 && <>: {filled.map((slot) => slotShort(slot)).join(", ")}</>}
-      </p>
+      </span>
     </Link>
   );
 }

@@ -262,7 +262,7 @@ ${preheader(letter.preheader).__html}
         Kodukeel${chrome.operator ? `, run by ${esc(chrome.operator).__html}` : ""}.
         <br>
         <a href="${url(chrome.unsubscribeUrl).__html}" style="color:${P.ink3};text-decoration:underline">${esc(chrome.unsubscribeLabel).__html}</a>
-        &nbsp;&middot;&nbsp;
+        &nbsp;&nbsp;&nbsp;
         <a href="${url(`${chrome.origin}/privacy`).__html}" style="color:${P.ink3};text-decoration:underline">What we hold</a>
       </td></tr>
     </table>

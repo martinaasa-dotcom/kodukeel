@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ caseKey: 
   const ref = caseReference(caseKey.toUpperCase());
   if (!ref) return { title: "Grammar" };
   return {
-    title: `${endingOf(ref)} means ${ref.plain} · ${ref.spec.et}`,
+    title: `${endingOf(ref)} means ${ref.plain}, ${ref.spec.et}`,
     description: ref.summary,
   };
 }

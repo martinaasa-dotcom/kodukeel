@@ -756,5 +756,5 @@ export function subjectOf(word: FlashWord): CaseSubject {
 export function caseLabel(word: FlashWord, slot: string): string {
   const spec = caseByKey(slot);
   if (!spec) return slotLabel(slot);
-  return `${spec.et} · ${caseQuestionFor(spec, subjectOf(word))}`;
+  return `${spec.et}, ${caseQuestionFor(spec, subjectOf(word))}`;
 }

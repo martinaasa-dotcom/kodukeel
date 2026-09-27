@@ -417,7 +417,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           <Mascot size={44} className="float shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>
-              Step {step + 1} of {STEPS.length} · {STEPS[step]}
+              Step {step + 1} of {STEPS.length}, {STEPS[step]}
             </p>
             <Meter pct={((step + 1) / STEPS.length) * 100} label={`Setup progress, step ${step + 1} of ${STEPS.length}`} />
           </div>
@@ -703,7 +703,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 <ChoiceGroup ariaLabel="What is your goal">
                   {TARGETS.map((t) => (
                     <ChoiceChip key={t.band} selected={target === t.band} onSelect={() => chooseTarget(t.band)}>
-                      {t.band} · {t.label}
+                      {t.band}, {t.label}
                     </ChoiceChip>
                   ))}
                 </ChoiceGroup>
@@ -778,7 +778,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             <ChoiceGroup ariaLabel="How much a day">
               {GOALS.map((g) => (
                 <ChoiceChip key={g.value} selected={goal === g.value} onSelect={() => setGoal(g.value)}>
-                  {g.label} · {g.value} cards
+                  {g.label}, {g.value} cards
                 </ChoiceChip>
               ))}
             </ChoiceGroup>
@@ -952,7 +952,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             <ChoiceGroup ariaLabel="How much a day">
               {GOALS.map((g) => (
                 <ChoiceChip key={g.value} selected={goal === g.value} onSelect={() => setGoal(g.value)}>
-                  {g.label} · {g.value} cards
+                  {g.label}, {g.value} cards
                 </ChoiceChip>
               ))}
             </ChoiceGroup>

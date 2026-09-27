@@ -51,7 +51,7 @@ export default async function RecordPage() {
     >
       <Stack>
         <Card className="record-sheet">
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>Kodukeel · record of study</p>
+          <p className="label-xs" style={{ color: "var(--ink-3)" }}>Kodukeel, record of study</p>
           <p className="mt-2 text-2xl font-bold" style={{ color: "var(--ink)" }}>
             {record.name ?? "A learner of Estonian"}
           </p>

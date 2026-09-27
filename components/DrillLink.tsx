@@ -1,6 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { modeAt } from "@/lib/ux/modes";
 import { NamedIcon } from "@/components/icons";
+import { toneInk } from "@/components/ui";
 
 /**
  * The drill that belongs on the page you are already standing on.
@@ -35,7 +36,7 @@ export function DrillLink({ href }: { href: string }) {
     >
       <span
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full sm:row-span-2"
-        style={{ background: `var(--${mode.tone})`, color: "var(--surface)" }}
+        style={{ background: `var(--${mode.tone}-soft)`, color: toneInk(mode.tone) }}
       >
         <NamedIcon name={mode.icon} size={19} aria-hidden />
       </span>

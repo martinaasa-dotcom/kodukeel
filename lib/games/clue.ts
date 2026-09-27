@@ -71,7 +71,7 @@ const MAX_CLUE = 46;
 const MAX_SENSES = 2;
 
 /** The separator a label takes here, as everywhere else in the app. */
-const LABEL = " · ";
+const LABEL = ", ";
 
 /** One dictionary entry, as much of it as a clue needs. */
 export interface ClueWord {

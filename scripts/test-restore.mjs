@@ -115,7 +115,7 @@ await prisma.scan.deleteMany();
 check("data is genuinely gone before the restore", (await prisma.review.count()) === 0);
 
 // Restore through the real UI, not a direct call.
-await page.goto(`${B}/settings`, { waitUntil: "networkidle" });
+await page.goto(`${B}/settings?tab=account`, { waitUntil: "networkidle" });
 await page.getByLabel("Choose a backup file").setInputFiles({
   name: "backup.json", mimeType: "application/json", buffer: Buffer.from(backup),
 });
@@ -207,7 +207,7 @@ check("FSRS scheduling state survived the round trip",
   scheduled ? `stability ${scheduled.stability.toFixed(2)}, ${scheduled.reps} reps` : "no reviewed card found");
 
 // Restoring the same file again must be a no-op, not a duplication.
-await page.goto(`${B}/settings`, { waitUntil: "networkidle" });
+await page.goto(`${B}/settings?tab=account`, { waitUntil: "networkidle" });
 await page.getByLabel("Choose a backup file").setInputFiles({
   name: "backup.json", mimeType: "application/json", buffer: Buffer.from(backup),
 });

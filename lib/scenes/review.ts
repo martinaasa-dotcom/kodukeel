@@ -242,7 +242,7 @@ function notesFrom(state: SceneState): ReviewNote[] {
         said: slip.said,
         form: slip.form,
         what: whatFor(slip.kind, plain, spec?.suffix),
-        ...(spec ? { term: `${spec.et} ${MIDDOT} ${spec.asksWhere ?? spec.asksThing}` } : {}),
+        ...(spec ? { term: `${spec.et}, ${spec.asksWhere ?? spec.asksThing}` } : {}),
         ...(NOTE_BODY[slip.kind] ? { body: NOTE_BODY[slip.kind] } : {}),
         at: first.at,
         ...(rows.length > 1 ? { times: rows.length } : {}),
@@ -252,7 +252,6 @@ function notesFrom(state: SceneState): ReviewNote[] {
 }
 
 /** The separator this app uses in a label, so no dash reaches a reader. */
-const MIDDOT = "\u00b7";
 
 /**
  * What the form that was wanted is for, in words anybody has.

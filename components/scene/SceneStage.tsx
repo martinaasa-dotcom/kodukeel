@@ -133,7 +133,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
             </h1>
             <p className="truncate text-xs" style={{ color: "var(--ink-3)" }}>
               {place}
-              {minutes ? ` · about ${minutes} min` : ""}
+              {minutes ? `, about ${minutes} min` : ""}
             </p>
           </div>
 

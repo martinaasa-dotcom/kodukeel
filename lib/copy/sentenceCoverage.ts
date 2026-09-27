@@ -98,7 +98,7 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
     "somebody can see what a line of their own list should look like.",
 
   "components/NotAutomatic.tsx":
-    "Not a sentence. `full` is the name of a slot, `sisseütlev` or `olevik · ma`, " +
+    "Not a sentence. `full` is the name of a slot, `sisseütlev` or `olevik, ma`, " +
     "built for the label a screen reader is given about a figure on the Progress page.",
 
   "components/SuggestFix.tsx":

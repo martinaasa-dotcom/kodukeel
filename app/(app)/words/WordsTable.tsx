@@ -25,9 +25,17 @@ export interface CardRow {
 
 const FILTERS = ["All", "Due", "New", "Struggling", "Suspended"] as const;
 
-export function WordsTable({ rows }: { rows: CardRow[] }) {
+/**
+ * How many rows the list opens on. A whole deck is hundreds of rows, and a page
+ * that opens on four hundred of them is a page nobody reads down: the first
+ * screenful is what somebody came for, and the rest is one press away.
+ */
+const FIRST_ROWS = 15;
+
+export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
   const [query, setQuery] = useState("");
+  const [shown, setShown] = useState(FIRST_ROWS);
 
   const visible = useMemo(() => {
     const now = Date.now();
@@ -51,26 +59,17 @@ export function WordsTable({ rows }: { rows: CardRow[] }) {
           <button
             key={f}
             type="button"
-            onClick={() => setFilter(f)}
+            onClick={() => { setFilter(f); setShown(FIRST_ROWS); }}
             aria-pressed={filter === f}
-            className="choice-btn rounded-full border px-3.5 py-1.5 text-xs"
-            style={filter === f ? {
-              borderColor: "transparent",
-              background: "var(--accent-deep)",
-              color: "var(--accent-ink)",
-              fontWeight: 700,
-              boxShadow: "var(--shadow-accent)",
-            } : {
-              color: "var(--ink-2)",
-              fontWeight: 500,
-            }}
+            data-on={filter === f ? "" : undefined}
+            className="choice-btn choice-chip rounded-full border px-3.5 py-1.5 text-xs"
           >
             {f}
           </button>
         ))}
         <input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); setShown(FIRST_ROWS); }}
           placeholder="Filter…"
           aria-label="Filter cards"
           className="ml-auto rounded-full border px-4 py-2 text-sm"
@@ -93,9 +92,28 @@ export function WordsTable({ rows }: { rows: CardRow[] }) {
           className="overflow-hidden rounded-[var(--r-lg)] border"
           style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
-          {visible.map((r) => <Row key={r.id} row={r} />)}
+          {visible.slice(0, shown).map((r) => <Row key={r.id} row={r} />)}
         </ul>
       )}
+
+      {visible.length > shown ? (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShown((n) => n + FIRST_ROWS * 2)}
+            className="choice-btn rounded-full border px-4 py-2 text-sm font-semibold"
+          >
+            Show more
+          </button>
+          <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
+            {shown} of {visible.length} here
+          </span>
+        </div>
+      ) : total > rows.length && visible.length > 0 ? (
+        <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
+          These are the {rows.length} cards due soonest, of {total}. Search to find the rest.
+        </p>
+      ) : null}
     </div>
   );
 }

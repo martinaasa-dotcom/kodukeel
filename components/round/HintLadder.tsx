@@ -131,7 +131,7 @@ export function HintLadder({
             the half of this button somebody deciding whether to press again is
             actually reading.
           */}
-          <span aria-hidden>{left > 1 ? `· ${left} left` : "· last one"}</span>
+          <span aria-hidden>{left > 1 ? `(${left} left)` : "(last one)"}</span>
         </button>
       )}
       {taken > 0 && graded && (

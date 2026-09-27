@@ -503,3 +503,27 @@ export async function clearModelBands(prisma: PrismaClient): Promise<number> {
       AND cefr IS NOT NULL
   `;
 }
+
+/**
+ * THE MIDDOT IS ON NO SCREEN, AND A CARD CARRIES ITS OWN TEXT.
+ *
+ * The builders joined a card's parts with a middot for years, `lugema →
+ * olevik · ta` on a verb card's front, `astmevaheldus · consonant gradation`
+ * under a gradation card, a government answer as two questions either side of
+ * one. The builders write a comma now, and a card already in somebody's deck
+ * keeps the text it was built with, so the dot went on reaching the screen off
+ * the rows. This rewrites the separator in `front`, `back` and `hint` and
+ * nothing else: no scheduling column, and no card that does not hold one.
+ * `conjugationSlotFromFront` reads both spellings, so a verb card keeps the
+ * slot it is about whichever side of this it is on. A second run matches
+ * nothing.
+ */
+export async function repairCardSeparators(prisma: PrismaClient): Promise<number> {
+  return prisma.$executeRaw`
+    UPDATE "Card"
+    SET front = regexp_replace(front, '\s*·\s*', ', ', 'g'),
+        back = regexp_replace(back, '\s*·\s*', ', ', 'g'),
+        hint = CASE WHEN hint IS NULL THEN NULL ELSE regexp_replace(hint, '\s*·\s*', ', ', 'g') END
+    WHERE front LIKE '%·%' OR back LIKE '%·%' OR hint LIKE '%·%'
+  `;
+}

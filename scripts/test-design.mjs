@@ -407,6 +407,39 @@ check("a hovered row is drawn, and its words clear AA on the pill behind them",
   hovered.length === 0, hovered.join(" | "));
 
 /*
+  THE PANE UNDER THE PAGE YOU ARE ON IS DRAWN WHOLE, OUTLINE AND ALL.
+
+  The rail's rows live in a scroll container, and a scroll container clips
+  whatever is painted past its padding box. The marker carries a one-pixel
+  ring and a shadow, and with no padding above the first row the ring along
+  Today's top edge was cut off, in both themes, which reads as a broken pill
+  on the one control every screen carries. Asked of the ring rather than of
+  the pane: the pane itself sat inside, it was the line round it that did not.
+*/
+if (live) {
+  const clipped = await p.evaluate(() => {
+    const nav = [...document.querySelectorAll('nav[aria-label="Main"]')]
+      .find((n) => getComputedStyle(n).display !== "none");
+    const m = nav?.querySelector(".nav-marker");
+    if (!m) return "no marker";
+    const r = m.getBoundingClientRect();
+    for (let el = m.parentElement; el && el !== document.body; el = el.parentElement) {
+      const cs = getComputedStyle(el);
+      if (cs.overflowX === "visible" && cs.overflowY === "visible") continue;
+      const c = el.getBoundingClientRect();
+      const ring = 1;
+      if (r.top - ring < c.top || r.left - ring < c.left || r.right + ring > c.right || r.bottom + ring > c.bottom) {
+        return `the ring reaches ${Math.round(c.top - (r.top - ring))}px above, ${Math.round(c.left - (r.left - ring))}px left of its clipping box`;
+      }
+    }
+    return "";
+  });
+  check("the rail's marker is drawn whole, its outline inside the box that scrolls", clipped === "", clipped);
+} else {
+  absent(1, "a page that hydrates, which the check above reports on");
+}
+
+/*
   THE LANDING PAGE'S FOUR LETTERS TOUCH THE CARD, AND NOTHING THE CARD SAYS.
 
   õ, ä, ö and ü are tucked over the case explorer's four sides, one to a side,

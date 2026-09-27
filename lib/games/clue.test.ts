@@ -11,11 +11,11 @@ import { clueClashes, clueFrom, clueKey, clueParts, type ClueWord } from "./clue
 describe("clueFrom", () => {
   it("keeps at most two senses", () => {
     expect(clueFrom("a devil, an evil spirit, the deuce", "kurat", "NOUN"))
-      .toBe("a devil, an evil spirit · noun");
+      .toBe("a devil, an evil spirit, noun");
   });
 
   it("takes the first group where a gloss is split by a semicolon", () => {
-    expect(clueFrom("to read; to count", "lugema", "VERB")).toBe("to read · verb");
+    expect(clueFrom("to read; to count", "lugema", "VERB")).toBe("to read, verb");
   });
 
   it("drops a gloss too long to be a clue rather than cutting it mid-word", () => {
@@ -47,8 +47,8 @@ describe("clueFrom", () => {
 
   it("keeps a clue that only looks like the answer", () => {
     // `mark` inside `market` is not the word, and the clue is the whole point.
-    expect(clueFrom("a market", "mark", "NOUN")).toBe("a market · noun");
-    expect(clueFrom("a lamp shade", "lambivari", "NOUN")).toBe("a lamp shade · noun");
+    expect(clueFrom("a market", "mark", "NOUN")).toBe("a market, noun");
+    expect(clueFrom("a lamp shade", "lambivari", "NOUN")).toBe("a lamp shade, noun");
   });
 
   /*
@@ -58,8 +58,8 @@ describe("clueFrom", () => {
     part of speech and Estonian derivation does, so the clue says which.
   */
   it("names the kind of word it wants", () => {
-    expect(clueFrom("human", "inimlik", "ADJECTIVE")).toBe("human · adjective");
-    expect(clueFrom("human being", "inimene", "NOUN")).toBe("human being · noun");
+    expect(clueFrom("human", "inimlik", "ADJECTIVE")).toBe("human, adjective");
+    expect(clueFrom("human being", "inimene", "NOUN")).toBe("human being, noun");
   });
 });
 
@@ -72,7 +72,7 @@ describe("clueFrom", () => {
 */
 describe("clueParts", () => {
   it("reads a clue back into the gloss and the kind", () => {
-    expect(clueParts("a devil, an evil spirit · noun"))
+    expect(clueParts("a devil, an evil spirit, noun"))
       .toEqual({ gloss: "a devil, an evil spirit", kind: "noun" });
   });
 
@@ -81,7 +81,7 @@ describe("clueParts", () => {
   });
 
   it("takes the last separator, since a gloss may carry one", () => {
-    expect(clueParts("a · b · verb")).toEqual({ gloss: "a · b", kind: "verb" });
+    expect(clueParts("a, b, verb")).toEqual({ gloss: "a, b", kind: "verb" });
   });
 });
 

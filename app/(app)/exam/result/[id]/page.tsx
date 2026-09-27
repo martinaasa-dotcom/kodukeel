@@ -82,8 +82,8 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       eyebrow={
         <>
           {result.level}
-          {result.number ? ` · paper ${result.number}` : ""}
-          {result.part ? ` · ${SKILL_LABEL[result.part].toLowerCase()} only` : ""} · sat{" "}
+          {result.number ? `, paper ${result.number}` : ""}
+          {result.part ? `, ${SKILL_LABEL[result.part].toLowerCase()} only` : ""}, sat{" "}
           <DateText iso={attempt.finishedAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
         </>
       }

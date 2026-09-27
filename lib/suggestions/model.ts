@@ -426,7 +426,7 @@ export function summarisePatch(patch: Patch): PatchSummary {
     case "CREATE_WORD":
       return {
         action: "Add this word to the dictionary",
-        field: `${patch.lemma} · ${patch.pos.toLowerCase()}`,
+        field: `${patch.lemma}, ${patch.pos.toLowerCase()}`,
         after: patch.translation,
       };
     case "SET_TRANSLATION":

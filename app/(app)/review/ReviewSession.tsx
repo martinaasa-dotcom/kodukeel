@@ -1904,7 +1904,7 @@ export function ReviewSession({
             </Button>
           ) : ask === "choice" && !chosen ? (
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
-              Pick the meaning · keys 1 to {card.choices?.length ?? 4}
+              Pick the meaning, keys 1 to {card.choices?.length ?? 4}
             </p>
           ) : ask === "choice" && chosen !== null && choiceIsRight(chosen, card.back, answerLanguage) ? (
             /* Right, and waiting: the tile has already turned mint, so the
@@ -2001,7 +2001,7 @@ export function ReviewSession({
                 ? (chosen ? `${ADVANCE_KEY_LABEL} to carry on` : `1 to ${card?.choices?.length ?? 4} to pick`)
                 : !revealed
                   ? `${ADVANCE_KEY_LABEL} to flip`
-                  : "1 not yet · 2 got it"}
+                  : "1 not yet, 2 got it"}
         </span>
       </div>
 

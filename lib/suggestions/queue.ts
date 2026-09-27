@@ -291,7 +291,7 @@ async function currentValues(
       const blocking = createWordClash(patch, byLemma);
       const shown = blocking ?? clash;
       out.set(item.id, {
-        before: shown ? `${shown.lemma} · ${shown.pos.toLowerCase()} · ${shown.translation}` : null,
+        before: shown ? `${shown.lemma}, ${shown.pos.toLowerCase()}, ${shown.translation}` : null,
         blocked: blocking
           ? "The dictionary already has this word. Correct its entry instead."
           : null,

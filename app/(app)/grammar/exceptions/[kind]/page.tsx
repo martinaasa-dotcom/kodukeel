@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ kind: str
   const key = kindFrom(kind);
   if (!key) return { title: "Exceptions" };
   const note = KIND_NOTES[key as keyof typeof KIND_NOTES];
-  return { title: `${note.title} · exceptions`, description: note.what };
+  return { title: `${note.title}, exceptions`, description: note.what };
 }
 
 /**

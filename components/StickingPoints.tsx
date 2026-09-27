@@ -136,7 +136,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                   )}
                   <span aria-hidden className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
                     {point.accuracy === null ? "not seen lately" : `${point.accuracy}% of ${point.reviews}`}
-                    {point.siblings > 0 ? ` · ${counted(point.siblings + 1, "card")} stuck` : ""}
+                    {point.siblings > 0 ? `, ${counted(point.siblings + 1, "card")} stuck` : ""}
                   </span>
                 </p>
               )}

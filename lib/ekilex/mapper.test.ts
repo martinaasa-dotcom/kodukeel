@@ -70,7 +70,7 @@ describe("government, as Ekilex actually writes it", () => {
 
   it("keeps Ekilex's order, so the primary government stays first", () => {
     const mapped = mapEkilexDetails(verb(["kellele", "mida"]));
-    expect(mapped?.government).toBe("kellele (allative) · mida (partitive)");
+    expect(mapped?.government).toBe("kellele (allative), mida (partitive)");
   });
 
   it("hands the drill a case it can parse, primary government first", () => {

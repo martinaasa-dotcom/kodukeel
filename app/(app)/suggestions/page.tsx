@@ -89,7 +89,7 @@ export default async function MySuggestionsPage() {
                 )}
                 <p className="text-xs" style={{ color: "var(--ink-3)" }}>
                   <DateText iso={new Date(row.createdAt).toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
-                  {row.context ? ` · ${row.context}` : ""}
+                  {row.context ? `, ${row.context}` : ""}
                 </p>
               </Card>
             );

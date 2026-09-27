@@ -726,7 +726,7 @@ function StepCard({
           </span>
           <span className="text-xs" style={{ color: "var(--ink-3)" }}>
             <span lang="et">{step.caseName}</span>
-            {" · "}
+            {", "}
             <CaseQuestion question={step.question} inline />
           </span>
           <EstonianInput

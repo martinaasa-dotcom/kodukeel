@@ -237,8 +237,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         of: question.cardId ?? question.lexemeId,
         label: "Verb forms",
         question: `${question.lemma}, ${question.translation}`,
-        answer: [question.given.value, ...question.blanks.map((b) => b.answer)].join(" · "),
-        note: [question.given.person, ...question.blanks.map((b) => b.person)].join(" · "),
+        answer: [question.given.value, ...question.blanks.map((b) => b.answer)].join(", "),
+        note: [question.given.person, ...question.blanks.map((b) => b.person)].join(", "),
         questionLang: "et",
         answerLang: "et",
         speak: question.given.value,
@@ -532,7 +532,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>
           {tablesRight}/{index + (revealed ? 1 : 0)} tables clean
-          {question.shape === "type" ? <> · {ADVANCE_KEY_LABEL} moves down the table</> : <> · tap a form to place it</>}
+          {question.shape === "type" ? <>, {ADVANCE_KEY_LABEL} moves down the table</> : <>, tap a form to place it</>}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>

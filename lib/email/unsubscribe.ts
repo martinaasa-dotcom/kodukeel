@@ -99,7 +99,7 @@ export function unsubscribeLink(
 ): UnsubscribeLink {
   if (kind === "system") {
     return {
-      url: `${origin}/settings#email`,
+      url: `${origin}/settings?tab=account#email`,
       label: "Choose which emails you get",
     };
   }

@@ -458,7 +458,7 @@ export default async function TodayPage() {
       <div className="min-w-0 flex-1">
         <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
           <span style={{ color: "var(--cta)" }}>Today&rsquo;s module</span>
-          <span aria-hidden>·</span>
+          <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
           <span>Day {courseDay.day.index} of {programme!.days.length}</span>
         </p>
         <h2
@@ -571,13 +571,17 @@ export default async function TodayPage() {
     <Card className="flex flex-col gap-4">
       <SectionTitle hint={`${summary.reviewsToday} reviewed today`}>Keeping it up</SectionTitle>
 
+      {/*
+        The run is a number and a word, set like type, with the week under it.
+        It was a boxed tile of its own inside this card, a card inside a card
+        for one figure, which is the dashboard shape `StatTile` warns about.
+      */}
+      <p className="flex items-baseline gap-2">
+        <Flame size={18} aria-hidden className="self-center" style={{ color: "var(--butter-ink)" }} />
+        <span className="tnum font-display text-3xl font-bold leading-none" style={{ color: "var(--ink)" }}>{summary.streak}</span>
+        <span className="text-base" style={{ color: "var(--ink-2)" }}>{summary.streak === 1 ? "day in a row" : "days in a row"}</span>
+      </p>
       <div className="flex flex-wrap items-center gap-4">
-        <StatTile
-          value={summary.streak}
-          label="Day streak"
-          tone="butter"
-          icon={<Flame size={15} aria-hidden />}
-        />
         {/* A week at a glance: the streak, made concrete. */}
         <div className="flex min-w-[210px] flex-1 items-center justify-between gap-2">
           {week.map((d, i) => (
@@ -636,7 +640,7 @@ export default async function TodayPage() {
                 }}
                 aria-hidden
               >
-                {d.done ? "✓" : "·"}
+                {d.done ? "✓" : ""}
               </span>
               <span className="sr-only">
                 {d.day}{d.isToday ? " (today)" : ""}: {d.done ? "reviewed" : "no reviews"}
@@ -754,7 +758,7 @@ export default async function TodayPage() {
   // asked for five.
   const questLength = lengthAtPace(QUEST_SECONDS, settings[SETTING_KEYS.roundPace]);
   const questCard = questDay ? (
-    <Card tone="accent">
+    <Card>
       {/* No "two minutes" hint: the line under this says it, and a figure
           printed twice on one card is a figure nobody is checking. */}
       <SectionTitle>Daily quest</SectionTitle>

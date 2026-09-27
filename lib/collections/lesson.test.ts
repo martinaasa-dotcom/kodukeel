@@ -450,7 +450,7 @@ describe("what a step is built from", () => {
 
   it("asks about government only where Ekilex recorded one", () => {
     const verbs: LessonWord[] = [
-      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "aitama", GEN_SG: "" }, government: "keda/mida* (partitive) · millest (elative)" },
+      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "aitama", GEN_SG: "" }, government: "keda/mida* (partitive), millest (elative)" },
       { lexemeId: "lex-jooksma", lemma: "jooksma", gloss: "to run", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "jooksma" }, government: null },
     ];
     const steps = planLesson({
@@ -473,7 +473,7 @@ describe("what a step is built from", () => {
       shipped column's middot separator was most of the dictionary.
     */
     const verbs: LessonWord[] = [
-      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "aitama" }, government: "keda/mida* (partitive) · millest (elative)" },
+      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "aitama" }, government: "keda/mida* (partitive), millest (elative)" },
     ];
     let seen = 0;
     for (let seed = 1; seed <= 20; seed++) {

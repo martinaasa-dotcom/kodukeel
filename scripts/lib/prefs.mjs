@@ -44,7 +44,7 @@ export async function ensureLetterBar(browser, base, want = "on") {
   const ctx = await browser.newContext({ viewport: DESKTOP });
   const page = await ctx.newPage();
   try {
-    await page.goto(`${base}/settings`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${base}/settings?tab=sound`, { waitUntil: "domcontentloaded" });
     const choice = page.getByRole("radio", { name: label }).first();
     /*
       WAITED FOR RATHER THAN COUNTED, WHICH IS THE DIFFERENCE BETWEEN A

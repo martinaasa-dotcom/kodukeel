@@ -143,7 +143,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       look.record({
         of: question.cardId ?? question.heard,
         label: "Minimal pairs",
-        question: question.options.map((o) => o.value).join("  ·  "),
+        question: question.options.map((o) => o.value).join(" ,  "),
         answer: question.heard,
         note: heard ? `${heard.lemma}, ${heard.translation}` : null,
         questionLang: "et",
@@ -274,7 +274,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
             {/* "Play again" is a lie before anything has played, which is
                 every arrival on a browser that blocks autoplay. */}
-            {needsPress ? "Tap to hear it" : "Play again"} <KeyCap>R</KeyCap> · or hear it{" "}
+            {needsPress ? "Tap to hear it" : "Play again"} <KeyCap>R</KeyCap>, or hear it{" "}
             <span className="inline-flex items-center align-middle">
               <Speak text={question.heard} slow voice={voice} label="Hear it slowly" />
             </span>{" "}
@@ -317,7 +317,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
                   <span className="min-w-0">
                     <span lang="et" className="block text-lg font-semibold">{option.value}</span>
                     <span className="block text-xs">
-                      {option.formLabel} of {option.lemma} · {option.translation}
+                      {option.formLabel} of {option.lemma}, {option.translation}
                     </span>
                   </span>
                   {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label="Right" />}
@@ -368,7 +368,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         )}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 2 to answer</span>
+        <span>{correct}/{index + (revealed ? 1 : 0)} right, keys 1 to 2 to answer</span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

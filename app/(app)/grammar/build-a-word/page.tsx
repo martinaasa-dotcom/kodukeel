@@ -9,7 +9,7 @@ import { BuildWalk } from "./BuildWalk";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Build a word · three forms, eleven endings",
+  title: "Build a word, three forms, eleven endings",
   description:
     "The Estonian case system on one screen: the three forms that are memorized, the one the endings "
     + "go on, and each of the eleven endings in a sentence somebody wrote.",

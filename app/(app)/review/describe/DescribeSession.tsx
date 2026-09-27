@@ -205,7 +205,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       look.record({
         of: `${prompt.sceneId}-${prompt.caseKey}`,
         label: prompt.situation,
-        question: `${prompt.askLemma}, ${prompt.askTranslation} · ${prompt.caseEt}`,
+        question: `${prompt.askLemma}, ${prompt.askTranslation}, ${prompt.caseEt}`,
         answer: sentence.trim() || prompt.askLemma,
         note: prompt.caseQuestion,
         questionLang: "et",

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Camera, Check, Plus, ScissorsLineDashed, Search, Star, TrendingUp } from "lucide-react";
 import { addToDeck } from "@/app/actions";
 import { DeckChoiceList, useDeckChoice } from "@/components/DeckChoice";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Speak, SpeakPair } from "@/components/Speak";
 import { Card, Chip, Empty } from "@/components/ui";
@@ -339,24 +339,16 @@ export function DictionaryClient({
           <div className="flex flex-wrap items-start gap-2">
             <AddWord />
             {canScan && (
-              <Link
-                href="/scan"
-                className="choice-btn press inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-sm font-semibold"
-                style={{ color: "var(--ink)" }}
-              >
+              <ButtonLink href="/scan">
                 <Camera size={15} aria-hidden /> Photograph a list
-              </Link>
+              </ButtonLink>
             )}
             {/* The other way of bringing your own Estonian in, and the reason it
                 is here rather than on the practice menu: both of these turn
                 something you already have into something you can study. */}
-            <Link
-              href="/review/cloze"
-              className="choice-btn press inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-sm font-semibold"
-              style={{ color: "var(--ink)" }}
-            >
+            <ButtonLink href="/review/cloze">
               <ScissorsLineDashed size={15} aria-hidden /> Paste a passage
-            </Link>
+            </ButtonLink>
           </div>
         </div>
       )}
@@ -722,7 +714,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.definition && (
         <div>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Seletus · what the dictionary says
+            Seletus, what the dictionary says
           </h3>
           <p
             lang="et"
@@ -756,7 +748,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.government && (
         <div>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Government · rektsioon
+            Government, rektsioon
           </h3>
           {/*
             EKILEX'S OWN QUESTION WORDS, WITH THE BRACKET SAYING WHAT THEY ASK.

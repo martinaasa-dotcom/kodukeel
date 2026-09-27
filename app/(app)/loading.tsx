@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui";
  * request, so a slow connection means a visible wait. A blank screen during
  * that wait reads as a broken app; a skeleton reads as a loading one.
  *
- * IT HAS TO BE THE SAME PAGE, THOUGH, AND IT WAS NOT. `Page` is `max-w-5xl`
+ * IT HAS TO BE THE SAME PAGE, THOUGH, AND IT WAS NOT. `Page` was `max-w-5xl`
  * and this was `max-w-4xl`; Today splits at `lg` and this split at `md`; the
  * gaps were 20px against Today's 32. So the swap from skeleton to page moved
  * every edge on the screen, and between 768 and 1023 the skeleton promised
@@ -15,11 +15,12 @@ import { Skeleton } from "@/components/ui";
  * is a layout jump with a delay on it, which is worse than the blank it
  * replaced. The container and the split are copied from `Page` and from
  * Today's own grid, and the block heights are the do-now card and the plan
- * beside it.
+ * beside it. `Page` narrowed to `max-w-4xl` afterwards, and this narrowed
+ * with it, for the reason this whole comment is about.
  */
 export default function Loading() {
   return (
-    <div className="mx-auto max-w-5xl px-5 py-8 md:px-10 md:py-12" aria-busy="true" aria-label="Loading">
+    <div className="mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12" aria-busy="true" aria-label="Loading">
       <Skeleton className="w-56" height={30} />
       <Skeleton className="mt-3 w-80" height={16} />
       <div className="mt-8 grid gap-8 lg:gap-6 lg:grid-cols-[1.4fr_1fr]">

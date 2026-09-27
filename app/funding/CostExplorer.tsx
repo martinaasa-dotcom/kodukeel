@@ -272,7 +272,7 @@ export function CostExplorer() {
                 <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
                   {planFor(line)}
                   {line.cost.kind === "given" && line.cost.licence
-                    ? ` · ${line.cost.licence}`
+                    ? `, ${line.cost.licence}`
                     : ""}
                 </p>
                 {line.cost.kind === "given" && (

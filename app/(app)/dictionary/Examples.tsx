@@ -36,7 +36,7 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
   if (list.length === 0 && !adding) {
     return (
       <div>
-        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Näited · in a sentence</h3>
+        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Näited, in a sentence</h3>
         {/*
           AN ABSENCE SOMEBODY CAN WAIT OUT, OR ONE THAT IS SIMPLY WHAT THE ENTRY
           IS. Ekilex records a usage against a *word*, so `Tere!` and `Kuidas
@@ -68,7 +68,7 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
   return (
     <div>
       <h3 className="label-xs mb-2 flex items-center gap-2" style={{ color: "var(--ink-3)" }}>
-        Näited · in a sentence
+        Näited, in a sentence
         <span className="font-normal normal-case tracking-normal" style={{ letterSpacing: 0 }}>
           {list.length}
         </span>

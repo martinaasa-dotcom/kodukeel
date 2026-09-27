@@ -48,8 +48,8 @@ rules in the same words. Three files used to state this and no two of them agree
 loudest single tell there is. A dash used as a clause break is the punctuation of generated prose and
 almost nobody writes it by hand in an interface. Use a comma, a full stop, or a pair of brackets, and
 pick per sentence. Note that replacing a dash between two independent clauses with a comma makes a
-comma splice, which reads worse than the dash did: use a full stop. A separator in a label takes the
-middot the app already uses. A range is "2 to 3 weeks" or "2028-2029". An empty cell is `NO_VALUE`
+comma splice, which reads worse than the dash did: use a full stop. A separator in a label is a
+comma. The middot is on no screen. A range is "2 to 3 weeks" or "2028-2029". An empty cell is `NO_VALUE`
 from `lib/copy/values.ts`, which is "n/a".
 
 **Stock openers.** "It's important to note that", "It's worth noting", "At the end of the day",

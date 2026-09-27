@@ -417,7 +417,7 @@ describe("a governed verb, built once for the route and the harness", () => {
   it("takes the cases that answer a place question its government names", () => {
     const word = governedWord({
       lemma: "minema", pos: "VERB", forms: ["minna", "lähen"], pres1sg: "lähen",
-      government: "kuhu (direction) · millega (comitative) · mida tegema · mille peale",
+      government: "kuhu (direction), millega (comitative), mida tegema, mille peale",
     });
     expect([...word!.cases].sort()).toEqual(["ALLATIVE", "COMITATIVE", "ILLATIVE"]);
   });
@@ -425,7 +425,7 @@ describe("a governed verb, built once for the route and the harness", () => {
   it("carries the persons the rule derives, so a conjugated verb is the verb", () => {
     const word = governedWord({
       lemma: "sõitma", pos: "VERB", forms: ["sõita"], pres1sg: "sõidan",
-      government: "kuhu (direction) · millega (comitative)",
+      government: "kuhu (direction), millega (comitative)",
     });
     expect(word!.forms.has("sõidab")).toBe(true);
   });

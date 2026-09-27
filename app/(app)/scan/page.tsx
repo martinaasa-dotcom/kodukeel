@@ -71,7 +71,7 @@ export default async function ScanPage() {
                 can still come in as a pasted list.
               </span>
             </span>
-            <ButtonLink href="/settings#import" variant="primary">
+            <ButtonLink href="/settings?tab=words#import" variant="primary">
               <ClipboardPaste size={15} aria-hidden /> Paste a word list
             </ButtonLink>
           </Card>
@@ -115,7 +115,7 @@ export default async function ScanPage() {
                           <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
                             <Layers size={13} aria-hidden />
                             {summary.total} word{summary.total === 1 ? "" : "s"}
-                            {summary.unknown > 0 && <> · {summary.unknown} unverified</>}
+                            {summary.unknown > 0 && <>, {summary.unknown} unverified</>}
                           </span>
                           {shown.length > 0 && (
                             <span className="mt-2 flex flex-wrap gap-1.5">

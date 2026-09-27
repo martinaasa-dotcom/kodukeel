@@ -199,7 +199,7 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
       <div className="mb-7">
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>
-            {section.title} · question {responses.filter((r) => !r.skipped).length + 1}
+            {section.title}, question {responses.filter((r) => !r.skipped).length + 1}
           </span>
           <Chip tone="neutral">{item.band}</Chip>
         </div>

@@ -672,7 +672,7 @@ check("progress reports what is actually sticking, not just raw accuracy",
 */
 const reading = await page.locator("text=/long-term reviews/").first().innerText();
 check("it counts only the cards the scheduler thought were known",
-  /\d+ recalled of \d+ long-term reviews · target \d+%/.test(reading),
+  /\d+ recalled of \d+ long-term reviews, target \d+%/.test(reading),
   reading.trim().slice(0, 80));
 
 // ─── "Why?", at the moment it is asked ────────────────────────────────────────

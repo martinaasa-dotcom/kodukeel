@@ -78,7 +78,7 @@ describe("parseGovernment", () => {
 */
 describe("parseGovernment, on the shape Ekilex writes", () => {
   it("takes the government Ekilex lists first, not the one the app lists first", () => {
-    const g = parseGovernment("kellele (allative) · mida (partitive)");
+    const g = parseGovernment("kellele (allative), mida (partitive)");
     expect(g?.caseKey).toBe("ALLATIVE");
   });
 
@@ -88,14 +88,14 @@ describe("parseGovernment, on the shape Ekilex writes", () => {
 
   it("reads the real aitama entry", () => {
     // As returned by Ekilex for `aitama`, question words and all.
-    const g = parseGovernment("keda/mida* (partitive) · kellel + mida teha · millest (elative)");
+    const g = parseGovernment("keda/mida* (partitive), kellel + mida teha, millest (elative)");
     expect(g?.caseKey).toBe("PARTITIVE");
   });
 
   it("offers no example rather than inventing one", () => {
     // Ekilex keeps its sentences separately, as usages. The drill reads those;
     // this parser never composes one (ADR-005).
-    expect(parseGovernment("kellele (allative) · mida (partitive)")?.example).toBeNull();
+    expect(parseGovernment("kellele (allative), mida (partitive)")?.example).toBeNull();
   });
 
   it("still reads the seed shape, which puts the case first", () => {
@@ -109,7 +109,7 @@ describe("parseGovernment, on the shape Ekilex writes", () => {
   });
 
   it("reads every case the entry names, primary first", () => {
-    const g = parseGovernment("mida* (partitive) · millega (comitative) · millest (elative)");
+    const g = parseGovernment("mida* (partitive), millega (comitative), millest (elative)");
     expect(g?.caseKey).toBe("PARTITIVE");
     expect(g?.alsoGoverned).toEqual(["COMITATIVE", "ELATIVE"]);
   });
@@ -121,7 +121,7 @@ describe("parseGovernment, on the shape Ekilex writes", () => {
       is the real one: it takes the translative and the adessive, and a naive
       scan reads the essive out of the second.
     */
-    const g = parseGovernment("mida tegema · kelleks (translative) · millal · kellel (adessive)");
+    const g = parseGovernment("mida tegema, kelleks (translative), millal, kellel (adessive)");
     expect(g?.caseKey).toBe("TRANSLATIVE");
     expect(g?.alsoGoverned).toEqual(["ADESSIVE"]);
   });
@@ -135,7 +135,7 @@ describe("parseGovernment, on the shape Ekilex writes", () => {
       boundary check the test above already exercises against another case
       name, driven here against plain English prose instead.
     */
-    const g = parseGovernment("kellele (allative) · an excessive example is not relative");
+    const g = parseGovernment("kellele (allative), an excessive example is not relative");
     expect(g?.caseKey).toBe("ALLATIVE");
     expect(g?.alsoGoverned).toEqual([]);
   });
@@ -216,7 +216,7 @@ describe("buildOptions", () => {
     have no other way to check.
   */
   it("never offers another case the same word governs", () => {
-    const aitama = parseGovernment("keda/mida* (partitive) · millest (elative)")!;
+    const aitama = parseGovernment("keda/mida* (partitive), millest (elative)")!;
     expect(aitama.caseKey).toBe("PARTITIVE");
     expect(aitama.alsoGoverned).toEqual(["ELATIVE"]);
 
@@ -265,18 +265,18 @@ describe("maskExample", () => {
 
 describe("the stored string, as a learner should read it", () => {
   it("rewrites the bracket to what the question word is asking", () => {
-    expect(readableGovernment("kellelt (ablative) · kelle käest"))
-      .toBe("kellelt (from whom?) · kelle käest");
+    expect(readableGovernment("kellelt (ablative), kelle käest"))
+      .toBe("kellelt (from whom?), kelle käest");
     expect(readableGovernment("keda* (partitive)")).toBe("keda* (whom?)");
-    expect(readableGovernment("kellest/millest (elative) · kellega (comitative)"))
-      .toBe("kellest/millest (about whom? out of what?) · kellega (with whom?)");
+    expect(readableGovernment("kellest/millest (elative), kellega (comitative)"))
+      .toBe("kellest/millest (about whom? out of what?), kellega (with whom?)");
   });
 
   it("reads the place adverbs, which name no case at all", () => {
     // `kuhu (direction)` is Ekilex saying the verb takes a place rather than
     // one particular case, and "direction" is the mapper's own English for it.
-    expect(readableGovernment("kuhu (direction) · millega (comitative)"))
-      .toBe("kuhu (where to?) · millega (with what?)");
+    expect(readableGovernment("kuhu (direction), millega (comitative)"))
+      .toBe("kuhu (where to?), millega (with what?)");
   });
 
   it("leaves alone a bracket that is not a label", () => {
@@ -288,7 +288,7 @@ describe("the stored string, as a learner should read it", () => {
   });
 
   it("never touches the stored string, which the parser still reads", () => {
-    const raw = "kellele (allative) · mida (partitive)";
+    const raw = "kellele (allative), mida (partitive)";
     expect(readableGovernment(raw)).not.toBe(raw);
     expect(parseGovernment(raw)?.caseKey).toBe("ALLATIVE");
     expect(parseGovernment(raw)?.alsoGoverned).toContain("PARTITIVE");

@@ -223,7 +223,7 @@ check("goals are editable for ever, not just at first run",
 // here with an Estonian partner and Estonian meetings at work has three true
 // answers, so that set is toggles and says so. See components/Choice.tsx.
 await page.getByRole("button", { name: /Citizenship or residence/ }).click();
-await page.getByRole("radio", { name: /^B1 · Live in the language$/ }).click();
+await page.getByRole("radio", { name: /^B1, Live in the language$/ }).click();
 await page.getByRole("radio", { name: /In six months/ }).click();
 await page.getByRole("button", { name: /^Save goals$/ }).click();
 await page.waitForTimeout(900);
@@ -429,10 +429,12 @@ if (onboarded) {
   const alsoChosen = page.getByRole("button", { name: /^Work/ }).first();
   check("and so was the second one, because more than one can be true",
     (await alsoChosen.getAttribute("aria-pressed")) === "true");
-  check("and the name they gave is the name the app uses",
-    (await page.getByLabel(/Name your class sees/i).inputValue()) === "Test");
   check("and the level check is offered from settings too",
     (await page.locator('a[href="/assess"]').count()) > 0);
+  // The name lives under Account and data, which is its own tab.
+  await page.goto(`${B}/settings?tab=account`, { waitUntil: "networkidle" });
+  check("and the name they gave is the name the app uses",
+    (await page.getByLabel(/Name your class sees/i).inputValue()) === "Test");
 }
 
 console.log("");

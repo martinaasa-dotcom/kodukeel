@@ -288,7 +288,7 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
             <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
               <HeadwordLink lemma={entry.lemma} small />
               {entry.reading && entry.reading !== entry.gloss && `, ${entry.gloss}`}
-              {entry.matchedAs && ` · ${entry.matchedAs}`}
+              {entry.matchedAs && `, ${entry.matchedAs}`}
             </p>
           )}
           {/* The clause a flash card prints over the box, for a form no phrase

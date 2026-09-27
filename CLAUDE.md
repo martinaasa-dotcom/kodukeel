@@ -9910,8 +9910,11 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   in `lib/copy/voice.ts`; its `ALLOWED` list is now the table itself, the one file that has to name
   what it bans, and a test fails if an entry there stops containing one, so it cannot become a
   parking space. Replacing a dash between two independent clauses with a comma
-  makes a splice and reads worse than the dash did: use a full stop. A separator in a label takes
-  the middot the app already uses.
+  makes a splice and reads worse than the dash did: use a full stop. A separator in a label is a
+  comma, and **the middot is on no screen**: it was reported as the mark that makes a page read as
+  machine-made. `scripts/invariants/no-middot-on-screen.ts` fails on it in `app/`, `components/`
+  and `lib/` in any spelling, the two readers of stored hints and governments excepted, and
+  `test-containment.mjs` fails on one drawn on any route, which is what catches a stored row.
 - **A paragraph a tool writes lives in `AGENTS.md`, and that is what keeps this file its own.**
   `next dev` upserts a managed block between two HTML comment markers whenever it sees an agent at
   work, and the paragraph inside it carries an em dash, so `npm test` failed on `CLAUDE.md` for
@@ -10334,6 +10337,18 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   chips set a floor it could not meet, the landing page's ornaments swallowing taps on the card
   they are tucked over, and `Chip` itself. With the four declarations removed the suite fails 395
   of its 1010 checks, which is how anybody knows it is looking.
+- **A marker and its label are one line, and relatives look alike.** A learner reported four buttons
+  on Practice, each a coloured dot and a word, where "Describing words" alone had wrapped its word onto
+  a line under its dot. Nothing in the containment sweep could see it: nothing was cut off, nothing bled,
+  no word broke and the button was the size it was given. It is a fault of relation rather than of
+  size, so `test-containment.mjs` asks two questions of it on every route at every width. A marker is a
+  leading child with no text and no more than 48px each way (a dot, an icon, a radio), never a control:
+  the text after it starts on the marker's line and to its right, never under it; and where several
+  items share a class and each leads with a marker, the label starts the same distance in on every one
+  and the marker sits at the same height against the label's first line. The fix is nearly always the
+  same two moves: `flex-nowrap` on a marker and a short label, or `items-start` with the marker nudged
+  to the first line where a label may run to two. Its first run found the course strip, an exam option,
+  the mode tiles and the frequency lists.
 - **A grid item needs `min-w-0` for the same reason `main` did, and a column count is a fact about
   the width.** The week calendar failed the containment sweep four times over and the two causes are
   worth keeping apart. A `truncate` paragraph is `white-space: nowrap` and `overflow: hidden` clips

@@ -107,7 +107,7 @@ describe("the daily crossword", () => {
       const puzzle = await crosswordFor(OWNER, "2026-09-02" as DayKey, level);
       for (const entry of puzzle!.entries) {
         expect(entry.clue, `${entry.lemma} is clued without a kind of word`)
-          .toMatch(/ · (noun|verb|adjective|adverb)$/);
+          .toMatch(/, (noun|verb|adjective|adverb)$/);
       }
     }
   });

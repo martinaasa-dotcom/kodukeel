@@ -98,7 +98,7 @@ export default async function ClassIndexPage() {
                       <span className="mt-1 block text-sm" style={{ color: "var(--ink-3)" }}>
                         {workplace
                           ? (owns ? "You run this group" : "You are in this group")
-                          : (owns ? "You teach this class" : "You are a student here")} ·{" "}
+                          : (owns ? "You teach this class" : "You are a student here")},{" "}
                         {sizeOf.get(m.classroomId) ?? 1} member{(sizeOf.get(m.classroomId) ?? 1) === 1 ? "" : "s"}
                       </span>
                     </span>

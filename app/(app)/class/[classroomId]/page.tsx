@@ -201,10 +201,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                             : entry.daysSinceLastReview === 0
                               ? "reviewed today"
                               : `last review ${entry.daysSinceLastReview} day${entry.daysSinceLastReview === 1 ? "" : "s"} ago`}
-                          {" · "}{counted(entry.wordsKnown, "word")} known
+                          {", "}{counted(entry.wordsKnown, "word")} known
                           {entry.weakestCase && (
                             <>
-                              {" · weakest: "}
+                              {", weakest: "}
                               <span style={{ color: "var(--hard-ink)" }}>
                                 <span lang="et">{caseName(entry.weakestCase.grammCase)}</span> ({entry.weakestCase.accuracy}%)
                               </span>
@@ -313,7 +313,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                           />
                           {h.dueAt && (
                             <>
-                              {" · due "}
+                              {", due "}
                               {/* A day rather than an instant, stored at midnight UTC,
                                   so it is printed in UTC: in the reader's own zone it
                                   named the day before anywhere west of Greenwich. */}

@@ -1296,7 +1296,7 @@ function FinalCta() {
               </ButtonLink>
             </div>
             <p className="mt-5 text-xs" style={{ color: "var(--stage-ink-2)" }}>
-              Google sign-in &middot; nothing to install &middot; export whenever you like
+              Google sign-in, nothing to install, export whenever you like
             </p>
           </div>
         </div>
@@ -1343,7 +1343,7 @@ function Footer() {
                     {src.by ? <span className="font-normal" style={{ color: "var(--ink-2)" }}>, {src.by}</span> : null}
                   </span>
                   <span>{src.gives}</span>
-                  {src.licence ? <span style={{ color: "var(--ink-3)" }}>&middot; {src.licence}</span> : null}
+                  {src.licence ? <span style={{ color: "var(--ink-3)" }}>{src.licence}</span> : null}
                 </li>
               ))}
             </ul>
@@ -1435,11 +1435,11 @@ async function loadDemo(): Promise<{ words: DemoWord[]; stats: { words: number; 
         return questionInEnglish(question);
       };
       const principal = (isVerb
-        ? [["ma-tegevusnimi", form("INF_MA")], ["da-tegevusnimi", form("INF_DA")], ["olevik · ma", form("PRES_1SG")], ["lihtminevik · ma", form("PAST_1SG")]]
+        ? [["ma-tegevusnimi", form("INF_MA")], ["da-tegevusnimi", form("INF_DA")], ["olevik, ma", form("PRES_1SG")], ["lihtminevik, ma", form("PAST_1SG")]]
         : [
-            [`nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, subject)}`, form("NOM_SG"), askedIn("NOMINATIVE")],
-            [`omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`, form("GEN_SG"), askedIn("GENITIVE")],
-            [`osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, subject)}`, form("PART_SG"), askedIn("PARTITIVE")],
+            [`nimetav, ${caseQuestionFor(caseByKey("NOMINATIVE")!, subject)}`, form("NOM_SG"), askedIn("NOMINATIVE")],
+            [`omastav, ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`, form("GEN_SG"), askedIn("GENITIVE")],
+            [`osastav, ${caseQuestionFor(caseByKey("PARTITIVE")!, subject)}`, form("PART_SG"), askedIn("PARTITIVE")],
           ]
       ).flatMap(([label, value, english]) => (label && value ? [{ label, value, english: english ?? null }] : []));
 
@@ -1501,9 +1501,9 @@ const FALLBACK_WORDS: DemoWord[] = DEMO_STEMS.map((w) => {
     lemma: w.lemma,
     genitive: w.genSg,
     principal: [
-      { label: `nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))}`, value: w.nomSg, english: questionInEnglish(caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))) },
-      { label: `omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))}`, value: w.genSg, english: questionInEnglish(caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))) },
-      { label: `osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))}`, value: w.partSg, english: questionInEnglish(caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))) },
+      { label: `nimetav, ${caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))}`, value: w.nomSg, english: questionInEnglish(caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))) },
+      { label: `omastav, ${caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))}`, value: w.genSg, english: questionInEnglish(caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))) },
+      { label: `osastav, ${caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))}`, value: w.partSg, english: questionInEnglish(caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))) },
     ],
     cases: table.map((row) => demoCase(row, demoSubject(w), w.genSg)),
   };

@@ -9,6 +9,7 @@ import {
   OFFICIAL_LEVELS, PASS_PCT, bandFor, specFor, writtenMinutes,
 } from "@/lib/exam/spec";
 import { SKILLS, SKILL_LABEL } from "@/lib/exam/types";
+import type { Zone } from "@/lib/time/day";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { ButtonLink } from "@/components/Button";
@@ -89,7 +90,7 @@ export default async function ExamPage() {
 
       <section className="mb-10">
         <SectionTitle hint={evidenceNote}>Where you are</SectionTitle>
-        <Card tone={readiness.assessed ? "mint" : "accent"}>
+        <Card>
           {/* The ring and the verdict share a row; what follows takes the
               card's width on a phone rather than a column beside the ring. */}
           <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-5 gap-y-2">
@@ -190,12 +191,6 @@ export default async function ExamPage() {
                     </span>
                     </span>
                   </div>
-                  {/* Under the header rather than beside the ring, so it has
-                      the card's whole width: squeezed beside a 62px ring on a
-                      phone it ran to six lines of four words. */}
-                  <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                    {spec.summary}
-                  </p>
 
                   {/* The verdict where it says something: a paper sat, or a
                       level close enough to be worth aiming at. On the other
@@ -290,27 +285,18 @@ export default async function ExamPage() {
             <Note tone="good">Nothing here is holding you back. Go sit the paper.</Note>
           ) : (
             <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
-              {readiness.gaps.map((item) => (
-                <li key={item.id} className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-                  <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--peach-soft)", color: "var(--peach-ink)" }}>
-                    <TriangleAlert size={16} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{item.title}</span>
-                    <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.detail}</span>
-                    {item.href && (
-                      <Link
-                        href={item.href}
-                        className="mt-2 inline-block text-sm font-semibold underline underline-offset-4"
-                        style={{ color: "var(--accent-deep)" }}
-                      >
-                        {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden className="inline align-[-2px]" />
-                      </Link>
-                    )}
-                  </span>
-                </li>
-              ))}
+              {readiness.gaps.slice(0, SHOWN).map((item) => <GapRow key={item.id} item={item} />)}
             </ul>
+          )}
+          {readiness.gaps.length > SHOWN && (
+            <details className="mt-2">
+              <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--accent-deep)" }}>
+                {readiness.gaps.length - SHOWN} more
+              </summary>
+              <ul className="mt-2 flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
+                {readiness.gaps.slice(SHOWN).map((item) => <GapRow key={item.id} item={item} />)}
+              </ul>
+            </details>
           )}
         </section>
       </div>
@@ -325,42 +311,27 @@ export default async function ExamPage() {
           </Note>
         ) : (
           <ul className="grid gap-2">
-            {attempts.map((attempt, index) => (
-              <li key={`${attempt.level}-${attempt.at}-${index}`}>
-                <Card className="flex flex-wrap items-center justify-between gap-3 !py-3">
-                  <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
-                    <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-                      {attempt.level}
-                    </span>
-                    {(attempt.number || attempt.part) && (
-                      <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-                        {attempt.number ? `Paper ${attempt.number}` : "A paper"}
-                        {attempt.part ? `, ${SKILL_LABEL[attempt.part].toLowerCase()} only` : ""}
-                      </span>
-                    )}
-                    <Chip tone={attempt.passed ? "good" : "again"}>
-                      {attempt.pct} percent
-                      {attempt.whole === false
-                        ? ""
-                        : attempt.passed ? ", pass" : ", not a pass"}
-                    </Chip>
-                  </span>
-                  <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    <DateText iso={new Date(attempt.at).toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
-                  </span>
-                </Card>
-              </li>
-            ))}
+            {attempts.slice(0, SHOWN).map((attempt, index) => <SittingRow key={`${attempt.level}-${attempt.at}-${index}`} attempt={attempt} zone={clock.zone} />)}
           </ul>
+        )}
+        {attempts.length > SHOWN && (
+          <details className="mt-2">
+            <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--accent-deep)" }}>
+              {attempts.length - SHOWN} earlier
+            </summary>
+            <ul className="mt-2 grid gap-2">
+              {attempts.slice(SHOWN).map((attempt, index) => <SittingRow key={`${attempt.level}-${attempt.at}-${index}`} attempt={attempt} zone={clock.zone} />)}
+            </ul>
+          </details>
         )}
       </section>
 
-      <Card tone="sky">
-        <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--sky-ink)" }}>
+      <Card>
+        <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--ink)" }}>
           <Info size={16} aria-hidden />
           What these papers are, and what they are not
         </p>
-        <ul className="mt-2 grid gap-1.5 text-sm leading-relaxed" style={{ color: "var(--sky-ink)" }}>
+        <ul className="mt-2 grid gap-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
             The structure is real. The parts, the timing, the points, the sixty percent you need to
             pass, and a zero on any part failing you outright. Sit one of these and you&apos;ll know
@@ -395,5 +366,67 @@ export default async function ExamPage() {
         </ul>
       </Card>
     </Page>
+  );
+}
+
+/**
+ * How many of a long list to draw before the rest is one press away. The
+ * advice ran to eight items and the sittings to a dozen, and the first few of
+ * each are the ones a learner acts on.
+ */
+const SHOWN = 4;
+
+type Gap = ReturnType<typeof assessReadiness>["gaps"][number];
+type Sitting = Awaited<ReturnType<typeof recentAttempts>>[number];
+
+function GapRow({ item }: { item: Gap }) {
+  return (
+    <li className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+      <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--peach-soft)", color: "var(--peach-ink)" }}>
+        <TriangleAlert size={16} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{item.title}</span>
+        <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.detail}</span>
+        {item.href && (
+          <Link
+            href={item.href}
+            className="mt-2 inline-block text-sm font-semibold underline underline-offset-4"
+            style={{ color: "var(--accent-deep)" }}
+          >
+            {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden className="inline align-[-2px]" />
+          </Link>
+        )}
+      </span>
+    </li>
+  );
+}
+
+function SittingRow({ attempt, zone }: { attempt: Sitting; zone: Zone }) {
+  return (
+    <li>
+      <Card className="flex flex-wrap items-center justify-between gap-3 !py-3">
+        <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
+          <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>
+            {attempt.level}
+          </span>
+          {(attempt.number || attempt.part) && (
+            <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+              {attempt.number ? `Paper ${attempt.number}` : "A paper"}
+              {attempt.part ? `, ${SKILL_LABEL[attempt.part].toLowerCase()} only` : ""}
+            </span>
+          )}
+          <Chip tone={attempt.passed ? "good" : "again"}>
+            {attempt.pct} percent
+            {attempt.whole === false
+              ? ""
+              : attempt.passed ? ", pass" : ", not a pass"}
+          </Chip>
+        </span>
+        <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+          <DateText iso={new Date(attempt.at).toISOString()} zone={zone} options={DATE_AND_TIME} />
+        </span>
+      </Card>
+    </li>
   );
 }

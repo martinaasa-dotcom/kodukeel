@@ -80,7 +80,7 @@ export function ClozeSession() {
         label: "Fill the gap",
         question: item.sentence,
         answer: item.answer,
-        note: `${item.lemma}, ${item.translation} · the ${item.formLabel}`,
+        note: `${item.lemma}, ${item.translation}, the ${item.formLabel}`,
         questionLang: "et",
         answerLang: "et",
         speak: item.answer,
@@ -247,7 +247,7 @@ export function ClozeSession() {
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent"><ScissorsLineDashed size={12} aria-hidden /> Fill the gap</Chip>
-          <Chip>{item.lemma} · {item.translation}</Chip>
+          <Chip>{item.lemma}, {item.translation}</Chip>
         </div>
 
         <div className="px-6 py-8">

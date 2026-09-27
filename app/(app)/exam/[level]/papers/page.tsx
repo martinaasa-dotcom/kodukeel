@@ -41,7 +41,7 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
 
   return (
     <Page
-      eyebrow={`Mock examination · ${upper}`}
+      eyebrow={`Mock examination, ${upper}`}
       title="Numbered papers"
       lead="The same questions each time you open one, so you can sit a paper again and compare."
       actions={<ButtonLink href="/exam" variant="secondary">Back to the exam</ButtonLink>}

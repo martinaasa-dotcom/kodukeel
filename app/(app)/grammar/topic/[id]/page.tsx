@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!topic) return { title: "Grammar" };
   const term = grammarTerm(id);
   return {
-    title: `Grammar · ${term ? `${topic.title.toLowerCase()}, or ${term.et}` : topic.title}`,
+    title: `Grammar, ${term ? `${topic.title.toLowerCase()}, or ${term.et}` : topic.title}`,
     description: topic.summary,
   };
 }

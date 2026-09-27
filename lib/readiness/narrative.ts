@@ -39,14 +39,7 @@ export function verdictFor(reading: Reading): string {
 /** The rung and its evidence, as one short phrase for a row. */
 export function standingLine(reading: Reading): string {
   if (reading.rung === "unmet") return RUNG_LABEL.unmet;
-  return `${RUNG_LABEL[reading.rung]} · ${EVIDENCE_LABEL[reading.evidence]}`;
-}
-
-/** The one line that stands in the way, for a row that has room for one. */
-export function nextStep(reading: Reading): string | null {
-  if (reading.rung === "lead") return null;
-  const blocker = reading.struggles[0];
-  return blocker ? blocker.title : null;
+  return `${RUNG_LABEL[reading.rung]}, ${EVIDENCE_LABEL[reading.evidence]}`;
 }
 
 /**

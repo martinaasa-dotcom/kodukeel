@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
-  return { title: unit ? `${unit.title} · worksheet` : "Worksheet" };
+  return { title: unit ? `${unit.title}, worksheet` : "Worksheet" };
 }
 
 /** A ruled line to write on. Paper needs somewhere to put the answer. */
@@ -138,7 +138,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
         <>
           <header className="mb-8 border-b pb-5" style={{ borderColor: "var(--rule)" }}>
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-              Kodukeel · {unit.cefr} · {unit.subtitle}
+              Kodukeel, {unit.cefr}, {unit.subtitle}
             </p>
             <h1 lang="et" className="mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
               {unit.title}
@@ -161,7 +161,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 a correction inside a set rather than new Estonian on a screen.
               */}
               <h2 className="mb-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                A · Mida see tähendab? What does it mean?
+                A, Mida see tähendab? What does it mean?
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
                 Write the English meaning next to each word.
@@ -183,7 +183,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           {sheet.gaps.length > 0 && (
             <section className="avoid-break mb-9">
               <h2 className="mb-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                B · Täida lüngad. Fill the gaps
+                B, Täida lüngad. Fill the gaps
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
                 Put the word in brackets into the right form. Every sentence here is a real one.
@@ -212,7 +212,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           {sheet.cases.length > 0 && (
             <section className="avoid-break mb-9">
               <h2 className="mb-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                C · Kääna. Complete the table
+                C, Kääna. Complete the table
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
                 Fill in the missing principal parts. These three are the ones you have to
@@ -305,7 +305,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                     <li key={item.lemma} style={{ color: "var(--ink-2)" }}>
                       <span className="tnum mr-1.5" style={{ color: "var(--ink-3)" }}>{i + 1}.</span>
                       <span lang="et" style={{ color: "var(--ink)" }}>{item.lemma}</span>
-                      {" · "}{item.translation}
+                      {", "}{item.translation}
                     </li>
                   ))}
                 </ol>
@@ -332,7 +332,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 <ol className="flex flex-col gap-1.5 text-sm">
                   {sheet.cases.map((row) => (
                     <li key={row.lemma} lang="et" style={{ color: "var(--ink)" }}>
-                      {row.nominative} · {row.genitive} · {row.partitive}
+                      {row.nominative}, {row.genitive}, {row.partitive}
                     </li>
                   ))}
                 </ol>

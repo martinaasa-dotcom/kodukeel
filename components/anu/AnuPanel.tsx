@@ -131,7 +131,7 @@ export function AnuPanel({
         maxHeight: "min(44rem, calc(100dvh - 7rem))",
         borderColor: "var(--rule)",
         background: "var(--surface)",
-        boxShadow: "var(--shadow-lg)",
+        boxShadow: "var(--shadow-float)",
       }}
     >
       {/*

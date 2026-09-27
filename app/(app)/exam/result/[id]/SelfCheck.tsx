@@ -23,7 +23,7 @@ export function SelfCheck({ items }: { items: readonly string[] }) {
   return (
     <fieldset className="mt-3 rounded-[var(--r)] border px-4 py-3" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
       <legend className="label-xs px-1" style={{ color: "var(--ink-3)" }}>
-        Read it back yourself · {done.size} of {items.length}
+        Read it back yourself, {done.size} of {items.length}
       </legend>
       <ul className="flex flex-col gap-1">
         {items.map((line, i) => (

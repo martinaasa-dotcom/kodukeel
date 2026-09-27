@@ -538,7 +538,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
           </p>
           <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
             {task.label}
-            {english && <span lang="en"> · {english}</span>}
+            {english && <span lang="en">, {english}</span>}
           </p>
         </>
       ) : (
@@ -629,7 +629,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         {isForm(task.slot) && (
           <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
             <span lang="et" data-flash-slot="">{task.label}</span>
-            {english && <> · {english}</>}
+            {english && <>, {english}</>}
           </p>
         )}
       </div>

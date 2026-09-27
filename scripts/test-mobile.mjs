@@ -606,11 +606,19 @@ for (const width of [480, 640, 760]) {
     JSON.stringify({ before, after }),
   );
 
-  await page.goto(`${B}/settings`, { waitUntil: "networkidle" });
+  await page.goto(`${B}/settings?tab=sound`, { waitUntil: "networkidle" });
   const back = page.getByRole("radio", { name: /Show the letters/ }).first();
   check("and Settings still offers it back", await back.isVisible());
 
   await back.click();
+  await page.waitForFunction(
+    () => document.querySelector('[role="radio"][aria-checked="true"]')?.textContent?.includes("Show the letters"),
+    null,
+    { timeout: 8000 },
+  ).catch(() => {});
+  // Back where it was taken away: the Sound tab of Settings has no text field
+  // for a bar to sit under, so the row is looked for on the screen it left.
+  await page.goto(`${B}/dictionary`, { waitUntil: "networkidle" });
   await page.waitForFunction(
     () => [...document.querySelectorAll(".letter-bar")].some((b) => b.getClientRects().length > 0),
     null,

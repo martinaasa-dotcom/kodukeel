@@ -18,9 +18,9 @@ describe("the governed words a scene's gate can see", () => {
   it("add the cases a place question is answered by", () => {
     const scene = sceneById("bussipilet")!;
     const ctx = contextFromRows(scene, [
-      row("sõitma", "kuhu (direction) · millega (comitative)"),
+      row("sõitma", "kuhu (direction), millega (comitative)"),
       row("elama", "kus (place)"),
-      row("tulema", "kust (origin) · millega (comitative)"),
+      row("tulema", "kust (origin), millega (comitative)"),
     ]);
     const cases = (lemma: string) => [...(ctx.gate.governed.find((g) => g.lemma === lemma)?.cases ?? [])].sort();
     expect(cases("sõitma")).toEqual(["ALLATIVE", "COMITATIVE", "ILLATIVE"]);

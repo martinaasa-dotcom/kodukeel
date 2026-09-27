@@ -79,12 +79,12 @@ export function GoalsPanel({ current }: { current: Goals }) {
             onSelect={() => setTarget(t.band)}
             title={t.can}
           >
-            {t.band} · {t.label}
+            {t.band}, {t.label}
           </ChoiceChip>
         ))}
       </ChoiceGroup>
 
-      <ChoiceGroup label={`By when${weeks === null ? "" : ` · ${weeks} weeks away`}`}>
+      <ChoiceGroup label={`By when${weeks === null ? "" : `, ${weeks} weeks away`}`}>
         {DEADLINES.map((d) => {
           const value = deadlineFrom(d, new Date());
           const on = value === null ? deadline === null : weeks !== null && Math.abs(weeks - (weeksUntil(value, new Date()) ?? 0)) <= 1;

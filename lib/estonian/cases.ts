@@ -208,7 +208,7 @@ export function questionInEnglish(question: string | null | undefined): string |
  * it means the first time they meet it.
  */
 export function caseOptionLabel(spec: CaseSpec): string {
-  return `${spec.et} · ${spec.question}`;
+  return `${spec.et}, ${spec.question}`;
 }
 
 export function caseByKey(key: string): CaseSpec | undefined {

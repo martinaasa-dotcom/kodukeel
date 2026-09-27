@@ -19717,7 +19717,7 @@ check("an objective carries the value the card dealt for it, and every line says
     "the value beside an objective stopped being read off the beat's own datum slots",
   );
   assert.match(
-    session, /\{dealtNow\.join\(" · "\)\}/,
+    session, /\{dealtNow\.join\(", "\)\}/,
     "the panel a learner types into no longer carries the value the beat is asking for",
   );
   /*

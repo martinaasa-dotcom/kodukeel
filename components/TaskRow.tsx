@@ -71,7 +71,7 @@ export function TaskRow({ task }: { task: TaskView }) {
           <span>{TASK_TAGS[task.tag] ?? task.tag}</span>
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
-              {overdue ? "Overdue · " : "Due "}
+              {overdue ? "Overdue, " : "Due "}
               {/* A day stored at midnight UTC, so written in UTC: the reader's own
                   zone named the day before anywhere west of Greenwich. Through
                   LocalDate, and pinned to one locale until it has mounted, since

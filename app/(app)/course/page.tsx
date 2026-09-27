@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, BookOpen, CalendarCheck, Check, GraduationCap } from "lucide-react";
+import { ArrowRight, CalendarCheck, Check } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import {
@@ -222,7 +222,7 @@ export default async function CoursePage({
       <Page
         eyebrow={
           <span lang={uiWantsEnglish(level) ? undefined : "et"}>
-            {programme.id.toUpperCase()} · {uiText(level, programme.title, programme.subtitle)}
+            {programme.id.toUpperCase()}, {uiText(level, programme.title, programme.subtitle)}
           </span>
         }
         title="Today's module is learned"
@@ -338,7 +338,7 @@ export default async function CoursePage({
     <Page
       eyebrow={
         <span lang={uiWantsEnglish(level) ? undefined : "et"}>
-          {programme.id.toUpperCase()} · {uiText(level, programme.title, programme.subtitle)}
+          {programme.id.toUpperCase()}, {uiText(level, programme.title, programme.subtitle)}
         </span>
       }
       title={uiText(level, day.title, day.subtitle)}
@@ -369,7 +369,7 @@ export default async function CoursePage({
           */}
           <SectionTitle
             hint={day.part.of > 1
-              ? `Day ${day.index} of ${total} · part ${day.part.n} of ${day.part.of}`
+              ? `Day ${day.index} of ${total}, part ${day.part.n} of ${day.part.of}`
               : `Day ${day.index} of ${total}`}
           >
             {day.part.of > 1 ? "By the end of this unit" : "By the end of tonight"}
@@ -457,7 +457,7 @@ export default async function CoursePage({
         </Explain>
 
         <Card>
-          <SectionTitle hint={`${reading.daysDone} of ${total}`}>The whole course</SectionTitle>
+          <SectionTitle hint={`${reading.daysDone} of ${total} evenings`}>This part</SectionTitle>
           <div className="mt-3">
             <Meter pct={Math.round((reading.daysDone / total) * 100)} label={programme.subtitle} />
           </div>
@@ -509,21 +509,29 @@ export default async function CoursePage({
                   {!uiWantsEnglish(level) && (
                     <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>{first.subtitle}</span>
                   )}
-                  {run.length > 1 && (
-                    <span className="flex flex-wrap items-center gap-1 pl-7">
-                      {run.map((d) => (
-                        <span
-                          key={d.id}
-                          aria-hidden
-                          className="h-1.5 w-4 rounded-full"
-                          style={{
-                            background: d.index < day.index ? "var(--good)"
-                              : d.index === day.index ? "var(--accent)" : "var(--rule)",
-                          }}
-                        />
-                      ))}
-                      <span className="tnum ml-1 text-xs" style={{ color: "var(--ink-3)" }}>
-                        evenings {first.index} to {last.index}
+                  {/* Every item carries this line, one evening or several, so the
+                      list reads as relatives: a unit of one evening used to have
+                      no second line and sat a line shorter than its neighbours. */}
+                  {(
+                    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-7">
+                      {/* The words first and the strip after them: where the
+                          row runs out of room the strip wraps under the words,
+                          never the words under the strip, and nothing is held
+                          to one line past the card's edge. */}
+                      <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+                        {run.length > 1 ? `evenings ${first.index} to ${last.index}` : `evening ${first.index}`}
+                      </span>
+                      <span aria-hidden className="flex shrink-0 items-center gap-1">
+                        {run.map((d) => (
+                          <span
+                            key={d.id}
+                            className="h-1.5 w-4 rounded-full"
+                            style={{
+                              background: d.index < day.index ? "var(--good)"
+                                : d.index === day.index ? "var(--accent)" : "var(--rule)",
+                            }}
+                          />
+                        ))}
                       </span>
                     </span>
                   )}
@@ -531,19 +539,21 @@ export default async function CoursePage({
               );
             })}
           </ol>
+
+          {/* The part and the ladder it sits on are one question, where am I,
+              so they are one card: the part in detail and the whole climb as a
+              strip under it, rather than two cards of the same answer. */}
+          <div className="mt-5 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>The whole ladder, {PROGRAMMES.length} parts</p>
+            <LadderBody here={programme.id} learnerLevel={level} />
+          </div>
         </Card>
 
-        <Ladder here={programme.id} learnerLevel={level} />
-
+        {/* Everything else is in the rail already; what is worth one line is
+            that this is optional and where to switch it off. */}
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          <BookOpen size={13} aria-hidden className="mr-1 inline align-[-2px]" />
-          Everything else is still where it was:{" "}
-          <Link href="/learn" className="underline">the whole course</Link>,{" "}
-          <Link href="/practice" className="underline">every round</Link> and{" "}
-          <Link href="/review" className="underline">the review queue</Link>. This is the short way,
-          not the only one. <Link href="/settings" className="underline">Turn it off</Link> whenever
-          you would rather choose.
-          <GraduationCap size={13} aria-hidden className="ml-1 inline align-[-2px]" />
+          The short way, not the only one.{" "}
+          <Link href="/settings" className="underline">Turn it off</Link> whenever you would rather choose.
         </p>
       </Stack>
     </Page>
@@ -559,12 +569,21 @@ export default async function CoursePage({
  * rather than listed flat, because five rows of "A1.1, A1.2" is the shape
  * somebody already has in their head from a language school.
  */
-function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) {
-  const groupLevels = [...new Set(PROGRAMMES.map((p) => p.level))];
-  const wantsEnglish = uiWantsEnglish(learnerLevel);
+function Ladder({ learnerLevel }: { learnerLevel: Level }) {
   return (
     <Card>
       <SectionTitle hint={`${PROGRAMMES.length} parts`}>The whole ladder</SectionTitle>
+      <LadderBody learnerLevel={learnerLevel} />
+    </Card>
+  );
+}
+
+/** The strip of parts and the list of them on a press, with no card of its own. */
+function LadderBody({ here, learnerLevel }: { here?: string; learnerLevel: Level }) {
+  const groupLevels = [...new Set(PROGRAMMES.map((p) => p.level))];
+  const wantsEnglish = uiWantsEnglish(learnerLevel);
+  return (
+    <>
       {/*
         THE LADDER AS A PICTURE FIRST, AND THE LIST ON A PRESS.
 
@@ -631,7 +650,7 @@ function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) 
         ))}
       </div>
       </details>
-    </Card>
+    </>
   );
 }
 

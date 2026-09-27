@@ -128,9 +128,18 @@ export function Mascot({
  */
 export function Wordmark({ size = 34, subtitle }: { size?: number; subtitle?: string }) {
   return (
-    <span className="flex shrink-0 items-center gap-2.5">
-      <Mascot size={size} />
-      <span className="flex flex-col">
+    <span className="flex shrink-0 flex-col">
+      {/*
+        The mark sits beside the name alone, centred against it rather than
+        against the name and the subtitle together: against the whole
+        two-line block, a 34px mark on a phone-icon-sized row read as paired
+        with the gap between the lines rather than with either of them. The
+        subtitle keeps the same left edge without being inside this row, by
+        the mark's own width plus the row's gap rather than a second copy of
+        either number.
+      */}
+      <span className="flex items-center gap-2.5">
+        <Mascot size={size} />
         <span
           lang="et"
           className={`font-display whitespace-nowrap font-bold leading-none tracking-tight ${size >= 44 ? "text-2xl" : "text-xl"}`}
@@ -138,12 +147,15 @@ export function Wordmark({ size = 34, subtitle }: { size?: number; subtitle?: st
         >
           kodukeel
         </span>
-        {subtitle && (
-          <span className="label-xs mt-1" style={{ color: "var(--ink-3)" }}>
-            {subtitle}
-          </span>
-        )}
       </span>
+      {subtitle && (
+        <span
+          className="label-xs mt-1"
+          style={{ color: "var(--ink-3)", marginLeft: size + 10 }}
+        >
+          {subtitle}
+        </span>
+      )}
     </span>
   );
 }

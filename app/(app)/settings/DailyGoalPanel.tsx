@@ -34,7 +34,7 @@ export function DailyGoalPanel({ currentGoal }: { currentGoal: number }) {
     <ChoiceGroup ariaLabel="Daily goal" className="flex flex-wrap items-center gap-2">
       {PRESETS.map((p) => (
         <ChoiceChip key={p.value} selected={goal === p.value} onSelect={() => pick(p.value)}>
-          {p.label} · {p.value}/day
+          {p.label}, {p.value}/day
         </ChoiceChip>
       ))}
     </ChoiceGroup>
