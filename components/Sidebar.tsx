@@ -249,7 +249,7 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
                   {name ?? "You"}
                 </span>
                 <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                  Settings, theme
+                  Settings
                 </span>
               </span>
             </button>

@@ -262,10 +262,11 @@
     pointer-events: none;
     z-index: -1;
   }
-  /* In the dark the gold tint is a brown one; the violet the rest of the dark
-     palette is built from is what reads as the same warmth. */
+  /* None in the dark. The gold tint turns brown there and a violet one is one
+     more halo on a theme that was reported as glowing everywhere; the rail is
+     told apart by its hairline, which is how every other dark surface is. */
   :root[data-theme="dark"] .rail {
-    --rail-glow: color-mix(in oklab, var(--accent-soft) 70%, transparent);
+    --rail-glow: transparent;
   }
 
   .menu-pop {

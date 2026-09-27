@@ -344,14 +344,14 @@
     --again-ink: var(--peach);
     --easy-ink: var(--sky);
 
-    --wash-1: #1d1a4a;
+    --wash-1: #121437;
     --wash-2: #0f1230;
-    --wash-3: #2a1330;
+    --wash-3: #141129;
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px -8px rgb(0 0 0 / 0.6);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 14px 34px -18px rgb(0 0 0 / 0.8);
     --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.5), 0 30px 60px -28px rgb(0 0 0 / 0.9);
-    --shadow-accent: 0 8px 20px -10px rgb(156 140 255 / 0.45);
+    --shadow-accent: 0 6px 16px -10px rgb(0 0 0 / 0.6);
 
     --edge: rgb(210 214 255 / 0.12);
     --depth: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 36px -18px rgb(0 0 0 / 0.7);
@@ -420,14 +420,14 @@
     --again-ink: var(--peach);
     --easy-ink: var(--sky);
 
-    --wash-1: #1d1a4a;
+    --wash-1: #121437;
     --wash-2: #0f1230;
-    --wash-3: #2a1330;
+    --wash-3: #141129;
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px -8px rgb(0 0 0 / 0.6);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 14px 34px -18px rgb(0 0 0 / 0.8);
     --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.5), 0 30px 60px -28px rgb(0 0 0 / 0.9);
-    --shadow-accent: 0 8px 20px -10px rgb(156 140 255 / 0.45);
+    --shadow-accent: 0 6px 16px -10px rgb(0 0 0 / 0.6);
 
     --edge: rgb(210 214 255 / 0.12);
     --depth: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 36px -18px rgb(0 0 0 / 0.7);
@@ -3692,9 +3692,11 @@
   panel's own ink (#0b0e2e) sits close enough in luminance to the dark
   theme's own page ground (--ground: #080a1f) that the two would nearly
   merge with no glow left to tell them apart. So on the dark theme the panel
-  is promoted onto --raised instead and lifted with a violet-tinted shadow
-  sized for that page, which is the fix a flat card needs where a gradient
-  one could paper over the difference with colour.
+  is promoted onto --raised instead, with a hairline and a plain dark shadow.
+  It was a violet-tinted shadow for a while, and together with the page's
+  own wash and the accent buttons' coloured lift it made the dark theme glow
+  everywhere, which was reported as too much. In the dark, light comes from
+  surfaces being lighter, never from a halo round them.
 */
 .night {
   position: relative;
@@ -3708,7 +3710,7 @@
 [data-theme="dark"] .night {
   background: var(--raised);
   border-color: rgb(255 255 255 / 0.1) !important;
-  box-shadow: 0 24px 56px -24px rgb(91 46 255 / 0.45), 0 1px 0 rgb(255 255 255 / 0.05) inset !important;
+  box-shadow: 0 18px 40px -24px rgb(0 0 0 / 0.7), 0 1px 0 rgb(255 255 255 / 0.05) inset !important;
 }
 /* A night panel something opens out of (a menu anchored inside it) cannot
    clip. */
