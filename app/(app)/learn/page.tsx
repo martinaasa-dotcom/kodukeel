@@ -19,6 +19,9 @@ export const metadata = { title: "Learn" };
 
 export const dynamic = "force-dynamic";
 
+/** Units of the open level drawn before the rest go behind a press. */
+const UNITS_SHOWN = 6;
+
 /**
  * The course.
  *
@@ -122,6 +125,103 @@ export default async function LearnPage() {
           // with work in progress says so on its own closed row.
           const open = level === placement;
           const inProgress = rows.filter((u) => u.state === "learning").length;
+          const row = (u: (typeof rows)[number]) => {
+                const locked = !isUnitOpen({ unit: u.unit, doneUnitIds: doneIds, placement });
+                const complete = u.state === "done";
+                const isNext = !!next && u.unit.id === next.id;
+                return (
+                  <li
+                    key={u.unit.id}
+                    className="@container flex flex-wrap items-center gap-3 rounded-[var(--r-sm)] px-3 py-2.5 @md:flex-nowrap"
+                    /*
+                      ONE LINE A UNIT, AND ONE BUTTON IN THE WHOLE LIST.
+
+                      Every row carried its can-do statement, a progress bar,
+                      a count, a "Builds on" sentence when it was locked and
+                      a button of its own, so a level of twenty-nine units
+                      was a column of twenty-nine buttons with paragraphs
+                      between them. The row is the way in and says what the
+                      unit is called and how far through it you are. The
+                      next unit alone says what it is for and carries the
+                      one button, because that is the one row somebody
+                      should press.
+
+                      A locked unit is quieter through its padlock rather
+                      than a fade on the row: `opacity` multiplies through
+                      the words and took the unit's name under 4.5:1.
+                    */
+                    style={{ background: isNext ? "var(--accent-soft)" : undefined }}
+                  >
+                    <Link
+                      href={`/learn/${u.unit.id}`}
+                      className="group flex min-w-0 flex-1 basis-full items-center gap-3 @md:basis-0"
+                    >
+                      <span
+                        aria-hidden
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                        style={{
+                          background: complete ? "var(--mint-soft)" : u.state === "learning" ? "var(--accent-soft)" : "var(--raised)",
+                          color: complete ? "var(--mint-ink)" : u.state === "learning" ? "var(--accent-deep)" : "var(--ink-3)",
+                        }}
+                      >
+                        {locked ? <Lock size={15} aria-hidden /> : complete ? <Check size={17} aria-hidden /> : <NamedIcon name={u.unit.icon} size={16} aria-hidden />}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span
+                          lang={uiWantsEnglish(placement) ? undefined : "et"}
+                          className="block text-md font-bold group-hover:underline"
+                          style={{ color: "var(--ink)" }}
+                        >
+                          {uiText(placement, u.unit.title, u.unit.subtitle)}
+                        </span>
+                        {isNext && (
+                          <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
+                            {u.unit.canDo}
+                          </span>
+                        )}
+                        {/* Under the name in a narrow row, beside it in a wide
+                            one: beside it at 320 left "sustainability" a box
+                            too narrow for the word. */}
+                        <span className="tnum block text-xs @md:hidden" style={{ color: "var(--ink-3)" }}>
+                          {u.known}/{u.available}
+                        </span>
+                      </span>
+                      <span className="tnum hidden shrink-0 text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
+                        {u.known}/{u.available}
+                      </span>
+                      {locked && <span className="sr-only">, builds on an earlier unit, and opens anyway</span>}
+                      {!isNext && (
+                        <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
+                      )}
+                    </Link>
+                    {isNext && (
+                      <span className="w-full @md:w-auto">
+                        <ButtonLink
+                          href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
+                          variant="primary"
+                          size="sm"
+                          className="w-full justify-center @md:w-32"
+                        >
+                          {u.state === "learning" ? "Continue" : "Start"}
+                        </ButtonLink>
+                      </span>
+                    )}
+                  </li>
+                );
+          };
+          /*
+            A LEVEL OPEN ON ARRIVAL SHOWS WHERE YOU ARE, NOT ALL OF IT.
+
+            A1 is forty-one units and the open level was forty-one rows before
+            the next level began, which is a wall somebody has to scroll past
+            to find out there is anything else. The unit you are on and the
+            few after it are what a learner chooses between; the rest, done and
+            to come, are one press away under a line that says how many.
+          */
+          const anchorAt = Math.max(0, rows.findIndex((u) => (next ? u.unit.id === next.id : u.state !== "done")));
+          const windowed = open && rows.length > UNITS_SHOWN + 2;
+          const shown = windowed ? rows.slice(anchorAt, anchorAt + UNITS_SHOWN) : rows;
+          const tucked = windowed ? rows.filter((u) => !shown.includes(u)) : [];
           return (
             <details
               key={level}
@@ -182,90 +282,18 @@ export default async function LearnPage() {
               </summary>
 
               <ol className="flex flex-col border-t px-2 py-2 sm:px-3" style={{ borderColor: "var(--rule)" }}>
-                {rows.map((u) => {
-                  const locked = !isUnitOpen({ unit: u.unit, doneUnitIds: doneIds, placement });
-                  const complete = u.state === "done";
-                  const isNext = !!next && u.unit.id === next.id;
-                  return (
-                    <li
-                      key={u.unit.id}
-                      className="@container flex flex-wrap items-center gap-3 rounded-[var(--r-sm)] px-3 py-2.5 @md:flex-nowrap"
-                      /*
-                        ONE LINE A UNIT, AND ONE BUTTON IN THE WHOLE LIST.
-
-                        Every row carried its can-do statement, a progress bar,
-                        a count, a "Builds on" sentence when it was locked and
-                        a button of its own, so a level of twenty-nine units
-                        was a column of twenty-nine buttons with paragraphs
-                        between them. The row is the way in and says what the
-                        unit is called and how far through it you are. The
-                        next unit alone says what it is for and carries the
-                        one button, because that is the one row somebody
-                        should press.
-
-                        A locked unit is quieter through its padlock rather
-                        than a fade on the row: `opacity` multiplies through
-                        the words and took the unit's name under 4.5:1.
-                      */
-                      style={{ background: isNext ? "var(--accent-soft)" : undefined }}
-                    >
-                      <Link
-                        href={`/learn/${u.unit.id}`}
-                        className="group flex min-w-0 flex-1 basis-full items-center gap-3 @md:basis-0"
-                      >
-                        <span
-                          aria-hidden
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-                          style={{
-                            background: complete ? "var(--mint-soft)" : u.state === "learning" ? "var(--accent-soft)" : "var(--raised)",
-                            color: complete ? "var(--mint-ink)" : u.state === "learning" ? "var(--accent-deep)" : "var(--ink-3)",
-                          }}
-                        >
-                          {locked ? <Lock size={15} aria-hidden /> : complete ? <Check size={17} aria-hidden /> : <NamedIcon name={u.unit.icon} size={16} aria-hidden />}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span
-                            lang={uiWantsEnglish(placement) ? undefined : "et"}
-                            className="block text-md font-bold group-hover:underline"
-                            style={{ color: "var(--ink)" }}
-                          >
-                            {uiText(placement, u.unit.title, u.unit.subtitle)}
-                          </span>
-                          {isNext && (
-                            <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
-                              {u.unit.canDo}
-                            </span>
-                          )}
-                          {/* Under the name in a narrow row, beside it in a wide
-                              one: beside it at 320 left "sustainability" a box
-                              too narrow for the word. */}
-                          <span className="tnum block text-xs @md:hidden" style={{ color: "var(--ink-3)" }}>
-                            {u.known}/{u.available}
-                          </span>
-                        </span>
-                        <span className="tnum hidden shrink-0 text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
-                          {u.known}/{u.available}
-                        </span>
-                        {locked && <span className="sr-only">, builds on an earlier unit, and opens anyway</span>}
-                        {!isNext && (
-                          <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
-                        )}
-                      </Link>
-                      {isNext && (
-                        <span className="w-full @md:w-auto">
-                          <ButtonLink
-                            href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
-                            variant="primary"
-                            size="sm"
-                            className="w-full justify-center @md:w-32"
-                          >
-                            {u.state === "learning" ? "Continue" : "Start"}
-                          </ButtonLink>
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
+                {shown.map(row)}
+                {tucked.length > 0 && (
+                  <li>
+                    <details className="group/more">
+                      <summary className="tap-tint flex min-h-11 cursor-pointer items-center gap-3 rounded-[var(--r-sm)] px-3 py-2 text-sm font-semibold" style={{ color: "var(--accent-deep)" }}>
+                        <ChevronRight size={16} aria-hidden className="shrink-0 transition-transform group-open/more:rotate-90" />
+                        The other {tucked.length} units at {level}
+                      </summary>
+                      <ol className="flex flex-col">{tucked.map(row)}</ol>
+                    </details>
+                  </li>
+                )}
 
                 {checkpoint && (
                   <li className="mt-1 flex items-center gap-3 rounded-[var(--r-sm)] border-t px-3 pb-1 pt-3" style={{ borderColor: "var(--rule-soft)" }}>

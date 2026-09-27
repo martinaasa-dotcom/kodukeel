@@ -7,7 +7,7 @@ import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import {
-  bestStudyHour, buildHeatmap, caseAccuracy, dailyLoad, ratingBreakdown,
+  bestStudyHour, buildHeatmap, caseAccuracy, ratingBreakdown,
   retentionReading,
 } from "@/lib/stats/history";
 import { stickingPoints } from "@/lib/stats/sticking";
@@ -28,7 +28,7 @@ import { Board, BoardSkeleton } from "./Board";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lemmasByCardLexeme } from "@/lib/dict/facts";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
-import { NO_VALUE, counted } from "@/lib/copy/values";
+import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
 import { Explain } from "@/components/Explain";
 
@@ -37,7 +37,6 @@ export const metadata = { title: "Progress" };
 export const dynamic = "force-dynamic";
 
 const HEATMAP_DAYS = 182;
-const TREND_DAYS = 30;
 
 export default async function ProgressPage() {
   const ownerId = await requireUserId();
@@ -130,7 +129,6 @@ export default async function ProgressPage() {
   );
 
   const heatmap = buildHeatmap(reviews.map((r) => r.reviewedAt), HEATMAP_DAYS, now, clock);
-  const trend = dailyLoad(reviews, TREND_DAYS, now, clock);
   const breakdown = ratingBreakdown(reviews);
   // The narrower, more useful number: how often a card the scheduler believed
   // you knew actually came back. The recall rate above counts first sights too.
@@ -159,7 +157,6 @@ export default async function ProgressPage() {
     byLevel.set(level, entry);
   }
 
-  const trendPeak = Math.max(1, ...trend.map((d) => d.reviews));
   const pathKnown = units.reduce((s, u) => s + u.known, 0);
   const pathTotal = units.reduce((s, u) => s + u.available, 0);
 
@@ -245,61 +242,91 @@ export default async function ProgressPage() {
           </div>
         </Card>
 
-        {/* The number FSRS is actually steering, and what it means. Placed
-            above the charts because it is the one that changes what to do. */}
-        <section>
-          <SectionTitle hint="cards we thought you knew">How much is actually sticking</SectionTitle>
-          {/*
-            On the card's own surface, with the verdict carried by the ring's
-            colour and the headline. A whole panel painted peach was the
-            loudest thing on the page, and loud in the direction of alarm, over
-            a number that asks for a week of fewer new words.
-          */}
-          <Card>
-            {/* The ring and the headline share a row; the advice under them
-                takes the card's whole width on a phone, where beside a 78px
-                ring it ran to nine lines of four words. */}
-            <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-5 gap-y-3">
-              <span className="sm:row-span-2">
-              <Ring
-                pct={retention.retention ?? 0}
-                size={78}
-                tone={
-                  retention.verdict === "below" ? "var(--again)"
-                    : retention.verdict === "above" ? "var(--hard)" : "var(--good)"
-                }
-                label={
-                  retention.retention === null
-                    ? "Not enough long-term reviews to measure retention yet"
-                    : `${retention.retention}% of long-term cards recalled, against a ${retention.target}% target`
-                }
-              >
-                <span className="tnum text-lg font-bold" style={{ color: "var(--ink)" }}>
-                  {retention.retention === null ? NO_VALUE : `${retention.retention}%`}
-                </span>
-              </Ring>
-              </span>
-              <p className="text-md font-bold sm:self-end" style={{ color: "var(--ink)" }}>
-                {retention.headline}
-              </p>
-              <div className="col-span-2 sm:col-span-1 sm:col-start-2 sm:self-start">
-                <p className="max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {retention.advice}
-                </p>
-                <p className="tnum mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                  {retention.recalled} recalled of {retention.reviews} long-term reviews · target {retention.target}%
-                </p>
-              </div>
-            </div>
-          </Card>
-        </section>
-
         {/*
-          The hour used to be a sentence under the chart explaining that a
-          consistent time survives a busy week. The section title already has
-          a slot on the right for exactly this kind of fact, and a reader
-          skimming a column of charts reads the labels, not the footnotes.
+          Two by two, by the page's width rather than the window's, so no panel
+          is left alone at half the width with nothing beside it. What sticks
+          and which endings are weakest are one question asked twice; what was
+          reported from outside and how many words are held are the other.
+          The daily bar chart that used to sit under the history repeated the
+          heatmap's days and the recall rate the figures above already carry,
+          so it went.
         */}
+        <div className="@container">
+          <div className="grid gap-5 @xl:grid-cols-2">
+            <section className="flex flex-col">
+              <SectionTitle>How much is actually sticking</SectionTitle>
+              {/*
+                On the card's own surface, with the verdict carried by the ring's
+                colour and the headline. A whole panel painted peach was the
+                loudest thing on the page, and loud in the direction of alarm, over
+                a number that asks for a week of fewer new words.
+              */}
+              <Card className="flex-1">
+                {/* The ring and the headline share a row; the advice under them
+                    takes the card's whole width on a phone, where beside a 78px
+                    ring it ran to nine lines of four words. */}
+                <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-5 gap-y-3">
+                  <span className="sm:row-span-2">
+                  <Ring
+                    pct={retention.retention ?? 0}
+                    size={78}
+                    tone={
+                      retention.verdict === "below" ? "var(--again)"
+                        : retention.verdict === "above" ? "var(--hard)" : "var(--good)"
+                    }
+                    label={
+                      retention.retention === null
+                        ? "Not enough long-term reviews to measure retention yet"
+                        : `${retention.retention}% of long-term cards recalled, against a ${retention.target}% target`
+                    }
+                  >
+                    <span className="tnum text-lg font-bold" style={{ color: "var(--ink)" }}>
+                      {retention.retention === null ? NO_VALUE : `${retention.retention}%`}
+                    </span>
+                  </Ring>
+                  </span>
+                  <p className="text-md font-bold sm:self-end" style={{ color: "var(--ink)" }}>
+                    {retention.headline}
+                  </p>
+                  <div className="col-span-2 sm:col-span-1 sm:col-start-2 sm:self-start">
+                    <p className="max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                      {retention.advice}
+                    </p>
+                    <p className="tnum mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                      {retention.recalled} recalled of {retention.reviews} long-term reviews · target {retention.target}%
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </section>
+            <section className="flex flex-col">
+              <SectionTitle hint="weakest first">Cases</SectionTitle>
+              <Card className="flex-1">
+                <WeakestCases
+                  cases={cases}
+                  empty={
+                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                      No case-form cards answered yet. Add a noun unit from the{" "}
+                      <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>path</Link>.
+                    </p>
+                  }
+                />
+                {/*
+                  The forms that come back right and slowly, and the pairs that
+                  get swapped, are a reading of the same endings the bars above
+                  are about, so they sit under them rather than under a heading
+                  of their own at the foot of the page.
+                */}
+                {(pace.slow.length > 0 || mixedUp.length > 0) && (
+                  <div className="mt-5 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
+                    <NotAutomatic slow={pace.slow} mixedUp={mixedUp} medianMs={pace.medianMs} />
+                  </div>
+                )}
+              </Card>
+            </section>
+          </div>
+        </div>
+
         <section>
           <SectionTitle hint={hour === null ? `last ${HEATMAP_DAYS} days` : `${HEATMAP_DAYS} days · most at ${formatHour(hour)}`}>
             Study history
@@ -309,112 +336,13 @@ export default async function ProgressPage() {
           </Card>
         </section>
 
-        <section>
-          {/* The four rating counts ride in the hint rather than as a row of
-              chips under the bars: they are one fact about the period, which is
-              what a hint is for, and four coloured pills under a coloured chart
-              is two legends for one picture. */}
-          <SectionTitle
-            hint={breakdown.total === 0
-              ? `last ${TREND_DAYS} days`
-              : `${breakdown.again} again · ${breakdown.hard} hard · ${breakdown.good} good · ${breakdown.easy} easy`}
-          >
-            Reviews and recall
-          </SectionTitle>
-          <Card>
-            <div className="flex h-28 items-end gap-[3px]">
-              {trend.map((d) => (
-                <div key={d.day} className="flex flex-1 flex-col justify-end" title={`${d.day}: ${counted(d.reviews, "review")}${d.accuracy === null ? "" : `, ${d.accuracy}% recalled`}`}>
-                  <span
-                    className="w-full rounded-t-[2px]"
-                    style={{
-                      height: `${Math.max(2, (d.reviews / trendPeak) * 88)}px`,
-                      background:
-                        d.accuracy === null ? "var(--raised)"
-                        : d.accuracy >= 85 ? "var(--good)"
-                        : d.accuracy >= 65 ? "var(--hard)" : "var(--again)",
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-            {/* When the bars are and what their colour means, since a column of
-                heights with no dates under it and three hues nobody named is a
-                picture rather than a chart. */}
-            {trend.length > 0 && (
-              <div className="mt-2 flex justify-between text-xs tnum" style={{ color: "var(--ink-3)" }}>
-                <span>{shortDay(trend[0]!.day)}</span>
-                <span>today</span>
-              </div>
-            )}
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs" style={{ color: "var(--ink-2)" }}>
-              {[
-                { fill: "var(--good)", label: "most recalled" },
-                { fill: "var(--hard)", label: "some slipped" },
-                { fill: "var(--again)", label: "most forgotten" },
-              ].map((k) => (
-                <span key={k.label} className="flex items-center gap-1.5">
-                  <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: k.fill }} />
-                  {k.label}
-                </span>
-              ))}
-            </div>
-            {breakdown.total === 0 && (
-              <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-                No reviews yet. Each bar is a day, colored by how much you recalled.
-              </p>
-            )}
-          </Card>
-        </section>
-
         {readiness.totalReviews > 0 && <ReadinessPanel summary={readiness.summary} />}
 
-        {sticking.length > 0 && (
-          <section>
-            <SectionTitle hint="learned and forgotten more than once">Sticking points</SectionTitle>
-            <StickingPoints points={sticking} />
-            {/* The drill for exactly the cards listed above it. It used to be
-                on the practice menu, five rows from anything saying which of
-                your cards keep failing. */}
-            <div className="mt-3">
-              <DrillLink href="/review/clinic" />
-            </div>
-          </section>
-        )}
-
-        {/*
-          Only where there is something to say, which is the shape the
-          sticking points above already take. A panel that draws a heading over
-          two empty lists is furniture, and this one has nothing to fall back
-          on: a learner whose rounds never timed an answer has no pace, and
-          that is a true and uninteresting state.
-        */}
-        {(pace.slow.length > 0 || mixedUp.length > 0) && (
-          <section>
-            <SectionTitle hint="from answers a round timed">Right, but still slow</SectionTitle>
-            <Card>
-              <NotAutomatic slow={pace.slow} mixedUp={mixedUp} medianMs={pace.medianMs} />
-            </Card>
-          </section>
-        )}
-
-        {/* Two across by the page's width rather than the window's. At 768 the rail takes a column, this grid is 368px, and two cards of 174 squeezed every case name on the weakest-cases panel to a letter a line. */}
         <div className="@container">
           <div className="grid gap-5 @xl:grid-cols-2">
-            {/*
-              THE PANEL THIS PAGE IS FOR, PUT AHEAD OF THE CHARTS.
-
-              A level and a heatmap are what the app measures. What a person
-              cares about is whether they got through the conversation at the
-              counter, so the first thing here is what they reported from out
-              there. The readiness panel beside the charts is the app's forecast
-              of the same thing; this is the result. Derived on every request
-              from rows that are facts (ADR-014): an encounter is a report, never
-              a counter.
-            */}
-            <section>
+            <section className="flex flex-col">
               <SectionTitle hint={`last ${outside.days} days`}>Out there</SectionTitle>
-              <Card>
+              <Card className="flex-1">
                 {outside.total === 0 ? (
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
                     Nothing reported yet. Today asks each morning whether you spoke Estonian to
@@ -468,25 +396,9 @@ export default async function ProgressPage() {
                 )}
               </Card>
             </section>
-
-            <section>
-              <SectionTitle hint="weakest first">Cases</SectionTitle>
-              <Card>
-                <WeakestCases
-                  cases={cases}
-                  empty={
-                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                      No case-form cards answered yet. Add a noun unit from the{" "}
-                      <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>path</Link>.
-                    </p>
-                  }
-                />
-              </Card>
-            </section>
-
-            <section>
-              <SectionTitle hint={`${pathKnown} of ${pathTotal} course words · your deck only`}>How many words you know</SectionTitle>
-              <Card>
+            <section className="flex flex-col">
+              <SectionTitle hint={`${pathKnown} of ${pathTotal}`}>How many words you know</SectionTitle>
+              <Card className="flex-1">
                 <ul className="flex flex-col gap-2">
                   {CEFR_LEVELS.map((level) => {
                     const entry = byLevel.get(level);
@@ -514,9 +426,21 @@ export default async function ProgressPage() {
                 </Explain>
               </Card>
             </section>
-
           </div>
         </div>
+
+        {sticking.length > 0 && (
+          <section>
+            <SectionTitle hint="learned and forgotten more than once">Sticking points</SectionTitle>
+            <StickingPoints points={sticking} />
+            {/* The drill for exactly the cards listed above it. It used to be
+                on the practice menu, five rows from anything saying which of
+                your cards keep failing. */}
+            <div className="mt-3">
+              <DrillLink href="/review/clinic" />
+            </div>
+          </section>
+        )}
 
         {/*
           THE BOARD IS THE LAST THING ON THIS PAGE AND IT WAS FOUR ROUND TRIPS
@@ -535,12 +459,4 @@ export default async function ProgressPage() {
       </Stack>
     </Page>
   );
-}
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
-
-/** "Sep 1" off a day key, in English because the chart's words are. */
-function shortDay(key: string): string {
-  const month = MONTHS[Number(key.slice(5, 7)) - 1];
-  return month ? `${month} ${Number(key.slice(8, 10))}` : key;
 }

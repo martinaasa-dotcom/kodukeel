@@ -498,14 +498,17 @@ export default async function CoursePage({
                   {!uiWantsEnglish(level) && (
                     <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>{first.subtitle}</span>
                   )}
-                  {run.length > 1 && (
+                  {/* Every item carries this line, one evening or several, so the
+                      list reads as relatives: a unit of one evening used to have
+                      no second line and sat a line shorter than its neighbours. */}
+                  {(
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-7">
                       {/* The words first and the strip after them: where the
                           row runs out of room the strip wraps under the words,
                           never the words under the strip, and nothing is held
                           to one line past the card's edge. */}
                       <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                        evenings {first.index} to {last.index}
+                        {run.length > 1 ? `evenings ${first.index} to ${last.index}` : `evening ${first.index}`}
                       </span>
                       <span aria-hidden className="flex shrink-0 items-center gap-1">
                         {run.map((d) => (
