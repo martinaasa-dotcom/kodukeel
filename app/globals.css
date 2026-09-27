@@ -126,6 +126,12 @@
 
     --ground: #fcfbf7;
     --surface: #ffffff;
+    /* The mark (components/brand.tsx): the pixel tilde in white on a violet
+       tile. Declared once and never redefined for the dark theme, because a
+       logo is the same object in both, as it is on the home-screen icon. */
+    --mark-from: #9c8cff;
+    --mark-to: #5b2eff;
+    --mark-ink: #ffffff;
     --raised: #f3f0fa;
     --ink: #0f1233;
     --ink-2: #3e4166;
@@ -3525,35 +3531,30 @@
 }
 
 /*
-  The tilde, which is the only part that can move at all, because it is the only
-  part that is not touching anything.
+  The mark's columns (components/brand.tsx). Each is two pixels of the tilde
+  and moves on its own delay, so a movement runs along the stroke rather than
+  lifting it whole. The travel is small on purpose: a pixel is 6.6 units of a
+  100 unit tile, and a column that leaves its neighbours by more than a third
+  of that stops reading as one tilde.
 
-  It is deliberately not `float`, the 6s, 10px lift the landing page's
-  decorative letters use: that is a whole element moving against the page, and
-  this is one stroke moving inside a mark whose head stays put. Ten pixels there
-  would be a hat coming off. The `scaleX` is the squash that stops it reading as
-  a rigid object being slid up and down, and the second, smaller crest is what
-  makes it hair rather than a metronome.
+  Happy is a slow wave passing through; cheer is a quick hop that runs left to
+  right; thinking lights the columns in turn, like a cursor. Every one ends
+  where it began, so the global reduced-motion rule, which runs an animation
+  once in no time, leaves the still mark.
 */
-@keyframes tilde-drift {
-  0%, 100% { transform: translateY(0) rotate(0deg) scaleX(1); }
-  30% { transform: translateY(-2.4px) rotate(-3.5deg) scaleX(1.05); }
-  64% { transform: translateY(-0.5px) rotate(2.5deg) scaleX(0.97); }
+@keyframes pixel-wave {
+  0%, 60%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-2.2px); }
 }
-
-/* Cheering: one real hop, then a smaller one, then settle. */
-@keyframes tilde-hop {
-  0%, 100% { transform: translateY(0) rotate(0deg) scaleX(1); }
-  16% { transform: translateY(-5.5px) rotate(-8deg) scaleX(1.09); }
-  34% { transform: translateY(0.8px) rotate(4deg) scaleX(0.92); }
-  56% { transform: translateY(-2.6px) rotate(-3deg) scaleX(1.03); }
-  78% { transform: translateY(0.3px) rotate(1deg) scaleX(0.98); }
+@keyframes pixel-hop {
+  0%, 55%, 100% { transform: translateY(0); }
+  18% { transform: translateY(-5px); }
+  32% { transform: translateY(0.8px); }
+  42% { transform: translateY(-0.6px); }
 }
-
-/* Thinking: tipped over to one side and swaying, the way a head cocks. */
-@keyframes tilde-sway {
-  0%, 100% { transform: rotate(-7deg) translateY(0.5px); }
-  50% { transform: rotate(4deg) translateY(-1.4px); }
+@keyframes pixel-think {
+  0%, 45%, 100% { opacity: 1; }
+  20% { opacity: 0.45; }
 }
 
 @keyframes grad-sweep {
