@@ -6,8 +6,6 @@ import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { STATE_LABELS } from "@/lib/srs/scheduler";
 import { Diagnosis } from "@/components/Diagnosis";
 import { DrillLink } from "@/components/DrillLink";
-import { MasteryLists } from "@/components/MasteryLists";
-import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { counted } from "@/lib/copy/values";
 import { WordsTable, type CardRow } from "./WordsTable";
 
@@ -27,7 +25,7 @@ export default async function WordsPage() {
     is without, so the grouped read over the same rows already holds it, and a
     separate `count` was the same scan asked twice.
   */
-  const [cards, counts, mastery] = await Promise.all([
+  const [cards, counts] = await Promise.all([
     prisma.card.findMany({
       where: { ownerId },
       /*
@@ -44,10 +42,6 @@ export default async function WordsPage() {
       include: { lexeme: { select: { lemma: true, cefr: true } } },
     }),
     prisma.card.groupBy({ by: ["state"], where: { ownerId }, _count: true }),
-    // Where every met word stands, by the one rule in lib/srs/mastery.ts. The
-    // Flash cards round and the tile on Practice read the same query, so the
-    // three cannot disagree about which words are done.
-    masteryFor(ownerId),
   ]);
 
   const rows: CardRow[] = cards.map((c) => ({
@@ -99,41 +93,26 @@ export default async function WordsPage() {
                 { label: "Known", value: byState[2] ?? 0, fill: "var(--mint)" },
               ]}
             />
-            {/*
-              The weakest-case panel that used to sit beside this one has gone
-              to Progress, which had the same panel drawn a third way. This page
-              is the deck: what is in it and how it is settling. What the log
-              says about your grammar is one link away, computed once.
-            */}
+            {/* Word by word is the header's other button; which cases keep
+                catching somebody out is Progress's, one link away. */}
             <p className="mt-6 text-sm" style={{ color: "var(--ink-2)" }}>
-              Which cases keep catching you out, and what the pattern behind them is, live on{" "}
+              The cases that catch you out are on{" "}
               <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--cta)" }}>
                 Progress
               </Link>.
             </p>
           </Card>
 
-          <MasteryLists words={mastery} counts={masteryCounts(mastery)} />
+          <WordsTable rows={rows} total={totalCards} />
 
           {/*
-            The slice of this deck that the review queue is slowest to reach.
-            Unseen cards are introduced oldest first, so a word added out of
-            curiosity waits behind the course backlog, which on a deck built by
-            adding a level in first run is a year long. This is the one press
-            that asks about them, and it belongs on the page about the deck
-            rather than on a practice menu, which is what `within` says.
+            What the log says about the deck, and the one press that asks about
+            the words added out of curiosity, which the review queue is slowest
+            to reach. Both sit under the list rather than above it: the list is
+            what somebody opened this page for.
           */}
-          <DrillLink href="/review/lookups" />
-
           <Diagnosis ownerId={ownerId} />
-
-          <WordsTable rows={rows} />
-          {totalCards > rows.length && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-              Showing the {rows.length} cards due soonest, of {totalCards}. Use the filters or the
-              search box above to find the rest.
-            </p>
-          )}
+          <DrillLink href="/review/lookups" />
         </Stack>
       )}
     </Page>
