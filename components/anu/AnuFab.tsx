@@ -103,10 +103,10 @@ export function AnuFab({
           onClick={() => { setLoaded(true); setOpen(true); }}
           aria-label="Ask Anu"
           title="Ask Anu"
-          className="press lift flex h-14 w-14 items-center justify-center rounded-full border"
+          className="press lift flex h-12 w-12 items-center justify-center rounded-full border md:h-14 md:w-14"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
         >
-          <Mascot size={32} />
+          <Mascot size={28} />
         </button>
       )}
     </div>
