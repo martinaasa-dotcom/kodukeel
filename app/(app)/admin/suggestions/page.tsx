@@ -10,7 +10,7 @@ import { Card, Chip, Empty, Page } from "@/components/ui";
 import { QueueRows } from "./QueueRows";
 import { TooHard } from "./TooHard";
 import { ResetCourse } from "./ResetCourse";
-import { courseResetPlan } from "@/lib/progress/courseReset";
+import { courseProgressRoster } from "@/lib/progress/courseReset";
 import { hardWordReadings } from "@/lib/progress/hard";
 import { firstParams } from "@/lib/ux/queryParam";
 
@@ -63,10 +63,10 @@ export default async function SuggestionsQueuePage({
     trip: what learners wrote, and what they said with the button that asks for
     no writing at all.
   */
-  const [queue, tooHard, resetPlan] = await Promise.all([
+  const [queue, tooHard, resetRoster] = await Promise.all([
     readQueue({ status, category, page }),
     hardWordReadings(),
-    courseResetPlan(),
+    courseProgressRoster(),
   ]);
   const openTotal = queue.totals.OPEN;
 
@@ -159,7 +159,9 @@ export default async function SuggestionsQueuePage({
 
       <TooHard words={tooHard} />
 
-      <ResetCourse plan={resetPlan} />
+      <ResetCourse
+        rows={resetRoster.map((r) => ({ ...r, lastAt: r.lastAt ? r.lastAt.toISOString() : null }))}
+      />
 
       {queue.groups > QUEUE_PAGE_SIZE && (
         <Card className="mt-6 flex items-center justify-between gap-3">
