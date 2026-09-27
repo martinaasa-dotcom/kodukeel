@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Mascot } from "@/components/brand";
+import { AnuFace } from "@/components/anu/AnuFace";
 
 /**
  * The mark, leaning toward the pointer.
@@ -25,10 +26,13 @@ export function MascotWatch({
   size = 68,
   className = "",
   mood = "happy",
+  who = "mark",
 }: {
   size?: number;
   className?: string;
   mood?: "happy" | "thinking" | "cheer";
+  /** The app's mark leans its tilde; Anu follows the pointer with her eyes. */
+  who?: "mark" | "anu";
 }) {
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -72,7 +76,7 @@ export function MascotWatch({
 
   return (
     <span ref={ref} className={className} style={{ display: "inline-block", lineHeight: 0 }}>
-      <Mascot size={size} mood={mood} watch />
+      {who === "anu" ? <AnuFace size={size} mood={mood} /> : <Mascot size={size} mood={mood} watch />}
     </span>
   );
 }

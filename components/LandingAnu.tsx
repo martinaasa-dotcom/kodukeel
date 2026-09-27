@@ -104,11 +104,11 @@ export function LandingAnu({ lines }: { lines: readonly AnuLine[] }) {
       <Link
         href="/sign-in"
         aria-label="Start learning, and ask Anu inside"
-        className={`press lift flex h-14 w-14 items-center justify-center rounded-full border ${hopping ? "anu-hop" : ""}`}
+        className={`anu-call press lift flex h-14 w-14 items-center justify-center rounded-full border ${hopping ? "anu-hop" : ""}`}
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
         onAnimationEnd={(e) => { if (e.animationName === "anu-hop") setHopping(false); }}
       >
-        <MascotWatch size={34} mood={line.mood} />
+        <MascotWatch who="anu" size={46} mood={line.mood} />
       </Link>
     </aside>
   );
