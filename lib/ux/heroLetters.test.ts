@@ -31,6 +31,8 @@ describe("dealing the hero's letters", () => {
       const deal = dealHeroLetters(seeded(seed), { sides: false });
       expect(deal).toHaveLength(4);
       expect(deal.every((d) => d.edge === "top" || d.edge === "bottom")).toBe(true);
+      // Anu's button floats over the bottom right of a phone.
+      expect(deal.filter((d) => d.edge === "bottom").every((d) => d.at <= 0.6)).toBe(true);
     }
   });
 

@@ -46,7 +46,10 @@ export function dealHeroLetters(
       const edges = sides ? EDGES : EDGES.filter((e) => e === "top" || e === "bottom");
       const edge = edges[Math.floor(random() * edges.length)]!;
       // The side edges are short, so a letter there keeps to the middle band.
-      const [lo, hi] = edge === "left" || edge === "right" ? [0.25, 0.75] : [0.1, 0.9];
+      // On a phone Anu's button floats over the bottom right of the screen,
+      // which is where the card's bottom edge ends: letters keep left of it.
+      const [lo, hi] = edge === "left" || edge === "right" ? [0.25, 0.75]
+        : edge === "bottom" && !sides ? [0.1, 0.6] : [0.1, 0.9];
       const at = lo + random() * (hi - lo);
       const here = taken[edge] ?? [];
       const room = edge === "left" || edge === "right" ? 1 : 2;
