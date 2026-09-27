@@ -3,7 +3,6 @@ import { ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
 import { WayOut } from "@/components/round/RoundExit";
 import { PrefetchLink } from "@/components/PrefetchLink";
-import { NamedIcon } from "@/components/icons";
 import { DESTINATIONS } from "@/lib/ux/nav";
 
 /**
@@ -40,38 +39,41 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
   eyebrow?: ReactNode;
   /**
    * The destination this page is, as `lib/ux/nav.ts` names it. The heading
-   * then carries the same icon in the same hue as the row in the rail, so the
-   * place a learner pressed and the page that opened are visibly one thing.
-   * Read off the table rather than passed as an icon, so the two cannot drift.
+   * carries a small dot in the same hue as the row in the rail, so the place
+   * a learner pressed and the page that opened are visibly one thing. Read
+   * off the table rather than passed as a colour, so the two cannot drift.
+   *
+   * It was a filled 58px icon tile, and a page that opens on a bold heading
+   * beside a solid block of colour is loud before anybody has read a word of
+   * it, more so with a dark card sitting under it: two loud things stacked
+   * read as noise rather than as hierarchy. The dot is a signal rather than
+   * a shape, and the heading dropped to `--text-3xl`, the step the scale's
+   * own comment already calls "page title", rather than climbing to 68px on
+   * a wide screen for no reason a reader could act on.
    */
   route?: string;
 }) {
   const place = route ? DESTINATIONS.find((d) => d.href === route) : undefined;
   return (
-    <div className="mx-auto max-w-5xl px-5 py-8 md:px-10 md:py-12">
+    <div className="mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12">
       <header className="fade-up mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="flex min-w-0 flex-[1_1_28rem] items-start gap-4">
-          {place && (
-            <span
-              aria-hidden
-              className="page-mark mt-1 hidden shrink-0 place-items-center sm:grid"
-              style={{
-                background: place.tone === "ink" ? "var(--ink)" : `var(--${place.tone})`,
-                color: place.tone === "mint" || place.tone === "butter" ? "var(--on-mint)" : "var(--surface)",
-              }}
-            >
-              <NamedIcon name={place.icon} size={26} strokeWidth={2.25} />
-            </span>
+        <div className="min-w-0 flex-[1_1_28rem]">
+          {eyebrow && (
+            <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
           )}
-          <div className="min-w-0">
-            {eyebrow && (
-              <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
+          <div className="flex min-w-0 items-center gap-2.5">
+            {place && (
+              <span
+                aria-hidden
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ background: place.tone === "ink" ? "var(--ink)" : `var(--${place.tone})` }}
+              />
             )}
-            <h1 lang={titleLang} className="text-4xl font-bold leading-[0.95] md:text-5xl lg:text-6xl" style={{ color: "var(--ink)" }}>
+            <h1 lang={titleLang} className="min-w-0 text-3xl font-bold leading-[1.05]" style={{ color: "var(--ink)" }}>
               {title}
             </h1>
-            {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
           </div>
+          {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
         </div>
         {actions && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>}
       </header>
