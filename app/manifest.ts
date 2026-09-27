@@ -11,8 +11,8 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Kodukeel. Estonian that finally sticks",
-    short_name: "Kodukeel",
+    name: "kodukeel. Estonian that finally sticks",
+    short_name: "kodukeel",
     description:
       "Estonian you can use on somebody: practice that sticks, a conversation to rehearse, and one thing to say out loud today.",
     start_url: "/",

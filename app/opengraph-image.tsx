@@ -25,7 +25,7 @@ import { ImageResponse } from "next/og";
  */
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Kodukeel. Estonian that finally sticks";
+export const alt = "kodukeel. Estonian that finally sticks";
 
 const MARK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
   <circle cx="32" cy="40" r="15" fill="none" stroke="#ffd23f" stroke-width="8.5" stroke-dasharray="23.562 70.686" transform="rotate(-90 32 40)"/>
@@ -52,7 +52,7 @@ export default function OpenGraphImage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <img src={`data:image/svg+xml;base64,${Buffer.from(MARK).toString("base64")}`} width={128} height={128} alt="" />
-          <div style={{ display: "flex", fontSize: 54, fontWeight: 700, color: "#0f1233" }}>Kodukeel</div>
+          <div style={{ display: "flex", fontSize: 54, fontWeight: 700, color: "#0f1233" }}>kodukeel</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

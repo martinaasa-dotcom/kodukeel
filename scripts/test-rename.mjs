@@ -18,7 +18,9 @@ const page = await (await browser.newContext()).newPage();
 */
 await page.goto(`${B}/`, { waitUntil: "networkidle" });
 const title = await page.title();
-check("the app is branded Kodukeel", title.includes("Kodukeel"), title);
+// The wordmark is styled lowercase (kodukeel), so the brand check reads
+// case-insensitively rather than pinning the one casing the logotype uses.
+check("the app is branded kodukeel", /kodukeel/i.test(title), title);
 check("and nothing still carries the old name",
   !/sõnasepp|sonasepp/i.test(await page.content()), title);
 

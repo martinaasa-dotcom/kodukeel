@@ -857,7 +857,7 @@ await page.keyboard.press("Escape");
 // 8 — The app is installable
 const manifest = await page.request.get(`${B}/manifest.webmanifest`);
 const manifestBody = await manifest.json();
-check("a web app manifest is served", manifest.ok() && manifestBody.name.includes("Kodukeel"));
+check("a web app manifest is served", manifest.ok() && /kodukeel/i.test(manifestBody.name));
 const sw = await page.request.get(`${B}/sw.js`);
 check("the service worker is served", sw.ok());
 

@@ -86,7 +86,7 @@ export async function GET() {
               õ
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: "#0f1233" }}>Kodukeel</div>
+              <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: "#0f1233" }}>kodukeel</div>
               <div style={{ display: "flex", fontSize: 17, color: "#8b84a3", letterSpacing: 2 }}>ESTONIAN, DAILY</div>
             </div>
           </div>

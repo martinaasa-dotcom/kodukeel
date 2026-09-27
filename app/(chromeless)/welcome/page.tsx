@@ -29,7 +29,7 @@ import { SOURCE_CREDITS } from "@/lib/legal/credits";
 import { SpelledCount, spelledCount } from "@/lib/copy/values";
 
 export const metadata: Metadata = {
-  title: { absolute: "Kodukeel. Estonian that finally sticks" },
+  title: { absolute: "kodukeel. Estonian that finally sticks" },
   description:
     "Kodukeel means home language. Practice that sticks, conversations to rehearse with somebody who wants something from you, and one small thing to say out loud today. For anybody making a home in Estonia.",
 };
@@ -452,7 +452,7 @@ function Compare() {
             </div>
           ))}
           <div className="compare-ours night rounded-[var(--r-xl)] border p-6">
-            <h3 className="font-display text-xl font-bold" style={{ color: "var(--cta)" }}>Kodukeel</h3>
+            <h3 className="font-display text-xl font-bold" style={{ color: "var(--cta)" }}>kodukeel</h3>
             <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
               The cases taught one by one, a scheduler that brings every word back, a tutor at any
               hour, and every form from a dictionary rather than a model. Free, and it keeps working

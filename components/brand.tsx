@@ -123,7 +123,7 @@ export function Wordmark({ size = 34, subtitle }: { size?: number; subtitle?: st
           className="font-display whitespace-nowrap text-xl font-bold leading-none tracking-tight"
           style={{ color: "var(--ink)" }}
         >
-          Kodukeel
+          kodukeel
         </span>
         {subtitle && (
           <span className="label-xs mt-1" style={{ color: "var(--ink-3)" }}>
