@@ -282,7 +282,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           <Chip tone="accent">{prompt.situation}</Chip>
         </div>
 
-        <div className="px-6 py-8">
+        <div className="round-pad px-6">
           {/* Decoration in the sense that a photograph on a worksheet is: the
               meaning is here rather than in the text, so it is announced to a
               reader who cannot see it by the words underneath and by the

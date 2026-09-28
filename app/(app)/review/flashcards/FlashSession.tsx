@@ -310,7 +310,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           </div>
         </div>
 
-        <div className="px-6 py-8">
+        <div className="round-pad px-6">
           <Question task={task} shape={shape ?? task.shape} onNoAudio={() => setHeardLost(true)} />
 
           <div className="mt-7">

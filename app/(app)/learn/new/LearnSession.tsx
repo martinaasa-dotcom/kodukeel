@@ -986,7 +986,7 @@ export function LearnSession({
           {rung === "choice" && (
             <>
               <div className="flex items-center gap-2">
-                <p lang="et" className="text-3xl font-bold tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+                <p lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }}>
                   {word.lemma}
                 </p>
                 <Speak text={word.lemma} />

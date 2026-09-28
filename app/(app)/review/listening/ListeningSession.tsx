@@ -256,7 +256,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           )}
         </div>
 
-        <div className="flex min-h-[220px] flex-col items-center justify-center gap-4 px-6 py-10 text-center" aria-live="polite">
+        <div className="round-stage flex flex-col items-center justify-center gap-4 px-6 text-center" aria-live="polite">
           {!answered ? (
             noAudio ? (
               <>

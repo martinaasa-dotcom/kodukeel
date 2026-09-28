@@ -317,7 +317,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           )}
         </div>
 
-        <div className="flex min-h-[300px] flex-col gap-5 px-6 py-8" aria-live="polite">
+        <div className="round-stage flex flex-col gap-5 px-6" aria-live="polite">
           <div className="flex flex-col items-center gap-3">
             {noAudio ? (
               <div
