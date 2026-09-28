@@ -67,7 +67,7 @@ export default async function MasteryPage() {
       {words.length === 0 && kept.length === 0 && aside.length === 0 ? (
         <Empty
           title="Nothing answered yet"
-          body="A word turns up here once you have answered it, or the moment you star one."
+          body="A word shows up here once you've answered it, or as soon as you star it."
           action={<ButtonLink href="/review" variant="primary">Open review</ButtonLink>}
         />
       ) : (

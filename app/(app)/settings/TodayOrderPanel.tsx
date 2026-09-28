@@ -45,7 +45,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
       const landed = await setTodayOrder(serialiseTodayOrder(next)).then(() => true).catch(() => false);
       if (!landed) {
         setOrder(was);
-        setMessage("That did not reach the server, so the order is as it was.");
+        setMessage("That didn't save, so the order is back how it was.");
         return;
       }
       router.refresh();
@@ -56,7 +56,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
     const next = moveSlot(order, slot, direction);
     const to = next.indexOf(slot) + 1;
     const title = byId.get(slot)?.title ?? slot;
-    save(next, `${title} is now ${ordinal(to)}${to > TODAY_CARDS ? ", past the cut" : ""}.`);
+    save(next, `${title} is now ${ordinal(to)}${to > TODAY_CARDS ? ", so it only shows when there's room" : ""}.`);
   };
 
   return (
@@ -74,7 +74,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
                  it on each row instead. */
               <li aria-hidden className="flex items-center gap-3 px-1 pt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                 <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
-                Below here, only when a card above has nothing to say
+                These only show when a card above has nothing to say
                 <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
               </li>
             )}
@@ -102,7 +102,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
                     Said in words rather than by the tint alone, since a
                     greyer row is a hue carrying a distinction on its own.
                   */}
-                  {pastCut ? <span className="sr-only"> Past the cut: drawn only when a card above it has nothing to say.</span> : null}
+                  {pastCut ? <span className="sr-only"> Only shown when a card above it has nothing to say.</span> : null}
                 </span>
               </span>
               {/* Stacked until the list has room for them side by side: two
@@ -139,9 +139,9 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
           <Button
             size="sm"
             disabled={pending}
-            onClick={() => save(DEFAULT_TODAY_ORDER, "Back to the order Today ships with.")}
+            onClick={() => save(DEFAULT_TODAY_ORDER, "Back to the usual order.")}
           >
-            Back to the default
+            Go back to the usual order
           </Button>
         )}
       </div>

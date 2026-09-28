@@ -296,7 +296,7 @@ export default async function TodayPage() {
     <div className="flex flex-wrap items-center gap-4">
       <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[200px] sm:flex-1">
         <StatTile value={snapshot.dueCount} label="Due now" tone="accent" />
-        <StatTile value={toLearn} label="To learn" tone="sky" />
+        <StatTile value={toLearn} label="New words" tone="sky" />
       </div>
       {/* On a phone the ring wraps onto its own line, where a bare
           circle says nothing — so it is captioned there and only there. */}
@@ -305,7 +305,7 @@ export default async function TodayPage() {
           pct={summary.goalPct}
           size={74}
           thickness={8}
-          label={`${summary.reviewsToday} of ${summary.dailyGoal} reviews toward today's goal`}
+          label={`${summary.reviewsToday} of today's ${summary.dailyGoal} reviews done`}
         >
           <span
             className="tnum text-base font-bold"
@@ -325,7 +325,7 @@ export default async function TodayPage() {
           <p className="label-xs" style={{ color: "var(--ink-3)" }}>Daily goal</p>
           <p className="tnum mt-1 text-xs" style={{ color: "var(--ink-2)" }}>
             {summary.reviewsToday >= summary.dailyGoal
-              ? `Met, ${summary.reviewsToday} reviews`
+              ? `${summary.reviewsToday} reviews, goal met`
               : `${summary.reviewsToday} of ${summary.dailyGoal} reviews`}
           </p>
         </div>
@@ -372,13 +372,13 @@ export default async function TodayPage() {
   */
   const caughtUpNote = (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Reviewing early does not help you remember more.
+      Reviewing early won&rsquo;t make anything stick better, so enjoy the breather.
     </p>
   );
   const actions = learnFirst ? (
     <>
       <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full">
-        {stage === "arriving" ? "Learn your first words" : `Learn ${Math.min(toLearn, LEARN_BATCH)} new words`}{" "}
+        {stage === "arriving" ? "Meet your first words" : `Learn ${Math.min(toLearn, LEARN_BATCH)} new words`}{" "}
         <ArrowRight size={17} aria-hidden />
       </ButtonLink>
       {toReview > 0 && (
@@ -419,13 +419,13 @@ export default async function TodayPage() {
   */
   const opening = figures ? null : caughtUp ? caughtUpNote : learnFirst ? (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      {toLearn} word{toLearn === 1 ? "" : "s"} waiting, {LEARN_BATCH} at a time. You meet each one,
-      pick out its meaning, then put it back into its sentence.
+      {toLearn} new word{toLearn === 1 ? "" : "s"} to get to know, {LEARN_BATCH} at a time. You&rsquo;ll meet each one,
+      pick out what it means, then pop it back into its sentence.
     </p>
   ) : (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Type or pick the answer where you can. Where a card just asks, say honestly whether
-      you knew it. That is what decides when you see it again.
+      Type or pick the answer when you can. When a card just asks, be honest about whether
+      you knew it. That&rsquo;s how the app decides when to show it to you again.
     </p>
   );
 
@@ -496,7 +496,7 @@ export default async function TodayPage() {
             <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
               {courseDay.minutesLeft} min
             </span>
-            left tonight
+            to go tonight
           </p>
         </div>
         <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
@@ -520,21 +520,21 @@ export default async function TodayPage() {
           Today&rsquo;s module
         </SectionTitle>
         <p className="mt-1 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-          All done for today
+          That&rsquo;s tonight done. Nicely played.
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? <>Tomorrow you carry on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
+              ? <>Tomorrow you&rsquo;ll carry on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
               : uiWantsEnglish(placement)
-                ? <>Come back tomorrow for {courseDay.day.subtitle}.</>
-                : <>Come back tomorrow for {courseDay.day.title}, {courseDay.day.subtitle.toLowerCase()}.</>
-            : <>That was the last one. Every word of it stays in your review queue.</>}
+                ? <>See you tomorrow for {courseDay.day.subtitle}.</>
+                : <>See you tomorrow for {courseDay.day.title}, {courseDay.day.subtitle.toLowerCase()}.</>
+            : <>That was the very last one. Every word you met along the way stays in your reviews.</>}
         </p>
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
         <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
-          See what is next <ArrowRight size={16} aria-hidden />
+          See what&rsquo;s coming <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -543,9 +543,9 @@ export default async function TodayPage() {
   const doNowCard = courseCard ?? (snapshot.totalCards === 0 ? (
     <Card>
       <Empty
-        title="Your deck is empty"
-        body="Open a unit and it turns into cards, with every form and its audio."
-        action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+        title="No cards yet"
+        body="Pick a unit and its words become cards, with every form and how it sounds."
+        action={<ButtonLink href="/learn" variant="primary">Pick your first unit</ButtonLink>}
       />
     </Card>
   ) : (
@@ -661,8 +661,8 @@ export default async function TodayPage() {
       {summary.shieldsAvailable > 0 && (
         <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
           <Shield size={13} aria-hidden style={{ color: "var(--accent-deep)" }} />
-          {summary.shieldsAvailable} streak shield{summary.shieldsAvailable === 1 ? "" : "s"} banked. One
-          missed day won&rsquo;t break your streak.
+          {summary.shieldsAvailable} streak shield{summary.shieldsAvailable === 1 ? "" : "s"} saved up, so
+          missing a day won&rsquo;t break your run.
         </p>
       )}
 
@@ -733,7 +733,7 @@ export default async function TodayPage() {
         className="mt-3 inline-block text-sm font-semibold underline underline-offset-2"
         style={{ color: "var(--accent-deep)" }}
       >
-        Open the week
+        See your whole week
       </Link>
     </Card>
   ) : null;
@@ -773,10 +773,10 @@ export default async function TodayPage() {
             <span lang="et" className="font-semibold">
               {grammarTerm(weakest.grammCase)?.et ?? weakest.grammCase.toLowerCase()}
             </span>{" "}
-            is at {weakest.accuracy}%. {questLength} on it.
+            is at {weakest.accuracy}%. Give it {questLength} today.
           </>
         ) : (
-          `${questLength} on the cards you get wrong most often.`
+          `${questLength} on the cards that trip you up most.`
         )}
       </p>
       <div className="mt-3">
@@ -841,7 +841,7 @@ export default async function TodayPage() {
         />
       </div>
       <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} className="mt-4 w-full">
-        {nextUnit.state === "learning" ? "Continue the lesson" : "Start the lesson"}
+        {nextUnit.state === "learning" ? "Pick up the lesson" : "Start the lesson"}
         <ArrowRight size={15} aria-hidden />
       </ButtonLink>
     </Card>
@@ -891,7 +891,7 @@ export default async function TodayPage() {
         </ButtonLink>
       </div>
       <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-        {tomorrow.weekday} is {featuredTitle(tomorrow.game.href) ?? "another one"}.
+        Tomorrow&rsquo;s {tomorrow.weekday}, which means {featuredTitle(tomorrow.game.href) ?? "something different"}.
       </p>
     </Card>
   ) : null;
@@ -1062,11 +1062,11 @@ function NextUnitIcon({ name }: { name: string }) {
 function courseLead(toReview: number, finishedToday: boolean): string {
   const cards = `${toReview} card${toReview === 1 ? "" : "s"}`;
   if (finishedToday) {
-    return toReview === 0 ? "Nothing else is due today." : `${cards} still due if you want them.`;
+    return toReview === 0 ? "Nothing else is due today. Enjoy the rest of your day." : `${cards} still due, if you fancy a few more.`;
   }
   return toReview === 0
-    ? "Nothing else is due. Tonight's module is the whole evening."
-    : `${cards} due as well. The module ends by reviewing them.`;
+    ? "Nothing else is due, so tonight's module is all there is."
+    : `${cards} due as well. You'll review them at the end of tonight's module.`;
 }
 
 function lead(
@@ -1079,8 +1079,8 @@ function lead(
   // Nothing due is only "a good moment for something new" while there is
   // something new. A deck whose words are all learned needs a unit, and saying
   // otherwise sends somebody to a screen with nothing on it.
-  if (toReview === 0 && toLearn > 0) return "Nothing due right now. A good time to meet some new words.";
-  if (toReview === 0) return "Nothing due, and no new words waiting. A good time to open a unit.";
+  if (toReview === 0 && toLearn > 0) return "You're all caught up. A nice moment to meet some new words.";
+  if (toReview === 0) return "You're all caught up, and you've learned every word in your deck. Time for a new unit.";
   /*
     At the learner's own rate where the log has one, and at the one default
     the plan uses otherwise. This divided by six while the plan divided by
@@ -1090,9 +1090,9 @@ function lead(
   const minutes = minutesForCards(toReview, cardsPerMinute);
   const span = `${minutes} minute${minutes === 1 ? "" : "s"}`;
   if (stage === "arriving") {
-    return `Your deck is ready. ${toReview} card${toReview === 1 ? "" : "s"} to meet, about ${span}.`;
+    return `Your cards are ready. ${toReview} to meet, about ${span}.`;
   }
-  return `${toReview} card${toReview === 1 ? "" : "s"} waiting, about ${span} of your day.`;
+  return `${toReview} card${toReview === 1 ? "" : "s"} waiting for you, about ${span}.`;
 }
 
 function weekdayLetter(day: string): string {

@@ -29,7 +29,7 @@ export function DecksClient({ decks: initial }: { decks: DeckSummary[] }) {
       {decks.length === 0 ? (
         <Empty
           title="No decks yet"
-          body="Your words are one deck until you name a shelf. Then the dictionary asks which."
+          body="All your words sit in one deck until you make a shelf. Then the dictionary asks which one."
         />
       ) : (
         <div className="flex flex-col gap-3">
@@ -333,7 +333,7 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
   if (words === "failed") {
     return (
       <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        The words on this shelf would not load. Close it and open it again to retry.
+        The words on this shelf didn&rsquo;t load. Close it and open it again to try once more.
       </p>
     );
   }
@@ -431,7 +431,7 @@ function FileWords({ deckId, deckName, onFiled }: {
         setSaid(`${word.lemma} is on ${deckName}.`);
         onFiled(word.lemma);
       })
-      .catch(() => setError("That did not save. Try again in a moment."))
+      .catch(() => setError("That didn't save. Try again in a moment."))
       .finally(() => setPendingId(null));
   };
 
@@ -453,13 +453,13 @@ function FileWords({ deckId, deckName, onFiled }: {
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>Loading…</p>
       ) : words === "failed" ? (
         <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-          Your words would not load. Change the search to try again.
+          Your words didn&rsquo;t load. Change the search to try again.
         </p>
       ) : words.length === 0 ? (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
           {query
-            ? "No word of yours matches that."
-            : "Every word you have is on this shelf already."}
+            ? "None of your words match that."
+            : "Every word you have is already on this shelf."}
         </p>
       ) : (
         <ul className="mt-2 flex flex-col gap-1">

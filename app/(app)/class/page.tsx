@@ -58,7 +58,7 @@ export default async function ClassIndexPage() {
     <Page route="/class"
       eyebrow="Learn together"
       title="Classes"
-      lead="A class shares progress, not data. Your deck, your searches and your history stay yours."
+      lead="Your class sees how you're getting on, never your data. Your deck and searches stay yours."
     >
       <Stack>
         {memberships.length > 0 && (
@@ -97,8 +97,8 @@ export default async function ClassIndexPage() {
                       </span>
                       <span className="mt-1 block text-sm" style={{ color: "var(--ink-3)" }}>
                         {workplace
-                          ? (owns ? "You run this group" : "You are in this group")
-                          : (owns ? "You teach this class" : "You are a student here")},{" "}
+                          ? (owns ? "You run this group" : "You're in this group")
+                          : (owns ? "You teach this class" : "You're a student here")},{" "}
                         {sizeOf.get(m.classroomId) ?? 1} member{(sizeOf.get(m.classroomId) ?? 1) === 1 ? "" : "s"}
                       </span>
                     </span>
@@ -123,11 +123,10 @@ export default async function ClassIndexPage() {
               <SectionTitle hint="teachers and employers">Start a group</SectionTitle>
               <Card tone="accent">
                 <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Either way you get a six-character join code and a roster. A class shows who is
-                  actually reviewing, what the whole group keeps getting wrong, and the one case
-                  each student struggles with most. That is the useful half of a progress report.
-                  A workplace group leaves the grammar out and answers a different question: who
-                  is on track for the paper they have to pass.
+                  Either way, you get a six-character join code and a list of who&rsquo;s in. A class shows
+                  who&rsquo;s really reviewing, what the whole group keeps tripping over, and the one
+                  case each student finds hardest. A workplace group leaves the grammar out and just
+                  shows who&rsquo;s on track for the exam they need to pass.
                 </p>
                 {/*
                   On the screen rather than behind the press beside it: this is
@@ -138,10 +137,10 @@ export default async function ClassIndexPage() {
                   disclosure nobody opens does not.
                 */}
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  Pupils under 13 need a parent to agree first, and that is the school&rsquo;s call
+                  Pupils under 13 need a parent to agree first, and that&rsquo;s the school&rsquo;s call
                   rather than ours. The{" "}
                   <Link href="/privacy" className="underline underline-offset-2">privacy page</Link>{" "}
-                  says what is held and what you can see.
+                  explains what&rsquo;s kept and what you can see.
                 </p>
                 <CreateClass />
               </Card>
@@ -153,12 +152,12 @@ export default async function ClassIndexPage() {
               <School size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
               <div>
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                  Classes need sign-in, and this copy runs without it: one learner on one machine.
-                  Everything else works the same.
+                  Classes need sign-in, and this copy of Kodukeel runs without it, for one learner on
+                  one computer. Everything else works just the same.
                 </p>
                 <Explain label="Turning sign-in on">
-                  Set <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and its anon key; the
-                  README walks through it in about ten minutes.
+                  Set <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and its anon key. The
+                  README walks you through it in about ten minutes.
                 </Explain>
               </div>
             </div>
@@ -167,12 +166,12 @@ export default async function ClassIndexPage() {
 
         <Explain label="What a teacher or an employer can see">
           A teacher sees effort and progress: reviews this week, streak, words known, the cases
-          the whole class keeps missing, and the one case each student struggles with most, as a
-          percentage across all their reviews. Whoever runs a workplace group sees less than
-          that, never more: a name, whether somebody has been practicing, and one of four bands
-          for the paper the group works toward. Never a search, a deck or a single answer, and
-          never a colleague&rsquo;s weak grammar. Both lines are held by what the app reads,
-          not only by a policy: what a page may not show is never fetched for it.
+          the whole class keeps missing, and the one case each student finds hardest, as a
+          percentage across all their reviews. Whoever runs a workplace group sees less, never
+          more: a name, whether somebody has been practicing, and one of four bands for the exam
+          the group is working toward. Never a search, a deck or a single answer, and never a
+          colleague&rsquo;s weak grammar. That isn&rsquo;t just a promise: what a page may not show
+          is never even fetched for it.
         </Explain>
       </Stack>
     </Page>

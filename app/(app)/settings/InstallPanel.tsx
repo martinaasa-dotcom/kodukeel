@@ -50,8 +50,8 @@ export function InstallPanel() {
   return (
     <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
       {ios
-        ? "On this iPhone: the Share button, then Add to Home Screen."
-        : "This browser has not offered an install button. Chrome and Edge put one in the address bar; Safari keeps it under Share."}
+        ? "On an iPhone, tap the Share button, then Add to Home Screen."
+        : "This browser hasn't offered an install button. Chrome and Edge put one in the address bar, and Safari keeps it under Share."}
     </p>
   );
 }

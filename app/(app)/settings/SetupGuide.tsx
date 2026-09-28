@@ -7,7 +7,7 @@ const STEPS = [
   { text: "Go to ", link: { href: "https://aistudio.google.com/apikey", label: "aistudio.google.com" }, after: " and sign in. It's free and takes no card." },
   { text: "Click ", strong: "Create API key", after: ". Copy the key it shows you." },
   { text: "In this project's folder, open the file called ", code: ".env", after: " and paste the key between the quotes, like the example below." },
-  { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again. Anu will be waiting." },
+  { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again. Anu will be there, ready to help." },
 ];
 
 /*
@@ -110,7 +110,7 @@ export function SetupGuide() {
         <a href="https://console.groq.com" target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
           console.groq.com
         </a>
-        , on a line of its own in the same file. Anu then answers whenever Gemini is busy.
+        , on a line of its own in the same file. Then Anu can still answer when Gemini is busy.
       </p>
     </div>
   );

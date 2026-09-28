@@ -67,14 +67,14 @@ export function LevelPanel({ current, measured }: {
       </ChoiceGroup>
       <p className="text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
         {measured
-          ? "This is where your last level check put you. Change it whenever it stops being true, and the check will not argue: what you set here is what the app goes on until you take another one."
-          : "Change it whenever it stops being true. Taking a level check replaces it with what the check found."}
+          ? "This is where your last level check put you. If that stops feeling right, change it. The app goes with your choice until your next check."
+          : "Change it whenever it stops feeling right. If you take a level check, its result replaces this."}
       </p>
       <Explain label="What the level decides">
-        It decides which part of the course you are on, which words review introduces next, and the
-        band the practice rounds and the dictionary draw from. A level that opens somewhere else moves
-        tonight&apos;s module there. Nothing you have already learned moves, and evenings you finished
-        stay finished.
+        Your level decides which part of the course you&rsquo;re on, which new words come next, and
+        which words the practice rounds and the dictionary pick from. If it points somewhere new,
+        tonight&rsquo;s module moves there too. Nothing you&rsquo;ve already learned is lost, and
+        finished evenings stay finished.
       </Explain>
     </div>
   );

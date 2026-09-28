@@ -37,7 +37,7 @@ export function CreateClass() {
 
   return (
     <div className="flex flex-col gap-3">
-      <ChoiceGroup label="What is this?" select="one" className="grid gap-2">
+      <ChoiceGroup label="What kind of group is it?" select="one" className="grid gap-2">
         {COHORT_KINDS.map((option) => (
           <ChoiceCard
             key={option}
@@ -70,7 +70,7 @@ export function CreateClass() {
         question with no use for the answer.
       */}
       {workplace && (
-        <ChoiceGroup label="Which paper are they working toward?" select="one">
+        <ChoiceGroup label="Which exam are they working toward?" select="one">
           {EXAM_LEVELS.map((band) => (
             <ChoiceChip key={band} selected={level === band} onSelect={() => setLevel(band)} even>
               {band}
@@ -160,13 +160,12 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         {pending ? "Joining…" : "Join the class"}
       </Button>
       <Explain label="Exactly what a class sees">
-        Joining shares your name, your streak, how many reviews you did this week, when you last
-        practiced and how many words you know with your teacher and classmates. It shares one more
-        thing with your teacher alone: which
-        grammar case you personally get wrong most, as one percentage across your own reviews,
-        never a specific answer. A workplace group shares less: your name, whether you have been
-        practicing, and one of four bands for the paper the group works toward. Not your deck, not
-        your searches, not your mistakes one by one. Leaving stops all of it right away.
+        Your teacher and classmates see your name, your streak, how many reviews you did this
+        week, when you last practiced and how many words you know. Your teacher alone also sees
+        the one case you find hardest, as a single percentage across your reviews, never a
+        specific answer. A workplace group sees less: your name, whether you&rsquo;ve been
+        practicing, and one of four bands for the exam the group is working toward. Never your
+        deck, your searches or your mistakes one by one. If you leave, all of it stops straight away.
       </Explain>
     </div>
   );
@@ -232,7 +231,7 @@ export function ArchiveClass({ classroomId }: { classroomId: string }) {
 
   return (
     <span className="flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-      The join code stops working. Nobody loses any work.
+      The join code will stop working, but nobody loses any work.
       <Button variant="danger" disabled={pending} onClick={() => start(async () => {
         const landed = await archiveClassroom(classroomId).then(() => true).catch(() => false);
         if (!landed) return;
@@ -425,7 +424,7 @@ export function ClassDigest({ on }: { on: boolean }) {
           });
         }}
       />
-      Email me this on Monday mornings
+      Email me this every Monday morning
     </label>
   );
 }

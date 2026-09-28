@@ -23,7 +23,7 @@ const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof Pe
   {
     value: "type",
     label: "Type the answer",
-    detail: "Stronger recall. Near misses get explained too, so a dropped õ isn't marked the same as a wrong word.",
+    detail: "Sticks better. Near misses get explained, so a dropped õ isn't treated like a wrong word.",
     icon: PenLine,
   },
   {
@@ -39,7 +39,7 @@ const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof Pe
       and this one asks for a tap instead of typing rather than asking for a
       verdict. See `askFor`.
     */
-    detail: "Four forms of the same word, one tap. Lighter than typing on a phone, and still marked for you.",
+    detail: "Four forms of the same word, and you tap one. Easier than typing on a phone, and still marked for you.",
     icon: Keyboard,
   },
 ];
@@ -207,9 +207,9 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
           id: "auto" as const,
           title: "Follow my level",
           icon: <Wand2 size={15} aria-hidden />,
-          detail: autoShows ? `Shown, because ${level} still gets it.` : `Hidden, because ${level} has moved past it.`,
+          detail: autoShows ? `Shown for now, while you're at ${level}.` : `Hidden, since at ${level} you know them by heart.`,
         },
-        { id: "on" as const, title: "Always show it", icon: <Eye size={15} aria-hidden />, detail: "Every case question keeps its English reading, at every level." },
+        { id: "on" as const, title: "Always show it", icon: <Eye size={15} aria-hidden />, detail: "The English stays under every case question, whatever your level." },
         { id: "off" as const, title: "Never show it", icon: <EyeOff size={15} aria-hidden />, detail: <>Just <span lang="et">milles? kus?</span>, with nothing under it.</> },
       ]}
     />
@@ -282,7 +282,7 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
         join. What is left is what a reader at this box needs, in one line.
       */}
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Used to greet you, and shown beside your week if you join a class. Nothing else goes with it.
+        We use it to say hello, and your class sees it next to your week if you join one. Nothing else goes with it.
       </p>
     </div>
   );
@@ -293,14 +293,14 @@ const PARTICIPATION: { value: Participation; label: string; detail: string; icon
     value: "in",
     label: "Count my answers",
     detail:
-      "Adds them to the totals. Nothing is published that fewer than ten people are behind, and nothing in it can be traced back to one person.",
+      "Your answers join the totals. Nothing is published unless at least ten people are behind it, and nothing can be traced back to you.",
     icon: BarChart3,
   },
   {
     value: "out",
     label: "Leave mine out",
     detail:
-      "Your answers are skipped when the totals are worked out. Everything else in the app carries on exactly as it did.",
+      "Your answers are left out of the totals. Everything else in the app works just the same.",
     icon: EyeOff,
   },
 ];
@@ -346,8 +346,8 @@ export function ResearchPanel({ current, exported }: { current: Participation; e
       </div>
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
         {exported
-          ? "Which grammar learners here get wrong, counted across everybody, so that whoever teaches Estonian can see it. Which case, which stem change, which word. Never your deck, your searches or a single answer."
-          : "This installation is not set up to produce those totals, so nothing is being counted anywhere. Your answer is kept in case that changes."}{" "}
+          ? "Which grammar trips learners up, counted across everybody, so teachers of Estonian can see it. Which case, which stem change, which word. Never your deck, your searches or any one answer."
+          : "This copy of Kodukeel isn't set up to make those totals, so nothing is being counted. We'll keep your choice in case that changes."}{" "}
         <Link href="/privacy" className="underline underline-offset-2">How this works</Link>.
       </p>
     </div>

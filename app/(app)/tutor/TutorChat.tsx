@@ -53,12 +53,12 @@ export function TutorChat({
         <AnuFace size={76} mood="thinking" className="float" />
         <div className="max-w-[46ch]">
           <h2 className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>
-            {readerCanConfigure ? "Anu needs an AI key" : "Anu is not available"}
+            {readerCanConfigure ? "Anu needs an AI key" : "Anu isn't here right now"}
           </h2>
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {readerCanConfigure
-              ? "She explains why a form is what it is and checks a sentence you wrote. Everything else works without her, and Settings has a walkthrough for getting a free key."
-              : "Everything else here works without her."}
+              ? "She explains why a word takes the form it does, and checks sentences you write. Everything else works without her, and Settings walks you through getting a free key."
+              : "Everything else here works just fine without her."}
           </p>
         </div>
         {/* A question handed over by the card the learner just got wrong.
@@ -92,7 +92,7 @@ export function TutorChat({
               answer, and I&rsquo;ll say so if I&rsquo;m not sure of a form rather than guessing.
             </p>
             <p className="mt-3 flex items-center gap-1.5 text-xs" style={{ color: "var(--blush-ink)" }}>
-              <Sparkles size={13} aria-hidden /> Pick a starter below, or just type.
+              <Sparkles size={13} aria-hidden /> Pick a question below to start, or just ask your own.
             </p>
           </div>
         </Card>

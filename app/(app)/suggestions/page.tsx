@@ -36,7 +36,7 @@ export default async function MySuggestionsPage() {
   return (
     <Page route="/suggestions"
       title="Suggested fixes"
-      lead="Everything you have reported, and where each one got to."
+      lead="Everything you've told us about, and what happened to each one."
       actions={
         reviewer ? (
           <Link href="/admin/suggestions" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
@@ -48,7 +48,7 @@ export default async function MySuggestionsPage() {
       {mine.length === 0 ? (
         <Empty
           title="Nothing sent yet"
-          body="Anywhere the app cannot help, there is a button to tell us. What you send lands here."
+          body="Wherever the app gets stuck, there's a button to tell us. Anything you send shows up here."
         />
       ) : (
         <ul className="flex flex-col gap-3">

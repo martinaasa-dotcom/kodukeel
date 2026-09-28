@@ -224,8 +224,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       title="Settings"
       lead={
         hosted
-          ? "Your deck, reviews and tasks are yours alone. Nobody else can see them."
-          : "This is running on your own computer. Nothing is uploaded anywhere."
+          ? "Your cards, reviews and tasks are yours alone. Nobody else can see them."
+          : "This copy runs on your own computer, so nothing gets uploaded anywhere."
       }
     >
       <Stack>
@@ -249,8 +249,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <ReviewModePanel current={mode} />
               <Explain label="Why new cards show the answer">
-                Either way, brand-new cards are shown with their answer first. Being asked to produce a
-                word you have never seen teaches nothing.
+                Either way, a brand-new card shows you its answer first. Being asked for a word
+                you&rsquo;ve never seen wouldn&rsquo;t teach you anything.
               </Explain>
             </Card>
           </section>
@@ -266,20 +266,20 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle
               hint={latestCheck ? `measured ${levelLabel((latestCheck.overall ?? null) as never)}` : "not measured yet"}
             >
-              Why you are here
+              Why you&rsquo;re learning
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                These answers build the timeline on the level check screen. It says how many hours
-                the level you want usually takes, how many your daily goal covers, and how many are
-                left to find elsewhere. Change them whenever the answer changes.
+                Your answers here shape the plan on the level check screen: roughly how many hours
+                your target level takes, how many your daily goal covers, and how many you&rsquo;ll
+                want to find elsewhere. Change them whenever life changes.
               </p>
               <GoalsPanel current={goals} />
               <p className="mt-5 text-sm" style={{ color: "var(--ink-3)" }}>
                 <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
                   Take the level check
                 </Link>{" "}
-                to measure where you are.
+                to find out where you are now.
               </p>
             </Card>
           </section>
@@ -288,8 +288,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={`${dailyGoal} reviews/day`}>Daily goal</SectionTitle>
             <Card>
               <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                This sets how full the ring on Today gets, and what your first daily quest aims for.
-                It is only there to motivate you. It never stops you from reviewing more.
+                This is what fills the ring on Today, and what your first daily quest aims for.
+                It&rsquo;s there to keep you going, and it never stops you doing more.
               </p>
               <DailyGoalPanel currentGoal={dailyGoal} />
             </Card>
@@ -306,13 +306,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           */}
           <section id="course">
             <SectionTitle hint={programme ? `day ${programmeDay} of ${programme.days.length}` : "off"}>
-              Being led through it
+              The planned course
             </SectionTitle>
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
-                  ? <>You are on {uiText(courseLevel, programme.title, programme.subtitle)}. Today lends its
-                      first card to the module, and the module picks the words and the rounds for the
+                  ? <>You&rsquo;re on {uiText(courseLevel, programme.title, programme.subtitle)}. Tonight&rsquo;s module
+                      takes the top spot on Today, and it picks the words and the games for your
                       evening.</>
                   : <>{opening?.blurb}</>}
               </p>
@@ -333,8 +333,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Which card comes first on your home page. The button to review always stays at the
-                top, and Today draws the first {TODAY_CARDS} of these that have something to say.
+                Choose which card comes first on your home page. The big button to review always
+                stays at the top, and Today shows the first {TODAY_CARDS} of these that have something to say.
               </p>
               <TodayOrderPanel current={todayOrder} />
             </Card>
@@ -353,16 +353,16 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             clock, because a paper is imitating a timed examination.
           */}
           <section id="round-pace">
-            <SectionTitle hint={roundPaceName}>Time in a timed round</SectionTitle>
+            <SectionTitle hint={roundPaceName}>Time on the clock</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                The Case Sprint, the daily quest and Target run to a clock. This is how long
-                that clock gives you, and it changes nothing else about any of them.
+                The Case Sprint, the daily quest and Target all run against a clock. Pick how
+                much time you&rsquo;d like. Nothing else about them changes.
               </p>
               <RoundPacePanel current={roundPace} />
-              <Explain label="The one clock this leaves alone">
-                The mock examination is the one clock this leaves alone. That paper is
-                imitating a timed state examination, so its parts keep the real timings.
+              <Explain label="Why the mock exam keeps its own timing">
+                The mock exam keeps its own clock. It&rsquo;s standing in for the real state
+                examination, so every part keeps the real timings.
               </Explain>
             </Card>
           </section>
@@ -379,10 +379,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Every screen that asks <span lang="et">milles? kus?</span> keeps asking it in Estonian,
-                always. This only decides whether the English reading sits under it. It shows by
-                default through B1, while the fourteen forms are still new, and hides itself from B2
-                on, when a class expects you to know what they ask without it.
+                A case question like <span lang="et">milles? kus?</span> is always asked in Estonian.
+                This just decides whether the English meaning appears underneath. It&rsquo;s on up to B1,
+                while the fourteen forms are still new, and tucks itself away from B2, when a class
+                expects you to know them by heart.
               </p>
               <CaseGlossPanel current={caseGlossPref} level={courseLevel} />
             </Card>
@@ -403,13 +403,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card className="flex flex-col gap-5">
               <div>
                 <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Who reads Estonian to you. Press the ear beside a name to hear it, and the chip to keep it.
+                  Whose voice reads Estonian to you. Press the ear to hear someone, and their name to pick them.
                   <CurrentVoiceSample />
                 </p>
                 <VoicePanel current={voice} />
                 <Explain label="Why change the voice">
-                  Ten voices to choose from. The state examination is read by more than one
-                  speaker, so it is worth changing this now and then.
+                  There are ten voices. The state examination has more than one speaker, so
+                  it&rsquo;s worth switching now and then to get used to different people.
                 </Explain>
               </div>
               <div>
@@ -425,9 +425,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   tilt={levelPace.id === paceFor(courseLevel).id ? 0 : tilt}
                 />
                 <Explain label="How the slow speed is made">
-                  Every speed uses the same recording, slowed down in your browser. The voice and the
-                  pitch stay as they were, so the consonants stay sharp. The slow button beside a word
-                  is always slower again than whatever you pick here.
+                  Every speed uses the same recording, slowed down right in your browser. The voice
+                  and pitch stay the same, so the consonants stay crisp. The slow button beside a
+                  word always goes slower again than whatever you pick here.
                 </Explain>
               </div>
               <div>
@@ -442,8 +442,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Listening and dictation</h3>
                 <HearingPanel current={hearing} />
                 <Explain label="What a hearing condition changes">
-                  The words never change. What changes is the pace, the reader, and the room,
-                  because the receptionist will not slow down for you and the counter is never quiet.
+                  The words stay the same. What changes is the speed, the voice and the background
+                  noise, because the receptionist won&rsquo;t slow down for you and the counter is never quiet.
                 </Explain>
               </div>
               <div>
@@ -470,20 +470,19 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                What a word means, in the language you think in. The English gloss stays on every
-                entry; this decides what is printed beside it.
+                What a word means, in the language you think in. The English is always there, and
+                this decides what appears beside it.
               </p>
               <GlossLanguagePanel current={glossLanguage} />
               <Explain label="Where these come from">
-                The Russian and Ukrainian come from the same dictionary source as the Estonian.
-                Where none was recorded, the entry says so by showing the English on its own.
+                The Russian and Ukrainian come from the same dictionary as the Estonian. If none
+                was recorded for a word, you&rsquo;ll just see the English.
               </Explain>
 
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule)" }}>
                 <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Every other word in an example sentence, when a card teaches a word or somebody
-                  says a line to you in a conversation. Turn it off and the sentence is drawn plain,
-                  with the word being taught still marked.
+                  Underline the other words in an example sentence, so you can tap one to see what it
+                  means. Turn it off and the sentence stays plain, with the new word still marked.
                 </p>
                 <WordGlossPanel current={wordGloss} />
               </div>
@@ -500,8 +499,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <LetterBarPanel current={letters} />
               <Explain label="Why only on a computer">
-                These only ever show up on a computer. A phone keyboard already has these letters,
-                on a long press or with the keyboard switched to Estonian.
+                These only show up on a computer. Your phone keyboard already has these letters,
+                with a long press or an Estonian keyboard.
               </Explain>
             </Card>
           </section>
@@ -513,7 +512,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <Keyboard size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    A whole session can be done without touching the mouse.
+                    You can do a whole session without touching the mouse.
                   </p>
                   {/* Keyed on the room the list has rather than the window, and
                       the key column held to one width: at 768 Settings is two
@@ -551,27 +550,27 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={ekilexOn ? "connected" : "built-in set only"}>Dictionary</SectionTitle>
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                The built-in dictionary has {words} words with checked principal parts, covering A1 up
-                into C1. Search a form of a word you met in class, <span lang="et">toas</span>,{" "}
-                <span lang="et">lugesin</span>, and it will find the word and tell you which form you
-                typed. Audio is built in and needs no key.
+                The built-in dictionary has {words} words, from A1 up into C1, each with its main forms
+                checked. Type any form you met in class, like <span lang="et">toas</span> or{" "}
+                <span lang="et">lugesin</span>, and it finds the word and tells you which form you
+                typed. The audio is built in too, no key needed.
               </p>
               {ekilexOn ? (
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <Chip tone="good">Connected</Chip>
                   <Explain label="What gets saved here">
-                    Words beyond the built-in set are looked up live and saved here so the next
-                    lookup works offline too. Example sentences, dictation and the fuller mock exam
-                    all draw on this.
+                    Words beyond the built-in set are looked up live and saved here, so next time
+                    they work offline too. Example sentences, dictation and the fuller mock exam
+                    all use them.
                   </Explain>
                 </div>
               ) : (
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                    There is no live dictionary lookup set up here yet, so search stops at the {words}{" "}
-                    built-in words, and nothing outside that set can be looked up. The built-in set has
-                    almost no real example sentences either, so dictation, the sentence builder and the
-                    mock exam&rsquo;s reading and listening parts stay thin or empty.
+                    Live dictionary lookup isn&rsquo;t set up here yet, so search only knows the {words}{" "}
+                    built-in words. The built-in set also has hardly any real example sentences, so
+                    dictation, the sentence builder and the mock exam&rsquo;s reading and listening
+                    parts stay thin or empty.
                   </p>
                   <EkilexSetupGuide />
                 </div>
@@ -593,7 +592,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   </div>
                   <Explain label="What happens when a model is busy">
                     {resilience.models === 1
-                      ? "Just one model is set up right now."
+                      ? "Only one model is set up right now, so if it's busy, Anu has to wait."
                       : `${resilience.models} models are tried in order, across ${resilience.providers.join(" and ")}.`}
                   </Explain>
                   {/*
@@ -605,16 +604,16 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   */}
                   {resilience.singlePointOfFailure && (
                     <Explain label="What happens if the key stops answering">
-                      Everything above runs through {resilience.providers[0]}, on one account. If
-                      that key stops answering, whether it runs out of credit or just has a bad
-                      minute, Anu stops with it.
+                      Everything above goes through {resilience.providers[0]}, on one account. If
+                      that key stops answering, because it&rsquo;s out of credit or just having a bad
+                      minute, Anu goes quiet too.
                       Adding{" "}
                       <code className="text-xs">{resilience.providers[0] === "Groq" ? "GEMINI_API_KEY" : "GROQ_API_KEY"}</code>{" "}
-                      to <code className="text-xs">.env</code> gives Anu somewhere else to turn. It
-                      is free and asks for no card.
+                      to <code className="text-xs">.env</code> gives Anu a backup. It&rsquo;s
+                      free and doesn&rsquo;t ask for a card.
                       Read the note beside them in{" "}
-                      <code className="text-xs">.env.example</code> first: free usually means the
-                      provider may look at what goes through it.
+                      <code className="text-xs">.env.example</code> first, because free usually means
+                      the provider may read what goes through it.
                     </Explain>
                   )}
                 </div>
@@ -685,8 +684,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 </a>
               </div>
               <Explain label="Why a backup is worth the ten seconds">
-                Your review history is the one thing here that can&rsquo;t be recreated. Downloading a
-                copy now and then is worth the ten seconds.
+                Your review history is the one thing here that can&rsquo;t be rebuilt if it&rsquo;s lost.
+                Grabbing a copy now and then takes ten seconds.
               </Explain>
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
                 <RestorePanel currentReviews={reviews} />
@@ -710,14 +709,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <Smartphone size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
                 <div>
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    Kodukeel installs as an app, &ldquo;Add to Home Screen&rdquo; on iOS, &ldquo;Install&rdquo;
-                    in the address bar on desktop Chrome. Installed, it opens straight into review and
-                    keeps working without a connection.
+                    You can install Kodukeel like an app. On iOS, use &ldquo;Add to Home Screen&rdquo;. On
+                    desktop Chrome, press &ldquo;Install&rdquo; in the address bar. Once installed, it
+                    opens straight into review and keeps working without a connection.
                   </p>
                   <Explain label="What happens to an answer with no connection">
-                    Anything you grade offline is saved on the device and sent the moment you are
-                    back online. It goes with the time you actually answered, so an offline session
-                    still counts toward the right day.
+                    Anything you answer offline is saved on your device and sent as soon as you&rsquo;re
+                    back online, with the time you actually answered. So an offline session still
+                    counts toward the right day.
                   </Explain>
                   <InstallPanel />
                 </div>

@@ -38,7 +38,7 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
       const result = await resetCourseFor(target).catch(() => null);
       if (!result) setSaid(NOT_REACHED);
       else if (!result.ok) setSaid(result.error);
-      else setSaid(`${label} reset. ${result.ticks} module ticks removed. Decks and the dictionary are as they were.`);
+      else setSaid(`${label} reset, and ${result.ticks} module ticks removed. Decks and the dictionary haven't changed.`);
       setSure(null);
     });
   };
@@ -49,8 +49,8 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
         Reset course progress
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        A reset learner starts the current course again from the first evening of their level. Only the
-        module progress goes: decks, the words in them, the dictionary and review history stay.
+        A reset sends a learner back to the first evening of their level. Only their course progress
+        goes. Their deck, its words, the dictionary and their review history all stay.
       </p>
 
       {rows.length === 0 ? (

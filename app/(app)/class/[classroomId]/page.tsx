@@ -107,10 +107,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
       title={classroom.name}
       lead={workplace
         ? (isTeacher
-            ? `Who is practicing, and who is on track for ${classroom.targetLevel}.`
-            : `Your group, working toward ${classroom.targetLevel}.`)
+            ? `Who's practicing, and who's on track for ${classroom.targetLevel}.`
+            : `Your group, working toward ${classroom.targetLevel} together.`)
         : (isTeacher
-            ? "Who is keeping up, and what the class as a whole keeps getting wrong."
+            ? "Who's keeping up, and what the whole class keeps tripping over."
             : "How your class is doing this week.")}
       actions={
         <Link
@@ -125,7 +125,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
       <Stack>
         {classroom.archived && (
           <Note tone="hard">
-            This class is archived. The join code no longer works. Everything already here stays.
+            This class has been archived, so the join code doesn&rsquo;t work any more. Everything here stays put.
           </Note>
         )}
 
@@ -141,7 +141,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                   {classroom.code}
                 </p>
                 <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  {workplace ? "Colleagues" : "Students"} enter this under Classes, then Join.
+                  {workplace ? "Colleagues" : "Students"} type this in under Classes, then Join.
                 </p>
               </div>
               <CopyCode code={classroom.code} />
@@ -163,10 +163,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           <SectionTitle hint="this week">{isTeacher ? "Roster" : "Class leaderboard"}</SectionTitle>
           {roster.entries.length <= 1 ? (
             <Empty
-              title={isTeacher ? "Nobody has joined yet" : "You are the first one here"}
+              title={isTeacher ? "Nobody has joined yet" : "You're the first one here"}
               body={isTeacher
-                ? "Put the join code on the board. This fills as people join and review."
-                : "This fills as your classmates join."}
+                ? "Put the join code on the board. People appear here as they join and start reviewing."
+                : "Your classmates will show up here as they join."}
             />
           ) : (
             <ul className="flex flex-col gap-1.5">
@@ -258,8 +258,8 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                 ))}
               </ul>
               <Explain label="How this is counted">
-                Combined across everyone who has answered a case-form card. Nobody but the learner
-                who gave an answer can see it on its own.
+                Added up across everyone who has answered a case card. Only the learner who gave
+                an answer can ever see it on its own.
               </Explain>
             </Card>
           </section>
@@ -273,8 +273,8 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             <Card>
               <AssignUnit classroomId={classroomId} units={units} />
               <Explain label="What this does to their deck">
-                Lands as a task in each student&rsquo;s own list, with a link to the unit. Nobody&rsquo;s
-                deck is changed, they choose when to add the words.
+                Each student gets it as a task in their own list, with a link to the unit. Nobody&rsquo;s
+                deck changes. They choose when to add the words.
               </Explain>
             </Card>
 

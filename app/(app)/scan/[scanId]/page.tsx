@@ -93,7 +93,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
       <Page eyebrow="From paper" title={scan.title}>
         <Empty
           title="No dictionary words on this page"
-          body="Nothing read off it matches an entry now, so there is nothing here to learn."
+          body="None of the words on it match the dictionary now, so there's nothing here to learn."
           action={<ButtonLink href="/scan" variant="primary">All pages</ButtonLink>}
         />
       </Page>

@@ -82,7 +82,7 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
           className="rounded-[var(--r-lg)] border border-dashed px-4 py-10 text-center text-sm"
           style={{ borderColor: "var(--rule)", color: "var(--ink-3)" }}
         >
-          No cards match that. Try another filter.
+          No cards match that. Try a different filter.
         </p>
       ) : (
         /* One list with hairlines between the rows, rather than a bordered and
@@ -111,7 +111,7 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
         </div>
       ) : total > rows.length && visible.length > 0 ? (
         <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-          These are the {rows.length} cards due soonest, of {total}. Search to find the rest.
+          Showing the {rows.length} cards due soonest, out of {total}. Search to find the rest.
         </p>
       ) : null}
     </div>

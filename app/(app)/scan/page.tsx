@@ -45,7 +45,7 @@ export default async function ScanPage() {
     <Page route="/scan"
       eyebrow="From paper"
       title="Scan a page"
-      lead="Photograph a word list or your homework, and study what is on it."
+      lead="Snap a word list or your homework, and turn it into cards you can practice."
     >
       <Stack>
         {!configured && (
@@ -64,11 +64,11 @@ export default async function ScanPage() {
             </span>
             <span className="min-w-0 flex-1 basis-[16rem]">
               <span className="font-display block text-xl font-bold" style={{ color: "var(--ink)" }}>
-                The camera is off on this copy
+                The camera isn&rsquo;t set up here
               </span>
               <span className="mt-1 block text-sm" style={{ color: "var(--ink-2)" }}>
-                Reading a photo needs an AI key, which nobody has set up here. The words on your page
-                can still come in as a pasted list.
+                Reading a photo needs an AI key, and this copy doesn&rsquo;t have one. You can still
+                paste the words from your page in as a list.
               </span>
             </span>
             <ButtonLink href="/settings?tab=words#import" variant="primary">
@@ -87,7 +87,7 @@ export default async function ScanPage() {
           {scans.length === 0 ? (
             <Empty
               title="No pages yet"
-              body="Photograph a vocabulary list and it lands here as a set you can drill."
+              body="Take a photo of a vocabulary list and it'll show up here, ready to practice."
             />
           ) : (
             <ul className="flex flex-col gap-2">

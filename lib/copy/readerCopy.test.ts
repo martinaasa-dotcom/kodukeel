@@ -448,10 +448,6 @@ const CAPTION_EXEMPT = new Set([
   // The same sentence in the round next door, where a dictation with no audio
   // becomes a copying exercise and has to say so.
   "app/(app)/review/dictation/DictationSession.tsx",
-  // "This deletes the N reviews currently in the app." The one warning before
-  // the one action here that cannot be undone. A disclosure over that is a
-  // warning somebody can restore a backup without having read.
-  "app/(app)/settings/RestorePanel.tsx",
   // The setup guide, which is a screen whose whole subject is the
   // instructions: hiding them behind a press hides the screen.
   "app/(app)/settings/SetupGuide.tsx",

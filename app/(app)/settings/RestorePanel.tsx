@@ -38,7 +38,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
     summary and no error, and a button that appeared to do nothing.
   */
   const explain = (cause: unknown) =>
-    `That could not be completed, and nothing has been changed. ${
+    `That didn't work, so nothing has been changed. ${
       cause instanceof Error ? cause.message : ""
     }`.trim();
 
@@ -103,9 +103,9 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Restore from a backup file: after moving to a new computer, or to undo something. You
-        never really know a backup works until you have tried restoring it, so it is worth doing
-        once while nothing is at stake.
+        Bring back a backup file, after moving to a new computer or to undo something. You never
+        really know a backup works until you&rsquo;ve tried it, so it&rsquo;s worth a practice run
+        while nothing is at stake.
       </p>
 
       <div className="mt-3">
@@ -142,9 +142,8 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
               </>
             ) : (
               <>
-                and nothing else. A backup written before those were included holds no
-                settings, conversations or level checks, so this restore leaves yours
-                as they are rather than emptying them.
+                and nothing else. Older backups didn&rsquo;t include settings, conversations or
+                level checks, so yours stay just as they are.
               </>
             )}
           </p>
@@ -155,9 +154,9 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
               <label className="flex cursor-pointer items-start gap-2.5 text-sm">
                 <input type="radio" name="mode" checked={mode === "merge"} onChange={() => setMode("merge")} className="mt-1" />
                 <span>
-                  <span style={{ color: "var(--ink)" }}>Merge, nothing is deleted</span>
+                  <span style={{ color: "var(--ink)" }}>Merge, and delete nothing</span>
                   <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                    Adds what is missing and leaves everything else alone. Safe to run twice.
+                    Adds whatever&rsquo;s missing and leaves everything else alone. Safe to run twice.
                   </span>
                 </span>
               </label>
@@ -166,8 +165,8 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
                 <span>
                   <span style={{ color: "var(--ink)" }}>Replace everything</span>
                   <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                    Wipes what is here first. Only use this if you want to end up with exactly
-                    what is in the backup.
+                    Clears out what&rsquo;s here first. Only use this if you want exactly what&rsquo;s
+                    in the backup, and nothing else.
                   </span>
                 </span>
               </label>
@@ -182,8 +181,8 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
               <p className="flex items-start gap-2 text-xs">
                 <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
                 <span>
-                  This deletes the {currentReviews} review{currentReviews === 1 ? "" : "s"} currently
-                  in the app. Review history cannot be recreated. Type <strong>replace</strong> to confirm.
+                  This deletes the {currentReviews} review{currentReviews === 1 ? "" : "s"} in the app
+                  now, and review history can&rsquo;t be rebuilt. Type <strong>replace</strong> to confirm.
                 </span>
               </p>
               <input
