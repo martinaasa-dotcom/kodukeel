@@ -10843,6 +10843,14 @@ it leaves the section unmeasured rather than failed. Leaving a box empty and pre
 still allowed and is honest, because it marks nothing wrong that was not. The one skip left in
 first run is the *goal* screen, whose answers only feed the plan.
 
+**"I don't know" is an answer and a skip is not, and the difference is that it counts.** A
+four-option question rewards a guess at one in four, so a level read off guesses was flattering
+whoever guessed luckily. Every choice question offers it under the options, `0` presses it, and it
+travels as its own kind of answer (`unsure`) rather than as an empty option, so the intent is in the
+data and not in `indexOf` returning -1. It marks zero on every skill through `creditFor` and is never
+`skipped`, which is honoured on listening alone: it cannot be used to leave a section unmeasured. The
+correct option is still shown after it, since the check is spent teaching too.
+
 **Feedback explains the sentence, it does not name a case, and it took two goes to stop.** The
 first version read "Here kõhn is in the nimetav, the nominative. The dictionary form. The subject
 of a sentence, and what you point at.", which is three sentences of grammar vocabulary at somebody

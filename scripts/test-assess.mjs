@@ -21,7 +21,7 @@ const B = baseUrl();
   Raised by one: first run now asks what language a meaning should be given in,
   on the screen before any Estonian is shown.
 */
-const { check, absent, done } = suite("Level check", { floor: 48 });
+const { check, absent, done } = suite("Level check", { floor: 51 });
 
 const browser = await launchChromium();
 const context = await browser.newContext({ viewport: { width: 1280, height: 1100 } });
@@ -60,6 +60,10 @@ let sawWriting = false;
 let sawWritingGap = false;
 let saidNotScored = false;
 let namedACase = false;
+let triedUnsure = false;
+let sawUnsureButton = false;
+let unsureSaidNotSure = false;
+let unsureShowedAnswer = false;
 
 /*
   The Estonian case names, which may appear in an explanation after an answer
@@ -162,6 +166,26 @@ for (let step = 0; step < 200; step++) {
         namedACase = true;
       }
     }
+    /*
+      "I don't know" is offered on a choice question, marks nothing right,
+      says so in words and still shows what the answer was. Pressed once, on
+      the first question that offers it, so the rest of the sitting still
+      answers and the level check below is measuring a real paper.
+    */
+    if (!triedUnsure) {
+      triedUnsure = true;
+      const idk = page.getByRole("button", { name: /I don.t know/ });
+      sawUnsureButton = (await idk.count()) > 0 && (await idk.first().isEnabled());
+      if (sawUnsureButton) {
+        await idk.first().click();
+        await page.waitForTimeout(150);
+        unsureSaidNotSure = (await page.getByText("Not sure", { exact: true }).count()) > 0;
+        unsureShowedAnswer = (await page.locator("main .choice-btn svg.lucide-check").count()) > 0;
+        const nextAfter = page.getByRole("button", { name: /Next question/ });
+        if (await nextAfter.count()) { asked++; await nextAfter.click(); await page.waitForTimeout(120); }
+        continue;
+      }
+    }
     await choice.first().click();
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
@@ -186,6 +210,9 @@ check("a paper can be sat from end to end", asked >= 4, `${asked} questions answ
 check("the paper reaches the writing section", sawWriting);
 check("the paper reaches the speaking section", sawSpeaking);
 check("speaking says out loud that it is not scored", saidNotScored);
+check("a choice question offers \"I don't know\"", sawUnsureButton);
+check("pressing it says \"Not sure\" rather than calling it right or wrong", unsureSaidNotSure);
+check("and still shows which option was the answer", unsureShowedAnswer);
 check("no question asks a learner to name a case", !namedACase);
 check("the writing section is a gap in a real sentence, not an essay prompt", sawWritingGap);
 

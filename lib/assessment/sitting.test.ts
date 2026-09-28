@@ -73,6 +73,18 @@ describe("marking a sitting on the server", () => {
     expect(skipped.credit).toBe(0);
   });
 
+  it("marks \"I don't know\" as no credit on every skill, and never as a skip", () => {
+    const choice = paper.find((i) => i.kind === "choice")!;
+    for (const item of [choice, write]) {
+      const r = responseFor(item, { itemId: item.id, given: { kind: "unsure" }, ms: 5 });
+      expect(r.credit).toBe(0);
+      expect(r.skipped).toBeUndefined();
+    }
+    // It is counted at its band like any other answer, so it drags a band down.
+    const counted = responsesFrom(paper, [{ itemId: choice.id, given: { kind: "unsure" }, ms: 5 }]);
+    expect(counted).toHaveLength(1);
+  });
+
   it("gives speaking its rating and no credit, whatever the answer says", () => {
     const r = responseFor(speak, { itemId: "s1", given: { kind: "rated", rating: 4 }, ms: 5 });
     expect(r).toMatchObject({ credit: 0, selfRating: 4 });
