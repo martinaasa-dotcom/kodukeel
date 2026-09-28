@@ -51,7 +51,7 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
         Put aside
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        Words you said were too complicated. They come back on their own, or now.
+        Words you said were too hard for now. They&apos;ll come back by themselves, or you can bring them back today.
       </p>
 
       <ul className="mt-4 flex flex-col gap-2">
@@ -104,7 +104,7 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
                   // Only on a yes. A row that vanished on a failed write would
                   // tell somebody a word is back when the deck disagrees.
                   if (!result?.ok) {
-                    setSaid({ ok: false, text: `${word.lemma} could not be brought back. Try again in a moment.` });
+                    setSaid({ ok: false, text: `Couldn't bring back ${word.lemma}. Try again in a moment.` });
                     return;
                   }
                   setSaid({ ok: true, text: `${word.lemma} is back in your reviews.` });

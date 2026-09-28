@@ -182,8 +182,8 @@ export function DiacriticBar({
             disabled={pending}
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => hide(e.currentTarget)}
-            title="Hide these. Settings turns them back on."
-            aria-label="Hide the Estonian letters. Settings turns them back on."
+            title="Hide these. You can bring them back in Settings."
+            aria-label="Hide the Estonian letters. You can bring them back in Settings."
             className="press tap-tint flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
             style={{ color: "var(--ink-3)" }}
           >

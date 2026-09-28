@@ -18,16 +18,16 @@ import { Lettered } from "@/components/HeroLetters";
  */
 
 const SKILL_META: Record<string, { icon: typeof BookOpen; label: string; note: string }> = {
-  reading: { icon: BookOpen, label: "Reading", note: "Words, endings and sentences from the dictionary." },
+  reading: { icon: BookOpen, label: "Reading", note: "Words, endings and sentences, all from the dictionary." },
   listening: { icon: Headphones, label: "Listening", note: "Estonian audio with nothing written down." },
-  writing: { icon: PenLine, label: "Writing", note: "Your own sentence, checked for the form it needed to contain." },
-  speaking: { icon: Mic, label: "Speaking", note: "Your own rating. Never scored here, and never part of the level." },
+  writing: { icon: PenLine, label: "Writing", note: "The missing word you typed, checked for the form the sentence needed." },
+  speaking: { icon: Mic, label: "Speaking", note: "How you rated yourself. It's never scored, and never part of your level." },
 };
 
 const CONFIDENCE_COPY: Record<Confidence, string> = {
-  rough: "Very few questions, so treat this as a first guess rather than a measurement.",
-  indicative: "Enough questions to point in a direction, not enough to be sure of the letter.",
-  reasonable: "Enough questions to be worth acting on, though it is still not an exam.",
+  rough: "That's not many questions, so treat this as a first guess rather than a measurement.",
+  indicative: "Enough to point in the right direction, but not enough to be sure of the exact level.",
+  reasonable: "Enough to be worth acting on, though it's still not an exam.",
 };
 
 function SkillRow({ result }: { result: SkillResult }) {
@@ -89,25 +89,25 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
           </p>
           {result.nearly && (
             <p className="mt-2 text-lg font-semibold" style={{ color: "var(--accent-deep)" }}>
-              A confident {overall}, and nearly {levelLabel(result.nearly)}.
+              A solid {overall}, and nearly {levelLabel(result.nearly)}.
             </p>
           )}
           <p className="mt-3 max-w-[58ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {result.overall === null
-              ? "Nothing was measured, so there is no level to report. That is an honest blank rather than a zero."
+              ? "Nothing got measured, so there's no level to show. That's a blank, not a zero."
               : result.overall === PRE_A1
-                ? "You have not reached the first band yet, which is where almost everybody starts. It is a starting point, not a verdict."
+                ? "You're not at the first level yet, which is where almost everybody starts. It's a starting point, not a verdict."
                 : result.nearly
-                  ? "Your skills averaged out between two bands, so this is the lower one. You are at the top of it rather than the bottom."
-                  : "That is the average of the skills this measured. One weak section does not pull the whole level down, and one strong one does not carry it."}
+                  ? "Your skills averaged out between two levels, so this shows the lower one. You're near the top of it, not the bottom."
+                  : "This is the average of the skills we measured. One weak section doesn't drag the whole level down, and one strong one doesn't carry it."}
             {result.ceiling && result.ceiling !== result.overall && (
-              <> Your strongest measured skill looks like {levelLabel(result.ceiling)}, which is worth knowing too.</>
+              <> Your strongest skill looks like {levelLabel(result.ceiling)}, which is good to know too.</>
             )}
           </p>
           <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
             {result.itemsAnswered} scored {result.itemsAnswered === 1 ? "question" : "questions"}
             {result.decisive > 0 && result.decisive < result.itemsAnswered
-              ? `, ${result.decisive} of them at the levels this turned on`
+              ? `, ${result.decisive} of them at the levels that decided it`
               : ""}.{" "}
             {CONFIDENCE_COPY[result.confidence]}
           </p>
@@ -127,10 +127,10 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
             the longest thing on the screen and said less than its first words. */}
         <ul className="grid gap-3 sm:grid-cols-2">
           {[
-            { icon: <Award size={17} aria-hidden />, head: "Not a certificate", body: "The exams that count are the state's, at A2 to C1. This is half an hour in an app." },
-            { icon: <MicOff size={17} aria-hidden />, head: "Not a score of your speaking", body: "Only how confident you said you felt, and left out of the level." },
-            { icon: <MessagesSquare size={17} aria-hidden />, head: "Not a conversation", body: "Reading in your own time is easier than following Estonian at speed." },
-            { icon: <BookOpen size={17} aria-hidden />, head: "Built from this dictionary", body: "Broad, but not the whole language." },
+            { icon: <Award size={17} aria-hidden />, head: "Not a certificate", body: "The exams that count are the state ones, from A2 to C1. This was half an hour in an app." },
+            { icon: <MicOff size={17} aria-hidden />, head: "Not a score of your speaking", body: "Just how confident you said you felt, and it's left out of your level." },
+            { icon: <MessagesSquare size={17} aria-hidden />, head: "Not a conversation", body: "Reading at your own pace is easier than following Estonian at full speed." },
+            { icon: <BookOpen size={17} aria-hidden />, head: "Built from this dictionary", body: "It covers a lot, but not the whole language." },
           ].map((limit) => (
             <li key={limit.head} className="flex items-start gap-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>

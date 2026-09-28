@@ -62,7 +62,7 @@ export function WeakestCases({ cases, empty }: {
           <li key={c.grammCase} className="flex min-w-0 items-center gap-1">
             <Link
               href={`/review?case=${c.grammCase}`}
-              aria-label={`Drill the ${name}${asks ? `, which asks ${asks}` : ""}, currently ${c.accuracy} percent over ${c.total} reviews`}
+              aria-label={`Practise the ${name}${asks ? `, which asks ${asks}` : ""}. Right ${c.accuracy} percent of the time over ${c.total} reviews`}
               className="pill tap-tint flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1 rounded-[var(--r)] px-2 py-1.5 text-sm"
             >
               {/*

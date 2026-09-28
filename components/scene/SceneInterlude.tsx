@@ -198,7 +198,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
         />
 
         <p className="scene-told label-xs" style={{ color: "var(--accent-deep)", "--told-at": 0 } as CSSProperties}>
-          Time passes
+          A little later
         </p>
 
         <p
@@ -210,7 +210,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
         </p>
 
         <p className="scene-place text-sm" style={{ color: "var(--ink-2)" }}>
-          The rest of the conversation happens here.
+          The conversation picks up from here.
         </p>
 
         <span

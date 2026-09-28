@@ -141,7 +141,7 @@ function useCarryOn(focus: ModuleFocus) {
       const result = await advanceCourseStep(focus.programmeId, focus.dayId, focus.stepId)
         .catch(() => null);
       if (!result) {
-        setFailed("That did not reach the server, so this step is not ticked.");
+        setFailed("That didn't reach us, so this step isn't ticked yet.");
         return;
       }
       if (!result.ok) { setFailed(result.error); return; }
@@ -189,12 +189,12 @@ function ModuleNext({ focus, steps }: { focus: ModuleFocus; steps: readonly Modu
       </Button>
       {focus.derived && (
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          This step ticks itself from your answers, not from this button.
+          This step ticks itself off as you answer. This button just moves you on.
         </p>
       )}
       {failed && (
         <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
-          {failed} Nothing was changed.
+          {failed} Nothing has changed.
         </p>
       )}
     </div>
@@ -396,7 +396,7 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
           <Link
             href="/"
             data-module-leave=""
-            aria-label="Leave the module and go to Today"
+            aria-label="Leave tonight's module and go back to Today"
             className="tap-tint inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 text-sm font-semibold"
             style={{ color: "var(--ink-3)" }}
           >
@@ -449,12 +449,12 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
         */}
         {focus.derived && (
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            This step ticks itself from your answers, not from this button.
+            This step ticks itself off as you answer. This button just moves you on.
           </p>
         )}
         {failed && (
           <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
-            {failed} Nothing was changed, and the reading is still here.
+            {failed} Nothing has changed, and the page is still here.
           </p>
         )}
       </div>

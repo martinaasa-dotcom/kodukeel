@@ -38,10 +38,10 @@ import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
 
 /** What each tier means, in the learner's terms rather than the rule's. */
 const EXPLAINS: Record<Mastery, string> = {
-  mastered: `Right ${MASTERY_CORRECT} times, across the forms this word has.`,
-  almost: "Coming along. A couple more forms and these are done.",
-  struggling: "These keep going wrong. Flash cards is the round for them.",
-  learning: "Met, but not answered enough times to say either way.",
+  mastered: `You've got these right ${MASTERY_CORRECT} times, in the different forms each word has.`,
+  almost: "Nearly there. Get them right in a couple more forms and they're yours.",
+  struggling: "These keep tripping you up. A round of flash cards is the best help for them.",
+  learning: "You've met these, but haven't answered them often enough yet to tell.",
 };
 
 export function MasteryBoard({
@@ -57,7 +57,7 @@ export function MasteryBoard({
           ))}
         </div>
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          Mastered is right {MASTERY_CORRECT} times, in three different forms.
+          A word counts as mastered once you get it right {MASTERY_CORRECT} times, in three different forms.
         </p>
       </Card>
 
@@ -91,7 +91,7 @@ function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; to
 
       {total > words.length && (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-          The {words.length} you have worked most, of {total}.
+          Showing the {words.length} you&apos;ve practised most, out of {total}.
         </p>
       )}
     </Card>

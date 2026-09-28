@@ -177,7 +177,7 @@ for (let step = 0; step < 200; step++) {
     what a deployment with no speech service offers, and this driver takes it
     only when the options are genuinely unpressable.
   */
-  const noAudio = page.getByRole("button", { name: /The audio will not play/ });
+  const noAudio = page.getByRole("button", { name: /The audio won.t play/ });
   if (await noAudio.count()) { await noAudio.first().click(); await page.waitForTimeout(200); continue; }
   break;
 }

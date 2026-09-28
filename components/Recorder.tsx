@@ -94,7 +94,7 @@ export function Recorder({ onRecorded, targetSeconds }: {
   if (state === "unavailable") {
     return (
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-        No microphone here. Say it out loud anyway, then compare with the native voice.
+        There&apos;s no microphone to record with. Say it out loud anyway, then listen to the native voice and compare.
       </p>
     );
   }

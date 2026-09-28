@@ -102,7 +102,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
   return (
     <Card>
       <SectionTitle hint={`${credited} of ${total} words`}>
-        {arrived ? `You have reached ${target}` : `On the way to ${target}`}
+        {arrived ? `You've reached ${target}` : `On the way to ${target}`}
       </SectionTitle>
 
       {/*
@@ -200,7 +200,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: "linear-gradient(90deg, var(--sky) 0%, var(--accent) 100%)" }}
             />
-            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{verified}</span> confirmed by your reviews</span>
+            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{verified}</span> proven in your reviews</span>
           </span>
           <span className="inline-flex items-center gap-2">
             <span
@@ -208,7 +208,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: HATCH }}
             />
-            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{assumed}</span> counted from your level, not checked yet</span>
+            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{assumed}</span> taken as known from your level, not checked yet</span>
           </span>
         </p>
       )}
@@ -252,7 +252,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
             <span lang={wantsEnglish ? undefined : "et"}>
               {stop.level}, {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}
             </span>
-            {stop.state === "passed" ? ", done. " : stop.state === "here" ? `, ${stop.pct}%. ` : stop.state === "assumed" ? `, counted from your level, ${stop.verified} of ${stop.words} confirmed. ` : ". "}
+            {stop.state === "passed" ? ", done. " : stop.state === "here" ? `, ${stop.pct}%. ` : stop.state === "assumed" ? `, taken as known from your level, ${stop.verified} of ${stop.words} proven so far. ` : ". "}
             {stop.state === "ahead" ? `${stop.parts} parts. ` : ""}{stop.arrival}
           </li>
         ))}
@@ -269,21 +269,21 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
             ? "You know every word this level asks for. None of them count as new any more."
             : here
               ? <>
-                  {pct}% of the way from the start of {start} to {target}. The checked share moves
-                  when a word sticks, not when an evening is ticked, so it follows your review
-                  queue{partLabel ? <>, and you are on {partLabel}</> : null}.
+                  You&apos;re {pct}% of the way from the start of {start} to {target}. The solid part
+                  grows when a word really sticks, not when you tick off an evening, so it follows
+                  your reviews{partLabel ? <>. You&apos;re on {partLabel}</> : null}.
                 </>
               : standing
-                ? `Every level up to ${target} is counted as yours. What is left is checking them, which is what the evenings do.`
-                : "Pick a target in Settings and this becomes the one number worth watching."}
+                ? `Every level up to ${target} counts as yours already. What's left is proving it, and that's what the evenings are for.`
+                : "Pick a target in Settings and this becomes the one number worth keeping an eye on."}
           {standing && assumed > 0 && (
             <>
               {" "}
               {standing.kind === "measured"
                 ? `Your level check put you at ${standing.level}, so `
-                : `You told us you are at ${standing.level}, so `}
-              {joinLevels(assumedLevels)} {assumedLevels.length === 1 ? "is" : "are"} counted as
-              yours. Nothing below your own level is waiting to be done again.
+                : `You told us you're at ${standing.level}, so `}
+              {joinLevels(assumedLevels)} {assumedLevels.length === 1 ? "counts" : "count"} as
+              yours. You won&apos;t have to redo anything below your level.
             </>
           )}
         </Explain>

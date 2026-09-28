@@ -166,7 +166,7 @@ export function AnuPanel({
             answeredBy
               ? <Provenance compact label={answeredBy} answered />
               : <p className="text-2xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-                  Ask about anything on this screen.
+                  Ask me about anything on this screen.
                 </p>
           )}
         </div>
@@ -195,10 +195,10 @@ export function AnuPanel({
       <div className="scroll-host flex flex-1 flex-col overflow-y-auto px-5 py-5">
         {!configured ? (
           <Empty
-            title={readerCanConfigure ? "Anu needs a key" : "Anu is not available"}
+            title={readerCanConfigure ? "Anu needs a key" : "Anu isn't available here"}
             body={readerCanConfigure
-              ? "Everything else works without one. Settings has a walkthrough for a free key."
-              : "Everything else here works without her."}
+              ? "Everything else works without one. Settings walks you through getting a free key."
+              : "Don't worry, everything else here works without her."}
             action={readerCanConfigure && (
               <ButtonLink href="/settings">Open Settings</ButtonLink>
             )}

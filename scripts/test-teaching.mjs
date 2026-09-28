@@ -517,7 +517,7 @@ check("a word that breaks more than one pattern says which",
 await page.goto(`${B}/dictionary?q=tuba`, { waitUntil: "networkidle" });
 const entryBody = (await page.textContent("body")) ?? "";
 check("the entry says where that word breaks the pattern",
-  /Where this word breaks the pattern/.test(entryBody));
+  /Where this word breaks the rules/.test(entryBody));
 /*
   And it names which of the two is which, which the first version did not.
   It printed the pair under a sentence about half the dictionary having a

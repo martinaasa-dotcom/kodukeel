@@ -348,11 +348,11 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
           type="button"
           onClick={turnOff}
           disabled={leaving}
-          title="Stop underlining words. Settings turns it back on."
+          title="Stop underlining words. You can switch it back on in Settings."
           /* The accessible name carries the sentence the tooltip does, because
              a tooltip is a hover and this app is measured on a phone. It opens
              with the visible words, which is what "label in name" asks for. */
-          aria-label="Stop underlining words. Settings turns it back on."
+          aria-label="Stop underlining words. You can switch it back on in Settings."
           /* Inset by its own padding rather than pulled back by a negative
              margin: this panel has none to absorb one, and a control hanging
              outside the box it belongs to is what `test-containment.mjs`

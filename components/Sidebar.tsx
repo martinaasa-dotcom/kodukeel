@@ -501,7 +501,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
           className="fixed inset-0 z-[100] flex flex-col justify-end md:hidden"
           role="dialog"
           aria-modal="true"
-          aria-label="Everywhere else"
+          aria-label="More places to go"
         >
           <button
             type="button"
@@ -793,9 +793,9 @@ function SignOutButton() {
     await flush();
     const stranded = await outboxSize();
     if (stranded > 0) {
-      const grades = stranded === 1 ? "1 grade" : `${stranded} grades`;
+      const grades = stranded === 1 ? "1 answer" : `${stranded} answers`;
       const ok = window.confirm(
-        `${grades} from this device have not reached your account yet. Signing out now loses them. Sign out anyway?`,
+        `${grades} on this device ${stranded === 1 ? "hasn't" : "haven't"} reached your account yet. If you sign out now, ${stranded === 1 ? "it will be" : "they will be"} lost. Sign out anyway?`,
       );
       if (!ok) return;
     }
@@ -816,7 +816,7 @@ function SignOutButton() {
       error = failed;
     }
     if (error) {
-      window.alert("The sign-in service could not be reached, so you are still signed in. Try again once you are back online.");
+      window.alert("We couldn't reach the sign-in service, so you're still signed in. Try again once you're back online.");
       return;
     }
     await forgetThisDevice();

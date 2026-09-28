@@ -106,7 +106,7 @@ export function Heatmap({ days }: { days: DayBucket[] }) {
         </div>
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-3 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{total} reviews on {active} days in the last {days.length}</span>
+        <span>{total} reviews, spread over {active} of the last {days.length} days</span>
         <span className="ml-auto flex items-center gap-1.5">
           Quiet
           {[0, 1, 2, 3, 4].map((l) => (

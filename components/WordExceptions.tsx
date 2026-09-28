@@ -36,12 +36,12 @@ export function WordExceptions({ exceptions }: { exceptions: readonly WordExcept
   return (
     <div>
       <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-        Where this word breaks the pattern
+        Where this word breaks the rules
       </h3>
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         {exceptions.length === 1
-          ? "One form here is not what the endings would give you."
-          : `${exceptions.length} forms here are not what the endings would give you.`}
+          ? "One form here isn't what the usual endings would give you."
+          : `${exceptions.length} forms here aren't what the usual endings would give you.`}
       </p>
       <ul className="flex flex-col gap-2">
         {exceptions.map((ex) => (
@@ -125,7 +125,7 @@ export function AlsoRight(
   return (
     <p className={className} style={{ color: "var(--ink-3)" }}>
       <span lang="et">{short}</span> is the short one, and{" "}
-      <span lang="et">{long}</span> is the long one the ending gives you. Both are right.
+      <span lang="et">{long}</span> is the long one you get from the ending. Both are right.
     </p>
   );
 }

@@ -34,7 +34,7 @@ import { AnuProse } from "./Prose";
 export const CHIPS = [
   { label: "Break this sentence down", short: "Break it down", prompt: "Break this Estonian sentence down piece by piece, labeling each case: " },
   { label: "Which case, and why?", short: "Which case?", prompt: "Which case should I use here, and what is the rule? " },
-  { label: "Object case check", short: "Object case", prompt: "Is the object case right in this sentence, total or partial? Explain why: " },
+  { label: "Is my object right?", short: "Object case", prompt: "Is the object case right in this sentence, total or partial? Explain why: " },
   { label: "Explain this gradation", short: "Gradation", prompt: "Explain the consonant gradation in this word and name the pattern: " },
   { label: "Correct my Estonian", short: "Correct me", prompt: "Correct my Estonian and explain each change: " },
   { label: "Quiz me", short: "Quiz me", prompt: "Quiz me with five short Estonian questions at my level, one at a time." },
@@ -174,7 +174,7 @@ export function AnuOffline({ online, compact = false }: { online: boolean; compa
               <p className="font-semibold" style={{ color: "var(--ink)" }}>Anu needs a connection.</p>
               {!compact && (
                 <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-                  What she has already said stays here. Ask her again once you are back online.
+                  Everything she&apos;s already said stays here. Ask her again once you&apos;re back online.
                 </p>
               )}
             </div>
@@ -198,7 +198,7 @@ export function AnuFailure({ failure }: { failure: string | null }) {
   if (!failure) return null;
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <p className="text-sm" style={{ color: "var(--ink-3)" }}>Keeps happening?</p>
+      <p className="text-sm" style={{ color: "var(--ink-3)" }}>Still not working?</p>
       <SuggestFix
         category="BROKEN"
         trigger={`Asking Anu failed: ${failure}`}
@@ -335,7 +335,7 @@ function UnverifiedNotice({ words }: { words: string[] }) {
       className="mt-3 flex flex-wrap items-baseline gap-x-1.5 gap-y-1 rounded-[var(--r)] px-4 py-3 text-sm"
       style={{ background: "var(--again-soft)", color: "var(--again-ink)" }}
     >
-      <span>{plural ? "Anu used words above" : "Anu used a word above"} the dictionary does not recognize yet:</span>
+      <span>{plural ? "Anu used some words above" : "Anu used a word above"} that the dictionary doesn&apos;t know yet:</span>
       <span>
         {words.map((w, i) => (
           <span key={w}>
@@ -344,7 +344,7 @@ function UnverifiedNotice({ words }: { words: string[] }) {
           </span>
         ))}.
       </span>
-      <span>Check {plural ? "them" : "it"} before you trust {plural ? "them" : "it"}.</span>
+      <span>Double-check {plural ? "them" : "it"} before you rely on {plural ? "them" : "it"}.</span>
     </div>
   );
 }
@@ -439,7 +439,7 @@ export function SentenceCheck({
       <input
         value={meaning}
         onChange={(e) => onMeaning(e.target.value)}
-        placeholder="What you meant, in English (optional but it helps)"
+        placeholder="What you meant, in English (optional, but it helps)"
         aria-label="What you meant, in English"
         className="field-lg mt-2 w-full text-base"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
@@ -466,7 +466,7 @@ export function SentenceCheck({
         </Button>
         {!compact && (
           <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-            Anu names the rule before the fix, and says so when she is unsure rather than guessing.
+            Anu tells you the rule before the fix, and says so when she&apos;s not sure instead of guessing.
           </span>
         )}
       </div>

@@ -47,8 +47,8 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
       <Card className={className}>
         <SectionTitle>Word of the day</SectionTitle>
         <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          You have met every word this panel can offer today, which is a first. Look one up in the
-          dictionary, and there will be something new here tomorrow.
+          You&apos;ve already met every word we could pick for today, which is a first. Have a
+          browse in the dictionary, and there&apos;ll be a new one here tomorrow.
         </p>
         <Link
           href="/dictionary"
@@ -161,8 +161,8 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
         {collection.kept > 0 && (
           <p className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
             <Sprout size={13} aria-hidden />
-            {collection.kept} kept
-            {collection.streak > 1 ? `, ${collection.streak} days running` : ""}
+            {collection.kept} kept so far
+            {collection.streak > 1 ? `, ${collection.streak} days in a row` : ""}
           </p>
         )}
       </div>
