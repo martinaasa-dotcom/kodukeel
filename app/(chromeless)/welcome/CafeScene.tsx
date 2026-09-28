@@ -1,49 +1,72 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, RotateCcw, Send } from "lucide-react";
-import { SceneVignette } from "@/components/scene/SceneVignette";
+import { ArrowRight, Check, Citrus, Clock, Coffee, GlassWater, Leaf, RotateCcw, type LucideIcon } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { NOT_REACHED } from "@/lib/copy/values";
-import type { DemoLine, DemoReply, DemoTurn } from "@/lib/progress/demoScene";
+import type { DemoOption, DemoReply, DemoTurn } from "@/lib/progress/demoScene";
 import { rememberOrdered } from "./visit";
 
 interface Said {
   readonly who: "them" | "you" | "app";
   readonly text: string;
-  readonly lang?: "et";
+  /** The English under a pick the visitor made, since they have no Estonian yet. */
+  readonly en?: string;
 }
 
-/** A fresh seed per visit, so two people in one office are dealt two different cards. */
+/** What each of the six steps is, for the meter along the top. */
+const STEP_LABELS = ["Hello", "Order", "Size", "Bill", "Pay", "Bye"] as const;
+
+/** A drawing per drink on the board, keyed by the scene's own lemmas. */
+const DRINK_ICON: Record<string, LucideIcon> = { kohv: Coffee, tee: Leaf, vesi: GlassWater, mahl: Citrus };
+
+/** How long they take to answer, so a line arrives rather than appears. */
+const TYPING_MS = 750;
+
+/** A fresh seed per visit, so two people in one office are handed two different mornings. */
 function freshSeed(): string {
   return (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`).replace(/[^A-Za-z0-9-]/g, "").slice(0, 36);
+}
+
+function reducedMotion(): boolean {
+  return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 }
 
 /**
  * ORDER A DRINK, HERE, BEFORE SIGNING UP FOR ANYTHING.
  *
- * The café scene the app rehearses, played through the same machinery a
- * signed-in run is (`app/api/demo-scene/route.ts`). What is added for a
- * stranger is the one thing a stranger lacks, which is any Estonian at all:
- * the words the beat would take sit under the box as keys to press, each one
- * the scene's own request as the dictionary spells it with the dictionary's
- * English beside it. Typing is still there, and so is getting it slightly
- * wrong: the other side understands `kohv` where `kohvi` was due, says it back
- * the right way, and carries on, which is the thing this section exists to
- * show.
+ * The café scene the app rehearses, played through the same reader a
+ * signed-in run is marked by (`lib/progress/demoScene.ts`). A stranger has no
+ * Estonian, so here they pick rather than type, and every pick on offer is one
+ * the conversation was built to take: the tests walk all of them to the end.
+ * The panel says so, and says what the app does instead, which is let you
+ * type your own answer and understand you when the ending is wrong.
+ *
+ * THE CONVERSATION IS A WINDOW THAT KEEPS ITS SIZE. Each line used to grow the
+ * page, so a visitor reading down it was pushed further from everything under
+ * it at every turn. The thread is a box of fixed height that scrolls itself to
+ * the newest line by moving its own `scrollTop`, never the page, and it
+ * declares no `overscroll-behavior`, so a wheel over it that reaches either
+ * end carries on down the page rather than stopping dead (CLAUDE.md, "a page
+ * that scrolls holds no second scroller" is about exactly that contain rule).
  */
 export function CafeScene() {
   const [seed, setSeed] = useState<string | null>(null);
   const [turns, setTurns] = useState<DemoTurn[]>([]);
   const [said, setSaid] = useState<Said[]>([]);
+  const [queue, setQueue] = useState<Said[]>([]);
+  const [typing, setTyping] = useState(false);
   const [reply, setReply] = useState<DemoReply | null>(null);
-  const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const box = useRef<HTMLInputElement>(null);
-  const thread = useRef<HTMLOListElement>(null);
+  /** Dealt before anybody walks up, so the board has its drinks and prices on it. Held back until they do. */
+  const [opening, setOpening] = useState<Said[] | null>(null);
+  const [started, setStarted] = useState(false);
+  const stage = useRef<HTMLDivElement>(null);
+  const thread = useRef<HTMLDivElement>(null);
+  const picks = useRef<HTMLDivElement>(null);
 
-  const ask = async (nextSeed: string, nextTurns: DemoTurn[]) => {
+  const ask = async (nextSeed: string, nextTurns: DemoTurn[], hold = false) => {
     setBusy(true);
     setError(null);
     try {
@@ -58,12 +81,11 @@ export function CafeScene() {
         return false;
       }
       setReply(body);
-      setSaid((had) => [
-        ...had,
-        ...body.lines.map((line: DemoLine): Said =>
-          line.aside ? { who: "app", text: line.text } : { who: "them", text: line.text, lang: "et" }),
-      ]);
-      if (body.over && body.outcome && body.drink && body.met >= 2) rememberOrdered(body.drink);
+      const lines = body.lines.map((l): Said => ({ who: l.aside ? "app" : "them", text: l.text }));
+      if (hold) setOpening(lines);
+      else setQueue((had) => [...had, ...lines]);
+      const drink = body.menu.find((d) => d.lemma === body.ordered);
+      if (body.over && drink && body.met === body.beats) rememberOrdered(drink.en);
       return true;
     } catch {
       setError(NOT_REACHED);
@@ -73,177 +95,254 @@ export function CafeScene() {
     }
   };
 
-  const start = async () => {
+  /** A fresh morning: a new seed, a new board, nothing said yet. */
+  const deal = async () => {
     const s = freshSeed();
     setSeed(s);
     setTurns([]);
     setSaid([]);
-    setReply(null);
-    await ask(s, []);
+    setQueue([]);
+    setOpening(null);
+    return ask(s, [], true);
   };
 
-  const send = async (text: string) => {
-    const line = text.trim();
-    if (!line || !seed || !reply?.beatId || busy) return;
-    const turn: DemoTurn = { beatId: reply.beatId, said: line, heard: reply.heard };
-    const next = [...turns, turn];
-    setSaid((had) => [...had, { who: "you", text: line, lang: "et" }]);
-    setDraft("");
+  const walkUp = async () => {
+    if (!opening && !(await deal())) return;
+    setStarted(true);
+  };
+
+  // The first line is said once they are standing at the counter.
+  useEffect(() => {
+    if (started && opening) {
+      setQueue(opening);
+      setOpening(null);
+    }
+  }, [started, opening]);
+
+  const again = async () => {
+    setStarted(false);
+    setReply(null);
+    if (await deal()) setStarted(true);
+  };
+
+  // The board is dealt as the section comes into view, one read, and never on a render nobody sees.
+  useEffect(() => {
+    const el = stage.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const seen = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        seen.disconnect();
+        void deal();
+      }
+    }, { rootMargin: "200px" });
+    seen.observe(el);
+    return () => seen.disconnect();
+    // Once per mount: dealing again is the "Order again" button's job.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const pick = async (option: DemoOption) => {
+    if (!seed || !started || !reply?.step || busy || queue.length > 0) return;
+    const next = [...turns, { step: reply.step, option: option.id }];
+    setSaid((had) => [...had, { who: "you", text: option.et, en: option.en }]);
     const ok = await ask(seed, next);
     if (ok) setTurns(next);
     else setSaid((had) => had.slice(0, -1));
   };
 
-  // The newest line comes into view as it arrives, and never on the opening.
+  // Their lines arrive one at a time, each after a moment of them typing.
   useEffect(() => {
-    if (said.length < 2) return;
-    const last = thread.current?.lastElementChild;
-    last?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [said.length]);
+    const [next, ...rest] = queue;
+    if (!next) return;
+    const wait = reducedMotion() ? 0 : next.who === "app" ? TYPING_MS / 2 : TYPING_MS;
+    setTyping(next.who === "them" && wait > 0);
+    const timer = window.setTimeout(() => {
+      setSaid((had) => [...had, next]);
+      setQueue(rest);
+      setTyping(false);
+    }, wait);
+    return () => window.clearTimeout(timer);
+  }, [queue]);
 
-  // After a turn lands, the caret goes back to the box so the next one can be typed.
+  const settled = !busy && queue.length === 0;
+  const done = Boolean(started && reply?.over && settled);
+
+  // The box follows the newest line, and the ending, by scrolling itself. The page stays where the reader put it.
   useEffect(() => {
-    if (reply && !reply.over && turns.length > 0) box.current?.focus({ preventScroll: true });
-  }, [reply, turns.length]);
+    const box = thread.current;
+    if (!box || said.length === 0) return;
+    const follow = () => box.scrollTo({ top: box.scrollHeight, behavior: reducedMotion() ? "auto" : "smooth" });
+    follow();
+    // Again once a line has finished arriving: it pops in from smaller, so it measures short on the first read.
+    const settle = window.setTimeout(follow, 520);
+    return () => window.clearTimeout(settle);
+  }, [said.length, typing, done]);
 
-  const speaking = busy ? "you" : said[said.length - 1]?.who === "them" ? "them" : null;
+  const choosing = Boolean(started && reply && !reply.over && settled);
 
+  // A pressed pick is gone with its row, so the caret goes to the first of the next ones.
+  useEffect(() => {
+    if (choosing && turns.length > 0) picks.current?.querySelector("button")?.focus({ preventScroll: true });
+  }, [choosing, turns.length]);
+
+  const at = reply?.at ?? 0;
   return (
-    <div className="cafe-scene grid gap-5 rounded-[var(--r-xl)] border p-4 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:p-6"
-      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}>
-      <div className="flex min-w-0 flex-col gap-4">
-        <div className="overflow-hidden rounded-[var(--r-lg)]" style={{ background: "var(--raised)" }}>
-          <SceneVignette sceneId="kohvikus" speaking={seed ? speaking : null} />
+    <div ref={stage} className="cafe-stage night rounded-[var(--r-xl)] border p-4 md:p-7">
+      {/* What this is, and how far along it they are. */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="cafe-cup shrink-0" aria-hidden>
+            <Coffee size={22} />
+            <span className="cafe-steam"><span /><span /><span /></span>
+          </span>
+          <span className="min-w-0">
+            <span className="block text-md font-bold" style={{ color: "var(--ink)" }}>A small café, early</span>
+            <span className="block text-sm" style={{ color: "var(--ink-2)" }}>Your bus leaves in ten minutes.</span>
+          </span>
         </div>
-        <div>
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>The counter of a small café</p>
-          <p className="mt-1 text-md font-semibold" style={{ color: "var(--ink)" }}>
-            You have ten minutes before a bus, and you would like something to drink.
-          </p>
-          {reply?.persona && (
-            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>Behind the counter: {reply.persona.charAt(0).toLowerCase() + reply.persona.slice(1)}</p>
-          )}
-        </div>
-        {reply && reply.card.length > 0 && (
-          <dl className="grid gap-2 rounded-[var(--r)] p-3" style={{ background: "var(--accent-soft)" }}>
-            {reply.card.map((row) => (
-              <div key={row.label} className="min-w-0">
-                <dt className="text-xs" style={{ color: "var(--accent-deep)" }}>{row.label}</dt>
-                <dd className="text-md font-bold" style={{ color: "var(--accent-deep)" }}>
-                  {row.value}
-                  {row.et && row.et !== row.value && (
-                    <span className="font-normal">, in Estonian <span lang="et" className="font-bold">{row.et}</span></span>
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        )}
+        <ol className="cafe-meter" aria-label={`Step ${Math.min(at + 1, STEP_LABELS.length)} of ${STEP_LABELS.length}`}>
+          {STEP_LABELS.map((label, n) => (
+            <li key={label} data-state={started && n < at ? "done" : started && n === at && !done ? "now" : undefined}>
+              <span className="sr-only">{label}</span>
+            </li>
+          ))}
+        </ol>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        {!seed ? (
-          <div className="flex flex-1 flex-col items-start justify-center gap-4 py-6">
-            <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Five things to say: hello, what you want, how big, that you will pay, and goodbye.
-              The words you need are on keys under the box, and the other side forgives a wrong ending.
-            </p>
-            <Button type="button" variant="primary" size="lg" onClick={() => void start()} disabled={busy}>
-              Walk up to the counter <ArrowRight size={17} aria-hidden />
-            </Button>
-          </div>
-        ) : (
-          <>
-            <ol ref={thread} className="flex min-h-[12rem] flex-col gap-2" aria-live="polite">
-              {said.map((line, n) => (
-                <li
-                  key={n}
-                  className={`cafe-line max-w-[85%] rounded-[var(--r-lg)] px-4 py-2.5 ${line.who === "you" ? "self-end" : "self-start"}`}
-                  data-who={line.who}
-                  lang={line.lang}
-                >
-                  <span className="sr-only">{line.who === "you" ? "You said: " : line.who === "them" ? "They said: " : ""}</span>
-                  {line.text}
-                </li>
-              ))}
-              {busy && (
-                <li className="cafe-line cafe-typing self-start rounded-[var(--r-lg)] px-4 py-3" data-who="them" aria-label="They are answering">
-                  <span /><span /><span />
+      <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-6">
+        {/* The board over the counter. */}
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="cafe-glass rounded-[var(--r-lg)] p-4">
+            <p className="label-xs" style={{ color: "var(--cta)" }}>On the board</p>
+            <ul className="mt-3 flex flex-col gap-2">
+              {(reply?.menu ?? []).map((item, n) => {
+                const Icon = DRINK_ICON[item.lemma] ?? Coffee;
+                const mine = reply?.ordered === item.lemma;
+                return (
+                  <li key={item.lemma} className="cafe-drink flex items-center gap-3 rounded-[var(--r)] px-3 py-2.5"
+                    data-mine={mine ? "" : undefined} style={{ "--i": n } as React.CSSProperties}>
+                    <span className="cafe-drink-icon shrink-0" aria-hidden><Icon size={18} /></span>
+                    <span className="min-w-0 flex-1">
+                      <span lang="et" className="block text-md font-bold" style={{ color: "var(--ink)" }}>{item.lemma}</span>
+                      <span className="block text-sm" style={{ color: "var(--ink-2)" }}>{item.en}</span>
+                    </span>
+                    <span className="cafe-price shrink-0 text-sm font-bold">{item.price} €</span>
+                    {mine && <Check size={16} aria-label="Your order" />}
+                  </li>
+                );
+              })}
+              {!reply && (
+                <li className="text-sm" style={{ color: "var(--ink-2)" }}>
+                  Coffee, tea, water and juice, each with its price in euros.
                 </li>
               )}
-            </ol>
+            </ul>
+          </div>
+          <p className="cafe-note rounded-[var(--r-lg)] p-4 text-sm leading-relaxed">
+            <strong style={{ color: "var(--ink)" }}>Here you pick, and every pick works.</strong>{" "}
+            Inside the app you type what you would really say, and if the ending is wrong they still understand
+            you and say it back the right way.
+          </p>
+        </div>
 
-            {error && <p role="alert" className="text-sm font-semibold" style={{ color: "var(--again-ink)" }}>{error}</p>}
+        {/* The conversation. */}
+        <div className="cafe-glass flex min-w-0 flex-col rounded-[var(--r-lg)]">
+          <div className="flex items-center gap-3 border-b px-4 py-3" style={{ borderColor: "var(--rule)" }}>
+            <span className="cafe-avatar shrink-0" aria-hidden><Coffee size={16} /></span>
+            <span className="min-w-0">
+              <span className="block text-sm font-bold" style={{ color: "var(--ink)" }}>Behind the counter</span>
+              <span className="block text-sm" style={{ color: "var(--ink-2)" }}>
+                {typing ? "answering" : started ? "listening" : "waiting for you"}
+              </span>
+            </span>
+          </div>
 
-            {reply?.over ? (
-              <div className="cafe-done flex flex-col gap-3 rounded-[var(--r-lg)] p-4" style={{ background: "var(--accent-soft)" }}>
-                <p className="text-md font-bold" style={{ color: "var(--accent-deep)" }}>
-                  {reply.outcome ?? "That was the whole conversation."}
+          <div ref={thread} className="cafe-thread flex flex-col gap-2.5 overflow-y-auto px-4 py-4" aria-live="polite">
+            {!started ? (
+              <div className="m-auto flex max-w-[26rem] flex-col items-center gap-4 text-center">
+                <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  Six things to say, from hello to goodbye. Each time, pick one of the lines on offer and hear how
+                  the other side takes it.
                 </p>
-                <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  {reply.met} of {reply.beats} things said. Inside there are fifteen of these, from the doctor to the
-                  landlord, and each one knows which words your evenings have taught you.
-                </p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <button type="button" onClick={() => void start()} className="tap-tint inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
-                    <RotateCcw size={15} aria-hidden /> Order again
-                  </button>
-                  <ButtonLink href="/sign-in" variant="primary">Start learning for free</ButtonLink>
-                </div>
+                <Button type="button" variant="primary" size="lg" onClick={() => void walkUp()} disabled={busy && !opening}>
+                  Walk up to the counter <ArrowRight size={17} aria-hidden />
+                </Button>
               </div>
-            ) : reply ? (
-              <form
-                className="flex flex-col gap-3 rounded-[var(--r-lg)] p-3"
-                style={{ background: "var(--raised)" }}
-                onSubmit={(e) => { e.preventDefault(); void send(draft); }}
-              >
-                {reply.goal && (
-                  <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{reply.goal}</p>
+            ) : (
+              <>
+                {said.map((line, n) =>
+                  line.who === "app" ? (
+                    <p key={n} className="cafe-aside self-center">
+                      <Clock size={14} aria-hidden /> {line.text}
+                    </p>
+                  ) : (
+                    <div key={n} className={`cafe-line ${line.who === "you" ? "self-end" : "self-start"}`} data-who={line.who}>
+                      <span className="sr-only">{line.who === "you" ? "You said: " : "They said: "}</span>
+                      <span lang="et">{line.text}</span>
+                      {line.en && <span className="cafe-line-en">{line.en}</span>}
+                    </div>
+                  ),
                 )}
-                {reply.hints.length > 0 && (
-                  <div className="flex flex-wrap gap-2" aria-label="Words you could say">
-                    {reply.hints.map((hint) => (
-                      <button
-                        key={hint.et}
-                        type="button"
-                        disabled={busy}
-                        onClick={() => { setDraft((d) => (d ? `${d} ${hint.et}` : hint.et)); box.current?.focus(); }}
-                        className="choice-btn inline-flex items-baseline gap-1.5 rounded-full border px-3 py-1.5 text-sm"
-                      >
-                        <span lang="et" className="font-bold">{hint.et}</span>
-                        {hint.en && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint.en}</span>}
-                      </button>
-                    ))}
+                {done && reply && (
+                  <div className="cafe-done mt-2 flex flex-col gap-2 rounded-[var(--r-lg)] p-4">
+                    <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
+                      {reply.outcome ?? "That was the whole conversation."}
+                    </p>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                      Inside there are fifteen of these, from the doctor to the landlord, and there you type your own answers.
+                    </p>
                   </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <label htmlFor="cafe-say" className="sr-only">What you say</label>
-                  <input
-                    id="cafe-say"
-                    ref={box}
-                    lang="et"
-                    autoComplete="off"
-                    spellCheck={false}
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    placeholder="Type it, or press a word above"
-                    className="field min-w-0 flex-1 text-base"
-                    style={{ background: "var(--surface)", borderColor: "var(--rule)", color: "var(--ink)" }}
-                    maxLength={200}
-                  />
-                  <Button type="submit" variant="primary" disabled={busy || !draft.trim()} className="shrink-0">
-                    Say it <Send size={15} aria-hidden />
-                  </Button>
+                {typing && (
+                  <div className="cafe-line cafe-typing self-start" data-who="them" aria-label="They are answering">
+                    <span /><span /><span />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* A fixed floor, so four picks, two picks and the way out are one panel the same size. */}
+          <div className="cafe-foot flex flex-col justify-center border-t p-4" style={{ borderColor: "var(--rule)" }}>
+            {error && <p role="alert" className="mb-3 text-sm font-semibold" style={{ color: "var(--again-ink)" }}>{error}</p>}
+            {done ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <button type="button" onClick={() => void again()}
+                  className="tap-tint inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
+                  style={{ color: "var(--ink-2)" }}>
+                  <RotateCcw size={15} aria-hidden /> Order again
+                </button>
+                <ButtonLink href="/sign-in" variant="primary">Start learning for free</ButtonLink>
+              </div>
+            ) : choosing && reply ? (
+              <div className="flex flex-col gap-3">
+                <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
+                  <span style={{ color: "var(--cta)" }}>Your turn.</span> {reply.goal}
+                </p>
+                <div ref={picks} key={reply.step} className="grid gap-2 sm:grid-cols-2" role="group" aria-label="What you say">
+                  {reply.options.map((option, n) => (
+                    <button key={option.id} type="button" onClick={() => void pick(option)}
+                      className="choice-btn cafe-pick flex flex-col items-start rounded-[var(--r)] border px-4 py-3 text-left"
+                      style={{ "--i": n } as React.CSSProperties}>
+                      <span lang="et" className="text-md font-bold">{option.et}</span>
+                      <span className="text-sm" style={{ color: "var(--ink-2)" }}>{option.en}</span>
+                    </button>
+                  ))}
                 </div>
-              </form>
-            ) : null}
-          </>
-        )}
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          No AI in this conversation and no account. Their lines come from the dictionary and from lines a native
-          speaker has read.
-        </p>
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                {started ? "They are saying something." : "No account, and nothing is saved."}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
+
+      <p className="mt-5 text-sm" style={{ color: "var(--ink-2)" }}>
+        No AI in this conversation. Every line on both sides comes from the dictionary or from lines a native
+        speaker has read.
+      </p>
     </div>
   );
 }

@@ -764,8 +764,8 @@ function Talk() {
             Order a drink in Estonian. Right now, no account.
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            One of the fifteen conversations inside, with somebody who wants something from you. Get an
-            ending wrong and they understand you anyway, then say it back the right way.
+            One of the fifteen conversations inside, with somebody who wants something from you. Here you
+            pick what to say, from hello to paying. Inside, you type it yourself.
           </p>
         </div>
       </Reveal>

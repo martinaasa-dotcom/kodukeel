@@ -1905,12 +1905,22 @@ printed `0/0 withheld (0%)`, which reads as a perfect score.
 the app's own machinery.** The hero word deals the next form on a tap; the case card is the
 landing copy of `/grammar/build-a-word`; "your first evening" is the programme's own first day
 (`DEFAULT_PROGRAMME.days[0]`, its words and the syllabus's English), met and then picked out of four;
-and the café is `kohvikus` played keyless through `app/api/demo-scene/route.ts`, which runs
-`sceneContext`, `knowing` and `replay` exactly as a signed-in run does and asks no model, writes no
-row and grades nothing (`lib/progress/demoScene.itest.ts` holds the last). It is public, so it reads
-its body through `readCapped`, clips by code point and is capped per visitor and for everybody through
-`checkSharedRateLimit`. The words a visitor may press under the box are the beat's own requests as
-the dictionary spells them, never Estonian typed for the page. What the visitor built and ordered is
+and the café is `kohvikus` played keyless through `app/api/demo-scene/route.ts`, asking no model,
+writing no row and grading nothing (`lib/progress/demoScene.itest.ts` holds the last). It is public,
+so it reads its body through `readCapped` and is capped per visitor and for everybody through
+`checkSharedRateLimit`.
+
+**And the café is picked rather than typed, because it is the one conversation a stranger judges the
+app by.** Typed, a visitor with no Estonian answered "Kas on kõik?" with `raha`, the beat was met, and
+the counter said goodbye with nobody having paid: right for a rehearsal and wrong for a showcase. So
+every step offers two to four lines to pick, each built off the dictionary (a lemma, a case form or a
+person off the scene's own tables, never typed), the browser sends the pick's id and never its text,
+and a pick not on offer is refused. The picks still go through `knowing` and `replay`, and the itest
+walks **every** path on several seeds and fails on one that does not end with all five beats met,
+the price said, and no repair line. `pay` is a step of the page only, because a café where nobody says
+the price was the fault. The panel says in words that inside the app you type your own answers. And
+the conversation is a window of fixed height that scrolls itself, never the page, with no
+`overscroll-behavior`, so the section keeps its size as lines arrive. What the visitor built and ordered is
 held in memory for the tab (`app/(chromeless)/welcome/visit.ts`) and said back at the close; nothing
 of it is sent or stored.
 
