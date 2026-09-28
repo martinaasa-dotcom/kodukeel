@@ -13,6 +13,7 @@ import { learnerContextFor } from "@/lib/progress/tutorContext";
 import { wordsInQuestion } from "@/lib/progress/tutorWords";
 import { asksForForms, wordsNote } from "@/lib/tutor/words";
 import { chatEstonianTokens } from "@/lib/tutor/verify";
+import { screenFrom, screenWords, withScreen, type ScreenContext } from "@/lib/tutor/screen";
 import {
   openWithFallback,
   resolveProviders,
@@ -92,8 +93,9 @@ export async function POST(request: Request) {
     validate first and this now matches them.
   */
   let messages: ChatMessage[];
+  let screen: ScreenContext | null = null;
   try {
-    const body = (await request.json()) as { messages?: unknown };
+    const body = (await request.json()) as { messages?: unknown; screen?: unknown };
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
       return Response.json({ error: "Nothing to ask." }, { headers: NO_STORE, status: 400 });
     }
@@ -102,6 +104,13 @@ export async function POST(request: Request) {
         typeof m === "object" && m !== null &&
         (("role" in m && (m.role === "user" || m.role === "assistant"))) &&
         "content" in m && typeof (m as ChatMessage).content === "string"));
+    /*
+      What the learner was looking at when they asked, read off the page by
+      the panel (`components/anu/readScreen.ts`). Coerced and clipped here
+      whatever arrived, and absent is the ordinary case: the /tutor page has
+      no screen behind it. See `lib/tutor/screen.ts`.
+    */
+    screen = screenFrom(body.screen);
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
   }
@@ -140,7 +149,12 @@ export async function POST(request: Request) {
     A read that fails leaves the block empty, which is what every question
     got before this existed.
   */
-  const wordsPromise = wordsInQuestion(messages).catch(() => []);
+  /*
+    The Estonian on the learner's screen is asked about with the question's
+    own words, after them, so "what does this mean" over a sentence is
+    answered with the dictionary's forms for the words in that sentence.
+  */
+  const wordsPromise = wordsInQuestion(messages, screenWords(screen)).catch(() => []);
   const [known, words] = await Promise.all([learnerPromise, wordsPromise]);
   const learner = known ?? UNKNOWN_LEARNER;
   const system = buildSystemPrompt();
@@ -174,7 +188,8 @@ export async function POST(request: Request) {
   */
   let truncated = false;
   try {
-    open = await openWithFallback(chain, system, messages, (usage, config) => {
+    // The screen rides in front of the last question and is sent, never stored.
+    open = await openWithFallback(chain, system, withScreen(messages, screen), (usage, config) => {
       truncated = usage.truncated === true;
       // Charged to the provider that actually answered, not the head of the
       // chain: falling back to a dearer model must not go unmetered.
