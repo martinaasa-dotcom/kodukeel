@@ -340,28 +340,28 @@ const WHO = [
   {
     icon: House,
     tone: "accent",
-    title: "You live here",
-    body: "The shop, the doctor, the letter from the city. The Estonian you meet every week, in the order you meet it.",
+    title: "You live here now",
+    body: "The pharmacist, the parents at the school gate, the letter from the city. Learn the Estonian your week is made of, in the order it turns up.",
   },
   {
     icon: Heart,
     tone: "blush",
-    title: "Somebody you love speaks it",
-    body: "Their family, their jokes, their mother on the phone. Practise before Sunday lunch rather than during it.",
+    title: "You love someone who speaks it",
+    body: "Their mum on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it.",
   },
   {
     icon: ClipboardCheck,
     tone: "butter",
-    title: "You have an exam date",
-    body: "Mock papers from A2 to C1, marked by rule rather than by a model, and a plain guide to the real one.",
+    title: "You have an exam to pass",
+    body: "Full mock papers from A2 to C1, marked by rules you can check rather than an AI's hunch. Walk in on the day knowing what is coming.",
     href: "/state-exam",
     link: "How the real exam works",
   },
   {
     icon: Briefcase,
     tone: "sky",
-    title: "Your meetings are in Estonian",
-    body: "The words work runs on, and a rehearsal with somebody who wants something from you before the real one.",
+    title: "You work in Estonian",
+    body: "Meetings, emails, small talk by the coffee machine. Learn the words your job runs on, then practise the awkward conversations here first, where a stumble costs nothing.",
   },
 ] as const;
 
@@ -372,7 +372,7 @@ function WhoFor() {
         <div className="section-head">
           <p className="section-tag" data-tone="blush">Who it is for</p>
           <h2 className="landing-title">
-            Anybody making a home in Estonian
+            Whatever brought you to Estonian
           </h2>
         </div>
       </Reveal>
