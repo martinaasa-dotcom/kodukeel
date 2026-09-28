@@ -1192,7 +1192,11 @@ function Options({ name, options, selected, onSelect, columns, english }: {
   english?: boolean;
 }) {
   return (
-    <div className={`grid gap-2 ${columns ? "sm:grid-cols-2" : ""}`} role="radiogroup">
+    /* Columns come from the room the list has, not from the window: at 768
+       the rail leaves this list about 340px, and `sm:grid-cols-2` split that
+       into two columns narrow enough to draw "kellest" a few letters a line.
+       `.choice-grid` is the rule Settings already learned this on. */
+    <div className={columns ? "choice-grid" : "grid gap-2"} role="radiogroup">
       {options.map((option) => {
         const active = selected === option.value;
         return (

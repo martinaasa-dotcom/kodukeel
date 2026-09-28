@@ -408,7 +408,7 @@ function LearnCard({
           tall. A button label is never broken (`components/Button.tsx`), so
           what gives now is the heading's measure, which is prose.
         */}
-        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center lg:flex-nowrap">
           {/*
             A whole phrase (`Kas sa räägid inglise keelt?`) is taught on the same
             ladder as a word, and for a while that meant "learn 5 new words" could
