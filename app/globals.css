@@ -3542,6 +3542,89 @@
   .lift:hover .feature-icon { animation: letter-wiggle 520ms ease-in-out; }
   .anu-hop { animation: anu-hop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .anu-say { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; transform-origin: 90% 100%; }
+
+  /*
+    THE SITUATIONS CHOOSER (app/(app)/situations/SituationsBoard.tsx).
+
+    The stage is the conversation's own night, with the same three lamps as
+    `.scene-night` in rem so a taller panel does not wash over, and glass pills
+    on it for what is written there. The tiles are each a kind's own tint
+    (`lib/scenes/kinds.ts`) with the room drawn in a paper window on it, so the
+    drawing is in the ink the rest of the page is in rather than on fifteen
+    slabs of night, which is what made the old page read as a wall.
+  */
+  .situation-stage {
+    padding: clamp(1.25rem, 3vw, 2.25rem);
+    background:
+      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 38%, transparent), transparent 70%),
+      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 28%, transparent), transparent 70%),
+      radial-gradient(16rem 12rem at 70% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
+      var(--stage) !important;
+  }
+  [data-theme="dark"] .situation-stage {
+    background:
+      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 38%, transparent), transparent 70%),
+      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 28%, transparent), transparent 70%),
+      radial-gradient(16rem 12rem at 70% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
+      var(--raised) !important;
+  }
+  .situation-stage-grid {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+    animation: cafe-pop 420ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  }
+  @container (min-width: 44rem) {
+    .situation-stage-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 2rem; }
+    .situation-stage-grid > .situation-stage-room { order: 2; }
+  }
+  .situation-stage { container-type: inline-size; }
+  .situation-stage-room {
+    display: flex; justify-content: center;
+    padding: 0.75rem;
+    border-radius: var(--r-lg);
+    background: rgb(255 255 255 / 0.05);
+    border: 1px solid rgb(255 255 255 / 0.1);
+  }
+  .situation-glass {
+    background: rgb(255 255 255 / 0.1);
+    border: 1px solid rgb(255 255 255 / 0.14);
+    color: var(--ink);
+  }
+  .situation-dot {
+    display: inline-block; flex: none;
+    width: 0.625rem; height: 0.625rem; border-radius: 9999px;
+  }
+  .situation-shuffle { color: var(--ink) !important; border-color: rgb(255 255 255 / 0.18) !important; }
+  .situation-shuffle:hover { background: rgb(255 255 255 / 0.1) !important; }
+  .situation-shuffle svg { transition: transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1); }
+  .situation-shuffle:hover svg { transform: rotate(-12deg) scale(1.1); }
+
+  .situation-window {
+    position: relative;
+    display: flex; justify-content: center;
+    margin: 0.75rem 0.75rem 0;
+    padding: 0.5rem 0.75rem 0.25rem;
+    border-radius: var(--r-lg);
+    background: color-mix(in srgb, var(--surface) 62%, transparent);
+    overflow: hidden;
+  }
+  .situation-window > svg {
+    transition: transform 420ms cubic-bezier(0.34, 1.4, 0.64, 1);
+    transform-origin: 50% 90%;
+  }
+  .situation-tile:hover .situation-window > svg,
+  .situation-tile:focus-visible .situation-window > svg { transform: translateY(-3px) scale(1.05); }
+  .situation-played { background: var(--surface); color: var(--ink); border: 1px solid var(--edge); }
+  .situation-in { animation: cafe-pop 360ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+
+  .situation-out { background: var(--accent-soft); border-color: var(--edge); }
+  .situation-place { background: var(--surface); border: 1px solid var(--edge); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .situation-stage-grid, .situation-in { animation: none; }
+    .situation-window > svg, .situation-shuffle svg { transition: none; transform: none !important; }
+  }
 }
 
 /*
