@@ -319,12 +319,25 @@ export function Stat({ value, label, tone, icon }: {
   value: ReactNode; label: string; tone?: string; icon?: ReactNode;
 }) {
   return (
-    <div>
-      {icon && <div className="mb-2">{icon}</div>}
-      <div className="tnum font-display text-4xl font-bold leading-none tracking-tight" style={{ color: tone ?? "var(--ink)" }}>
+    <div data-stat>
+      <div data-figure className="tnum font-display text-4xl font-bold leading-none tracking-tight" style={{ color: tone ?? "var(--ink)" }}>
         {value}
       </div>
-      <div className="label-xs mt-2" style={{ color: "var(--ink-3)" }}>{label}</div>
+      {/*
+        THE ICON SITS BESIDE THE LABEL, NEVER ABOVE THE FIGURE.
+
+        Stats are laid out in rows, and a figure is compared with the figure
+        beside it. An icon stacked over one of them pushed that number down by
+        its own height plus a gap, so on Progress "1 conversations" sat a line
+        lower than "1 understood you" next to it, and the row read as broken.
+        Everything above the figure has to be the same in every Stat, which is
+        nothing at all; anything a Stat carries goes under it, on the label's
+        line. `scripts/test-containment.mjs` measures every row of figures.
+      */}
+      <div className="label-xs mt-2 flex items-start gap-1.5" style={{ color: "var(--ink-3)" }}>
+        {icon && <span aria-hidden className="mt-px shrink-0">{icon}</span>}
+        <span className="min-w-0">{label}</span>
+      </div>
     </div>
   );
 }
@@ -355,15 +368,31 @@ export function StatTile({ value, label, tone = "accent", icon, hint }: {
   const long = typeof value === "string" && value.length > 8;
   return (
     <div
-      className="stat-tile flex flex-col gap-1.5 rounded-[var(--r)] border px-3 py-3 sm:px-4 sm:py-3.5"
+      data-stat
+      className="stat-tile row-span-3 grid grid-rows-subgrid gap-0 rounded-[var(--r)] border px-3 py-3 sm:px-4 sm:py-3.5"
       style={{ borderColor: "var(--rule-soft)", borderTopColor: rule, borderTopWidth: 3, background: "var(--surface)" }}
     >
-      <div className="flex items-center justify-between gap-2">
+      {/*
+        LABEL, FIGURE AND HINT ARE THREE ROWS THE WHOLE ROW OF TILES SHARES.
+
+        Tiles sit side by side and a reader compares the figures across them,
+        so the figures have to start on one line. They did not: a label that
+        wrapped to two lines, or a hint one line longer than its neighbour's,
+        moved that tile's figure off the others, which is what the plan on
+        /assess did at a phone's width. A subgrid spanning three of the parent
+        grid's rows makes every tile in a row use the same three tracks, so the
+        tallest label sets where every figure starts. Outside a grid the
+        subgrid falls back to three ordinary rows and the tile is unchanged.
+        The hint row is always drawn, empty or not, so the three tracks are the
+        same three in every tile; the space between rows is a margin rather
+        than the grid's gap, so an empty hint costs nothing under the figure.
+      */}
+      <div className="flex items-start justify-between gap-2">
         <span className="min-w-0 text-sm" style={{ color: "var(--ink-2)" }}>{label}</span>
         {icon && <span aria-hidden className="shrink-0" style={{ color: toneInk(tone) }}>{icon}</span>}
       </div>
-      <span className={`tnum font-display ${long ? "text-2xl" : "text-3xl"} font-bold leading-none tracking-tight`} style={{ color: "var(--ink)" }}>{value}</span>
-      {hint && <span className="text-xs" style={{ color: "var(--ink-3)" }}>{hint}</span>}
+      <span data-figure className={`mt-1.5 tnum font-display ${long ? "text-2xl" : "text-3xl"} font-bold leading-none tracking-tight`} style={{ color: "var(--ink)" }}>{value}</span>
+      <span className="mt-1.5 text-xs empty:hidden" style={{ color: "var(--ink-3)" }}>{hint}</span>
     </div>
   );
 }

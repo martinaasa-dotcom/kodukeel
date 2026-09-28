@@ -218,8 +218,10 @@ export default async function ProgressPage() {
         {/* Two by two on a phone, where four figures in a row wrapped three and
             one; one row where there is room. The share button closes the row
             on a wide screen and takes its own line under the figures on a
-            phone, where it is easiest to reach. */}
-        <Card tone="night" className="grid grid-cols-2 items-center gap-x-6 gap-y-6 sm:flex sm:flex-wrap sm:gap-10">
+            phone, where it is easiest to reach. Level with the top rather than
+            centred: a centred row drops a figure whose label wraps to two
+            lines, so "Shields banked" sat off the three beside it. */}
+        <Card tone="night" className="grid grid-cols-2 items-start gap-x-6 gap-y-6 sm:flex sm:flex-wrap sm:gap-10">
           <Stat
             value={<span className="inline-flex items-center gap-1.5">{summary.streak}<Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
             label="Day streak"
@@ -230,7 +232,7 @@ export default async function ProgressPage() {
             value={<span className="inline-flex items-center gap-1.5">{shields}<Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
             label={`Shield${shields === 1 ? "" : "s"} banked`}
           />
-          <span className="col-span-2 sm:ml-auto"><ShareProgress /></span>
+          <span className="col-span-2 sm:ml-auto sm:self-center"><ShareProgress /></span>
           {/* What the shield figure beside it means, behind a press rather than
               standing under four figures in 13px grey. It is an explanation
               rather than a status, which is `Explain`'s own rule: somebody who
@@ -365,7 +367,11 @@ export default async function ProgressPage() {
                       a fifth narrower at the width `test-containment.mjs`
                       measures.
                     */}
-                    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                    {/* Columns by the room a label needs, not by the window: this
+                        panel is half the page from `@xl`, so `lg:grid-cols-3` gave
+                        "conversations" and its icon 53px of the 114 they need at
+                        1024, and the word broke. 7.5rem is that label and icon. */}
+                    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,7.5rem),1fr))] gap-3">
                       <Stat value={outside.total} label="conversations" tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
                       <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" />
                       <Stat value={outside.byOutcome.STUCK} label="you got stuck" />
