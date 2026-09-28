@@ -37,7 +37,7 @@ export const SUGGESTION_CATEGORIES = {
   MISSING_WORD: {
     label: "Missing word",
     /** Shown to the learner above the form. */
-    lead: "A word that should be in the dictionary and is not.",
+    lead: "A word that should be in the dictionary, but isn't.",
     /** The queue groups by what a reviewer would do about it, not by severity. */
     group: "Dictionary",
     /** What accepting does. `null` means a person has to go and change something.  */
@@ -45,19 +45,19 @@ export const SUGGESTION_CATEGORIES = {
   },
   WRONG_MEANING: {
     label: "Wrong meaning",
-    lead: "The English on this entry is the wrong sense, or is not what the word means.",
+    lead: "The English here is the wrong meaning, or not what the word means at all.",
     group: "Dictionary",
     applies: "SET_TRANSLATION",
   },
   WRONG_FORM: {
     label: "Wrong form",
-    lead: "One of the principal parts is wrong.",
+    lead: "One of the main forms of the word is wrong.",
     group: "Dictionary",
     applies: "SET_FORM",
   },
   WRONG_EXAMPLE: {
     label: "Unhelpful example",
-    lead: "An example sentence on this entry is wrong or misleading.",
+    lead: "An example sentence here is wrong or misleading.",
     group: "Dictionary",
     applies: "DROP_EXAMPLE",
   },
@@ -73,31 +73,31 @@ export const SUGGESTION_CATEGORIES = {
   */
   WRONG_TRANSLATION: {
     label: "Wrong translation",
-    lead: "The English under an example sentence does not say what the Estonian says.",
+    lead: "The English under an example doesn't say what the Estonian says.",
     group: "Dictionary",
     applies: "CLEAR_TRANSLATION",
   },
   MARKED_WRONG: {
     label: "Marked wrong",
-    lead: "The app marked your answer wrong and you think it was right.",
+    lead: "We marked your answer wrong, and you think it was right.",
     group: "Marking",
     applies: null,
   },
   WRONG_CONTENT: {
     label: "Wrong explanation",
-    lead: "Something a page teaches is wrong, unclear or out of date.",
+    lead: "Something a page explains is wrong, unclear or out of date.",
     group: "Teaching",
     applies: null,
   },
   BROKEN: {
     label: "Something broke",
-    lead: "A screen failed, or something did not do what it said it would.",
+    lead: "A screen broke, or a button didn't do what it said it would.",
     group: "Faults",
     applies: null,
   },
   OTHER: {
     label: "Something else",
-    lead: "Anything that does not fit the rest.",
+    lead: "Anything that doesn't fit the others.",
     group: "Faults",
     applies: null,
   },
@@ -448,6 +448,6 @@ export function summarisePatch(patch: Patch): PatchSummary {
 export function acknowledgement(category: SuggestionCategory): string {
   const applies = SUGGESTION_CATEGORIES[category].applies !== null;
   return applies
-    ? "Sent to the Kodukeel team. Someone reviews it, and if it stands it goes straight into the dictionary for everybody."
-    : "Sent to the Kodukeel team. Someone reads every one of these, and this one goes to whoever can change it.";
+    ? "Sent to the Kodukeel team, thank you. A real person will check it, and if it holds up it goes straight into the dictionary for everyone."
+    : "Sent to the Kodukeel team, thank you. A real person reads every one of these, and this one goes to whoever can fix it.";
 }

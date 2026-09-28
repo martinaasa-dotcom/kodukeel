@@ -270,10 +270,10 @@ export function retentionReading(
       retention: null,
       target,
       verdict: "unknown",
-      headline: "Not enough long-term reviews yet",
+      headline: "Not enough to go on yet",
       // The one branch whose figures are not on the card already, because the
       // ring has nothing to draw and prints a dash.
-      advice: `It takes about ${minimum} reviews of cards the scheduler thought you knew. You have ${count}.`,
+      advice: `We need about ${minimum} reviews of words you already knew before this means anything. You have ${count} so far.`,
     };
   }
 
@@ -286,8 +286,8 @@ export function retentionReading(
     return {
       reviews: count, recalled, retention, target,
       verdict: "above",
-      headline: "You are remembering more than expected",
-      advice: "Comfortable rather than wrong. There is room for more new words each day, so raise the daily goal in Settings.",
+      headline: "You're remembering more than expected",
+      advice: "That's a nice problem to have. You've got room for more new words each day, so raise your daily goal in Settings.",
     };
   }
 
@@ -295,20 +295,20 @@ export function retentionReading(
     return {
       reviews: count, recalled, retention, target,
       verdict: "below",
-      headline: "You are forgetting more than expected",
+      headline: "You're forgetting more than expected",
       // Both causes, because they take different answers: too many at once is
       // answered by easing off, and a word met before the grammar under it is
       // answered by reading the case up. The copy pass that took the figures
       // out of these strings took the second cause with them, on the one
       // branch where a learner most needs to be told there is more than one.
-      advice: "Usually too many new cards at once, or words met before the grammar under them made sense. Ease off new words for a week, and read up on whichever case the list below keeps flagging.",
+      advice: "That usually means too many new words at once, or words you met before their grammar made sense. Ease off new words for a week, and read up on whichever case keeps turning up in the list below.",
     };
   }
 
   return {
     reviews: count, recalled, retention, target,
     verdict: "on-target",
-    headline: "The schedule is working",
-    advice: "Exactly where it should be. Nothing to change.",
+    headline: "Your reviews are spot on",
+    advice: "You're remembering just as much as you should. Nothing to change.",
   };
 }

@@ -10,7 +10,7 @@ describe("the opening conversation", () => {
 
   it("rests on a fact the guide sources to the Board", () => {
     const facts = GUIDE.flatMap((section) => section.facts);
-    const opening = facts.find((fact) => /opens with a short general conversation/.test(fact.text));
+    const opening = facts.find((fact) => /starts with a short chat with the examiner/.test(fact.text));
     expect(opening?.source).toBe("harnoEt");
   });
 });

@@ -91,7 +91,7 @@ async function ask(
       // Every refusal the quota can return carries a sentence; the type allows
       // it not to, and a blank error box would be the one refusal a learner
       // cannot act on.
-      message: decision.message ?? "That is as many as the daily allowance covers. Try again tomorrow.",
+      message: decision.message ?? "That's all the translations for today. Try again tomorrow.",
       retryAfterSeconds: decision.retryAfterSeconds,
     };
   }

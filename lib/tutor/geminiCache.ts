@@ -171,7 +171,7 @@ async function entryFor(config: ProviderConfig, system: string): Promise<{ entry
   });
   if (!res.ok) {
     if (res.status === 401 || res.status === 403) {
-      throw new TutorError(`${config.label} rejected the API key. Check it in your .env file.`, 401);
+      throw new TutorError(`${config.label} didn't accept the API key. Check it in your .env file.`, 401);
     }
     throw new TutorError(`${config.label} would not hold the prompt (${res.status}).`, 502);
   }
@@ -342,8 +342,8 @@ export async function geminiCachedReply(
         entries.delete(keyFor(config.model, system));
         throw new TutorError(`${config.label} no longer holds the prompt (${res.status}).`, 502);
       }
-      if (res.status === 401) throw new TutorError(`${config.label} rejected the API key. Check it in your .env file.`, 401);
-      if (res.status === 429) throw new TutorError(`${config.label} is rate-limiting this model.`, 429);
+      if (res.status === 401) throw new TutorError(`${config.label} didn't accept the API key. Check it in your .env file.`, 401);
+      if (res.status === 429) throw new TutorError(`${config.label} is getting too many requests for this model right now.`, 429);
       throw new TutorError(`${config.label} answered ${res.status}.`, 502);
     }
     const reply = await res.json() as GenerateReply;

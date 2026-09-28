@@ -447,7 +447,7 @@ describe("a recording that would not play", () => {
     const item = listening.tasks.flatMap((t) => t.items)[0]!;
     const mark = markItem(item, { kind: "unheard" }, 1);
     expect(mark.available).toBe(0);
-    expect(mark.note).toMatch(/would not play/);
+    expect(mark.note).toMatch(/wouldn't play/);
   });
 });
 

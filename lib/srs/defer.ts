@@ -184,9 +184,9 @@ export function awayIn(days: number): string {
  */
 export function deferralNote(deferral: Deferral, lemma: string): string {
   if (deferral.reason === "BAND") {
-    return `Put aside. ${lemma} is a ${deferral.untilLevel} word, so it waits until you get there, or ${awayIn(deferral.days)}.`;
+    return `Put aside for now. ${lemma} is a ${deferral.untilLevel} word, so it'll wait until you reach ${deferral.untilLevel}, or ${awayIn(deferral.days)} at most.`;
   }
-  return `Put aside. ${lemma} comes back in ${awayIn(deferral.days)}.`;
+  return `Put aside for now. You'll see ${lemma} again in ${awayIn(deferral.days)}.`;
 }
 
 /**

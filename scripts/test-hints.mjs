@@ -212,7 +212,7 @@ if (letters) {
 }
 
 const body = await page.locator("main").innerText();
-check("the screen says what the hint cost", body.includes("We will bring this one back sooner"));
+check("the screen says what the hint cost", body.includes("bring this one back a bit sooner"));
 check("nothing on the page threw", thrown.length === 0, thrown.slice(0, 2).join(" | "));
 
 await browser.close();

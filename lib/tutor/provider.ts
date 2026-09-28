@@ -1038,7 +1038,7 @@ export async function openWithFallback(
   */
   cacheSystem = false,
 ): Promise<OpenStream> {
-  if (chain.length === 0) throw new TutorError("No AI provider is configured.", 503);
+  if (chain.length === 0) throw new TutorError("No AI provider is set up on this installation yet.", 503);
 
   for (let i = 0; i < chain.length; i += 1) {
     const config = chain[i]!;
@@ -1062,7 +1062,7 @@ export async function openWithFallback(
   }
 
   // Unreachable: the loop either returns or throws on its last pass.
-  throw new TutorError("No AI provider is configured.", 503);
+  throw new TutorError("No AI provider is set up on this installation yet.", 503);
 }
 
 /**
@@ -1141,7 +1141,7 @@ async function* readStream(
 
   try {
     const reader = upstream.body?.getReader();
-    if (!reader) throw new TutorError("Anu sent an empty response.", 502);
+    if (!reader) throw new TutorError("Anu's answer came back empty. Try asking again.", 502);
 
     const decoder = new TextDecoder();
     let buffer = "";
@@ -1397,18 +1397,18 @@ async function assertOk(res: Response, config: ProviderConfig) {
   if (res.ok) return;
   const detail = await res.text().catch(() => "");
   if (res.status === 401 || res.status === 403) {
-    throw new TutorError(`${config.label} rejected the API key. Check it in your .env file.`, 401);
+    throw new TutorError(`${config.label} didn't accept the API key. Check it in your .env file.`, 401);
   }
   if (res.status === 429) {
     throw new TutorError(
-      `${config.label} is rate-limiting this model. Free models are throttled hard upstream, so ` +
-      `wait a moment, or set GROQ_MODEL or GEMINI_MODEL to a paid one in .env, or add a paid ` +
-      `provider key so the chain has somewhere to fall through to.`,
+      `${config.label} is getting too many requests for this model right now. Free models get ` +
+      `throttled hard, so give it a moment. For good, set GROQ_MODEL or GEMINI_MODEL to a paid ` +
+      `model in .env, or add a paid provider key so there's a backup to fall back on.`,
       429,
     );
   }
   if (res.status === 404) {
-    throw new TutorError(`${config.label} does not have a model called "${config.model}".`, 404);
+    throw new TutorError(`${config.label} doesn't have a model called "${config.model}".`, 404);
   }
   /*
     Out of credit, which is not the same as a rejected key and must not be
@@ -1424,8 +1424,8 @@ async function assertOk(res: Response, config: ProviderConfig) {
   */
   if (res.status === 402) {
     throw new TutorError(
-      `${config.label} is out of credit for this key. Add credit, or set another provider key ` +
-      `in .env so the chain has somewhere to fall through to.`,
+      `${config.label} has run out of credit on this key. Top it up, or add another provider key ` +
+      `in .env so there's a backup to fall back on.`,
       402,
     );
   }
@@ -1439,7 +1439,7 @@ async function assertOk(res: Response, config: ProviderConfig) {
     extra: { provider: config.label, model: config.model, status: res.status },
   });
   throw new TutorError(
-    `${config.label} could not answer just now (${res.status}).`,
+    `${config.label} couldn't answer just now (${res.status}). Try again in a moment.`,
     502,
   );
 }
@@ -1623,7 +1623,7 @@ export async function completeWithImage(
   image: ImageAttachment,
   onUsage?: (usage: UsageReport, config: ProviderConfig) => void,
 ): Promise<CompletedReply> {
-  if (chain.length === 0) throw new TutorError("No AI provider is configured.", 503);
+  if (chain.length === 0) throw new TutorError("No AI provider is set up on this installation yet.", 503);
 
   let last: unknown = null;
   for (let i = 0; i < chain.length; i += 1) {
@@ -1643,7 +1643,7 @@ export async function completeWithImage(
     }
   }
 
-  throw last instanceof Error ? last : new TutorError("No AI provider could read that.", 502);
+  throw last instanceof Error ? last : new TutorError("None of the AI services could read that. Try again in a moment.", 502);
 }
 
 /** Output ceiling for a page of vocabulary. Sixty pairs is well inside this. */

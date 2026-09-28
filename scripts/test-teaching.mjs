@@ -541,7 +541,7 @@ check("the round has a heading of its own", met.trim().length > 0, met.trim());
   recalled, only met.
 */
 check("the round opens by showing the form rather than asking for it",
-  /This one is not what the ending would give you/.test(roundBody)
+  /This one breaks the usual ending rule/.test(roundBody)
   && (await page.locator("#answer").count()) === 0);
 
 // ─── Dictation ────────────────────────────────────────────────────────────────

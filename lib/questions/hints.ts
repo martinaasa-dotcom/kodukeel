@@ -404,4 +404,4 @@ export function narrowLadder(options: readonly string[], answer: string): Hint[]
  * offer. Not a scold: coming back sooner is what should happen to a word
  * somebody needed help with.
  */
-export const HINT_COST_NOTE = "We will bring this one back sooner.";
+export const HINT_COST_NOTE = "No problem. We'll just bring this one back a bit sooner.";

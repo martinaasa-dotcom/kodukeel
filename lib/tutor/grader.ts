@@ -235,7 +235,7 @@ export async function callChainForJson(
       if (fatal || i === chain.length - 1) throw error;
     }
   }
-  throw last instanceof Error ? last : new TutorError("No provider could grade that.", 502);
+  throw last instanceof Error ? last : new TutorError("We couldn't get that marked just now. Try again in a moment.", 502);
 }
 
 /** Accepts either, so a caller that has only one provider need not build a list. */

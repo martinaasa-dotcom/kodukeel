@@ -108,9 +108,9 @@ function gradationFindings(facts: ReviewFact[]): Finding[] {
       caseKey: key as CaseKey,
       headline: `Your ${caseName(key)} is fine until the stem changes`,
       detail:
-        `You recall the ${caseName(key)} (${caseNameEn(key)}) ${strong}% of the time on words with a ` +
-        `stable stem, but only ${weak}% on words with consonant gradation. The ending is not the ` +
-        `problem; the stem it attaches to is. Drill astmevaheldus rather than the case.`,
+        `You get the ${caseName(key)} (${caseNameEn(key)}) right ${strong}% of the time when the stem ` +
+        `stays put, but only ${weak}% when it changes. The ending isn't the ` +
+        `problem. The stem underneath it is. Practise astmevaheldus rather than the case.`,
       weakPct: weak,
       strongPct: strong,
       sample: grading.total + plain.total,
@@ -145,8 +145,8 @@ function caseFindings(facts: ReviewFact[]): Finding[] {
       caseKey: key as CaseKey,
       headline: `The ${caseName(key)} is your weakest case`,
       detail:
-        `${weak}% recall on the ${caseName(key)} (${caseNameEn(key)}), against ${overallPct}% across ` +
-        `every other case. This one is worth a focused drill.`,
+        `You get the ${caseName(key)} (${caseNameEn(key)}) right ${weak}% of the time, against ${overallPct}% ` +
+        `for every other case. A focused round on this one would pay off.`,
       weakPct: weak,
       strongPct: overallPct,
       sample: tally.total,
@@ -176,11 +176,10 @@ function pluralFindings(facts: ReviewFact[]): Finding[] {
 
   return [{
     caseKey: null,
-    headline: "The plural stem is where you lose it",
+    headline: "The plural stem is tripping you up",
     detail:
-      `${strong}% recall on words whose plural follows the regular pattern, ${weak}% on words that ` +
-      `carry their own omastav plural. Those have to be memorized, because the app cannot derive them ` +
-      `and neither can you.`,
+      `You get ${strong}% right on words with a regular plural, but ${weak}% on words with their own ` +
+      `omastav plural. Those have to be learned by heart. No rule gets you there, for us or for you.`,
     weakPct: weak,
     strongPct: strong,
     sample: irregular.total + regular.total,

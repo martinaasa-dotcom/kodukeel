@@ -154,12 +154,12 @@ function pastAsk(verb: TryItVerb, random: () => number): TryItAsk | null {
   const answer = aboutMe ? me : them;
   const who = aboutMe ? "I did it" : "he or she did it";
   return {
-    prompt: `${verb.lemma}, ${verb.translation}: which one says ${who}, already over?`,
+    prompt: `${verb.lemma}, ${verb.translation}: which one says "${who}", in the past?`,
     about: verb.lemma,
     options: shuffle(options, random),
     answer,
-    yes: `Yes. ${answer} is the past${aboutMe ? " about yourself" : " about somebody else"}, and ${now} is now.`,
-    no: `Not that one. ${answer} is the one already over${aboutMe ? ", about yourself" : ", about somebody else"}.`,
+    yes: `Yes. ${answer} is the past${aboutMe ? ", about yourself" : ", about somebody else"}. ${now} is right now.`,
+    no: `Not that one. ${answer} is the past${aboutMe ? ", about yourself" : ", about somebody else"}.`,
   };
 }
 
@@ -183,7 +183,7 @@ export function verbAsks(
       : show === "negative"
         ? acrossVerbsAsk(
             verbs, verb, "IndPrPs_", (v) => `ei ${v}`,
-            (v) => `Which one says not, with ${v.lemma}, ${v.translation}?`,
+            (v) => `Which one means "not", with ${v.lemma}, ${v.translation}?`,
             "the no-form of", random,
           )
         : acrossVerbsAsk(
@@ -235,7 +235,7 @@ export function caseAsks(
       about: word.lemma,
       options,
       answer: word.form,
-      yes: `Yes. ${word.form} is ${word.lemma} with the ending on.${stem}`,
+      yes: `Yes. ${word.form} is ${word.lemma} with the ending added.${stem}`,
       no: `Not that one. ${word.lemma} becomes ${word.form}.${stem}`,
     });
   }

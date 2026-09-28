@@ -206,8 +206,8 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "match-usage",
     title: "Which word does each sentence use?",
     instruction:
-      "Every sentence below was written by a lexicographer to show one word in use. " +
-      "Match each sentence to the word it illustrates.",
+      "A dictionary writer wrote each of these sentences to show one word at work. " +
+      "Find the word each sentence was written for.",
     standsFor: "sobitamine, matching a description to the text it belongs with",
     fallback: "gloss-choice",
   },
@@ -215,39 +215,39 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "gap-choice",
     title: "Choose the missing word",
     instruction:
-      "One word has been taken out of each sentence. Choose the form that belongs there. " +
-      "Every option is a real Estonian form, so the ending is the question.",
+      "Each sentence is missing a word. Pick the form that fits. " +
+      "All the options are real Estonian, so it's the ending you're choosing.",
     standsFor: "valikvastustega lünkülesanne, a gapped text with three or four options",
     fallback: "form-choice",
   },
   "gap-type": {
     kind: "gap-type",
     title: "Write the missing word",
-    instruction: "One word has been taken out of each sentence. Type the form that belongs there.",
+    instruction: "Each sentence is missing a word. Type the form that fits.",
     standsFor: "lünkülesanne, a gapped text filled in by hand",
   },
   "gloss-choice": {
     kind: "gloss-choice",
     title: "What does the word mean?",
     instruction:
-      "An Estonian word and four English meanings. Set when the dictionary has no recorded " +
-      "sentence to build a real reading task from.",
+      "One Estonian word, four meanings in English. Pick the right one. You get this " +
+      "when the dictionary has no sentence to build a proper reading task from.",
     standsFor: "lugemine info hankimiseks, reading to find information",
   },
   "form-choice": {
     kind: "form-choice",
     title: "Which form is it?",
     instruction:
-      "A word and a case. Choose the form that belongs to it. Every option is a real Estonian " +
-      "form, so the ending is the question.",
+      "A word and a case. Pick the form that matches. All the options are real Estonian, " +
+      "so it's the ending you're choosing.",
     standsFor: "valikvastustega lünkülesanne, a gapped text with three or four options",
   },
   order: {
     kind: "order",
     title: "Put the sentence back together",
     instruction:
-      "The words of a real sentence, out of order. Put them back. Estonian word order is freer " +
-      "than English, so this is marked against the order the writer actually chose.",
+      "Here's a real sentence with its words shuffled. Put them back in order. Estonian is " +
+      "looser about word order than English, so we mark you against the order the writer used.",
     standsFor: "tekstisiseste seoste mõistmine, following how a text holds together",
   },
   /*
@@ -265,9 +265,9 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "case-form",
     title: "Write the form",
     instruction:
-      "Write the named form of each word. Marked against the dictionary, never against a model. " +
-      "The real paper gives this part's whole clock to the two texts above, so do these last and " +
-      "with whatever is left.",
+      "Write each word in the form asked for. The dictionary marks it, not a model. " +
+      "On the real paper the whole clock goes on the two texts above, so leave these till last " +
+      "and use whatever time is left.",
     standsFor:
       "not a task the real paper sets: grammatiline korrektsus, the accuracy an examiner marks " +
       "inside your two texts, asked directly because nothing here may mark your Estonian",
@@ -276,8 +276,8 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "government",
     title: "Which case does the verb take?",
     instruction:
-      "Estonian verbs govern a case, and English gives you no clue which. Choose the one each " +
-      "verb takes. Ours rather than the paper's, like the task above it, so it goes last.",
+      "Every Estonian verb wants its own case, and English gives you no hint which. Pick the one " +
+      "each verb takes. This one is ours rather than the paper's, like the task above, so do it last.",
     standsFor:
       "not a task the real paper sets: rektsioon, the verb government marked inside your two " +
       "texts, asked directly for the same reason",
@@ -286,20 +286,20 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "message",
     title: "Write a short message",
     instruction:
-      "The real writing part opens with this one: a short message with a job to do. Cover every " +
-      "point you are given. Length and the words you were asked to use are checked mechanically " +
-      "and carry the marks; whether you covered the points is for you to read back, because " +
-      "nothing here judges your Estonian with a model.",
+      "The real writing part starts with this: a short message that has to get something done. " +
+      "Cover every point you're given. We count the words and check you used the ones asked for, " +
+      "and that's where the marks come from. Whether you covered every point is yours to read " +
+      "back, because no model here judges your Estonian.",
     standsFor: "teate koostamine, the short message the writing part opens with",
   },
   dictation: {
     kind: "dictation",
     title: "Write down what you hear",
     instruction:
-      `Each recording plays ${LISTEN_PLAYS} times and no more, which is what the specifications ` +
-      "set, and a slow play is one of them. Marked word by word, so a missed ending costs one " +
-      "word and not the whole of it. A missed diacritic is reported and does not cost the mark, " +
-      "which is how the real paper marks this one.",
+      `You can play each recording ${LISTEN_PLAYS} times, as on the real paper, and a slow play ` +
+      "counts as one of them. We mark word by word, so a missed ending costs you that word and " +
+      "no more. A missing accent is pointed out but costs nothing, which is how the real paper " +
+      "marks it too.",
     standsFor: "puuduva infoga ülesanne, writing down what the recording said",
   },
   "listen-choose": {
@@ -310,18 +310,18 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     // misdescribing itself. Each question says which it is.
     title: "What did you hear?",
     instruction:
-      `Each recording plays ${LISTEN_PLAYS} times and no more, which is what the specifications ` +
-      "set. Read the questions during the pause, then play it and choose what it said.",
+      `You can play each recording ${LISTEN_PLAYS} times, as on the real paper. Read the ` +
+      "questions during the pause, then play it and pick what you heard.",
     standsFor: "valikvastustega kuulamisülesanne, multiple choice after a recording",
   },
   compose: {
     kind: "compose",
     title: "Write a text",
     instruction:
-      "The second writing task, and the real paper lets you choose: a story on the topic given, " +
+      "The second writing task, and like the real paper you get a choice: a story on the topic, " +
       "or a personal letter about it. Pick one and write it in Estonian, using the words listed. " +
-      "Length and the words you were asked to use are checked mechanically and carry the marks. " +
-      "Anu may add a note, and her note carries none.",
+      "The marks come from the length and from using those words. Anu may add a note " +
+      "afterwards, but her note doesn't change your marks.",
     standsFor:
       "loovkirjutamine või isikliku kirja koostamine, the second writing task, which the real " +
       "paper also lets you choose between",
@@ -330,9 +330,9 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "speak",
     title: "Speak",
     instruction:
-      "Record yourself answering, then listen back and mark yourself against the criteria. " +
-      "There is no verified Estonian speech recognizer available to this app, so nothing here " +
-      "scores your pronunciation and nothing pretends to.",
+      "Record your answer, then listen back and mark yourself against the checklist. " +
+      "There's no Estonian speech recognizer good enough to trust, so nothing here scores " +
+      "your pronunciation, and nothing pretends to.",
     standsFor: "suuline esinemine ja dialoog, the spoken part with an examiner",
   },
 };
@@ -367,8 +367,8 @@ const PLANS: Record<ExamLevel, LevelPlan> = {
     reading: [5, 6, 4], listening: [5, 4], writing: [4, 3, 5, 8], speaking: [4, 4],
     messageWords: 15, composeWords: 30, speakSeconds: 45,
     summary:
-      "The state does not examine at A1, so this paper is the app's own. It is built to the " +
-      "shape of the A2 paper, one step easier, for a first sitting that is meant to be passable.",
+      "There's no state exam at A1, so this paper is our own. It follows the A2 paper, one step " +
+      "easier, so your first go is one you can actually pass.",
   },
   A2: {
     minutes: { writing: 30, listening: 30, reading: 50, speaking: 15 },
@@ -376,8 +376,8 @@ const PLANS: Record<ExamLevel, LevelPlan> = {
     reading: [6, 8, 5], listening: [6, 5], writing: [5, 4, 6, 10], speaking: [5, 5],
     messageWords: 20, composeWords: 40, speakSeconds: 60,
     summary:
-      "The lowest level the state examines, and the one that meets the language requirement for " +
-      "several jobs. Eighty points, twenty for each part.",
+      "The first level the state examines, and enough for quite a few jobs. Eighty points, " +
+      "twenty for each part.",
   },
   B1: {
     minutes: { writing: 30, listening: 35, reading: 50, speaking: 15 },
@@ -385,8 +385,8 @@ const PLANS: Record<ExamLevel, LevelPlan> = {
     reading: [8, 10, 6], listening: [7, 6], writing: [5, 4, 8, 12], speaking: [6, 6],
     messageWords: 30, composeWords: 80, speakSeconds: 90,
     summary:
-      "The level a citizenship application asks for. A hundred points, twenty five for each " +
-      "part, and the written half runs under two hours.",
+      "The level you need for citizenship. A hundred points, twenty five for each part, and " +
+      "the written half takes under two hours.",
   },
   B2: {
     minutes: { writing: 80, listening: 35, reading: 70, speaking: 20 },
@@ -394,8 +394,8 @@ const PLANS: Record<ExamLevel, LevelPlan> = {
     reading: [8, 12, 8], listening: [8, 7], writing: [6, 5, 9, 14], speaking: [7, 7],
     messageWords: 45, composeWords: 140, speakSeconds: 120,
     summary:
-      "Three hours and five minutes of written paper, then twenty minutes of speaking. The " +
-      "level most professional registers ask for.",
+      "Three hours and five minutes of writing, then twenty minutes of speaking. Most " +
+      "professional registers ask for this one.",
   },
   C1: {
     minutes: { writing: 90, listening: 45, reading: 60, speaking: 20 },
@@ -403,8 +403,8 @@ const PLANS: Record<ExamLevel, LevelPlan> = {
     reading: [10, 14, 8], listening: [9, 8], writing: [6, 5, 10, 16], speaking: [8, 8],
     messageWords: 60, composeWords: 260, speakSeconds: 150,
     summary:
-      "The highest level the state examines. Ninety minutes of writing alone, and the second " +
-      "written task runs to about 260 words.",
+      "The top level the state examines. Ninety minutes of writing on its own, and the second " +
+      "text runs to about 260 words.",
   },
 };
 
@@ -508,15 +508,15 @@ export function writtenMinutes(spec: ExamSpec): number {
  * judgment a learner can make; "my pronunciation was accurate" is not.
  */
 export const SPEAKING_CRITERIA: readonly string[] = [
-  "I answered the question that was actually asked.",
-  "I spoke for the whole time, without long silences.",
+  "I answered the question I was actually asked.",
+  "I kept talking the whole time, without long silences.",
   "I gave a reason, not only a description.",
   "I used the case endings I meant to use.",
-  "Somebody Estonian would have understood me first time.",
+  "An Estonian would have understood me the first time.",
   "I used more than one tense, not only the olevik.",
   "I used at least three words from the idea card.",
-  "I heard a mistake and corrected it as I went.",
-  "I never switched into English.",
+  "I caught a mistake and fixed it as I went.",
+  "I never slipped into English.",
 ] as const;
 
 /** The first `count` criteria, which is how many marks the task carries. */

@@ -109,15 +109,15 @@ export function ladderVerdict(evidence: LadderEvidence): LadderVerdict {
 export function holdReason(verdict: Extract<LadderVerdict, { kind: "hold" }>): string {
   const seen = Math.round(verdict.seen * 100);
   return verdict.because === "retention"
-    ? `Of the words that part taught, ${seen} in a hundred have stuck so far. `
-      + "The rest are in your review queue and will come back on their own."
-    : `You are getting ${seen} in a hundred right at the moment. `
-      + "A harder part would push that number down, not up.";
+    ? `So far ${seen} in a hundred of that part's words have stuck. `
+      + "The rest are waiting in your reviews, and they'll come round by themselves."
+    : `Right now you're getting ${seen} in a hundred right. `
+      + "A harder part would only push that number down.";
 }
 
 /** What to do about it, which is never "start again". */
 export function holdAdvice(verdict: Extract<LadderVerdict, { kind: "hold" }>): string {
   return verdict.because === "retention"
-    ? "A few more days of review and this moves on its own. Nothing is lost, and nothing has to be done twice."
-    : "A few slower days will move this. Your review queue already knows which words are the problem.";
+    ? "Give it a few more days of reviews and this number climbs by itself. You won't lose anything, and nothing needs doing twice."
+    : "A few gentler days will fix this. Your reviews already know which words are giving you trouble.";
 }

@@ -79,8 +79,8 @@ function partsByNeed(parts: readonly PartResult[]): PartResult[] {
  */
 function zeroPartConsequence(pct: number, part: string): string {
   return pct >= PASS_PCT
-    ? `The total is enough. A part at nought fails the paper on its own, so ${part} is the one to work on.`
-    : `You are ${PASS_PCT - pct} points of percentage short, and ${part} has to score something too.`;
+    ? `Your total is enough. But one part at zero fails the whole paper, so ${part} is the one to work on.`
+    : `You're ${PASS_PCT - pct} points short of a pass, and ${part} needs to score something too.`;
 }
 
 export function buildReport(result: ExamResult): ExamReport {
@@ -92,26 +92,26 @@ export function buildReport(result: ExamResult): ExamReport {
   const best = set[set.length - 1];
 
   const [headline, consequence] = result.part ? partSentences(result) : [result.passed
-    ? `${result.points} of ${result.maxPoints} points, ${result.pct} percent. That is a pass at ${result.level}.`
+    ? `${result.points} of ${result.maxPoints} points, ${result.pct} percent. That's a pass at ${result.level}.`
     : result.zeroPart
       ? `${result.pct} percent overall, but ${SKILL_LABEL[result.zeroPart].toLowerCase()} scored nothing, and a zero in one part fails the paper.`
       : `${result.points} of ${result.maxPoints} points, ${result.pct} percent. A pass is ${PASS_PCT}.`,
   result.passed
-    ? "On a real sitting this would be a certificate."
+    ? "On the real day, this would get you the certificate."
     : result.waitBeforeResit
-      ? `Under ${RETAKE_WAIT_PCT} percent, a real candidate waits six months before sitting again. Worth knowing before booking one.`
+      ? `Under ${RETAKE_WAIT_PCT} percent, a real candidate has to wait six months before trying again. Good to know before you book one.`
       : result.zeroPart
         ? zeroPartConsequence(result.pct, SKILL_LABEL[result.zeroPart].toLowerCase())
-        : `You are ${PASS_PCT - result.pct} points of percentage short. That is one part, not four.`];
+        : `You're ${PASS_PCT - result.pct} points short. That's one part's worth, not four.`];
 
   const gaps: Feedback[] = [];
   if (result.absentParts.length > 0) {
     gaps.push({
       id: "absent",
-      title: `${result.absentParts.map((s) => SKILL_LABEL[s]).join(" and ")} could not be set`,
+      title: `We couldn't set ${result.absentParts.map((s) => SKILL_LABEL[s].toLowerCase()).join(" or ")}`,
       detail:
-        "The dictionary had nothing to build those questions from, so they were left out of the " +
-        "total rather than scored as nothing. Your percentage is of the parts that were set.",
+        "The dictionary didn't have enough to build those questions from, so we left them out " +
+        "rather than scoring them as nothing. Your percentage covers the parts you did sit.",
       href: "/dictionary",
       cta: "Add words to the dictionary",
     });
@@ -125,9 +125,9 @@ export function buildReport(result: ExamResult): ExamReport {
       title: `${part.label} scored ${part.points} of ${part.maxPoints}`,
       detail: part.points === 0
         ? result.part
-          ? "Nothing at all. On the day a part at nought fails the paper however the rest went."
-          : "Nothing at all, which fails the paper on its own however the rest went."
-        : `${part.pct} percent of the marks on offer. ${taskDetail(part)}`,
+          ? "Nothing at all. On the day, one part at zero fails the paper, however the rest go."
+          : "Nothing at all, and that fails the paper on its own, however the rest went."
+        : `${part.pct} percent of the marks available. ${taskDetail(part)}`,
       href: where.href,
       cta: where.cta,
     });
@@ -138,7 +138,7 @@ export function buildReport(result: ExamResult): ExamReport {
     strengths.push({
       id: `part-${best.skill}`,
       title: `${best.label} at ${best.pct} percent`,
-      detail: `${best.points} of ${best.maxPoints} points. This part is not what is holding you back.`,
+      detail: `${best.points} of ${best.maxPoints} points. This part isn't what's holding you back.`,
     });
   }
   for (const part of result.parts) {
@@ -202,7 +202,7 @@ function taskDetail(part: PartResult): string {
       || a.title.localeCompare(b.title))[0];
   if (!weakest) return "";
   const pct = Math.round((weakest.raw / weakest.rawAvailable) * 100);
-  return `Most of it went on "${weakest.title}", at ${pct} percent.`;
+  return `Most of the lost marks were in "${weakest.title}", where you got ${pct} percent.`;
 }
 
 /*
@@ -218,7 +218,7 @@ function partSentences(result: ExamResult): [string, string] {
   const label = SKILL_LABEL[result.part!];
   const headline = `${label} on its own: ${result.points} of ${result.maxPoints} points, ${result.pct} percent.`;
   const consequence = result.pct >= PASS_PCT
-    ? `At or above the ${PASS_PCT} percent the whole paper needs. The examination marks all four parts together, so sit the whole paper to know where you stand.`
-    : `Under the ${PASS_PCT} percent the whole paper needs. On the day the other parts can make up for it, as long as none of them scores nothing.`;
+    ? `That's at least the ${PASS_PCT} percent a whole paper needs. The real exam marks all four parts together, so sit a full paper to know where you really stand.`
+    : `That's under the ${PASS_PCT} percent a whole paper needs. On the day the other parts can make up for it, as long as none of them scores zero.`;
   return [headline, consequence];
 }

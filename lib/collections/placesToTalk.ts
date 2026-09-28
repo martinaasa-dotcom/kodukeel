@@ -18,17 +18,17 @@ export interface PlaceToTalk {
 export const PLACES_TO_TALK: readonly PlaceToTalk[] = [
   {
     name: "Integratsiooni Sihtasutus, the Integration Foundation",
-    what: "Runs the Estonian Language Houses in Tallinn and Narva, with language cafés, clubs and consultations where you speak Estonian with people who came to speak it with you.",
+    what: "Runs the Estonian Language Houses in Tallinn and Narva: language cafés, clubs and drop-in sessions where everyone has come to speak Estonian, including you.",
     href: "https://integratsioon.ee/en",
   },
   {
     name: "Settle in Estonia",
-    what: "The state's welcome program for people who have moved here, with free Estonian language courses run by teachers in a room with other beginners.",
+    what: "The state's welcome program for people who've just moved here, with free Estonian courses: a real teacher and a room full of other beginners.",
     href: "https://www.settleinestonia.ee/",
   },
   {
     name: "Keeleklikk",
-    what: "A free Estonian e-course from beginner upward, with a teacher who answers by email. Good beside this app, and it is where the README already points.",
+    what: "A free online Estonian course from beginner upward, with a teacher who answers your emails. It pairs nicely with this app.",
     href: "https://www.keeleklikk.ee/",
   },
 ];

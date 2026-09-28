@@ -16,11 +16,11 @@ import { studyHours, type TimedReview } from "./pace";
 
 /** Said on the record itself, where anybody reading it will see it. */
 export const NOT_A_CERTIFICATE =
-  "This is a record of study kept by Kodukeel from its own log. It is not a certificate, and nothing on it has been checked by an examiner.";
+  "This is a record of study that Kodukeel kept from its own log. It's not a certificate, and no examiner has checked anything on it.";
 
 /** The one thing that does prove a level, named so the record points at it. */
 export const WHAT_PROVES_A_LEVEL =
-  "In Estonia a language level is proved by the state examination, which Harno runs.";
+  "In Estonia, the only proof of a language level is the state examination, which Harno runs.";
 
 export interface StudyTotals {
   /** Hours in sittings, by the same rule the plan reads a pace with. */

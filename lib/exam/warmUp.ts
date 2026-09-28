@@ -15,7 +15,7 @@
  */
 export const OPENING_CONVERSATION: readonly string[] = [
   "Say who you are and where you live.",
-  "Say what you do during the day, at work, at school or at home.",
+  "Say what your day looks like, at work, at school or at home.",
   "Say how long you have been learning Estonian, and why.",
-  "Say one thing you like doing in your free time.",
+  "Say one thing you like to do in your free time.",
 ];

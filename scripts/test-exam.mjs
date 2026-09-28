@@ -383,7 +383,7 @@ check("it says why, rather than only greying the boxes out",
   /Record something first/i.test(speakingBody));
 
 check("it says out loud that nothing here scores a recording",
-  /no verified Estonian speech recognizer/i.test(speakingBody));
+  /no Estonian speech recognizer good enough to trust/i.test(speakingBody));
 
 // ── Handing in ───────────────────────────────────────────────────────────────
 
@@ -430,7 +430,7 @@ if (!landed) {
 
   await page.goto(`${B}/exam`, { waitUntil: "networkidle" });
   check("the sitting shows up on the hub afterwards",
-    /Papers you have sat/i.test(await page.locator("body").innerText()) &&
+    /Papers you've sat/i.test(await page.locator("body").innerText()) &&
     (await page.getByText(/percent, (pass|not a pass)/).count()) > 0);
 }
 

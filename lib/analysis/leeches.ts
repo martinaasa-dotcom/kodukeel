@@ -145,7 +145,7 @@ function caseLine(key: string | null): string {
  */
 export function buildClinicQuestion(leech: Leech, confusable: string[]): string {
   const parts = [
-    `I keep failing this card and I do not know why.`,
+    `I keep getting this card wrong and I don't know why.`,
     ``,
     `Card: ${leech.front} → ${leech.back}`,
     leech.lemma ? `Word: ${leech.lemma}${leech.translation ? ` (${leech.translation})` : ""}` : "",
@@ -159,7 +159,7 @@ export function buildClinicQuestion(leech: Leech, confusable: string[]): string 
       rather than falling back to the Latin name.
     */
     caseLine(leech.targetCase),
-    `I have reviewed it ${leech.history.length} times and got it wrong ${leech.failRate}% of the time.`,
+    `I've reviewed it ${leech.history.length} times and got it wrong ${leech.failRate}% of the time.`,
     `The pattern: it ${leech.pattern}.`,
     confusable.length
       ? `Words already in my deck that look or sound similar: ${confusable.join(", ")}.`

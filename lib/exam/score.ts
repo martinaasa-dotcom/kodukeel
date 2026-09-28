@@ -217,7 +217,7 @@ export function markItem(
     return {
       itemId: item.id, scored: 0, available: 0, correct: false,
       expected: expectedOf(item), given: "", language: languageOf(item),
-      note: "The recording would not play, so this question was left out of the marks.",
+      note: "The recording wouldn't play, so we left this question out of your marks.",
       cardId: null, lexemeId: item.lexemeId, lemma: item.lemma, recalled: false,
     };
   }
@@ -381,7 +381,7 @@ function markWritten(
     given: `${written.length} words`,
     language: "en",
     raw: text.trim(),
-    note: missing.length > 0 ? `Did not use ${missing.join(", ")}.` : "",
+    note: missing.length > 0 ? `You didn't use ${missing.join(", ")}.` : "",
     cardId: null,
     lexemeId: item.lexemeId,
     lemma: item.lemma,
@@ -420,9 +420,9 @@ function markSpeak(
     available: marks,
     correct: scored >= marks * 0.6,
     expected: `${criteria} criteria`,
-    given: spoken?.recorded ? `${met} of ${criteria}, your own marking` : "No recording",
+    given: spoken?.recorded ? `${met} of ${criteria}, marked by you` : "No recording",
     language: "en",
-    note: spoken?.recorded ? "" : "Nothing was recorded, so this task scores nothing.",
+    note: spoken?.recorded ? "" : "There's no recording, so this task scores nothing.",
     cardId: null,
     lexemeId: item.lexemeId,
     lemma: item.lemma,

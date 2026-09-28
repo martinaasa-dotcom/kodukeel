@@ -149,9 +149,9 @@ export type Evidence = "thin" | "fair" | "good";
  * not text and this app is measured on a phone.
  */
 export const EVIDENCE_NOTE: Record<Evidence, string> = {
-  thin: "We have very little to go on yet, so these are guesses and are capped to say so.",
-  fair: "There is enough history here for a rough estimate, not a confident one.",
-  good: "There is enough history here for these numbers to mean something.",
+  thin: "We have very little to go on yet, so these are guesses, and we keep them low to say so.",
+  fair: "There's enough history for a rough estimate, but not a confident one.",
+  good: "You've done enough here for these numbers to mean something.",
 };
 
 export const EVIDENCE_LABEL: Record<Evidence, string> = {
@@ -409,11 +409,11 @@ function verdictFor(
       ? `You sat this and scored ${sat.pct} percent, which is a pass.`
       : `You sat this and scored ${sat.pct} percent. A pass is ${PASS_PCT}.`;
   }
-  const hedge = evidence === "thin" ? " We are working from very little, so treat it as a guess." : "";
+  const hedge = evidence === "thin" ? " We're working from very little, so take it as a guess." : "";
   if (confidence >= LIKELY_PCT) return `You would very likely pass ${level} today.${hedge}`;
-  if (confidence >= CLOSE_PCT) return `${level} is within reach, and it would be close.${hedge}`;
-  if (confidence >= DISTANT_PCT) return `${level} is a stretch at the moment.${hedge}`;
-  return `${level} is a long way off for now, which is worth knowing.${hedge}`;
+  if (confidence >= CLOSE_PCT) return `${level} is within reach, but it would be close.${hedge}`;
+  if (confidence >= DISTANT_PCT) return `${level} would be a stretch right now.${hedge}`;
+  return `${level} is still a long way off. Better to know that now than on the day.${hedge}`;
 }
 
 /** The whole picture, every level at once. */
@@ -538,10 +538,10 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
     const row = signals.vocabulary[assessed];
     out.push({
       id: "level",
-      title: `${assessed} vocabulary is there`,
+      title: `Your ${assessed} words are in place`,
       detail: row && row.available > 0
-        ? `${row.known} of the ${row.available} words the dictionary holds at ${assessed} have stuck.`
-        : `Enough of the ${assessed} material has stuck to sit the paper.`,
+        ? `${row.known} of the ${row.available} ${assessed} words in the dictionary have stuck.`
+        : `Enough of the ${assessed} words have stuck to sit the paper.`,
     });
   }
 
@@ -551,7 +551,7 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
       out.push({
         id: `skill-${skill}`,
         title: `${SKILL_LABEL[skill]} is holding up`,
-        detail: `${evidence.pct} percent across ${evidence.attempts} goes. Leave it alone and spend the time elsewhere.`,
+        detail: `${evidence.pct} percent over ${evidence.attempts} goes. You can leave this one and spend your time elsewhere.`,
       });
     }
   }
@@ -563,15 +563,15 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
     out.push({
       id: "cases",
       title: solid.length === 1 ? "One case is solid" : `${solid.length} cases are solid`,
-      detail: `${solid.map((c) => `${c.caseEt} at ${c.pct} percent`).join(", ")}. That is the half of the grammar you can stop worrying about.`,
+      detail: `${solid.map((c) => `${c.caseEt} at ${c.pct} percent`).join(", ")}. You can stop worrying about those.`,
     });
   }
 
   if (signals.accuracy.reviews >= 100 && signals.accuracy.pct >= 85) {
     out.push({
       id: "recall",
-      title: "Recall is reliable",
-      detail: `${signals.accuracy.pct} percent across ${signals.accuracy.reviews} reviews. What you have learned, you have kept.`,
+      title: "You remember what you learn",
+      detail: `${signals.accuracy.pct} percent over ${signals.accuracy.reviews} reviews. Words you learn are staying learned.`,
     });
   }
 
@@ -593,7 +593,7 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
         // which is the first sentence a nervous learner screenshots for their
         // teacher. It is the band of the words still to meet.
         title: `${missing} ${target} words still to meet`,
-        detail: `${row.known} of ${row.available} have stuck, which is ${pct} percent. The paper draws on all of them.`,
+        detail: `${row.known} of ${row.available} have stuck so far, ${pct} percent. Any of them could turn up on the paper.`,
         href: "/learn",
         cta: "Open the path",
       });
@@ -625,8 +625,8 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
           id: `placed-${skill}`,
           title: `The level check put your ${SKILL_LABEL[skill].toLowerCase()} at ${placed}`,
           detail:
-            "It is the weakest kind of evidence a paper can rest on and the only kind this part " +
-            "has, because nothing else in your history tells listening and speaking apart.",
+            "That's thin evidence to plan a paper on, but it's all we have for this part. Nothing " +
+            "else you've done here tells your listening and speaking apart.",
           href: where.href,
           cta: where.cta,
         });
@@ -637,10 +637,10 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
         // Not "you have never practiced it": a review row carries no note of
         // which mode wrote it, so the app genuinely cannot tell a dictation from
         // a flip of the same card. What it can say is that it has nothing.
-        title: `Nothing here tells us about your ${SKILL_LABEL[skill].toLowerCase()}`,
+        title: `We don't know how your ${SKILL_LABEL[skill].toLowerCase()} is going yet`,
         detail:
-          "It is a quarter of the paper, and a zero in any one part fails the whole thing however " +
-          "good the other three are. Sitting a paper is what puts a number on it.",
+          "It's a quarter of the paper, and a zero in any one part fails the whole thing, however " +
+          "well the other three go. Sit a practice paper and you'll have a number for it.",
         href: where.href,
         cta: where.cta,
       });
@@ -649,8 +649,8 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
         id: `weak-${skill}`,
         title: `${SKILL_LABEL[skill]} is at ${evidence.pct} percent`,
         detail: skill === weakest
-          ? `Across ${evidence.attempts} goes, and it is the part costing you the most marks.`
-          : `Across ${evidence.attempts} goes.`,
+          ? `Over ${evidence.attempts} goes, and it's the part costing you the most marks.`
+          : `Over ${evidence.attempts} goes.`,
         href: where.href,
         cta: where.cta,
       });
@@ -666,7 +666,7 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
       // Named the way a class names it, and then what it asks rather than
       // what an English grammar calls it: see `lib/estonian/cases.ts`.
       title: `The ${c.caseEt} (${caseByKey(c.caseKey)?.asksEn ?? c.caseKey.toLowerCase()}) is at ${c.pct} percent`,
-      detail: `${c.reviews} reviews, and it is still going wrong. Case endings carry marks in every written part.`,
+      detail: `Still going wrong after ${c.reviews} reviews. Case endings earn marks in every written part.`,
       href: `/grammar/${c.caseKey.toLowerCase()}`,
       cta: "Read the rule",
     });
@@ -676,7 +676,7 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
     out.push({
       id: "recall",
       title: `Recall is at ${signals.accuracy.pct} percent`,
-      detail: "Some cards are being learned and lost again rather than kept. The clinic names which.",
+      detail: "Some words keep slipping away after you've learned them. The clinic shows you which.",
       href: "/review/clinic",
       cta: "Open the clinic",
     });
@@ -685,8 +685,8 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
   if (signals.totalReviews < EVIDENCE_FAIR) {
     out.push({
       id: "evidence",
-      title: "We do not know you well enough yet",
-      detail: `Everything above rests on ${signals.totalReviews} reviews. Another few weeks of daily review and these numbers start meaning something.`,
+      title: "We don't know you well enough yet",
+      detail: `All of this rests on ${signals.totalReviews} reviews. Give it a few more weeks of daily review and these numbers will start to mean something.`,
       href: "/review",
       cta: "Review now",
     });
