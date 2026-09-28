@@ -5,7 +5,7 @@ import { learnBatch, learnCounts, type LearnKind } from "@/lib/progress/learn";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
 import { LearnSession } from "./LearnSession";
-import { firstParam, firstParams } from "@/lib/ux/queryParam";
+import { firstParams } from "@/lib/ux/queryParam";
 
 export const dynamic = "force-dynamic";
 
@@ -40,10 +40,11 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 export default async function LearnNewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ kind?: string | string[] }>;
+  searchParams: Promise<{ kind?: string | string[]; round?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const kind = kindFrom(firstParam((await searchParams).kind));
+  const query = firstParams(await searchParams);
+  const kind = kindFrom(query.kind);
 
   /*
     Which language a first meeting gives the meaning in, beside the level and
@@ -93,5 +94,30 @@ export default async function LearnNewPage({
   ]);
 
   const { waiting, started } = kind === "phrase" ? counts.phrases : counts;
-  return <LearnSession words={words} waiting={waiting} started={started} kind={kind} />;
+  /*
+    "LEARN 5 MORE" HAS TO BE AN ADDRESS THIS PAGE IS NOT ALREADY ON.
+
+    It linked to `/learn/new`, which is where the finished round is standing,
+    so the router served the payload it already held and the session, which
+    snapshots its batch in state, went on drawing the summary: a press that did
+    nothing. The round number makes the next batch a different address, so it
+    is rendered fresh, and keying the session on it remounts the state rather
+    than keeping the last round's. The kind rides along, or a round of phrases
+    would ask for more words.
+  */
+  const round = Number.parseInt(query.round ?? "", 10);
+  const thisRound = Number.isFinite(round) && round > 0 ? round : 0;
+  const next = new URLSearchParams();
+  if (kind === "phrase") next.set("kind", "phrase");
+  next.set("round", String(thisRound + 1));
+  return (
+    <LearnSession
+      key={thisRound}
+      words={words}
+      waiting={waiting}
+      started={started}
+      kind={kind}
+      moreHref={`/learn/new?${next.toString()}`}
+    />
+  );
 }

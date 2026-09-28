@@ -104,8 +104,14 @@ function Ladder({ rung }: { rung: Rung }) {
 }
 
 export function LearnSession({
-  words: initial, waiting, started, kind = "word", back,
+  words: initial, waiting, started, kind = "word", back, moreHref = "/learn/new",
 }: {
+  /**
+   * Where "Learn 5 more" goes. It has to be an address this round is not
+   * standing on, or the press lands on the page already drawn and nothing
+   * moves; the page hands in the next round's.
+   */
+  moreHref?: string;
   words: LearnWord[];
   /** Words in the deck that have never been asked, this batch included. */
   waiting: number;
@@ -834,7 +840,7 @@ export function LearnSession({
               <ButtonLink href="/review" size="lg">Practice what is due</ButtonLink>
               <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
               {more > 0 && (
-                <ButtonLink href="/learn/new" variant="primary" size="lg">
+                <ButtonLink href={moreHref} variant="primary" size="lg">
                   <Sparkles size={15} aria-hidden /> Learn {Math.min(more, LEARN_BATCH)} more
                 </ButtonLink>
               )}
