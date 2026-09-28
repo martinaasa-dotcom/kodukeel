@@ -13,6 +13,7 @@ import { VERB_AXES, grammarGroupTerm, grammarTerm } from "@/lib/estonian/terms";
 import { caseAccuracy } from "@/lib/stats/history";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { Card, Chip, Meter, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { Lettered } from "@/components/HeroLetters";
 
 export const dynamic = "force-dynamic";
 
@@ -61,44 +62,46 @@ export default async function GrammarIndexPage() {
       lead="Fourteen endings. Three you memorize, and eleven you can work out."
     >
       <Stack>
-        <Card tone="night" className="md:p-9">
-          <p className="label-xs flex items-center gap-2" style={{ color: "var(--butter-ink)" }}>
-            <Sparkles size={14} aria-hidden className="shrink-0" />
-            How the cases work
-          </p>
-          <h2 className="font-display mt-3 text-3xl font-bold leading-[1.02] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            One word, eleven endings
-          </h2>
-          <p className="mt-3 max-w-[58ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Three forms of a word are memorized. Every other case is one of those three with an
-            ending stuck on, and it is the same ending for every word in the language.
-          </p>
-          {demo && (
-            <ul className="mt-6 flex flex-wrap gap-2">
-              {demo.forms.map((row, i) => (
-                <li
-                  key={row.suffix}
-                  className="pop-in rounded-full px-3 py-1.5"
-                  style={{
-                    background: "rgb(255 255 255 / 0.07)",
-                    border: "1px solid rgb(255 255 255 / 0.1)",
-                    animationDelay: `${i * 45}ms`,
-                  }}
-                >
-                  <span lang="et" className="text-base" style={{ color: "var(--ink-2)" }}>
-                    {row.stem}
-                  </span>
-                  <span lang="et" className="text-base font-bold" style={{ color: ENDING_HUES[i % ENDING_HUES.length] }}>
-                    {row.suffix}
-                  </span>
-                  <span className="ml-2 text-sm" style={{ color: "var(--ink-3)" }}>
-                    {row.plain}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+        <Lettered>
+          <Card tone="night" className="md:p-9">
+            <p className="label-xs flex items-center gap-2" style={{ color: "var(--butter-ink)" }}>
+              <Sparkles size={14} aria-hidden className="shrink-0" />
+              How the cases work
+            </p>
+            <h2 className="font-display mt-3 text-3xl font-bold leading-[1.02] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+              One word, eleven endings
+            </h2>
+            <p className="mt-3 max-w-[58ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              Three forms of a word are memorized. Every other case is one of those three with an
+              ending stuck on, and it is the same ending for every word in the language.
+            </p>
+            {demo && (
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {demo.forms.map((row, i) => (
+                  <li
+                    key={row.suffix}
+                    className="pop-in rounded-full px-3 py-1.5"
+                    style={{
+                      background: "rgb(255 255 255 / 0.07)",
+                      border: "1px solid rgb(255 255 255 / 0.1)",
+                      animationDelay: `${i * 45}ms`,
+                    }}
+                  >
+                    <span lang="et" className="text-base" style={{ color: "var(--ink-2)" }}>
+                      {row.stem}
+                    </span>
+                    <span lang="et" className="text-base font-bold" style={{ color: ENDING_HUES[i % ENDING_HUES.length] }}>
+                      {row.suffix}
+                    </span>
+                    <span className="ml-2 text-sm" style={{ color: "var(--ink-3)" }}>
+                      {row.plain}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </Lettered>
 
         {/*
           THE INTERACTIVE VERSION OF THE CARD ABOVE, FIRST, BECAUSE THE CARD

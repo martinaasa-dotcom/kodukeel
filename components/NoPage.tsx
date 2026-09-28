@@ -1,6 +1,7 @@
 import { ButtonLink } from "@/components/Button";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Mascot } from "@/components/brand";
+import { Lettered } from "@/components/HeroLetters";
 
 /**
  * What a reader is told when the page they asked for is not there.
@@ -21,28 +22,30 @@ import { Mascot } from "@/components/brand";
  */
 export function NoPage() {
   return (
-    <div className="night flex w-full flex-col items-center gap-4 rounded-[var(--r-xl)] border px-6 py-10 md:px-10 md:py-12">
-      <Mascot size={72} mood="thinking" className="float" />
-      <h1 lang="et" className="font-display text-4xl font-bold leading-tight tracking-tight md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-        Seda lehte pole
-      </h1>
-      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        There&rsquo;s no page here. If you were after a word, try the dictionary. It takes
-        Estonian or English, and inflected forms too, which is usually what you have in front of you.
-      </p>
-      <div className="mt-2 flex flex-wrap justify-center gap-3">
-        <ButtonLink href="/">Back to Today</ButtonLink>
-        <ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>
+    <Lettered className="w-full">
+      <div className="night flex w-full flex-col items-center gap-4 rounded-[var(--r-xl)] border px-6 py-10 md:px-10 md:py-12">
+        <Mascot size={72} mood="thinking" className="float" />
+        <h1 lang="et" className="font-display text-4xl font-bold leading-tight tracking-tight md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+          Seda lehte pole
+        </h1>
+        <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          There&rsquo;s no page here. If you were after a word, try the dictionary. It takes
+          Estonian or English, and inflected forms too, which is usually what you have in front of you.
+        </p>
+        <div className="mt-2 flex flex-wrap justify-center gap-3">
+          <ButtonLink href="/">Back to Today</ButtonLink>
+          <ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>
+        </div>
+        {/* A link inside the app that leads nowhere is our fault, not the reader's. */}
+        <div className="mt-2 w-full">
+          <SuggestFix
+            category="BROKEN"
+            trigger="A link in the app led to a page that is not there."
+            label="This link is broken"
+          />
+        </div>
       </div>
-      {/* A link inside the app that leads nowhere is our fault, not the reader's. */}
-      <div className="mt-2 w-full">
-        <SuggestFix
-          category="BROKEN"
-          trigger="A link in the app led to a page that is not there."
-          label="This link is broken"
-        />
-      </div>
-    </div>
+    </Lettered>
   );
 }
 

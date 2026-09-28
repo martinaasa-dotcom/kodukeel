@@ -20,6 +20,7 @@ import { CourseMove } from "@/components/course/CourseMove";
 import { adaptOfferFor } from "@/lib/progress/adapt";
 import { leanSentence, moveLabel, offerParts, offerTitle, type AdaptOffer, type LeanEffects, type Tilt } from "@/lib/course";
 import { Speak } from "@/components/Speak";
+import { Lettered } from "@/components/HeroLetters";
 
 export const metadata = { title: "Today's module" };
 
@@ -239,80 +240,82 @@ export default async function CoursePage({
         }
       >
         <Stack>
-          <Card tone="mint">
-            <div className="flex items-start gap-3">
-              <CalendarCheck size={22} aria-hidden style={{ color: "var(--good-ink)" }} />
-              <div className="min-w-0">
-                {justDone && (
-                  <>
-                    <p
-                      className="text-lg font-semibold"
-                      lang={uiWantsEnglish(level) ? undefined : "et"}
-                      style={{ color: "var(--ink)" }}
-                    >
-                      {uiText(level, justDone.title, justDone.subtitle)}
-                    </p>
-                    <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                      {justDone.canDo}
-                    </p>
-                  </>
-                )}
-                {/*
-                  WHAT TOMORROW IS, AND SAYING SO WITHOUT LOOKING LIKE A REPEAT.
+          <Lettered celebrate>
+            <Card tone="mint">
+              <div className="flex items-start gap-3">
+                <CalendarCheck size={22} aria-hidden style={{ color: "var(--good-ink)" }} />
+                <div className="min-w-0">
+                  {justDone && (
+                    <>
+                      <p
+                        className="text-lg font-semibold"
+                        lang={uiWantsEnglish(level) ? undefined : "et"}
+                        style={{ color: "var(--ink)" }}
+                      >
+                        {uiText(level, justDone.title, justDone.subtitle)}
+                      </p>
+                      <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                        {justDone.canDo}
+                      </p>
+                    </>
+                  )}
+                  {/*
+                    WHAT TOMORROW IS, AND SAYING SO WITHOUT LOOKING LIKE A REPEAT.
 
-                  A unit of twenty words is three evenings, so tomorrow is very
-                  often the same unit again, and naming it flatly read as
-                  "come back tomorrow for the thing you just did". Where the
-                  unit carries on it says so and says which slice; where it
-                  changes it names the new one.
-                */}
-                <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {justDone && justDone.unitId === day.unitId
-                    ? <>Tomorrow you carry on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
-                    : uiWantsEnglish(level)
-                      ? <>Come back tomorrow for {day.subtitle}.</>
-                      : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
-                  {" "}Sleep is half of what makes today stick, so stopping now is the course
-                  working, not you giving up.
-                </p>
+                    A unit of twenty words is three evenings, so tomorrow is very
+                    often the same unit again, and naming it flatly read as
+                    "come back tomorrow for the thing you just did". Where the
+                    unit carries on it says so and says which slice; where it
+                    changes it names the new one.
+                  */}
+                  <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                    {justDone && justDone.unitId === day.unitId
+                      ? <>Tomorrow you carry on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
+                      : uiWantsEnglish(level)
+                        ? <>Come back tomorrow for {day.subtitle}.</>
+                        : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
+                    {" "}Sleep is half of what makes today stick, so stopping now is the course
+                    working, not you giving up.
+                  </p>
+                </div>
               </div>
-            </div>
-            {/*
-              TONIGHT'S WORDS, ONCE MORE, OUT LOUD. The evening ended on a
-              checklist, and what a learner has at the end of it is five words
-              they met an hour ago. A row of them with a speaker apiece is the
-              cheapest spaced repetition there is and the one moment somebody
-              is glad to hear them: the words are theirs now. The Estonian
-              alone and no gloss, since the closing review just asked for it.
-            */}
-            {justDone && justDone.words.length > 0 && (
-              <div className="mt-4">
-                <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-                  Tonight&rsquo;s words, once more out loud
-                </p>
-                <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
-                  {justDone.words.map((word) => (
-                    <li
-                      key={word}
-                      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5"
-                      style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-                    >
-                      <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                        {word}
-                      </span>
-                      <Speak text={word} size={14} />
-                    </li>
-                  ))}
-                </ul>
+              {/*
+                TONIGHT'S WORDS, ONCE MORE, OUT LOUD. The evening ended on a
+                checklist, and what a learner has at the end of it is five words
+                they met an hour ago. A row of them with a speaker apiece is the
+                cheapest spaced repetition there is and the one moment somebody
+                is glad to hear them: the words are theirs now. The Estonian
+                alone and no gloss, since the closing review just asked for it.
+              */}
+              {justDone && justDone.words.length > 0 && (
+                <div className="mt-4">
+                  <p className="label-xs" style={{ color: "var(--ink-3)" }}>
+                    Tonight&rsquo;s words, once more out loud
+                  </p>
+                  <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
+                    {justDone.words.map((word) => (
+                      <li
+                        key={word}
+                        className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5"
+                        style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+                      >
+                        <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                          {word}
+                        </span>
+                        <Speak text={word} size={14} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <ButtonLink href="/course?next=1">Start the next one now</ButtonLink>
+                <ButtonLink href="/" variant="primary">
+                  Back to Today <ArrowRight size={15} aria-hidden />
+                </ButtonLink>
               </div>
-            )}
-            <div className="mt-4 flex flex-wrap gap-2">
-              <ButtonLink href="/course?next=1">Start the next one now</ButtonLink>
-              <ButtonLink href="/" variant="primary">
-                Back to Today <ArrowRight size={15} aria-hidden />
-              </ButtonLink>
-            </div>
-          </Card>
+            </Card>
+          </Lettered>
 
           <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} />
 
