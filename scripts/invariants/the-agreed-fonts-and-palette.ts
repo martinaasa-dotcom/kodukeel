@@ -36,6 +36,18 @@ const FACE_EXEMPT: Record<string, string> = {
   "lib/email/render.ts": "mail is drawn by the reader's mail client, which has none of our faces",
 };
 
+/**
+ * Mint is "recalled, known", so a mint panel is a panel saying something was
+ * right. These are the ones that do, each with what it is a verdict on. Every
+ * other panel, landing card and section sticker takes a colour of the mix.
+ */
+const MINT_PANELS: Record<string, string> = {
+  "app/(app)/exam/result/[id]/page.tsx": "each card is a part of the paper that scored well",
+  "app/(app)/admin/suggestions/QueueRows.tsx": "a report that has been settled",
+  "app/(app)/scan/ScanCapture.tsx": "the page's words were saved",
+  "components/course/TryIt.tsx": "all three taps were answered right",
+};
+
 const EVENING_FILES = ["app/(app)/course/page.tsx", "app/(app)/page.tsx"];
 const MIX_TOKENS = new Set(["--butter", "--blush", "--accent", "--sky"]);
 
@@ -102,5 +114,26 @@ export default function theAgreedFontsAndPalette({ check, code, read, ALL }: Inv
     const used = new Set([...strip[1]!.matchAll(/var\((--[a-z-]+)\)/g)].map((m) => m[1]!));
     assert.ok(used.size >= 4, "the strip carries fewer than the mix's four bright colours");
     for (const token of used) assert.ok(MIX_TOKENS.has(token), `the strip uses ${token}, which is not a colour of Vikerkaar öös`);
+  });
+
+  check("mint paints a verdict, never a panel a screen leads with", () => {
+    const offenders: string[] = [];
+    for (const file of ALL) {
+      if (!/\.(tsx|ts)$/.test(file)) continue;
+      const src = code(file);
+      const panels = src.match(/<Card\b[^>]*\btone="mint"/g) ?? [];
+      if (panels.length > 0 && !MINT_PANELS[file]) offenders.push(`${file}: a mint Card`);
+      if (/data-tone="mint"/.test(src)) offenders.push(`${file}: a mint section sticker`);
+      if (/<Feature\b[^>]*\btone="mint"/.test(src)) offenders.push(`${file}: a mint landing card`);
+    }
+    assert.deepEqual(offenders, [], "mint is a verdict (docs/14-design-system.md); take a colour of Vikerkaar öös, or add the file to MINT_PANELS with what the panel is a verdict on");
+    const welcome = code("app/(chromeless)/welcome/page.tsx");
+    const who = /const WHO = \[([\s\S]*?)\] as const/.exec(welcome)?.[1] ?? "";
+    assert.ok(who.length > 0, "the landing page's WHO table moved; update this check");
+    assert.ok(!/tone:\s*"(?:mint|peach)"/.test(who), "a landing card in the WHO table is painted in a verdict hue");
+    assert.ok(!/section-tag\[data-tone="mint"\]/.test(read("app/globals.css")), "the stylesheet paints a mint section sticker again");
+    for (const [file, why] of Object.entries(MINT_PANELS)) {
+      assert.ok(/<Card\b[^>]*\btone="mint"/.test(code(file)), `${file} is allowed a mint panel (${why}) and no longer draws one; take the line out`);
+    }
   });
 }

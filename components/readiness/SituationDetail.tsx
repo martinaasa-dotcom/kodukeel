@@ -161,12 +161,12 @@ export function SituationDetail({
       {reading.tryThis ? (
         <section>
           <SectionTitle hint="the log says you have enough for it">Try it for real</SectionTitle>
-          <Card tone="mint">
-            <p className="text-base font-semibold" style={{ color: "var(--mint-ink)" }}>{reading.tryThis}</p>
+          <Card tone="sky">
+            <p className="text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{reading.tryThis}</p>
             {situation.expect && (
-              <p className="mt-2 text-sm" style={{ color: "var(--mint-ink)" }}>What comes back: {situation.expect}</p>
+              <p className="mt-2 text-sm" style={{ color: "var(--sky-ink)" }}>What comes back: {situation.expect}</p>
             )}
-            <p className="mt-2 text-sm" style={{ color: "var(--mint-ink)" }}>
+            <p className="mt-2 text-sm" style={{ color: "var(--sky-ink)" }}>
               It will go less smoothly than a card, and that is the point. What you could not say is what to look up afterwards.
             </p>
           </Card>

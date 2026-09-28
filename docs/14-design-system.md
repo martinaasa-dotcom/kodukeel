@@ -35,7 +35,10 @@ the accent violet, sky and the night navy (`--stage`). Mint and peach are verdic
 answer, a chip or a tile in a set, and never the card a screen leads with. The finished evening, on
 Today and on the module screen, is the accent's tint with the mix drawn along its top edge
 (`.evening` on `Card tone="accent"`); it was mint for a while, which read as a green slab beside a
-palette with no green in it. The faces are Onest and Schibsted Grotesk and no others. All of this
+palette with no green in it. The panels that may be mint are the four that are themselves a verdict (a strong part of a
+marked paper, a settled report, a saved scan, a reading answered right), listed with their reasons in
+`MINT_PANELS`; the landing cards, the section stickers, the class join card, a conversation's
+outcome and the cards sending somebody out to try it for real take a colour of the mix. The faces are Onest and Schibsted Grotesk and no others. All of this
 is asserted in `scripts/invariants/the-agreed-fonts-and-palette.ts`, and a visual proposal is a
 screenshot of the running app (`npm run shoot`), never hand-written HTML in faces or colours of its
 own.

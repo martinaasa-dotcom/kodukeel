@@ -84,13 +84,13 @@ export default async function ReadinessPage() {
             <SectionTitle hint="the log says you have enough for these">Worth trying this week</SectionTitle>
             <div className="grid gap-3 md:grid-cols-3">
               {worthTrying.map((r) => (
-                <Card key={r.situation.id} tone="mint">
-                  <p className="label-xs" style={{ color: "var(--mint-ink)" }}>{RUNG_LABEL[r.rung]}</p>
-                  <p className="mt-1.5 font-semibold" style={{ color: "var(--mint-ink)" }}>{r.tryThis}</p>
+                <Card key={r.situation.id} tone="sky">
+                  <p className="label-xs" style={{ color: "var(--sky-ink)" }}>{RUNG_LABEL[r.rung]}</p>
+                  <p className="mt-1.5 font-semibold" style={{ color: "var(--sky-ink)" }}>{r.tryThis}</p>
                   <Link
                     href={`/progress/readiness/${r.situation.id}`}
                     className="mt-2 inline-block text-sm underline underline-offset-2"
-                    style={{ color: "var(--mint-ink)" }}
+                    style={{ color: "var(--sky-ink)" }}
                   >
                     {r.situation.claim}
                   </Link>
@@ -101,7 +101,7 @@ export default async function ReadinessPage() {
                     scene is worth a line.
                   */}
                   {sceneTesting(r.situation.id) && (
-                    <p className="mt-2 text-sm" style={{ color: "var(--mint-ink)" }}>
+                    <p className="mt-2 text-sm" style={{ color: "var(--sky-ink)" }}>
                       <Link href={`/situations/${sceneTesting(r.situation.id)!.id}`} className="underline underline-offset-2">
                         Rehearse it first
                       </Link>

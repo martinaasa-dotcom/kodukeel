@@ -2433,7 +2433,6 @@
   }
   .section-tag[data-tone="blush"] { --tag: var(--blush); }
   .section-tag[data-tone="sky"] { --tag: var(--sky); }
-  .section-tag[data-tone="mint"] { --tag: var(--mint); }
   .section-tag[data-tone="butter"] { --tag: var(--cta); }
   .section-tag[data-tone="accent"] { --tag: var(--accent); }
   .landing-title {

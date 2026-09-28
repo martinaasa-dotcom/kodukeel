@@ -342,7 +342,7 @@ const WHO = [
   },
   {
     icon: ClipboardCheck,
-    tone: "mint",
+    tone: "butter",
     title: "You have an exam date",
     body: "Mock papers from A2 to C1, marked by rule rather than by a model, and a plain guide to the real one.",
     href: "/state-exam",
@@ -478,7 +478,7 @@ function Plan() {
     <section id="plan" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="mint">Your plan</p>
+          <p className="section-tag" data-tone="butter">Your plan</p>
           <h2 className="landing-title">
             When could you get there?
           </h2>
@@ -763,7 +763,7 @@ function Features() {
         </Reveal>
         <Reveal>
           <Feature
-            tone="mint"
+            tone="sky"
             icon={<Target size={18} aria-hidden />}
             title="Then the real thing"
             body="A receptionist with no slot on Thursday, a landlord on a bad line, a counter with a queue. Rehearse the conversation, then take the smallest step outside: one thing to say to a real person today, and a count of how it went. That count is the only score that matters here."
