@@ -126,7 +126,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
               <Meter
                 pct={progress.pct}
                 label={`${scan.title}: ${progress.pct}% learned`}
-                tone={progress.state === "done" ? "var(--good)" : "var(--accent)"}
+                tone="var(--accent)"
               />
             </div>
           </div>

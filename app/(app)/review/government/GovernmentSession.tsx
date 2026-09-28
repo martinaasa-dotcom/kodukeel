@@ -11,7 +11,7 @@ import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { CASES, questionInEnglish } from "@/lib/estonian/cases";
-import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
+import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { narrowLadder, struckOptions } from "@/lib/questions/hints";
@@ -193,7 +193,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
           <Stat value={questions.length} label="Verbs" />
-          <Stat value={`${accuracy}%`} label="Right" tone={VERDICT_INK[accuracy >= 80 ? "right" : "nearly"]} />
+          <Stat value={`${accuracy}%`} label="Right" />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">

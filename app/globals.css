@@ -192,6 +192,22 @@
     --easy-ink: var(--accent-deep);
 
     /*
+      A READING IS NOT A VERDICT. How much of something there is (a case's
+      accuracy, a ring of retention, a busy day, a share of situations) is one
+      hue in steps: the accent, from a wash to full strength, over the neutral
+      track. Sky, butter and blush say what happened to an answer, and a bar
+      coloured by a threshold borrowed that meaning for a figure, which read
+      as a traffic light over somebody's progress. Declared once, here, and
+      derived from the accent and the surface, so each theme draws its own
+      steps. Asserted in scripts/invariants/a-reading-is-not-a-verdict.ts.
+    */
+    --scale-track: color-mix(in srgb, var(--ink) 7%, var(--surface));
+    --scale-1: color-mix(in srgb, var(--accent) 24%, var(--surface));
+    --scale-2: color-mix(in srgb, var(--accent) 48%, var(--surface));
+    --scale-3: color-mix(in srgb, var(--accent) 74%, var(--surface));
+    --scale-4: var(--accent);
+
+    /*
       Ink for text sitting on a *solid* sky fill, as opposed to on its tint.
 
       The accent already had this pair and the doc calls it the trap:

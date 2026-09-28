@@ -2,7 +2,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Card, CardLink, SectionTitle } from "@/components/ui";
 import { RUNG_LABEL, RUNG_ORDER, type Summary } from "@/lib/readiness/rungs";
 import { headline } from "@/lib/readiness/narrative";
-import { RUNG_TILE } from "./Rung";
+import { RUNG_FILL } from "./Rung";
 
 /**
  * The distribution over a level, which is the headline this screen prints
@@ -41,12 +41,12 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
         counts, so the hue is never the only thing saying which is which.
       */}
       {total > 0 && (
-        <div aria-hidden className="mt-4 flex h-3 w-full overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
+        <div aria-hidden className="mt-4 flex h-3 w-full overflow-hidden rounded-full" style={{ background: "var(--scale-track)" }}>
           {shown.filter((rung) => summary.counts[rung] > 0).map((rung) => (
             <span
               key={rung}
               className="block h-full"
-              style={{ width: `${(summary.counts[rung] / total) * 100}%`, background: `var(--${RUNG_TILE[rung]})` }}
+              style={{ width: `${(summary.counts[rung] / total) * 100}%`, background: RUNG_FILL[rung] }}
             />
           ))}
         </div>
@@ -57,7 +57,7 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
       <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
         {shown.filter((rung) => total === 0 || summary.counts[rung] > 0).map((rung) => (
           <li key={rung} className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-            <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: `var(--${RUNG_TILE[rung]})` }} />
+            <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: RUNG_FILL[rung] }} />
             {RUNG_LABEL[rung]}
             <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{summary.counts[rung]}</span>
           </li>

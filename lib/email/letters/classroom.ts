@@ -160,7 +160,7 @@ export function classroomLetter(input: ClassroomInput): Letter {
     blocks.push({ t: "heading", text: `${detail.onTrack} on track for ${detail.level}.` });
     blocks.push({
       t: "art",
-      html: meter(input.members === 0 ? 0 : Math.round((ready / input.members) * 100), "sky"),
+      html: meter(input.members === 0 ? 0 : Math.round((ready / input.members) * 100)),
       alt: `${ready} of ${input.members} on track or close for ${detail.level}.`,
     });
     blocks.push({

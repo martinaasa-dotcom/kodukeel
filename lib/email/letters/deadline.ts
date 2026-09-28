@@ -82,7 +82,7 @@ export function deadlineLetter(input: DeadlineInput): Letter {
 
   blocks.push({
     t: "art",
-    html: meter(input.confidence, input.onTrack ? "sky" : "accent"),
+    html: meter(input.confidence),
     alt: `About ${input.confidence} percent likely to pass ${input.band} today.`,
   });
   /*

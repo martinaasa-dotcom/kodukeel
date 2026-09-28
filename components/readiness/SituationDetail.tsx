@@ -220,7 +220,7 @@ function Bar({ label, ink, n, total, pct, what }: {
         <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>{n} of {total} words</span>
       </div>
       <div className="mt-1.5">
-        <Meter pct={pct} label={`${label}: ${n} of ${total} words`} tone={ink} height={7} />
+        <Meter pct={pct} label={`${label}: ${n} of ${total} words`} tone="var(--accent)" height={7} />
       </div>
       <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>{what}</p>
     </li>

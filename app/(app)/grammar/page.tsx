@@ -208,7 +208,7 @@ export default async function GrammarIndexPage() {
                           <Meter
                             pct={c.accuracy}
                             label={`${ref.spec.et} accuracy`}
-                            tone={c.accuracy >= 85 ? "var(--good)" : c.accuracy >= 65 ? "var(--hard)" : "var(--again)"}
+                            tone="var(--accent)"
                             height={5}
                           />
                         </span>

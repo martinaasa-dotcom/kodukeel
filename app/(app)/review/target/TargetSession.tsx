@@ -205,7 +205,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         <div className="h-full rounded-full"
           style={{
             width: `${Math.max(0, pct)}%`,
-            background: left <= 2 ? "var(--again-ink)" : "var(--blush-ink)",
+            background: "var(--blush-ink)",
             transition: "width 100ms linear",
           }} />
       </div>
