@@ -265,7 +265,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
           </div>
         </div>
 
-        <div className="px-6 py-8">
+        <div className="round-pad px-6">
           {meeting ? <Meeting task={task} /> : <Asking task={task} />}
 
           {!meeting && (

@@ -117,7 +117,7 @@ export function WordIntro({
   return (
     <>
       <div className="flex items-center gap-2">
-        <p lang="et" className="text-3xl font-bold leading-tight tracking-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+        <p lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           {lemma}
         </p>
         {/* Read aloud on arrival: the first time a word is met is the one time

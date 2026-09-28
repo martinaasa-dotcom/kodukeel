@@ -250,7 +250,7 @@ export function ClozeSession() {
           <Chip>{item.lemma}, {item.translation}</Chip>
         </div>
 
-        <div className="px-6 py-8">
+        <div className="round-pad px-6">
           <p lang="et" className="text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
             {before}
             <span

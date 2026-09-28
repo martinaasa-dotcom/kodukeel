@@ -889,6 +889,30 @@
   :root[data-dock] .dock-pad { padding-bottom: calc(var(--dock-clearance) + 3.75rem); }
 
   /*
+    A ROUND'S CARD FITS THE WINDOW IT IS DRAWN IN.
+
+    Every practice round is a progress bar, one card and, inside a module, a
+    pinned bar under it. The card body used to be a fixed 280 to 320px tall
+    with 44px of padding above and below, and the word on it went to 68px from
+    1280 up, so on an ordinary laptop window the card ran under the module bar
+    and the headline was the loudest thing on the screen. It was reported as
+    too big and too in your face, and it was. `.round-stage` is the body: its
+    floor and its padding follow the height of the window rather than a number
+    somebody typed for a tall one. `.round-word` is the word a card is about:
+    `--text-3xl`, and `--text-4xl` only where the window is wide *and* tall
+    enough to give it room. One class each, so twenty rounds cannot drift.
+  */
+  .round-stage {
+    min-height: clamp(11rem, 30vh, 18rem);
+    padding-block: clamp(1.25rem, 4vh, 2.25rem);
+  }
+  .round-pad { padding-block: clamp(1.25rem, 3.5vh, 2rem); }
+  .round-word { font-size: var(--text-3xl); line-height: 1.1; }
+  @media (min-width: 768px) and (min-height: 760px) {
+    .round-word { font-size: var(--text-4xl); }
+  }
+
+  /*
     THE SAME MEASUREMENT AGAIN, SPENT AS SCROLL MARGIN.
 
     `scrollIntoView` stops when the element's own box is inside the window,
