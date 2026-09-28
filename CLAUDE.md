@@ -3563,9 +3563,11 @@ second thing happening on a card whose whole job is one sentence.** That was rep
 somebody using it, and it is the same shape as the letter bar: a reader who can already read the
 line is being offered help on every word of it, a reader who cannot is being handed the only thing
 that makes the sentence answerable, and there is no way to tell which of the two anybody is. So it
-is asked. `lib/ux/wordGloss.ts` is the answer, on by default for the reason `letterBar.ts` gives
-about itself, since a missing row is everybody who used the app before the question existed and
-reading absence as a refusal takes the dictionary out from under every sentence in one deploy.
+is asked. `lib/ux/wordGloss.ts` is the answer, and **off is the default, for everybody**: it was on
+at first, for the reason `letterBar.ts` gives about itself, and the operator read a card with the
+panel open under a word and called it busy. So a missing row reads as the plain sentence, only a
+stored "on" draws the underlines, and Settings is where somebody turns them on. The sentence's own
+English line is printed under it either way, so the quiet default leaves nobody without a reading.
 
 **Off means the lookup is never made, rather than made and hidden.** Both screens that show a
 glossed sentence have drawn the plain marked sentence since before this existed, for the page that

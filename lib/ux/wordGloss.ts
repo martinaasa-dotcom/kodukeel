@@ -17,10 +17,15 @@
  * cannot be: a reader who never opens a word looks exactly like one who does
  * not need to. So it is asked, and the answer is theirs.
  *
- * ON IS THE DEFAULT AND STAYS THE DEFAULT, for the reason `letterBar.ts` gives
- * about itself: a missing row is everybody who used this before the question
- * existed, and reading absence as "off" would quietly take the dictionary out
- * from under every sentence in the app for people who never asked for that.
+ * OFF IS THE DEFAULT, AND ON IS A CHOICE SOMEBODY MAKES IN SETTINGS. It was on
+ * for everybody at first, on `letterBar.ts`'s argument that a missing row is
+ * everybody who used the app before the question existed. The operator read the
+ * card with the panel open under a word and called it busy, which it is: a
+ * dotted rule under every word and a panel that opens as a pointer crosses the
+ * line is two things happening on a card whose job is one sentence. So absence
+ * reads as "off" for everybody, including the people who never answered, and
+ * only a stored "on" draws the underlines. The sentence's own English line is
+ * still printed under it either way, so nobody is left without a reading.
  *
  * OFF MEANS THE LOOKUP NEVER HAPPENS, rather than a screen drawing it and
  * hiding it. Both screens that show a glossed sentence already draw the plain
@@ -31,11 +36,11 @@
 
 export type WordGloss = "on" | "off";
 
-export const DEFAULT_WORD_GLOSS: WordGloss = "on";
+export const DEFAULT_WORD_GLOSS: WordGloss = "off";
 
 /** A stored answer, or the default when it is absent or unrecognised. */
 export function wordGlossFrom(value: string | undefined | null): WordGloss {
-  return value === "off" ? "off" : DEFAULT_WORD_GLOSS;
+  return value === "on" ? "on" : DEFAULT_WORD_GLOSS;
 }
 
 /**
