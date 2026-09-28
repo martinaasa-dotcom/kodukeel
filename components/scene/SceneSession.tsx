@@ -487,9 +487,18 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       debrief's own heading 779px above the top of the window, so a scene ended
       on a page that opened halfway through what it had to say.
     */
+    /*
+      Instantly, and again once the debrief has painted. The page scrolls
+      smoothly by default, so a plain `scrollTo` here was an animation, and the
+      debrief mounting under it changes the height it is animating over: it
+      came to rest 23 to 48 pixels short of the top, with the room band's fade
+      laid over the strip and the first line of the result card.
+    */
     if (phase === "debrief") {
-      window.scrollTo({ top: 0 });
-      return;
+      const top = () => window.scrollTo({ top: 0, behavior: "instant" });
+      top();
+      const frame = requestAnimationFrame(top);
+      return () => cancelAnimationFrame(frame);
     }
     /*
       And a conversation opens at its own top. The briefing is taller than a
@@ -502,7 +511,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       gone. Where the briefing fits, which is every desktop width, this is the
       scroll it is already at and moves nothing.
     */
-    if (phase === "talking" && turns.length === 0) window.scrollTo({ top: 0 });
+    if (phase === "talking" && turns.length === 0) window.scrollTo({ top: 0, behavior: "instant" });
   }, [turns.length, phase]);
 
   /*
@@ -1473,8 +1482,17 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         the ones above it, which is the lesson the exam clock taught: a live
         region that updates constantly reads a number a second at somebody.
       */}
+      {/*
+        ONE NIGHT, FROM THE FIRST LINE TO THE BOX YOU ANSWER IN. The landing
+        page's café is lit this way and it was the part people loved: the
+        conversation and the place you say your line are one stage, so the
+        screen reads as a room you are in rather than as three panels stacked.
+        It grows with every line, because in the app the conversation is the
+        page, and nothing inside it scrolls on its own.
+      */}
+      <div className="night night-open scene-night flex flex-col gap-5 rounded-[var(--r-xl)] border p-3 sm:p-4 md:p-6">
       <div
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-3 px-1 pt-1"
         role="log"
         aria-live="polite"
         aria-relevant="additions"
@@ -1525,20 +1543,18 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 as by which edge they sit against: a bubble is not a thing a
                 colour may carry on its own either.
               */}
-              <Card
-                tone="accent"
-                className="inline-block max-w-full rounded-br-[var(--r-sm)] px-4 py-3 md:px-5 md:py-3.5"
-              >
-                <p lang="et" className="flex items-center justify-end gap-2" style={{ color: "var(--accent-deep)" }}>
+              <div data-who="you" className="scene-bubble inline-block max-w-full">
+                <p lang="et" className="flex items-center justify-end gap-2">
                   <span>{turn.text}</span>
                   <Speak
                     text={turn.text}
                     voice={voice}
                     size={14}
-                    className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]"
+                    className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[color-mix(in_srgb,var(--cta-ink)_14%,transparent)]"
+                    style={{ color: "var(--cta-ink)" }}
                   />
                 </p>
-              </Card>
+              </div>
               {/*
                 Understood, and how the word is said. Under the learner's own
                 words and in the quiet ink, because it is not a verdict: the
@@ -1599,7 +1615,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                     className="scene-say max-w-full"
                     style={{ "--say-at": at } as CSSProperties}
                   >
-                    <Card className="inline-block max-w-full rounded-bl-[var(--r-sm)] px-4 py-3 md:px-5 md:py-3.5">
+                    <div data-who="them" className="scene-bubble inline-block max-w-full">
                       {hidesWords(support) && spokenEstonian(line) && !shown.has(line.text) ? (
                         /*
                           Heard, not read. The speaker is the whole line, and
@@ -1679,7 +1695,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                       )}
                         </>
                       )}
-                    </Card>
+                    </div>
                     {/*
                       Where the line came from, in words rather than a chip
                       shouting in capitals under every bubble (ADR-025), and
@@ -1740,10 +1756,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                       style={{ background: "var(--rule)" }}
                     />
                     <span
-                      className="scene-break inline-flex items-center gap-2 rounded-full px-4 py-2 text-center text-sm"
-                      style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+                      className="scene-break scene-aside inline-flex max-w-[85%] items-center gap-2.5 rounded-[var(--r-lg)] px-4 py-2.5 text-left text-sm"
                     >
-                      <Clock size={16} aria-hidden className="shrink-0" />
+                      <Clock size={16} aria-hidden className="shrink-0" style={{ color: "var(--cta)" }} />
                       {line.text}
                     </span>
                     <span
@@ -1822,9 +1837,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             <SceneFace who="them" />
             {/* The same bubble the lines arrive in, so the wait reads as them
                 about to speak rather than as a panel appearing. */}
-            <Card className="inline-block rounded-bl-[var(--r-sm)] px-4 py-3 md:px-5 md:py-3.5">
+            <div data-who="them" className="scene-bubble inline-block">
               <Dots label="They are answering" />
-            </Card>
+            </div>
           </div>
         )}
       </div>
@@ -1856,10 +1871,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         */}
         {/* Lit the way the room above it is, so the two ends of the screen
             are one conversation: the place you are in, and what you say in it. */}
-        <Card
-          tone="night"
-          className="flex flex-col gap-3"
-        >
+        <div className="scene-ask flex flex-col gap-3 rounded-[var(--r-xl)] p-4 md:p-5">
           <div aria-live="polite">
             {/*
               HOW FAR IN, WHERE THE LEARNER IS LOOKING.
@@ -1877,6 +1889,20 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               <span>Your turn</span>
               <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length}</span>
             </p>
+            {/*
+              The same count as a row of steps, the ones behind you lit in the
+              mix, which is the landing page's café brought inside. It says
+              nothing the words beside the eyebrow do not, so it is hidden from
+              a screen reader rather than read twice.
+            */}
+            <ol aria-hidden className="scene-meter mt-2">
+              {objectives.map((beat) => (
+                <li
+                  key={beat.id}
+                  data-state={done.includes(beat.id) ? "done" : beat.id === beatId ? "now" : undefined}
+                />
+              ))}
+            </ol>
             {/*
               Bigger than the conversation rather than smaller, because it is
               read before every turn and the transcript is read once. Where the
@@ -1980,7 +2006,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               <DoorOpen size={16} aria-hidden /> Leave
             </Button>
           </div>
-        </Card>
+        </div>
+      </div>
       </div>
     </div>
     </SceneStage>

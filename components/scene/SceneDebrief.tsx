@@ -125,7 +125,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   return (
     <div className="flex flex-col gap-6">
       {/* What happened, first, before any teaching. */}
-      <Card tone="accent" className="flex flex-col gap-2">
+      <Card tone="night" className="scene-night scene-done evening flex flex-col gap-2">
         <h2 className="font-medium">
           {outcome?.says ?? "The conversation ended before it got anywhere."}
         </h2>
@@ -359,7 +359,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             exchange back is how somebody notices that "poodi" was the right
             answer to the wrong question.
           */}
-          <ul className="flex flex-col gap-2">
+          <ul className="night scene-night flex flex-col gap-2 rounded-[var(--r-xl)] border p-3 sm:p-4">
             {(() => {
               /*
                 The learner's turns are numbered as they go past, because that
@@ -390,21 +390,12 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                       pair of shapes is the same exchange in somebody else's
                       handwriting.
                     */}
-                    <Card
-                      tone={turn.who === "you" ? "accent" : "plain"}
-                      /*
-                        The `md:` half is not a second opinion about the
-                        padding, it is what makes the first half apply at all.
-                        `Card` carries `p-5 md:p-6`, and a media-query rule is
-                        written after a plain one in the generated stylesheet,
-                        so `py-2.5` alone loses to `md:p-6` from 768 up: the
-                        bubbles were tight on a phone and an inch tall on a
-                        desktop, for one line of text.
-                      */
-                      className={`inline-block max-w-full px-4 py-2.5 text-sm md:px-4 md:py-2.5 ${
-                        turn.who === "you" ? "rounded-br-[var(--r-sm)]" : "rounded-bl-[var(--r-sm)]"
-                      }`}
-                      style={here ? { boxShadow: "inset 0 0 0 2px var(--butter-ink)" } : undefined}
+                    <div
+                      data-who={turn.who === "you" ? "you" : "them"}
+                      className="scene-bubble scene-bubble-sm inline-block max-w-full"
+                      /* A ring set off the bubble by the stage's own ground, so it
+                         reads on the gold of your turns and the glass of theirs. */
+                      style={here ? { boxShadow: "0 0 0 2px var(--stage), 0 0 0 4px var(--butter)" } : undefined}
                     >
                       {/*
                         WHO SAID IT, FOR A READER WHO CANNOT SEE WHICH SIDE IT
@@ -420,7 +411,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                         same two words twenty times down a phone.
                       */}
                       <span className="sr-only">{turn.who === "you" ? "You said: " : "They said: "}</span>
-                      <span lang={turn.lang} style={{ color: turn.who === "you" ? "var(--accent-deep)" : "var(--ink-2)" }}>
+                      <span lang={turn.lang}>
                         {/*
                           The word marked inside the turn, in butter, which is
                           this app's colour for "nearly" and is what a slip is.
@@ -442,7 +433,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                           ))
                           : turn.text}
                       </span>
-                    </Card>
+                    </div>
                   </li>
                 );
               });
