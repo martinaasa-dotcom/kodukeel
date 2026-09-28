@@ -121,14 +121,14 @@ export function InstallPrompt() {
           {iosHint ? (
             <>
               Tap <Share size={12} className="inline" aria-label="the Share button" />, then{" "}
-              <strong>Add to Home Screen</strong>. It&rsquo;ll open straight into review, and works offline.
+              <strong>Add to Home Screen</strong>. It opens straight to your review, even with no signal.
             </>
           ) : (
-            "It opens straight into review, and review still works when you’re offline."
+            "It opens straight to your review, which keeps working even with no signal."
           )}
         </p>
         <p className="mt-1.5 text-2xs" style={{ color: "var(--ink-3)" }}>
-          We&rsquo;ll only ask this once. You can always find it in Settings.
+          We&rsquo;ll only ask this once. It&rsquo;s in Settings if you change your mind.
         </p>
         {open && event && (
           <Button

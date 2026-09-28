@@ -37,7 +37,7 @@ import { SpelledCount, spelledCount } from "@/lib/copy/values";
 export const metadata: Metadata = {
   title: { absolute: "kodukeel. Estonian that finally sticks" },
   description:
-    "Kodukeel means home language. Fifteen minutes of Estonian an evening, a place to rehearse the conversations you're dreading, and then the nudge to go and have them. Free, for anyone making a home in Estonia.",
+    "Kodukeel means home language. Fifteen minutes of Estonian an evening, a safe place to practice the conversations you're dreading, and a gentle push to go and have them for real. Free, for anyone making a home in Estonia.",
 };
 
 /** The landing page is public and read-only, so it can be cached hard. */
@@ -117,11 +117,11 @@ const ANU_LINES: readonly AnuLine[] = [
   { at: "who", mood: "happy", text: "Whichever one you are, you start the same way: fifteen minutes tonight." },
   { at: "cases", mood: "thinking", text: "Press an ending and watch it snap on. That’s the whole trick, honestly." },
   { at: "evening", mood: "happy", text: "This really is how your first evening starts. Five new words, and then they come back to check on you." },
-  { at: "talk", mood: "cheer", text: "Go on, order something. Get the ending wrong and see what happens." },
+  { at: "talk", mood: "cheer", text: "Go on, order something. The person behind the counter is very patient." },
   { at: "features", mood: "happy", text: "Ask me the thing you’d be too shy to ask in class. I never sigh." },
   { at: "compare", mood: "thinking", text: "Keep your class. I’m here for the evenings in between." },
-  { at: "plan", mood: "happy", text: "Press a few. I do exactly this sum for you inside." },
-  { at: "faq", mood: "thinking", text: "Straight answers. How we stack up against other apps is in there too." },
+  { at: "plan", mood: "happy", text: "Have a play with it. Inside, I do the same sum with your real pace." },
+  { at: "faq", mood: "thinking", text: "Short, straight answers. How we compare with other apps is the last one." },
   { at: "start", mood: "cheer", text: "Fifteen minutes a day. See you inside." },
 ];
 
@@ -260,7 +260,7 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
       sources one screen down; this line is the promise they add up to.
     */
     `${stats.words.toLocaleString("en-GB")} words, ${stats.forms.toLocaleString("en-GB")} forms, and not one of them made up by AI`,
-    `${PATH.length} units, ${LEVELS[0]} to ${LEVELS[LEVELS.length - 1]}`,
+    `${PATH.length} units, from your first hello at ${LEVELS[0]} all the way to ${LEVELS[LEVELS.length - 1]}`,
     "Free, and it works offline",
     "Counts the real conversations you have, not the days you open the app",
   ];
@@ -502,10 +502,10 @@ function Plan() {
           <PlanCalculator />
           <div className="mt-6">
           <Explain label="Where the hours come from">
-            We start from the hours usually published for each CEFR level, add extra for Estonian
-            where the cases start to bite, and stay inside the ratio the US Foreign Service
-            Institute gives for the language. None of it is measured on this app&rsquo;s learners.
-            Inside, the same sum uses your own pace, worked out from your reviews.
+            We start from the study hours usually published for each level, add extra where
+            Estonian&rsquo;s cases start to bite, and keep the total inside what the US Foreign
+            Service Institute estimates for the language. It isn&rsquo;t measured on people using
+            this app. Once you&rsquo;re inside, the same sum runs on your own pace instead.
           </Explain>
           </div>
         </div>
@@ -848,11 +848,11 @@ function Features() {
         <div className="section-head">
           <p className="section-tag" data-tone="butter">What you get</p>
           <h2 className="landing-title">
-            A tutor, {PATH.length} units, and a tally of your real conversations
+            Someone to ask, words that stay, and a nudge out the door
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Three parts that work together. Ask Anu about a word and it becomes a card, and your
-            plan decides which evening it comes back to you.
+            The three feed each other. A word Anu explains goes into your practice with one press,
+            and it comes back on the evening you&rsquo;re about to forget it.
           </p>
         </div>
       </Reveal>
@@ -863,7 +863,7 @@ function Features() {
             tone="blush"
             icon={<Sparkles size={18} aria-hidden />}
             title="Anu, who never sighs"
-            body="Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and explain why the ending changed. Every Estonian word she shows you is looked up, never guessed."
+            body="Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and tell you why the ending changed. Every Estonian word she shows you is checked in the dictionary, never guessed."
           >
             <TutorPeek />
           </Feature>
@@ -872,16 +872,16 @@ function Features() {
           <Feature
             tone="accent"
             icon={<BookOpen size={18} aria-hidden />}
-            title="Practice that sticks"
-            body={`Look a word up and one press turns it into a card, with every form and ten voices to read it aloud. Then ${PATH.length} units of words like it, each one brought back the day before you'd forget it, and heard the way people really say it: fast, over café noise, down a crackly phone line.`}
+            title="Words that stay"
+            body={`Look up any word and keep it with one press, every form included, read aloud in ten different voices. Then there are ${PATH.length} units of words like it. Each comes back the day before you'd forget it, and you hear it the way people really say it: fast, over café noise, down a crackly phone line.`}
           />
         </Reveal>
         <Reveal>
           <Feature
             tone="sky"
             icon={<Target size={18} aria-hidden />}
-            title="Then the real thing"
-            body="A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first. Then take one small step outside: say one thing to a real person today, and tell us how it went. Those conversations are the only score that counts here."
+            title="Then the real conversation"
+            body="A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count."
           />
         </Reveal>
       </div>
@@ -1213,11 +1213,11 @@ function Comparison() {
 const FAQS = [
   [
     "Do I need to pay for anything?",
-    "No, and there's nothing to set up either. A few things cost real money to run, so Anu, the writing grader and the camera each have a daily allowance. A normal evening never comes close.",
+    "No, and there's nothing to install either. A few things cost us real money to run, so Anu, the writing feedback and the camera each have a daily limit. A normal evening never gets near it.",
   ],
   [
     "Where do the Estonian forms come from?",
-    "From a dictionary, never from AI. AI makes up forms that look right and aren't, and a flashcard would drill that mistake straight into your head. When Anu translates a sentence for you, it says so.",
+    "From a real dictionary, never from AI. AI makes up forms that look right and aren't, and a flashcard would drill that mistake straight into your head. When Anu translates a sentence for you, the app says so.",
   ],
   [
     "Is this only for beginners?",
@@ -1230,15 +1230,15 @@ const FAQS = [
       misleads. The shorter answer is main's and is better than what this
       branch had.
     */
-    "Not at all. It runs from A1 to C1, and the parts that stay hard get their own practice: a card for consonant gradation, a card for the case each verb asks for, and a unit and a grammar page for whether an object is whole or partial. If you'd rather not guess where you are, there's a level check. There are mock state exam papers at A2, B1, B2 and C1 too, each built fresh from real sentences and marked by clear rules rather than a model. The one exception is the spoken part, which you mark yourself.",
+    "Not at all. It runs from A1 to C1, and the bits that trip up even advanced learners get extra practice: letters that change in the middle of a word, the case each verb insists on, and when an object takes which ending. Not sure where you are? Take the level check. There are mock state exam papers at A2, B1, B2 and C1 too, built fresh from real sentences and marked by clear rules rather than a model. The one exception is the spoken part, which you mark yourself.",
   ],
   [
     "Will it actually get me talking to people?",
-    "That's the whole point. Situations puts you in front of somebody who wants something from you: a receptionist, a landlord, a clerk. You're marked against the dictionary, never by an AI, so you can't be told you were wrong when you were right. Every morning, Today asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. Progress counts those conversations, including the ones where somebody switched to English. Nothing here scores your pronunciation. The only speech recognizer available gets native speakers wrong, and we'd rather tell you that than pretend.",
+    "That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend.",
   ],
   [
     "What happens to my data?",
-    "It stays in your account, and you can download every bit of it from Settings whenever you like. Your review history is the one thing we could never rebuild, so nothing in it is ever changed or deleted unless you delete your account.",
+    "It stays in your account, and you can download every bit of it from Settings whenever you like. Your record of every answer you've given is the one thing we could never rebuild, so we never change or delete any of it, unless you delete your account.",
   ],
 ] as const;
 
@@ -1325,7 +1325,7 @@ function Questions() {
             Things people ask us
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Short answers. How this compares with other apps is the last one.
+            Short answers, straight to the point. How this compares with other apps is the last one.
           </p>
         </div>
       </Reveal>
@@ -1406,7 +1406,7 @@ function FinalCta() {
             */}
             <p className="mx-auto mt-6 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--stage-ink-2)" }}>
               Next time somebody speaks to you in Estonian, you&rsquo;ll have something to say
-              back. And you&rsquo;ll have said it before.
+              back. And it won&rsquo;t be the first time you&rsquo;ve said it.
             </p>
             <VisitRecap />
             <div className="mt-8 flex justify-center">
@@ -1415,7 +1415,7 @@ function FinalCta() {
               </ButtonLink>
             </div>
             <p className="mt-5 text-xs" style={{ color: "var(--stage-ink-2)" }}>
-              Sign in with Google, nothing to install, and you can take your data with you any time
+              Sign in with Google in a click. Nothing to install, and you can take your data with you any time.
             </p>
           </div>
         </div>

@@ -13,9 +13,9 @@ export const metadata = { title: "Sign in" };
 export const dynamic = "force-dynamic";
 
 const PROMISES = [
-  "A dictionary that shows you every form of a word",
-  "Words that come back just before you'd forget them, plus sprints, listening games and matching",
-  "Anu to explain the grammar, without ever making up a form",
+  "A dictionary that shows you every form of every word",
+  "Your words brought back just before you'd forget them, plus quick games: speed rounds, listening and matching pairs",
+  "Anu, a tutor who explains the grammar and never makes up a word",
   "A conversation to rehearse, and one small thing to say to a real person today",
 ];
 
@@ -129,15 +129,15 @@ export default async function SignInPage({ searchParams }: {
             Tere tulemast tagasi
           </h1>
           <p className="mx-auto mt-2 max-w-[36ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Learn Estonian the way it&rsquo;s really taught, one case at a time. Sign in to pick up
-            your deck, your dictionary and every review you&rsquo;ve ever done.
+            New here? Signing in is all it takes to start, and it&rsquo;s free. Coming back?
+            Everything you&rsquo;ve learned is right where you left it.
           </p>
 
           {denied && (
             <div className="mt-6 text-left">
               <Note tone="again">
-                That address cannot use this copy of Kodukeel. It&rsquo;s set up for a particular
-                group, so please sign in with the account you were invited with
+                That address cannot use this copy of Kodukeel, because it&rsquo;s set up for one
+                particular group. Try the account you were invited with
                 {operator.email ? <>, or ask {operator.email} to add you</> : null}.
               </Note>
             </div>
@@ -178,8 +178,8 @@ export default async function SignInPage({ searchParams }: {
             ) : (
               <div className="rounded-[var(--r-lg)] p-5 text-left" style={{ background: "var(--raised)" }}>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  This copy is running in local mode: no accounts and no signing in, and everything
-                  is stored right here on this machine. Add{" "}
+                  This copy is running in local mode. There are no accounts and no signing in, and
+                  everything is kept right here on this machine. Add{" "}
                   <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
                   <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to your{" "}
                   <code className="text-xs">.env</code> to turn on sign-in and

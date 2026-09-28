@@ -245,7 +245,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
                     style={{ color: isStem ? "var(--accent-deep)" : "var(--ink)", "--i": n } as React.CSSProperties}
                   />
                   <span className="min-w-0 text-xs" style={{ color: isStem ? "var(--accent-deep)" : "var(--ink-3)" }}>
-                    {isStem ? "the stem" : (p.english ?? p.label)}
+                    {isStem ? "endings go on this one" : (p.english ?? p.label)}
                   </span>
                 </div>
               );
@@ -340,7 +340,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
             </span>
             <span className="text-sm font-semibold" style={{ color: all ? "var(--accent-deep)" : "var(--ink-2)" }}>
               {all
-                ? `All ${counted(derived.length)} built from one stem. That’s the whole trick.`
+                ? `All ${counted(derived.length)}, from that one form. That’s the whole trick.`
                 : `${doneHere} of ${derived.length} built from ${word.lemma}`}
             </span>
           </div>

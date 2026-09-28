@@ -85,7 +85,7 @@ export interface StarterDeck {
 */
 const LEVELS = [
   { key: "A1", label: "Just starting", detail: "Tere, aitäh, and not much else yet." },
-  { key: "A2", label: "I get by", detail: "Shopping, online orders, simple sentences." },
+  { key: "A2", label: "I get by", detail: "You can shop, order things and put a simple sentence together." },
   { key: "B1", label: "Conversational", detail: "You can hold up your end of a clear conversation." },
   { key: "B2", label: "Confident", detail: "You can follow a meeting and read an article without stopping." },
   { key: "C1", label: "Fluent", detail: "Pretty much anything. You're here for the finer shades of meaning." },
@@ -344,7 +344,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           note: goals.note,
         },
       }).catch(() => null);
-      if (!result) { setFailed("That didn’t reach the server. Nothing has changed, so just press it again."); return; }
+      if (!result) { setFailed("That didn’t go through, so nothing’s been saved yet. Press it again."); return; }
       if (!result.ok) { setFailed(result.error); return; }
       /*
         Straight to tonight's module rather than to Today. Somebody who has
@@ -537,13 +537,13 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                     selected={gloss === o.id}
                     onSelect={() => setGloss(o.id)}
                     title={o.label}
-                    detail={o.id === "en" ? "The course's own translations" : o.native}
+                    detail={o.id === "en" ? "Plain English meanings" : o.native}
                   />
                 ))}
               </ChoiceGroup>
               <Explain label="What stays in English">
-                You&rsquo;ll always see the English too. The Russian and Ukrainian come from the
-                dictionary itself, written alongside the Estonian.
+                You&rsquo;ll always see the English as well. The Russian and Ukrainian meanings come
+                straight from the Estonian dictionary, written by the same people as the Estonian.
               </Explain>
             </div>
 
@@ -560,8 +560,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             */}
             <div className="mt-10">
               <Note tone="hard">
-                One honest note: it will not score your pronunciation, let an AI grade you, or replace
-                a teacher. It helps you rehearse. The real conversations happen out there.
+                One honest note before you start: Kodukeel will not score your pronunciation, let an AI
+                grade you, or replace a teacher. It&rsquo;s where you rehearse. The real conversations
+                happen out there.
               </Note>
             </div>
           </section>
@@ -586,9 +587,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               learner who is furthest through is the one who was told wrong.
             */}
             <p className="mt-3 max-w-[54ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Take the level check now, or make a guess and move on. The check stops as soon as it
-              finds your level, and nothing here is set in stone. You can change it in Settings, or
-              take the check, whenever you like.
+              Take the level check to find out, or just pick the one that sounds like you. The check
+              stops as soon as it has found your level. Either way, you can change it later in
+              Settings.
             </p>
 
             {measured ? (
@@ -612,9 +613,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 ) : (
                   <div className="mt-6">
                     <Note tone="sky">
-                      The level check needs a dictionary with its words tagged by level, and this
-                      copy of Kodukeel doesn&rsquo;t have one yet. For now, pick the level that
-                      sounds most like you.
+                      The level check isn&rsquo;t ready on this copy of Kodukeel yet, because its
+                      dictionary hasn&rsquo;t been loaded. For now, pick the level that sounds most
+                      like you.
                     </Note>
                   </div>
                 )}
@@ -651,8 +652,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               Why Estonian?
             </h1>
             <p className="mt-3 max-w-[54ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Pick as many as apply. Different reasons need different levels, one of them comes with
-              a real exam, and the numbers below change as you answer.
+              Pick every one that&rsquo;s true. We&rsquo;ll suggest a level to aim for, and the plan at
+              the bottom changes as you answer.
             </p>
 
             {/*
@@ -742,8 +743,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               {!measured && (
                 <div className="mb-4">
                   <Note tone="sky">
-                    This plan is built on your own guess at your level. Take the level check whenever
-                    you like, and it&rsquo;ll rebuild around a real measurement.
+                    This plan starts from your own guess at your level. Take the level check whenever
+                    you like, and it&rsquo;ll redo the sums with your real one.
                   </Note>
                 </div>
               )}
@@ -765,9 +766,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               Your first words
             </h1>
             <Note tone="hard">
-              There&rsquo;s no dictionary loaded on this copy yet, so we have no starter deck to give
+              This copy of Kodukeel has no dictionary loaded yet, so there are no first words to give
               you. Whoever runs it can load one with <code>npm run db:seed</code>. You can still pick
-              your pace below, and add words from the dictionary as you come across them.
+              your pace below, and add words yourself as you come across them.
             </Note>
 
             <div className="mt-7">
@@ -794,9 +795,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               Tonight, and every night after
             </h1>
             <p className="mt-2 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
-              You don&rsquo;t have to decide what to study. Kodukeel plans each evening for you:
-              which words, in what order, and which games. About fifteen minutes, and then it tells
-              you to stop.
+              You never have to work out what to study. Kodukeel plans each evening for you: which
+              words, in what order, and which games. About fifteen minutes, and then it tells you
+              you&rsquo;re done.
             </p>
 
             {/*
@@ -857,17 +858,17 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               ))}
             </ul>
             <p className="mt-2 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {totalEvenings} evenings in all, and every word the course teaches is in one of them.
-              You can step off the plan whenever you like and use the app your own way. Everything&rsquo;s
-              still there, and your work counts either way.
+              {totalEvenings} evenings in all, and every word in the course turns up in one of them.
+              You can step off the plan whenever you like and use the app your own way. Nothing
+              disappears, and everything you do still counts.
             </p>
 
             <div className="mt-7">
-              <SectionTitle hint="the words tonight comes from">Your first words</SectionTitle>
+              <SectionTitle hint="picked for your level">Your first words</SectionTitle>
             </div>
             <p className="mt-1 max-w-[54ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              Your first {counted(deck.units.length, "unit")} at {openLevel}. Each word becomes a
-              flashcard, with audio and every form.
+              Tonight&rsquo;s words come from your first {counted(deck.units.length, "unit")} at {openLevel}.
+              Each word becomes a flashcard you can hear read aloud, with all its forms.
             </p>
 
             {/*
@@ -931,7 +932,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 <p className="label-xs" style={{ color: "var(--sky-ink)" }}>Your first conversation</p>
                 <p className="mt-1 text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{firstScene.title}</p>
                 <p className="mt-1 text-sm" style={{ color: "var(--sky-ink)" }}>
-                  {firstScene.place}. Once these words are in, you can rehearse this very
+                  {firstScene.place}. Once you know these words, you can practice this exact
                   conversation here, typing your side to a stranger who wants something from you.
                   Then go and have the real one.
                 </p>
@@ -975,9 +976,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               {minutesFor(goal)} minutes a day, {daysPerWeek} days a week. That&rsquo;s {goal} cards to
               answer, not {goal} new ones. About nine in ten will be words you&rsquo;ve already met,
               coming back just as you start to forget them. These {counted(deck.cards, "card")} take
-              roughly {counted(weeksToLearn(deck.cards, goal, daysPerWeek), "week")} to work through this way,
-              and a faster setting really does bring them in sooner. It also makes every day&rsquo;s
-              session longer, for the next year. Pick the one you&rsquo;d still open on a bad
+              roughly {counted(weeksToLearn(deck.cards, goal, daysPerWeek), "week")} to work through this way.
+              A faster setting really does get you through them sooner, but it makes every
+              evening longer for the next year too. Pick the one you&rsquo;d still open on a bad
               Wednesday.
             </p>
           </section>
@@ -1070,5 +1071,5 @@ function openingWhy(held: Level | null, open: string, measured: boolean): string
       ? `${source}, which is the top of this course, so you start on its first part. ${later}`
       : `${source} and you’re aiming for ${held}, so you start at its first part to make it solid. ${later}`;
   }
-  return `${source}, so we count ${held} as yours and start you on the next level. ${later}`;
+  return `${source}, so we’ll treat ${held} as done and start you on the next level up. ${later}`;
 }

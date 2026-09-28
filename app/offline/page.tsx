@@ -18,18 +18,18 @@ export default function OfflinePage() {
         <CloudOff size={13} aria-hidden /> Offline
       </span>
       <h1 className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
-        This screen needs a connection
+        This page needs the internet
       </h1>
       <p className="text-base" style={{ color: "var(--ink-2)" }}>
-        You&rsquo;re offline right now. Pages you&rsquo;ve already opened still work, and so does
-        review. Anything you grade is saved on this device and sent the moment you&rsquo;re back online.
+        You&rsquo;re offline right now. Pages you&rsquo;ve already opened still work, and so does your
+        review. Every answer you give is kept on this device and sent as soon as you&rsquo;re back online.
       </p>
       <a
         href="/review"
         className="grad-accent press mt-2 rounded-full px-6 py-3 text-base font-semibold"
         style={{ color: "var(--accent-ink)", boxShadow: "var(--shadow-accent)" }}
       >
-        Do some review instead
+        Review your words instead
       </a>
     </main>
   );

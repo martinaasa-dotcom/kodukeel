@@ -104,7 +104,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         <span className="hero-word-back" />
         <span className="hero-word-card">
           <span className="hero-word-top">
-            <span className="hero-word-label">Dictionary word</span>
+            <span className="hero-word-label">The word</span>
             <span lang="et" className="hero-word-lemma">{frame.lemma}</span>
           </span>
           <FitText
@@ -207,7 +207,7 @@ export function PlanCalculator() {
             </ChoiceChip>
           ))}
         </ChoiceGroup>
-        <ChoiceGroup label="Time you can give it, five evenings a week">
+        <ChoiceGroup label="How long you can spare, five evenings a week">
           {MINUTES.map((m) => (
             <ChoiceChip key={m} selected={minutes === m} onSelect={() => setMinutes(m)}>
               {formatDuration(m / 60)}
@@ -224,7 +224,7 @@ export function PlanCalculator() {
               {target} is already behind you.
             </p>
             <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Pick a higher level and we&rsquo;ll work it out again.
+              Pick a higher level and we&rsquo;ll do the sum again.
             </p>
           </>
         ) : (

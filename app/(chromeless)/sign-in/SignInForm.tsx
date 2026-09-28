@@ -553,7 +553,7 @@ export function SignInForm({
           disabled={pending !== null}
           className="w-full"
         >
-          {pending === "google" ? "Redirecting…" : "Continue with Google"}
+          {pending === "google" ? "Taking you to Google…" : "Continue with Google"}
         </Button>
       )}
 

@@ -130,7 +130,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
             </ul>
             <div>
               <Button type="button" variant="primary" onClick={() => setStage("pick")}>
-                I&rsquo;ve met them, test me <ArrowRight size={16} aria-hidden />
+                Got them, now quiz me <ArrowRight size={16} aria-hidden />
               </Button>
             </div>
           </>

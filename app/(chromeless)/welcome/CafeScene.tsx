@@ -239,9 +239,9 @@ export function CafeScene() {
             </ul>
           </div>
           <p className="cafe-note rounded-[var(--r-lg)] p-4 text-sm leading-relaxed">
-            <strong style={{ color: "var(--ink)" }}>Here you just pick, and every pick works.</strong>{" "}
-            Inside the app you type what you&rsquo;d really say, and if you get the ending wrong, they still
-            understand you and say it back the right way.
+            <strong style={{ color: "var(--ink)" }}>Here you just pick a line, and they all work.</strong>{" "}
+            Inside the app you type what you&rsquo;d really say. Get an ending wrong and they still
+            understand you, then say it back the right way.
           </p>
         </div>
 
@@ -261,8 +261,8 @@ export function CafeScene() {
             {!started ? (
               <div className="m-auto flex max-w-[26rem] flex-col items-center gap-4 text-center">
                 <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  Six moments, from hello to goodbye. Each time, pick one of the lines on offer and see how the
-                  person behind the counter takes it.
+                  Six little moments, from hello to goodbye. Each time you pick what to say, and see how the
+                  person behind the counter reacts.
                 </p>
                 <Button type="button" variant="primary" size="lg" onClick={() => void walkUp()} disabled={busy && !opening}>
                   Walk up to the counter <ArrowRight size={17} aria-hidden />
@@ -289,7 +289,7 @@ export function CafeScene() {
                       {reply.outcome ?? "And that’s the whole conversation."}
                     </p>
                     <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                      Inside there are fifteen of these, from the doctor to the landlord, and in there you type your own answers.
+                      Inside there are fifteen of these, from the doctor&rsquo;s to the landlord&rsquo;s, and there you type your answers yourself.
                     </p>
                   </div>
                 )}

@@ -59,8 +59,8 @@ export function ScreenFailed({ error, reset }: { error: Error & { digest?: strin
         That screen didn&rsquo;t load
       </h1>
       <p className="text-base" style={{ color: "var(--ink-2)" }}>
-        Nothing has been lost. Your deck and your review history are safe, and trying again
-        usually does the trick.
+        Nothing has been lost. Your words and your review history are safe, and trying again
+        usually sorts it out.
       </p>
       {/*
         WHAT THE FRAMEWORK PUTS IN `error.message` IS NOT A SENTENCE ANYBODY

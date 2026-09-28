@@ -59,8 +59,8 @@ export default function TermsPage() {
       <S title="What it promises">
         <P>
           Every Estonian word form here comes from Ekilex, the dictionary database run by the
-          Institute of the Estonian Language. None of it is generated. Where a form is shown
-          as derived from a stored omastav stem, it is labeled as derived.
+          Institute of the Estonian Language. None of it is made up by AI. Where a form has been
+          worked out by a fixed rule from one the dictionary stores, the screen says so.
         </P>
         <P>
           <strong>Anu is a machine, and says so on every screen she speaks from.</strong> You
