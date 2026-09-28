@@ -21,16 +21,22 @@ import { ModuleContext } from "./moduleFocus";
  * not ticked, so the evening asked them to press "I did this" about a page
  * they had visibly just read.
  *
- * So a step opened from the module is a room rather than a page. The rail, the
- * bar along the bottom of a phone and the tutor's button in the corner go, the
- * way on is one button pinned to the foot of the screen, and pressing it ticks
- * the step and opens the next one in the same press. Nothing else is there to
- * decide, which is the whole of the ask: an evening with one thing to do at a
- * time, from the first step to the last. The two quiet exceptions are ways
- * out rather than things to do: back to tonight's list, and one cross that
- * leaves the module for the app when the evening is over for other reasons.
+ * So a step opened from the module has one way on, and pressing it ticks the
+ * step and opens the next one in the same press. On a phone it is pinned to the
+ * foot of the screen where the phone bar was; on a desktop it is the card at
+ * the end of the page, so a reading ends on "go on" and a round has nothing
+ * floating over the middle of it. The quiet ways out stay ways out rather than
+ * things to do: back to tonight's list, and on a phone one cross back to Today.
  *
- * HOW THE WEBSITE GOES, AND WHY IT IS CSS. `.module-step` is the one element
+ * AND THE RAIL AND ANU STAY. The first version took the whole website off the
+ * screen, rail, phone bar and tutor's button, and it was reported the other
+ * way: a learner three steps in had no idea where in the app they were and
+ * nobody to ask about the card in front of them. So the rail stays on a desktop
+ * with the evening's own row lit, Anu stays in her corner at every width, and
+ * what goes is the phone bar alone, because the way on stands where it stood.
+ * The cross is a phone's only: on a desktop the rail's own Today is the door.
+ *
+ * HOW THE PHONE BAR GOES, AND WHY IT IS CSS. `.module-step` is the one element
  * this draws and `body:has(...)` is what reads it, exactly as `.scene-room`
  * does for a conversation. In a selector rather than an attribute written from
  * an effect, and that is the difference between a room and a room that
@@ -89,6 +95,30 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [failed, setFailed] = useState<string | null>(null);
+
+  /*
+    HOW TALL THE BAR IS, FOR ANU TO STAND CLEAR OF ON A PHONE.
+
+    It is one row or two and grows a line when a step says it ticks itself, so
+    a height typed into the stylesheet is a height that is wrong on some step.
+    Measured the way `lib/layout/dockClearance.ts` measures the phone bar, and
+    written as `--module-bar`, which `app/globals.css` reads below 768px only:
+    on a desktop the bar is a card in the flow and Anu keeps her own corner.
+  */
+  const bar = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = bar.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--module-bar", `${Math.ceil(el.getBoundingClientRect().height)}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--module-bar");
+    };
+  }, []);
 
   /*
     PRESSING ON HANDS THE CARET TO THE STEP IT OPENS.
@@ -231,7 +261,13 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
         `z-[95]` puts it over the page and under the command palette, which is
         the one thing in this app that is opened deliberately with a keystroke.
       */
-      className="module-step fixed inset-x-0 bottom-0 z-[95] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3"
+      /*
+        And `md:static` is the desktop half: from the width the rail appears at,
+        the bar stops floating and becomes the card at the end of the page,
+        which is where somebody who has read to the bottom is looking.
+      */
+      ref={bar}
+      className="module-step fixed inset-x-0 bottom-0 z-[95] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 md:static md:z-auto md:px-4 md:pb-10 md:pt-10"
     >
       <div
         className="module-bar mx-auto flex w-full max-w-3xl flex-col gap-2 rounded-[var(--r-xl)] border p-3"
@@ -268,6 +304,9 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
             The word goes at phone width and the cross stays, since the name in
             `aria-label` begins with the word a sighted reader sees.
 
+            On a phone only: from the width the rail appears at, the rail's own
+            Today is the same door, and two of them in one view is furniture.
+
             `data-module-leave` is what `scripts/test-module.mjs` reads to tell
             this door, which is deliberate, from a door a round left open.
           */}
@@ -275,7 +314,7 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
             href="/"
             data-module-leave=""
             aria-label="Leave the module and go to Today"
-            className="tap-tint inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 text-sm font-semibold"
+            className="tap-tint inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 text-sm font-semibold md:hidden"
             style={{ color: "var(--ink-3)" }}
           >
             <X size={16} aria-hidden />

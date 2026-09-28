@@ -24522,7 +24522,7 @@ check("a step opened from tonight's module carries the marker", () => {
   arrives already inside the module. The CSS half is asserted with it, because
   a frame drawn over a rail that is still there is not a room.
 */
-check("the module frame is mounted once in the shell, and takes the website with it", () => {
+check("the module frame is mounted once in the shell, and keeps the rail and Anu", () => {
   const layout = code("app/(app)/layout.tsx");
   assert.match(
     layout, /<ModuleScope>/,
@@ -24536,9 +24536,25 @@ check("the module frame is mounted once in the shell, and takes the website with
 
   const css = read("app/globals.css");
   assert.match(
-    css, /body:has\(\.module-step\) \[data-chrome\]/,
-    "a module step stopped taking the rail, the phone bar and the tutor's button off the screen",
+    css, /body:has\(\.module-step\) \[data-chrome="dock"\] \{ display: none/,
+    "a module step stopped taking the phone bar off the screen, so two bars stand at the foot of a phone",
   );
+  /*
+    AND ONLY THE PHONE BAR. Taking the rail and Anu too was the first version
+    and was reported the other way: a learner three steps in had no idea where
+    in the app they were and nobody to ask about the card in front of them. A
+    bare `[data-chrome]` rule would take all three again.
+  */
+  assert.ok(
+    !/body:has\(\.module-step\)\s*\[data-chrome(?:="(?:rail|anu)")?\]\s*\{/.test(css),
+    "a module step takes the rail or Anu off the screen again. Only the phone bar goes (components/course/ModuleScope.tsx)",
+  );
+  /* Anu stands clear of the bar on a phone off its measured height, so the
+     rule and the measurement are asserted as a pair. */
+  assert.match(css, /body:has\(\.module-step\) \.anu-fab \{ bottom: calc\(var\(--module-bar/,
+    "Anu no longer stands clear of the module's bar on a phone, so she sits over Continue");
+  assert.match(code("components/course/ModuleScope.tsx"), /setProperty\("--module-bar"/,
+    "nothing measures the module's bar, so Anu's clearance on a phone is a guess");
   /* The same hook the conversation hides by, deliberately: two rules naming
      two sets of furniture is two answers to what the website is made of. */
   assert.match(

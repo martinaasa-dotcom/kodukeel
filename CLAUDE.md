@@ -5957,10 +5957,24 @@ refuses a day nobody has reached for the reason `markCourseStep` does, refuses t
 step the review log proves, and works out where to go from the day's own order rather than from
 anything sent to it.
 
-**The website goes by the hook a conversation already uses.** `body:has(.module-step) [data-chrome]`
-is the same rule `.scene-room` has, against the same three marked places, deliberately: two rules
-naming two sets of furniture is two answers to what this app is made of, and the second one rots the
-day somebody adds a third piece. In CSS rather than an attribute written from an effect, since an
+**And the rail and Anu came back, which is the room corrected rather than abandoned.** The first
+version took all three pieces of the website off the screen, and it was reported the other way
+round: a learner three steps into an evening had no idea where in the app they were and nobody to
+ask about the card in front of them, which is the moment Anu exists for. So the rail stays on a
+desktop with the evening's own row lit, Anu stays in her corner at every width, and only the phone
+bar goes, because the module's way on stands where it stood. **On a desktop the way on is not
+pinned at all**: `.module-step` is `md:static`, the card at the end of the page, so a reading ends on
+"go on" and a round has nothing floating over the middle of it, and the cross back to Today is a
+phone's only, since the rail's own Today is that door. On a phone Anu stands off the bar's measured
+height (`--module-bar`), so her face is never over the button a thumb reaches for. The drill at the
+foot of a reading still stands down, and so does every round's own door: what came back is the way
+around the app, not a second thing to do. Asserted both ways in `scripts/test-invariants.ts` and
+walked at three widths in `scripts/test-module.mjs`.
+
+**The phone bar goes by the hook a conversation already uses.** `body:has(.module-step)
+[data-chrome="dock"]` reads the same marks `.scene-room` hides by, deliberately: two sets of marks
+would be two answers to what this app is made of, and the second one rots the day somebody adds a
+third piece. In CSS rather than an attribute written from an effect, since an
 effect runs after the first paint and every step would draw the whole website for a frame and then
 take it away. The room the pinned bar takes is written **after** the conversation's own
 `padding-bottom: 0`, because the two selectors weigh the same and a conversation reached from a
@@ -6048,7 +6062,9 @@ end of the window, unless the learner has since taken the caret onto the screen 
 announcement either way, always of the screen they ended up on, whichever order the two commits land
 in. Made to fail on the real line first, which is what said the two in three.
 
-**And a phone on its side is short rather than narrow.** Every check in the module's own suite pins
+**And a phone on its side is short rather than narrow.** (Since the rail came back, 844 is past the
+width it appears at, so a phone on its side gets the card in the flow and nothing pinned; what
+follows is the history of the pinned bar there.) Every check in the module's own suite pins
 the height at 900 and the phone suite pins it at 740, so the one shape neither saw is a phone turned
 over: at 844x390 the bar was 91px and the page reserved another 128 under it, a third of the screen
 given to the way on, on a step whose job is text somebody is reading. Under `max-height: 560px` the

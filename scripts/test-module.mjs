@@ -205,17 +205,34 @@ try {
     check(`step ${walked.length} draws the frame  (${here})`, await page.locator(".module-step").count() === 1);
     const away = await waysOut();
     check(`and nothing on it leads out of the module  (${here})`, away.length === 0, JSON.stringify(away));
-    const leave = page.locator(".module-step [data-module-leave]");
-    check(
-      `and there is exactly one way back into the app, to Today  (${here})`,
-      await leave.count() === 1 && await leave.getAttribute("href") === "/" && await leave.isVisible(),
-    );
-    for (const part of ["rail", "dock", "anu"]) {
+    /*
+      AND THE RAIL AND ANU ARE STILL THERE, ON A DESKTOP.
+
+      The first version took the whole website off the screen and was reported
+      the other way: a learner three steps in had no idea where in the app they
+      were and nobody to ask about the card. So the rail stays with its own row
+      lit, Anu stays in her corner, and the way back into the app is the rail's
+      own Today rather than a cross on the frame, which is a phone's only.
+    */
+    for (const part of ["rail", "anu"]) {
       check(
-        `and the ${part} is off the screen  (${here})`,
-        !(await page.locator(`[data-chrome="${part}"]`).isVisible().catch(() => false)),
+        `and the ${part} is on the screen  (${here})`,
+        await page.locator(`[data-chrome="${part}"]`).isVisible().catch(() => false),
       );
     }
+    check(
+      `and the rail lights the row the step lives under  (${here})`,
+      await page.locator('[data-chrome="rail"] [aria-current="page"]').count() === 1,
+    );
+    check(
+      `and the way into the app is the rail's Today, not a second door  (${here})`,
+      await page.locator('[data-chrome="rail"] a[href="/"]').first().isVisible().catch(() => false)
+        && !(await page.locator(".module-step [data-module-leave]").isVisible().catch(() => true)),
+    );
+    check(
+      `and the way on is the card at the end of the page, not a bar over it  (${here})`,
+      await page.locator(".module-step").evaluate((e) => getComputedStyle(e).position) === "static",
+    );
     if (/\/grammar\//.test(here)) reading = page.url();
     marker ??= new URL(page.url()).searchParams.get("module");
 
@@ -264,17 +281,49 @@ try {
       const sideways = await browser.newPage({ viewport: { width: 844, height: 390 } });
       await sideways.goto(page.url(), { waitUntil: "domcontentloaded" });
       await sideways.waitForSelector("main h1", { timeout: 20_000 });
+      /* 844 is past the width the rail appears at, so the way on is the card at
+         the end of the page there too, and nothing is pinned over the step. */
       const share = await sideways.evaluate(() => {
-        const bar = document.querySelector(".module-step")?.getBoundingClientRect();
+        const bar = document.querySelector(".module-step");
         const pad = parseFloat(getComputedStyle(document.querySelector("main")).paddingBottom);
-        return bar ? { taken: Math.round(((innerHeight - bar.top) / innerHeight) * 100), pad: Math.round(pad) } : null;
+        return bar ? { position: getComputedStyle(bar).position, pad: Math.round(pad) } : null;
       });
       await sideways.close();
       check(
-        "a phone on its side keeps most of the screen for the step",
-        share !== null && share.taken <= 22 && share.pad <= 100,
+        "a phone on its side keeps the whole screen for the step",
+        share !== null && share.position === "static" && share.pad <= 100,
         JSON.stringify(share),
       );
+
+      /*
+        AND ON A PHONE THE WAY ON IS PINNED, WITH ANU CLEAR OF IT.
+
+        The phone bar goes because the module's own bar stands where it stood,
+        and Anu stands off that bar's measured height, so neither is drawn over
+        the other and the button a thumb reaches for is never her face.
+      */
+      const phone = await browser.newPage({ viewport: { width: 390, height: 844 } });
+      await phone.goto(page.url(), { waitUntil: "domcontentloaded" });
+      await phone.waitForSelector("main h1", { timeout: 20_000 });
+      await phone.waitForTimeout(600);
+      const onPhone = await phone.evaluate(() => {
+        const bar = document.querySelector(".module-step");
+        const anu = document.querySelector('[data-chrome="anu"]');
+        const dock = document.querySelector('[data-chrome="dock"]');
+        const shown = (e) => !!e && getComputedStyle(e).display !== "none" && e.getBoundingClientRect().height > 0;
+        return {
+          pinned: !!bar && getComputedStyle(bar).position === "fixed",
+          anu: shown(anu),
+          dock: shown(dock),
+          clear: !!bar && !!anu && anu.getBoundingClientRect().bottom <= bar.getBoundingClientRect().top + 1,
+          leave: !!document.querySelector(".module-step [data-module-leave]")?.getClientRects().length,
+        };
+      });
+      await phone.close();
+      check("on a phone the way on is pinned to the foot", onPhone.pinned, JSON.stringify(onPhone));
+      check("with Anu on the screen and clear of it", onPhone.anu && onPhone.clear, JSON.stringify(onPhone));
+      check("and the phone bar off, since the way on stands in its place", !onPhone.dock, JSON.stringify(onPhone));
+      check("and one cross back to Today", onPhone.leave, JSON.stringify(onPhone));
     }
     /* The last step's way on is the list, which is where the evening ends. */
     if (new URL(page.url()).pathname === MODULE_HOME) break;
