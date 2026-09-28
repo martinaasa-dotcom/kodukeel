@@ -20,7 +20,7 @@ import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, 
  * see the comment there.
  */
 export function AnuPanel({
-  open, returnTo, configured, readerCanConfigure, onClose,
+  open, returnTo, configured, readerCanConfigure, prefill, onClose,
 }: {
   /** Whether it is on screen: mounted once and hidden afterwards, so mounting says nothing. */
   open: boolean;
@@ -28,6 +28,8 @@ export function AnuPanel({
   returnTo: RefObject<HTMLButtonElement | null>;
   configured: boolean;
   readerCanConfigure: boolean;
+  /** A question a card handed over, put in the box once per `seq` and never sent for them. */
+  prefill?: { text: string; seq: number } | null;
   onClose: () => void;
 }) {
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -75,6 +77,16 @@ export function AnuPanel({
     with room around it and every starter always on screen.
   */
   const asked = messages.length > 0;
+
+  // What a card asked for goes in the box rather than being sent: the learner
+  // reads it, edits it or sends it, which is what the full page offered and
+  // costs nobody a call they did not mean to make.
+  const placed = useRef(0);
+  useEffect(() => {
+    if (!prefill || prefill.seq === placed.current) return;
+    placed.current = prefill.seq;
+    setInput(prefill.text);
+  }, [prefill]);
 
   const pick = (prompt: string) => {
     setInput(prompt);
