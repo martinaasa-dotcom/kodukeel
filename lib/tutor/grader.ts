@@ -1,6 +1,8 @@
 import type { WritingTask } from "@/lib/estonian/writing";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { estimateTokens } from "@/lib/usage/pricing";
+import { VOICE_RULES } from "@/lib/copy/voice";
+import { humanizeReply } from "./humanize";
 import {
   anthropicHeaders, billedOutput, openAiCompatible, TutorError, type ProviderConfig, type UsageReport,
 } from "./provider";
@@ -38,6 +40,15 @@ export interface GraderInput {
   level: string;
 }
 
+/**
+ * The voice every note a learner reads is written in.
+ *
+ * The same table Anu's chat is given, so a note under a written sentence and an
+ * answer in the chat panel cannot sound like two different people. What comes
+ * back is cleaned by the same pass on the way out (`parseVerdict`).
+ */
+const VOICE = VOICE_RULES.map((rule) => `- ${rule}`).join("\n");
+
 export function buildGraderSystemPrompt(): string {
   return `You are Anu, an Estonian teacher, marking one sentence a learner has written.
 
@@ -55,8 +66,9 @@ RULES YOU MUST NOT BREAK
 - If you are unsure whether something is an error, say the sentence is acceptable. A confident correction that is wrong is far more damaging than a missed nitpick, because the learner will believe you.
 - Name the rule when you correct something. "Partitive, because the action is ongoing", not "it sounds better".
 
-TONE
-Direct and brief. Say what is right before what is wrong when both apply. No praise that carries no information.
+HOW YOU SOUND
+Like a warm teacher handing the page back in person: say what works before what does not, when both apply, then the one thing to fix. No praise that carries no information.
+${VOICE}
 
 OUTPUT
 Reply with a single JSON object and nothing else:
@@ -119,7 +131,7 @@ export function parseVerdict(raw: string): GradedSentence | null {
     if (verdict !== "correct" && verdict !== "almost" && verdict !== "wrong") return null;
     return {
       verdict,
-      comment: typeof parsed.comment === "string" ? parsed.comment.slice(0, 600) : "",
+      comment: typeof parsed.comment === "string" ? humanizeReply(parsed.comment.slice(0, 600)) : "",
       rule: typeof parsed.rule === "string" ? parsed.rule.slice(0, 200) : "",
     };
   } catch {
@@ -399,8 +411,9 @@ RULES YOU MUST NOT BREAK
 - If you are unsure whether something is an error, leave it. A confident correction that is wrong is far more damaging than a missed one, because the learner will believe you.
 - Name the pattern, not every instance. One thing to fix beats nine.
 
-TONE
-Direct and brief. Say what works before what does not, when both apply. No praise that carries no information.
+HOW YOU SOUND
+Like a warm teacher handing the page back in person: say what works before what does not, when both apply, then the one thing to fix. No praise that carries no information.
+${VOICE}
 
 OUTPUT
 Reply with a single JSON object and nothing else:
@@ -513,8 +526,9 @@ RULES YOU MUST NOT BREAK
 - Name the rule when you correct something, not the feeling. "Partitive, because the action is ongoing", never "it sounds better".
 - Do not tell them to use the other two words. Only one was required.
 
-TONE
-Direct and brief. Say what works before what does not, when both apply. No praise that carries no information.
+HOW YOU SOUND
+Like a warm teacher handing the page back in person: say what works before what does not, when both apply, then the one thing to fix. No praise that carries no information.
+${VOICE}
 
 OUTPUT
 Reply with a single JSON object and nothing else:

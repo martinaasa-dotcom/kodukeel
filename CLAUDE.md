@@ -3248,9 +3248,8 @@ scan's own grep is quoting code, and because backticks are how a page names a ba
 using one. `docs/18-voice.md` is exempt from the phrase rule alone, since it has to show the copy it
 exists to prevent, and `lib/ekilex/client.ts` from one phrase of it and no more.
 
-**And warm, short and grammatical is still not enough if nobody would say it.** "The words work
-runs on" passed every check here and was reported off the landing page as language nobody uses; what
-a person says is "the words you'll hear at work". The bar for every sentence, typed by hand or written
+**And warm, short and grammatical is still not enough if nobody would say it.** `The words work runs on` passed every check here and was reported off the landing page as language nobody uses; what
+a person says is `the words you'll hear at work`. The bar for every sentence, typed by hand or written
 by a model, is whether a warm, clever friend who teaches Estonian would say it that way out loud:
 concrete things a reader can picture rather than categories, no sentence where the app describes its
 own machinery unless the reader needs the fact, contractions where the sentence is friendly, and fun

@@ -2,6 +2,8 @@ import { after } from "next/server";
 import { buildSystemPrompt } from "./prompt";
 import { openWithFallback, resolveProviders } from "./provider";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
+import { findTells } from "@/lib/copy/voice";
+import { humanizeLine } from "./humanize";
 
 /**
  * What came back, or why nothing did.
@@ -223,7 +225,8 @@ export async function translateSentenceWithAnu(
 export function sentenceInstruction(sentence: string): string {
   return (
     `Translate this Estonian sentence into natural English: "${sentence}"\n` +
-    `Reply with the English translation only, one sentence, no quotes, no notes. ` +
+    `Write it the way an English speaker would actually say it, not word for word, and keep every bit of the meaning. ` +
+    `No dashes. Reply with the English translation only, one sentence, no quotes, no notes. ` +
     `If you cannot translate it, reply exactly: UNKNOWN`
   );
 }
@@ -242,5 +245,10 @@ export function readSentenceTranslation(text: string, sentence: string): string 
   const cleaned = text.replace(/^["'\s]+|["'\s]+$/g, "").split("\n")[0]?.trim();
   if (!cleaned || /^unknown$/i.test(cleaned) || cleaned.length > 240) return null;
   if (looksLikeEcho(cleaned, sentence)) return null;
-  return cleaned;
+  // The same table a hand-written line is swept against: a dash is cleaned the
+  // way Anu's stream cleans one, and a line carrying a tell is refused rather
+  // than stored, since a stored line is read by every learner who meets it.
+  const voiced = humanizeLine(cleaned);
+  if (findTells(voiced).length > 0) return null;
+  return voiced;
 }
