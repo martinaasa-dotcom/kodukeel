@@ -473,6 +473,23 @@ async function wordAboveA1() {
   }
 }
 
+/** The first seeded A1 phrase, in the dictionary's own order. Read-only. */
+async function firstPhrase() {
+  const prisma = newPrismaClient(resolveDatabaseUrl().url);
+  try {
+    const row = await prisma.lexeme.findFirst({
+      where: { cefr: "A1", pos: "PHRASE", provenance: "SEED" },
+      orderBy: [{ lemma: "asc" }, { id: "asc" }],
+      select: { lemma: true },
+    });
+    return row?.lemma ?? null;
+  } catch {
+    return null;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 async function screensToMake() {
   const made = [];
   const missing = [];
@@ -539,6 +556,33 @@ async function screensToMake() {
   });
   if (classrooms) made.push(...classrooms.split(" "));
   else missing.push("a classroom, which local mode cannot create by hand: run `npm run demo`");
+
+  /*
+    A phrase waiting on the Learn page. The card offers "Learn N phrases" as a
+    button of its own only where one is waiting, and the demo deck is nouns
+    and verbs, so that button was on no page this suite opened and was drawn
+    a letter a line from 1024 up with every check here passing. One phrase is
+    added the way a learner adds one, off its dictionary entry; which phrase
+    is read off the database rather than typed, so no Estonian is written
+    here.
+  */
+  const phrase = await budgeted("a phrase waiting on the Learn page", 45_000, async (page) => {
+    await page.goto(`${B}/learn`, { waitUntil: "networkidle", timeout: 30_000 });
+    if (await page.locator('a[href="/learn/new?kind=phrase"]').count()) return "already waiting";
+    const lemma = await firstPhrase();
+    if (!lemma) throw new Error("the dictionary holds no seeded A1 phrase");
+    await page.goto(`${B}/dictionary?q=${encodeURIComponent(lemma)}`, { waitUntil: "networkidle", timeout: 30_000 });
+    await page.getByRole("button", { name: /Add to deck/ }).first().click({ timeout: 10_000 });
+    await page.getByText(/In deck/).first().waitFor({ timeout: 10_000 });
+    await page.goto(`${B}/learn`, { waitUntil: "networkidle", timeout: 30_000 });
+    if (!(await page.locator('a[href="/learn/new?kind=phrase"]').count())) {
+      throw new Error(`added ${lemma}, and the Learn page still offers no phrase`);
+    }
+    return `added ${lemma}`;
+  });
+  // A failure rather than a waiver: /learn is still measured without it, so
+  // nothing is skipped, and a waiver would be a hole the shape of the report.
+  check("the Learn page offers a phrase for the sweep to measure", Boolean(phrase), "see the line above");
 
   /*
     A round over one shelf. `/words/decks` links to it only once the shelf
@@ -1264,6 +1308,65 @@ function relatives() {
 }
 
 /**
+ * A WORD IS DRAWN ON ONE LINE, AND A BUTTON'S LABEL IS DRAWN WHOLE.
+ *
+ * The width comparison in `survey` asks whether a block is wide enough for its
+ * longest word, and it cannot see two things. An inline run is skipped there,
+ * since it wraps inside its block. And a button is only measured where it is
+ * rendered: "Learn 5 phrases" on the Learn page was drawn five letters a line
+ * at 44px wide from 1024 up, because the heading beside it squeezed the button
+ * row down to one letter under `overflow-wrap: anywhere`, and the demo deck
+ * held no phrase, so the button was never on a page this suite opened.
+ *
+ * So this asks the browser rather than working it out: every ordinary word on
+ * the page (two to thirteen letters, the same bound as above, since a longer
+ * compound breaking is the rule doing its job) is measured as a Range, and a
+ * word whose letters sit on two lines is a word broken, whatever element it is
+ * in. And every `.btn`, whose label `components/Button.tsx` keeps on one line,
+ * is asked whether the label is wider than the button, which is what a row
+ * with no room for it now does instead of folding it up.
+ */
+function wholeWords() {
+  const broken = [];
+  const overflowing = [];
+  const shown = (el) => el.checkVisibility({ contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true });
+  const named = (el) => {
+    const text = (el.getAttribute("aria-label") || el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 28);
+    return `${el.tagName.toLowerCase()}${text ? ` "${text}"` : ""}`;
+  };
+  const range = document.createRange();
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let words = 0;
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const el = node.parentElement;
+    if (!el || el.closest("script, style, noscript, table, pre, code, textarea, .sr-only, [aria-hidden='true']")) continue;
+    if (!shown(el)) continue;
+    const text = node.textContent;
+    for (const m of text.matchAll(/\p{L}{2,13}/gu)) {
+      range.setStart(node, m.index);
+      range.setEnd(node, m.index + m[0].length);
+      const tops = new Set();
+      for (const r of range.getClientRects()) if (r.width > 0.5) tops.add(Math.round(r.top / 3));
+      words += 1;
+      if (tops.size > 1) broken.push(`"${m[0]}" is broken across ${tops.size} lines in ${named(el)}`);
+    }
+  }
+  for (const btn of document.querySelectorAll(".btn")) {
+    if (!shown(btn)) continue;
+    if (btn.scrollWidth > btn.clientWidth + 1) {
+      overflowing.push(`${named(btn)} needs ${btn.scrollWidth}px and has ${btn.clientWidth}`);
+    }
+  }
+  const first = (list) => [...new Set(list)].slice(0, 3).join(" · ");
+  return {
+    words,
+    broken: [...new Set(broken)].length,
+    overflowing: [...new Set(overflowing)].length,
+    say: { broken: first(broken), overflowing: first(overflowing) },
+  };
+}
+
+/**
  * One pass over whatever a page is showing: the four questions, then the same
  * four with every run of text swapped for one of the same length that cannot
  * break.
@@ -1286,6 +1389,9 @@ async function measure(page, label, atLeast = 25) {
   check(`nothing is drawn into its neighbor on ${label}`, rest.collided === 0, rest.say.collided);
   check(`no icon is deformed on ${label}`, rest.deformed === 0, rest.say.deformed);
   check(`no ordinary word is broken across lines on ${label}`, rest.split === 0, rest.say.split);
+  const whole = await page.evaluate(wholeWords);
+  check(`no word is drawn across two lines on ${label}`, whole.broken === 0, whole.say.broken);
+  check(`no button label is wider than its button on ${label}`, whole.overflowing === 0, whole.say.overflowing);
   const kin = await page.evaluate(relatives);
   check(`no label wraps under its own marker on ${label}`, kin.wrapped === 0, kin.say.wrapped);
   check(`relatives sit alike, marker to label, on ${label}`, kin.unlike === 0, kin.say.unlike);
