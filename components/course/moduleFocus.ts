@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import type { ModuleFocus } from "@/lib/course";
 
 /**
@@ -35,4 +35,43 @@ export const ModuleContext = createContext<ModuleFocus | null>(null);
  */
 export function useModuleFocus(): ModuleFocus | null {
   return useContext(ModuleContext);
+}
+
+/**
+ * ONE STEP OF TONIGHT, AS THE RAIL DRAWS IT UNDER LEARN.
+ *
+ * The marker carries where the learner is and nothing about the evening round
+ * it, because it is an address and an address is the wrong place for five
+ * titles. So `ModuleScope` asks the server once per step (`tonightSteps`) and
+ * hands the answer here, where the rail and the way on both read it. Empty
+ * until it lands, which draws Learn lit with nothing under it for a moment
+ * rather than a list somebody typed.
+ */
+export interface ModuleStepRow {
+  id: string;
+  title: string;
+  href: string;
+  done: boolean;
+}
+
+export const ModuleStepsContext = createContext<readonly ModuleStepRow[]>([]);
+
+/** Tonight's steps, in the day's own order, or none outside a module. */
+export function useModuleSteps(): readonly ModuleStepRow[] {
+  return useContext(ModuleStepsContext);
+}
+
+/**
+ * THE WAY ON, AS AN ELEMENT SOMEBODY ELSE DRAWS.
+ *
+ * A finish screen and the foot of a reading page are where "Next" belongs, and
+ * both are drawn by files that may not import the button that presses it: a
+ * finish screen reaches `WayOut`, which is inside `Empty`, which is on the
+ * landing page. So `ModuleScope` builds the element and puts it here, and a
+ * reader draws whatever it finds, which is nothing outside a module.
+ */
+export const ModuleNextContext = createContext<ReactNode>(null);
+
+export function useModuleNext(): ReactNode {
+  return useContext(ModuleNextContext);
 }

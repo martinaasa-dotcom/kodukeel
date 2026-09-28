@@ -121,7 +121,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         actions={<>
           {/* The way back to the menu somebody chose this round from, which
               inside a module is a door out of the evening. */}
-          <WayOut><ButtonLink href="/practice" variant="ghost">Back to practice</ButtonLink></WayOut>
+          <WayOut opening><ButtonLink href="/practice" variant="ghost">Back to practice</ButtonLink></WayOut>
           <Button variant="primary" size="lg"
             onClick={() => { setPhase("running"); setLeft(shotSeconds(0, multiplier)); shownAt.current = Date.now(); }}>
             Start

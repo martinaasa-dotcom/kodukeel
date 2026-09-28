@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { ReadingEnd } from "@/components/course/ReadingEnd";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen, TriangleAlert } from "lucide-react";
@@ -316,6 +317,7 @@ export default async function TopicPage({
             <DrillLink href={TOPIC_DRILL[id]!} />
           </section>
         )}
+        {inModule && <ReadingEnd />}
       </Stack>
     </Page>
   );

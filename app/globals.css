@@ -1303,20 +1303,23 @@
     these screens is still an ordinary page of the website when it is reached
     any other way.
   */
-  body:has(.module-step) [data-chrome] { display: none !important; }
+  body:has(.module-step) [data-chrome="dock"] { display: none !important; }
 
   /*
-    The gutter the tutor's button needs, and the room the bar at the foot of a
-    module step takes.
+    AND THE RAIL AND ANU STAY, WHICH IS AN AMENDMENT RATHER THAN AN OVERSIGHT.
 
-    `#main` reserves 5rem on the right from the width the rail appears at, for
-    a button that is not drawn here; and `dock-pad` reserves the phone bar's
-    measured height, which is nought now that the bar has no box. What is drawn
-    instead is the way on, and it is `position: fixed`, so the last card of a
-    reading would otherwise sit under it. Enough for the bar and its own
-    padding at both sizes.
+    The first version took all three off the screen, the rail, the phone bar
+    and the tutor's button, and it was reported the other way round: a learner
+    three screens into an evening had no idea where in the app they were, and
+    nobody to ask about the word in front of them. Anu is the one thing a
+    learner stuck on a card most needs, so she stays in her corner. The rail
+    stays on a desktop with Learn lit and tonight's steps under it.
+
+    What goes is only the phone bar, and only because the module's own way on
+    stands where it stood. On a desktop there is no bar at all (`.module-step`
+    is `md:hidden` in `components/course/ModuleScope.tsx`): the way on is
+    "Next" where the step ends, so nothing floats over the middle of a round.
   */
-  body:has(.module-step) #main { padding-right: 0; }
 
   /*
     AND THE PAGE MOVES WHEN THIS SCREEN SAYS SO, WHICH IS NOT WHAT THE BROWSER
@@ -1351,8 +1354,8 @@
     `dock-pad` is the phone bar's measured height spent as padding under the
     page, and it is nought inside a conversation because a conversation draws
     no phone bar and ends in a panel that is the foot of the screen. A step of
-    tonight's module draws something there instead: the way on, pinned, which
-    is exactly what the last card of a reading and the box a conversation is
+    tonight's module draws something there instead on a phone: the way on,
+    pinned, which is exactly what the last card of a reading and the box a conversation is
     answered in would otherwise sit under.
 
     Written after the conversation's own rather than beside the rule that hides
@@ -1362,8 +1365,14 @@
     figure as scroll margin, since `scrollIntoView` stops when a box is inside
     the window and the bar is drawn over the bottom of it.
   */
-  body:has(.module-step) .dock-pad { padding-bottom: 8rem; }
-  body:has(.module-step) .dock-clear { scroll-margin-bottom: 8rem; }
+  @media (max-width: 767px) {
+    body:has(.module-step) .dock-pad { padding-bottom: 8rem; }
+    body:has(.module-step) .dock-clear { scroll-margin-bottom: 8rem; }
+    /* Anu stands clear of the bar that takes the phone bar's place, off its
+       measured height (`--module-bar`, written by the bar itself), exactly as
+       she stands clear of the phone bar everywhere else. */
+    body:has(.module-step) .anu-fab { bottom: calc(var(--module-bar, 10.5rem) + 0.5rem); }
+  }
 
   /*
     On a phone the bar is two rows, the step count beside the cross and the two
@@ -1392,7 +1401,7 @@
     it is already `aria-hidden`. What stays is the caption, the way back and
     the way on, which is what the bar is.
   */
-  @media (max-height: 560px) {
+  @media (max-height: 560px) and (max-width: 767px) {
     body:has(.module-step) .dock-pad { padding-bottom: 5.5rem; }
     body:has(.module-step) .dock-clear { scroll-margin-bottom: 5.5rem; }
     .module-step { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }

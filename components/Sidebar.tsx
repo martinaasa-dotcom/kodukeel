@@ -2,8 +2,8 @@
 
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, MessageSquareWarning, MoreHorizontal, Moon, Settings, SlidersHorizontal, Sun, X } from "lucide-react";
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { Check, LogOut, MessageSquareWarning, MoreHorizontal, Moon, Settings, SlidersHorizontal, Sun, X } from "lucide-react";
+import { type CSSProperties, Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { useDockClearance } from "@/lib/layout/dockClearance";
 import { useNavMarker } from "@/lib/layout/navMarker";
@@ -19,6 +19,7 @@ import { Wordmark } from "@/components/brand";
 import { BrandLink } from "@/components/BrandLink";
 import { NamedIcon } from "@/components/icons";
 import { useModalFocus } from "@/components/useModalFocus";
+import { useModuleFocus, useModuleSteps, type ModuleStepRow } from "@/components/course/moduleFocus";
 
 /**
  * The rail, and the phone bar under it.
@@ -115,8 +116,22 @@ export function Sidebar({ order: stored, name, classes = [] }: {
     because they are not a choice about the column: they arrive when somebody
     joins and go when they leave or the class is archived.
   */
-  const classLinks = classRows(classes);
-  const lit = litRow([...rows, ...classLinks], pathname);
+  /*
+    INSIDE TONIGHT'S MODULE THE RAIL IS THE SAME RAIL, WITH LEARN LIT AND THE
+    EVENING HUNG UNDER IT.
+
+    A step opens a practice round, a grammar page or the review queue, and
+    lighting the row those live under would say the learner had wandered off to
+    Practice in the middle of an evening they are walking. So Learn is lit,
+    whatever the path, and tonight's steps are listed under it. The class group
+    is not drawn: nothing about tonight is in it, and a column that grows a
+    second section during a module is a column with more in it than the room
+    it is in.
+  */
+  const focus = useModuleFocus();
+  const tonight = useModuleSteps();
+  const classLinks = focus ? [] : classRows(classes);
+  const lit = focus ? LEARN_HREF : litRow([...rows, ...classLinks], pathname);
   /*
     The phone sheet is every place under the five homes, whether or not the
     learner pinned it: the rail is a column somebody chose, and the sheet is
@@ -230,7 +245,10 @@ export function Sidebar({ order: stored, name, classes = [] }: {
         >
           <NavMarker state={railMarker} />
           {rows.map((item) => (
-            <RailLink key={item.href} item={item} active={lit === item.href} pinned={!isCoreRow(item.href)} />
+            <Fragment key={item.href}>
+              <RailLink item={item} active={lit === item.href} pinned={!isCoreRow(item.href)} />
+              {focus && item.href === LEARN_HREF && <TonightRows steps={tonight} at={focus.stepId} />}
+            </Fragment>
           ))}
           {classLinks.length > 0 && (
             <div
@@ -612,6 +630,60 @@ function RailLink({ item, active, pinned, classRow = false }: {
       <span className="min-w-0">{item.label}</span>
       {pinned && <span className="sr-only">, pinned</span>}
     </Link>
+  );
+}
+
+/** The row tonight's module hangs off. */
+const LEARN_HREF = "/learn";
+
+/**
+ * TONIGHT'S STEPS, NESTED UNDER LEARN.
+ *
+ * A thread down the left edge rather than a card of its own, so it reads as
+ * part of the Learn row above it. Each step is a link carrying the module's
+ * marker, so pressing one opens it inside the evening; the one open now says
+ * "now" in words and carries `aria-current="step"`, and one behind the learner
+ * carries a tick and says done to a reader. None of them is a `data-nav-cell`,
+ * because the marker pane belongs to the five places and this list is inside
+ * one of them.
+ */
+function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: string }) {
+  if (steps.length === 0) return null;
+  return (
+    <ol
+      aria-label="Tonight"
+      data-rail-tonight=""
+      className="mb-1.5 ml-[1.1875rem] mt-0.5 flex flex-col gap-0.5 border-l-2 py-1 pl-3"
+      style={{ borderColor: "color-mix(in oklab, var(--accent) 28%, transparent)" }}
+    >
+      {steps.map((step) => {
+        const now = step.id === at;
+        return (
+          <li key={step.id}>
+            <Link
+              href={step.href}
+              aria-current={now ? "step" : undefined}
+              className="tap-tint flex min-h-9 items-center gap-2 rounded-[var(--r-sm)] px-2.5 text-sm"
+              style={{
+                color: now ? "var(--accent-deep)" : "var(--ink-2)",
+                fontWeight: now ? 600 : 500,
+                background: now ? "var(--accent-soft)" : undefined,
+              }}
+            >
+              <span className="min-w-0 flex-1 py-1.5">{step.title}</span>
+              {now ? (
+                <span className="shrink-0 text-xs font-medium">now</span>
+              ) : step.done ? (
+                <>
+                  <Check size={14} aria-hidden className="shrink-0" style={{ color: "var(--good-ink)" }} />
+                  <span className="sr-only">, done</span>
+                </>
+              ) : null}
+            </Link>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
