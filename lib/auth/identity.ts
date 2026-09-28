@@ -65,6 +65,8 @@ export interface Learner {
   name: string;
   email: string | null;
   avatarUrl: string | null;
+  /** The given name the provider reported (Google's `given_name`), where it sent one. */
+  givenName: string | null;
 }
 
 /**
@@ -189,7 +191,22 @@ export function learnerFromClaims(claims: Claims): Learner {
     name: text(meta.full_name) ?? text(meta.name) ?? email?.split("@")[0] ?? "you",
     email,
     avatarUrl: text(meta.avatar_url) ?? null,
+    givenName: text(meta.given_name) ?? null,
   };
+}
+
+/**
+ * What to call somebody in a box asking for a name: their first name.
+ *
+ * The provider's own given name wins, since it is right for "Mary Ann" where
+ * no rule over a full name can be. Without one, the first word of the name is
+ * the best available answer. The local-mode placeholder is not a name, so it
+ * comes back empty rather than pre-filling a box with "you".
+ */
+export function firstNameOf(learner: Pick<Learner, "name" | "givenName">): string {
+  if (learner.givenName) return learner.givenName;
+  if (learner.name === "you") return "";
+  return learner.name.split(/\s+/)[0] ?? "";
 }
 
 /**

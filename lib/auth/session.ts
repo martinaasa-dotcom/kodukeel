@@ -78,7 +78,7 @@ export const requireUserId = cache(async (): Promise<string> => {
 /** Who is signed in, for greetings and the opt-in class leaderboard. */
 export const currentLearner = cache(async (): Promise<Learner> => {
   if (!supabaseConfigured()) {
-    return { id: LOCAL_USER_ID, name: "you", email: null, avatarUrl: null };
+    return { id: LOCAL_USER_ID, name: "you", email: null, avatarUrl: null, givenName: null };
   }
   const who = await identity();
   if (who.state !== "in") throw new Error("Not signed in.");

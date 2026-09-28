@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
+import { firstNameOf } from "@/lib/auth/identity";
 import { LEVELS, unitsAtLevel } from "@/lib/collections/syllabus";
 import { starterUnitsFor } from "@/lib/collections/starter";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -87,7 +88,7 @@ export default async function WelcomePage() {
   );
 
   const suggestedName =
-    settings[SETTING_KEYS.displayName] ?? (learner.name === "you" ? "" : (learner.name.split(/\s+/)[0] ?? ""));
+    settings[SETTING_KEYS.displayName] ?? firstNameOf(learner);
 
   /*
     The level check, built here rather than behind a click.
