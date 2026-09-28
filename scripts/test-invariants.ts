@@ -21068,10 +21068,13 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     third such route arrives with the fault this file was written to fix.
   */
   const spreads = ALL.filter((file) => /\bleastPractisedSlot\(/.test(code(file)));
-  const unguarded = spreads.filter((file) => !/\bnotOnLadder\(ownerId\)/.test(code(file)));
+  // `meetingFirst` is `notOnLadder` plus the word's own ladder card, which the
+  // session introduces as a first meeting, so it holds the same line: no case
+  // or conjugated card is ever a word's first question.
+  const unguarded = spreads.filter((file) => !/\b(notOnLadder|meetingFirst)\(ownerId\)/.test(code(file)));
   assert.deepEqual(
     unguarded, [],
-    `${unguarded.join(", ")} calls leastPractisedSlot without asking notOnLadder first, `
+    `${unguarded.join(", ")} calls leastPractisedSlot without asking notOnLadder or meetingFirst first, `
     + "so it can hand out a case or a conjugated form as a word's very first question",
   );
   assert.notDeepEqual(spreads, [], "leastPractisedSlot has no caller left to check");
