@@ -176,7 +176,7 @@ export function resolveRecipients(): Recipient[] {
   */
   if (process.env.VERCEL === "1") {
     recipients.push({
-      name: "Vercel, which runs the servers this app is answered from",
+      name: "Vercel, which runs the servers this app lives on",
       what:
         "every request you make, while it's being answered, and a log of it "
         + "that includes your IP address",

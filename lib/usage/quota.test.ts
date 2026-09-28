@@ -123,7 +123,7 @@ describe("checkQuota", () => {
     const decision = checkQuota(usage, DEFAULT_LIMITS, NOON);
     expect(decision.reason).toBe("GLOBAL_SPEND");
     // The person who trips it did not cause it; the message must not imply they did.
-    expect(decision.message).toMatch(/nothing to do with your account/i);
+    expect(decision.message).toMatch(/nothing you did/i);
   });
 
   it("tells a daily denial to come back after midnight UTC", () => {
@@ -410,7 +410,7 @@ describe("the reserve at the end of the shared budget", () => {
     };
     // The learner did nothing wrong and can do nothing about it, so the message
     // says what still works rather than implying they overspent.
-    expect(checkQuota(usage, DEFAULT_LIMITS, NOON).message).toMatch(/review, the dictionary/);
+    expect(checkQuota(usage, DEFAULT_LIMITS, NOON).message).toMatch(/the dictionary and everything else/);
   });
 
   it("does not hold anyone back while the budget is still comfortable", () => {

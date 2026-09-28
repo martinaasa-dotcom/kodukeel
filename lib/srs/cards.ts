@@ -25,13 +25,13 @@ export interface CardTypeSpec {
 }
 
 export const CARD_TYPES: readonly CardTypeSpec[] = [
-  { type: "RECOGNITION", label: "What it means", description: "See the Estonian, give the English", defaultOn: true },
-  { type: "PRODUCTION", label: "Say it in Estonian", description: "See the English, give the Estonian", defaultOn: true },
-  { type: "CASE_FORM", label: "Case endings", description: "Put the word in the form a real sentence needs", defaultOn: false },
-  { type: "GRADATION", label: "Stem changes", description: "How the middle of a word changes when an ending goes on", defaultOn: false },
-  { type: "GOVERNMENT", label: "Verb and case", description: "Which case the verb takes", defaultOn: false },
+  { type: "RECOGNITION", label: "What it means", description: "You see the Estonian and say what it means", defaultOn: true },
+  { type: "PRODUCTION", label: "Say it in Estonian", description: "You see the English and give the Estonian word", defaultOn: true },
+  { type: "CASE_FORM", label: "Case endings", description: "Fill a gap in a real sentence with the right ending", defaultOn: false },
+  { type: "GRADATION", label: "Stem changes", description: "Spot how a word changes in the middle when an ending goes on", defaultOn: false },
+  { type: "GOVERNMENT", label: "Verb and case", description: "Which case a verb wants after it", defaultOn: false },
   { type: "CLOZE", label: "In a sentence", description: "Fill the gap in a real Estonian sentence", defaultOn: true },
-  { type: "CONJUGATION", label: "Verb forms", description: "Say the verb for I, you, she and the rest", defaultOn: false },
+  { type: "CONJUGATION", label: "Verb forms", description: "Change the verb for I, you, she and everyone else", defaultOn: false },
 ];
 
 /**

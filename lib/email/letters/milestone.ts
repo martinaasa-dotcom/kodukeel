@@ -72,8 +72,8 @@ export function milestoneLetter(input: MilestoneInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `That's ${level.words} words that are properly yours now. Not just met: each one came back ` +
-      `days later and you still knew it. So this letter is a little late. You did the work a while ` +
+      `That's ${level.words} words that are properly yours now. Each one came back days after you ` +
+      `met it, and you still knew it. So this letter is a little late: you did the work a while ` +
       `ago, and it stuck.`,
   });
 
@@ -96,7 +96,7 @@ export function milestoneLetter(input: MilestoneInput): Letter {
     */
     blocks.push({
       t: "quiet",
-      text: `That was the last stop on the climb you picked. There are always more words, and the course keeps going as long as you do.`,
+      text: `That was the level you set out to reach. There are always more words, and the course keeps going as long as you do.`,
     });
   }
 

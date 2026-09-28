@@ -109,8 +109,8 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     blocks.push({
       t: "text",
       text:
-        "No cards this week, and that's fine. Weeks like that happen. Your deck doesn't turn into a " +
-        "punishment while you're away, and one evening puts you right back where you left off.",
+        "No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you " +
+        "while you're away, and one evening puts you right back where you were.",
     });
   }
 
@@ -160,8 +160,8 @@ export function weeklyLetter(input: WeeklyInput): Letter {
         screen is.
       */
       text: input.ladder.assumed > 0
-        ? `About ${input.ladder.assumed} of those words are counted because of the level you're at, ` +
-          "not checked yet. The rest are words you still knew days after you first met them."
+        ? `About ${input.ladder.assumed} of those words count because of the level you started at, ` +
+          "and haven't been checked yet. The rest are words you still knew days after you first met them."
         : "That bar only moves for words you still know days after you first met them. " +
           "Just opening the app won't nudge it.",
     });
@@ -178,19 +178,19 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     });
   }
 
-  blocks.push({ t: "button", label: "Start this week's first evening", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: "Carry on with the course", href: `${input.origin}/course` });
   blocks.push({
     t: "link",
-    label: "See the full picture on Progress",
+    label: "See all your progress",
     href: `${input.origin}/progress`,
   });
 
   return {
     kind: "weekly",
-    subject: studied === 0 ? "Your week, and where the course is waiting for you" : `${studied === 1 ? "One day" : `${SpelledCount(studied)} days`} of Estonian this week`,
+    subject: studied === 0 ? "A quiet week, and the course is right where you left it" : `${studied === 1 ? "One day" : `${SpelledCount(studied)} days`} of Estonian this week`,
     preheader:
       studied === 0
-        ? "A quiet one. Here's where the course is waiting when you're ready."
+        ? "Nothing to catch up on. One evening and you're back in."
         : `${input.reviews} cards answered, and ${input.held} words that are properly yours.`,
     blocks,
   };

@@ -131,7 +131,7 @@ export function classroomLetter(input: ClassroomInput): Letter {
         t: "text",
         text:
           `${worst.accuracy} percent right, across ${worst.total} answers from the whole class. ` +
-          `That's the one worth an exercise this week.`,
+          `That's the one to give them extra practice on this week.`,
       });
       const rest = input.detail.weakestCases.slice(1, 3);
       if (rest.length > 0) {
@@ -188,7 +188,7 @@ export function classroomLetter(input: ClassroomInput): Letter {
     presses this, signs in, and reads it on the board their group's members
     were told about.
   */
-  blocks.push({ t: "button", label: "See the group's board", href: `${input.origin}/class` });
+  blocks.push({ t: "button", label: "Open the group's board", href: `${input.origin}/class` });
 
   return {
     kind: "classroom",
@@ -198,7 +198,7 @@ export function classroomLetter(input: ClassroomInput): Letter {
         : `${input.active} of ${input.members} in ${input.groupName} practised last week`,
     preheader:
       input.detail.kind === "CLASS"
-        ? "How the week went, and which case to plan around."
+        ? "How the week went, and which case to work on next."
         : `How the week went, and how the group is doing toward ${input.detail.level}.`,
     blocks,
   };

@@ -67,8 +67,8 @@ export function shieldLetter(input: ShieldInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `You took yesterday off, so one of the shields you earned on an earlier run covered it. ` +
-      `Your ${input.streak} days in a row are still intact.`,
+      `You took yesterday off, so one of the shields you'd earned stepped in. ` +
+      `Your run of ${input.streak} days is still going.`,
   });
 
   blocks.push({
@@ -101,12 +101,12 @@ export function shieldLetter(input: ShieldInput): Letter {
       "exactly where you left them.",
   });
 
-  blocks.push({ t: "button", label: "See tonight's evening", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: "See what's on tonight", href: `${input.origin}/course` });
 
   return {
     kind: "shield",
     subject: "A shield covered yesterday",
-    preheader: `Your ${input.streak} days in a row are still intact, and ${input.remaining > 0 ? `you've got ${spelledCount(input.remaining)} more ${input.remaining === 1 ? "shield" : "shields"} saved` : "that was your last shield"}.`,
+    preheader: `Your run of ${input.streak} days is still going, and ${input.remaining > 0 ? `you've got ${spelledCount(input.remaining)} more ${input.remaining === 1 ? "shield" : "shields"} saved` : "that was your last shield"}.`,
     blocks,
   };
 }

@@ -111,7 +111,7 @@ export function errandLetter(input: ErrandInput): Letter {
   if (errand.scene) {
     blocks.push({
       t: "text",
-      text: `Fancy a practice run first? ${errand.scene.title} takes about two minutes, and the person you're talking to wants something from you, just like in real life.`,
+      text: `Fancy a practice run first? ${errand.scene.title} takes about two minutes, with somebody who wants something from you, just like the real thing.`,
     });
     blocks.push({
       t: "button",

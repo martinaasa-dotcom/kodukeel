@@ -65,8 +65,8 @@ export function comebackLetter(input: ComebackInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `You still know ${input.wordsKept} words. That's the whole point of spacing the cards out: ` +
-      `the words stay with you while you're away. Nothing is lost, and nothing starts over.`,
+      `You still know ${input.wordsKept} words. That's what spacing the cards out is for: ` +
+      `the words stay put while you're away. Nothing is lost, and you don't have to start over.`,
   });
 
   if (input.shieldUsed && input.streak >= 2) {
@@ -91,13 +91,13 @@ export function comebackLetter(input: ComebackInput): Letter {
     t: "text",
     text:
       `No need for a whole evening. One quick round takes about ` +
-      `${input.smallStep.minutes} minutes, and that's enough to count as back.`,
+      `${input.smallStep.minutes} minutes, and that's enough to say you're back.`,
   });
 
   blocks.push({ t: "button", label: input.smallStep.title, href: input.smallStep.href });
   blocks.push({
     t: "link",
-    label: "Or go straight to tonight's evening",
+    label: "Or jump straight into tonight's fifteen minutes",
     href: `${input.origin}/course`,
   });
 

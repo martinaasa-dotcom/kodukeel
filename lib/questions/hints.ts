@@ -389,7 +389,7 @@ export function narrowLadder(options: readonly string[], answer: string): Hint[]
   const wrong = options.filter((o) => o !== answer).length;
   return Array.from({ length: wrong }, (_, i) => ({
     kind: (i === wrong - 1 ? "answer" : "shape") as HintKind,
-    label: i === wrong - 1 ? "The answer" : "One of these is out",
+    label: i === wrong - 1 ? "The answer" : "One wrong answer crossed out",
     shown: "",
     ceiling: (i === wrong - 1 ? 1 : 2) as 1 | 2,
   }));

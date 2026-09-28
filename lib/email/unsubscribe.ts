@@ -107,7 +107,7 @@ export function unsubscribeLink(
   const query = new URLSearchParams({ u: ownerId, k: kind, t: token });
   return {
     url: `${origin}/api/email/unsubscribe?${query}`,
-    label: "Stop these emails",
+    label: "Stop emails like this one",
   };
 }
 

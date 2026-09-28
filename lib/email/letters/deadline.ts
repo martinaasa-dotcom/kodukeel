@@ -72,7 +72,7 @@ export function deadlineLetter(input: DeadlineInput): Letter {
   blocks.push({ t: "heading", text: `${input.phrase} to go until the date you picked.` });
   blocks.push({
     t: "text",
-    text: `You're aiming for ${input.band}: ${input.label.toLowerCase()}. Here's how that's looking.`,
+    text: `You're aiming for ${input.band}, the level where you can ${input.label.toLowerCase()}. Here's how that's looking.`,
   });
 
   /*

@@ -24,7 +24,7 @@ describe("diagnose — the gradation finding", () => {
       ...facts(20, { okRate: 0.3, gradation: "QUALITATIVE" }),
     ]);
 
-    const gradation = findings.find((f) => f.headline.includes("until the stem changes"));
+    const gradation = findings.find((f) => f.headline.includes("when the word changes in the middle"));
     expect(gradation).toBeDefined();
     expect(gradation!.strongPct).toBeGreaterThan(gradation!.weakPct);
     expect(gradation!.detail).toMatch(/astmevaheldus/);
@@ -36,7 +36,7 @@ describe("diagnose — the gradation finding", () => {
       ...facts(20, { okRate: 0.9, gradation: "NONE" }),
       ...facts(20, { okRate: 0.9, gradation: "QUALITATIVE" }),
     ]);
-    expect(findings.find((f) => f.headline.includes("until the stem changes"))).toBeUndefined();
+    expect(findings.find((f) => f.headline.includes("when the word changes in the middle"))).toBeUndefined();
   });
 
   it("says nothing when one side has too few reviews to mean anything", () => {
@@ -45,7 +45,7 @@ describe("diagnose — the gradation finding", () => {
       ...facts(20, { okRate: 0.95, gradation: "NONE" }),
       ...facts(3, { okRate: 0, gradation: "QUALITATIVE" }),
     ]);
-    expect(findings.find((f) => f.headline.includes("until the stem changes"))).toBeUndefined();
+    expect(findings.find((f) => f.headline.includes("when the word changes in the middle"))).toBeUndefined();
   });
 });
 
@@ -55,7 +55,7 @@ describe("diagnose — the plural finding", () => {
       ...facts(20, { okRate: 0.95, hasIrregularPlural: false }),
       ...facts(20, { okRate: 0.35, hasIrregularPlural: true }),
     ]);
-    const plural = findings.find((f) => f.headline.includes("plural stem"));
+    const plural = findings.find((f) => f.headline.includes("break the pattern"));
     expect(plural).toBeDefined();
     expect(plural!.caseKey).toBeNull();
   });

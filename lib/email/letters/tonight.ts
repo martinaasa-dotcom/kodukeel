@@ -82,6 +82,11 @@ export interface TonightInput {
   } | null;
 }
 
+/** The first letter lowered, so "Say I, you" does not become "say i, you". */
+function lowerFirst(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
 /** Minutes left in the evening, off the steps that are not ticked. */
 function minutesLeft(steps: readonly StepRow[]): number {
   return steps.filter((s) => !s.done).reduce((total, s) => total + s.minutes, 0);
@@ -112,7 +117,7 @@ function subjectFor(input: TonightInput): string {
       ? `One step left in ${input.day.title}`
       : `${SpelledCount(left)} steps left in ${input.day.title}`;
   }
-  return `Tonight: ${spelledCount(input.day.newWords)} new words`;
+  return `${SpelledCount(input.day.newWords)} new words tonight`;
 }
 
 /**
@@ -125,7 +130,8 @@ function preheaderFor(input: TonightInput): string {
   const shape = input.day.part.of > 1
     ? `${input.day.subtitle}, part ${input.day.part.n} of ${input.day.part.of}.`
     : `${input.day.subtitle}.`;
-  return `${shape} About ${left} minutes to go.`;
+  const started = input.day.steps.some((s) => s.done);
+  return started ? `${shape} About ${left} minutes left.` : `${shape} About ${left} minutes, start to finish.`;
 }
 
 export function tonightLetter(input: TonightInput): Letter {
@@ -156,14 +162,14 @@ export function tonightLetter(input: TonightInput): Letter {
         `. The rest is right where you left it.`,
     });
   } else {
-    blocks.push({ t: "heading", text: `Tonight: ${spelledCount(day.newWords)} new words, about ${left} minutes.` });
+    blocks.push({ t: "heading", text: `${SpelledCount(day.newWords)} new words tonight, in about ${left} minutes.` });
     blocks.push({
       t: "text",
       text:
         (input.name ? `${input.name}, this is ` : "") +
-        `${day.title}, ${day.subtitle.toLowerCase()}` +
+        `${day.title}, ${lowerFirst(day.subtitle)}` +
         (day.part.of > 1 ? `, part ${day.part.n} of ${day.part.of}` : "") +
-        `. By the end of it: ${day.canDo.toLowerCase()}`,
+        `. By the end you'll be able to ${lowerFirst(day.canDo)}`,
     });
   }
 
@@ -176,7 +182,7 @@ export function tonightLetter(input: TonightInput): Letter {
     a footnote.
   */
   if (input.theirWords) {
-    blocks.push({ t: "quiet", text: "What you wrote when you started:" });
+    blocks.push({ t: "quiet", text: "What you told yourself when you started:" });
     blocks.push({ t: "theirs", text: input.theirWords });
   }
 
@@ -190,7 +196,7 @@ export function tonightLetter(input: TonightInput): Letter {
 
   blocks.push({
     t: "button",
-    label: done > 0 ? "Pick up where you left off" : "Start tonight's evening",
+    label: done > 0 ? "Pick up where you left off" : "Start tonight",
     href: `${input.origin}/course`,
   });
 
@@ -204,7 +210,7 @@ export function tonightLetter(input: TonightInput): Letter {
   */
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: "And one word for you, whether or not tonight happens:" });
+    blocks.push({ t: "quiet", text: "And a word for you, whether you study tonight or not:" });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),
@@ -228,7 +234,7 @@ export function tonightLetter(input: TonightInput): Letter {
     would be inventing a stake the app refuses to have.
   */
   if (input.streak >= 2) {
-    blocks.push({ t: "quiet", text: `${SpelledCount(input.streak)} days in a row so far.` });
+    blocks.push({ t: "quiet", text: `That's ${spelledCount(input.streak)} days in a row so far.` });
   }
 
   return {

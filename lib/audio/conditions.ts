@@ -155,7 +155,7 @@ export const CONDITIONS: readonly Condition[] = [
   { id: "quick", name: "Sped up", said: "sped up", speed: 1.3, noise: null, band: null, skip: 0 },
   { id: "cafe", name: "In a café", said: "over café noise", speed: 1, noise: { level: 0.16, lowpassHz: 1400 }, band: null, skip: 0 },
   { id: "phone", name: "On the phone", said: "down a phone line", speed: 1, noise: null, band: { lowHz: 300, highHz: 3400 }, skip: 0 },
-  { id: "half", name: "From halfway through", said: "from halfway through", speed: 1, noise: null, band: null, skip: 0.4 },
+  { id: "half", name: "Joined halfway", said: "starting halfway through", speed: 1, noise: null, band: null, skip: 0.4 },
 ];
 
 export const CLEAN: Condition = CONDITIONS[0]!;
