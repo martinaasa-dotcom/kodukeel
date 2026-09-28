@@ -1345,7 +1345,7 @@ async function compose(
   */
   const system = composeSystem({
     scene: input.scene, place: input.place, level: input.level, persona: input.persona,
-    situation: input.situation, register: input.register, words: input.words, voice: input.voice,
+    situation: input.situation, register: input.register, voice: input.voice, words: input.words,
   });
   const live = composeLive(input);
 

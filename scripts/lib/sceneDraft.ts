@@ -596,7 +596,6 @@ export async function askLine(
         the block below was written to stop. Same function, same shape.
       */
       if (link.name === "gemini") {
-        if (process.env.DEBUG_PROMPT) console.log(`      ~ live ${composeLive(ask).length} chars, conversation ${said.map((m) => m.content).join(" ").length} chars (${said.length} messages)\n${composeLive(ask).split("\n").map((l) => "        | " + l).join("\n")}`);
         const reply = await geminiCachedReply(
           { name: "gemini", model: link.model, label: link.label, reasoning: link.reasoning },
           composeSystem(scene), said, composeLive(ask), SCENE_REPLY_TOKENS,
