@@ -46,7 +46,7 @@ export default async function BuildPage() {
     <Page route="/grammar/build-a-word"
       eyebrow="Start here"
       title="Build a word"
-      lead="Three forms are memorized. The other eleven are one of them plus an ending."
+      lead="Learn three forms by heart. The other eleven are one of those plus an ending."
       actions={
         <Link
           href="/grammar"
@@ -66,8 +66,8 @@ export default async function BuildPage() {
             which is English prose and renders regardless.
           */}
           <Empty
-            title="The dictionary is not answering"
-            body="Nothing here is written by hand, so with no words there is nothing to build."
+            title="The dictionary isn't answering"
+            body="Every word here comes from the dictionary, so without it there's nothing to build."
             action={<Link href="/grammar" className="underline" style={{ color: "var(--accent-deep)" }}>Read the endings instead</Link>}
           />
         </Stack>

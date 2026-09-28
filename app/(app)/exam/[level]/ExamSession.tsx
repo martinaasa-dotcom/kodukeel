@@ -295,7 +295,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
             <TriangleAlert size={14} className="mr-1.5 inline" aria-hidden />
             Time&apos;s up. This part is closed now, the way it would be in a real exam hall. Anything
             you left blank scores nothing.{" "}
-            {last ? "Hand in below." : "Move on when you are ready."}
+            {last ? "Hand in below." : "Move on when you're ready."}
           </Note>
         </div>
       ) : warning === "last" ? (
@@ -446,8 +446,8 @@ function Break({ until, now, nextLabel, onResume }: {
         Break
       </h1>
       <p className="mt-3 max-w-[56ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        The written half is done, and its clock has stopped. On the real exam day, a short break
-        comes before the spoken part, so this is it. Stand up, get some water, and come back for{" "}
+        The written half is done and its clock has stopped. On the real day there&apos;s a short break
+        before the spoken part, and this is yours. Stand up, get some water, and come back for{" "}
         {nextLabel.toLowerCase()}.
       </p>
 
@@ -477,7 +477,7 @@ function Break({ until, now, nextLabel, onResume }: {
         </p>
         <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
           The examiner talks to you the way people do when they first meet. Say these out loud in
-          Estonian now. Nothing here listens or marks.
+          Estonian now. Nobody&apos;s listening and nothing&apos;s marked.
         </p>
         <ul className="mt-3 flex list-disc flex-col gap-1 pl-5 text-sm" style={{ color: "var(--ink-2)" }}>
           {OPENING_CONVERSATION.map((line) => <li key={line}>{line}</li>)}
@@ -549,8 +549,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {answeredIn(resumable)} answered so far. You were on {resumePart.spec.label.toLowerCase()}.{" "}
               {resumeLeft > 0
-                ? `${formatRemaining(resumeLeft)} is left on that part. The clock kept running while you were away, just like it would in a real exam hall.`
-                : "That part's time ran out while you were away. It'll open closed, just like it would in a real exam hall."}
+                ? `${formatRemaining(resumeLeft)} is left on that part. The clock kept running while you were away, just as it would in a real exam hall.`
+                : "That part's time ran out while you were away. It'll open already closed, just as it would in a real exam hall."}
             </p>
             <span className="mt-3 flex flex-wrap gap-2">
               <Button variant="ghost" size="sm" onClick={onDiscard}>
@@ -1346,8 +1346,8 @@ function LengthMeter({ text, minWords }: { text: string; minWords: number }) {
       </div>
       <p className="mt-2 text-xs" style={{ color: there ? "var(--sky-ink)" : "var(--ink-3)" }}>
         {words} of {minWords} words{there ? ". That's enough" : ""}. Length is most of your mark
-        here, and the required words above make up the rest. Write half the length and you still
-        get about half those marks, not none. No model judges your Estonian.
+        here, and the words above make up the rest. Write half as much and you still get about half
+        those marks, not none. No machine judges your Estonian.
       </p>
     </>
   );
@@ -1393,9 +1393,9 @@ function MessageQuestion({ item, text, onWrite }: {
         <DiacriticBar />
       </div>
       <LengthMeter text={text} minWords={item.minWords} />
-      <Explain label="Why nothing marks this for you">
-        Check for yourself whether you covered all three points when you read it back. A machine
-        can&apos;t tell without judging your Estonian, and nothing here does that.
+      <Explain label="Why we don't mark this">
+        When you read it back, check for yourself that you covered all three points. A machine
+        couldn&apos;t tell without judging your Estonian, and we never do that.
       </Explain>
     </div>
   );

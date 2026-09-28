@@ -85,7 +85,7 @@ const RUNG_LABEL: Record<Rung, string> = {
   meet: "New word",
   choice: "What does it mean?",
   gap: "Put it in the sentence",
-  kept: "Off to practice",
+  kept: "Moved to practice",
 };
 
 /** How far up the ladder a word is, drawn as three steps. */
@@ -652,7 +652,7 @@ export function LearnSession({
       setRetypeNote(null);
       autoNext.current = window.setTimeout(() => { autoNext.current = null; advance(rungs); }, VERDICT_PAUSE_MS);
     } else {
-      setRetypeNote("Not yet. Copy the word above exactly, letter for letter.");
+      setRetypeNote("Not quite. Copy the word above exactly, letter for letter.");
     }
   }, [word, result, retyped, retypeOk, advance, rungs]);
 
@@ -714,10 +714,10 @@ export function LearnSession({
           title={back ? "Nothing left to meet here" : `No new ${nouns} waiting`}
           body={
             back
-              ? "You have already met these. The rest of the module is waiting."
+              ? "You've met these already. The rest of tonight's module is waiting."
               : kind === "phrase"
-                ? "Phrases arrive here as you open the units that teach them."
-                : "Add a unit from the course and its words arrive here."
+                ? "Phrases turn up here as you open the units that teach them."
+                : "Open a unit from the course and its words will turn up here."
           }
           action={
             back
@@ -739,7 +739,7 @@ export function LearnSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             You&rsquo;ll see {total} {total === 1 ? noun : nouns} in this round, one at a time.
-            Nothing is written down until you answer them back.
+            Just have a look. Nothing counts until you start answering.
           </p>
         </div>
         <div className="mt-8 flex justify-center">
@@ -778,8 +778,8 @@ export function LearnSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {counts.kept > 0
-              ? <>{uiText("Tubli töö.", "Good work.")} {counts.kept} {counts.kept === 1 ? `${noun} has` : `${nouns} have`} moved over to practice, where they come back on a schedule.</>
-              : <>{uiText("Tubli töö.", "Good work.")} These stay here until you can produce them in a sentence, which is the point at which they stick.</>}
+              ? <>{uiText("Tubli töö.", "Good work.")} {counts.kept} {counts.kept === 1 ? `${noun} has` : `${nouns} have`} moved over to practice, and they&rsquo;ll come back to you from there.</>
+              : <>{uiText("Tubli töö.", "Good work.")} They&rsquo;ll stay here until you can use them in a sentence. That&rsquo;s when they start to stick.</>}
           </p>
         </div>
 
@@ -838,7 +838,7 @@ export function LearnSession({
             </ButtonLink>
           ) : (
             <>
-              <ButtonLink href="/review" size="lg">Practice what is due</ButtonLink>
+              <ButtonLink href="/review" size="lg">Practise what&apos;s due</ButtonLink>
               <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
               {more > 0 && (
                 <ButtonLink href={moreHref} variant="primary" size="lg">
@@ -871,7 +871,7 @@ export function LearnSession({
             Now answer them back
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Same {nouns}. Now you&rsquo;ll be asked to say what one means, or use it in the
+            Same {nouns}. This time you tell us what each one means, or put it back into the
             sentence it came from.
           </p>
         </div>
@@ -1107,7 +1107,7 @@ export function LearnSession({
                           {gapWord}
                         </p>
                         <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                          Put it in the sentence, in the form it needs.
+                          Put it into the sentence, in whatever form it needs.
                         </p>
                       </>
                     ) : (
@@ -1300,7 +1300,7 @@ export function LearnSession({
             <div className="w-full max-w-sm text-left">
               {retypeOk ? (
                 <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`}>
-                  {uiText("Õige!", "Correct!")} That is the one.
+                  {uiText("Õige!", "Correct!")} That&rsquo;s the one.
                 </p>
               ) : (
                 <>

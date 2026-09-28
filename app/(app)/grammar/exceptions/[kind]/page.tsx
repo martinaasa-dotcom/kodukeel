@@ -64,8 +64,8 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
         <Card tone="butter">
           <p className="max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {group.entries.length} of these are near your level, and {group.everywhere} are in the
-            dictionary. Every one was found by comparing the pattern with the form a lexicographer
-            wrote down, so this list follows the dictionary rather than a list somebody typed.
+            dictionary. We found every one by checking the pattern against the form a lexicographer
+            wrote down, so this comes straight from the dictionary, not from a list somebody typed.
           </p>
           {/*
             AND WHERE THE FORM IS ACTUALLY USED, WHICH IS A DIFFERENT QUESTION.
@@ -94,12 +94,12 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
         {group.entries.length === 0 ? (
           <Empty
             title="None near your level"
-            body="This one turns up in words above or below where you are working."
+            body="This one shows up in words above or below the level you're working at."
             action={<ButtonLink href="/grammar/exceptions" variant="primary">Back to the exceptions</ButtonLink>}
           />
         ) : (
           <section>
-            <SectionTitle hint={counted(group.entries.length, "word")}>Learn these one at a time</SectionTitle>
+            <SectionTitle hint={counted(group.entries.length, "word")}>Learn these one by one</SectionTitle>
             <ul className="flex flex-col gap-3">
               {group.entries.map((entry) => {
                 const exception = entry.exceptions.find((e) => e.kind === group.kind);

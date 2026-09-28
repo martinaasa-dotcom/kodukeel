@@ -48,17 +48,17 @@ export default async function CourseFormsPage({
     <Page
       eyebrow="Tonight's module"
       title="The past of your verbs"
-      lead="Each verb keeps its own past, so it is learned one verb at a time. Hear them, then try three."
+      lead="Every verb has its own past, so you learn them one at a time. Listen, then try three."
     >
       {ordered.length === 0 ? (
         <Empty
           title="No verbs to show tonight"
-          body="The dictionary holds no past for tonight's verbs yet, so there is nothing here to learn."
+          body="We don't have the past forms for tonight's verbs yet, so there's nothing to learn here."
         />
       ) : (
         <Stack>
           <section>
-            <SectionTitle hint="the ones you have met">Tonight&apos;s verbs</SectionTitle>
+            <SectionTitle hint="the ones you've met">Tonight&apos;s verbs</SectionTitle>
             <VerbTable verbs={ordered} show={polite ? "forms" : "past"} />
           </section>
           <TryIt asks={verbAsks(ordered, "past")} />

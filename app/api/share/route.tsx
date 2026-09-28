@@ -27,7 +27,7 @@ export async function GET() {
   // Rendering an image costs real CPU, and a card is something a person saves
   // once. Thirty a minute leaves room to reload while looking at it.
   const limit = await checkSharedRateLimit(`share:${bucketForOwner(ownerId)}`, 30, 60_000);
-  if (!limit.ok) return rateLimited(limit, "Give the card a moment to draw.");
+  if (!limit.ok) return rateLimited(limit, "Give the card a moment to finish drawing.");
 
   const now = new Date();
   const snapshot = await deckSnapshot(ownerId, now);
@@ -118,7 +118,7 @@ export async function GET() {
         </div>
 
         <div style={{ display: "flex", fontSize: 20, color: "#8b84a3" }}>
-          Every number here is counted from reviews actually done.
+          Every number here comes from reviews they really did.
         </div>
       </div>
     ),

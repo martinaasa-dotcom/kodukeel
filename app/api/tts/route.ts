@@ -99,7 +99,7 @@ export async function POST(request: Request) {
     60_000,
   );
   if (!limit.ok) {
-    return rateLimited(limit, "That is a lot of audio at once. Give it a moment.");
+    return rateLimited(limit, "That's a lot of audio at once. Give it a moment.");
   }
 
   let text: string;
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     */
     const body = (await request.json()) as { text?: unknown; voice?: unknown };
     if (typeof body.text !== "string" || !body.text.trim()) {
-      return NextResponse.json({ error: "Nothing to say." }, { headers: NO_STORE, status: 400 });
+      return NextResponse.json({ error: "There's nothing to say out loud." }, { headers: NO_STORE, status: 400 });
     }
     /*
       Finished, rather than as typed. TartuNLP reads sentences, and a bare
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
     */
     if (typeof body.voice === "string" && VOICES.some((v) => v.id === body.voice)) voice = voiceFrom(body.voice);
   } catch {
-    return NextResponse.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
+    return NextResponse.json({ error: "We couldn't make sense of that request. Try again from the page." }, { headers: NO_STORE, status: 400 });
   }
 
   const speaker = voice ?? voiceFrom(process.env.TTS_SPEAKER ?? DEFAULT_VOICE);
@@ -175,7 +175,7 @@ export async function POST(request: Request) {
   */
   if (!ownerId) {
     return Response.json(
-      { error: "That clip is not stored yet, and we could not tell who is asking. Try again in a moment." },
+      { error: "We don't have that clip yet, and we couldn't check who was asking. Try again in a moment." },
       { status: 503, headers: { ...NO_STORE, "retry-after": "30" } },
     );
   }
@@ -233,7 +233,7 @@ export async function POST(request: Request) {
     if (booking) after(() => releaseReservation(booking));
     const status = error instanceof SpeechError ? error.status : 503;
     const message =
-      status === 502 ? "Speech service could not read that." : "Speech service unreachable.";
+      status === 502 ? "The speech service couldn't read that out." : "We couldn't reach the speech service.";
     return NextResponse.json({ error: message }, { headers: NO_STORE, status });
   }
 }

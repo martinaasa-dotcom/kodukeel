@@ -43,8 +43,8 @@ export default async function AssessPage({
       return (
         <Page route="/assess" title="Level check" lead="Reading, listening, writing and speaking, all checked against the dictionary.">
           <Empty
-            title="No questions could be built"
-            body="Questions come from dictionary entries that have a level set, and there are none yet."
+            title="We couldn't put a check together"
+            body="The questions come from dictionary words with a level on them, and there aren't any yet."
             action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
           />
         </Page>
@@ -118,7 +118,7 @@ export default async function AssessPage({
         ) : (
           <Empty
             title="Nothing measured yet"
-            body="Reading, listening and writing, climbing until it finds your level. Speaking you judge yourself."
+            body="Reading, listening and writing, getting harder until we find your level. Speaking you rate yourself."
             action={<ButtonLink href="/assess?take=1" variant="primary" size="lg">Start the check</ButtonLink>}
           />
         )}
@@ -132,7 +132,7 @@ export default async function AssessPage({
           <div>
             <SectionTitle hint={`${history.length} sittings`}>
               <History size={13} className="mr-1.5 inline" aria-hidden />
-              Every check you have taken
+              Every check you&apos;ve taken
             </SectionTitle>
             <Card>
               <ul className="flex flex-col">
@@ -159,9 +159,9 @@ export default async function AssessPage({
                 ))}
               </ul>
               <Explain label="Why the dates matter">
-                Every sitting is kept and none is ever edited, so this is a history rather than a
-                number that moved. A check taken two weeks after the last one mostly measures the
-                questions, not you. Leave it a couple of months.
+                We keep every sitting exactly as it was, so you can see how you&apos;ve moved over time. Take
+                one two weeks after the last and it mostly measures the questions, not you. Give it a
+                couple of months.
               </Explain>
             </Card>
           </div>

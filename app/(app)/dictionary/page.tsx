@@ -183,8 +183,8 @@ export default async function DictionaryPage({
       title="Dictionary"
       lead={
         ekilexConfigured()
-          ? "Search any Estonian word. Forms are saved for offline use."
-          : `${total} words with full principal parts, gradation and audio.`
+          ? "Look up any Estonian word. Whatever you look up stays here for offline too."
+          : `${total} words, each with its principal parts, how the stem changes, and how it sounds.`
       }
     >
       <DictionaryClient

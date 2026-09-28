@@ -62,7 +62,7 @@ function page(title: string, body: string, action?: { label: string; token: URLS
     ${form}
   </div>
   <p style="margin:20px 0 0;font-size:13px;line-height:20px;color:${P.ink3}">
-    Your course, your deck and everything you have learned are untouched.
+    Your course, your deck and everything you’ve learned are exactly as they were.
     <a href="/settings?tab=account#email" style="color:${P.ink3}">Change this in Settings</a>.
   </p>
 </div></body></html>`,
@@ -73,13 +73,13 @@ function page(title: string, body: string, action?: { label: string; token: URLS
   );
 }
 
-const DONE = "You will not get those emails again.";
+const DONE = "You won’t get those emails again.";
 const ASK = "Stop these emails?";
 
 export async function GET(request: Request) {
   const query = new URL(request.url).searchParams;
   const secret = mailSecret();
-  if (!secret) return page(ASK, "This installation cannot change that from a link. Settings can.");
+  if (!secret) return page(ASK, "We can't change that from a link here, but you can in Settings.");
 
   const read = readUnsubscribe(
     { u: query.get("u"), k: query.get("k"), t: query.get("t") },
@@ -101,7 +101,7 @@ export async function GET(request: Request) {
     ASK,
     read.scope === "all"
       ? "This turns off every email except the ones you need to sign in."
-      : "This turns off that one kind. The others carry on.",
+      : "This stops just that kind. The others keep coming.",
     { label: "Yes, stop them", token: keep },
   );
 }
@@ -121,10 +121,10 @@ export async function POST(request: Request) {
   const param = (key: string) => url.searchParams.get(key) ?? body.get(key);
 
   const secret = mailSecret();
-  if (!secret) return page(ASK, "This installation cannot change that from a link. Settings can.");
+  if (!secret) return page(ASK, "We can't change that from a link here, but you can in Settings.");
 
   const read = readUnsubscribe({ u: param("u"), k: param("k"), t: param("t") }, secret);
-  if (!read) return page(DONE, "Nothing further will arrive from that link.");
+  if (!read) return page(DONE, "Nothing more will come from that link.");
 
   /*
     A CAP, CHARGED TO THE LEARNER THE TOKEN NAMES.
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
     database rather than one process.
   */
   const allowed = await checkSharedRateLimit(`unsub:${bucketForOwner(read.ownerId)}`, 20, 60_000);
-  if (!allowed.ok) return page(DONE, "That is already being dealt with.");
+  if (!allowed.ok) return page(DONE, "We're already on it.");
 
   try {
     /*
@@ -166,7 +166,7 @@ export async function POST(request: Request) {
   return page(
     DONE,
     read.scope === "all"
-      ? "Sign-in links still work. Nothing else will arrive."
-      : "That kind is off. Any others you have on will carry on.",
+      ? "You'll still get sign-in links, and nothing else."
+      : "That kind is off. Any others you've switched on will keep coming.",
   );
 }

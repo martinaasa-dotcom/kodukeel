@@ -43,13 +43,13 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
     <Page
       eyebrow={`Mock examination, ${upper}`}
       title="Numbered papers"
-      lead="The same questions each time you open one, so you can sit a paper again and compare."
+      lead="Each paper keeps the same questions, so you can sit it again and see how you've moved."
       actions={<ButtonLink href="/exam" variant="secondary">Back to the exam</ButtonLink>}
     >
       <Explain label="Sitting one part on its own">
-        Each part can also be sat on its own, on its own clock. A part on its own is a mark for
-        that part, never a pass or a fail: the real paper marks all four together, and{" "}
-        {PASS_PCT} percent of the total is the pass.
+        You can sit any part on its own, with its own clock. That gives you a mark for the part,
+        but never a pass or a fail. The real paper marks all four together, and you pass with{" "}
+        {PASS_PCT} percent of the total.
       </Explain>
       {/*
         A shelf of papers rather than a column of identical cards. Twenty-five

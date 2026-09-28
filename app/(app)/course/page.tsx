@@ -76,8 +76,8 @@ export default async function CoursePage({
     const opening = await openingPartFor(ownerId);
     return (
       <Page
-        title="A course planned for you"
-        lead={`${evenings} evenings from your first word to C1, each one already planned.`}
+        title="Your evenings, already planned"
+        lead={`${evenings} evenings from your first word all the way to C1. We've planned every one.`}
       >
         <Stack>
           <Card tone="accent">
@@ -94,10 +94,10 @@ export default async function CoursePage({
             </div>
             <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
               {chosen
-                ? "You chose to plan your own evenings. Nothing else in the app changed, and nothing will change if you start this."
+                ? "You chose to plan your own evenings, and that's fine. Starting this won't change anything else in the app."
                 : opening.level === level
-                  ? `It starts at ${opening.level}, which is where you stand. It is a suggestion, not a track, and everything you already use stays where it is.`
-                  : `It starts at ${opening.level}, the level after the ${level} you already have. It is a suggestion, not a track, and everything you already use stays where it is.`}
+                  ? `It starts at ${opening.level}, which is where you are now. Think of it as a suggestion, not a set track. Everything you already use stays where it is.`
+                  : `It starts at ${opening.level}, the level after the ${level} you already have. Think of it as a suggestion, not a set track. Everything you already use stays where it is.`}
             </p>
           </Card>
 
@@ -143,7 +143,7 @@ export default async function CoursePage({
       <Page
         eyebrow={<span>{programme.id.toUpperCase()}</span>}
         title={`${uiText(level, programme.title, programme.subtitle)} is finished`}
-        lead={`All ${total} modules done, and every word in them is now in your review queue.`}
+        lead={`All ${total} modules done. Every word from them is in your reviews now.`}
       >
         <Stack>
           <Card tone={verdict.kind === "hold" ? "butter" : "sky"}>
@@ -153,8 +153,8 @@ export default async function CoursePage({
                   Not ready for {after!.id.toUpperCase()} yet
                 </SectionTitle>
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {holdReason(verdict)} We would give what you have a few more days to settle
-                  before starting the next part on top of it.
+                  {holdReason(verdict)} We&apos;d give it a few more days to settle before you build
+                  the next part on top.
                 </p>
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {holdAdvice(verdict)}
@@ -182,12 +182,12 @@ export default async function CoursePage({
                 <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {after
                     ? <>Next is {after.id.toUpperCase()}, {after.subtitle.toLowerCase()}. It picks
-                        up where this one left off, and it needs nothing you have not met.</>
-                    : <>That is the end of the course. Your review queue holds every one of these
-                        words, and it keeps asking just as you are about to forget them.</>}
+                        up where this one left off, and it only uses things you&apos;ve already met.</>
+                    : <>That&apos;s the whole course. Every one of these words is in your reviews, and
+                        each will come back just as you&apos;re about to forget it.</>}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <ButtonLink href="/progress/readiness">See what you can do out there</ButtonLink>
+                  <ButtonLink href="/progress/readiness">See what you could handle out there</ButtonLink>
                   {after
                     ? <NextPart programmeId={after.id} label={`Start ${after.id.toUpperCase()}`} />
                     : (
@@ -226,7 +226,7 @@ export default async function CoursePage({
             {programme.id.toUpperCase()}, {uiText(level, programme.title, programme.subtitle)}
           </span>
         }
-        title="Today's module is learned"
+        title="That's tonight done"
         lead={
           /*
             THE RUN OF EVENINGS IS THE ONE FIGURE WORTH SAYING HERE. "Six days
@@ -235,8 +235,8 @@ export default async function CoursePage({
             nothing, since "one evening in a row" is a sentence nobody says.
           */
           reading.eveningsInARow >= 2
-            ? `${reading.daysDone} of ${total} done, and ${reading.eveningsInARow} evenings in a row. That is the evening.`
-            : `${reading.daysDone} of ${total} done. That is the evening.`
+            ? `${reading.daysDone} of ${total} done, and ${reading.eveningsInARow} evenings in a row. Nicely played.`
+            : `${reading.daysDone} of ${total} done. Nicely played.`
         }
       >
         <Stack>
@@ -270,12 +270,12 @@ export default async function CoursePage({
                   */}
                   <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                     {justDone && justDone.unitId === day.unitId
-                      ? <>Tomorrow you carry on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
+                      ? <>Tomorrow you&apos;ll carry on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
                       : uiWantsEnglish(level)
                         ? <>Come back tomorrow for {day.subtitle}.</>
                         : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
-                    {" "}Sleep is half of what makes today stick, so stopping now is the course
-                    working, not you giving up.
+                    {" "}Sleeping on it is half of what makes today stick, so stopping here isn&apos;t
+                    giving up. It&apos;s how this works.
                   </p>
                 </div>
               </div>
@@ -290,7 +290,7 @@ export default async function CoursePage({
               {justDone && justDone.words.length > 0 && (
                 <div className="mt-4">
                   <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-                    Tonight&rsquo;s words, once more out loud
+                    Tonight&rsquo;s words, one more time out loud
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
                     {justDone.words.map((word) => (
@@ -428,7 +428,7 @@ export default async function CoursePage({
           </ul>
           {missing.length > 0 && missing.length < day.words.length && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-              The unmarked ones are not in your deck yet. The first step adds them.
+              The plain ones aren&apos;t in your deck yet. The first step adds them.
             </p>
           )}
         </div>
@@ -454,9 +454,9 @@ export default async function CoursePage({
           `components/Explain.tsx` exists for.
         */}
         <Explain label="How a step gets ticked">
-          Two steps tick themselves from your answers: meeting the words, and the closing
-          review. You tick the rest yourself. The app cannot tell which round an answer came
-          from, and it would rather say so than pretend it was watching.
+          Two steps tick themselves off from your answers: meeting the words, and the review at
+          the end. The rest you tick yourself. We can&apos;t tell which round an answer came from,
+          and we&apos;d rather say so than pretend we were watching.
         </Explain>
 
         <Card>
@@ -555,8 +555,8 @@ export default async function CoursePage({
         {/* Everything else is in the rail already; what is worth one line is
             that this is optional and where to switch it off. */}
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          The short way, not the only one.{" "}
-          <Link href="/settings" className="underline">Turn it off</Link> whenever you would rather choose.
+          This is the easy way in, not the only one.{" "}
+          <Link href="/settings" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.
         </p>
       </Stack>
     </Page>

@@ -48,7 +48,7 @@ export default async function SituationsPage() {
   return (
     <Page route="/situations"
       title="Situations"
-      lead="Somebody wants something from you, and you have to sort it out in Estonian."
+      lead="Someone wants something from you, and you'll have to sort it out in Estonian."
     >
       <Stack>
         {scenes.length === 0 ? (
@@ -59,7 +59,7 @@ export default async function SituationsPage() {
           */
           <Empty
             title="No conversations yet"
-            body="More are coming. A practice round is the quickest thing to do in the meantime."
+            body="More are on the way. A quick practice round is a good way to fill the gap."
             action={<ButtonLink href="/practice">Practice</ButtonLink>}
           />
         ) : (
@@ -91,12 +91,12 @@ export default async function SituationsPage() {
           checking.
         */}
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          You play somebody else, off a card we hand you. Nothing you write here is about you.
+          We hand you a card and you play the person on it. Nothing you write here is about you.
         </p>
         <Explain label="Whose details these are">
-          The card is fiction, so no transcript is a record of anything you did. A scene never asks
-          you for a real document number, and what you type is kept with the run so the debrief can
-          read the conversation back to you.
+          The card is made up, so a transcript is never a record of anything you did. No scene will
+          ask for a real document number. What you type is kept with that run so you can read the
+          conversation back afterwards.
         </Explain>
 
         {/*
@@ -107,7 +107,7 @@ export default async function SituationsPage() {
         <section aria-labelledby="places-heading">
           <h2 id="places-heading" className="text-lg font-medium">Where the people are</h2>
           <p className="mb-3 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            The rehearsal is here. The conversation is out there, and these are free.
+            Practise here, then go and have the real thing. These are all free.
           </p>
           <div className="@container">
             <ul className="grid gap-3 @lg:grid-cols-2 @2xl:grid-cols-3">

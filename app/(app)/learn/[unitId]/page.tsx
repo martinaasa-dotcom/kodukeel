@@ -94,7 +94,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
       lead={unit.blurb}
       actions={
         <Link href="/learn" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> Back to the path
+          <ArrowLeft size={14} aria-hidden /> Back to the course
         </Link>
       }
     >
@@ -121,7 +121,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                 <RungChip rung={reading.rung} />
                 <span>{verdictFor(reading)} {EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}{EVIDENCE_LABEL[reading.evidence].slice(1)}.</span>
                 <Link href={`/progress/readiness/${unit.id}`} className="underline" style={{ color: "var(--accent-deep)" }}>
-                  Where it would go wrong
+                  See where you might get stuck
                 </Link>
               </p>
             )}
@@ -185,7 +185,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             */}
             {tested && (
               <ButtonLink href={`/situations/${tested.id}`} variant="ghost" size="sm" className="justify-center">
-                <MessagesSquare size={14} aria-hidden /> Try it on somebody
+                <MessagesSquare size={14} aria-hidden /> Try it in a conversation
               </ButtonLink>
             )}
           </div>
@@ -267,8 +267,8 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
           </ul>
           {missing > 0 && (
             <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-              {missing} word{missing === 1 ? "" : "s"} in this unit {missing === 1 ? "is" : "are"} not in
-              your dictionary yet. Search {missing === 1 ? "it" : "them"} once and
+              {missing} word{missing === 1 ? "" : "s"} in this unit {missing === 1 ? "isn't" : "aren't"} in
+              your dictionary yet. Look {missing === 1 ? "it" : "them"} up once and
               {missing === 1 ? " it's" : " they're"} saved for good.
             </p>
           )}

@@ -48,9 +48,9 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
         */}
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
           {isPhrase(pos)
-            ? "A phrase is already a sentence, so the dictionary keeps no example under it. "
-            : "No example sentences for this word yet. Most common words have one, and it "
-              + "shows up the first time you look this word up. "}
+            ? "A phrase is already a sentence, so there's no example to show here. "
+            : "No example sentences for this one yet. Most common words get one the first time "
+              + "somebody looks them up. "}
           You can{" "}
           <button
             type="button"
@@ -173,7 +173,7 @@ function AddExample({ lexemeId, onAdded, onCancel }: {
       <EstonianInput
         value={et}
         onChange={setEt}
-        placeholder="A sentence from class, using this word"
+        placeholder="A sentence you met in class with this word"
         ariaLabel="Estonian sentence"
         autoFocus
       />

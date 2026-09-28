@@ -241,7 +241,7 @@ export function DictionaryClient({
       <div className={landing ? "night flex flex-col gap-5 rounded-[var(--r-xl)] border px-5 py-7 md:px-8 md:py-9" : "contents"}>
         {landing && (
           <p className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-3xl md:text-4xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            Type any word, in any form you met it in.
+            Type a word, in whatever form you met it.
           </p>
         )}
         {/* One row at every width: on a phone the button is its icon beside
@@ -261,7 +261,7 @@ export function DictionaryClient({
               value={query}
               onChange={setQuery}
               onEnter={() => go(query)}
-              placeholder="Search Estonian or English, try tuba, or room"
+              placeholder="Estonian or English, like tuba or room"
               ariaLabel="Search the dictionary"
               autoFocus={!initialQuery}
             />
@@ -373,10 +373,10 @@ export function DictionaryClient({
           <span className="flex items-center gap-2.5">
             <TrendingUp size={16} aria-hidden style={{ color: "var(--sky-ink)" }} />
             <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-              The words you will hear most
+              The words you&apos;ll hear most
             </span>
           </span>
-          <span className="text-xs" style={{ color: "var(--ink-3)" }}>a hundred of each kind</span>
+          <span className="text-xs" style={{ color: "var(--ink-3)" }}>the top hundred of each kind</span>
         </Link>
       )}
 
@@ -400,11 +400,11 @@ export function DictionaryClient({
             title={known
               ? (knownAs[0] && knownAs[0] !== initialQuery.trim()
                 ? `${initialQuery} is a form of ${knownAs.slice(0, 3).join(", ")}`
-                : `${initialQuery} is an Estonian word`)
+                : `${initialQuery} is a real Estonian word`)
               : `Nothing found for "${initialQuery}"`}
             body={known
-              ? "It is not in the built-in dictionary yet. Add it with its omastav and it is yours straight away."
-              : "The built-in dictionary covers common words to B2. Add this one with its omastav."}
+              ? "It's a real word. We just don't have it yet. Add it with its omastav and it's yours."
+              : "Check the spelling first. If it's right, add it yourself with its omastav, or tell us below."}
           />
 
           {/*
@@ -416,7 +416,7 @@ export function DictionaryClient({
           {spellings.length > 0 && (
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                No word is spelled that way. One of these is close.
+                No word is spelled quite like that. Did you mean one of these?
               </p>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {spellings.map((lemma) => (
@@ -447,8 +447,8 @@ export function DictionaryClient({
           {heard.length > 0 && (
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                If you heard it rather than read it, Estonian writes some sounds two ways.
-                One of these might be it.
+                Heard it rather than read it? Some Estonian sounds can be written two ways,
+                so it might be one of these.
               </p>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {heard.map((lemma) => (
@@ -476,7 +476,7 @@ export function DictionaryClient({
           */}
           <div className="flex flex-col gap-2">
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              Sure it exists? Tell us, and it can go in the dictionary for everybody.
+              Sure it&apos;s a word? Tell us and somebody will look at adding it for everyone.
             </p>
             <div>
               <SuggestFix
@@ -498,7 +498,7 @@ export function DictionaryClient({
               className="rounded-[var(--r)] px-4 py-3 text-sm font-medium"
               style={{ background: "var(--good-soft)", color: "var(--good-ink)" }}
             >
-              We found this word and saved it. It works offline now too.
+              Found it, and saved it here, so it&apos;ll work offline from now on.
             </p>
           )}
           {matchedAs && (
@@ -662,7 +662,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             <Chip>{entry.pos.toLowerCase()}</Chip>
             {entry.cefr && <Chip tone="accent">{entry.cefr}</Chip>}
             {entry.gradationNote && (
-              <Chip tone="hard" caseSensitive title="Consonant gradation, this is why the stem changes">
+              <Chip tone="hard" caseSensitive title="Consonant gradation. This is why the stem changes.">
                 gradation {entry.gradationNote}
               </Chip>
             )}
@@ -713,7 +713,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.definition && (
         <div>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Seletus, what the dictionary says
+            Seletus, how the dictionary explains it
           </h3>
           <p
             lang="et"
@@ -766,7 +766,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               The list above says what each asks and not which one leads. */}
           {governs && (
             <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-              It pairs above all with the <span lang="et">{governs.et}</span>.
+              Most often it goes with the <span lang="et">{governs.et}</span>.
             </p>
           )}
         </div>
@@ -777,7 +777,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.forms.length > 0 && (
         <div>
           <h3 className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
-            Principal parts, the forms you have to memorize
+            Principal parts, the forms to learn by heart
           </h3>
           <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(124px, 1fr))" }}>
             {parts.map(([type, label]) => {
@@ -850,7 +850,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       ) : isNominal && form("GEN_SG") && (
         <div>
           <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-            The rest, worked out from the omastav
+            The rest, built from the omastav
           </h3>
           {/*
             Counted rather than typed, because the short illative is stored and
@@ -860,9 +860,9 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             the same reason.
           */}
           <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            Learn <Et className="text-base" >{form("GEN_SG")}</Et> and these{" "}
-            {table.filter((row) => row.origin === "DERIVED" && row.singular).length} follow as
-            regular endings.
+            Know <Et className="text-base" >{form("GEN_SG")}</Et> and you get these{" "}
+            {table.filter((row) => row.origin === "DERIVED" && row.singular).length} for free, each one a regular ending on it.
+
           </p>
           <div className="overflow-x-auto rounded-[var(--r)] border" style={{ borderColor: "var(--rule)" }}>
             <table className="w-full min-w-[360px] text-sm">
@@ -919,9 +919,9 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           {(!form("GEN_PL") || !form("NOM_PL")) && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {!form("GEN_PL")
-                ? "Most plural forms are built on the omastav plural, which isn’t stored for this word."
-                : "The nimetav plural isn’t stored for this word, and it isn’t an ending we could work out."}
-              {" "}We leave a gap rather than guess. An invented form is worse than a gap.
+                ? "Most plural forms are built on the omastav plural, and we don't have it for this word."
+                : "We don't have the nimetav plural for this word, and it isn't an ending we can work out."}
+              {" "}So we leave a gap. A guessed form would be worse.
             </p>
           )}
           {/* Only on a pronoun, and only where the entry has not been enriched.
@@ -936,8 +936,8 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               an example here would be one somebody typed. */}
           {entry.pos === "PRONOUN" && (
             <Explain label="Why these are the long forms">
-              Pronouns also have short forms, and those are the ones you will hear most. These are
-              the long ones, which a dictionary lists first. Both are right.
+              Pronouns have short forms too, and those are the ones you&apos;ll hear most. A dictionary
+              lists the long ones first, so that&apos;s what you see here. Both are right.
             </Explain>
           )}
         </div>
@@ -963,7 +963,7 @@ function EntryProblem({ entry }: { entry: EntryView }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        Something wrong here?
+        Spotted a mistake?
       </p>
       <SuggestFix
         category="WRONG_MEANING"
@@ -1136,7 +1136,7 @@ function AddToDeck({ entry }: { entry: EntryView }) {
       className="absolute right-0 top-full z-40 mt-2 w-full max-w-[20rem] rounded-[var(--r-lg)] p-5"
       style={{ background: "var(--raised)", boxShadow: "var(--shadow-lg)" }}
     >
-      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which cards?</p>
+      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which cards should we make?</p>
       <div className="flex flex-col gap-2">
         {CARD_TYPES.filter((t) => available.includes(t.type)).map((t) => (
           <label key={t.type} className="flex cursor-pointer items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>

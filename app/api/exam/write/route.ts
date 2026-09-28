@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
   const limit = checkRateLimit(`exam-write:${bucketForOwner(ownerId)}`, 6, 60_000);
   if (!limit.ok) {
-    return rateLimited(limit, "Anu is still reading the last one.");
+    return rateLimited(limit, "Anu's still reading the last one. Give her a moment.");
   }
 
   let text: string;
@@ -44,16 +44,16 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.text !== "string") {
-      return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
+      return Response.json({ error: "We couldn't make sense of that request. Try again from the page." }, { headers: NO_STORE, status: 400 });
     }
     text = clip(body.text.trim(), MAX_CHARS);
     if (typeof body.level === "string" && /^[ABC][12]$/.test(body.level)) level = body.level;
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "We couldn't make sense of that request. Try again from the page." }, { headers: NO_STORE, status: 400 });
   }
 
   if (text.split(/\s+/).filter(Boolean).length < 5) {
-    return Response.json({ error: "There is not enough here to read." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "There isn't enough here for Anu to read yet." }, { headers: NO_STORE, status: 400 });
   }
 
   // The grader's own chain, not the general head (see `PURPOSE_CHAINS`).

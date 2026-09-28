@@ -95,8 +95,8 @@ export function CheckpointSession({
     return (
       <Page title={title} lead={blurb}>
         <Empty
-          title="Not enough of this level in your dictionary yet"
-          body="A checkpoint draws on the whole level. Work through some of its units first."
+          title="Your dictionary doesn't have enough of this level yet"
+          body="A checkpoint asks about the whole level. Work through a few of its units first."
           action={<ButtonLink href="/learn">Back to the course</ButtonLink>}
         />
       </Page>
@@ -115,12 +115,12 @@ export function CheckpointSession({
           <h2 className="text-3xl tnum">{correct} of {total}, {pct}%</h2>
           <p className="text-lg">
             {done.passed
-              ? `${level} is behind you. The course now opens at ${done.level}.`
-              : `${passMark}% passes this one. Nothing has changed on your path, and you can take it again whenever you like.`}
+              ? `That's ${level} behind you. The course now starts you at ${done.level}.`
+              : `You need ${passMark}% to pass this one. Nothing's changed on your course, and you can try again whenever you like.`}
           </p>
           {wrong.length > 0 && (
             <div className="flex flex-col gap-2">
-              <p className="text-sm" style={{ color: "var(--ink-3)" }}>What to look at again:</p>
+              <p className="text-sm" style={{ color: "var(--ink-3)" }}>Worth another look:</p>
               <ul className="flex flex-col gap-1 text-sm">
                 {wrong.map((w, i) => (
                   <li key={`${w.lemma}-${i}`} className="flex flex-wrap gap-2">
@@ -148,7 +148,7 @@ export function CheckpointSession({
     <Page
       title={title}
       eyebrow={`${level} checkpoint`}
-      lead={`${blurb} No feedback until the end, so this measures what you can already do.`}
+      lead={`${blurb} You'll only see how you did at the end, so this shows what you already know.`}
     >
       <div className="flex flex-col gap-5">
         <Meter pct={Math.round((at / total) * 100)} label={`Question ${at + 1} of ${total}`} />
@@ -161,7 +161,7 @@ export function CheckpointSession({
             <>
               <p className="text-xl"><Et>{question.sentence}</Et></p>
               <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-                The word is <Et>{question.lemma}</Et> ({question.gloss}), in the form the sentence needs.
+                The word is <Et>{question.lemma}</Et> ({question.gloss}). Write it the way this sentence needs it.
               </p>
             </>
           ) : (
@@ -183,9 +183,9 @@ export function CheckpointSession({
           </Button>
           {saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>Marking…</p>}
           {error && <p className="text-sm" role="alert" style={{ color: "var(--again-ink)" }}>{error}</p>}
-          <Explain label="What passing and failing change">
-            Passing moves you up a level. Failing changes nothing: a bad evening is not evidence
-            that you have lost a level you already had.
+          <Explain label="What happens if I pass, or don't">
+            Passing moves you up a level. Not passing changes nothing, because one bad evening
+            doesn&apos;t mean you&apos;ve lost a level you already had.
           </Explain>
         </Card>
       </div>

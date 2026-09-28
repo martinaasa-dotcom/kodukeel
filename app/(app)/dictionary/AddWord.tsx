@@ -249,8 +249,8 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
         <div>
           <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>Principal parts</p>
           <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            Fill in what you know. The omastav alone unlocks all eleven regular cases. Blanks stay
-            blank. Nothing is guessed.
+            Fill in what you know. The omastav on its own gives us all eleven regular cases.
+            Anything you leave blank stays blank. We never guess.
           </p>
           <div className="grid gap-2 md:grid-cols-3">
             {fields.map(([key, label, example]) => (

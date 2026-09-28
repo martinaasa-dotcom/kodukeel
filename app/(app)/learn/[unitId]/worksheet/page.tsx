@@ -131,7 +131,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
       {sheet.empty ? (
         <Empty
           title="Nothing to print for this unit yet"
-          body="Look these words up once and the sheet fills itself in from the dictionary."
+          body="Look these words up once and the sheet will fill itself in from the dictionary."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       ) : (
@@ -342,10 +342,9 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
 
           <div className="no-print mt-10">
             <Note tone="neutral">
-              Printing gives you the worksheet, then the answer key on a second sheet. The rail and
-              the background come off automatically. Every exercise comes from the dictionary, so a
-              unit whose words haven&rsquo;t been looked up yet just prints a shorter sheet, not a
-              made-up one.
+              Print it and you get the worksheet, with the answer key on a second sheet. The menu and
+              background are left off. Everything on it comes from the dictionary, so if a unit&rsquo;s
+              words haven&rsquo;t been looked up yet, you just get a shorter sheet, never a made-up one.
             </Note>
           </div>
         </>

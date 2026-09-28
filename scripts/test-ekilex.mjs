@@ -18,7 +18,7 @@ const word = "raudteejaam"; // railway station
 await prisma.lexeme.deleteMany({ where: { lemma: word } });
 await page.goto(`${B}/dictionary?q=${word}`, { waitUntil: "networkidle", timeout: 60000 });
 check("a word outside the seed is fetched from Ekilex",
-  (await page.getByText(/We found this word and saved it/).count()) > 0);
+  (await page.getByText(/Found it, and saved it here/).count()) > 0);
 /*
   The gap, by the half of it that does not move.
 
@@ -85,7 +85,7 @@ await page.goto(`${B}/dictionary?q=${word}`, { waitUntil: "networkidle" });
 const ms = Date.now() - t0;
 check("the second lookup is served locally", ms < 2500, `${ms}ms`);
 check("and no longer claims to have just fetched it",
-  (await page.getByText(/We found this word and saved it/).count()) === 0);
+  (await page.getByText(/Found it, and saved it here/).count()) === 0);
 
 // A seeded word gets upgraded in place.
 await page.goto(`${B}/dictionary?q=jalg`, { waitUntil: "networkidle", timeout: 60000 });

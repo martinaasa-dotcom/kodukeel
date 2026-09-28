@@ -62,7 +62,7 @@ export function AnuReading({ text, level, title, marks }: {
       }
       setReading(body as Reading);
     } catch {
-      setError("Reading your text needs a connection. Your result isn't affected.");
+      setError("Anu needs a connection to read it. Your result is safe either way.");
     } finally {
       setBusy(false);
     }
@@ -89,7 +89,7 @@ export function AnuReading({ text, level, title, marks }: {
           <div>
             <p className="label-xs mb-2" style={{ color: "var(--blush-ink)" }}>
               <MessageCircleQuestion size={12} className="mr-1 inline" aria-hidden />
-              Anu read it back. None of this changed your marks.
+              Anu&apos;s read it. None of this changes your marks.
             </p>
             {reading.comment ? (
               <AnuProse text={reading.comment} className="text-md" />
@@ -98,16 +98,15 @@ export function AnuReading({ text, level, title, marks }: {
                 <ShieldCheck size={14} className="mr-1.5 inline" aria-hidden />
                 {reading.withheldReason === "unvouched-word" ? (
                   <>
-                    Anu used a word the dictionary couldn&apos;t vouch for, so we held back her
-                    note. It might just be English rather than an Estonian word, and we&apos;d
-                    rather not guess. This is the app working as it should, not failing: an
-                    unverified Estonian word is the one thing we&apos;ll never show you in feedback.
+                    Anu used a word the dictionary couldn&apos;t check, so we&apos;ve held her note back.
+                    It may well be English, but we&apos;d rather not guess. Nothing&apos;s broken here:
+                    we just never show you an Estonian word in feedback unless we can check it.
                   </>
                 ) : (
                   <>
-                    Anu used an Estonian word the dictionary couldn&apos;t vouch for, so we held
-                    back her note. This is the app working as it should, not failing: an unverified
-                    Estonian word is the one thing we&apos;ll never show you in feedback.
+                    Anu used an Estonian word the dictionary couldn&apos;t check, so we&apos;ve held her
+                    note back. Nothing&apos;s broken here: we just never show you an Estonian word in
+                    feedback unless we can check it.
                   </>
                 )}
               </Note>
@@ -127,7 +126,7 @@ export function AnuReading({ text, level, title, marks }: {
                 : <><MessageCircleQuestion size={15} aria-hidden /> Ask Anu to read it</>}
             </Button>
             <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-              Her opinion carries no marks. It can&apos;t change your result.
+              She doesn&apos;t mark anything, so your result stays exactly as it is.
             </span>
           </div>
         )}

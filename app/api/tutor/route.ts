@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
   const limit = checkRateLimit(`tutor:${bucketForOwner(ownerId)}`, QUESTIONS_PER_MINUTE, 60_000);
   if (!limit.ok) {
-    return rateLimited(limit, "Anu is still catching up with your last few questions.");
+    return rateLimited(limit, "Anu's still catching up on your last few questions. Give her a moment.");
   }
 
   /*
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
   const chain = resolveProviders({ purpose: "tutor" });
   if (chain.length === 0) {
     return Response.json(
-      { error: "No AI key set up yet. Add one in .env, or Settings has a two-minute walkthrough." },
+      { error: "There's no AI key set up yet. Add one in .env, or follow the two-minute walkthrough in Settings." },
       { headers: NO_STORE, status: 503 },
     );
   }
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { messages?: unknown; screen?: unknown };
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
-      return Response.json({ error: "Nothing to ask." }, { headers: NO_STORE, status: 400 });
+      return Response.json({ error: "There's no question to ask." }, { headers: NO_STORE, status: 400 });
     }
     messages = forTheModel(body.messages
       .filter((m): m is ChatMessage =>
@@ -112,10 +112,10 @@ export async function POST(request: Request) {
     */
     screen = screenFrom(body.screen);
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "We couldn't make sense of that request. Try again from the page." }, { headers: NO_STORE, status: 400 });
   }
   // A transcript of nothing but the app's own failure bubbles is nothing to ask, and books nothing.
-  if (messages.length === 0) return Response.json({ error: "Nothing to ask." }, { headers: NO_STORE, status: 400 });
+  if (messages.length === 0) return Response.json({ error: "There's no question to ask." }, { headers: NO_STORE, status: 400 });
 
   const decision = await authoriseCall(ownerId, "TUTOR");
   if (!decision.allowed) {
@@ -220,7 +220,7 @@ export async function POST(request: Request) {
     // over calls none of them received.
     const booking = decision.reservation;
     if (booking) after(() => releaseReservation(booking));
-    const message = error instanceof TutorError ? error.message : "Anu could not be reached.";
+    const message = error instanceof TutorError ? error.message : "We couldn't reach Anu just now. Try again in a moment.";
     const status = error instanceof TutorError ? error.status : 502;
     return Response.json({ error: message }, { headers: NO_STORE, status });
   }
@@ -268,7 +268,7 @@ export async function POST(request: Request) {
         // Whatever was held back still belongs to the learner: losing the last
         // few words of an answer to report an error is losing both.
         say(prose.end());
-        const message = error instanceof TutorError ? error.message : "Anu could not be reached.";
+        const message = error instanceof TutorError ? error.message : "We couldn't reach Anu just now. Try again in a moment.";
         say(`\n\n\u26a0 ${message}`);
       } finally {
         /*

@@ -88,7 +88,7 @@ export default async function LearnPage() {
   return (
     <Page route="/learn"
       title="Learn"
-      lead="New words, one small round at a time, and the course they come out of."
+      lead="New words a handful at a time, and the course they come from."
     >
       {/*
         WHAT THIS PAGE LEADS WITH IS THE NEXT FIVE WORDS, NOT THE MAP.
@@ -189,7 +189,7 @@ export default async function LearnPage() {
                       <span className="tnum hidden shrink-0 text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
                         {u.known}/{u.available}
                       </span>
-                      {locked && <span className="sr-only">, builds on an earlier unit, and opens anyway</span>}
+                      {locked && <span className="sr-only">, builds on an earlier unit, but you can still open it</span>}
                       {!isNext && (
                         <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
                       )}
@@ -332,14 +332,15 @@ export default async function LearnPage() {
 
       <div className="mt-2 flex flex-col gap-1">
         <Explain label="What counts as known">
-          A word counts as known once every card made from it has moved past the learning stage,
-          not just been answered right once.
+          A word counts as known once you&apos;ve got every one of its cards past the learning
+          stage. Getting it right once isn&apos;t enough.
         </Explain>
         <Explain label="How a unit relates to the dictionary">
-          Units are shortcuts into the same dictionary, not a separate course. Everything in them can
-          also be found by searching, and anything missing you can{" "}
+          Units are just shortcuts into the dictionary, not a separate course. You can find every word
+          in them by searching too, and anything missing you can{" "}
           <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>add yourself</Link>.
-          Nothing is ever truly locked: a unit above your level shows what it builds on, and opens anyway.
+          Nothing is ever really locked. A unit above your level tells you what it builds on, and you can
+          still open it.
         </Explain>
         <Link
           href="/assess"
@@ -381,7 +382,7 @@ function LearnCard({
             {ready > 0 ? "Tonight\u2019s new words" : "New words"}
           </p>
           <h2 className="font-display mt-3 text-4xl font-bold leading-[1] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            {ready > 0 ? <>{batch} words are waiting</> : <>Nothing waiting yet</>}
+            {ready > 0 ? <>{batch} words are waiting for you</> : <>No new words yet</>}
           </h2>
           {/*
             One line for what happens next, where there used to be two chips of
@@ -390,12 +391,12 @@ function LearnCard({
           */}
           {ready > 0 ? (
             <p className="mt-3 max-w-[48ch] text-md" style={{ color: "var(--ink-2)" }}>
-              Meet each one, pick its meaning, then put it back in a sentence.
-              {started > 0 && <> {started} already part way.</>}
+              Meet each one, pick what it means, then fit it back into a sentence.
+              {started > 0 && <> You&apos;re already part way through {started}.</>}
             </p>
           ) : (
             <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
-              Open a unit below and its words arrive here, ready to be met.
+              Open a unit below and its words will turn up here, ready to meet.
             </p>
           )}
         </div>

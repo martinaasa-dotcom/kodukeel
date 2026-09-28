@@ -57,18 +57,18 @@ export async function generateMetadata({ params }: { params: Promise<{ caseKey: 
 const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string }> = {
   EKILEX: {
     label: "recorded",
-    title: "The stored form",
+    title: "The form as the dictionary records it",
   },
   STORED: {
     // "memorized" rather than "principal part", because on the sisseütlev page
     // every stored form is the short illative and `tuppa` is not one of the
     // three. The title under it was already saying the true thing.
     label: "memorized",
-    title: "A memorized form held in the dictionary, not worked out from a stem",
+    title: "A form you learn by heart. The dictionary stores it rather than working it out",
   },
   DERIVED: {
     label: "from the omastav",
-    title: "The regular ending on the stored omastav stem, the same arithmetic you are learning to do",
+    title: "The regular ending on the omastav, the same sum you're learning to do",
   },
 };
 
@@ -165,7 +165,7 @@ export default async function CasePage({
               <p className="label-xs" style={{ color: "var(--cta)" }}>The ending</p>
               {ref.spec.principal ? (
                 <p className="font-display mt-2 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-                  none, this one is memorized
+                  none, you learn this one by heart
                 </p>
               ) : (
                 <p className="mt-1 flex items-baseline gap-3">
@@ -251,8 +251,8 @@ export default async function CasePage({
           </SectionTitle>
           {examples.length === 0 ? (
             <Empty
-              title="No words to show it on yet"
-              body="Every example here is read from the dictionary. Look a noun up and this fills in."
+              title="No words to show it with yet"
+              body="Every example here comes from the dictionary. Look up a noun and this will fill in."
               action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
             />
           ) : (
@@ -418,8 +418,8 @@ export default async function CasePage({
             </div>
 
             <Note tone="neutral">
-              A drill only opens for words in your deck that carry this ending. If nothing comes up, add
-              a noun unit from the course.
+              The drill uses words in your deck that take this ending. If nothing comes up, add a unit
+              of nouns from the course.
             </Note>
           </>
         )}
@@ -432,12 +432,12 @@ export default async function CasePage({
         */}
         <div className="flex flex-wrap items-center gap-3 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Does this not match what your course says?
+            Doesn&apos;t match what your teacher says?
           </p>
           <SuggestFix
             category="WRONG_CONTENT"
             trigger={`The grammar reference for ${ref.spec.et}`}
-            label="Tell us what is wrong"
+            label="Tell us what's wrong"
           />
         </div>
 

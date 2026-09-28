@@ -44,10 +44,10 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
   const result = attempt.parsed;
   if (!result) {
     return (
-      <Page title="That result cannot be read" eyebrow="Mock examination">
+      <Page title="We can't open this result any more" eyebrow="Mock examination">
         <Note tone="again">
-          This result was saved in a format this version of the app can&apos;t read anymore. The
-          score is still {attempt.pct} percent, which counted as {attempt.passed ? "a pass" : "a fail"}.
+          It was saved in an older format that this version can&apos;t show in full. Your score still
+          stands: {attempt.pct} percent, which counted as {attempt.passed ? "a pass" : "a fail"}.
         </Note>
       </Page>
     );
@@ -128,13 +128,13 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                   <FileWarning size={14} aria-hidden />
                   {result.absentParts.map((skill) => SKILL_ET[skill]).join(" and ")} couldn&apos;t be
                   set at all, so {result.absentParts.length === 1 ? "it's" : "they're"} left out
-                  of your total instead of counted as zero.
+                  of your total rather than counted as zero.
                 </p>
               )}
               {result.thin && (
                 <p className="mt-2 flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
                   <FileWarning size={14} aria-hidden />
-                  The dictionary couldn&apos;t fill every task, so this percentage is out of a
+                  The dictionary couldn&apos;t fill every task, so this percentage comes from a
                   shorter paper than usual.
                 </p>
               )}
@@ -145,7 +145,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
       {(previous || best === null || result.pct > best) && (
         <section className="mb-10">
-          <SectionTitle>Against your own record</SectionTitle>
+          <SectionTitle>How it compares with last time</SectionTitle>
           <ul className="grid gap-3 md:grid-cols-2">
             {previous && moved !== null && (
               <Card as="li" tone={moved >= 0 ? "sky" : "blush"}>
@@ -165,8 +165,8 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                   {previous.pct} percent on{" "}
                   <DateText iso={new Date(previous.at).toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
                   , {result.pct} today. The
-                  questions were different both times, so think of this as two tries at this level,
-                  not the same paper twice.
+                  questions were different each time, so this is two tries at the level rather than
+                  the same paper twice.
                 </p>
               </Card>
             )}
@@ -178,7 +178,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                 </p>
                 <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {best === null
-                    ? "Your first paper at this level, so it is the one to beat."
+                    ? "Your first paper at this level, so this is the score to beat."
                     : `Better than anything you've sat at this level. Your old best was ${best} percent.`}
                 </p>
               </Card>
@@ -238,7 +238,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
         <section>
           <SectionTitle>What went well</SectionTitle>
           {report.strengths.length === 0 ? (
-            <Note tone="neutral">Nothing cleared three quarters this time. That is what the list opposite is for.</Note>
+            <Note tone="neutral">No part got past three quarters this time. The list of where the marks went shows what to work on next.</Note>
           ) : (
             <ul className="grid gap-3">
               {report.strengths.map((item) => (
@@ -258,7 +258,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
         <section>
           <SectionTitle>Where the marks went</SectionTitle>
           {report.gaps.length === 0 ? (
-            <Note tone="good">Every part cleared three quarters. There is nothing here to fix.</Note>
+            <Note tone="good">Every part got past three quarters. Nothing to fix here.</Note>
           ) : (
             <ul className="grid gap-3">
               {report.gaps.map((item) => (
@@ -287,7 +287,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
       {report.repeatOffenders.length > 0 && (
         <section className="mb-10">
-          <SectionTitle hint="wrong more than once across the paper">Words that kept catching you</SectionTitle>
+          <SectionTitle hint="wrong more than once across the paper">Words that kept tripping you up</SectionTitle>
           <ul className="flex flex-wrap gap-2">
             {report.repeatOffenders.map((word) => (
               <li key={word.lexemeId}>
@@ -320,11 +320,10 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
           <div className="mb-4">
             <Note tone="neutral">
               <Info size={14} className="mr-1.5 inline" aria-hidden />
-              These marks are for length, and for using the words you were given. A real examiner
-              also checks whether your Estonian itself is correct, and nothing here can judge that.
-              So treat this score as a ceiling, not a guarantee: it&apos;s the most you could get, not
-              what an examiner would actually give you. Anu can read either text back and tell you
-              what she thinks. Her note carries no marks.
+              These marks are for length and for using the words you were given. A real examiner also
+              checks that your Estonian is correct, and we can&apos;t judge that here. So read this
+              score as the most you could get, not what an examiner would give you. Anu can read
+              either text and tell you what she thinks, but she doesn&apos;t mark anything.
             </Note>
           </div>
           <ul className="grid gap-4">
@@ -357,8 +356,8 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                 How examiners marked real {result.level} texts
               </p>
               <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-                The Board published texts by past candidates with the examiners&rsquo; comments beside
-                them. Reading one next to yours is the nearest thing to a second opinion.
+                The Board published real candidates&rsquo; texts with the examiners&rsquo; comments beside
+                them. Reading one next to yours is the closest you&apos;ll get to a second opinion here.
               </p>
               <a
                 href={sample.href}
@@ -378,7 +377,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       <section>
         <SectionTitle hint={`${report.missed.length} of them`}>Everything you got wrong</SectionTitle>
         {report.missed.length === 0 ? (
-          <Note tone="good">Nothing. Every question on the paper.</Note>
+          <Note tone="good">None. You got every question right.</Note>
         ) : (
           <ul className="grid gap-2">
             {report.missed.map((mark) => {
@@ -432,7 +431,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
               have spotted that.
             */}
             <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-              Marked wrong and you think it was right?
+              Think we marked a right answer wrong?
             </p>
             <SuggestFix
               category="MARKED_WRONG"
@@ -461,7 +460,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       */}
       {report.accepted.length > 0 && (
         <section className="mt-8">
-          <SectionTitle hint={`${report.accepted.length} of them`}>Right, with something to add</SectionTitle>
+          <SectionTitle hint={`${report.accepted.length} of them`}>Right, with a note</SectionTitle>
           <ul className="grid gap-2">
             {report.accepted.map((mark) => {
               const et = mark.language !== "en";
@@ -508,10 +507,10 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       */}
       <p className="mt-8 text-sm" style={{ color: "var(--ink-3)" }}>
         {spec.official
-          ? "The structure of this paper is real. The questions aren't, and neither is the result: "
-            + "this is practice, not a certificate, and Kodukeel has no connection with "
+          ? "The shape of this paper is real. The questions aren't, and neither is the result. "
+            + "It's practice, not a certificate, and Kodukeel has nothing to do with "
             + "Haridus- ja Noorteamet, who run the exams that count."
-          : "Estonia doesn't test at this level, so nothing about this paper is official."}
+          : "Estonia doesn't test at this level, so nothing about this paper is official. It's just for you."}
         {" "}
         <Link href="/exam" className="underline underline-offset-4">Back to the exam hub</Link>
       </p>
