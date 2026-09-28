@@ -37,9 +37,8 @@ export function SceneFace({ who }: {
       aria-hidden
       className="mt-1 inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full"
       style={{
-        background: you ? "var(--accent-soft)" : "var(--surface)",
-        boxShadow: "var(--shadow-sm)",
-        color: you ? "var(--accent-deep)" : "var(--ink-2)",
+        background: you ? "var(--cta)" : "linear-gradient(135deg, var(--blush), var(--accent))",
+        color: you ? "var(--cta-ink)" : "var(--ink)",
       }}
     >
       <svg

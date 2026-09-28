@@ -1516,7 +1516,14 @@
     top: 100%;
     height: var(--scene-fade);
     pointer-events: none;
-    background: linear-gradient(var(--ground), transparent);
+    /*
+      Solid for most of its height and fading only at the foot. The
+      conversation is lit now, with the learner's own lines in gold, and a fade
+      that let half of what passed under it through showed a gold bubble
+      peeking between the room and the pinned card, which reads as something
+      left behind rather than as something scrolling past.
+    */
+    background: linear-gradient(var(--ground) 70%, transparent);
   }
 
   /*
@@ -1655,12 +1662,16 @@
   }
   .scene-say-you { animation: scene-say-you 320ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+  .scene-say { transform-origin: bottom left; }
+  .scene-say-you { transform-origin: bottom right; }
   @keyframes scene-say {
-    0% { opacity: 0; transform: translate3d(-10px, 8px, 0) scale(0.97); }
+    0% { opacity: 0; transform: translate3d(-6px, 8px, 0) scale(0.9); }
+    70% { opacity: 1; transform: translate3d(0, -1px, 0) scale(1.015); }
     100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
   }
   @keyframes scene-say-you {
-    0% { opacity: 0; transform: translate3d(10px, 8px, 0) scale(0.97); }
+    0% { opacity: 0; transform: translate3d(6px, 8px, 0) scale(0.9); }
+    70% { opacity: 1; transform: translate3d(0, -1px, 0) scale(1.015); }
     100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
   }
 
@@ -3271,16 +3282,19 @@
     100% { opacity: 0; transform: translateY(-8px) scaleY(1.1); }
   }
   /* Six steps, the ones behind you lit in the mix. */
-  .cafe-meter { display: flex; gap: 5px; }
-  .cafe-meter > li {
+  .cafe-meter, .scene-meter { display: flex; gap: 5px; }
+  .cafe-meter > li, .scene-meter > li {
     width: 1.6rem; height: 0.45rem; border-radius: 9999px;
     background: rgb(255 255 255 / 0.14);
     transition: background 300ms ease, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .cafe-meter > li[data-state="done"] { background: linear-gradient(90deg, var(--butter), var(--blush)); }
-  .cafe-meter > li[data-state="now"] { background: var(--sky); transform: scaleY(1.35); }
-  .cafe-meter > li:nth-child(2n)[data-state="done"] { background: linear-gradient(90deg, var(--blush), var(--accent)); }
-  .cafe-meter > li:nth-child(3n)[data-state="done"] { background: linear-gradient(90deg, var(--accent), var(--sky)); }
+  .cafe-meter > li[data-state="done"], .scene-meter > li[data-state="done"] { background: linear-gradient(90deg, var(--butter), var(--blush)); }
+  .cafe-meter > li[data-state="now"], .scene-meter > li[data-state="now"] { background: var(--sky); transform: scaleY(1.35); }
+  .cafe-meter > li:nth-child(2n)[data-state="done"], .scene-meter > li:nth-child(2n)[data-state="done"] { background: linear-gradient(90deg, var(--blush), var(--accent)); }
+  .cafe-meter > li:nth-child(3n)[data-state="done"], .scene-meter > li:nth-child(3n)[data-state="done"] { background: linear-gradient(90deg, var(--accent), var(--sky)); }
+  /* In the app the objectives can run to eight, so a step shares the row rather than keeping a width. */
+  .scene-meter { flex-wrap: nowrap; max-width: 16rem; }
+  .scene-meter > li { flex: 1 1 0; min-width: 0.6rem; width: auto; }
   .cafe-drink {
     background: rgb(255 255 255 / 0.04);
     border: 1px solid transparent;
@@ -3386,6 +3400,61 @@
   .cafe-done::before {
     content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
     background: linear-gradient(90deg, var(--butter), var(--blush), var(--accent), var(--sky));
+  }
+  /*
+    THE CAFÉ, INSIDE THE APP. The conversation is the same night the landing
+    page's café is lit by: the other side's lines are glass on it and the
+    learner's own are the gold of the button that sent them. Not the café's
+    window, though: in the app the conversation is the page, so the stage grows
+    downward with every line and nothing in it scrolls on its own.
+  */
+  .scene-bubble {
+    padding: 0.75rem 1rem;
+    border-radius: var(--r-lg);
+    font-size: var(--text-md); line-height: 1.4;
+  }
+  @media (min-width: 768px) { .scene-bubble { padding: 0.85rem 1.25rem; } }
+  /* Read back on the debrief, where a conversation is a record rather than a turn. */
+  .scene-bubble.scene-bubble-sm { padding: 0.6rem 0.95rem; font-size: var(--text-sm); }
+  .scene-bubble[data-who="them"] {
+    background: rgb(255 255 255 / 0.1); color: var(--ink);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-bottom-left-radius: 6px;
+  }
+  .scene-bubble[data-who="you"] {
+    background: var(--cta); color: var(--cta-ink); font-weight: 600;
+    border-bottom-right-radius: 6px;
+  }
+  /*
+    The same three lights as the café, sized in rem rather than in percent: the
+    café is a window that keeps its size, and a conversation in the app grows
+    with every line, so a light drawn at a share of the height swelled into a
+    wash over the whole of a long one. These stay the size of a lamp.
+  */
+  .scene-night {
+    background:
+      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 40%, transparent), transparent 70%),
+      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 30%, transparent), transparent 70%),
+      radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
+      var(--stage) !important;
+  }
+  [data-theme="dark"] .scene-night {
+    background:
+      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 40%, transparent), transparent 70%),
+      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 30%, transparent), transparent 70%),
+      radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
+      var(--raised) !important;
+  }
+  /* The place you say your line: glass on the same night, lifted a little. */
+  .scene-ask {
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.12);
+  }
+  .scene-aside { background: rgb(255 255 255 / 0.08); color: var(--ink); border: 1px solid rgb(255 255 255 / 0.1); }
+  .scene-done { animation: cafe-pop 480ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .scene-done { animation: none; }
+    .scene-meter > li { transition: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .cafe-line, .cafe-typing > span, .cafe-aside, .cafe-drink, .cafe-pick, .cafe-done, .cafe-steam > span { animation: none; }
