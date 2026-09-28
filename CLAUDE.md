@@ -10089,6 +10089,14 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   because light and dark are two palettes rather than one with a filter over it: the first batch of
   failures was entirely in dark mode and the second entirely in light. What a colour is worth
   depends on what it is sitting on, which a palette cannot tell you.
+- **A reading is not a verdict.** Sky, butter and blush say what happened to an answer. A figure
+  about the learner (a case's accuracy, retention, a share of situations, a tier of mastery, a busy
+  day) is one hue in steps, `--scale-1` to `--scale-4` over `--scale-track`, derived once from the
+  accent; a count is plain ink. Progress was a traffic light, a case at 60% in blush and at 86% in
+  sky, the readiness bar in the three verdict hues and the heatmap a rainbow, and the person it
+  described read the page as red and green marks on themselves. A warning (a clock running out, an
+  allowance nearly spent) may still take one verdict hue against a neutral, and a sat paper's parts
+  are marks. `scripts/invariants/a-reading-is-not-a-verdict.ts`, each arm made to fail first.
 - **A size is a step's name, never a number, and the whole app is resized by editing one block.**
   The type scale lives in `@theme` in `app/globals.css` and is the only place the size of anything
   is decided. That was already the rule and the rule was drawn one notch too loose: the invariant

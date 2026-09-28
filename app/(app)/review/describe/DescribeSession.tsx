@@ -237,7 +237,6 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           <Stat
             value={`${Math.round((right / prompts.length) * 100)}%`}
             label="Right case"
-            tone={VERDICT_INK[right === prompts.length ? "right" : "nearly"]}
           />
           <Stat value={`${minutes}m`} label="Time" />
         </div>

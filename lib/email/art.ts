@@ -147,9 +147,11 @@ export function stepLadder(steps: readonly StepRow[]): Html {
  * not started should look like a bar that has not started rather than like a
  * bar that failed to render.
  */
-export function meter(pct: number, tone: "accent" | "sky" = "accent"): Html {
+export function meter(pct: number): Html {
   const filled = Math.max(2, Math.min(100, Math.round(pct)));
-  const fill = tone === "sky" ? P.sky : P.accent;
+  // One colour for every meter: a reading is not a verdict, so a bar does not
+  // turn sky when the figure behind it is good (docs/14-design-system.md).
+  const fill = P.accent;
   return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${css(
     { "border-radius": "6px", overflow: "hidden", "background-color": P.raised },
   )}"><tr>

@@ -147,6 +147,29 @@ tell apart with certainty, a dropped diacritic or the right word in the wrong en
 graded Hard wherever it is painted butter, since a colour that disagrees with the grade under it
 is a small dishonesty a learner catches once.
 
+### A reading is not a verdict
+
+The three verdict hues say what happened to an answer. A figure about the learner is something
+else: how much of a case comes back, what share of situations they could lead, how busy a day
+was, which tier a word has reached. Those were painted as a traffic light, a case at 60% in blush
+and at 86% in sky, a rung of the readiness bar in each verdict hue, the tiers of mastery the same
+way, the counts under "Out there" in their inks, and the heatmap ran sky to violet to pink. The
+person the page was about read it as red and green marks on themselves, and a rainbow is not a
+scale: nobody can tell from a hue which of two colours means "more".
+
+| Reading | Paint |
+|---|---|
+| A bar, a ring, a meter | `--accent` over the track, one colour at every value |
+| Categories in order (the rungs, a heatmap) | `--scale-1` to `--scale-4` over `--scale-track` |
+| A count or a percentage in type | `--ink`, or `--accent-deep` for the one headline figure |
+| A reading on the night panel | `--cta`, since the accent is too dim on the navy |
+
+The steps are declared once in `app/globals.css`, mixed from the accent and the surface, so each
+theme draws its own. Two things may still take a verdict hue beside a figure: a warning, one hue
+against a neutral (a clock in its last seconds, an allowance nearly spent), which is a message
+rather than a reading; and a part of a sat paper, which is a mark. Asserted in
+`scripts/invariants/a-reading-is-not-a-verdict.ts`.
+
 And the box is `.verdict-panel`, which is the other half of the same argument. The three classes
 above settled the colour and nothing else, so every round decided the geometry and the type for
 itself: five wrote `rounded-md px-3.5 py-3` around a `text-[15px]`, the daily path and the ladder

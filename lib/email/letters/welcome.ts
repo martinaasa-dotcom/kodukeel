@@ -68,7 +68,7 @@ export function welcomeLetter(input: WelcomeInput): Letter {
 
   blocks.push({
     t: "art",
-    html: meter(2, "accent"),
+    html: meter(2),
     alt: "A progress bar, at the very start of it.",
   });
 

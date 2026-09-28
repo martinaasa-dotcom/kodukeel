@@ -98,7 +98,7 @@ export default async function ExamPage() {
             <Ring
               pct={readiness.assessed ? 100 : 0}
               size={72}
-              tone={readiness.assessed ? "var(--sky)" : "var(--accent)"}
+              tone="var(--accent)"
               label={readiness.assessed ? `Assessed at ${readiness.assessed}` : "No level assessed yet"}
             >
               <span className="text-xl font-bold" style={{ color: "var(--ink)" }}>
@@ -175,7 +175,7 @@ export default async function ExamPage() {
                     <Ring
                       pct={level.confidence}
                       size={62}
-                      tone={level.confidence >= PASS_PCT ? "var(--sky)" : "var(--accent)"}
+                      tone="var(--accent)"
                       label={`${level.confidence} percent likely to pass ${level.level}`}
                     >
                       <span className="tnum text-md font-bold" style={{ color: "var(--ink)" }}>
@@ -215,7 +215,7 @@ export default async function ExamPage() {
                             <Meter
                               pct={level.expected[skill]}
                               label={`${SKILL_LABEL[skill]} predicted at ${level.expected[skill]} percent`}
-                              tone={level.expected[skill] >= PASS_PCT ? "var(--sky)" : "var(--blush)"}
+                              tone="var(--accent)"
                               height={6}
                             />
                           ) : (

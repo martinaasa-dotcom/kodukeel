@@ -24,7 +24,7 @@ import { departureLine, rungLine, type ExceptionTask } from "@/lib/games/excepti
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { AlsoRight } from "@/components/WordExceptions";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
-import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -202,7 +202,6 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
           <Stat
             value={asked > 0 ? `${Math.round((right / asked) * 100)}%` : "0%"}
             label="Right"
-            tone={VERDICT_INK[asked > 0 && right === asked ? "right" : "nearly"]}
           />
           <Stat value={`${minutes}m`} label="Time" />
         </div>

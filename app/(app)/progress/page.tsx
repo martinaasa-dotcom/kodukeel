@@ -224,7 +224,7 @@ export default async function ProgressPage() {
             value={<span className="inline-flex items-center gap-1.5">{summary.streak}<Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
             label="Day streak"
           />
-          <Stat value={snapshot.knownCards} label="Cards known" tone="var(--good-ink)" />
+          <Stat value={snapshot.knownCards} label="Cards known" />
           <Stat value={breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`} label="Recall rate" />
           <Stat
             value={<span className="inline-flex items-center gap-1.5">{shields}<Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
@@ -271,10 +271,7 @@ export default async function ProgressPage() {
                   <Ring
                     pct={retention.retention ?? 0}
                     size={78}
-                    tone={
-                      retention.verdict === "below" ? "var(--again)"
-                        : retention.verdict === "above" ? "var(--hard)" : "var(--good)"
-                    }
+                    tone="var(--accent)"
                     label={
                       retention.retention === null
                         ? "Not enough long-term reviews to measure retention yet"
@@ -370,10 +367,10 @@ export default async function ProgressPage() {
                     */}
                     <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                       <Stat value={outside.total} label="conversations" tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
-                      <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" tone="var(--good-ink)" />
-                      <Stat value={outside.byOutcome.STUCK} label="you got stuck" tone="var(--hard-ink)" />
-                      <Stat value={outside.byOutcome.SWITCHED} label="switched to English" tone="var(--hard-ink)" />
-                      <Stat value={outside.byOutcome.BAILED} label="days with none" tone="var(--ink-3)" />
+                      <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" />
+                      <Stat value={outside.byOutcome.STUCK} label="you got stuck" />
+                      <Stat value={outside.byOutcome.SWITCHED} label="switched to English" />
+                      <Stat value={outside.byOutcome.BAILED} label="days with none" />
                     </div>
                     <p className="text-xs" style={{ color: "var(--ink-3)" }}>
                       {outside.streak > 1 ? `${outside.streak} days in a row with a real conversation in them. ` : ""}

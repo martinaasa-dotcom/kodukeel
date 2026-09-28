@@ -384,14 +384,14 @@ export function QuestSession({
                 <li key={c.key}>
                   <div className="flex items-baseline justify-between gap-3">
                     <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
-                    <span className="tnum text-sm font-semibold" style={{ color: c.accuracy < 60 ? "var(--again-ink)" : c.accuracy < 90 ? "var(--hard-ink)" : "var(--good-ink)" }}>
+                    <span className="tnum text-sm font-semibold" style={{ color: "var(--ink)" }}>
                       {c.accuracy}% right
                     </span>
                   </div>
                   <span aria-hidden className="mt-1.5 block h-2 overflow-hidden rounded-full" style={{ background: "rgb(255 255 255 / 0.1)" }}>
                     <span
                       className="block h-full rounded-full"
-                      style={{ width: `${Math.max(3, c.accuracy)}%`, background: c.accuracy < 60 ? "var(--blush)" : c.accuracy < 90 ? "var(--butter)" : "var(--sky)" }}
+                      style={{ width: `${Math.max(3, c.accuracy)}%`, background: "var(--accent)" }}
                     />
                   </span>
                   {c.question && (

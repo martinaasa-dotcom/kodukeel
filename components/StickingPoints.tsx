@@ -130,7 +130,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                     <span aria-hidden className="block h-1.5 w-28 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
                       <span
                         className="block h-full rounded-full"
-                        style={{ width: `${point.accuracy}%`, background: point.accuracy >= 80 ? "var(--sky)" : point.accuracy >= 60 ? "var(--butter)" : "var(--blush)" }}
+                        style={{ width: `${point.accuracy}%`, background: "var(--accent)" }}
                       />
                     </span>
                   )}

@@ -14,7 +14,7 @@ import { Speak } from "@/components/Speak";
 import {
   BLANK, MAX_PASSAGE_CHARS, type ClozeItem, isClozeCorrect, isDiacriticSlip,
 } from "@/lib/estonian/passage";
-import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
+import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -194,7 +194,7 @@ export function ClozeSession() {
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
           <Stat value={items.length} label="Gaps" />
-          <Stat value={`${accuracy}%`} label="Right" tone={VERDICT_INK[accuracy >= 80 ? "right" : "nearly"]} />
+          <Stat value={`${accuracy}%`} label="Right" />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">

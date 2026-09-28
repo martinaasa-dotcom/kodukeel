@@ -10,7 +10,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Confetti } from "@/components/Confetti";
 import { Empty, Page, Stat } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
-import { OPTION_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
+import { OPTION_CLASS } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
@@ -236,7 +236,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
         >
           <Stat value={`${seconds}s`} label="Time" tone="var(--accent-deep)" />
           <Stat value={pairs.length} label="Pairs" />
-          <Stat value={missed} label="Wrong taps" tone={missed === 0 ? VERDICT_INK.right : undefined} />
+          <Stat value={missed} label="Wrong taps" />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/practice">Other modes</ButtonLink>
