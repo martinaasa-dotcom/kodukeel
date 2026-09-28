@@ -41,10 +41,10 @@ export default async function AssessPage({
     const paper = await paperFor(ownerId, Date.now() % 1_000_000);
     if (paper.items.length === 0) {
       return (
-        <Page route="/assess" title="Level check" lead="Reading, listening, writing and speaking, all checked against the dictionary.">
+        <Page route="/assess" title="Level check" lead="A short test of your reading, listening and writing, so we know where to start you.">
           <Empty
             title="We couldn't put a check together"
-            body="The questions come from dictionary words with a level on them, and there aren't any yet."
+            body="Every question is built from the dictionary, and it has no words with a level on them yet."
             action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
           />
         </Page>
@@ -97,7 +97,7 @@ export default async function AssessPage({
   return (
     <Page route="/assess"
       title="Level check"
-      lead="Reading, listening, writing and speaking, all checked against the dictionary."
+      lead="A short test of your reading, listening and writing, so we know where to start you."
       actions={result ? (
         <ButtonLink href="/assess?take=1" variant="primary" size="lg">
           <Compass size={16} aria-hidden /> Take it again
@@ -117,14 +117,14 @@ export default async function AssessPage({
           />
         ) : (
           <Empty
-            title="Nothing measured yet"
-            body="Reading, listening and writing, getting harder until we find your level. Speaking you rate yourself."
+            title="You haven't taken a check yet"
+            body="It starts easy and gets harder until it finds your level. For speaking, you judge yourself."
             action={<ButtonLink href="/assess?take=1" variant="primary" size="lg">Start the check</ButtonLink>}
           />
         )}
 
         <div>
-          <SectionTitle hint="hours, not badges">What it means for your goal</SectionTitle>
+          <SectionTitle hint="counted in hours of study">What this means for your goal</SectionTitle>
           <PlanPanel standing={standing} goals={goals} dailyGoal={goals.dailyGoal} pace={pace} />
         </div>
 
@@ -158,10 +158,10 @@ export default async function AssessPage({
                   </li>
                 ))}
               </ul>
-              <Explain label="Why the dates matter">
-                We keep every sitting exactly as it was, so you can see how you&apos;ve moved over time. Take
-                one two weeks after the last and it mostly measures the questions, not you. Give it a
-                couple of months.
+              <Explain label="How often to take it">
+                We keep every result just as it was, so you can see how far you&apos;ve come. Leave a couple
+                of months between checks. Two weeks later, it mostly tests whether you remember the
+                questions.
               </Explain>
             </Card>
           </div>

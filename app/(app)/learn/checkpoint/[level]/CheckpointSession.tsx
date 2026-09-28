@@ -95,8 +95,8 @@ export function CheckpointSession({
     return (
       <Page title={title} lead={blurb}>
         <Empty
-          title="Your dictionary doesn't have enough of this level yet"
-          body="A checkpoint asks about the whole level. Work through a few of its units first."
+          title="Not enough words from this level yet"
+          body="A checkpoint asks about the whole level, so work through a few of its units first."
           action={<ButtonLink href="/learn">Back to the course</ButtonLink>}
         />
       </Page>
@@ -148,7 +148,7 @@ export function CheckpointSession({
     <Page
       title={title}
       eyebrow={`${level} checkpoint`}
-      lead={`${blurb} You'll only see how you did at the end, so this shows what you already know.`}
+      lead={`${blurb} You'll find out how you did at the end, not after each answer.`}
     >
       <div className="flex flex-col gap-5">
         <Meter pct={Math.round((at / total) * 100)} label={`Question ${at + 1} of ${total}`} />
@@ -161,7 +161,7 @@ export function CheckpointSession({
             <>
               <p className="text-xl"><Et>{question.sentence}</Et></p>
               <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-                The word is <Et>{question.lemma}</Et> ({question.gloss}). Write it the way this sentence needs it.
+                The word is <Et>{question.lemma}</Et> ({question.gloss}). Write it in the form this sentence needs.
               </p>
             </>
           ) : (
@@ -184,8 +184,8 @@ export function CheckpointSession({
           {saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>Marking…</p>}
           {error && <p className="text-sm" role="alert" style={{ color: "var(--again-ink)" }}>{error}</p>}
           <Explain label="What happens if I pass, or don't">
-            Passing moves you up a level. Not passing changes nothing, because one bad evening
-            doesn&apos;t mean you&apos;ve lost a level you already had.
+            Pass, and the course moves you up a level. Don&apos;t, and nothing changes: one bad
+            evening doesn&apos;t take away a level you already have.
           </Explain>
         </Card>
       </div>

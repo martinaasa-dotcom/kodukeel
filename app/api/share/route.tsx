@@ -118,7 +118,7 @@ export async function GET() {
         </div>
 
         <div style={{ display: "flex", fontSize: 20, color: "#8b84a3" }}>
-          Every number here comes from reviews they really did.
+          Every number here comes from reviews they actually did.
         </div>
       </div>
     ),

@@ -44,12 +44,12 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.text !== "string") {
-      return Response.json({ error: "We couldn't make sense of that request. Try again from the page." }, { headers: NO_STORE, status: 400 });
+      return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
     }
     text = clip(body.text.trim(), MAX_CHARS);
     if (typeof body.level === "string" && /^[ABC][12]$/.test(body.level)) level = body.level;
   } catch {
-    return Response.json({ error: "We couldn't make sense of that request. Try again from the page." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
 
   if (text.split(/\s+/).filter(Boolean).length < 5) {

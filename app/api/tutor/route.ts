@@ -97,7 +97,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { messages?: unknown; screen?: unknown };
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
-      return Response.json({ error: "There's no question to ask." }, { headers: NO_STORE, status: 400 });
+      return Response.json({ error: "Type a question first." }, { headers: NO_STORE, status: 400 });
     }
     messages = forTheModel(body.messages
       .filter((m): m is ChatMessage =>
@@ -112,10 +112,10 @@ export async function POST(request: Request) {
     */
     screen = screenFrom(body.screen);
   } catch {
-    return Response.json({ error: "We couldn't make sense of that request. Try again from the page." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
   // A transcript of nothing but the app's own failure bubbles is nothing to ask, and books nothing.
-  if (messages.length === 0) return Response.json({ error: "There's no question to ask." }, { headers: NO_STORE, status: 400 });
+  if (messages.length === 0) return Response.json({ error: "Type a question first." }, { headers: NO_STORE, status: 400 });
 
   const decision = await authoriseCall(ownerId, "TUTOR");
   if (!decision.allowed) {

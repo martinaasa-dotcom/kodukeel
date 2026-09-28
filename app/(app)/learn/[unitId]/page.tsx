@@ -169,7 +169,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             )}
             {progress.started > 0 && (
               <ButtonLink href={`/review?unit=${unit.id}`} variant="ghost" className="justify-center">
-                <GraduationCap size={15} aria-hidden /> Drill this unit
+                <GraduationCap size={15} aria-hidden /> Practise these words
               </ButtonLink>
             )}
             {/* For the half of a class that happens on paper. */}

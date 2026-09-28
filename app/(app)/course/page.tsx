@@ -77,7 +77,7 @@ export default async function CoursePage({
     return (
       <Page
         title="Your evenings, already planned"
-        lead={`${evenings} evenings from your first word all the way to C1. We've planned every one.`}
+        lead={`${evenings} short evenings, from your very first word all the way to C1. We've planned every one.`}
       >
         <Stack>
           <Card tone="accent">
@@ -94,10 +94,10 @@ export default async function CoursePage({
             </div>
             <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
               {chosen
-                ? "You chose to plan your own evenings, and that's fine. Starting this won't change anything else in the app."
+                ? "You've been choosing what to do each evening, and that's fine. Starting this won't change anything else."
                 : opening.level === level
-                  ? `It starts at ${opening.level}, which is where you are now. Think of it as a suggestion, not a set track. Everything you already use stays where it is.`
-                  : `It starts at ${opening.level}, the level after the ${level} you already have. Think of it as a suggestion, not a set track. Everything you already use stays where it is.`}
+                  ? `It starts at ${opening.level}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.`
+                  : `It starts at ${opening.level}, the level after the ${level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.`}
             </p>
           </Card>
 
@@ -143,18 +143,18 @@ export default async function CoursePage({
       <Page
         eyebrow={<span>{programme.id.toUpperCase()}</span>}
         title={`${uiText(level, programme.title, programme.subtitle)} is finished`}
-        lead={`All ${total} modules done. Every word from them is in your reviews now.`}
+        lead={`All ${total} evenings done. Every word you met is in your reviews now.`}
       >
         <Stack>
           <Card tone={verdict.kind === "hold" ? "butter" : "sky"}>
             {verdict.kind === "hold" ? (
               <>
-                <SectionTitle hint="a reading, not a rule">
+                <SectionTitle hint="our guess, not a rule">
                   Not ready for {after!.id.toUpperCase()} yet
                 </SectionTitle>
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {holdReason(verdict)} We&apos;d give it a few more days to settle before you build
-                  the next part on top.
+                  the next part on it.
                 </p>
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {holdAdvice(verdict)}
@@ -173,7 +173,7 @@ export default async function CoursePage({
                     quiet
                   />
                   <ButtonLink href="/review" variant="primary">
-                    Review what is due <ArrowRight size={15} aria-hidden />
+                    Review what&apos;s due <ArrowRight size={15} aria-hidden />
                   </ButtonLink>
                 </div>
               </>
@@ -182,9 +182,9 @@ export default async function CoursePage({
                 <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {after
                     ? <>Next is {after.id.toUpperCase()}, {after.subtitle.toLowerCase()}. It picks
-                        up where this one left off, and it only uses things you&apos;ve already met.</>
-                    : <>That&apos;s the whole course. Every one of these words is in your reviews, and
-                        each will come back just as you&apos;re about to forget it.</>}
+                        up where this one stopped, and it only asks about things you&apos;ve already met.</>
+                    : <>That&apos;s the whole course, start to finish. Every word is in your reviews, and
+                        each one will come back just as you&apos;re about to forget it.</>}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <ButtonLink href="/progress/readiness">See what you could handle out there</ButtonLink>
@@ -235,8 +235,8 @@ export default async function CoursePage({
             nothing, since "one evening in a row" is a sentence nobody says.
           */
           reading.eveningsInARow >= 2
-            ? `${reading.daysDone} of ${total} done, and ${reading.eveningsInARow} evenings in a row. Nicely played.`
-            : `${reading.daysDone} of ${total} done. Nicely played.`
+            ? `${reading.eveningsInARow} evenings in a row now, and ${reading.daysDone} of ${total} done.`
+            : `${reading.daysDone} of ${total} evenings done. See you tomorrow.`
         }
       >
         <Stack>
@@ -274,8 +274,8 @@ export default async function CoursePage({
                       : uiWantsEnglish(level)
                         ? <>Come back tomorrow for {day.subtitle}.</>
                         : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
-                    {" "}Sleeping on it is half of what makes today stick, so stopping here isn&apos;t
-                    giving up. It&apos;s how this works.
+                    {" "}Sleep does half the work of making tonight&apos;s words stick, so stopping here is
+                    part of the plan.
                   </p>
                 </div>
               </div>
@@ -290,7 +290,7 @@ export default async function CoursePage({
               {justDone && justDone.words.length > 0 && (
                 <div className="mt-4">
                   <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-                    Tonight&rsquo;s words, one more time out loud
+                    Hear tonight&rsquo;s words once more
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
                     {justDone.words.map((word) => (
@@ -428,7 +428,7 @@ export default async function CoursePage({
           </ul>
           {missing.length > 0 && missing.length < day.words.length && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-              The plain ones aren&apos;t in your deck yet. The first step adds them.
+              A few of these aren&apos;t in your deck yet. The first step adds them.
             </p>
           )}
         </div>
@@ -454,9 +454,9 @@ export default async function CoursePage({
           `components/Explain.tsx` exists for.
         */}
         <Explain label="How a step gets ticked">
-          Two steps tick themselves off from your answers: meeting the words, and the review at
-          the end. The rest you tick yourself. We can&apos;t tell which round an answer came from,
-          and we&apos;d rather say so than pretend we were watching.
+          Meeting the words and the review at the end tick themselves off as you answer. The
+          others you tick yourself, because we can&apos;t tell which exercise an answer came
+          from, and we&apos;d rather admit that than pretend we were watching.
         </Explain>
 
         <Card>
@@ -547,7 +547,7 @@ export default async function CoursePage({
               so they are one card: the part in detail and the whole climb as a
               strip under it, rather than two cards of the same answer. */}
           <div className="mt-5 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>The whole ladder, {PROGRAMMES.length} parts</p>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>The whole course, {PROGRAMMES.length} parts</p>
             <LadderBody here={programme.id} learnerLevel={level} />
           </div>
         </Card>
@@ -575,7 +575,7 @@ export default async function CoursePage({
 function Ladder({ learnerLevel }: { learnerLevel: Level }) {
   return (
     <Card>
-      <SectionTitle hint={`${PROGRAMMES.length} parts`}>The whole ladder</SectionTitle>
+      <SectionTitle hint={`${PROGRAMMES.length} parts`}>The whole course</SectionTitle>
       <LadderBody learnerLevel={learnerLevel} />
     </Card>
   );
@@ -697,7 +697,7 @@ function CourseFit({ offer, tilt, snoozed, effects }: {
     return (
       <Card tone={offer.reading.kind === "struggling" ? "butter" : "sky"}>
         <div data-course-fit={offer.reading.kind}>
-          <SectionTitle hint="a reading of your last two weeks">{offerTitle(offer)}</SectionTitle>
+          <SectionTitle hint="based on your last two weeks">{offerTitle(offer)}</SectionTitle>
           <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {text.lead}
           </p>

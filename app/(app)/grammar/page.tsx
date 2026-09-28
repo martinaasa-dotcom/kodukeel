@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Grammar: the endings and what they mean",
   description:
-    "Fourteen endings in plain English, each with its Estonian name and the question it answers, shown on real words from the dictionary.",
+    "All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
 };
 
 /**
@@ -131,8 +131,8 @@ export default async function GrammarIndexPage() {
               Build a word
             </span>
             <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
-              Pick a word, see its three stored forms, then add the eleven endings one at a time. You
-              get what each one means and a real sentence using it.
+              Pick a word, meet the three forms you learn by heart, then add the other eleven endings
+              one at a time. Each comes with what it means and a real sentence that uses it.
             </span>
           </span>
         </Link>
@@ -160,11 +160,12 @@ export default async function GrammarIndexPage() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
-              Where the endings stop
+              Words that break the pattern
             </span>
             <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
-              Tuppa, not toasse. When the stem changes, eleven cases change with it. Here&apos;s which
-              words do that, and how to practise them.
+              Some words go their own way, like tuba becoming tuppa, and when a word&apos;s stem
+              changes, eleven cases change with it. Here&apos;s which words do that, and how to practise
+              them.
             </span>
           </span>
         </Link>
@@ -295,11 +296,12 @@ export default async function GrammarIndexPage() {
         */}
         <Card>
           <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-            The verb has two tenses, not six
+            Estonian verbs have just two tenses
           </p>
           <p className="mt-2 max-w-[64ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Two more are built with a helper verb. Mood, voice and person are separate switches on
-            top of those four, so you name a form by saying how each switch is set.
+            A present and a past. Two more are made with a helper verb, the way English says
+            &ldquo;have done&rdquo;. Mood, voice and person are separate switches on top, so you
+            describe any form by saying how each switch is set.
           </p>
           <dl className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
             {VERB_AXES.map((axis) => (
@@ -321,7 +323,7 @@ export default async function GrammarIndexPage() {
         <section>
           <SectionTitle hint={`${TOPIC_NOTES.length} points`}>Beyond the endings</SectionTitle>
           <p className="mt-1 max-w-[68ch] text-sm" style={{ color: "var(--ink-2)" }}>
-            Grouped by the kind of word involved, the way a course would order them.
+            Grouped by the kind of word they&apos;re about, in the order a course would teach them.
           </p>
           <div className="mt-4 flex flex-col gap-6">
             {TOPIC_GROUPS.map((group) => {

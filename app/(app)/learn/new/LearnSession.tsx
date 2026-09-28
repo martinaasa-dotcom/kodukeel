@@ -85,7 +85,7 @@ const RUNG_LABEL: Record<Rung, string> = {
   meet: "New word",
   choice: "What does it mean?",
   gap: "Put it in the sentence",
-  kept: "Moved to practice",
+  kept: "Learned for now",
 };
 
 /** How far up the ladder a word is, drawn as three steps. */
@@ -778,13 +778,13 @@ export function LearnSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {counts.kept > 0
-              ? <>{uiText("Tubli töö.", "Good work.")} {counts.kept} {counts.kept === 1 ? `${noun} has` : `${nouns} have`} moved over to practice, and they&rsquo;ll come back to you from there.</>
-              : <>{uiText("Tubli töö.", "Good work.")} They&rsquo;ll stay here until you can use them in a sentence. That&rsquo;s when they start to stick.</>}
+              ? <>{uiText("Tubli töö.", "Good work.")} {counts.kept} {counts.kept === 1 ? `${noun} is` : `${nouns} are`} learned for now. From here {counts.kept === 1 ? "it comes" : "they come"} back in your reviews, just before you&rsquo;d forget.</>
+              : <>{uiText("Tubli töö.", "Good work.")} These stay here until you can put them in a sentence. That&rsquo;s when they start to stick.</>}
           </p>
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatTile value={counts.kept} label="To practice" tone="sky" />
+          <StatTile value={counts.kept} label="Learned" tone="sky" />
           <StatTile value={counts.staying} label="Still learning" tone="butter" />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
@@ -804,7 +804,7 @@ export function LearnSession({
                   <Ladder rung={where} />
                   <Chip tone={where === "kept" ? "good" : "neutral"}>
                     {where === "kept"
-                      ? "Practice"
+                      ? "Learned"
                       : where === "meet" && w.isPhrase ? "New phrase" : RUNG_LABEL[where]}
                   </Chip>
                 </span>
@@ -868,7 +868,7 @@ export function LearnSession({
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={72} className="mx-auto" />
           <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            Now answer them back
+            Now it&rsquo;s your turn
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             Same {nouns}. This time you tell us what each one means, or put it back into the
@@ -919,7 +919,7 @@ export function LearnSession({
       <div className="mb-7 flex items-center gap-4">
         <EndSession href="/learn" />
         <div className="flex-1">
-          <Meter pct={progress} label={`${left} of ${total} ${nouns} still on the ladder`} height={10} />
+          <Meter pct={progress} label={`${left} of ${total} ${nouns} still to learn`} height={10} />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"

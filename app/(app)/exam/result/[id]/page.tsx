@@ -155,7 +155,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                 >
                   {moved >= 0 ? <TrendingUp size={16} aria-hidden /> : <TrendingDown size={16} aria-hidden />}
                   {moved === 0
-                    ? `Level with your last ${result.level}`
+                    ? `The same as your last ${result.level}`
                     : `${moved > 0 ? "Up" : "Down"} ${Math.abs(moved)} points on your last ${result.level}`}
                 </p>
                 <p
@@ -165,7 +165,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                   {previous.pct} percent on{" "}
                   <DateText iso={new Date(previous.at).toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
                   , {result.pct} today. The
-                  questions were different each time, so this is two tries at the level rather than
+                  questions were different each time, so think of it as two tries at the level, not
                   the same paper twice.
                 </p>
               </Card>
@@ -238,7 +238,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
         <section>
           <SectionTitle>What went well</SectionTitle>
           {report.strengths.length === 0 ? (
-            <Note tone="neutral">No part got past three quarters this time. The list of where the marks went shows what to work on next.</Note>
+            <Note tone="neutral">No part reached three quarters this time. Where the marks went shows what to work on next.</Note>
           ) : (
             <ul className="grid gap-3">
               {report.strengths.map((item) => (
@@ -258,7 +258,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
         <section>
           <SectionTitle>Where the marks went</SectionTitle>
           {report.gaps.length === 0 ? (
-            <Note tone="good">Every part got past three quarters. Nothing to fix here.</Note>
+            <Note tone="good">Every part reached three quarters or more. Nothing to fix here.</Note>
           ) : (
             <ul className="grid gap-3">
               {report.gaps.map((item) => (

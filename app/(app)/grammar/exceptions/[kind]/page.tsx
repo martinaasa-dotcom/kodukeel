@@ -63,9 +63,9 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
       <Stack>
         <Card tone="butter">
           <p className="max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {group.entries.length} of these are near your level, and {group.everywhere} are in the
-            dictionary. We found every one by checking the pattern against the form a lexicographer
-            wrote down, so this comes straight from the dictionary, not from a list somebody typed.
+            {group.entries.length} of these are near your level, out of {group.everywhere} in the
+            whole dictionary. We found each one by checking the rule against the form a
+            lexicographer actually wrote down, so nobody typed this list by hand.
           </p>
           {/*
             AND WHERE THE FORM IS ACTUALLY USED, WHICH IS A DIFFERENT QUESTION.
@@ -94,7 +94,7 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
         {group.entries.length === 0 ? (
           <Empty
             title="None near your level"
-            body="This one shows up in words above or below the level you're working at."
+            body="The words that do this are all above or below the level you're working at."
             action={<ButtonLink href="/grammar/exceptions" variant="primary">Back to the exceptions</ButtonLink>}
           />
         ) : (
@@ -135,7 +135,7 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
                       */}
                       {entry.exceptions.length > 1 && (
                         <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                          This word also breaks{" "}
+                          It&apos;s an exception in other ways too:{" "}
                           {entry.exceptions
                             .filter((e) => e.kind !== group.kind)
                             .map((e) => KIND_NOTES[e.kind].title.toLowerCase())

@@ -47,7 +47,7 @@ export default async function CommonWordsPage() {
           */}
           <Empty
             title="The dictionary isn't loaded yet"
-            body="These lists come from it, so there's nothing to show until it's seeded."
+            body="These lists are built from the dictionary, so there's nothing to show until it's set up."
           />
           <SuggestFix category="BROKEN" trigger="/dictionary/common found no entries in the dictionary" />
         </div>

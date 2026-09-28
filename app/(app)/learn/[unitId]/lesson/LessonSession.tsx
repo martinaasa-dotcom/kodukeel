@@ -196,7 +196,7 @@ export function LessonSession({
       <Page title={unitTitle} lead="Nothing to learn here just yet.">
         <Empty
           title="This unit's words aren't in the dictionary yet"
-          body="They'll appear once dictionary lookups are on. Or you can add them yourself."
+          body="They'll turn up once live dictionary lookups are switched on, or you can add them yourself."
           action={<ButtonLink href={`/learn/${unitId}`}>Back to the unit</ButtonLink>}
         />
       </Page>
@@ -264,7 +264,7 @@ function Verdict({ ok, note }: { ok: boolean; note?: string }) {
       role="status"
     >
       {ok ? <Check size={18} aria-hidden /> : <X size={18} aria-hidden />}
-      <span>{note ?? (ok ? "Correct." : "Not this time.")}</span>
+      <span>{note ?? (ok ? "Correct." : "Not quite.")}</span>
     </div>
   );
 }
@@ -427,7 +427,7 @@ function StepCard({
     if (checked) { onNext(); return; }
     const result = checkAnswer(typed, expected, "et", rivals);
     const ok = countsAsRecalled(result.verdict);
-    setChecked({ ok, note: result.note || (ok ? "Correct." : `It is “${result.expected}”.`) });
+    setChecked({ ok, note: result.note || (ok ? "Correct." : `The answer is “${result.expected}”.`) });
     // A hint is paid for: see the block above and `lib/questions/hints.ts`.
     onAnswer(lemma, kind, ok && hints.ceiling > 1);
   };

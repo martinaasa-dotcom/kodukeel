@@ -64,11 +64,11 @@ const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string
     // every stored form is the short illative and `tuppa` is not one of the
     // three. The title under it was already saying the true thing.
     label: "memorized",
-    title: "A form you learn by heart. The dictionary stores it rather than working it out",
+    title: "A form you learn by heart, because no rule gives it to you",
   },
   DERIVED: {
     label: "from the omastav",
-    title: "The regular ending on the omastav, the same sum you're learning to do",
+    title: "The omastav plus the regular ending, the same sum you're learning to do",
   },
 };
 
@@ -165,7 +165,7 @@ export default async function CasePage({
               <p className="label-xs" style={{ color: "var(--cta)" }}>The ending</p>
               {ref.spec.principal ? (
                 <p className="font-display mt-2 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-                  none, you learn this one by heart
+                  None. This one you learn by heart.
                 </p>
               ) : (
                 <p className="mt-1 flex items-baseline gap-3">
@@ -383,10 +383,10 @@ export default async function CasePage({
                       className="min-w-0 flex-1 text-base leading-snug"
                     />
                     <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                      contains{" "}
+                      Here{" "}
                       <span lang="et" style={{ color: "var(--accent-deep)" }}>{example.sentenceForm ?? example.form}</span>
-                      {", "}the <span lang="et">{ref.spec.et}</span> of{" "}
-                      <span lang="et">{example.lemma}</span>
+                      {" "}is the <span lang="et">{ref.spec.et}</span> of{" "}
+                      <span lang="et">{example.lemma}</span>.
                     </p>
                   </Card>
                 </li>
@@ -418,8 +418,8 @@ export default async function CasePage({
             </div>
 
             <Note tone="neutral">
-              The drill uses words in your deck that take this ending. If nothing comes up, add a unit
-              of nouns from the course.
+              The drill asks about words in your deck that take this ending. If it comes up empty,
+              add some nouns from the course first.
             </Note>
           </>
         )}

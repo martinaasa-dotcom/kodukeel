@@ -48,12 +48,12 @@ export default async function CourseFormsPage({
     <Page
       eyebrow="Tonight's module"
       title="The past of your verbs"
-      lead="Every verb has its own past, so you learn them one at a time. Listen, then try three."
+      lead="Each verb makes its past its own way, so learn them a few at a time. Listen, then try three."
     >
       {ordered.length === 0 ? (
         <Empty
-          title="No verbs to show tonight"
-          body="We don't have the past forms for tonight's verbs yet, so there's nothing to learn here."
+          title="No verbs to learn here tonight"
+          body="We don't have the past forms of tonight's verbs yet. Carry on to the next step."
         />
       ) : (
         <Stack>

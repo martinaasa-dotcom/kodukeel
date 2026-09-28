@@ -46,7 +46,7 @@ page.on("console", (m) => {
 await page.goto(`${B}/assess`, { waitUntil: "networkidle" });
 const measuredAlready = (await page.getByText("Skill by skill").count()) > 0;
 check("an unmeasured learner gets an empty state, not a zero",
-  measuredAlready || (await page.getByText(/Nothing measured yet/i).count()) > 0);
+  measuredAlready || (await page.getByText(/haven.t taken a check yet/i).count()) > 0);
 check("it says up front that speaking is judged by the learner",
   measuredAlready || (await page.getByText(/judge yourself/i).count()) > 0);
 
@@ -216,7 +216,7 @@ check("the plan is on the same screen as the level",
 
 await page.goto(`${B}/settings#goals`, { waitUntil: "networkidle" });
 check("goals are editable for ever, not just at first run",
-  (await page.getByText("Why you are learning").count()) > 0);
+  (await page.getByText("Why you're learning Estonian").count()) > 0);
 // The target and the deadline are `radio`, because those are mutually
 // exclusive and one radio group beats eight toggle switches each announcing
 // itself as pressed. The reasons are not mutually exclusive: somebody living

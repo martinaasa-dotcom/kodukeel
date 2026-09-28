@@ -241,7 +241,7 @@ export function DictionaryClient({
       <div className={landing ? "night flex flex-col gap-5 rounded-[var(--r-xl)] border px-5 py-7 md:px-8 md:py-9" : "contents"}>
         {landing && (
           <p className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-3xl md:text-4xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            Type a word, in whatever form you met it.
+            Type a word just as you met it, endings and all.
           </p>
         )}
         {/* One row at every width: on a phone the button is its icon beside
@@ -376,7 +376,7 @@ export function DictionaryClient({
               The words you&apos;ll hear most
             </span>
           </span>
-          <span className="text-xs" style={{ color: "var(--ink-3)" }}>the top hundred of each kind</span>
+          <span className="text-xs" style={{ color: "var(--ink-3)" }}>the top 100 verbs, nouns and more</span>
         </Link>
       )}
 
@@ -403,8 +403,8 @@ export function DictionaryClient({
                 : `${initialQuery} is a real Estonian word`)
               : `Nothing found for "${initialQuery}"`}
             body={known
-              ? "It's a real word. We just don't have it yet. Add it with its omastav and it's yours."
-              : "Check the spelling first. If it's right, add it yourself with its omastav, or tell us below."}
+              ? "We just don't have an entry for it yet. Add it below with its omastav and it's yours."
+              : "Check the spelling. If it's right, add the word yourself below, or tell us it's missing."}
           />
 
           {/*
@@ -498,7 +498,7 @@ export function DictionaryClient({
               className="rounded-[var(--r)] px-4 py-3 text-sm font-medium"
               style={{ background: "var(--good-soft)", color: "var(--good-ink)" }}
             >
-              Found it, and saved it here, so it&apos;ll work offline from now on.
+              Found it, and saved it here, so it works offline from now on too.
             </p>
           )}
           {matchedAs && (
@@ -662,7 +662,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             <Chip>{entry.pos.toLowerCase()}</Chip>
             {entry.cefr && <Chip tone="accent">{entry.cefr}</Chip>}
             {entry.gradationNote && (
-              <Chip tone="hard" caseSensitive title="Consonant gradation. This is why the stem changes.">
+              <Chip tone="hard" caseSensitive title="Consonant gradation, the reason the middle of this word changes in some forms.">
                 gradation {entry.gradationNote}
               </Chip>
             )}
@@ -747,7 +747,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.government && (
         <div>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Government, rektsioon
+            Rektsioon, the case it asks for
           </h3>
           {/*
             EKILEX'S OWN QUESTION WORDS, WITH THE BRACKET SAYING WHAT THEY ASK.
@@ -777,7 +777,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.forms.length > 0 && (
         <div>
           <h3 className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
-            Principal parts, the forms to learn by heart
+            The forms to learn by heart
           </h3>
           <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(124px, 1fr))" }}>
             {parts.map(([type, label]) => {
@@ -921,7 +921,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               {!form("GEN_PL")
                 ? "Most plural forms are built on the omastav plural, and we don't have it for this word."
                 : "We don't have the nimetav plural for this word, and it isn't an ending we can work out."}
-              {" "}So we leave a gap. A guessed form would be worse.
+              {" "}So we&apos;ve left a gap rather than guess one.
             </p>
           )}
           {/* Only on a pronoun, and only where the entry has not been enriched.
@@ -1136,7 +1136,7 @@ function AddToDeck({ entry }: { entry: EntryView }) {
       className="absolute right-0 top-full z-40 mt-2 w-full max-w-[20rem] rounded-[var(--r-lg)] p-5"
       style={{ background: "var(--raised)", boxShadow: "var(--shadow-lg)" }}
     >
-      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which cards should we make?</p>
+      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>How should we quiz you on it?</p>
       <div className="flex flex-col gap-2">
         {CARD_TYPES.filter((t) => available.includes(t.type)).map((t) => (
           <label key={t.type} className="flex cursor-pointer items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>

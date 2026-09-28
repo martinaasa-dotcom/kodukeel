@@ -28,7 +28,7 @@ export const PLACES_TO_TALK: readonly PlaceToTalk[] = [
   },
   {
     name: "Keeleklikk",
-    what: "A free online Estonian course from beginner upward, with a teacher who answers your emails. It pairs nicely with this app.",
+    what: "A free online Estonian course that takes you up from beginner, with a real teacher who answers your emails. It goes nicely alongside this app.",
     href: "https://www.keeleklikk.ee/",
   },
 ];

@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     if (typeof parsed !== "object" || parsed === null) throw new TypeError("not an object");
     payload = parsed as { image?: unknown };
   } catch {
-    return Response.json({ error: "We couldn't make sense of that request. Try again from the page." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
 
   const decoded = decodeImageDataUrl(payload.image);
@@ -113,9 +113,8 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "Reading photos has used today's shared budget for the part of this that " +
-          "asks a model. Typing a word list in by hand still works, and it resets " +
-          "at midnight UTC.",
+          "Reading photos has used up today's shared allowance. You can still type a " +
+          "word list in by hand, and photos work again after midnight UTC.",
         reason: "KIND_SPEND",
       },
       { headers: NO_STORE, status: 429 },
@@ -171,7 +170,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "The page was read, but the dictionary could not be asked about the words " +
+          "We read the page, but couldn't check its words against the dictionary " +
           "just now. Try the photo again in a moment.",
       },
       { status: 503, headers: NO_STORE },

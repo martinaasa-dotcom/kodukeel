@@ -48,7 +48,7 @@ export default async function SituationsPage() {
   return (
     <Page route="/situations"
       title="Situations"
-      lead="Someone wants something from you, and you'll have to sort it out in Estonian."
+      lead="Practise real conversations: someone wants something from you, and you sort it out in Estonian."
     >
       <Stack>
         {scenes.length === 0 ? (
@@ -107,7 +107,7 @@ export default async function SituationsPage() {
         <section aria-labelledby="places-heading">
           <h2 id="places-heading" className="text-lg font-medium">Where the people are</h2>
           <p className="mb-3 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            Practise here, then go and have the real thing. These are all free.
+            Practise here, then go and have the real conversation. All of these are free.
           </p>
           <div className="@container">
             <ul className="grid gap-3 @lg:grid-cols-2 @2xl:grid-cols-3">

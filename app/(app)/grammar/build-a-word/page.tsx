@@ -9,10 +9,10 @@ import { BuildWalk } from "./BuildWalk";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Build a word, three forms, eleven endings",
+  title: "Build a word from three forms and eleven endings",
   description:
-    "The Estonian case system on one screen: the three forms that are memorized, the one the endings "
-    + "go on, and each of the eleven endings in a sentence somebody wrote.",
+    "See how Estonian cases work on one word: the three forms you learn by heart, the one the endings "
+    + "go on, and each of the eleven endings in a real sentence.",
 };
 
 /**
@@ -46,7 +46,7 @@ export default async function BuildPage() {
     <Page route="/grammar/build-a-word"
       eyebrow="Start here"
       title="Build a word"
-      lead="Learn three forms by heart. The other eleven are one of those plus an ending."
+      lead="Learn three forms by heart. Every other case is one of them plus an ending."
       actions={
         <Link
           href="/grammar"

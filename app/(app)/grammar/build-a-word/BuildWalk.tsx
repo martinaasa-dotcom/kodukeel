@@ -187,7 +187,7 @@ export function BuildWalk({ walk, canTranslate }: {
 const ACTS = [
   { title: "Three to learn", hint: "The forms you learn, and why only three" },
   { title: "Stack an ending", hint: "The other eleven, one at a time" },
-  { title: "Your turn", hint: "Pick the ending. It's just practice" },
+  { title: "Your turn", hint: "Pick the ending, just for practice" },
 ] as const;
 
 /**
@@ -357,8 +357,8 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
       )}
 
       <Note tone="neutral">
-        There&apos;s no rule that gives you these three. The dictionary keeps them for each word, and we
-        never make one up.
+        No rule gives you these three, so each word&apos;s three come straight from the dictionary.
+        We never make one up.
       </Note>
 
       <div className="flex flex-wrap items-center justify-end gap-3">
@@ -413,7 +413,7 @@ function Reading({ of }: { of: WalkForm }) {
   if (of.unsaid) {
     return (
       <p className="mt-3 text-base" data-unsaid={of.unsaid} style={{ color: "var(--ink-2)" }}>
-        <span className="font-bold" style={{ color: "var(--ink)" }}>Nobody says this one.</span>{" "}
+        <span className="font-bold" style={{ color: "var(--ink)" }}>Estonians don&apos;t say this one.</span>{" "}
         {/*
           "a person" only where the word is one. The row fires for a `-maa`
           word too, which is a country rather than somebody, and the first
@@ -421,7 +421,7 @@ function Reading({ of }: { of: WalkForm }) {
           one commit earlier, committed inside the fix for it. What is left
           names no class, so it stays true whatever the reason turns out to be.
         */}
-        Estonian puts {of.unsaid === "person" ? "a person" : "this word"} on the endings under{" "}
+        For {of.unsaid === "person" ? "a person" : "this word"}, they use the endings under{" "}
         “On top” instead.
       </p>
     );
@@ -870,8 +870,8 @@ function YourTurn({ word }: { word: WalkWord }) {
     return (
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          This word&rsquo;s endings are stored in the dictionary rather than built from a rule. Pick
-          another word above and the questions come back.
+          This word doesn&rsquo;t follow the rule, so there&apos;s nothing to build here. Pick another
+          word above to try the endings.
         </p>
       </Card>
     );
@@ -955,8 +955,8 @@ function YourTurn({ word }: { word: WalkWord }) {
             </>
           ) : (
             <>
-              Not that one. It is <span lang="et">{form.value}</span>, the stem with{" "}
-              <span lang="et">-{form.suffix}</span> on it, which means <Means form={form} ref_={ref} />.
+              Not that one. It&apos;s <span lang="et">{form.value}</span>, the stem with{" "}
+              <span lang="et">-{form.suffix}</span> on the end, which means <Means form={form} ref_={ref} />.
             </>
           )}
         </p>
@@ -983,15 +983,15 @@ function YourTurn({ word }: { word: WalkWord }) {
           */}
           <Card>
             <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-              {right} of {asks.length} endings
+              {right} of {asks.length} endings right
             </p>
             <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              None of this counts towards anything. It&apos;s here to show you how it works, not to
-              test you. The round below is the one that counts.
+              This was just to show you how it works, so none of it counts. The round below is the
+              one that does.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
               <Button onClick={() => { setAt(0); setPicked(null); setRight(0); }}>
-                <RotateCcw size={15} aria-hidden /> Again
+                <RotateCcw size={15} aria-hidden /> Try again
               </Button>
             </div>
           </Card>

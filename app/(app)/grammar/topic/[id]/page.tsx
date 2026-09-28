@@ -243,7 +243,7 @@ export default async function TopicPage({
 
         {shown && verbs.length > 0 && (
           <section>
-            <SectionTitle hint={only ? "every person, as the dictionary holds it" : verbs.some((v) => v.inDeck) ? "verbs from your deck first" : "from the dictionary"}>
+            <SectionTitle hint={only ? "all six, straight from the dictionary" : verbs.some((v) => v.inDeck) ? "verbs from your deck first" : "from the dictionary"}>
               {only ? "The six persons" : "On real verbs"}
             </SectionTitle>
             <VerbTable verbs={verbs} show={shown} />

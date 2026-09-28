@@ -20,10 +20,10 @@ const PERSONS: readonly { code: string; label: string }[] = [
 
 const ORIGIN: Record<VerbExampleForm["origin"], { label: string; title: string }> = {
   EKILEX: { label: "recorded", title: "The form exactly as the dictionary records it" },
-  STORED: { label: "memorized", title: "The first person, one of the principal parts you learn by heart" },
+  STORED: { label: "memorized", title: "The “I” form, one of the few forms you learn by heart" },
   DERIVED: {
     label: "derived",
-    title: "The regular ending on the first person, checked against every verb we have",
+    title: "The “I” form with a regular ending, a rule we've checked against every verb we have",
   },
 };
 

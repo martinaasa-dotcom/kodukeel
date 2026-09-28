@@ -49,8 +49,8 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
           {isPhrase(pos)
             ? "A phrase is already a sentence, so there's no example to show here. "
-            : "No example sentences for this one yet. Most common words get one the first time "
-              + "somebody looks them up. "}
+            : "No example sentences for this word yet. Common words usually pick some up the "
+              + "first time anybody looks them up. "}
           You can{" "}
           <button
             type="button"
@@ -58,7 +58,7 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
             className="underline"
             style={{ color: "var(--accent-deep)" }}
           >
-            add one from class
+            add one you met in class
           </button>.
         </p>
       </div>

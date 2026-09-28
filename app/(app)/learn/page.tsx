@@ -88,7 +88,7 @@ export default async function LearnPage() {
   return (
     <Page route="/learn"
       title="Learn"
-      lead="New words a handful at a time, and the course they come from."
+      lead="Pick up new words a few at a time, and see the whole course they come from."
     >
       {/*
         WHAT THIS PAGE LEADS WITH IS THE NEXT FIVE WORDS, NOT THE MAP.
@@ -332,15 +332,15 @@ export default async function LearnPage() {
 
       <div className="mt-2 flex flex-col gap-1">
         <Explain label="What counts as known">
-          A word counts as known once you&apos;ve got every one of its cards past the learning
-          stage. Getting it right once isn&apos;t enough.
+          A word counts as known once you&apos;ve got it right on every one of its cards, often
+          enough that it&apos;s past the learning stage. One right answer isn&apos;t enough.
         </Explain>
-        <Explain label="How a unit relates to the dictionary">
-          Units are just shortcuts into the dictionary, not a separate course. You can find every word
-          in them by searching too, and anything missing you can{" "}
+        <Explain label="Units and the dictionary">
+          A unit is just a handy bundle of dictionary words. You can find every one of them by
+          searching too, and anything missing you can{" "}
           <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>add yourself</Link>.
-          Nothing is ever really locked. A unit above your level tells you what it builds on, and you can
-          still open it.
+          Nothing&apos;s ever really locked: a unit above your level tells you what it builds on,
+          and you can still open it.
         </Explain>
         <Link
           href="/assess"
