@@ -18,7 +18,7 @@ const B = baseUrl();
 // Floor: 79, measured in the state CI seeds, which is the 58 this suite had
 // before `/grammar/build-a-word` and the twenty-three checks that screen added.
 // A thinner database reads as short.
-const { check, absent, done } = suite("Teaching layer", { floor: 86 });
+const { check, absent, done } = suite("Teaching layer", { floor: 88 });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
@@ -733,30 +733,41 @@ check("a revealed case card offers the rule behind it", revealed);
   link, passes this check for the wrong reason, and then reads a bare `/tutor`
   where the next check wants the question the card handed over.
 */
-const anuOnCard = page.locator("main").getByRole("link", { name: /Ask Anu/ });
+const anuOnCard = page.locator("main").getByRole("button", { name: /Ask Anu/ });
 check("and offers Anu as well", (await anuOnCard.count()) > 0);
 
-const anuHref = await anuOnCard.first().getAttribute("href");
-await page.goto(B + anuHref, { waitUntil: "networkidle" });
-await page.waitForTimeout(400);
-const asked = decodeURIComponent(new URL(B + anuHref).searchParams.get("q") ?? "");
-const box = page.getByLabel("Ask Anu a question");
+/*
+  Pressed, she opens in her corner over the card rather than taking the learner
+  off the round to /tutor, which is the fault that was reported: a page of its
+  own with no way back to the card that was asked about.
+*/
+const before = page.url();
+await anuOnCard.first().click();
+const dialog = page.getByRole("dialog", { name: "Ask Anu" });
+await dialog.waitFor({ state: "visible", timeout: 8000 }).catch(() => {});
+check("Anu opens over the card rather than on a page of her own",
+  (await dialog.isVisible()) && page.url() === before, page.url());
+const box = dialog.getByLabel("Ask Anu a question");
 if (await box.count()) {
   const prefilled = await box.inputValue();
   check("Anu opens with the question already written", prefilled.length > 20, prefilled.slice(0, 60));
   // Written, not sent: spending a model call the learner did not ask for would
   // be rude, and they may want to reword it first.
   check("but not sent on their behalf",
-    (await page.locator("text=/keep getting this form wrong/").count()) <= 1);
+    (await dialog.locator("text=/keep getting this form wrong/").count()) === 0);
 } else {
   // No model key on this deployment, so there is no box. The question is the
   // one thing the learner arrived with, and an empty state that drops it makes
   // the key the price of even seeing what they were about to ask.
-  const shown = await page.locator("main").innerText();
+  const shown = await dialog.locator("[data-handed-over]").innerText().catch(() => "");
   check("with no key, Anu still shows the question that was handed over",
-    asked.length > 20 && shown.includes(asked.slice(0, 40)), asked.slice(0, 60));
+    /keep getting this form wrong|Explain/.test(shown), shown.slice(0, 60));
   absent(1, "a model key, so there is no box to prefill");
 }
+await page.keyboard.press("Escape");
+await page.waitForTimeout(300);
+check("and closing her leaves the card where it was",
+  !(await dialog.isVisible()) && page.url() === before);
 }
 
 // ─── Sticking points ──────────────────────────────────────────────────────────

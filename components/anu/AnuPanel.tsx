@@ -206,15 +206,29 @@ export function AnuPanel({
       */}
       <div className="scroll-host flex flex-1 flex-col overflow-y-auto px-5 py-5">
         {!configured ? (
-          <Empty
-            title={readerCanConfigure ? "Anu needs a key" : "Anu is not available"}
-            body={readerCanConfigure
-              ? "Everything else works without one. Settings has a walkthrough for a free key."
-              : "Everything else here works without her."}
-            action={readerCanConfigure && (
-              <ButtonLink href="/settings">Open Settings</ButtonLink>
+          <div className="flex flex-col gap-4">
+            <Empty
+              title={readerCanConfigure ? "Anu needs a key" : "Anu is not available"}
+              body={readerCanConfigure
+                ? "Everything else works without one. Settings has a walkthrough for a free key."
+                : "Everything else here works without her."}
+              action={readerCanConfigure && (
+                <ButtonLink href="/settings">Open Settings</ButtonLink>
+              )}
+            />
+            {/* The question a card handed over is the one thing the learner
+                came with, so it stays on screen to be read and copied, which is
+                what the full page does in the same state. */}
+            {prefill && (
+              <p
+                data-handed-over=""
+                className="rounded-[var(--r-lg)] px-4 py-3 text-sm leading-relaxed"
+                style={{ background: "var(--raised)", color: "var(--ink-2)" }}
+              >
+                Your question: <span style={{ color: "var(--ink)" }}>{prefill.text}</span>
+              </p>
             )}
-          />
+          </div>
         ) : !asked ? (
           /*
             Seven ways in, in one row of pills, and nothing else.
