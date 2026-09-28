@@ -144,7 +144,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
                   className="absolute inset-y-0 left-0"
                   style={{
                     width: `${checked}%`,
-                    background: "linear-gradient(90deg, var(--mint) 0%, var(--accent) 100%)",
+                    background: "linear-gradient(90deg, var(--sky) 0%, var(--accent) 100%)",
                   }}
                 />
               </span>
@@ -198,7 +198,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
             <span
               aria-hidden
               className="h-2.5 w-4 shrink-0 rounded-full"
-              style={{ background: "linear-gradient(90deg, var(--mint) 0%, var(--accent) 100%)" }}
+              style={{ background: "linear-gradient(90deg, var(--sky) 0%, var(--accent) 100%)" }}
             />
             <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{verified}</span> confirmed by your reviews</span>
           </span>

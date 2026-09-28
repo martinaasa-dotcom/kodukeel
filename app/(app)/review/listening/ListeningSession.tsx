@@ -192,7 +192,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={correct} label="Correct" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "mint" : "butter"} />
+          <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
           <StatTile value={attempted} label="Attempted" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">

@@ -170,7 +170,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
                     className={`block rounded-full ${one.met ? "scene-pip-met h-2.5 w-2.5" : one.now ? "h-2.5 w-2.5" : "h-1.5 w-1.5"}`}
                     style={{
                       background: one.met
-                        ? "var(--mint)"
+                        ? "var(--sky)"
                         : one.now
                           ? "var(--accent)"
                           : "var(--rule)",

@@ -253,7 +253,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
             */}
             <p
               className="tnum text-2xl font-bold leading-none"
-              style={{ color: warning === "gone" || warning === "last" ? "var(--peach-ink)" : "var(--ink)" }}
+              style={{ color: warning === "gone" || warning === "last" ? "var(--blush-ink)" : "var(--ink)" }}
               role="timer"
             >
               <Clock size={16} className="mr-1.5 inline" aria-hidden />
@@ -453,7 +453,7 @@ function Break({ until, now, nextLabel, onResume }: {
 
       <p
         className="tnum mt-8 text-5xl font-bold"
-        style={{ color: over ? "var(--mint-ink)" : "var(--ink)" }}
+        style={{ color: over ? "var(--sky-ink)" : "var(--ink)" }}
         role="timer"
       >
         {formatRemaining(left)}
@@ -648,7 +648,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
                     </span>
                   )}
                   {task.shortfall > 0 && (
-                    <span style={{ color: "var(--peach-ink)" }}>
+                    <span style={{ color: "var(--blush-ink)" }}>
                       {", "}{task.shortfallReason}
                     </span>
                   )}
@@ -1167,7 +1167,7 @@ function Audible({ item, number, response, canPlay, onAnswer, slow, children }: 
           {canPlay && (
             <span
               className="tnum"
-              style={{ color: spent ? "var(--peach-ink)" : "var(--ink-3)" }}
+              style={{ color: spent ? "var(--blush-ink)" : "var(--ink-3)" }}
             >
               {spent
                 ? "Both plays used, same as the real exam. Answer with what you heard."
@@ -1311,7 +1311,7 @@ function RequiredWords({ words, text }: { words: MustUseWord[]; text: string }) 
     <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
       <span>
         Use every one of these{" "}
-        <span className="tnum" style={{ color: used === words.length ? "var(--mint-ink)" : "var(--ink-3)" }}>
+        <span className="tnum" style={{ color: used === words.length ? "var(--sky-ink)" : "var(--ink-3)" }}>
           {used} of {words.length} used
         </span>
       </span>
@@ -1340,11 +1340,11 @@ function LengthMeter({ text, minWords }: { text: string; minWords: number }) {
         <Meter
           pct={minWords === 0 ? 100 : Math.min(100, (words / minWords) * 100)}
           label={`${words} of ${minWords} words written`}
-          tone={there ? "var(--mint)" : "var(--accent)"}
+          tone={there ? "var(--sky)" : "var(--accent)"}
           height={4}
         />
       </div>
-      <p className="mt-2 text-xs" style={{ color: there ? "var(--mint-ink)" : "var(--ink-3)" }}>
+      <p className="mt-2 text-xs" style={{ color: there ? "var(--sky-ink)" : "var(--ink-3)" }}>
         {words} of {minWords} words{there ? ". That's enough" : ""}. Length is most of your mark
         here, and the required words above make up the rest. Write half the length and you still
         get about half those marks, not none. No model judges your Estonian.

@@ -195,7 +195,7 @@ export default async function SignInPage({ searchParams }: {
               <li key={p} className="flex items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
                 <span
                   className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
-                  style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}
+                  style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
                 >
                   <Check size={12} strokeWidth={3} aria-hidden />
                 </span>

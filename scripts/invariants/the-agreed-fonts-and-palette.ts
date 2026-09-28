@@ -6,8 +6,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * TWO FACES, ONE NIGHT, AND THE EVENING WEARS THE MIX.
  *
  * The finished-evening card went from night to mint in a pass that was about
- * something else, and mint is a verdict (recalled, known) rather than one of
- * the Vikerkaar öös colours, so the one moment the app celebrates read as a
+ * something else, and mint was never one of the Vikerkaar öös colours, so the one moment the app celebrates read as a
  * green slab beside a palette with no green in it. Nothing failed, because no
  * check said which colours and which faces were agreed. These do.
  *
@@ -34,18 +33,6 @@ const FACE_EXEMPT: Record<string, string> = {
   "app/api/email/unsubscribe/route.ts": "a bare HTML page answered to a mail client's one-click unsubscribe",
   "lib/email/art.ts": "mail is drawn by the reader's mail client, which has none of our faces",
   "lib/email/render.ts": "mail is drawn by the reader's mail client, which has none of our faces",
-};
-
-/**
- * Mint is "recalled, known", so a mint panel is a panel saying something was
- * right. These are the ones that do, each with what it is a verdict on. Every
- * other panel, landing card and section sticker takes a colour of the mix.
- */
-const MINT_PANELS: Record<string, string> = {
-  "app/(app)/exam/result/[id]/page.tsx": "each card is a part of the paper that scored well",
-  "app/(app)/admin/suggestions/QueueRows.tsx": "a report that has been settled",
-  "app/(app)/scan/ScanCapture.tsx": "the page's words were saved",
-  "components/course/TryIt.tsx": "all three taps were answered right",
 };
 
 const EVENING_FILES = ["app/(app)/course/page.tsx", "app/(app)/page.tsx"];
@@ -105,7 +92,7 @@ export default function theAgreedFontsAndPalette({ check, code, read, ALL }: Inv
       const src = code(file);
       assert.ok(/finishedToday/.test(src), `${file} no longer draws the finished evening; update EVENING_FILES`);
       assert.ok(/<Card\s+tone="accent"\s+className="evening\b/.test(src), `${file} draws the finished evening without .evening on the accent tint`);
-      assert.ok(!/<Card[^>]*tone="(?:mint|peach|butter)"/.test(src), `${file} paints a card in a verdict tint`);
+      assert.ok(!/<Card[^>]*tone="(?:sky|blush|butter)"/.test(src), `${file} paints a card in a verdict tint`);
     }
     const css = read("app/globals.css").replace(/\/\*[\s\S]*?\*\//g, "");
     const strip = /\.evening::before\s*\{([^}]*)\}/.exec(css);
@@ -116,24 +103,31 @@ export default function theAgreedFontsAndPalette({ check, code, read, ALL }: Inv
     for (const token of used) assert.ok(MIX_TOKENS.has(token), `the strip uses ${token}, which is not a colour of Vikerkaar öös`);
   });
 
-  check("mint paints a verdict, never a panel a screen leads with", () => {
+  check("mint and peach are gone, and right and wrong wear sky and blush", () => {
+    /*
+      Right was mint and wrong was peach, a green and a red that belong to no
+      brand mix, and the answer a learner sees most often was the one screen
+      that looked like a different app. The operator asked for the verdicts to
+      wear the palette, so "recalled" is sky and "missed" is blush, and the two
+      old hues are not defined at all: a token that exists is a token somebody
+      reaches for. Easy moved to the accent, since it was sky and would
+      otherwise be the same colour as Good.
+    */
+    const css = read("app/globals.css").replace(/\/\*[\s\S]*?\*\//g, "");
+    assert.ok(!/--(?:color-)?(?:mint|peach)(?:-soft|-ink)?\s*:/.test(css), "the stylesheet defines a mint or peach token again");
+    assert.ok(!/--on-mint\b/.test(css), "the stylesheet defines --on-mint again; the tick on a reviewed day is --on-sky");
+    for (const [alias, hue] of [["good", "sky"], ["again", "blush"], ["good-soft", "sky-soft"], ["again-soft", "blush-soft"], ["easy", "accent"]] as const) {
+      const set = [...css.matchAll(new RegExp(`--${alias}:\\s*([^;]+);`, "g"))].map((m) => m[1]!.trim());
+      assert.ok(set.length > 0, `--${alias} is no longer defined`);
+      for (const value of set) assert.equal(value, `var(--${hue})`, `--${alias} is ${value}; it reads var(--${hue})`);
+    }
     const offenders: string[] = [];
     for (const file of ALL) {
-      if (!/\.(tsx|ts)$/.test(file)) continue;
+      if (!/\.(tsx|ts|css)$/.test(file) || file.startsWith("scripts/")) continue;
       const src = code(file);
-      const panels = src.match(/<Card\b[^>]*\btone="mint"/g) ?? [];
-      if (panels.length > 0 && !MINT_PANELS[file]) offenders.push(`${file}: a mint Card`);
-      if (/data-tone="mint"/.test(src)) offenders.push(`${file}: a mint section sticker`);
-      if (/<Feature\b[^>]*\btone="mint"/.test(src)) offenders.push(`${file}: a mint landing card`);
+      if (/var\(--(?:mint|peach|on-mint)(?:-soft|-ink)?\)/.test(src)) offenders.push(`${file}: reads a mint or peach token`);
+      if (/(?:tone|hue)=\{?"(?:mint|peach)"|tone:\s*"(?:mint|peach)"|data-tone="(?:mint|peach)"/.test(src)) offenders.push(`${file}: a mint or peach tone`);
     }
-    assert.deepEqual(offenders, [], "mint is a verdict (docs/14-design-system.md); take a colour of Vikerkaar öös, or add the file to MINT_PANELS with what the panel is a verdict on");
-    const welcome = code("app/(chromeless)/welcome/page.tsx");
-    const who = /const WHO = \[([\s\S]*?)\] as const/.exec(welcome)?.[1] ?? "";
-    assert.ok(who.length > 0, "the landing page's WHO table moved; update this check");
-    assert.ok(!/tone:\s*"(?:mint|peach)"/.test(who), "a landing card in the WHO table is painted in a verdict hue");
-    assert.ok(!/section-tag\[data-tone="mint"\]/.test(read("app/globals.css")), "the stylesheet paints a mint section sticker again");
-    for (const [file, why] of Object.entries(MINT_PANELS)) {
-      assert.ok(/<Card\b[^>]*\btone="mint"/.test(code(file)), `${file} is allowed a mint panel (${why}) and no longer draws one; take the line out`);
-    }
+    assert.deepEqual(offenders, [], "mint and peach left the palette (docs/14-design-system.md); right is sky, wrong is blush, and anything else takes a colour of Vikerkaar öös");
   });
 }

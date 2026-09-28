@@ -137,8 +137,8 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
           </div>
         </Lettered>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatTile value={firstTry} label="First time" tone="mint" />
-          <StatTile value={`${accuracy}%`} label="Spelled" tone={accuracy >= 85 ? "mint" : "butter"} />
+          <StatTile value={firstTry} label="First time" tone="sky" />
+          <StatTile value={`${accuracy}%`} label="Spelled" tone={accuracy >= 85 ? "sky" : "butter"} />
           <StatTile value={attempted} label="Words" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">

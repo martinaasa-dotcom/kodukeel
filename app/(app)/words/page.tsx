@@ -90,7 +90,7 @@ export default async function WordsPage() {
               segments={[
                 { label: "New", value: byState[0] ?? 0, fill: "var(--sky)" },
                 { label: "Learning", value: (byState[1] ?? 0) + (byState[3] ?? 0), fill: "var(--cta)" },
-                { label: "Known", value: byState[2] ?? 0, fill: "var(--mint)" },
+                { label: "Known", value: byState[2] ?? 0, fill: "var(--sky)" },
               ]}
             />
             {/* Word by word is the header's other button; which cases keep

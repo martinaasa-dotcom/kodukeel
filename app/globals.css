@@ -6,11 +6,13 @@
   (rukkilill, Estonia's national flower) rather than the flag rendered literally.
 
   Five hues carry meaning and never drift: cornflower is the app's voice and the
-  primary action, mint means "you got it", butter means "nearly", peach means
-  "again", sky means "easy". Everything else is a warm near-white so the colour
-  that does appear is the colour that means something.
+  primary action, sky means "you got it", butter means "nearly", blush means
+  "again". Mint and peach were the green and red of that scale and left the
+  palette so that a verdict wears the brand mix like everything else.
+  Everything else is a warm near-white so the colour that does appear is the
+  colour that means something.
 
-  Tokens are duplicated into @theme (so Tailwind utilities like `bg-mint` work)
+  Tokens are duplicated into @theme (so Tailwind utilities like `bg-sky` work)
   and into :root (so the inline `style` props the views use can read them). The
   :root copy is the one that flips in dark mode.
 */
@@ -93,12 +95,6 @@
   --color-accent-ink: #ffffff;
   --color-accent-soft: #ece5ff;
 
-  --color-mint: #00c2a8;
-  --color-mint-soft: #d6f7f1;
-  --color-mint-ink: #03695c;
-  --color-peach: #ef3e36;
-  --color-peach-soft: #ffe2df;
-  --color-peach-ink: #a81e18;
   --color-butter: #ffc400;
   --color-butter-soft: #fff3c2;
   --color-butter-ink: #735000;
@@ -109,15 +105,15 @@
   --color-blush-soft: #ffe2ee;
   --color-blush-ink: #ad1257;
 
-  --color-again: #ef3e36;
+  --color-again: #ff3d8b;
   --color-hard: #ffc400;
-  --color-good: #00c2a8;
-  --color-easy: #17bfd9;
+  --color-good: #17bfd9;
+  --color-easy: #5b2eff;
 
-  --color-again-soft: #ffe2df;
+  --color-again-soft: #ffe2ee;
   --color-hard-soft: #fff3c2;
-  --color-good-soft: #d6f7f1;
-  --color-easy-soft: #d8f5fa;
+  --color-good-soft: #d8f5fa;
+  --color-easy-soft: #ece5ff;
 }
 
 @layer base {
@@ -171,10 +167,6 @@
     --accent-soft: #ece5ff;
     --accent-deep: #4719e0;
 
-    --mint: #00c2a8;
-    --mint-soft: #d6f7f1;
-    --peach: #ef3e36;
-    --peach-soft: #ffe2df;
     --butter: #ffc400;
     --butter-soft: #fff3c2;
     --sky: #17bfd9;
@@ -191,42 +183,41 @@
       has an ink: the same colour walked down until it clears 4.5:1 on its own
       tint, so a chip, a stat tile and a grade button can all be read.
     */
-    --mint-ink: #03695c;
-    --peach-ink: #a81e18;
     --butter-ink: #735000;
     --sky-ink: #0a6273;
     --blush-ink: #ad1257;
-    --good-ink: var(--mint-ink);
+    --good-ink: var(--sky-ink);
     --hard-ink: var(--butter-ink);
-    --again-ink: var(--peach-ink);
-    --easy-ink: var(--sky-ink);
+    --again-ink: var(--blush-ink);
+    --easy-ink: var(--accent-deep);
 
     /*
-      Ink for text sitting on a *solid* mint fill, as opposed to on its tint.
+      Ink for text sitting on a *solid* sky fill, as opposed to on its tint.
 
       The accent already had this pair and the doc calls it the trap:
       `--accent-ink` is the white on the solid button and `--accent-deep` is the
-      ink on the tint. Mint needed the other half and did not have it, so the
-      tick inside a reviewed day on Today's week strip was `--surface`, which is
-      white on #1fb894 at 2.52:1. The mint fill and its ring say "recalled" in
-      colour; the tick is the channel that says it without colour, which is the
-      one thing CLAUDE.md will not let a distinction do without.
+      ink on the tint. "Recalled" needed the other half: the tick inside a
+      reviewed day on Today's week strip sits on the solid fill, and white on it
+      fails. The fill and its ring say "recalled" in colour; the tick is the
+      channel that says it without colour, which is the one thing CLAUDE.md will
+      not let a distinction do without.
 
-      One value in both themes rather than a light and a dark, because both
-      mints are light enough for it: 7.40:1 on #1fb894 and 11.70:1 on the dark
-      theme's #5fe3bc. It is the light theme's `--ink`, written out, because
-      `var(--ink)` inverts with the theme and would take the tick with it.
+      It was `--on-mint` until mint left the palette and "recalled" moved to sky.
+      One value in both themes, because both skies are light enough for it:
+      about 7.8:1 on #17bfd9 and 13:1 on the dark theme's #4fe3f5. It is the
+      light theme's `--ink`, written out, because `var(--ink)` inverts with the
+      theme and would take the tick with it.
     */
-    --on-mint: #0f1233;
+    --on-sky: #0f1233;
 
-    --again: var(--peach);
+    --again: var(--blush);
     --hard: var(--butter);
-    --good: var(--mint);
-    --easy: var(--sky);
-    --again-soft: var(--peach-soft);
+    --good: var(--sky);
+    --easy: var(--accent);
+    --again-soft: var(--blush-soft);
     --hard-soft: var(--butter-soft);
-    --good-soft: var(--mint-soft);
-    --easy-soft: var(--sky-soft);
+    --good-soft: var(--sky-soft);
+    --easy-soft: var(--accent-soft);
 
     /* Pastel washes for the decorative blobs behind the page. */
     --wash-1: #fff0c9;
@@ -275,7 +266,7 @@
     --stage: #0b0e2e;
     --stage-ink: #fbfaff;
     --stage-ink-2: #d2d5f2;
-    --stage-tick: var(--mint);
+    --stage-tick: var(--sky);
     --stage-glow: var(--blush);
 
     /*
@@ -336,10 +327,6 @@
     --accent-soft: #26215c;
     --accent-deep: #beb3ff;
 
-    --mint: #3fe6ce;
-    --mint-soft: #0b3530;
-    --peach: #ff7a70;
-    --peach-soft: #3d1717;
     --butter: #ffc400;
     --butter-soft: #3a2f0e;
     --sky: #4fe3f5;
@@ -347,15 +334,13 @@
     --blush: #ff6ba8;
     --blush-soft: #3d1328;
 
-    --mint-ink: var(--mint);
-    --peach-ink: var(--peach);
     --butter-ink: var(--butter);
     --sky-ink: var(--sky);
     --blush-ink: var(--blush);
-    --good-ink: var(--mint);
+    --good-ink: var(--sky);
     --hard-ink: var(--butter);
-    --again-ink: var(--peach);
-    --easy-ink: var(--sky);
+    --again-ink: var(--blush);
+    --easy-ink: var(--accent-deep);
 
     --wash-1: #121437;
     --wash-2: #0f1230;
@@ -386,14 +371,14 @@
   .night {
     /* Aliases resolve where they are declared, so the grade names are
        declared again here or they keep the light theme's values. */
-    --again: var(--peach);
+    --again: var(--blush);
     --hard: var(--butter);
-    --good: var(--mint);
-    --easy: var(--sky);
-    --again-soft: var(--peach-soft);
+    --good: var(--sky);
+    --easy: var(--accent);
+    --again-soft: var(--blush-soft);
     --hard-soft: var(--butter-soft);
-    --good-soft: var(--mint-soft);
-    --easy-soft: var(--sky-soft);
+    --good-soft: var(--sky-soft);
+    --easy-soft: var(--accent-soft);
     color-scheme: dark;
 
     --ground: #080a1f;
@@ -411,10 +396,6 @@
     --accent-soft: #26215c;
     --accent-deep: #beb3ff;
 
-    --mint: #3fe6ce;
-    --mint-soft: #0b3530;
-    --peach: #ff7a70;
-    --peach-soft: #3d1717;
     --butter: #ffc400;
     --butter-soft: #3a2f0e;
     --sky: #4fe3f5;
@@ -422,15 +403,13 @@
     --blush: #ff6ba8;
     --blush-soft: #3d1328;
 
-    --mint-ink: var(--mint);
-    --peach-ink: var(--peach);
     --butter-ink: var(--butter);
     --sky-ink: var(--sky);
     --blush-ink: var(--blush);
-    --good-ink: var(--mint);
+    --good-ink: var(--sky);
     --hard-ink: var(--butter);
-    --again-ink: var(--peach);
-    --easy-ink: var(--sky);
+    --again-ink: var(--blush);
+    --easy-ink: var(--accent-deep);
 
     --wash-1: #121437;
     --wash-2: #0f1230;
@@ -2082,8 +2061,8 @@
     theme) laid over whatever was behind it, and that is safe on exactly two
     grounds: the primary button's gradient, where the ink is white and a
     darker ground helps it, and a plain surface. On a tint it eats the margin
-    the hue's ink was measured with, because `--mint-ink` and its neighbors
-    are drawn to clear 4.5:1 on mint's tint and nothing else. Measured over
+    the hue's ink was measured with, because `--sky-ink` and its neighbors
+    are drawn to clear 4.5:1 on sky's tint and nothing else. Measured over
     the tokens: a grade key on a verdict tile fell to 3.53 in the light and
     3.04 in the dark, an option numeral on `option-other` to 2.18, and the
     hint in the minimal-pairs caption to 2.37, which is the one axe caught.
@@ -3230,10 +3209,6 @@
     --accent: #7a6bf0;
     --accent-soft: #ece9ff;
     --accent-deep: #5b4bd6;
-    --mint: #1fb894;
-    --mint-soft: #dcf7ee;
-    --peach: #ef6f52;
-    --peach-soft: #ffe6df;
     --butter: #ffc400;
     --butter-soft: #fff0d4;
     --sky: #2b93d8;

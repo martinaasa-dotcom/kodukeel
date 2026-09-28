@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Card, Meter, SectionTitle, StatTile } from "@/components/ui";
+import { Card, Meter, SectionTitle, StatTile, toneInk } from "@/components/ui";
 import {
   MASTERY_CORRECT, MASTERY_LABEL, MASTERY_ORDER, type Mastery,
 } from "@/lib/srs/mastery";
@@ -32,11 +32,11 @@ import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
  */
 
 /** A hue each, and none of them shared with another meaning on this page. */
-const TONES: Record<Mastery, "mint" | "butter" | "peach" | "sky"> = {
-  mastered: "mint",
+const TONES: Record<Mastery, "sky" | "butter" | "blush" | "accent"> = {
+  mastered: "sky",
   almost: "butter",
-  struggling: "peach",
-  learning: "sky",
+  struggling: "blush",
+  learning: "accent",
 };
 
 /** What each tier means, in the learner's terms rather than the rule's. */
@@ -131,7 +131,7 @@ function Row({ word, tier }: { word: MasteredWord; tier: Mastery }) {
         <Meter
           pct={Math.round(progress * 100)}
           label={`${word.lemma} toward mastered${forms}`}
-          tone={`var(--${TONES[tier]}-ink)`}
+          tone={toneInk(TONES[tier])}
           height={5}
         />
       </span>

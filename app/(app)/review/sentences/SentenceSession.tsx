@@ -259,7 +259,7 @@ export function SentenceSession(
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={attempts} label="Built" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="First time" tone={accuracy >= 70 ? "mint" : "butter"} />
+          <StatTile value={`${accuracy}%`} label="First time" tone={accuracy >= 70 ? "sky" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">

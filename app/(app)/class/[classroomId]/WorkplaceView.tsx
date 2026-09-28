@@ -34,7 +34,7 @@ export function WorkplaceView({ summary, sponsor }: {
       {sharesCounts(summary.members.length, sponsor) ? (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-3">
           <StatTile value={summary.members.length} label="People" tone="sky" />
-          <StatTile value={summary.active} label={`Practiced in ${QUIET_DAYS} days`} tone="mint" />
+          <StatTile value={summary.active} label={`Practiced in ${QUIET_DAYS} days`} tone="sky" />
           <StatTile value={counts.likely} label={`On track for ${summary.level}`} tone="accent" />
         </div>
       ) : (
@@ -172,7 +172,7 @@ const BAND_TONE: Record<ReadinessBand, "good" | "hard" | "again" | "neutral"> = 
   unknown: "neutral",
 };
 
-const PERSON_HUES = ["cta", "sky", "blush", "mint"] as const;
+const PERSON_HUES = ["cta", "sky", "blush"] as const;
 
 function hueOf(id: string): number {
   let h = 0;

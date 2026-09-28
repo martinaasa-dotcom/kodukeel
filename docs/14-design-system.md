@@ -24,26 +24,26 @@ never a second and third hue drifting in the background.
 | Hue | Token | Means |
 |---|---|---|
 | Cornflower / violet | `--accent` | the app's voice, the primary action, "this is yours" |
-| Mint | `--mint` / `--good` | recalled, known: a verdict on an answer, never the fill of a panel a screen leads with |
+| Sky | `--sky` / `--good` | recalled, known: a verdict on an answer |
 | Butter | `--butter` / `--hard` | nearly, timed, a warning that isn't a failure |
-| Peach | `--peach` / `--again` | missed, overdue, destructive |
-| Sky | `--sky` / `--easy` | easy, new, reference material |
-| Blush | `--blush` | Anu, the tutor, the one part of the app that talks back |
+| Blush | `--blush` / `--again` | missed, overdue, destructive; and Anu, the tutor |
+| (accent) | `--easy` | easy, which only the confetti still draws |
 
-**Vikerkaar öös is the brand mix, and mint and peach are not in it.** The mix is butter, blush,
-the accent violet, sky and the night navy (`--stage`). Mint and peach are verdicts, so they paint an
-answer, a chip or a tile in a set, and never the card a screen leads with. The finished evening, on
+**Vikerkaar öös is the brand mix, and there is no other colour.** The mix is butter, blush, the
+accent violet, sky and the night navy (`--stage`). Right and wrong wear it too: a recalled answer
+is sky and a missed one is blush, each as its tint under its ink, with a tick or a cross and the
+verdict in words beside it, so the colour is never the only thing saying which. They were mint and
+peach, a green and a red belonging to no mix, and the answer a learner sees most often was the one
+screen that looked like a different app; the operator asked for the palette instead, on
+2026-09-28, and both tokens were deleted rather than left for somebody to reach for. Easy moved to
+the accent, since it was sky and would have shared a colour with Good. The finished evening, on
 Today and on the module screen, is the accent's tint with the mix drawn along its top edge
-(`.evening` on `Card tone="accent"`); it was mint for a while, which read as a green slab beside a
-palette with no green in it. The panels that may be mint are the four that are themselves a verdict (a strong part of a
-marked paper, a settled report, a saved scan, a reading answered right), listed with their reasons in
-`MINT_PANELS`; the landing cards, the section stickers, the class join card, a conversation's
-outcome and the cards sending somebody out to try it for real take a colour of the mix. The faces are Onest and Schibsted Grotesk and no others. All of this
-is asserted in `scripts/invariants/the-agreed-fonts-and-palette.ts`, and a visual proposal is a
-screenshot of the running app (`npm run shoot`), never hand-written HTML in faces or colours of its
-own.
+(`.evening` on `Card tone="accent"`). The faces are Onest and Schibsted Grotesk and no others. All
+of this is asserted in `scripts/invariants/the-agreed-fonts-and-palette.ts`, and a visual proposal
+is a screenshot of the running app (`npm run shoot`), never hand-written HTML in faces or colours
+of its own.
 
-Grading colors are aliases (`--again` → `--peach`), so the rating scale and the rest of the UI
+Grading colors are aliases (`--again` → `--blush`), so the rating scale and the rest of the UI
 can never drift apart.
 
 Two uses of colour, and only one of them carries meaning:
@@ -66,19 +66,19 @@ ink: the same colour walked down until it clears 4.5:1 on its own tint.
 
 | Use | Token |
 |---|---|
-| A bar, ring, dot, or filled surface | `--mint`, `--peach`, `--butter`, `--sky`, `--blush`, `--accent` |
-| Text or a meaningful icon on that hue's tint | `--mint-ink`, `--peach-ink`, `--butter-ink`, `--sky-ink`, `--blush-ink`, **`--accent-deep`** |
+| A bar, ring, dot, or filled surface | `--butter`, `--sky`, `--blush`, `--accent` |
+| Text or a meaningful icon on that hue's tint | `--butter-ink`, `--sky-ink`, `--blush-ink`, **`--accent-deep`** |
 | Text on the *solid* accent | `--accent-ink` (white) |
-| Text on the *solid* mint | `--on-mint` (near-black, the same in both themes) |
+| Text on the *solid* sky | `--on-sky` (near-black, the same in both themes) |
 
-Mint is the other half of that trap and did not have its own answer until a
+"Recalled" is the other half of that trap and did not have its own answer until a
 contrast pass found the hole: the tick inside a reviewed day on Today's week
-strip was `--surface`, which is white on `#1fb894` at 2.52:1. `--mint-ink` is
-the ink on mint's *tint* and is no use on the solid fill, so `--on-mint` is the
-one for that, and it is a single value in both themes rather than a light and a
-dark, because both mints are light enough for it: 7.40:1 on `#1fb894` and
-11.70:1 on the dark theme's `#5fe3bc`. It is written out rather than
-`var(--ink)`, which inverts with the theme and would take the tick with it.
+strip was `--surface`, white on the solid fill at 2.52:1 when that fill was
+mint. The tint's ink is no use on the solid fill, so `--on-sky` is the one for
+that (it was `--on-mint`), and it is a single value in both themes because both
+skies are light enough for it: about 7.8:1 on `#17bfd9` and 13:1 on the dark
+theme's `#4fe3f5`. It is written out rather than `var(--ink)`, which inverts
+with the theme and would take the tick with it.
 
 The accent is the trap: `--accent-ink` was already the white that sits on the
 solid button, so the accent's *tint* ink is `--accent-deep`. Anything building a
@@ -123,11 +123,11 @@ being clipped to letterforms that have no caps to discolour.
 
 ### A verdict is painted once
 
-Correct is green and wrong is red, and the table above has said so since the palette was drawn.
+Correct is sky and wrong is blush, and the table above says so. It was green and red until 2026-09-28.
 What decides whether a screen honors it is not the table but who reaches for the tokens, and
 twenty screens reaching for them by hand produced four verdicts written in the fill, one round
 that never marked the option the learner pressed, and a near miss painted the same peach as a
-blank. `lib/ux/verdict.ts` is the vocabulary and `app/globals.css` is the paint:
+blank, back when they were mint and peach. `lib/ux/verdict.ts` is the vocabulary and `app/globals.css` is the paint:
 
 | Word | Class | Paint |
 |---|---|---|
@@ -168,7 +168,7 @@ drawn on the element wearing the tint rather than on everything under it.
 
 Defined twice in `app/globals.css`, deliberately:
 
-- in `@theme`, so Tailwind utilities (`bg-mint`, `text-ink-2`) exist;
+- in `@theme`, so Tailwind utilities (`bg-sky`, `text-ink-2`) exist;
 - in `:root`, so the inline `style` props the views use can read them.
 
 The `:root` copy is the one that flips for dark mode, and there are two states rather than

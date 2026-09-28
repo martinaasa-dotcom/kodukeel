@@ -146,7 +146,7 @@ export default async function CoursePage({
         lead={`All ${total} modules done, and every word in them is now in your review queue.`}
       >
         <Stack>
-          <Card tone={verdict.kind === "hold" ? "butter" : "mint"}>
+          <Card tone={verdict.kind === "hold" ? "butter" : "sky"}>
             {verdict.kind === "hold" ? (
               <>
                 <SectionTitle hint="a reading, not a rule">
@@ -605,7 +605,7 @@ function LadderBody({ here, learnerLevel }: { here?: string; learnerLevel: Level
               key={p.id}
               className="h-2.5 flex-1 rounded-full"
               style={{
-                background: p.id === here ? "var(--accent)" : at >= 0 && index < at ? "var(--mint)" : "var(--raised)",
+                background: p.id === here ? "var(--accent)" : at >= 0 && index < at ? "var(--sky)" : "var(--raised)",
               }}
             />
           );
@@ -695,7 +695,7 @@ function CourseFit({ offer, tilt, snoozed, effects }: {
   if (offer) {
     const text = offerParts(offer, effects);
     return (
-      <Card tone={offer.reading.kind === "struggling" ? "butter" : "mint"}>
+      <Card tone={offer.reading.kind === "struggling" ? "butter" : "sky"}>
         <div data-course-fit={offer.reading.kind}>
           <SectionTitle hint="a reading of your last two weeks">{offerTitle(offer)}</SectionTitle>
           <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

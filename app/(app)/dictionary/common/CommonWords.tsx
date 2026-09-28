@@ -76,7 +76,7 @@ function GroupCard({ section }: { section: CommonSection }) {
       <SectionTitle hint={`${kept} of ${section.found} in your deck`}>{group.title}</SectionTitle>
       <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{group.blurb}</p>
       <span aria-hidden className="mt-3 block h-1.5 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-        <span className="block h-full rounded-full" style={{ width: `${Math.max(2, pct)}%`, background: left > 0 ? "var(--accent)" : "var(--mint)" }} />
+        <span className="block h-full rounded-full" style={{ width: `${Math.max(2, pct)}%`, background: left > 0 ? "var(--accent)" : "var(--sky)" }} />
       </span>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -86,7 +86,7 @@ function GroupCard({ section }: { section: CommonSection }) {
             {pending ? "Adding" : `Add the ${left} missing`}
           </Button>
         ) : (
-          <span className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--mint-ink)" }}>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--sky-ink)" }}>
             <Check size={15} aria-hidden /> All in your deck
           </span>
         )}

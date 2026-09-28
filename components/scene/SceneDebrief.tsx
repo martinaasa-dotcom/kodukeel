@@ -149,7 +149,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             const met = objectives.met.includes(beat.id);
             return (
               <li key={beat.id} className="flex items-center gap-2 text-sm">
-                <span aria-hidden style={{ color: met ? "var(--mint-ink)" : "var(--ink-3)" }}>
+                <span aria-hidden style={{ color: met ? "var(--sky-ink)" : "var(--ink-3)" }}>
                   {met ? "✓" : "○"}
                 </span>
                 <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{beat.goal}</span>
@@ -175,7 +175,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
               if (!spec) return null;
               return (
                 <li key={`${hurdle.id}-${hurdle.beat}`} className="flex items-start gap-2 text-sm">
-                  <span aria-hidden style={{ color: hurdle.met ? "var(--mint-ink)" : "var(--ink-3)" }}>
+                  <span aria-hidden style={{ color: hurdle.met ? "var(--sky-ink)" : "var(--ink-3)" }}>
                     {hurdle.met ? "✓" : "○"}
                   </span>
                   <span style={{ color: hurdle.met ? "var(--ink)" : "var(--ink-3)" }}>

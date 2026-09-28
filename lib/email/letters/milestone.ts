@@ -79,7 +79,7 @@ export function milestoneLetter(input: MilestoneInput): Letter {
 
   blocks.push({
     t: "art",
-    html: meter(input.pct, "mint"),
+    html: meter(input.pct, "sky"),
     alt: `About ${Math.round(input.pct)} percent of the way to ${input.target}.`,
   });
 

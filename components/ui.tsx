@@ -103,9 +103,7 @@ export function toneInk(tone: string): string {
 const CARD_TONES = {
   plain: { background: "var(--surface)" },
   accent: { background: "var(--accent-soft)" },
-  mint: { background: "var(--mint-soft)" },
   butter: { background: "var(--butter-soft)" },
-  peach: { background: "var(--peach-soft)" },
   blush: { background: "var(--blush-soft)" },
   sky: { background: "var(--sky-soft)" },
   /* The rainbow at night: the one panel a screen leads with. See `.night`. */

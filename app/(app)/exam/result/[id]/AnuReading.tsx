@@ -133,7 +133,7 @@ export function AnuReading({ text, level, title, marks }: {
         )}
 
         {error && (
-          <p className="mt-3 text-sm" style={{ color: "var(--peach-ink)" }}>
+          <p className="mt-3 text-sm" style={{ color: "var(--blush-ink)" }}>
             <CircleAlert size={14} className="mr-1.5 inline" aria-hidden />
             {error}
           </p>

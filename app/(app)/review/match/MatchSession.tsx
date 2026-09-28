@@ -264,7 +264,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
         </Link>
         <div
           className="tnum flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold"
-          style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}
+          style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
         >
           <Timer size={14} aria-hidden /> {seconds}s
         </div>

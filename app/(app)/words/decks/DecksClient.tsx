@@ -102,7 +102,7 @@ function NewDeck({ onCreated }: { onCreated: (deck: DeckSummary) => void }) {
   );
 }
 
-const SHELF_HUES = ["cta", "sky", "blush", "mint"] as const;
+const SHELF_HUES = ["cta", "sky", "blush"] as const;
 
 function hueIndex(id: string): number {
   let h = 0;

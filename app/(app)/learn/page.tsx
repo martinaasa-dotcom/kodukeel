@@ -160,8 +160,8 @@ export default async function LearnPage() {
                         aria-hidden
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                         style={{
-                          background: complete ? "var(--mint-soft)" : u.state === "learning" ? "var(--accent-soft)" : "var(--raised)",
-                          color: complete ? "var(--mint-ink)" : u.state === "learning" ? "var(--accent-deep)" : "var(--ink-3)",
+                          background: complete ? "var(--sky-soft)" : u.state === "learning" ? "var(--accent-soft)" : "var(--raised)",
+                          color: complete ? "var(--sky-ink)" : u.state === "learning" ? "var(--accent-deep)" : "var(--ink-3)",
                         }}
                       >
                         {locked ? <Lock size={15} aria-hidden /> : complete ? <Check size={17} aria-hidden /> : <NamedIcon name={u.unit.icon} size={16} aria-hidden />}
@@ -235,13 +235,13 @@ export default async function LearnPage() {
                   style={{
                     // Two contrast fixes live here, and both came from putting
                     // *text* on backgrounds the app had only ever used behind an
-                    // icon. White on --accent is 4.05:1 and white on --mint is
+                    // icon. White on --accent is 4.05:1 and white on --sky is
                     // 2.30:1, neither of which clears AA for a 13.5px label;
                     // --accent-deep is 6.25:1 and flips correctly in dark mode.
                     // --ink-3 on --raised is 4.05:1 too, so the resting badge
                     // takes --ink-2: the muted token is for a hint beside
                     // something, not for the only thing in a badge.
-                    background: finished ? "var(--mint)" : pct > 0 ? "var(--accent-deep)" : "var(--raised)",
+                    background: finished ? "var(--sky)" : pct > 0 ? "var(--accent-deep)" : "var(--raised)",
                     color: finished || pct > 0 ? "var(--surface)" : "var(--ink-2)",
                   }}
                 >

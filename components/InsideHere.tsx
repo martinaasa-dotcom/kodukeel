@@ -44,6 +44,6 @@ export function InsideHere({ place, title }: { place: string; title: string }) {
 /** The ink a hue is written in on a card: never the fill, which fails 4.5:1. */
 function inkOf(tone: string): string {
   if (tone === "accent") return "var(--accent-deep)";
-  if (tone === "mint" || tone === "sky" || tone === "butter" || tone === "blush") return `var(--${tone}-ink)`;
+  if (tone === "sky" || tone === "butter" || tone === "blush") return `var(--${tone}-ink)`;
   return "var(--ink-3)";
 }

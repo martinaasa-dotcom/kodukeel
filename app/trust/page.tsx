@@ -348,7 +348,7 @@ function Glance({ href, icon, question, answer, good }: {
           <span className="block text-sm" style={{ color: "var(--ink-3)" }}>{question}</span>
           <span className="mt-0.5 block text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{answer}</span>
         </span>
-        <span className="shrink-0" style={{ color: good ? "var(--mint-ink)" : "var(--hard-ink)" }}>
+        <span className="shrink-0" style={{ color: good ? "var(--sky-ink)" : "var(--hard-ink)" }}>
           {good
             ? <CircleCheck size={18} aria-label="Yes" />
             : <CircleAlert size={18} aria-label="Not yet" />}

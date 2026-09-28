@@ -129,7 +129,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/review/emoji", title: "Picture match", subtitle: "No English on the board",
-    icon: "Grid2x2", tone: "mint", group: "targeted", note: "Six pairs",
+    icon: "Grid2x2", tone: "sky", group: "targeted", note: "Six pairs",
     within: "/practice",
     blurb:
       "The picture is the meaning, so the Estonian side is a case form: match majas to the " +
@@ -194,7 +194,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/review/target", title: "Target", subtitle: "Fast, mostly endings",
-    icon: "Target", tone: "peach", group: "targeted", note: "Shrinking clock",
+    icon: "Target", tone: "blush", group: "targeted", note: "Shrinking clock",
     within: "/practice",
     blurb:
       "Four forms of one word and a question word telling you which. Nothing can be crossed " +
@@ -206,7 +206,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb: "As many case forms as you can manage against the clock, drawn from the cards you are weakest on.",
   },
   {
-    href: "/review/match", title: "Match", subtitle: "Eight pairs", icon: "Grid2x2", tone: "mint",
+    href: "/review/match", title: "Match", subtitle: "Eight pairs", icon: "Grid2x2", tone: "sky",
     group: "quick", note: "No time yet",
     blurb: "Pair eight words with their meanings against the clock.",
   },
@@ -217,21 +217,21 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/review/listening", title: "Listening", subtitle: "Hear it, pick it", icon: "Headphones",
-    tone: "sky", group: "quick", note: "Twenty words",
+    tone: "blush", group: "quick", note: "Twenty words",
     blurb: "Hear a word with nothing written down, and pick what it means.",
   },
   {
-    href: "/review/dictation", title: "Dictation", subtitle: "Hear it, write it", icon: "Ear", tone: "peach",
+    href: "/review/dictation", title: "Dictation", subtitle: "Hear it, write it", icon: "Ear", tone: "butter",
     group: "quick", note: "Needs sentences",
     blurb: "Hear a sentence and write it down, Estonian letters and all.",
   },
   {
-    href: "/review/speaking", title: "Speaking", subtitle: "Out loud", icon: "Mic", tone: "blush",
+    href: "/review/speaking", title: "Speaking", subtitle: "Out loud", icon: "Mic", tone: "sky",
     group: "quick", note: "Then hear it said",
     blurb: "Say it, then compare yourself with a native rendering. Nothing scores your pronunciation.",
   },
   {
-    href: "/review/write", title: "Writing", subtitle: "Your own sentence", icon: "PenLine", tone: "mint",
+    href: "/review/write", title: "Writing", subtitle: "Your own sentence", icon: "PenLine", tone: "sky",
     group: "targeted", note: "You write it",
     blurb:
       "Use a word in the case we name. The form is checked against the dictionary before Anu " +
@@ -240,7 +240,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/review/government", title: "Verb government", subtitle: "Which case?", icon: "Scale",
-    tone: "peach", group: "targeted", note: "Multiple choice",
+    tone: "blush", group: "targeted", note: "Multiple choice",
     blurb:
       "Aitan sind, but helistan sulle. English gives you no clue, so rektsioon has to be learned " +
       "per verb.",

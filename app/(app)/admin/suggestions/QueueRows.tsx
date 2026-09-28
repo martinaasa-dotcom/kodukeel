@@ -81,8 +81,8 @@ export function QueueRows({ rows, status }: { rows: QueueRow[]; status: Suggesti
 /** A decision, after it was made. The only thing left of a row that is gone. */
 function Settled({ message }: { message: string }) {
   return (
-    <Card as="li" tone="mint">
-      <p className="flex items-start gap-2 text-sm" style={{ color: "var(--mint-ink)" }}>
+    <Card as="li" tone="sky">
+      <p className="flex items-start gap-2 text-sm" style={{ color: "var(--sky-ink)" }}>
         <Check size={15} aria-hidden className="mt-0.5 shrink-0" />
         <span>{message}</span>
       </p>

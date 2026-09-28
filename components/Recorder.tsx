@@ -104,7 +104,7 @@ export function Recorder({ onRecorded, targetSeconds }: {
       {state === "recording" && (
         <span
           className="tnum text-sm font-semibold"
-          style={{ color: targetSeconds && elapsed >= targetSeconds ? "var(--mint-ink)" : "var(--ink-2)" }}
+          style={{ color: targetSeconds && elapsed >= targetSeconds ? "var(--sky-ink)" : "var(--ink-2)" }}
           role="timer"
         >
           {clock(elapsed)}

@@ -67,7 +67,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
     */
     return (
       <div data-try-it="done">
-      <Card tone="mint">
+      <Card tone="sky">
         <div className="flex items-start gap-3">
           <Sparkles size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
           <div className="min-w-0">

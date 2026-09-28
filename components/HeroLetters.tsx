@@ -24,7 +24,7 @@ import { LETTER_CHEER_EVENT, type LetterEdge } from "@/lib/ux/letterMotion";
  */
 const LOOK: Record<string, { hue: LetterHue; character: string }> = {
   "õ": { hue: "butter", character: "wander" },
-  "ä": { hue: "mint", character: "hop" },
+  "ä": { hue: "accent", character: "hop" },
   "ö": { hue: "sky", character: "swing" },
   "ü": { hue: "blush", character: "tumble" },
 };

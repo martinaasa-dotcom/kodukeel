@@ -443,7 +443,7 @@ function Compare() {
             <div key={kind.name} className="rounded-[var(--r-xl)] border p-6" style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}>
               <h3 className="text-md font-semibold" style={{ color: "var(--ink)" }}>{kind.name}</h3>
               <p className="mt-4 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                <Check size={16} aria-label="Good at" className="mt-0.5 shrink-0" style={{ color: "var(--mint-ink)" }} />
+                <Check size={16} aria-label="Good at" className="mt-0.5 shrink-0" style={{ color: "var(--sky-ink)" }} />
                 <span>{kind.good}</span>
               </p>
               <p className="mt-3 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -642,7 +642,7 @@ function Cases({ words }: { words: DemoWord[] }) {
             className="-top-6 left-72 z-20 hidden h-8 w-8 text-base sm:block md:-top-8 md:left-80 md:h-10 md:w-10 md:text-xl"
           />
           <LetterTile
-            letter="ä" hue="mint" edge="right" character="hop"
+            letter="ä" hue="accent" edge="right" character="hop"
             tilt={12} travel={{ x: -3, y: -44 }} room={0.75} delay={0.7} reach={280}
             className="-right-3 top-24 z-20 hidden h-8 w-8 text-base sm:block md:-right-6 md:top-28 md:h-10 md:w-10 md:text-xl"
           />
@@ -785,7 +785,7 @@ function Features() {
  * of a phone on saying nothing the heading does not, once per card.
  */
 function Feature({ tone, icon, title, body, children }: {
-  tone: "accent" | "mint" | "sky" | "butter" | "peach" | "blush";
+  tone: "accent" | "sky" | "butter" | "blush";
   icon: React.ReactNode;
   title: React.ReactNode;
   body: string;
@@ -923,7 +923,7 @@ function Mark({ verdict }: { verdict: Verdict }) {
     return (
       <span
         className="flex h-7 w-7 items-center justify-center rounded-full"
-        style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}
+        style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
       >
         <Check size={15} strokeWidth={3} aria-label="yes" />
       </span>

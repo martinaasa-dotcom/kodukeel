@@ -154,7 +154,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
               />
               <PractiseTile
                 href="/review/sprint"
-                tone="peach"
+                tone="blush"
                 title="Sprint"
                 body={`${sprintLength}. The fastest way to find out which of these has not stuck.`}
               />
@@ -210,7 +210,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
 }
 
 function PractiseTile({ href, tone, title, body }: {
-  href: string; tone: "accent" | "sky" | "peach"; title: string; body: string;
+  href: string; tone: "accent" | "sky" | "blush"; title: string; body: string;
 }) {
   const Icon = tone === "accent" ? GraduationCap : tone === "sky" ? Grid2x2 : Zap;
   return (
