@@ -56,7 +56,7 @@ import { rungOf } from "../lib/learn/ladder";
 import { BUILD_FROM, maySortWords } from "../lib/collections/levels";
 import { ROTATION } from "../lib/course/plan";
 import { LEVELS } from "../lib/collections/syllabus/types";
-import { LETTER_CHARACTERS, LETTER_CHEER, LETTER_CHEER_EVENT } from "../lib/ux/letterMotion";
+import { LETTER_CHARACTERS, LETTER_CHEER, LETTER_SCATTER, LETTER_CHEER_EVENT } from "../lib/ux/letterMotion";
 import { DEMO_STEMS } from "../lib/collections/demoWords";
 import { grammarGroupTerm, grammarTerm } from "../lib/estonian/terms";
 import { CLOSED_CLASS_EXAMPLES, WORKED_FORMS, buildSystemPrompt } from "../lib/tutor/prompt";
@@ -16164,6 +16164,12 @@ check("every way a letter moves is declared in both the table and the stylesheet
   assert.match(css, new RegExp(`@keyframes\\s+${LETTER_CHEER.keyframes}\\b`),
     "the cheer LETTER_CHEER names has no keyframes in app/globals.css, so the letters "
     + "hear the word change and do nothing");
+  // The scatter a press on the card throws is the same kind of thing: one set
+  // of keyframes for the set, named once under `LETTER_SCATTER`.
+  declared.delete(LETTER_SCATTER.keyframes);
+  assert.match(css, new RegExp(`@keyframes\\s+${LETTER_SCATTER.keyframes}\\b`),
+    "the scatter LETTER_SCATTER names has no keyframes in app/globals.css, so a press "
+    + "on the card reaches the letters and they do not move");
 
   const asked = new Set(LETTER_CHARACTERS.map((c) => c.keyframes));
   const missing = [...asked].filter((k) => !declared.has(k));

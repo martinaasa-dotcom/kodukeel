@@ -476,6 +476,16 @@ a hover finishes its beat when the pointer leaves (`components/motion/useFinishi
 and every idle loop, the mark's and Anu's, runs on one clock shared across pages and reloads
 (`lib/ux/loopSync.ts`).
 
+The small flourishes round the app are one-shots that always land: the primary button gives under
+a press (and hops under a pointer where it leads the landing page), a glyph in the rail or the tab
+bar bobs as it is reached, a crossword letter bounces into its square, a Sõnad letter pops into
+its circle, a reviewed day on the week strip springs in with its tick, a press on the landing
+page's case card throws the four letters off its edges and lets them land, and a cheering mark
+throws a handful of pixels at the end of a round. Each is started by
+`components/motion/PlayOnce.tsx` and cleared by its own end, never by the pointer, so none of them
+is cut off mid-move, and each animates `scale`, `translate` or `rotate` rather than `transform` so
+it composes with what the element is already doing.
+
 ## 6. Routing and the landing page
 
 Two route groups:

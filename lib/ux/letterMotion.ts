@@ -262,6 +262,25 @@ export function leanFor(opts: {
  */
 export const LETTER_CHEER_EVENT = "kodukeel:word-changed";
 
+/**
+ * A press on the card throws the four letters off it, each straight out from
+ * the edge it hangs off, and lets them land back where they were. Out from
+ * its own edge is the one direction that can never carry a letter onto the
+ * card, which is the rule the wander and the lean already keep.
+ */
+export const LETTER_SCATTER_EVENT = "kodukeel:card-pressed";
+
+/** The keyframes in `app/globals.css` that carry the scatter, and how long. */
+export const LETTER_SCATTER = { keyframes: "letter-scatter", time: 0.72 } as const;
+
+/** Which way is "out" from each edge, as a unit vector the keyframes scale. */
+export const OUTWARD = {
+  top: { x: 0, y: -1 },
+  bottom: { x: 0, y: 1 },
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+} as const;
+
 /** The keyframes in `app/globals.css` that carry the hop, and how long. */
 export const LETTER_CHEER = { keyframes: "letter-cheer", time: 0.62 } as const;
 

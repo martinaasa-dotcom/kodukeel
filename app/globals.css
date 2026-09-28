@@ -3038,6 +3038,18 @@
   .letter-lean[data-cheer] {
     animation: letter-cheer 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) var(--cheer-delay, 0s) both;
   }
+  /* A press on the card throws each letter straight out from its own edge
+     (`--out-x`, `--out-y`, set from `OUTWARD`) and lets it land. `translate`
+     alone, so it composes with the lean and the hop rather than replacing
+     them; with both at once the list carries both. */
+  .letter-lean[data-scatter] {
+    animation: letter-scatter 0.72s cubic-bezier(0.3, 0.9, 0.4, 1) var(--cheer-delay, 0s) both;
+  }
+  .letter-lean[data-cheer][data-scatter] {
+    animation:
+      letter-cheer 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) var(--cheer-delay, 0s) both,
+      letter-scatter 0.72s cubic-bezier(0.3, 0.9, 0.4, 1) var(--cheer-delay, 0s) both;
+  }
 
   /*
     THE SIX KEYS THAT TYPE THE LETTERS AN ENGLISH KEYBOARD HAS NOT GOT.
@@ -3414,6 +3426,13 @@
   100% { scale: 1 1; rotate: 0deg; }
 }
 
+@keyframes letter-scatter {
+  0%, 100% { translate: 0 0; }
+  32% { translate: calc(var(--out-x) * 28px) calc(var(--out-y) * 28px); }
+  62% { translate: calc(var(--out-x) * 2px) calc(var(--out-y) * 2px); }
+  80% { translate: calc(var(--out-x) * 6px) calc(var(--out-y) * 6px); }
+}
+
 @keyframes pop-in {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
@@ -3646,6 +3665,90 @@
   0%, 100% { transform: translateY(0) rotate(0deg); }
   40% { transform: translateY(-6px) rotate(-6deg); }
   70% { transform: translateY(1px) rotate(2deg); }
+}
+
+/*
+  THE SMALL ONE-SHOTS ROUND THE APP, each started by `PlayOnce`
+  (components/motion/PlayOnce.tsx) and cleared by its own end, so none of them
+  can be cut off mid-move by a pointer leaving or lifting. They animate the
+  individual `scale`, `translate` and `rotate` properties rather than
+  `transform`, so each one composes with whatever hover or press transform the
+  element already has instead of replacing it.
+*/
+/* The primary button gives under a press and springs back. */
+.btn-cta[data-hop][data-hop-end="cta-squash"] { animation: cta-squash 0.42s cubic-bezier(0.34, 1.56, 0.64, 1); }
+/* Where it leads the landing page it hops when a pointer reaches it. */
+.btn-cta[data-hop][data-hop-end="cta-hop"] { animation: cta-hop 0.62s cubic-bezier(0.34, 1.4, 0.64, 1); }
+/* A glyph in the rail or the tab bar bobs as the pointer or a thumb arrives.
+   With the arrival pop on the same glyph the list carries both, so adding
+   the bob does not replay the pop. */
+.nav-cell[data-hop] .nav-glyph { animation: nav-bob 0.55s cubic-bezier(0.34, 1.4, 0.64, 1); }
+.nav-cell[data-nav-on][data-hop] .nav-glyph {
+  animation: nav-pop 460ms cubic-bezier(0.32, 0.72, 0, 1), nav-bob 0.55s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+/* A letter typed into a crossword square lands with a bounce. */
+input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(0.34, 1.56, 0.64, 1); }
+/* The case card on the landing page gives a little under a press. */
+.case-explorer[data-hop] { animation: card-give 0.5s cubic-bezier(0.34, 1.4, 0.64, 1); }
+/* A Sõnad letter pops into its circle. Keyed on the letter, so it runs once
+   as the letter arrives and never needs clearing. */
+.sonad-type { display: inline-block; animation: sonad-type 0.3s cubic-bezier(0.34, 1.7, 0.64, 1) both; }
+/* A reviewed day on Today's week strip springs in with its tick. */
+.day-done { animation: day-done 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* A cheering mark throws a handful of pixels once as it arrives. At rest
+   they are hidden, so a still frame, and reduced motion, is the mark alone. */
+.mark-confetti {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: mark-confetti 1.25s cubic-bezier(0.2, 0.8, 0.3, 1) calc(0.15s + var(--i) * 0.025s) 1;
+}
+
+@keyframes cta-squash {
+  0%, 100% { scale: 1 1; }
+  25% { scale: 1.06 0.88; }
+  55% { scale: 0.97 1.05; }
+  78% { scale: 1.01 0.99; }
+}
+@keyframes cta-hop {
+  0%, 100% { translate: 0 0; rotate: 0deg; scale: 1 1; }
+  18% { scale: 1.04 0.94; }
+  42% { translate: 0 -6px; rotate: -1.5deg; scale: 0.98 1.03; }
+  68% { translate: 0 0; rotate: 1deg; scale: 1.02 0.97; }
+  85% { rotate: 0deg; scale: 1 1; }
+}
+@keyframes nav-bob {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  30% { translate: 0 -4px; rotate: -12deg; }
+  60% { translate: 0 1px; rotate: 8deg; }
+  80% { translate: 0 -1px; rotate: -3deg; }
+}
+@keyframes cw-land {
+  0%, 100% { scale: 1; translate: 0 0; }
+  35% { scale: 1.18; translate: 0 -2px; }
+  65% { scale: 0.94; translate: 0 0; }
+}
+@keyframes card-give {
+  0%, 100% { scale: 1; rotate: 0deg; }
+  22% { scale: 0.985; rotate: -0.4deg; }
+  55% { scale: 1.008; rotate: 0.3deg; }
+}
+@keyframes sonad-type {
+  0% { scale: 0.3; opacity: 0; rotate: -12deg; }
+  60% { scale: 1.2; opacity: 1; rotate: 6deg; }
+  100% { scale: 1; opacity: 1; rotate: 0deg; }
+}
+@keyframes day-done {
+  0% { transform: scale(0.3) rotate(-35deg); opacity: 0; }
+  55% { transform: scale(1.18) rotate(8deg); opacity: 1; }
+  78% { transform: scale(0.95) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes mark-confetti {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(0) rotate(0deg) scale(0.4); }
+  55% { opacity: 1; transform: rotate(var(--a)) translateY(calc(-1 * var(--d))) rotate(var(--r)) scale(1); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-1.15 * var(--d) + 14px)) rotate(calc(var(--r) * 1.6)) scale(0.6); }
 }
 
 

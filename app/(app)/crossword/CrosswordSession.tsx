@@ -1,5 +1,6 @@
 "use client";
 
+import { playOnce } from "@/components/motion/PlayOnce";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Eye } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -211,7 +212,12 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                 <input
                   ref={(el) => { if (el) cells.current.set(cell, el); else cells.current.delete(cell); }}
                   value={typed[cell] ?? ""}
-                  onChange={(e) => write(cell, e.target.value)}
+                  onChange={(e) => {
+                    // A letter landing in its square bounces once as it lands.
+                    if (e.target.value.trim()) playOnce(e.currentTarget);
+                    write(cell, e.target.value);
+                  }}
+                  data-hop-end="cw-land"
                   onKeyDown={(e) => onKey(cell, e.key)}
                   onFocus={() => { if (!activeCells.includes(cell)) pick(cell); }}
                   onClick={() => pick(cell)}

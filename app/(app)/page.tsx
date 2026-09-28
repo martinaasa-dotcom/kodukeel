@@ -595,9 +595,10 @@ export default async function TodayPage() {
                 circle at whatever width it ends up with.
               */}
               <span
-                // A reviewed day pops in, one after another across the week,
-                // so the run of days reads as a run rather than as seven dots.
-                className={`${d.done ? "pop-in " : ""}flex aspect-square w-full max-w-9 items-center justify-center rounded-full text-xs font-bold`}
+                // A reviewed day springs in with its tick, one after another
+                // across the week, so the run of days reads as a run rather than
+                // as seven dots.
+                className={`${d.done ? "day-done " : ""}flex aspect-square w-full max-w-9 items-center justify-center rounded-full text-xs font-bold`}
                 /*
                   The ring is what makes a reviewed day visible.
 
