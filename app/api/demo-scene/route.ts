@@ -3,7 +3,7 @@ import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { NO_STORE } from "@/lib/security/headers";
 import { reportError } from "@/lib/observability/report";
 import { readCapped } from "@/lib/security/body";
-import { demoSeed, demoTurn, demoTurns } from "@/lib/progress/demoScene";
+import { REFUSED, demoSeed, demoTurn, demoTurns } from "@/lib/progress/demoScene";
 
 /**
  * The café scene, played from the landing page by somebody with no account.
@@ -11,15 +11,15 @@ import { demoSeed, demoTurn, demoTurns } from "@/lib/progress/demoScene";
  * Public, because the reader is deciding whether to make an account and a
  * demonstration behind one is a demonstration nobody sees. Nothing here can
  * cost money or touch anybody's data: no model is asked, nothing is written,
- * and the only input is a seed and the turns the browser has taken, clipped
- * and counted in `lib/progress/demoScene.ts`. What it does cost is database
+ * and the only input is a seed and the picks the browser has made, each
+ * checked against what that step offers in `lib/progress/demoScene.ts`. What it does cost is database
  * reads, so it is capped twice, per visitor and for the whole deployment,
  * where every instance counts together (`checkSharedRateLimit`).
  */
 export const dynamic = "force-dynamic";
 
-/** Sixteen short turns and a seed is a few kilobytes; nothing honest sends more. */
-const MAX_BODY_BYTES = 16_000;
+/** Six picks and a seed is a few hundred bytes; nothing honest sends more. */
+const MAX_BODY_BYTES = 4_000;
 /** A scene is about six turns; a visitor playing it twice in a minute is twelve. */
 const PER_VISITOR = 40;
 /** And a ceiling on the whole page's traffic, so a crowd cannot turn it into load. */
@@ -44,6 +44,9 @@ export async function POST(request: Request) {
 
   try {
     const reply = await demoTurn(seed, turns);
+    if (reply === REFUSED) {
+      return Response.json({ error: "That was not one of the things on offer." }, { status: 400, headers: NO_STORE });
+    }
     if (!reply) return Response.json({ error: "The café is closed today." }, { status: 404, headers: NO_STORE });
     return Response.json(reply, { headers: NO_STORE });
   } catch (error) {

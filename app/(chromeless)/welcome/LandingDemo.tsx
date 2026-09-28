@@ -338,7 +338,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
                 <span key={c.et} data-on={built.has(`${word.lemma}:${c.et}`) ? "" : undefined} />
               ))}
             </span>
-            <span className="text-sm font-semibold" style={{ color: all ? "var(--mint-ink)" : "var(--ink-2)" }}>
+            <span className="text-sm font-semibold" style={{ color: all ? "var(--good-ink)" : "var(--ink-2)" }}>
               {all
                 ? `All ${counted(derived.length)} built from one stem. That is the trick.`
                 : `${doneHere} of ${derived.length} built from ${word.lemma}`}

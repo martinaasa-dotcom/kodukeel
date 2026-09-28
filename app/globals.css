@@ -3208,30 +3208,174 @@
   }
 
   /*
-    THE LANDING PAGE'S CAFÉ. Their lines on the raised ground and the
-    visitor's on the accent's tint, the way the app's own conversation draws
-    them, each arriving with a short rise; the app's own asides (a stage
-    direction) in italics with no bubble, since nobody said them.
+    THE LANDING PAGE'S CAFÉ, ON THE NIGHT STAGE THE HERO STANDS ON.
+
+    It was a white card with a stick-figure drawing in it, the one panel on
+    the page drawn like a form, and it was reported as looking far worse than
+    everything around it. So it wears what the hero and the closing card
+    wear: the night ground with the mix glowing into it from two corners,
+    glass panels on top, and the gold for the thing that is yours. Their lines
+    are glass and the visitor's are gold, which is the palette's own "this is
+    yours"; a stage direction is a quiet pill with a clock, since nobody said
+    it. Every piece arrives rather than appears, and all of it stands still
+    for anybody who asked for less movement.
   */
-  .cafe-line {
-    font-size: var(--text-md); line-height: 1.35;
-    animation: cafe-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  .cafe-stage {
+    background:
+      radial-gradient(55% 70% at 0% 0%, color-mix(in srgb, var(--stage-glow) 42%, transparent), transparent 70%),
+      radial-gradient(45% 60% at 100% 100%, color-mix(in srgb, var(--sky) 34%, transparent), transparent 70%),
+      radial-gradient(30% 40% at 85% 5%, color-mix(in srgb, var(--butter) 18%, transparent), transparent 70%),
+      var(--stage) !important;
   }
-  .cafe-line[data-who="them"] { background: var(--raised); color: var(--ink); border-bottom-left-radius: 6px; }
-  .cafe-line[data-who="you"] { background: var(--accent-soft); color: var(--accent-deep); font-weight: 600; border-bottom-right-radius: 6px; }
-  .cafe-line[data-who="app"] {
-    font-size: var(--text-sm); font-style: italic; color: var(--ink-2);
-    padding-left: 0.25rem; padding-right: 0.25rem; max-width: 100%;
+  .cafe-glass {
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.13);
+  }
+  .cafe-note {
+    background: rgb(255 255 255 / 0.04);
+    border: 1px dashed rgb(255 255 255 / 0.18);
+    color: var(--ink-2);
+  }
+  /* A cup that is still warm. */
+  .cafe-cup {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 2.75rem; height: 2.75rem; border-radius: 9999px;
+    background: var(--cta); color: var(--cta-ink);
+  }
+  .cafe-steam { position: absolute; top: -0.9rem; left: 50%; display: flex; gap: 4px; transform: translateX(-50%); }
+  .cafe-steam > span {
+    width: 2.5px; height: 0.75rem; border-radius: 9999px; background: var(--ink);
+    animation: cafe-steam 2.4s ease-in-out infinite; opacity: 0;
+  }
+  .cafe-steam > span:nth-child(2) { animation-delay: 0.6s; }
+  .cafe-steam > span:nth-child(3) { animation-delay: 1.2s; }
+  @keyframes cafe-steam {
+    0% { opacity: 0; transform: translateY(4px) scaleY(0.6); }
+    40% { opacity: 0.8; }
+    100% { opacity: 0; transform: translateY(-8px) scaleY(1.1); }
+  }
+  /* Six steps, the ones behind you lit in the mix. */
+  .cafe-meter { display: flex; gap: 5px; }
+  .cafe-meter > li {
+    width: 1.6rem; height: 0.45rem; border-radius: 9999px;
+    background: rgb(255 255 255 / 0.14);
+    transition: background 300ms ease, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .cafe-meter > li[data-state="done"] { background: linear-gradient(90deg, var(--butter), var(--blush)); }
+  .cafe-meter > li[data-state="now"] { background: var(--sky); transform: scaleY(1.35); }
+  .cafe-meter > li:nth-child(2n)[data-state="done"] { background: linear-gradient(90deg, var(--blush), var(--accent)); }
+  .cafe-meter > li:nth-child(3n)[data-state="done"] { background: linear-gradient(90deg, var(--accent), var(--sky)); }
+  .cafe-drink {
+    background: rgb(255 255 255 / 0.04);
+    border: 1px solid transparent;
+    animation: cafe-in 380ms calc(var(--i, 0) * 70ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+    transition: background 300ms ease, border-color 300ms ease, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .cafe-drink[data-mine] {
+    background: color-mix(in srgb, var(--cta) 14%, transparent);
+    border-color: color-mix(in srgb, var(--cta) 55%, transparent);
+    transform: scale(1.02);
+    color: var(--cta);
+  }
+  .cafe-drink-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.1rem; height: 2.1rem; border-radius: 9999px;
+    background: rgb(255 255 255 / 0.08); color: var(--sky);
+  }
+  .cafe-drink[data-mine] .cafe-drink-icon { background: var(--cta); color: var(--cta-ink); }
+  .cafe-price { color: var(--cta); }
+  .cafe-avatar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.1rem; height: 2.1rem; border-radius: 9999px;
+    background: linear-gradient(135deg, var(--blush), var(--accent)); color: var(--ink);
+  }
+  /*
+    THE WINDOW THE CONVERSATION HAPPENS IN, WHICH KEEPS ITS SIZE. A fixed
+    height rather than a maximum, so the panel is the same shape before the
+    first line and after the last, and the lines fade out under the top edge
+    rather than being cut. No `overscroll-behavior`: a wheel that reaches the
+    end of it carries on down the page.
+  */
+  .cafe-thread {
+    height: 21rem;
+    mask-image: linear-gradient(to bottom, transparent 0, black 1.25rem);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 1.25rem);
+    scrollbar-width: thin;
+  }
+  @media (min-width: 768px) { .cafe-thread { height: 23rem; } }
+  /*
+    Nothing in the window shrinks to fit it: the window scrolls instead. The
+    ending card clips its own overflow for the strip along its top, which
+    takes away a flex item's floor at its content, and in a column of fixed
+    height it was squashed to a sliver with its sentence cut off inside.
+  */
+  .cafe-thread > * { flex-shrink: 0; }
+  /* Tall enough for the four drinks two by two, so the panel never grows under a pick. */
+  .cafe-foot { min-height: 15rem; }
+  @media (min-width: 640px) { .cafe-foot { min-height: 11.5rem; } }
+  .cafe-line {
+    display: flex; flex-direction: column; gap: 0.15rem;
+    max-width: 85%;
+    padding: 0.6rem 1rem;
+    border-radius: var(--r-lg);
+    font-size: var(--text-md); line-height: 1.35;
+    animation: cafe-pop 380ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  }
+  .cafe-line[data-who="them"] {
+    background: rgb(255 255 255 / 0.1); color: var(--ink);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-bottom-left-radius: 6px; transform-origin: bottom left;
+  }
+  .cafe-line[data-who="you"] {
+    background: var(--cta); color: var(--cta-ink); font-weight: 700;
+    border-bottom-right-radius: 6px; transform-origin: bottom right;
+  }
+  .cafe-line-en { font-size: var(--text-sm); font-weight: 500; opacity: 0.85; }
+  .cafe-aside {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    margin: 0.35rem 0; padding: 0.35rem 0.8rem; border-radius: 9999px;
+    font-size: var(--text-sm); color: var(--ink-2);
+    background: rgb(255 255 255 / 0.06);
+    animation: cafe-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   @keyframes cafe-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .cafe-typing { display: inline-flex; gap: 4px; }
+  @keyframes cafe-pop { from { opacity: 0; transform: translateY(8px) scale(0.9); } to { opacity: 1; transform: none; } }
+  .cafe-typing { flex-direction: row; gap: 4px; padding: 0.85rem 1rem; }
   .cafe-typing > span {
-    width: 7px; height: 7px; border-radius: 9999px; background: var(--ink-3);
+    width: 7px; height: 7px; border-radius: 9999px; background: var(--ink-2);
     animation: cafe-dot 1s ease-in-out infinite;
   }
   .cafe-typing > span:nth-child(2) { animation-delay: 150ms; }
   .cafe-typing > span:nth-child(3) { animation-delay: 300ms; }
-  @keyframes cafe-dot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes cafe-dot { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-4px); opacity: 1; } }
+  /* A line to say, arriving one after another like cards dealt. */
+  .cafe-pick {
+    --choice-bg: rgb(255 255 255 / 0.06);
+    --choice-border: rgb(255 255 255 / 0.16);
+    color: var(--ink);
+    animation: cafe-in 360ms calc(var(--i, 0) * 70ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cafe-pick:hover:not(:disabled) {
+    border-color: var(--cta);
+    background: color-mix(in srgb, var(--cta) 16%, transparent);
+    box-shadow: 0 0 0 1px var(--cta);
+  }
+  .cafe-pick:focus-visible { outline: 3px solid var(--cta); outline-offset: 2px; }
+  .cafe-done {
+    position: relative; overflow: hidden;
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.14);
+    animation: cafe-pop 480ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  }
+  .cafe-done::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
+    background: linear-gradient(90deg, var(--butter), var(--blush), var(--accent), var(--sky));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cafe-line, .cafe-typing > span, .cafe-aside, .cafe-drink, .cafe-pick, .cafe-done, .cafe-steam > span { animation: none; }
+    .cafe-steam > span { opacity: 0.6; }
+    .cafe-drink, .cafe-meter > li { transition: none; }
+  }
 
   /*
     WHAT THE VISITOR DID, SAID BACK AT THE CLOSE. On the night panel, so a
@@ -3253,9 +3397,6 @@
   [data-theme="dark"] .evening-word { background: var(--surface); }
   @media (prefers-reduced-motion: reduce) { .evening-word, .visit-recap { animation: none; } }
   [data-theme="dark"] .visit-recap { background: var(--surface); }
-  @media (prefers-reduced-motion: reduce) {
-    .cafe-line, .cafe-typing > span { animation: none; }
-  }
 
   /*
     THE LANDING PAGE'S MOTION, AND WHAT EACH PIECE IS FOR.

@@ -726,7 +726,7 @@ function Evening() {
     <section id="evening" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="mint">Your first evening</p>
+          <p className="section-tag" data-tone="sky">Your first evening</p>
           <h2 className="landing-title">
             {minutes} minutes, {spelledCount(evening.words.length)} words. Try the first step now.
           </h2>
@@ -764,8 +764,8 @@ function Talk() {
             Order a drink in Estonian. Right now, no account.
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            One of the fifteen conversations inside, with somebody who wants something from you. Get an
-            ending wrong and they understand you anyway, then say it back the right way.
+            One of the fifteen conversations inside, with somebody who wants something from you. Here you
+            pick what to say, from hello to paying. Inside, you type it yourself.
           </p>
         </div>
       </Reveal>
