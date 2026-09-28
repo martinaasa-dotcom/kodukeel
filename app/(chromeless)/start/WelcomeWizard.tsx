@@ -25,6 +25,7 @@ import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
 import { Explain } from "@/components/Explain";
+import { FitText } from "@/components/FitText";
 
 /**
  * The deck a learner at one level starts with, sized by the server.
@@ -439,9 +440,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               before an evening goes into a deck, and they do not have to be the
               thing standing between the welcome and the name field.
             */}
-            <h1 tabIndex={-1} lang="et" className="text-3xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
-              Tere tulemast!
-            </h1>
+            <FitText as="h1" text="Tere tulemast!" max="var(--text-3xl)" tabIndex={-1} lang="et" className="font-bold leading-tight outline-none" style={{ color: "var(--ink)" }} />
 
             <label htmlFor="learner-name" className="label-xs mt-8 block" style={{ color: "var(--ink-3)" }}>
               What should we call you?

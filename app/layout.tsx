@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Onest, Schibsted_Grotesk } from "next/font/google";
 import { OfflineProvider } from "@/components/OfflineProvider";
+import { OpenOnArrival } from "@/components/OpenOnArrival";
 import { canonicalOrigin } from "@/lib/auth/canonical";
 import "./globals.css";
 
@@ -162,6 +163,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             it has to sit above both route groups — the offline fallback is
             reachable from either. */}
         <OfflineProvider>{children}</OfflineProvider>
+        <OpenOnArrival />
         {/*
           NO ANALYTICS SCRIPT, BECAUSE /privacy SAYS THERE IS NONE.
 

@@ -18,6 +18,7 @@ import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
+import { FitText } from "@/components/FitText";
 
 /**
  * THE CASE SYSTEM, WALKED THROUGH ONCE, ON A WORD THE READER PICKS.
@@ -654,9 +655,9 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
             <span className="text-2xl" style={{ color: "var(--ink-3)" }} aria-hidden>=</span>
             <span className="sr-only">makes</span>
             <span key={`${word.lemma}-${form.key}-out`} className="settle flex items-center gap-2">
-              <span lang="et" className="text-3xl font-bold" style={{ color: "var(--ink)" }}>
+              <FitText text={form.value} max="var(--text-3xl)" lang="et" className="font-bold" style={{ color: "var(--ink)" }}>
                 <WithEnding value={form.value} suffix={form.stored ? "" : form.suffix} />
-              </span>
+              </FitText>
               <Speak text={form.value} label={`Hear ${form.value}`} size={17} />
             </span>
           </div>

@@ -14,6 +14,7 @@ import type { ChoiceItem, DictationItem, SpeakItem, WriteItem } from "@/lib/asse
 import type { Given } from "@/lib/assessment/score";
 import { wordNote, type WordStatus } from "@/lib/estonian/dictation";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCredit, verdictOfDictation } from "@/lib/ux/verdict";
+import { FitText } from "@/components/FitText";
 
 /**
  * One question, and its answer.
@@ -525,9 +526,7 @@ export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (
       <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.question}</p>
       <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{item.translation}</p>
 
-      <p lang="et" className="mt-5 text-3xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
-        {item.et}
-      </p>
+      <FitText as="p" text={item.et} max="var(--text-3xl)" lang="et" className="mt-5 font-bold leading-snug" style={{ color: "var(--ink)" }} />
 
       <div className="mt-5">
         <Speak

@@ -10349,6 +10349,20 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   same two moves: `flex-nowrap` on a marker and a short label, or `items-start` with the marker nudged
   to the first line where a label may run to two. Its first run found the course strip, an exam option,
   the mode tiles and the frequency lists.
+- **A word set large shrinks; it is never broken.** The body's `overflow-wrap: anywhere` is right
+  for a paragraph and wrong at display size: the landing page's hero card, the first thing a
+  stranger sees, drew `raamatusse` as `raamatuss / e`. Nothing caught it, for three reasons worth
+  keeping apart: the card is `aria-hidden` and the split check skipped anything aria-hidden, which
+  hides it from a screen reader and not from anybody's eyes; the check allowed a break in any
+  word over thirteen letters, which is right for running text and wrong for a headword; and the
+  card turns through its forms, so the sweep saw whichever one was up. `components/FitText.tsx`
+  is the one way to draw a word at `text-3xl` or larger whose length the design does not know:
+  it keeps every word whole, sizes the first paint from the longest word's letter count, then
+  measures and sets the size exactly, capped at the design size, and `steadyFor` holds one size
+  across words that change in place. An invariant fails on any element carrying `lang` and a
+  display size that is not a `FitText`; `test-containment.mjs` refuses a display-size word broken
+  across lines on every route, aria-hidden or not, and hands every `FitText` a twenty-two letter
+  compound to hold on one line, which is how a word that has not been dealt yet is checked.
 - **A grid item needs `min-w-0` for the same reason `main` did, and a column count is a fact about
   the width.** The week calendar failed the containment sweep four times over and the two causes are
   worth keeping apart. A `truncate` paragraph is `white-space: nowrap` and `overflow: hidden` clips

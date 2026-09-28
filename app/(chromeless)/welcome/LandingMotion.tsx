@@ -7,6 +7,7 @@ import { distanceLine, foundHours, project } from "@/lib/assessment/plan";
 import { REASONS, impliedTarget } from "@/lib/assessment/goals";
 import { formatDuration } from "@/lib/time/duration";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { FitText } from "@/components/FitText";
 import type { DemoWord } from "./LandingDemo";
 
 /**
@@ -51,6 +52,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
   }, [frames.length, held]);
 
   const frame = frames[i % Math.max(1, frames.length)];
+  const siblings = frames.filter((f) => f.lemma === frame?.lemma).map((f) => f.form);
   if (!frame) return null;
   const first = frames[0]!;
 
@@ -78,9 +80,14 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
             <span className="hero-word-label">Dictionary word</span>
             <span lang="et" className="hero-word-lemma">{frame.lemma}</span>
           </div>
-          <span key={`${frame.lemma}-${frame.form}`} lang="et" className="hero-word-form">
-            {frame.form}
-          </span>
+          <FitText
+            key={`${frame.lemma}-${frame.form}`}
+            text={frame.form}
+            steadyFor={siblings}
+            max="var(--text-6xl)"
+            lang="et"
+            className="hero-word-form"
+          />
           <p key={`q-${i}`} className="hero-word-question">{frame.question}</p>
           <span className="hero-word-track">
             <span key={`t-${i}`} className="hero-word-tick" data-held={held ? "" : undefined} />

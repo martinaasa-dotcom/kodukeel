@@ -1,6 +1,7 @@
 import { Children, type CSSProperties, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
+import { FitText } from "@/components/FitText";
 import { WayOut } from "@/components/round/RoundExit";
 import { PrefetchLink } from "@/components/PrefetchLink";
 import { DESTINATIONS } from "@/lib/ux/nav";
@@ -74,9 +75,9 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
                 />
               </span>
             )}
-            <h1 lang={titleLang} className="min-w-0 text-3xl font-bold leading-[1.05]" style={{ color: "var(--ink)" }}>
-              {title}
-            </h1>
+            {/* A page title is often one Estonian word, a unit or a case, and
+                a long one broke across lines on a phone: it shrinks instead. */}
+            <FitText as="h1" text={title} max="var(--text-3xl)" lang={titleLang} className="min-w-0 font-bold leading-[1.05]" style={{ color: "var(--ink)" }} />
           </div>
           {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
         </div>

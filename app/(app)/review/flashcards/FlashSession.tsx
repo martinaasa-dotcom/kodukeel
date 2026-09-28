@@ -28,6 +28,7 @@ import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { FitText } from "@/components/FitText";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -399,9 +400,7 @@ function Question({
     <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
   );
   const word = (
-    <p lang="et" className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-      {task.lemma}
-    </p>
+    <FitText as="p" text={task.lemma} max="var(--text-3xl)" lang="et" className="font-bold leading-tight" style={{ color: "var(--ink)" }} />
   );
 
   if (shape === "recall") {

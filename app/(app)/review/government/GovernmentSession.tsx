@@ -19,6 +19,7 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { FitText } from "@/components/FitText";
 
 export interface GovernmentQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -246,9 +247,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
 
         <div className="px-6 py-8 text-center">
           <div className="flex items-center justify-center gap-2">
-            <p lang="et" className="text-3xl font-semibold" style={{ color: "var(--ink)" }}>
-              {question.lemma}
-            </p>
+            <FitText as="p" text={question.lemma} max="var(--text-3xl)" lang="et" className="font-semibold" style={{ color: "var(--ink)" }} />
             <Speak text={question.lemma} />
           </div>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>

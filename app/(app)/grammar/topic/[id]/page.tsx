@@ -19,6 +19,7 @@ import { focusFrom } from "@/lib/course";
 import { moduleScopeFrom } from "@/lib/course/scope";
 import { verbAsks } from "@/lib/course/tryIt";
 import { TryIt } from "@/components/course/TryIt";
+import { FitText } from "@/components/FitText";
 
 /**
  * The grammar topics with a drill of their own.
@@ -179,17 +180,13 @@ export default async function TopicPage({
                   <dt className="label-xs" style={{ color: "var(--cta)" }}>
                     The ending that carries it
                   </dt>
-                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
-                    {topic.marker}
-                  </dd>
+                  <FitText as="dd" text={topic.marker} lang="et" className="font-display mt-1 font-bold leading-tight [--fit-max:var(--text-2xl)] xl:[--fit-max:var(--text-3xl)]" style={{ color: "var(--ink)" }} />
                 </div>
               )}
               {term && (
                 <div className="min-w-0">
                   <dt className="label-xs" style={{ color: "var(--cta)" }}>Called</dt>
-                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
-                    {term.et}
-                  </dd>
+                  <FitText as="dd" text={term.et} lang="et" className="font-display mt-1 font-bold leading-tight [--fit-max:var(--text-2xl)] xl:[--fit-max:var(--text-3xl)]" style={{ color: "var(--ink)" }} />
                   {term.alsoCalled && (
                     <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
                       {term.alsoCalled}, in an English grammar
@@ -202,9 +199,7 @@ export default async function TopicPage({
                   <dt className="label-xs" style={{ color: "var(--cta)" }}>
                     Answers
                   </dt>
-                  <dd lang="et" className="font-display mt-1 text-2xl font-bold leading-tight xl:text-3xl" style={{ color: "var(--ink)" }}>
-                    {term.question}
-                  </dd>
+                  <FitText as="dd" text={term.question} lang="et" className="font-display mt-1 font-bold leading-tight [--fit-max:var(--text-2xl)] xl:[--fit-max:var(--text-3xl)]" style={{ color: "var(--ink)" }} />
                   {/* And what it asks, where the table has a reading for it.
                       A point taught by a question nobody has glossed is a
                       point taught in a language the reader came here to

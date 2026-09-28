@@ -28,6 +28,7 @@ import { roundLength } from "@/lib/ux/roundClock";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
 import { RoundStart } from "@/components/round/RoundStart";
+import { FitText } from "@/components/FitText";
 
 export interface AimedCase {
   key: string;
@@ -475,9 +476,7 @@ export function QuestSession({
           {card.targetsWeakCase && (
             <Chip tone="hard">One of your weak spots</Chip>
           )}
-          <p lang="et" className="text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
-            {card.front}
-          </p>
+          <FitText as="p" text={card.front} lang="et" className="font-bold leading-tight [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]" style={{ color: "var(--ink)" }} />
           {/*
             WHAT THE SENTENCE AROUND THE GAP SAYS, AND THE CUE ONLY WHERE IT
             DID NOT SAY IT.

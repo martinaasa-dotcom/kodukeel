@@ -22,6 +22,7 @@ import { WayOut } from "@/components/round/RoundExit";
 import { BriefingLines } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { useModuleFocus } from "@/components/course/moduleFocus";
+import { FitText } from "@/components/FitText";
 
 export interface SprintCard {
   id: string;
@@ -262,13 +263,13 @@ export function SprintSession({
 
         <div className="flex min-h-[280px] flex-col items-center justify-center gap-4 px-6 py-12 text-center" aria-live="polite">
           <div className="flex items-center gap-2">
-            <p
+            <FitText
+              as="p"
+              text={card.front}
               lang={estonianSide(card.cardType, "front") ? "et" : "en"}
-              className="text-3xl font-semibold leading-tight md:text-4xl"
+              className="font-semibold leading-tight [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]"
               style={{ color: "var(--ink)" }}
-            >
-              {card.front}
-            </p>
+            />
             {estonianSide(card.cardType, "front") && <Speak text={card.lemma ?? card.front} />}
           </div>
 
@@ -292,13 +293,13 @@ export function SprintSession({
             <>
               <div className="my-1 h-px w-16" style={{ background: "var(--rule)" }} />
               <div className="flex items-center gap-2">
-                <p
+                <FitText
+                  as="p"
+                  text={card.back}
                   lang={estonianSide(card.cardType, "back") ? "et" : "en"}
-                  className="text-2xl font-semibold md:text-3xl"
+                  className="font-semibold [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
                   style={{ color: "var(--accent-deep)" }}
-                >
-                  {card.back}
-                </p>
+                />
                 {/* The answer, read aloud as it appears, the same rule
                     ReviewSession's own reveal states for itself. */}
                 {estonianSide(card.cardType, "back") && <Speak text={card.back} autoplay />}

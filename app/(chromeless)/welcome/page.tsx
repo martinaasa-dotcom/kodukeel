@@ -107,7 +107,7 @@ export default async function WelcomePage() {
 const ANU_LINES: readonly AnuLine[] = [
   { at: "top", mood: "happy", text: "I’m Anu, the tutor. I’ll come down the page with you." },
   { at: "who", mood: "happy", text: "Whichever one is you, the first evening is the same fifteen minutes." },
-  { at: "cases", mood: "thinking", text: "Press a word. The endings light up, and the odd one out says so." },
+  { at: "cases", mood: "thinking", text: "Press an ending. It snaps onto the stem, and that is the whole trick." },
   { at: "features", mood: "happy", text: "Ask me the thing you would not ask in class. I never sigh." },
   { at: "compare", mood: "thinking", text: "Keep your class. This is the part between lessons." },
   { at: "plan", mood: "happy", text: "Press a few. The sum is the one I use inside." },
@@ -463,7 +463,7 @@ function Compare() {
       </Reveal>
       <p className="mt-6 max-w-[60ch] text-sm" style={{ color: "var(--ink-3)" }}>
         Comparing named apps? The table is under{" "}
-        <a href="#faq" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>the questions</a>,
+        <a href="#comparison" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>the questions</a>,
         checked against each one&rsquo;s own pages.
       </p>
     </section>
@@ -550,7 +550,7 @@ function Cases({ words }: { words: DemoWord[] }) {
             You can hold a 400-day streak and still freeze when somebody speaks to you at the
             counter. Three forms of a word are yours to learn, sometimes four. After that it is
             the same regular endings every time. Where a word breaks the pattern, you get the form
-            Estonians actually say beside the one the rule predicts. Press a word and watch.
+            Estonians actually say beside the one the rule predicts. Press an ending and build one.
           </p>
         </div>
       </Reveal>
@@ -967,7 +967,7 @@ function Mark({ verdict }: { verdict: Verdict }) {
  */
 function Comparison() {
   return (
-    <FaqItem question="How does it compare with Speakly, Keeleklikk and Anki?">
+    <FaqItem id="comparison" question="How does it compare with Speakly, Keeleklikk and Anki?">
       {/*
         No Reveal inside here. It fades a section up as it enters the
         viewport, and an element that is display:none until somebody opens
@@ -1135,10 +1135,11 @@ const FAQS = [
  * costs a line rather than a screen: shut, it is exactly as tall as "What
  * happens to my data?".
  */
-function FaqItem({ question, children }: { question: string; children: React.ReactNode }) {
+function FaqItem({ id, question, children }: { id?: string; question: string; children: React.ReactNode }) {
   return (
     <details
-      className="group rounded-[var(--r-lg)] border px-5 py-4"
+      id={id}
+      className="group scroll-mt-24 rounded-[var(--r-lg)] border px-5 py-4"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth-sm)" }}
     >
       <summary

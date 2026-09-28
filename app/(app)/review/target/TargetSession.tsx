@@ -16,6 +16,7 @@ import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { shotSeconds } from "@/lib/games/target";
+import { FitText } from "@/components/FitText";
 
 
 /**
@@ -210,9 +211,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
       </div>
 
       <div key={question.lemma + index} className="quest-card mt-8 flex flex-col items-center gap-2 text-center">
-        <p lang="et" className="text-4xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {question.lemma}
-        </p>
+        <FitText as="p" text={question.lemma} max="var(--text-4xl)" lang="et" className="font-bold tracking-tight" style={{ color: "var(--ink)" }} />
         {question.question ? (
           <>
             <p lang="et" className="text-xl font-semibold" style={{ color: "var(--peach-ink)" }}>
