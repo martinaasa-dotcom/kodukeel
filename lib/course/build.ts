@@ -279,6 +279,17 @@ export const GOVERNED_FOR_ROUND = 4;
 export const WORDS_FOR_LETTERS = 4;
 
 /**
+ * How many verbs' past forms one evening shows.
+ *
+ * Five, which is the Learn ladder's own batch and about three minutes: each
+ * verb is two forms heard and read, and five is a table a person reads rather
+ * than scrolls. The page about the past is read early in A2, when nearly a
+ * hundred verbs have been taught, so the backlog takes a few weeks of
+ * evenings and the verbs taught after it join the queue as they arrive.
+ */
+export const FORMS_PER_EVENING = 5;
+
+/**
  * What each round needs to have been taught before the module deals it.
  *
  * Match and Listening need nothing but words, which is why they stand in for
@@ -422,6 +433,9 @@ export class Ledger {
   private scene = false;
   private readable = false;
   private spellable = 0;
+  /** Verbs with a stored past, taught and not yet shown, in teaching order. */
+  private formsWaiting: string[] = [];
+  private readonly formsShown = new Set<string>();
 
   /** A word handed over, with what the harvest holds for it. */
   teach(lemma: string, pos: string): void {
@@ -436,6 +450,9 @@ export class Ledger {
     this.spellings.add(lemma.toLowerCase());
     if (!word) return;
     if (pos === "VERB" && word.government && fresh) this.governed += 1;
+    if (pos === "VERB" && word.parts.PAST_1SG && !this.formsShown.has(lemma) && !this.formsWaiting.includes(lemma)) {
+      this.formsWaiting.push(lemma);
+    }
     for (const form of Object.values(word.parts)) this.spellings.add(form.toLowerCase());
     for (const extra of word.extraForms) this.spellings.add(extra.value.toLowerCase());
     if (!this.readable) this.pending.push(...word.usages);
@@ -445,6 +462,22 @@ export class Ledger {
   read(reads: Pick<DaySpec, "grammar" | "grammarCase">): void {
     if (reads.grammarCase) this.cases.add(reads.grammarCase);
     if (reads.grammar) this.topics.add(reads.grammar);
+  }
+
+  /**
+   * The verbs tonight shows the past of, taken off the front of the queue.
+   *
+   * Nothing before the page about the past has been read, since the past is
+   * not yet a thing the evening can explain; after it, up to
+   * `FORMS_PER_EVENING` a night, earliest taught first, so the verbs a
+   * learner has had longest, which are the commonest ones, come first.
+   */
+  showForms(): string[] {
+    if (!this.topics.has("imperfect")) return [];
+    const tonight = this.formsWaiting.slice(0, FORMS_PER_EVENING);
+    this.formsWaiting = this.formsWaiting.slice(tonight.length);
+    for (const lemma of tonight) this.formsShown.add(lemma);
+    return tonight;
   }
 
   /** What the ledger says now, as a snapshot a day can be dealt against. */
@@ -568,6 +601,12 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
       const reading = name ? readingFor(name) : {};
       ledger.read(reading);
       if (name) readInPart.add(name);
+      /*
+        A conversation evening shows nothing, since the conversation replaces
+        the reading and both rounds; the queue waits for the next evening.
+      */
+      const forms = last && scene ? [] : ledger.showForms();
+      const dealt = rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? []);
       days.push(day(
         {
           id: `${spec.id}-${String(days.length + 1).padStart(2, "0")}`,
@@ -580,7 +619,10 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
           ...reading,
           // The table on the unit's first evening and every other one after,
           // so a unit of verbs is still conjugated and still has its other drill.
-          practice: rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? []),
+          practice: forms.length > 0
+            ? withForms(dealt, spec.level, ledger.taught(), days.at(-1)?.practice ?? [])
+            : dealt,
+          ...(forms.length > 0 ? { forms } : {}),
           ...(last && scene ? { scene } : {}),
         },
         days.length + 1,
@@ -598,6 +640,26 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
     blurb: spec.blurb,
     days,
   };
+}
+
+/**
+ * One round, where the past forms take the other's place.
+ *
+ * The drill goes and the game stays, so the evening still has something to
+ * play: the forms step is the drill tonight, and it is verb practice itself.
+ * Where the game is the one last night dealt, another game the words can
+ * carry stands in, since a run of evenings that are each the forms and the
+ * same game is the same evening twice.
+ */
+export function withForms(
+  dealt: readonly ActivityKey[], level: string, taught: Taught, before: readonly ActivityKey[] = [],
+): ActivityKey[] {
+  const game = dealt.find((key) => ACTIVITIES[key].kind === "game") ?? STAND_IN.game;
+  if (!before.includes(game)) return [game];
+  const rotation = ROTATION[level] ?? ROTATION.A1!;
+  const other = rotation.find((key) =>
+    ACTIVITIES[key].kind === "game" && !before.includes(key) && supportsRound(key, taught, level));
+  return [other ?? game];
 }
 
 /** The ledger as it stands at the start of a part: every part before it, built. */

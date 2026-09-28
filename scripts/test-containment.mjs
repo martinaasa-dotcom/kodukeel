@@ -185,6 +185,7 @@ const ROUTES = [
   "/learn/checkpoint/A1",
   "/course",
   "/course/learn",
+  "/course/forms",
 
   // Measurement, and the things built on it.
   "/progress",

@@ -235,6 +235,20 @@ export function taughtThrough(programme: Programme, index: number): string[] {
   return words;
 }
 
+/**
+ * The verbs whose past forms the ladder has shown through a day, every part
+ * before it included. A verb's past is asked inside the module only once it
+ * is on this list (`slotWithin` in `scope.ts`).
+ */
+export function formsThrough(programme: Programme, index: number): string[] {
+  const at = PROGRAMMES.findIndex((p) => p.id === programme.id);
+  const out: string[] = [];
+  const take = (d: CourseDay) => { for (const v of d.forms ?? []) if (!out.includes(v)) out.push(v); };
+  if (at > 0) for (const before of PROGRAMMES.slice(0, at)) before.days.forEach(take);
+  for (const d of programme.days) if (d.index <= index) take(d);
+  return out;
+}
+
 /** The pages the ladder has read through a day: cases by key, topics by id. */
 export interface GrammarTaught {
   cases: string[];

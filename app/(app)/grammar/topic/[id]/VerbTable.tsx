@@ -80,7 +80,7 @@ function From({ origin }: { origin: VerbExampleForm["origin"] }) {
 
 export function VerbTable({ verbs, show }: {
   verbs: readonly VerbExample[];
-  show: "present" | "negative" | "conditional" | "imperative" | "past";
+  show: "present" | "negative" | "conditional" | "imperative" | "past" | "forms";
 }) {
   const prefix = show === "conditional" ? "KndPr" : "IndPr";
   const persons = show === "present" || show === "conditional";
@@ -91,6 +91,8 @@ export function VerbTable({ verbs, show }: {
       ? ["Verb", "olevik, ma", "eitus", "From"]
       : show === "past"
         ? ["Verb", "olevik, ma", "lihtminevik, ma", "lihtminevik, ta", "From"]
+        : show === "forms"
+          ? ["Verb", "olevik, ma", "lihtminevik, ma", "lihtminevik, ta", "käskiv kõneviis, te", "From"]
         : ["Verb", "olevik, ma", "käskiv kõneviis, sa", "From"];
 
   return (
@@ -130,7 +132,7 @@ export function VerbTable({ verbs, show }: {
               );
             }
             const first = pick(verb, "IndPrSg1");
-            if (show === "past") {
+            if (show === "past" || show === "forms") {
               /*
                 The past on the page about the past. Both cells are stored and
                 never worked out: the first person is a principal part and the
@@ -140,13 +142,21 @@ export function VerbTable({ verbs, show }: {
               */
               const pastMa = pick(verb, "IndIpfSg1");
               const pastTa = pick(verb, "IndIpfSg3");
+              // The polite imperative, which no rule reaches either (`andke`,
+              // `minge`), shown beside the past on the module's own step.
+              const politeTe = show === "forms" ? pick(verb, "ImpPrPl2") : undefined;
               return (
                 <tr key={verb.lexemeId} style={{ borderTop: "1px solid var(--rule-soft)" }}>
                   <Head verb={verb} />
                   <td className="px-3 py-2.5"><Form form={first} bold /></td>
                   <td className="px-3 py-2.5"><Form form={pastMa} bold /></td>
                   <td className="px-3 py-2.5"><Form form={pastTa} /></td>
-                  <From origin={rowOrigin([first, pastMa, pastTa])} />
+                  {show === "forms" && (
+                    <td className="px-3 py-2.5">
+                      <Form form={politeTe && { ...politeTe, value: `${politeTe.value}!` }} />
+                    </td>
+                  )}
+                  <From origin={rowOrigin([first, pastMa, pastTa, ...(show === "forms" ? [politeTe] : [])])} />
                 </tr>
               );
             }

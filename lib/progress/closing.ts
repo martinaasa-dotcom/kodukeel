@@ -52,10 +52,14 @@ import { isAround } from "@/lib/collections/levels";
  * asked, so the rows stay four short columns and the count costs a page of
  * them rather than a page of examples.
  */
-const SELECT = { cardType: true, targetCase: true, front: true, slot: true } as const;
+const SELECT = {
+  cardType: true, targetCase: true, front: true, slot: true,
+  // Which verb, since a verb's past is asked only once an evening showed it.
+  lexeme: { select: { lemma: true } },
+} as const;
 
 /** The same, plus the one thing the unseen window is also chosen on. */
-const UNSEEN_SELECT = { ...SELECT, lexeme: { select: { cefr: true } } } as const;
+const UNSEEN_SELECT = { ...SELECT, lexeme: { select: { lemma: true, cefr: true } } } as const;
 
 /**
  * How many answers this evening's closing round still has in it.

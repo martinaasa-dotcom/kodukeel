@@ -232,6 +232,19 @@ export interface DaySpec {
   practice: readonly ActivityKey[];
   /** A conversation to have at the end, where one fits. A scene id. */
   scene?: string;
+  /**
+   * Verbs whose learned-per-verb forms tonight shows: the simple past and,
+   * once the imperative page is read, the polite imperative.
+   *
+   * `lugesin`, `tahtsin` and `võtsin` each have to be learned for their own
+   * verb, and `andke` and `minge` are in no rule at all, so reading the page
+   * about the past teaches none of them. A form is asked inside the module
+   * only once it has been shown, and this is where it is shown: a short
+   * table of the verbs, heard, then three taps on it. The builder decides
+   * which verbs (`Ledger.showForms`), and `scope.ts` reads the list back so a
+   * card asks a verb's past only after the evening that showed it.
+   */
+  forms?: readonly string[];
 }
 
 /** A step, resolved: what it is called, where it goes, and who proves it. */
@@ -311,6 +324,7 @@ export const MEET_STEP = "meet";
 export const READ_STEP = "read";
 export const TALK_STEP = "talk";
 export const REVIEW_STEP = "review";
+export const FORMS_STEP = "forms";
 
 /**
  * How many words a day teaches, at most.
@@ -473,6 +487,25 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
       why: "One page on the thing today's words all do, and three taps at the foot of it to try the point on real words.",
       href: reads,
       minutes: READ_MINUTES,
+      derived: false,
+    });
+  }
+
+  /*
+    SHOWN BEFORE IT IS ASKED. The verbs' past forms, after the reading and
+    before any round, because a round or the closing review may ask one of
+    them tonight and a form nobody has been shown is not a question, it is a
+    guess. It takes the place of one round (the builder hands this evening
+    one round rather than two), so the evening is the same fifteen minutes.
+  */
+  if (!talking && spec.forms && spec.forms.length > 0) {
+    steps.push({
+      id: FORMS_STEP,
+      kind: "drill",
+      title: `The past of ${spec.forms.length === 1 ? "one verb" : `${spec.forms.length} verbs`}`,
+      why: "Each verb keeps its own past, so it is learned verb by verb. Hear them, then try three.",
+      href: "/course/forms",
+      minutes: ROUND_MINUTES,
       derived: false,
     });
   }

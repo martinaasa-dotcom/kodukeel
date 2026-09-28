@@ -24,7 +24,7 @@
  * database.
  */
 
-import { programmeById, taughtThrough, grammarThrough, dayById } from "./index";
+import { programmeById, taughtThrough, grammarThrough, dayById, formsThrough } from "./index";
 import { focusFrom } from "./focus";
 import { readableSentence } from "./build";
 import { BLANK, sentenceTiles } from "@/lib/estonian/cloze";
@@ -41,6 +41,8 @@ export interface ModuleScope {
   cases: readonly string[];
   /** The topic pages read through this day, by id. */
   topics: readonly string[];
+  /** The verbs whose past forms an evening has shown through this day (`DaySpec.forms`). */
+  formsShown: readonly string[];
 }
 
 type SearchParams = Record<string, string | string[] | undefined> | undefined;
@@ -69,7 +71,10 @@ export function moduleScopeFrom(searchParams: SearchParams): ModuleScope | null 
  */
 export function scopeFor(programme: Programme, day: CourseDay): ModuleScope {
   const grammar = grammarThrough(programme, day.index);
-  return { programme, day, lemmas: taughtThrough(programme, day.index), ...grammar };
+  return {
+    programme, day, lemmas: taughtThrough(programme, day.index), ...grammar,
+    formsShown: formsThrough(programme, day.index),
+  };
 }
 
 /**
@@ -102,23 +107,22 @@ const VERB_SLOT_PAGE: readonly { opens: string; page: string; also?: string }[] 
 ];
 
 /**
- * THE PARTS OF A VERB NO RULE REACHES, WHICH THE MODULE DOES NOT ASK.
+ * THE PARTS OF A VERB NO RULE REACHES, WHICH ARE SHOWN VERB BY VERB FIRST.
  *
  * A verb form is asked inside the module only where the learner has been
- * shown how to get it, and for the present, the negative, the conditional and
- * the singular imperative that is the page teaching the rule: an ending on the
+ * shown it, and for the present, the negative, the conditional and the
+ * singular imperative that is the page teaching the rule: an ending on the
  * stored first person, the same for every verb (`lib/estonian/conjugate.ts`).
  * The simple past and the polite imperative are not like that. `lugesin`,
  * `tahtsin` and `võtsin` each have to be learned for their own verb, and
  * `andke` and `minge` are in no rule at all, so reading the past-tense page
- * teaches none of them. The page tables four verbs, and no step of an evening
- * shows any other verb's past before a card asks for it. So
- * `juhtuma → lihtminevik, ma` reached a learner who had never seen `juhtusin`,
- * with nothing to work it out from, and it was reported as exactly that.
+ * teaches none of them. `juhtuma → lihtminevik, ma` once reached a learner who
+ * had never seen `juhtusin`, with nothing to work it out from.
  *
- * Refused here until the module has a step that shows each verb in those
- * forms first. Outside the module nothing changes: a learner who opens Review
- * or the flash round themselves still meets them.
+ * So these are asked for a verb only once an evening has shown that verb's
+ * past (`DaySpec.forms`, the forms step), which is `scope.formsShown`, and
+ * only once the page for the part is read too. A caller that cannot say which
+ * verb a slot belongs to gets a no. Outside the module nothing changes.
  */
 const LEARNED_PER_VERB: readonly string[] = ["IndIpf", "ImpPrPl"];
 
@@ -133,10 +137,14 @@ const LEARNED_PER_VERB: readonly string[] = ["IndIpf", "ImpPrPl"];
  * Wrong the safe way, and still a B1 evening on a unit of verbs with no verb
  * asked in any person.
  */
-export function slotWithin(scope: ModuleScope | null, slot: string | null | undefined): boolean {
+export function slotWithin(
+  scope: ModuleScope | null, slot: string | null | undefined, lemma?: string | null,
+): boolean {
   if (!scope || !slot) return true;
   if (scope.cases.includes(slot)) return true;
-  if (LEARNED_PER_VERB.some((code) => slot.startsWith(code))) return false;
+  if (LEARNED_PER_VERB.some((code) => slot.startsWith(code)) && !(lemma && scope.formsShown.includes(lemma))) {
+    return false;
+  }
   const verb = VERB_SLOT_PAGE.find((v) => slot.startsWith(v.opens));
   if (verb) {
     // The conditional is asked from B1, and the module's own table asks this
@@ -147,6 +155,16 @@ export function slotWithin(scope: ModuleScope | null, slot: string | null | unde
   }
   if (/^[A-Z][a-z]+[A-Z]/.test(slot)) return false;
   return caseWithin(scope, isCaseKey(slot) ? slot : null);
+}
+
+/**
+ * What tonight's forms step shows: the evening's own verbs, and whether the
+ * polite imperative goes beside their past, which it does once the imperative
+ * page has been read. One answer here, so the page and the gate above cannot
+ * disagree about what the step put on the screen.
+ */
+export function formsTonight(scope: ModuleScope): { verbs: readonly string[]; polite: boolean } {
+  return { verbs: scope.day.forms ?? [], polite: scope.topics.includes("imperative") };
 }
 
 const isCaseKey = (slot: string): boolean => CASES.some((c) => c.key === slot);
@@ -162,7 +180,11 @@ const isCaseKey = (slot: string): boolean => CASES.some((c) => c.key === slot);
  */
 export function cardWithin(
   scope: ModuleScope | null,
-  card: { cardType: string; targetCase: string | null; front: string; slot?: string | null },
+  card: {
+    cardType: string; targetCase: string | null; front: string; slot?: string | null;
+    /** The word the card is about, which a verb's past is held to (`slotWithin`). */
+    lexeme?: { lemma: string } | null;
+  },
   spellings: ReadonlySet<string> | null,
 ): boolean {
   if (!scope) return true;
@@ -179,7 +201,7 @@ export function cardWithin(
   // evening of A2.
   if (
     card.cardType === "CONJUGATION"
-    && !slotWithin(scope, card.slot ?? conjugationSlotFromFront(card.front))
+    && !slotWithin(scope, card.slot ?? conjugationSlotFromFront(card.front), card.lexeme?.lemma)
   ) return false;
   if (card.cardType === "CLOZE" || card.cardType === "CASE_FORM" || card.cardType === "CONJUGATION") {
     // A sentence front, with the gap taken out. A bare front (`lemma → ask`)
