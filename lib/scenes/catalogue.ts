@@ -249,11 +249,11 @@ const DOCTOR: SceneSpec = {
     person. Everything on this card is fiction, and nothing in a transcript is
     true about whoever wrote it.
   */
-  role: "You are a patient. Something has been wrong since earlier this week and you would like to be seen.",
+  role: "You're a patient. Something's been wrong since earlier this week, and you'd like somebody to take a look.",
   props: [
     {
       kind: "word", slot: "symptom", oneOf: ["valu", "palavik", "haigus", "haige", "väsinud"],
-      says: "What is wrong. Say it in your own sentence.",
+      says: "What is wrong with you. Say it your own way.",
       means: { haige: "ill" },
     },
     {
@@ -297,7 +297,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "reason",
-      goal: "Tell them what is wrong: the pain, the illness, how you feel.",
+      goal: "Tell them what's wrong. A pain, a fever, feeling rotten: whatever it is.",
       they: "They ask what brings you in.",
       move: "ask",
       topic: ["valu", "haigus", "tervis", "haige", "palavik"],
@@ -315,7 +315,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Tell them which part of you it is.",
+      goal: "Tell them where it hurts.",
       they: "They ask where it hurts.",
       move: "ask",
       topic: ["pea", "kõrv", "käsi", "jalg", "selg", "silm", "nina", "suu", "keha"],
@@ -327,8 +327,8 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Tell them how long it has been going on.",
-      they: "They ask how long it has been going on.",
+      goal: "Tell them which day it started.",
+      they: "They ask how long it's been going on.",
       move: "ask",
       topic: ["päev", "nädal", "hommik", "aeg", "esmaspäev", "teisipäev", "kolmapäev"],
       needs: [{ kind: "datum", slot: "since" }],
@@ -338,7 +338,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "offer",
-      goal: "Take the time they offered, or ask for a different one.",
+      goal: "Take the time they've offered, or tell them it doesn't work for you.",
       they: "They offer you an appointment at {time}.",
       move: "offer",
       topic: ["aeg", "kell", "tund", "päev"],
@@ -354,7 +354,7 @@ const DOCTOR: SceneSpec = {
         a receptionist who hears "ei sobi" looks for the next free slot.
       */
       counter: {
-        they: "They offer {time2} instead and ask whether that one works.",
+        they: "They look again, offer {time2} instead, and ask if that works.",
         says: [{ lemma: "kell" }, { slot: "time2" }],
         replaces: [["time", "time2"]],
       },
@@ -369,8 +369,8 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "confirm",
-      goal: "Say the time back to them, so you both know it is right.",
-      they: "They read the time back to check: {time}.",
+      goal: "Say the time back, so you both know you've got it right.",
+      they: "They read the time back to be sure: {time}.",
       move: "confirm",
       topic: ["aeg", "kell", "päev"],
       says: [{ lemma: "kell" }, { slot: "time" }],
@@ -395,12 +395,12 @@ const DOCTOR: SceneSpec = {
     {
       id: "booked",
       when: ["greet", "reason", "where", "since", "offer", "close"],
-      says: "You have an appointment, and they know what it is for.",
+      says: "You've got an appointment, and they know what it's for.",
     },
     {
       id: "booked-thin",
       when: ["greet", "reason", "offer"],
-      says: "You have an appointment. They did not get the whole story, so bring it with you.",
+      says: "You've got an appointment. They didn't get the whole story, so bring it with you.",
     },
     /*
       A failure that is not the learner's fault, which every scene needs one of
@@ -411,9 +411,9 @@ const DOCTOR: SceneSpec = {
     {
       id: "sent-away",
       when: ["greet"],
-      says: "No appointment today. They ask you to call back when you can say how long it has been.",
+      says: "No appointment today. They'd like you to call back once you can say how long it's been going on.",
     },
-    { id: "left", when: [], says: "You left the desk. That is a thing people do, and you can come back." },
+    { id: "left", when: [], says: "You walked away from the desk. People do, and you can always come back." },
   ],
 };
 
@@ -431,16 +431,16 @@ const LANDLORD: SceneSpec = {
   */
   units: [...COMMON, "eluase", "kodu", "kodutood", "plaanid", "minevik", "omadussonad", "linn-ja-teenused", "ostmine"],
   register: "teie",
-  role: "You rent a flat. Something in it stopped working earlier this week and you are ringing the person you rent from.",
+  role: "You rent a flat. Something in it stopped working earlier this week, so you're ringing your landlord.",
   props: [
     {
       kind: "word", slot: "problem", oneOf: ["küte", "elekter", "remont", "mööbel", "aken", "uks"],
-      says: "What has gone wrong. The sentence is yours.",
+      says: "What's gone wrong. Say it your own way.",
     },
     {
       kind: "weekday", slot: "since",
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
-      says: "It has been like this since this day.",
+      says: "It's been like this since this day.",
     },
     // Theirs, like the day beside it: they say when they can come.
     { kind: "time", slot: "time", from: 8, to: 18, theirs: true },
@@ -471,7 +471,7 @@ const LANDLORD: SceneSpec = {
       side holds the one it has now, drawn to differ and never printed: the
       curveball says it off the card and "how much?" is answered with it.
     */
-    { kind: "price", slot: "price", min: 20, max: 60, says: "What the repair was quoted at, in euros." },
+    { kind: "price", slot: "price", min: 20, max: 60, says: "What they said the repair would cost, in euros." },
     { kind: "price", slot: "price2", min: 20, max: 60, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   /*
@@ -498,8 +498,8 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "problem",
-      goal: "Tell them what has broken.",
-      they: "They ask what has gone wrong.",
+      goal: "Tell them what's broken.",
+      they: "They ask what's gone wrong.",
       feel: "sorry",
       move: "ask",
       topic: ["küte", "elekter", "remont", "lekkima", "mööbel"],
@@ -519,8 +519,8 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Tell them which room it is in, and which floor you are on.",
-      they: "They ask which room it is in, and which floor.",
+      goal: "Tell them which room it's in, and which floor you're on.",
+      they: "They ask which room it's in, and which floor.",
       move: "ask",
       /*
         `korrus` is the floor of a building and `kord` is not: it is an
@@ -538,8 +538,8 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Tell them how long it has been like this.",
-      they: "They ask since when.",
+      goal: "Tell them how long it's been like this.",
+      they: "They ask how long it's been like that.",
       move: "ask",
       topic: ["päev", "nädal", "aeg", "õhtu"],
       needs: [{ kind: "datum", slot: "since" }],
@@ -549,9 +549,9 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "refuse",
-      goal: "Nobody can come this week. Ask them when somebody can.",
-      they: "They say nobody can come this week.",
-      answer: "They say somebody can come soon, and then offer a day and a time.",
+      goal: "Nobody can come this week. Ask when somebody can.",
+      they: "They sigh. Nobody can come this week.",
+      answer: "They say somebody can come soon, then offer a day and a time.",
       move: "refuse",
       topic: ["remont", "aeg", "nädal", "üür"],
       needs: [{ kind: "question" }],
@@ -561,8 +561,8 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "agree",
-      goal: "Say the day and time suit you, or say they will not do.",
-      they: "They offer {day} next week at {time} and ask whether that works.",
+      goal: "Say yes to the day and time, or tell them it won't work.",
+      they: "They offer {day} next week at {time} and ask if that works.",
       move: "offer",
       topic: ["aeg", "päev", "kell", "üürima"],
       /*
@@ -577,7 +577,7 @@ const LANDLORD: SceneSpec = {
         do, which is what the goal allows.
       */
       counter: {
-        they: "They offer {day2} at {time2} instead and ask whether that works.",
+        they: "They try {day2} at {time2} instead and ask if that works.",
         says: [{ slot: "day2", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time2" }],
         replaces: [["day", "day2"], ["time", "time2"]],
       },
@@ -608,19 +608,19 @@ const LANDLORD: SceneSpec = {
     {
       id: "fixed",
       when: ["greet", "problem", "where", "since", "refuse", "agree", "close"],
-      says: "They know what is broken, where and since when, and you talked through when somebody comes.",
+      says: "They know what's broken, where, and since when, and you've sorted out when somebody's coming.",
     },
     {
       id: "logged",
       when: ["greet", "problem", "agree"],
-      says: "They know something is broken and roughly when. No day agreed yet.",
+      says: "They know something's broken and roughly since when. No day's been agreed yet.",
     },
     {
       id: "no-slot",
       when: ["greet", "problem"],
-      says: "They have your report and no free day this week. Nothing you said changed that.",
+      says: "They've got your report, but there's no free day this week. Nothing you could have said would change that.",
     },
-    { id: "left", when: [], says: "You hung up. The heating is still broken, and you can ring again." },
+    { id: "left", when: [], says: "You hung up. It's still broken, and you can ring again any time." },
   ],
 };
 
@@ -639,11 +639,11 @@ const COUNTER: SceneSpec = {
   */
   units: [...COMMON, "linn-ja-teenused", "suhtlemine", "plaanid", "omadussonad", "inimesed", "minevik", "ostmine"],
   register: "teie",
-  role: "You have a form to hand in. You were given a reference number for it, and you are at the desk where forms are handed in.",
+  role: "You've got a form to hand in, and a reference number that came with it. You're at the desk where they take forms.",
   props: [
     {
       kind: "word", slot: "paper", oneOf: ["avaldus", "dokument", "luba", "arve", "allkiri"],
-      says: "What you have come to hand in.",
+      says: "What you've come to hand in.",
       means: { luba: "permit", arve: "bill" },
     },
     /*
@@ -659,7 +659,7 @@ const COUNTER: SceneSpec = {
       side holds the one it has now, drawn to differ and never printed: the
       curveball says it off the card and "how much?" is answered with it.
     */
-    { kind: "price", slot: "price", min: 5, max: 20, says: "The fee you were told, in euros." },
+    { kind: "price", slot: "price", min: 5, max: 20, says: "The fee you were told about, in euros." },
     { kind: "price", slot: "price2", min: 5, max: 20, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   curveballs: [
@@ -680,8 +680,8 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "purpose",
-      goal: "Tell them what you have come in to do.",
-      they: "They ask what you have come for.",
+      goal: "Tell them what you've come in to do.",
+      they: "They ask what you've come for.",
       move: "ask",
       topic: ["avaldus", "dokument", "luba", "teenus", "amet"],
       needs: [{ kind: "lemma", oneOf: ["avaldus", "dokument", "luba", "teenus"] }],
@@ -691,7 +691,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "document",
-      goal: "Hand over the paper they asked for, or tell them you do not have it.",
+      goal: "Hand over the paper they asked for, or tell them you don't have it.",
       they: "They ask for the paper that goes with it.",
       move: "ask",
       topic: ["dokument", "allkiri", "arve", "konto", "number"],
@@ -702,9 +702,9 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "wait",
-      goal: "They have sent you to the queue. Ask how long the wait is.",
-      they: "They point you to the queue.",
-      answer: "They say roughly how long the queue takes.",
+      goal: "They've sent you off to queue. Ask how long the wait is.",
+      they: "They point you towards the queue.",
+      answer: "They tell you roughly how long the wait is.",
       move: "instruct",
       topic: ["järjekord", "aeg", "klient"],
       needs: [{ kind: "question" }],
@@ -714,8 +714,8 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "fill",
-      goal: "Give them each detail as they ask for it, in their order.",
-      meanwhile: "Twenty minutes in the queue. Your number comes up and you are back at the desk.",
+      goal: "Give them each detail as they ask for it, one at a time.",
+      meanwhile: "Twenty minutes later, your number comes up and you're back at the desk.",
       they: "They tell you what to fill in, and in what order.",
       move: "instruct",
       topic: ["täitma", "avaldus", "allkiri"],
@@ -726,9 +726,9 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "confirm",
-      goal: "Ask when it will be ready.",
-      they: "They say the form has been taken and read the details back.",
-      answer: "They say how long it will be before the form is ready.",
+      goal: "Ask when it'll be ready.",
+      they: "They take the form and read the details back to you.",
+      answer: "They tell you how long it'll be until the form is ready.",
       move: "confirm",
       topic: ["aeg", "päev", "nädal", "avaldus"],
       needs: [{ kind: "question" }],
@@ -752,19 +752,19 @@ const COUNTER: SceneSpec = {
     {
       id: "accepted",
       when: ["greet", "purpose", "document", "fill", "confirm", "close"],
-      says: "Your form is in, filled in the way they wanted it.",
+      says: "Your form's in, filled in just the way they wanted.",
     },
     {
       id: "partial",
       when: ["greet", "purpose", "document"],
-      says: "They took the form. Something on it still has to be filled in before it can be read.",
+      says: "They took the form, but something on it still needs filling in before anyone can look at it.",
     },
     {
       id: "turned-away",
       when: ["greet", "purpose"],
-      says: "They cannot take it without the paper you do not have. That is their rule, not your Estonian.",
+      says: "They can't take it without the paper you don't have. That's their rule, not your Estonian.",
     },
-    { id: "left", when: [], says: "You left the counter. The form is still in your bag." },
+    { id: "left", when: [], says: "You left the counter. The form's still in your bag, and it'll keep." },
   ],
 };
 
@@ -791,7 +791,7 @@ const SHOP: SceneSpec = {
   tests: "ostmine",
   units: [...COMMON, "ostmine", "sook-ja-jook", "pohiverbid", "kodu", "kus-ja-kuhu", "omadussonad"],
   register: "sina",
-  role: "You have run out of milk, so you are walking to the corner shop to buy some. A friend rings you a few times along the way to ask how you are getting on.",
+  role: "You've run out of milk, so you're walking to the corner shop. A friend rings a few times on the way to see how you're getting on.",
   props: [],
   curveballs: ["small-talk", "misheard", "interrupted", "faster", "english"],
   beats: [
@@ -808,8 +808,8 @@ const SHOP: SceneSpec = {
     },
     {
       id: "going",
-      goal: "Tell them you are on your way to the shop.",
-      they: "Your friend asks where you are going.",
+      goal: "Tell them you're on your way to the shop.",
+      they: "Your friend asks where you're off to.",
       move: "ask",
       topic: ["pood", "minema", "kuhu"],
       lines: ["Kuhu sa lähed?"],
@@ -820,8 +820,8 @@ const SHOP: SceneSpec = {
     },
     {
       id: "inside",
-      goal: "Tell them you have got there and are in the shop now.",
-      meanwhile: "Five minutes later. You have walked to the shop and you are inside it.",
+      goal: "Tell them you've made it and you're in the shop now.",
+      meanwhile: "Five minutes later, you've walked to the shop and you're inside.",
       they: "A little later they ring again and ask where you are.",
       move: "ask",
       topic: ["pood", "olema", "kus"],
@@ -833,7 +833,7 @@ const SHOP: SceneSpec = {
     {
       id: "item",
       goal: "Tell them what you came for: milk.",
-      they: "They ask what you are buying.",
+      they: "They ask what you're buying.",
       move: "ask",
       topic: ["piim", "tahtma", "ostma", "mis"],
       needs: [{ kind: "case", lemma: "piim", grammCase: "PARTITIVE" }],
@@ -843,9 +843,9 @@ const SHOP: SceneSpec = {
     },
     {
       id: "back",
-      goal: "Tell them you have left the shop and are heading home.",
-      meanwhile: "You have paid, and you are walking home with the milk.",
-      they: "They ring once more on your way home and ask where you are coming from.",
+      goal: "Tell them you've left the shop and you're heading home.",
+      meanwhile: "You've paid, and you're walking home with the milk.",
+      they: "They ring once more on your way home and ask where you're coming from.",
       move: "ask",
       topic: ["pood", "tulema", "kust"],
       needs: [{ kind: "case", lemma: "pood", grammCase: "ELATIVE" }],
@@ -869,19 +869,19 @@ const SHOP: SceneSpec = {
     {
       id: "milk",
       when: ["greet", "going", "inside", "item", "back", "close"],
-      says: "You are home with the milk, and your friend knew where you were the whole way.",
+      says: "You're home with the milk, and your friend knew where you were the whole way.",
     },
     {
       id: "milk-quiet",
       when: ["going", "item", "back"],
-      says: "You are home with the milk. Your friend lost track of you for a while.",
+      says: "You're home with the milk. Your friend lost track of you for a while.",
     },
     {
       id: "no-milk",
       when: ["greet", "going"],
-      says: "The shop had no milk today. That happens, and it was nobody's fault.",
+      says: "The shop was out of milk today. That happens, and it's nobody's fault.",
     },
-    { id: "left", when: [], says: "You put the phone down and went on your own. That is also a way to get milk." },
+    { id: "left", when: [], says: "You put the phone down and went on your own. That's a perfectly good way to get milk too." },
   ],
 };
 
@@ -912,11 +912,11 @@ const CAFE: SceneSpec = {
   */
   units: [...COMMON, "sook-ja-jook", "ostmine", "kus-ja-kuhu", "restoranis", "omadussonad"],
   register: "teie",
-  role: "You have ten minutes before a bus and you would like something to drink. Your card says which one.",
+  role: "You've got ten minutes before your bus and you'd like something to drink. Your card says what.",
   props: [
     {
       kind: "word", slot: "drink", oneOf: ["kohv", "tee", "vesi", "mahl"],
-      says: "What you would like. Ask for it in Estonian.",
+      says: "What you'd like. Ask for it in Estonian.",
       means: { tee: "tea" },
     },
     /*
@@ -925,7 +925,7 @@ const CAFE: SceneSpec = {
       side holds the one it has now, drawn to differ and never printed: the
       curveball says it off the card and "how much?" is answered with it.
     */
-    { kind: "price", slot: "price", min: 2, max: 5, says: "What the drink costs on the board, in euros." },
+    { kind: "price", slot: "price", min: 2, max: 5, says: "What the board says the drink costs, in euros." },
     { kind: "price", slot: "price2", min: 2, max: 5, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   curveballs: ["not-possible", "wrong-price", "small-talk", "faster", "queue", "english", "interrupted", "misheard"],
@@ -943,8 +943,8 @@ const CAFE: SceneSpec = {
     },
     {
       id: "order",
-      goal: "Tell them what you would like to drink.",
-      they: "They ask what you would like.",
+      goal: "Tell them what you'd like to drink.",
+      they: "They ask what you'd like.",
       move: "ask",
       topic: ["jook", "kohv", "tee", "soovima", "tellima"],
       needs: [{ kind: "datum", slot: "drink", grammCase: "PARTITIVE" }],
@@ -963,8 +963,8 @@ const CAFE: SceneSpec = {
         `omadussonad` words the unit list already declares.
       */
       id: "size",
-      goal: "Say whether you would like a large one or a small one.",
-      they: "They ask whether you would like a large one or a small one.",
+      goal: "Say whether you'd like a large one or a small one.",
+      they: "They ask if you'd like a large or a small one.",
       move: "ask",
       topic: ["suur", "väike"],
       needs: [{ kind: "lemma", oneOf: ["suur", "väike"] }],
@@ -975,9 +975,9 @@ const CAFE: SceneSpec = {
     },
     {
       id: "bill",
-      goal: "Tell them you would like to pay.",
-      meanwhile: "A couple of minutes later. Your drink is on the counter in front of you.",
-      they: "They set it down and ask whether that is everything.",
+      goal: "Tell them you'd like to pay.",
+      meanwhile: "A couple of minutes later, your drink's on the counter in front of you.",
+      they: "They set it down and ask if that's everything.",
       move: "ask",
       topic: ["arve", "maksma", "raha", "hind"],
       /*
@@ -1005,9 +1005,9 @@ const CAFE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "served", when: ["greet", "order", "size", "bill", "close"], says: "You have your drink, you paid, and you made the bus." },
-    { id: "served-quiet", when: ["order", "bill"], says: "You have your drink and you paid. Not much was said, and that is fine in a café." },
-    { id: "out", when: ["greet", "order"], says: "They were out of it today. You said what you wanted, and that was the part that was yours." },
+    { id: "served", when: ["greet", "order", "size", "bill", "close"], says: "You've got your drink, you've paid, and you made the bus." },
+    { id: "served-quiet", when: ["order", "bill"], says: "You got your drink and you paid. Not much was said, and in a café that's fine." },
+    { id: "out", when: ["greet", "order"], says: "They'd run out of it today. You asked for what you wanted, and that was your part done." },
     { id: "left", when: [], says: "You left without ordering. The bus was coming anyway." },
   ],
 };
@@ -1025,11 +1025,11 @@ const DIRECTIONS: SceneSpec = {
   */
   units: [...COMMON, "kus-ja-kuhu", "ostmine", "kohasonad", "korraldused", "reisimine", "linn-ja-teenused", "omadussonad"],
   register: "teie",
-  role: "You are new in town and looking for somewhere. Your card says where you are going. You stop somebody on the street.",
+  role: "You're new in town and looking for somewhere. Your card says where you're going. You stop somebody on the street.",
   props: [
     {
       kind: "word", slot: "place", oneOf: ["kohvik", "pank", "haigla", "jaam", "hotell", "turg"],
-      says: "Where you are trying to get to.",
+      says: "Where you're trying to get to.",
     },
   ],
   /*
@@ -1052,8 +1052,8 @@ const DIRECTIONS: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello, or excuse yourself for stopping them.",
-      they: "They stop, and say hello.",
+      goal: "Say hello, or say sorry for stopping them.",
+      they: "They stop and say hello.",
       move: "greet",
       topic: [...HELLOS, "Vabandust!"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS, "Vabandust!"] }],
@@ -1063,7 +1063,7 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Ask them where the place you are looking for is.",
+      goal: "Ask them where the place you're looking for is.",
       they: "They wait for your question.",
       answeredNext: true,
       move: "ask",
@@ -1084,7 +1084,7 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "way",
-      goal: "Say the directions back to check you have them, or just thank them.",
+      goal: "Say the directions back to check you've got them, or just thank them.",
       they: "They tell you the way: straight on, then left.",
       move: "instruct",
       topic: ["otse", "vasak", "vasakul", "paremal", "edasi", "kõrval"],
@@ -1095,9 +1095,9 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "far",
-      goal: "Ask whether it is far, or near enough to walk.",
+      goal: "Ask if it's far, or near enough to walk.",
       they: "They wait in case you have another question.",
-      answer: "They say it is close, a few minutes on foot.",
+      answer: "They say it's close, just a few minutes on foot.",
       move: "confirm",
       awaits: true,
       topic: ["lähedal", "kõndima", "minut"],
@@ -1121,7 +1121,7 @@ const DIRECTIONS: SceneSpec = {
   outcomes: [
     { id: "found", when: ["greet", "where", "way", "close"], says: "You know the way, and you thanked them for it." },
     { id: "half", when: ["greet", "where"], says: "They told you the way. Whether you caught it is another matter." },
-    { id: "lost", when: ["greet"], says: "They did not know the place either. That happens, and it was not your Estonian." },
+    { id: "lost", when: ["greet"], says: "They didn't know the place either. That happens, and it wasn't your Estonian." },
     { id: "left", when: [], says: "You walked on. Somebody else will know." },
   ],
 };
@@ -1133,14 +1133,14 @@ const TICKET: SceneSpec = {
   tests: "reisimine",
   units: [...COMMON, "ostmine", "reisimine", "kus-ja-kuhu", "omadussonad", "abi"],
   register: "teie",
-  role: "You need a bus ticket. Your card says where to and when. You are at the window.",
+  role: "You need a bus ticket. Your card says where to and when. You're at the window.",
   props: [
     {
       kind: "word", slot: "to", oneOf: ["kesklinn", "jaam", "haigla", "ülikool", "rand"],
-      says: "Where you are going.",
+      says: "Where you're going.",
       places: true,
     },
-    { kind: "time", slot: "time", from: 8, to: 20, says: "The time you are meeting." },
+    { kind: "time", slot: "time", from: 8, to: 20, says: "The bus you want, by the time it leaves." },
     /*
       THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
       the one the learner was told, so the card tells them one, and the other
@@ -1165,7 +1165,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "want",
-      goal: "Tell them you would like a ticket.",
+      goal: "Tell them you'd like a ticket.",
       they: "They ask what you need.",
       move: "ask",
       topic: ["pilet", "soovima", "ostma", "vaja"],
@@ -1176,8 +1176,8 @@ const TICKET: SceneSpec = {
     },
     {
       id: "to",
-      goal: "Tell them where you are travelling to.",
-      they: "They ask where you are going.",
+      goal: "Tell them where you're travelling to.",
+      they: "They ask where you're headed.",
       move: "ask",
       topic: ["kuhu", "sõitma", "buss"],
       needs: [{ kind: "datum", slot: "to", grammCase: "ILLATIVE" }],
@@ -1187,8 +1187,8 @@ const TICKET: SceneSpec = {
     },
     {
       id: "when",
-      goal: "Tell them which departure you want.",
-      they: "They ask what time.",
+      goal: "Tell them which bus you want to catch.",
+      they: "They ask what time you want to travel.",
       move: "ask",
       topic: ["kell", "aeg", "buss"],
       needs: [{ kind: "datum", slot: "time" }],
@@ -1198,8 +1198,8 @@ const TICKET: SceneSpec = {
     },
     {
       id: "pay",
-      goal: "Tell them how you are paying, or just say yes.",
-      they: "They ask whether you are paying by card.",
+      goal: "Tell them how you're paying, or just say yes.",
+      they: "They ask if you're paying by card.",
       move: "ask",
       topic: ["maksma", "kaart", "raha"],
       needs: [{
@@ -1232,9 +1232,9 @@ const TICKET: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "ticket", when: ["greet", "want", "to", "when", "pay", "close"], says: "You have a ticket, for the right bus, and you paid for it." },
-    { id: "ticket-thin", when: ["want", "to", "pay"], says: "You have a ticket. They guessed the time, so check it before you board." },
-    { id: "no-bus", when: ["greet", "want", "to"], says: "There is no bus there today. That is the timetable, not your Estonian." },
+    { id: "ticket", when: ["greet", "want", "to", "when", "pay", "close"], says: "You've got a ticket for the right bus, and it's paid for." },
+    { id: "ticket-thin", when: ["want", "to", "pay"], says: "You've got a ticket. They had to guess the time, so check it before you get on." },
+    { id: "no-bus", when: ["greet", "want", "to"], says: "There's no bus there today. Blame the timetable, not your Estonian." },
     { id: "left", when: [], says: "You stepped away from the window. The next bus is in an hour." },
   ],
 };
@@ -1259,15 +1259,15 @@ const RESTAURANT: SceneSpec = {
   tests: "restoranis",
   units: [...COMMON, "restoranis", "sook-ja-jook", "ostmine", "omadussonad", "inimesed"],
   register: "teie",
-  role: "You are eating out on your own tonight. Your card says what you would like to eat and drink, and the waiter has questions.",
+  role: "You're eating out on your own tonight. Your card says what you'd like to eat and drink, and the waiter has questions.",
   props: [
     {
       kind: "word", slot: "dish", oneOf: ["supp", "kala", "liha", "salat", "kartul"],
-      says: "What you would like to eat.",
+      says: "What you'd like to eat.",
     },
     {
       kind: "word", slot: "drink", oneOf: ["vesi", "mahl", "kohv", "tee"],
-      says: "What you would like to drink.",
+      says: "What you'd like to drink.",
       means: { tee: "tea" },
     },
     /*
@@ -1301,7 +1301,7 @@ const RESTAURANT: SceneSpec = {
     {
       id: "how-many",
       goal: "Tell them how many of you are eating.",
-      they: "They ask how many you are.",
+      they: "They ask how many of you there are.",
       move: "ask",
       topic: ["mitu", "inimene", "üks", "kaks"],
       needs: [{ kind: "lemma", oneOf: ["üks", "kaks", "kolm", "mina", "ise"] }],
@@ -1312,8 +1312,8 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "order",
-      goal: "Tell them what you would like to eat.",
-      they: "They ask what you would like to eat.",
+      goal: "Tell them what you'd like to eat.",
+      they: "They ask what you'd like to eat.",
       move: "ask",
       topic: ["roog", "menüü", "soovima", "tellima", "sööma"],
       needs: [{ kind: "datum", slot: "dish" }],
@@ -1323,9 +1323,9 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "contents",
-      goal: "Ask them what is in the dish they recommended.",
-      they: "They recommend a dish and wait.",
-      answer: "They say what is in the dish they recommended.",
+      goal: "Ask them what's in the dish they recommended.",
+      they: "They recommend a dish and wait to see what you think.",
+      answer: "They tell you what's in the dish.",
       move: "offer",
       topic: ["soovitama", "roog", "maitse", "hea"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["roog", "liha", "kala", "köögivili", "salat", "supp", "maitse", "sees"] }],
@@ -1335,8 +1335,8 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "drink",
-      goal: "Tell them what you would like to drink with it.",
-      they: "They ask what you would like to drink.",
+      goal: "Tell them what you'd like to drink with it.",
+      they: "They ask what you'd like to drink.",
       move: "ask",
       topic: ["jook", "jooma", "vesi", "mahl"],
       needs: [{ kind: "datum", slot: "drink" }],
@@ -1347,8 +1347,8 @@ const RESTAURANT: SceneSpec = {
     {
       id: "bill",
       goal: "Ask them for the bill.",
-      meanwhile: "You have eaten. The waiter comes back to clear the table.",
-      they: "They ask whether it was good.",
+      meanwhile: "You've eaten. The waiter comes back to clear the table.",
+      they: "They ask if you enjoyed it.",
       feel: "glad",
       move: "ask",
       topic: ["maitse", "hea", "arve", "maksma"],
@@ -1370,10 +1370,10 @@ const RESTAURANT: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "fed", when: ["greet", "order", "contents", "drink", "bill", "close"], says: "You ate, you knew what was in it, and you paid. That is a whole evening out in Estonian." },
-    { id: "fed-quiet", when: ["order", "drink", "bill"], says: "You ate and you paid. You never found out what was in it, and it was fine." },
-    { id: "kitchen-closed", when: ["greet", "order"], says: "The kitchen had stopped serving hot food. You ordered like somebody who eats here, and that was the part that was yours." },
-    { id: "left", when: [], says: "You left before ordering. There is a place round the corner, and you can come back." },
+    { id: "fed", when: ["greet", "order", "contents", "drink", "bill", "close"], says: "You ate, you knew what was in it, and you paid. That's a whole evening out in Estonian." },
+    { id: "fed-quiet", when: ["order", "drink", "bill"], says: "You ate and you paid. You never found out what was in it, and that's fine." },
+    { id: "kitchen-closed", when: ["greet", "order"], says: "The kitchen had stopped serving hot food. You ordered like a regular, and that was your part done." },
+    { id: "left", when: [], says: "You left before ordering. There's a place round the corner, and you can always come back." },
   ],
 };
 
@@ -1391,11 +1391,11 @@ const PHONE: SceneSpec = {
   // hours are said with and the one thing this call is about.
   units: [...COMMON, "suhtlemine", "kodu", "ostmine", "linn-ja-teenused", "plaanid", "omadussonad", "kodutood"],
   register: "teie",
-  role: "You need something from a shop across town before the weekend, and you ring first rather than go and find it shut. Your card says what you are after.",
+  role: "You need something from a shop across town before the weekend, so you ring first rather than turn up and find it shut. Your card says what you're after.",
   props: [
     {
       kind: "word", slot: "thing", oneOf: ["telefon", "arvuti", "raamat", "võti", "laud"],
-      says: "What you are after.",
+      says: "What you're after.",
     },
     /*
       When they open, which is theirs: the beat after it asks the learner to
@@ -1419,8 +1419,8 @@ const PHONE: SceneSpec = {
     },
     {
       id: "why",
-      goal: "Tell them why you are ringing.",
-      they: "They ask what it is about.",
+      goal: "Tell them why you're ringing.",
+      they: "They ask what it's about.",
       move: "ask",
       topic: ["helistama", "küsima", "aitama", "soovima"],
       needs: [{ kind: "lemma", oneOf: ["helistama", "küsima", "soovima", "tahtma", "ostma"] }],
@@ -1430,8 +1430,8 @@ const PHONE: SceneSpec = {
     },
     {
       id: "have",
-      goal: "Tell them what you are after, and ask whether they have it.",
-      they: "They ask what you are looking for.",
+      goal: "Tell them what you're after, and ask if they have it.",
+      they: "They ask what you're looking for.",
       move: "ask",
       topic: ["kaup", "soovima", "tahtma", "ostma", "müüma"],
       needs: [{ kind: "datum", slot: "thing" }],
@@ -1442,7 +1442,7 @@ const PHONE: SceneSpec = {
     {
       id: "hours",
       goal: "Ask them what time they open.",
-      they: "They say they have it, and wait.",
+      they: "They say they've got it, and wait.",
       answeredNext: true,
       move: "confirm",
       topic: ["kaup", "jah", "olema", "siin"],
@@ -1453,8 +1453,8 @@ const PHONE: SceneSpec = {
     },
     {
       id: "confirm",
-      goal: "Say the time back to them, so you know you heard it right.",
-      they: "They say when they open tomorrow: {open}.",
+      goal: "Say the time back, so you know you heard it right.",
+      they: "They tell you when they open tomorrow: {open}.",
       move: "offer",
       topic: ["kell", "aeg", "homme"],
       says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "open" }],
@@ -1476,9 +1476,9 @@ const PHONE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "sorted", when: ["greet", "why", "have", "hours", "confirm", "close"], says: "They have it, you know when they open, and you said the time back. Tomorrow is a trip and not a gamble." },
-    { id: "sorted-thin", when: ["why", "have", "hours"], says: "They have it and they told you when. You did not check the time, so check it before you set off." },
-    { id: "no-stock", when: ["greet", "why", "have"], says: "They are out of it until next week. You asked properly, and a phone call in Estonian is the hard one." },
+    { id: "sorted", when: ["greet", "why", "have", "hours", "confirm", "close"], says: "They've got it, you know when they open, and you checked the time. Tomorrow's a trip, not a gamble." },
+    { id: "sorted-thin", when: ["why", "have", "hours"], says: "They've got it and they told you when to come. You didn't say the time back, so double-check it before you set off." },
+    { id: "no-stock", when: ["greet", "why", "have"], says: "They're out of it until next week. You asked properly, and on the phone, which is the hardest way to do Estonian." },
     { id: "left", when: [], says: "You hung up. Shops have websites too, and you can ring again." },
   ],
 };
@@ -1495,12 +1495,12 @@ const NEIGHBOR: SceneSpec = {
   */
   units: [...COMMON, "inimesed", "kodu", "riigid", "omadussonad"],
   register: "teie",
-  role: "You moved into the building last week. On the stairs you meet the person from the flat opposite, who stops to say hello. Your card says where you are from and who lives with you.",
+  role: "You moved into the building last week. On the stairs you bump into the person from the flat opposite, who stops to say hello. Your card says where you're from and who lives with you.",
   props: [
     { kind: "number", slot: "floor", min: 1, max: 5, says: "The floor you live on." },
     {
       kind: "word", slot: "from", oneOf: ["Soome", "Läti", "Saksamaa", "Inglismaa", "Ameerika", "Rootsi", "Venemaa"],
-      says: "Where you are from.",
+      says: "Where you're from.",
     },
     {
       kind: "word", slot: "with", oneOf: ["naine", "mees", "laps", "sõber", "ema", "vend", "õde"],
@@ -1523,8 +1523,8 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "new",
-      goal: "Tell them you have just moved in.",
-      they: "They ask whether you have just moved in.",
+      goal: "Tell them you've just moved in.",
+      they: "They ask if you've just moved in.",
       feel: "glad",
       move: "ask",
       topic: ["uus", "korter", "maja", "elama"],
@@ -1546,8 +1546,8 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "from",
-      goal: "Tell them which country you came here from.",
-      they: "They ask where you are from.",
+      goal: "Tell them which country you've come from.",
+      they: "They ask where you're from.",
       feel: "glad",
       move: "ask",
       topic: ["kust", "kodumaa", "välismaalane", "Eesti"],
@@ -1559,7 +1559,7 @@ const NEIGHBOR: SceneSpec = {
     {
       id: "with",
       goal: "Tell them who you live with.",
-      they: "They ask whether you live alone.",
+      they: "They ask if you live on your own.",
       move: "ask",
       topic: ["pere", "inimene", "elama", "ise"],
       needs: [{ kind: "datum", slot: "with" }],
@@ -1570,7 +1570,7 @@ const NEIGHBOR: SceneSpec = {
     {
       id: "weather",
       goal: "Say something back about the weather.",
-      they: "They say something about the weather.",
+      they: "They make a remark about the weather.",
       move: "offer",
       topic: ["ilm", "vihm", "lumi", "tuul", "päike", "ilus"],
       needs: [{ kind: "any" }],
@@ -1591,8 +1591,8 @@ const NEIGHBOR: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "neighbors", when: ["greet", "new", "floor", "from", "with", "close"], says: "You have a neighbor now, and they know your floor. That is how a building starts to know you." },
-    { id: "neighbors-thin", when: ["new", "from", "with"], says: "They know you are new and where you are from. The rest can wait for the next flight of stairs." },
+    { id: "neighbors", when: ["greet", "new", "floor", "from", "with", "close"], says: "You've got a neighbor now, and they know your floor. That's how a building starts to know you." },
+    { id: "neighbors-thin", when: ["new", "from", "with"], says: "They know you're new and where you're from. The rest can wait for the next flight of stairs." },
     { id: "rushed", when: ["greet", "new"], says: "They had a bus to catch. You said hello, and there are more stairs tomorrow." },
     { id: "left", when: [], says: "You went on up. The stairs will be there tomorrow, and so will they." },
   ],
@@ -1613,7 +1613,7 @@ const PHARMACY: SceneSpec = {
   // the eval withheld a line over the polite imperative of it.
   units: [...COMMON, "keha-ja-tervis", "restoranis", "plaanid", "ostmine", "omadussonad", "linn-ja-teenused", "minevik"],
   register: "teie",
-  role: "Something has been hurting since earlier in the week and you would rather not see a doctor for it. You are at the pharmacy counter. Your card says what hurts and since when.",
+  role: "Something's been hurting since earlier in the week and you'd rather not see a doctor about it. You're at the pharmacy counter. Your card says what hurts and since when.",
   props: [
     {
       kind: "word", slot: "hurts", oneOf: ["pea", "kõrv", "selg", "jalg", "käsi", "silm"],
@@ -1649,8 +1649,8 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "what",
-      goal: "Tell them what is hurting you.",
-      they: "They ask what they can help with.",
+      goal: "Tell them what's hurting.",
+      they: "They ask how they can help.",
       move: "ask",
       topic: ["aitama", "valu", "valutama", "tervis", "haige"],
       needs: [{ kind: "datum", slot: "hurts" }],
@@ -1660,8 +1660,8 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Tell them how long it has been hurting.",
-      they: "They ask how long it has hurt.",
+      goal: "Tell them how long it's been hurting.",
+      they: "They ask how long it's been like this.",
       move: "ask",
       topic: ["kaua", "päev", "aeg", "kestma", "eile"],
       needs: [{ kind: "datum", slot: "since" }],
@@ -1671,7 +1671,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "medicine",
-      goal: "Ask them what they would recommend for it.",
+      goal: "Ask them what they'd recommend for it.",
       they: "They think for a moment.",
       answeredNext: true,
       move: "confirm",
@@ -1684,7 +1684,7 @@ const PHARMACY: SceneSpec = {
     {
       id: "how",
       goal: "Ask them how often you should take it.",
-      they: "They put a box on the counter and say what it is.",
+      they: "They put a box on the counter and tell you what it is.",
       answeredNext: true,
       move: "offer",
       topic: ["ravim", "hea", "valu", "aitama"],
@@ -1695,8 +1695,8 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "pay",
-      goal: "Tell them you will take it, and pay.",
-      they: "They say how to take it, and the price.",
+      goal: "Tell them you'll take it, and pay.",
+      they: "They explain how to take it and tell you the price.",
       move: "instruct",
       topic: ["hommik", "õhtu", "päev", "hind", "maksma"],
       needs: [{ kind: "lemma", oneOf: ["maksma", "raha", "jah", "aitäh"] }],
@@ -1717,9 +1717,9 @@ const PHARMACY: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "sorted", when: ["greet", "what", "since", "medicine", "how", "pay", "close"], says: "You have something for it and you know how to take it. Nobody switched, and the queue survived." },
-    { id: "sorted-thin", when: ["what", "medicine", "pay"], says: "You have something for it. You did not ask how often, so read the box before you take one." },
-    { id: "see-doctor", when: ["greet", "what", "since"], says: "They said this one needs a doctor rather than a pharmacy. You explained it well enough for them to say so." },
+    { id: "sorted", when: ["greet", "what", "since", "medicine", "how", "pay", "close"], says: "You've got something for it and you know how to take it. Nobody switched to English, and the queue survived." },
+    { id: "sorted-thin", when: ["what", "medicine", "pay"], says: "You've got something for it. You didn't ask how often, so read the box before you take one." },
+    { id: "see-doctor", when: ["greet", "what", "since"], says: "They said this one needs a doctor, not a pharmacy. You explained it well enough for them to tell." },
     { id: "left", when: [], says: "You stepped out of the queue. Pharmacies are open late, and you can come back." },
   ],
 };
@@ -1735,15 +1735,15 @@ const COURSE: SceneSpec = {
   */
   units: [...COMMON, "kool-ja-keel", "riigid", "inimesed", "omadussonad"],
   register: "teie",
-  role: "It is the first evening of an Estonian course and the teacher is going round the room. Your card says where you are from and why you are learning. Any name will do; you are not yourself today.",
+  role: "It's the first evening of an Estonian course and the teacher is going round the room. Your card says where you're from and why you're learning. Any name will do. You're not yourself tonight.",
   props: [
     {
       kind: "word", slot: "from", oneOf: ["Soome", "Saksamaa", "Inglismaa", "Ameerika", "Läti", "Rootsi"],
-      says: "Where you are from.",
+      says: "Where you're from.",
     },
     {
       kind: "word", slot: "why", oneOf: ["töö", "pere", "kool", "sõber"],
-      says: "Why you are learning Estonian: because of this.",
+      says: "Why you're learning Estonian: because of this.",
     },
   ],
   curveballs: ["faster", "english", "small-talk", "interrupted", "other-register", "misheard"],
@@ -1761,7 +1761,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "name",
-      goal: "Tell them your name. Any name will do: no transcript here is about you.",
+      goal: "Tell them your name. Any name will do: none of this is about the real you.",
       they: "They ask your name.",
       move: "ask",
       topic: ["nimi", "kes", "olema"],
@@ -1772,8 +1772,8 @@ const COURSE: SceneSpec = {
     },
     {
       id: "from",
-      goal: "Tell them which country you came here from.",
-      they: "They ask where you are from.",
+      goal: "Tell them which country you've come from.",
+      they: "They ask where you're from.",
       feel: "glad",
       move: "ask",
       topic: ["kust", "kodumaa", "Eesti", "välismaalane"],
@@ -1784,8 +1784,8 @@ const COURSE: SceneSpec = {
     },
     {
       id: "why",
-      goal: "Tell them why you are learning Estonian.",
-      they: "They ask why you are learning Estonian.",
+      goal: "Tell them why you're learning Estonian.",
+      they: "They ask why you're learning Estonian.",
       feel: "glad",
       move: "ask",
       topic: ["miks", "õppima", "keel", "sest"],
@@ -1796,9 +1796,9 @@ const COURSE: SceneSpec = {
     },
     {
       id: "word",
-      goal: "They used a word you do not know. Ask what it means, or ask them to say it again.",
-      they: "They use a word you do not know, and carry on.",
-      answer: "They say the word again, slowly, and say what it means in other Estonian words.",
+      goal: "They used a word you don't know. Ask what it means, or ask them to say it again.",
+      they: "They use a word you don't know and just carry on.",
+      answer: "They say the word again, slowly, and explain it with other Estonian words.",
       move: "instruct",
       topic: ["sõna", "lause", "harjutus", "näide", "kordama"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["sõna", "kordama", "seletama", "uuesti", "aeglane", "tõlkima"] }],
@@ -1808,8 +1808,8 @@ const COURSE: SceneSpec = {
     },
     {
       id: "howlong",
-      goal: "Tell them how long you have been learning.",
-      they: "They ask how long you have studied Estonian.",
+      goal: "Tell them how long you've been learning.",
+      they: "They ask how long you've been studying Estonian.",
       move: "ask",
       topic: ["kaua", "õppima", "aasta", "kuu", "nädal"],
       needs: [{ kind: "lemma", oneOf: ["aasta", "kuu", "nädal", "päev", "kaua", "juba", "veel", "alati", "ammu"] }],
@@ -1831,8 +1831,8 @@ const COURSE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "introduced", when: ["greet", "name", "from", "why", "word", "close"], says: "The room knows who you are and why you are here, and you asked about a word instead of nodding. That is the whole of a first evening." },
-    { id: "introduced-thin", when: ["name", "why", "word"], says: "They know your name and why you are here. You asked about the word, which is the part most people skip." },
+    { id: "introduced", when: ["greet", "name", "from", "why", "word", "close"], says: "The room knows who you are and why you're here, and you asked about a word instead of just nodding. That's a first evening done properly." },
+    { id: "introduced-thin", when: ["name", "why", "word"], says: "They know your name and why you're here. And you asked about the word, which is the bit most people skip." },
     { id: "moved-on", when: ["greet", "name"], says: "The teacher moved on to the next person before you got going. There are twelve more Tuesdays." },
     { id: "left", when: [], says: "You slipped out at the break. The course is still there on Thursday." },
   ],
@@ -1852,7 +1852,7 @@ const INTERVIEW: SceneSpec = {
   */
   units: [...COMMON, "too-ja-raha", "haridus", "kool-ja-keel", "kus-ja-kuhu", "ostmine", "kodu", "minevik", "plaanid", "omadussonad", "inimesed"],
   register: "teie",
-  role: "You are being interviewed for a job. Your card says where you worked before, what you are good at and when you could start. None of it is about your real life.",
+  role: "You're being interviewed for a job. Your card says where you worked before, what you're good at and when you could start. None of it is about your real life.",
   props: [
     {
       kind: "word", slot: "before", oneOf: ["kool", "ülikool", "kohvik", "haigla", "pood", "hotell"],
@@ -1860,7 +1860,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       kind: "word", slot: "skill", oneOf: ["keel", "arvuti", "projekt", "inimene"],
-      says: "What you are good at: this.",
+      says: "What you're good at: this.",
       means: { keel: "language", inimene: "person" },
     },
     {
@@ -1898,7 +1898,7 @@ const INTERVIEW: SceneSpec = {
     {
       id: "before",
       goal: "Tell them where you worked before this.",
-      they: "They ask what you did before.",
+      they: "They ask what you did before this.",
       move: "ask",
       topic: ["töö", "töötama", "varem", "kogemus", "ettevõte"],
       needs: [{ kind: "datum", slot: "before" }],
@@ -1908,8 +1908,8 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "skill",
-      goal: "Tell them the thing you are good at.",
-      they: "They ask what you are good at.",
+      goal: "Tell them what you're good at.",
+      they: "They ask what you're really good at.",
       feel: "glad",
       move: "ask",
       topic: ["oskus", "hästi", "teadma", "kogemus"],
@@ -1944,8 +1944,8 @@ const INTERVIEW: SceneSpec = {
     */
     {
       id: "pay",
-      goal: "They asked whether you have questions. Ask what the pay is.",
-      they: "They ask whether you have any questions.",
+      goal: "They asked if you've got any questions. Ask what the pay is.",
+      they: "They ask if you've got any questions for them.",
       answeredNext: true,
       move: "ask",
       topic: ["küsimus", "küsima", "palk", "leping"],
@@ -1965,8 +1965,8 @@ const INTERVIEW: SceneSpec = {
     */
     {
       id: "wage",
-      goal: "They named a monthly wage. Take it, or say no and ask for more, and then agree a figure.",
-      they: "They offer {wage} euros a month and ask whether that suits you.",
+      goal: "They've named a monthly wage. Take it, or say no and ask for more, then settle on a figure.",
+      they: "They offer {wage} euros a month and ask if that suits you.",
       move: "offer",
       topic: ["palk", "euro", "kuu", "leping"],
       says: [
@@ -1974,7 +1974,7 @@ const INTERVIEW: SceneSpec = {
         { lemma: "euro", grammCase: "PARTITIVE" }, { lemma: "kuu", grammCase: "INESSIVE" },
       ],
       counter: {
-        they: "They go up to {wage2} euros a month and ask whether that works for you.",
+        they: "They go up to {wage2} euros a month and ask if that works for you.",
         says: [
           { lemma: "palk" }, { lemma: "olema", verb: "IndPrSg3" }, { slot: "wage2" },
           { lemma: "euro", grammCase: "PARTITIVE" }, { lemma: "kuu", grammCase: "INESSIVE" },
@@ -2014,10 +2014,10 @@ const INTERVIEW: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "offered", when: ["greet", "before", "skill", "why", "pay", "wage", "start", "close"], says: "They will be in touch, and this time they meant it. You said what you did, what you can do and what you want, and you settled the money, in Estonian." },
-    { id: "agreed-pay", when: ["before", "skill", "wage"], says: "You agreed a wage in Estonian, which is the hard half. They still do not know when you could start." },
-    { id: "offered-thin", when: ["before", "skill", "start"], says: "They know what you did and when you could start. The money was never settled, and that is the one thing to settle before you name a day." },
-    { id: "no-decision", when: ["greet", "before", "skill"], says: "They will let you know. They always say that, and you got through the hard half in Estonian." },
+    { id: "offered", when: ["greet", "before", "skill", "why", "pay", "wage", "start", "close"], says: "They'll be in touch, and this time they mean it. You said what you've done, what you can do and what you want, and you settled the money, all in Estonian." },
+    { id: "agreed-pay", when: ["before", "skill", "wage"], says: "You agreed a wage in Estonian, which is the hard half. They still don't know when you could start." },
+    { id: "offered-thin", when: ["before", "skill", "start"], says: "They know what you've done and when you could start. The money never got settled, and that's the one thing to sort out before you name a day." },
+    { id: "no-decision", when: ["greet", "before", "skill"], says: "They'll let you know. They always say that, and you got through the hard half in Estonian." },
     { id: "left", when: [], says: "You ended it early. There are other jobs, and this one was a rehearsal." },
   ],
 };
@@ -2033,7 +2033,7 @@ const COMPLAINT: SceneSpec = {
   */
   units: [...COMMON, "probleemid", "ostmine", "kodu", "linn-ja-teenused", "kodutood", "minevik", "plaanid", "omadussonad"],
   register: "teie",
-  role: "Something you bought last week stopped working. You are back at the shop with it. Your card says what it is and when you bought it.",
+  role: "Something you bought last week has stopped working, and you've brought it back to the shop. Your card says what it is and when you bought it.",
   props: [
     {
       kind: "word", slot: "item", oneOf: ["telefon", "arvuti", "tool", "laud", "klaas"],
@@ -2068,8 +2068,8 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "problem",
-      goal: "Tell them what you bought and what is wrong with it.",
-      they: "They ask what the matter is.",
+      goal: "Tell them what you bought and what's wrong with it.",
+      they: "They ask what the problem is.",
       feel: "sorry",
       move: "ask",
       topic: ["probleem", "viga", "katki", "kaebus", "aitama"],
@@ -2099,8 +2099,8 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "receipt",
-      goal: "Tell them whether you have the receipt with you.",
-      they: "They ask whether you have the receipt.",
+      goal: "Tell them if you've got the receipt with you.",
+      they: "They ask if you've got the receipt.",
       move: "ask",
       topic: ["dokument", "arve", "kaasas"],
       needs: [{ kind: "lemma", oneOf: ["jah", "ei", "arve", "dokument", "kaasas"] }],
@@ -2110,8 +2110,8 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "want",
-      goal: "Tell them what you want them to do: your money back, or it repaired.",
-      they: "They ask what you would like them to do.",
+      goal: "Tell them what you'd like: your money back, or to have it repaired.",
+      they: "They ask what you'd like them to do.",
       move: "ask",
       topic: ["raha", "parandama", "lahendus", "uus", "hüvitis"],
       needs: [{ kind: "lemma", oneOf: ["raha", "parandama", "uus", "lahendus", "hüvitis"] }],
@@ -2121,8 +2121,8 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "insist",
-      goal: "They said no. Say again what you want, politely.",
-      they: "They say that is not possible.",
+      goal: "They've said no. Politely, say again what you want.",
+      they: "They say that's not possible.",
       move: "refuse",
       topic: ["saama", "võimalus", "lahendus", "kaebus"],
       needs: [{ kind: "lemma", oneOf: ["kaebus", "kaebama", "lahendus", "hüvitis", "probleem", "klient"] }],
@@ -2143,10 +2143,10 @@ const COMPLAINT: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "fixed", when: ["greet", "problem", "when", "receipt", "want", "close"], says: "They are taking it back. You said what was wrong, when, and what you wanted, and you did not switch." },
-    { id: "sent-on", when: ["greet", "problem", "when"], says: "They sent you to the maker rather than dealing with it here. That is the shop, not your Estonian, and you have it in writing." },
-    { id: "fixed-thin", when: ["problem", "want"], says: "They know what is wrong and what you want. The paperwork is theirs now." },
-    { id: "left", when: [], says: "You took it home again. It still does not work, and you can come back." },
+    { id: "fixed", when: ["greet", "problem", "when", "receipt", "want", "close"], says: "They're taking it back. You said what was wrong, when you bought it and what you wanted, and you didn't switch to English." },
+    { id: "sent-on", when: ["greet", "problem", "when"], says: "They sent you to the maker rather than dealing with it here. That's the shop, not your Estonian, and you've got it in writing." },
+    { id: "fixed-thin", when: ["problem", "want"], says: "They know what's wrong and what you want. The paperwork's their problem now." },
+    { id: "left", when: [], says: "You took it home again. It still doesn't work, and you can always come back." },
   ],
 };
 
@@ -2177,9 +2177,9 @@ const CLOTHES: SceneSpec = {
   tests: "riided",
   units: [...COMMON, "riided", "varvid", "ostmine", "suured-arvud", "omadussonad"],
   register: "teie",
-  role: "You need one thing to wear and you know what. Your card says which, what size you take and what colour you want.",
+  role: "You need one thing to wear and you know exactly what. Your card says which, what size you take and what colour you're after.",
   props: [
-    { kind: "word", slot: "item", oneOf: ["särk", "kleit", "püksid", "jope", "mantel"], says: "What you have come for." },
+    { kind: "word", slot: "item", oneOf: ["särk", "kleit", "püksid", "jope", "mantel"], says: "What you've come for." },
     { kind: "word", slot: "colour", oneOf: ["punane", "sinine", "must", "roheline", "pruun"], says: "The colour you want." },
     { kind: "number", slot: "size", min: 36, max: 46, says: "The size you take." },
     /*
@@ -2194,7 +2194,7 @@ const CLOTHES: SceneSpec = {
     {
       id: "greet",
       goal: "Say hello to the assistant.",
-      they: "The assistant says hello.",
+      they: "A shop assistant comes over and says hello.",
       move: "greet",
       topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
@@ -2204,7 +2204,7 @@ const CLOTHES: SceneSpec = {
     },
     {
       id: "want",
-      goal: "Tell them which piece of clothing you are looking for.",
+      goal: "Tell them which piece of clothing you're looking for.",
       they: "They ask what they can help you find.",
       move: "ask",
       topic: ["riie", "pood", "soovima", "aitama"],
@@ -2237,8 +2237,8 @@ const CLOTHES: SceneSpec = {
     },
     {
       id: "proov",
-      goal: "Say that you would like to try it on.",
-      they: "They hold it out and ask whether you want to try it on.",
+      goal: "Say you'd like to try it on.",
+      they: "They hold it out and ask if you'd like to try it on.",
       move: "ask",
       topic: ["proovima", "riie"],
       needs: [{ kind: "lemma", oneOf: ["proovima", "jah", "soovima", "tahtma"] }],
@@ -2248,8 +2248,8 @@ const CLOTHES: SceneSpec = {
     },
     {
       id: "sobib",
-      goal: "Come back out and say whether it fits.",
-      they: "They ask how it was.",
+      goal: "Come out of the fitting room and say whether it fits.",
+      they: "They ask how it went.",
       feel: "glad",
       move: "ask",
       topic: ["suur", "väike", "pikk", "lühike", "hea"],
@@ -2293,12 +2293,12 @@ const CLOTHES: SceneSpec = {
     {
       id: "bought",
       when: ["greet", "want", "size", "colour", "proov", "sobib", "hind", "close"],
-      says: "You have it, in your size and the colour you wanted, and you know what you paid.",
+      says: "You've got it, in your size and the colour you wanted, and you know what you paid.",
     },
     {
       id: "bought-blind",
       when: ["greet", "want", "size", "hind", "close"],
-      says: "You have it. You never tried it on, so find out at home whether it fits.",
+      says: "You've got it. You never tried it on, so find out at home whether it fits.",
     },
     /*
       The failure that is not the learner's, which every scene needs one of
@@ -2308,9 +2308,9 @@ const CLOTHES: SceneSpec = {
     {
       id: "not-in-stock",
       when: ["greet", "want"],
-      says: "Nothing in your size today. They suggest coming back next week, which is a real answer rather than a mark against you.",
+      says: "Nothing in your size today. They suggest coming back next week, which is a real answer, not a mark against you.",
     },
-    { id: "left", when: [], says: "You left the shop. That is a thing people do, and you can come back." },
+    { id: "left", when: [], says: "You left the shop. People do, and you can always come back." },
   ],
 };
 

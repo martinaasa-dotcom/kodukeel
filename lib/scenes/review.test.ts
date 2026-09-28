@@ -76,7 +76,7 @@ describe("the review of a conversation", () => {
   */
   it("agrees with itself about one slip, and names which kind it was", () => {
     const one = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })])).lead;
-    expect(one).toContain("One ending was off, and it did not stop the conversation.");
+    expect(one).toContain("One ending was off, and it didn't stop the conversation.");
     const spelling: Slip = { kind: "spelling", said: "korvas", form: "kõrvas", lemma: "kõrv" };
     expect(reviewOf(SCENE, state([turn({ slips: [spelling] })])).lead).toContain("One spelling was off");
     expect(reviewOf(SCENE, state([turn({ slips: [CASE_SLIP, spelling] })])).lead)

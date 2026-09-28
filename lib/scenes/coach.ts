@@ -72,7 +72,7 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
       const word = need.oneOf[0];
       if (!word) return null;
       const also = need.oneOf.length > 1 ? ", or another word for the same thing" : "";
-      return `They are waiting for one word${also}: “${word}”. Any form of it will do.`;
+      return `They're listening for one word${also}: “${word}”. Any form of it will do.`;
     }
     /*
       The word and the case, and never the form. Which ending goes on it is
@@ -91,8 +91,8 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
         wrong sends somebody to fix the half that was fine. And the question is
         said in English beside the Estonian, as on every screen that prints one.
       */
-      return `They are waiting for “${need.lemma}” in the ${spec.et}, which answers `
-        + `${spec.question} (${spec.questionEn}). The ending is what they are listening for.`;
+      return `They're listening for “${need.lemma}” in the ${spec.et}, the one that answers `
+        + `${spec.question} (${spec.questionEn}). It's the ending they want to hear.`;
     }
     /*
       A value off the card, so the answer is already in front of them and the
@@ -103,12 +103,12 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
     case "datum": {
       const prop = card ? propBySlot(card, need.slot) : undefined;
       if (!prop) return null;
-      return `The answer is on your card: “${prop.card}”. Say it back to them in Estonian.`;
+      return `It's right there on your card: “${prop.card}”. Just say it to them in Estonian.`;
     }
     case "question":
-      return "They are waiting for a question. Anything you end with a question mark counts.";
+      return "They're waiting for you to ask something. Anything ending in a question mark counts.";
     case "negation":
-      return "They are waiting for a no.";
+      return "They're waiting for you to say no.";
     /*
       Nothing for `register` or `any`. The first is a thing to notice rather
       than a thing to be told mid-turn, and the second is a beat that cannot

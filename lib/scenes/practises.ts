@@ -38,13 +38,13 @@ import { leafNeeds, type SceneSpec } from "./types";
  * replace.
  */
 export const BEAT_TAGS: Readonly<Record<string, string>> = {
-  "arsti-aeg:reason": "saying what is wrong",
+  "arsti-aeg:reason": "saying what's wrong",
   "arsti-aeg:where": "saying where it hurts",
   "arsti-aeg:since": "saying since when",
   "arsti-aeg:offer": "booking a time",
   "arsti-aeg:confirm": "reading a time back",
 
-  "uuri-remont:problem": "saying what has broken",
+  "uuri-remont:problem": "saying what's broken",
   "uuri-remont:where": "which room and floor",
   "uuri-remont:since": "saying since when",
   "uuri-remont:refuse": "asking when someone can come",
@@ -54,7 +54,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "ametiasutus:document": "handing over a paper",
   "ametiasutus:wait": "asking how long the wait is",
   "ametiasutus:fill": "giving your details",
-  "ametiasutus:confirm": "asking when it is ready",
+  "ametiasutus:confirm": "asking when it'll be ready",
 
   "kohvikus:order": "ordering a drink",
   "kohvikus:size": "large or small",
@@ -62,29 +62,29 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
 
   "tee-kusimine:where": "asking the way",
   "tee-kusimine:way": "following directions",
-  "tee-kusimine:far": "asking whether it is far",
+  "tee-kusimine:far": "asking if it's far",
 
   "bussipilet:want": "asking for a ticket",
-  "bussipilet:to": "saying where you are going",
-  "bussipilet:when": "choosing a departure",
-  "bussipilet:pay": "paying by card or cash",
+  "bussipilet:to": "saying where you're going",
+  "bussipilet:when": "picking which bus",
+  "bussipilet:pay": "card or cash",
 
   "restoranis-tellimine:how-many": "a table for how many",
   "restoranis-tellimine:order": "ordering food",
-  "restoranis-tellimine:contents": "asking what is in a dish",
+  "restoranis-tellimine:contents": "asking what's in a dish",
   "restoranis-tellimine:drink": "ordering a drink",
   "restoranis-tellimine:bill": "asking for the bill",
 
-  "helistamine:why": "saying why you are ringing",
-  "helistamine:have": "asking whether they have it",
-  "helistamine:hours": "asking the opening hours",
+  "helistamine:why": "saying why you're ringing",
+  "helistamine:have": "asking if they have it",
+  "helistamine:hours": "asking when they open",
   "helistamine:confirm": "reading a time back",
 
-  "trepikoda:new": "saying you have just moved in",
+  "trepikoda:new": "saying you've just moved in",
   "trepikoda:floor": "saying your floor",
-  "trepikoda:from": "where you are from",
+  "trepikoda:from": "where you're from",
   "trepikoda:with": "who you live with",
-  "trepikoda:weather": "small talk about the weather",
+  "trepikoda:weather": "chatting about the weather",
 
   "apteek:what": "saying what hurts",
   "apteek:since": "saying since when",
@@ -93,21 +93,21 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "apteek:pay": "paying at the counter",
 
   "keeletund:name": "saying your name",
-  "keeletund:from": "where you are from",
-  "keeletund:why": "why you are learning",
+  "keeletund:from": "where you're from",
+  "keeletund:why": "why you're learning",
   "keeletund:word": "asking what a word means",
-  "keeletund:howlong": "how long you have been learning",
+  "keeletund:howlong": "how long you've been learning",
 
   "toovestlus:before": "where you worked before",
-  "toovestlus:skill": "what you are good at",
+  "toovestlus:skill": "what you're good at",
   "toovestlus:why": "why you want the job",
   "toovestlus:pay": "asking about the pay",
   "toovestlus:wage": "agreeing the pay",
   "toovestlus:start": "when you can start",
 
-  "kaebus:problem": "saying what is wrong with it",
+  "kaebus:problem": "saying what's wrong with it",
   "kaebus:when": "when you bought it",
-  "kaebus:receipt": "the receipt",
+  "kaebus:receipt": "whether you have the receipt",
   "kaebus:want": "asking for your money back",
   "kaebus:insist": "standing your ground politely",
 

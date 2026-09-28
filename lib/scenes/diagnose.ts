@@ -91,7 +91,7 @@ export function diagnose(
   if (before.grammCase === reached) {
     return {
       sure: "likely",
-      says: "you stayed in the ending the question before wanted.",
+      says: "you kept the ending from the question before.",
     };
   }
 
@@ -125,14 +125,14 @@ export function diagnose(
   if (reached === "NOMINATIVE") {
     return {
       sure: "likely",
-      says: "you used the dictionary form.",
+      says: "you reached for the plain dictionary form.",
     };
   }
 
   if (reached === "GENITIVE" || reached === "PARTITIVE") {
     return {
       sure: "possible",
-      says: `you used ${asked.et}, which is the stem the ending goes on.`,
+      says: `you stopped at ${asked.et}, which is the stem the ending goes on.`,
     };
   }
 
@@ -149,6 +149,6 @@ export function diagnose(
 export function diagnosePerson(): Hunch {
   return {
     sure: "likely",
-    says: "a dictionary lists a verb that way, so it is the form you meet most.",
+    says: "a dictionary lists a verb that way, so it's the form you've seen most.",
   };
 }

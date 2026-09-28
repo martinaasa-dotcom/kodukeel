@@ -149,24 +149,24 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "missing-document",
     move: "ask",
     cost: 2,
-    says: "They ask for something you were not given.",
-    out: "Say you do not have it.",
+    says: "They ask for something you were never given.",
+    out: "Tell them you don't have it.",
     needs: [{ kind: "negation" }],
   },
   {
     id: "slot-gone",
     move: "refuse",
     cost: 2,
-    says: "The time you asked for has gone.",
-    out: "Take the one offered, or ask for another.",
+    says: "The time you wanted has already gone.",
+    out: "Take the one they offer, or ask for another.",
     needs: [{ kind: "question" }],
   },
   {
     id: "misheard",
     move: "confirm",
     cost: 3,
-    says: "They heard a word that sounds like yours, and it was the wrong one.",
-    out: "Correct them, and say it again.",
+    says: "They misheard you, and caught a word that only sounds like yours.",
+    out: "Put them right and say it again.",
     needs: [{ kind: "negation" }],
   },
   {
@@ -174,14 +174,14 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     cost: 3,
     says: "They switch to English.",
     said: "Sorry, let me switch to English. What was that?",
-    out: "Keep going in Estonian, and they come back.",
+    out: "Keep going in Estonian and they'll come back to it.",
     needs: [{ kind: "register" }],
   },
   {
     id: "interrupted",
     move: "instruct",
     cost: 2,
-    says: "Somebody else starts talking to them.",
+    says: "Somebody else cuts in and starts talking to them.",
     /*
       NOT A QUEUE, AND THE COPY USED TO SAY IT WAS. "Wait, or say you were
       first" is a line for somebody standing in a line, and this curveball is
@@ -192,7 +192,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       the room. The goal text has to be true of all of them, not just a
       counter.
     */
-    out: "Wait a moment, then go on.",
+    out: "Wait a moment, then carry on.",
     needs: [{ kind: "any" }],
   },
   {
@@ -215,8 +215,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "small-talk",
     move: "ask",
     cost: 1,
-    says: "They say something about the weather.",
-    out: "Answer it, and come back to what you were doing.",
+    says: "They start chatting about the weather.",
+    out: "Chat back, then get back to what you came for.",
     needs: [{ kind: "any" }],
   },
   {
@@ -231,16 +231,16 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       they want one thing at a time, in the sequence they ask for it, not
       however the learner would rather lay it out.
     */
-    says: "They want things in their order, not yours.",
-    out: "Give them the one thing they just asked for.",
+    says: "They want things in their order, not yours, one at a time.",
+    out: "Give them just the one thing they've asked for.",
     needs: [{ kind: "any" }],
   },
   {
     id: "not-possible",
     move: "refuse",
     cost: 3,
-    says: "What you came for cannot be done today.",
-    out: "Ask what can, or when.",
+    says: "What you came for can't be done today.",
+    out: "Ask what they can do, or when.",
     needs: [{ kind: "question" }],
   },
   {
@@ -255,8 +255,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     */
     move: "ask",
     cost: 1,
-    says: "They use the other pronoun for you.",
-    out: "Match them, or do not. Both are things people do.",
+    says: "They switch how they address you, from formal to casual or back.",
+    out: "Match them or don't. People do both.",
     needs: [{ kind: "any" }],
     switchesRegister: true,
   },
@@ -264,7 +264,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "wrong-price",
     move: "confirm",
     cost: 2,
-    says: "The amount was not the one you were told.",
+    says: "The price isn't what you were told.",
     /*
       A CURVEBALL THAT CHANGES A FACT CARRIES THE FACT. This said "the amount
       is not the one you were told" in seven scenes and none of them had told
@@ -276,7 +276,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       the card. A question about it is answered with the same value
       (`priceOffCard`), and the gate counts it as dealt.
     */
-    they: "They tell you the price is not what you were told: it is {price2} euros now.",
+    they: "They tell you the price has changed: it's {price2} euros now.",
     line: [
       { lemma: "see" }, { lemma: "maksma", verb: "IndPrSg3" }, { lemma: "nüüd" },
       { slot: "price2" }, { lemma: "euro", grammCase: "PARTITIVE" },
@@ -288,14 +288,14 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       is not is carrying on as though nothing was said, which the beat behind
       it reads as letting it go.
     */
-    out: "Query it, or say whether that is all right.",
+    out: "Question it, or say whether that's all right with you.",
     needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hea"] }] }],
   },
   {
     id: "queue",
     cost: 1,
     says: "A queue forms behind you.",
-    out: "Nothing. They have less time for you.",
+    out: "Nothing to do. They just have less time for you now.",
     needs: [],
     silent: true,
   },
@@ -303,8 +303,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "contradiction",
     move: "confirm",
     cost: 3,
-    says: "They say the opposite of what they said two turns ago.",
-    out: "Notice, and say so.",
+    says: "They say the opposite of what they told you two turns ago.",
+    out: "Notice it, and say so.",
     needs: [{ kind: "negation" }],
     from: "B2",
   },
@@ -312,8 +312,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "place-instruction",
     move: "instruct",
     cost: 2,
-    says: "They tell you to go somewhere before they can help.",
-    out: "Follow it, or ask where.",
+    says: "They send you somewhere else first, before they can help.",
+    out: "Go where they say, or ask where that is.",
     needs: [{ kind: "question" }],
   },
 ];
