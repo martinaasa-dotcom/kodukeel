@@ -218,8 +218,10 @@ export default async function ProgressPage() {
         {/* Two by two on a phone, where four figures in a row wrapped three and
             one; one row where there is room. The share button closes the row
             on a wide screen and takes its own line under the figures on a
-            phone, where it is easiest to reach. */}
-        <Card tone="night" className="grid grid-cols-2 items-center gap-x-6 gap-y-6 sm:flex sm:flex-wrap sm:gap-10">
+            phone, where it is easiest to reach. Level with the top rather than
+            centred: a centred row drops a figure whose label wraps to two
+            lines, so "Shields banked" sat off the three beside it. */}
+        <Card tone="night" className="grid grid-cols-2 items-start gap-x-6 gap-y-6 sm:flex sm:flex-wrap sm:gap-10">
           <Stat
             value={<span className="inline-flex items-center gap-1.5">{summary.streak}<Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
             label="Day streak"
@@ -230,7 +232,7 @@ export default async function ProgressPage() {
             value={<span className="inline-flex items-center gap-1.5">{shields}<Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
             label={`Shield${shields === 1 ? "" : "s"} banked`}
           />
-          <span className="col-span-2 sm:ml-auto"><ShareProgress /></span>
+          <span className="col-span-2 sm:ml-auto sm:self-center"><ShareProgress /></span>
           {/* What the shield figure beside it means, behind a press rather than
               standing under four figures in 13px grey. It is an explanation
               rather than a status, which is `Explain`'s own rule: somebody who

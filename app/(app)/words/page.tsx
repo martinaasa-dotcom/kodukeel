@@ -147,11 +147,13 @@ function DeckBar({ segments }: { segments: { label: string; value: number; fill:
       <div className="mt-5 grid grid-cols-3 gap-3">
         {segments.map((s) => (
           <span key={s.label} className="flex min-w-0 flex-col">
-            <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
-              <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.fill }} />
+            {/* The label takes the height the row leaves, so a label that wraps
+                does not drop its figure below the ones beside it. */}
+            <span className="flex flex-1 items-start gap-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
+              <span aria-hidden className="mt-[0.4em] h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.fill }} />
               {s.label}
             </span>
-            <span className="tnum font-display mt-1 text-4xl font-bold leading-none md:text-5xl" style={{ color: "var(--ink)" }}>{s.value}</span>
+            <span data-figure className="tnum font-display mt-1 text-4xl font-bold leading-none md:text-5xl" style={{ color: "var(--ink)" }}>{s.value}</span>
             <span className="tnum mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{Math.round((s.value / total) * 100)}%</span>
           </span>
         ))}

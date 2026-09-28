@@ -136,6 +136,24 @@ async function main() {
   await prisma.review.deleteMany({ where: { ownerId } });
   await prisma.card.deleteMany({ where: { ownerId } });
   await prisma.task.deleteMany({ where: { ownerId } });
+  await prisma.encounter.deleteMany({ where: { ownerId } });
+
+  /*
+    A fortnight of answers to Today's "did you speak Estonian yesterday",
+    because Progress draws its "Out there" panel only once one exists and no
+    browser suite had ever seen it. It was reported with its first figure a
+    line lower than the four beside it, which `test-containment.mjs` now
+    measures on every row of figures, and a check can only measure a panel the
+    fixture puts on the screen. One of each answer, so every figure in the
+    panel is drawn, and `errandId` is null because Today writes none.
+  */
+  await prisma.encounter.createMany({
+    data: (["UNDERSTOOD", "UNDERSTOOD", "STUCK", "SWITCHED", "BAILED"] as const).map((outcome, i) => ({
+      ownerId,
+      outcome,
+      createdAt: new Date(Date.now() - (i * 2 + 1) * 86400000),
+    })),
+  });
 
   /*
     A DECK A BEGINNER COULD PLAUSIBLY HAVE, WHICH THIS HAD QUIETLY STOPPED BEING.

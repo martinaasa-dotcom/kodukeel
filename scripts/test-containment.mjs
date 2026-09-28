@@ -1183,6 +1183,105 @@ function survey({ stress }) {
 }
 
 /**
+ * FIGURES SIDE BY SIDE SIT ON ONE LINE.
+ *
+ * Reported off Progress: a row of five counts under "Out there", where the
+ * first carried a small icon stacked above its number and so sat a line lower
+ * than the four beside it. Nothing above could see it: nothing is cut off,
+ * nothing bleeds, nothing breaks, and each figure is exactly where its own box
+ * put it. It is a fault of relation between neighbours, so it is asked as one.
+ *
+ * A figure is `[data-figure]`, which `Stat` and `StatTile` carry, or any leaf
+ * set at 24px or more whose words are a number, so a row somebody draws by
+ * hand later is measured without anybody remembering to mark it. Its cell is
+ * the ancestor that is a direct child of a grid or a flex row. Cells of one
+ * container whose tops are level are one row, and in a row where every cell
+ * holds exactly one figure, the first lines of the figures sit level.
+ */
+function figuresInRows() {
+  const EPS = 2;
+  const off = [];
+  const shown = (el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+    && el.getBoundingClientRect().width > 0.5;
+  const numeric = /^[\s\d.,:%/+\u2212-]*\d[\s\d.,:%/+\u2212-]*[a-z%€$]{0,3}$/i;
+  const figures = new Set(document.querySelectorAll("[data-figure]"));
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.children.length || !numeric.test((el.textContent || "").trim())) continue;
+    if (parseFloat(getComputedStyle(el).fontSize) >= 24) figures.add(el);
+  }
+  const rows = new Map();
+  for (const fig of figures) {
+    if (!shown(fig) || fig.closest("[aria-hidden='true'], .sr-only, table, svg")) continue;
+    let cell = fig;
+    let container = null;
+    while (cell.parentElement && cell.parentElement !== document.body) {
+      const cs = getComputedStyle(cell.parentElement);
+      const grid = cs.display === "grid" || cs.display === "inline-grid";
+      const row = (cs.display === "flex" || cs.display === "inline-flex") && cs.flexDirection.startsWith("row");
+      if ((grid || row) && [...cell.parentElement.children].filter(shown).length > 1) {
+        container = cell.parentElement;
+        break;
+      }
+      cell = cell.parentElement;
+    }
+    if (!container || cell === fig) continue;
+    const cells = rows.get(container) ?? new Map();
+    const list = cells.get(cell) ?? [];
+    list.push(fig);
+    cells.set(cell, list);
+    rows.set(container, cells);
+  }
+  const named = (el) => `"${(el.textContent || "").trim().slice(0, 12)}"`;
+  const firstLineBottom = (el) => {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const i = n.textContent.search(/\S/);
+      if (i < 0) continue;
+      const range = document.createRange();
+      range.setStart(n, i);
+      range.setEnd(n, i + 1);
+      const r = range.getClientRects()[0];
+      if (r) return r.bottom;
+    }
+    return el.getBoundingClientRect().bottom;
+  };
+  for (const cells of rows.values()) {
+    // One row is cells whose heights overlap by more than half the shorter,
+    // rather than cells whose tops are level: a row whose cells are centred
+    // puts a taller cell's top higher, and grouping on the top would file the
+    // very figure that sits off its neighbours into a row of its own.
+    const entries = [...cells.entries()]
+      .filter(([, figs]) => figs.length === 1)
+      .map(([cell, [fig]]) => ({ box: cell.getBoundingClientRect(), fig }))
+      .sort((a, b) => a.box.top - b.box.top);
+    const lines = [];
+    for (const e of entries) {
+      const line = lines.find((l) => {
+        const a = l[0].box;
+        const overlap = Math.min(a.bottom, e.box.bottom) - Math.max(a.top, e.box.top);
+        return overlap > Math.min(a.height, e.box.height) / 2;
+      });
+      if (line) line.push(e);
+      else lines.push([e]);
+    }
+    for (const figs of lines.map((l) => l.map((e) => e.fig))) {
+      if (figs.length < 2) continue;
+      // The first line of each figure, read off its first character, so a
+      // figure that runs to two lines ("510 to 700 h") is compared on the line
+      // a reader lines up, and two sizes of figure are compared on where their
+      // letters sit rather than on the box around them.
+      const bottoms = figs.map(firstLineBottom);
+      const spread = Math.max(...bottoms) - Math.min(...bottoms);
+      if (spread > EPS + 1) {
+        const low = figs[bottoms.indexOf(Math.max(...bottoms))];
+        off.push(`${named(low)} sits ${Math.round(spread)}px off the ${figs.length - 1} beside it`);
+      }
+    }
+  }
+  return { off: [...new Set(off)], rows: rows.size };
+}
+
+/**
  * A MARKER AND ITS LABEL ARE ONE LINE, AND RELATIVES LOOK ALIKE.
  *
  * Reported off Practice: four buttons, each a coloured dot and a word, and on
@@ -1491,6 +1590,8 @@ async function measure(page, label, atLeast = 25) {
   const whole = await page.evaluate(wholeWords);
   check(`no word is drawn across two lines on ${label}`, whole.broken === 0, whole.say.broken);
   check(`no button label is wider than its button on ${label}`, whole.overflowing === 0, whole.say.overflowing);
+  const level = await page.evaluate(figuresInRows);
+  check(`figures side by side sit on one line on ${label}`, level.off.length === 0, level.off.slice(0, 3).join(" · "));
   const kin = await page.evaluate(relatives);
   check(`no label wraps under its own marker on ${label}`, kin.wrapped === 0, kin.say.wrapped);
   check(`relatives sit alike, marker to label, on ${label}`, kin.unlike === 0, kin.say.unlike);
