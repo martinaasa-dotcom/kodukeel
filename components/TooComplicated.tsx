@@ -110,7 +110,9 @@ export function TooComplicated({
           setAsking(true);
         }}
       >
-        <CalendarClock size={13} aria-hidden /> Too complicated
+        {/* Icon alone on a phone, so the card's header stays one line. */}
+        <CalendarClock size={13} aria-hidden />
+        <span className="sr-only whitespace-nowrap sm:not-sr-only">Too complicated</span>
       </button>
 
       {asking && (

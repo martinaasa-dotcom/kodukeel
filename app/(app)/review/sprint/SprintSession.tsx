@@ -264,13 +264,13 @@ export function SprintSession({
           )}
         </div>
 
-        <div className="flex min-h-[280px] flex-col items-center justify-center gap-4 px-6 py-12 text-center" aria-live="polite">
+        <div className="round-stage flex flex-col items-center justify-center gap-4 px-6 text-center" aria-live="polite">
           <div className="flex items-center gap-2">
             <FitText
               as="p"
               text={card.front}
               lang={estonianSide(card.cardType, "front") ? "et" : "en"}
-              className="font-semibold leading-tight [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]"
+              className="round-word font-semibold"
               style={{ color: "var(--ink)" }}
             />
             {estonianSide(card.cardType, "front") && <Speak text={card.lemma ?? card.front} />}

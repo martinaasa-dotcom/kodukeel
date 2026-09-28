@@ -1399,6 +1399,9 @@ export function ReviewSession({
   const remaining = queue.length - index;
   const progress = queue.length ? (index / queue.length) * 100 : 0;
   const frontLang = estonianSide(card.cardType, "front") ? "et" : "en";
+  // `word → what to do with it`, built before a card's front became a
+  // sentence: the word leads and the rest is drawn as a tag under it.
+  const split = !isGap(card) && card.cardType !== "CLOZE" ? arrowFront(card.front) : null;
   const backLang = estonianSide(card.cardType, "back") ? "et" : "en";
   /*
     What the status line at the foot of the card says: the verdict in words,
@@ -1528,7 +1531,7 @@ export function ReviewSession({
         */}
         <div
           key={`${card.id}-${ask === "choice" ? "choice" : revealed}`}
-          className="pop-in flex min-h-[280px] flex-col items-center justify-center gap-4 px-6 py-11 text-center md:min-h-[320px]"
+          className="pop-in round-stage flex flex-col items-center justify-center gap-3 px-6 text-center"
         >
           {ask === "intro" && <MeetWord card={card} firstMeetingCardId={firstMeetingCardId} />}
 
@@ -1545,15 +1548,15 @@ export function ReviewSession({
                 {sizedBlank(card.front, card.back)}
               </p>
             ) : (
-              // One word at display size: it shrinks to fit rather than break.
+              // One word at the round's size: it shrinks to fit rather than break.
               <FitText
                 as="p"
-                text={card.front}
+                text={split ? split.word : card.front}
                 lang={frontLang}
-                className="font-display font-bold leading-none tracking-tight [--fit-max:var(--text-4xl)] xl:[--fit-max:var(--text-6xl)]"
+                className="round-word font-display font-bold tracking-tight"
                 style={{ color: "var(--ink)" }}
               >
-                {sizedBlank(card.front, card.back)}
+                {split ? split.word : sizedBlank(card.front, card.back)}
               </FitText>
             )}
             {/* No audio on a gap-fill prompt: reading a sentence with a hole in
@@ -1564,6 +1567,25 @@ export function ReviewSession({
               <Speak text={card.lemma ?? card.front} />
             )}
           </div>
+          )}
+
+          {/*
+            THE FORM ASKED FOR IS A TAG, NOT HALF OF THE HEADLINE.
+
+            A card built as `mäletama → lihtminevik, ma` drew both halves at
+            display size, so the name of the form was the loudest thing on the
+            screen and wrapped the word onto two lines. The word is what the
+            card is about; what to do with it sits under it, small.
+          */}
+          {ask !== "intro" && split && (
+            <span
+              lang="et"
+              data-front-tail
+              className="rounded-full px-3 py-1 text-sm font-semibold"
+              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+            >
+              {split.tail}
+            </span>
           )}
 
           {/*
@@ -2036,4 +2058,16 @@ export function ReviewSession({
       <p className="sr-only" role="status">{spokenVerdict}</p>
     </div>
   );
+}
+
+/** Split a `word → form` front, or null where it is not one. */
+function arrowFront(front: string): { word: string; tail: string } | null {
+  const at = front.indexOf("\u2192");
+  if (at < 0) return null;
+  const word = front.slice(0, at).trim();
+  const tail = front.slice(at + 1).trim()
+    // Any separator a stored front carries between the two facts reads as a
+    // comma, which is the one this app draws; a question mark is kept.
+    .replace(/\s*[^\p{L}\p{N}\s?]\s*/gu, ", ");
+  return word && tail ? { word, tail } : null;
 }

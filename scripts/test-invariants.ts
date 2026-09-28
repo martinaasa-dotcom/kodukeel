@@ -9740,9 +9740,9 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
 
     Three things follow and all three are here.
 
-    ON IS THE DEFAULT. A missing row is everybody who used the app before the
-    question existed, and reading absence as a refusal takes the dictionary out
-    from under every sentence in one deploy for people who never asked.
+    OFF IS THE DEFAULT. The underlines were reported as busy, so a learner who
+    wants them turns them on in Settings, and a missing row, which is everybody
+    who never answered, reads as the plain sentence.
 
     OFF MEANS THE LOOKUP IS NEVER MADE. Every producer of glossed tokens asks
     before it looks, rather than a screen drawing the answer and hiding it: the
@@ -9762,12 +9762,12 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
   assert.ok(existsSync(answer), "the answer about underlining a sentence has gone");
   const rule = code(answer);
   assert.match(
-    rule, /DEFAULT_WORD_GLOSS: WordGloss = "on"/,
-    "underlining every word is no longer what somebody who has never answered gets",
+    rule, /DEFAULT_WORD_GLOSS: WordGloss = "off"/,
+    "underlining every word is back to being what somebody who has never answered gets",
   );
   assert.match(
-    rule, /value === "off" \? "off"/,
-    "a stored answer other than \"off\" no longer reads as the behavior everybody had",
+    rule, /value === "on" \? "on"/,
+    "a stored answer other than \"on\" no longer reads as the quiet default",
   );
 
   /*
@@ -21068,10 +21068,13 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     third such route arrives with the fault this file was written to fix.
   */
   const spreads = ALL.filter((file) => /\bleastPractisedSlot\(/.test(code(file)));
-  const unguarded = spreads.filter((file) => !/\bnotOnLadder\(ownerId\)/.test(code(file)));
+  // `meetingFirst` is `notOnLadder` plus the word's own ladder card, which the
+  // session introduces as a first meeting, so it holds the same line: no case
+  // or conjugated card is ever a word's first question.
+  const unguarded = spreads.filter((file) => !/\b(notOnLadder|meetingFirst)\(ownerId\)/.test(code(file)));
   assert.deepEqual(
     unguarded, [],
-    `${unguarded.join(", ")} calls leastPractisedSlot without asking notOnLadder first, `
+    `${unguarded.join(", ")} calls leastPractisedSlot without asking notOnLadder or meetingFirst first, `
     + "so it can hand out a case or a conjugated form as a word's very first question",
   );
   assert.notDeepEqual(spreads, [], "leastPractisedSlot has no caller left to check");

@@ -93,13 +93,9 @@ export function FitText({
         const cs = getComputedStyle(el);
         const probe = document.createElement("span");
         probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:0";
-        Object.assign(probe.style, {
-          fontFamily: cs.fontFamily,
-          fontWeight: cs.fontWeight,
-          fontSize: cs.fontSize,
-          fontStyle: cs.fontStyle,
-          letterSpacing: cs.letterSpacing,
-        });
+        // The computed shorthand, so the probe draws in exactly the element's face.
+        probe.style.font = cs.font;
+        probe.style.letterSpacing = cs.letterSpacing;
         document.body.appendChild(probe);
         for (const word of others.split(/\s+/)) {
           probe.textContent = word;

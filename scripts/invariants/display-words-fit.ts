@@ -20,7 +20,8 @@ import type { InvariantKit } from "../lib/invariantKit";
  * and hands every `FitText` a long compound to hold on one line.
  */
 const TAG = /<([A-Za-z][\w.]*)\b((?:[^<>]|=>)*?)\/?>/g;
-const DISPLAY = /\btext-(?:3|4|5|6|7|8|9)xl\b/;
+/** A display size is a type step from 3xl up, or `.round-word`, which sets one. */
+const DISPLAY = /\btext-(?:3|4|5|6|7|8|9)xl\b|\bround-word\b/;
 
 export default function displayWordsFit({ check, ALL, code }: InvariantKit) {
   check("a word set at display size goes through FitText, which shrinks it rather than breaking it", () => {

@@ -310,7 +310,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
 
       <div
         key={card.key}
-        className="pop-in flex min-h-[280px] flex-col items-center justify-center gap-4 px-6 py-11 text-center md:min-h-[320px]"
+        className="pop-in round-stage flex flex-col items-center justify-center gap-4 px-6 text-center"
         aria-live="polite"
       >
         {/* The speaker goes beside whichever side is Estonian, which is the
@@ -335,7 +335,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
             as="p"
             text={card.answer}
             lang={card.answerLang}
-            className="font-bold leading-tight tracking-tight [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]"
+            className="round-word font-bold tracking-tight"
             style={{ color: "var(--ink)" }}
           />
           {card.speak && card.questionLang !== "et" && <Speak text={card.speak} />}

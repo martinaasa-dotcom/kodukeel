@@ -476,7 +476,7 @@ export function QuestSession({
           {card.targetsWeakCase && (
             <Chip tone="hard">One of your weak spots</Chip>
           )}
-          <FitText as="p" text={card.front} lang="et" className="font-bold leading-tight [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]" style={{ color: "var(--ink)" }} />
+          <FitText as="p" text={card.front} lang="et" className="round-word font-bold" style={{ color: "var(--ink)" }} />
           {/*
             WHAT THE SENTENCE AROUND THE GAP SAYS, AND THE CUE ONLY WHERE IT
             DID NOT SAY IT.

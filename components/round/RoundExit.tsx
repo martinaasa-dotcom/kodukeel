@@ -100,7 +100,10 @@ export function FullEntry({ lemma, icon = true }: { lemma: string; icon?: boolea
       className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-60"
       style={{ color: "var(--ink-3)" }}
     >
-      {icon && <BookOpen size={13} aria-hidden />} Full entry
+      {/* Icon alone on a phone, where the label wrapped the card's header
+          onto two lines; the words stay for a screen reader. */}
+      {icon && <BookOpen size={13} aria-hidden />}
+      <span className={icon ? "sr-only whitespace-nowrap sm:not-sr-only" : "whitespace-nowrap"}>Full entry</span>
     </Link>
   );
 }

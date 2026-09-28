@@ -241,16 +241,16 @@ export default async function CoursePage({
       >
         <Stack>
           <Lettered celebrate>
-            <Card tone="mint">
+            <Card tone="accent" className="evening">
               <div className="flex items-start gap-3">
-                <CalendarCheck size={22} aria-hidden style={{ color: "var(--good-ink)" }} />
+                <CalendarCheck size={22} aria-hidden style={{ color: "var(--accent-deep)" }} />
                 <div className="min-w-0">
                   {justDone && (
                     <>
                       <p
                         className="text-lg font-semibold"
                         lang={uiWantsEnglish(level) ? undefined : "et"}
-                        style={{ color: "var(--ink)" }}
+                        style={{ color: "var(--accent-deep)" }}
                       >
                         {uiText(level, justDone.title, justDone.subtitle)}
                       </p>

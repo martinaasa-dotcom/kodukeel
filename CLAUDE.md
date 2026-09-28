@@ -3576,9 +3576,11 @@ second thing happening on a card whose whole job is one sentence.** That was rep
 somebody using it, and it is the same shape as the letter bar: a reader who can already read the
 line is being offered help on every word of it, a reader who cannot is being handed the only thing
 that makes the sentence answerable, and there is no way to tell which of the two anybody is. So it
-is asked. `lib/ux/wordGloss.ts` is the answer, on by default for the reason `letterBar.ts` gives
-about itself, since a missing row is everybody who used the app before the question existed and
-reading absence as a refusal takes the dictionary out from under every sentence in one deploy.
+is asked. `lib/ux/wordGloss.ts` is the answer, and **off is the default, for everybody**: it was on
+at first, for the reason `letterBar.ts` gives about itself, and the operator read a card with the
+panel open under a word and called it busy. So a missing row reads as the plain sentence, only a
+stored "on" draws the underlines, and Settings is where somebody turns them on. The sentence's own
+English line is printed under it either way, so the quiet default leaves nobody without a reading.
 
 **Off means the lookup is never made, rather than made and hidden.** Both screens that show a
 glossed sentence have drawn the plain marked sentence since before this existed, for the page that
@@ -10035,6 +10037,13 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   emulating a system preference the palette no longer reads, since that would sweep the light
   theme twice and call the dark one clean. Asserted, with the comments stripped, because the note
   explaining why the block went names the block.
+- **A mockup is the app, photographed.** A visual proposal shown to the operator is made on a
+  branch and taken with `npm run shoot -- /route` in both themes, never drawn as standalone HTML:
+  one was, in Bricolage Grotesque and Figtree and a lilac of its own, and asked to be trusted as the
+  real screen. **The faces are Onest and Schibsted Grotesk, the brand mix is Vikerkaar öös (butter,
+  blush, the accent, sky, the night `--stage`), and mint and peach are verdicts, never a lead
+  panel's fill.** The finished evening wears `.evening` on the accent tint. Asserted in
+  `scripts/invariants/the-agreed-fonts-and-palette.ts`, each arm made to fail on the real fault.
 - Style through the tokens in `app/globals.css`, never with a raw hex. The five hues carry fixed
   meanings (`docs/14-design-system.md` §1). Mint is "recalled", peach is "missed", and neither is
   free for decoration. **A hue has a fill and an ink and they are not interchangeable**: `--accent`

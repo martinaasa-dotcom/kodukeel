@@ -5,17 +5,25 @@ import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { shuffle } from "@/lib/random/shuffle";
 import { leastPractisedSlot } from "@/lib/srs/mastery";
-import { LADDER_CARD_TYPE, LADDER_STATES } from "@/lib/learn/ladder";
 import { deckLexemeIds, deckName } from "@/lib/progress/decks";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { ReviewSession } from "../../ReviewSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { include, notOnLadder, withChoices } from "../../cards";
+import { include, withChoices } from "../../cards";
+import { meetingFirst } from "@/lib/srs/reviewQueue";
 
-/** Cards in one round. The same twenty Flash cards asks, for the same reason. */
-const ROUND = 20;
+/**
+ * Words in one round, which is every word on the shelf up to a ceiling nobody
+ * reaches by filing words one at a time.
+ *
+ * It was twenty, the Flash cards figure, and a round also left out every word
+ * not yet met on the Learn ladder, so a learner with 47 words on a shelf they
+ * had built to practise was handed one card. Reported in those words. A shelf
+ * is the learner saying "these, now", so the round is the shelf.
+ */
+const ROUND = 200;
 
 export async function generateMetadata({ params }: { params: Promise<{ deckId: string }> }) {
   const ownerId = await requireUserId();
@@ -42,10 +50,19 @@ export const dynamic = "force-dynamic";
  * `Deck` or `DeckWord` beyond the one lookup of which lexemes are on the
  * shelf: adding a deck round does not add a second scheduler.
  *
- * Not filtered to unmastered or unmet words, the way the frequency rounds
- * are not: a shelf is something a learner comes back to, and a word already
- * mastered simply sorts to the back of a query ordered by lapses and by when
- * it is due, which is FSRS deciding rather than this file.
+ * Not filtered to unmastered or unmet words: a shelf is something a learner
+ * comes back to, and every word on it is in the round. A word not yet met is
+ * asked through `meetingFirst`, the scanned page's rule: its own recognition
+ * card comes in and the session introduces it as a first meeting, and its
+ * case and conjugation cards wait until it has left the ladder, so no word is
+ * first seen as a form of itself. The deck round used to ask `notOnLadder`,
+ * which withholds the word entirely, and a shelf filed straight from the
+ * dictionary came back as one card out of forty-seven.
+ *
+ * The read has no `take`: it is one learner's cards for the words on one
+ * shelf, bounded by the shelf, and a count cap over cards ordered by lapses
+ * spent itself on the words with the most case cards and left others with no
+ * representative at all.
  */
 export default async function DeckRoundPage({ params }: {
   params: Promise<{ deckId: string }>;
@@ -63,65 +80,33 @@ export default async function DeckRoundPage({ params }: {
 
   const cards = lexemeIds.length === 0 ? [] : await prisma.card.findMany({
     where: {
-      ownerId, suspended: false, lexemeId: { in: lexemeIds }, ...notOnLadder(ownerId),
+      ownerId, suspended: false, lexemeId: { in: lexemeIds }, ...meetingFirst(ownerId),
     },
     orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
-    take: ROUND * 8,
     include,
   });
 
-  const picked = leastPractisedSlot(cards, new Set(lexemeIds)).slice(0, ROUND);
+  const picked = shuffle(leastPractisedSlot(cards, new Set(lexemeIds))).slice(0, ROUND);
 
   if (picked.length === 0) {
     /*
-      A WORD ON THE SHELF THAT HAS NEVER BEEN MET IS THE COMMON CASE, AND THE
-      OLD MESSAGE SENT SOMEBODY BACK TO THE SAME EMPTY SCREEN.
-      `notOnLadder` above correctly withholds a word whose own recognition
-      card is still New or Learning, because meeting a word is Learn's job
-      and not this round's (`lib/learn/ladder.ts`): a deck filed straight from
-      the dictionary is exactly this shape, every word unmet, and the round
-      had nothing to say but "open your decks", which is where the learner
-      already was. So this asks which of the two emptied it and sends them to
-      the one place that actually helps: `/learn`, the same door Tähed opens
-      onto for the identical reason.
+      Every word on the shelf is in the round now, met or not, so an empty
+      round is a shelf with nothing on it or one whose every card was put on
+      hold on My words. The second is not broken and says so.
     */
-    const unmet = lexemeIds.length === 0 ? 0 : await prisma.card.count({
-      where: {
-        ownerId, lexemeId: { in: lexemeIds },
-        cardType: LADDER_CARD_TYPE, state: { in: [...LADDER_STATES] },
-      },
-    });
     return (
-      <Page title={name} lead="Asked in a different form each time, until they stick.">
+      <Page title={name} lead="Every word on this shelf, asked until it sticks.">
         <div className="flex flex-col gap-4">
           <Empty
-            title={
-              lexemeIds.length === 0 ? "Nothing on this shelf yet"
-                : unmet > 0 ? "Not met yet"
-                : "Nothing to ask right now"
-            }
+            title={lexemeIds.length === 0 ? "Nothing on this shelf yet" : "Nothing to ask right now"}
             body={
               lexemeIds.length === 0
                 ? "Add a word to this deck from its dictionary entry, or file one you already have."
-                : unmet > 0
-                  ? (unmet === 1
-                    ? "This word has not been met yet. Meet it on the learning path, and it will show up here."
-                    : "These words have not been met yet. Meet them on the learning path, and they will show up here.")
-                  : "Every word here has already been asked in every way this round can ask it."
+                : "Every card for these words is on hold. Bring them back from My words."
             }
-            action={
-              unmet > 0
-                ? <ButtonLink href="/learn" variant="primary">{unmet === 1 ? "Meet it" : "Meet them"}</ButtonLink>
-                : <ButtonLink href="/words/decks" variant="primary">Open your decks</ButtonLink>
-            }
+            action={<ButtonLink href="/words/decks" variant="primary">Open your decks</ButtonLink>}
           />
-          {/*
-            Withheld where a word on the shelf simply has not been met yet:
-            that is not broken, it is the ordinary state of a deck built
-            straight from the dictionary, and the button above already says
-            what to do about it. Kept for the state nothing here explains.
-          */}
-          {unmet === 0 && (
+          {lexemeIds.length > 0 && (
             <SuggestFix category="BROKEN" trigger={`/review/deck/${deckId} had no cards to ask`} />
           )}
         </div>
@@ -130,7 +115,7 @@ export default async function DeckRoundPage({ params }: {
   }
 
   const gloss = glossLanguageFrom(glossSetting);
-  const round = await withChoices(shuffle(picked), gloss, ownerId);
+  const round = await withChoices(picked, gloss, ownerId);
 
   return (
     <BeforeYouStart id="deck" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>

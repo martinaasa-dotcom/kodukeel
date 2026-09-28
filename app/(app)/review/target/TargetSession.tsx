@@ -211,7 +211,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
       </div>
 
       <div key={question.lemma + index} className="quest-card mt-8 flex flex-col items-center gap-2 text-center">
-        <FitText as="p" text={question.lemma} max="var(--text-4xl)" lang="et" className="font-bold tracking-tight" style={{ color: "var(--ink)" }} />
+        <FitText as="p" text={question.lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
         {question.question ? (
           <>
             <p lang="et" className="text-xl font-semibold" style={{ color: "var(--peach-ink)" }}>

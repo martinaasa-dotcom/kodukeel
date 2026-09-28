@@ -510,7 +510,7 @@ export default async function TodayPage() {
       </div>
     </Card>
   ) : courseNow?.finishedToday ? (
-    <Card tone="mint" className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
+    <Card tone="accent" className="evening flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
       <div className="min-w-0 flex-1">
         <SectionTitle
           hint={courseNow.eveningsInARow >= 2
@@ -519,7 +519,7 @@ export default async function TodayPage() {
         >
           Today&rsquo;s module
         </SectionTitle>
-        <p className="mt-1 text-xl font-semibold" style={{ color: "var(--ink)" }}>
+        <p className="mt-1 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
           All done for today
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

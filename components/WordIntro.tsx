@@ -118,7 +118,7 @@ export function WordIntro({
   return (
     <>
       <div className="flex items-center gap-2">
-        <FitText as="p" text={lemma} lang="et" className="font-bold leading-tight tracking-tight [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]" style={{ color: "var(--ink)" }} />
+        <FitText as="p" text={lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
         {/* Read aloud on arrival: the first time a word is met is the one time
             hearing it is worth more than reading it. */}
         <Speak text={lemma} autoplay={autoplay} />

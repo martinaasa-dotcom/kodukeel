@@ -318,7 +318,7 @@ export function SentenceSession(
           </WordLink>
         </div>
 
-        <div className="flex min-h-[300px] flex-col gap-5 px-6 py-8" aria-live="polite">
+        <div className="round-stage flex flex-col gap-5 px-6" aria-live="polite">
           <div className="text-center">
             {task.en ? (
               <>
