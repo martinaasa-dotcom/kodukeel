@@ -276,7 +276,7 @@ export function SonadSession({ puzzle, day, guessable }: {
           <p className="mt-2.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
             {clue.category && puzzle.category && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
-                It's {puzzle.category}.
+                It&apos;s {puzzle.category}.
               </span>
             )}
             {clue.vowels && (
@@ -554,11 +554,11 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
       )}
       {kept && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          It's in your deck, so today's game counted as practice.
+          It&apos;s in your deck, so today&apos;s game counted as practice.
         </p>
       )}
       <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-        There's a new word tomorrow morning.
+        There&apos;s a new word tomorrow morning.
       </p>
     </Card>
   );

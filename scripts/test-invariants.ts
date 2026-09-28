@@ -19306,7 +19306,7 @@ check("a scene understands a slip before it marks one, and says so", () => {
   );
   const session = code("components/scene/SceneSession.tsx");
   assert.match(session, /recast:/, "the scene screen has no label for a recast line");
-  assert.match(session, /Understood\./, "the scene screen no longer says a slipped turn was understood");
+  assert.match(session, /They understood you\./, "the scene screen no longer says a slipped turn was understood");
   /*
     And nothing in `nearly.ts` writes Estonian: the recast is read off the
     lexicon, so the module holds a pronoun table as keys and nothing else.

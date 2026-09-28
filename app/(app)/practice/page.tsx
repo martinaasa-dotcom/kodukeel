@@ -164,7 +164,7 @@ export default async function PracticePage() {
                   <span className="text-2xl md:text-3xl">{ready === 1 ? "card waiting" : "cards waiting"}</span>
                 </h2>
                 <p className="mt-4 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  Each card comes back just before you'd forget it. You don't have to pick which. The schedule does that for you.
+                  Each card comes back just before you&apos;d forget it. You don&apos;t have to pick which. The schedule does that for you.
                 </p>
               </div>
               <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full shrink-0 justify-center whitespace-nowrap lg:w-auto">

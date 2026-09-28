@@ -377,7 +377,7 @@ function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) 
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>There's a new grid every morning.</p>
+      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}There&apos;s a new grid every morning.</p>
     </Card>
   );
 }

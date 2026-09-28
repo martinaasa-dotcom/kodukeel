@@ -1702,7 +1702,7 @@ export function ReviewSession({
                 <div className="mt-4 text-left">
                   {retypeOk ? (
                     <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`}>
-                      {uiText("Õige!", "Correct!")} That's the one.
+                      {uiText("Õige!", "Correct!")} That&apos;s the one.
                     </p>
                   ) : (
                     <>
