@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AnuFace } from "./AnuFace";
 import { useFinishingHover } from "@/components/motion/useFinishingHover";
 import { watchSelection } from "./readScreen";
+import { ANU_OPEN_EVENT, type OpenAnuDetail } from "./openAnu";
 
 /*
   The panel (the conversation, the starters, the sentence check, the
@@ -45,6 +46,12 @@ export function AnuFab({
   // the button drawn again in its place is what a keyboard is handed back to.
   const button = useRef<HTMLButtonElement>(null);
   const wiggle = useFinishingHover(button);
+  /*
+    A question a card handed over (`openAnu`), with a count so the same
+    question asked twice still reaches the box: the panel puts it there once
+    per `seq`, which is what lets a learner who cleared it ask again.
+  */
+  const [prefill, setPrefill] = useState<{ text: string; seq: number } | null>(null);
 
   /*
     TUCKED WHILE THE PAGE MOVES DOWN, BACK THE MOMENT IT MOVES UP.
@@ -92,6 +99,20 @@ export function AnuFab({
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
+  useEffect(() => {
+    if (pathname === "/tutor") return;
+    function onAsk(e: Event) {
+      e.preventDefault();
+      const question = (e as CustomEvent<OpenAnuDetail>).detail?.question;
+      if (question) setPrefill((p) => ({ text: question, seq: (p?.seq ?? 0) + 1 }));
+      setTucked(false);
+      setLoaded(true);
+      setOpen(true);
+    }
+    window.addEventListener(ANU_OPEN_EVENT, onAsk);
+    return () => window.removeEventListener(ANU_OPEN_EVENT, onAsk);
+  }, [pathname]);
+
   if (pathname === "/tutor") return null;
 
   return (
@@ -104,6 +125,7 @@ export function AnuFab({
               returnTo={button}
               configured={configured}
               readerCanConfigure={readerCanConfigure}
+              prefill={prefill}
               onClose={() => setOpen(false)}
             />
           </Suspense>

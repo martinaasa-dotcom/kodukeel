@@ -6,6 +6,8 @@ import { deleteCard, setCardSuspended } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, Page } from "@/components/ui";
 import { Speak } from "@/components/Speak";
+import { openAnu, tutorHref } from "@/components/anu/openAnu";
+import { useRouter } from "next/navigation";
 import { useReaderDate } from "@/components/LocalDate";
 import { buildClinicQuestion, type Leech } from "@/lib/analysis/leeches";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -32,6 +34,7 @@ const SHAPE_LABEL: Record<string, string> = {
  * progress and is not.
  */
 export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvailable: boolean }) {
+  const router = useRouter();
   const [handled, setHandled] = useState<Record<string, "suspended" | "deleted">>({});
 
   return (
@@ -79,9 +82,16 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
               {!state && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {aiAvailable && (
-                    <ButtonLink href={`/tutor?ask=${encodeURIComponent(question)}`} variant="primary">
+                    // Her panel, over the list, with the question in her box
+                    // (`components/anu/openAnu.ts`). The full page read `q`
+                    // and this sent `ask`, so the question never arrived.
+                    <Button
+                      variant="primary"
+                      aria-haspopup="dialog"
+                      onClick={() => { if (!openAnu(question)) router.push(tutorHref(question)); }}
+                    >
                       <MessageCircleQuestion size={15} aria-hidden /> Ask Anu about it
-                    </ButtonLink>
+                    </Button>
                   )}
                   {leech.targetCase && (
                     <ButtonLink href={`/review?case=${leech.targetCase}`}>
