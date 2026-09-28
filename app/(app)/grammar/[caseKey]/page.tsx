@@ -68,7 +68,7 @@ const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string
   },
   DERIVED: {
     label: "from the omastav",
-    title: "The omastav plus the regular ending, the same sum you're learning to do",
+    title: "Worked out for you: the omastav with this case's ending added on",
   },
 };
 

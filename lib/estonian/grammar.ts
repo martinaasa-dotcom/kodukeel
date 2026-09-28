@@ -552,7 +552,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
     summary: "Add -m to the same base the endings use, and \"big\" becomes \"bigger\".",
     marker: "-m",
     points: [
-      "Built on the same base as the endings, like nearly everything",
+      "Add -m to the form meaning \"of\", the one the endings go on",
       "Either \"than\" plus the plain word, or no \"than\" and -st",
       "A few common ones are irregular, like English \"good, better\"",
     ],

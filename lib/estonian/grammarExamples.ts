@@ -406,7 +406,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
   },
   comparative: {
-    "Built on the same base as the endings, like nearly everything": [
+    "Add -m to the form meaning \"of\", the one the endings go on": [
       { lemma: "väike", et: "Anna väiksem lusikas!", form: "väiksem" },
       { lemma: "palk", et: "Eesti keskmine palk on suurem kui Lätis.", form: "suurem" },
     ],
