@@ -1289,14 +1289,12 @@
     three screens into an evening had no idea where in the app they were, and
     nobody to ask about the word in front of them. Anu is the one thing a
     learner stuck on a card most needs, so she stays in her corner. The rail
-    stays on a desktop with its own row lit, which says where the evening
-    lives without handing anybody a second thing to do.
+    stays on a desktop with Learn lit and tonight's steps under it.
 
     What goes is only the phone bar, and only because the module's own way on
-    stands where it stood. On a desktop the way on is not pinned at all: it is
-    the card at the foot of the page (`.module-step`, `md:static` in
-    `components/course/ModuleScope.tsx`), so a reading ends on "go on" and a
-    round has nothing floating over the middle of it.
+    stands where it stood. On a desktop there is no bar at all (`.module-step`
+    is `md:hidden` in `components/course/ModuleScope.tsx`): the way on is
+    "Next" where the step ends, so nothing floats over the middle of a round.
   */
 
   /*

@@ -5960,16 +5960,20 @@ anything sent to it.
 **And the rail and Anu came back, which is the room corrected rather than abandoned.** The first
 version took all three pieces of the website off the screen, and it was reported the other way
 round: a learner three steps into an evening had no idea where in the app they were and nobody to
-ask about the card in front of them, which is the moment Anu exists for. So the rail stays on a
-desktop with the evening's own row lit, Anu stays in her corner at every width, and only the phone
-bar goes, because the module's way on stands where it stood. **On a desktop the way on is not
-pinned at all**: `.module-step` is `md:static`, the card at the end of the page, so a reading ends on
-"go on" and a round has nothing floating over the middle of it, and the cross back to Today is a
-phone's only, since the rail's own Today is that door. On a phone Anu stands off the bar's measured
-height (`--module-bar`), so her face is never over the button a thumb reaches for. The drill at the
-foot of a reading still stands down, and so does every round's own door: what came back is the way
-around the app, not a second thing to do. Asserted both ways in `scripts/test-invariants.ts` and
-walked at three widths in `scripts/test-module.mjs`.
+ask about the card in front of them, which is the moment Anu exists for. What was agreed, off a
+mockup, is the ordinary rail with **Learn lit and tonight's steps hung under it**, each pressable,
+the open one marked "now" and the ones behind ticked; no class group, since nothing about tonight is
+in it; Anu in her corner at every width; and **no bar on a desktop at all**. The way on there is a
+named "Next, step 3: Match" where the step ends: a round's finish screen through `WayOut`, a
+reading's foot through `ReadingEnd`, a conversation's debrief through `NextStep`, all drawing the one
+element `ModuleScope` builds. The first pass kept the bar and moved it to the end of the page and
+lit whichever row the step's path lived under, which was not what was agreed and was reported as
+such. The steps come off `tonightSteps`, a Server Action reading `courseReading`, because the marker
+is an address and the client may not import the course build; `ModuleScope` wraps the rail as well
+as the page for it. A phone keeps its bar for now, and the in-page Next stands down there, since two
+buttons for one press is one too many. On a phone Anu stands off the bar's measured height
+(`--module-bar`). The drill at the foot of a reading still stands down, and so does every round's
+own door. Asserted in `scripts/test-invariants.ts` and walked in `scripts/test-module.mjs`.
 
 **The phone bar goes by the hook a conversation already uses.** `body:has(.module-step)
 [data-chrome="dock"]` reads the same marks `.scene-room` hides by, deliberately: two sets of marks
@@ -6063,7 +6067,7 @@ announcement either way, always of the screen they ended up on, whichever order 
 in. Made to fail on the real line first, which is what said the two in three.
 
 **And a phone on its side is short rather than narrow.** (Since the rail came back, 844 is past the
-width it appears at, so a phone on its side gets the card in the flow and nothing pinned; what
+width it appears at, so a phone on its side gets no bar at all and "Next" where the step ends; what
 follows is the history of the pinned bar there.) Every check in the module's own suite pins
 the height at 900 and the phone suite pins it at 740, so the one shape neither saw is a phone turned
 over: at 844x390 the bar was 91px and the page reserved another 128 under it, a third of the screen

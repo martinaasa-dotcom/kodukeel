@@ -210,9 +210,10 @@ try {
 
       The first version took the whole website off the screen and was reported
       the other way: a learner three steps in had no idea where in the app they
-      were and nobody to ask about the card. So the rail stays with its own row
-      lit, Anu stays in her corner, and the way back into the app is the rail's
-      own Today rather than a cross on the frame, which is a phone's only.
+      were and nobody to ask about the card. So the rail is the ordinary rail
+      with Learn lit and tonight's steps under it, no class group, Anu in her
+      corner, and on a desktop no bar at all: the way on is "Next" where the
+      step ends.
     */
     for (const part of ["rail", "anu"]) {
       check(
@@ -221,8 +222,30 @@ try {
       );
     }
     check(
-      `and the rail lights the row the step lives under  (${here})`,
-      await page.locator('[data-chrome="rail"] [aria-current="page"]').count() === 1,
+      `and the rail lights Learn, whatever the step opened  (${here})`,
+      await page.locator('[data-chrome="rail"] [aria-current="page"]').count() === 1
+        && await page.locator('[data-chrome="rail"] [aria-current="page"]').getAttribute("href") === "/learn",
+    );
+    /* The steps arrive from the server a moment after the page, so waited for. */
+    await page.waitForSelector('[data-rail-tonight] [aria-current="step"]', { timeout: 10_000 }).catch(() => {});
+    const tonight = await page.evaluate(() => {
+      const list = document.querySelector("[data-rail-tonight]");
+      const learn = document.querySelector('[data-chrome="rail"] a[href="/learn"]');
+      return {
+        rows: list ? list.querySelectorAll("li a").length : 0,
+        now: list ? list.querySelectorAll('[aria-current="step"]').length : 0,
+        underLearn: !!list && !!learn && list.previousElementSibling === learn,
+        marked: list ? [...list.querySelectorAll("li a")].every((a) => a.href.includes("module=")) : false,
+      };
+    });
+    check(
+      `and tonight's steps hang under it, the one open marked now  (${here})`,
+      tonight.rows === steps.length && tonight.now === 1 && tonight.underLearn && tonight.marked,
+      JSON.stringify(tonight),
+    );
+    check(
+      `and no class group in the rail during a module  (${here})`,
+      await page.locator("[data-rail-classes]").count() === 0,
     );
     check(
       `and the way into the app is the rail's Today, not a second door  (${here})`,
@@ -230,14 +253,29 @@ try {
         && !(await page.locator(".module-step [data-module-leave]").isVisible().catch(() => true)),
     );
     check(
-      `and the way on is the card at the end of the page, not a bar over it  (${here})`,
-      await page.locator(".module-step").evaluate((e) => getComputedStyle(e).position) === "static",
+      `and no bar over the step on a desktop  (${here})`,
+      !(await page.locator(".module-step").isVisible().catch(() => true)),
     );
     if (/\/grammar\//.test(here)) reading = page.url();
     marker ??= new URL(page.url()).searchParams.get("module");
 
     const was = page.url();
-    await page.locator(".module-step").getByRole("button", { name: /Continue|Finish/ }).click();
+    /*
+      A reading ends on its own "Next", which is the desktop's way on and is
+      pressed as a learner presses it. A round's "Next" is on its finish
+      screen, which this walk does not play to, so the press there goes to the
+      phone bar's button: the same press through the same action, one element
+      over, and the phone half of this suite shows that button on a screen.
+    */
+    const readingNext = page.locator("[data-reading-end] button");
+    if (await readingNext.isVisible().catch(() => false)) {
+      check(`the reading ends on a named Next  (${here})`, /Next, step \d+|Finish tonight/.test(await readingNext.innerText()));
+      await readingNext.click();
+    } else {
+      /* By text rather than role: a hidden button is out of the accessibility
+         tree, which is what `getByRole` reads. */
+      await page.locator(".module-step button", { hasText: /Continue|Finish/ }).evaluate((b) => b.click());
+    }
     await page.waitForFunction((u) => location.href !== u, was, { timeout: 30_000 });
     await page.waitForSelector("main h1", { timeout: 30_000 });
     /*
@@ -281,17 +319,17 @@ try {
       const sideways = await browser.newPage({ viewport: { width: 844, height: 390 } });
       await sideways.goto(page.url(), { waitUntil: "domcontentloaded" });
       await sideways.waitForSelector("main h1", { timeout: 20_000 });
-      /* 844 is past the width the rail appears at, so the way on is the card at
-         the end of the page there too, and nothing is pinned over the step. */
+      /* 844 is past the width the rail appears at, so there is no bar at all
+         there, and nothing is pinned over the step. */
       const share = await sideways.evaluate(() => {
         const bar = document.querySelector(".module-step");
         const pad = parseFloat(getComputedStyle(document.querySelector("main")).paddingBottom);
-        return bar ? { position: getComputedStyle(bar).position, pad: Math.round(pad) } : null;
+        return bar ? { display: getComputedStyle(bar).display, pad: Math.round(pad) } : null;
       });
       await sideways.close();
       check(
         "a phone on its side keeps the whole screen for the step",
-        share !== null && share.position === "static" && share.pad <= 100,
+        share !== null && share.display === "none" && share.pad <= 100,
         JSON.stringify(share),
       );
 
@@ -363,28 +401,22 @@ try {
   } else {
     await page.goto(readingAt, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("main h1", { timeout: 20_000 });
+    await page.waitForSelector("[data-reading-end] button", { timeout: 10_000 }).catch(() => {});
+    const end = await page.locator("[data-reading-end]").innerText().catch(() => "");
     check(
-      "the reading says which step of the evening it is",
-      /* `label-xs` uppercases, which is what this caption wears like every
-         other label in the app, so the reading is case-blind rather than the
-         caption being made an exception. */
-      /step \d+ of \d+/i.test(await page.locator(".module-step").innerText()),
-      (await page.locator(".module-step").innerText()).split("\n")[0],
+      "the reading says where it ends and which step of the evening it is",
+      /That is the page/.test(end) && /step \d+ of \d+/i.test(end),
+      end.split("\n").slice(0, 2).join(" / "),
     );
 
-    /* The last thing on the page is readable rather than under the bar, which
-       is what the padding rule is for and what its ordering against the
-       conversation's own decides. */
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await page.waitForTimeout(500);
+    /* And the page ends there: the way on is the last thing in it. */
     const foot = await page.evaluate(() => {
-      const bar = document.querySelector(".module-step").getBoundingClientRect();
+      const end = document.querySelector("[data-reading-end]");
       const leaves = [...document.querySelectorAll("#main *")]
-        .filter((e) => !e.closest(".module-step") && !e.children.length && e.textContent?.trim());
-      const last = leaves.at(-1)?.getBoundingClientRect();
-      return { bar: Math.round(bar.top), last: last ? Math.round(last.bottom) : 0 };
+        .filter((e) => !e.children.length && e.textContent?.trim() && e.getClientRects().length);
+      return { last: !!end && !!leaves.length && end.contains(leaves.at(-1)) };
     });
-    check("the foot of the reading is clear of the bar", foot.last <= foot.bar, JSON.stringify(foot));
+    check("the foot of the reading is its way on", foot.last, JSON.stringify(foot));
 
     /*
       AND THE DRILL, WHICH IS THE THING THAT WAS REPORTED, ON A PAGE THAT HAS
@@ -493,7 +525,10 @@ try {
        and measuring the page that refuses it. */
     absent(4, "a step address carrying the app's own marker, which the walk above did not produce");
   } else {
-  const dark = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  /* A phone, where the way on is the bar and is on the screen on every step:
+     the press is the same action as a desktop's "Next", through the same
+     hook, so one of the two is enough to ask. */
+  const dark = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const unplugged = await dark.newPage();
   try {
     await unplugged.goto(`${B}${MODULE_HOME}`, { waitUntil: "domcontentloaded" });

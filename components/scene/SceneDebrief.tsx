@@ -15,6 +15,7 @@ import { errandForScene, errandPlaces, SAY_IT_TODAY } from "@/lib/collections/er
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
 import { useModuleFocus } from "@/components/course/moduleFocus";
+import { NextStep } from "@/components/round/RoundExit";
 
 /** So "words your conversations needed" is a query and never a counter (ADR-014). */
 export const SCENE_SOURCE = "SCENE";
@@ -525,11 +526,12 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         {/*
           AND INSIDE TONIGHT'S MODULE NEITHER OF THESE IS THE WAY ON. The
           conversation is one step of an evening and what follows it is the
-          next step, on the frame's own button at the foot of the screen.
+          next step, which is the "Next" the module draws here.
           Offering a different conversation there is the catalogue again, and
           offering this one again is a second decision on the screen whose job
           is to say how it went.
         */}
+        <NextStep />
         {!inModule && (
           <div className="flex flex-wrap gap-2">
             <ButtonLink href="/situations" variant="ghost">Rehearse a different conversation</ButtonLink>

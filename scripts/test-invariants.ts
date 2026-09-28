@@ -24522,7 +24522,7 @@ check("a step opened from tonight's module carries the marker", () => {
   arrives already inside the module. The CSS half is asserted with it, because
   a frame drawn over a rail that is still there is not a room.
 */
-check("the module frame is mounted once in the shell, and keeps the rail and Anu", () => {
+check("the module frame is mounted once in the shell, keeps the rail and Anu, and draws no bar on a desktop", () => {
   const layout = code("app/(app)/layout.tsx");
   assert.match(
     layout, /<ModuleScope>/,
@@ -24561,6 +24561,43 @@ check("the module frame is mounted once in the shell, and keeps the rail and Anu
     code("components/course/ModuleScope.tsx"), /className="module-step/,
     "nothing draws `.module-step`, so the rule above matches nothing",
   );
+
+  /*
+    AND ON A DESKTOP THERE IS NO BAR AT ALL. A card floating over the middle of
+    a round was what was asked to be removed; moving it to the end of the page
+    was the first answer and was not what was agreed. Hidden rather than
+    unmounted, so `body:has()` still reads the hook.
+  */
+  const bar = code("components/course/ModuleScope.tsx").match(/className="module-step[^"]*"/)?.[0] ?? "";
+  assert.ok(
+    /\bmd:hidden\b/.test(bar) && !/md:static/.test(bar),
+    "the module's bar is drawn on a desktop again. There the way on is Next where the step ends",
+  );
+
+  /*
+    AND THE WAY ON THERE IS WHERE THE STEP ENDS: a round's finish screen through
+    `WayOut`, a reading's foot through `ReadingEnd`, a conversation's debrief
+    through `NextStep`. Each reads the element the module built, so a round
+    added later arrives with its Next by drawing `WayOut` as every round does.
+  */
+  const exit = code("components/round/RoundExit.tsx");
+  assert.match(exit, /if \(focus\) return opening \? null : <div className=\{className\}>\{next\}<\/div>/,
+    "`WayOut` no longer draws tonight's Next inside a module, so a round finishes with no way on");
+  for (const page of ["app/(app)/grammar/topic/[id]/page.tsx", "app/(app)/grammar/[caseKey]/page.tsx"]) {
+    assert.match(code(page), /<ReadingEnd \/>/, `${page} stopped ending on tonight's Next inside a module`);
+  }
+  assert.match(code("components/scene/SceneDebrief.tsx"), /<NextStep \/>/,
+    "a conversation's debrief inside a module has no way on");
+
+  /*
+    AND THE RAIL IS THE ORDINARY RAIL, WITH LEARN LIT AND TONIGHT UNDER IT, AND
+    NO CLASS GROUP. Lighting the row the step's path lives under told a learner
+    walking an evening that they had wandered off to Practice.
+  */
+  const rail = code("components/Sidebar.tsx");
+  assert.match(rail, /const lit = focus \? LEARN_HREF :/, "the rail stopped lighting Learn during a module");
+  assert.match(rail, /const classLinks = focus \? \[\] :/, "the rail draws the class group during a module again");
+  assert.match(rail, /<TonightRows /, "the rail stopped hanging tonight's steps under Learn");
 });
 
 /*

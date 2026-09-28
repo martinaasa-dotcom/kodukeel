@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, ListChecks, X } from "lucide-react";
-import { advanceCourseStep } from "@/app/actions";
+import { advanceCourseStep, tonightSteps } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { MODULE_HOME, MODULE_PARAM, readFocus, type ModuleFocus } from "@/lib/course/focus";
-import { ModuleContext } from "./moduleFocus";
+import { ModuleContext, ModuleNextContext, ModuleStepsContext, type ModuleStepRow } from "./moduleFocus";
 
 /**
  * TONIGHT'S MODULE, WITH THE REST OF THE WEBSITE TAKEN OFF THE SCREEN.
@@ -23,18 +23,19 @@ import { ModuleContext } from "./moduleFocus";
  *
  * So a step opened from the module has one way on, and pressing it ticks the
  * step and opens the next one in the same press. On a phone it is pinned to the
- * foot of the screen where the phone bar was; on a desktop it is the card at
- * the end of the page, so a reading ends on "go on" and a round has nothing
- * floating over the middle of it. The quiet ways out stay ways out rather than
- * things to do: back to tonight's list, and on a phone one cross back to Today.
+ * foot of the screen where the phone bar was. On a desktop there is no bar at
+ * all: the way on is "Next" where the step ends, on a round's finish screen and
+ * at the foot of a reading, and nothing floats over the middle of a round.
  *
  * AND THE RAIL AND ANU STAY. The first version took the whole website off the
  * screen, rail, phone bar and tutor's button, and it was reported the other
  * way: a learner three steps in had no idea where in the app they were and
- * nobody to ask about the card in front of them. So the rail stays on a desktop
- * with the evening's own row lit, Anu stays in her corner at every width, and
- * what goes is the phone bar alone, because the way on stands where it stood.
- * The cross is a phone's only: on a desktop the rail's own Today is the door.
+ * nobody to ask about the card in front of them. So the rail is the ordinary
+ * rail with Learn lit and tonight's steps hung under it, each one pressable,
+ * the one you are on marked and the ones behind you ticked; a class group is
+ * not drawn, since nothing about tonight is in it. Anu stays in her corner at
+ * every width, and what goes is the phone bar alone. The cross is a phone's
+ * only: on a desktop the rail's own Today is the door.
  *
  * HOW THE PHONE BAR GOES, AND WHY IT IS CSS. `.module-step` is the one element
  * this draws and `body:has(...)` is what reads it, exactly as `.scene-room`
@@ -67,11 +68,136 @@ import { ModuleContext } from "./moduleFocus";
 export function ModuleScope({ children }: { children: ReactNode }) {
   const params = useSearchParams();
   const focus = readFocus(params.get(MODULE_PARAM));
+  const steps = useTonight(focus);
   return (
     <ModuleContext.Provider value={focus}>
-      {children}
-      {focus && <ModuleBar focus={focus} />}
+      <ModuleStepsContext.Provider value={steps}>
+        <ModuleNextContext.Provider value={focus ? <ModuleNext focus={focus} steps={steps} /> : null}>
+          {children}
+          {focus && <ModuleBar focus={focus} />}
+        </ModuleNextContext.Provider>
+      </ModuleStepsContext.Provider>
     </ModuleContext.Provider>
+  );
+}
+
+/**
+ * TONIGHT'S STEPS, ASKED OF THE SERVER ONCE PER STEP.
+ *
+ * Per step rather than once per evening, because pressing on is what ticks a
+ * step and the rail has to show the tick on the screen that press opened. The
+ * previous answer stands while the next is on its way, so the list under Learn
+ * does not blink out between two steps of one evening; a different day drops
+ * it. Caught for the reason every Server Action call here is: a rejection out
+ * of an effect is an unhandled promise, and a rail with no steps under Learn
+ * is still a rail.
+ */
+function useTonight(focus: ModuleFocus | null): readonly ModuleStepRow[] {
+  const [rows, setRows] = useState<{ key: string; steps: readonly ModuleStepRow[] }>({ key: "", steps: [] });
+  const programmeId = focus?.programmeId ?? "";
+  const dayId = focus?.dayId ?? "";
+  const stepId = focus?.stepId ?? "";
+  useEffect(() => {
+    if (!programmeId || !dayId) return;
+    let live = true;
+    tonightSteps(programmeId, dayId)
+      .catch(() => null)
+      .then((steps) => {
+        if (live && steps) setRows({ key: `${programmeId}/${dayId}`, steps });
+      });
+    return () => { live = false; };
+  }, [programmeId, dayId, stepId]);
+  return focus && rows.key === `${programmeId}/${dayId}` ? rows.steps : [];
+}
+
+/**
+ * PRESSING ON, SHARED BY THE PHONE BAR AND THE DESKTOP'S "NEXT".
+ *
+ * Two buttons, one press: tick this step and open the next one. The long
+ * comments on why the rejection is caught and why nothing follows the push are
+ * on the body below and hold for both.
+ */
+function useCarryOn(focus: ModuleFocus) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [failed, setFailed] = useState<string | null>(null);
+  const carryOn = () => {
+    setFailed(null);
+    start(async () => {
+      /*
+        AND A PRESS THAT NEVER REACHED THE SERVER IS CAUGHT.
+
+        A Server Action returns `{ ok: false }` for an answer it has, and
+        *throws* when there was no answer: the network is gone, the deployment
+        is restarting, the tab has been asleep. Without the catch that rejection
+        leaves the transition, and React tears the tree down: measured with the
+        plug pulled, `#main` was empty, the bar was gone and the learner was
+        looking at a blank screen with the step's address still in the bar.
+
+        `.catch(() => null)` is the shape `components/StarWord.tsx` already
+        uses, and for its reason: the honest thing to do with a press that did
+        not land is to say so and leave everything as it was.
+      */
+      const result = await advanceCourseStep(focus.programmeId, focus.dayId, focus.stepId)
+        .catch(() => null);
+      if (!result) {
+        setFailed("That did not reach the server, so this step is not ticked.");
+        return;
+      }
+      if (!result.ok) { setFailed(result.error); return; }
+      /*
+        AND NOTHING AFTER THE PUSH. `advanceCourseStep` revalidates `/course`
+        and `/` inside the action, which drops the client's copy of both, and a
+        `router.refresh()` here was a second render of the route this press had
+        just opened, which remounted under the caret the bar puts on the new
+        screen's heading.
+      */
+      router.push(result.href);
+    });
+  };
+  return { carryOn, pending, failed };
+}
+
+/**
+ * THE WAY ON WHERE A STEP ENDS, ON A DESKTOP.
+ *
+ * Drawn by whoever reaches the end: a round's finish screen through `WayOut`,
+ * the foot of a reading page through `ReadingEnd` and a conversation's debrief
+ * through `NextStep`. It names where it goes, "Next, step 3: Match", because a button that only says "Continue" is a
+ * button whose destination you find out by pressing it, and the rail beside it
+ * already lists the evening by name.
+ *
+ * A phone keeps its bar for now and this stands down there, since two buttons
+ * doing one thing on one screen is one too many.
+ */
+function ModuleNext({ focus, steps }: { focus: ModuleFocus; steps: readonly ModuleStepRow[] }) {
+  const { carryOn, pending, failed } = useCarryOn(focus);
+  const at = steps.findIndex((s) => s.id === focus.stepId);
+  const next = at >= 0 ? steps[at + 1] : undefined;
+  const last = focus.n >= focus.of;
+  return (
+    <div data-module-next="" className="hidden w-full flex-col items-center gap-2 md:flex">
+      <Button variant="primary" size="lg" onClick={carryOn} disabled={pending}>
+        {last ? (
+          <>Finish tonight <ArrowRight size={16} aria-hidden /></>
+        ) : (
+          <>
+            {next ? `Next, step ${focus.n + 1}: ${next.title}` : `Next, step ${focus.n + 1}`}
+            <ArrowRight size={16} aria-hidden />
+          </>
+        )}
+      </Button>
+      {focus.derived && (
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+          This step ticks itself from your answers, not from this button.
+        </p>
+      )}
+      {failed && (
+        <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
+          {failed} Nothing was changed.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -92,9 +218,7 @@ export function ModuleScope({ children }: { children: ReactNode }) {
  * rather than guessing from the step id.
  */
 function ModuleBar({ focus }: { focus: ModuleFocus }) {
-  const router = useRouter();
-  const [pending, start] = useTransition();
-  const [failed, setFailed] = useState<string | null>(null);
+  const { carryOn, pending, failed } = useCarryOn(focus);
 
   /*
     HOW TALL THE BAR IS, FOR ANU TO STAND CLEAR OF ON A PHONE.
@@ -200,49 +324,6 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
   }, [focus.stepId]);
 
   const last = focus.n >= focus.of;
-  const carryOn = () => {
-    setFailed(null);
-    start(async () => {
-      /*
-        AND A PRESS THAT NEVER REACHED THE SERVER IS CAUGHT.
-
-        A Server Action returns `{ ok: false }` for an answer it has, and
-        *throws* when there was no answer: the network is gone, the deployment
-        is restarting, the tab has been asleep. Without the catch that rejection
-        leaves the transition, and React tears the tree down: measured with the
-        plug pulled, `#main` was empty, the bar was gone and the learner was
-        looking at a blank screen with the step's address still in the bar. On
-        a feature whose whole promise is that a step is a room you cannot
-        wander out of, the way on deleting the room is the worst of the failure
-        modes, and it is the one that needed no network to be reached.
-
-        `.catch(() => null)` is the shape `components/StarWord.tsx` already
-        uses, and for its reason: the honest thing to do with a press that did
-        not land is to say so and leave everything as it was.
-      */
-      const result = await advanceCourseStep(focus.programmeId, focus.dayId, focus.stepId)
-        .catch(() => null);
-      if (!result) {
-        setFailed("That did not reach the server, so this step is not ticked.");
-        return;
-      }
-      if (!result.ok) { setFailed(result.error); return; }
-      /*
-        AND NOTHING AFTER THE PUSH, WHICH IS A CORRECTION.
-
-        There was a `router.refresh()` here, so the module screen would not be
-        served from the router cache with the step still open on it. It is not
-        needed: `advanceCourseStep` revalidates `/course` and `/` inside the
-        action, which drops the client's copy of both, and the refresh was a
-        second render of the route this press had just opened. What that cost
-        was the caret: the effect above puts it on the new screen's heading and
-        the refresh remounted underneath it, so focus landed on the heading or
-        on the body depending on which won, which is a check that passes on
-        this machine and fails on a slower one.
-      */
-      router.push(result.href);
-    });
-  };
 
   return (
     /*
@@ -262,12 +343,14 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
         the one thing in this app that is opened deliberately with a keystroke.
       */
       /*
-        And `md:static` is the desktop half: from the width the rail appears at,
-        the bar stops floating and becomes the card at the end of the page,
-        which is where somebody who has read to the bottom is looking.
+        And `md:hidden` is the desktop half: from the width the rail appears
+        at there is no bar at all, because the way on is "Next" where the step
+        ends and a card floating over the middle of a round is the thing this
+        was asked to remove. Hidden rather than unmounted, so `body:has()`
+        still reads the hook and the caret effect above still runs.
       */
       ref={bar}
-      className="module-step fixed inset-x-0 bottom-0 z-[95] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 md:static md:z-auto md:px-4 md:pb-10 md:pt-10"
+      className="module-step fixed inset-x-0 bottom-0 z-[95] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 md:hidden"
     >
       <div
         className="module-bar mx-auto flex w-full max-w-3xl flex-col gap-2 rounded-[var(--r-xl)] border p-3"
@@ -304,8 +387,8 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
             The word goes at phone width and the cross stays, since the name in
             `aria-label` begins with the word a sighted reader sees.
 
-            On a phone only: from the width the rail appears at, the rail's own
-            Today is the same door, and two of them in one view is furniture.
+            The whole bar is a phone's only: from the width the rail appears
+            at, the rail's own Today is this door and "Next" is the way on.
 
             `data-module-leave` is what `scripts/test-module.mjs` reads to tell
             this door, which is deliberate, from a door a round left open.
@@ -314,7 +397,7 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
             href="/"
             data-module-leave=""
             aria-label="Leave the module and go to Today"
-            className="tap-tint inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 text-sm font-semibold md:hidden"
+            className="tap-tint inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 text-sm font-semibold"
             style={{ color: "var(--ink-3)" }}
           >
             <X size={16} aria-hidden />

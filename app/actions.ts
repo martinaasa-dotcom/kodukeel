@@ -82,9 +82,10 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, programmeById,
+  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, programmeById,
 } from "@/lib/course";
-import { dayIsInPlay, openingPart, programmeFor } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor } from "@/lib/progress/course";
+import { learnerDayClock } from "@/lib/progress/dayClock";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
 
@@ -3948,6 +3949,38 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
   }
 
   return { ok: true as const, href: continueHref(programme.id, day, step.id) };
+}
+
+/**
+ * TONIGHT'S STEPS, FOR THE RAIL TO DRAW UNDER LEARN.
+ *
+ * The marker on a step's address says which step this is and not what the
+ * others are called or which of them are done, so the rail asks. What is done
+ * is `courseReading`'s answer, the same one the module screen draws its list
+ * from, so the rail and the list cannot disagree about a tick: a day behind the
+ * one in play is done whole, the day in play carries its own ticks and the two
+ * steps the log proves, and a day ahead of it has nothing done yet.
+ *
+ * Reads only, and returns null for a day that is not one, which the rail draws
+ * as Learn lit with nothing under it.
+ */
+export async function tonightSteps(programmeId: string, dayId: string) {
+  const ownerId = await requireUserId();
+  const programme = programmeById(text(programmeId));
+  const day = programme ? dayById(programme, text(dayId)) : undefined;
+  if (!programme || !day) return null;
+  const clock = await learnerDayClock(ownerId);
+  const reading = await courseReading(ownerId, programme, clock);
+  const current = reading.current;
+  const done = (id: string) => !current
+    || day.index < current.day.index
+    || (day.id === current.day.id && current.done.has(id));
+  return focusedSteps(programme.id, day.id, day.steps).map((f) => ({
+    id: f.step.id,
+    title: f.step.title,
+    href: f.href,
+    done: done(f.step.id),
+  }));
 }
 
 /**

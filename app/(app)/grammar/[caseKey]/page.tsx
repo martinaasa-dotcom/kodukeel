@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { ReadingEnd } from "@/components/course/ReadingEnd";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft, ArrowRight, BookOpen, MessageCircleQuestion, PenLine, Target, TriangleAlert,
@@ -466,6 +467,7 @@ export default async function CasePage({
           )}
         </nav>
         )}
+        {inModule && <ReadingEnd />}
       </Stack>
     </Page>
   );

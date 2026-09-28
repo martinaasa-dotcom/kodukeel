@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { BookOpen, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { useModuleFocus } from "@/components/course/moduleFocus";
+import { useModuleFocus, useModuleNext } from "@/components/course/moduleFocus";
 
 /**
  * THE TWO WAYS OUT OF A ROUND, DRAWN ONCE, AND WHAT BECOMES OF THEM INSIDE A
@@ -67,20 +67,37 @@ export function EndSession({ href = "/", label = "End session", size = 18 }: {
 }
 
 /**
- * The row of ways off a finish screen, or nothing inside a module.
+ * The row of ways off a finish screen, or tonight's "Next" inside a module.
  *
  * It takes the row rather than sitting inside it, because what a module has to
  * remove is the whole row: "another round" is not an exit and is still a
  * second thing to decide, on the one screen whose job is to say how that round
- * went and hand the evening on.
+ * went and hand the evening on. What it draws in the row's place is the way on
+ * the module built, which is the button the evening moves forward with.
+ *
+ * `opening` is for the row on a round's start screen, where the round has not
+ * been played yet and "Next" would be the way past it rather than the way on
+ * from it. There it stands down and draws nothing, as it always did.
  */
-export function WayOut({ className = "", children }: {
+export function WayOut({ className = "", opening = false, children }: {
   className?: string;
+  opening?: boolean;
   children: ReactNode;
 }) {
   const focus = useModuleFocus();
-  if (focus) return null;
+  const next = useModuleNext();
+  if (focus) return opening ? null : <div className={className}>{next}</div>;
   return <div className={className}>{children}</div>;
+}
+
+/**
+ * Tonight's "Next" where a step ends that is not a round, which is the foot of
+ * a reading page, or nothing outside a module.
+ */
+export function NextStep({ className = "" }: { className?: string }) {
+  const next = useModuleNext();
+  if (!next) return null;
+  return <div className={className}>{next}</div>;
 }
 
 /**
