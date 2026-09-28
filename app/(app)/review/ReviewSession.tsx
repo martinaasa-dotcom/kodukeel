@@ -1570,6 +1570,7 @@ export function ReviewSession({
           {ask !== "intro" && split && (
             <span
               lang="et"
+              data-front-tail
               className="rounded-full px-3 py-1 text-sm font-semibold"
               style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             >
