@@ -2,6 +2,7 @@
 
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { getTutorHistory } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -9,6 +10,7 @@ import { Empty } from "@/components/ui";
 import { AnuFace } from "./AnuFace";
 import { useAnuChat } from "./useAnuChat";
 import { useStickToBottom } from "./useStickToBottom";
+import { readScreen } from "./readScreen";
 import { useModalFocus } from "@/components/useModalFocus";
 import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, sentenceCheckPrompt, AnuOffline } from "./AnuParts";
 
@@ -29,7 +31,17 @@ export function AnuPanel({
   onClose: () => void;
 }) {
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  const { messages, setMessages, streaming, answeredBy, failure, send, online } = useAnuChat([]);
+  /*
+    She reads the screen she is open over, so "what does this mean" is about
+    the card in front of the learner rather than a question back about which
+    sentence (`components/anu/readScreen.ts`). The path is held in a ref so
+    the reader sees the page a question is sent from, not the one she opened on.
+  */
+  const pathname = usePathname();
+  const path = useRef(pathname);
+  path.current = pathname;
+  const { messages, setMessages, streaming, answeredBy, failure, send, online } =
+    useAnuChat([], () => readScreen(path.current));
   const [input, setInput] = useState("");
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkEt, setCheckEt] = useState("");
@@ -154,7 +166,7 @@ export function AnuPanel({
             answeredBy
               ? <Provenance compact label={answeredBy} answered />
               : <p className="text-2xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-                  Explains the rule, not just the answer.
+                  Ask about anything on this screen.
                 </p>
           )}
         </div>
@@ -260,7 +272,7 @@ export function AnuPanel({
                 value={input}
                 onChange={setInput}
                 onEnter={() => { if (send(input)) setInput(""); }}
-                placeholder="Why raamatut and not raamatu?"
+                placeholder="What does this mean?"
                 ariaLabel="Ask Anu a question"
                 inputRef={boxRef}
               />

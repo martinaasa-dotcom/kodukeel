@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useOffline } from "@/components/OfflineProvider";
+import type { ScreenContext } from "@/lib/tutor/screen";
 
 export interface Msg { role: "user" | "assistant"; content: string }
 
@@ -15,7 +16,16 @@ export interface Msg { role: "user" | "assistant"; content: string }
  * because two different surfaces want to clear it differently (a page can
  * refocus the field, a panel might close instead).
  */
-export function useAnuChat(initialMessages: Msg[]) {
+export function useAnuChat(
+  initialMessages: Msg[],
+  /*
+    What is on the page behind her, read when a question is sent rather than
+    when the panel opened, since the panel stays open while somebody moves to
+    the next card and asks about that one. Only the panel passes it: the
+    /tutor page has no screen behind it. See `lib/tutor/screen.ts`.
+  */
+  screen?: () => ScreenContext | null,
+) {
   const [messages, setMessages] = useState<Msg[]>(initialMessages);
   const [streaming, setStreaming] = useState(false);
   /*
@@ -64,6 +74,9 @@ export function useAnuChat(initialMessages: Msg[]) {
   const ask = async (content: string) => {
 
     const next: Msg[] = [...messages, { role: "user", content }];
+    // Read before anything re-renders, while the page is still the one they asked from.
+    let onScreen: ScreenContext | null = null;
+    try { onScreen = screen?.() ?? null; } catch { /* a page that cannot be read is asked about without it */ }
     setFailure(null);
     setMessages(next);
     setStreaming(true);
@@ -77,7 +90,7 @@ export function useAnuChat(initialMessages: Msg[]) {
         method: "POST",
         headers: { "content-type": "application/json" },
         // Who is asking, and at what level, is the server's to know.
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify(onScreen ? { messages: next, screen: onScreen } : { messages: next }),
       });
 
       const provider = res.headers.get("x-model-provider");

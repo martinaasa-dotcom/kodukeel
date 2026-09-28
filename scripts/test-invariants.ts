@@ -5952,7 +5952,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     the English list it holds is English, checked on the letters Estonian has
     and English does not.
   */
-  assert.match(tutorRoute, /wordsInQuestion\(messages\)/, "the tutor route no longer asks the dictionary about the words in the question");
+  assert.match(tutorRoute, /wordsInQuestion\(messages[,)]/, "the tutor route no longer asks the dictionary about the words in the question");
   assert.match(tutorRoute, /wordsNote\(words, asksForForms\(messages\)\)/, "the tutor route no longer hands Anu the dictionary's forms, tabled where forms were asked for");
   const tutorWords = code("lib/progress/tutorWords.ts");
   const wordsModule = code("lib/tutor/words.ts");

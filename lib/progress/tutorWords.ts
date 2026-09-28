@@ -17,8 +17,20 @@ import { glossAnswers, glossWords, MAX_QUESTION_WORDS, questionWords, type WordF
  */
 export async function wordsInQuestion(
   messages: readonly { role: string; content: string }[],
+  /*
+    The Estonian on the learner's screen, asked about after the question's
+    own words, so "what does this mean" over a sentence is answered with the
+    forms of the words in it (`lib/tutor/screen.ts`). After, so a word the
+    question names is never crowded out of the cap by the page.
+  */
+  onScreen = "",
 ): Promise<WordFacts[]> {
-  const tokens = questionWords(messages);
+  const named = questionWords(messages);
+  const seen = new Set(named.map((t) => t.toLowerCase()));
+  const shown = onScreen
+    ? questionWords([{ role: "user", content: onScreen }]).filter((t) => !seen.has(t.toLowerCase()))
+    : [];
+  const tokens = [...named, ...shown].slice(0, MAX_QUESTION_WORDS * 3);
   if (tokens.length === 0) return [];
   const candidates = await candidatesFor(tokens);
   const ids: string[] = [];

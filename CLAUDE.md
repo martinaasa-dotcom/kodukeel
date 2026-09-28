@@ -10563,6 +10563,21 @@ answers before it names a case, four times the chart's floor, since a teacher ra
 conversation is a stronger claim than a bar. The route no longer reads a level from the request at
 all, asserted.
 
+**And she is told what is on the screen, because "what does this mean" is about the card in front of
+the learner.** She lives in a panel over every screen and was told nothing about any of them, so the
+commonest question anybody asks a tutor sitting beside them was answered with a question back about
+which sentence. `components/anu/readScreen.ts` reads the page behind her when a question is sent,
+never when she opened, since the panel stays open across cards: the heading, the highlight (kept from
+before the press, because focusing her box clears it), the outermost `lang="et"` runs and the text
+visible in the window, all inside `#main` so the rail and her own panel are never part of it. Generic
+on purpose, since forty screens registering a context by hand is the forty-first forgetting.
+`lib/tutor/screen.ts` coerces and clips it on the server and puts it **in front of the last question
+and never in the system prompt**, quoted as material rather than instruction, because a pasted
+passage or a headline is not text this app wrote; it is not stored, so the history is the question as
+typed. The screen's Estonian goes to the dictionary lookup after the question's own words, and the
+static prompt says to take "this" as the highlight or the page's Estonian and to ask only where the
+screen holds nothing it could mean. The `/tutor` page sends none, having no screen behind it.
+
 **Anu remembers a day and starts fresh after it.** The thirty most recent turns came back on every
 visit whatever their age and up to twenty of them went to the model on every question, which is a
 tutor opening Tuesday's lesson by re-reading last month's, at full price each time. The operator

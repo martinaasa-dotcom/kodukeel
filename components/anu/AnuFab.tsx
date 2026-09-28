@@ -4,6 +4,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnuFace } from "./AnuFace";
 import { useFinishingHover } from "@/components/motion/useFinishingHover";
+import { watchSelection } from "./readScreen";
 
 /*
   The panel (the conversation, the starters, the sentence check, the
@@ -71,6 +72,16 @@ export function AnuFab({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  /*
+    The last thing highlighted on the page, kept from before the panel opens,
+    because the press into her box is what clears a page's selection. Mounted
+    here rather than in the panel, which loads only on the first press and so
+    would miss the highlight that made somebody press it.
+  */
+  const path = useRef(pathname);
+  path.current = pathname;
+  useEffect(() => watchSelection(() => path.current), []);
 
   useEffect(() => {
     if (!open) return;
