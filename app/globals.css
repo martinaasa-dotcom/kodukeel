@@ -3993,7 +3993,7 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: #0b0e2e;
+  background: var(--stage);
   color: var(--ink);
   border-color: rgb(255 255 255 / 0.08) !important;
   box-shadow: none !important;
@@ -4003,6 +4003,35 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
   border-color: rgb(255 255 255 / 0.1) !important;
   box-shadow: none !important;
 }
+/*
+  THE EVENING IS OVER, AND IT WEARS THE MIX. The card that says tonight's
+  module is learned, on Today and on the module screen, was painted mint, and
+  mint is a verdict (recalled, known) rather than a colour of Vikerkaar öös,
+  so the one moment the app celebrates read as a green slab beside a palette
+  that has no green in it. Night was the other answer and is too stark for an
+  ending on a light page. So it is the accent's own tint, which is lavender in
+  the light and deep indigo in the dark, with the mix drawn along its top
+  edge: the bright four of Vikerkaar öös, in their order, read off the
+  palette's tokens so each theme draws its own. The night navy is left out of
+  the strip because on a dark card it vanishes. `.evening` goes on a
+  `Card tone="accent"`; the invariant `the-evening-wears-the-mix` holds both.
+*/
+.evening {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.evening::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: linear-gradient(90deg,
+    var(--butter) 0 34%, var(--blush) 34% 50%, var(--accent) 50% 66%,
+    var(--sky) 66% 82%, var(--butter) 82% 100%);
+  pointer-events: none;
+}
+@media print { .evening::before { display: none; } }
 /* A night panel something opens out of (a menu anchored inside it) cannot
    clip. */
 .night.night-open { overflow: visible; }

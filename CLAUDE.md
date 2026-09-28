@@ -10022,6 +10022,13 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   emulating a system preference the palette no longer reads, since that would sweep the light
   theme twice and call the dark one clean. Asserted, with the comments stripped, because the note
   explaining why the block went names the block.
+- **A mockup is the app, photographed.** A visual proposal shown to the operator is made on a
+  branch and taken with `npm run shoot -- /route` in both themes, never drawn as standalone HTML:
+  one was, in Bricolage Grotesque and Figtree and a lilac of its own, and asked to be trusted as the
+  real screen. **The faces are Onest and Schibsted Grotesk, the brand mix is Vikerkaar öös (butter,
+  blush, the accent, sky, the night `--stage`), and mint and peach are verdicts, never a lead
+  panel's fill.** The finished evening wears `.evening` on the accent tint. Asserted in
+  `scripts/invariants/the-agreed-fonts-and-palette.ts`, each arm made to fail on the real fault.
 - Style through the tokens in `app/globals.css`, never with a raw hex. The five hues carry fixed
   meanings (`docs/14-design-system.md` §1). Mint is "recalled", peach is "missed", and neither is
   free for decoration. **A hue has a fill and an ink and they are not interchangeable**: `--accent`
