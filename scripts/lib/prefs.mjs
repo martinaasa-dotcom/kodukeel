@@ -98,6 +98,35 @@ export async function requireLetterBar(page) {
 }
 
 /**
+ * The dictionary under an example sentence is off unless somebody turns it on
+ * (`lib/ux/wordGloss.ts`), so a suite that opens its panel says so first
+ * rather than failing on a word that correctly draws no underline.
+ */
+export async function ensureWordGloss(browser, base, want = "on") {
+  const label = want === "on" ? /Underline every word/ : /Leave the sentence alone/;
+  const ctx = await browser.newContext({ viewport: DESKTOP });
+  const page = await ctx.newPage();
+  try {
+    await page.goto(`${base}/settings?tab=sound`, { waitUntil: "domcontentloaded" });
+    const choice = page.getByRole("radio", { name: label }).first();
+    try {
+      await choice.waitFor({ state: "attached", timeout: 15_000 });
+    } catch {
+      throw new Error(
+        `Settings offers no word-gloss choice, so ${want} could not be set. ` +
+        "Either the control moved or this context is not a desktop one.",
+      );
+    }
+    if ((await choice.getAttribute("aria-checked")) === "true") return false;
+    await choice.click();
+    await page.waitForTimeout(1500);
+    return true;
+  } finally {
+    await ctx.close();
+  }
+}
+
+/**
  * Fails now, and in words, rather than in nineteen checks and in geometry.
  *
  * THE PHONE BAR ONLY EXISTS ON THE SIGNED-IN SHELL.
