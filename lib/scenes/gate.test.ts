@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, subjectsIn, type DictEntry } from "./lexicon";
-import { MAX_COMPOSED_WORDS, NEW_WORDS, disagrees, governedWord, governmentSuspect, passes, runGate, type GateContext } from "./gate";
+import { MAX_COMPOSED_WORDS, NEW_WORDS, disagrees, governedWord, governmentSuspect, passes, runGate, withoutFarewell, type GateContext } from "./gate";
 import type { BeatSpec } from "./types";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -878,6 +878,23 @@ describe("a farewell on a beat that is not the goodbye", () => {
 
   it("says nothing where the caller handed in no phrases", () => {
     expect(runGate("Head aega!", beat(), context()).failed).not.toContain("farewell");
+  });
+});
+
+describe("a line held back for its goodbye alone", () => {
+  const ctx = context({ farewells: [["head", "aega"], ["nägemist"]] });
+
+  it("keeps every sentence before the goodbye and drops the goodbye", () => {
+    expect(withoutFarewell("Väga hea, olete kirjas. Tulge natuke varem. Head aega!", beat(), ctx))
+      .toBe("Väga hea, olete kirjas. Tulge natuke varem.");
+  });
+
+  it("leaves nothing to say where the line was only a goodbye", () => {
+    expect(withoutFarewell("Head aega!", beat(), ctx)).toBeNull();
+  });
+
+  it("changes nothing on a line with no goodbye in it", () => {
+    expect(withoutFarewell("Kas teil on aega?", beat(), ctx)).toBeNull();
   });
 });
 

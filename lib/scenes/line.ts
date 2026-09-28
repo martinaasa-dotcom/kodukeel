@@ -25,7 +25,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import {
-  MAX_COMPOSED_WORDS, MAX_SENTENCES, passes, runGate, type Check, type GateContext, type Verdict,
+  MAX_COMPOSED_WORDS, MAX_SENTENCES, passes, runGate, withoutFarewell, type Check, type GateContext, type Verdict,
 } from "./gate";
 import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
@@ -438,8 +438,19 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     const verdicts: (Verdict | null)[] = [];
     for (let n = 0; n < MAX_COMPOSE_ATTEMPTS; n += 1) {
       const last = verdicts.at(-1) ?? null;
-      const line = await request.compose(retryNote(last), whyWithheld(last, request.beat.move));
-      const verdict = await judge(line);
+      let line = await request.compose(retryNote(last), whyWithheld(last, request.beat.move));
+      let verdict = await judge(line);
+      /*
+        A line held back for its goodbye alone keeps everything before it:
+        the goodbye comes off and the rest is gated again, which costs a
+        comparison where a retry costs a call and usually writes the goodbye
+        a second time (`withoutFarewell`).
+      */
+      if (line && verdict && !passes(verdict) && verdict.failed.includes("farewell")) {
+        const trimmed = withoutFarewell(line, request.beat, gate);
+        const again = trimmed ? await judge(trimmed) : null;
+        if (trimmed && again && passes(again)) { line = trimmed; verdict = again; }
+      }
       attempts.push(line);
       verdicts.push(verdict);
       if (line && verdict && passes(verdict)) {

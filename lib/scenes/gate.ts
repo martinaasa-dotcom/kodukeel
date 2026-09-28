@@ -497,6 +497,26 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
 }
 
 /**
+ * THE LINE WITH ITS GOODBYE TAKEN OFF, OR NULL WHERE THAT LEAVES NOTHING.
+ *
+ * A model on the beat before the close keeps writing the whole of the rest of
+ * the conversation: `Väga hea, panin teile aja kirja kell 14:30. Tulge natuke
+ * varem. Head aega!`, which is a perfect line with a goodbye on the end. The
+ * gate withholds it, the retry writes the same shape again, and after three
+ * the learner read the bare card line `Kell 14:30.` instead, twice in some
+ * runs. Removing whole sentences the model wrote is not writing Estonian: what
+ * is left is still its line, and it goes through the whole gate again. Only
+ * whole sentences, and only the ones naming a farewell, so nothing is spliced.
+ */
+export function withoutFarewell(text: string, beat: BeatSpec, context: GateContext): string | null {
+  const sentences = text.match(/[^.!?]+[.!?]*\s*/g) ?? [];
+  const kept = sentences.filter((sentence) => !saysGoodbye(words(sentence), beat, context));
+  if (kept.length === sentences.length) return null;
+  const line = kept.join("").trim();
+  return line.length > 0 ? line : null;
+}
+
+/**
  * WHETHER THE LINE SAYS GOODBYE ON A BEAT THAT IS NOT THE GOODBYE.
  *
  * Each farewell is matched as a consecutive run of its own words, never as a

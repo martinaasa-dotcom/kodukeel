@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, StatTile } from "@/components/ui";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, MessageCircleHeart, Sparkles } from "lucide-react";
 import { AddWordButton } from "@/components/AddWordButton";
 import { DrillLink } from "@/components/DrillLink";
 import type { SceneSpec } from "@/lib/scenes/types";
@@ -125,6 +125,34 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
     });
   }, []);
   const wordAt = new Map(review.notes.map((note) => [note.at, note.said]));
+  /*
+    ANU'S NOTE, ASKED ONCE THE REVIEW IS ON THE SCREEN (`/api/scene/note`).
+    The review draws at once off the run; the note is a teacher's paragraph
+    about this conversation and arrives beside it a moment later. Null is a
+    real answer: no model configured, the allowance spent, or a note that
+    reached for Estonian nobody used and was withheld whole. Then the card
+    simply is not there, rather than apologising for itself.
+  */
+  const [note, setNote] = useState<{ comment: string; rule: string } | null | "waiting">("waiting");
+  useEffect(() => {
+    let live = true;
+    fetch("/api/scene/note", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        sceneId: scene.id,
+        turns: turns.map((turn) => ({ who: turn.who, text: turn.text })),
+        fixes: recap.moments.flatMap((moment) => moment.fixes),
+        met: objectives.met,
+      }),
+    })
+      .then((res) => (res.ok ? res.json() as Promise<{ note: { comment: string; rule: string } | null }> : { note: null }))
+      .then((data) => { if (live) setNote(data.note && data.note.comment ? data.note : null); })
+      .catch(() => { if (live) setNote(null); });
+    return () => { live = false; };
+    // One conversation, one note: the debrief is drawn once per run.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -173,6 +201,28 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
               </li>
             ))}
           </ul>
+        </section>
+      )}
+      {note !== null && (
+        <section data-recap-note aria-live="polite">
+          <Card tone="accent" className="flex flex-col gap-2">
+            <p className="flex items-center gap-2 font-medium">
+              <MessageCircleHeart size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
+              A note from Anu
+            </p>
+            {note === "waiting" ? (
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>Anu is reading your conversation…</p>
+            ) : (
+              <>
+                <p className="text-sm">{note.comment}</p>
+                {note.rule && (
+                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                    <span className="font-medium" style={{ color: "var(--ink)" }}>Next time: </span>{note.rule}
+                  </p>
+                )}
+              </>
+            )}
+          </Card>
         </section>
       )}
       {recap.nextTime.length > 0 && (

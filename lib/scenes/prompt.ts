@@ -426,8 +426,17 @@ export function composeLive(ask: ComposeAsk): string {
       `topic` withheld in one run, because the rules above forbid a farewell
       on every other beat and a stage direction alone did not lift that here.
     */
+    /*
+      Unless the direction leaves the goodbye to the learner. A shop whose
+      last objective is to pay said "17 eurot. Head aega!" and handed the bag
+      over before anybody had paid, which inverts the learner's own objective;
+      there the direction says they wait for the money, and the goodbye they
+      are owed comes back once the learner has said theirs.
+    */
     ask.move === "close"
-      ? "This ends the conversation: say goodbye now, in a sentence or two, and ask nothing more."
+      ? /goodbye|thank/i.test(ask.they)
+        ? "This ends the conversation: say goodbye now, in a sentence or two, and ask nothing more."
+        : "This ends the conversation: do what the direction says in a sentence or two, ask nothing more, and do not say goodbye yet: they say it first, and you answer it."
       : "",
     /*
       AND THE CONVERSATION HAS ALREADY BEGUN ON EVERY BEAT BUT THE FIRST. The

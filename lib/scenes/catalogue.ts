@@ -2288,7 +2288,8 @@ const CLOTHES: SceneSpec = {
     {
       id: "close",
       goal: "Pay, thank them and say goodbye.",
-      they: "They hand you the bag and say goodbye.",
+      // Not "and say goodbye": the other side waiting for the money is what makes paying the learner's move.
+      they: "They put it in a bag and wait for you to pay.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...FAREWELLS, "aitäh", "sularaha", "maksma"] }],

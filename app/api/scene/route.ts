@@ -113,6 +113,14 @@ const PER_MINUTE = 30;
 
 export async function POST(request: Request) {
   const ownerId = await requireUserId();
+  /*
+    Asked up to three times a turn about the same sentence, by the judge, the
+    judge one beat ahead and the composer, and it is a dictionary read each
+    time, so the answer is kept for the request rather than fetched again.
+    Declared first, because the judge reads it long before `readingOf` is
+    written down below.
+  */
+  let readOnce: { text: string; reading: Promise<string> } | null = null;
 
   /*
     CHARGED TO THE LEARNER, NEVER TO THEIR ADDRESS. Twenty-five students on one
@@ -515,7 +523,14 @@ export async function POST(request: Request) {
   */
   const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
   if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" };
-  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain;
+  /*
+    AND NOBODY SHRUGS AT A GOODBYE. A question tucked into the turn that ends
+    the scene ("17 eurot, jah? Siin on kaart... head aega!") met "Ei tea."
+    and then the farewell, which is the other side answering a card payment
+    with "I don't know". The conversation is over, so what is owed is the
+    goodbye and nothing in front of it.
+  */
+  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !isOver(scene, state);
 
   /*
     WHAT THIS PERSON KNOWS, FOR THE MODEL. Every value on the card, the
@@ -892,14 +907,10 @@ export async function POST(request: Request) {
     Only on a turn that is going to book a call anyway, so the ordinary turn
     pays nothing for it.
   */
-  // A declaration rather than a const, so the judge above can read it before
-  // this line: it closes over nothing but the module's own imports.
-  /*
-    Asked up to three times a turn about the same sentence, by the judge, the
-    judge one beat ahead and the composer, and it is a dictionary read each
-    time, so the answer is kept for the request rather than fetched again.
-  */
-  let readOnce: { text: string; reading: Promise<string> } | null = null;
+  // A declaration rather than a const, so the judge above can call it before
+  // this line. The memo it reads is declared at the top of POST, because a
+  // `let` is not hoisted: declared here, every judge call above threw
+  // "Cannot access 'readOnce' before initialization" and the judge never ran.
   async function readingOf(text: string): Promise<string> {
     if (readOnce?.text !== text) readOnce = { text, reading: readingOnce(text) };
     return readOnce.reading;
