@@ -34,42 +34,42 @@ export const TODAY_SLOTS = [
   {
     id: "ladder",
     title: "On the way to your target",
-    detail: "How far you've come toward the level you're aiming for, with each level as a stop.",
+    detail: "How close you are to the level you're aiming for, level by level.",
   },
   {
     id: "errand",
     title: "Say it today",
-    detail: "Whether you spoke any Estonian yesterday, and one thing to try saying today.",
+    detail: "Asks if you spoke any Estonian yesterday, and gives you one thing to try saying today.",
   },
   {
     id: "schedule",
-    title: "On today",
-    detail: "What's on your calendar today. Only shows up on days that have something.",
+    title: "What's on today",
+    detail: "Anything on your calendar for today. It only appears on days that have something.",
   },
   {
     id: "plan",
     title: "Homework",
-    detail: "Anything a teacher has set you, grouped by when it's due.",
+    detail: "Anything your teacher has set you, sorted by when it's due.",
   },
   {
     id: "round",
-    title: "Today's round",
-    detail: "The game of the day, or the quest on its day of the week.",
+    title: "Today's game",
+    detail: "A short game picked for today. On Sundays it's the daily quest instead.",
   },
   {
     id: "streak",
-    title: "Keeping it up",
-    detail: "Your run of days, this week at a glance, and any shields you've saved.",
+    title: "Your streak",
+    detail: "How many days in a row you've practised, this week at a glance, and any shields saved up.",
   },
   {
     id: "word",
     title: "Word of the day",
-    detail: "A word picked for today's date, and why.",
+    detail: "A word chosen for today's date, with the reason it was picked.",
   },
   {
     id: "next",
-    title: "Next on the path",
-    detail: "The unit the course would open next.",
+    title: "Your next unit",
+    detail: "The next unit of the course, and how much of it you've done.",
   },
 ] as const;
 

@@ -296,7 +296,7 @@ export function AssignUnit({ classroomId, units }: {
           router.refresh();
         })}
       >
-        {pending ? "Sending…" : "Assign"}
+        {pending ? "Sending…" : "Send it to the class"}
       </Button>
       {/* The same unit, on paper. A class that meets in a room wants both. */}
       <Link
@@ -304,7 +304,7 @@ export function AssignUnit({ classroomId, units }: {
         className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition-ui hover:-translate-y-px"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
       >
-        <Printer size={14} aria-hidden /> Worksheet
+        <Printer size={14} aria-hidden /> Print a worksheet
       </Link>
       {message && <p role="status" className="w-full text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>}
     </div>
@@ -424,7 +424,7 @@ export function ClassDigest({ on }: { on: boolean }) {
           });
         }}
       />
-      Email me this every Monday morning
+      Email me this summary every Monday morning
     </label>
   );
 }

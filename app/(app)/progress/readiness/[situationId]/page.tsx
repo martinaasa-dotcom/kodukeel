@@ -63,7 +63,7 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
         </>
       }
       title={situation.claim}
-      lead="Based on your own answers, and honest about what it can't tell."
+      lead="Based on your own answers. Where they can't tell us something, we say so."
       actions={
         <span className="flex flex-wrap gap-2">
           <Link href="/progress/readiness" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>

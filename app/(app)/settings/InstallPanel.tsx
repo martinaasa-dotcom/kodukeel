@@ -28,7 +28,7 @@ export function InstallPanel() {
   if (installed) {
     return (
       <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--sky-ink)" }}>
-        <Check size={14} aria-hidden /> Installed on this device.
+        <Check size={14} aria-hidden /> It&rsquo;s installed on this device.
       </p>
     );
   }
@@ -51,7 +51,7 @@ export function InstallPanel() {
     <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
       {ios
         ? "On an iPhone, tap the Share button, then Add to Home Screen."
-        : "This browser hasn't offered an install button. Chrome and Edge put one in the address bar, and Safari keeps it under Share."}
+        : "This browser hasn't offered to install it. In Chrome or Edge, look for the button in the address bar. In Safari, it's under Share."}
     </p>
   );
 }

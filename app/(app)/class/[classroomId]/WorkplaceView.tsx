@@ -119,8 +119,8 @@ export function WorkplaceView({ summary, sponsor }: {
             {EVIDENCE_NOTE[summary.evidence]}{" "}
             {counts.unknown > 0 && (
               counts.unknown === 1
-                ? "One person hasn't practiced enough yet for us to say."
-                : `${counts.unknown} people haven't practiced enough yet for us to say.`
+                ? "One person hasn't practiced enough yet for us to tell where they stand."
+                : `${counts.unknown} people haven't practiced enough yet for us to tell where they stand.`
             )}
           </p>
         )}

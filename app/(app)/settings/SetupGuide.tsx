@@ -26,9 +26,9 @@ export function SetupGuide() {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Anu needs a free key to answer questions. Everything else (the dictionary, your cards,
-        audio) works without one. One Gemini key turns on Anu, conversations and scanning a page
-        together, and costs nothing. Here is the whole thing, step by step:
+        Anu needs a free key before she can answer questions. The dictionary, your cards and the
+        audio all work without one. A single Gemini key switches on Anu, the conversations and page
+        scanning, and it costs nothing. Here&rsquo;s how, step by step:
       </p>
 
       <ol className="mt-4 flex flex-col gap-3">

@@ -91,7 +91,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
       setDone(
         mode === "merge"
           ? `Merged in ${counted(result.summary.words, "word")}, ${counted(result.summary.cards, "card")} and ${counted(result.summary.reviews, "review")}. Nothing was removed.`
-          : `Replaced everything with the backup: ${counted(result.summary.words, "word")}, ${counted(result.summary.cards, "card")}, ${counted(result.summary.reviews, "review")}.`,
+          : `Done. Everything here now matches the backup: ${counted(result.summary.words, "word")}, ${counted(result.summary.cards, "card")} and ${counted(result.summary.reviews, "review")}.`,
       );
       setJson(null); setSummary(null); setConfirmText("");
       if (fileRef.current) fileRef.current.value = "";
@@ -149,14 +149,14 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
           </p>
 
           <fieldset className="mt-4">
-            <legend className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>How should it go in?</legend>
+            <legend className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>How should we bring it in?</legend>
             <div className="flex flex-col gap-2">
               <label className="flex cursor-pointer items-start gap-2.5 text-sm">
                 <input type="radio" name="mode" checked={mode === "merge"} onChange={() => setMode("merge")} className="mt-1" />
                 <span>
-                  <span style={{ color: "var(--ink)" }}>Merge, and delete nothing</span>
+                  <span style={{ color: "var(--ink)" }}>Add it to what&rsquo;s already here</span>
                   <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                    Adds whatever&rsquo;s missing and leaves everything else alone. Safe to run twice.
+                    Brings in whatever&rsquo;s missing and doesn&rsquo;t delete a thing. Safe to run twice.
                   </span>
                 </span>
               </label>
@@ -165,8 +165,8 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
                 <span>
                   <span style={{ color: "var(--ink)" }}>Replace everything</span>
                   <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                    Clears out what&rsquo;s here first. Only use this if you want exactly what&rsquo;s
-                    in the backup, and nothing else.
+                    Clears out what&rsquo;s here first, so you end up with exactly what&rsquo;s in the
+                    backup and nothing else.
                   </span>
                 </span>
               </label>
@@ -181,8 +181,8 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
               <p className="flex items-start gap-2 text-xs">
                 <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
                 <span>
-                  This deletes the {currentReviews} review{currentReviews === 1 ? "" : "s"} in the app
-                  now, and review history can&rsquo;t be rebuilt. Type <strong>replace</strong> to confirm.
+                  This wipes the {currentReviews} review{currentReviews === 1 ? "" : "s"} already here,
+                  and review history can&rsquo;t be rebuilt. Type <strong>replace</strong> to confirm.
                 </span>
               </p>
               <input

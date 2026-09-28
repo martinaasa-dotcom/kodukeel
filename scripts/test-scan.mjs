@@ -150,7 +150,7 @@ const warning = await page.getByText(/not in the dictionary/i).count();
 check("the page says plainly which words nobody has checked", warning > 0);
 
 // Name it, so the clean-up above can find it again.
-await page.getByLabel(/what is this page/i).fill("Scan test page");
+await page.getByLabel(/give this page a name/i).fill("Scan test page");
 
 await page.getByRole("button", { name: /make 2 flashcards/i }).click();
 await page.getByText(/is saved/i).waitFor({ timeout: 20_000 });

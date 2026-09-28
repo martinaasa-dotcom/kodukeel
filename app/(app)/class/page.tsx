@@ -58,7 +58,7 @@ export default async function ClassIndexPage() {
     <Page route="/class"
       eyebrow="Learn together"
       title="Classes"
-      lead="Your class sees how you're getting on, never your data. Your deck and searches stay yours."
+      lead="Your class can see how you're getting on, but never your deck, your searches or your answers."
     >
       <Stack>
         {memberships.length > 0 && (
@@ -170,8 +170,8 @@ export default async function ClassIndexPage() {
           percentage across all their reviews. Whoever runs a workplace group sees less, never
           more: a name, whether somebody has been practicing, and one of four bands for the exam
           the group is working toward. Never a search, a deck or a single answer, and never a
-          colleague&rsquo;s weak grammar. That isn&rsquo;t just a promise: what a page may not show
-          is never even fetched for it.
+          colleague&rsquo;s weak grammar. And that&rsquo;s not just a promise: anything a page isn&rsquo;t
+          allowed to show is never even fetched.
         </Explain>
       </Stack>
     </Page>

@@ -46,7 +46,7 @@ export default async function RecordPage() {
   return (
     <Page
       title="Record of study"
-      lead="Your time with Kodukeel, straight from the app's own records. Print it or save a PDF."
+      lead="Your time with Kodukeel, taken straight from the app's own records. Print it or save a PDF."
       actions={<PrintButton label="Print or save as PDF" />}
     >
       <Stack>
@@ -89,7 +89,7 @@ export default async function RecordPage() {
         </section>
 
         <section>
-          <SectionTitle>Measured here</SectionTitle>
+          <SectionTitle>Tested in this app</SectionTitle>
           {record.checks.length === 0 && record.papers.length === 0 ? (
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>No level check or mock paper sat yet.</p>
           ) : (
@@ -111,7 +111,7 @@ export default async function RecordPage() {
             </ul>
           )}
           <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-            The level check and the mock papers are this app&rsquo;s own, marked by rule. None of them is the state examination.
+            The level check and the mock exams are this app&rsquo;s own, marked automatically. None of them is the state examination.
           </p>
         </section>
 

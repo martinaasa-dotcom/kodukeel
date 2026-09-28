@@ -141,7 +141,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                   {classroom.code}
                 </p>
                 <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  {workplace ? "Colleagues" : "Students"} type this in under Classes, then Join.
+                  {workplace ? "Colleagues" : "Students"} enter this code under Classes to join.
                 </p>
               </div>
               <CopyCode code={classroom.code} />
@@ -258,8 +258,8 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                 ))}
               </ul>
               <Explain label="How this is counted">
-                Added up across everyone who has answered a case card. Only the learner who gave
-                an answer can ever see it on its own.
+                These add up the answers of everyone who has done a case card. A single answer is
+                only ever shown to the person who gave it.
               </Explain>
             </Card>
           </section>
@@ -279,8 +279,8 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             </Card>
 
             <Card className="mt-3">
-              <SectionTitle hint="a page, an exercise, anything not on the path">
-                Something else
+              <SectionTitle hint="a textbook page, an exercise, anything outside the course">
+                Set other homework
               </SectionTitle>
               <AssignHomework classroomId={classroomId} />
             </Card>

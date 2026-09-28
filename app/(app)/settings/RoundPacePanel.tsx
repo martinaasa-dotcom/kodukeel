@@ -30,7 +30,7 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="How long a timed round runs"
+      ariaLabel="How much time the timed games give you"
       value={value}
       disabled={pending}
       onSelect={pick}

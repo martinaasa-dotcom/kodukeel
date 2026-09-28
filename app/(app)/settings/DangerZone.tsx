@@ -60,7 +60,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
       router.push("/sign-in");
       router.refresh();
     } catch {
-      setError("Something went wrong, so nothing was deleted.");
+      setError("Something went wrong, so nothing has been deleted. Try again in a moment.");
     } finally {
       setBusy(false);
     }
@@ -71,7 +71,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
       <SectionTitle>Deleting your data</SectionTitle>
       <Card>
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          You can remove everything this app holds about you. That&rsquo;s {counts.cards} cards,{" "}
+          You can delete everything this app keeps about you. That&rsquo;s {counts.cards} cards,{" "}
           {counts.reviews} reviews, your tasks, your chats with Anu, your scanned word lists, your
           level checks, and every mock exam you sat, writing included. Any class you&rsquo;re in or
           run goes too, along with your badges and settings. The shared dictionary stays, because
@@ -114,7 +114,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
             <p className="flex items-start gap-2 text-sm">
               <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
               <span>
-                There&rsquo;s no undo. Type <strong>delete</strong> to confirm.
+                This can&rsquo;t be undone. Type <strong>delete</strong> to confirm.
               </span>
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">

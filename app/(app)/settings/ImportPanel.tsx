@@ -80,7 +80,7 @@ export function ImportPanel() {
         : "";
       setResult(
         r.created === 0
-          ? `Nothing new to add. Every word is already in your deck.${overflow}`
+          ? `Nothing new to add. You already have every one of these words.${overflow}`
           : `Added ${counted(r.created, "word")} and ${counted(r.cards, "card")}.` +
             (r.skipped.length ? ` Skipped ${r.skipped.length} you already had.` : "") +
             overflow,
@@ -92,8 +92,8 @@ export function ImportPanel() {
   return (
     <Card>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Paste in a word list from Speakly, a spreadsheet, or a class handout. One word per line,
-        Estonian first. Tabs, dashes, commas and semicolons all work to separate them.
+        Paste a word list from Speakly, a spreadsheet or a class handout. Put one word on each
+        line, Estonian first and then its meaning. A tab, dash, comma or semicolon between them works.
       </p>
       <textarea
         value={text}
@@ -111,7 +111,7 @@ export function ImportPanel() {
       {rows.length > 0 && (
         <div className="mt-3">
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            {rows.length} word{rows.length === 1 ? "" : "s"} found. Have a look before adding
+            {rows.length} word{rows.length === 1 ? "" : "s"} found. Check them before you add them
           </p>
           <ul className="scroll-host max-h-40 rounded-[var(--r)] border" style={{ borderColor: "var(--rule)" }}>
             {rows.slice(0, 40).map((r, i) => (

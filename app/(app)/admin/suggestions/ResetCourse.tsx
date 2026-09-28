@@ -38,7 +38,7 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
       const result = await resetCourseFor(target).catch(() => null);
       if (!result) setSaid(NOT_REACHED);
       else if (!result.ok) setSaid(result.error);
-      else setSaid(`${label} reset, and ${result.ticks} module ticks removed. Decks and the dictionary haven't changed.`);
+      else setSaid(`Done: ${label} reset, with ${result.ticks} ticked steps cleared. Decks and the dictionary are untouched.`);
       setSure(null);
     });
   };
@@ -104,7 +104,7 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
             </Button>
           )}
           <Button variant="danger" onClick={() => reset("all", "Everybody")} disabled={pending}>
-            {sure === "all" ? `Yes, reset all ${rows.length}` : "Reset all users"}
+            {sure === "all" ? `Yes, reset all ${rows.length}` : "Reset everybody"}
           </Button>
         </div>
       )}

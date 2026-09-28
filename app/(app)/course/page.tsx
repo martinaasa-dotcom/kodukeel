@@ -181,7 +181,7 @@ export default async function CoursePage({
               <>
                 <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {after
-                    ? <>Next is {after.id.toUpperCase()}, {after.subtitle.toLowerCase()}. It picks
+                    ? <>Next is {after.id.toUpperCase()} ({after.subtitle}). It picks
                         up where this one stopped, and it only asks about things you&apos;ve already met.</>
                     : <>That&apos;s the whole course, start to finish. Every word is in your reviews, and
                         each one will come back just as you&apos;re about to forget it.</>}
@@ -273,7 +273,7 @@ export default async function CoursePage({
                       ? <>Tomorrow you&apos;ll carry on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
                       : uiWantsEnglish(level)
                         ? <>Come back tomorrow for {day.subtitle}.</>
-                        : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
+                        : <>Come back tomorrow for {day.title} ({day.subtitle}).</>}
                     {" "}Sleep does half the work of making tonight&apos;s words stick, so stopping here is
                     part of the plan.
                   </p>

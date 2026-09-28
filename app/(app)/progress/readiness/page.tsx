@@ -44,7 +44,7 @@ export default async function ReadinessPage() {
         <Empty
           title="Nothing answered yet"
           body="This page works from your answers, and there aren't any yet. Come back after your first session."
-          action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+          action={<ButtonLink href="/learn" variant="primary">Learn your first words</ButtonLink>}
         />
       </Page>
     );
@@ -69,12 +69,13 @@ export default async function ReadinessPage() {
           <SectionTitle hint={`at ${picture.level}, your level in Settings`}>Where you stand</SectionTitle>
           <Card tone="night">
             <ReadinessSummary summary={picture.summary} />
-            <Explain label="What the three rungs mean">
-              There are three rungs. {RUNG_LABEL.follow} means you&rsquo;d understand most of it.
-              {" "}{RUNG_LABEL.takePart} means you could answer, with the right words and endings, without a
-              long silence first. {RUNG_LABEL.lead} means you could start it, steer it, and get it back on
-              track when it goes wrong. For a live conversation, that also needs some sign you can follow
-              speech. Recognizing words on cards alone never gets you past the first rung.
+            <Explain label="What the three ratings mean">
+              Each situation gets one of three ratings. {RUNG_LABEL.follow} means you&rsquo;d understand
+              most of it. {RUNG_LABEL.takePart} means you could answer with the right words and endings,
+              without a long silence first. {RUNG_LABEL.lead} means you could start it, steer it, and get
+              it back on track if it goes wrong. For a live conversation, that also takes some sign that
+              you can follow spoken Estonian. Knowing words on cards never gets you past the first rating
+              on its own.
             </Explain>
           </Card>
         </section>

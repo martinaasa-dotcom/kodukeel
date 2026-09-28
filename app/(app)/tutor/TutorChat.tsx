@@ -70,11 +70,11 @@ export function TutorChat({
             className="max-w-[52ch] rounded-[var(--r-lg)] px-4 py-3 text-sm leading-relaxed"
             style={{ background: "rgb(255 255 255 / 0.08)", border: "1px solid rgb(255 255 255 / 0.14)", color: "var(--ink-2)" }}
           >
-            You arrived with a question: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span>
+            Here&rsquo;s the question you came with: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span>
           </p>
         )}
         {readerCanConfigure && (
-          <ButtonLink href="/settings" variant="primary">Open Settings</ButtonLink>
+          <ButtonLink href="/settings" variant="primary">Get a free key in Settings</ButtonLink>
         )}
       </Card>
     );
@@ -88,8 +88,8 @@ export function TutorChat({
           <div>
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}>Tere! Ma olen Anu.</p>
             <p className="mt-1.5 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Ask me anything about Estonian grammar. I&rsquo;ll always tell you the rule, not just the
-              answer, and I&rsquo;ll say so if I&rsquo;m not sure of a form rather than guessing.
+              Ask me anything about Estonian grammar. I&rsquo;ll tell you why, as well as what, and if
+              I&rsquo;m not sure of a form I&rsquo;ll say so instead of guessing.
             </p>
             <p className="mt-3 flex items-center gap-1.5 text-xs" style={{ color: "var(--blush-ink)" }}>
               <Sparkles size={13} aria-hidden /> Pick a question below to start, or just ask your own.

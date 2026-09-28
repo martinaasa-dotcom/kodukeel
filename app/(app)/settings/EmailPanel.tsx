@@ -33,21 +33,21 @@ import type { EmailKind } from "@/lib/email/letter";
 const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   {
     kind: "tonight",
-    title: "A nudge on an evening you haven't studied yet",
+    title: "A nudge on evenings you haven't studied yet",
     detail:
-      "At the hour you pick below, only if tonight isn't done. Never on a day you've already studied.",
+      "Sent at the time you pick below, and only if you haven't studied yet that day.",
   },
   {
     kind: "milestone",
-    title: "When you've really learned a level's words",
+    title: "A note when you've truly learned a level's words",
     detail:
-      "Rare, and always a little late, because a word only counts once you've got it right days later.",
+      "Rare, and always a little late, because a word only counts once you still know it days later.",
   },
   {
     kind: "shield",
-    title: "When a shield saves your streak",
+    title: "A note when a shield saves your streak",
     detail:
-      "You earn one at seven, thirty and a hundred days, and it's used quietly. This is how you'd find out.",
+      "You earn a shield at 7, 30 and 100 days, and it's used without any fuss. This is how you'd find out.",
   },
   {
     kind: "comeback",
@@ -58,7 +58,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
     kind: "errand",
     title: "Once a week, one thing to say to a real person",
     detail:
-      "On a weekday morning, and only while you're not already talking to people in Estonian.",
+      "Sent on a weekday morning, and only when you haven't been chatting to people in Estonian lately.",
   },
   {
     kind: "weekly",
@@ -73,7 +73,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   {
     kind: "wordday",
     title: "One Estonian word a day",
-    detail: "Off unless you turn it on. A word, what it means, a sentence, and nothing you have to do.",
+    detail: "Off unless you turn it on. A word, what it means and a sentence using it. Nothing to do, just something to enjoy.",
   },
 ];
 
@@ -135,7 +135,7 @@ export function EmailPanel({
         */
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
           This copy of Kodukeel isn&rsquo;t set up to send email, so none of these will arrive.
-          We&rsquo;ll keep your choices in case that changes.
+          We&rsquo;ll remember your choices in case that changes.
         </p>
       )}
 
@@ -163,7 +163,7 @@ export function EmailPanel({
       <div>
         <p className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
           <Clock size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
-          The evening nudge and the calendar reminder both go by this hour, on your own clock.
+          The evening nudge and the calendar reminder both come at this time, in your own time zone.
         </p>
         {/*
           A RADIO GROUP, NOT FOUR SWITCHES.

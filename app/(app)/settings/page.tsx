@@ -79,10 +79,10 @@ const SHORTCUTS: [string, string][] = [
      thing wherever you are not typing into a box. Both are written down here
      because this is a reference; a button says one of them (`ADVANCE_KEY_LABEL`). */
   ["Enter", "Show the answer, check what you typed, then carry on"],
-  ["Space", "The same, wherever you are not typing"],
-  ["1-4", "Again, Hard, Good, Easy"],
-  ["U", "Undo the last grade"],
-  ["1-4 (listening, choice)", "Pick an option"],
+  ["Space", "Does the same, whenever you're not typing in a box"],
+  ["1-4", "Say how it went: Again, Hard, Good or Easy"],
+  ["U", "Take back the last answer you graded"],
+  ["1-4 (listening, choice)", "Pick one of the numbered answers"],
 ];
 
 /**
@@ -245,7 +245,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         {tab === "study" && (
           <div className="flex flex-col gap-8">
           <section>
-            <SectionTitle hint={mode === "type" ? "typing" : "flipping"}>How review asks</SectionTitle>
+            <SectionTitle hint={mode === "type" ? "typing" : "flipping"}>How cards ask you</SectionTitle>
             <Card>
               <ReviewModePanel current={mode} />
               <Explain label="Why new cards show the answer">
@@ -270,9 +270,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Your answers here shape the plan on the level check screen: roughly how many hours
-                your target level takes, how many your daily goal covers, and how many you&rsquo;ll
-                want to find elsewhere. Change them whenever life changes.
+                These answers build your plan on the level check page: roughly how many hours your
+                target level takes, how many your daily goal covers, and how many you&rsquo;ll want
+                to find outside the app. Change them whenever your life does.
               </p>
               <GoalsPanel current={goals} />
               <p className="mt-5 text-sm" style={{ color: "var(--ink-3)" }}>
@@ -288,7 +288,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={`${dailyGoal} reviews/day`}>Daily goal</SectionTitle>
             <Card>
               <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                This is what fills the ring on Today, and what your first daily quest aims for.
+                How many cards you&rsquo;d like to get through each day.
                 It&rsquo;s there to keep you going, and it never stops you doing more.
               </p>
               <DailyGoalPanel currentGoal={dailyGoal} />
@@ -311,9 +311,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
-                  ? <>You&rsquo;re on {uiText(courseLevel, programme.title, programme.subtitle)}. Tonight&rsquo;s module
-                      takes the top spot on Today, and it picks the words and the games for your
-                      evening.</>
+                  ? <>You&rsquo;re following {uiText(courseLevel, programme.title, programme.subtitle)}. Each evening it
+                      picks your words and games for you, and tonight&rsquo;s plan sits at the top of
+                      Today.</>
                   : <>{opening?.blurb}</>}
               </p>
               <div className="mt-4">
@@ -329,12 +329,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
           <section id="today">
             <SectionTitle hint={isDefaultTodayOrder(todayOrder) ? "the usual order" : "your order"}>
-              Today
+              Your Today page
             </SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Choose which card comes first on your home page. The big button to review always
-                stays at the top, and Today shows the first {TODAY_CARDS} of these that have something to say.
+                Put the cards on Today in the order you like. The big button at the top always stays
+                put, and Today shows the first {TODAY_CARDS} of these that have something for you.
               </p>
               <TodayOrderPanel current={todayOrder} />
             </Card>
@@ -356,13 +356,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={roundPaceName}>Time on the clock</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                The Case Sprint, the daily quest and Target all run against a clock. Pick how
-                much time you&rsquo;d like. Nothing else about them changes.
+                Three games race the clock: the Case Sprint, the daily quest and Target. Choose how
+                much time you&rsquo;d like. Everything else about them stays the same.
               </p>
               <RoundPacePanel current={roundPace} />
               <Explain label="Why the mock exam keeps its own timing">
-                The mock exam keeps its own clock. It&rsquo;s standing in for the real state
-                examination, so every part keeps the real timings.
+                The mock exam is practice for the real state exam, so every part keeps the real
+                exam&rsquo;s timings.
               </Explain>
             </Card>
           </section>
@@ -379,10 +379,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                A case question like <span lang="et">milles? kus?</span> is always asked in Estonian.
-                This just decides whether the English meaning appears underneath. It&rsquo;s on up to B1,
-                while the fourteen forms are still new, and tucks itself away from B2, when a class
-                expects you to know them by heart.
+                Questions like <span lang="et">milles? kus?</span> are always asked in Estonian. This
+                decides whether a short English translation appears underneath. Up to B1 it&rsquo;s
+                shown, while the fourteen cases are still new. From B2 it&rsquo;s hidden, because by
+                then a class expects you to know them by heart.
               </p>
               <CaseGlossPanel current={caseGlossPref} level={courseLevel} />
             </Card>
@@ -403,7 +403,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card className="flex flex-col gap-5">
               <div>
                 <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Whose voice reads Estonian to you. Press the ear to hear someone, and their name to pick them.
+                  Choose who reads Estonian to you. Press the ear to hear a voice, and a name to choose it.
                   <CurrentVoiceSample />
                 </p>
                 <VoicePanel current={voice} />
@@ -425,9 +425,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   tilt={levelPace.id === paceFor(courseLevel).id ? 0 : tilt}
                 />
                 <Explain label="How the slow speed is made">
-                  Every speed uses the same recording, slowed down right in your browser. The voice
-                  and pitch stay the same, so the consonants stay crisp. The slow button beside a
-                  word always goes slower again than whatever you pick here.
+                  Every speed plays the same recording, slowed down in your browser, so the voice and
+                  pitch don&rsquo;t change and the consonants stay crisp. The slow button next to a
+                  word always plays it slower still than whatever you pick here.
                 </Explain>
               </div>
               <div>
@@ -435,7 +435,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <AutoplayPanel current={autoplay} />
               </div>
               <div>
-                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Right and wrong</h3>
+                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Sounds for right and wrong</h3>
                 <FeedbackSoundsPanel current={sounds} />
               </div>
               <div>
@@ -470,8 +470,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                What a word means, in the language you think in. The English is always there, and
-                this decides what appears beside it.
+                Meanings can appear in Russian or Ukrainian too. The English always stays, and the
+                language you choose shows up next to it.
               </p>
               <GlossLanguagePanel current={glossLanguage} />
               <Explain label="Where these come from">
@@ -481,8 +481,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule)" }}>
                 <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Underline the other words in an example sentence, so you can tap one to see what it
-                  means. Turn it off and the sentence stays plain, with the new word still marked.
+                  In an example sentence, the other words can be underlined so you can tap any of them
+                  to see what it means. With this off, the sentence stays plain and only the new word is marked.
                 </p>
                 <WordGlossPanel current={wordGloss} />
               </div>
@@ -499,8 +499,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <LetterBarPanel current={letters} />
               <Explain label="Why only on a computer">
-                These only show up on a computer. Your phone keyboard already has these letters,
-                with a long press or an Estonian keyboard.
+                The letter buttons only appear on a computer. On a phone you already have these
+                letters: hold down a key, or switch to an Estonian keyboard.
               </Explain>
             </Card>
           </section>
@@ -547,30 +547,30 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section>
-            <SectionTitle hint={ekilexOn ? "connected" : "built-in set only"}>Dictionary</SectionTitle>
+            <SectionTitle hint={ekilexOn ? "connected" : "built-in words only"}>Dictionary</SectionTitle>
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
                 The built-in dictionary has {words} words, from A1 up into C1, each with its main forms
-                checked. Type any form you met in class, like <span lang="et">toas</span> or{" "}
-                <span lang="et">lugesin</span>, and it finds the word and tells you which form you
-                typed. The audio is built in too, no key needed.
+                checked. Type any form you&rsquo;ve met in class, like <span lang="et">toas</span> or{" "}
+                <span lang="et">lugesin</span>, and it finds the word for you and tells you which form
+                it is. The audio works out of the box too, no key needed.
               </p>
               {ekilexOn ? (
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <Chip tone="good">Connected</Chip>
                   <Explain label="What gets saved here">
-                    Words beyond the built-in set are looked up live and saved here, so next time
-                    they work offline too. Example sentences, dictation and the fuller mock exam
-                    all use them.
+                    Any word that isn&rsquo;t built in is looked up live and saved here, so next time it
+                    works offline too. Example sentences, dictation and the fuller mock exam all
+                    draw on these words.
                   </Explain>
                 </div>
               ) : (
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
                     Live dictionary lookup isn&rsquo;t set up here yet, so search only knows the {words}{" "}
-                    built-in words. The built-in set also has hardly any real example sentences, so
-                    dictation, the sentence builder and the mock exam&rsquo;s reading and listening
-                    parts stay thin or empty.
+                    built-in words. Those come with hardly any real example sentences, so dictation,
+                    the sentence builder and the mock exam&rsquo;s reading and listening parts are thin
+                    or empty.
                   </p>
                   <EkilexSetupGuide />
                 </div>
@@ -593,7 +593,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   <Explain label="What happens when a model is busy">
                     {resilience.models === 1
                       ? "Only one model is set up right now, so if it's busy, Anu has to wait."
-                      : `${resilience.models} models are tried in order, across ${resilience.providers.join(" and ")}.`}
+                      : `If one model is busy, Anu tries the next. There are ${resilience.models} of them, across ${resilience.providers.join(" and ")}.`}
                   </Explain>
                   {/*
                     Said plainly because it is invisible otherwise. A chain of
@@ -641,7 +641,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
           <section id="email">
-            <SectionTitle hint="you choose which, and the hour">Emails and reminders</SectionTitle>
+            <SectionTitle hint="you choose which ones, and when">Emails and reminders</SectionTitle>
             <Card>
               <EmailPanel
                 on={
@@ -684,8 +684,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 </a>
               </div>
               <Explain label="Why a backup is worth the ten seconds">
-                Your review history is the one thing here that can&rsquo;t be rebuilt if it&rsquo;s lost.
-                Grabbing a copy now and then takes ten seconds.
+                Your answer history is the one thing here that can&rsquo;t be rebuilt if it&rsquo;s lost.
+                Saving a copy now and then takes ten seconds.
               </Explain>
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
                 <RestorePanel currentReviews={reviews} />
@@ -709,14 +709,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <Smartphone size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
                 <div>
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    You can install Kodukeel like an app. On iOS, use &ldquo;Add to Home Screen&rdquo;. On
-                    desktop Chrome, press &ldquo;Install&rdquo; in the address bar. Once installed, it
-                    opens straight into review and keeps working without a connection.
+                    You can install Kodukeel like an app. On an iPhone, tap &ldquo;Add to Home Screen&rdquo;.
+                    In Chrome on a computer, press &ldquo;Install&rdquo; in the address bar. Once it&rsquo;s
+                    installed, it opens straight into review and keeps working without a connection.
                   </p>
                   <Explain label="What happens to an answer with no connection">
-                    Anything you answer offline is saved on your device and sent as soon as you&rsquo;re
-                    back online, with the time you actually answered. So an offline session still
-                    counts toward the right day.
+                    Anything you answer offline is kept on your device and sent as soon as you&rsquo;re
+                    back online, stamped with the time you actually answered. So an offline session
+                    still counts for the right day.
                   </Explain>
                   <InstallPanel />
                 </div>

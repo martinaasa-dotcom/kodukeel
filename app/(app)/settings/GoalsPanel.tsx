@@ -53,7 +53,7 @@ export function GoalsPanel({ current }: { current: Goals }) {
         screen that decides a learner's year read as a legend rather than a
         form, and the chosen answer was a hue shift of almost no luminance.
       */}
-      <ChoiceGroup label="Why you are learning" hint="pick as many as are true" select="many">
+      <ChoiceGroup label="Why you're learning Estonian" hint="pick all that apply" select="many">
         {REASONS.map((r) => {
           const on = reasons.includes(r.id);
           return (
@@ -113,7 +113,7 @@ export function GoalsPanel({ current }: { current: Goals }) {
           value={note}
           onChange={(e) => setNote(e.target.value)}
           maxLength={280}
-          placeholder="Something you want to be able to do"
+          placeholder="Something you'd love to be able to do in Estonian"
           className="field-lg w-full text-base"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />

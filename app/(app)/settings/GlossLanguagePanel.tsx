@@ -31,14 +31,14 @@ export function GlossLanguagePanel({ current }: { current: GlossLanguage }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="Which language a meaning is given in"
+      ariaLabel="Which language you see meanings in"
       value={value}
       disabled={pending}
       onSelect={pick}
       options={GLOSS_LANGUAGES.map((option) => ({
         id: option.id,
         title: option.label,
-        detail: option.id === "en" ? "The course's own English meanings." : `${option.native}, beside the English.`,
+        detail: option.id === "en" ? "Meanings in English only." : `The ${option.label} meaning next to the English, wherever the dictionary has one.`,
       }))}
     />
   );

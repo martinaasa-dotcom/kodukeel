@@ -126,10 +126,10 @@ export function SpeechPacePanel({ current, fromLevel, level, tilt }: {
              pace that played a notch slower than the level promises with no
              word about why would read as the setting not working. */
           detail: tilt === 0
-            ? `At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`
+            ? `At ${level} that's ${levelPace?.label.toLowerCase() ?? "full speed"}, and it speeds up as your level goes up.`
             : tilt < 0
-              ? `${levelPace?.label ?? "Slower"} for now, a notch slower than usual for ${level} while things feel tricky. It goes back by itself.`
-              : `${levelPace?.label ?? "Natural"} for now, a notch quicker than usual for ${level} while you're getting nearly everything right.`,
+              ? `${levelPace?.label ?? "Slower"} for now. That's a notch slower than usual at ${level}, because things have felt tricky lately. It goes back by itself.`
+              : `${levelPace?.label ?? "Natural"} for now. That's a notch quicker than usual at ${level}, because you're getting nearly everything right.`,
         },
         ...SPEECH_PACES.map((p) => ({ id: p.id, title: p.label, detail: p.detail })),
       ]}
@@ -197,7 +197,7 @@ const SOUNDS: { value: FeedbackSounds; label: string; detail: string; icon: type
   {
     value: "off",
     label: "Silent",
-    detail: "The colors and words tell you how it went.",
+    detail: "No sounds. The colors and words on screen tell you how it went.",
     icon: VolumeX,
   },
 ];
@@ -250,15 +250,15 @@ const HEARING: { value: Hearing; label: string; detail: string; icon: typeof Cof
       conversation opens it. So the sentence promised the learner a delivery
       the two rounds it is about will never use.
     */
-    detail: `A word you know well comes back ${
-      CONDITIONS.slice(1).filter((c) => !removesWords(c)).map((c) => c.said).join(", ")
-    }. A new word is always nice and clear.`,
+    detail: `Once you know a word well, you'll sometimes hear it ${
+      CONDITIONS.slice(1).filter((c) => !removesWords(c)).map((c) => c.said).join(", ").replace(/, ([^,]*)$/, " or $1")
+    }, just like real life. New words always come nice and clear.`,
     icon: Coffee,
   },
   {
     value: "off",
     label: "Always clear",
-    detail: "Every clip in a quiet room, at an easy pace, in the voice you chose.",
+    detail: "You always hear words in a quiet room, at an easy pace, in the voice you chose.",
     icon: AudioLines,
   },
 ];
@@ -319,7 +319,7 @@ const SUPPORT_LEVELS: { value: Support; label: string; detail: string; icon: typ
   {
     value: "cold",
     label: "Hear it, and work out what to say",
-    detail: "What you're aiming for is hidden too, so it's as close to the real thing as it gets. Best for a scene you've done before.",
+    detail: "Even what you're meant to say is hidden until you ask. It's as close to the real thing as it gets, so it's best for a conversation you've had before.",
     icon: Sparkles,
   },
 ];

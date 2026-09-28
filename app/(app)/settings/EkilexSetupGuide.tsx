@@ -17,8 +17,8 @@ const STEPS = [
  * because it is the thing every other feature is built on top of.
  */
 const UNLOCKS = [
-  "Search covers all of Estonian, not just the built-in words, with checked forms, gradation, verb government and CEFR level.",
-  "You get real example sentences too. Gap-fill cards, dictation and the sentence builder all need them, and the built-in set has hardly any.",
+  "Search covers all of Estonian, not just the built-in words, with every form checked, the stem changes, which case a verb takes, and each word's level.",
+  "You get real example sentences too. Gap-fill cards, dictation and the sentence builder all need them, and the built-in words have hardly any.",
   "The mock exam's reading and listening parts use real sentences instead of falling back to single words.",
   "The grammar tables for the inside and outside cases show a real form instead of a blank.",
 ];

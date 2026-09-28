@@ -70,7 +70,7 @@ export default async function WordsPage() {
           {/* The other reading of this page, and the one somebody comes for
               when the question is "what do I actually know". Counted in words
               rather than cards, which is what the box below is. */}
-          <ButtonLink href="/words/mastery">Word by word</ButtonLink>
+          <ButtonLink href="/words/mastery">How well you know each word</ButtonLink>
           <ButtonLink href="/words/decks">Decks</ButtonLink>
           <ButtonLink href="/dictionary" variant="primary">Add words</ButtonLink>
         </>
@@ -96,7 +96,7 @@ export default async function WordsPage() {
             {/* Word by word is the header's other button; which cases keep
                 catching somebody out is Progress's, one link away. */}
             <p className="mt-6 text-sm" style={{ color: "var(--ink-2)" }}>
-              The cases that catch you out are on{" "}
+              Want to see which case endings keep catching you out? They&rsquo;re on{" "}
               <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--cta)" }}>
                 Progress
               </Link>.

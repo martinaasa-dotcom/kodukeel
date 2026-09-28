@@ -121,10 +121,10 @@ export const SECTIONS: NavSection[] = [
   {
     id: "daily",
     title: "Every day",
-    blurb: "New words, the ones you already know, and places to use them.",
+    blurb: "Learn new words, keep the old ones fresh, and try them out.",
     items: [
       {
-        href: "/", label: "Today", blurb: "What's due, your goal and your run of days", icon: "Sun", tone: "butter",
+        href: "/", label: "Today", blurb: "What's waiting for you today, and your streak", icon: "Sun", tone: "butter",
         keywords: "home dashboard streak quest goal errand word of the day", bar: true,
       },
       /*
@@ -215,7 +215,7 @@ export const SECTIONS: NavSection[] = [
           is the first thing on the top of that page.
         */
         href: "/grammar/build-a-word", label: "Build a word",
-        blurb: "Three forms to learn, then eleven endings for free", icon: "Puzzle",
+        blurb: "Learn three forms of a word and get eleven more for free", icon: "Puzzle",
         tone: "butter", within: "/dictionary",
         keywords: "cases introduction beginner stem genitive omastav endings how it works walkthrough learn system",
       },
@@ -233,17 +233,17 @@ export const SECTIONS: NavSection[] = [
       },
       {
         href: "/dictionary/common", label: "Commonest words",
-        blurb: "The hundred of each kind you'll meet most", icon: "TrendingUp",
+        blurb: "The 400 words Estonians use most, in four lists", icon: "TrendingUp",
         tone: "sky", within: "/dictionary",
         keywords: "frequency common most used top 100 hundred subtitles corpus first learn order",
       },
       {
-        href: "/scan", label: "Scan a page", blurb: "Snap a word list and study what's on it",
+        href: "/scan", label: "Scan a page", blurb: "Photograph a word list and turn it into cards",
         icon: "Camera", tone: "sky", within: "/dictionary",
         keywords: "camera photo picture ocr homework textbook handout import paper digitize digitize",
       },
       {
-        href: "/tutor", label: "Ask Anu", blurb: "Ask anything about grammar", icon: "MessageCircleQuestion",
+        href: "/tutor", label: "Ask Anu", blurb: "Ask your tutor anything about Estonian", icon: "MessageCircleQuestion",
         tone: "blush", keywords: "ai chat grammar help tutor explain",
         within: "the button in the corner of every screen",
       },
@@ -251,7 +251,7 @@ export const SECTIONS: NavSection[] = [
   },
   {
     id: "course",
-    title: "How it is going",
+    title: "How it's going",
     blurb: "Your week ahead, and how far you've come.",
     items: [
       /*
@@ -283,7 +283,7 @@ export const SECTIONS: NavSection[] = [
         that only a class makes sense of.
       */
       {
-        href: "/words", label: "My words", blurb: "Your deck, card by card", icon: "Layers", tone: "sky",
+        href: "/words", label: "My words", blurb: "Every word you're learning, card by card", icon: "Layers", tone: "sky",
         keywords: "deck cards suspend delete lapses",
         within: "/progress",
       },
@@ -347,10 +347,10 @@ export const SECTIONS: NavSection[] = [
   {
     id: "app",
     title: "This app",
-    blurb: "Your settings, your reports, and an honest list of what this can't do.",
+    blurb: "Your settings, and the fixes you've suggested.",
     items: [
       {
-        href: "/settings", label: "Settings", blurb: "Your goal, how you review, backups", icon: "Settings", tone: "ink",
+        href: "/settings", label: "Settings", blurb: "Your goal, how cards ask you, sound and backups", icon: "Settings", tone: "ink",
         keywords: "backup export import goal preferences delete account theme",
       },
       /*

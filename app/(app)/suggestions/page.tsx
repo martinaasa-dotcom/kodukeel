@@ -48,7 +48,7 @@ export default async function MySuggestionsPage() {
       {mine.length === 0 ? (
         <Empty
           title="Nothing sent yet"
-          body="Wherever the app gets stuck, there's a button to tell us. Anything you send shows up here."
+          body="Spot something wrong? There's a button right beside it to tell us. What you send shows up here."
         />
       ) : (
         <ul className="flex flex-col gap-3">

@@ -29,7 +29,7 @@ export function DecksClient({ decks: initial }: { decks: DeckSummary[] }) {
       {decks.length === 0 ? (
         <Empty
           title="No decks yet"
-          body="All your words sit in one deck until you make a shelf. Then the dictionary asks which one."
+          body="All your words are in one pile for now. Make a deck and the dictionary asks where new words go."
         />
       ) : (
         <div className="flex flex-col gap-3">
@@ -223,7 +223,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
         </div>
         {confirming ? (
           <span className="flex items-center gap-2 text-xs" style={{ color: "var(--ink-2)" }}>
-            The words stay in your deck.
+            The words themselves won&rsquo;t be deleted.
             <Button variant="danger" size="sm" disabled={pending} onClick={remove}>Remove</Button>
             <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>Cancel</Button>
           </span>
@@ -333,14 +333,14 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
   if (words === "failed") {
     return (
       <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        The words on this shelf didn&rsquo;t load. Close it and open it again to try once more.
+        The words in this deck didn&rsquo;t load. Close it and open it again to try once more.
       </p>
     );
   }
   if (words.length === 0) {
     return (
       <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        No words on this shelf yet.
+        No words in this deck yet.
       </p>
     );
   }
@@ -356,7 +356,7 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
             type="button"
             onClick={() => remove(word.lexemeId)}
             disabled={pendingId === word.lexemeId}
-            aria-label={`Take ${word.lemma} off this shelf`}
+            aria-label={`Take ${word.lemma} out of this deck`}
             className="tap-tint shrink-0 rounded-md p-1"
             style={{ color: "var(--ink-3)" }}
           >
@@ -459,7 +459,7 @@ function FileWords({ deckId, deckName, onFiled }: {
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
           {query
             ? "None of your words match that."
-            : "Every word you have is already on this shelf."}
+            : "Every word you have is already in this deck."}
         </p>
       ) : (
         <ul className="mt-2 flex flex-col gap-1">

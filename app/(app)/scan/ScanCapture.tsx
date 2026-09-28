@@ -226,7 +226,7 @@ export function ScanCapture() {
       <div className="flex flex-col gap-4">
         <Card>
           <label htmlFor="scan-title" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-            What is this page?
+            Give this page a name
           </label>
           <input
             id="scan-title"
@@ -240,11 +240,11 @@ export function ScanCapture() {
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {summary.total} word{summary.total === 1 ? "" : "s"} ticked
             {summary.known > 0 && <>, {summary.known} matched the dictionary</>}
-            {summary.inflected > 0 && <>, {summary.inflected} in an inflected form</>}
+            {summary.inflected > 0 && <>, {summary.inflected} with an ending on them</>}
           </p>
           {readBy && (
             <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-              Read by {readBy}. Check it against the paper before you add anything.
+              Read by {readBy}. Compare it with your paper before you add anything.
             </p>
           )}
         </Card>
@@ -270,8 +270,8 @@ export function ScanCapture() {
             <Note tone="again">
               {summary.unknown} of these {summary.unknown === 1 ? "is" : "are"} not in the dictionary
               yet. They came straight off the photo, so open each one and check the spelling against
-              your paper. If you add them as they are, you&apos;ll get cards for the meaning, but no
-              case forms, because there&apos;s nothing checked yet to build those from.
+              your paper. If you add them as they are, you&apos;ll get cards for the meaning but not
+              for the case endings, since we have nothing checked to build those from.
             </Note>
             {/*
               A word the dictionary would not vouch for is a gap in the
@@ -323,9 +323,9 @@ export function ScanCapture() {
     <div className="flex flex-col gap-4">
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          Photograph a vocabulary list, a page from your textbook, or last night&apos;s homework.
-          Every word is checked against the dictionary, so anything it knows comes with its real
-          forms. If your worksheet has a word with an ending on it, we&apos;ll find the word it came from.
+          Photograph a vocabulary list, a page from your textbook or last night&apos;s homework. We
+          check every word against the dictionary, so the ones it knows come with all their real
+          forms. And if a word on your page has an ending on it, we&apos;ll find the word it came from.
         </p>
 
         {phase === "reading" ? (
