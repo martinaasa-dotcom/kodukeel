@@ -109,7 +109,7 @@ const reachable = cache(async (
 
   const [due, fresh, spellings, level] = await Promise.all([
     prisma.card.findMany({
-      where: dueWhere(ownerId, now),
+      where: dueWhere(ownerId, now, scope.lemmas),
       orderBy: [{ due: "asc" }, { id: "asc" }],
       take: MAX_SESSION,
       select: SELECT,

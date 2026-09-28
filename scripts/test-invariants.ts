@@ -21044,7 +21044,7 @@ check("learn teaches a word and practice drills it, never both at once", () => {
 
   const review = code("app/(app)/review/page.tsx");
   assert.match(
-    review, /where: dueWhere\(ownerId, now\)/,
+    review, /where: dueWhere\(ownerId, now[,)]/,
     "the review queue reads its own due clause rather than the shared one",
   );
   assert.match(

@@ -5938,6 +5938,21 @@ has, the present and the negative behind the present tense and negation pages, t
 the imperfect, the conditional and the imperative behind their own, and a morph code nobody has
 listed fails closed, which is `isFiniteVerbCode`'s discipline one module over.
 
+**And the module is the level the learner said, and its closing round is tonight's evening.** A
+learner who set A1 in Settings was asked `juhtuma → lihtminevik, ma` in a closing review eighteen
+cards long, and every part of that was wrong. The level picker wrote the level and left the part
+alone, so they were still on A2; `setCourseLevel` now moves the course to the first part of the
+level `openingPartFor` names wherever that is another level, and leaves a part of the same level
+where it is. The closing round opened the whole queue, due cards from anywhere in the deck plus ten
+new ones, for a step that needs five answers; inside a module its due read is narrowed to the taught
+words (`dueWhere`'s `only`, read by the round and by `lib/progress/closing.ts` alike) and it stops at
+`MODULE_SESSION`, which reverses "what is due is due whatever taught it" for the module and keeps it
+on the daily path. And the past-tense page opened the past of every verb, when `juhtusin` has to be
+learned for its own verb and nothing had ever shown it: a form no rule reaches (`LEARNED_PER_VERB`,
+the simple past and the polite imperative) is not asked inside the module at any level, until the
+module has a step that shows each verb in it first. Operator's call, asserted in
+`scripts/invariants/the-module-asks-what-it-taught.ts`.
+
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the
 moment they pressed a step: a rail down the left, a bar along the bottom of a phone, a button in the
