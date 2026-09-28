@@ -97,11 +97,16 @@ async function deck(words: readonly string[], state: number) {
  * below was reported in; it is not the state the tests about the *counter*
  * mean to be in, so those say so by calling this.
  *
- * `PRODUCTION` at the scheduler's Review state and due: nothing about a module
- * refuses it, so the closing round has five things to ask.
+ * `PRODUCTION` at the scheduler's Review state and due, on a word the first
+ * evening teaches: inside a module the closing round asks only taught words
+ * (`dueWhere`'s `only`), so a card on any other word is one it may not ask.
  */
 async function reviewable(n: number): Promise<string[]> {
-  const lexeme = await prisma.lexeme.findFirst({ select: { id: true } });
+  const lexeme = await prisma.lexeme.findFirst({
+    where: { lemma: { in: [...PROGRAMME.days[0]!.words] } },
+    orderBy: { id: "asc" },
+    select: { id: true },
+  });
   const ids: string[] = [];
   for (let i = 0; i < n; i += 1) {
     const card = await prisma.card.create({
