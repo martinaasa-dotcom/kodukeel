@@ -51,6 +51,7 @@ import {
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
+import { saysGoodbye } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 
 /**
@@ -1398,7 +1399,14 @@ export function replay(
         weather. On such a beat a goodbye is leaving, like anywhere else.
       */
       const takesAnything = leafNeeds(beat.needs).every(({ need }) => need.kind === "any");
-      if (bye.reading === "complete" && (here.reading !== "complete" || takesAnything)) {
+      /*
+        AND THANKS IS NOT GOODBYE. The close beat takes a plain `Aitäh!` because
+        that is how a conversation ends at a counter, and read against every
+        turn it ended a doctor's appointment in the middle: a learner thanked
+        the receptionist for an answer, and was told `Nägemist!`. Mid-scene,
+        only somebody who actually says goodbye has left (`saysGoodbye`).
+      */
+      if (bye.reading === "complete" && saysGoodbye(said, FAREWELLS) && (here.reading !== "complete" || takesAnything)) {
         state = { ...state, beat: closeAt, patience: patienceAt(context.scene, state, closeAt), hurdle: null };
         ({ state, response } = advance(context.scene, state, bye, said, false, heardNow));
         previous = heardNow;

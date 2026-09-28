@@ -59,7 +59,7 @@ import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
 import type { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
-import { askLine, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
+import { askLine, COMPOSE_USAGE, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
 
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
@@ -398,10 +398,8 @@ async function play(sceneId: string) {
             reading: "",
             facts,
             because,
-            examples: [...context.scripted.entries()]
-              .filter(([id]) => id !== spokenFor.id)
-              .flatMap(([, lines]) => lines.slice(0, 1))
-              .slice(0, 6),
+            // In the cached half, as the route sends them (`ComposeScene.voice`).
+            examples: [],
             // This beat's own, as the route hands them: ask the same thing, in your own words.
             asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
             agenda, settled,
@@ -415,6 +413,10 @@ async function play(sceneId: string) {
           }, {
             scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
             register: scene.register, words: context.lexicon.spoken,
+            voice: [...context.scripted.entries()]
+              .filter(([id]) => !id.includes(":"))
+              .flatMap(([, lines]) => lines.slice(0, 1))
+              .slice(0, 6),
           }, talk);
           },
         } : {}),
@@ -489,6 +491,11 @@ async function play(sceneId: string) {
     if (LINKS.length === 0) console.log("  no provider key matched, so every line above is the net");
     for (const [why, count] of [...COMPOSE_STATUS].sort((a, b) => b[1] - a[1])) {
       console.log(`  ${why} x${count}`);
+    }
+    // What it cost in tokens, per model, off the transport's own usage report.
+    for (const [model, t] of COMPOSE_USAGE) {
+      console.log(`  ${model}: ${t.calls} calls, ${Math.round(t.input / Math.max(1, t.calls))} input tokens a call `
+        + `(${Math.round(t.cached / Math.max(1, t.calls))} cached), ${Math.round(t.output / Math.max(1, t.calls))} output`);
     }
   }
 })();

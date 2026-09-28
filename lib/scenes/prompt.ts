@@ -88,6 +88,14 @@ export interface ComposeScene {
   readonly situation: string;
   /** The pronoun this scene addresses the learner with. */
   readonly register: string;
+  /**
+   * Lines this scene's other side has said, for tone and length: the first
+   * banked line of each beat at this band. The same on every turn of a run,
+   * so it sits in the cached half (`composeSystem`), where it is read at a
+   * tenth of the rate. It was sent fresh on every turn as `ComposeAsk.examples`,
+   * which was about a tenth of what a turn paid for input and never changed.
+   */
+  readonly voice?: readonly string[];
   /** The scene's closed word list. */
   readonly words: readonly string[];
 }
@@ -103,7 +111,11 @@ export interface ComposeAsk {
    * for none of it, and then the model reads the Estonian alone.
    */
   readonly reading: string;
-  /** Lines this character has said at other beats, for tone. Never for this beat. */
+  /**
+   * Lines this character has said at other beats, for tone. Never for this
+   * beat. The route sends none and puts them in the cached half instead
+   * (`ComposeScene.voice`); kept for the harnesses that measure it per turn.
+   */
   readonly examples: readonly string[];
   /**
    * What this character has asked for at this very beat before, from the bank.
@@ -290,6 +302,24 @@ const COMPOSE_RULES = [
   "here would actually say rather than a simpler sentence that avoids a word, and say it in",
   "correct Estonian, subject and verb agreeing, every ending a native speaker's; a sentence you",
   "are not sure of is worse than a plainer one. Never announce what you are about to ask.",
+  /*
+    DIGITS, BECAUSE A NUMBER IN WORDS WAS THE COMMONEST LINE THROWN AWAY. The
+    `facts` check can read a number in digits and a small one in words, and
+    `tuhat viissada viiskümmend kuus eurot` for a dealt 1556 or `kolmkümmend
+    neli eurot` for a dealt 34 is neither: measured over every scene played
+    twice, 22 of the 42 lines the gate withheld were a correct number spelled
+    out, each one a second call paid for the same line. A beginner reads
+    `34 eurot` and `14:30` faster than either spelling, too.
+  */
+  "Write every time, price and number from your facts in digits, exactly as the facts give them",
+  "(14:30, 34 eurot); never spell them out in words.",
+  /*
+    And the goodbye waits for the close. With the booking made and only the
+    farewell left on the agenda, a model wrote `Panin teid kirja kell 14:30.
+    Head aega!` on the beat where the learner still has to read the time back,
+    and the gate withheld it every time: eight of thirty refusals in one sweep.
+  */
+  "Say goodbye or thank them for coming only when your move is to close, never before.",
 ].join(" ");
 
 /**
@@ -339,6 +369,9 @@ export function composeSystem(scene: ComposeScene): string {
       on every turn of a run, so it sits behind the breakpoint with the list.
     */
     pitchFor(scene.level),
+    scene.voice && scene.voice.length > 0
+      ? `How this scene's other side talks, for tone and length only: ${scene.voice.join(" | ")}`
+      : "",
     /*
       Last, because it is the one line drawn per run: everything above it is
       shared by every run of this scene at this band. It stays in the constant

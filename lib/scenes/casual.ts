@@ -71,3 +71,20 @@ export function casualBye(spoken: readonly string[]): string | null {
   if (spoken.length === 0 || spoken.length > CASUAL_BYE_WORDS) return null;
   return spoken.find((word) => BYE.has(fold(word))) ?? null;
 }
+
+/**
+ * Whether a turn takes leave, rather than only thanking somebody: one of the
+ * course's farewells anywhere in it (`FAREWELLS`, handed in so this module
+ * stays free of the catalogue), or a casual goodbye that is most of it. A
+ * bare `Aitäh` is thanks, and read as leaving it ended a doctor's
+ * appointment the moment the learner thanked the receptionist for an answer.
+ */
+export function saysGoodbye(said: string, farewells: readonly string[]): boolean {
+  const spoken = (said.match(/[\p{L}]+/gu) ?? []).map((w) => w.toLowerCase());
+  const text = ` ${fold(spoken.join(" "))} `;
+  const named = farewells.some((bye) => {
+    const parts = (bye.match(/[\p{L}]+/gu) ?? []).map((w) => w.toLowerCase());
+    return parts.length > 0 && text.includes(` ${fold(parts.join(" "))} `);
+  });
+  return named || casualBye(spoken) !== null;
+}

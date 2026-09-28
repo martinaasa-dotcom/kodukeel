@@ -1073,6 +1073,15 @@ export async function POST(request: Request) {
     fills this in; the answers below read it.
   */
   const outcome: ComposeOutcome = { by: null, unreachable: false };
+  /*
+    The other side's voice, for tone: the first banked line of each of the
+    scene's own beats. The same on every turn of this run, so it goes in the
+    cached half of the prompt rather than being paid for again each turn.
+  */
+  const tone = [...context.scripted.entries()]
+    .filter(([id]) => !id.includes(":"))
+    .flatMap(([, lines]) => lines.slice(0, 1))
+    .slice(0, 6);
   try {
     const learnerReading = last?.said ? await readingOf(last.said) : "";
     line = await sceneLine({
@@ -1119,10 +1128,8 @@ export async function POST(request: Request) {
           examples of the voice and never of the answer, since none is for this
           beat.
         */
-        examples: [...context.scripted.entries()]
-          .filter(([id]) => id !== beat.id)
-          .flatMap(([, lines]) => lines.slice(0, 1))
-          .slice(0, 6),
+        examples: [],
+        voice: tone,
         /*
           AND THIS BEAT'S OWN, WHICH THE PROMPT ASKS IT TO REPHRASE RATHER THAN
           COPY. `they` is one sentence of English and a model reads it fluently
@@ -1292,6 +1299,8 @@ async function compose(
     level: Level;
     persona: string;
     situation: string;
+    /** The other side's lines at the scene's beats, for tone (`ComposeScene.voice`). */
+    voice: readonly string[];
     move: string;
     /** What they are doing, in English, from their side: the beat's `they`. */
     they: string;
@@ -1336,7 +1345,7 @@ async function compose(
   */
   const system = composeSystem({
     scene: input.scene, place: input.place, level: input.level, persona: input.persona,
-    situation: input.situation, register: input.register, words: input.words,
+    situation: input.situation, register: input.register, words: input.words, voice: input.voice,
   });
   const live = composeLive(input);
 

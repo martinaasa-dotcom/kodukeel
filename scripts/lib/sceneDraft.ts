@@ -568,6 +568,14 @@ export async function compose(
  * `max_tokens` they sent; one function, and the caller says what to do with a
  * status. Returns null where nobody in the chain answered.
  */
+/**
+ * What the composer spent, per model, across a harness run: calls, input
+ * tokens (and how many of them came off the cache) and output tokens. The
+ * play harness prints it so a change meant to save tokens is measured on the
+ * route's own prompt rather than argued about.
+ */
+export const COMPOSE_USAGE = new Map<string, { calls: number; input: number; cached: number; output: number }>();
+
 export async function askLine(
   links: readonly Link[],
   ask: Parameters<typeof composeLive>[0],
@@ -588,11 +596,19 @@ export async function askLine(
         the block below was written to stop. Same function, same shape.
       */
       if (link.name === "gemini") {
+        if (process.env.DEBUG_PROMPT) console.log(`      ~ live ${composeLive(ask).length} chars, conversation ${said.map((m) => m.content).join(" ").length} chars (${said.length} messages)\n${composeLive(ask).split("\n").map((l) => "        | " + l).join("\n")}`);
         const reply = await geminiCachedReply(
           { name: "gemini", model: link.model, label: link.label, reasoning: link.reasoning },
           composeSystem(scene), said, composeLive(ask), SCENE_REPLY_TOKENS,
         );
         const text = reply.text.trim();
+        const tally = COMPOSE_USAGE.get(link.model) ?? { calls: 0, input: 0, cached: 0, output: 0 };
+        COMPOSE_USAGE.set(link.model, {
+          calls: tally.calls + 1,
+          input: tally.input + reply.usage.inputTokens,
+          cached: tally.cached + (reply.usage.cachedInputTokens ?? 0),
+          output: tally.output + reply.usage.outputTokens,
+        });
         if (text) {
           onStatus(`${link.model} ok`);
           const line = text.replace(/^["'«]|["'»]$/g, "");
