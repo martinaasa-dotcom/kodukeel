@@ -1038,7 +1038,7 @@ export async function openWithFallback(
   */
   cacheSystem = false,
 ): Promise<OpenStream> {
-  if (chain.length === 0) throw new TutorError("No AI provider is set up on this installation yet.", 503);
+  if (chain.length === 0) throw new TutorError("There's no AI set up on this site yet, so this part can't answer. Everything else still works.", 503);
 
   for (let i = 0; i < chain.length; i += 1) {
     const config = chain[i]!;
@@ -1062,7 +1062,7 @@ export async function openWithFallback(
   }
 
   // Unreachable: the loop either returns or throws on its last pass.
-  throw new TutorError("No AI provider is set up on this installation yet.", 503);
+  throw new TutorError("There's no AI set up on this site yet, so this part can't answer. Everything else still works.", 503);
 }
 
 /**
@@ -1141,7 +1141,7 @@ async function* readStream(
 
   try {
     const reader = upstream.body?.getReader();
-    if (!reader) throw new TutorError("Anu's answer came back empty. Try asking again.", 502);
+    if (!reader) throw new TutorError("Anu's answer went missing on the way. Try asking again.", 502);
 
     const decoder = new TextDecoder();
     let buffer = "";
@@ -1401,9 +1401,9 @@ async function assertOk(res: Response, config: ProviderConfig) {
   }
   if (res.status === 429) {
     throw new TutorError(
-      `${config.label} is getting too many requests for this model right now. Free models get ` +
-      `throttled hard, so give it a moment. For good, set GROQ_MODEL or GEMINI_MODEL to a paid ` +
-      `model in .env, or add a paid provider key so there's a backup to fall back on.`,
+      `${config.label} is getting too many requests for this model right now, so give it a ` +
+      `moment. Free models get slowed down a lot. For a lasting fix, set GROQ_MODEL or ` +
+      `GEMINI_MODEL to a paid model in .env, or add a paid provider key as a backup.`,
       429,
     );
   }
@@ -1424,8 +1424,8 @@ async function assertOk(res: Response, config: ProviderConfig) {
   */
   if (res.status === 402) {
     throw new TutorError(
-      `${config.label} has run out of credit on this key. Top it up, or add another provider key ` +
-      `in .env so there's a backup to fall back on.`,
+      `${config.label} has run out of credit on this key. Top it up, or add a second provider ` +
+      `key in .env as a backup.`,
       402,
     );
   }
@@ -1623,7 +1623,7 @@ export async function completeWithImage(
   image: ImageAttachment,
   onUsage?: (usage: UsageReport, config: ProviderConfig) => void,
 ): Promise<CompletedReply> {
-  if (chain.length === 0) throw new TutorError("No AI provider is set up on this installation yet.", 503);
+  if (chain.length === 0) throw new TutorError("There's no AI set up on this site yet, so this part can't answer. Everything else still works.", 503);
 
   let last: unknown = null;
   for (let i = 0; i < chain.length; i += 1) {
@@ -1643,7 +1643,7 @@ export async function completeWithImage(
     }
   }
 
-  throw last instanceof Error ? last : new TutorError("None of the AI services could read that. Try again in a moment.", 502);
+  throw last instanceof Error ? last : new TutorError("None of the AI services could read that picture just now. Give it a moment and try again.", 502);
 }
 
 /** Output ceiling for a page of vocabulary. Sixty pairs is well inside this. */

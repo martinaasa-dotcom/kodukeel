@@ -464,19 +464,19 @@ export interface KindNote {
 export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
   STEM: {
     family: "STEM",
-    title: "The stem shifts",
-    what: "The possessive form, the second of the three you learn, is usually just the word with an ending. Not here: a consonant changes, a vowel drops out of the middle, or the stem turns into something else. Every other singular case is built on it, so learn this one first.",
+    title: "The middle of the word changes",
+    what: "Most words make their second form, the one meaning \"of\" or \"whose\", by adding a letter or two. These don't: a consonant swaps, a vowel drops out, or the word changes shape. Every other ending is added to that form, so learn it first.",
     topic: "gradation",
   },
   PART_SG: {
     family: "SINGULAR",
-    title: "A some-of-it form of its own",
-    what: "The \"some of it\" form is usually the stem plus t or d, or just the plain word. In these words it takes back the consonant the stem lost, or an ending nothing predicts. It's one to remember, not work out.",
+    title: "Its own \"some of it\" form",
+    what: "The \"some of it\" form is usually the \"whose\" form plus t or d, or just the plain word. Here it brings back a consonant the other forms lost, or ends in a way nothing predicts. This one you remember rather than work out.",
     topic: "object",
   },
   SHORT_ILLATIVE: {
     family: "SINGULAR",
-    title: "Two ways into it",
+    title: "Two ways to say \"into\"",
     /*
       BOTH FORMS ARE NAMED, BECAUSE THE FIRST VERSION OF THIS NAMED NEITHER.
 
@@ -488,25 +488,25 @@ export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
       said which was which, so the sentence read as a riddle. The screens label
       the pair now (`AlsoRight`), and this says what the two are for.
     */
-    what: "There are two ways to say \"into\" with this word. The long one is the stem plus sse, and it's always right. The short one is what you'll actually hear, and no rule gets you there. You'll see both here, and either one counts.",
+    what: "This word has two ways to say \"into\". The long one adds sse to the \"whose\" form and is always right. The short one is what you'll actually hear, and no rule gets you there. Both are shown, and either one counts.",
     topic: null,
   },
   PLURAL_STEM: {
     family: "PLURAL",
-    title: "The plural has its own stem",
-    what: "Every plural case is built on the plural possessive form. In these words, that form doesn't simply add an ending to the singular stem. Get this one right and every plural case follows.",
+    title: "A plural base of its own",
+    what: "All the plural endings go onto one form: the plural of \"whose\". For these words you can't get it by adding an ending to the singular. Learn this one and the rest of the plural follows.",
     topic: null,
   },
   PART_PL: {
     family: "PLURAL",
-    title: "A plural some-of-it form to learn",
-    what: "Most plural \"some of it\" forms are one of the two stems plus a vowel, id or sid. These aren't, so this is one to remember rather than work out.",
+    title: "A plural \"some of it\" form to learn",
+    what: "Most plural \"some of it\" forms just add a vowel, id or sid to a form you already know. These don't, so this one you remember rather than work out.",
     topic: null,
   },
   NOM_PL: {
     family: "PLURAL",
-    title: "The plural is another word",
-    what: "For nearly every word, the plural is the possessive form plus d. Not here, so the plural is a second word to learn alongside the singular.",
+    title: "A plural you wouldn't guess",
+    what: "For nearly every word, the plural is the \"whose\" form plus d. Not here, so the plural is a second word to learn alongside the singular.",
     topic: null,
   },
   NO_PLURAL: {
@@ -517,25 +517,25 @@ export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
   },
   PRESENT_STEM: {
     family: "VERB",
-    title: "The present has its own stem",
-    what: "Every person, the \"not\" form, the \"would\" form and the commands are built on the I form. In these verbs that isn't the ma-infinitive with an ending, so get it wrong and the whole present goes wrong with it.",
+    title: "An \"I\" form to learn",
+    what: "Every person, the \"not\" form, the \"would\" form and the commands are built on the \"I\" form. For these verbs you can't get it by swapping the ending on the dictionary word, so get it wrong and the whole present goes wrong with it.",
     topic: "present-tense",
   },
   PAST_STEM: {
     family: "VERB",
     title: "The past takes a different shape",
-    what: "The simple past is usually the ma-stem plus sin. These verbs take a different vowel or a whole different stem, and they're some of the most common verbs in the language.",
+    what: "\"I did\" is usually the dictionary word minus ma, plus sin. These verbs change a vowel or their whole shape, and they're some of the most common verbs there are.",
     topic: "imperfect",
   },
   PAST_3SG: {
     family: "VERB",
     title: "He, she and it in the past",
-    what: "No rule turns \"I did\" into \"she did\": some verbs drop the ending and some add a vowel. It's the one slot in the verb nothing predicts, for any verb.",
+    what: "No rule turns \"I did\" into \"she did\": some verbs drop the ending and some add a vowel. It's the one form nothing predicts, for any verb.",
     topic: "imperfect",
   },
   DA_INFINITIVE: {
     family: "VERB",
-    title: "The da-infinitive",
+    title: "The da form",
     /*
       THE VERBS THAT TAKE IT ARE DESCRIBED, NOT NAMED, AND THAT IS THE FIX.
 
@@ -554,25 +554,25 @@ export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
       notes against the dictionary's own stored first persons, so the next verb
       typed in fails rather than ships.
     */
-    what: "The form you need after wanting, being able and knowing how. It's usually the ma-stem plus da. Not in these verbs: the word changes under the ending, so this one you learn rather than work out.",
+    what: "The form you need after \"want\", \"can\" and \"know how to\". It's usually the dictionary word minus ma, plus da. Not in these verbs: the word changes before the ending, so this one you learn rather than work out.",
     topic: "infinitives",
   },
   TUD_PARTICIPLE: {
     family: "VERB",
     title: "The tud form",
-    what: "The form behind \"it has been done\". It's usually the ma-stem plus tud or dud, but here the stem shifts first, so learn the whole form.",
+    what: "The form behind \"it has been done\". It's usually the dictionary word minus ma, plus tud or dud, but here the word changes first, so learn the whole thing.",
     topic: "past-participle",
   },
   IMPERATIVE_PL: {
     family: "VERB",
     title: "Telling somebody politely",
-    what: "The form every shop assistant and official will use with you. It isn't built on the present stem, so if the present changes its consonant, this one takes the other.",
+    what: "The form every shop assistant and official will use with you. It isn't built on the \"I\" form, so where the present changes a consonant, this one keeps the other.",
     topic: "imperative",
   },
 };
 
 export const FAMILY_TITLES: Record<ExceptionFamily, string> = {
-  STEM: "The stem",
+  STEM: "The base form",
   SINGULAR: "The singular",
   PLURAL: "The plural",
   VERB: "The verb",

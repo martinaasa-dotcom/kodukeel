@@ -537,7 +537,7 @@ export function distanceLine(plan: Projection): string {
     case "open": return `${opening} No date is set, so that's the whole story.`;
     case "passed": return `${opening} The date you picked has gone, so choose a new one whenever you're ready.`;
     case "comfortable": return `${opening} Your date is ${plan.weeksAvailable} weeks off, and this app alone covers it.`;
-    case "tight": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits, counting the Estonian an ordinary week already brings alongside the app.`;
+    case "tight": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits, as long as you count the Estonian your ordinary week already brings.`;
     case "possible": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits if you commit: about ${hoursAWeek(plan)} a week of Estonian on top of this app.`;
     default: return `${opening} Your date is ${plan.weeksAvailable} weeks off, so something has to give: the pace, the date, or the hours you put in outside this app.`;
   }
@@ -634,7 +634,7 @@ export const FACTS: readonly Fact[] = [
     icon: "Mountain",
     claim:
       "The hard part is the middle. A2 to B1 costs more than any other step, because that's where the " +
-      "cases, the changing stems and the object have to start working on their own. From B1 to B2 the " +
+      "cases, the words that change in the middle and the object all have to start working on their own. From B1 to B2 the " +
       "grammar is mostly in place, and the step costs about what it would in any language.",
     source: "Published CEFR guided learning hours, with the Estonian surcharge placed where the morphology is",
   },
@@ -643,7 +643,7 @@ export const FACTS: readonly Fact[] = [
     icon: "Repeat",
     claim:
       "Reviewing a word at growing intervals beats rereading it, and beats cramming, by a wide margin in " +
-      "every study that has looked. It's the one thing this app is really built to do well.",
+      "every study that has looked. It's the one thing this app is built above all to do well.",
     source: "Cepeda and others, distributed practice meta-analysis, 2006",
   },
   {
@@ -666,8 +666,8 @@ export const FACTS: readonly Fact[] = [
     id: "cases",
     icon: "Languages",
     claim:
-      "Estonian has fourteen cases, but eleven of them are one regular ending on the omastav stem. Learn " +
-      "a word's omastav and most of its forms follow. Only three forms are unpredictable, not fourteen.",
+      "Estonian has fourteen cases, but eleven of them are one regular ending added to the omastav, the form " +
+      "meaning \"whose\". Learn a word's omastav and most of its forms follow. Only three have to be learned, not fourteen.",
     source: "The Estonian case system, as this app models it in lib/estonian",
   },
   {

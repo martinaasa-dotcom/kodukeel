@@ -52,7 +52,7 @@ const CLAUSES: Record<string, string> = {
     chamber" is worse than no sentence at all.
   */
   NOMINATIVE: "as the plain dictionary word",
-  GENITIVE: "when it belongs to somebody, like English “of”",
+  GENITIVE: "when something belongs to it, like English “of” or “’s”",
   PARTITIVE: "when you mean some of it, or the action isn't finished",
   ILLATIVE: "when something goes into it",
   INESSIVE: "when something is inside it",
@@ -62,7 +62,7 @@ const CLAUSES: Record<string, string> = {
   ABLATIVE: "when something comes off it, or from it",
   TRANSLATIVE: "when something turns into it",
   TERMINATIVE: "when you mean up to it, or until it",
-  ESSIVE: "when somebody is acting as it",
+  ESSIVE: "when somebody is working or acting as it",
   ABESSIVE: "when something is done without it",
   COMITATIVE: "when something is done with it",
 

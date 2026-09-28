@@ -985,7 +985,7 @@ describe("the chain that looks at pictures", () => {
     vi.stubEnv("GROQ_API_KEY", "");
     vi.stubEnv("ANTHROPIC_API_KEY", "");
     vi.stubEnv("OPENAI_API_KEY", "");
-    await expect(completeWithImage([], "s", "p", IMAGE)).rejects.toThrow(/No AI provider/);
+    await expect(completeWithImage([], "s", "p", IMAGE)).rejects.toThrow(/no AI set up/);
   });
 });
 

@@ -88,7 +88,7 @@ export const REASONS: readonly Reason[] = [
     id: "work",
     icon: "Briefcase",
     label: "Work",
-    detail: "Meetings, emails, colleagues talking at full speed. Here, getting it exactly right matters more than being polite.",
+    detail: "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.",
     implies: "B2",
     // Meetings and colleagues at full speed are the most exposure a week can hold.
     exposure: { low: 3, high: 8 },
@@ -142,7 +142,7 @@ export const REASONS: readonly Reason[] = [
     id: "curiosity",
     icon: "Sparkles",
     label: "Curiosity",
-    detail: "Fourteen cases, and stems that change when you look at them. Reason enough.",
+    detail: "Fourteen cases, and words that change shape when you're not looking. Reason enough.",
     implies: "A2",
     // Nothing in the week beyond what the learner goes and finds.
     exposure: { low: 0, high: 0 },

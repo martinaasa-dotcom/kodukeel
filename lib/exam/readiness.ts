@@ -149,15 +149,15 @@ export type Evidence = "thin" | "fair" | "good";
  * not text and this app is measured on a phone.
  */
 export const EVIDENCE_NOTE: Record<Evidence, string> = {
-  thin: "We have very little to go on yet, so these are guesses, and we keep them low to say so.",
-  fair: "There's enough history for a rough estimate, but not a confident one.",
+  thin: "We don't have much to go on yet, so these are guesses, and we've kept them low on purpose.",
+  fair: "You've done enough for a rough estimate, but not a confident one.",
   good: "You've done enough here for these numbers to mean something.",
 };
 
 export const EVIDENCE_LABEL: Record<Evidence, string> = {
   thin: "a guess for now",
   fair: "a rough estimate",
-  good: "on a real record",
+  good: "backed by plenty of practice",
 };
 
 export interface Feedback {
@@ -551,7 +551,7 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
       out.push({
         id: `skill-${skill}`,
         title: `${SKILL_LABEL[skill]} is holding up`,
-        detail: `${evidence.pct} percent over ${evidence.attempts} goes. You can leave this one and spend your time elsewhere.`,
+        detail: `${evidence.pct} percent across ${evidence.attempts} tries. You can leave this one alone and spend your time elsewhere.`,
       });
     }
   }
@@ -571,7 +571,7 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
     out.push({
       id: "recall",
       title: "You remember what you learn",
-      detail: `${signals.accuracy.pct} percent over ${signals.accuracy.reviews} reviews. Words you learn are staying learned.`,
+      detail: `${signals.accuracy.pct} percent across ${signals.accuracy.reviews} reviews. Once you learn a word, it stays.`,
     });
   }
 
@@ -593,9 +593,9 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
         // which is the first sentence a nervous learner screenshots for their
         // teacher. It is the band of the words still to meet.
         title: `${missing} ${target} words still to meet`,
-        detail: `${row.known} of ${row.available} have stuck so far, ${pct} percent. Any of them could turn up on the paper.`,
+        detail: `You've got ${row.known} of ${row.available} so far, ${pct} percent. Any of the rest could turn up on the paper.`,
         href: "/learn",
-        cta: "Open the path",
+        cta: "Learn new words",
       });
     }
   }
@@ -625,8 +625,8 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
           id: `placed-${skill}`,
           title: `The level check put your ${SKILL_LABEL[skill].toLowerCase()} at ${placed}`,
           detail:
-            "That's thin evidence to plan a paper on, but it's all we have for this part. Nothing " +
-            "else you've done here tells your listening and speaking apart.",
+            "That's one short check to plan a paper on, but it's all we have for this part. Your " +
+            "other practice here can't show us your listening and speaking on their own.",
           href: where.href,
           cta: where.cta,
         });
@@ -649,8 +649,8 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
         id: `weak-${skill}`,
         title: `${SKILL_LABEL[skill]} is at ${evidence.pct} percent`,
         detail: skill === weakest
-          ? `Over ${evidence.attempts} goes, and it's the part costing you the most marks.`
-          : `Over ${evidence.attempts} goes.`,
+          ? `Across ${evidence.attempts} tries, and it's the part costing you the most marks.`
+          : `Across ${evidence.attempts} tries.`,
         href: where.href,
         cta: where.cta,
       });
@@ -666,7 +666,7 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
       // Named the way a class names it, and then what it asks rather than
       // what an English grammar calls it: see `lib/estonian/cases.ts`.
       title: `The ${c.caseEt} (${caseByKey(c.caseKey)?.asksEn ?? c.caseKey.toLowerCase()}) is at ${c.pct} percent`,
-      detail: `Still going wrong after ${c.reviews} reviews. Case endings earn marks in every written part.`,
+      detail: `It's still tripping you up after ${c.reviews} reviews, and case endings earn marks in every written part.`,
       href: `/grammar/${c.caseKey.toLowerCase()}`,
       cta: "Read the rule",
     });
@@ -676,9 +676,9 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
     out.push({
       id: "recall",
       title: `Recall is at ${signals.accuracy.pct} percent`,
-      detail: "Some words keep slipping away after you've learned them. The clinic shows you which.",
+      detail: "Some words keep slipping away after you've learned them. The leech clinic shows you which ones.",
       href: "/review/clinic",
-      cta: "Open the clinic",
+      cta: "See which words",
     });
   }
 

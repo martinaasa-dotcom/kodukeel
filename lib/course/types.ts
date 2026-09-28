@@ -99,19 +99,19 @@ export interface ActivitySpec {
 export const ACTIVITIES = {
   match: {
     href: "/review/match", kind: "game",
-    why: "Match up pairs against the clock, so the meanings sink in before you have to say anything.",
+    why: "Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them.",
   },
   listening: {
     href: "/review/listening", kind: "drill",
-    why: "The same words, but you only hear them. Knowing a word on paper isn't the same as catching it out loud.",
+    why: "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.",
   },
   sprint: {
     href: "/review/sprint", kind: "game",
-    why: "A race against the clock through the words you've met, endings too once you've read about them. Speed turns a form you have to work out into one you just know.",
+    why: "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.",
   },
   sentences: {
     href: "/review/sentences", kind: "drill",
-    why: "Put a real Estonian sentence back together, and you start to feel where the words go.",
+    why: "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.",
   },
   dictation: {
     href: "/review/dictation", kind: "drill",
@@ -119,11 +119,11 @@ export const ACTIVITIES = {
   },
   picture: {
     href: "/review/emoji", kind: "game",
-    why: "No English on the board, so the ending is your only clue.",
+    why: "Match pictures to Estonian words, with no English anywhere on the board. For a few minutes you're thinking in Estonian.",
   },
   describe: {
     href: "/review/describe", kind: "drill",
-    why: "Write one sentence of your own about a picture. That's what all these words are for.",
+    why: "Look at a picture and write one sentence of your own about it. That's what all these words are for.",
   },
   sonad: {
     href: "/sonad", kind: "game",
@@ -131,27 +131,27 @@ export const ACTIVITIES = {
   },
   target: {
     href: "/review/target", kind: "game",
-    why: "Four forms of one word, and a question word telling you which one to hit. Only the ending tells them apart.",
+    why: "Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.",
   },
   conjugation: {
     href: "/review/conjugation", kind: "drill",
-    why: "One verb, six people, typed out. If you can't change a verb for who's doing it, you can't use it.",
+    why: "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.",
   },
   speaking: {
     href: "/review/speaking", kind: "drill",
-    why: "Say it out loud and hear it back. Nothing marks you. This one is for your own ears.",
+    why: "Say it out loud, then hear how it should sound. Nobody marks you. This one is just for your own ears.",
   },
   write: {
     href: "/review/write", kind: "drill",
-    why: "Write your own sentence using the form we ask for. We check the form against the dictionary first.",
+    why: "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.",
   },
   government: {
     href: "/review/government", kind: "drill",
-    why: "Aitan sind, but helistan sulle. English gives you no clue here, so you learn it one verb at a time.",
+    why: "Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.",
   },
   exceptions: {
     href: "/review/exceptions", kind: "drill",
-    why: "The words that break the ending rules. Meet them, then write them, so you stop having to look them up.",
+    why: "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.",
   },
   letters: {
     href: "/review/letters", kind: "game",
@@ -159,7 +159,7 @@ export const ACTIVITIES = {
   },
   flash: {
     href: "/review/flashcards", kind: "drill",
-    why: "Words you've already met, asked in new ways: out loud, with a gap, or in a sentence you build.",
+    why: "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.",
   },
 } as const satisfies Record<string, ActivitySpec>;
 
@@ -457,10 +457,10 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
   steps.push({
     id: MEET_STEP,
     kind: "meet",
-    title: `Meet today's ${spec.words.length} words`,
+    title: `Learn tonight's ${spec.words.length} new words`,
     why: atA1
-      ? "Hear each one and meet it, then pick it out of four a little later. By the end, they're yours."
-      : "Meet each one, pick it out of four, then type it back into a real Estonian sentence.",
+      ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
+      : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",
     href: "/course/learn",
     minutes: Math.max(1, Math.round(spec.words.length * perWord)),
     derived: true,
@@ -483,8 +483,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: READ_STEP,
       kind: "read",
-      title: "Read the grammar behind it",
-      why: "One short page on what today's words have in common, with three quick taps at the end to try it out.",
+      title: "Read how tonight's words work",
+      why: "One short page on the grammar behind tonight's words, with three quick questions at the end to try it.",
       href: reads,
       minutes: READ_MINUTES,
       derived: false,
@@ -502,8 +502,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: FORMS_STEP,
       kind: "drill",
-      title: `The past of ${spec.forms.length === 1 ? "one verb" : `${spec.forms.length} verbs`}`,
-      why: "Every verb has its own past, so you learn them one at a time. Listen, then try three.",
+      title: `The past tense of ${spec.forms.length === 1 ? "one verb" : `${spec.forms.length} verbs`}`,
+      why: "Estonian verbs don't all change the same way in the past, so you learn each one on its own. Listen to them, then try three quick questions.",
       href: "/course/forms",
       minutes: ROUND_MINUTES,
       derived: false,
@@ -528,7 +528,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
       id: TALK_STEP,
       kind: "talk",
       title: "Have the conversation",
-      why: "Somebody wants something from you, and only Estonian will do. This is what all the words were for.",
+      why: "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
       href: `/situations/${spec.scene}`,
       minutes: TALK_MINUTES,
       derived: false,
@@ -538,8 +538,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
   steps.push({
     id: REVIEW_STEP,
     kind: "review",
-    title: "A quick review, and you're done",
-    why: "Everything you're about to forget, today's words included. This is what makes them stick.",
+    title: "A quick review, then you're done",
+    why: "A few minutes on the words you're about to forget, tonight's included. This is the part that makes them stick.",
     href: "/review",
     minutes: REVIEW_MINUTES,
     derived: true,

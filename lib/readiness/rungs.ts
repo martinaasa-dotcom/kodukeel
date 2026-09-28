@@ -267,7 +267,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
       id: "unmet",
       title: unmet === total ? "None of these words has come up yet" : `${unmet} of the ${total} words haven't come up yet`,
       detail: unmet === total
-        ? "Nothing's been recorded for this situation yet. That's down to the course, not to you."
+        ? "The course hasn't brought you these words yet, so there's nothing to go on. That's the course's pace, not yours."
         : "The word you've never met is the one the other person will use.",
       blocks: at.met === 0 ? "follow" : share(at.follow) >= FOLLOW_SHARE ? "takePart" : "follow",
       href: `/learn/${situation.id}`,
@@ -300,7 +300,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
       detail: `${at.lead} of the ${total} words are solid in more than one form. Leading a conversation means grabbing a word in whatever form the sentence needs.`,
       blocks: "lead",
       href: "/review/flashcards",
-      cta: "Try them five ways",
+      cta: "Practice them five different ways",
     });
   }
 
@@ -342,7 +342,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push({
           id: `case-${key}`,
           title: `You've hardly been asked the ${spec.et} yet`,
-          detail: `This situation leans on the ${spec.et}, the one that asks ${spec.asksEn}, ${spec.gloss}. ${standing?.reviews ?? 0} answers isn't enough to tell whether you have it.`,
+          detail: `This situation leans on the ${spec.et}, as in “${spec.gloss}”. ${standing?.reviews ?? 0} answers isn't enough to tell whether you have it yet.`,
           blocks: "lead",
           href: `/grammar/${key.toLowerCase()}`,
           cta: "Read the rule",
@@ -352,7 +352,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push({
           id: `case-${key}`,
           title: `The ${spec.et} is at ${standing.pct} percent`,
-          detail: `This situation leans on the ${spec.et}, the one that asks ${spec.asksEn}, ${spec.gloss}. Across ${standing.reviews} answers it's still going wrong.`,
+          detail: `This situation leans on the ${spec.et}, as in “${spec.gloss}”. Across ${standing.reviews} answers it's still slipping too often.`,
           blocks: "lead",
           href: `/grammar/${key.toLowerCase()}`,
           cta: "Read the rule",
@@ -440,7 +440,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
     struggles.unshift({
       id: "evidence",
       title: `Only ${answers} answers so far, so this stays at "${RUNG_LABEL[rung].toLowerCase()}" for now`,
-      detail: "That's not enough to say more. A verdict built on a dozen answers would really be a guess. Give it another week of review and this can tell you properly.",
+      detail: "A dozen answers is too few to say more without guessing. Give it another week of reviews and this can tell you properly.",
       blocks: RUNG_ORDER[rungRank(rung) + 1] ?? "lead",
       href: `/learn/${situation.id}`,
       cta: "Open the unit",

@@ -125,7 +125,7 @@ if (await yourExam.count()) {
   absent(1, "a target level set on this database, which the demo fixture writes");
 }
 
-const firstGapLink = page.locator("a", { hasText: /Open the path|Practice|Take a dictation|Record yourself|Fill some gaps|Write a sentence|Read the rule|Open the clinic|Review now/ }).first();
+const firstGapLink = page.locator("a", { hasText: /Learn new words|See which words|Practice|Take a dictation|Record yourself|Fill some gaps|Write a sentence|Read the rule|Open the clinic|Review now/ }).first();
 check("every gap hands over somewhere to go", (await firstGapLink.count()) > 0);
 
 // ── The briefing ─────────────────────────────────────────────────────────────
@@ -459,7 +459,7 @@ check("asking for paper 3's reading opens a numbered seed for it",
   /seed=p3r-/.test(page.url()), page.url());
 check("its briefing names the paper and the part, and says it is one part on its own",
   /paper 3, reading only/i.test(await page.locator("h1").innerText()) &&
-  /One part on its own/i.test(await page.locator("body").innerText()));
+  /just this one part/i.test(await page.locator("body").innerText()));
 check("its briefing sets that one part and no other",
   (await page.getByText(/^Part 2$/).count()) === 0);
 const firstSitting = await questionText();

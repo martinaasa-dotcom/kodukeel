@@ -54,24 +54,24 @@ export const VERB_AXES: readonly { et: string; en: string; blurb: string }[] = [
     et: "aeg",
     en: "tense",
     blurb:
-      "Two the verb makes on its own, and two more built with a helper verb and a participle. None of them is a future.",
+      "Two tenses the verb makes by itself, for now and before, and two more built with \"to be\", like \"have done\". There's no future among them.",
   },
   {
     et: "kõneviis",
     en: "mood",
     blurb:
-      "Are you saying it, supposing it, telling somebody to do it, or passing on something you didn't see? A school grammar counts four, each with its own endings, and reference grammars split a fifth off the imperative.",
+      "Are you stating it, imagining it, telling someone to do it, or passing on something you only heard? School grammars count four moods, each with its own endings, and some reference books count five.",
   },
   {
     et: "tegumood",
     en: "voice",
     blurb:
-      "Whether the sentence says who did it. It isn't the English passive, so keep the two apart.",
+      "Whether the sentence says who did it. It looks like the English passive but works differently, so keep the two apart.",
   },
   {
     et: "pööre",
     en: "person",
-    blurb: "Six persons, marked on the verb, so you can drop I and you in speech. He, she and they stay put.",
+    blurb: "Six persons, each with its own verb ending, so \"I\" and \"you\" can often be left out. \"He\", \"she\" and \"they\" usually stay.",
   },
 ];
 

@@ -204,10 +204,10 @@ export function bandFor(pct: number): Band {
 const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
   "match-usage": {
     kind: "match-usage",
-    title: "Which word does each sentence use?",
+    title: "Which word is each sentence about?",
     instruction:
-      "A dictionary writer wrote each of these sentences to show one word at work. " +
-      "Find the word each sentence was written for.",
+      "Each of these sentences was written by a dictionary maker to show one word in use. " +
+      "Work out which word each one was written for.",
     standsFor: "sobitamine, matching a description to the text it belongs with",
     fallback: "gloss-choice",
   },
@@ -215,31 +215,31 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "gap-choice",
     title: "Choose the missing word",
     instruction:
-      "Each sentence is missing a word. Pick the form that fits. " +
-      "All the options are real Estonian, so it's the ending you're choosing.",
+      "Each sentence has a word missing. Pick the one that fits. " +
+      "Every option is real Estonian, so what you're really choosing is the ending.",
     standsFor: "valikvastustega lünkülesanne, a gapped text with three or four options",
     fallback: "form-choice",
   },
   "gap-type": {
     kind: "gap-type",
     title: "Write the missing word",
-    instruction: "Each sentence is missing a word. Type the form that fits.",
+    instruction: "Each sentence has a word missing. Type in the one that fits.",
     standsFor: "lünkülesanne, a gapped text filled in by hand",
   },
   "gloss-choice": {
     kind: "gloss-choice",
     title: "What does the word mean?",
     instruction:
-      "One Estonian word, four meanings in English. Pick the right one. You get this " +
-      "when the dictionary has no sentence to build a proper reading task from.",
+      "One Estonian word, four meanings in English. Pick the right one. You're seeing " +
+      "this because the dictionary didn't have the sentences to build a proper reading task.",
     standsFor: "lugemine info hankimiseks, reading to find information",
   },
   "form-choice": {
     kind: "form-choice",
     title: "Which form is it?",
     instruction:
-      "A word and a case. Pick the form that matches. All the options are real Estonian, " +
-      "so it's the ending you're choosing.",
+      "Here's a word and the case it needs to go into. Pick the right form. Every option is " +
+      "real Estonian, so what you're really choosing is the ending.",
     standsFor: "valikvastustega lünkülesanne, a gapped text with three or four options",
   },
   order: {
@@ -247,7 +247,7 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     title: "Put the sentence back together",
     instruction:
       "Here's a real sentence with its words shuffled. Put them back in order. Estonian is " +
-      "looser about word order than English, so we mark you against the order the writer used.",
+      "looser about word order than English, so we mark it against the order the writer used.",
     standsFor: "tekstisiseste seoste mõistmine, following how a text holds together",
   },
   /*
@@ -265,31 +265,32 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "case-form",
     title: "Write the form",
     instruction:
-      "Write each word in the form asked for. The dictionary marks it, not a model. " +
-      "On the real paper the whole clock goes on the two texts above, so leave these till last " +
-      "and use whatever time is left.",
+      "Write each word in the form asked for. The dictionary marks it, not an AI. " +
+      "On the real paper all your time goes on the two texts above, so do these last, " +
+      "with whatever time you have left.",
     standsFor:
-      "not a task the real paper sets: grammatiline korrektsus, the accuracy an examiner marks " +
-      "inside your two texts, asked directly because nothing here may mark your Estonian",
+      "not a task the real paper sets: grammatiline korrektsus, the accuracy an examiner looks " +
+      "for in your two texts, asked separately here because no AI is allowed to mark your Estonian",
   },
   government: {
     kind: "government",
     title: "Which case does the verb take?",
     instruction:
-      "Every Estonian verb wants its own case, and English gives you no hint which. Pick the one " +
-      "each verb takes. This one is ours rather than the paper's, like the task above, so do it last.",
+      "Each Estonian verb wants a particular case after it, and English gives you no hint " +
+      "which. Pick the right one for each verb. Like the task above, this one is ours rather " +
+      "than the real paper's, so leave it till last.",
     standsFor:
-      "not a task the real paper sets: rektsioon, the verb government marked inside your two " +
-      "texts, asked directly for the same reason",
+      "not a task the real paper sets: rektsioon, which case each verb takes, checked in your " +
+      "two texts and asked separately here for the same reason",
   },
   message: {
     kind: "message",
     title: "Write a short message",
     instruction:
-      "The real writing part starts with this: a short message that has to get something done. " +
-      "Cover every point you're given. We count the words and check you used the ones asked for, " +
-      "and that's where the marks come from. Whether you covered every point is yours to read " +
-      "back, because no model here judges your Estonian.",
+      "The real writing part opens with this: a short message that has to get something done. " +
+      "Cover every point you're given. Your marks come from the word count and from using the " +
+      "words we list. Checking that you covered every point is up to you, because no AI here " +
+      "judges your Estonian.",
     standsFor: "teate koostamine, the short message the writing part opens with",
   },
   dictation: {
@@ -318,10 +319,10 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     kind: "compose",
     title: "Write a text",
     instruction:
-      "The second writing task, and like the real paper you get a choice: a story on the topic, " +
-      "or a personal letter about it. Pick one and write it in Estonian, using the words listed. " +
-      "The marks come from the length and from using those words. Anu may add a note " +
-      "afterwards, but her note doesn't change your marks.",
+      "The second writing task, and just like the real paper you get a choice: a story on the " +
+      "topic, or a personal letter about it. Pick one and write it in Estonian, using the words " +
+      "listed. Your marks come from the length and from using those words. Anu can add a note " +
+      "afterwards if you ask, but it doesn't change your marks.",
     standsFor:
       "loovkirjutamine või isikliku kirja koostamine, the second writing task, which the real " +
       "paper also lets you choose between",
@@ -331,8 +332,8 @@ const BLUEPRINTS: Record<TaskKind, Omit<TaskSpec, "id" | "items" | "raw">> = {
     title: "Speak",
     instruction:
       "Record your answer, then listen back and mark yourself against the checklist. " +
-      "There's no Estonian speech recognizer good enough to trust, so nothing here scores " +
-      "your pronunciation, and nothing pretends to.",
+      "No computer understands spoken Estonian well enough to be trusted with this, so " +
+      "nothing here scores your pronunciation, and nothing pretends to.",
     standsFor: "suuline esinemine ja dialoog, the spoken part with an examiner",
   },
 };
@@ -394,8 +395,8 @@ const PLANS: Record<ExamLevel, LevelPlan> = {
     reading: [8, 12, 8], listening: [8, 7], writing: [6, 5, 9, 14], speaking: [7, 7],
     messageWords: 45, composeWords: 140, speakSeconds: 120,
     summary:
-      "Three hours and five minutes of writing, then twenty minutes of speaking. Most " +
-      "professional registers ask for this one.",
+      "Three hours and five minutes of writing, then twenty minutes of speaking. It's the " +
+      "level most professional registers ask for.",
   },
   C1: {
     minutes: { writing: 90, listening: 45, reading: 60, speaking: 20 },

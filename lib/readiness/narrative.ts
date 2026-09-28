@@ -17,11 +17,11 @@ import { RUNG_LABEL, type Reading, type Rung, type Summary } from "./rungs";
  */
 
 const VERDICT: Record<Rung, (r: Reading) => string> = {
-  unmet: () => "Nothing yet. This unit hasn't come up in your reviews.",
+  unmet: () => "You haven't met these words yet, so there's nothing to go on.",
   lost: (r) =>
     `You'd be lost here for now. You'd catch ${r.at.follow} of the ${r.total} words, and the ones you'd miss are the ones that carry the sentence.`,
   follow: (r) =>
-    `You'd follow most of this. You recognize ${r.at.follow} of the ${r.total} words. Answering back is the next step.`,
+    `You'd follow most of this. You recognize ${r.at.follow} of the ${r.total} words. Saying them back is the next step.`,
   takePart: (r) =>
     r.situation.live
       ? `You could take part in this if the other person is patient. You can say ${r.at.takePart} of the ${r.total} words reliably.`

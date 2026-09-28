@@ -10547,23 +10547,13 @@ check("no screen writes a case's Latin name into a sentence", () => {
     // The table itself, which is where `CaseSpec.en` is declared.
     "lib/estonian/cases.ts": "the one table, and the English name is a field on it",
     /*
-      THE TWO MODULES THAT WRITE ABOUT ESTONIAN AND MAY HOLD NONE.
+      THE TWO MODULES THAT WRITE ABOUT ESTONIAN AND MAY HOLD NONE ARE NOT HERE.
 
-      `grammar.ts` and `exceptions.ts` explain a case at length in English and
-      are asserted to carry no Estonian letter, which is what stops this app
-      inventing a form inside a sentence about forms. That leaves the Latin
-      name as the only name they *can* use: naming the five cases whose
-      Estonian spelling happens to carry no diacritic would slip past the
-      letter rule while breaking what it is for, and would name five cases one
-      way and nine the other on one page.
-
-      The way out is to describe the case rather than name it ("the partial
-      object form" for `osastav`), which is a pass over nineteen lines of the
-      most-read grammar copy in the app and is worth doing carefully rather
-      than in passing. Until then the exemption is here, where it is counted,
-      rather than being invisible because the sweep stopped at `app/`.
+      `grammar.ts` and `exceptions.ts` hold no Estonian letter, which once left
+      the Latin name as the only name they could use. They describe the case
+      instead now (the "some of it" ending), so neither needs an exemption,
+      and one would go stale the day it was granted.
     */
-    "lib/estonian/grammar.ts": "holds no Estonian letter, so the Latin name is the only name it has",
     /*
       AND THE PIN TABLE QUOTES `grammar.ts` RATHER THAN WRITING COPY OF ITS OWN.
 

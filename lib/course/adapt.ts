@@ -241,14 +241,14 @@ export interface LeanEffects {
 export function leanSentence(tilt: Tilt, effects: LeanEffects): string {
   if (tilt === 0) return "";
   const parts = tilt < 0
-    ? [effects.pace && "recordings play a little slower", effects.talk && "conversations open a notch plainer"]
-    : [effects.talk && "conversations open a notch higher", effects.pace && "recordings play a little quicker"];
+    ? [effects.pace && "recordings play a little slower", effects.talk && "conversations start a little simpler"]
+    : [effects.talk && "conversations start a little harder", effects.pace && "recordings play a little quicker"];
   const said = parts.filter((p): p is string => Boolean(p));
   if (said.length === 0) return "";
   const joined = said.join(" and ");
   return tilt < 0
-    ? `For now ${joined}. That goes back to normal by itself as your answers improve.`
-    : `For now ${joined}. That settles back by itself if your answers change.`;
+    ? `For now, ${joined}. That goes back to normal on its own as your answers pick up.`
+    : `For now, ${joined}. If your answers change, that goes back to normal on its own.`;
 }
 
 /** The card's heading. */
@@ -281,20 +281,20 @@ export function offerParts(offer: AdaptOffer, effects: LeanEffects): OfferText {
   const seen = Math.round(offer.reading.accuracy * 100);
   const lean = leanSentence(tiltFor(offer.reading), effects);
   if (offer.reading.kind === "flying") {
-    const lead = `Lately you've been getting ${seen} in a hundred right.`;
+    const lead = `Lately you've been getting ${seen} out of a hundred right.`;
     const advice = offer.move
       ? `If this part feels too easy, skip ahead to ${offer.move.to.id.toUpperCase()}. `
         + "Everything from this one stays in your reviews either way."
-      : "There's no part above this one, so stretch yourself with your reviews and the harder conversations.";
+      : "There's no part above this one, so stretch yourself with your reviews and the tougher conversations.";
     return { lead, advice, lean };
   }
 
   const lead = offer.reading.because === "misses"
-    ? "A lot of your recent answers have missed. That usually means this part is a step too far, not that anything is wrong with how you learn."
-    : `Lately you've been getting ${seen} in a hundred right. That usually means this part is a step too far, not that anything is wrong with how you learn.`;
+    ? "Quite a few of your recent answers have been misses. That usually means this part is a step ahead of you for now, not that anything's wrong with how you learn."
+    : `Lately you've been getting ${seen} out of a hundred right. That usually means this part is a step ahead of you for now, not that anything's wrong with how you learn.`;
   const move = offer.move;
   if (!move) {
-    return { lead, advice: "Your reviews already know which words are slipping, and a few days of them will turn this round.", lean };
+    return { lead, advice: "Your reviews already know which words are slipping away. Give them a few days and this will turn around.", lean };
   }
   if (move.kind === "down") {
     const below = move.to.level;
@@ -303,11 +303,11 @@ export function offerParts(offer: AdaptOffer, effects: LeanEffects): OfferText {
       : `Going over ${below} first will make this part much easier.`;
     return {
       lead,
-      advice: `${first} A lot of it will feel familiar, and that's the idea. It's a refresher, and this part waits for you afterwards, right where you left it.`,
+      advice: `${first} Much of it will feel familiar, and that's the idea: it's a refresher. This part waits for you afterwards, right where you left it.`,
       lean,
     };
   }
-  return { lead, advice: `Going back to ${move.to.id.toUpperCase()}, the part you skipped, fills in what this one needs you to know.`, lean };
+  return { lead, advice: `${move.to.id.toUpperCase()} is the part you skipped, and this one leans on it. Going back fills in the gaps.`, lean };
 }
 
 /** The same, as one string, for a reader that has room for one paragraph. */

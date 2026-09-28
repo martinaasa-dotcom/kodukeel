@@ -150,7 +150,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
   },
   imperfect: {
-    "Usually the dictionary word minus -ma, plus -sin for \"I did\"": [
+    "\"I did\" usually ends in -sin, and some common verbs take -in": [
       { lemma: "meri", et: "Käisin meres ujumas.", form: "Käisin", slot: "VERB:IndIpfSg1" },
       { lemma: "mets", et: "Eksisin metsa ära.", form: "Eksisin", slot: "VERB:IndIpfSg1" },
     ],
