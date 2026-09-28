@@ -3,6 +3,7 @@ import { ArrowRight, Briefcase, ClipboardCheck, Heart, House, Check, Languages }
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ButtonLink } from "@/components/Button";
 import { Wordmark } from "@/components/brand";
+import { BrandLink } from "@/components/BrandLink";
 import { toneInk } from "@/components/ui";
 import {
   ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale,
@@ -51,9 +52,9 @@ export function EntryPage({ locale }: { locale: EntryLocale }) {
           className="mx-auto flex max-w-5xl items-center justify-between gap-3 rounded-full border px-4 py-2.5"
           style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
-          <Link href="/welcome" aria-label="Kodukeel" className="flex min-h-11 items-center">
+          <BrandLink href="/welcome" label="Kodukeel" className="flex min-h-11 items-center">
             <Wordmark size={30} />
-          </Link>
+          </BrandLink>
           <div className="flex items-center gap-1 text-sm font-semibold">
             {/* The language's own name from `sm` up, and its code below it, where
                 two names beside the wordmark do not fit a 360px phone. */}

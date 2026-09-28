@@ -467,7 +467,10 @@ and `--mark-ink`, declared once and never redefined for the dark theme, since a 
 in both. The same outline is in `app/icon.svg`, `public/app-icon.svg`, the maskable icon, the Apple
 icon and the share card. It appears in the rail, in every empty state, at the end of a session, and
 on the landing page, and it moves by its columns: a wave while happy, a hop to celebrate, the
-columns lighting in turn while it thinks.
+columns lighting in turn while it thinks. It is set down crooked on purpose, the tile tipped one
+way and the tilde the other, because nothing about getting by in a language is square. In the
+wordmark link (`components/BrandLink.tsx`) it plays: a pointer sets the pixels dancing through
+gold, pink and cyan with the name hopping after them, and a press throws the pixels in the air.
 
 ## 6. Routing and the landing page
 

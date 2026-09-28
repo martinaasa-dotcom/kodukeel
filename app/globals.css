@@ -3508,24 +3508,71 @@
 }
 
 /*
-  The mark's columns (components/brand.tsx). Each is two pixels of the tilde
-  and moves on its own delay, so a movement runs along the stroke rather than
-  lifting it whole. The travel is small on purpose: a pixel is 6.6 units of a
-  100 unit tile, and a column that leaves its neighbours by more than a third
-  of that stops reading as one tilde.
+  The mark's columns (components/brand.tsx). Each is two pixels of the tilde,
+  carries its index as --c and its distance from the middle as --dir, and moves
+  on its own delay, so a movement runs along the stroke rather than lifting it
+  whole. Every keyframe ends where it began, so the global reduced-motion rule,
+  which runs an animation once in no time, leaves the still mark.
 
-  Happy is a slow wave passing through; cheer is a quick hop that runs left to
-  right; thinking lights the columns in turn, like a cursor. Every one ends
-  where it began, so the global reduced-motion rule, which runs an animation
-  once in no time, leaves the still mark.
+  Idle is a wave that rolls through every few seconds and then rests, sized to
+  be seen: half a pixel of the tilde, which at the rail's 48px is two screen
+  pixels. Cheer is a quick hop that runs left to right; thinking lights the
+  columns in turn, like a cursor.
+
+  Inside a `.mark-play` link (components/BrandLink.tsx) it plays. A pointer on
+  it tips the tile, and the pixels dance a full pixel high through gold, pink
+  and cyan with the name hopping after them letter by letter. A press, which
+  sets data-burst for one run of the keyframes, squashes the tile, throws the
+  pixels up and outward from the middle, spinning, and lets them land.
 */
+.mark-svg { overflow: visible; }
+/* Crooked at rest, in every state, still or moving. A transform on a group in
+   an SVG takes the view box as its box, so these origins are in its units. */
+.mark-svg .mark-body {
+  transform-box: view-box;
+  transform-origin: 50% 55%;
+  transform: rotate(-7deg) scale(0.9);
+}
+.mark-svg .mark-tilde {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transform: rotate(5deg);
+}
+.mark-live .mark-body { animation: mark-sway 6.4s ease-in-out infinite; }
+.mark-live .pixel-col { transform-box: fill-box; transform-origin: 50% 50%; }
+.mark-live.mark-happy .pixel-col { animation: pixel-wave 4.2s ease-in-out calc(var(--c) * 0.07s) infinite; }
+.mark-live.mark-cheer .pixel-col { animation: pixel-hop 1.6s ease-in-out calc(var(--c) * 0.06s) infinite; }
+.mark-live.mark-thinking .pixel-col { animation: pixel-think 1.8s ease-in-out calc(var(--c) * 0.12s) infinite; }
+
+.mark-play:hover .mark-live .mark-body,
+.mark-play:focus-visible .mark-live .mark-body { animation: mark-giddy 0.9s ease-in-out infinite; }
+.mark-play:hover .mark-live .mark-tilde,
+.mark-play:focus-visible .mark-live .mark-tilde { animation: tilde-tip 0.9s ease-in-out infinite; }
+.mark-play:hover .mark-live .pixel-col,
+.mark-play:focus-visible .mark-live .pixel-col {
+  animation: pixel-dance 0.95s ease-in-out calc(var(--c) * 0.055s) infinite;
+}
+.mark-play .wm-letter { display: inline-block; }
+.mark-play:hover .wm-letter,
+.mark-play:focus-visible .wm-letter {
+  animation: wordmark-hop 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.18s + var(--i) * 0.045s) 1 both;
+}
+.mark-play[data-burst] .mark-live .mark-body { animation: mark-pop 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 1 both; }
+.mark-play[data-burst] .mark-live .pixel-col {
+  animation: pixel-burst 0.95s cubic-bezier(0.25, 0.9, 0.35, 1) calc(var(--c) * 0.018s) 1 both;
+}
+.mark-play[data-burst] .wm-letter {
+  animation: wordmark-hop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.3s + var(--i) * 0.04s) 1 both;
+}
+
 @keyframes pixel-wave {
-  0%, 60%, 100% { transform: translateY(0); }
-  25% { transform: translateY(-2.2px); }
+  0%, 36%, 100% { transform: translateY(0); }
+  12% { transform: translateY(-4.4px); }
+  24% { transform: translateY(1px); }
 }
 @keyframes pixel-hop {
   0%, 55%, 100% { transform: translateY(0); }
-  18% { transform: translateY(-5px); }
+  18% { transform: translateY(-6px); }
   32% { transform: translateY(0.8px); }
   42% { transform: translateY(-0.6px); }
 }
@@ -3533,6 +3580,46 @@
   0%, 45%, 100% { opacity: 1; }
   20% { opacity: 0.45; }
 }
+@keyframes pixel-dance {
+  0%, 100% { transform: translateY(0) scale(1); fill: var(--mark-ink); }
+  25% { transform: translateY(-7px) scale(1.12); fill: var(--cta); }
+  50% { transform: translateY(1px) scale(0.94); fill: var(--blush); }
+  75% { transform: translateY(-3px) scale(1.04); fill: var(--sky); }
+}
+@keyframes pixel-burst {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  30% { transform: translate(calc(var(--dir) * 4px), -30px) rotate(calc(var(--dir) * 40deg)) scale(1.2); fill: var(--cta); }
+  52% { transform: translate(calc(var(--dir) * 5px), -22px) rotate(calc(var(--dir) * 80deg)) scale(1.1); fill: var(--blush); }
+  74% { transform: translate(calc(var(--dir) * 1px), 3px) rotate(calc(var(--dir) * 8deg)) scaleY(0.8); fill: var(--sky); }
+  88% { transform: translate(0, -2px) rotate(0deg); }
+  100% { transform: translate(0, 0) rotate(0deg); fill: var(--mark-ink); }
+}
+@keyframes mark-sway {
+  0%, 100% { transform: rotate(-7deg) scale(0.9); }
+  30% { transform: rotate(-3deg) translateY(-1.5px) scale(0.9); }
+  62% { transform: rotate(-9deg) translateY(0.5px) scale(0.9); }
+}
+@keyframes mark-giddy {
+  0%, 100% { transform: rotate(4deg) scale(0.98); }
+  50% { transform: rotate(-11deg) translateY(-3px) scale(1.02); }
+}
+@keyframes tilde-tip {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(10deg); }
+}
+@keyframes mark-pop {
+  0% { transform: rotate(-7deg) scale(0.78, 0.7); }
+  28% { transform: rotate(12deg) translateY(-6px) scale(1.02, 1.08); }
+  55% { transform: rotate(-12deg) scale(0.92, 0.88); }
+  78% { transform: rotate(-4deg) scale(0.94); }
+  100% { transform: rotate(-7deg) scale(0.9); }
+}
+@keyframes wordmark-hop {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  40% { transform: translateY(-6px) rotate(-6deg); }
+  70% { transform: translateY(1px) rotate(2deg); }
+}
+
 
 /*
   Anu's face (components/anu/AnuFace.tsx). She blinks, breathes, glances and

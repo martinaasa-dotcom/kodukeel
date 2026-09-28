@@ -26,7 +26,7 @@ export const contentType = "image/png";
 const MARK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="180" height="180">
   <defs><linearGradient id="g" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9c8cff"/><stop offset="1" stop-color="#5b2eff"/></linearGradient></defs>
   <rect width="100" height="100" fill="url(#g)"/>
-  <path d="M17 46.7H23.6V40.1H30.2V33.5H36.8H43.4V40.1H50V46.7H56.6V53.3H63.2H69.8V46.7H76.4V40.1H83V53.3H76.4V59.9H69.8V66.5H63.2H56.6V59.9H50V53.3H43.4V46.7H36.8H30.2V53.3H23.6V59.9H17Z" fill="#ffffff"/>
+  <path d="M17 46.7H23.6V40.1H30.2V33.5H36.8H43.4V40.1H50V46.7H56.6V53.3H63.2H69.8V46.7H76.4V40.1H83V53.3H76.4V59.9H69.8V66.5H63.2H56.6V59.9H50V53.3H43.4V46.7H36.8H30.2V53.3H23.6V59.9H17Z" fill="#ffffff" transform="rotate(-7 50 50)"/>
 </svg>`;
 
 export default function AppleIcon() {

@@ -18,6 +18,7 @@ import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { toWalkWord } from "@/lib/estonian/caseBuild";
 import { ButtonLink } from "@/components/Button";
 import { Wordmark } from "@/components/brand";
+import { BrandLink } from "@/components/BrandLink";
 import { MascotWatch } from "@/components/MascotWatch";
 import { CaseExplorer, TutorPeek, type DemoCase, type DemoWord } from "./LandingDemo";
 import { HeroWord, PlanCalculator } from "./LandingMotion";
@@ -149,9 +150,9 @@ function Nav() {
           that is a lone icon, and this one is an icon and a word. The row is
           already 45px for the button beside it, so the nav does not grow.
         */}
-        <Link href="/welcome" aria-label="Kodukeel, home" className="flex min-h-11 items-center">
+        <BrandLink href="/welcome" label="Kodukeel, home" className="flex min-h-11 items-center">
           <Wordmark size={30} />
-        </Link>
+        </BrandLink>
         {/*
           THE LINKS ARRIVE AT 1024, NOT 768, AND THE TYPE SCALE IS WHY.
 
