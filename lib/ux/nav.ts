@@ -445,5 +445,8 @@ export function litRow(rows: readonly Destination[], pathname: string): string |
     consider(d.href, d.href);
     if (d.within?.startsWith("/")) consider(d.within, d.href);
   }
+  // A row the table does not hold, which is a class the learner belongs to
+  // (`lib/ux/classRows.ts`), lights for its own page and everything under it.
+  for (const r of rows) if (isUnder(r.href, pathname)) consider(r.href, r.href);
   return (best as { href: string } | null)?.href ?? null;
 }

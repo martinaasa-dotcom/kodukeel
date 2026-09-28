@@ -12,6 +12,7 @@ import { outboxSize } from "@/lib/offline/db";
 import { forgetThisDevice } from "@/lib/offline/forget";
 import { BAR, CORE, DESTINATIONS, isUnder, litRow, PINNABLE, SECTIONS, type Destination, type NavSection } from "@/lib/ux/nav";
 import { isCoreRow, railRows } from "@/lib/ux/navOrder";
+import { classRows, type RailClass } from "@/lib/ux/classRows";
 import { NavEditor } from "@/components/nav/NavEditor";
 import { NavMarker } from "@/components/NavMarker";
 import { Wordmark } from "@/components/brand";
@@ -43,7 +44,9 @@ import { useModalFocus } from "@/components/useModalFocus";
  * setup — live in `app/(chromeless)/` and never render this at all, which is
  * why there is no path list here to keep in sync.
  */
-export function Sidebar({ order: stored, name }: { order: readonly string[]; name: string | null }) {
+export function Sidebar({ order: stored, name, classes = [] }: {
+  order: readonly string[]; name: string | null; classes?: readonly RailClass[];
+}) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   /*
@@ -106,7 +109,13 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
 
   const active = (href: string) => isUnder(href, pathname);
   const rows = railRows(order);
-  const lit = litRow(rows, pathname);
+  /*
+    The classes the learner is in, under their own rows. Not part of `order`,
+    because they are not a choice about the column: they arrive when somebody
+    joins and go when they leave or the class is archived.
+  */
+  const classLinks = classRows(classes);
+  const lit = litRow([...rows, ...classLinks], pathname);
   /*
     The phone sheet is every place under the five homes, whether or not the
     learner pinned it: the rail is a column somebody chose, and the sheet is
@@ -222,6 +231,22 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
           {rows.map((item) => (
             <RailLink key={item.href} item={item} active={lit === item.href} pinned={!isCoreRow(item.href)} />
           ))}
+          {classLinks.length > 0 && (
+            <div
+              role="group"
+              aria-labelledby="rail-classes"
+              data-rail-classes
+              className="mt-2 flex flex-col gap-1 border-t pt-3"
+              style={{ borderColor: "var(--rule-soft)" }}
+            >
+              <span id="rail-classes" className="px-3.5 text-xs font-semibold" style={{ color: "var(--ink-3)" }}>
+                {classLinks.length === 1 ? "Your class" : "Your classes"}
+              </span>
+              {classLinks.map((item) => (
+                <RailLink key={item.href} item={item} active={lit === item.href} pinned={false} classRow />
+              ))}
+            </div>
+          )}
         </div>
 
         {/*
@@ -485,6 +510,16 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
               </button>
             </div>
             <div className="flex flex-col gap-5">
+              {classLinks.length > 0 && (
+                <section aria-labelledby="sheet-classes" data-sheet-classes>
+                  <h3 id="sheet-classes" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>
+                    {classLinks.length === 1 ? "Your class" : "Your classes"}
+                  </h3>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {classLinks.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
+                  </div>
+                </section>
+              )}
               {sheet.map((section) => (
                 <section key={section.id} aria-labelledby={`sheet-${section.id}`}>
                   <h3 id={`sheet-${section.id}`} className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>
@@ -538,7 +573,9 @@ export function Sidebar({ order: stored, name }: { order: readonly string[]; nam
  * inline style beats a class hover, silently. `app/nav.css` spends it when
  * the pointer's pane arrives underneath.
  */
-function RailLink({ item, active, pinned }: { item: Destination; active: boolean; pinned: boolean }) {
+function RailLink({ item, active, pinned, classRow = false }: {
+  item: Destination; active: boolean; pinned: boolean; classRow?: boolean;
+}) {
   const home = item.href === "/";
   return (
     <Link
@@ -558,7 +595,9 @@ function RailLink({ item, active, pinned }: { item: Destination; active: boolean
         aria-hidden
         className="nav-glyph h-2.5 w-2.5 shrink-0 transition-colors"
         style={{
-          borderRadius: pinned ? "2px" : "50%",
+          // A class is a diamond: neither one of the five nor a pin.
+          borderRadius: pinned || classRow ? "2px" : "50%",
+          transform: classRow ? "rotate(45deg) scale(0.85)" : undefined,
           background: home ? "var(--butter)" : active ? "var(--accent)" : "color-mix(in oklab, var(--ink-3) 42%, transparent)",
           boxShadow: active ? `0 0 0 4px color-mix(in oklab, var(${home ? "--butter" : "--accent"}) 24%, transparent)` : undefined,
         }}
