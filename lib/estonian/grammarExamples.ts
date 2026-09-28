@@ -722,25 +722,25 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
  */
 export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
   "topic:participles|Four of them: active and impersonal, present and past":
-    "a count of how many there are rather than a thing a sentence does, and the three points beside it are where each one is shown",
+    "it's a count, not something a sentence does, and the three points beside it show each one",
   "topic:impersonal|Has its own forms across the tenses":
-    "a claim about the whole table of forms, which one sentence in one tense cannot show",
+    "it's about the whole table of forms, and one sentence in one tense can't show that",
   "topic:infinitives|Both are stored, because neither predicts the other":
-    "a fact about the lexicon rather than about a sentence: the two points above it are where each infinitive is shown at work",
+    "it's a fact about the dictionary, not a sentence. The two points above show each infinitive at work",
   "topic:government|The dictionary records it as the question the verb answers":
-    "about what the dictionary stores rather than about Estonian, and the entry's own government block is where a learner reads it",
+    "it's about what the dictionary stores, not about Estonian. Each entry's own government block shows it",
   "case:NOMINATIVE|The form you look a word up under":
     "about how the dictionary is indexed rather than about a sentence, and every entry on every page demonstrates it",
   "case:GENITIVE|The stem every ending below needs":
     "a claim about the eleven cases built on it, which the build-a-word walk shows on a word the reader picks",
   "topic:gradation|The written kind changes consonants and can be spotted":
-    "the change is between two forms of one word and a pin holds one sentence, so what shows it is the entry's own principal parts and the exceptions area beside them",
+    "the change happens between two forms of one word, and a pin holds one sentence. The entry's principal parts and the exceptions area show it instead",
   "topic:gradation|The other kind is a change in length that spelling hides":
     "spelling does not record it, so no written sentence can show it; the minimal pairs round plays the difference instead",
   "topic:gradation|Which words do it is a property of the word":
     "a fact about the dictionary, which the entry's own gradation chip names word by word",
   "topic:word-order|New information tends to go last":
-    "a contrast between two orders of one sentence, and a pin holds one sentence rather than a pair",
+    "it's a contrast between two orders of one sentence, and a pin holds one sentence, not a pair",
   "topic:emphasis|Move a word to the front to stress it":
     "the same sentence in two orders is what shows this, and a pin holds one of them",
   "topic:emphasis|Word order stands in for the stress English puts in the voice":
@@ -752,11 +752,11 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
   "topic:reported-speech|The tense does not shift back the way English does":
     "a contrast with English tense agreement, which needs the English original beside it",
   "topic:concession|Conjunctions that subordinate a concession":
-    "the dictionary records kuigi almost only in its other sense, not very, so nothing attested shows the conjunction",
+    "the dictionary records kuigi almost only in its other sense, not very, so no recorded sentence shows the conjunction",
   "topic:concession|The core move of any argued essay":
     "about how an argument is built rather than about a sentence, and no single line is an argument",
   "topic:subordination|The comma before a subordinate clause is compulsory":
-    "the point is a comma somebody left out, and every recorded sentence has it",
+    "the point is a comma somebody left out, and every recorded sentence already has it",
   "topic:subordination|Chains of clauses are normal in writing, rare in speech":
     "a claim about how often a shape turns up in two registers, which one sentence cannot carry",
   "topic:quotative|Common in news writing, where the source matters":
@@ -768,7 +768,7 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
   "topic:nominalisation|An action noun replaces a subordinate clause":
     "the point is the clause it replaces, so it needs the pair rather than the result",
   "topic:nominalisation|The doer becomes a genitive in front of it":
-    "only legible beside the clause it was rewritten from, which no recorded usage carries",
+    "it only makes sense beside the clause it was rewritten from, and no recorded usage carries that",
   "topic:nominalisation|Standard in academic, legal and official writing":
     "about which register the shape belongs to, and the dictionary records the sentence rather than where it was written",
   "topic:punctuation|A comma before a subordinate clause, pause or no pause":
@@ -786,9 +786,9 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
   "topic:collocation|Pairings fixed by convention rather than by grammar":
     "what teaches a pairing is the wrong one beside it, and this app may not write the wrong one",
   "topic:collocation|Near-synonyms that do not swap in context":
-    "needs the swap that does not work, which would be Estonian nobody wrote",
+    "it needs the swap that doesn't work, which would be Estonian nobody wrote",
   "topic:collocation|The last thing learned, the first thing noticed":
-    "about how the thing is acquired rather than about the language",
+    "it's about how people pick it up, not about the language itself",
   "topic:irony|Carried by intonation, understatement and context":
     "intonation and context are what carry it, and a recorded sentence arrives without either",
   "topic:irony|Understatement is the commonest form here":
@@ -800,7 +800,7 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
   "topic:nuance|Shades a bilingual dictionary flattens":
     "about what a translation leaves out, which the English under a sentence would leave out too",
   "topic:nuance|Settled by reading real usage, not definitions":
-    "advice about how to learn the thing rather than a construction to see",
+    "it's advice on how to learn this, not a construction you can see",
   "topic:variation|Regional dialects, some quite far from the standard":
     "the dictionary records the standard, so nothing dialectal is in the corpus to point at",
   "topic:variation|The gap between the written standard and speech":
