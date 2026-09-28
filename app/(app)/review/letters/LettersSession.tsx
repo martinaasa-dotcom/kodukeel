@@ -14,6 +14,7 @@ import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/Lo
 import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { lettersOf, ratingFor, tileForKey, type Tile } from "@/lib/games/letters";
+import { Lettered } from "@/components/HeroLetters";
 
 export interface LettersWord {
   cardId: string;
@@ -122,17 +123,19 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
     const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            Every word spelled
-          </h1>
-          <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-            {firstTry === attempted && attempted > 0
-              ? "Every one first time. The letters are yours."
-              : "Tubli. The ones that took two goes are the ones worth hearing again."}
-          </p>
-        </div>
+        <Lettered celebrate>
+          <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
+            <Mascot size={68} mood="cheer" className="float mx-auto" />
+            <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+              Every word spelled
+            </h1>
+            <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
+              {firstTry === attempted && attempted > 0
+                ? "Every one first time. The letters are yours."
+                : "Tubli. The ones that took two goes are the ones worth hearing again."}
+            </p>
+          </div>
+        </Lettered>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={firstTry} label="First time" tone="mint" />
           <StatTile value={`${accuracy}%`} label="Spelled" tone={accuracy >= 85 ? "mint" : "butter"} />
