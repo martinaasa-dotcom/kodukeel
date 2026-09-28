@@ -4,7 +4,8 @@ import { useCallback, useRef, useState } from "react";
 
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
-import { Card, Chip } from "@/components/ui";
+import { Card, Chip, StatTile } from "@/components/ui";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { AddWordButton } from "@/components/AddWordButton";
 import { DrillLink } from "@/components/DrillLink";
 import type { SceneSpec } from "@/lib/scenes/types";
@@ -14,6 +15,7 @@ import { curveballById } from "@/lib/scenes/curveballs";
 import { errandForScene, errandPlaces, SAY_IT_TODAY } from "@/lib/collections/errands";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
+import type { SceneRecap } from "@/lib/scenes/recap";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { NextStep } from "@/components/round/RoundExit";
 
@@ -68,6 +70,8 @@ export interface Debrief {
   gaps: readonly { lemma: string; lexemeId: string | null }[];
   /** What to do differently, in English, derived from the run (`lib/scenes/review.ts`). */
   review: SceneReview;
+  /** The whole run at a glance: headline, stats, highlights, a note per turn (`lib/scenes/recap.ts`). */
+  recap: SceneRecap;
   graded: number;
   /** The conversation, both sides, in order. A stage direction is not a line and is left out. */
   /*
@@ -85,7 +89,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   /* Whether this conversation is a step of tonight's module, which decides
      whether the debrief carries a way on of its own. */
   const inModule = useModuleFocus() !== null;
-  const { scene, objectives, hurdles, outcome, gaps, turns, graded, review } = debrief;
+  const { scene, objectives, hurdles, outcome, gaps, turns, graded, review, recap } = debrief;
   const byId = new Map(scene.beats.map((beat) => [beat.id, beat]));
   const required = scene.beats.filter((beat) => beat.required);
   const missed = objectives.missed.length > 0 ? byId.get(objectives.missed[0]!) : undefined;
@@ -124,15 +128,69 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
 
   return (
     <div className="flex flex-col gap-6">
-      {/* What happened, first, before any teaching. */}
+      {/*
+        THE RUN AT A GLANCE, FIRST (`lib/scenes/recap.ts`). The headline is
+        about what got done, in the learner's terms; the outcome is the scene's
+        own sentence about how it ended; the four figures are things that
+        happened in the conversation, never a score.
+      */}
       <Card tone="night" className="scene-night scene-done evening flex flex-col gap-2">
-        <h2 className="font-medium">
-          {outcome?.says ?? "The conversation ended before it got anywhere."}
-        </h2>
-        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          {objectives.met.length} of {required.length} things you came in to get done.
-        </p>
+        <p className="label-xs" style={{ color: "var(--ink-3)" }}>Your conversation, reviewed</p>
+        <h2 className="font-display text-2xl leading-tight">{recap.headline}</h2>
+        {outcome?.says && (
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{outcome.says}</p>
+        )}
       </Card>
+      <div data-recap-stats className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {recap.stats.map((stat, at) => (
+          <StatTile key={stat.label} value={stat.value} label={stat.label} tone={STAT_TONES[at % STAT_TONES.length]} />
+        ))}
+      </div>
+      {recap.highlights.length > 0 && (
+        <section data-recap-highlights>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What went well</h3>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {recap.highlights.map((highlight) => (
+              <li key={highlight.title}>
+                <Card className="flex h-full flex-col gap-2">
+                  <p className="flex items-center gap-2 font-medium">
+                    <Sparkles size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
+                    {highlight.title}
+                  </p>
+                  {highlight.said && (
+                    /*
+                      Their own words, in the bubble they typed them in, because a
+                      highlight is something somebody recognises about themselves.
+                    */
+                    <div className="night scene-night self-start rounded-[var(--r-lg)] p-2">
+                      <p data-who="you" lang="et" className="scene-bubble scene-bubble-sm inline-block max-w-full">
+                        <span className="sr-only">You said: </span>{highlight.said}
+                      </p>
+                    </div>
+                  )}
+                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>{highlight.detail}</p>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {recap.nextTime.length > 0 && (
+        <section data-recap-next>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Try next time</h3>
+          <ul className="flex flex-col gap-2">
+            {recap.nextTime.map((tip) => (
+              <li key={tip.title} className="flex items-start gap-2">
+                <ArrowRight size={16} aria-hidden className="mt-1" style={{ color: "var(--accent-deep)" }} />
+                <p className="text-sm">
+                  <span className="font-medium">{tip.title}.</span>{" "}
+                  <span style={{ color: "var(--ink-2)" }}>{tip.detail}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section>
         {/*
@@ -373,6 +431,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                 const mine = turn.who === "you" ? (said += 1) : null;
                 const here = mine !== null && mine === showing;
                 const word = mine !== null ? wordAt.get(mine) : undefined;
+                const moment = mine !== null ? recap.moments[mine] : undefined;
                 return (
                   <li
                     key={index}
@@ -434,6 +493,25 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                           : turn.text}
                       </span>
                     </div>
+                    {/*
+                      How that turn went, in a few words, under the learner's own
+                      bubble, and the dictionary's form beside any word that came
+                      out differently. Never a mark: a miss is described, in the
+                      neutral ink, as what happened.
+                    */}
+                    {moment && (
+                      <p data-moment={moment.tone} className="mt-1 text-xs" style={{ color: MOMENT_INK[moment.tone] }}>
+                        {moment.label}
+                        {moment.fixes.map((fix) => (
+                          <span key={fix.said}>
+                            {": "}
+                            <span lang="et">{fix.said}</span>
+                            {" \u2192 "}
+                            <span lang="et" className="font-medium">{fix.form}</span>
+                          </span>
+                        ))}
+                      </p>
+                    )}
                   </li>
                 );
               });
@@ -546,3 +624,13 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
     </div>
   );
 }
+
+/** The top rule on each figure, in the brand mix, so the row reads as four things. */
+const STAT_TONES = ["sky", "accent", "butter", "blush"] as const;
+
+/** A turn note's ink: sky for landed, butter for nearly, and the quiet ink for the rest. */
+const MOMENT_INK: Record<"right" | "nearly" | "neutral", string> = {
+  right: "var(--sky-ink)",
+  nearly: "var(--butter-ink)",
+  neutral: "var(--ink-3)",
+};

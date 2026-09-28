@@ -1717,6 +1717,7 @@ export async function finishScene(input: {
     hurdles: finished.hurdles,
     outcome: finished.outcome,
     turns: finished.turns,
+    recap: finished.recap,
     gaps: finished.gaps,
     review: finished.review,
     graded,

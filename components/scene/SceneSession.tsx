@@ -897,6 +897,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       gaps: result.gaps,
       graded: result.graded,
       review: result.review,
+      recap: result.recap,
       turns: turnsRef.current.flatMap((turn): Debrief["turns"][number][] => {
         if (turn.who === "you") return [{ who: "you", text: turn.text, lang: "et" }];
         /*

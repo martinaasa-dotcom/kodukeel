@@ -32,6 +32,7 @@
  * how the marker's tolerance and the asides were shaped.
  */
 import { FAREWELLS, SCENES, sceneById } from "../lib/scenes/catalogue";
+import { ASKS_ON } from "../lib/scenes/curveballs";
 import { saysGoodbye } from "../lib/scenes/casual";
 import {
   MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, moneyInPlay, replay, sceneLemmas, type Row,
@@ -183,7 +184,7 @@ async function simulatedLearner(kind: string, title: string, role: string, card:
   ].filter(Boolean).join("\n");
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`, {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 60, temperature: 1, thinkingConfig: { thinkingBudget: 0 } } }),
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 60, thinkingConfig: { thinkingBudget: 0 } } }),
   }).catch(() => null);
   const data = res && res.ok ? await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] } : null;
   return (data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "jah").split("\n")[0]!.replace(/^You:\s*/i, "").trim() || "jah";
@@ -497,7 +498,10 @@ async function play(sceneId: string) {
           p.kind === "word" || p.kind === "weekday" ? [[p.slot, p.oneOf] as const] : [])),
         roll: state.turns.length, met: last?.met ?? [],
       }) : null,
-      hurdle: standing ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said } : null,
+      hurdle: standing ? {
+        beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said,
+        then: ASKS_ON.has(hurdleSpec(state)?.id ?? "") ? (context.scripted.get(beat?.id ?? "") ?? []).find((t) => !used.has(t)) ?? null : null,
+      } : null,
     });
     if (last) {
       const notes = [

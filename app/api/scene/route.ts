@@ -19,6 +19,7 @@ import {
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "@/lib/scenes/judge";
 import { leafNeeds } from "@/lib/scenes/types";
 import { FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
+import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { saysGoodbye } from "@/lib/scenes/casual";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
@@ -617,12 +618,14 @@ export async function POST(request: Request) {
     again, so a booking for a fresh one would be a booking for a line that is
     not wanted (§16).
   */
+  // The question waiting behind a curveball that carries straight on with it (`ASKS_ON`).
+  const askedOn = ASKS_ON.has(hurdleSpec(state)?.id ?? "") ? fresh(speaking?.id)[0] ?? null : null;
   const reply = (line: SpokenLine | null) => replyFor({
     beat: speaking,
     // A turn that answered a beat the other side had moved past is not a miss.
     landed: elsewhere > 0,
     hurdle: standing
-      ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said }
+      ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said, then: askedOn }
       : null,
     answered: turns.length > 0 ? answered : null,
     response: turns.length > 0 ? response : null,

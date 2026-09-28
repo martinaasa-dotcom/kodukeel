@@ -50,6 +50,7 @@ import {
 } from "@/lib/scenes/state";
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
+import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
 import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
 import { saysGoodbye } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
@@ -908,6 +909,7 @@ export interface FinishedRun {
   readonly grades: readonly SceneGrade[];
   /** What to do differently, in English, derived from the transcript. */
   readonly review: SceneReview;
+  readonly recap: SceneRecap;
   /** Words the run needed and the learner did not have, for the debrief. */
   /**
    * Words the run needed and the learner did not have, for the debrief.
@@ -1267,6 +1269,7 @@ export async function finishRun(input: {
     turns: state.turns,
     grades,
     review,
+    recap: recapOf(scene, state),
     gaps: wanted.map((lemma) => ({ lemma, lexemeId: byLemma.get(lemma) ?? null })),
   };
 }

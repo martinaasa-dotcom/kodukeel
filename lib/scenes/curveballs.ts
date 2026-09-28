@@ -214,7 +214,12 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       do next: it printed on screen as "Ask them to slow down. Free, always,
       and taught."
     */
-    out: "Ask them to slow down.",
+    /*
+      They are in a hurry, and the question they were about to ask still comes
+      (`ASKS_ON`), so answering it is as good a way through as asking them to
+      slow down: a turn that meets the beat behind a curveball lets it go.
+    */
+    out: "They are in a hurry. Answer them, or ask them to slow down.",
     /*
       AND ASKING SOMEBODY TO SLOW DOWN IS A REQUEST, NOT A QUESTION. This
       took a question alone, so `Palun rääkige aeglasemalt`, which is exactly
@@ -523,3 +528,11 @@ export function switchesRegisterAt(beatId: string): boolean {
 export function curveballById(id: string): CurveballSpec | undefined {
   return CURVEBALLS.find((c) => c.id === id);
 }
+
+/**
+ * The curveballs after which the other side carries straight on with the
+ * question that was waiting (`ReplyInput.hurdle.then`): somebody in a hurry
+ * still asks it, and somebody who wants one thing at a time asks for that
+ * thing. Not "interrupted", where the whole point is that they stopped.
+ */
+export const ASKS_ON: ReadonlySet<string> = new Set(["faster", "their-order"]);

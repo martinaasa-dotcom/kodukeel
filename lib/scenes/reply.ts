@@ -98,6 +98,13 @@ export interface ReplyInput {
     readonly line: SpokenLine | null;
     /** The curveball's own English line, where it is one (they switched to English). */
     readonly said?: string;
+    /**
+     * The question waiting behind a curveball that asks nothing of its own,
+     * said after it on the turn it arrives. "Kiire on, palun kohe." stood in
+     * place of "large or small?", so a learner was hurried along to answer a
+     * question nobody had asked them; a person in a hurry still asks it.
+     */
+    readonly then?: string | null;
   } | null;
   /**
    * The learner's own word that met the beat, to be repeated back: "Poodi."
@@ -1074,6 +1081,10 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     else if (input.hurdle.said) out.push({ text: input.hurdle.said, provenance: "english" });
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
+    const last = out[out.length - 1];
+    if (input.hurdle.then && last && last.provenance !== "again" && last.provenance !== "composed" && last.text !== input.hurdle.then) {
+      out.push({ text: input.hurdle.then, provenance: "scripted" });
+    }
     if (response === "english" && (input.translates || input.askedForEnglish)) {
       out.push(stage(stageFor(input.hurdle.beat, card)));
     }
