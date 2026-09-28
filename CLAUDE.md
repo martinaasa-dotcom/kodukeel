@@ -9633,8 +9633,9 @@ after the answer rather than before it, for the reason the paragraph above gives
 clause at all: the sentence is what says which form is wanted, and a clause naming the case in front
 of the gap is the answer in two pieces.
 
-**Correct is green and wrong is red, and for a year every screen decided that for itself.** The
-palette had fixed it since it was drawn: mint is recalled, butter is nearly, peach is missed, each
+**Correct is sky and wrong is blush, and for a year every screen decided that for itself.** The
+palette had fixed it since it was drawn: recalled, nearly and missed (mint, butter and peach until
+2026-09-28, when right and wrong moved into the brand mix as sky and blush), each
 with a tint to paint a panel and an ink to write on it. What it had not done was hold twenty
 screens to it. Each round marked an answer out of the tokens by hand, and the copies disagreed in
 every way copies can. Four rounds wrote their verdict in the fill, at 2.2:1 in the light theme,
@@ -9656,8 +9657,8 @@ same weight as the wrong pick. Every screen that marks an answer reads it, none 
 tint by hand, and the invariant finds the marking screens by the markers they call rather than by
 a list. Two things stay outside it on purpose: Sõnad, whose three kinds of object are argued at
 the top of its own file, and the selections on the examination paper, which are accent because a
-tick is a choice and mint is what a marked answer wears. The sprint's clock in its last ten
-seconds is peach by the hue's name rather than by the grade's, because it is overdue rather than
+tick is a choice and sky is what a marked answer wears. The sprint's clock in its last ten
+seconds is blush by the hue's name rather than by the grade's, because it is overdue rather than
 wrong, which is the same colour meaning a different thing and is written down as such.
 
 **And the box that verdict is said in was four sizes, three of them under the body step.** The
@@ -9702,7 +9703,7 @@ it where a form is read letter by letter, and the sentence and the provenance un
 
 The panel also had **two outcomes where the round has three**. `markFlash` returns a middle rating
 for the right word in the wrong ending, which is the near miss this round exists to catch, and the
-screen put it in the same box as a blank. Mint means recalled, butter means nearly and peach means
+screen put it in the same box as a blank. Sky means recalled, butter means nearly and blush means
 missed, and those are exactly the three, so the box says which without anybody reading a word, and
 says it in words as well, because a hue is never the only thing carrying a distinction here.
 
@@ -10063,12 +10064,12 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   branch and taken with `npm run shoot -- /route` in both themes, never drawn as standalone HTML:
   one was, in Bricolage Grotesque and Figtree and a lilac of its own, and asked to be trusted as the
   real screen. **The faces are Onest and Schibsted Grotesk, the brand mix is Vikerkaar öös (butter,
-  blush, the accent, sky, the night `--stage`), and mint and peach are verdicts, never a lead
-  panel's fill.** The finished evening wears `.evening` on the accent tint. Asserted in
+  blush, the accent, sky, the night `--stage`), and nothing else: right is sky and wrong is blush,
+  and mint and peach are not defined at all.** The finished evening wears `.evening` on the accent tint. Asserted in
   `scripts/invariants/the-agreed-fonts-and-palette.ts`, each arm made to fail on the real fault.
 - Style through the tokens in `app/globals.css`, never with a raw hex. The five hues carry fixed
-  meanings (`docs/14-design-system.md` §1). Mint is "recalled", peach is "missed", and neither is
-  free for decoration. **A hue has a fill and an ink and they are not interchangeable**: `--accent`
+  meanings (`docs/14-design-system.md` §1). Sky is "recalled" and blush is "missed", always with a
+  tick, a cross or a word beside them, since both are brand colours too. **A hue has a fill and an ink and they are not interchangeable**: `--accent`
   is what a button is painted, `--accent-deep` is what a word is written in, and text set in the
   fill measured 3.87 on the week header and 4.05 in the leech clinic against a bar of 4.5. Contrast
   is measured in a browser rather than reasoned about from the token list, and **in both themes**,
@@ -11419,9 +11420,9 @@ measures them now, and the exemption is `data-ornament` in the markup rather
 than a length: a 92px step numeral in a hue's own tint, behind a card that says
 the same thing in words, is decoration and has to say so. `aria-hidden` cannot
 stand in for it, because the tick carries that too and is still the thing a
-sighted reader looks at. The fix on the other side was `--on-mint`, since
-`--mint-ink` is the ink on mint's *tint* and there was nothing for its solid
-fill (docs/14-design-system.md §"Every hue has an ink").
+sighted reader looks at. The fix on the other side was `--on-mint`, now `--on-sky`
+since recalled moved to sky, because a hue's ink is for its *tint* and there
+was nothing for its solid fill (docs/14-design-system.md §"Every hue has an ink").
 
 **An integration test over the shipped dictionary states that it is the shipped dictionary.** The
 crossword compiler is a fact about a real pool of words at a real level, so a dictionary another

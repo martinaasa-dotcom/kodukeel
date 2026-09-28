@@ -244,7 +244,7 @@ export default async function PracticePage() {
                   twelve under it still fill their rows. */}
               <div className="@lg:col-span-2 @3xl:col-span-3">
                 <ModeTile
-                  mode={{ href: "/situations", tone: "mint", icon: "MessagesSquare", title: "Situations" }}
+                  mode={{ href: "/situations", tone: "sky", icon: "MessagesSquare", title: "Situations" }}
                   line="Somebody behind a desk wants something from you. Five to eight minutes."
                 />
               </div>

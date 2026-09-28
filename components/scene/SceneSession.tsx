@@ -1149,7 +1149,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           ))}
         </ChoiceGroup>
 
-        {error && <p className="text-sm" style={{ color: "var(--peach-ink)" }}>{error}</p>}
+        {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{error}</p>}
         <Button onClick={start} disabled={busy} variant="primary" size="lg">
           {busy ? "Getting ready" : "Start the conversation"}
         </Button>
@@ -1429,7 +1429,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                       push its own bullet onto a line of its own, which reads as
                       a list that has come apart.
                     */}
-                    <span aria-hidden className="shrink-0" style={{ color: met ? "var(--mint-ink)" : now ? "var(--accent-deep)" : "var(--ink-3)" }}>
+                    <span aria-hidden className="shrink-0" style={{ color: met ? "var(--sky-ink)" : now ? "var(--accent-deep)" : "var(--ink-3)" }}>
                       {met ? "✓" : now ? "→" : "○"}
                     </span>
                     <span className="flex min-w-0 flex-wrap items-center gap-x-2">
@@ -1933,7 +1933,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               <span style={{ color: "var(--ink-2)" }}>, {lent.gloss}</span>
             </p>
           )}
-          {error && <p className="text-sm" style={{ color: "var(--peach-ink)" }}>{error}</p>}
+          {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{error}</p>}
 
           {/*
             Closed while the room is moving, and closed by the field itself

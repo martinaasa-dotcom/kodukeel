@@ -71,7 +71,6 @@ import {
  */
 const HUES = {
   blush: { fill: "var(--blush-soft)", ink: "var(--blush-ink)" },
-  mint: { fill: "var(--mint-soft)", ink: "var(--mint-ink)" },
   sky: { fill: "var(--sky-soft)", ink: "var(--sky-ink)" },
   butter: { fill: "var(--butter-soft)", ink: "var(--butter-ink)" },
   accent: { fill: "var(--accent-soft)", ink: "var(--accent-deep)" },

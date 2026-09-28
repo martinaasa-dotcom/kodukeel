@@ -62,9 +62,9 @@ const css = (declarations: Record<string, string>): Html =>
 export function letterTiles(letters: readonly string[] = ["õ", "ä", "ö", "ü"]): Html {
   const tints: [string, string][] = [
     [P.accentSoft, P.accentDeep],
-    [P.mintSoft, P.mintInk],
+    [P.skySoft, P.skyInk],
     [P.butterSoft, P.butterInk],
-    [P.peachSoft, P.peachInk],
+    [P.blushSoft, P.blushInk],
   ];
   const cells = letters.map((letter, i) => {
     const [bg, ink] = tints[i % tints.length] ?? tints[0]!;
@@ -102,14 +102,14 @@ export interface StepRow {
  * also the easiest list in the world to start.
  *
  * Drawn as the app draws it, so that the letter and the screen it opens are
- * recognisably the same object. What is done is mint with a tick; what is
+ * recognisably the same object. What is done is sky with a tick; what is
  * waiting is the ordinary ink with an open circle. Neither is red, and nothing
  * here is scolded: a step not yet taken is a step waiting, which is what it is.
  */
 export function stepLadder(steps: readonly StepRow[]): Html {
   const rows = steps.map((step) => {
     const mark = step.done ? TICK : RING;
-    const markInk = step.done ? P.mintInk : P.ink3;
+    const markInk = step.done ? P.skyInk : P.ink3;
     const titleInk = step.done ? P.ink3 : P.ink;
     return html`<tr>
       <td width="28" valign="top" style="${css({
@@ -147,9 +147,9 @@ export function stepLadder(steps: readonly StepRow[]): Html {
  * not started should look like a bar that has not started rather than like a
  * bar that failed to render.
  */
-export function meter(pct: number, tone: "accent" | "mint" = "accent"): Html {
+export function meter(pct: number, tone: "accent" | "sky" = "accent"): Html {
   const filled = Math.max(2, Math.min(100, Math.round(pct)));
-  const fill = tone === "mint" ? P.mint : P.accent;
+  const fill = tone === "sky" ? P.sky : P.accent;
   return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${css(
     { "border-radius": "6px", overflow: "hidden", "background-color": P.raised },
   )}"><tr>
@@ -208,8 +208,8 @@ export function weekStrip(days: readonly { label: string; studied: boolean }[]):
     (day) => html`<td align="center" width="14%" style="${css({ padding: "0 3px" })}">
       <div style="${css({ color: P.ink3, "font-size": "11px", "line-height": "16px", "letter-spacing": "0.04em" })}">${day.label}</div>
       <div style="${css({
-        "background-color": day.studied ? P.mintSoft : P.raised,
-        color: day.studied ? P.mintInk : P.ink3,
+        "background-color": day.studied ? P.skySoft : P.raised,
+        color: day.studied ? P.skyInk : P.ink3,
         "border-radius": "8px",
         "font-size": "14px",
         "line-height": "30px",

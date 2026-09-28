@@ -10,7 +10,7 @@ import {
 } from "@/lib/copy/entryLocales";
 
 const WHO_ICONS = [House, Heart, ClipboardCheck, Briefcase] as const;
-const WHO_TONES = ["accent", "blush", "mint", "sky"] as const;
+const WHO_TONES = ["accent", "blush", "sky", "butter"] as const;
 
 export function entryMetadata(locale: EntryLocale): Metadata {
   const copy = ENTRY_COPY[locale];
@@ -130,7 +130,7 @@ export function EntryPage({ locale }: { locale: EntryLocale }) {
           <ul className="mx-auto mt-8 flex max-w-2xl flex-col gap-3">
             {copy.what.map((line) => (
               <li key={line} className="flex gap-3 rounded-[var(--r-lg)] border px-5 py-4 text-md" style={{ background: "var(--surface)", borderColor: "var(--rule)", color: "var(--ink-2)" }}>
-                <Check size={18} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--mint-ink)" }} />
+                <Check size={18} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--sky-ink)" }} />
                 <span>{line}</span>
               </li>
             ))}

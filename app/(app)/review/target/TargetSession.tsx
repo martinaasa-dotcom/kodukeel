@@ -157,12 +157,12 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
       <Page title="Target" lead="Round over.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <span className="flex h-20 w-20 items-center justify-center rounded-full quest-pop"
-            style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
+            style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}>
             <Trophy size={34} aria-hidden />
           </span>
           <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
-            <StatTile value={hits} label="Hit" tone="mint" />
-            <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "mint" : "butter"} />
+            <StatTile value={hits} label="Hit" tone="sky" />
+            <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "sky" : "butter"} />
             <StatTile value={best} label="Best run" tone="blush" />
           </div>
           <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -204,7 +204,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         <div className="h-full rounded-full"
           style={{
             width: `${Math.max(0, pct)}%`,
-            background: left <= 2 ? "var(--again-ink)" : "var(--peach-ink)",
+            background: left <= 2 ? "var(--again-ink)" : "var(--blush-ink)",
             transition: "width 100ms linear",
           }} />
       </div>
@@ -215,7 +215,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         </p>
         {question.question ? (
           <>
-            <p lang="et" className="text-xl font-semibold" style={{ color: "var(--peach-ink)" }}>
+            <p lang="et" className="text-xl font-semibold" style={{ color: "var(--blush-ink)" }}>
               {question.question}
             </p>
             {/* The question word is what an Estonian says; the line under it is

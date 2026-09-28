@@ -182,11 +182,11 @@ export interface Band {
 
 /** The verbal assessment printed beside a real result. */
 export const BANDS: readonly Band[] = [
-  { min: 91, label: "very good", tone: "mint" },
-  { min: 76, label: "good", tone: "mint" },
+  { min: 91, label: "very good", tone: "sky" },
+  { min: 76, label: "good", tone: "sky" },
   { min: 60, label: "satisfactory", tone: "sky" },
   { min: 50, label: "poor", tone: "butter" },
-  { min: 0, label: "not up to the level", tone: "peach" },
+  { min: 0, label: "not up to the level", tone: "blush" },
 ] as const;
 
 export function bandFor(pct: number): Band {

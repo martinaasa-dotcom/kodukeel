@@ -27,7 +27,7 @@ export function InstallPanel() {
 
   if (installed) {
     return (
-      <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--mint-ink)" }}>
+      <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--sky-ink)" }}>
         <Check size={14} aria-hidden /> Installed on this device.
       </p>
     );

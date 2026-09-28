@@ -125,7 +125,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   return (
     <div className="flex flex-col gap-6">
       {/* What happened, first, before any teaching. */}
-      <Card tone="mint" className="flex flex-col gap-2">
+      <Card tone="accent" className="flex flex-col gap-2">
         <h2 className="font-medium">
           {outcome?.says ?? "The conversation ended before it got anywhere."}
         </h2>
@@ -150,7 +150,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             const met = objectives.met.includes(beat.id);
             return (
               <li key={beat.id} className="flex items-center gap-2 text-sm">
-                <span aria-hidden style={{ color: met ? "var(--mint-ink)" : "var(--ink-3)" }}>
+                <span aria-hidden style={{ color: met ? "var(--sky-ink)" : "var(--ink-3)" }}>
                   {met ? "✓" : "○"}
                 </span>
                 <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{beat.goal}</span>
@@ -176,7 +176,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
               if (!spec) return null;
               return (
                 <li key={`${hurdle.id}-${hurdle.beat}`} className="flex items-start gap-2 text-sm">
-                  <span aria-hidden style={{ color: hurdle.met ? "var(--mint-ink)" : "var(--ink-3)" }}>
+                  <span aria-hidden style={{ color: hurdle.met ? "var(--sky-ink)" : "var(--ink-3)" }}>
                     {hurdle.met ? "✓" : "○"}
                   </span>
                   <span style={{ color: hurdle.met ? "var(--ink)" : "var(--ink-3)" }}>
@@ -464,8 +464,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             differently.
           */}
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{SAY_IT_TODAY}</h3>
-          <Card tone="mint">
-            <p className="text-base font-semibold" style={{ color: "var(--mint-ink)" }}>{errand.says}</p>
+          <Card tone="sky">
+            <p className="text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{errand.says}</p>
             {/*
               `errandPlaces` leads the sentence rather than following a colon.
               Every `where` in `lib/collections/errands.ts` is authored
@@ -474,12 +474,12 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
               would put that capital mid-sentence instead, on every errand
               but the single-place ones.
             */}
-            <p className="mt-1.5 text-sm" style={{ color: "var(--mint-ink)" }}>
+            <p className="mt-1.5 text-sm" style={{ color: "var(--sky-ink)" }}>
               {errandPlaces(errand)}. Nobody there has read the card, and that is the
               practice. Tomorrow, <Link href="/">Today</Link> asks how it went.
             </p>
             {cafe && (
-              <p className="mt-2 text-xs" style={{ color: "var(--mint-ink)" }}>
+              <p className="mt-2 text-xs" style={{ color: "var(--sky-ink)" }}>
                 Nobody to say it to? <a href={cafe.href} target="_blank" rel="noopener noreferrer" className="underline">{cafe.name}</a> runs
                 language cafés where people came to be spoken to.
               </p>

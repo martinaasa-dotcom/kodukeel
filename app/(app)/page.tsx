@@ -295,7 +295,7 @@ export default async function TodayPage() {
     <div className="flex flex-wrap items-center gap-4">
       <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[200px] sm:flex-1">
         <StatTile value={snapshot.dueCount} label="Due now" tone="accent" />
-        <StatTile value={toLearn} label="To learn" tone="mint" />
+        <StatTile value={toLearn} label="To learn" tone="sky" />
       </div>
       {/* On a phone the ring wraps onto its own line, where a bare
           circle says nothing — so it is captioned there and only there. */}
@@ -612,16 +612,16 @@ export default async function TodayPage() {
                   the contrast, double the rule instead. Three channels,
                   one of them hue.
 
-                  `--mint-ink` gives the circle a 5.79:1 boundary in
+                  `--sky-ink` gives the circle a 5.79:1 boundary in
                   light. In dark it is the mint itself, where the fill
                   already clears 11:1 and needs no help.
                 */
                 style={{
-                  background: d.done ? "var(--mint)" : "var(--raised)",
-                  // `--on-mint`, not `--surface`: white on this fill is
+                  background: d.done ? "var(--sky)" : "var(--raised)",
+                  // `--on-sky`, not `--surface`: white on this fill is
                   // 2.52:1 and the tick is the channel carrying
                   // "reviewed" without relying on the color.
-                  color: d.done ? "var(--on-mint)" : "var(--ink-3)",
+                  color: d.done ? "var(--on-sky)" : "var(--ink-3)",
                   /*
                     Today was marked with a 2px outline at a 2px offset, which
                     is this app's focus ring exactly, sitting permanently on a
@@ -635,7 +635,7 @@ export default async function TodayPage() {
                   boxShadow: d.isToday
                     ? "inset 0 0 0 2px var(--accent-deep)"
                     : d.done
-                      ? "inset 0 0 0 1.5px var(--mint-ink)"
+                      ? "inset 0 0 0 1.5px var(--sky-ink)"
                       : "none",
                   animationDelay: d.done ? `${i * 60}ms` : undefined,
                 }}

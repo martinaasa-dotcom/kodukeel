@@ -390,7 +390,7 @@ export function QuestSession({
                   <span aria-hidden className="mt-1.5 block h-2 overflow-hidden rounded-full" style={{ background: "rgb(255 255 255 / 0.1)" }}>
                     <span
                       className="block h-full rounded-full"
-                      style={{ width: `${Math.max(3, c.accuracy)}%`, background: c.accuracy < 60 ? "var(--peach)" : c.accuracy < 90 ? "var(--butter)" : "var(--mint)" }}
+                      style={{ width: `${Math.max(3, c.accuracy)}%`, background: c.accuracy < 60 ? "var(--blush)" : c.accuracy < 90 ? "var(--butter)" : "var(--sky)" }}
                     />
                   </span>
                   {c.question && (
@@ -411,8 +411,8 @@ export function QuestSession({
       <Page title="Daily quest" lead="That is where you stand today.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
-            <StatTile value={correct} label="Right" tone="mint" />
-            <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "mint" : "butter"} />
+            <StatTile value={correct} label="Right" tone="sky" />
+            <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "sky" : "butter"} />
             <StatTile value={bestStreak} label="Best run" tone="blush" />
           </div>
           <p className="max-w-[40ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

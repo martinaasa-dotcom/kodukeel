@@ -120,9 +120,9 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
 
 /** The fill the deck panel draws each state in, so a row and the bar agree. */
 function stateHue(row: CardRow): string {
-  if (row.lapses > 0) return "var(--peach)";
+  if (row.lapses > 0) return "var(--blush)";
   if (row.stateLabel === "New") return "var(--sky)";
-  if (row.stateLabel === "Review" || row.stateLabel === "Known") return "var(--mint)";
+  if (row.stateLabel === "Review" || row.stateLabel === "Known") return "var(--sky)";
   return "var(--cta)";
 }
 

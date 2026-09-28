@@ -114,7 +114,7 @@ export default async function ClassIndexPage() {
           <div className="grid gap-5 md:grid-cols-2">
             <section>
               <SectionTitle hint="students">Join a class</SectionTitle>
-              <Card tone="mint">
+              <Card tone="sky">
                 <JoinClass suggestedName={suggestedName} />
               </Card>
             </section>

@@ -783,7 +783,7 @@ export function LearnSession({
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatTile value={counts.kept} label="To practice" tone="mint" />
+          <StatTile value={counts.kept} label="To practice" tone="sky" />
           <StatTile value={counts.staying} label="Still learning" tone="butter" />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>

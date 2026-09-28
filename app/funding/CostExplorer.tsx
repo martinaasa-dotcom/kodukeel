@@ -303,7 +303,7 @@ export function CostExplorer() {
                               pct={pct}
                               height={6}
                               label={`${figureRow.label}, ${amount(figureRow)} against ${allowance(figureRow)}`}
-                              tone={past ? "var(--peach)" : "var(--accent)"}
+                              tone={past ? "var(--blush)" : "var(--accent)"}
                             />
                           </div>
                         </li>

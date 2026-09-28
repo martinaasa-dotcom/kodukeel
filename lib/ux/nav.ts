@@ -36,7 +36,7 @@
  */
 
 /** A hue from the palette. Five of them, and each one means something. */
-export type Tone = "accent" | "mint" | "sky" | "butter" | "peach" | "blush" | "ink";
+export type Tone = "accent" | "sky" | "butter" | "blush" | "ink";
 
 export interface Destination {
   /** Where it goes. The rail matches the current path against this. */
@@ -157,13 +157,13 @@ export const SECTIONS: NavSection[] = [
       },
       {
         href: "/learn", label: "Learn", blurb: "New words, five at a time, and the course they come from",
-        icon: "Sparkles", tone: "mint",
+        icon: "Sparkles", tone: "sky",
         keywords: "new words learn course units path lessons syllabus vocabulary teach",
         bar: true,
       },
       {
         href: "/practice", label: "Practice", blurb: "What is due, plus sprint, match, sentences and games",
-        icon: "Swords", tone: "peach", keywords: "games modes drill weakest case review due srs flashcards",
+        icon: "Swords", tone: "blush", keywords: "games modes drill weakest case review due srs flashcards",
         bar: true,
       },
       /*
@@ -187,7 +187,7 @@ export const SECTIONS: NavSection[] = [
       */
       {
         href: "/situations", label: "Situations", blurb: "Book an appointment, hand in a form, ring a landlord",
-        icon: "MessagesSquare", tone: "mint",
+        icon: "MessagesSquare", tone: "sky",
         keywords: "conversation scene role play speaking doctor counter landlord",
         within: "/practice",
       },
@@ -283,7 +283,7 @@ export const SECTIONS: NavSection[] = [
         that only a class makes sense of.
       */
       {
-        href: "/words", label: "My words", blurb: "Your deck, card by card", icon: "Layers", tone: "mint",
+        href: "/words", label: "My words", blurb: "Your deck, card by card", icon: "Layers", tone: "sky",
         keywords: "deck cards suspend delete lapses",
         within: "/progress",
       },
@@ -297,7 +297,7 @@ export const SECTIONS: NavSection[] = [
           at it every day pins it back into the rail.
         */
         href: "/words/mastery", label: "Word mastery",
-        blurb: "Your favorites, and what is mastered or needs work", icon: "Trophy", tone: "mint",
+        blurb: "Your favorites, and what is mastered or needs work", icon: "Trophy", tone: "sky",
         // The starred words are on this page too, and a learner looking for
         // them types "favorites" rather than "mastery".
         keywords: "mastered known struggling almost progress words list stuck weak "
@@ -315,7 +315,7 @@ export const SECTIONS: NavSection[] = [
         */
         href: "/words/decks", label: "Decks",
         blurb: "Name a shelf, and file words onto it as you add them", icon: "Library",
-        tone: "mint",
+        tone: "sky",
         keywords: "deck decks playlist playlists shelf shelves organize organise folder collection",
         within: "/progress",
       },
@@ -326,7 +326,7 @@ export const SECTIONS: NavSection[] = [
           the app asks it, so it lives under Progress with the other three.
         */
         href: "/progress/readiness", label: "In real life",
-        blurb: "Which situations you could follow, take part in or lead", icon: "Footprints", tone: "mint",
+        blurb: "Which situations you could follow, take part in or lead", icon: "Footprints", tone: "sky",
         keywords: "readiness situations conversation real life ready lead follow take part speak counter shop doctor",
         within: "/progress",
       },
@@ -366,7 +366,7 @@ export const SECTIONS: NavSection[] = [
       {
         href: "/suggestions", label: "Suggested fixes",
         blurb: "What you have reported, and what happened to it",
-        icon: "MessageSquareWarning", tone: "peach",
+        icon: "MessageSquareWarning", tone: "blush",
         keywords: "report wrong mistake feedback correction missing word fix suggest admin review",
       },
     ],

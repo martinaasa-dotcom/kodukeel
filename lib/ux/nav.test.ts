@@ -256,11 +256,21 @@ describe("the practice modes", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
-  it("gives the six quick rounds six different hues", () => {
-    // Today lays them out as a grid of colored tiles, and two modes sharing a
-    // color there reads as two of the same thing.
+  it("never puts one hue on two neighbouring quick rounds", () => {
+    // They are laid out as a grid of colored tiles, and two neighbours sharing
+    // a color there reads as two of the same thing. Six rounds and the four
+    // bright colours of the mix cannot all differ, so what is asserted is the
+    // neighbours, in the two grids the tiles are drawn in: two across and
+    // three across.
     expect(QUICK_MODES).toHaveLength(6);
-    expect(new Set(QUICK_MODES.map((m) => m.tone)).size).toBe(6);
+    const tones = QUICK_MODES.map((m) => m.tone);
+    expect(new Set(tones).size).toBe(4);
+    for (const across of [2, 3]) {
+      tones.forEach((tone, i) => {
+        if (i % across !== 0) expect(tones[i - 1], `tile ${i} shares a hue with the one beside it at ${across} across`).not.toBe(tone);
+        if (i >= across) expect(tones[i - across], `tile ${i} shares a hue with the one above it at ${across} across`).not.toBe(tone);
+      });
+    }
   });
 
   it("splits every mode into one of the two groups", () => {

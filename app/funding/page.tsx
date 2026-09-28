@@ -179,7 +179,7 @@ export default function FundingPage() {
                 </span>
                 <span
                   className="label-xs"
-                  style={{ color: switchedOn(service.setBy) ? "var(--mint-ink)" : "var(--ink-3)" }}
+                  style={{ color: switchedOn(service.setBy) ? "var(--sky-ink)" : "var(--ink-3)" }}
                 >
                   {switchedOn(service.setBy) ? "on here" : "not set here"}
                 </span>

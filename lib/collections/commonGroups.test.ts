@@ -30,17 +30,16 @@ describe("the commonest-word groups", () => {
     expect(new Set(COMMON_GROUPS.map((g) => g.title)).size).toBe(COMMON_GROUPS.length);
   });
 
-  it("keeps mint and peach out of it", () => {
+  it("paints each group in a different colour of the mix", () => {
     /*
-      Mint is "recalled" and peach is "missed" (docs/14-design-system.md §1),
-      and these four are drawn on a card that opens a review round, which is
-      exactly where that reading is live. A group painted mint would read as a
-      group already answered.
+      These four were kept off mint and peach, which read as "recalled" and
+      "missed". Those two have left the palette, and the four bright colours of
+      the mix are what a tile set cycles through, one each, so four groups read
+      as four things.
     */
-    for (const group of COMMON_GROUPS) {
-      expect(["mint", "peach"], `${group.key} took a hue that already means something`)
-        .not.toContain(group.tone);
-    }
+    const tones = COMMON_GROUPS.map((g) => g.tone);
+    for (const tone of tones) expect(["accent", "butter", "sky", "blush"]).toContain(tone);
+    expect(new Set(tones).size).toBe(tones.length);
   });
 
   it("resolves a slug however it is typed, and nothing else", () => {

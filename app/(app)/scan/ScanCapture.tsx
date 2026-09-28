@@ -170,7 +170,7 @@ export function ScanCapture() {
 
   if (phase === "saved" && saved) {
     return (
-      <Card tone="mint" className="pop-in">
+      <Card tone="sky" className="pop-in">
         <div className="flex items-start gap-3">
           <Check size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
           <div className="min-w-0 flex-1">

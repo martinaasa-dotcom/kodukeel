@@ -64,7 +64,7 @@ import { WordLink } from "@/components/course/WordLink";
  * butter's tint and not on the card. Measured in a browser rather than reasoned
  * about from the token list, in both themes, which is the rule.
  *
- * A HUE HAS A FILL AND AN INK AND THEY ARE NOT INTERCHANGEABLE. `--on-mint` is
+ * A HUE HAS A FILL AND AN INK AND THEY ARE NOT INTERCHANGEABLE. `--on-sky` is
  * the ink for mint's *solid* fill, which is the one the palette has and the one
  * the week strip's tick needed. `--butter-ink` is the ink for butter and is
  * what the ring and the letter inside it are drawn in, on the ordinary card
@@ -73,7 +73,7 @@ import { WordLink } from "@/components/course/WordLink";
  * adding a token to a design system sideways.
  */
 const HUE: Record<Mark, { bg: string; ink: string; ring: string }> = {
-  here: { bg: "var(--mint)", ink: "var(--on-mint)", ring: "transparent" },
+  here: { bg: "var(--sky)", ink: "var(--on-sky)", ring: "transparent" },
   elsewhere: { bg: "var(--butter-soft)", ink: "var(--butter-ink)", ring: "var(--butter-ink)" },
   absent: { bg: "var(--raised)", ink: "var(--ink-3)", ring: "transparent" },
 };

@@ -928,11 +928,11 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             {firstScene && (
               <div
                 className="mt-5 rounded-[var(--r-lg)] border px-4 py-3"
-                style={{ borderColor: "var(--rule)", background: "var(--mint-soft)" }}
+                style={{ borderColor: "var(--rule)", background: "var(--sky-soft)" }}
               >
-                <p className="label-xs" style={{ color: "var(--mint-ink)" }}>Your first conversation</p>
-                <p className="mt-1 text-base font-semibold" style={{ color: "var(--mint-ink)" }}>{firstScene.title}</p>
-                <p className="mt-1 text-sm" style={{ color: "var(--mint-ink)" }}>
+                <p className="label-xs" style={{ color: "var(--sky-ink)" }}>Your first conversation</p>
+                <p className="mt-1 text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{firstScene.title}</p>
+                <p className="mt-1 text-sm" style={{ color: "var(--sky-ink)" }}>
                   {firstScene.place}. Once these words are in, you can rehearse this exact
                   conversation here, typing your side to a stranger who wants something from you.
                   Then go have the real one.

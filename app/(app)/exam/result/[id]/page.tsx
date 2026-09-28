@@ -103,13 +103,13 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       }
     >
       <section className="mb-10">
-        <Card tone={result.passed ? "mint" : "peach"}>
+        <Card tone={result.passed ? "sky" : "blush"}>
           <div className="flex flex-wrap items-center gap-6">
             <Ring
               pct={result.pct}
               size={92}
               thickness={8}
-              tone={result.passed ? "var(--mint)" : "var(--peach)"}
+              tone={result.passed ? "var(--sky)" : "var(--blush)"}
               label={`${result.pct} percent`}
             >
               <span className="tnum text-2xl font-bold" style={{ color: "var(--ink)" }}>
@@ -148,10 +148,10 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
           <SectionTitle>Against your own record</SectionTitle>
           <ul className="grid gap-3 md:grid-cols-2">
             {previous && moved !== null && (
-              <Card as="li" tone={moved >= 0 ? "mint" : "peach"}>
+              <Card as="li" tone={moved >= 0 ? "sky" : "blush"}>
                 <p
                   className="flex items-center gap-2 text-md font-semibold"
-                  style={{ color: moved >= 0 ? "var(--mint-ink)" : "var(--peach-ink)" }}
+                  style={{ color: moved >= 0 ? "var(--sky-ink)" : "var(--blush-ink)" }}
                 >
                   {moved >= 0 ? <TrendingUp size={16} aria-hidden /> : <TrendingDown size={16} aria-hidden />}
                   {moved === 0
@@ -160,7 +160,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                 </p>
                 <p
                   className="mt-1 text-sm leading-relaxed"
-                  style={{ color: moved >= 0 ? "var(--mint-ink)" : "var(--peach-ink)" }}
+                  style={{ color: moved >= 0 ? "var(--sky-ink)" : "var(--blush-ink)" }}
                 >
                   {previous.pct} percent on{" "}
                   <DateText iso={new Date(previous.at).toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
@@ -214,7 +214,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                 <Meter
                   pct={part.pct}
                   label={`${part.label} at ${part.pct} percent`}
-                  tone={part.pct >= PASS_PCT ? "var(--mint)" : "var(--peach)"}
+                  tone={part.pct >= PASS_PCT ? "var(--sky)" : "var(--blush)"}
                 />
               </div>
               <ul className="mt-3 grid gap-1">
@@ -242,11 +242,11 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
           ) : (
             <ul className="grid gap-3">
               {report.strengths.map((item) => (
-                <Card as="li" key={item.id} tone="mint">
-                  <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--mint-ink)" }}>
+                <Card as="li" key={item.id} tone="sky">
+                  <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--sky-ink)" }}>
                     <BadgeCheck size={16} aria-hidden /> {item.title}
                   </p>
-                  <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--mint-ink)" }}>
+                  <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--sky-ink)" }}>
                     {item.detail}
                   </p>
                 </Card>
@@ -262,18 +262,18 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
           ) : (
             <ul className="grid gap-3">
               {report.gaps.map((item) => (
-                <Card as="li" key={item.id} tone="peach">
-                  <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--peach-ink)" }}>
+                <Card as="li" key={item.id} tone="blush">
+                  <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--blush-ink)" }}>
                     <TriangleAlert size={16} aria-hidden /> {item.title}
                   </p>
-                  <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--peach-ink)" }}>
+                  <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--blush-ink)" }}>
                     {item.detail}
                   </p>
                   {item.href && (
                     <Link
                       href={item.href}
                       className="mt-3 inline-flex items-center gap-1 text-sm font-semibold underline underline-offset-4"
-                      style={{ color: "var(--peach-ink)" }}
+                      style={{ color: "var(--blush-ink)" }}
                     >
                       {item.cta ?? "Practice it"} <ArrowRight size={13} aria-hidden />
                     </Link>

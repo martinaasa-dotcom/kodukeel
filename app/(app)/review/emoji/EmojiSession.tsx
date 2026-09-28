@@ -164,12 +164,12 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
       <Page title="Picture match" lead="Every pair found.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <span className="flex h-20 w-20 items-center justify-center rounded-full quest-pop"
-            style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
+            style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}>
             <Trophy size={34} aria-hidden />
           </span>
           <div className="grid w-full grid-cols-2 gap-3">
             <StatTile value={`${elapsed}s`} label="Time" tone="sky" />
-            <StatTile value={misses} label="Wrong tries" tone={misses === 0 ? "mint" : "butter"} />
+            <StatTile value={misses} label="Wrong tries" tone={misses === 0 ? "sky" : "butter"} />
           </div>
 
           {/* What the round was actually about, read back. A board with no

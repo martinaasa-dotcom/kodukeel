@@ -342,7 +342,7 @@ const WHO = [
   },
   {
     icon: ClipboardCheck,
-    tone: "mint",
+    tone: "butter",
     title: "You have an exam date",
     body: "Mock papers from A2 to C1, marked by rule rather than by a model, and a plain guide to the real one.",
     href: "/state-exam",
@@ -443,7 +443,7 @@ function Compare() {
             <div key={kind.name} className="rounded-[var(--r-xl)] border p-6" style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}>
               <h3 className="text-md font-semibold" style={{ color: "var(--ink)" }}>{kind.name}</h3>
               <p className="mt-4 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                <Check size={16} aria-label="Good at" className="mt-0.5 shrink-0" style={{ color: "var(--mint-ink)" }} />
+                <Check size={16} aria-label="Good at" className="mt-0.5 shrink-0" style={{ color: "var(--sky-ink)" }} />
                 <span>{kind.good}</span>
               </p>
               <p className="mt-3 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -478,7 +478,7 @@ function Plan() {
     <section id="plan" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="mint">Your plan</p>
+          <p className="section-tag" data-tone="butter">Your plan</p>
           <h2 className="landing-title">
             When could you get there?
           </h2>
@@ -642,7 +642,7 @@ function Cases({ words }: { words: DemoWord[] }) {
             className="-top-6 left-72 z-20 hidden h-8 w-8 text-base sm:block md:-top-8 md:left-80 md:h-10 md:w-10 md:text-xl"
           />
           <LetterTile
-            letter="ä" hue="mint" edge="right" character="hop"
+            letter="ä" hue="accent" edge="right" character="hop"
             tilt={12} travel={{ x: -3, y: -44 }} room={0.75} delay={0.7} reach={280}
             className="-right-3 top-24 z-20 hidden h-8 w-8 text-base sm:block md:-right-6 md:top-28 md:h-10 md:w-10 md:text-xl"
           />
@@ -763,7 +763,7 @@ function Features() {
         </Reveal>
         <Reveal>
           <Feature
-            tone="mint"
+            tone="sky"
             icon={<Target size={18} aria-hidden />}
             title="Then the real thing"
             body="A receptionist with no slot on Thursday, a landlord on a bad line, a counter with a queue. Rehearse the conversation, then take the smallest step outside: one thing to say to a real person today, and a count of how it went. That count is the only score that matters here."
@@ -785,7 +785,7 @@ function Features() {
  * of a phone on saying nothing the heading does not, once per card.
  */
 function Feature({ tone, icon, title, body, children }: {
-  tone: "accent" | "mint" | "sky" | "butter" | "peach" | "blush";
+  tone: "accent" | "sky" | "butter" | "blush";
   icon: React.ReactNode;
   title: React.ReactNode;
   body: string;
@@ -923,7 +923,7 @@ function Mark({ verdict }: { verdict: Verdict }) {
     return (
       <span
         className="flex h-7 w-7 items-center justify-center rounded-full"
-        style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}
+        style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
       >
         <Check size={15} strokeWidth={3} aria-label="yes" />
       </span>

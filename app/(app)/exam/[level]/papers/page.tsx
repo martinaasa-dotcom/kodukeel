@@ -68,7 +68,7 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
             // of it, so twenty-five papers are a shelf rather than a scroll.
             className={`flex flex-col gap-3 rounded-[var(--r-lg)] border px-4 py-3 ${open ? "col-span-2" : ""}`}
             style={{
-              borderColor: paper.whole ? (paper.whole.passed ? "var(--mint)" : "var(--peach)") : "var(--rule-soft)",
+              borderColor: paper.whole ? (paper.whole.passed ? "var(--sky)" : "var(--blush)") : "var(--rule-soft)",
               background: "var(--surface)",
             }}
           >

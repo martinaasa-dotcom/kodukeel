@@ -98,7 +98,7 @@ export default async function ExamPage() {
             <Ring
               pct={readiness.assessed ? 100 : 0}
               size={72}
-              tone={readiness.assessed ? "var(--mint)" : "var(--accent)"}
+              tone={readiness.assessed ? "var(--sky)" : "var(--accent)"}
               label={readiness.assessed ? `Assessed at ${readiness.assessed}` : "No level assessed yet"}
             >
               <span className="text-xl font-bold" style={{ color: "var(--ink)" }}>
@@ -175,7 +175,7 @@ export default async function ExamPage() {
                     <Ring
                       pct={level.confidence}
                       size={62}
-                      tone={level.confidence >= PASS_PCT ? "var(--mint)" : "var(--accent)"}
+                      tone={level.confidence >= PASS_PCT ? "var(--sky)" : "var(--accent)"}
                       label={`${level.confidence} percent likely to pass ${level.level}`}
                     >
                       <span className="tnum text-md font-bold" style={{ color: "var(--ink)" }}>
@@ -215,7 +215,7 @@ export default async function ExamPage() {
                             <Meter
                               pct={level.expected[skill]}
                               label={`${SKILL_LABEL[skill]} predicted at ${level.expected[skill]} percent`}
-                              tone={level.expected[skill] >= PASS_PCT ? "var(--mint)" : "var(--peach)"}
+                              tone={level.expected[skill] >= PASS_PCT ? "var(--sky)" : "var(--blush)"}
                               height={6}
                             />
                           ) : (
@@ -266,7 +266,7 @@ export default async function ExamPage() {
             <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
               {readiness.strengths.map((item) => (
                 <li key={item.id} className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-                  <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--mint-soft)", color: "var(--mint-ink)" }}>
+                  <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}>
                     <BadgeCheck size={16} />
                   </span>
                   <span className="min-w-0">
@@ -382,7 +382,7 @@ type Sitting = Awaited<ReturnType<typeof recentAttempts>>[number];
 function GapRow({ item }: { item: Gap }) {
   return (
     <li className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-      <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--peach-soft)", color: "var(--peach-ink)" }}>
+      <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--blush-soft)", color: "var(--blush-ink)" }}>
         <TriangleAlert size={16} />
       </span>
       <span className="min-w-0 flex-1">

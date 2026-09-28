@@ -212,7 +212,7 @@ export function SprintSession({
         </Lettered>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={correct} label="Score" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "mint" : "butter"} />
+          <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
           <StatTile value={attempted} label="Attempted" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
@@ -242,7 +242,7 @@ export function SprintSession({
         </Link>
         <div
           className="tnum flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold"
-          style={{ background: secondsLeft <= 10 ? "var(--peach-soft)" : "var(--raised)", color: secondsLeft <= 10 ? "var(--peach-ink)" : "var(--ink-2)" }}
+          style={{ background: secondsLeft <= 10 ? "var(--blush-soft)" : "var(--raised)", color: secondsLeft <= 10 ? "var(--blush-ink)" : "var(--ink-2)" }}
         >
           <Timer size={14} aria-hidden /> {secondsLeft}s
         </div>
