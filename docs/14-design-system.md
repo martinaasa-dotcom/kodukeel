@@ -24,11 +24,21 @@ never a second and third hue drifting in the background.
 | Hue | Token | Means |
 |---|---|---|
 | Cornflower / violet | `--accent` | the app's voice, the primary action, "this is yours" |
-| Mint | `--mint` / `--good` | recalled, goal met, known |
+| Mint | `--mint` / `--good` | recalled, known: a verdict on an answer, never the fill of a panel a screen leads with |
 | Butter | `--butter` / `--hard` | nearly, timed, a warning that isn't a failure |
 | Peach | `--peach` / `--again` | missed, overdue, destructive |
 | Sky | `--sky` / `--easy` | easy, new, reference material |
 | Blush | `--blush` | Anu, the tutor, the one part of the app that talks back |
+
+**Vikerkaar öös is the brand mix, and mint and peach are not in it.** The mix is butter, blush,
+the accent violet, sky and the night navy (`--stage`). Mint and peach are verdicts, so they paint an
+answer, a chip or a tile in a set, and never the card a screen leads with. The finished evening, on
+Today and on the module screen, is the accent's tint with the mix drawn along its top edge
+(`.evening` on `Card tone="accent"`); it was mint for a while, which read as a green slab beside a
+palette with no green in it. The faces are Onest and Schibsted Grotesk and no others. All of this
+is asserted in `scripts/invariants/the-agreed-fonts-and-palette.ts`, and a visual proposal is a
+screenshot of the running app (`npm run shoot`), never hand-written HTML in faces or colours of its
+own.
 
 Grading colors are aliases (`--again` → `--peach`), so the rating scale and the rest of the UI
 can never drift apart.
