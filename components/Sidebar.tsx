@@ -16,6 +16,7 @@ import { classRows, type RailClass } from "@/lib/ux/classRows";
 import { NavEditor } from "@/components/nav/NavEditor";
 import { NavMarker } from "@/components/NavMarker";
 import { Wordmark } from "@/components/brand";
+import { BrandLink } from "@/components/BrandLink";
 import { NamedIcon } from "@/components/icons";
 import { useModalFocus } from "@/components/useModalFocus";
 
@@ -183,7 +184,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
           row is drawn it read as one more row. See `.brand-tap` in
           app/globals.css for the tint and the growth.
         */}
-        <Link
+        <BrandLink
           href="/"
           title="Today"
           className="brand-tap tap-tint mb-7 mr-1 block shrink-0 cursor-pointer rounded-[var(--r)] px-2 py-2"
@@ -191,7 +192,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
           <span className="brand-mark">
             <Wordmark size={48} subtitle="Estonian, daily" />
           </span>
-        </Link>
+        </BrandLink>
 
         {/*
           FIVE ROWS AND WHATEVER THE LEARNER PINNED, IN THE ORDER THEY SET.
