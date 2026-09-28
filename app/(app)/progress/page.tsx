@@ -367,7 +367,11 @@ export default async function ProgressPage() {
                       a fifth narrower at the width `test-containment.mjs`
                       measures.
                     */}
-                    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                    {/* Columns by the room a label needs, not by the window: this
+                        panel is half the page from `@xl`, so `lg:grid-cols-3` gave
+                        "conversations" and its icon 53px of the 114 they need at
+                        1024, and the word broke. 7.5rem is that label and icon. */}
+                    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,7.5rem),1fr))] gap-3">
                       <Stat value={outside.total} label="conversations" tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
                       <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" />
                       <Stat value={outside.byOutcome.STUCK} label="you got stuck" />
