@@ -18,7 +18,7 @@ export const B1 = [
     level: "B1",
     module: "Grammatika süveneb",
     canDo: "Choose between an osastav object and an omastav object, and explain why.",
-    blurb: "The single hardest thing in Estonian grammar, and the thing that marks out a B1 speaker.",
+    blurb: "Did you read the book, or were you reading it? Estonian shows the difference with an ending. It's the hardest thing in the grammar, and getting it right is what marks out a B1 speaker.",
     grammar: ["object", "partitive", "genitive", "aspect"],
     // Verbs, so the form worth drilling is a person and not a case. It asked
     // for `CASE_FORM`, which needs a genitive stem: twelve words, no genitive
@@ -53,7 +53,7 @@ export const B1 = [
     canDo: "Use the case each common verb wants, not the one English suggests.",
     blurb:
       "English speakers get these wrong for years: aitan sind, helistan sulle, mulle meeldib. " +
-      "Every card asks which case the verb takes.",
+      "Every card here asks which ending the verb wants.",
     grammar: ["government", "allative", "partitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "GOVERNMENT", "CLOZE"],
     requires: ["objekt"],
@@ -111,7 +111,7 @@ export const B1 = [
     level: "B1",
     module: "Grammatika süveneb",
     canDo: "Use the perfect and pluperfect, and describe things with participles.",
-    blurb: "You'll find -nud and -tud everywhere in written Estonian. This is where you start on them.",
+    blurb: "Has done, was done: -nud and -tud are everywhere in written Estonian. This is where you learn to read them without stopping.",
     grammar: ["participles", "perfect", "pluperfect"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION", "CLOZE"],
     requires: ["tingiv"],
@@ -177,7 +177,7 @@ export const B1 = [
     level: "B1",
     module: "Töö ja ühiskond",
     canDo: "Rent a flat, say what's wrong with it and deal with the landlord.",
-    blurb: "Every newcomer has to have this conversation in Estonian sooner or later.",
+    blurb: "Rent, repairs, and the heating that won't come on. Every newcomer has this conversation with a landlord sooner or later.",
     grammar: ["inessive", "elative", "genitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["too-ja-raha"],
@@ -465,7 +465,7 @@ export const B1 = [
     icon: "Combine",
     level: "B1",
     module: "Grammatika süveneb",
-    canDo: "See how ära, üles and läbi can completely change what a verb means.",
+    canDo: "Use the small words like ära, üles and läbi that completely change what a verb means.",
     blurb: "ära sööma is not the same as sööma. These are Estonian's phrasal verbs, and they're everywhere.",
     grammar: ["particle-verbs", "aspect", "object"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CLOZE"],

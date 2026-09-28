@@ -93,18 +93,18 @@ export const ERRANDS: readonly Errand[] = [
   { id: "weather", says: "Say one sentence about the weather to whoever's waiting next to you.", where: "A queue, a lift", unit: "ilm" },
   { id: "family", says: "Tell a colleague or a neighbor one thing about your family.", where: "Work, the stairwell", unit: "inimesed", scene: "trepikoda" },
   { id: "day", says: "Tell somebody what you did today. Three sentences is plenty.", where: "Home, a friend", unit: "iga-paev" },
-  { id: "number", says: "Give your phone number in Estonian, digit by digit, and get them to read it back.", where: "A form, a friend", unit: "arvud" },
+  { id: "number", says: "Give your phone number in Estonian, digit by digit, and ask them to read it back to you.", where: "A form, a friend", unit: "arvud" },
   { id: "clothes", says: "In a clothes shop, ask for another size or another color.", where: "A clothes shop", unit: "riided", scene: "riidepood" },
   { id: "call", says: "Make one phone call in Estonian. A short one counts.", where: "The phone", unit: "suhtlemine", scene: "helistamine" },
-  { id: "appointment", says: "Book an appointment in Estonian, or just ask about one, and keep going if they switch to English.", where: "A health center, a salon", unit: "keha-ja-tervis", scene: "arsti-aeg" },
-  { id: "plan", says: "Arrange to meet somebody, day and time included, all in Estonian.", where: "Work, a friend", unit: "plaanid" },
+  { id: "appointment", says: "Book an appointment in Estonian, or just ask about one, and stay in Estonian even if they switch to English.", where: "A health center, a salon", unit: "keha-ja-tervis", scene: "arsti-aeg" },
+  { id: "plan", says: "Arrange to meet somebody in Estonian, with a day and a time.", where: "Work, a friend", unit: "plaanid" },
   { id: "flat", says: "Tell somebody one thing about your flat, or ask about theirs.", where: "A neighbor, a colleague", unit: "kodu", scene: "uuri-remont" },
   { id: "help", says: "Ask somebody for a hand with one small thing, in Estonian.", where: "Anywhere", unit: "korraldused" },
   { id: "post", says: "Post a letter or pick up a parcel, and do the whole thing in Estonian.", where: "The post office", unit: "linn-ja-teenused", scene: "ametiasutus" },
   { id: "ticket", says: "Buy a bus ticket at the window, and say where you're going and when.", where: "A bus station", unit: "reisimine", scene: "bussipilet" },
   { id: "meal", says: "Order a whole meal in Estonian, and ask what's in one of the dishes.", where: "A restaurant", unit: "restoranis", scene: "restoranis-tellimine" },
   { id: "pharmacy", says: "Ask at the pharmacy for something for a headache, and how often to take it.", where: "A pharmacy", unit: "keha-ja-tervis", scene: "apteek" },
-  { id: "meaning", says: "Ask somebody what an Estonian word means, then use it once before bedtime.", where: "Class, work, a friend", unit: "kool-ja-keel", scene: "keeletund" },
+  { id: "meaning", says: "Ask somebody what an Estonian word means, then use it yourself before bed.", where: "Class, work, a friend", unit: "kool-ja-keel", scene: "keeletund" },
   { id: "job", says: "Tell somebody what you do for a living, and one thing you're good at.", where: "Work, a party", unit: "too-ja-raha", scene: "toovestlus" },
   { id: "complain", says: "Take something back to a shop, or report something broken, and say what's wrong with it.", where: "A shop, a landlord, a helpdesk", unit: "probleemid", scene: "kaebus" },
   /*
@@ -125,7 +125,7 @@ export const ERRANDS: readonly Errand[] = [
   { id: "bus", says: "Before you get on, ask whether this bus or tram goes where you're going.", where: "A stop, a platform", unit: "transport" },
   { id: "repeat", says: "When you don't catch something, ask them to say it again instead of switching to English.", where: "Anywhere", unit: "abi" },
   { id: "introduce", says: "Introduce yourself to somebody new: your name, where you live and what you do.", where: "Work, a class, a stairwell", unit: "tutvumine" },
-  { id: "count", says: "Say a price or a floor number out loud in Estonian, and get them to repeat it back.", where: "A shop, a lift", unit: "suured-arvud" },
+  { id: "count", says: "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.", where: "A shop, a lift", unit: "suured-arvud" },
 ];
 
 /**

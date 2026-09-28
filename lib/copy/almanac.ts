@@ -281,7 +281,7 @@ const NAMED: Record<string, Occasion> = {
   "12-31": {
     key: "new-years-eve",
     name: "New Year's Eve",
-    note: "The last night of the year. See it out properly.",
+    note: "The last night of the year. See it out in style.",
     glosses: ["year", "night", "end"],
   },
 };
@@ -417,7 +417,7 @@ const BY_NUMBER: Record<number, Occasion> = {
   7: {
     key: "day-7",
     name: "The seventh",
-    note: "Seven, which is exactly a week.",
+    note: "Seven, which is exactly one week.",
     glosses: ["week", "day"],
   },
   10: {

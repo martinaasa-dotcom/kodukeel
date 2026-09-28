@@ -335,7 +335,7 @@ export const C1 = [
     level: "C1",
     module: "Tihendamine",
     canDo: "Signpost a long text so a reader never loses the thread.",
-    blurb: "Discourse markers: the difference between a text and a pile of sentences.",
+    blurb: "Firstly, on the other hand, finally. The little signposts that make the difference between a text and a pile of sentences.",
     grammar: ["cohesion", "subordination", "word-order"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CLOZE"],
     requires: ["lauseloome"],

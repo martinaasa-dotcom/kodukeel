@@ -87,7 +87,7 @@ export const LEVEL_INFO: Record<Level, LevelInfo> = {
     level: "B1",
     title: "Iseseisev keelekasutaja",
     titleEn: "Independent user",
-    summary: "Explain why as well as what: the object, which case a verb wants, the conditional and participles.",
+    summary: "Explain why as well as what, and get the hard grammar right: which ending an object needs, which case a verb wants, and would and could.",
     arrival: "You can explain, disagree and handle the unexpected without switching to English.",
   },
   B2: {
