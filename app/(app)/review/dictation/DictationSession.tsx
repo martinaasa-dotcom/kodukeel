@@ -352,7 +352,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                     voice={reader.id}
                     label="Play it slowly"
                     size={14}
-                    className="press tap-tint inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
+                    className="press tap-tint inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold"
                     style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
                   >
                     <Volume2 size={14} strokeWidth={2} aria-hidden /> Slow

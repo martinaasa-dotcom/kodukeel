@@ -64,8 +64,23 @@ const SIZES: Record<Size, string> = {
   lg: "px-5 py-3.5 text-sm 2xl:px-6 2xl:text-base",
 };
 
+/*
+  A BUTTON'S LABEL IS ONE LINE, AND NEVER A WORD BROKEN INTO LETTERS.
+
+  The body inherits `overflow-wrap: anywhere` so a long word stays inside
+  its box, and that is exactly wrong for a control: a button in a flex row
+  that another item squeezes is sized to its min-content, which under
+  `anywhere` is one letter, so "Learn 5 phrases" was drawn at 44px wide as
+  "Lea / rn / 5 / phr / ase / s" on the Learn page. Nothing was cut and
+  nothing bled, so no check looked twice. `whitespace-nowrap` makes a
+  label's min-content its whole width: a row with no room for it now
+  overflows where `scripts/test-containment.mjs` can see it, rather than
+  folding the label up where nothing can. A label too long for one line on
+  a phone is a label to shorten, not to wrap. `btn` is the hook the
+  containment sweep and the invariant read.
+*/
 const base =
-  "press inline-flex items-center justify-center gap-2 rounded-[var(--r)] border font-semibold " +
+  "btn whitespace-nowrap press inline-flex items-center justify-center gap-2 rounded-[var(--r)] border font-semibold " +
   "transition-ui hover:brightness-[1.04] " +
   "disabled:pointer-events-none disabled:opacity-45";
 
