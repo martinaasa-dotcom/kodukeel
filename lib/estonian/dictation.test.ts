@@ -149,7 +149,7 @@ describe("checkDictation", () => {
     // Two spaces gone, said as two. This case asserted the alignment and never
     // the sentence, so it read "one needs a space moved" to somebody looking
     // at two of them, and nothing here said so.
-    expect(result.note).toBe("Every word heard, but 2 spaces need moving.");
+    expect(result.note).toBe("You heard every word, but 2 spaces need moving.");
     expect(wordNote(result.words[0]!)).toBe("missing 2 spaces");
   });
 

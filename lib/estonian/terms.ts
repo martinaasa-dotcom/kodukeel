@@ -54,24 +54,24 @@ export const VERB_AXES: readonly { et: string; en: string; blurb: string }[] = [
     et: "aeg",
     en: "tense",
     blurb:
-      "Two that the verb itself carries, and two more built with the auxiliary and a participle. There is no future among them.",
+      "Two the verb makes on its own, and two more built with a helper verb and a participle. None of them is a future.",
   },
   {
     et: "kõneviis",
     en: "mood",
     blurb:
-      "Whether you are stating, supposing, instructing, or passing on something you did not witness. Four in a school grammar, each with its own endings, and a fifth that reference grammars split off from the imperative.",
+      "Are you saying it, supposing it, telling somebody to do it, or passing on something you didn't see? A school grammar counts four, each with its own endings, and reference grammars split a fifth off the imperative.",
   },
   {
     et: "tegumood",
     en: "voice",
     blurb:
-      "Whether the sentence names who did it. Not the English passive, and worth keeping apart from it.",
+      "Whether the sentence says who did it. It isn't the English passive, so keep the two apart.",
   },
   {
     et: "pööre",
     en: "person",
-    blurb: "Six persons, marked on the verb, so I and you can be dropped in speech. He, she and they stay.",
+    blurb: "Six persons, marked on the verb, so you can drop I and you in speech. He, she and they stay put.",
   },
 ];
 

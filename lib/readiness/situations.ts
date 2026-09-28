@@ -134,7 +134,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   ilm: {
     live: true, needs: ["replies"], cases: ["ADESSIVE", "PARTITIVE"],
     tryThis: "Start a conversation about the weather with somebody waiting beside you, and keep it going for two turns.",
-    expect: "Agreement, a complaint, and then whatever they actually wanted to talk about.",
+    expect: "Agreement, a grumble, and then whatever they actually wanted to talk about.",
   },
   ostmine: {
     live: true, needs: ["numbers", "questions", "replies"], cases: ["PARTITIVE", "GENITIVE", "ILLATIVE"],
@@ -149,7 +149,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   kusisonad: {
     live: true, needs: ["replies"], cases: ["GENITIVE", "PARTITIVE"],
     tryThis: "Ask three questions of somebody at work and understand the answers well enough to ask a fourth.",
-    expect: "An answer, and the same question turned back on you.",
+    expect: "An answer, and then the same question turned back on you.",
   },
   asesonad: {
     live: false, needs: [], cases: [],
@@ -166,7 +166,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   kindlus: {
     live: true, needs: ["replies"], cases: [],
     tryThis: "Answer a yes or no question with how sure you are: definitely, probably, maybe.",
-    expect: "A second question, because a hedged answer invites one.",
+    expect: "A second question, because a maybe always invites one.",
   },
   millal: {
     live: true, needs: ["time"], cases: ["ADESSIVE"],
@@ -303,8 +303,8 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   kodutood: {
     live: true, needs: ["pronouns", "replies"], cases: ["GENITIVE", "PARTITIVE", "ALLATIVE"],
-    tryThis: "Agree with somebody you live with who does which chore this week.",
-    expect: "Pushback on one of them, and a counter-offer.",
+    tryThis: "Sort out with somebody you live with who does which chore this week.",
+    expect: "Some grumbling about one of them, and a counter-offer.",
   },
   "linn-ja-teenused": {
     live: true, needs: ["numbers", "questions", "replies"], cases: ["GENITIVE", "PARTITIVE", "ALLATIVE", "ELATIVE"],
@@ -329,7 +329,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   korraldused: {
     live: true, needs: ["pronouns", "replies"], cases: ["PARTITIVE", "GENITIVE"],
     tryThis: "Ask somebody to do something for you, politely, and offer to help with something in return.",
-    expect: "The polite imperative used on you, which every counter in the country uses.",
+    expect: "The polite way of telling you to do something, which every counter in the country uses on you.",
   },
   vordlemine: {
     live: false, needs: [], cases: ["ELATIVE", "PARTITIVE"],
@@ -341,8 +341,8 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   tunded: {
     live: true, needs: ["replies"], cases: ["ADESSIVE", "PARTITIVE", "ELATIVE"],
-    tryThis: "Tell a friend how you actually are, not just fine, and ask them the same.",
-    expect: "An honest answer, and then a longer one than you expected.",
+    tryThis: "Tell a friend how you really are, not just fine, and ask them the same.",
+    expect: "An honest answer back, and a longer one than you expected.",
   },
   plaanid: {
     live: true, needs: ["time", "pronouns"], cases: ["ILLATIVE", "ALLATIVE", "PARTITIVE"],
@@ -362,7 +362,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   tingiv: {
     live: true, needs: ["replies"], cases: ["PARTITIVE", "GENITIVE"],
     tryThis: "Ask for something at work the polite way, with the conditional, and give somebody advice the same way.",
-    expect: "A conditional back, softening a no.",
+    expect: "A polite would or could back, softening a no.",
   },
   kesksonad: {
     live: false, needs: [], cases: ["GENITIVE", "PARTITIVE"],
@@ -371,12 +371,12 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   "too-ja-raha": {
     live: true, needs: ["numbers", "questions"], cases: ["PARTITIVE", "ELATIVE", "ALLATIVE", "ESSIVE"],
     tryThis: "Say something in a meeting at work in Estonian, and then answer the question it gets.",
-    expect: "Interruption, jargon, and somebody speaking at full speed because you started it.",
+    expect: "Interruptions, jargon, and somebody talking at full speed because you started it.",
   },
   eluase: {
     live: true, needs: ["time", "numbers", "replies"], cases: ["INESSIVE", "ADESSIVE", "GENITIVE", "PARTITIVE"],
     tryThis: "Tell your landlord something is broken, where it is and since when, and agree a time.",
-    expect: "A refusal of the first time you offer, and a question about what exactly is wrong.",
+    expect: "A no to the first time you suggest, and a question about what exactly is wrong.",
   },
   meedia: {
     live: false, needs: [], cases: ["ELATIVE", "PARTITIVE", "INESSIVE"],
@@ -384,7 +384,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   tehnoloogia: {
     live: true, needs: ["numbers", "questions"], cases: ["INESSIVE", "ELATIVE", "ILLATIVE"],
-    tryThis: "Ring a helpline about an account that does not work and get through the security questions.",
+    tryThis: "Ring a helpline about an account that won't work, and get through the security questions.",
     expect: "A code read out, a question about which device, and instructions to press something.",
   },
   keskkond: {

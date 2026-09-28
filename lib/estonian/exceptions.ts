@@ -464,14 +464,14 @@ export interface KindNote {
 export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
   STEM: {
     family: "STEM",
-    title: "The stem changes",
-    what: "The genitive is usually the word with an ending added. In these it is not: a consonant grades, a vowel drops out of the middle, or the stem is another word again. Every other case in the singular is built on it, so this is the one to learn first.",
+    title: "The stem shifts",
+    what: "The possessive form, the second of the three you learn, is usually just the word with an ending. Not here: a consonant changes, a vowel drops out of the middle, or the stem turns into something else. Every other singular case is built on it, so learn this one first.",
     topic: "gradation",
   },
   PART_SG: {
     family: "SINGULAR",
-    title: "The partitive goes its own way",
-    what: "The partitive is usually the genitive stem with t or d on it, or the plain word. In these it goes back to the strong grade the genitive lost, or takes an ending nothing predicts, so it is held in your head rather than worked out.",
+    title: "A some-of-it form of its own",
+    what: "The \"some of it\" form is usually the stem plus t or d, or just the plain word. In these words it takes back the consonant the stem lost, or an ending nothing predicts. It's one to remember, not work out.",
     topic: "object",
   },
   SHORT_ILLATIVE: {
@@ -488,49 +488,49 @@ export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
       said which was which, so the sentence read as a riddle. The screens label
       the pair now (`AlsoRight`), and this says what the two are for.
     */
-    what: "This word has two ways in. The long one is the stem with sse on it and is always right. The short one is what you will hear said, and no rule reaches it. Both are named here, and both are accepted.",
+    what: "There are two ways to say \"into\" with this word. The long one is the stem plus sse, and it's always right. The short one is what you'll actually hear, and no rule gets you there. You'll see both here, and either one counts.",
     topic: null,
   },
   PLURAL_STEM: {
     family: "PLURAL",
-    title: "The plural is built on another stem",
-    what: "The whole plural sits on the genitive plural, and in these words that is not the singular stem with an ending on it. Get this one and every plural case follows.",
+    title: "The plural has its own stem",
+    what: "Every plural case is built on the plural possessive form. In these words, that form doesn't simply add an ending to the singular stem. Get this one right and every plural case follows.",
     topic: null,
   },
   PART_PL: {
     family: "PLURAL",
-    title: "The partitive plural is a word to learn",
-    what: "Most partitive plurals are one of the two stems with a vowel and id or sid. These are not, so this is a form to hold in your head rather than work out.",
+    title: "A plural some-of-it form to learn",
+    what: "Most plural \"some of it\" forms are one of the two stems plus a vowel, id or sid. These aren't, so this is one to remember rather than work out.",
     topic: null,
   },
   NOM_PL: {
     family: "PLURAL",
     title: "The plural is another word",
-    what: "The plural is the genitive plus d for nearly every word in the language. Here it is not, so the plural is a second word to learn beside the singular.",
+    what: "For nearly every word, the plural is the possessive form plus d. Not here, so the plural is a second word to learn alongside the singular.",
     topic: null,
   },
   NO_PLURAL: {
     family: "PLURAL",
     title: "No plural",
-    what: "Nobody counts these, so there is no plural to learn. The dictionary records none and neither should you.",
+    what: "Nobody counts these, so there's no plural to learn. The dictionary doesn't list one, and you won't need one either.",
     topic: null,
   },
   PRESENT_STEM: {
     family: "VERB",
-    title: "The present runs on another stem",
-    what: "Every person, the negative, the conditional and the imperative are built on the I form. In these verbs that form is not the ma-infinitive with an ending, so getting it wrong gets the whole present wrong at once.",
+    title: "The present has its own stem",
+    what: "Every person, the \"not\" form, the \"would\" form and the commands are built on the I form. In these verbs that isn't the ma-infinitive with an ending, so get it wrong and the whole present goes wrong with it.",
     topic: "present-tense",
   },
   PAST_STEM: {
     family: "VERB",
-    title: "The past is another word",
-    what: "The simple past is usually the ma-stem with sin on it. These verbs take a different vowel or a different stem entirely, and they are the commonest verbs in the language.",
+    title: "The past takes a different shape",
+    what: "The simple past is usually the ma-stem plus sin. These verbs take a different vowel or a whole different stem, and they're some of the most common verbs in the language.",
     topic: "imperfect",
   },
   PAST_3SG: {
     family: "VERB",
     title: "He, she and it in the past",
-    what: "There is no rule that turns the I form of the past into the she form: some drop the ending and some add a vowel. This is the one slot in the verb nothing predicts, for any verb.",
+    what: "No rule turns \"I did\" into \"she did\": some verbs drop the ending and some add a vowel. It's the one slot in the verb nothing predicts, for any verb.",
     topic: "imperfect",
   },
   DA_INFINITIVE: {
@@ -554,19 +554,19 @@ export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
       notes against the dictionary's own stored first persons, so the next verb
       typed in fails rather than ships.
     */
-    what: "The form you need after wanting, being able and knowing how. It is usually the ma-stem with da on it. In these verbs it is not: the word changes underneath the ending, so this one is memorised rather than worked out.",
+    what: "The form you need after wanting, being able and knowing how. It's usually the ma-stem plus da. Not in these verbs: the word changes under the ending, so this one you learn rather than work out.",
     topic: "infinitives",
   },
   TUD_PARTICIPLE: {
     family: "VERB",
     title: "The tud form",
-    what: "What the perfect and the passive are built on. Usually the ma-stem with tud or dud, and in these the stem moves first, so the whole form is one to learn.",
+    what: "The form behind \"it has been done\". It's usually the ma-stem plus tud or dud, but here the stem shifts first, so learn the whole form.",
     topic: "past-participle",
   },
   IMPERATIVE_PL: {
     family: "VERB",
     title: "Telling somebody politely",
-    what: "The form every counter and every official will use on you. It is not built on the present stem, so a verb whose present grades takes the other grade here.",
+    what: "The form every shop assistant and official will use with you. It isn't built on the present stem, so if the present changes its consonant, this one takes the other.",
     topic: "imperative",
   },
 };

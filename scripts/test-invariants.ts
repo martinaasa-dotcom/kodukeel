@@ -10564,7 +10564,6 @@ check("no screen writes a case's Latin name into a sentence", () => {
       rather than being invisible because the sweep stopped at `app/`.
     */
     "lib/estonian/grammar.ts": "holds no Estonian letter, so the Latin name is the only name it has",
-    "lib/estonian/exceptions.ts": "the same, for the notes on each kind of exception",
     /*
       AND THE PIN TABLE QUOTES `grammar.ts` RATHER THAN WRITING COPY OF ITS OWN.
 
@@ -25859,7 +25858,7 @@ check("nothing but the hint ladder decides what a hint gives away", () => {
 
   // And the encouragement is one sentence, from one table, for the same reason
   // a second copy of any line of copy in this app is a second copy: they drift.
-  const notes = ALL.filter((f) => /It is fine not to know this one yet/.test(read(f)));
+  const notes = ALL.filter((f) => /fine not to know this one yet/.test(read(f)));
   assert.deepEqual(
     notes.map((f) => f.replace(/\\/g, "/")), ["lib/copy/firstTry.ts"],
     "the first-try line is written out somewhere other than the one table that holds it",

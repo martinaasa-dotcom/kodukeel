@@ -21,8 +21,8 @@ const write: WriteItem = {
   // `explainWrittenGap`'s shape: what the sentence means and which form it
   // wanted, and not the sentence, which `FullSentence` draws above this.
   because:
-    "I am in the room right now. The gap takes toas rather than tuba. " +
-    "That is the form you use when something is inside it.",
+    "I am in the room right now. The gap needs toas, not tuba. " +
+    "That's the form you use when something is inside it.",
 };
 
 const answer = (over: Partial<Response>): Response =>
@@ -97,7 +97,7 @@ describe("marking", () => {
     const withLemma: WriteItem = { ...write, otherForms: [...write.otherForms, "tuba"] };
     const typedLemma = gradeWrite(withLemma, "tuba");
     expect(typedLemma.usedAnotherForm).toBe(true);
-    expect(typedLemma.note).toBe("That is the dictionary form. This sentence needs it in another one.");
+    expect(typedLemma.note).toBe("That's the dictionary form. This sentence needs a different one.");
   });
 
   it("does not fail somebody for a keyboard without Estonian letters", () => {

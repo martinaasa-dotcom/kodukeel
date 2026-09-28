@@ -94,7 +94,7 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
   */
   const check = checkAnswer(answer, item.targetForm, "et", item.otherForms);
   if (check.verdict === "correct") {
-    return { credit: 1, right: true, usedAnotherForm: false, note: "That is the form the sentence wanted." };
+    return { credit: 1, right: true, usedAnotherForm: false, note: "That's exactly the form the sentence wanted." };
   }
   if (check.verdict === "diacritics" || check.verdict === "typo") {
     // A dropped diacritic is named by letter, because that is a thing to learn.
@@ -131,8 +131,8 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
       right: false,
       usedAnotherForm: true,
       note: other.toLowerCase() === item.lemma.toLowerCase()
-        ? "That is the dictionary form. This sentence needs it in another one."
-        : `That is another form of ${item.lemma}, not the one this sentence needs.`,
+        ? "That's the dictionary form. This sentence needs a different one."
+        : `That's another form of ${item.lemma}, but not the one this sentence needs.`,
     };
   }
 
@@ -140,7 +140,7 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
     credit: 0,
     right: false,
     usedAnotherForm: false,
-    note: `That is not a form of ${item.lemma}.`,
+    note: `That isn't a form of ${item.lemma}.`,
   };
 }
 
