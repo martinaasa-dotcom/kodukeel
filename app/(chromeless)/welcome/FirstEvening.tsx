@@ -101,7 +101,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
           </li>
         ))}
         <li className="px-1 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
-          {minutes} minutes, then it says you are done. {evenings.toLocaleString("en-GB")} evenings like it take you from here to C1.
+          {minutes} minutes, and then you&rsquo;re done for the night. {evenings.toLocaleString("en-GB")} evenings like this one take you all the way to C1.
         </li>
       </ol>
 
@@ -130,7 +130,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
             </ul>
             <div>
               <Button type="button" variant="primary" onClick={() => setStage("pick")}>
-                I have met them <ArrowRight size={16} aria-hidden />
+                I&rsquo;ve met them, test me <ArrowRight size={16} aria-hidden />
               </Button>
             </div>
           </>
@@ -139,7 +139,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
         {stage === "pick" && q && (
           <>
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              A moment later, each one comes back. Pick what it means. {at + 1} of {questions.length}
+              Now they come back one at a time. Pick what each one means. {at + 1} of {questions.length}
             </p>
             <FitText as="p" text={q.word.et} max="var(--text-4xl)" lang="et" className="font-display font-bold" style={{ color: "var(--ink)" }} />
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="group" aria-label="What it means">
@@ -160,7 +160,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
               })}
             </div>
             <p aria-live="polite" className={picked ? `verdict-panel ${VERDICT_CLASS[picked === q.word.en ? "right" : "wrong"]}` : "sr-only"}>
-              {picked ? (picked === q.word.en ? "That is it." : <>Not quite: <span lang="et">{q.word.et}</span> is {q.word.en}. It will come back.</>) : ""}
+              {picked ? (picked === q.word.en ? "That’s the one." : <>Not quite. <span lang="et">{q.word.et}</span> means {q.word.en}. It&rsquo;ll come round again soon.</>) : ""}
             </p>
             {picked && (
               <div>
@@ -175,15 +175,15 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
         {stage === "done" && (
           <>
             <p className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>
-              {right} of {words.length}, a minute after meeting them.
+              {right} out of {words.length}, just a minute after meeting them.
             </p>
             <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              That is the first step of the first evening. Inside, the ones you missed come back sooner,
-              and the ones you got come back just before you would forget them.
+              And that&rsquo;s the first step of your first evening. Inside, the ones you missed come
+              back sooner, and the ones you got come back just before you&rsquo;d forget them.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <button type="button" onClick={again} className="tap-tint inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
-                <RotateCcw size={15} aria-hidden /> Once more
+                <RotateCcw size={15} aria-hidden /> Try it again
               </button>
             </div>
           </>

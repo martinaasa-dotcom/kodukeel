@@ -100,19 +100,19 @@ export default async function CommonRoundPage({ params }: {
     return (
       <Page
         title={`Most common ${group.title.toLowerCase()}`}
-        lead="Asked in a different form each time, until they stick."
+        lead="Each word comes back in a different form, until it sticks."
       >
         <div className="flex flex-col gap-4">
           <Empty
             title={
               lexemeIds.length === 0
-                ? "The dictionary has not been loaded yet"
+                ? "The dictionary isn't loaded yet"
                 : "None of these are in your deck yet"
             }
             body={
               lexemeIds.length === 0
-                ? "This round is drawn from it, so there is nothing to ask until it is seeded."
-                : `Add the first ${COMMON_BATCH} and they arrive with every form the dictionary has.`
+                ? "This round comes from the dictionary, so there's nothing to ask until it's loaded."
+                : `Add the first ${COMMON_BATCH} and they'll come with every form the dictionary knows.`
             }
             action={
               lexemeIds.length === 0

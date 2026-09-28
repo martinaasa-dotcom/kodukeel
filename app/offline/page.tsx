@@ -21,15 +21,15 @@ export default function OfflinePage() {
         This screen needs a connection
       </h1>
       <p className="text-base" style={{ color: "var(--ink-2)" }}>
-        Pages you have already opened still work offline, and so does review. Anything you grade
-        is saved on this device and sent the moment you are back online.
+        You&rsquo;re offline right now. Pages you&rsquo;ve already opened still work, and so does
+        review. Anything you grade is saved on this device and sent the moment you&rsquo;re back online.
       </p>
       <a
         href="/review"
         className="grad-accent press mt-2 rounded-full px-6 py-3 text-base font-semibold"
         style={{ color: "var(--accent-ink)", boxShadow: "var(--shadow-accent)" }}
       >
-        Go to review
+        Do some review instead
       </a>
     </main>
   );

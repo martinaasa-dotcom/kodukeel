@@ -122,7 +122,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         </span>
       </span>
       </button>
-      <p className="hero-word-hint" aria-hidden>Tap it for the next ending</p>
+      <p className="hero-word-hint" aria-hidden>Tap it to try the next ending</p>
     </div>
   );
 }
@@ -181,7 +181,7 @@ export function PlanCalculator() {
   return (
     <div className="plan-calc grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
       <div className="flex flex-col gap-6">
-        <ChoiceGroup label="Why you are learning it" select="many">
+        <ChoiceGroup label="Why you’re learning" select="many">
           {SITUATIONS.map((r) => (
             <ChoiceChip key={r.id} selected={reasons.includes(r.id)} onSelect={() => toggle(r.id)}>
               {r.label}
@@ -207,7 +207,7 @@ export function PlanCalculator() {
             </ChoiceChip>
           ))}
         </ChoiceGroup>
-        <ChoiceGroup label="Time in the app, five evenings a week">
+        <ChoiceGroup label="Time you can give it, five evenings a week">
           {MINUTES.map((m) => (
             <ChoiceChip key={m} selected={minutes === m} onSelect={() => setMinutes(m)}>
               {formatDuration(m / 60)}
@@ -219,12 +219,12 @@ export function PlanCalculator() {
       <div className="plan-calc-answer night flex flex-col justify-center rounded-[var(--r-xl)] border p-6 md:p-8" aria-live="polite">
         {arrived ? (
           <>
-            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>You are there</p>
+            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>You&rsquo;re already there</p>
             <p className="mt-3 text-2xl font-bold leading-tight font-display" style={{ color: "var(--ink)" }}>
-              {target} is behind you already.
+              {target} is already behind you.
             </p>
             <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Pick a level above it and the sum starts again.
+              Pick a higher level and we&rsquo;ll work it out again.
             </p>
           </>
         ) : (

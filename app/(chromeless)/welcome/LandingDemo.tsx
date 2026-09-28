@@ -290,7 +290,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
           )}
           {learned.length > 0 && (
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              Estonians also say <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{learned.join(", ")}</span>, which no ending makes: learn this one too.
+              Estonians also say <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{learned.join(", ")}</span>, which no ending gives you, so learn that one too.
             </p>
           )}
         </div>
@@ -340,7 +340,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
             </span>
             <span className="text-sm font-semibold" style={{ color: all ? "var(--accent-deep)" : "var(--ink-2)" }}>
               {all
-                ? `All ${counted(derived.length)} built from one stem. That is the trick.`
+                ? `All ${counted(derived.length)} built from one stem. That’s the whole trick.`
                 : `${doneHere} of ${derived.length} built from ${word.lemma}`}
             </span>
           </div>
@@ -370,10 +370,10 @@ export function TutorPeek() {
           style={{ background: "var(--surface)", borderColor: "var(--rule)", color: "var(--ink-2)" }}
         >
           <span className="label-xs mb-1.5 block" style={{ color: "var(--blush-ink)" }}>Anu</span>
-          Because the action is not finished yet. <span lang="et" className="font-semibold">Ma loen raamatut</span>{" "}
-          means “I am reading a book”: osastav, so it is still going. Swap in the omastav and you get{" "}
-          <span lang="et" className="font-semibold">Ma loen raamatu läbi</span>, a whole book,
-          finished. In Estonian, the case of the object is what tells you whether the action is done.
+          Because you haven&rsquo;t finished it yet. <span lang="et" className="font-semibold">Ma loen raamatut</span>{" "}
+          means “I&rsquo;m reading a book”, and the osastav says you&rsquo;re still at it. Swap in the omastav and you get{" "}
+          <span lang="et" className="font-semibold">Ma loen raamatu läbi</span>: the whole book,
+          done. In Estonian, the object&rsquo;s case tells you whether the action is finished.
         </div>
       ) : (
         <button

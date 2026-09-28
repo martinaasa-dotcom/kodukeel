@@ -132,10 +132,10 @@ export default async function GovernmentPage({
 
   if (parsed.length === 0) {
     return (
-      <Page title="Verb government" lead="Which case a verb demands.">
+      <Page title="Verb government" lead="Many verbs want a particular case after them. Learn which one.">
         <Empty
-          title="No governed verbs in the dictionary yet"
-          body="Look a verb up once and the case it demands is stored with it."
+          title="No verbs to practise yet"
+          body="Look up a verb in the dictionary and the case it takes gets saved with it."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>

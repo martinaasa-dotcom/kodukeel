@@ -37,8 +37,8 @@ export default function GlobalError({
         <main style={{ maxWidth: "34rem", padding: "2rem", textAlign: "center" }}>
           <h1 style={{ fontSize: "1.5rem", margin: 0 }}>Kodukeel could not start</h1>
           <p style={{ marginTop: ".75rem", lineHeight: 1.6, color: "#5b5470" }}>
-            Something failed before the app could load. Your deck and review history are stored on
-            the server and are not affected.
+            Something broke before the app could load. Your deck and your review history are kept
+            safe on the server, so none of it is affected.
           </p>
           <button
             onClick={reset}

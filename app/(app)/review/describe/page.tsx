@@ -49,10 +49,10 @@ export default async function DescribePage({
 
   if (round.length === 0) {
     return (
-      <Page title="Say what you see" lead="A picture, and one sentence of your own about it.">
+      <Page title="Say what you see" lead="Look at a picture, then write one sentence of your own about it.">
         <Empty
           title="No pictures at your level yet"
-          body="This draws on nouns the dictionary can build case forms for."
+          body="This needs nouns at your level that we can put into cases. Check back soon."
           action={<ButtonLink href="/practice" variant="primary">Back to practice</ButtonLink>}
         />
       </Page>

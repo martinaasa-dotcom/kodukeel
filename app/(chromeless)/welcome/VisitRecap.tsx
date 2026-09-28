@@ -20,10 +20,10 @@ export function VisitRecap() {
     <div className="visit-recap mx-auto mt-8 max-w-2xl rounded-[var(--r-lg)] px-5 py-4" aria-live="polite">
       <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>
         {built.length > 0 && ordered
-          ? `You built ${built.length === 1 ? "a form" : `${built.length} forms`} and ordered ${ordered} in Estonian, on a landing page.`
+          ? `You built ${built.length === 1 ? "a form" : `${built.length} forms`} and ordered ${ordered} in Estonian, before you’ve even signed up.`
           : built.length > 0
-            ? `You built ${built.length === 1 ? "a form" : `${built.length} forms`} of Estonian on a landing page.`
-            : `You ordered ${ordered} in Estonian, on a landing page.`}
+            ? `You built ${built.length === 1 ? "a form" : `${built.length} forms`} of Estonian, before you’ve even signed up.`
+            : `You ordered ${ordered} in Estonian, before you’ve even signed up.`}
       </p>
       {shown.length > 0 && (
         <ul className="mt-3 flex flex-wrap justify-center gap-2">
@@ -33,7 +33,7 @@ export function VisitRecap() {
         </ul>
       )}
       <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        Imagine fifteen minutes of that every evening.
+        Now imagine fifteen minutes of that every evening.
       </p>
     </div>
   );

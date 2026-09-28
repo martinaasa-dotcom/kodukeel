@@ -82,15 +82,15 @@ export const metadata: Metadata = {
     template: "%s | kodukeel",
   },
   description:
-    "Estonian for the counter, the clinic and the neighbor: practice that sticks, a conversation " +
-    "to rehearse with somebody who has an agenda of their own, and one thing to say out loud today.",
+    "Estonian for the shop counter, the doctor's and the neighbor on the stairs. Fifteen minutes an " +
+    "evening, conversations you can rehearse first, and one small thing to say out loud today.",
   icons: { icon: "/icon.svg" },
   applicationName: "kodukeel",
   appleWebApp: { capable: true, title: "kodukeel", statusBarStyle: "default" },
   openGraph: {
     title: "kodukeel. Estonian that finally sticks",
     description:
-      "Practice that sticks, a conversation to rehearse, and one thing to say to a real person today.",
+      "Fifteen minutes an evening, a conversation to rehearse, and one small thing to say to a real person today.",
     type: "website",
     siteName: "kodukeel",
     /*

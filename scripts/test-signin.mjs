@@ -315,7 +315,7 @@ check("a code arriving with no verifier cookie is sent back as bounced, not as a
 await page.goto(`${B}/sign-in?bounced=1`, { waitUntil: "domcontentloaded" });
 const bouncedText = await page.locator("main").innerText();
 check("and the screen says the browser has nothing to finish it with, and who to tell",
-  /nothing to finish/i.test(bouncedText) && bouncedText.includes(OPERATOR_EMAIL));
+  /couldn.t finish/i.test(bouncedText) && bouncedText.includes(OPERATOR_EMAIL));
 
 /*
   `fetch` strips a `Host` header rather than sending it, silently, so this one

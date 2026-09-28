@@ -173,7 +173,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
     // Wrong pair: flash both, count it against the card being learned.
     setWrong([selected.key, tile.key]);
-    setSaid("Not a pair.");
+    setSaid("Those two don't go together.");
     setMisses((m) => ({ ...m, [tile.cardId]: (m[tile.cardId] ?? 0) + 1, [selected.cardId]: (m[selected.cardId] ?? 0) + 1 }));
     if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(50);
     window.setTimeout(() => { setWrong(null); setSelected(null); }, 450);
@@ -181,10 +181,10 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
   if (pairs.length === 0) {
     return (
-      <Page title="Match" lead="Pair the Estonian with its meaning, against the clock.">
+      <Page title="Match" lead="Pair each Estonian word with its meaning, as fast as you can.">
         <Empty
-          title="Not enough cards to make a round"
-          body="Match needs four words in your deck."
+          title="A few more words needed"
+          body="Match needs at least four words in your deck. Learn a couple more and come back."
           action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
         />
       </Page>
@@ -196,7 +196,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       <RoundStart
         icon={<Timer size={34} aria-hidden />}
         title="Match"
-        lead="Clear the board against the clock."
+        lead="Clear the board as fast as you can."
         hue="sky"
         chips={<>
           <RoundChip>{pairs.length} pairs</RoundChip>
@@ -213,7 +213,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           </Button>
         }
       >
-        <p><BriefingLines id="match" /> Pairs you get first time count as a clean review.</p>
+        <p><BriefingLines id="match" /> A pair you get right first time counts as a good review.</p>
       </RoundStart>
     );
   }
@@ -224,11 +224,11 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <Confetti count={40} />
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          All matched.
+          All matched up.
         </h1>
         <p className="mt-2 flex items-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
           {isNewBest && <Trophy size={17} aria-hidden style={{ color: "var(--hard-ink)" }} />}
-          {isNewBest ? "New personal best." : best > 0 ? `Best so far: ${best}s.` : "First round recorded."}
+          {isNewBest ? "That's a new personal best." : best > 0 ? `Your best so far is ${best}s.` : "Your first time is on the board. Now try to beat it."}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-[var(--r-lg)] border p-6"
@@ -239,7 +239,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           <Stat value={missed} label="Wrong taps" />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/practice">Other modes</ButtonLink>
+          <ButtonLink href="/practice">Try something else</ButtonLink>
           <ButtonLink href="/">Back to Today</ButtonLink>
           <ButtonLink href="/review/match" variant="primary">Another round</ButtonLink>
         </WayOut>
@@ -329,7 +329,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
       <p className="mt-5 text-center text-xs" style={{ color: "var(--ink-3)" }}>
         <span style={{ color: "var(--accent-deep)" }}>Estonian</span> on the lilac tiles, its meaning
-        on the white ones. Wrong taps just cost you time.
+        on the white ones. A wrong tap just costs you a little time.
       </p>
     </div>
   );

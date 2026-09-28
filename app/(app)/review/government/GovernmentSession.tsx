@@ -182,11 +182,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          Round complete
+          That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          There&rsquo;s no rule for rektsioon, you just remember it verb by verb. A little often
-          beats a lot at once.
+          There&rsquo;s no rule for rektsioon. You just get to know it, one verb at a time.
+          A little and often beats a lot in one go.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -343,7 +343,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {question.experiencer
                 ? `Here the person goes in the ${question.answerEt}, and the thing itself is the subject.`
-                : `${question.lemma} governs the ${question.answerEt}${questionInEnglish(question.answerQuestion) ? `, the one that asks ${questionInEnglish(question.answerQuestion)}` : ""}. English gives you no clue here, so it has to be learned with the verb.`}
+                : `${question.lemma} takes the ${question.answerEt}${questionInEnglish(question.answerQuestion) ? `, the one that asks ${questionInEnglish(question.answerQuestion)}` : ""}. English gives you no clue here, so it's worth learning together with the verb.`}
             </p>
             {/*
               A verb often governs more than one case, in different senses.
@@ -362,8 +362,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                   </span>
                 ))}{" "}
                 {question.alsoGoverned.length === 1
-                  ? "too, in another sense. Picking that wouldn't have been wrong, just a different sense."
-                  : "too, in other senses. Picking one of those wouldn't have been wrong, just a different sense."}
+                  ? "too, when it means something else. Picking that wasn't wrong. You were just thinking of the other meaning."
+                  : "too, when it means something else. Picking one of those wasn't wrong. You were just thinking of another meaning."}
               </p>
             )}
 
@@ -401,11 +401,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         {revealed && question && (
           picked === question.answer
             ? "Right."
-            : <>Not this time. <span lang="et">{question.lemma}</span> takes <span lang="et">{caseLabel(question.answer)?.question}</span>.</>
+            : <>Not quite. <span lang="et">{question.lemma}</span> takes <span lang="et">{caseLabel(question.answer)?.question}</span>.</>
         )}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{correct}/{index + (revealed ? 1 : 0)} right, keys 1 to 4 to answer</span>
+        <span>{correct}/{index + (revealed ? 1 : 0)} right, press 1 to 4 to answer</span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

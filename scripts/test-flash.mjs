@@ -193,7 +193,7 @@ async function answer(typed) {
   await check.click();
   // Three verdicts now rather than two: the panel says "Nearly" for the right
   // word in the wrong ending, which is a near miss and not a blank.
-  await page.waitForSelector("main >> text=/That is it|Nearly|Not this time/", { timeout: 10_000 });
+  await page.waitForSelector("main >> text=/That's it|Nearly|Not quite/", { timeout: 10_000 });
   const text = await page.locator("main").innerText();
   /*
     The form the panel prints and the slot it names, read off the two marked
@@ -218,7 +218,7 @@ async function answer(typed) {
   */
   if (!slot && ASK_LINES[0].test(text)) slot = "saying it";
   return {
-    right: /That is it/.test(text),
+    right: /That's it/.test(text),
     told: form && slot ? `${slot}: ${form}` : "",
     text,
   };

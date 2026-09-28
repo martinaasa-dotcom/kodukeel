@@ -71,12 +71,12 @@ export default async function FlashcardsPage({
 
   if (unfinished.length === 0) {
     return (
-      <Page title="Flash cards" lead="The words you have met, asked in a way you have not.">
+      <Page title="Flash cards" lead="Words you've met, asked in a way you haven't seen yet.">
         <Empty
-          title={words.length === 0 ? "No words met yet" : "Every word you have met is mastered"}
+          title={words.length === 0 ? "No words met yet" : "You've mastered every word you've met"}
           body={
             words.length === 0
-              ? "This round works on words review has already introduced."
+              ? "This round works on words you've already met in review. Meet a few first."
               : undefined
           }
           action={
@@ -165,11 +165,11 @@ export default async function FlashcardsPage({
 
   if (prompts.length === 0) {
     return (
-      <Page title="Flash cards" lead="The words you have met, asked in a way you have not.">
+      <Page title="Flash cards" lead="Words you've met, asked in a way you haven't seen yet.">
         <Empty
-          title="Nothing to ask yet"
-          body="Every word you have met is either mastered or has no form left to ask for."
-          action={<ButtonLink href="/words/mastery" variant="primary">See where you are</ButtonLink>}
+          title="Nothing left to ask right now"
+          body="Every word you've met is either mastered or has no new form left to try."
+          action={<ButtonLink href="/words/mastery" variant="primary">See how your words are doing</ButtonLink>}
         />
       </Page>
     );

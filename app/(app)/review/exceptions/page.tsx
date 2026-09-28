@@ -189,11 +189,11 @@ function cardFor(
 /** The one empty state, whichever of the two reasons there is nothing to ask. */
 function NothingToDrill() {
   return (
-    <Page title="Exceptions" lead="The forms the ending rules do not reach.">
+    <Page title="Exceptions" lead="The forms that don't follow the usual endings.">
       <Empty
-        title="Nothing to drill here yet"
-        body="The dictionary has no graded words near your level with this kind of exception."
-        action={<ButtonLink href="/grammar/exceptions" variant="primary">See the exceptions</ButtonLink>}
+        title="Nothing to practise here yet"
+        body="There aren't any words near your level that break the rule this way yet."
+        action={<ButtonLink href="/grammar/exceptions" variant="primary">Browse the exceptions</ButtonLink>}
       />
     </Page>
   );

@@ -110,9 +110,9 @@ export default function FundingPage() {
   return (
     <Legal title="Funding" updated="2 September 2026">
       <P>
-        Kodukeel is free to use, there is nothing to buy, and nothing about you is sold.
-        This page is the arithmetic behind that sentence: what the app runs on, what each
-        piece costs, who is paying for the copy you are reading, and what would change if
+        Kodukeel is free to use, there&rsquo;s nothing to buy, and nothing about you is sold.
+        This page shows the sums behind that sentence: what the app runs on, what each piece
+        costs, who&rsquo;s paying for the copy you&rsquo;re reading, and what would change if
         somebody funded it.
       </P>
 
@@ -120,13 +120,13 @@ export default function FundingPage() {
         {operator.identified ? (
           <P>
             This installation is run by <strong>{operator.name}</strong>, and they pay the
-            bills on this page. Kodukeel is software somebody installs rather than one
+            bills on this page. Kodukeel is software anyone can install rather than one
             service, so every copy has its own operator and its own invoice.
           </P>
         ) : (
           <P>
             <strong>Whoever runs this installation has not filled their name in.</strong>{" "}
-            Kodukeel is software somebody installs rather than one service, so the bills
+            Kodukeel is software anyone can install rather than one service, so the bills
             below are paid by whoever set this copy up. They are supposed to be named here
             and on the <Link href="/privacy" className="underline underline-offset-2">privacy page</Link>,
             and they are not. If that is you, set <code>OPERATOR_NAME</code>,{" "}
@@ -151,9 +151,9 @@ export default function FundingPage() {
         </P>
         <P>
           <strong>Nothing anybody bills us for is counted as free.</strong> Every vendor
-          here is on the plan a real deployment is on, because a free tier is one that
-          pauses when nobody is on it or forbids commercial use, and modeling one would
-          describe a deployment nobody runs.
+          here is on the plan a real deployment is on, because a free tier either pauses
+          when nobody&rsquo;s using it or forbids commercial use, and pricing one would
+          describe a deployment nobody actually runs.
         </P>
         <P>
           <strong>What is given is credited, not priced.</strong> Ekilex, Wiktionary and
@@ -214,9 +214,9 @@ export default function FundingPage() {
 
       <S title="What it comes to">
         <P>
-          Move the slider. Nothing here is stored and nothing is sent anywhere; the
-          arithmetic runs in your browser, out of the same modules the app itself uses to
-          decide when to stop spending.
+          Move the slider. Nothing here is stored or sent anywhere. The sums run in your
+          browser, using the same code the app itself uses to decide when to stop
+          spending.
         </P>
         <CostExplorer />
       </S>

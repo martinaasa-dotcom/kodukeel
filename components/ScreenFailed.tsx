@@ -59,8 +59,8 @@ export function ScreenFailed({ error, reset }: { error: Error & { digest?: strin
         That screen didn&rsquo;t load
       </h1>
       <p className="text-base" style={{ color: "var(--ink-2)" }}>
-        Nothing has been lost. Your deck and review history are untouched. Trying again usually
-        works.
+        Nothing has been lost. Your deck and your review history are safe, and trying again
+        usually does the trick.
       </p>
       {/*
         WHAT THE FRAMEWORK PUTS IN `error.message` IS NOT A SENTENCE ANYBODY
@@ -87,7 +87,7 @@ export function ScreenFailed({ error, reset }: { error: Error & { digest?: strin
           <code className="rounded px-1.5 py-0.5" style={{ background: "var(--raised)" }}>
             {error.digest}
           </code>
-          . If you run this copy of Kodukeel, the server log holds what actually went wrong.
+          . If you run this copy of Kodukeel, the server log will show what actually went wrong.
         </p>
       ) : (
         <code

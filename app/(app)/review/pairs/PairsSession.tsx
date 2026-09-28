@@ -178,11 +178,11 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     return (
       <div className="mx-auto max-w-lg px-5 py-20 text-center">
         <h1 className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-          No audio, no drill
+          This one needs sound
         </h1>
         <p className="mx-auto mt-2 max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
-          This exercise is all about what a word sounds like, so without audio there&rsquo;s nothing
-          to show you. It needs a connection to work.
+          This exercise is all about how a word sounds, so without audio there&rsquo;s nothing
+          to play you. Try again once you&rsquo;re back online.
         </p>
         <WayOut className="mt-6 flex justify-center">
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
@@ -197,12 +197,12 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          Round complete
+          That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          In Estonian, length changes the word: <span lang="et">maja</span> and{" "}
-          <span lang="et">majja</span> are different words, not the same word said twice. Ears take
-          longer than eyes.
+          In Estonian, how long you hold a sound changes the meaning: <span lang="et">maja</span> and{" "}
+          <span lang="et">majja</span> aren&rsquo;t the same thing said twice. Ears take a while
+          to catch up with eyes, so be patient with them.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -331,10 +331,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
               {question.letter
-                ? <>The two only differ in how long the <strong lang="et">{question.letter}</strong> sounds.
-                    The doubled spelling, <strong lang="et">{question.longer}</strong>, is the longer one.</>
-                : <>The two only differ in length.</>}
-              {question.sameWord && " Both are forms of the same word. Here the length shows the grammar, not a different meaning."}
+                ? <>The only difference is how long the <strong lang="et">{question.letter}</strong> is held.
+                    The one with the double letter, <strong lang="et">{question.longer}</strong>, is the longer one.</>
+                : <>The only difference is how long a sound is held.</>}
+              {question.sameWord && " Both are forms of the same word. Here the length changes the grammar, not the meaning of the word."}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               {question.options.map((o) => (
@@ -364,11 +364,11 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         {revealed && question && (
           picked?.toLowerCase() === question.heard.toLowerCase()
             ? "Right."
-            : <>Not this time. It was <span lang="et">{question.heard}</span>.</>
+            : <>Not quite. It was <span lang="et">{question.heard}</span>.</>
         )}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{correct}/{index + (revealed ? 1 : 0)} right, keys 1 to 2 to answer</span>
+        <span>{correct}/{index + (revealed ? 1 : 0)} right, press 1 or 2 to answer</span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

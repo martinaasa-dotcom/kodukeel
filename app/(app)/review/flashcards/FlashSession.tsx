@@ -239,10 +239,10 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          Round complete
+          That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Every answer counted toward the word it was about.
+          Every answer went toward learning its word, right or wrong.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -301,7 +301,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               line of its own. */}
           <span className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <Chip tone="accent">{askLine({ ...task, shape: shape ?? task.shape })}</Chip>
-            {task.provenance === "derived" && <Chip>worked out from the stem</Chip>}
+            {task.provenance === "derived" && <Chip>built from the stem</Chip>}
           </span>
           {/* The corner of the card, which is where somebody looks for this the
               moment a word turns out to be worth keeping. */}
@@ -484,7 +484,7 @@ function Question({
             autoplay
           />
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Play it, then type the form of {task.lemma} you hear.
+            Listen, then type the form of {task.lemma} you hear.
           </span>
         </div>
       </div>
@@ -499,7 +499,7 @@ function Question({
       <SlotLine task={task} />
       {shape === "build" && !plainAskFor(task) && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-          Write one sentence of your own with it in that form.
+          Write a sentence of your own, with the word in that form.
         </p>
       )}
     </div>
@@ -584,7 +584,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
     counts as produced, so it reads as the recall it was.
   */
   const verdict = mark.right ? "right" : verdictOfRating(mark.rating);
-  const head = { right: "That is it", nearly: "Nearly", wrong: "Not this time" }[verdict];
+  const head = { right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict];
 
   return (
     <div className="mt-6" aria-live="polite">
@@ -666,8 +666,8 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 
       <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
         {task.provenance === "ekilex"
-          ? "This form is the one the dictionary records."
-          : "This form is worked out from the stem the dictionary records."}{" "}
+          ? "This is the form the dictionary gives."
+          : "This form is built from the stem in the dictionary."}{" "}
         {spec && (
           <Link
             href={`/grammar/${task.slot.toLowerCase()}`}

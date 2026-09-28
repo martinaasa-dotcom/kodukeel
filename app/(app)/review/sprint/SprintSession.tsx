@@ -147,10 +147,10 @@ export function SprintSession({
   if (phase === "ready") {
     if (cards.length === 0) {
       return (
-        <Page title="Case Sprint" lead={`A speed round through your deck, ${roundLength(seconds)} on the clock.`}>
+        <Page title="Case Sprint" lead={`A quick-fire round through your deck. You've got ${roundLength(seconds)}.`}>
           <Empty
-            title="Nothing to sprint through yet"
-            body="This draws on cards that are due, or that you have slipped on before."
+            title="Nothing to race through yet"
+            body="This uses cards that are due, or ones you've tripped over before. There aren't any yet."
             action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
           />
         </Page>
@@ -160,7 +160,7 @@ export function SprintSession({
       <RoundStart
         icon={<Timer size={34} aria-hidden />}
         title="Case Sprint"
-        lead={`${roundLength(seconds)} on the clock.`}
+        lead={`You've got ${roundLength(seconds)}. Go as fast as you can.`}
         chips={<>
           <RoundChip>{counted(cards.length, "card")} loaded</RoundChip>
           <RoundChip icon={<Trophy size={14} aria-hidden />}>Personal best {best}</RoundChip>
@@ -178,7 +178,7 @@ export function SprintSession({
           */}
           Need longer?{" "}
           {inModule ? (
-              <span>Settings lets you give yourself more time</span>
+              <span>You can give yourself more time in Settings</span>
             ) : (
               <Link href="/settings#round-pace" className="underline underline-offset-2">
                 Give yourself more time
@@ -188,8 +188,8 @@ export function SprintSession({
         </>}
       >
         <p>
-          <BriefingLines id="sprint" /> {ADVANCE_KEY_LABEL} flips the card, again for correct,
-          Backspace for missed.
+          <BriefingLines id="sprint" /> {ADVANCE_KEY_LABEL} flips the card. Press it again if you got it,
+          or Backspace if you missed it.
         </p>
       </RoundStart>
     );
@@ -207,14 +207,14 @@ export function SprintSession({
             </h1>
             <p className="mt-2 flex items-center justify-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
               {isNewBest && <Trophy size={17} aria-hidden style={{ color: "var(--butter-ink)" }} />}
-              {isNewBest ? "New personal best." : `Best so far: ${best}.`}
+              {isNewBest ? "That's a new personal best." : `Your best so far is ${best}.`}
             </p>
           </div>
         </Lettered>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={correct} label="Score" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
-          <StatTile value={attempted} label="Attempted" tone="sky" />
+          <StatTile value={attempted} label="Cards seen" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>

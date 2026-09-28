@@ -225,17 +225,17 @@ export function SentenceSession(
 
   if (initialTasks.length === 0) {
     return (
-      <Page title="Sentences" lead="Put real Estonian sentences back in order.">
+      <Page title="Sentences" lead="Real Estonian sentences, jumbled up. Put them back in order.">
         {opensAt ? (
           <Empty
-            title={`This one opens at ${opensAt}`}
-            body="Word order comes after the words themselves. Keep learning and it will be here."
+            title={`This one starts at ${opensAt}`}
+            body="Words first, then word order. Keep learning and this will be waiting for you."
             action={<ButtonLink href="/learn" variant="primary">Carry on learning</ButtonLink>}
           />
         ) : (
           <Empty
             title="No sentences to build yet"
-            body="Sentences are linked to words already in your deck."
+            body="The sentences come from words in your deck. Add a few more and check back."
             action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
           />
         )}
@@ -251,7 +251,7 @@ export function SentenceSession(
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
           <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            Sentences done
+            All sentences built
           </h1>
           {/* The provenance disclaimer is off every round in the app; see the
               level check. The sentence in front of it was this app telling
@@ -263,7 +263,7 @@ export function SentenceSession(
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">Other modes</ButtonLink>
+          <ButtonLink href="/practice" size="lg">Try something else</ButtonLink>
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/sentences" variant="primary" size="lg">Another round</ButtonLink>
         </WayOut>
@@ -328,7 +328,7 @@ export function SentenceSession(
             ) : previewing ? (
               <>
                 <p className="label-xs mb-2 flex items-center justify-center gap-1.5" style={{ color: "var(--ink-3)" }}>
-                  <Eye size={12} aria-hidden /> Read it. The words scramble in a moment
+                  <Eye size={12} aria-hidden /> Read it. The words get jumbled in a moment
                 </p>
                 <p lang="et" className="text-xl leading-snug" style={{ color: "var(--ink)" }}>
                   {task.et}

@@ -330,10 +330,10 @@ export function QuestSession({
 
   if (cards.length === 0) {
     return (
-      <Page title="Daily quest" lead={`${roundLength(seconds)} on whatever keeps going wrong.`}>
+      <Page title="Daily quest" lead={`${roundLength(seconds)} on the endings that keep tripping you up.`}>
         <Empty
           title="Nothing to work on yet"
-          body="This round draws on the cards you have already answered."
+          body="This round works on cards you've already answered, so review a few first."
           action={<ButtonLink href="/review" variant="primary">Open review</ButtonLink>}
         />
       </Page>
@@ -345,7 +345,7 @@ export function QuestSession({
       <RoundStart
         icon={<Timer size={34} aria-hidden />}
         title="Daily quest"
-        lead={`${roundLength(seconds)} on whatever keeps going wrong.`}
+        lead={`${roundLength(seconds)} on the endings that keep tripping you up.`}
         hue="blush"
         actions={<>
           <ButtonLink href="/" variant="ghost">Not now</ButtonLink>
@@ -377,7 +377,7 @@ export function QuestSession({
           >
             <h2 className="flex items-center gap-2 text-md font-bold" style={{ color: "var(--ink)" }}>
               <Target size={17} aria-hidden style={{ color: "var(--cta)" }} />
-              Aimed at your weakest endings
+              The endings you find hardest
             </h2>
             <ul className="mt-4 flex flex-col gap-4">
               {aimed.map((c) => (
@@ -409,7 +409,7 @@ export function QuestSession({
   if (phase === "done") {
     const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
     return (
-      <Page title="Daily quest" lead="That is where you stand today.">
+      <Page title="Daily quest" lead="That's today's quest done.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
             <StatTile value={correct} label="Right" tone="sky" />
@@ -418,8 +418,8 @@ export function QuestSession({
           </div>
           <p className="max-w-[40ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {attempted === 0
-              ? "Nothing answered, so nothing recorded. The round is here again whenever you want it."
-              : "Every one of those went into the schedule, so the cards you missed come back sooner."}
+              ? "You didn't answer any, so nothing was saved. Come back whenever you're ready."
+              : "Every answer counted. The ones you missed will come back a bit sooner."}
           </p>
           <WayOut className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/practice" size="lg">Play a round</ButtonLink>
@@ -474,7 +474,7 @@ export function QuestSession({
           style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
           {card.targetsWeakCase && (
-            <Chip tone="hard">One of your weak spots</Chip>
+            <Chip tone="hard">One you often miss</Chip>
           )}
           <FitText as="p" text={card.front} lang="et" className="round-word font-bold" style={{ color: "var(--ink)" }} />
           {/*
@@ -540,7 +540,7 @@ export function QuestSession({
                   {picked && acceptedAnswers(card.back, "et")
                     .some((f) => f.toLocaleLowerCase("et") === picked.toLocaleLowerCase("et"))
                     ? "Right."
-                    : `Not this time. The answer is ${card.back}.`}
+                    : `Not this time. It's ${card.back}.`}
                 </p>
               )}
               {!revealed && (
@@ -613,7 +613,7 @@ export function QuestSession({
                     role="status"
                     className={`${check.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(check.verdict)]} verdict-panel`}
                   >
-                    {check.verdict === "correct" ? "Right." : check.note || `The answer is ${primaryAnswer(card.back)}.`}
+                    {check.verdict === "correct" ? "Right." : check.note || `It's ${primaryAnswer(card.back)}.`}
                   </p>
                   <Button variant="primary" size="lg" autoFocus disabled={busy} onClick={nextTyped}>
                     Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>

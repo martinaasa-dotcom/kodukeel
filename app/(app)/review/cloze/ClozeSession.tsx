@@ -64,7 +64,7 @@ export function ClozeSession() {
       setPhase("drill");
       startedAt.current = Date.now();
     } catch {
-      setError("Couldn't read that text. Check your connection and try again.");
+      setError("We couldn't read that text. Check your connection and have another go.");
     } finally {
       setBusy(false);
     }
@@ -128,7 +128,7 @@ export function ClozeSession() {
     return (
       <Page
         title="From your reading"
-        lead="Paste Estonian you are actually reading. Words already in your deck get blanked out."
+        lead="Paste in something you're reading. Words from your deck turn into gaps to fill."
       >
         <div
           className="rounded-lg border p-5"
@@ -170,7 +170,7 @@ export function ClozeSession() {
           </WayOut>
 
           <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
-            Your text isn&rsquo;t saved. It&rsquo;s just used to find your words, then thrown away.
+            We don&rsquo;t keep your text. It&rsquo;s used to find your words, then thrown away.
           </p>
         </div>
       </Page>
@@ -183,11 +183,11 @@ export function ClozeSession() {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          Passage complete
+          That&rsquo;s the whole passage
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Every answer there was a form a native writer chose, in a sentence they actually wrote.
-          That is a better model than any exercise book.
+          Every gap was a form a real Estonian writer chose, in a sentence they really wrote.
+          You can&rsquo;t get better practice material than that.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -199,7 +199,7 @@ export function ClozeSession() {
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
           <Button onClick={() => { setPhase("paste"); setItems([]); setIndex(0); setCorrect(0); setText(""); }}>
-            Another passage
+            Try another passage
           </Button>
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
         </WayOut>
@@ -300,9 +300,9 @@ export function ClozeSession() {
               the panel under it is for the eye. */}
           <p className="sr-only" role="status">
             {!checked ? "" : right
-              ? "Exactly the form the writer used."
+              ? "Spot on, that's exactly what the writer used."
               : slip
-                ? `Right word, missing a diacritic. The form is ${item.answer}.`
+                ? `Right word, just missing an Estonian letter. It's ${item.answer}.`
                 : `The writer used ${item.answer}, the ${item.formLabel}.`}
           </p>
           {checked && (
@@ -313,9 +313,9 @@ export function ClozeSession() {
                   : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
                 <p className="text-base">
                   {right
-                    ? "Exactly the form the writer used."
+                    ? "Spot on, that's exactly what the writer used."
                     : slip
-                      ? <>Right word, missing a diacritic. The form is <strong lang="et">{item.answer}</strong>. Use the bar under the box.</>
+                      ? <>Right word, just missing an Estonian letter. It&rsquo;s <strong lang="et">{item.answer}</strong>. The letter bar under the box can help.</>
                       : <>The writer used <strong lang="et">{item.answer}</strong>, the {item.formLabel}.</>}
                 </p>
               </div>

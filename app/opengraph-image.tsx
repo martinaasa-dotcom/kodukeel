@@ -58,7 +58,7 @@ export default function OpenGraphImage() {
             Estonian that finally sticks
           </div>
           <div style={{ display: "flex", fontSize: 34, color: "#3e4166", lineHeight: 1.35, maxWidth: 940 }}>
-            Practice that sticks, a conversation to rehearse, and one thing to say to a real person today.
+            Fifteen minutes an evening, a conversation to rehearse, and one small thing to say to a real person today.
           </div>
         </div>
 
@@ -71,7 +71,7 @@ export default function OpenGraphImage() {
           <div style={{ display: "flex", padding: "12px 24px", borderRadius: 999, background: "#ece5ff" }}>Free</div>
           <div style={{ display: "flex", padding: "12px 24px", borderRadius: 999, background: "#ece5ff" }}>Works offline</div>
           <div style={{ display: "flex", padding: "12px 24px", borderRadius: 999, background: "#ece5ff" }}>
-            Every form from a dictionary, never from a model
+            Every form from a dictionary, never from AI
           </div>
         </div>
       </div>

@@ -104,10 +104,10 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
 
   if (cards.length === 0) {
     return (
-      <Page title="Speaking" lead="Say it out loud, then hear a native voice say the same thing.">
+      <Page title="Speaking" lead="Say it out loud, then hear how a native voice says it.">
         <Empty
           title="Nothing to say yet"
-          body="This draws on the words already in your deck."
+          body="This uses words from your deck, so learn a few first and come back."
           action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
         />
       </Page>
@@ -129,7 +129,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
               rather than behind a press; the sentence in front of it was the
               app explaining to somebody who has just finished why they did it. */}
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Nothing you recorded left this device.
+            Your recordings never left this device.
           </p>
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3">
@@ -137,7 +137,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">Other modes</ButtonLink>
+          <ButtonLink href="/practice" size="lg">Try something else</ButtonLink>
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/speaking" variant="primary" size="lg">Another round</ButtonLink>
         </WayOut>
@@ -221,9 +221,9 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
                 <SpeakPair text={card.et} size={17} autoplay />
               </div>
               <Recorder />
-              <Explain label="Why you are the judge here">
-                Compare the two, then rate how close you were. Nothing is uploaded. This app can&rsquo;t
-                understand Estonian speech, so it won&rsquo;t pretend to score you.
+              <Explain label="Why you mark yourself here">
+                Listen to both, then say how close you got. Nothing is uploaded. This app can&rsquo;t
+                understand spoken Estonian well enough, so it won&rsquo;t pretend to score you.
               </Explain>
             </>
           )}

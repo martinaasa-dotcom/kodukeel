@@ -46,7 +46,7 @@ export default function StateExamPage() {
         The state examination
       </h1>
       <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-        Read off the state&rsquo;s own pages on {spelledDay(READ_ON)}
+        Checked against the state&rsquo;s own pages on {spelledDay(READ_ON)}
       </p>
 
       {/*
@@ -74,7 +74,7 @@ export default function StateExamPage() {
           </ul>
         </div>
         <div>
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>Four parts, every level</p>
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>Four parts at every level</p>
           <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-3">
             {[
               { name: "Writing", Icon: PenLine },
@@ -95,8 +95,8 @@ export default function StateExamPage() {
 
       <div className="mt-8 space-y-8">
         <P>
-          Every fact names the page it was read from. Rules and dates change, so check that page
-          before you register.
+          Every fact below links to the page it came from. Rules and dates do change, so check
+          that page before you register.
         </P>
 
         {GUIDE.map((section) => (
@@ -122,7 +122,7 @@ export default function StateExamPage() {
 
         <S title="The best free preparation there is">
           <P>
-            The Board publishes its own, free. Start here before anything else, this app included.
+            The Board publishes its own practice materials, for free. Start with these before anything else, this app included.
           </P>
           <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {MATERIALS.map((material) => (
@@ -138,11 +138,12 @@ export default function StateExamPage() {
 
         <S title="Where Kodukeel fits">
           <P>
-            Kodukeel sets a mock paper at A2, B1, B2 and C1, and one of its own at A1. Each keeps
-            the published clock, the points, the pass mark and the rule that no part may score
-            nothing, and every task says which official task it stands in for. The questions are
-            built from sentences a lexicographer recorded, so they are not the Board&rsquo;s own.
-            Nothing here scores pronunciation, and it is free.
+            Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one
+            keeps the published time limits, the points, the pass mark and the rule that you fail
+            if any part scores zero, and every task tells you which official task it stands in
+            for. The questions are built from sentences a lexicographer recorded, so they
+            aren&rsquo;t the Board&rsquo;s own. Nothing here scores your pronunciation, and
+            it&rsquo;s free.
           </P>
           <P>
             <Link href="/exam" className="underline underline-offset-2">Sit a mock paper</Link>

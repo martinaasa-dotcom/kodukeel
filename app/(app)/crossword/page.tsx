@@ -47,7 +47,7 @@ export default async function CrosswordPage() {
         ) : (
           <Empty
             title="No grid for today"
-            body="The dictionary has too few words at your level to build one yet."
+            body="There aren't enough words at your level to build a grid yet. Try again soon."
             action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
           />
         )}

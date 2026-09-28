@@ -55,7 +55,7 @@ export interface DictationTask {
 const WORD_TONE: Record<WordStatus, { className: string; label: string }> = {
   right: { className: VERDICT_CLASS.right, label: "exactly right" },
   diacritics: { className: VERDICT_CLASS.nearly, label: "the right word, without its Estonian letters" },
-  typo: { className: VERDICT_CLASS.nearly, label: "one keystroke out" },
+  typo: { className: VERDICT_CLASS.nearly, label: "one letter off, probably a slip of the finger" },
   spacing: { className: VERDICT_CLASS.nearly, label: "the right words, with the space in the wrong place" },
   wrong: { className: VERDICT_CLASS.wrong, label: "a different word" },
   missing: { className: VERDICT_CLASS.wrong, label: "left out" },
@@ -213,10 +213,10 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
 
   if (round.length === 0) {
     return (
-      <Page title="Dictation" lead="Hear a sentence, write it down.">
+      <Page title="Dictation" lead="Listen to a sentence, then write down what you heard.">
         <Empty
-          title="No sentences short enough yet"
-          body="Dictation only uses short sentences for words already in your deck."
+          title="No short sentences for you yet"
+          body="Dictation uses short sentences with words from your deck. Add a few more and check back."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>
@@ -248,7 +248,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">Other modes</ButtonLink>
+          <ButtonLink href="/practice" size="lg">Try something else</ButtonLink>
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/dictation" variant="primary" size="lg">Another round</ButtonLink>
         </WayOut>
@@ -324,11 +324,11 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                 className="flex flex-col items-center gap-2 rounded-[var(--r-lg)] px-5 py-4 text-center"
                 style={{ background: "var(--hard-soft)" }}
               >
-                <p className="label-xs" style={{ color: "var(--hard-ink)" }}>No audio right now</p>
+                <p className="label-xs" style={{ color: "var(--hard-ink)" }}>No sound right now</p>
                 <p lang="et" className="text-lg" style={{ color: "var(--ink)" }}>{task.et}</p>
                 <p className="max-w-[42ch] text-xs" style={{ color: "var(--ink-2)" }}>
-                  We couldn&rsquo;t reach the audio, so here&rsquo;s the sentence instead. Copying it
-                  out still helps with spelling. Come back later for the listening half.
+                  We couldn&rsquo;t reach the audio, so here&rsquo;s the sentence to read instead.
+                  Copying it out still helps your spelling. Come back later to hear it.
                 </p>
               </div>
             ) : (
@@ -358,7 +358,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                     <Volume2 size={14} strokeWidth={2} aria-hidden /> Slow
                   </Speak>
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    {played ? "Play it as often as you like" : "Tap to hear it, the slow button is next to it"}
+                    {played ? "Play it as often as you like" : "Tap to hear it. Need it slower? Press Slow."}
                   </span>
                 </div>
               </>
@@ -431,7 +431,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       )}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{correct} word-perfect of {done}, graded word by word</span>
+        <span>{correct} word-perfect of {done} so far</span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

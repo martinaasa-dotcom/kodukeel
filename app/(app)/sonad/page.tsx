@@ -54,7 +54,7 @@ export default async function SonadPage() {
           */
           <Empty
             title="No word for today"
-            body="The dictionary has nothing the right length at your level yet."
+            body="There's no word the right length at your level yet. Try again soon."
             action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
           />
         )}

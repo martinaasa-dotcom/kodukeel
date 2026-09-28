@@ -151,7 +151,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? "Couldn't mark that.");
+        setError(body.error ?? "Sorry, we couldn't mark that one. Try again?");
         return;
       }
       const result = body as Marked;
@@ -192,7 +192,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         );
       }
     } catch {
-      setError("Marking needs a connection. Your sentence is still here.");
+      setError("You're offline, so we can't mark it yet. Your sentence is safe here.");
     } finally {
       setBusy(false);
     }
@@ -224,10 +224,10 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          Round complete
+          That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Writing about something in front of you is the closest this app gets to speaking.
+          Describing what&rsquo;s in front of you is as close to real talking as a screen gets.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -414,7 +414,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         <p className="text-base">
           {mark.rightCase ? (
-            <>That is the {prompt.caseEt}.</>
+            <>Yes, that&rsquo;s the {prompt.caseEt}.</>
           ) : mark.written && wrote ? (
             /*
               The line this mode exists for. Every other screen can only say
@@ -430,8 +430,8 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           ) : mark.written ? (
             // Two cases share that spelling, so naming either would be a guess.
             <>
-              <strong lang="et">{mark.written}</strong> is more than one case at once, so it
-              cannot be this one. The <span lang="et">{prompt.caseEt}</span> is{" "}
+              <strong lang="et">{mark.written}</strong> could be more than one case, so it
+              isn&rsquo;t clearly this one. The <span lang="et">{prompt.caseEt}</span> is{" "}
               <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>
           ) : (
@@ -480,10 +480,10 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           */}
           <p className="label-xs" style={{ color: "var(--ink-3)" }}>
             {reveal.answer.source === "contributed"
-              ? "How a native speaker put it"
+              ? "How a native speaker said it"
               : reveal.answer.source === "this-form"
-                ? `A recorded sentence with ${prompt.askLemma} in this case`
-                : `A recorded sentence with ${prompt.askLemma} in it`}
+                ? `A real sentence with ${prompt.askLemma} in this case`
+                : `A real sentence with ${prompt.askLemma} in it`}
           </p>
           <p lang="et" className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>
             {reveal.answer.et}
@@ -508,15 +508,15 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
               <>
-                Anu&rsquo;s note is hidden here. It used a word we couldn&rsquo;t confirm as
-                Estonian, it might just have been English. The check above comes straight from
-                the dictionary, so it stands.
+                We&rsquo;ve hidden Anu&rsquo;s note this time. It used a word we couldn&rsquo;t confirm as
+                Estonian (it may just have been English). The check above comes from the
+                dictionary, so you can trust it.
               </>
             ) : (
               <>
-                Anu&rsquo;s note is hidden here. It used an Estonian form we couldn&rsquo;t
-                confirm, and a wrong form is worse than no note. The check above comes straight
-                from the dictionary, so it stands.
+                We&rsquo;ve hidden Anu&rsquo;s note this time. It used an Estonian form we couldn&rsquo;t
+                confirm, and a wrong form is worse than no note at all. The check above comes
+                from the dictionary, so you can trust it.
               </>
             )}
           </p>

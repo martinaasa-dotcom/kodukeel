@@ -448,7 +448,7 @@ export function SignInForm({
       return;
     }
     if (!data?.url) {
-      setError(`We could not reach the sign-in page for ${domain}. Try again, and tell whoever set this up if it keeps happening.`);
+      setError(`We couldn’t reach the sign-in page for ${domain}. Try again, and if it keeps happening, let whoever set this up know.`);
       setPending(null);
       return;
     }
@@ -462,7 +462,7 @@ export function SignInForm({
     const domain = ssoDomainFor(address, ssoPolicy);
     if (domain) return signInWithSso(domain);
     if (!emailLink) {
-      setError("That address is not one this copy signs in through a company provider. Use Google above, or ask whoever set this up.");
+      setError("That address can’t sign in through a company account here. Use Google above, or ask whoever set this up.");
       return;
     }
     setPending("email");
@@ -487,8 +487,8 @@ export function SignInForm({
           Check your email
         </p>
         <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          We sent a link to <span style={{ color: "var(--ink)" }}>{sentTo}</span>. Open it in this
-          browser and you are in. It stops working after an hour.
+          We&rsquo;ve sent a link to <span style={{ color: "var(--ink)" }}>{sentTo}</span>. Open it in
+          this browser and you&rsquo;re in. It stops working after an hour.
         </p>
         <button
           type="button"
@@ -605,11 +605,11 @@ export function SignInForm({
             */}
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {ssoDomain
-                ? `We will send you to the ${ssoDomain} sign-in you already use.`
+                ? `We’ll take you to the ${ssoDomain} sign-in you already use.`
                 : emailLink
                   ? sso
-                    ? "No password to make up or forget. A work address goes to your company sign-in, and anything else gets a link to open in this browser."
-                    : "No password to make up or forget. Open the link in this browser."
+                    ? "No password to make up or forget. A work address takes you to your company’s sign-in, and any other address gets a link to open in this browser."
+                    : "No password to make up or forget. Just open the link in this browser."
                   : "Use the work address your company signs in with."}
             </p>
           </form>

@@ -365,7 +365,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
           beside it is labelled with where it goes, so the shortcut was a second
           instruction for a control already on the screen. */}
       <p className="px-6 pb-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        Nothing here is graded.
+        Just a look back. Nothing here is marked.
       </p>
     </div>
   );

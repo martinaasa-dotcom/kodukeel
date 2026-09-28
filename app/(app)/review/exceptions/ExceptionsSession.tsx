@@ -189,10 +189,10 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          Round complete
+          That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          These are the forms no rule reaches. A few at a time, often, is how they stick.
+          These are the ones the rules don&rsquo;t cover. A few at a time, little and often, is how they stick.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -535,7 +535,7 @@ function Asking({ task }: { task: ExceptionTask }) {
  */
 function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
   const verdict = mark.right ? "right" : verdictOfRating(mark.rating);
-  const head = { right: "That is it", nearly: "Nearly", wrong: "Not this time" }[verdict];
+  const head = { right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict];
 
   return (
     <div className="mt-6" aria-live="polite">
@@ -591,7 +591,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
           className="font-semibold underline underline-offset-2"
           style={{ color: "var(--accent-deep)" }}
         >
-          The other words that do this
+          Other words that do the same thing
         </Link>
       </p>
 

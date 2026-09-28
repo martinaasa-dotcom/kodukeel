@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "kodukeel. Estonian that finally sticks",
     short_name: "kodukeel",
     description:
-      "Estonian you can use on somebody: practice that sticks, a conversation to rehearse, and one thing to say out loud today.",
+      "Estonian you can actually use on people. Fifteen minutes an evening, conversations to rehearse, and one small thing to say out loud today.",
     start_url: "/",
     scope: "/",
     display: "standalone",

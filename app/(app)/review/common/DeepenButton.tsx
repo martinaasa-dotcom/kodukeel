@@ -36,9 +36,9 @@ export function DeepenButton({ group, label }: {
       const result = await deepenCommonWords(group).catch(() => null);
       if (!result || !result.ok) { setNote(result ? result.error : NOT_REACHED); return; }
       setNote(result.added === 0
-        ? "Every word on this list is already built out."
+        ? "You've already got every word on this list, in every form."
         : `${result.words} ${result.words === 1 ? "word" : "words"}, `
-          + `${result.added} ${result.added === 1 ? "card" : "cards"}. Ready when you are.`);
+          + `${result.added} ${result.added === 1 ? "card" : "cards"} added. Ready when you are.`);
     });
   }
 
