@@ -224,6 +224,22 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       </div>
 
       {/*
+        "I don't know" is an answer, marked as none of the options, so it earns
+        nothing exactly as a wrong pick does. What it buys is a level read off
+        what somebody knows rather than off a lucky guess among four. It sends
+        an empty option, which no item holds, so the server marks it zero
+        through the same `creditFor` and there is no new kind of answer to
+        forge or to skip a section with.
+      */}
+      {picked === null && (
+        <div className="mt-3">
+          <Button variant="ghost" disabled={!played} onClick={() => setPicked(-1)}>
+            I don&apos;t know
+          </Button>
+        </div>
+      )}
+
+      {/*
         A MARKED ANSWER SAYS SO OUT LOUD.
 
         The panel that appears here is the whole of what a learner gets back
@@ -241,7 +257,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       <div className={picked !== null ? "pop-in mt-5" : undefined} role="status">
         {picked !== null && (
         <>
-          <Chip tone={right ? "good" : "again"}>{right ? "Right" : "Not this time"}</Chip>
+          <Chip tone={right ? "good" : "again"}>{right ? "Right" : picked === -1 ? "Not sure" : "Not this time"}</Chip>
           {/*
             Not marked lang="et": this line is English prose with an Estonian
             word or two inside it, and telling a screen reader the whole
