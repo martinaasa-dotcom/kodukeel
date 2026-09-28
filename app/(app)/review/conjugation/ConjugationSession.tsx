@@ -288,7 +288,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           {tablesRight === questions.length
             ? "Every table spotless. You've got the endings down. All that's left is meeting more verbs."
-            : "Good news: the endings never change. It's the stem that catches people out, so when a table goes wrong, look the stem up."}
+            : "Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up."}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -354,10 +354,10 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {question.shape === "match"
-              ? "The one for ma is done for you. Put each of the other five next to its pronoun."
+              ? "We've filled in the first one for you. Put each of the other five next to its person."
               : question.tense === "present"
-                ? "The one for ma is done for you. Type the other five."
-                : "The conditional, the \"would\" form, on the same stem. Type the other five."}
+                ? "We've filled in the first one for you. Type the other five."
+                : "This time it's the \"would\" form, as in \"I would go\". Type the other five."}
           </p>
         </div>
 
@@ -492,7 +492,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             <>
               {derivedOnly && (
                 <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-                  These were worked out with the regular endings.
+                  We worked these out from the regular endings, not from the dictionary.
                 </p>
               )}
               <KeepWordChoice keeper={keeper} className="mt-4" />
@@ -530,7 +530,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>
-          {tablesRight}/{index + (revealed ? 1 : 0)} tables all right
+          {tablesRight} of {index + (revealed ? 1 : 0)} tables perfect
           {question.shape === "type" ? <>, {ADVANCE_KEY_LABEL} moves down the table</> : <>, tap a form to place it</>}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />

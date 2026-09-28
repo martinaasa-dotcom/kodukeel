@@ -189,10 +189,10 @@ function cardFor(
 /** The one empty state, whichever of the two reasons there is nothing to ask. */
 function NothingToDrill() {
   return (
-    <Page title="Exceptions" lead="The forms that don't follow the usual endings.">
+    <Page title="Exceptions" lead="Words that don't follow the usual pattern, so you just have to know them.">
       <Empty
         title="Nothing to practise here yet"
-        body="There aren't any words near your level that break the rule this way yet."
+        body="None of the rule-breakers are near your level yet. Have a look through the full list instead."
         action={<ButtonLink href="/grammar/exceptions" variant="primary">Browse the exceptions</ButtonLink>}
       />
     </Page>

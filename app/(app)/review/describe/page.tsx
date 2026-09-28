@@ -52,7 +52,7 @@ export default async function DescribePage({
       <Page title="Say what you see" lead="Look at a picture, then write one sentence of your own about it.">
         <Empty
           title="No pictures at your level yet"
-          body="This needs nouns at your level that we can put into cases. Check back soon."
+          body="This needs a few more nouns at your level that we can draw. Learn some and come back."
           action={<ButtonLink href="/practice" variant="primary">Back to practice</ButtonLink>}
         />
       </Page>

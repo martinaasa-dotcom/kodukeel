@@ -1256,19 +1256,19 @@ export function ReviewSession({
           <Empty
             // The Estonian name, like every other screen that names a case.
             title={`No ${caseByKey(drillCase)?.et ?? drillCase.toLowerCase()} cards yet`}
-            body="Tick 'Case form' when you add a word, or start a unit with nouns in it."
+            body="These come from nouns in your deck. Start a unit with some nouns and they'll turn up here."
             action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
           />
         ) : drillUnit ? (
           <Empty
             title="None of this unit is in your deck yet"
-            body="Add the unit first, and its words will turn up here to practise."
+            body="Do the unit's lesson first. Its words will turn up here once you've met them."
             action={<ButtonLink href={`/learn/${drillUnit}`} variant="primary">Open the unit</ButtonLink>}
           />
         ) : drillScan ? (
           <Empty
             title="None of this page is in your deck yet"
-            body="The words are saved but have no cards yet. Add them and they'll turn up here."
+            body="You saved these words but haven't added them to your deck yet. Do that and they'll show up here."
             action={
               <ButtonLink href={`/scan/${drillScan.id}`} variant="primary">Open the page</ButtonLink>
             }
@@ -1288,27 +1288,27 @@ export function ReviewSession({
           */
           <Empty
             title="That's tonight's review done"
-            body="You've answered everything tonight had for you. On to the next step."
+            body="You've been through every word tonight had for you. On to the next step."
           />
         ) : totalCards === 0 ? (
           <Empty
             title="No cards yet"
-            body="Start a unit, or add a few words from the dictionary. They'll wait for you here."
+            body="Start a unit, or add a few words from the dictionary, and they'll wait for you here."
             action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
           />
         ) : (
           waitingOnCourse ? (
             <Empty
-              title="Nothing due, you're caught up"
-              body="Your next new words are waiting in tonight's module."
+              title="You're all caught up"
+              body="Nothing's due right now. Your next new words are waiting in tonight's module."
               action={<ButtonLink href="/course" variant="primary">{"Open tonight's module"}</ButtonLink>}
             />
           ) : (
             <Empty
-              title="Nothing due, you're caught up"
+              title="You're all caught up"
               body={nextDue ?? (totalCards === 1
-                ? "Your one card isn't due yet. It'll be back when it's ready."
-                : `All ${totalCards} of your cards are resting for now. They'll be back when they're due.`)}
+                ? "Your one card isn't due yet. It'll come back when it's time."
+                : `None of your ${totalCards} cards need you right now. Each one comes back when it's time.`)}
               action={<ButtonLink href="/learn/new" variant="primary">Learn some new words</ButtonLink>}
             />
           )

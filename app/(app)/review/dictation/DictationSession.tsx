@@ -215,8 +215,8 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     return (
       <Page title="Dictation" lead="Listen to a sentence, then write down what you heard.">
         <Empty
-          title="No short sentences for you yet"
-          body="Dictation uses short sentences with words from your deck. Add a few more and check back."
+          title="Not enough sentences yet"
+          body="This needs short sentences made of words in your deck. Add a few more words and come back."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>

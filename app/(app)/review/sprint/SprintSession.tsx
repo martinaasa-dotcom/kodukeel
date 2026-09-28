@@ -150,7 +150,7 @@ export function SprintSession({
         <Page title="Case Sprint" lead={`A quick-fire round through your deck. You've got ${roundLength(seconds)}.`}>
           <Empty
             title="Nothing to race through yet"
-            body="This uses cards that are due, or ones you've tripped over before. There aren't any yet."
+            body="It uses cards that are due, or that tripped you up before, and right now there aren't any."
             action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
           />
         </Page>

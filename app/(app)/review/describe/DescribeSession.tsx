@@ -381,7 +381,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
 
       {!aiAvailable && (
         <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          Anu isn&rsquo;t available here, so only the case is checked. That check is the reliable half.
+          Anu isn&rsquo;t around right now, so we&rsquo;ll only check the ending. That&rsquo;s the part we can check for certain anyway.
         </p>
       )}
     </div>
@@ -430,13 +430,13 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           ) : mark.written ? (
             // Two cases share that spelling, so naming either would be a guess.
             <>
-              <strong lang="et">{mark.written}</strong> could be more than one case, so it
-              isn&rsquo;t clearly this one. The <span lang="et">{prompt.caseEt}</span> is{" "}
+              <strong lang="et">{mark.written}</strong> could be more than one case, so we
+              can&rsquo;t tell it&rsquo;s this one. The <span lang="et">{prompt.caseEt}</span> is{" "}
               <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>
           ) : (
             <>
-              <strong lang="et">{prompt.askLemma}</strong> is not in that sentence. The{" "}
+              <strong lang="et">{prompt.askLemma}</strong> isn&rsquo;t in your sentence. The{" "}
               <span lang="et">{prompt.caseEt}</span> is{" "}
               <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
             </>

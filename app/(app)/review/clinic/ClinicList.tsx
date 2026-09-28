@@ -16,7 +16,7 @@ export interface ClinicItem extends Omit<Leech, "history"> {
 }
 
 const SHAPE_LABEL: Record<string, string> = {
-  "never-stuck": "never stuck yet",
+  "never-stuck": "hasn't stuck yet",
   regressed: "slipped back",
   unstable: "on and off",
   early: "early days",
@@ -37,7 +37,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
   return (
     <Page
       title="Leech clinic"
-      lead="The cards that keep slipping away, and what might be going on."
+      lead="The words that just won't stick, and a good guess at why."
     >
       <div className="flex flex-col gap-4">
         {items.map((leech) => {
@@ -50,10 +50,10 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
           return (
             <Card key={leech.cardId}>
               <div className="flex flex-wrap items-center gap-2">
-                <Chip tone="again"><Stethoscope size={12} aria-hidden /> {leech.lapses} lapses</Chip>
+                <Chip tone="again"><Stethoscope size={12} aria-hidden /> Forgotten {leech.lapses} times</Chip>
                 <Chip tone="hard">{SHAPE_LABEL[leech.shape]}</Chip>
                 <Chip>{leech.failRate}% wrong</Chip>
-                {state && <Chip tone="neutral">{state === "suspended" ? "put away" : "deleted"}</Chip>}
+                {state && <Chip tone="neutral">{state === "suspended" ? "put away for now" : "deleted"}</Chip>}
               </div>
 
               <div className="mt-3 flex flex-wrap items-baseline gap-2">
@@ -70,7 +70,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
               <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 This card {leech.pattern}.
                 {leech.confusable.length > 0 && (
-                  <> Easy to mix up with these, which are in your deck too:{" "}
+                  <> It&rsquo;s easy to mix up with these, which are in your deck too:{" "}
                     <span lang="et">{leech.confusable.join(", ")}</span>.
                   </>
                 )}
@@ -123,7 +123,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
         the button below a card is safe to press.
       */}
       <p className="mt-8 text-sm" style={{ color: "var(--ink-3)" }}>
-        Deleting a card is safe. Your past answers stay put.
+        Deleting a card is safe. Your past answers stay in your history.
       </p>
     </Page>
   );

@@ -358,12 +358,12 @@ function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) 
   return (
     <Card>
       <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-        {helped === 0 ? "Solved, every square of it on your own." : "Solved. Nicely done."}
+        {helped === 0 ? "Solved, and every square of it was yours." : "Solved, with a little help. That still counts."}
       </p>
       <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
         {puzzle.inDeck.length > 0
-          ? `${puzzle.inDeck.length} of these are in your deck, so this counted as practice for them.`
-          : "None of these are in your deck yet. Tap one you liked and keep it."}
+          ? `${puzzle.inDeck.length} of these ${puzzle.inDeck.length === 1 ? "is" : "are"} in your deck, so this counted as practice for ${puzzle.inDeck.length === 1 ? "it" : "them"}.`
+          : "None of these are in your deck yet. Tap any word you liked to look it up and keep it."}
       </p>
       <ul className="mt-4 flex flex-wrap gap-2">
         {puzzle.entries.map((entry) => (
@@ -377,7 +377,7 @@ function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) 
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}There&apos;s a new grid every morning.</p>
+      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>There&apos;s a new grid every morning.</p>
     </Card>
   );
 }

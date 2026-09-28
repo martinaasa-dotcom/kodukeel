@@ -453,7 +453,7 @@ for (const i of [0, 1, 2]) {
   await page.locator(".ending-row [role=radio]").nth(i).click();
   await page.waitForTimeout(120);
   const note = (await page.locator("[data-unsaid]").first().innerText().catch(() => "")) ?? "";
-  if (/Nobody says this one/.test(note)) said++;
+  if (/don.t say this one/.test(note)) said++;
 }
 check("and the inside trio on a person says nobody says it, rather than going quiet",
   said === 3, `${said} of the 3 rows a person does not take carried the reason`);
@@ -490,7 +490,7 @@ check("the reference says where the endings stop",
 await page.goto(`${B}/grammar/exceptions`, { waitUntil: "networkidle" });
 const areaBody = (await page.textContent("body")) ?? "";
 check("the area counts the words rather than claiming a number",
-  /\d[\d,]* graded words in this dictionary break a pattern/.test(areaBody), areaBody.slice(0, 0));
+  /\d[\d,]* break a pattern somewhere/.test(areaBody), areaBody.slice(0, 0));
 check("it groups them by what breaks",
   (await page.locator('a[href^="/grammar/exceptions/"]').count()) >= 3,
   `${await page.locator('a[href^="/grammar/exceptions/"]').count()} kinds`);
@@ -510,7 +510,7 @@ check("a kind's page lists real entries from the dictionary",
   quarter of the word.
 */
 check("a word that breaks more than one pattern says which",
-  /This word also breaks/.test(stemBody));
+  /an exception in other ways too/.test(stemBody));
 
 // The entry for one word, which is where a learner meets this without looking
 // for it: the same explanation, beside the table it is about.
@@ -541,7 +541,7 @@ check("the round has a heading of its own", met.trim().length > 0, met.trim());
   recalled, only met.
 */
 check("the round opens by showing the form rather than asking for it",
-  /This one breaks the usual ending rule/.test(roundBody)
+  /This one breaks the usual pattern/.test(roundBody)
   && (await page.locator("#answer").count()) === 0);
 
 // ─── Dictation ────────────────────────────────────────────────────────────────
@@ -670,9 +670,9 @@ check("progress reports what is actually sticking, not just raw accuracy",
   had already thought were known, out of a total, against a target, so that is
   what is read off it.
 */
-const reading = await page.locator("text=/long-term reviews/").first().innerText();
+const reading = await page.locator("text=/older cards remembered/").first().innerText();
 check("it counts only the cards the scheduler thought were known",
-  /\d+ recalled of \d+ long-term reviews, target \d+%/.test(reading),
+  /\d+ of \d+ older cards remembered\. Your target is \d+%/.test(reading),
   reading.trim().slice(0, 80));
 
 // ─── "Why?", at the moment it is asked ────────────────────────────────────────

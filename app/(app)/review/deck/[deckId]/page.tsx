@@ -98,11 +98,11 @@ export default async function DeckRoundPage({ params }: {
       <Page title={name} lead="Every word in this deck, asked until it sticks.">
         <div className="flex flex-col gap-4">
           <Empty
-            title={lexemeIds.length === 0 ? "This deck is empty for now" : "Nothing to ask right now"}
+            title={lexemeIds.length === 0 ? "There's nothing in this deck yet" : "Every card here is on hold"}
             body={
               lexemeIds.length === 0
-                ? "Add a word from its dictionary entry, or move in one you already have."
-                : "You've put all these cards on hold. You can bring them back from My words."
+                ? "Add words to it from the dictionary, or move over some you already have."
+                : "You paused all of them. You can bring them back from My words whenever you like."
             }
             action={<ButtonLink href="/words/decks" variant="primary">Open your decks</ButtonLink>}
           />

@@ -181,8 +181,8 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           This one needs sound
         </h1>
         <p className="mx-auto mt-2 max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
-          This exercise is all about how a word sounds, so without audio there&rsquo;s nothing
-          to play you. Try again once you&rsquo;re back online.
+          This one is all about how a word sounds, and we couldn&rsquo;t get the audio to play.
+          Try again once you&rsquo;re back online.
         </p>
         <WayOut className="mt-6 flex justify-center">
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>

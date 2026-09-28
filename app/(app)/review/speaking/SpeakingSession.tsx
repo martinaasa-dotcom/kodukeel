@@ -222,8 +222,8 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
               </div>
               <Recorder />
               <Explain label="Why you mark yourself here">
-                Listen to both, then say how close you got. Nothing is uploaded. This app can&rsquo;t
-                understand spoken Estonian well enough, so it won&rsquo;t pretend to score you.
+                Listen to both, then say how close you got. Nothing is uploaded. We can&rsquo;t
+                understand spoken Estonian well enough to score you, so we won&rsquo;t pretend to.
               </Explain>
             </>
           )}

@@ -130,7 +130,7 @@ await page.goto(`${B}/learn`, { waitUntil: "networkidle" });
 check(
   "path shows units",
   (await page.getByText("Tervitused").count()) > 0
-    || (await page.getByText("Your first conversation").count()) > 0,
+    || (await page.getByText("Hello, goodbye, sorry and please").count()) > 0,
 );
 check("path reports overall progress", (await page.getByText(/words known/).count()) > 0);
 
@@ -808,7 +808,7 @@ if ((await box.count()) === 0) {
   await page.waitForTimeout(3500);
   const verdict = (await page.locator("[aria-live='polite'] p").first().innerText()).replace(/\s+/g, " ");
   check("a sentence without the word is marked against the dictionary and given the form",
-    /is not in that sentence/.test(verdict) && /The .+ is /.test(verdict));
+    /isn.t in your sentence/.test(verdict) && /The .+ is /.test(verdict));
   check("and the three words are revealed with their meanings afterwards",
     (await page.getByText("What was in the picture").count()) > 0);
 }

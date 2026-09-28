@@ -395,10 +395,10 @@ function Feedback({ marked }: { marked: Marked }) {
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         <p className="text-base">
           {formCheck.used
-            ? "Yes, that's the right form."
+            ? "Yes, that's the right ending."
             : formCheck.usedAnotherForm
-              ? "Right word, wrong case. Have a look at the ending."
-              : "The word we asked for isn't in that sentence. Try working it in."}
+              ? "Right word, but not the ending we asked for. Look at how it ends."
+              : "The word we asked for isn't in your sentence. Try working it in."}
         </p>
       </div>
 
@@ -438,7 +438,7 @@ function Feedback({ marked }: { marked: Marked }) {
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
           {graded.rule && (
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-              Rule: {graded.rule}
+              Worth remembering: {graded.rule}
             </p>
           )}
         </div>

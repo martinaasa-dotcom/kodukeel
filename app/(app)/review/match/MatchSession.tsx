@@ -213,7 +213,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           </Button>
         }
       >
-        <p><BriefingLines id="match" /> A pair you get right first time counts as a good review.</p>
+        <p><BriefingLines id="match" /> Get a pair right first time and it counts as a good review of that word.</p>
       </RoundStart>
     );
   }

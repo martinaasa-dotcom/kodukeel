@@ -100,7 +100,7 @@ export default async function CommonRoundPage({ params }: {
     return (
       <Page
         title={`Most common ${group.title.toLowerCase()}`}
-        lead="Each word comes back in a different form, until it sticks."
+        lead="Each word comes back looking a little different, until it sticks."
       >
         <div className="flex flex-col gap-4">
           <Empty
@@ -112,7 +112,7 @@ export default async function CommonRoundPage({ params }: {
             body={
               lexemeIds.length === 0
                 ? "This round comes from the dictionary, so there's nothing to ask until it's loaded."
-                : `Add the first ${COMMON_BATCH} and they'll come with every form the dictionary knows.`
+                : `Add the first ${COMMON_BATCH} and you'll practise each one in all its forms.`
             }
             action={
               lexemeIds.length === 0

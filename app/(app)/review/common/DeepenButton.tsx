@@ -37,8 +37,8 @@ export function DeepenButton({ group, label }: {
       if (!result || !result.ok) { setNote(result ? result.error : NOT_REACHED); return; }
       setNote(result.added === 0
         ? "You've already got every word on this list, in every form."
-        : `${result.words} ${result.words === 1 ? "word" : "words"}, `
-          + `${result.added} ${result.added === 1 ? "card" : "cards"} added. Ready when you are.`);
+        : `Added ${result.words} ${result.words === 1 ? "word" : "words"}, with `
+          + `${result.added} ${result.added === 1 ? "card" : "cards"} between them. They're ready when you are.`);
     });
   }
 
@@ -46,7 +46,7 @@ export function DeepenButton({ group, label }: {
     <div className="flex flex-col gap-2">
       <Button type="button" variant="primary" onClick={add} disabled={pending}>
         <Plus size={15} aria-hidden />
-        {pending ? "Adding" : label ?? `Add the next ${COMMON_BATCH}`}
+        {pending ? "Adding…" : label ?? `Add the next ${COMMON_BATCH}`}
       </Button>
       {/* Always mounted, so the answer to the press is read out when it arrives. */}
       <p className={note ? "text-sm" : "sr-only"} style={{ color: "var(--ink-2)" }} role="status">{note}</p>

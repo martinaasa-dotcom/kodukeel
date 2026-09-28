@@ -242,7 +242,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Every answer went toward learning its word, right or wrong.
+          Right or wrong, every answer helped those words stick a little better.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -301,7 +301,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               line of its own. */}
           <span className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <Chip tone="accent">{askLine({ ...task, shape: shape ?? task.shape })}</Chip>
-            {task.provenance === "derived" && <Chip>built from the stem</Chip>}
+            {task.provenance === "derived" && <Chip>worked out by rule</Chip>}
           </span>
           {/* The corner of the card, which is where somebody looks for this the
               moment a word turns out to be worth keeping. */}
@@ -666,8 +666,8 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 
       <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
         {task.provenance === "ekilex"
-          ? "This is the form the dictionary gives."
-          : "This form is built from the stem in the dictionary."}{" "}
+          ? "This form comes straight from the dictionary."
+          : "We worked this form out from the dictionary, using the regular pattern."}{" "}
         {spec && (
           <Link
             href={`/grammar/${task.slot.toLowerCase()}`}

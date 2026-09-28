@@ -128,7 +128,7 @@ export function ClozeSession() {
     return (
       <Page
         title="From your reading"
-        lead="Paste in something you're reading. Words from your deck turn into gaps to fill."
+        lead="Paste in an article, a message or your homework. The words you're learning become gaps."
       >
         <div
           className="rounded-lg border p-5"
@@ -165,12 +165,12 @@ export function ClozeSession() {
             <Button variant="primary" disabled={busy || !text.trim()} onClick={() => void build()}>
               {busy
                 ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Reading…</>
-                : "Make exercises"}
+                : "Make the gaps"}
             </Button>
           </WayOut>
 
           <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
-            We don&rsquo;t keep your text. It&rsquo;s used to find your words, then thrown away.
+            We don&rsquo;t keep your text. We look for your words in it, then throw it away.
           </p>
         </div>
       </Page>
@@ -186,8 +186,8 @@ export function ClozeSession() {
           That&rsquo;s the whole passage
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Every gap was a form a real Estonian writer chose, in a sentence they really wrote.
-          You can&rsquo;t get better practice material than that.
+          Every gap was a word a real Estonian writer chose, in a sentence they actually wrote.
+          Practice doesn&rsquo;t get much more real than that.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"

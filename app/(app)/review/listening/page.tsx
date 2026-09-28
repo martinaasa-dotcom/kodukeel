@@ -106,7 +106,7 @@ export default async function ListeningPage({
         <Page title="Listening" lead="Listen to a word, then pick what it means.">
           <Empty
             title="A few more words needed"
-            body={`The wrong answers come from your other words, and this needs ${MIN_LEXEMES_FOR_CHOICES} of them.`}
+            body={`The wrong answers come from your other words, so you'll need at least ${MIN_LEXEMES_FOR_CHOICES} in your deck.`}
             action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
           />
         </Page>

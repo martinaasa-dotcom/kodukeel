@@ -547,7 +547,7 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
               <Button type="button" variant="ghost" onClick={keeper.cancel}>Cancel</Button>
             )}
             <Button type="button" variant="primary" disabled={keeper.pending} onClick={keeper.press}>
-              {keeper.pending ? "Adding" : keeper.asking ? "Keep it" : "Keep this word"}
+              {keeper.pending ? "Adding…" : keeper.asking ? "Keep it" : "Keep this word"}
             </Button>
           </div>
         </>

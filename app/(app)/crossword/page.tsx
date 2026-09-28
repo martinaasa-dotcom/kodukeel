@@ -40,14 +40,14 @@ export default async function CrosswordPage() {
     <BeforeYouStart id="crossword" ready={puzzle !== null}>
       <Page
         title="Ristsõna"
-        lead="A crossword. English clues, Estonian answers, and a new grid every morning."
+        lead="Clues in English, answers in Estonian, and a fresh grid every morning."
       >
         {puzzle ? (
           <CrosswordSession puzzle={puzzle} day={day} />
         ) : (
           <Empty
             title="No grid for today"
-            body="There aren't enough words at your level to build a grid yet. Try again soon."
+            body="We couldn't fit enough words at your level into a grid today. Try again tomorrow."
             action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
           />
         )}

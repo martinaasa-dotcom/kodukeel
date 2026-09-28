@@ -333,7 +333,7 @@ export function QuestSession({
       <Page title="Daily quest" lead={`${roundLength(seconds)} on the endings that keep tripping you up.`}>
         <Empty
           title="Nothing to work on yet"
-          body="This round works on cards you've already answered, so review a few first."
+          body="It picks the endings you miss most, so it needs a few of your answers first."
           action={<ButtonLink href="/review" variant="primary">Open review</ButtonLink>}
         />
       </Page>
@@ -350,7 +350,7 @@ export function QuestSession({
         actions={<>
           <ButtonLink href="/" variant="ghost">Not now</ButtonLink>
           <Button variant="primary" size="lg" onClick={() => { setPhase("running"); shownAt.current = Date.now(); }}>
-            Start the {roundLength(seconds)}
+            Start the clock
           </Button>
         </>}
         footnote={<>

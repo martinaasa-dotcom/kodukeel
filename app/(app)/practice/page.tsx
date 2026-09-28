@@ -97,7 +97,7 @@ export default async function PracticePage() {
   const unfinished = counts.struggling + counts.almost + counts.learning;
   const flashMeta = unfinished > 0
     ? `${unfinished} to work on`
-    : words.length > 0 ? "All mastered" : "Nothing met yet";
+    : words.length > 0 ? "All mastered" : "No words yet";
 
   /*
     What is ready right now, per round, where there is a figure worth saying.
@@ -164,11 +164,11 @@ export default async function PracticePage() {
                   <span className="text-2xl md:text-3xl">{ready === 1 ? "card waiting" : "cards waiting"}</span>
                 </h2>
                 <p className="mt-4 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  Each card comes back just before you&apos;d forget it. You don&apos;t have to pick which. The schedule does that for you.
+                  Each word comes back just before you&apos;d forget it. We keep track of when, so you don&apos;t have to.
                 </p>
               </div>
               <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full shrink-0 justify-center whitespace-nowrap lg:w-auto">
-                {ready > 0 ? "Review now" : "Nothing due, look anyway"} <ArrowRight size={17} aria-hidden />
+                {ready > 0 ? "Review now" : "Nothing due, open it anyway"} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             </div>
           </section>
@@ -190,7 +190,7 @@ export default async function PracticePage() {
                 </Link>
               </div>
               <p className="-mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Type them, hear them in a sentence, or write your own. Choose which words to use.
+                Your words, asked a new way each time: typed, heard in a sentence, or used in one you write. Pick which words.
               </p>
 
               <ChoiceGroup label="Your words">
@@ -245,7 +245,7 @@ export default async function PracticePage() {
               <div className="@lg:col-span-2 @3xl:col-span-3">
                 <ModeTile
                   mode={{ href: "/situations", tone: "sky", icon: "MessagesSquare", title: "Situations" }}
-                  line="Somebody behind a desk wants something from you. Five to eight minutes of talking."
+                  line="Talk your way through a real moment, at a café, a ticket window or the doctor's. Five to eight minutes."
                 />
               </div>
               {QUICK_MODES.map((m) => (

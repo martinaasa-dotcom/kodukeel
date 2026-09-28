@@ -51,197 +51,198 @@ export type BriefingId = keyof typeof BRIEFINGS;
 
 export const BRIEFINGS = {
   review: {
-    title: "Words you've already met",
+    title: "The words that are due today",
     what:
-      "One card at a time from your own deck. Some ask what a word means, some ask for the right " +
-      "form of it in a real sentence.",
-    you: "Answer each one. If there's a box, type your answer. If there isn't, tell us how it went.",
+      "Words you've met before, back just as you're about to forget them. Some cards ask what a " +
+      "word means, others ask you to fill a gap in a real sentence.",
+    you: "Type your answer where there's a box. Where there isn't, think of it, turn the card over and say whether you had it.",
     action: "Start reviewing",
   },
   flashcards: {
-    title: "Your words, five different ways",
+    title: "Your words, asked five ways",
     what:
-      "Words you've already learned, asked as a meaning, a gap in a sentence, a form you hear, or " +
-      "a sentence you write yourself.",
-    you: "Type each answer and check it. Get a word right five times and it drops out of the round.",
+      "Words you already know, asked for their meaning, dropped into a gap, read out for you to " +
+      "type, or handed to you to build a sentence around.",
+    you: "Type each answer and check it. Get a word right five times and it's done for today.",
     action: "Start",
   },
   common: {
     title: "The words you'll hear most",
     what:
-      "Words from one of four lists of the most common words, counted from film and TV subtitles " +
-      "rather than picked by hand.",
-    you: "Type the answer. Each word turns up in a different form every time.",
+      "Words from one of the lists of what Estonians say most, counted from real films and TV " +
+      "rather than picked by us.",
+    you: "Type each answer. A word comes back with a new ending each time, so you learn it the way it's really used.",
     action: "Start",
   },
   deck: {
-    title: "A deck of your own",
-    what: "The cards in this deck, one at a time, in the order they're due.",
-    you: "Answer each one. If there's a box, type your answer. If there isn't, tell us how it went.",
+    title: "Your own deck",
+    what: "The cards you put in this deck, one at a time, the most overdue first.",
+    you: "Type your answer where there's a box. Where there isn't, think of it, turn the card over and say whether you had it.",
     action: "Start",
   },
   lookups: {
     title: "Words you looked up",
     what:
-      "Words you added yourself, from the dictionary, a photo or a chat with Anu, rather than " +
-      "from the course.",
-    you: "Type each answer. These are your own words, so nobody else has checked them.",
+      "The words you added yourself, from the dictionary, a photo or a chat with Anu, instead of " +
+      "the ones the course gave you.",
+    you: "Type each answer. You picked these, so they get their turn now instead of waiting behind the course.",
     action: "Start",
   },
   cloze: {
     title: "Your own Estonian, with gaps",
-    what: "Paste in any piece of Estonian, and we'll take words out of its sentences.",
-    you: "Type each missing word back in, in the form the sentence needs.",
+    what: "Paste in anything in Estonian, an article or your homework, and we'll blank out words you've learned.",
+    you: "Type each missing word back in, the way the writer had it.",
     action: "Paste something in",
   },
   conjugation: {
-    title: "One verb, every person",
-    what: "A verb's table with the first person filled in and the rest left empty.",
-    you: "Fill in the rest of the table, one box at a time. The first person is your clue.",
+    title: "One verb, all six people",
+    what: "A verb with the \"I\" form filled in and the other five boxes empty.",
+    you: "Fill in the rest, one box at a time. The \"I\" form is your clue.",
     action: "Start",
   },
   "conjugation-match": {
-    title: "One verb, every person",
-    what: "A verb's table, with all six forms already on the screen, jumbled up.",
-    you: "Put each form next to the person it belongs to. No typing needed.",
+    title: "One verb, all six people",
+    what: "A verb's six forms, already on the screen but jumbled up.",
+    you: "Put each form next to the person it goes with. There's nothing to type.",
     action: "Start",
   },
   describe: {
-    title: "A picture, and one word to use",
-    what: "A little scene with three things in it. One of them is named for you, with the form we're after.",
-    you: "Write one sentence about the picture, using that word in that form.",
+    title: "Say what you see",
+    what: "A little scene with three things in it. We'll name one of them and tell you which ending it needs.",
+    you: "Write one sentence about the picture using that word, with that ending.",
     action: "Show me the picture",
   },
   dictation: {
     title: "Hear it, write it",
-    what: "A real sentence from the dictionary, read aloud. You can replay it and slow it down.",
+    what: "A real sentence read out loud. Play it again as often as you like, and slow it down if it's fast.",
     you:
-      "Type the whole sentence. A missing Estonian letter costs you a little but isn't marked " +
-      "wrong, so it's worth reaching for them.",
+      "Type the whole sentence. Forgetting a dot or a squiggle on a letter costs you a little but " +
+      "won't be marked wrong, so it's worth trying.",
     action: "Play the first one",
   },
   emoji: {
-    title: "Pictures, and the ending each one needs",
+    title: "Match the picture to the word",
     what:
-      "Pictures down one side and Estonian words down the other, each word under the question " +
-      "it answers.",
-    you: "Tap a picture, then the word that goes with it. The clock runs until the board is clear.",
+      "Pictures on one side, Estonian words on the other, each word under the little question its " +
+      "ending answers.",
+    you: "Tap a picture, then the word that fits it. The clock runs until the board is empty.",
     action: "Start",
   },
   exceptions: {
-    title: "Words that break the rules",
+    title: "The words that break the rules",
     what:
-      "Words no rule will get you to. You meet each one first, then type it, then use it in a " +
-      "real sentence.",
-    you: "Just meeting a word isn't scored. The typing is what counts.",
+      "Words that don't do what the usual pattern says. You'll see each one first, then type it, " +
+      "then put it in a real sentence.",
+    you: "Just have a look at the first step, nothing's scored there. After that, the typing counts.",
     action: "Start",
   },
   government: {
-    title: "Which case goes with the verb",
-    what: "A verb, and four cases it might want. Only one of them is right.",
-    you: "Pick it. Nothing to type, and no clock.",
+    title: "Which case does this verb want?",
+    what: "A verb, and four cases it might take. Only one is right.",
+    you: "Pick it. There's nothing to type and no clock.",
     action: "Start",
   },
   letters: {
     title: "Put the word back together",
     what:
-      "You'll see what the word means and hear it read out, with its letters jumbled up on " +
+      "A word you know, read out loud with its meaning shown, and its letters jumbled up on " +
       "tiles.",
-    you: "Tap the letters into the right order. Miss once and we'll place the first letter for you.",
+    you: "Tap the letters in the right order. Miss once and we'll put the first letter in for you.",
     action: "Start",
   },
   listening: {
     title: "Hear a word, pick what it means",
     what:
-      "Words read aloud one at a time, with four meanings under each. The word isn't shown until " +
-      "you've answered.",
+      "One word at a time, read out loud, with four meanings to choose from. You won't see it " +
+      "written until you've answered.",
     /* Four is `WRONG + 1` in `lib/questions/distractors.ts`, and a card the
        pool cannot give three wrong answers for is dropped rather than shown
        with fewer, so the number is exact rather than a usual case. The test
        beside this file is the tripwire. */
-    you: "Pick the meaning. Play it again as often as you like.",
+    you: "Pick the meaning. Play the word again as often as you like.",
     action: "Play the first one",
   },
   match: {
     title: "Match the pairs",
-    what: "Estonian words and their meanings, jumbled into two columns.",
-    you: "Tap one on each side to pair them up. The clock runs until the board is clear.",
+    what: "Estonian words in one column, their meanings in the other, all jumbled up.",
+    you: "Tap one on each side to pair them. The clock runs until the board is empty.",
     action: "Start",
   },
   pairs: {
-    title: "Two words, one sound apart",
+    title: "Long or short",
     what:
-      "Two words that differ only in how long one sound is held, and a recording of one of them.",
-    you: "Say which one you heard. You can replay it, and there's no background noise.",
+      "Two words that sound almost the same, except one sound is held a little longer. You'll " +
+      "hear one of them.",
+    you: "Say which one you heard. Play it again if you need to, it's recorded in a quiet room.",
     action: "Play the first one",
   },
   sentences: {
-    title: "Put the sentence in order",
-    what: "A real sentence, cut up into word tiles and shuffled.",
-    you: "Tap the words into order. Often more than one order is right, and we'll accept those too.",
+    title: "Put the sentence back in order",
+    what: "A real sentence, cut up into words and shuffled.",
+    you: "Tap the words into order. Estonian often allows more than one order, and we'll accept those too.",
     action: "Start",
   },
   speaking: {
     title: "Say it out loud",
-    what: "A meaning, a native recording, and your own voice played back right next to it.",
-    you: "Record yourself, listen to both, and decide how it went. No machine scores your accent.",
+    what: "A word to say, a recording of a native speaker saying it, and your own voice played back beside it.",
+    you: "Record yourself, listen to both, and decide how close you got. No machine grades your accent.",
     action: "Start",
   },
   sprint: {
     title: "As many as you can",
-    what: "Cards from your deck against the clock. You flip them rather than type.",
+    what: "Cards from your deck against the clock. You turn them over instead of typing.",
     you: "Go as fast as you can until time's up. Stopping early costs you nothing.",
     action: "Start the clock",
   },
   target: {
-    title: "One form, before the clock runs out",
+    title: "Hit the right ending",
     what:
-      "A word and a question, with four forms to choose from. Each hit shaves a little off the " +
-      "next clock.",
-    you: "Pick the form the question is asking for.",
+      "A word, a question, and four answers to pick from, mostly the same word with different " +
+      "endings. Every hit makes the next clock a little shorter.",
+    you: "Tap the one the question is asking for.",
     action: "Start",
   },
   write: {
     title: "Write your own sentence",
-    what: "One word, and the form we'd like you to use it in.",
+    what: "One word, and the ending we'd like you to give it.",
     you:
-      "Write a sentence with it. The dictionary checks whether you used the form, and Anu leaves " +
-      "a note on the rest.",
+      "Write a sentence with it. The dictionary checks the ending, and Anu leaves you a note " +
+      "on the rest.",
     action: "Start",
   },
   quest: {
     title: "The endings you keep missing",
-    what: "Cards from the cases you get wrong most often, against the clock.",
+    what: "Cards from the cases you get wrong most, picked from your own answers, against the clock.",
     you: "Answer as many as you can before time runs out.",
     action: "Start",
   },
   sonad: {
-    title: "Guess the word",
+    title: "Guess today's word",
     what:
-      "One six-letter Estonian word a day, and seven tries to find it. Each guess shows which " +
-      "letters are right and which are in the wrong spot.",
-    you: "Type any real six-letter word and send it. If you're still going near the end, a clue turns up.",
+      "One six-letter Estonian word a day, and seven tries to find it. After each guess, the " +
+      "letters show whether they're in the right spot, somewhere else, or not in the word at all.",
+    you: "Type any real six-letter word and send it. If it's getting close to the end, we'll slip you a clue.",
     action: "Start",
   },
   crossword: {
     title: "Today's crossword",
     what:
-      "A grid of Estonian words with English clues. Each clue says what kind of word it wants, " +
-      "so only one answer fits.",
-    you: "Type your answers into the grid, then check it. There's no clock.",
+      "Estonian words crossing each other, with English clues. Each clue also says whether it " +
+      "wants a noun, a verb or so on, so only one word fits.",
+    you: "Fill in the grid, then check it. Take as long as you like.",
     action: "Start",
   },
   lesson: {
     title: "This unit, one word at a time",
-    what: "You meet each of the unit's words first, then use them in real sentences.",
-    you: "Meeting a word isn't scored, so take your time reading. Then answer.",
+    what: "You'll meet each of the unit's words first, then use them in real sentences.",
+    you: "Meeting a word isn't scored, so take your time with it. Then answer.",
     action: "Start the lesson",
   },
   checkpoint: {
     title: "A checkpoint, not a test",
     what:
-      "A short set of questions from across the level. You won't see what you got right until " +
-      "the end.",
+      "A short set of questions from across the level. You'll find out how you did at the end, " +
+      "not after each one.",
     you: "Answer each one as best you can and keep going. Leaving one blank is an honest answer.",
     action: "Start",
   },

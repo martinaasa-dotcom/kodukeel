@@ -152,9 +152,9 @@ export default async function ConjugationPage({
 
   if (questions.length === 0) {
     return (
-      <Page title="Conjugation" lead="One verb at a time, in all six persons.">
+      <Page title="Conjugation" lead="One verb at a time: I, you, he or she, we, you all and they.">
         <Empty
-          title="No verbs to conjugate yet"
+          title="No verbs to practise yet"
           body="Start a unit with verbs in it, or look a verb up in the dictionary."
           action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
         />

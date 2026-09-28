@@ -115,7 +115,7 @@ export default async function PairsPage() {
       <Page title="Minimal pairs" lead="Hear the difference a longer sound makes, even when spelling hides it.">
         <Empty
           title="No pairs to listen to yet"
-          body="A pair is two forms where only one sound gets longer, like maja and majja."
+          body="A pair is two words where one sound is held longer, like maja and majja. We haven't found any yet."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>

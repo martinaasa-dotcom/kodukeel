@@ -667,7 +667,7 @@ function markSentence(task: FlashTask, sentence: string): FlashMark {
   }
   return {
     right: false, rating: 1, wrote: null, wroteSlot: null,
-    note: `There's no ${task.lemma} in that sentence, in any form.`,
+    note: `We can't find ${task.lemma} anywhere in your sentence.`,
   };
 }
 

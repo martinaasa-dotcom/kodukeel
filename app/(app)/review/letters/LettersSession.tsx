@@ -112,7 +112,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
       <Page title="Tähed" lead="A word you know, with its letters jumbled up. Put it back together.">
         <Empty
           title="No words to spell yet"
-          body="This game uses words you've already met, three letters or longer. Meet a few first."
+          body="It uses words you've already met that are at least three letters long. Meet a few first."
           action={<ButtonLink href="/learn" variant="primary">Meet some words</ButtonLink>}
         />
       </Page>

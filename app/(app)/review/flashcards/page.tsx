@@ -73,10 +73,10 @@ export default async function FlashcardsPage({
     return (
       <Page title="Flash cards" lead="Words you've met, asked in a way you haven't seen yet.">
         <Empty
-          title={words.length === 0 ? "No words met yet" : "You've mastered every word you've met"}
+          title={words.length === 0 ? "No words to practise yet" : "You've mastered every word you've met"}
           body={
             words.length === 0
-              ? "This round works on words you've already met in review. Meet a few first."
+              ? "This works on words you've already met. Review a few and they'll turn up here."
               : undefined
           }
           action={
@@ -168,7 +168,7 @@ export default async function FlashcardsPage({
       <Page title="Flash cards" lead="Words you've met, asked in a way you haven't seen yet.">
         <Empty
           title="Nothing left to ask right now"
-          body="Every word you've met is either mastered or has no new form left to try."
+          body="Every word you've met is either mastered or has been asked every way we can, for now."
           action={<ButtonLink href="/words/mastery" variant="primary">See how your words are doing</ButtonLink>}
         />
       </Page>

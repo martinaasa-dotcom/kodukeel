@@ -434,7 +434,7 @@ check(
   await page.locator('a[href="/words/mastery"]').count() > 0,
   practice.slice(0, 40),
 );
-check("and says what is still to work on", /to work on|all mastered|nothing met yet/i.test(practice), practice.slice(0, 60));
+check("and says what is still to work on", /to work on|all mastered|no words yet/i.test(practice), practice.slice(0, 60));
 
 await page.goto(`${B}/words`, { waitUntil: "domcontentloaded" });
 check(

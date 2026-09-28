@@ -40,10 +40,10 @@ export default async function ClinicPage() {
 
   if (cards.length === 0) {
     return (
-      <Page title="Leech clinic" lead="The cards that keep slipping away, and what might be going on.">
+      <Page title="Leech clinic" lead="The words that just won't stick, and a good guess at why.">
         <Empty
           title="Nothing's stuck. Good news."
-          body={`None of your cards has gone wrong ${LEECH_LAPSES} times, so there's nothing to fix here.`}
+          body={`No card has slipped your mind ${LEECH_LAPSES} times or more, so there's nothing to fix.`}
           action={<ButtonLink href="/review" variant="primary">Carry on reviewing</ButtonLink>}
         />
       </Page>

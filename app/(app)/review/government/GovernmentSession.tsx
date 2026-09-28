@@ -185,8 +185,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          There&rsquo;s no rule for rektsioon. You just get to know it, one verb at a time.
-          A little and often beats a lot in one go.
+          There&rsquo;s no rule for which case a verb wants. You just get to know them, one
+          verb at a time, a little and often.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -343,7 +343,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {question.experiencer
                 ? `Here the person goes in the ${question.answerEt}, and the thing itself is the subject.`
-                : `${question.lemma} takes the ${question.answerEt}${questionInEnglish(question.answerQuestion) ? `, the one that asks ${questionInEnglish(question.answerQuestion)}` : ""}. English gives you no clue here, so it's worth learning together with the verb.`}
+                : `${question.lemma} takes the ${question.answerEt}${questionInEnglish(question.answerQuestion) ? `, the one that asks ${questionInEnglish(question.answerQuestion)}` : ""}. English gives you no hint here, so learn the two together.`}
             </p>
             {/*
               A verb often governs more than one case, in different senses.

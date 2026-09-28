@@ -116,7 +116,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
       <RoundStart
         icon={<Crosshair size={34} aria-hidden />}
         title="Target"
-        lead="Tap the right form before the clock runs out."
+        lead="Tap the right ending before the clock runs out."
         hue="accent"
         chips={<RoundChip icon={<Timer size={14} aria-hidden />}>{questions.length} shots</RoundChip>}
         actions={<>
@@ -144,8 +144,8 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         </>}
       >
         <p>
-          <BriefingLines id="target" /> This one&rsquo;s about endings, not meanings. The question
-          word is your only clue to which of the four to tap.
+          <BriefingLines id="target" /> When all four are the same word, the little question word
+          is your only clue.
         </p>
       </RoundStart>
     );
