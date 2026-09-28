@@ -361,7 +361,7 @@ const WHO = [
     icon: Briefcase,
     tone: "sky",
     title: "You work in Estonian",
-    body: "Meetings, emails, small talk by the coffee machine. Learn the words your job runs on, then practise the awkward conversations here first, where a stumble costs nothing.",
+    body: "Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing.",
   },
 ] as const;
 
