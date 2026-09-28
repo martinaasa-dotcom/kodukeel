@@ -36,6 +36,26 @@ import { useId, type CSSProperties } from "react";
  * and under `prefers-reduced-motion` all of it settles to the still mark.
  */
 const TOPS = [2, 1, 0, 0, 1, 2, 3, 3, 2, 1] as const;
+/**
+ * The pixel confetti a cheering mark throws once when it arrives, which is
+ * the end of every round. Each piece is a pixel of the tilde's own size in
+ * one of the Vikerkaar öös colours, thrown at its own angle, distance and
+ * spin, laid out by hand so it reads as a handful rather than a pattern.
+ */
+const CONFETTI = [
+  { a: -80, d: 58, r: 200, hue: "--cta" },
+  { a: -50, d: 70, r: -160, hue: "--blush" },
+  { a: -20, d: 62, r: 240, hue: "--sky" },
+  { a: 12, d: 74, r: -210, hue: "--mint" },
+  { a: 40, d: 60, r: 180, hue: "--cta" },
+  { a: 70, d: 68, r: -240, hue: "--blush" },
+  { a: 100, d: 56, r: 150, hue: "--sky" },
+  { a: 140, d: 64, r: -190, hue: "--cta" },
+  { a: 175, d: 72, r: 220, hue: "--mint" },
+  { a: 210, d: 58, r: -170, hue: "--blush" },
+  { a: 245, d: 66, r: 200, hue: "--sky" },
+  { a: 280, d: 62, r: -230, hue: "--cta" },
+] as const;
 const W = 66;
 const S = W / 10;
 const X0 = 50 - W / 2;
@@ -131,6 +151,19 @@ export function Mascot({
       </g>
       </g>
       </g>
+      {animate && mood === "cheer" &&
+        CONFETTI.map((p, i) => (
+          <rect
+            key={i}
+            aria-hidden
+            className="mark-confetti"
+            x={50 - S / 2}
+            y={50 - S / 2}
+            width={S}
+            height={S}
+            style={{ fill: `var(${p.hue})`, "--a": `${p.a}deg`, "--d": `${p.d}px`, "--r": `${p.r}deg`, "--i": i } as CSSProperties}
+          />
+        ))}
     </svg>
   );
 }

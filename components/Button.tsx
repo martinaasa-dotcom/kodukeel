@@ -84,31 +84,46 @@ const base =
   "transition-ui hover:brightness-[1.04] " +
   "disabled:pointer-events-none disabled:opacity-45";
 
+/**
+ * The primary button squashes under a press and springs back, and where it
+ * leads a page it can hop when a pointer reaches it instead. Both are
+ * one-shots played through `PlayOnce`, so a quick press or a pointer passing
+ * over still lets the move land rather than cutting it off. The quieter
+ * buttons stay still: one lively action per screen is the point of there
+ * being a primary.
+ */
+export type Hop = "press" | "hover" | "none";
+function hopAttrs(variant: Variant, hop: Hop | undefined) {
+  const on = hop ?? (variant === "primary" ? "press" : "none");
+  if (on === "none") return {};
+  return { "data-hop-on": on, "data-hop-end": on === "press" ? "cta-squash" : "cta-hop" };
+}
+
 function split(variant: Variant) {
   const { className = "", ...style } = STYLES[variant];
   return { extraClass: className, style: style as CSSProperties };
 }
 
 export function Button({
-  variant = "secondary", size = "md", className = "", children, ...rest
-}: ComponentProps<"button"> & { variant?: Variant; size?: Size; children: ReactNode }) {
+  variant = "secondary", size = "md", className = "", hop, children, ...rest
+}: ComponentProps<"button"> & { variant?: Variant; size?: Size; hop?: Hop; children: ReactNode }) {
   const { extraClass, style } = split(variant);
   return (
-    <button {...rest} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
+    <button {...hopAttrs(variant, hop)} {...rest} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
       {children}
     </button>
   );
 }
 
 export function ButtonLink({
-  variant = "secondary", size = "md", className = "", children, href, target, rel,
+  variant = "secondary", size = "md", className = "", children, href, target, rel, hop,
 }: {
   variant?: Variant; size?: Size; className?: string; children: ReactNode;
-  href: string; target?: string; rel?: string;
+  href: string; target?: string; rel?: string; hop?: Hop;
 }) {
   const { extraClass, style } = split(variant);
   return (
-    <Link href={href} target={target} rel={rel} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
+    <Link {...hopAttrs(variant, hop)} href={href} target={target} rel={rel} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
       {children}
     </Link>
   );

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties } from "react";
 import {
-  LETTER_CHEER, LETTER_CHEER_EVENT, cheerDelay, leanFor, letterCharacter, letterVars,
+  LETTER_CHEER, LETTER_CHEER_EVENT, LETTER_SCATTER, LETTER_SCATTER_EVENT, OUTWARD, cheerDelay, leanFor, letterCharacter, letterVars,
   type LetterEdge,
 } from "@/lib/ux/letterMotion";
 
@@ -175,15 +175,13 @@ export function LetterTile({
       settling = requestAnimationFrame(() => { settling = 0; measure(); });
     };
 
-    const onCheer = () => {
-      el.removeAttribute("data-cheer");
-      // Reflow between the two, or the browser never sees the attribute leave
-      // and a press during a hop does nothing.
-      void el.offsetWidth;
-      el.setAttribute("data-cheer", "");
-    };
+    // A hop or a scatter already in the air is left to land rather than
+    // restarted: a restart is the letter jumping back to its first frame.
+    const onCheer = () => { if (!el.hasAttribute("data-cheer")) el.setAttribute("data-cheer", ""); };
+    const onScatter = () => { if (!el.hasAttribute("data-scatter")) el.setAttribute("data-scatter", ""); };
     const onLanded = (e: AnimationEvent) => {
       if (e.animationName === LETTER_CHEER.keyframes) el.removeAttribute("data-cheer");
+      if (e.animationName === LETTER_SCATTER.keyframes) el.removeAttribute("data-scatter");
     };
 
     measure();
@@ -191,12 +189,14 @@ export function LetterTile({
     window.addEventListener("scroll", remeasure, { passive: true });
     window.addEventListener("resize", remeasure, { passive: true });
     document.addEventListener(LETTER_CHEER_EVENT, onCheer);
+    document.addEventListener(LETTER_SCATTER_EVENT, onScatter);
     el.addEventListener("animationend", onLanded);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", remeasure);
       window.removeEventListener("resize", remeasure);
       document.removeEventListener(LETTER_CHEER_EVENT, onCheer);
+      document.removeEventListener(LETTER_SCATTER_EVENT, onScatter);
       el.removeEventListener("animationend", onLanded);
       if (frame) cancelAnimationFrame(frame);
       if (settling) cancelAnimationFrame(settling);
@@ -212,7 +212,12 @@ export function LetterTile({
       ref={ref}
       aria-hidden
       className={`letter-lean pointer-events-none absolute ${className}`}
-      style={{ "--cheer-delay": `${cheerDelay(delay)}s`, ...style } as CSSProperties}
+      style={{
+        "--cheer-delay": `${cheerDelay(delay)}s`,
+        "--out-x": OUTWARD[edge].x,
+        "--out-y": OUTWARD[edge].y,
+        ...style,
+      } as CSSProperties}
     >
       <span
         className="drift absolute inset-0 flex items-center justify-center rounded-[var(--r-sm)] font-bold"

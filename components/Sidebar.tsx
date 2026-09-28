@@ -415,6 +415,8 @@ export function Sidebar({ order: stored, name, classes = [] }: {
                 href={item.href}
                 data-nav-cell
                 data-nav-goes
+                data-hop-on="hover"
+                data-hop-end="nav-bob"
                 data-nav-on={on ? "" : undefined}
                 aria-current={on ? "page" : undefined}
                 className={`nav-cell flex flex-auto flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold ${home ? "dock-home" : ""}`}
@@ -451,6 +453,8 @@ export function Sidebar({ order: stored, name, classes = [] }: {
             onClick={() => setMoreOpen(true)}
             aria-expanded={moreOpen}
             data-nav-cell
+            data-hop-on="hover"
+            data-hop-end="nav-bob"
             data-nav-on={restActive ? "" : undefined}
             className="nav-cell flex flex-auto flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold"
             style={{ color: restActive ? "var(--ink)" : "var(--ink-3)" }}
@@ -583,6 +587,8 @@ function RailLink({ item, active, pinned, classRow = false }: {
       href={item.href}
       data-nav-cell
       data-nav-goes
+      data-hop-on="hover"
+      data-hop-end="nav-bob"
       data-nav-on={active ? "" : undefined}
       aria-current={active ? "page" : undefined}
       title={item.blurb}

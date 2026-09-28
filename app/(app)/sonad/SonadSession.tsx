@@ -367,7 +367,11 @@ function Row({ guess, typed, answer, refused, won }: {
               boxShadow: `inset 0 0 0 ${mark ? RING[mark] : "2px"} ${hue.ring}`,
             } as React.CSSProperties}
           >
-            {letter}
+            {/* Keyed on the letter, so a letter typed into an empty circle is
+                a new element and pops in once as it lands, and nothing it did
+                can be cut off by the next key. Only while typing: a marked
+                row settles instead. */}
+            {letter && !marks ? <span key={`${i}${letter}`} className="sonad-type">{letter}</span> : letter}
           </span>
         );
       })}

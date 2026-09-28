@@ -294,7 +294,7 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
             there, fifteen minutes at a time.
           </p>
           <div className="fade-up hero-action flex flex-wrap items-center gap-x-5 gap-y-3" style={{ animationDelay: "520ms" }}>
-            <ButtonLink href="/sign-in" variant="primary" size="lg" className="hero-cta group w-full sm:w-auto">
+            <ButtonLink href="/sign-in" variant="primary" size="lg" hop="hover" className="hero-cta group w-full sm:w-auto">
               Start learning for free{" "}
               <ArrowRight size={17} aria-hidden className="transition-transform group-hover:translate-x-1" />
             </ButtonLink>
@@ -1292,7 +1292,7 @@ function FinalCta() {
               back, and you will have said it before.
             </p>
             <div className="mt-8 flex justify-center">
-              <ButtonLink href="/sign-in" variant="primary" size="lg" className="w-full sm:w-auto">
+              <ButtonLink href="/sign-in" variant="primary" size="lg" hop="hover" className="w-full sm:w-auto">
                 Start learning for free <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             </div>
