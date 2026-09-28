@@ -5962,9 +5962,25 @@ words (`dueWhere`'s `only`, read by the round and by `lib/progress/closing.ts` a
 `MODULE_SESSION`, which reverses "what is due is due whatever taught it" for the module and keeps it
 on the daily path. And the past-tense page opened the past of every verb, when `juhtusin` has to be
 learned for its own verb and nothing had ever shown it: a form no rule reaches (`LEARNED_PER_VERB`,
-the simple past and the polite imperative) is not asked inside the module at any level, until the
-module has a step that shows each verb in it first. Operator's call, asserted in
+the simple past and the polite imperative) is asked inside the module only for a verb an evening
+has already shown it for. Operator's call, asserted in
 `scripts/invariants/the-module-asks-what-it-taught.ts`.
+
+**Whatever the module asks, it has shown first, and the past is where that needed a step of its
+own.** The operator's rule, in their words: whatever you show and want practice on needs to be
+shown before. A rule on the stem is shown by the page teaching the rule, which is why the present,
+the negative, the conditional and the singular imperative wait on their page and nothing more. The
+simple past and the polite imperative are not a rule, and the page about the past, read early in
+A2 with nearly a hundred verbs taught, cannot teach a hundred verbs' worth of them. So the builder
+keeps a queue of taught verbs with a stored past (`Ledger.showForms`) and, from the evening that
+page is read, each evening that is not a conversation shows up to `FORMS_PER_EVENING` of them,
+earliest taught first: `DaySpec.forms`, drawn by `/course/forms` as a table of the stored forms,
+heard, with three taps under it that grade nothing. The step takes the place of the evening's
+drill, so it is the same fifteen minutes and the game stays. `scope.formsShown` is what the
+evenings have shown so far (`formsThrough`), and `slotWithin` asks a verb's past only for a verb on
+it, which needs the caller to say which verb: `cardWithin` reads the card's lexeme, the flash round
+passes its word, and a caller that cannot say gets a no. `course.test.ts` walks every evening and
+holds every taught verb with a stored past to being shown exactly once, after the page.
 
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the

@@ -28,9 +28,23 @@ export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit)
     assert.match(code("lib/progress/closing.ts"), /dueWhere\(ownerId, now, scope\.lemmas\)/, "the closing count reads a wider queue than the round shows");
   });
 
-  check("a verb form learned verb by verb is never asked inside the module", () => {
+  check("a verb form learned verb by verb is asked inside the module only once an evening showed it", () => {
     const scope = code("lib/course/scope.ts");
     assert.match(scope, /LEARNED_PER_VERB[^=]*=\s*\["IndIpf", "ImpPrPl"\]/, "the list of per-verb forms changed");
-    assert.match(scope, /LEARNED_PER_VERB\.some\(\(code\) => slot\.startsWith\(code\)\)\) return false/, "slotWithin stopped refusing them");
+    assert.match(
+      scope,
+      /LEARNED_PER_VERB\.some\(\(code\) => slot\.startsWith\(code\)\) && !\(lemma && scope\.formsShown\.includes\(lemma\)\)\)\s*\{\s*return false;/,
+      "slotWithin stopped holding a verb's past to the evening that showed it",
+    );
+    assert.match(scope, /slotWithin\(scope, card\.slot \?\? conjugationSlotFromFront\(card\.front\), card\.lexeme\?\.lemma\)/,
+      "cardWithin stopped telling slotWithin which verb a card is about");
+    assert.match(code("app/(app)/review/flashcards/page.tsx"), /slotWithin\(scope, s\.slot, source\.lemma\)/,
+      "the flash round stopped telling slotWithin which verb it asks");
+    assert.match(code("lib/progress/closing.ts"), /lexeme: \{ select: \{ lemma: true/,
+      "the closing count no longer reads which verb a card is about, so it counts the past as unaskable");
+    // And the forms step exists to be the showing: a page that reads the day's verbs.
+    const page = code("app/(app)/course/forms/page.tsx");
+    assert.match(page, /formsTonight\(scope\)/, "the forms step stopped showing the evening's own verbs");
+    assert.match(page, /<VerbTable\b/, "the forms step shows no table");
   });
 }

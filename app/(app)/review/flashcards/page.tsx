@@ -235,8 +235,9 @@ function promptFor(
     again: that is the honest thing to do rather than dropping the word.
   */
   // Inside the module, a case once its page has been read and a part of a
-  // verb once the page teaching it has (`slotWithin`).
-  const askable = askableSlots(source).filter((s) => slotWithin(scope, s.slot));
+  // verb once the page teaching it has, and a verb's past once an evening has
+  // shown that verb's (`slotWithin`).
+  const askable = askableSlots(source).filter((s) => slotWithin(scope, s.slot, source.lemma));
   if (askable.length === 0) return null;
   const filled = new Set(word.verdict.filled);
   const open = askable.filter((s) => !filled.has(s.slot));

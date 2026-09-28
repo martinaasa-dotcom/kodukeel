@@ -10,8 +10,9 @@ import {
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  PICTURES_FOR_BOARD, WORDS_FOR_LETTERS, NO_TAUGHT, rounds,
+  PICTURES_FOR_BOARD, WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING,
 } from "./index";
+import { HARVESTED } from "@/prisma/data/harvested";
 import { readFileSync } from "node:fs";
 import { cardWithin, moduleScopeFrom, slotWithin } from "./scope";
 import { evenings } from "./build";
@@ -569,20 +570,81 @@ describe("what a day reads and where it goes", () => {
     Reported off `juhtuma → lihtminevik, ma` in a closing review: the past-tense
     page had been read, and nothing had ever shown `juhtusin`.
   */
-  it("never asks the simple past or the polite imperative inside the module", () => {
+  /*
+    SHOWN BEFORE IT IS ASKED. The simple past and the polite imperative are
+    learned verb by verb, so a card asks one inside the module only once an
+    evening's forms step has shown that very verb. `juhtuma → lihtminevik, ma`
+    reached an A1 learner who had never seen `juhtusin`.
+  */
+  it("asks a verb's past inside the module only once an evening has shown that verb's", () => {
+    let checked = 0;
     for (const programme of PROGRAMMES) {
-      const last = programme.days[programme.days.length - 1]!;
-      const scope = moduleScopeFrom({ module: `${programme.id}~${last.id}~do:review~3~5~0` })!;
-      for (const slot of ["IndIpfSg1", "IndIpfSg3", "ImpPrPl2"]) {
-        expect(slotWithin(scope, slot), `${programme.id} ${slot}`).toBe(false);
+      for (const d of programme.days) {
+        const scope = moduleScopeFrom({ module: `${programme.id}~${d.id}~do:review~3~5~0` })!;
+        for (const lemma of scope.lemmas) {
+          const shown = scope.formsShown.includes(lemma);
+          for (const slot of ["IndIpfSg1", "IndIpfSg3", "ImpPrPl2"]) {
+            if (!shown) expect(slotWithin(scope, slot, lemma), `${d.id} ${lemma} ${slot}`).toBe(false);
+          }
+          checked += 1;
+        }
+        // A caller that cannot say which verb gets a no, whatever was shown.
+        expect(slotWithin(scope, "IndIpfSg1"), d.id).toBe(false);
       }
-      const card = { cardType: "CONJUGATION", targetCase: null, slot: null, front: "juhtuma \u2192 lihtminevik, ma" };
-      expect(cardWithin(scope, card, null), programme.id).toBe(false);
     }
+    expect(checked).toBeGreaterThan(1000);
+
+    // The reported card, on every evening before `juhtuma`'s past is shown.
+    for (const programme of PROGRAMMES) {
+      for (const d of programme.days) {
+        const scope = moduleScopeFrom({ module: `${programme.id}~${d.id}~do:review~3~5~0` })!;
+        const card = {
+          cardType: "CONJUGATION", targetCase: null, slot: null,
+          front: "juhtuma \u2192 lihtminevik, ma", lexeme: { lemma: "juhtuma" },
+        };
+        expect(cardWithin(scope, card, null), d.id).toBe(scope.formsShown.includes("juhtuma"));
+      }
+    }
+
     const a1last = PROGRAMMES.find((p) => p.id === "a1.7")!;
     const scope = moduleScopeFrom({ module: `${a1last.id}~${a1last.days.at(-1)!.id}~do:review~3~5~0` })!;
     expect(scope.topics).toContain("imperative");
     expect(slotWithin(scope, "ImpPrSg2")).toBe(true);
+    // Nothing of the past is shown at A1: the page about it is read in A2.
+    expect(scope.formsShown).toEqual([]);
+  });
+
+  it("shows every taught verb's past, a handful an evening, after the page about the past", () => {
+    const withPast = new Set(HARVESTED.filter((w) => w.pos === "VERB" && w.parts.PAST_1SG).map((w) => w.lemma));
+    let readPast = false;
+    let imperativeRead = false;
+    const shown = new Set<string>();
+    for (const { day } of DAYS) {
+      if (day.grammar === "imperative") imperativeRead = true;
+      if (day.grammar === "imperfect") readPast = true;
+      const forms = day.forms ?? [];
+      if (forms.length > 0) {
+        // After the page about the past, and after the imperative page too,
+        // since the step shows the polite imperative beside the past.
+        expect(readPast, day.id).toBe(true);
+        expect(imperativeRead, day.id).toBe(true);
+        expect(forms.length, day.id).toBeLessThanOrEqual(FORMS_PER_EVENING);
+        expect(day.steps.some((s) => s.id === FORMS_STEP), day.id).toBe(true);
+        // One round rather than two: the evening is the same fifteen minutes.
+        expect(day.practice.length, day.id).toBe(1);
+        for (const v of forms) {
+          expect(withPast.has(v), `${day.id} ${v}`).toBe(true);
+          expect(shown.has(v), `${day.id} ${v} shown twice`).toBe(false);
+          shown.add(v);
+        }
+      } else {
+        expect(day.steps.some((s) => s.id === FORMS_STEP), day.id).toBe(false);
+      }
+    }
+    // Every verb with a stored past that the ladder teaches is shown somewhere.
+    const taughtVerbs = new Set(DAYS.flatMap(({ day }) => day.words).filter((w) => withPast.has(w)));
+    const missing = [...taughtVerbs].filter((v) => !shown.has(v));
+    expect(missing).toEqual([]);
   });
 
   /*

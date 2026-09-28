@@ -8,10 +8,9 @@
 
 import { cache } from "react";
 
-import { grammarThrough, taughtThrough } from "@/lib/course";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { moduleReached } from "@/lib/progress/course";
-import type { ModuleScope } from "@/lib/course/scope";
+import { scopeFor, type ModuleScope } from "@/lib/course/scope";
 import { spellingsOf } from "@/lib/progress/lessonWords";
 
 /** Every spelling of every taught word, or null outside a module. */
@@ -44,11 +43,7 @@ export async function moduleSpellings(scope: ModuleScope | null): Promise<Readon
 export const learnerModuleScope = cache(async (ownerId: string): Promise<ModuleScope | null> => {
   const reached = await moduleReached(ownerId);
   if (!reached) return null;
-  const { programme, day } = reached;
-  return {
-    programme,
-    day,
-    lemmas: taughtThrough(programme, day.index),
-    ...grammarThrough(programme, day.index),
-  };
+  // The same constructor a module step's own address resolves through, so the
+  // daily path and a step cannot disagree about what the ladder has shown.
+  return scopeFor(reached.programme, reached.day);
 });
