@@ -121,9 +121,15 @@ const cardFront = (await page.locator("main").textContent()) ?? "";
 */
 // `kelle? mille?` for a word that can be either, `mille?` for a thing and
 // `kelle?` for a person, since the question matches the word (caseQuestionFor).
-const gradationAsk = drilledCase === "genitive" && /→ (kelle\?|mille\?)/.test(cardFront);
+// The review card draws a `word → form` front as the word with the form as a
+// tag under it, so the arrow is no longer on the screen: the tag is read off
+// its own hook rather than off the joined text of the card.
+const frontTail = ((await page.locator("[data-front-tail]").first().textContent({ timeout: 1000 }).catch(() => null)) ?? "").trim();
+const gradationAsk = drilledCase === "genitive"
+  && (/^(kelle\? ?)?(kelle\?|mille\?)$/.test(frontTail) || /→ (kelle\?|mille\?)/.test(cardFront));
 check("and asks for it in a sentence with a gap, never by its Latin name",
-  (cardFront.includes("____") || gradationAsk) && !new RegExp(`→ ${drilledCase}`, "i").test(cardFront),
+  (cardFront.includes("____") || gradationAsk) && !new RegExp(`→ ${drilledCase}`, "i").test(cardFront)
+    && !new RegExp(`^${drilledCase}$`, "i").test(frontTail),
   cardFront.match(/[^\n]{0,30}____[^\n]{0,30}/)?.[0]?.trim()
     ?? `no gap found, the card read: ${cardFront.replace(/\s+/g, " ").trim().slice(0, 120)}`);
 

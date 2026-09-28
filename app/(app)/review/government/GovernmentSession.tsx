@@ -244,7 +244,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           </div>
         </div>
 
-        <div className="px-6 py-8 text-center">
+        <div className="round-pad px-6 text-center">
           <div className="flex items-center justify-center gap-2">
             <p lang="et" className="text-3xl font-semibold" style={{ color: "var(--ink)" }}>
               {question.lemma}

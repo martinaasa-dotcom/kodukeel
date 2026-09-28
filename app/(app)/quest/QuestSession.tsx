@@ -475,7 +475,7 @@ export function QuestSession({
           {card.targetsWeakCase && (
             <Chip tone="hard">One of your weak spots</Chip>
           )}
-          <p lang="et" className="text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
+          <p lang="et" className="round-word font-bold" style={{ color: "var(--ink)" }}>
             {card.front}
           </p>
           {/*

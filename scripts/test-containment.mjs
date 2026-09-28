@@ -61,7 +61,7 @@
 import { eventually, launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { revealAnswer } from "./lib/review.mjs";
-import { ensureLetterBar } from "./lib/prefs.mjs";
+import { ensureLetterBar, ensureWordGloss } from "./lib/prefs.mjs";
 import { startRound } from "./lib/briefing.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { resolveDatabaseUrl } from "./lib/local-db.mjs";
@@ -408,6 +408,8 @@ const browser = await launchChromium();
   row this suite has to contain.
 */
 await ensureLetterBar(browser, B, "on");
+// The word gloss is off by default; the teaching-sentence check opens its panel.
+await ensureWordGloss(browser, B, "on");
 
 /**
  * The three screens that cannot be visited until something has made them.

@@ -2,31 +2,29 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_WORD_GLOSS, WORD_GLOSS_CHOICES, wordGlossFrom } from "./wordGloss";
 
 describe("wordGlossFrom", () => {
-  it("is on when nobody has answered", () => {
+  it("is off when nobody has answered", () => {
     /*
-      The one that matters, and it is `letterBarFrom`'s argument pointed at a
-      different setting. A missing row is everybody who used this app before
-      the question existed, and reading absence as a refusal would take the
-      dictionary out from under every attested sentence in the app in one
-      deploy, for people who never asked for that.
+      The one that matters. The underlines were reported as busy, so they are
+      something a learner turns on in Settings rather than something every
+      sentence carries until somebody finds the way out. Absence is everybody
+      who never answered, and they get the plain sentence.
     */
-    expect(wordGlossFrom(undefined)).toBe("on");
-    expect(wordGlossFrom(null)).toBe("on");
-    expect(wordGlossFrom("")).toBe("on");
-    expect(DEFAULT_WORD_GLOSS).toBe("on");
+    expect(wordGlossFrom(undefined)).toBe("off");
+    expect(wordGlossFrom(null)).toBe("off");
+    expect(wordGlossFrom("")).toBe("off");
+    expect(DEFAULT_WORD_GLOSS).toBe("off");
   });
 
-  it("is off only when that is what was stored", () => {
-    expect(wordGlossFrom("off")).toBe("off");
+  it("is on only when that is what was stored", () => {
     expect(wordGlossFrom("on")).toBe("on");
+    expect(wordGlossFrom("off")).toBe("off");
   });
 
   it("reads anything it does not recognize as the default", () => {
     // A settings value is a string column, so a typo or a value from an older
-    // shape of this setting has to land somewhere. It lands on the behavior
-    // everybody already had.
-    for (const junk of ["OFF", "false", "0", "hidden", "no", "none"]) {
-      expect(wordGlossFrom(junk)).toBe("on");
+    // shape of this setting has to land somewhere. It lands on the quiet one.
+    for (const junk of ["ON", "true", "1", "shown", "yes", "all"]) {
+      expect(wordGlossFrom(junk)).toBe("off");
     }
   });
 });

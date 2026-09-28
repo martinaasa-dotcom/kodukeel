@@ -84,7 +84,7 @@ import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/d
 import {
   DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, programmeById,
 } from "@/lib/course";
-import { courseReading, dayIsInPlay, openingPart, programmeFor } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
@@ -2521,7 +2521,33 @@ export async function setCourseLevel(level: string) {
   const parsed = z.enum(["A1", "A2", "B1", "B2", "C1"]).safeParse(text(level).toUpperCase());
   if (!parsed.success) return { ok: false as const, error: "That is not a level." };
 
-  await recordCourseLevel(ownerId, parsed.data);
+  const now = new Date();
+  await recordCourseLevel(ownerId, parsed.data, now);
+
+  /*
+    AND THE COURSE MOVES WITH IT, WHICH IS WHAT THE PICKER PROMISES.
+
+    The part a learner is on is its own setting, and a level written here used
+    to leave it alone: somebody who had been walked onto A2 and then said "A1"
+    stayed on A2, and the module went on asking for the simple past of a verb
+    nobody had shown them, under a screen that said A1. It was reported off
+    exactly that card. So where the level now opens on a different level of
+    the ladder than the part in play, the course moves to the first part of it,
+    the way an accepted move on the module screen does. A part of the same
+    level is left where it is, because re-picking A1 halfway through A1 is not
+    asking to start again. Ticks belong to their part, so nothing is lost:
+    going back to a part picks up where its own ticks left off. "off" is a
+    learner who picks their own evenings and is never put back on the course.
+  */
+  const [current, opening] = await Promise.all([programmeFor(ownerId), openingPartFor(ownerId)]);
+  if (current && current.level !== opening.level) {
+    await Promise.all([
+      writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
+      writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
+      writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
+    ]);
+    revalidatePath("/course");
+  }
 
   /*
     Every screen that reads a level, which is more of them than it looks: the

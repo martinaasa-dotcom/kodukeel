@@ -20,8 +20,8 @@ import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
 import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
 import { isAppsChoice } from "@/lib/srs/sources";
 import {
-  MAX_SESSION, NEW_CANDIDATES, dueWhere, meetingFirst, notOnLadder, pastTheLadder, roomFor,
-  unseenWhere,
+  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, meetingFirst, notOnLadder, pastTheLadder,
+  roomFor, unseenWhere,
 } from "@/lib/srs/reviewQueue";
 import { include, withChoices, type CardRow } from "./cards";
 import { firstParams } from "@/lib/ux/queryParam";
@@ -52,7 +52,7 @@ export default async function ReviewPage({
     evening: first run builds a starter deck of four units, so the closing
     round of the first evening was meeting a beginner with words from unit
     four. Opened from the module (`lib/course/scope.ts`) the new-card window is
-    the words the ladder has taught, and what is due is due whatever taught it.
+    the words the ladder has taught, and so is what is due.
   */
   const scope = moduleScopeFrom(params);
   /*
@@ -70,7 +70,9 @@ export default async function ReviewPage({
     re-litigated: the planned module is the record of what somebody has been
     taught, and nothing is introduced on the daily path ahead of it.
 
-    WHAT IS DUE IS STILL DUE WHATEVER TAUGHT IT. A card already answered has a
+    ON THE DAILY PATH, WHAT IS DUE IS STILL DUE WHATEVER TAUGHT IT. (Inside the
+    module it is not, since the operator's second call: the closing round asks
+    only what the module has taught, and stops at `MODULE_SESSION`.) A card already answered has a
     schedule, FSRS decides when it comes back, and holding one out because the
     module has not caught up would be this app overwriting a schedule it
     presents as the scheduler's. Only the new cards are gated, because only a
@@ -229,8 +231,10 @@ export default async function ReviewPage({
     taughtPromise,
     prisma.card.findMany({
       // What is due, and the one thing that is due and may not be asked here:
-      // see `dueWhere`, which the module's own closing count reads too.
-      where: dueWhere(ownerId, now),
+      // see `dueWhere`, which the module's own closing count reads too. Opened
+      // from the module, only the words the module has taught: its closing
+      // round is a quick review of the evening, not the whole deck's backlog.
+      where: dueWhere(ownerId, now, scope?.lemmas ?? null),
       /*
         The id settles a tie, which `lib/progress/learn.ts` already does on the
         same table for the reason given there: a word's cards are written in
@@ -329,7 +333,11 @@ export default async function ReviewPage({
   ]);
   const fresh = atLevelFirst(unseen.filter(introducible), level, raised).slice(0, room);
   const gloss = await glossChosen();
-  const cards = await withChoices([...spaced, ...inTeachingOrder(fresh)], gloss, ownerId, scope?.lemmas ?? null);
+  const queued = [...spaced, ...inTeachingOrder(fresh)];
+  // The module's closing round stops at `MODULE_SESSION`; see its header.
+  const cards = await withChoices(
+    scope ? queued.slice(0, MODULE_SESSION) : queued, gloss, ownerId, scope?.lemmas ?? null,
+  );
 
   /*
     WHEN THE NEXT CARD COMES BACK, WHICH IS THE ONLY QUESTION AN EMPTY QUEUE

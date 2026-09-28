@@ -3563,9 +3563,11 @@ second thing happening on a card whose whole job is one sentence.** That was rep
 somebody using it, and it is the same shape as the letter bar: a reader who can already read the
 line is being offered help on every word of it, a reader who cannot is being handed the only thing
 that makes the sentence answerable, and there is no way to tell which of the two anybody is. So it
-is asked. `lib/ux/wordGloss.ts` is the answer, on by default for the reason `letterBar.ts` gives
-about itself, since a missing row is everybody who used the app before the question existed and
-reading absence as a refusal takes the dictionary out from under every sentence in one deploy.
+is asked. `lib/ux/wordGloss.ts` is the answer, and **off is the default, for everybody**: it was on
+at first, for the reason `letterBar.ts` gives about itself, and the operator read a card with the
+panel open under a word and called it busy. So a missing row reads as the plain sentence, only a
+stored "on" draws the underlines, and Settings is where somebody turns them on. The sentence's own
+English line is printed under it either way, so the quiet default leaves nobody without a reading.
 
 **Off means the lookup is never made, rather than made and hidden.** Both screens that show a
 glossed sentence have drawn the plain marked sentence since before this existed, for the page that
@@ -5935,6 +5937,21 @@ answer for a slot: a case once its page has been read, a part of a verb once the
 has, the present and the negative behind the present tense and negation pages, the past behind
 the imperfect, the conditional and the imperative behind their own, and a morph code nobody has
 listed fails closed, which is `isFiniteVerbCode`'s discipline one module over.
+
+**And the module is the level the learner said, and its closing round is tonight's evening.** A
+learner who set A1 in Settings was asked `juhtuma → lihtminevik, ma` in a closing review eighteen
+cards long, and every part of that was wrong. The level picker wrote the level and left the part
+alone, so they were still on A2; `setCourseLevel` now moves the course to the first part of the
+level `openingPartFor` names wherever that is another level, and leaves a part of the same level
+where it is. The closing round opened the whole queue, due cards from anywhere in the deck plus ten
+new ones, for a step that needs five answers; inside a module its due read is narrowed to the taught
+words (`dueWhere`'s `only`, read by the round and by `lib/progress/closing.ts` alike) and it stops at
+`MODULE_SESSION`, which reverses "what is due is due whatever taught it" for the module and keeps it
+on the daily path. And the past-tense page opened the past of every verb, when `juhtusin` has to be
+learned for its own verb and nothing had ever shown it: a form no rule reaches (`LEARNED_PER_VERB`,
+the simple past and the polite imperative) is not asked inside the module at any level, until the
+module has a step that shows each verb in it first. Operator's call, asserted in
+`scripts/invariants/the-module-asks-what-it-taught.ts`.
 
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the
@@ -10042,6 +10059,13 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   emulating a system preference the palette no longer reads, since that would sweep the light
   theme twice and call the dark one clean. Asserted, with the comments stripped, because the note
   explaining why the block went names the block.
+- **A mockup is the app, photographed.** A visual proposal shown to the operator is made on a
+  branch and taken with `npm run shoot -- /route` in both themes, never drawn as standalone HTML:
+  one was, in Bricolage Grotesque and Figtree and a lilac of its own, and asked to be trusted as the
+  real screen. **The faces are Onest and Schibsted Grotesk, the brand mix is Vikerkaar öös (butter,
+  blush, the accent, sky, the night `--stage`), and mint and peach are verdicts, never a lead
+  panel's fill.** The finished evening wears `.evening` on the accent tint. Asserted in
+  `scripts/invariants/the-agreed-fonts-and-palette.ts`, each arm made to fail on the real fault.
 - Style through the tokens in `app/globals.css`, never with a raw hex. The five hues carry fixed
   meanings (`docs/14-design-system.md` §1). Mint is "recalled", peach is "missed", and neither is
   free for decoration. **A hue has a fill and an ink and they are not interchangeable**: `--accent`
@@ -11311,7 +11335,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
 `data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
-`OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`.
+`OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
+`ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

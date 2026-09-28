@@ -196,7 +196,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           </div>
         </div>
 
-        <div className="flex min-h-[300px] flex-col items-center justify-center gap-5 px-6 py-10 text-center" aria-live="polite">
+        <div className="round-stage flex flex-col items-center justify-center gap-5 px-6 text-center" aria-live="polite">
           <div>
             <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Say this in Estonian</p>
             <p className="text-2xl font-bold leading-snug tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
