@@ -637,6 +637,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         over?: boolean; error?: string;
         composed?: boolean; note?: string | null;
         composedBy?: { label: string; model: string; primary: boolean } | null;
+        composer?: { label: string; model: string; primary: boolean } | null;
         modelDown?: boolean;
         slips?: SlipNote[]; hurdle?: string | null; queued?: boolean;
         conceded?: number[] | null;
@@ -668,6 +669,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       }
       if (data.composed === false && data.note) setNote(data.note);
       if (data.composedBy) { setWriter(data.composedBy); setModelDown(false); }
+      else if (data.composer) setWriter((was) => was ?? data.composer ?? null);
       if (data.modelDown) setModelDown(true);
       /*
         A fact the learner changed on their own card is the fact now, beside
@@ -1493,22 +1495,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         </Card>
       </details>
 
-      {opened && (modelDown || (writer && !writer.primary)) && (
-        <p role="status" className="verdict-panel verdict-nearly">
-          {modelDown
-            ? "The language model is not answering right now, so the other side can only use lines written for this scene in advance and will understand much less than usual. Try again a little later."
-            : `The main language model is not answering, so a backup (${writer?.model}) is writing the other side's lines. It may make mistakes the main one would not.`}
-        </p>
-      )}
       {opened && (!opened.composed || note) && !modelDown && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {note
             ?? "No model key is set, so the other side's lines come from the course and from lines written for this scene. Where nothing fits what you said, you will see a short note about what they did instead of a spoken line."}
-        </p>
-      )}
-      {writer && !modelDown && (
-        <p className="text-xs" data-scene-model={writer.model} style={{ color: "var(--ink-3)" }}>
-          Answered by {writer.label}, {writer.model}
         </p>
       )}
 
@@ -2041,6 +2031,23 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               <DoorOpen size={16} aria-hidden /> Leave
             </Button>
           </div>
+          {/*
+            Which model is playing the other side, and whether it is the one
+            this module is pinned to, said once in the panel the learner is
+            already looking at rather than above the room or under every line.
+          */}
+          {opened && (modelDown || (writer && !writer.primary)) && (
+            <p role="status" className="verdict-panel verdict-nearly">
+              {modelDown
+                ? "The language model is not answering right now, so the other side can only use lines written for this scene in advance and will understand much less than usual. Try again a little later."
+                : `The main language model is not answering, so a backup (${writer?.model}) is writing the other side's lines. It may make mistakes the main one would not.`}
+            </p>
+          )}
+          {writer && !modelDown && (
+            <p className="text-xs" data-scene-model={writer.model} style={{ color: "var(--ink-3)" }}>
+              The other side is played by {writer.label}, {writer.model}
+            </p>
+          )}
         </div>
       </div>
       </div>

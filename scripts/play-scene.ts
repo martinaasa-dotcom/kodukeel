@@ -31,7 +31,8 @@
  * question the beat did not ask for. Reading the sloppy and curious runs is
  * how the marker's tolerance and the asides were shaped.
  */
-import { SCENES, sceneById } from "../lib/scenes/catalogue";
+import { FAREWELLS, SCENES, sceneById } from "../lib/scenes/catalogue";
+import { saysGoodbye } from "../lib/scenes/casual";
 import {
   MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, moneyInPlay, replay, sceneLemmas, type Row,
   type StoredDraw,
@@ -148,6 +149,46 @@ const LOST = [
   "tervitused", "see on keeruline", "ma mõtlen"
 ];
 
+/*
+  A LEARNER PLAYED BY A MODEL, WHICH IS THE ONE KIND OF LEARNER THE STYLES ABOVE
+  CANNOT BE. Every style is a rule over the beat's own requirements, so it never
+  says anything the scene did not anticipate, and the faults a real learner
+  meets are exactly the ones the scene did not anticipate: a question back, a
+  joke, a change of subject, a half-remembered word, English in the middle.
+  `--learner <kind>` asks Gemini for the next thing a beginner of that kind would
+  type, given the conversation so far and their own card; the app then marks it
+  exactly as the route would. Harness only, and never a grade: what it measures
+  is whether the other side keeps making sense.
+*/
+const LEARNER = arg("learner");
+const LEARNER_KINDS: Record<string, string> = {
+  shy: "shy and unsure: very short answers, often one word, sometimes just 'jah' or 'ei tea', occasional missing endings",
+  chatty: "chatty and friendly: says more than asked, adds personal details, asks the other person questions back, sometimes jokes",
+  offtrack: "easily distracted: often answers something other than what was asked, changes the subject, asks unrelated questions, then comes back",
+  confused: "often confused: misunderstands the question, answers the wrong thing, asks them to repeat or slow down, mixes in English words",
+  english: "weak in Estonian: mixes English and Estonian in the same sentence, uses English when stuck, wrong word endings, some typos",
+  good: "a decent A2 learner: tries to answer properly in simple Estonian, small mistakes in endings and spelling",
+};
+async function simulatedLearner(kind: string, title: string, role: string, card: readonly string[], talk: readonly string[]): Promise<string> {
+  const who = LEARNER_KINDS[kind] ?? kind;
+  const prompt = [
+    `You are role-playing a beginner learner of Estonian in a practice conversation: ${title}.`,
+    `Your situation: ${role}`,
+    card.length > 0 ? `Your card (suggestions): ${card.join("; ")}` : "",
+    `What kind of learner you are: ${who}.`,
+    "Write ONLY your next turn, as that learner would type it: short, beginner Estonian with realistic mistakes, no quotes, no explanation.",
+    "The conversation so far:",
+    ...talk,
+    "You:",
+  ].filter(Boolean).join("\n");
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 60, temperature: 1, thinkingConfig: { thinkingBudget: 0 } } }),
+  }).catch(() => null);
+  const data = res && res.ok ? await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] } : null;
+  return (data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "jah").split("\n")[0]!.replace(/^You:\s*/i, "").trim() || "jah";
+}
+
 function learnerTurn(
   beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnType<typeof contextFromRows>["lexicon"], n: number,
   register: "teie" | "sina" = "teie",
@@ -208,9 +249,10 @@ async function play(sceneId: string) {
     §53 found in `eval:scene`, one instrument over.
   */
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
-  const run = planRun(scene, `play-${style}`, level, difficulty);
+  const run = planRun(scene, `play-${style}${arg("seed") ?? ""}`, level, difficulty);
   const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: LINKS.length > 0 ? "composed" : "scripted", patience: run.patience };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
+  const talkLog: string[] = [];
   console.log(`\n=== ${scene.title} (${scene.id}) · ${persona.id} · ${style} · ${difficulty} ===`);
   for (const prop of run.card.props) console.log(`   card: ${prop.card} ${prop.theirs ? "(theirs)" : `= ${prop.value}`}`);
 
@@ -368,7 +410,8 @@ async function play(sceneId: string) {
           does in the route: a question on the way out, or a word to hand over,
           is composed rather than answered `Ei tea. Head aega!`
         */
-        pool: (askedNow || handing) && LINKS.length > 0 ? [] : context.pool.get(spokenFor.id) ?? [],
+        pool: (askedNow || handing || (spokenFor.move === "close" && last !== null && !saysGoodbye(last.said, FAREWELLS)))
+          && LINKS.length > 0 ? [] : context.pool.get(spokenFor.id) ?? [],
         /*
           THE LEARNER'S OWN WORDS ARE ON TOPIC, AS THE ROUTE READS THEM. The
           route adds every word of the last turn the dictionary vouched to the
@@ -464,6 +507,7 @@ async function play(sceneId: string) {
       console.log(`      [${last.reading}${notes.length ? " · " + notes.join(", ") : ""}]`);
     }
     for (const l of lines) {
+      if (l.provenance !== "unspoken" && l.provenance !== "coach" && l.provenance !== "meanwhile") talkLog.push(`Them: ${l.text}`);
       const who = l.provenance === "unspoken" ? "   (they)" : "   THEM";
       console.log(`${who}: ${l.text}   <${l.provenance}${l.reaction ? ", reaction" : ""}>`);
       if (l.provenance === "attested" || l.provenance === "scripted") used.add(l.text);
@@ -484,7 +528,10 @@ async function play(sceneId: string) {
     }
     const target = standing ?? beat;
     if (!target) break;
-    const said = SAY[n] ?? learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register);
+    const said = SAY[n] ?? (LEARNER
+      ? await simulatedLearner(LEARNER, scene.title, scene.role, run.card.props.filter((p) => !p.theirs).map((p) => `${p.card} ${p.value}`), talkLog)
+      : learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register));
+    talkLog.push(`You: ${said}`);
     console.log(`   YOU: ${said}      (goal: ${target.goal})`);
     turns.push({ beatId: target.id, said, helped: false, heard });
   }

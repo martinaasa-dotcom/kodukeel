@@ -18,7 +18,8 @@ import {
 } from "@/lib/progress/scene";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "@/lib/scenes/judge";
 import { leafNeeds } from "@/lib/scenes/types";
-import { sceneById } from "@/lib/scenes/catalogue";
+import { FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
+import { saysGoodbye } from "@/lib/scenes/casual";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, replyFor,
@@ -759,8 +760,17 @@ export async function POST(request: Request) {
       return found ? { ...l, tokens: found } : l;
     });
   };
+  /*
+    WHO WILL BE PLAYING THE OTHER SIDE, SAID FROM THE FIRST LINE. The opening
+    greeting is the course's, so a screen that named the model only once one
+    had written a line said nothing until the second turn; the head of the
+    chain is what will be asked, and a turn a model actually wrote replaces it
+    with the one that answered (`composedBy`).
+  */
+  const head = sceneProviders()[0];
+  const composer = head ? { label: head.label, model: head.model, primary: head.model === SCENE_MODELS[0] } : null;
   const answer = async (lines: readonly SpokenLine[], extra: Record<string, unknown> = {}) =>
-    Response.json({ ...progress, lines: await glossedLines(lines), ...extra }, { headers: NO_STORE });
+    Response.json({ ...progress, composer, lines: await glossedLines(lines), ...extra }, { headers: NO_STORE });
 
   /*
     Which beat the ladder is asked for: the hurdle where one stands, and once
@@ -1001,7 +1011,17 @@ export async function POST(request: Request) {
     courtesy rung stands above the model. The model is asked then, told what
     was asked and what to hand over, and the courtesy is still the net.
   */
-  if (cheap.provenance === "attested" && !shrugOwed && !handing && !askedNow) return answer(reply(cheap));
+  /*
+    AND NOT WHERE THE LEARNER HAS JUST TOLD THEM SOMETHING. The close beat is
+    a farewell off the course, and straight after an answer it was said bare:
+    asked how long they had been learning, a learner wrote "two weeks, it is
+    hard but interesting" and the teacher replied `Head aega!`, with nothing
+    about what they had said. A person takes it in and then says goodbye. So
+    where the learner's last turn was not itself a goodbye, the model is asked
+    to react and wrap up, and the farewell stays the net.
+  */
+  const closingOnNews = beat.move === "close" && last !== null && !saysGoodbye(last.said, FAREWELLS);
+  if (cheap.provenance === "attested" && !shrugOwed && !handing && !askedNow && !closingOnNews) return answer(reply(cheap));
 
   /*
     THE BOOKING IS PER TURN, because a call is what the ledger counts. Booking

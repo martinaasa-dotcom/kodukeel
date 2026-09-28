@@ -37,6 +37,9 @@ import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
+
+/** How long a line may be and still be said again word for word (see `recital`). */
+export const REPEAT_WORDS = 10;
 import { propBySlot, restated, type DrawnProp, type RoleCard } from "./props";
 import { CURVEBALLS, curveballById } from "./curveballs";
 import type { Response, SceneState, TurnRecord } from "./state";
@@ -1172,8 +1175,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     deployment.
   */
   const fresh = line?.provenance === "composed" ? line : null;
+  /*
+    AND A LONG LINE IS NOT SAID TWICE WORD FOR WORD. Repeating the question is
+    what a person does with a question; a composed turn of twenty words, a
+    reaction and a remark and a question, recited again in full is a recording
+    stuck. Where the line being repeated is that long and the scene holds its
+    own line for this beat, the scene's line is said instead: the same question,
+    short, which is what a person who was not answered actually says.
+  */
+  const recital = sayAgain && heard !== null && words(heard).length > REPEAT_WORDS
+    && line !== null && line.provenance !== "fallback" && line.text !== heard;
   if (fresh) {
     out.push(fresh);
+  } else if (recital) {
+    out.push(line!);
   } else if (another) {
     out.push({ text: another, provenance: "scripted" });
   } else if (sayAgain) {

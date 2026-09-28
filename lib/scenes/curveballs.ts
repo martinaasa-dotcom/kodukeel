@@ -88,6 +88,12 @@ export interface CurveballSpec {
   /** Whether it changes the persona rather than asking for a turn. */
   readonly silent?: true;
   /**
+   * Raised only where the learner has already answered something further
+   * along the scene than the beat in front, which is the one situation this
+   * curveball is about (`raiseHurdle`). Where they have not, it is not raised.
+   */
+  readonly afterJumpingAhead?: true;
+  /**
    * THE ONE CURVEBALL WHOSE LINE BREAKS A GATE CHECK ON PURPOSE.
    *
    * `other-register` is the other side addressing the learner with the pronoun
@@ -246,6 +252,14 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     */
     says: "They want things in their order, not yours.",
     out: "Give them the one thing they just asked for.",
+    /*
+      AND ONLY WHERE THE LEARNER ACTUALLY WENT OUT OF ORDER. Raised on a
+      schedule like the others, it told somebody who had answered exactly what
+      they were asked `Enne tuleb kogemus, siis palk.`, first experience and
+      then pay, about a pay nobody had mentioned. A correction for a thing the
+      learner did not do is the app being wrong about them out loud.
+    */
+    afterJumpingAhead: true,
     needs: [{ kind: "any" }],
   },
   {

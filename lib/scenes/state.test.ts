@@ -174,6 +174,14 @@ describe("a curveball in the way", () => {
     expect(currentBeat(SCENE, raised)?.id, "the beat waits behind it").toBe("reason");
   });
 
+  it("is not raised as a complaint about order where the learner kept to the order", () => {
+    const order = [{ id: "their-order", at: 1 }];
+    const kept = { ...startScene(SCENE), beat: 1, done: ["greet"] };
+    expect(raiseHurdle(SCENE, kept, order).hurdle, "nothing was out of order").toBeNull();
+    const jumped = { ...kept, done: ["greet", "chat"] };
+    expect(raiseHurdle(SCENE, jumped, order).hurdle?.id, "they answered a later beat first").toBe("their-order");
+  });
+
   it("is a beat the marker can read: its way out is the goal and its needs are the curveball's", () => {
     const beat = hurdleBeat({ id: "missing-document", beat: 1, tries: 0 })!;
     expect(beat.goal).toBe("Say you do not have it.");

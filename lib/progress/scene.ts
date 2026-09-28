@@ -1465,7 +1465,7 @@ export function replay(
         the next line read a time back to somebody who had never been offered
         one. The offer is said, and the learner's yes is read against it then.
       */
-      if (next.move === "offer") break;
+      if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
       const read = readTurn(said, next, marker);
       /*
         A judge may have said this same turn met the next beat too, in a word
@@ -1532,7 +1532,7 @@ export function replay(
           interviewer never named the figure at all. Behind the pointer the
           offer has been made, and taking it late is taking it.
         */
-        if (other.move === "offer" && at > state.beat) continue;
+        if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
         const also = readTurn(said, other, marker);
         if (also.reading !== "complete" || !addsEvidence(also, spent)) continue;
         for (const word of also.satisfiedBy) spent.add(word);
@@ -1543,6 +1543,29 @@ export function replay(
     previous = heard;
   }
   return { state, response, elsewhere };
+}
+
+/**
+ * WHETHER THE OTHER SIDE HAS ALREADY MADE THIS OFFER, IN A LINE OF ITS OWN.
+ *
+ * The rule above holds an offer ahead of the pointer back until the offer is
+ * said, and a composed line can say it early: asked whether the learner had
+ * questions, the interviewer went on "Pakume palka 1556 eurot kuus. Kas see
+ * sobib teile?", the learner answered "Mulle sobib see palk", and the yes was
+ * refused because the offer's beat had not been reached. The next line then
+ * named the figure again as news, to somebody who had just accepted it. An
+ * offer is made where the line the learner was answering states the value the
+ * offer's own `says` names off the card, which is a fact about the words on
+ * the screen rather than a guess about intent.
+ */
+function offerAlreadyMade(beat: BeatSpec, draw: StoredDraw | null, heard: string): boolean {
+  if (!heard || !draw) return false;
+  const slots = (beat.says ?? []).flatMap((part) => ("slot" in part ? [part.slot] : []));
+  if (slots.length === 0) return false;
+  return slots.every((slot) => {
+    const value = draw.card.props.find((prop) => prop.slot === slot)?.value;
+    return Boolean(value) && new RegExp(`(^|\\D)${value!.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\D|$)`).test(heard);
+  });
 }
 
 /** The hurdle stood down because the learner answered the beat past it. */
