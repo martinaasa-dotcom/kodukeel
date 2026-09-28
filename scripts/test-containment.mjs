@@ -572,8 +572,11 @@ async function screensToMake() {
     const lemma = await firstPhrase();
     if (!lemma) throw new Error("the dictionary holds no seeded A1 phrase");
     await page.goto(`${B}/dictionary?q=${encodeURIComponent(lemma)}`, { waitUntil: "networkidle", timeout: 30_000 });
+    // The button opens a panel and "Add" inside it is the press that adds,
+    // which is the shape `scripts/e2e.mjs` drives.
     await page.getByRole("button", { name: /Add to deck/ }).first().click({ timeout: 10_000 });
-    await page.getByText(/In deck/).first().waitFor({ timeout: 10_000 });
+    await page.getByRole("button", { name: /^Add$/ }).first().click({ timeout: 10_000 });
+    await page.getByRole("button", { name: /In deck/ }).first().waitFor({ timeout: 15_000 });
     await page.goto(`${B}/learn`, { waitUntil: "networkidle", timeout: 30_000 });
     if (!(await page.locator('a[href="/learn/new?kind=phrase"]').count())) {
       throw new Error(`added ${lemma}, and the Learn page still offers no phrase`);
@@ -1342,7 +1345,11 @@ function wholeWords() {
     if (!el || el.closest("script, style, noscript, table, pre, code, textarea, .sr-only, [aria-hidden='true']")) continue;
     if (!shown(el)) continue;
     const text = node.textContent;
-    for (const m of text.matchAll(/\p{L}{2,13}/gu)) {
+    // Whole words first, then the length: `\p{L}{2,13}` alone matches
+    // thirteen-letter pieces inside a longer compound, whose breaking is the
+    // rule doing its job, and reported a 23-letter fixture word as broken.
+    for (const m of text.matchAll(/\p{L}+/gu)) {
+      if (m[0].length < 2 || m[0].length > 13) continue;
       range.setStart(node, m.index);
       range.setEnd(node, m.index + m[0].length);
       const tops = new Set();
