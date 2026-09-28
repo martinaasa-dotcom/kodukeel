@@ -102,6 +102,27 @@ const VERB_SLOT_PAGE: readonly { opens: string; page: string; also?: string }[] 
 ];
 
 /**
+ * THE PARTS OF A VERB NO RULE REACHES, WHICH THE MODULE DOES NOT ASK.
+ *
+ * A verb form is asked inside the module only where the learner has been
+ * shown how to get it, and for the present, the negative, the conditional and
+ * the singular imperative that is the page teaching the rule: an ending on the
+ * stored first person, the same for every verb (`lib/estonian/conjugate.ts`).
+ * The simple past and the polite imperative are not like that. `lugesin`,
+ * `tahtsin` and `võtsin` each have to be learned for their own verb, and
+ * `andke` and `minge` are in no rule at all, so reading the past-tense page
+ * teaches none of them. The page tables four verbs, and no step of an evening
+ * shows any other verb's past before a card asks for it. So
+ * `juhtuma → lihtminevik, ma` reached a learner who had never seen `juhtusin`,
+ * with nothing to work it out from, and it was reported as exactly that.
+ *
+ * Refused here until the module has a step that shows each verb in those
+ * forms first. Outside the module nothing changes: a learner who opens Review
+ * or the flash round themselves still meets them.
+ */
+const LEARNED_PER_VERB: readonly string[] = ["IndIpf", "ImpPrPl"];
+
+/**
  * Whether a slot may be asked inside the module: a case once its page has
  * been read, a part of a verb once the page teaching it has, and a slot that
  * is neither (production, recognition, a gap) on the taught list alone.
@@ -115,6 +136,7 @@ const VERB_SLOT_PAGE: readonly { opens: string; page: string; also?: string }[] 
 export function slotWithin(scope: ModuleScope | null, slot: string | null | undefined): boolean {
   if (!scope || !slot) return true;
   if (scope.cases.includes(slot)) return true;
+  if (LEARNED_PER_VERB.some((code) => slot.startsWith(code))) return false;
   const verb = VERB_SLOT_PAGE.find((v) => slot.startsWith(v.opens));
   if (verb) {
     // The conditional is asked from B1, and the module's own table asks this

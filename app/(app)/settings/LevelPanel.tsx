@@ -71,8 +71,10 @@ export function LevelPanel({ current, measured }: {
           : "Change it whenever it stops being true. Taking a level check replaces it with what the check found."}
       </p>
       <Explain label="What the level decides">
-        It decides which unit the course opens at, which words review introduces next, and the band
-        the practice rounds and the dictionary draw from. Nothing you have already learned moves.
+        It decides which part of the course you are on, which words review introduces next, and the
+        band the practice rounds and the dictionary draw from. A level that opens somewhere else moves
+        tonight&apos;s module there. Nothing you have already learned moves, and evenings you finished
+        stay finished.
       </Explain>
     </div>
   );

@@ -554,14 +554,35 @@ describe("what a day reads and where it goes", () => {
     expect(slotWithin(later, "IndPrSg3")).toBe(true);
     expect(slotWithin(later, "IndIpfSg3")).toBe(false);
     expect(slotWithin(later, "KndPrSg1")).toBe(false);
-    // The past arrives with its page in A2, and a code nobody listed fails closed.
+    // A code nobody listed fails closed, and a rule's page opens its forms.
     const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
     const pastDay = [...a2.days].reverse().find((d) => d.unitId === "minevik")!;
     const a2scope = moduleScopeFrom({ module: `${a2.id}~${pastDay.id}~do:flash~3~5~0` })!;
-    expect(slotWithin(a2scope, "IndIpfSg3")).toBe(true);
+    expect(a2scope.topics).toContain("imperfect");
     expect(slotWithin(a2scope, "IndPrPs_")).toBe(true);
     expect(slotWithin(a2scope, "PtcPtPs")).toBe(false);
     expect(slotWithin(null, "IndIpfSg3")).toBe(true);
+  });
+
+  /*
+    A FORM LEARNED VERB BY VERB IS NOT ASKED INSIDE THE MODULE, AT ANY LEVEL.
+    Reported off `juhtuma → lihtminevik, ma` in a closing review: the past-tense
+    page had been read, and nothing had ever shown `juhtusin`.
+  */
+  it("never asks the simple past or the polite imperative inside the module", () => {
+    for (const programme of PROGRAMMES) {
+      const last = programme.days[programme.days.length - 1]!;
+      const scope = moduleScopeFrom({ module: `${programme.id}~${last.id}~do:review~3~5~0` })!;
+      for (const slot of ["IndIpfSg1", "IndIpfSg3", "ImpPrPl2"]) {
+        expect(slotWithin(scope, slot), `${programme.id} ${slot}`).toBe(false);
+      }
+      const card = { cardType: "CONJUGATION", targetCase: null, slot: null, front: "juhtuma \u2192 lihtminevik, ma" };
+      expect(cardWithin(scope, card, null), programme.id).toBe(false);
+    }
+    const a1last = PROGRAMMES.find((p) => p.id === "a1.7")!;
+    const scope = moduleScopeFrom({ module: `${a1last.id}~${a1last.days.at(-1)!.id}~do:review~3~5~0` })!;
+    expect(scope.topics).toContain("imperative");
+    expect(slotWithin(scope, "ImpPrSg2")).toBe(true);
   });
 
   /*

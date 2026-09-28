@@ -130,12 +130,34 @@ export const NEW_CANDIDATES = 60;
  * this is the hottest read in the app and the overlap is exactly this one
  * shape.
  */
-export function dueWhere(ownerId: string, now: Date): Prisma.CardWhereInput {
+export function dueWhere(
+  ownerId: string,
+  now: Date,
+  only: readonly string[] | null = null,
+): Prisma.CardWhereInput {
   return {
     ownerId, suspended: false, due: { lte: now }, state: { not: 0 },
     NOT: { cardType: LADDER_CARD_TYPE, state: 1 },
+    ...(only ? { lexeme: { lemma: { in: [...only] } } } : {}),
   };
 }
+
+/**
+ * HOW MANY CARDS THE MODULE'S CLOSING ROUND SHOWS, AT MOST.
+ *
+ * The step is "Quick review, and you are done" and is finished by five
+ * answers, and it used to open the whole queue: up to sixty cards due from
+ * anywhere in the deck plus ten new ones. A beginner on an evening of five
+ * words read "18 left" and a verb from another level, which is not quick and
+ * is not tonight's evening. So inside the module the due read is narrowed to
+ * the words the ladder has taught (`dueWhere`'s `only`), and the round stops
+ * here. Everything else that is due is still due, on Review, where a learner
+ * who opens it themselves chooses to meet it.
+ *
+ * Above `CLOSING_REVIEW` on purpose: the step's own count may only ever read
+ * at or under what the round shows (`lib/progress/closing.ts`).
+ */
+export const MODULE_SESSION = 8;
 
 /**
  * The unseen window, narrowed to what the module has taught where anything
