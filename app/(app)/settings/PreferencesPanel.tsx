@@ -282,7 +282,7 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
         join. What is left is what a reader at this box needs, in one line.
       */}
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        It&rsquo;s how we say hello. If you join a class, it&rsquo;s the name they see next to your week, and nothing else comes with it.
+        It&rsquo;s how we say hello. If you join a class, it&rsquo;s the name they see next to your week. Nothing else goes with it.
       </p>
     </div>
   );

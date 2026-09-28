@@ -73,7 +73,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   {
     kind: "wordday",
     title: "One Estonian word a day",
-    detail: "Off unless you turn it on. A word, what it means and a sentence using it. Nothing to do, just something to enjoy.",
+    detail: "Off unless you turn it on. A word, what it means and a sentence with it. Nothing to do, just enjoy it.",
   },
 ];
 

@@ -8546,7 +8546,7 @@ check("every dead end in the app offers a way to report it", () => {
         the content is where both the sentence and the button live.
       */
       "components/NoPage.tsx",
-      /There&rsquo;s no page here|no page here/,
+      /There&rsquo;s no page here|no page here|nothing at this address/,
       "a link that led nowhere",
     ],
     [
@@ -10572,7 +10572,6 @@ check("no screen writes a case's Latin name into a sentence", () => {
     // Anu is told the Latin name beside the question and the reading, so she
     // can follow a learner who arrives with one. See `lib/tutor/prompt.ts`.
     "lib/tutor/prompt.ts": "the model's own table, which names a case three ways on purpose",
-    "lib/tutor/grader.ts": "the same briefing, for the writing and picture graders",
     "lib/tutor/words.ts": "the same briefing again: the forms block Anu is handed for a word",
     // The banned-phrase table has to be able to quote the copy it is about.
     "lib/copy/voice.ts": "an example of a tell, which has to contain the thing it bans",
