@@ -205,7 +205,9 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
         ))}
       </div>
 
-      <div className="flex flex-col gap-6 p-5 md:p-7">
+      {/* `sm:px-8` rather than 20px: the ü hung over the left edge reaches
+          about 22px in at 640, and the ending keys start at the padding. */}
+      <div className="flex flex-col gap-6 p-5 sm:px-8 md:p-7">
         {/*
           ONE: THE THREE YOU LEARN.
 
