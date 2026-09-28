@@ -666,7 +666,7 @@ export async function letterInputFor(
           through `gradeCard` like everything else, so doing it genuinely puts
           somebody back on the scheduler rather than only back on the screen.
         */
-        smallStep: { title: "Eight pairs", href: `${origin}/review/match`, minutes: 2 },
+        smallStep: { title: "Play a quick round of Match", href: `${origin}/review/match`, minutes: 2 },
         word,
       },
     };

@@ -39,7 +39,7 @@ export const ROUND_PACES = [
   {
     id: "standard",
     label: "Standard",
-    detail: "The round at the length it was written for.",
+    detail: "The usual length.",
     multiplier: 1,
   },
   {
@@ -51,19 +51,19 @@ export const ROUND_PACES = [
   {
     id: "double",
     label: "Twice as long",
-    detail: "Time to read the card before answering it.",
+    detail: "Time to read each card properly before you answer.",
     multiplier: 2,
   },
   {
     id: "five-times",
     label: "Five times as long",
-    detail: "For hearing a card read out, or typing one-handed.",
+    detail: "Room to hear each card read aloud, or to type with one hand.",
     multiplier: 5,
   },
   {
     id: "ten-times",
     label: "Ten times as long",
-    detail: "As long as the round can be. Nothing hurries you.",
+    detail: "The longest it goes. Take all the time you need.",
     multiplier: 10,
   },
 ] as const;

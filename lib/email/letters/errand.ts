@@ -97,7 +97,7 @@ export function errandLetter(input: ErrandInput): Letter {
   */
   blocks.push({ t: "heading", text: "One thing to say out loud today." });
   blocks.push({ t: "text", text: errand.says });
-  blocks.push({ t: "quiet", text: `${errand.places}. Nobody there has read this.` });
+  blocks.push({ t: "quiet", text: `${errand.places}. Nobody there will know it's practice.` });
 
   /*
     THE REHEARSAL, WHERE THERE IS ONE, AND IT IS THE BUTTON.
@@ -111,22 +111,22 @@ export function errandLetter(input: ErrandInput): Letter {
   if (errand.scene) {
     blocks.push({
       t: "text",
-      text: `You can have it once through first. ${errand.scene.title} is about two minutes, and the other person there wants something from you.`,
+      text: `Fancy a practice run first? ${errand.scene.title} takes about two minutes, and the person you're talking to wants something from you, just like in real life.`,
     });
     blocks.push({
       t: "button",
-      label: "Rehearse it first",
+      label: "Practise it first",
       href: `${input.origin}/situations/${errand.scene.id}`,
     });
     blocks.push({
       t: "link",
-      label: `Or just look over the words in ${errand.unitTitle}`,
+      label: `Or just have a look at the words in ${errand.unitTitle}`,
       href: `${input.origin}/learn/${errand.unitId}`,
     });
   } else {
     blocks.push({
       t: "button",
-      label: `Look over the words first`,
+      label: `Have a look at the words first`,
       href: `${input.origin}/learn/${errand.unitId}`,
     });
   }
@@ -147,27 +147,27 @@ export function errandLetter(input: ErrandInput): Letter {
   blocks.push({
     t: "text",
     text:
-      "If they answer in English, that still counts here. So does running out of words halfway. " +
-      "You said it, and what happened after that is about the moment rather than about you. " +
-      "The only thing that does not count is not opening your mouth.",
+      "If they answer in English, that still counts. So does running out of words halfway. " +
+      "You said it, and whatever happens next is about the moment, not about you. " +
+      "The only thing that doesn't count is staying quiet.",
   });
   blocks.push({
     t: "quiet",
-    text: "Tomorrow morning the app asks whether you spoke any Estonian to anybody. No is an ordinary answer.",
+    text: "Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer.",
   });
 
   if (input.word) {
     blocks.push({
       t: "art",
-      html: wordCard(input.word.lemma, input.word.translation, "From the words this one needs."),
-      alt: `${input.word.lemma}: ${input.word.translation}. From the words this one needs.`,
+      html: wordCard(input.word.lemma, input.word.translation, "A word you might want for this one."),
+      alt: `${input.word.lemma}: ${input.word.translation}. A word you might want for this one.`,
     });
   }
 
   return {
     kind: "errand",
     subject: "One thing to say out loud today",
-    preheader: `${errand.places}. It takes one sentence, and English back still counts.`,
+    preheader: `${errand.places}. Just one sentence, and an answer in English still counts.`,
     blocks,
   };
 }

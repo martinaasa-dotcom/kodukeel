@@ -112,7 +112,7 @@ function subjectFor(input: TonightInput): string {
       ? `One step left in ${input.day.title}`
       : `${SpelledCount(left)} steps left in ${input.day.title}`;
   }
-  return `Tonight is ${spelledCount(input.day.newWords)} new words`;
+  return `Tonight: ${spelledCount(input.day.newWords)} new words`;
 }
 
 /**
@@ -125,7 +125,7 @@ function preheaderFor(input: TonightInput): string {
   const shape = input.day.part.of > 1
     ? `${input.day.subtitle}, part ${input.day.part.n} of ${input.day.part.of}.`
     : `${input.day.subtitle}.`;
-  return `${shape} About ${left} minutes left.`;
+  return `${shape} About ${left} minutes to go.`;
 }
 
 export function tonightLetter(input: TonightInput): Letter {
@@ -146,24 +146,24 @@ export function tonightLetter(input: TonightInput): Letter {
   if (done > 0) {
     blocks.push({
       t: "heading",
-      text: left <= 1 ? "Almost done with tonight." : `About ${left} minutes left of tonight.`,
+      text: left <= 1 ? "You're nearly done for tonight." : `About ${left} minutes to go tonight.`,
     });
     blocks.push({
       t: "text",
       text:
-        `${input.name ? `${input.name}, you` : "You"} are ${spelledCount(done)} ${done === 1 ? "step" : "steps"} into ${day.title}` +
+        `${input.name ? `${input.name}, you` : "You"}'re ${spelledCount(done)} ${done === 1 ? "step" : "steps"} into ${day.title}` +
         (day.part.of > 1 ? `, part ${day.part.n} of ${day.part.of}` : "") +
-        `. The rest is waiting where you left it.`,
+        `. The rest is right where you left it.`,
     });
   } else {
-    blocks.push({ t: "heading", text: `Tonight is ${spelledCount(day.newWords)} new words and ${left} minutes.` });
+    blocks.push({ t: "heading", text: `Tonight: ${spelledCount(day.newWords)} new words, about ${left} minutes.` });
     blocks.push({
       t: "text",
       text:
         (input.name ? `${input.name}, this is ` : "") +
         `${day.title}, ${day.subtitle.toLowerCase()}` +
         (day.part.of > 1 ? `, part ${day.part.n} of ${day.part.of}` : "") +
-        `. At the end of it: ${day.canDo.toLowerCase()}`,
+        `. By the end of it: ${day.canDo.toLowerCase()}`,
     });
   }
 
@@ -176,7 +176,7 @@ export function tonightLetter(input: TonightInput): Letter {
     a footnote.
   */
   if (input.theirWords) {
-    blocks.push({ t: "quiet", text: "You wrote this down when you started:" });
+    blocks.push({ t: "quiet", text: "What you wrote when you started:" });
     blocks.push({ t: "theirs", text: input.theirWords });
   }
 
@@ -190,7 +190,7 @@ export function tonightLetter(input: TonightInput): Letter {
 
   blocks.push({
     t: "button",
-    label: done > 0 ? "Pick it back up" : "Start tonight",
+    label: done > 0 ? "Pick up where you left off" : "Start tonight's evening",
     href: `${input.origin}/course`,
   });
 
@@ -204,7 +204,7 @@ export function tonightLetter(input: TonightInput): Letter {
   */
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: "And one word, whether or not tonight happens:" });
+    blocks.push({ t: "quiet", text: "And one word for you, whether or not tonight happens:" });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),

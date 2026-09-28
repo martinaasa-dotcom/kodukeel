@@ -78,16 +78,16 @@ export const STAGES: readonly Stage[] = [
     name: "Unstaffed",
     drops: ["devtools"],
     why:
-      "The grant ends and nobody is working on it. This is the step that costs a "
-      + "reader nothing: the software does not stop when the developer does.",
+      "The grant ends and nobody works on it any more. Learners don't lose a thing "
+      + "at this step: the software keeps running when the developer stops.",
   },
   {
     id: "quiet",
     name: "Quiet",
     drops: ["devtools", "errors", "news", "email"],
     why:
-      "The reporting the operator reads and the mail that sends a sign-in link "
-      + "both go. Google sign-in still works, so nobody already using it is shut out.",
+      "The error reports only the operator reads, and the emails with sign-in links, "
+      + "both go. Google sign-in still works, so nobody already using it gets shut out.",
   },
   {
     id: "floor",
@@ -190,8 +190,8 @@ export const CONTINUITY: readonly Continuity[] = [
     id: "learners-keep-theirs",
     claim:
       "Every learner can take their whole record out of it at any time, in one file, "
-      + "and put it back into another copy. That is a right on the privacy page and a "
-      + "route rather than an intention.",
+      + "and put it back into another copy. That's a right on the privacy page, and it's "
+      + "built rather than just promised.",
     checkableAt: "app/api/export/route.ts",
   },
   {

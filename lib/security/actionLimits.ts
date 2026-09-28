@@ -220,7 +220,7 @@ export function throttleAction(ownerId: string, action: ActionLimit): ActionRefu
   return {
     ok: false,
     error:
-      `That is a lot of requests at once, so this one was not run. Nothing has changed. ` +
+      `That's a lot at once, so we didn't run this one and nothing has changed. ` +
       `Try again in ${limit.retryAfterSec ?? 60} seconds.`,
   };
 }

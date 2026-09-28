@@ -301,8 +301,8 @@ export function joinWithOr(items: readonly string[]): string {
  * where the answer is printed in the row *above* the note. A note that only
  * parses in one layout is a note the next screen renders wrong.
  */
-export const ORDER_EXACT = "That is the sentence.";
-export const ORDER_WRONG = "That is not the order the writer used.";
+export const ORDER_EXACT = "That's exactly how the sentence goes.";
+export const ORDER_WRONG = "That's not the order the writer used.";
 
 /**
  * What is said about an order Estonian allows that the writer did not choose.
@@ -326,8 +326,8 @@ export const ORDER_WRONG = "That is not the order the writer used.";
  * with no reading of the order has.
  */
 export function orderVariantNote(moved: string | null, writerPut: "earlier" | "later" | null): string {
-  if (!moved || !writerPut) return "That works. The writer put it another way.";
-  return `That works. The writer put ${moved} ${writerPut}.`;
+  if (!moved || !writerPut) return "That works too. The writer just put it another way.";
+  return `That works too. The writer just put ${moved} ${writerPut}.`;
 }
 
 /**
@@ -362,4 +362,4 @@ export const CAPTION_MAX = 110;
  * explaining a dropped connection their own way is forty chances to blame the
  * learner for it.
  */
-export const NOT_REACHED = "That did not reach the server. Try it again in a moment.";
+export const NOT_REACHED = "That didn't get through to us. Give it a moment and try again.";

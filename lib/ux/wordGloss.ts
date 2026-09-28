@@ -60,6 +60,6 @@ export const WORD_GLOSS_CHOICES: { value: WordGloss; label: string; detail: stri
   {
     value: "off",
     label: "Leave the sentence alone",
-    detail: "Just the sentence, with the word being taught marked.",
+    detail: "Just the sentence, with the new word highlighted.",
   },
 ];

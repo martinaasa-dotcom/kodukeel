@@ -37,7 +37,7 @@
 */
 import { meter, weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
-import { SpelledCount } from "@/lib/copy/values";
+import { SpelledCount, spelledCount } from "@/lib/copy/values";
 
 export interface WeeklyInput {
   readonly origin: string;
@@ -80,13 +80,13 @@ export function weeklyLetter(input: WeeklyInput): Letter {
 
   blocks.push({
     t: "heading",
-    text: studied === 0 ? "A quiet week." : `${SpelledCount(studied)} days of the last seven.`,
+    text: studied === 0 ? "A quiet week." : `You studied on ${spelledCount(studied)} of the last seven days.`,
   });
 
   blocks.push({
     t: "art",
     html: weekStrip(input.week),
-    alt: input.week.map((d) => `${d.label}: ${d.studied ? "studied" : "nothing"}`).join("\n"),
+    alt: input.week.map((d) => `${d.label}: ${d.studied ? "studied" : "day off"}`).join("\n"),
   });
 
   if (studied > 0) {
@@ -102,15 +102,15 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     blocks.push({
       t: "text",
       text:
-        `${input.reviews} cards answered. The scheduler now counts ${input.held} words as yours, ` +
-        `which is the number that only moves days after you meet something.`,
+        `You answered ${input.reviews} cards. ${input.held} words are properly yours now, and that ` +
+        `number only grows when a word comes back days later and you still know it.`,
     });
   } else {
     blocks.push({
       t: "text",
       text:
-        "Nothing was answered, which happens. The deck does not grow into a punishment while you " +
-        "are away, and one evening puts you back on the course where you left it.",
+        "No cards this week, and that's fine. Weeks like that happen. Your deck doesn't turn into a " +
+        "punishment while you're away, and one evening puts you right back where you left off.",
     });
   }
 
@@ -119,8 +119,8 @@ export function weeklyLetter(input: WeeklyInput): Letter {
       t: "text",
       text:
         input.conversations === 1
-          ? "And one conversation in Estonian with a real person, which is the number this whole app is for."
-          : `And ${input.conversations} conversations in Estonian with real people, which is the number this whole app is for.`,
+          ? "And one conversation in Estonian with a real person. That's the number this whole app is for."
+          : `And ${input.conversations} conversations in Estonian with real people. That's the number this whole app is for.`,
     });
   }
 
@@ -135,7 +135,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
   */
   if (input.ladder) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "heading", text: `The climb to ${input.ladder.target}` });
+    blocks.push({ t: "heading", text: `On your way to ${input.ladder.target}` });
     blocks.push({
       t: "art",
       html: meter(input.ladder.pct),
@@ -144,7 +144,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     if (input.ladder.next) {
       blocks.push({
         t: "text",
-        text: `${input.ladder.next.level} is the next stop, about ${input.ladder.next.wordsAway} words away.`,
+        text: `Next stop is ${input.ladder.next.level}, about ${input.ladder.next.wordsAway} words away.`,
       });
     }
     blocks.push({
@@ -160,10 +160,10 @@ export function weeklyLetter(input: WeeklyInput): Letter {
         screen is.
       */
       text: input.ladder.assumed > 0
-        ? `About ${input.ladder.assumed} of those words are counted from the level you are at ` +
-          "rather than checked. The rest the scheduler has decided you keep, days after you met them."
-        : "That bar moves on words the scheduler has decided you keep, days after you met them. " +
-          "Opening the app does not move it.",
+        ? `About ${input.ladder.assumed} of those words are counted because of the level you're at, ` +
+          "not checked yet. The rest are words you still knew days after you first met them."
+        : "That bar only moves for words you still know days after you first met them. " +
+          "Just opening the app won't nudge it.",
     });
   }
 
@@ -178,20 +178,20 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     });
   }
 
-  blocks.push({ t: "button", label: "Open the week's first evening", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: "Start this week's first evening", href: `${input.origin}/course` });
   blocks.push({
     t: "link",
-    label: "See the whole of it on Progress",
+    label: "See the full picture on Progress",
     href: `${input.origin}/progress`,
   });
 
   return {
     kind: "weekly",
-    subject: studied === 0 ? "Your week, and where the course is waiting" : `Your week: ${studied} of seven days`,
+    subject: studied === 0 ? "Your week, and where the course is waiting for you" : `${studied === 1 ? "One day" : `${SpelledCount(studied)} days`} of Estonian this week`,
     preheader:
       studied === 0
-        ? "Nothing to report from this one. Here is where the course is standing."
-        : `${input.reviews} cards answered, and ${input.held} words held.`,
+        ? "A quiet one. Here's where the course is waiting when you're ready."
+        : `${input.reviews} cards answered, and ${input.held} words that are properly yours.`,
     blocks,
   };
 }

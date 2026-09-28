@@ -52,7 +52,7 @@ export type DemoStep = (typeof DEMO_STEPS)[number];
 export const DEMO_MAX_TURNS = DEMO_STEPS.length;
 
 /** What the visitor is doing at each step, in English. The beat's own goal where it is a beat. */
-const PAY_GOAL = "Pay for it.";
+const PAY_GOAL = "Now pay for it.";
 
 export interface DemoOption {
   /** What the browser sends back: never the text, which the server rebuilds. */
@@ -212,7 +212,7 @@ function optionsFor(step: DemoStep, lexicon: Lexicon, menu: readonly DemoMenuIte
       return {
         goal,
         options: [
-          ...opt("all", say(lexicon, [{ lemma: "jah" }, ",", { lemma: "see" }, { lemma: "olema", verb: "IndPrSg3" }, { lemma: "kõik" }, "."]), "Yes, that is everything."),
+          ...opt("all", say(lexicon, [{ lemma: "jah" }, ",", { lemma: "see" }, { lemma: "olema", verb: "IndPrSg3" }, { lemma: "kõik" }, "."]), "Yes, that's everything."),
           ...opt("bill", say(lexicon, [{ lemma: "arve" }, ",", PLEASE, "."]), "The bill, please."),
         ],
       };

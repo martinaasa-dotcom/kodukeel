@@ -106,7 +106,7 @@ export function resolveRecipients(): Recipient[] {
   */
   if (process.env.RESEND_API_KEY?.trim()) {
     recipients.push({
-      name: "Resend, which posts the letters",
+      name: "Resend, which sends our emails",
       what: "your email address, and whatever a message to you says about your own course",
       // Resend Inc. is established in the United States.
       eea: false,
@@ -176,10 +176,10 @@ export function resolveRecipients(): Recipient[] {
   */
   if (process.env.VERCEL === "1") {
     recipients.push({
-      name: "Vercel, which runs the servers this is answered on",
+      name: "Vercel, which runs the servers this app is answered from",
       what:
-        "every request you make, while it is being answered, and a log of it "
-        + "carrying your address",
+        "every request you make, while it's being answered, and a log of it "
+        + "that includes your IP address",
       eea: false,
     });
   }

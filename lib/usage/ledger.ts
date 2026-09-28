@@ -399,7 +399,7 @@ export async function authoriseCall(
     return {
       allowed: false,
       reason: "GLOBAL_SPEND",
-      message: "Anu is unavailable for a moment. The usage ledger could not be read.",
+      message: "Anu can't answer for a moment. Try again shortly.",
       retryAfterSeconds: 30,
       // Fails closed on the fallback too: a ledger that cannot be read cannot
       // say how much of the day's fallback budget is left, and guessing "plenty"

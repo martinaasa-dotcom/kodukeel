@@ -32,7 +32,7 @@
 */
 import { weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
-import { SpelledCount, spelledCount } from "@/lib/copy/values";
+import { spelledCount } from "@/lib/copy/values";
 
 export interface ShieldInput {
   readonly origin: string;
@@ -67,14 +67,14 @@ export function shieldLetter(input: ShieldInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `You did not study yesterday, and one of the shields you earned by keeping a run going was ` +
-      `spent to cover it. Your ${input.streak} days are still standing.`,
+      `You took yesterday off, so one of the shields you earned on an earlier run covered it. ` +
+      `Your ${input.streak} days in a row are still intact.`,
   });
 
   blocks.push({
     t: "art",
     html: weekStrip(input.week),
-    alt: input.week.map((d) => `${d.label}: ${d.studied ? "studied" : "nothing"}`).join("\n"),
+    alt: input.week.map((d) => `${d.label}: ${d.studied ? "studied" : "day off"}`).join("\n"),
   });
 
   /*
@@ -88,25 +88,25 @@ export function shieldLetter(input: ShieldInput): Letter {
     t: "text",
     text:
       input.remaining > 0
-        ? `${SpelledCount(input.remaining)} left in the bank.`
+        ? `You've got ${spelledCount(input.remaining)} more saved up.`
         : input.nextAt !== null
-          ? `That was your last one. The next arrives at ${input.nextAt} days.`
+          ? `That was your last one. You'll earn another when you reach ${input.nextAt} days.`
           : `That was your last one.`,
   });
 
   blocks.push({
     t: "quiet",
     text:
-      "Nothing is lost on a day you miss. The scheduler has no opinion about the days nobody " +
-      "studied, and the words wait where they were.",
+      "A day off never costs you anything here. Your words just wait for you, " +
+      "exactly where you left them.",
   });
 
-  blocks.push({ t: "button", label: "Open tonight", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: "See tonight's evening", href: `${input.origin}/course` });
 
   return {
     kind: "shield",
     subject: "A shield covered yesterday",
-    preheader: `Your ${input.streak} days are still standing, and ${input.remaining > 0 ? `${spelledCount(input.remaining)} shields are left` : "that was the last one"}.`,
+    preheader: `Your ${input.streak} days in a row are still intact, and ${input.remaining > 0 ? `you've got ${spelledCount(input.remaining)} more ${input.remaining === 1 ? "shield" : "shields"} saved` : "that was your last shield"}.`,
     blocks,
   };
 }

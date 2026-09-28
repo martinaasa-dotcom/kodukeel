@@ -48,11 +48,11 @@ export const LETTER_BAR_CHOICES: { value: LetterBar; label: string; detail: stri
   {
     value: "on",
     label: "Show the letters",
-    detail: "My keyboard does not have õ, ä, ö or ü.",
+    detail: "My keyboard doesn't have õ, ä, ö or ü.",
   },
   {
     value: "off",
     label: "I have them already",
-    detail: "I have an Estonian keyboard.",
+    detail: "I've got an Estonian keyboard.",
   },
 ];

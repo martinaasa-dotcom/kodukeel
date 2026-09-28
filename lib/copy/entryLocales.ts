@@ -46,7 +46,7 @@ export interface EntryCopy {
 }
 
 /** Said in English beside the translated notice, for a reader of neither. */
-export const MACHINE_TRANSLATED_EN = "Machine-translated, not yet reviewed by a native speaker.";
+export const MACHINE_TRANSLATED_EN = "Translated by machine, and not yet checked by a native speaker.";
 
 export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
   ru: {

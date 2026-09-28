@@ -26,11 +26,11 @@ const texts = (input: TonightInput) =>
 
 describe("the evening letter's second line", () => {
   it("says the name they asked to be called, where a person would", () => {
-    expect(texts(base({ name: "Mari" }))).toContain("Mari, you are one step into Kodus. The rest is waiting where you left it.");
+    expect(texts(base({ name: "Mari" }))).toContain("Mari, you're one step into Kodus. The rest is right where you left it.");
   });
 
   it("reads as it did without a name", () => {
-    expect(texts(base())).toContain("You are one step into Kodus. The rest is waiting where you left it.");
+    expect(texts(base())).toContain("You're one step into Kodus. The rest is right where you left it.");
   });
 
   it("counts steps in the plural past one", () => {

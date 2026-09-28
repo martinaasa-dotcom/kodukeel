@@ -59,7 +59,7 @@ describe("checkQuota", () => {
     expect(decision.reason).toBe("KIND_SPEND");
     // Not a provider, not a model, not somebody's balance: what a learner can
     // act on is that this one part is rested and the rest still works.
-    expect(decision.message).toMatch(/keeps working/);
+    expect(decision.message).toMatch(/still works/);
   });
 
   it("leaves a kind one micro under its slice alone", () => {
@@ -123,7 +123,7 @@ describe("checkQuota", () => {
     const decision = checkQuota(usage, DEFAULT_LIMITS, NOON);
     expect(decision.reason).toBe("GLOBAL_SPEND");
     // The person who trips it did not cause it; the message must not imply they did.
-    expect(decision.message).toMatch(/not about your account/i);
+    expect(decision.message).toMatch(/nothing to do with your account/i);
   });
 
   it("tells a daily denial to come back after midnight UTC", () => {

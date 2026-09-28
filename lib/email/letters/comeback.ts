@@ -60,13 +60,13 @@ export function comebackLetter(input: ComebackInput): Letter {
     spaced repetition works. It is the true fact that answers the fear, so it
     leads.
   */
-  blocks.push({ t: "heading", text: "Estonian does not fall out of your head that fast." });
+  blocks.push({ t: "heading", text: "Your Estonian hasn't gone anywhere." });
 
   blocks.push({
     t: "text",
     text:
-      `You still hold ${input.wordsKept} words, which is the whole point of the way the cards are ` +
-      `scheduled. Nothing has been lost and nothing has been reset.`,
+      `You still know ${input.wordsKept} words. That's the whole point of spacing the cards out: ` +
+      `the words stay with you while you're away. Nothing is lost, and nothing starts over.`,
   });
 
   if (input.shieldUsed && input.streak >= 2) {
@@ -79,7 +79,7 @@ export function comebackLetter(input: ComebackInput): Letter {
     */
     blocks.push({
       t: "text",
-      text: `A shield covered the gap, so your run of ${input.streak} days is still standing.`,
+      text: `A shield you'd saved up covered the gap, so your ${input.streak}-day run is still going.`,
     });
   }
 
@@ -90,20 +90,20 @@ export function comebackLetter(input: ComebackInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `Start with something smaller than an evening. ${input.smallStep.title} is about ` +
-      `${input.smallStep.minutes} minutes, and it is enough to be back.`,
+      `No need for a whole evening. One quick round takes about ` +
+      `${input.smallStep.minutes} minutes, and that's enough to count as back.`,
   });
 
   blocks.push({ t: "button", label: input.smallStep.title, href: input.smallStep.href });
   blocks.push({
     t: "link",
-    label: "Or open tonight's evening as usual",
+    label: "Or go straight to tonight's evening",
     href: `${input.origin}/course`,
   });
 
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: "Today's word, either way:" });
+    blocks.push({ t: "quiet", text: "And today's word, whatever you decide:" });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),
@@ -115,8 +115,8 @@ export function comebackLetter(input: ComebackInput): Letter {
 
   return {
     kind: "comeback",
-    subject: "Your Estonian is still there",
-    preheader: `${input.wordsKept} words still held. Two minutes is enough to pick it back up.`,
+    subject: "Your Estonian is right where you left it",
+    preheader: `You still know ${input.wordsKept} words. Two minutes is all it takes to pick things up again.`,
     blocks,
   };
 }

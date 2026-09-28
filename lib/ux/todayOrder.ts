@@ -34,37 +34,37 @@ export const TODAY_SLOTS = [
   {
     id: "ladder",
     title: "On the way to your target",
-    detail: "How far between where you started and the band you are aiming at, with the levels as stops.",
+    detail: "How far you've come toward the level you're aiming for, with each level as a stop.",
   },
   {
     id: "errand",
     title: "Say it today",
-    detail: "Whether you spoke Estonian yesterday, and one thing to say today.",
+    detail: "Whether you spoke any Estonian yesterday, and one thing to try saying today.",
   },
   {
     id: "schedule",
     title: "On today",
-    detail: "What is on your calendar today. Only drawn on a day that has something.",
+    detail: "What's on your calendar today. Only shows up on days that have something.",
   },
   {
     id: "plan",
     title: "Homework",
-    detail: "What a teacher assigned, grouped by when it is due.",
+    detail: "Anything a teacher has set you, grouped by when it's due.",
   },
   {
     id: "round",
     title: "Today's round",
-    detail: "The game of the day, and the quest on the day the week gives it.",
+    detail: "The game of the day, or the quest on its day of the week.",
   },
   {
     id: "streak",
     title: "Keeping it up",
-    detail: "The run of days, the week strip and any shields banked.",
+    detail: "Your run of days, this week at a glance, and any shields you've saved.",
   },
   {
     id: "word",
     title: "Word of the day",
-    detail: "A word chosen by the date, with the reason it was chosen.",
+    detail: "A word picked for today's date, and why.",
   },
   {
     id: "next",

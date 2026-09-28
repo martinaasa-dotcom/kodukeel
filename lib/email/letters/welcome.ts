@@ -48,7 +48,7 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     alt: "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.",
   });
 
-  blocks.push({ t: "heading", text: "Your deck is built. Here is the short version." });
+  blocks.push({ t: "heading", text: "Your deck is ready. Here's the short version." });
 
   /*
     ENDOWED PROGRESS: THE DECK IS ALREADY THERE.
@@ -60,16 +60,16 @@ export function welcomeLetter(input: WelcomeInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `${input.cardsWaiting} cards are waiting, built from the units you start on. ` +
+      `${input.cardsWaiting} cards are waiting for you, made from the units you're starting with. ` +
       (input.opensOn
-        ? `The course opens on ${input.opensOn.title}, ${input.opensOn.subtitle.toLowerCase()}.`
-        : `Open the course and it will pick the first evening for you.`),
+        ? `Your first evening is ${input.opensOn.title}: ${input.opensOn.subtitle.toLowerCase()}.`
+        : `Open the course and it'll pick your first evening for you.`),
   });
 
   blocks.push({
     t: "art",
     html: meter(2),
-    alt: "A progress bar, at the very start of it.",
+    alt: "A progress bar, right at the very beginning.",
   });
 
   /*
@@ -81,19 +81,19 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     app will ever be.
   */
   blocks.push({ t: "rule" });
-  blocks.push({ t: "heading", text: "Fifteen minutes, and the same fifteen every time." });
+  blocks.push({ t: "heading", text: "Fifteen minutes an evening. Every time." });
   blocks.push({
     t: "text",
     text:
-      "An evening here is one reading, two short rounds and a review, and it is built to come to " +
-      "a quarter of an hour whatever level you are at. When it is done the screen says so and stops. " +
-      "That is the whole promise, and it is the only one worth making.",
+      "An evening here is one short reading, two quick rounds and a review. It's built to take a " +
+      "quarter of an hour, whatever your level. When you're done, the screen tells you and stops. " +
+      "That's the whole promise.",
   });
 
   if (input.reminderAt) {
     blocks.push({
       t: "text",
-      text: `You asked for ${input.reminderAt}. Put it in your calendar and the reminder comes from your own phone rather than from us.`,
+      text: `You picked ${input.reminderAt}. Pop it in your calendar and your own phone will remind you, rather than us.`,
     });
     blocks.push({
       t: "link",
@@ -104,8 +104,8 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     blocks.push({
       t: "text",
       text:
-        "Pick the hour that already has a gap in it. After dinner, on the train, before bed. " +
-        "The hour matters far less than its being the same one.",
+        "Pick a time that already has a gap in it: after dinner, on the train, before bed. " +
+        "Which hour matters much less than it being the same one each day.",
     });
   }
 
@@ -118,17 +118,17 @@ export function welcomeLetter(input: WelcomeInput): Letter {
   blocks.push({
     t: "quiet",
     text:
-      "What we will send: a short note on an evening you have not studied, one summary on a Sunday, " +
-      "and nothing else. One link at the bottom of any of them turns them off, and the course keeps " +
-      "working exactly as it did.",
+      "Here's what we'll send: a short note on an evening you haven't studied yet, a summary on " +
+      "Sundays, and nothing else. The link at the bottom of any of them turns them off, and the " +
+      "course carries on working just the same.",
   });
 
   return {
     kind: "welcome",
-    subject: "Your deck is built",
+    subject: "Your deck is ready",
     preheader: input.opensOn
-      ? `${input.cardsWaiting} cards, and the course opens on ${input.opensOn.subtitle.toLowerCase()}.`
-      : `${input.cardsWaiting} cards are waiting.`,
+      ? `${input.cardsWaiting} cards ready. First up: ${input.opensOn.subtitle.toLowerCase()}.`
+      : `${input.cardsWaiting} cards are waiting for you.`,
     blocks,
   };
 }

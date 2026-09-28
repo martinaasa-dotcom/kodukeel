@@ -121,10 +121,10 @@ export const SECTIONS: NavSection[] = [
   {
     id: "daily",
     title: "Every day",
-    blurb: "The new words, the ones you have met, and somewhere to use them.",
+    blurb: "New words, the ones you already know, and places to use them.",
     items: [
       {
-        href: "/", label: "Today", blurb: "Due cards, your goal, the streak", icon: "Sun", tone: "butter",
+        href: "/", label: "Today", blurb: "What's due, your goal and your run of days", icon: "Sun", tone: "butter",
         keywords: "home dashboard streak quest goal errand word of the day", bar: true,
       },
       /*
@@ -150,19 +150,19 @@ export const SECTIONS: NavSection[] = [
         is this page's home row and lights while a learner is inside it.
       */
       {
-        href: "/course", label: "Today's module", blurb: "Tonight's words and rounds, already chosen",
+        href: "/course", label: "Today's module", blurb: "Tonight's words and games, already picked for you",
         icon: "CalendarCheck", tone: "accent",
         keywords: "course planned programme a1 module day guided plan lesson schedule step by step",
         within: "/",
       },
       {
-        href: "/learn", label: "Learn", blurb: "New words, five at a time, and the course they come from",
+        href: "/learn", label: "Learn", blurb: "New words, five at a time, straight from the course",
         icon: "Sparkles", tone: "sky",
         keywords: "new words learn course units path lessons syllabus vocabulary teach",
         bar: true,
       },
       {
-        href: "/practice", label: "Practice", blurb: "What is due, plus sprint, match, sentences and games",
+        href: "/practice", label: "Practice", blurb: "What's due, plus sprints, matching, sentences and games",
         icon: "Swords", tone: "blush", keywords: "games modes drill weakest case review due srs flashcards",
         bar: true,
       },
@@ -175,7 +175,7 @@ export const SECTIONS: NavSection[] = [
         loop in two places and left the learner to work out which was which.
       */
       {
-        href: "/review", label: "Review", blurb: "Everything due, timed to when you are about to forget",
+        href: "/review", label: "Review", blurb: "Everything due, right before you'd forget it",
         icon: "GraduationCap", tone: "accent", keywords: "flashcards srs study due schedule",
         within: "/practice",
       },
@@ -186,7 +186,7 @@ export const SECTIONS: NavSection[] = [
         it is not a row of its own.
       */
       {
-        href: "/situations", label: "Situations", blurb: "Book an appointment, hand in a form, ring a landlord",
+        href: "/situations", label: "Situations", blurb: "Book a doctor, order a coffee, ring your landlord",
         icon: "MessagesSquare", tone: "sky",
         keywords: "conversation scene role play speaking doctor counter landlord",
         within: "/practice",
@@ -196,10 +196,10 @@ export const SECTIONS: NavSection[] = [
   {
     id: "lookup",
     title: "Look it up",
-    blurb: "Any word, any case, and the rule behind it.",
+    blurb: "Any word, any ending, and why it works that way.",
     items: [
       {
-        href: "/dictionary", label: "Dictionary", blurb: "Search any word or inflected form", icon: "BookOpen",
+        href: "/dictionary", label: "Dictionary", blurb: "Look up any word, in any form", icon: "BookOpen",
         tone: "sky", keywords: "search lookup declension cases forms", bar: true,
       },
       {
@@ -215,7 +215,7 @@ export const SECTIONS: NavSection[] = [
           is the first thing on the top of that page.
         */
         href: "/grammar/build-a-word", label: "Build a word",
-        blurb: "Three forms, then the eleven endings that follow", icon: "Puzzle",
+        blurb: "Three forms to learn, then eleven endings for free", icon: "Puzzle",
         tone: "butter", within: "/dictionary",
         keywords: "cases introduction beginner stem genitive omastav endings how it works walkthrough learn system",
       },
@@ -227,23 +227,23 @@ export const SECTIONS: NavSection[] = [
           from the top of it. See `lib/estonian/exceptions.ts`.
         */
         href: "/grammar/exceptions", label: "Exceptions",
-        blurb: "The words the endings do not reach", icon: "TriangleAlert",
+        blurb: "The words that break the usual rules", icon: "TriangleAlert",
         tone: "butter", within: "/dictionary",
         keywords: "irregular exception gradation stem change tuppa illative unpredictable memorize astmevaheldus",
       },
       {
         href: "/dictionary/common", label: "Commonest words",
-        blurb: "The hundred of each kind you will meet most", icon: "TrendingUp",
+        blurb: "The hundred of each kind you'll meet most", icon: "TrendingUp",
         tone: "sky", within: "/dictionary",
         keywords: "frequency common most used top 100 hundred subtitles corpus first learn order",
       },
       {
-        href: "/scan", label: "Scan a page", blurb: "Photograph a word list and study what is on it",
+        href: "/scan", label: "Scan a page", blurb: "Snap a word list and study what's on it",
         icon: "Camera", tone: "sky", within: "/dictionary",
         keywords: "camera photo picture ocr homework textbook handout import paper digitize digitize",
       },
       {
-        href: "/tutor", label: "Ask Anu", blurb: "Grammar questions, explained", icon: "MessageCircleQuestion",
+        href: "/tutor", label: "Ask Anu", blurb: "Ask anything about grammar", icon: "MessageCircleQuestion",
         tone: "blush", keywords: "ai chat grammar help tutor explain",
         within: "the button in the corner of every screen",
       },
@@ -252,14 +252,14 @@ export const SECTIONS: NavSection[] = [
   {
     id: "course",
     title: "How it is going",
-    blurb: "The weeks ahead, and how far along you are.",
+    blurb: "Your week ahead, and how far you've come.",
     items: [
       /*
         Under Progress, because a calendar is how the weeks are going. Somebody
         who opens it before anything else pins it into their own rail.
       */
       {
-        href: "/calendar", label: "Calendar", blurb: "Your classes, study slots and what is due",
+        href: "/calendar", label: "Calendar", blurb: "Your classes, study times and what's due",
         icon: "CalendarDays", tone: "sky",
         keywords: "calendar week class schedule timetable homework reminder due plan tasks",
         within: "/progress",
@@ -271,7 +271,7 @@ export const SECTIONS: NavSection[] = [
       },
 
       {
-        href: "/progress", label: "Progress", blurb: "Heatmap, what's sticking, weak cases", icon: "ChartNoAxesColumn",
+        href: "/progress", label: "Progress", blurb: "What's sticking, what isn't, and when you study", icon: "ChartNoAxesColumn",
         tone: "accent", keywords: "stats charts history retention leaderboard",
       },
       /*
@@ -297,7 +297,7 @@ export const SECTIONS: NavSection[] = [
           at it every day pins it back into the rail.
         */
         href: "/words/mastery", label: "Word mastery",
-        blurb: "Your favorites, and what is mastered or needs work", icon: "Trophy", tone: "sky",
+        blurb: "Your favorites, what you've mastered and what needs work", icon: "Trophy", tone: "sky",
         // The starred words are on this page too, and a learner looking for
         // them types "favorites" rather than "mastery".
         keywords: "mastered known struggling almost progress words list stuck weak "
@@ -314,7 +314,7 @@ export const SECTIONS: NavSection[] = [
           signpost nothing lists.
         */
         href: "/words/decks", label: "Decks",
-        blurb: "Name a shelf, and file words onto it as you add them", icon: "Library",
+        blurb: "Make your own word lists and add to them as you go", icon: "Library",
         tone: "sky",
         keywords: "deck decks playlist playlists shelf shelves organize organise folder collection",
         within: "/progress",
@@ -326,18 +326,18 @@ export const SECTIONS: NavSection[] = [
           the app asks it, so it lives under Progress with the other three.
         */
         href: "/progress/readiness", label: "In real life",
-        blurb: "Which situations you could follow, take part in or lead", icon: "Footprints", tone: "sky",
+        blurb: "Which real conversations you could follow, join or lead", icon: "Footprints", tone: "sky",
         keywords: "readiness situations conversation real life ready lead follow take part speak counter shop doctor",
         within: "/progress",
       },
       {
-        href: "/assess", label: "Level check", blurb: "Reading, listening, writing and speaking, measured",
+        href: "/assess", label: "Level check", blurb: "Find out your level in reading, listening, writing and speaking",
         icon: "Compass", tone: "blush",
         keywords: "assessment placement cefr level a1 a2 b1 b2 c1 goal plan timeline",
         within: "/progress",
       },
       {
-        href: "/exam", label: "Mock exam", blurb: "An imitation of the state language exam",
+        href: "/exam", label: "Mock exam", blurb: "A practice run at the state language exam",
         icon: "ClipboardCheck", tone: "blush",
         keywords: "tasemeeksam a2 b1 b2 c1 citizenship certificate ready confidence",
         within: "/progress",
@@ -347,10 +347,10 @@ export const SECTIONS: NavSection[] = [
   {
     id: "app",
     title: "This app",
-    blurb: "Your settings, your reports, and the honest list of what this cannot do.",
+    blurb: "Your settings, your reports, and an honest list of what this can't do.",
     items: [
       {
-        href: "/settings", label: "Settings", blurb: "Goal, review mode, backup", icon: "Settings", tone: "ink",
+        href: "/settings", label: "Settings", blurb: "Your goal, how you review, backups", icon: "Settings", tone: "ink",
         keywords: "backup export import goal preferences delete account theme",
       },
       /*
@@ -365,7 +365,7 @@ export const SECTIONS: NavSection[] = [
       */
       {
         href: "/suggestions", label: "Suggested fixes",
-        blurb: "What you have reported, and what happened to it",
+        blurb: "What you've reported, and what happened next",
         icon: "MessageSquareWarning", tone: "blush",
         keywords: "report wrong mistake feedback correction missing word fix suggest admin review",
       },

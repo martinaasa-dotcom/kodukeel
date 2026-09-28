@@ -79,7 +79,7 @@ export function worddayLetter(input: WorddayInput): Letter {
   return {
     kind: "wordday",
     subject: `${word.lemma}: ${word.translation}`,
-    preheader: word.occasion ?? "One word, and nothing to do about it.",
+    preheader: word.occasion ?? "One word for today. Nothing to do, just enjoy it.",
     blocks,
   };
 }

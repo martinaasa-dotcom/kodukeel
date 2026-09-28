@@ -69,10 +69,10 @@ export function deadlineLetter(input: DeadlineInput): Letter {
     they can be told anything, and the fact that they set a date is the thing
     they may have forgotten.
   */
-  blocks.push({ t: "heading", text: `${input.phrase} until the date you set.` });
+  blocks.push({ t: "heading", text: `${input.phrase} to go until the date you picked.` });
   blocks.push({
     t: "text",
-    text: `You said ${input.band}, ${input.label.toLowerCase()}. Here is where that stands.`,
+    text: `You're aiming for ${input.band}: ${input.label.toLowerCase()}. Here's how that's looking.`,
   });
 
   /*
@@ -83,7 +83,7 @@ export function deadlineLetter(input: DeadlineInput): Letter {
   blocks.push({
     t: "art",
     html: meter(input.confidence),
-    alt: `About ${input.confidence} percent likely to pass ${input.band} today.`,
+    alt: `A bar, about ${input.confidence} percent full, for your chances at ${input.band}.`,
   });
   /*
     The figure and what it rests on, in one breath. Splitting them is how a
@@ -92,7 +92,7 @@ export function deadlineLetter(input: DeadlineInput): Letter {
   */
   blocks.push({
     t: "quiet",
-    text: `About ${input.confidence} percent likely to pass it today. ${input.evidence}`,
+    text: `If you sat it today, we'd put your chances of passing at about ${input.confidence} percent. ${input.evidence}`,
   });
 
   if (input.gap) {
@@ -111,20 +111,20 @@ export function deadlineLetter(input: DeadlineInput): Letter {
     blocks.push({
       t: "text",
       text:
-        "Three things move that, and they are worth the same amount: the pace, the hours of " +
-        "Estonian your week already holds outside this app, and the date. Changing the date is " +
-        "not giving up. It was set in about ninety seconds before you knew what any of this cost.",
+        "Three things can change that, and any one of them counts: how often you study, the " +
+        "Estonian you already hear outside this app, and the date itself. Moving the date isn't " +
+        "giving up. You picked it in about ninety seconds, before you knew what any of this would take.",
     });
   }
 
-  blocks.push({ t: "button", label: "Look at the plan", href: `${input.origin}/assess` });
+  blocks.push({ t: "button", label: "See your plan", href: `${input.origin}/assess` });
 
   return {
     kind: "deadline",
-    subject: `${input.phrase} until the date you set`,
+    subject: `${input.phrase} to go until the date you picked`,
     preheader: input.onTrack
-      ? `${input.band} still fits on the pace you are keeping.`
-      : `Where ${input.band} stands, and the three things that move it.`,
+      ? `At the pace you're going, ${input.band} still fits.`
+      : `How ${input.band} is looking, and three things that could change it.`,
     blocks,
   };
 }

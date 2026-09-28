@@ -89,9 +89,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Layers", tone: "accent", group: "targeted", note: "Typed, varied",
     within: "/practice", headline: true,
     blurb:
-      "Words review has already taught you, asked in ways it never does. Hear a sentence and " +
-      "type the form you heard, fill a gap from the meaning alone, or write your own sentence " +
-      "around a form we name. A word leaves once you get it right five times, three ways.",
+      "Words you already know, asked in ways review never does. Hear a sentence and type the " +
+      "form you heard, fill a gap from the meaning alone, or write your own sentence around a " +
+      "form we name. Get a word right five times, three different ways, and it's done.",
   },
   {
     /*
@@ -108,9 +108,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "TrendingUp", tone: "sky", group: "targeted", note: "Four lists",
     within: "/practice", headline: true,
     blurb:
-      "The hundred commonest small words, verbs, nouns and describing words. They were counted " +
-      "over film and television subtitles, not picked by hand. Each one comes up in a different " +
-      "form every time, the way Flash cards asks the rest of your deck.",
+      "The hundred most common little words, verbs, nouns and describing words, counted from film " +
+      "and TV subtitles rather than picked by hand. Each one turns up in a different form every " +
+      "time, just like Flash cards.",
   },
   {
     /*
@@ -124,33 +124,33 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Target", tone: "accent", group: "targeted", note: "From your log",
     within: "/",
     blurb:
-      "A short round on the cases you get wrong most often, drawn from your own log. " +
-      "It grades like any other round, so the cards you miss come back sooner.",
+      "A short round on the cases you get wrong most, picked from your own answers. " +
+      "It counts like any other round, so the cards you miss come back sooner.",
   },
   {
     href: "/review/emoji", title: "Picture match", subtitle: "No English on the board",
     icon: "Grid2x2", tone: "sky", group: "targeted", note: "Six pairs",
     within: "/practice",
     blurb:
-      "The picture is the meaning, so the Estonian side is a case form: match majas to the " +
-      "house rather than maja. Six pairs against the clock.",
+      "The picture is the meaning, so the Estonian side is a word with an ending: match majas to " +
+      "the house, not maja. Six pairs against the clock.",
   },
   {
     href: "/review/letters", title: "Tähed", subtitle: "Letters, shuffled", icon: "Blocks", tone: "accent",
     group: "targeted", note: "Eight words",
     within: "/practice",
     blurb:
-      "A word you know, its letters in the wrong order. Hear it, then put them back: the one " +
-      "game a beginner's first five words can carry, and where õ and ä stop being o and a.",
+      "A word you know, with its letters jumbled. Hear it, then put them back in order. It works " +
+      "from your very first five words, and it's where õ and ä stop looking like o and a.",
   },
   {
     href: "/sonad", title: "Sõnad", subtitle: "One word a day",
     icon: "CircleDot", tone: "sky", group: "targeted", note: "Six letters, seven guesses",
     within: "/practice",
     blurb:
-      "Six circles and an Estonian word behind them, at your level, with a new one every " +
-      "morning. Each letter you guess is marked in place, in the word somewhere, or not in it " +
-      "at all. If the word is already in your deck, finishing counts toward it.",
+      "Six circles hiding an Estonian word at your level, with a new one every morning. Each " +
+      "letter you guess shows whether it's in the right spot, somewhere else in the word, or not " +
+      "in it at all. If the word is in your deck, solving it counts as practice.",
   },
   {
     /*
@@ -164,10 +164,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Eye", tone: "blush", group: "targeted", note: "Five pictures",
     within: "/practice",
     blurb:
-      "Three things and a situation, and one sentence of your own about them. One word is " +
-      "named and has to be in the case we ask for. The other two are pictures, and using them " +
-      "earns credit. The ending is checked against the dictionary, so if you pick the wrong " +
-      "case it tells you which one you used.",
+      "A little scene with three things in it, and one sentence of your own about it. One word " +
+      "is named and has to go in the case we ask for. The other two are just pictures, and " +
+      "using them earns you extra. If you pick the wrong case, we'll tell you which one you used.",
   },
   {
     /*
@@ -188,85 +187,85 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Grid3x3", tone: "butter", group: "targeted", note: "A new grid daily",
     within: "/practice",
     blurb:
-      "Seven words at your level crossing each other, clued in English. That is the direction " +
-      "that teaches. You know what you mean and you are hunting for the word, which is exactly " +
-      "where you are every time you open your mouth.",
+      "Seven words at your level, crossing each other, with English clues. You know what you " +
+      "mean and you're hunting for the Estonian word, which is exactly where you are every " +
+      "time you open your mouth.",
   },
   {
     href: "/review/target", title: "Target", subtitle: "Fast, mostly endings",
     icon: "Target", tone: "blush", group: "targeted", note: "Shrinking clock",
     within: "/practice",
     blurb:
-      "Four forms of one word and a question word telling you which. Nothing can be crossed " +
-      "out by meaning, so the only way through is the ending. Every hit shortens the clock.",
+      "Four forms of one word, and a question telling you which one to hit. They all mean the " +
+      "same thing, so the ending is the only way through. Every hit shortens the clock.",
   },
   {
     href: "/review/sprint", title: "Case Sprint", subtitle: "Against the clock", icon: "Zap", tone: "butter",
     group: "quick", note: "No score yet",
-    blurb: "As many case forms as you can manage against the clock, drawn from the cards you are weakest on.",
+    blurb: "As many case forms as you can manage before time runs out, from the cards you find hardest.",
   },
   {
     href: "/review/match", title: "Match", subtitle: "Eight pairs", icon: "Grid2x2", tone: "sky",
     group: "quick", note: "No time yet",
-    blurb: "Pair eight words with their meanings against the clock.",
+    blurb: "Pair up eight words with their meanings, as fast as you can.",
   },
   {
     href: "/review/sentences", title: "Sentences", subtitle: "Word order", icon: "Puzzle", tone: "accent",
     group: "quick", note: "Needs sentences",
-    blurb: "Rebuild a sentence a native writer actually wrote, one word at a time.",
+    blurb: "Put a real Estonian sentence back together, one word at a time.",
   },
   {
     href: "/review/listening", title: "Listening", subtitle: "Hear it, pick it", icon: "Headphones",
     tone: "blush", group: "quick", note: "Twenty words",
-    blurb: "Hear a word with nothing written down, and pick what it means.",
+    blurb: "Hear a word, with nothing written down, and pick what it means.",
   },
   {
     href: "/review/dictation", title: "Dictation", subtitle: "Hear it, write it", icon: "Ear", tone: "butter",
     group: "quick", note: "Needs sentences",
-    blurb: "Hear a sentence and write it down, Estonian letters and all.",
+    blurb: "Hear a sentence and write it down, õ, ä, ö and ü included.",
   },
   {
     href: "/review/speaking", title: "Speaking", subtitle: "Out loud", icon: "Mic", tone: "sky",
     group: "quick", note: "Then hear it said",
-    blurb: "Say it, then compare yourself with a native rendering. Nothing scores your pronunciation.",
+    blurb: "Say it, then listen to yourself next to a native speaker. Nothing scores your accent.",
   },
   {
     href: "/review/write", title: "Writing", subtitle: "Your own sentence", icon: "PenLine", tone: "sky",
     group: "targeted", note: "You write it",
     blurb:
-      "Use a word in the case we name. The form is checked against the dictionary before Anu " +
-      "sees it, so the mark is certain even with the AI switched off.",
+      "Use a word in the case we name. The dictionary checks the form before Anu sees it, so " +
+      "the mark is right even with the AI switched off.",
     within: "/grammar/[case]",
   },
   {
     href: "/review/government", title: "Verb government", subtitle: "Which case?", icon: "Scale",
     tone: "blush", group: "targeted", note: "Multiple choice",
     blurb:
-      "Aitan sind, but helistan sulle. English gives you no clue, so rektsioon has to be learned " +
-      "per verb.",
+      "Aitan sind, but helistan sulle. English gives you no clue here, so which case a verb " +
+      "wants has to be learned one verb at a time.",
     within: "/grammar/topic/government",
   },
   {
     href: "/review/pairs", title: "Minimal pairs", subtitle: "Long or short", icon: "Ear", tone: "sky",
     group: "targeted", note: "Needs audio", within: "/grammar/topic/gradation",
     blurb:
-      "Maja or majja? Estonian spelling only half records this difference in length, and " +
-      "reading practice can never teach it to you.",
+      "Maja or majja? Spelling only half shows this difference in length, so reading alone " +
+      "will never teach it. Your ears have to.",
   },
   {
     href: "/review/cloze", title: "From your reading", subtitle: "Paste real Estonian",
     icon: "ScissorsLineDashed", tone: "butter", group: "targeted", note: "Your own text",
     blurb:
-      "Bring an article or your homework. Words already in your deck are blanked out, and the " +
-      "answer is the form the writer actually used.",
+      "Bring an article or your homework. Words from your deck get blanked out, and the right " +
+      "answer is whatever form the writer actually used.",
     within: "/dictionary",
   },
   {
     href: "/review/conjugation", title: "Conjugation", subtitle: "Fill the table", icon: "Repeat",
     tone: "accent", group: "targeted", note: "Six persons", within: "/grammar/topic/present-tense",
     blurb:
-      "One verb, the first person given, the other five to put in place at A1 and to type from A2. " +
-      "Every form is checked against the dictionary, and the conditional joins in from B1.",
+      "One verb with the first person filled in. You place the other five at A1 and type them from " +
+      "A2. Every form is checked against the dictionary, and the conditional joins in at B1.",
   },
   {
     /*
@@ -279,8 +278,8 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "TriangleAlert", tone: "butter", group: "targeted", note: "Typed, three rungs",
     within: "/grammar/exceptions",
     blurb:
-      "Tuppa, not toasse. The words where the ending rule breaks down. You meet them, write " +
-      "them, then put them back into a sentence a native writer wrote.",
+      "Tuppa, not toasse. The words where the usual ending rule breaks down. You meet them, " +
+      "type them, then put them back into a real sentence.",
   },
   {
     /*
@@ -297,16 +296,16 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     href: "/review/lookups", title: "Words you looked up", subtitle: "Yours, not the course's",
     icon: "BookmarkCheck", tone: "sky", group: "targeted", note: "From your own adds",
     blurb:
-      "Every word you added yourself, from an entry, a photo, a pasted list or Anu. Asked in a " +
-      "different form each time, instead of waiting its turn behind the course.",
+      "Every word you added yourself, from the dictionary, a photo, a pasted list or Anu. Asked " +
+      "in a different form each time, instead of waiting in line behind the course.",
     within: "/words",
   },
   {
     href: "/review/clinic", title: "Leech clinic", subtitle: "What keeps failing", icon: "Stethoscope",
     tone: "blush", group: "targeted", note: "From your log",
     blurb:
-      "The handful of cards you keep getting wrong, and what their history says about why. " +
-      "They are worked on here instead of being quietly buried.",
+      "The handful of cards you keep getting wrong, and a look at why. You work on them here " +
+      "instead of letting them quietly pile up.",
     within: "/progress",
   },
 ];
