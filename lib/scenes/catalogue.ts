@@ -116,6 +116,14 @@ export const FEELINGS: Readonly<Record<Feel, { readonly word: string; readonly m
 
 export const REACTIONS = {
   acknowledge: ["hästi", "aitäh", "jah"],
+  /*
+    "Got it", to a turn that was understood and answered something else: real
+    Estonian, off the point. `Vabandust?` said there told a learner they had
+    not been understood when they had, and "Hästi." says "good" to whatever it
+    was, a symptom included. `selge` is `tahtsad-sonad`, which every scene
+    declares.
+  */
+  heard: ["selge"],
   waiting: ["jah"],
   /*
     EVERY FAILURE USED TO LOOK LIKE A SUCCESS, which is the single reason a

@@ -526,7 +526,7 @@ function opensWithReaction(line: SpokenLine | null): boolean {
   const first = line ? words(line.text)[0] : undefined;
   if (!first) return false;
   const said = new Set<string>([
-    ...REACTIONS.acknowledge, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
+    ...REACTIONS.acknowledge, ...REACTIONS.heard, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
     ...Object.values(FEELINGS).map((f) => f.word),
   ].map((word) => word.toLowerCase().replace(/[.!?]$/, "")));
   return said.has(first);
@@ -869,7 +869,16 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   if ((response === "narrow" || response === "repeat") && reading === "offtarget"
       && !input.landed && !ownReaction(line) && !aside) {
-    out.push(reaction(REACTIONS.missed[0], "?"));
+    /*
+      AND NOT "SORRY?" EITHER, BECAUSE THEY WERE UNDERSTOOD. `offtarget` is
+      real Estonian that answered something else, and `Vabandust?` in front of
+      the question again tells a learner they were not understood, which is
+      the one thing this module may not make anybody feel. Heard on a day with
+      no model, it answered `Ma olen tšempion` and `Kas sa oled õnnelik?` alike.
+      `Selge.` says "got it", and the question that follows
+      says what is still wanted. `Vabandust!` stays for a turn nobody could read.
+    */
+    out.push(reaction(REACTIONS.heard[0], "."));
   }
 
   /*
@@ -1140,14 +1149,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     told it twice that this sentence is not landing, which is the thing the
     nudge exists to stop.
 
-    So: verbatim on the first re-asks, and once `tries` is past `NUDGE_AFTER`,
+    So: verbatim on the first re-ask, and once `tries` reaches `NUDGE_AFTER`,
     another line the bank already holds for this beat. Authored and gated when
     it was drafted, off `others`, which the caller has already filtered to what
     this run has not said, so nothing repeats and nothing is written here. Where
     the bank holds only the one line, `others` is empty and the behaviour is
     exactly what it was: this can never invent a way of asking.
   */
-  const another = sayAgain && (input.tries ?? 0) > NUDGE_AFTER ? input.others?.[0] ?? null : null;
+  const another = sayAgain && (input.tries ?? 0) >= NUDGE_AFTER ? input.others?.[0] ?? null : null;
   /*
     AND A LINE A MODEL WROTE FOR THIS TURN BEATS THE TURN BEFORE IT, ALWAYS.
 

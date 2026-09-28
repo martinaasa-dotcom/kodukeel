@@ -93,9 +93,21 @@ const SAY = (arg("say") ?? "").split("|").map((s) => s.trim()).filter(Boolean);
  * because on a free tier a refusal is the ordinary case and a run that stopped
  * on the first 429 would measure nothing.
  */
-const LINKS = composing
+/*
+  `--model-down` plays what a learner meets on the day Gemini will not answer:
+  nobody composes, so the other side says the lines written for the scene,
+  and the judge is the grader chain's Groq link, which is what still answers.
+*/
+const modelDown = process.argv.includes("--model-down");
+const LINKS = composing && !modelDown
   ? providerChain().filter((link) => !pinned || link.model === pinned)
   : [];
+const JUDGE_LINKS = modelDown && process.env.GROQ_API_KEY
+  ? [{
+    name: "groq", model: "openai/gpt-oss-120b", label: "Groq",
+    url: "https://api.groq.com/openai/v1/chat/completions", key: process.env.GROQ_API_KEY,
+  }]
+  : LINKS;
 const COMPOSE_STATUS = new Map<string, number>();
 
 
@@ -247,7 +259,7 @@ async function play(sceneId: string) {
       app prints a conversation the app does not have.
     */
     const askJudge = async (beat: BeatSpec, said: string): Promise<boolean> => {
-      const link = LINKS[0]!;
+      const link = JUDGE_LINKS[0]!;
       const dealt = leafNeeds(beat.needs).flatMap(({ need }) => {
         if (need.kind !== "datum") return [];
         const prop = draw.card.props.find((one) => one.slot === need.slot && !one.theirs);
@@ -270,7 +282,7 @@ async function play(sceneId: string) {
       return verdict?.done === true;
     };
     const judgedBeat = state.hurdle ? hurdleBeat(state.hurdle) : judged;
-    if (LINKS.length > 0 && lastSent && lastRead && judgedBeat && !lastSent.conceded
+    if (JUDGE_LINKS.length > 0 && lastSent && lastRead && judgedBeat && !lastSent.conceded
       && lastRead.beatId === judgedBeat.id
       && ["offtarget", "incomplete", "english", "unrecognised", "fragment"].includes(lastRead.reading)
       && /\p{L}/u.test(lastSent.said)
@@ -285,7 +297,7 @@ async function play(sceneId: string) {
     const landedOn = state.turns[state.turns.length - 1];
     const ahead = currentBeat(scene, state);
     const sentNow = turns[turns.length - 1];
-    if (LINKS.length > 0 && sentNow && landedOn && ahead && response === "answer" && !state.hurdle
+    if (JUDGE_LINKS.length > 0 && sentNow && landedOn && ahead && response === "answer" && !state.hurdle
       && landedOn.beatId !== ahead.id && !state.done.includes(ahead.id) && !sentNow.alsoDone?.includes(ahead.id)
       && words(sentNow.said).some((w) => !context.lexicon.forms.has(w) && !context.lexicon.folded.has(fold(w)))) {
       if (await askJudge(ahead, sentNow.said)) {
