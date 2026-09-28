@@ -10843,6 +10843,31 @@ it leaves the section unmeasured rather than failed. Leaving a box empty and pre
 still allowed and is honest, because it marks nothing wrong that was not. The one skip left in
 first run is the *goal* screen, whose answers only feed the plan.
 
+**"I don't know" is an answer and a skip is not, and the difference is that it counts.** A
+four-option question rewards a guess at one in four, so a level read off guesses was flattering
+whoever guessed luckily. Every choice question offers it under the options, `0` presses it, and it
+travels as its own kind of answer (`unsure`) rather than as an empty option, so the intent is in the
+data and not in `indexOf` returning -1. It marks zero on every skill through `creditFor` and is never
+`skipped`, which is honoured on listening alone: it cannot be used to leave a section unmeasured. The
+correct option is still shown after it, since the check is spent teaching too.
+
+**And a band ends the moment it is decided, which is what makes "I don't know" end a band rather
+than lengthen it.** A band of six was asked in full however the first answers went, so somebody
+saying "I don't know" to a band they plainly did not have said it six times, and four right out of
+six was followed by two questions that could not change a thing. `bandOutcome` in
+`lib/assessment/session.ts` scores a band against its whole size with the unanswered questions
+taken as all wrong and as all right, and where both land in one class (pass, near miss, fail) that
+is the outcome and nothing more of the band is asked. It is provably the class the finished band
+would have had and the class `levelFrom` reads off the answered part, which `session.test.ts`
+checks exhaustively over every order of a six-question band, and the ladder's two rules read the
+outcome rather than a finished score, so a band decided early ends or opens the climb as early.
+`npm run measure:placement` models a second learner who says "I don't know" instead of guessing
+and counts the questions: placement is unchanged within the noise for both learners, the paper is
+16 to 24 percent shorter at every level, and the honest learner is placed above their level 0 to 3
+percent of the time against the guesser's 2 to 29. A learner who knows two words in six at every
+band above A1 is placed A1, walked over every such pattern in the test, because a near miss needs
+half and the confirmation above it needs two thirds.
+
 **Feedback explains the sentence, it does not name a case, and it took two goes to stop.** The
 first version read "Here kõhn is in the nimetav, the nominative. The dictionary form. The subject
 of a sentence, and what you point at.", which is three sentences of grammar vocabulary at somebody
