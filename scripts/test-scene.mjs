@@ -251,7 +251,7 @@ check("and every objective, once it has been opened", card.includes(inPlay), inP
   The `since` beat is the one that wants a day, and the day is the same string
   the card's own value line prints, so the two are read off one render.
 */
-const dealtDay = /on this day\.?\s*\n\s*([A-Z][a-z]+)/i.exec(card)?.[1];
+const dealtDay = /the day it started[^\n]*\n\s*([A-Z][a-z]+)/i.exec(card)?.[1];
 check("the card dealt a day worth naming", Boolean(dealtDay), card.slice(0, 200));
 /*
   The value sits under the objective that wants it, wherever in the list that

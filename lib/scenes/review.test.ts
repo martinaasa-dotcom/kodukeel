@@ -65,7 +65,7 @@ describe("the review of a conversation", () => {
     const missed = [turn({ reading: "offtarget", met: [false] }), turn({ reading: "offtarget", met: [false] })];
     const review = reviewOf(SCENE, state(missed, []));
     expect(review.lead).not.toMatch(/[0-9]+ of your/);
-    expect(review.lead).toMatch(/Nothing landed/);
+    expect(review.lead).toMatch(/got through/);
     // And it says the way in rather than a figure.
     expect(review.lead).toMatch(/word button/);
   });
@@ -266,7 +266,7 @@ describe("the review of a conversation", () => {
 
   it("says something kind and true about a run where nothing was said", () => {
     const review = reviewOf(SCENE, state([], []));
-    expect(review.lead).toMatch(/Nothing was said/);
+    expect(review.lead).toMatch(/didn't say anything/);
     expect(review.notes).toEqual([]);
   });
 });

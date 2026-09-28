@@ -78,7 +78,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   },
   {
     id: "thorough",
-    who: "They take their time, and they'll want every last detail from you.",
+    who: "They're in no hurry, and they'll want every last detail from you.",
     patience: 1,
     voice: "mari",
     speed: 0.95,
@@ -88,7 +88,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   },
   {
     id: "new",
-    who: "They're new to the job and double-check things as they go.",
+    who: "They're new in the job, so they check everything twice as they go.",
     patience: 1,
     voice: "indrek",
     speed: 1,
@@ -98,7 +98,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   },
   {
     id: "by-the-book",
-    who: "They do things strictly in their own order, whatever order you'd rather go in.",
+    who: "They go strictly by the book: one thing at a time, in their order, not yours.",
     patience: 0,
     voice: "peeter",
     speed: 1,

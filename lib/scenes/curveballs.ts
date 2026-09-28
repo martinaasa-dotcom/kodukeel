@@ -158,15 +158,15 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "refuse",
     cost: 2,
     says: "The time you wanted has already gone.",
-    out: "Take the one they offer, or ask for another.",
+    out: "Ask them what other times they've got.",
     needs: [{ kind: "question" }],
   },
   {
     id: "misheard",
     move: "confirm",
     cost: 3,
-    says: "They misheard you, and caught a word that only sounds like yours.",
-    out: "Put them right and say it again.",
+    says: "They've misheard you and caught a different word that sounds like yours.",
+    out: "Tell them no, that's not it, and say your word again.",
     needs: [{ kind: "negation" }],
   },
   {
@@ -174,7 +174,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     cost: 3,
     says: "They switch to English.",
     said: "Sorry, let me switch to English. What was that?",
-    out: "Keep going in Estonian and they'll come back to it.",
+    out: "Answer in Estonian anyway. They'll soon switch back.",
     needs: [{ kind: "register" }],
   },
   {
@@ -192,14 +192,14 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       the room. The goal text has to be true of all of them, not just a
       counter.
     */
-    out: "Wait a moment, then carry on.",
+    out: "Give them a moment, then pick up where you left off.",
     needs: [{ kind: "any" }],
   },
   {
     id: "faster",
     move: "instruct",
     cost: 1,
-    says: "They speed up.",
+    says: "They start talking much faster.",
     /*
       Asking for it slower costs nothing, is always available and is taught by
       the course, which is the argument for this being a fair thing to throw
@@ -216,7 +216,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "ask",
     cost: 1,
     says: "They start chatting about the weather.",
-    out: "Chat back, then get back to what you came for.",
+    out: "Say something back about the weather, then carry on with what you came for.",
     needs: [{ kind: "any" }],
   },
   {
@@ -231,8 +231,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       they want one thing at a time, in the sequence they ask for it, not
       however the learner would rather lay it out.
     */
-    says: "They want things in their order, not yours, one at a time.",
-    out: "Give them just the one thing they've asked for.",
+    says: "They want one thing at a time, in the order they ask for it.",
+    out: "Give them just the one thing they've asked for, and save the rest.",
     needs: [{ kind: "any" }],
   },
   {
@@ -240,7 +240,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "refuse",
     cost: 3,
     says: "What you came for can't be done today.",
-    out: "Ask what they can do, or when.",
+    out: "Ask what they can do instead, or when it'll be possible.",
     needs: [{ kind: "question" }],
   },
   {
@@ -255,8 +255,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     */
     move: "ask",
     cost: 1,
-    says: "They switch how they address you, from formal to casual or back.",
-    out: "Match them or don't. People do both.",
+    says: "They switch between the polite 'you' and the friendly one.",
+    out: "Switch with them, or carry on as you were. Either is fine.",
     needs: [{ kind: "any" }],
     switchesRegister: true,
   },
@@ -288,14 +288,14 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       is not is carrying on as though nothing was said, which the beat behind
       it reads as letting it go.
     */
-    out: "Question it, or say whether that's all right with you.",
+    out: "Ask about it, or say whether that price is all right with you.",
     needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hea"] }] }],
   },
   {
     id: "queue",
     cost: 1,
     says: "A queue forms behind you.",
-    out: "Nothing to do. They just have less time for you now.",
+    out: "Nothing you need to do. They'll just be in more of a hurry now.",
     needs: [],
     silent: true,
   },
@@ -304,7 +304,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "confirm",
     cost: 3,
     says: "They say the opposite of what they told you two turns ago.",
-    out: "Notice it, and say so.",
+    out: "Tell them no, that's not what they said before.",
     needs: [{ kind: "negation" }],
     from: "B2",
   },
@@ -313,7 +313,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "instruct",
     cost: 2,
     says: "They send you somewhere else first, before they can help.",
-    out: "Go where they say, or ask where that is.",
+    out: "Ask them where that is.",
     needs: [{ kind: "question" }],
   },
 ];

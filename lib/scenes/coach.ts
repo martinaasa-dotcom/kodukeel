@@ -72,7 +72,7 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
       const word = need.oneOf[0];
       if (!word) return null;
       const also = need.oneOf.length > 1 ? ", or another word for the same thing" : "";
-      return `They're listening for one word${also}: “${word}”. Any form of it will do.`;
+      return `Try the word “${word}”${also}. Any form of it will do, so don't worry about the ending.`;
     }
     /*
       The word and the case, and never the form. Which ending goes on it is
@@ -91,8 +91,8 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
         wrong sends somebody to fix the half that was fine. And the question is
         said in English beside the Estonian, as on every screen that prints one.
       */
-      return `They're listening for “${need.lemma}” in the ${spec.et}, the one that answers `
-        + `${spec.question} (${spec.questionEn}). It's the ending they want to hear.`;
+      return `They want “${need.lemma}” in the ${spec.et}, the ending that answers `
+        + `${spec.question} (${spec.questionEn}). Getting that ending on is the whole point here.`;
     }
     /*
       A value off the card, so the answer is already in front of them and the
@@ -103,10 +103,10 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
     case "datum": {
       const prop = card ? propBySlot(card, need.slot) : undefined;
       if (!prop) return null;
-      return `It's right there on your card: “${prop.card}”. Just say it to them in Estonian.`;
+      return `The answer's on your card, under “${prop.card.replace(/\.$/, "")}”. Just say it to them in Estonian.`;
     }
     case "question":
-      return "They're waiting for you to ask something. Anything ending in a question mark counts.";
+      return "They're waiting for you to ask them something. Any question counts, even one word with a question mark.";
     case "negation":
       return "They're waiting for you to say no.";
     /*

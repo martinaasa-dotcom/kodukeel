@@ -115,24 +115,24 @@ export function diagnose(
       already says what the case that was due is for, so naming both meanings
       here was that heading again inside a longer sentence.
     */
-    const means = askedMeans ? `, and means ${askedMeans}` : "";
+    const means = askedMeans ? `, but it means “${askedMeans}”` : "";
     return {
       sure: "likely",
-      says: `${asked.et} answers ${due.asksWhere} too${means}.`,
+      says: `you used the ${asked.et}. It answers ${due.asksWhere} too${means}.`,
     };
   }
 
   if (reached === "NOMINATIVE") {
     return {
       sure: "likely",
-      says: "you reached for the plain dictionary form.",
+      says: "you left the word the way the dictionary lists it, with no ending on.",
     };
   }
 
   if (reached === "GENITIVE" || reached === "PARTITIVE") {
     return {
       sure: "possible",
-      says: `you stopped at ${asked.et}, which is the stem the ending goes on.`,
+      says: `you stopped at the ${asked.et}. That's the base the ending gets added to, so only the ending went missing.`,
     };
   }
 
@@ -149,6 +149,6 @@ export function diagnose(
 export function diagnosePerson(): Hunch {
   return {
     sure: "likely",
-    says: "a dictionary lists a verb that way, so it's the form you've seen most.",
+    says: "that's how a dictionary lists a verb, so it's the form you've seen most.",
   };
 }

@@ -253,13 +253,13 @@ const DOCTOR: SceneSpec = {
   props: [
     {
       kind: "word", slot: "symptom", oneOf: ["valu", "palavik", "haigus", "haige", "väsinud"],
-      says: "What is wrong with you. Say it your own way.",
+      says: "What's wrong with you.",
       means: { haige: "ill" },
     },
     {
       kind: "weekday", slot: "since",
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
-      says: "It started earlier this week, on this day.",
+      says: "The day it started, earlier this week.",
     },
     /*
       The times the desk offers, and both are theirs: a card that prints them
@@ -297,7 +297,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "reason",
-      goal: "Tell them what's wrong. A pain, a fever, feeling rotten: whatever it is.",
+      goal: "Tell them what's wrong: a pain, a fever, feeling ill or tired, whatever it is.",
       they: "They ask what brings you in.",
       move: "ask",
       topic: ["valu", "haigus", "tervis", "haige", "palavik"],
@@ -338,7 +338,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "offer",
-      goal: "Take the time they've offered, or tell them it doesn't work for you.",
+      goal: "Say yes to the time they offer, or tell them it doesn't suit you.",
       they: "They offer you an appointment at {time}.",
       move: "offer",
       topic: ["aeg", "kell", "tund", "päev"],
@@ -435,12 +435,12 @@ const LANDLORD: SceneSpec = {
   props: [
     {
       kind: "word", slot: "problem", oneOf: ["küte", "elekter", "remont", "mööbel", "aken", "uks"],
-      says: "What's gone wrong. Say it your own way.",
+      says: "What's broken.",
     },
     {
       kind: "weekday", slot: "since",
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
-      says: "It's been like this since this day.",
+      says: "The day it stopped working.",
     },
     // Theirs, like the day beside it: they say when they can come.
     { kind: "time", slot: "time", from: 8, to: 18, theirs: true },
@@ -538,7 +538,7 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Tell them how long it's been like this.",
+      goal: "Tell them which day it stopped working.",
       they: "They ask how long it's been like that.",
       move: "ask",
       topic: ["päev", "nädal", "aeg", "õhtu"],
@@ -651,7 +651,7 @@ const COUNTER: SceneSpec = {
       typed into a practice app is the one thing this module could collect that
       nobody could ever take back (§3), so no scene invites one.
     */
-    { kind: "code", slot: "ref", says: "The reference you were given." },
+    { kind: "code", slot: "ref", says: "Your reference number." },
     { kind: "number", slot: "floor", min: 1, max: 4, says: "The floor the desk is on." },
     /*
       THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
@@ -680,7 +680,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "purpose",
-      goal: "Tell them what you've come in to do.",
+      goal: "Tell them what you've come to hand in.",
       they: "They ask what you've come for.",
       move: "ask",
       topic: ["avaldus", "dokument", "luba", "teenus", "amet"],
@@ -691,7 +691,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "document",
-      goal: "Hand over the paper they asked for, or tell them you don't have it.",
+      goal: "They want another paper to go with it. Say you've brought it, or that you haven't.",
       they: "They ask for the paper that goes with it.",
       move: "ask",
       topic: ["dokument", "allkiri", "arve", "konto", "number"],
@@ -714,7 +714,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "fill",
-      goal: "Give them each detail as they ask for it, one at a time.",
+      goal: "Tell them you'll fill in the form and sign it.",
       meanwhile: "Twenty minutes later, your number comes up and you're back at the desk.",
       they: "They tell you what to fill in, and in what order.",
       move: "instruct",
@@ -912,11 +912,11 @@ const CAFE: SceneSpec = {
   */
   units: [...COMMON, "sook-ja-jook", "ostmine", "kus-ja-kuhu", "restoranis", "omadussonad"],
   register: "teie",
-  role: "You've got ten minutes before your bus and you'd like something to drink. Your card says what.",
+  role: "You've got ten minutes before your bus and you'd like something to drink. Your card says what you fancy.",
   props: [
     {
       kind: "word", slot: "drink", oneOf: ["kohv", "tee", "vesi", "mahl"],
-      says: "What you'd like. Ask for it in Estonian.",
+      says: "What you'd like to drink.",
       means: { tee: "tea" },
     },
     /*
@@ -975,7 +975,7 @@ const CAFE: SceneSpec = {
     },
     {
       id: "bill",
-      goal: "Tell them you'd like to pay.",
+      goal: "That's everything, so tell them you'd like to pay.",
       meanwhile: "A couple of minutes later, your drink's on the counter in front of you.",
       they: "They set it down and ask if that's everything.",
       move: "ask",
@@ -1063,7 +1063,7 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Ask them where the place you're looking for is.",
+      goal: "Ask them the way to the place you're looking for.",
       they: "They wait for your question.",
       answeredNext: true,
       move: "ask",
@@ -1140,7 +1140,7 @@ const TICKET: SceneSpec = {
       says: "Where you're going.",
       places: true,
     },
-    { kind: "time", slot: "time", from: 8, to: 20, says: "The bus you want, by the time it leaves." },
+    { kind: "time", slot: "time", from: 8, to: 20, says: "When your bus leaves." },
     /*
       THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
       the one the learner was told, so the card tells them one, and the other
@@ -1187,7 +1187,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "when",
-      goal: "Tell them which bus you want to catch.",
+      goal: "Tell them what time you want to leave.",
       they: "They ask what time you want to travel.",
       move: "ask",
       topic: ["kell", "aeg", "buss"],
@@ -1419,7 +1419,7 @@ const PHONE: SceneSpec = {
     },
     {
       id: "why",
-      goal: "Tell them why you're ringing.",
+      goal: "Tell them why you're ringing: you'd like to ask about something, or buy something.",
       they: "They ask what it's about.",
       move: "ask",
       topic: ["helistama", "küsima", "aitama", "soovima"],
@@ -1623,7 +1623,7 @@ const PHARMACY: SceneSpec = {
     {
       kind: "weekday", slot: "since",
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
-      says: "It started on this day.",
+      says: "The day it started.",
     },
     /*
       THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
@@ -1660,7 +1660,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Tell them how long it's been hurting.",
+      goal: "Tell them which day it started hurting.",
       they: "They ask how long it's been like this.",
       move: "ask",
       topic: ["kaua", "päev", "aeg", "kestma", "eile"],
@@ -1743,7 +1743,7 @@ const COURSE: SceneSpec = {
     },
     {
       kind: "word", slot: "why", oneOf: ["töö", "pere", "kool", "sõber"],
-      says: "Why you're learning Estonian: because of this.",
+      says: "Why you're learning Estonian.",
     },
   ],
   curveballs: ["faster", "english", "small-talk", "interrupted", "other-register", "misheard"],
@@ -1860,7 +1860,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       kind: "word", slot: "skill", oneOf: ["keel", "arvuti", "projekt", "inimene"],
-      says: "What you're good at: this.",
+      says: "What you're good at.",
       means: { keel: "language", inimene: "person" },
     },
     {
@@ -1965,7 +1965,7 @@ const INTERVIEW: SceneSpec = {
     */
     {
       id: "wage",
-      goal: "They've named a monthly wage. Take it, or say no and ask for more, then settle on a figure.",
+      goal: "They've offered you a monthly wage. Say yes, or say it's not enough and see if they'll go higher.",
       they: "They offer {wage} euros a month and ask if that suits you.",
       move: "offer",
       topic: ["palk", "euro", "kuu", "leping"],
@@ -2042,7 +2042,7 @@ const COMPLAINT: SceneSpec = {
     {
       kind: "weekday", slot: "bought",
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
-      says: "When you bought it.",
+      says: "The day you bought it.",
     },
     /*
       THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
@@ -2088,7 +2088,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "when",
-      goal: "Tell them when you bought it.",
+      goal: "Tell them which day you bought it.",
       they: "They ask when you bought it.",
       move: "ask",
       topic: ["millal", "ostma", "päev", "eile"],
@@ -2121,7 +2121,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "insist",
-      goal: "They've said no. Politely, say again what you want.",
+      goal: "They've said no. Stay polite and don't give up: ask what they can do, or say you'd like to make a complaint.",
       they: "They say that's not possible.",
       move: "refuse",
       topic: ["saama", "võimalus", "lahendus", "kaebus"],

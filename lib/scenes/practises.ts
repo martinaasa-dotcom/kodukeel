@@ -40,20 +40,20 @@ import { leafNeeds, type SceneSpec } from "./types";
 export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "arsti-aeg:reason": "saying what's wrong",
   "arsti-aeg:where": "saying where it hurts",
-  "arsti-aeg:since": "saying since when",
+  "arsti-aeg:since": "saying when it started",
   "arsti-aeg:offer": "booking a time",
   "arsti-aeg:confirm": "reading a time back",
 
   "uuri-remont:problem": "saying what's broken",
-  "uuri-remont:where": "which room and floor",
-  "uuri-remont:since": "saying since when",
+  "uuri-remont:where": "saying which room and floor",
+  "uuri-remont:since": "saying when it started",
   "uuri-remont:refuse": "asking when someone can come",
   "uuri-remont:agree": "agreeing a day and time",
 
   "ametiasutus:purpose": "saying why you came",
-  "ametiasutus:document": "handing over a paper",
+  "ametiasutus:document": "saying if you've got the paper",
   "ametiasutus:wait": "asking how long the wait is",
-  "ametiasutus:fill": "giving your details",
+  "ametiasutus:fill": "filling in a form",
   "ametiasutus:confirm": "asking when it'll be ready",
 
   "kohvikus:order": "ordering a drink",
@@ -61,12 +61,12 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "kohvikus:bill": "asking to pay",
 
   "tee-kusimine:where": "asking the way",
-  "tee-kusimine:way": "following directions",
+  "tee-kusimine:way": "checking directions",
   "tee-kusimine:far": "asking if it's far",
 
   "bussipilet:want": "asking for a ticket",
   "bussipilet:to": "saying where you're going",
-  "bussipilet:when": "picking which bus",
+  "bussipilet:when": "saying when you want to leave",
   "bussipilet:pay": "card or cash",
 
   "restoranis-tellimine:how-many": "a table for how many",
@@ -87,7 +87,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "trepikoda:weather": "chatting about the weather",
 
   "apteek:what": "saying what hurts",
-  "apteek:since": "saying since when",
+  "apteek:since": "saying when it started",
   "apteek:medicine": "asking what to take",
   "apteek:how": "asking how often",
   "apteek:pay": "paying at the counter",
@@ -108,7 +108,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "kaebus:problem": "saying what's wrong with it",
   "kaebus:when": "when you bought it",
   "kaebus:receipt": "whether you have the receipt",
-  "kaebus:want": "asking for your money back",
+  "kaebus:want": "asking for a refund or a repair",
   "kaebus:insist": "standing your ground politely",
 
   "riidepood:want": "asking for a piece of clothing",

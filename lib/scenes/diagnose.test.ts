@@ -38,12 +38,12 @@ describe("why the wrong ending came out", () => {
       the case that was due is for, so naming both here was that heading again
       inside a longer sentence.
     */
-    expect(hunch?.says).toBe("alalütlev answers kus? too, and means on, at, and have.");
+    expect(hunch?.says).toBe("you used the alalütlev. It answers kus? too, but it means “on, at, and have”.");
   });
 
   it("names the same pair the other way round, with the meanings the same way round", () => {
     const hunch = diagnose("ADESSIVE", "INESSIVE", NONE);
-    expect(hunch?.says).toBe("seesütlev answers kus? too, and means in.");
+    expect(hunch?.says).toBe("you used the seesütlev. It answers kus? too, but it means “in”.");
   });
 
   it("covers the other two question words the same way", () => {
@@ -54,7 +54,7 @@ describe("why the wrong ending came out", () => {
   it("reads the plain word as the ending not having arrived", () => {
     const hunch = diagnose("INESSIVE", "NOMINATIVE", NONE);
     expect(hunch?.sure).toBe("likely");
-    expect(hunch?.says).toContain("dictionary form");
+    expect(hunch?.says).toContain("the way the dictionary lists it");
   });
 
   /*
@@ -65,7 +65,7 @@ describe("why the wrong ending came out", () => {
     for (const reached of ["GENITIVE", "PARTITIVE"] as const) {
       const hunch = diagnose("INESSIVE", reached, NONE);
       expect(hunch?.sure, reached).toBe("possible");
-      expect(hunch?.says, reached).toContain("the stem the ending goes on");
+      expect(hunch?.says, reached).toContain("the base the ending gets added to");
     }
   });
 

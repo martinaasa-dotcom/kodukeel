@@ -262,9 +262,9 @@ function notesFrom(state: SceneState): ReviewNote[] {
  * already lives.
  */
 function whatFor(kind: Slip["kind"], plain: string | undefined, suffix: string | undefined): string {
-  if (kind === "person") return "the verb with a person on it";
+  if (kind === "person") return "the verb with the right ending for who's doing it";
   if (kind === "spelling") return "the spelling";
-  if (!plain) return "the form this one wanted";
+  if (!plain) return "the form they were listening for";
   return suffix ? `the ending for “${plain}”` : `the form for “${plain}”`;
 }
 
@@ -276,8 +276,8 @@ function whatFor(kind: Slip["kind"], plain: string | undefined, suffix: string |
  * reported as too much to read.
  */
 const NOTE_BODY: Partial<Record<Slip["kind"], string>> = {
-  person: "All six persons grow out of the first one: take off the -n and add the ending for whoever's doing it.",
-  spelling: "The row of letters under the box types the ones an English keyboard doesn't have.",
+  person: "Every form grows out of the 'I' form, the first one you learn: take off the -n and add the ending for whoever's doing it.",
+  spelling: "Missing a letter your keyboard hasn't got? The row of letters under the box has them.",
 };
 
 /**
@@ -361,7 +361,7 @@ function lead(n: {
   turns: number; landed: number; partly: number; read: number; slips: number; spellings: number;
   notes: number;
 }): string {
-  if (n.turns === 0) return "Nothing was said this time, and that's a fine way to get a feel for a scene.";
+  if (n.turns === 0) return "You didn't say anything this time, and that's fine. Watching a scene once is a good way to get a feel for it.";
 
   /*
     Nothing landed. Saying what did happen is still worth more than a count
@@ -375,8 +375,8 @@ function lead(n: {
       : n.read > 0
         ? `${n.read} of your ${n.turns} turns were understood as Estonian, but none of them answered the question. `
         : "";
-    return `${seen}Nothing landed this time, and that happens. The word button hands you one of the words `
-      + "they're waiting for, and telling them you're lost gets you one too.";
+    return `${seen}None of it got through this time, and that happens to everybody. Next time, the word button `
+      + "hands you one of the words they're waiting for, and telling them you're lost gets you one too.";
   }
 
   const all = n.landed === n.turns;
@@ -463,9 +463,9 @@ function englishNote(count: number, at: number): ReviewNote[] {
     id: "english",
     said: count === 1 ? "One turn in English" : `${count} turns in English`,
     form: null,
-    what: "Estonian for one more turn",
-    body: "Holding on in Estonian for one more turn is most of what this practice is for. "
-      + "When you're stuck, the word button hands you a word.",
+    what: "Estonian, even a word or two",
+    body: "Staying in Estonian a little longer each time is what this practice is for. "
+      + "When you're stuck, the word button gives you a word to use.",
     at,
   }];
 }
