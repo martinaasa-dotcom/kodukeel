@@ -247,7 +247,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                       <Meter
                         pct={c.accuracy}
                         label={`${caseName(c.grammCase)} across the class`}
-                        tone={c.accuracy >= 85 ? "var(--good)" : c.accuracy >= 65 ? "var(--hard)" : "var(--again)"}
+                        tone="var(--accent)"
                         height={5}
                       />
                     </span>

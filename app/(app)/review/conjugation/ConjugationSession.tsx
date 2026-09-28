@@ -295,7 +295,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
           <Stat value={`${tablesRight}/${questions.length}`} label="Tables" />
-          <Stat value={`${accuracy}%`} label="Forms right" tone={VERDICT_INK[accuracy >= 80 ? "right" : "nearly"]} />
+          <Stat value={`${accuracy}%`} label="Forms right" />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">

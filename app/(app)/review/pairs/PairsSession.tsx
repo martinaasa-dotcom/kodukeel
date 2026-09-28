@@ -9,7 +9,7 @@ import { Speak } from "@/components/Speak";
 import { playClip } from "@/lib/audio/clip";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { VOICES } from "@/lib/audio/voice";
-import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
+import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -209,7 +209,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
           <Stat value={questions.length} label="Heard" />
-          <Stat value={`${accuracy}%`} label="Right" tone={VERDICT_INK[accuracy >= 80 ? "right" : "nearly"]} />
+          <Stat value={`${accuracy}%`} label="Right" />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">

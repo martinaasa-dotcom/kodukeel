@@ -115,7 +115,7 @@ export function WeakestCases({ cases, empty }: {
                 <Meter
                   pct={c.accuracy}
                   label={`${name}${asks ? `, ${asks}` : ""}: ${c.accuracy}%`}
-                  tone={c.accuracy >= 85 ? "var(--good)" : c.accuracy >= 65 ? "var(--hard)" : "var(--again)"}
+                  tone="var(--accent)"
                   height={5}
                 />
               </span>

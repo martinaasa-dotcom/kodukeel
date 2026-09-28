@@ -38,9 +38,10 @@ export async function GET() {
 
   const name = settings[SETTING_KEYS.displayName]?.trim();
   /*
-    Each figure keeps the hue it has inside the app, butter for the streak,
-    mint for what is known, cornflower for the log itself, so a shared card
-    reads as the same product rather than as a generic stat graphic.
+    Each figure is set in the ink it has inside the app, which is plain: a
+    count is a reading rather than a verdict, so it wears no hue of its own
+    (docs/14-design-system.md). The gradient mark and the wordmark are what
+    make the card read as the same product.
 
     The third used to be an XP total under a level title. XP was withdrawn
     along with the badges it was weighed in, and what stands in its place is
@@ -48,9 +49,9 @@ export async function GET() {
     learner has actually given.
   */
   const stats: [string, string, string][] = [
-    [String(summary.streak), "day streak", "#cf9114"],
-    [String(snapshot.knownCards), "cards known", "#1fb894"],
-    [String(summary.reviewsAllTime), "reviews", "#5b2eff"],
+    [String(summary.streak), "day streak", "#0f1233"],
+    [String(snapshot.knownCards), "cards known", "#0f1233"],
+    [String(summary.reviewsAllTime), "reviews", "#0f1233"],
   ];
 
   return new ImageResponse(

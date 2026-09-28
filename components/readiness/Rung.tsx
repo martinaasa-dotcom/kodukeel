@@ -2,36 +2,37 @@ import { Chip } from "@/components/ui";
 import { RUNG_LABEL, type Rung } from "@/lib/readiness/rungs";
 
 /**
- * One hue per rung, and each hue keeps the meaning the design system gives it
- * (docs/14-design-system.md §1): sky is known, so it is the rung you could
- * lead; butter is nearly, so it is following without answering; blush is
- * missed, so it is being lost. Take part wears the accent, which is the app's
- * own color and not a verdict, because it is the rung in the middle and the
- * one most people are on. Not started wears no hue at all: it was sky, which
- * meant "new", until sky became "known" and the two could not share it.
+ * A rung is a reading of the log, not a verdict on an answer, so it is one hue
+ * in steps (docs/14-design-system.md, "A reading is not a verdict"): lead is
+ * the accent at full strength, take part a step under, follow a step under
+ * that, lost the faintest, and not started is the empty track. It was sky,
+ * butter and blush, a traffic light over somebody's progress, and the bar on
+ * Progress read as red and green to the person it was about. The words and the
+ * counts beside every bar say which rung is which; the strength says "more".
  */
-export const RUNG_CHIP: Record<Rung, "good" | "accent" | "hard" | "again" | "neutral"> = {
-  lead: "good",
+export const RUNG_CHIP: Record<Rung, "accent" | "neutral"> = {
+  lead: "accent",
   takePart: "accent",
-  follow: "hard",
-  lost: "again",
+  follow: "neutral",
+  lost: "neutral",
   unmet: "neutral",
 };
 
-export const RUNG_TILE: Record<Rung, "sky" | "accent" | "butter" | "blush" | "rule"> = {
-  lead: "sky",
-  takePart: "accent",
-  follow: "butter",
-  lost: "blush",
-  unmet: "rule",
+/** The fill for a rung in a bar or a legend dot. */
+export const RUNG_FILL: Record<Rung, string> = {
+  lead: "var(--scale-4)",
+  takePart: "var(--scale-3)",
+  follow: "var(--scale-2)",
+  lost: "var(--scale-1)",
+  unmet: "var(--scale-track)",
 };
 
 /** The ink for text about a rung, on a plain surface. */
 export const RUNG_INK: Record<Rung, string> = {
-  lead: "var(--sky-ink)",
+  lead: "var(--accent-deep)",
   takePart: "var(--accent-deep)",
-  follow: "var(--butter-ink)",
-  lost: "var(--blush-ink)",
+  follow: "var(--ink-2)",
+  lost: "var(--ink-2)",
   unmet: "var(--ink-3)",
 };
 

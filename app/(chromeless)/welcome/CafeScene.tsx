@@ -173,11 +173,11 @@ export function CafeScene() {
               )}
             </ol>
 
-            {error && <p role="alert" className="text-sm font-semibold" style={{ color: "var(--peach-ink)" }}>{error}</p>}
+            {error && <p role="alert" className="text-sm font-semibold" style={{ color: "var(--again-ink)" }}>{error}</p>}
 
             {reply?.over ? (
-              <div className="cafe-done flex flex-col gap-3 rounded-[var(--r-lg)] p-4" style={{ background: "var(--mint-soft)" }}>
-                <p className="text-md font-bold" style={{ color: "var(--mint-ink)" }}>
+              <div className="cafe-done flex flex-col gap-3 rounded-[var(--r-lg)] p-4" style={{ background: "var(--accent-soft)" }}>
+                <p className="text-md font-bold" style={{ color: "var(--accent-deep)" }}>
                   {reply.outcome ?? "That was the whole conversation."}
                 </p>
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>

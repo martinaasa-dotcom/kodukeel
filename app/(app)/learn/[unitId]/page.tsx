@@ -133,7 +133,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
               <Meter
                 pct={progress.pct}
                 label={`${uiText(placement, unit.title, unit.subtitle)}: ${progress.pct}% learned`}
-                tone={progress.state === "done" ? "var(--good)" : "var(--accent)"}
+                tone="var(--accent)"
               />
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Card, Meter, SectionTitle, StatTile, toneInk } from "@/components/ui";
+import { Card, Meter, SectionTitle, StatTile } from "@/components/ui";
 import {
   MASTERY_CORRECT, MASTERY_LABEL, MASTERY_ORDER, type Mastery,
 } from "@/lib/srs/mastery";
@@ -27,17 +27,14 @@ import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
  * something to act on. The bar reads the smaller of the two shares, so a word
  * right eight times in one form does not show as nearly finished.
  *
+ * The four tiers are one colour. They were sky, butter, blush and the accent,
+ * which is right, nearly, wrong and "yours", so a tier read as a mark on the
+ * learner rather than as where a word has got to. The label says which tier.
+ *
  * Server-rendered: the lists are read once and nothing here is interactive
  * beyond the links, so there is nothing for a client bundle to do.
  */
 
-/** A hue each, and none of them shared with another meaning on this page. */
-const TONES: Record<Mastery, "sky" | "butter" | "blush" | "accent"> = {
-  mastered: "sky",
-  almost: "butter",
-  struggling: "blush",
-  learning: "accent",
-};
 
 /** What each tier means, in the learner's terms rather than the rule's. */
 const EXPLAINS: Record<Mastery, string> = {
@@ -56,7 +53,7 @@ export function MasteryBoard({
         <SectionTitle hint="counted in words, not cards">At a glance</SectionTitle>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {MASTERY_ORDER.map((tier) => (
-            <StatTile key={tier} value={counts[tier]} label={MASTERY_LABEL[tier]} tone={TONES[tier]} />
+            <StatTile key={tier} value={counts[tier]} label={MASTERY_LABEL[tier]} tone="accent" />
           ))}
         </div>
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
@@ -86,7 +83,7 @@ function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; to
         <ul className="grid gap-x-6 @2xl:grid-cols-2">
           {words.map((word) => (
             <li key={word.lexemeId} className="border-b" style={{ borderColor: "var(--rule-soft)" }}>
-              <Row word={word} tier={tier} />
+              <Row word={word} />
             </li>
           ))}
         </ul>
@@ -101,7 +98,7 @@ function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; to
   );
 }
 
-function Row({ word, tier }: { word: MasteredWord; tier: Mastery }) {
+function Row({ word }: { word: MasteredWord }) {
   const { correct, total, slots, slotsNeeded, filled, progress } = word.verdict;
   /* Which forms is for a reader who asks, so it rides on the bar's label; the
      row says the word, what it means, and how far along it is. */
@@ -131,7 +128,7 @@ function Row({ word, tier }: { word: MasteredWord; tier: Mastery }) {
         <Meter
           pct={Math.round(progress * 100)}
           label={`${word.lemma} toward mastered${forms}`}
-          tone={toneInk(TONES[tier])}
+          tone="var(--accent)"
           height={5}
         />
       </span>

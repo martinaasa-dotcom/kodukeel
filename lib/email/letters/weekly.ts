@@ -138,7 +138,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     blocks.push({ t: "heading", text: `The climb to ${input.ladder.target}` });
     blocks.push({
       t: "art",
-      html: meter(input.ladder.pct, "sky"),
+      html: meter(input.ladder.pct),
       alt: `About ${Math.round(input.ladder.pct)} percent of the way to ${input.ladder.target}.`,
     });
     if (input.ladder.next) {

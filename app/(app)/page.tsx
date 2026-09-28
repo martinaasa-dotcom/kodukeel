@@ -309,7 +309,7 @@ export default async function TodayPage() {
         >
           <span
             className="tnum text-base font-bold"
-            style={{ color: summary.goalPct >= 100 ? "var(--good-ink)" : "var(--ink)" }}
+            style={{ color: "var(--ink)" }}
           >
             {summary.goalPct}%
           </span>

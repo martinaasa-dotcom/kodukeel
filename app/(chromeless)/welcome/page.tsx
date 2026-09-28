@@ -726,7 +726,7 @@ function Evening() {
     <section id="evening" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="mint">Your first evening</p>
+          <p className="section-tag" data-tone="sky">Your first evening</p>
           <h2 className="landing-title">
             {minutes} minutes, {spelledCount(evening.words.length)} words. Try the first step now.
           </h2>

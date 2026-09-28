@@ -266,7 +266,7 @@ export default async function LearnPage() {
                       <Meter
                         pct={pct}
                         label={`${level}: ${known} of ${words} words known`}
-                        tone={finished ? "var(--good)" : "var(--accent)"}
+                        tone="var(--accent)"
                         height={7}
                       />
                     </span>

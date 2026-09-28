@@ -1,13 +1,14 @@
 import type { DayBucket } from "@/lib/stats/history";
 
 const LEVEL_COLOR: Record<number, string> = {
-  /* A quiet day is barely there, and a busy one runs cyan to violet to
-     blush: the night's colours as a ramp rather than one hue in four strengths. */
-  0: "color-mix(in srgb, var(--ink) 6%, var(--surface))",
-  1: "color-mix(in srgb, var(--sky) 45%, var(--surface))",
-  2: "color-mix(in srgb, var(--accent) 50%, var(--surface))",
-  3: "var(--accent)",
-  4: "var(--blush)",
+  /* One hue in four strengths over the neutral track. It ran cyan to violet
+     to pink for a while, which is a rainbow rather than a scale: nobody can
+     tell from a hue which of two colours means "busier". */
+  0: "var(--scale-track)",
+  1: "var(--scale-1)",
+  2: "var(--scale-2)",
+  3: "var(--scale-3)",
+  4: "var(--scale-4)",
 };
 
 /**

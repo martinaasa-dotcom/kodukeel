@@ -17,7 +17,7 @@ import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
-import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -200,7 +200,6 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           <Stat
             value={`${Math.round((correct / prompts.length) * 100)}%`}
             label="Right form"
-            tone={VERDICT_INK[correct === prompts.length ? "right" : "nearly"]}
           />
           <Stat value={`${minutes}m`} label="Time" />
         </div>

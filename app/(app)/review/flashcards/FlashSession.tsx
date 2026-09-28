@@ -24,7 +24,7 @@ import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
-import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -252,7 +252,6 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           <Stat
             value={`${Math.round((right / prompts.length) * 100)}%`}
             label="Right"
-            tone={VERDICT_INK[right === prompts.length ? "right" : "nearly"]}
           />
           <Stat value={`${minutes}m`} label="Time" />
         </div>

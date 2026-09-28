@@ -59,7 +59,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
           pct={countdown.confidence}
           size={92}
           thickness={8}
-          tone={passing ? "var(--sky)" : "var(--cta)"}
+          tone="var(--cta)"
           // A night panel: the track is a faint light rather than a rule.
           track="rgb(255 255 255 / 0.1)"
           label={`${countdown.confidence} percent likely to pass ${countdown.band}`}
