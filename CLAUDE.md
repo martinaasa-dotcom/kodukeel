@@ -1901,6 +1901,19 @@ still a conclusion; a delta inside the noise is not. And a run that composes not
 rather than reporting a rate, because the first version of this hit a free model's daily cap and
 printed `0/0 withheld (0%)`, which reads as a perfect score.
 
+**The landing page lets a stranger do the thing rather than read about it, and every piece of it is
+the app's own machinery.** The hero word deals the next form on a tap; the case card is the
+landing copy of `/grammar/build-a-word`; "your first evening" is the programme's own first day
+(`DEFAULT_PROGRAMME.days[0]`, its words and the syllabus's English), met and then picked out of four;
+and the café is `kohvikus` played keyless through `app/api/demo-scene/route.ts`, which runs
+`sceneContext`, `knowing` and `replay` exactly as a signed-in run does and asks no model, writes no
+row and grades nothing (`lib/progress/demoScene.itest.ts` holds the last). It is public, so it reads
+its body through `readCapped`, clips by code point and is capped per visitor and for everybody through
+`checkSharedRateLimit`. The words a visitor may press under the box are the beat's own requests as
+the dictionary spells them, never Estonian typed for the page. What the visitor built and ordered is
+held in memory for the tab (`app/(chromeless)/welcome/visit.ts`) and said back at the close; nothing
+of it is sent or stored.
+
 **Never generate Estonian morphology.** Inflected forms come from Ekilex, never from the model. This
 is not theoretical: `gpt-4o-mini` invented "Ma söön aitamat" when asked for an example. The AI may
 explain grammar and suggest an English translation; it may never supply an Estonian form. AI output

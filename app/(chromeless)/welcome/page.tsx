@@ -22,6 +22,11 @@ import { BrandLink } from "@/components/BrandLink";
 import { MascotWatch } from "@/components/MascotWatch";
 import { CaseExplorer, TutorPeek, type DemoCase, type DemoWord } from "./LandingDemo";
 import { HeroWord, PlanCalculator } from "./LandingMotion";
+import { CafeScene } from "./CafeScene";
+import { FirstEvening, type EveningStep, type EveningWord } from "./FirstEvening";
+import { VisitRecap } from "./VisitRecap";
+import { DEFAULT_PROGRAMME, PROGRAMMES } from "@/lib/course";
+import { unitById } from "@/lib/collections/syllabus";
 import { LetterTile } from "@/components/LetterTile";
 import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -84,6 +89,8 @@ export default async function WelcomePage() {
         <Hero stats={stats} words={words} />
         <WhoFor />
         <Cases words={words} />
+        <Evening />
+        <Talk />
         <Features />
         <Compare />
         <Plan />
@@ -109,6 +116,8 @@ const ANU_LINES: readonly AnuLine[] = [
   { at: "top", mood: "happy", text: "I’m Anu, the tutor. I’ll come down the page with you." },
   { at: "who", mood: "happy", text: "Whichever one is you, the first evening is the same fifteen minutes." },
   { at: "cases", mood: "thinking", text: "Press an ending. It snaps onto the stem, and that is the whole trick." },
+  { at: "evening", mood: "happy", text: "This is really how the first evening starts. Five words, then they come back." },
+  { at: "talk", mood: "cheer", text: "Go on, order something. Get the ending wrong and see what happens." },
   { at: "features", mood: "happy", text: "Ask me the thing you would not ask in class. I never sigh." },
   { at: "compare", mood: "thinking", text: "Keep your class. This is the part between lessons." },
   { at: "plan", mood: "happy", text: "Press a few. The sum is the one I use inside." },
@@ -433,7 +442,7 @@ function Compare() {
         <div className="section-head">
           <p className="section-tag" data-tone="sky">How it compares</p>
           <h2 className="landing-title">
-            Keep what you use now. This is the missing part.
+            Keep what you use now. The fourteen cases are the missing part.
           </h2>
         </div>
       </Reveal>
@@ -521,6 +530,8 @@ function Plan() {
 function Cases({ words }: { words: DemoWord[] }) {
   const derivable = words.filter((w) => w.cases.some((c) => !c.principal && c.singular));
   if (derivable.length === 0) return null;
+  const learnCount = derivable[0]!.principal.length;
+  const buildCount = derivable[0]!.cases.filter((c) => !c.principal).length;
 
   return (
     <section id="cases" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
@@ -542,16 +553,27 @@ function Cases({ words }: { words: DemoWord[] }) {
           keeps its own measure: a 48ch box around both was what forced the
           heading into two lines in the first place.
         */}
+        {/*
+          THE HEADLINE IS THE CLAIM, WITH ITS TWO NUMBERS.
+
+          "You didn't fail Estonian. Your tools did." was a complaint, and the
+          card under it answers a different sentence: fourteen cases sounds
+          impossible, and it is three forms and a set of endings. The numbers
+          are counted off the first word the card shows rather than typed, so
+          the heading is true of the card under it. The complaint keeps its
+          place as the tag, where it frames the claim instead of standing in
+          for it.
+        */}
         <div className="section-head">
-          <p className="section-tag" data-tone="accent">Learn three forms, get most of the rest</p>
+          <p className="section-tag" data-tone="accent">You didn&rsquo;t fail Estonian. Your tools did.</p>
           <h2 className="landing-title">
-            You didn&rsquo;t fail Estonian.<br className="lg:hidden" /> Your tools did.
+            Learn {spelledCount(learnCount)} forms.<br className="lg:hidden" /> Build the other {spelledCount(buildCount)}.
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            You can hold a 400-day streak and still freeze when somebody speaks to you at the
-            counter. Three forms of a word are yours to learn, sometimes four. After that it is
-            the same regular endings every time. Where a word breaks the pattern, you get the form
-            Estonians actually say beside the one the rule predicts. Press an ending and build one.
+            Fourteen cases is the number that makes people give up on Estonian. Three forms of a
+            word are yours to learn, sometimes four, and the rest are the same endings glued on,
+            for every word there is. Where a word breaks the pattern, you get the form Estonians
+            actually say beside the one the rule predicts. Press an ending and build one.
           </p>
         </div>
       </Reveal>
@@ -666,6 +688,96 @@ function Cases({ words }: { words: DemoWord[] }) {
 
 /* ────────────────────────────────────────────────────── features ── */
 
+/* ─────────────────────────────────────────────────────── evening ── */
+
+/**
+ * The first evening of the course, read off the course itself.
+ *
+ * Its words are the first unit's, with the English the syllabus authors beside
+ * each (the one column this project writes), and its steps and minutes are the
+ * programme's own, so the page and the button cannot describe two different
+ * evenings. No database: the course is code, which is also why this section is
+ * there on a deployment whose dictionary has not answered yet.
+ */
+function eveningOne(): { words: EveningWord[]; steps: EveningStep[]; title: string; canDo: string; evenings: number } | null {
+  const day = DEFAULT_PROGRAMME.days[0];
+  if (!day) return null;
+  const unit = unitById(day.unitId);
+  const gloss = new Map((unit?.words ?? []).map(([lemma, en]) => [lemma, en] as const));
+  const words = day.words.flatMap((et) => {
+    const en = gloss.get(et);
+    return en ? [{ et, en }] : [];
+  });
+  if (words.length < 4) return null;
+  return {
+    words,
+    steps: day.steps.map((s) => ({ title: s.title, minutes: s.minutes, why: s.why })),
+    title: day.title,
+    canDo: unit?.canDo ?? "",
+    evenings: PROGRAMMES.reduce((n, p) => n + p.days.length, 0),
+  };
+}
+
+function Evening() {
+  const evening = eveningOne();
+  if (!evening) return null;
+  const minutes = evening.steps.reduce((n, s) => n + s.minutes, 0);
+  return (
+    <section id="evening" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
+      <Reveal>
+        <div className="section-head">
+          <p className="section-tag" data-tone="mint">Your first evening</p>
+          <h2 className="landing-title">
+            {minutes} minutes, {spelledCount(evening.words.length)} words. Try the first step now.
+          </h2>
+          <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            Every evening is one button. You meet a handful of words, they come back a moment later,
+            a round or two puts them to work, and then the app tells you that you are done.
+          </p>
+        </div>
+      </Reveal>
+      <Reveal>
+        <div className="mt-10 md:mt-12">
+          <FirstEvening {...evening} />
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── talk ── */
+
+/**
+ * One of the fifteen conversations, playable with no account.
+ *
+ * The page's closing line says to say it to somebody, and until now nothing
+ * on it let a visitor say anything to anybody. This is the café scene through
+ * the app's own machinery, keyless (`app/api/demo-scene/route.ts`).
+ */
+function Talk() {
+  return (
+    <section id="talk" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
+      <Reveal>
+        <div className="section-head">
+          <p className="section-tag" data-tone="blush">Say it to somebody</p>
+          <h2 className="landing-title">
+            Order a drink in Estonian. Right now, no account.
+          </h2>
+          <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            One of the fifteen conversations inside, with somebody who wants something from you. Get an
+            ending wrong and they understand you anyway, then say it back the right way.
+          </p>
+        </div>
+      </Reveal>
+      <Reveal>
+        <div className="mt-10 md:mt-12">
+          <CafeScene />
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
 function Features() {
   /*
     THREE CARDS, AND WHAT EACH ONE IS FOR CHANGED.
@@ -733,7 +845,7 @@ function Features() {
         <div className="section-head">
           <p className="section-tag" data-tone="butter">What you get</p>
           <h2 className="landing-title">
-            Someone to ask, something to practice, and a date to aim at
+            One tutor, {PATH.length} units, and a count of real conversations
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             Three parts, and they work together. A word you ask Anu about becomes a card, and the
@@ -1292,6 +1404,7 @@ function FinalCta() {
               The next time somebody speaks to you in Estonian, you will have something to say
               back, and you will have said it before.
             </p>
+            <VisitRecap />
             <div className="mt-8 flex justify-center">
               <ButtonLink href="/sign-in" variant="primary" size="lg" hop="hover" className="w-full sm:w-auto">
                 Start learning for free <ArrowRight size={17} aria-hidden />

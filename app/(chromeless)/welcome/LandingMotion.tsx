@@ -8,6 +8,7 @@ import { REASONS, impliedTarget } from "@/lib/assessment/goals";
 import { formatDuration } from "@/lib/time/duration";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
+import { LETTER_SCATTER_EVENT } from "@/lib/ux/letterMotion";
 import type { DemoWord } from "./LandingDemo";
 
 /**
@@ -42,6 +43,8 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
   );
   const [i, setI] = useState(0);
   const [held, setHeld] = useState(false);
+  /** Bumped on every tap, so the timer restarts and the card gives under the press. */
+  const [taps, setTaps] = useState(0);
 
   useEffect(() => {
     if (frames.length < 2 || held) return;
@@ -49,7 +52,20 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
     if (still.matches) return;
     const id = window.setInterval(() => setI((n) => (n + 1) % frames.length), 1700);
     return () => window.clearInterval(id);
-  }, [frames.length, held]);
+  }, [frames.length, held, taps]);
+
+  /*
+    A TAP DEALS THE NEXT FORM. The card was a picture of the machine and the
+    one thing on the first screen a hand reaches for; pressing it and having
+    nothing happen reads as broken. So it is a button: each press shows the
+    next ending on the stem, restarts the clock, and throws the page's
+    letters, which is the same thing the builder further down does.
+  */
+  const next = () => {
+    setI((n) => (n + 1) % Math.max(1, frames.length));
+    setTaps((n) => n + 1);
+    document.dispatchEvent(new CustomEvent(LETTER_SCATTER_EVENT));
+  };
 
   const frame = frames[i % Math.max(1, frames.length)];
   const siblings = frames.filter((f) => f.lemma === frame?.lemma).map((f) => f.form);
@@ -66,6 +82,17 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         For example, <span lang="et">{first.lemma}</span> becomes{" "}
         <span lang="et">{first.form}</span>, {first.question}
       </p>
+      {/* What a press just dealt, said once, for somebody who cannot see the card. */}
+      <p className="sr-only" aria-live="polite">
+        {taps > 0 && <><span lang="et">{frame.form}</span>, {frame.question}</>}
+      </p>
+      {/* Spans rather than divs inside it: a button holds phrasing content only. */}
+      <button
+        type="button"
+        onClick={next}
+        className="hero-word-press"
+        aria-label="Show the next ending on this word"
+      >
       {/*
         The card is a sticker on a sticker: a coral one tilted behind it and the
         word on top, so the thing the page is about is the most physical object
@@ -73,13 +100,13 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         restarts with the next one, which is the only clock on it; it stops with
         the word under a pointer and for anybody who asked for less movement.
       */}
-      <div aria-hidden className="hero-word-stack">
-        <div className="hero-word-back" />
-        <div className="hero-word-card">
-          <div className="hero-word-top">
+      <span aria-hidden className="hero-word-stack">
+        <span className="hero-word-back" />
+        <span className="hero-word-card">
+          <span className="hero-word-top">
             <span className="hero-word-label">Dictionary word</span>
             <span lang="et" className="hero-word-lemma">{frame.lemma}</span>
-          </div>
+          </span>
           <FitText
             key={`${frame.lemma}-${frame.form}`}
             text={frame.form}
@@ -88,12 +115,14 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
             lang="et"
             className="hero-word-form"
           />
-          <p key={`q-${i}`} className="hero-word-question">{frame.question}</p>
+          <span key={`q-${i}`} className="hero-word-question">{frame.question}</span>
           <span className="hero-word-track">
             <span key={`t-${i}`} className="hero-word-tick" data-held={held ? "" : undefined} />
           </span>
-        </div>
-      </div>
+        </span>
+      </span>
+      </button>
+      <p className="hero-word-hint" aria-hidden>Tap it for the next ending</p>
     </div>
   );
 }

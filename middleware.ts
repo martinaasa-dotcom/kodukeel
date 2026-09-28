@@ -145,6 +145,10 @@ export async function middleware(request: NextRequest) {
     // count, no identifier and nothing about anybody, and a health check
     // behind a session is one no monitor can make.
     path.startsWith("/api/health") ||
+    // The landing page's playable café scene: a stranger deciding whether to
+    // sign up is who it is for. Keyless, writes nothing, capped per visitor
+    // and for everybody (app/api/demo-scene/route.ts).
+    path.startsWith("/api/demo-scene") ||
     /*
       THE WAY OUT OF AN EMAIL, WHICH HAS TO WORK WITH NO SESSION AT ALL.
 

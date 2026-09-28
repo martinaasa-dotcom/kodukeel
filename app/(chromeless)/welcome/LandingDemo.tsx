@@ -6,6 +6,7 @@ import { LETTER_CHEER_EVENT, LETTER_SCATTER_EVENT } from "@/lib/ux/letterMotion"
 import { ArrowRight, Check } from "lucide-react";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
+import { rememberBuilt } from "./visit";
 import { PARTS, spelledCount } from "@/lib/copy/values";
 
 /**
@@ -311,9 +312,21 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
               const suf = CASES.find((k) => k.et === c.et);
               const means = (suf?.gloss ?? "").replace(/\s+(the|a)\s+book$/, "");
               return (
-                <ChoiceChip key={c.et} selected={n === ending} onSelect={() => setEnding(n)}>
-                  <span lang="et" className="font-bold">-{suf?.suffix}</span>
-                  <span className="text-xs font-medium">{means}</span>
+                <ChoiceChip
+                  key={c.et}
+                  selected={n === ending}
+                  onSelect={() => {
+                    setEnding(n);
+                    // Pressed by the visitor, so it is theirs to be shown at the close.
+                    rememberBuilt((c.singular ?? "").split(PARTS)[0] ?? "");
+                  }}
+                >
+                  {/* The ending over what it means, below `sm`: side by side, a
+                      half-width key at 320px broke "becoming" in two. */}
+                  <span className="flex flex-col items-center leading-tight sm:flex-row sm:items-baseline sm:gap-2">
+                    <span lang="et" className="whitespace-nowrap font-bold">-{suf?.suffix}</span>
+                    <span className="whitespace-nowrap text-xs font-medium">{means}</span>
+                  </span>
                   {built.has(`${word.lemma}:${c.et}`) && <Check size={13} aria-label="built" />}
                 </ChoiceChip>
               );
