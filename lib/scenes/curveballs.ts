@@ -209,7 +209,20 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       and taught."
     */
     out: "Ask them to slow down.",
-    needs: [{ kind: "question" }],
+    /*
+      AND ASKING SOMEBODY TO SLOW DOWN IS A REQUEST, NOT A QUESTION. This
+      took a question alone, so `Palun rääkige aeglasemalt`, which is exactly
+      how anybody asks, was read as a turn that did nothing, and so was a
+      learner's `Palun rägi aeglane`, which any Estonian would understand.
+      It takes the words the request is made of as well: slow, slowly, speak
+      and again, every one taught by each scene that admits this curveball
+      (`catalogue.test.ts` holds that), so a question still does it and so
+      does the sentence people actually say.
+    */
+    needs: [{ kind: "anyOf", of: [
+      { kind: "question" },
+      { kind: "lemma", oneOf: ["aeglaselt", "aeglane", "rääkima", "uuesti"] },
+    ] }],
   },
   {
     id: "small-talk",

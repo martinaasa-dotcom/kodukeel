@@ -243,14 +243,14 @@ export interface ChainOptions {
  * 3.8 times the price and is the only one the gate had to withhold from.
  * Spending up buys a model that repeats itself.
  *
- * AND GROQ BACKS UP GEMINI EVERYWHERE GEMINI ANSWERS, SCENES INCLUDED. The
- * grader already put `openai/gpt-oss-120b` behind `gemini-3.1-flash-lite`;
- * `SCENE_FALLBACK_MODEL` puts a Groq model behind `SCENE_MODELS`, and the
- * vision chain already reaches Groq too, through the general chain appended
- * behind Gemini in `visionProviders`. It is a fixed second link on every
- * budget, not the bounded Anthropic last resort, because it costs a
- * fraction of Anthropic's rate and carries none of the risk that fallback
- * is gated against.
+ * GROQ BACKS UP GEMINI FOR THE GRADER, ANU AND THE SCANNER, AND NOT FOR A
+ * SCENE. The grader puts `openai/gpt-oss-120b` behind `gemini-3.1-flash-lite`,
+ * Anu puts it behind `TUTOR_MODEL`, and the vision chain reaches Groq through
+ * the general chain appended behind Gemini in `visionProviders`. A scene had a
+ * Groq link too, until the day it composed every conversation in production
+ * and the operator took it out (`PURPOSE_CHAINS.scene`): a line in a
+ * conversation is read as a person talking, and a bad one is worse than the
+ * lines written for the scene in advance.
  *
  * ANU GOES TO GEMINI, WITH GROQ BEHIND HER (`npm run eval:anu`). This said
  * Anthropic and the reasoning was that being right about Estonian matters
@@ -328,26 +328,23 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
       warnIfSceneModelSet();
     }
     /*
-      GROQ IS A SECOND FIXED LINK BEHIND GEMINI, NOT THE BOUNDED LAST RESORT.
+      NO GROQ LINK, WHICH IS THE OPERATOR'S DECISION AND WAS MEASURED IN
+      PRODUCTION. `SCENE_FALLBACK_MODEL` stood here as a fixed second link on
+      every budget, and on 2026-09-28 the Gemini balance ran out and every
+      conversation was composed on it: a job interview opened with `Tere!
+      Koti lauale ja istuge, palun.` and answered a request to speak slower
+      with `Kirjutage aadress paberile, palun.`, Estonian that passes every
+      check on the gate and is not a person talking. The operator's words
+      were that they would rather it did not work at all than work like that.
 
-      The bounded Anthropic fallback below exists because Groq having a bad
-      hour must not drain the Anthropic balance Anu depends on (see the note
-      on `allowFallback`). Groq itself carries no such risk to anything: it
-      spends nothing Anu runs on, and `SCENE_FALLBACK_MODEL` is the Groq
-      model `eval:composers` ranked first on writing Estonian (see the
-      constant). So it answers whenever Gemini is unconfigured, throttled,
-      or having a bad minute, on every budget, the same way `GRADER_MODELS`
-      already puts Groq behind Gemini for the grader.
-
-      Hardcoded like `SCENE_MODELS`, for the reason the block above gives at
-      length: an environment variable that can silently repoint a scene's
-      composer is the exact door `SCENE_MODEL` came through once. It is a
-      distinct constant from `TUTOR_MODEL` rather than a reuse of it, so a
-      future change to one does not silently retune the other's job.
+      So a scene composes on Gemini, then on the bounded Anthropic tail
+      `resolveProviders` appends while the day's fallback budget has room, and
+      where neither answers, on nothing: the ladder falls to the bank and the
+      lines written for this scene, which is how a keyless deployment has
+      always played, and the screen says the model is out rather than
+      pretending (`modelDown` in `app/api/scene/route.ts`). Asserted in
+      `provider.test.ts`, so a Groq link cannot come back by being appended.
     */
-    if (process.env.GROQ_API_KEY) {
-      chain.push({ name: "groq", model: SCENE_FALLBACK_MODEL, label: "Groq" });
-    }
   },
   grader: (chain) => {
     /*
@@ -435,7 +432,7 @@ export const TUTOR_MODEL = "gemini-3.1-flash-lite";
  * price, and it is the second link rather than the first because of what the
  * other 4 were: a place put in the allative, a form built on a guessed
  * genitive, a correct sentence corrected, all faults a learner cannot see.
- * Pinned for the reason `SCENE_FALLBACK_MODEL` is.
+ * Pinned for the reason `SCENE_MODELS` are.
  */
 export const TUTOR_FALLBACK_MODEL = "openai/gpt-oss-120b";
 
@@ -506,46 +503,14 @@ export const VISION_MODEL = "gemini-3.1-flash-lite";
 */
 export const SCENE_MODELS = ["gemini-3.8-flash", "gemini-3.1-flash-lite"] as const;
 
-/**
- * The fixed second link behind `SCENE_MODELS`, on Groq, once Gemini is
- * unconfigured, throttled, or having a bad minute.
- *
- * MEASURED, NOT INHERITED. This was `openai/gpt-oss-120b` on the argument
- * that a model trusted with the tutor's harder job could be trusted with a
- * scene line, and a job interview run on it (docs/21 §61) read `Kas see
- * oskus töö? Palun valima üks või kaks`. Nothing generalises across the
- * four model jobs in this app (§55), and this was the one job the fallback
- * had never been measured on. `npm run eval:composers` over the three Groq
- * models, forty lines each through the route's own prompt and the shipped
- * gate, 2026-09-14:
- *
- *   model                 gate, keyless   gate, forms list   no finite verb   median
- *   groq/compound-mini    28/40           32/40              4                2088ms
- *   qwen/qwen3.8-27b      16/40           30/40              1                 368ms
- *   openai/gpt-oss-120b   22/40           25/40              4                1829ms
- *
- * The gate rate is not the ranking, and the lines say why. What the gate
- * cannot see is a line with no verb in it, since `clause` fires only on four
- * or more words entirely inside the scene's list, and the two models it
- * passes most write exactly that: `Kus teie valu?`, `Pikk aeg? Arst?`,
- * `Millal see katki?`, `Piim ostma.` from compound-mini, and `Kas teie valu
- * peas?`, `Teie mis katki?`, `Tuba katki, korrus?`, `Teie nägema arst
- * esmaspäev kell 10` from gpt-oss-120b. qwen writes sentences: `Kust sa nüüd
- * tuled? Kas oled poe lähedal?`, `Millises toas see on? Kas see on esimesel
- * korrusel?`, `Kahjuks ühel meist pole aega sel nädalal tulla.` What it gets
- * wrong is a word rather than a sentence, `pakkun` for `pakun`, `kotistamas`,
- * `abikõneleja`, and every one of those the forms list withholds, which is
- * the fault the gate is built to catch. Its keyless rate of 16 is the harness
- * vouching against the scene's list alone, where production also asks the
- * forms list; re-gated that way it is 30. Five times the price of gpt-oss
- * per line, about $0.0013, and it is still the cheapest link on the chain
- * after the one it backs up, and a fifth of the latency.
- *
- * PINNED, EXACTLY LIKE `SCENE_MODELS`. See `PURPOSE_CHAINS.scene` for why: an
- * environment variable that can move it is the door `SCENE_MODEL` came
- * through once, one provider over.
+/*
+ * There is no scene fallback on Groq any longer. `SCENE_FALLBACK_MODEL` was
+ * `qwen/qwen3.8-27b`, measured by `eval:composers` as the best Groq model at a
+ * scene line, and "best of three" turned out to be a low bar the day the
+ * Gemini balance ran out and it composed every conversation in production:
+ * see `PURPOSE_CHAINS.scene` for what it wrote and why the operator took it
+ * out. The measurement stays in `docs/21-situations.md` §61.
  */
-export const SCENE_FALLBACK_MODEL = "qwen/qwen3.8-27b";
 
 /**
  * How much room a scene line needs, which is not what Anu needs.
@@ -585,8 +550,8 @@ export const SCENE_REPLY_TOKENS = 4_000;
  * cut off mid-word, in the middle of a sentence, which is worse, because
  * nothing about it looks like a failure.
  *
- * `TUTOR_FALLBACK_MODEL` is a Groq reasoning model for the same reason
- * `SCENE_FALLBACK_MODEL` is one: it is one of the measured, cheap ones. So
+ * `TUTOR_FALLBACK_MODEL` is a Groq reasoning model, one of the measured,
+ * cheap ones, which spends its budget in a reasoning field first. So
  * this takes the same fix `SCENE_REPLY_TOKENS` already took for the identical
  * shape of the same bug.
  */

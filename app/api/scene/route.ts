@@ -9,7 +9,7 @@ import { turnBooking, type TurnBooking } from "@/lib/usage/turnBooking";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
 import {
-  SCENE_REPLY_TOKENS, openWithFallback, resolveProviders, sceneProviders, type ChatMessage,
+  SCENE_MODELS, SCENE_REPLY_TOKENS, openWithFallback, resolveProviders, sceneProviders, type ChatMessage,
 } from "@/lib/tutor/provider";
 import { callChainForJson } from "@/lib/tutor/grader";
 import {
@@ -1064,6 +1064,15 @@ export async function POST(request: Request) {
     the rest of the day. It is answered the way a withheld line is answered.
   */
   let line: Awaited<ReturnType<typeof sceneLine>>;
+  /*
+    WHICH MODEL WROTE THE LINE, OR THAT NONE COULD. Both go to the screen, and
+    both were missing the day the Gemini balance ran out: every conversation
+    composed on a fallback nobody had asked for, the line under each read
+    "Written for this turn" exactly as it does on the primary, and a learner
+    had no way to know the other side had become somebody else. `compose`
+    fills this in; the answers below read it.
+  */
+  const outcome: ComposeOutcome = { by: null, unreachable: false };
   try {
     const learnerReading = last?.said ? await readingOf(last.said) : "";
     line = await sceneLine({
@@ -1081,6 +1090,7 @@ export async function POST(request: Request) {
       vouch: (spellings) => sceneVouch(context, spellings),
       compose: (avoid, because) => compose(chain, {
         ownerId,
+        outcome,
         reading: learnerReading,
         facts,
         because,
@@ -1157,6 +1167,13 @@ export async function POST(request: Request) {
   */
   if (line.provenance !== "composed") {
     if (shrugOwed) aside = shrug(context.lexicon);
+    /*
+      Where no link answered at all the learner is told, once per turn it
+      stays true, rather than meeting a conversation that suddenly understands
+      nothing: a withheld line is the gate doing its job and says nothing, a
+      chain with nobody on it is a service that is out.
+    */
+    const down = outcome.unreachable && !outcome.by ? { modelDown: true } : {};
     // Only where no attempt reached a provider: a line the gate withheld was
     // still a call somebody was billed for, and releasing it after it settled
     // took the reserve off twice.
@@ -1168,8 +1185,8 @@ export async function POST(request: Request) {
       the net has nothing either, because that is the one case where the screen
       has something to explain.
     */
-    if (move.provenance !== "fallback") return answer(reply(move), { composed: false });
-    return answer(reply(line), { composed: false });
+    if (move.provenance !== "fallback") return answer(reply(move), { composed: false, ...down });
+    return answer(reply(line), { composed: false, ...down });
   }
 
   /*
@@ -1195,7 +1212,23 @@ export async function POST(request: Request) {
     shrug would contradict it.
   */
   aside = null;
-  return answer(reply(line), { composed: true });
+  /*
+    Who wrote it goes out once per turn and the screen prints it in one place
+    at the top of the conversation, the way Anu's panel says who answered,
+    rather than under every line.
+  */
+  return answer(reply(line), { composed: true, composedBy: outcome.by });
+}
+
+/** What `compose` found out about the chain, for the screen (see the route). */
+interface ComposeOutcome {
+  /**
+   * The model that wrote the last line to come back, with whether it is the
+   * one scenes are pinned to lead with. Null where nothing answered.
+   */
+  by: { label: string; model: string; primary: boolean } | null;
+  /** Every link was tried and none answered: the model is out, not withholding. */
+  unreachable: boolean;
 }
 
 /**
@@ -1234,6 +1267,8 @@ async function compose(
   chain: ReturnType<typeof sceneProviders>,
   input: {
     ownerId: string;
+    /** Filled in with who answered, or that nobody could (`ComposeOutcome`). */
+    outcome: ComposeOutcome;
     /**
      * What `authoriseCall` booked for this turn. Required, because the
      * settlement below is what corrects it, and it was not passed: `recordUsage`
@@ -1364,8 +1399,18 @@ async function compose(
 
     let text = "";
     for await (const chunk of open.chunks) text += chunk;
-    return text.trim() || null;
+    const kept = text.trim() || null;
+    if (kept) {
+      input.outcome.by = {
+        label: open.config.label,
+        model: open.config.model,
+        primary: open.config.model === SCENE_MODELS[0],
+      };
+    }
+    return kept;
   } catch (error) {
+    // Every link in the chain refused or failed: nobody is there to write a line.
+    input.outcome.unreachable = true;
     /*
       A provider having a bad minute is an ordinary case here rather than an
       error a learner should see: the ladder's next rung is somebody who did not
