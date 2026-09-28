@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Onest, Schibsted_Grotesk } from "next/font/google";
 import { OfflineProvider } from "@/components/OfflineProvider";
 import { OpenOnArrival } from "@/components/OpenOnArrival";
+import { PlayOnce } from "@/components/motion/PlayOnce";
 import { canonicalOrigin } from "@/lib/auth/canonical";
+import { LOOP_SYNC_SCRIPT } from "@/lib/ux/loopSync";
 import "./globals.css";
 
 /**
@@ -157,6 +159,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${onest.variable} ${schibstedGrotesk.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* The brand's idle loops on one clock, so a reload or a new page
+            picks them up where they were (lib/ux/loopSync.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: LOOP_SYNC_SCRIPT }} />
       </head>
       <body className="min-h-screen">
         {/* Registers the service worker and drains the offline grade queue, so
@@ -164,6 +169,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             reachable from either. */}
         <OfflineProvider>{children}</OfflineProvider>
         <OpenOnArrival />
+        {/* One listener that lets every one-shot flourish land (components/motion/PlayOnce.tsx). */}
+        <PlayOnce />
         {/*
           NO ANALYTICS SCRIPT, BECAUSE /privacy SAYS THERE IS NONE.
 

@@ -23,6 +23,7 @@ import { BriefingLines } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { FitText } from "@/components/FitText";
+import { Lettered } from "@/components/HeroLetters";
 
 export interface SprintCard {
   id: string;
@@ -198,16 +199,18 @@ export function SprintSession({
     const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={68} mood={isNewBest ? "cheer" : "happy"} className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            Time&rsquo;s up!
-          </h1>
-          <p className="mt-2 flex items-center justify-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
-            {isNewBest && <Trophy size={17} aria-hidden style={{ color: "var(--butter-ink)" }} />}
-            {isNewBest ? "New personal best." : `Best so far: ${best}.`}
-          </p>
-        </div>
+        <Lettered celebrate show={isNewBest}>
+          <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
+            <Mascot size={68} mood={isNewBest ? "cheer" : "happy"} className="float mx-auto" />
+            <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+              Time&rsquo;s up!
+            </h1>
+            <p className="mt-2 flex items-center justify-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
+              {isNewBest && <Trophy size={17} aria-hidden style={{ color: "var(--butter-ink)" }} />}
+              {isNewBest ? "New personal best." : `Best so far: ${best}.`}
+            </p>
+          </div>
+        </Lettered>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatTile value={correct} label="Score" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "mint" : "butter"} />

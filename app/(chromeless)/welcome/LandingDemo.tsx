@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CASES } from "@/lib/estonian/cases";
-import { LETTER_CHEER_EVENT } from "@/lib/ux/letterMotion";
+import { LETTER_CHEER_EVENT, LETTER_SCATTER_EVENT } from "@/lib/ux/letterMotion";
 import { ArrowRight, Check } from "lucide-react";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
@@ -181,6 +181,11 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
   return (
     <div
       ref={root}
+      // A press anywhere on the card throws the letters round it off and
+      // lets them land; the card itself gives a little under the press.
+      onPointerDown={() => document.dispatchEvent(new CustomEvent(LETTER_SCATTER_EVENT))}
+      data-hop-on="press"
+      data-hop-end="card-give"
       className="case-explorer word-builder overflow-hidden rounded-[var(--r-xl)] border"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >

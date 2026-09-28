@@ -4,6 +4,7 @@ import { NO_VALUE } from "@/lib/copy/values";
 import { PRE_A1, type Confidence, type Placement, type SkillResult } from "@/lib/assessment/types";
 import { levelLabel } from "./PlanPanel";
 import type { ReactNode } from "react";
+import { Lettered } from "@/components/HeroLetters";
 
 /**
  * The result, said plainly.
@@ -80,36 +81,38 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
 
   return (
     <div className="flex flex-col gap-5">
-      <Card tone="night" className="md:p-9">
-        <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{heading}</p>
-        <p className="font-display mt-3 text-6xl font-bold leading-none xl:text-8xl" style={{ color: "var(--ink)" }}>
-          {overall}
-        </p>
-        {result.nearly && (
-          <p className="mt-2 text-lg font-semibold" style={{ color: "var(--accent-deep)" }}>
-            A confident {overall}, and nearly {levelLabel(result.nearly)}.
+      <Lettered celebrate className="mb-2">
+        <Card tone="night" className="md:p-9">
+          <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{heading}</p>
+          <p className="font-display mt-3 text-6xl font-bold leading-none xl:text-8xl" style={{ color: "var(--ink)" }}>
+            {overall}
           </p>
-        )}
-        <p className="mt-3 max-w-[58ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {result.overall === null
-            ? "Nothing was measured, so there is no level to report. That is an honest blank rather than a zero."
-            : result.overall === PRE_A1
-              ? "You have not reached the first band yet, which is where almost everybody starts. It is a starting point, not a verdict."
-              : result.nearly
-                ? "Your skills averaged out between two bands, so this is the lower one. You are at the top of it rather than the bottom."
-                : "That is the average of the skills this measured. One weak section does not pull the whole level down, and one strong one does not carry it."}
-          {result.ceiling && result.ceiling !== result.overall && (
-            <> Your strongest measured skill looks like {levelLabel(result.ceiling)}, which is worth knowing too.</>
+          {result.nearly && (
+            <p className="mt-2 text-lg font-semibold" style={{ color: "var(--accent-deep)" }}>
+              A confident {overall}, and nearly {levelLabel(result.nearly)}.
+            </p>
           )}
-        </p>
-        <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-          {result.itemsAnswered} scored {result.itemsAnswered === 1 ? "question" : "questions"}
-          {result.decisive > 0 && result.decisive < result.itemsAnswered
-            ? `, ${result.decisive} of them at the levels this turned on`
-            : ""}.{" "}
-          {CONFIDENCE_COPY[result.confidence]}
-        </p>
-      </Card>
+          <p className="mt-3 max-w-[58ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            {result.overall === null
+              ? "Nothing was measured, so there is no level to report. That is an honest blank rather than a zero."
+              : result.overall === PRE_A1
+                ? "You have not reached the first band yet, which is where almost everybody starts. It is a starting point, not a verdict."
+                : result.nearly
+                  ? "Your skills averaged out between two bands, so this is the lower one. You are at the top of it rather than the bottom."
+                  : "That is the average of the skills this measured. One weak section does not pull the whole level down, and one strong one does not carry it."}
+            {result.ceiling && result.ceiling !== result.overall && (
+              <> Your strongest measured skill looks like {levelLabel(result.ceiling)}, which is worth knowing too.</>
+            )}
+          </p>
+          <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
+            {result.itemsAnswered} scored {result.itemsAnswered === 1 ? "question" : "questions"}
+            {result.decisive > 0 && result.decisive < result.itemsAnswered
+              ? `, ${result.decisive} of them at the levels this turned on`
+              : ""}.{" "}
+            {CONFIDENCE_COPY[result.confidence]}
+          </p>
+        </Card>
+      </Lettered>
 
       <Card>
         <SectionTitle hint={`${measured.length} of 3 skills measured`}>Skill by skill</SectionTitle>

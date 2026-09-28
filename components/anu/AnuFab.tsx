@@ -3,6 +3,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnuFace } from "./AnuFace";
+import { useFinishingHover } from "@/components/motion/useFinishingHover";
 
 /*
   The panel (the conversation, the starters, the sentence check, the
@@ -42,6 +43,7 @@ export function AnuFab({
   // unmounts this button, so the element that had focus is gone by then and
   // the button drawn again in its place is what a keyboard is handed back to.
   const button = useRef<HTMLButtonElement>(null);
+  const wiggle = useFinishingHover(button);
 
   /*
     TUCKED WHILE THE PAGE MOVES DOWN, BACK THE MOMENT IT MOVES UP.
@@ -100,6 +102,7 @@ export function AnuFab({
         <button
           ref={button}
           type="button"
+          {...wiggle}
           onClick={() => { setLoaded(true); setOpen(true); }}
           aria-label="Ask Anu"
           title="Ask Anu"

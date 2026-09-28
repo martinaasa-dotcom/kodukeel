@@ -1,4 +1,4 @@
-import { HeroLetters } from "@/components/HeroLetters";
+import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { lengthAtPace, QUEST_SECONDS } from "@/lib/ux/roundClock";
 import { redirect } from "next/navigation";
@@ -596,9 +596,10 @@ export default async function TodayPage() {
                 circle at whatever width it ends up with.
               */}
               <span
-                // A reviewed day pops in, one after another across the week,
-                // so the run of days reads as a run rather than as seven dots.
-                className={`${d.done ? "pop-in " : ""}flex aspect-square w-full max-w-9 items-center justify-center rounded-full text-xs font-bold`}
+                // A reviewed day springs in with its tick, one after another
+                // across the week, so the run of days reads as a run rather than
+                // as seven dots.
+                className={`${d.done ? "day-done " : ""}flex aspect-square w-full max-w-9 items-center justify-center rounded-full text-xs font-bold`}
                 /*
                   The ring is what makes a reviewed day visible.
 
@@ -1005,13 +1006,9 @@ export default async function TodayPage() {
       */}
       <Stack className="min-w-0">
         {/* Tonight's card is the one big thing on this page, and the only one
-            the letters lie on. See components/HeroLetters.tsx. */}
-        {courseCard ? (
-          <div className="relative">
-            {doNowCard}
-            <HeroLetters />
-          </div>
-        ) : doNowCard}
+            the letters lie on here, calm rather than hopping, since it is opened every
+            evening. See `Lettered` in components/HeroLetters.tsx. */}
+        <Lettered show={!!courseCard}>{doNowCard}</Lettered>
         <Columns>
           {orderTodayCards({
             ladder: ladderCard,

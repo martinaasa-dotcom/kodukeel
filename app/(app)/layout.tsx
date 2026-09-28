@@ -16,6 +16,7 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { navOrderFrom } from "@/lib/ux/navOrder";
+import { railClasses } from "@/lib/progress/classes";
 import { visibleLine } from "@/lib/security/visibleText";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
@@ -75,7 +76,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     `support` was in the object below and not in this list, so the conversation
     screens have been reading the default however the learner set it.
   */
-  const [settings, level, tilt] = await Promise.all([
+  const [settings, level, tilt, classes] = await Promise.all([
     readSettings(
       ownerId,
       [
@@ -94,6 +95,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       screen names it whenever it is on. Three indexed counts, in this batch.
     */
     adaptTiltFor(ownerId),
+    /*
+      AND THE CLASSES THEY BELONG TO, each a row in the rail for as long as
+      they are in it and it is running (`lib/ux/classRows.ts`). One indexed
+      read in the same batch.
+    */
+    railClasses(ownerId),
   ]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   const storedZone = settings[SETTING_KEYS.timeZone] ?? null;
@@ -126,6 +133,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Sidebar
           order={navOrderFrom(settings[SETTING_KEYS.navOrder])}
           name={visibleLine(settings[SETTING_KEYS.displayName], 40) || null}
+          classes={classes.map((c) => ({ id: c.id, name: visibleLine(c.name, 60) }))}
         />
         {/*
           `dock-pad` is the phone bar's measured height, so the last card in a

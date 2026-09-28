@@ -375,7 +375,7 @@ function LearnCard({
   const batch = Math.min(ready, LEARN_BATCH);
   return (
     <div className="night mb-10 rounded-[var(--r-xl)] border p-6 md:p-9">
-      <div className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
         <div className="min-w-0">
           <p className="label-xs" style={{ color: "var(--butter-ink)" }}>
             {ready > 0 ? "Tonight\u2019s new words" : "New words"}
@@ -399,7 +399,16 @@ function LearnCard({
             </p>
           )}
         </div>
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+        {/*
+          `shrink-0` and `items-center` are the whole of what keeps the two
+          buttons whole. Without them the row beside the heading was a flex
+          item the heading could squeeze, `overflow-wrap: anywhere` let it go
+          down to a letter, and "Learn 5 phrases" was drawn five letters a
+          line at 44px wide while the primary beside it stretched to 319px
+          tall. A button label is never broken (`components/Button.tsx`), so
+          what gives now is the heading's measure, which is prose.
+        */}
+        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap">
           {/*
             A whole phrase (`Kas sa räägid inglise keelt?`) is taught on the same
             ladder as a word, and for a while that meant "learn 5 new words" could

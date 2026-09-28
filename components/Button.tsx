@@ -64,10 +64,40 @@ const SIZES: Record<Size, string> = {
   lg: "px-5 py-3.5 text-sm 2xl:px-6 2xl:text-base",
 };
 
+/*
+  A BUTTON'S LABEL IS ONE LINE, AND NEVER A WORD BROKEN INTO LETTERS.
+
+  The body inherits `overflow-wrap: anywhere` so a long word stays inside
+  its box, and that is exactly wrong for a control: a button in a flex row
+  that another item squeezes is sized to its min-content, which under
+  `anywhere` is one letter, so "Learn 5 phrases" was drawn at 44px wide as
+  "Lea / rn / 5 / phr / ase / s" on the Learn page. Nothing was cut and
+  nothing bled, so no check looked twice. `whitespace-nowrap` makes a
+  label's min-content its whole width: a row with no room for it now
+  overflows where `scripts/test-containment.mjs` can see it, rather than
+  folding the label up where nothing can. A label too long for one line on
+  a phone is a label to shorten, not to wrap. `btn` is the hook the
+  containment sweep and the invariant read.
+*/
 const base =
-  "press inline-flex items-center justify-center gap-2 rounded-[var(--r)] border font-semibold " +
+  "btn whitespace-nowrap press inline-flex items-center justify-center gap-2 rounded-[var(--r)] border font-semibold " +
   "transition-ui hover:brightness-[1.04] " +
   "disabled:pointer-events-none disabled:opacity-45";
+
+/**
+ * The primary button squashes under a press and springs back, and where it
+ * leads a page it can hop when a pointer reaches it instead. Both are
+ * one-shots played through `PlayOnce`, so a quick press or a pointer passing
+ * over still lets the move land rather than cutting it off. The quieter
+ * buttons stay still: one lively action per screen is the point of there
+ * being a primary.
+ */
+export type Hop = "press" | "hover" | "none";
+function hopAttrs(variant: Variant, hop: Hop | undefined) {
+  const on = hop ?? (variant === "primary" ? "press" : "none");
+  if (on === "none") return {};
+  return { "data-hop-on": on, "data-hop-end": on === "press" ? "cta-squash" : "cta-hop" };
+}
 
 function split(variant: Variant) {
   const { className = "", ...style } = STYLES[variant];
@@ -75,25 +105,25 @@ function split(variant: Variant) {
 }
 
 export function Button({
-  variant = "secondary", size = "md", className = "", children, ...rest
-}: ComponentProps<"button"> & { variant?: Variant; size?: Size; children: ReactNode }) {
+  variant = "secondary", size = "md", className = "", hop, children, ...rest
+}: ComponentProps<"button"> & { variant?: Variant; size?: Size; hop?: Hop; children: ReactNode }) {
   const { extraClass, style } = split(variant);
   return (
-    <button {...rest} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
+    <button {...hopAttrs(variant, hop)} {...rest} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
       {children}
     </button>
   );
 }
 
 export function ButtonLink({
-  variant = "secondary", size = "md", className = "", children, href, target, rel,
+  variant = "secondary", size = "md", className = "", children, href, target, rel, hop,
 }: {
   variant?: Variant; size?: Size; className?: string; children: ReactNode;
-  href: string; target?: string; rel?: string;
+  href: string; target?: string; rel?: string; hop?: Hop;
 }) {
   const { extraClass, style } = split(variant);
   return (
-    <Link href={href} target={target} rel={rel} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
+    <Link {...hopAttrs(variant, hop)} href={href} target={target} rel={rel} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
       {children}
     </Link>
   );

@@ -18,6 +18,7 @@ import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { toWalkWord } from "@/lib/estonian/caseBuild";
 import { ButtonLink } from "@/components/Button";
 import { Wordmark } from "@/components/brand";
+import { BrandLink } from "@/components/BrandLink";
 import { MascotWatch } from "@/components/MascotWatch";
 import { CaseExplorer, TutorPeek, type DemoCase, type DemoWord } from "./LandingDemo";
 import { HeroWord, PlanCalculator } from "./LandingMotion";
@@ -149,9 +150,9 @@ function Nav() {
           that is a lone icon, and this one is an icon and a word. The row is
           already 45px for the button beside it, so the nav does not grow.
         */}
-        <Link href="/welcome" aria-label="Kodukeel, home" className="flex min-h-11 items-center">
+        <BrandLink href="/welcome" label="Kodukeel, home" className="flex min-h-11 items-center">
           <Wordmark size={30} />
-        </Link>
+        </BrandLink>
         {/*
           THE LINKS ARRIVE AT 1024, NOT 768, AND THE TYPE SCALE IS WHY.
 
@@ -293,7 +294,7 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
             there, fifteen minutes at a time.
           </p>
           <div className="fade-up hero-action flex flex-wrap items-center gap-x-5 gap-y-3" style={{ animationDelay: "520ms" }}>
-            <ButtonLink href="/sign-in" variant="primary" size="lg" className="hero-cta group w-full sm:w-auto">
+            <ButtonLink href="/sign-in" variant="primary" size="lg" hop="hover" className="hero-cta group w-full sm:w-auto">
               Start learning for free{" "}
               <ArrowRight size={17} aria-hidden className="transition-transform group-hover:translate-x-1" />
             </ButtonLink>
@@ -1292,7 +1293,7 @@ function FinalCta() {
               back, and you will have said it before.
             </p>
             <div className="mt-8 flex justify-center">
-              <ButtonLink href="/sign-in" variant="primary" size="lg" className="w-full sm:w-auto">
+              <ButtonLink href="/sign-in" variant="primary" size="lg" hop="hover" className="w-full sm:w-auto">
                 Start learning for free <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             </div>

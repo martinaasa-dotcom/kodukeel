@@ -10377,6 +10377,20 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   the button and its gap take 50 of them. The short weekday name moved with them, since an
   abbreviation is for a column.
 
+- **A word is never drawn a few letters a line, and a button's label is one line.**
+  `overflow-wrap: anywhere` keeps a long word inside its box by letting any word break once the box
+  is narrow enough, and a control squeezed by its neighbor in a flex row is sized to its
+  min-content, which under that rule is one letter. So the Learn page drew "Learn 5 phrases" as
+  "Lea / rn / 5 / phr / ase / s" from 1024 up, after the same fault had been fixed one screen at a
+  time on Settings and on Progress. Nothing was cut and nothing bled, and the demo deck held no
+  phrase, so the button was on no page the sweep opened. Two halves now. `components/Button.tsx`
+  puts `whitespace-nowrap` and a `btn` hook on every button, so a row with no room for a label
+  overflows where a check can see it rather than folding the label up; a hand-drawn pill beside a
+  caption takes `shrink-0 whitespace-nowrap` for the same reason. And `test-containment.mjs` measures
+  every ordinary word on every page as a Range, fails on one whose letters sit on two lines, fails
+  on a `.btn` whose label is wider than it, and puts a phrase in the deck before it starts.
+  `scripts/invariants/words-are-never-broken.ts` holds the rule, bans `break-all`, and holds the
+  sweep to asking. A check that cannot see the button is the check that missed it.
 - **The root element declares no overflow.** Setting either axis on `html` makes it a scroll
   container, and every library that positions a floating element works in document coordinates
   instead of viewport ones when it is: a menu hung off the sticky rail or the fixed phone bar is

@@ -2645,6 +2645,8 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
   if (!classroom) return { ok: false as const, error: "Could not allocate a join code. Try again." };
 
   revalidatePath("/class");
+  // The rail carries a row per running class (lib/ux/classRows.ts).
+  revalidatePath("/", "layout");
   return { ok: true as const, id: classroom.id, code: classroom.code };
 }
 
@@ -2687,6 +2689,8 @@ export async function joinClassroom(code: string, displayName?: string) {
   await writeSetting(ownerId, SETTING_KEYS.displayName, name);
 
   revalidatePath("/class");
+  // The rail carries a row per running class (lib/ux/classRows.ts).
+  revalidatePath("/", "layout");
   revalidatePath("/progress");
   return { ok: true as const, id: classroom.id, name: classroom.name };
 }
@@ -2705,6 +2709,8 @@ export async function leaveClassroom(rawClassroomId: unknown) {
   }
   await prisma.classroomMember.deleteMany({ where: { classroomId, ownerId } });
   revalidatePath("/class");
+  // The rail carries a row per running class (lib/ux/classRows.ts).
+  revalidatePath("/", "layout");
   return { ok: true as const };
 }
 
@@ -2719,6 +2725,8 @@ export async function archiveClassroom(rawClassroomId: unknown) {
   });
   if (updated.count === 0) return { ok: false as const, error: "That is not your class." };
   revalidatePath("/class");
+  // The rail carries a row per running class (lib/ux/classRows.ts).
+  revalidatePath("/", "layout");
   return { ok: true as const };
 }
 
