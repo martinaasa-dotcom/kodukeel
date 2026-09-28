@@ -132,8 +132,8 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
       <Card>
         <SectionTitle>Your plan</SectionTitle>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          Pick a level to aim for and we&apos;ll turn this into a timeline: roughly how many hours it
-          takes to get there, how many your daily goal covers, and how many are left over.
+          Pick a level to aim for and we&apos;ll work out how long it&apos;ll take: roughly how many hours
+          of study, how many your daily goal covers, and how many you&apos;ll need to find elsewhere.
         </p>
         <Link
           href="/settings#goals"
@@ -185,9 +185,9 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
           value={plan.hours.low === 0 ? "0" : hoursRange(plan.hours.low, plan.hours.high, "")}
           label="Study hours to go"
           tone="accent"
-          hint={guessed ? "published estimates, stretched for a guessed level"
-            : bySkill ? "published estimates, counted skill by skill"
-              : "published estimates, not our own"}
+          hint={guessed ? "from published figures, with room for a guessed level"
+            : bySkill ? "from published figures, skill by skill"
+              : "from published figures, not our guess"}
         />
         <StatTile
           value={formatDuration(plan.appHoursPerWeek)}
@@ -204,7 +204,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
             : plan.weeksOnAppAlone.low === 0 ? "0" : range(plan.weeksOnAppAlone.low, plan.weeksOnAppAlone.high, "")}
           label={plan.otherHoursPerWeek ? "Each week, all told" : "Weeks with just this app"}
           tone="blush"
-          hint={plan.otherHoursPerWeek ? "this app plus everything else, to make your date" : "set a date to see hours a week"}
+          hint={plan.otherHoursPerWeek ? "here and elsewhere, to make your date" : "set a date to see hours a week"}
         />
         <StatTile
           value={weeks === null ? "open" : `${weeks}`}
@@ -222,11 +222,11 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
         <Explain label="Where the hours come from">
           The hours are published estimates for an English speaker, averaged over other people on
           other courses. We then adjust them for your level, your week and, once you have some,
-          your reviews.{" "}
+          your reviews. The sources, and the research behind the pace, are on the{" "}
           <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
-            Where the numbers come from
+            level check screen
           </Link>
-          , along with the research behind the pace, are on the level check screen.
+          .
         </Explain>
       )}
 
@@ -299,7 +299,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
         </Card>
 
         <div>
-          <SectionTitle hint="things you can check, not pep talk">Good to know before you start</SectionTitle>
+          <SectionTitle hint="each one with a source you can check">Good to know before you start</SectionTitle>
         <ul className="flex flex-col gap-3">
           {FACTS.map((fact) => {
             return (
@@ -352,7 +352,7 @@ function weeksWord(weeks: number | null): string {
 /** The small print under the pace tile: what the figure is a figure of. */
 function paceHint(plan: Projection, goals: Goals, dailyGoal: number): string {
   if (plan.paceSource === "measured") return `measured over your last ${weeksWord(plan.paceWeeks)}`;
-  if (plan.paceSource === "lapsed") return `what you told us. Nothing here in ${weeksWord(plan.paceWeeks)}`;
+  if (plan.paceSource === "lapsed") return "your own estimate, as you haven't reviewed lately";
   return `${minutesFor(dailyGoal)} minutes, ${goals.daysPerWeek} days`;
 }
 
@@ -383,7 +383,7 @@ function foundNote(plan: Projection, reasons: readonly Reason[]): string {
   const where = situation(reasons);
   const held = formatDurationRange(plan.found.low, plan.found.high, "long");
   if (plan.verdict === "short") {
-    return `That's more than most weeks can hold alongside everything else. At ${held} a week beyond this app, it's about ${lands} away. Move your date to then, or raise the daily goal, and the plan works again.`;
+    return `That's more than most weeks can hold on top of everything else. At ${held} a week beyond this app, it's about ${lands} away. Move your date to then, or raise the daily goal, and the plan works again.`;
   }
   if (where) {
     return `Put in roughly ${need} a week of Estonian beyond this app and you'll make your date. You ${where}, which usually gives you ${held} a week without booking anything, so most of it is already there.`;
@@ -409,10 +409,10 @@ function sentence(
   const distance = `Going from ${from} to ${to} usually takes ${hoursRange(plan.hours.low, plan.hours.high, "hours")} of study.${qualifier}`;
   const pace = formatDuration(plan.appHoursPerWeek, "long");
   const covers = plan.paceSource === "measured"
-    ? `Over your last ${weeksWord(plan.paceWeeks)} you've spent ${pace} a week here, so that's what this is built on`
+    ? `You've spent about ${pace} a week here over the last ${weeksWord(plan.paceWeeks)}, so that's the pace we're using`
     : plan.paceSource === "lapsed"
       ? `You haven't reviewed anything here in the last ${weeksWord(plan.paceWeeks)}, so this counts the ${pace} a week you told us`
-      : `At the pace you told us, this app covers ${pace} a week of that`;
+      : `At the pace you told us, you'll do ${pace} a week of that here`;
   if (weeks === null) {
     return `${distance} ${covers}. Set a date and we'll turn the rest into a real timeline.`;
   }
@@ -429,10 +429,10 @@ function sentence(
     return `${distance} In ${weeks} weeks ${whose} alone puts in about ${covered} hours, which covers it.`;
   }
   const rest = plan.verdict === "tight"
-    ? "The rest can come from a class, some reading and the Estonian around you, which fits in a normal week."
+    ? "The rest can come from a class, some reading and the Estonian around you. That fits into a normal week."
     : plan.verdict === "possible"
       ? "The rest means real work beyond this app, every week. People who put that in do get there."
-      : "The rest is more than most weeks can hold alongside everything else, so the date or the pace has to move.";
+      : "The rest is more than most weeks can hold on top of everything else, so either the date or the pace needs to move.";
   return `${distance} In ${weeks} weeks ${whose} puts in about ${covered} of those hours. ${rest}`;
 }
 

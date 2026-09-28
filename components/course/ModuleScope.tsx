@@ -189,7 +189,7 @@ function ModuleNext({ focus, steps }: { focus: ModuleFocus; steps: readonly Modu
       </Button>
       {focus.derived && (
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          This step ticks itself off as you answer. This button just moves you on.
+          Answering is what ticks this step off. This button just takes you to the next one.
         </p>
       )}
       {failed && (
@@ -449,12 +449,12 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
         */}
         {focus.derived && (
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            This step ticks itself off as you answer. This button just moves you on.
+            Answering is what ticks this step off. This button just takes you to the next one.
           </p>
         )}
         {failed && (
           <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
-            {failed} Nothing has changed, and the page is still here.
+            {failed} You&apos;re still on this step.
           </p>
         )}
       </div>

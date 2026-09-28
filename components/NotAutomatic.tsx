@@ -44,7 +44,7 @@ export function NotAutomatic({ slow, mixedUp, medianMs }: {
       {slow.length > 0 && (
         <div>
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Right, but they take a moment
+            You get these right, just slowly
           </p>
           <ul className="flex flex-col gap-1.5">
             {slow.slice(0, MAX_ROWS).map((s) => (
@@ -53,7 +53,7 @@ export function NotAutomatic({ slow, mixedUp, medianMs }: {
           </ul>
           {medianMs !== null && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-              Your usual answer takes {formatAnswerTime(medianMs)}.
+              For comparison, your usual answer takes {formatAnswerTime(medianMs)}.
             </p>
           )}
         </div>
@@ -62,7 +62,7 @@ export function NotAutomatic({ slow, mixedUp, medianMs }: {
       {mixedUp.length > 0 && (
         <div>
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Forms you mix up
+            Endings you mix up
           </p>
           <ul className="flex flex-col gap-1.5">
             {mixedUp.slice(0, MAX_ROWS).map((c) => (

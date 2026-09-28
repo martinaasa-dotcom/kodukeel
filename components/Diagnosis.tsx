@@ -56,9 +56,9 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
         <Card>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {needed > 0
-              ? <>Not enough case reviews yet to spot a pattern. Do about {needed} more and this
-                  will show you which kinds of word keep catching you out.</>
-              : <>Nothing stands out. You do about as well on every case and every kind of stem,
+              ? <>Not enough answers on case endings yet to spot a pattern. Do about {needed} more and
+                  this will show you which kinds of word keep catching you out.</>
+              : <>Nothing stands out. You do about as well on every ending and every kind of word,
                   which is a dull thing to read and a very good thing to be.</>}
           </p>
         </Card>
@@ -83,7 +83,7 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
                 </p>
 
                 <div className="mt-3 flex items-center gap-4">
-                  <Bar label="in that group" pct={finding.weakPct} tone="var(--again)" ink="var(--again-ink)" />
+                  <Bar label="these words" pct={finding.weakPct} tone="var(--again)" ink="var(--again-ink)" />
                   <Bar label="elsewhere" pct={finding.strongPct} tone="var(--good)" ink="var(--good-ink)" />
                 </div>
 

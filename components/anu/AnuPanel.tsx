@@ -195,7 +195,7 @@ export function AnuPanel({
       <div className="scroll-host flex flex-1 flex-col overflow-y-auto px-5 py-5">
         {!configured ? (
           <Empty
-            title={readerCanConfigure ? "Anu needs a key" : "Anu isn't available here"}
+            title={readerCanConfigure ? "Anu needs an AI key to talk" : "Anu isn't available here"}
             body={readerCanConfigure
               ? "Everything else works without one. Settings walks you through getting a free key."
               : "Don't worry, everything else here works without her."}

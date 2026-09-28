@@ -274,9 +274,9 @@ export function NavEditor({
             {!isDefaultNavOrder(order) && (
               <Button
                 variant="ghost"
-                onClick={() => save([...DEFAULT_NAV_ORDER], "Back to the usual five.")}
+                onClick={() => save([...DEFAULT_NAV_ORDER], "Your sidebar is back to how it started.")}
               >
-                Back to the usual five
+                Reset to how it started
               </Button>
             )}
             <Button variant="primary" onClick={onClose}>Done</Button>

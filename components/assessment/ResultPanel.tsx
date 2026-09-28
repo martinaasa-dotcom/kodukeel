@@ -18,9 +18,9 @@ import { Lettered } from "@/components/HeroLetters";
  */
 
 const SKILL_META: Record<string, { icon: typeof BookOpen; label: string; note: string }> = {
-  reading: { icon: BookOpen, label: "Reading", note: "Words, endings and sentences, all from the dictionary." },
+  reading: { icon: BookOpen, label: "Reading", note: "What words mean and which ending fits, in real sentences from the dictionary." },
   listening: { icon: Headphones, label: "Listening", note: "Estonian audio with nothing written down." },
-  writing: { icon: PenLine, label: "Writing", note: "The missing word you typed, checked for the form the sentence needed." },
+  writing: { icon: PenLine, label: "Writing", note: "Typing the missing word, with the ending the sentence needs." },
   speaking: { icon: Mic, label: "Speaking", note: "How you rated yourself. It's never scored, and never part of your level." },
 };
 
@@ -96,7 +96,7 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
             {result.overall === null
               ? "Nothing got measured, so there's no level to show. That's a blank, not a zero."
               : result.overall === PRE_A1
-                ? "You're not at the first level yet, which is where almost everybody starts. It's a starting point, not a verdict."
+                ? "You're not at A1 yet, and that's where almost everybody starts. It's a starting point, not a verdict."
                 : result.nearly
                   ? "Your skills averaged out between two levels, so this shows the lower one. You're near the top of it, not the bottom."
                   : "This is the average of the skills we measured. One weak section doesn't drag the whole level down, and one strong one doesn't carry it."}

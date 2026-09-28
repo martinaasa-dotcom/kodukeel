@@ -144,7 +144,7 @@ const passage =
   "Homme lähen kooli ja räägin sõbraga pikalt. " +
   "Tuba on väga soe ja valge täna hommikul.";
 await page.locator("#passage").fill(passage);
-await app.getByRole("button", { name: /Make exercises/ }).click();
+await app.getByRole("button", { name: /Make the gaps/ }).click();
 await waitForText(page, /Fill the gap|No words from your deck|deck is empty/i, 30000);
 
 const clozeBody = (await page.textContent("body")) ?? "";
@@ -167,9 +167,9 @@ if (madeExercises) {
 await page.goto(`${BASE}/words`, { waitUntil: "networkidle" });
 const wordsBody = (await page.textContent("body")) ?? "";
 check("diagnosis reports a finding or explains its silence",
-  /Not enough case reviews|Nothing stands out|until the stem changes|weakest case|plural stem/i
+  /Not enough answers on case|Nothing stands out|until the stem changes|weakest case|plural stem/i
     .test(wordsBody),
-  wordsBody.match(/Not enough case reviews|Nothing stands out|until the stem changes|weakest case|plural stem/i)?.[0] ?? "");
+  wordsBody.match(/Not enough answers on case|Nothing stands out|until the stem changes|weakest case|plural stem/i)?.[0] ?? "");
 
 await browser.close();
 done();

@@ -466,8 +466,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
               but the single-place ones.
             */}
             <p className="mt-1.5 text-sm" style={{ color: "var(--sky-ink)" }}>
-              {errandPlaces(errand)}. Nobody there has seen your card, and that&apos;s the
-              practice. Tomorrow, <Link href="/">Today</Link> will ask how it went.
+              {errandPlaces(errand)}. Nobody there has seen your card, so you&apos;ll say it your own
+              way, which is the whole point. Tomorrow, the <Link href="/">Today</Link> screen will ask how it went.
             </p>
             {cafe && (
               <p className="mt-2 text-xs" style={{ color: "var(--sky-ink)" }}>

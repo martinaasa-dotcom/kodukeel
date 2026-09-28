@@ -101,8 +101,8 @@ export function Provenance({ label, answered, compact = false }: {
   if (compact && !answered) return null;
   return (
     <p className="text-2xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-      {answered ? "Answered by" : "Will ask"} {label}.
-      {!compact && " Anu explains grammar."}
+      {answered ? "That answer came from" : "Your questions go to"} {label}.
+      {!compact && " Anu is here for the grammar. The forms come from the dictionary."}
     </p>
   );
 }

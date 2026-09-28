@@ -343,7 +343,7 @@ const needsKey = (await page.getByText(/Anu needs an .{1,6} key/).count()) > 0;
   <model>" before a reply and "Answered by" after one, whoever answers, so
   matching that shape cannot fall behind a new provider.
 */
-const connected = (await page.getByText(/(Will ask|Answered by) .+, .+/).count()) > 0;
+const connected = (await page.getByText(/(Your questions go to|That answer came from) .+, .+/).count()) > 0;
 check("the tutor tab is honest about its key state", needsKey !== connected,
   needsKey ? "no key — shows setup guidance" : "key set — shows the provider");
 

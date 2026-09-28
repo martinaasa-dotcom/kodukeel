@@ -161,7 +161,7 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
         {collection.kept > 0 && (
           <p className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
             <Sprout size={13} aria-hidden />
-            {collection.kept} kept so far
+            {collection.kept} {collection.kept === 1 ? "word of the day" : "words of the day"} kept so far
             {collection.streak > 1 ? `, ${collection.streak} days in a row` : ""}
           </p>
         )}

@@ -301,7 +301,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
         />
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
           <Ear size={14} className="mr-1.5 inline" aria-hidden />
-          As many times as you like
+          Play it as many times as you like
         </span>
       </div>
 

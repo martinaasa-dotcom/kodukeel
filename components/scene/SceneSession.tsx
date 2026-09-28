@@ -1130,9 +1130,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         <ChoiceGroup
           label="How they talk to you"
           hint={openAt === learnerLevel
-            ? `Your level is ${learnerLevel}. Go lower for simpler sentences, or higher to be spoken to like anyone else.`
+            ? `Your level is ${learnerLevel}. Go lower for simpler sentences, or higher and they'll talk to you like anyone else.`
             : openAt < learnerLevel
-              ? `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since your recent answers have been tough going. Change it whenever you like.`
+              ? `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since your recent answers have been a struggle. Change it whenever you like.`
               : `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since you've been getting nearly everything right. Change it whenever you like.`}
         >
           {LEVELS.map((one) => (
@@ -1933,7 +1933,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 className="tap-tint mt-1 block rounded-full px-3 py-1 text-lg font-medium"
                 style={{ color: "var(--ink-2)" }}
               >
-                Show what I&apos;m trying to do
+                Show me what I&apos;m trying to do
               </button>
             ) : (
               <p className="mt-1 text-lg font-medium leading-snug">
@@ -2021,7 +2021,7 @@ const PROVENANCE: Record<Provenance, string> = {
     Honest about both halves: a model wrote it, and every word was checked
     against the dictionary before it was kept (lib/scenes/scripted.ts).
   */
-  scripted: "Written for this scene, checked word by word",
+  scripted: "Written for this scene, every word checked",
   composed: "Written for this turn",
   fallback: "They did not catch that",
   again: "Said again",

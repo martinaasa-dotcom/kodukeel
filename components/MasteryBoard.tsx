@@ -38,10 +38,10 @@ import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
 
 /** What each tier means, in the learner's terms rather than the rule's. */
 const EXPLAINS: Record<Mastery, string> = {
-  mastered: `You've got these right ${MASTERY_CORRECT} times, in the different forms each word has.`,
+  mastered: `These are yours. You've got each one right ${MASTERY_CORRECT} times, in different forms.`,
   almost: "Nearly there. Get them right in a couple more forms and they're yours.",
   struggling: "These keep tripping you up. A round of flash cards is the best help for them.",
-  learning: "You've met these, but haven't answered them often enough yet to tell.",
+  learning: "You've met these, but haven't answered them enough yet for us to tell how they're going.",
 };
 
 export function MasteryBoard({
@@ -50,7 +50,7 @@ export function MasteryBoard({
   return (
     <>
       <Card tone="night">
-        <SectionTitle hint="counted in words, not cards">At a glance</SectionTitle>
+        <SectionTitle hint="each word counted once">At a glance</SectionTitle>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {MASTERY_ORDER.map((tier) => (
             <StatTile key={tier} value={counts[tier]} label={MASTERY_LABEL[tier]} tone="accent" />
@@ -127,7 +127,7 @@ function Row({ word }: { word: MasteredWord }) {
       <span className="w-16 shrink-0">
         <Meter
           pct={Math.round(progress * 100)}
-          label={`${word.lemma} toward mastered${forms}`}
+          label={`${word.lemma}, on the way to mastered${forms}`}
           tone="var(--accent)"
           height={5}
         />

@@ -75,7 +75,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
             {countdown.chosen
               ? `${countdown.confidence}% likely to pass`
-              : `${countdown.confidence}% likely to pass, and it's the next one to aim for`}
+              : `${countdown.confidence}% likely to pass. It's your next level up.`}
           </p>
           {/*
             What the number is worth, beside the number. The hub prints the long
@@ -140,7 +140,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
             )}
           </>
         ) : (
-          "We don't have enough here yet to tell you what's slowing you down."
+          "We haven't seen enough of your answers yet to tell what's holding you back."
         )}
       </p>
 

@@ -200,7 +200,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: "linear-gradient(90deg, var(--sky) 0%, var(--accent) 100%)" }}
             />
-            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{verified}</span> proven in your reviews</span>
+            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{verified}</span> you&apos;ve shown you know</span>
           </span>
           <span className="inline-flex items-center gap-2">
             <span
@@ -208,7 +208,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: HATCH }}
             />
-            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{assumed}</span> taken as known from your level, not checked yet</span>
+            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{assumed}</span> counted from your level, not tested yet</span>
           </span>
         </p>
       )}
@@ -252,7 +252,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
             <span lang={wantsEnglish ? undefined : "et"}>
               {stop.level}, {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}
             </span>
-            {stop.state === "passed" ? ", done. " : stop.state === "here" ? `, ${stop.pct}%. ` : stop.state === "assumed" ? `, taken as known from your level, ${stop.verified} of ${stop.words} proven so far. ` : ". "}
+            {stop.state === "passed" ? ", done. " : stop.state === "here" ? `, ${stop.pct}%. ` : stop.state === "assumed" ? `, counted from your level, ${stop.verified} of ${stop.words} shown in your reviews so far. ` : ". "}
             {stop.state === "ahead" ? `${stop.parts} parts. ` : ""}{stop.arrival}
           </li>
         ))}
@@ -264,14 +264,14 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
         </p>
       ))}
       <div className="mt-3">
-        <Explain label="What moves this bar">
+        <Explain label="How this bar fills up">
           {arrived
-            ? "You know every word this level asks for. None of them count as new any more."
+            ? "You know every word this level asks for. There's nothing new left in it."
             : here
               ? <>
                   You&apos;re {pct}% of the way from the start of {start} to {target}. The solid part
-                  grows when a word really sticks, not when you tick off an evening, so it follows
-                  your reviews{partLabel ? <>. You&apos;re on {partLabel}</> : null}.
+                  only grows when a word really sticks in your reviews, not when you tick off an
+                  evening{partLabel ? <>. You&apos;re on {partLabel}</> : null}.
                 </>
               : standing
                 ? `Every level up to ${target} counts as yours already. What's left is proving it, and that's what the evenings are for.`

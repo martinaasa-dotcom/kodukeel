@@ -54,7 +54,7 @@ export function SituationDetail({
         </p>
         {rung === "unmet" ? (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-            You haven&apos;t practised any of these {total} words yet. The unit they come from is the place to start.
+            You haven&apos;t practised any of these {total} words yet. Start with the unit they come from.
           </p>
         ) : (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
@@ -63,28 +63,28 @@ export function SituationDetail({
         )}
         {reading.uncapped !== rung && (
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            Going by your answers so far, it&apos;d be {RUNG_LABEL[reading.uncapped].toLowerCase()}. We&apos;ll hold it here until there are a few more.
+            Going by your answers so far, you might already be at {RUNG_LABEL[reading.uncapped].toLowerCase()}. A few more answers and we&apos;ll know.
           </p>
         )}
       </Card>
 
       <section>
-        <SectionTitle hint="counted in words, not averaged">Three steps up</SectionTitle>
+        <SectionTitle hint="how many of the words are ready">From following to leading</SectionTitle>
         <Card>
           <ul className="flex flex-col gap-4">
             <Bar
               label="Follow it" ink={RUNG_INK.follow} n={at.follow} total={total} pct={pct(at.follow)}
-              what="Words you recognise when you see them. This is the first step, and the one a vocabulary test measures."
+              what="Words you know when you see them. Enough to follow what&apos;s being said to you."
             />
             <Bar
               label="Take part" ink={RUNG_INK.takePart} n={at.takePart} total={total} pct={pct(at.takePart)}
-              what="Words you've typed correctly more than once, including the last time you tried."
+              what="Words you can come up with yourself. You've typed them right more than once, last time included."
             />
             <Bar
               label="Lead it" ink={RUNG_INK.lead} n={at.lead} total={total} pct={pct(at.lead)}
               what={situation.live
-                ? "Solid in more than one form, and quick with it. You also need the endings and numbers this conversation uses, and some sign you can follow speech."
-                : "Solid in more than one form, plus the endings this situation needs."}
+                ? "Words you know in several forms and can find fast. You also need the endings and numbers this conversation uses, and to show you can follow it spoken."
+                : "Words you know in several forms, plus the endings this situation needs."}
             />
           </ul>
         </Card>
@@ -92,11 +92,11 @@ export function SituationDetail({
 
       {situation.live && rung !== "unmet" && (
         <section>
-          <SectionTitle hint="from typed answers, so on the generous side">Speed</SectionTitle>
+          <SectionTitle hint="timed on typed answers, so a little generous">Speed</SectionTitle>
           <Card>
             {pace.medianMs === null ? (
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                Not enough timed answers on these words yet to tell how fast they come to you. Knowing a word and finding it in two seconds aren&apos;t the same, and only the second helps when someone&apos;s waiting.
+                Not enough timed answers yet to tell how fast these words come to you. Knowing a word and finding it in two seconds aren&apos;t the same, and someone waiting for your answer needs the second.
               </p>
             ) : (
               <>
@@ -108,7 +108,7 @@ export function SituationDetail({
                     ? "Quick enough to answer before the other person fills the silence."
                     : pace.label === "steady"
                       ? "Fine for a patient listener. Leading a conversation means reaching for your next word while they're still finishing theirs."
-                      : "Long enough that someone at a counter will fill the gap for you, usually in English. Speed comes with practice, separately from knowing the word."}
+                      : "Slow enough that someone at a counter will jump in for you, usually in English. Speed comes with practice, on top of knowing the word."}
                 </p>
                 <Explain label="How quick and slow are decided">
                   We time your correct typed answers, typing included. Under {CONVERSATIONAL_MS / 1000} seconds counts as quick and over {SLOW_MS / 1000} as slow. Those cut-offs are our guess, so the seconds are shown too.
@@ -121,7 +121,7 @@ export function SituationDetail({
 
       {struggles.length > 0 && (
         <section>
-          <SectionTitle hint="the biggest hurdle first">Where it would go wrong</SectionTitle>
+          <SectionTitle hint="biggest problem first">Where it would go wrong</SectionTitle>
           <ul className="flex flex-col gap-3">
             {struggles.map((s) => (
               <li key={s.id}>
@@ -145,11 +145,11 @@ export function SituationDetail({
 
       {scene && rung !== "unmet" && (
         <section>
-          <SectionTitle hint="the same situation, with someone who wants something from you">Rehearse it first</SectionTitle>
+          <SectionTitle hint="a practice run here, before the real thing">Rehearse it first</SectionTitle>
           <Card tone="sky">
             <p className="text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{scene.title}</p>
             <p className="mt-1.5 text-sm" style={{ color: "var(--sky-ink)" }}>
-              {scene.place}. It&apos;s marked the same way your cards are, never by an AI, so it&apos;s the closest you&apos;ll get here to the real thing.
+              {scene.place}. It&apos;s marked just like your cards, never by an AI, and it&apos;s the nearest thing to the real conversation you&apos;ll find here.
             </p>
             <div className="mt-3">
               <ButtonLink href={`/situations/${scene.id}`} size="sm">Play the scene</ButtonLink>
@@ -167,7 +167,7 @@ export function SituationDetail({
               <p className="mt-2 text-sm" style={{ color: "var(--sky-ink)" }}>What you might hear back: {situation.expect}</p>
             )}
             <p className="mt-2 text-sm" style={{ color: "var(--sky-ink)" }}>
-              It won&apos;t go as smoothly as a card, and that&apos;s the point. Whatever you couldn&apos;t say is what to look up afterwards.
+              It won&apos;t go as smoothly as a card, and that&apos;s fine. Whatever you couldn&apos;t say, look up afterwards.
             </p>
           </Card>
         </section>
@@ -201,7 +201,7 @@ export function SituationDetail({
 
       {situation.live && (
         <Explain label="What this page doesn&apos;t measure">
-          Nothing on this page has heard you speak. How you sound is for you to judge, in{" "}
+          Nothing on this page has heard you speak. How you sound is yours to judge, in{" "}
           <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>speaking practice</Link>
           , and no number here pretends otherwise.
         </Explain>
