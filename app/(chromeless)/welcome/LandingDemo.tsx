@@ -3,18 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { CASES } from "@/lib/estonian/cases";
 import { LETTER_CHEER_EVENT, LETTER_SCATTER_EVENT } from "@/lib/ux/letterMotion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
+import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { FitText } from "@/components/FitText";
+import { rememberBuilt } from "./visit";
 import { PARTS, spelledCount } from "@/lib/copy/values";
 
 /**
- * How long each word stays up while the card walks itself, in milliseconds.
+ * How long each built form stays up while the card walks itself.
  *
- * Long enough to read three forms and glance down eleven, short enough that
- * somebody who has just scrolled to the card sees it change before they
- * decide it is a table. The forms settle in over about half a second and
- * the endings draw in a beat behind, so most of this is the card at rest.
+ * Long enough to read the sum and what it means, short enough that somebody
+ * who has just scrolled to the card sees the next ending snap on before they
+ * decide it is a table.
  */
-export const LAP_STEP_MS = 4200;
+export const BUILD_STEP_MS = 1900;
 
 /**
  * How many, in words, because the two headings inside the card are prose and
@@ -64,93 +66,87 @@ export interface DemoWord {
 }
 
 /**
- * Learn three forms and get most of the rest: the single most encouraging fact
- * about Estonian nouns, shown rather than claimed. Every form on the right is
- * produced by the same function the app itself uses, which takes the form the
- * dictionary attests wherever there is one and applies the regular ending only
- * where there is not. Nothing here was written by hand or by a model.
+ * Learn three forms and build the rest: the single most encouraging fact about
+ * Estonian nouns, shown as a machine a visitor runs rather than a table they
+ * read. It is the landing page's copy of `/grammar/build-a-word`, cut to one
+ * screen: the three stored forms with the stem lit, the stem plus an ending
+ * as a sum, and the eleven endings as keys that each snap onto it.
  *
- * THE CARD IS THE SAME SHAPE FOR EVERY WORD, and that is a decision this card
- * used to make the other way. It promoted a stored short illative into the
- * left column, so pressing `tuba` read four and ten where `raamat` read three
- * and eleven: the left column grew a row, the right one lost one and closed
- * up, and the whole card changed height under the reader's pointer. That was
- * honest about the language and wrong about the card, because a table that
- * reshapes itself on every press reads as a table that cannot decide what it
- * is, and the four letters hanging off its edges are placed against a height.
+ * Every form is the one the app itself uses: the dictionary's where it has
+ * one, the regular ending on the stored stem where it does not. Nothing here
+ * was written by hand or by a model. Where Estonians say a form no ending
+ * makes (`tuppa`), the sum still shows the rule's form and names the one to
+ * learn beside it, which is the honest version of "most of the rest".
  *
- * So the left column is always the three principal parts, and the right one
- * is always the eleven other cases in the order every schoolbook lists them,
- * with the sisseütlev first and on a row of its own across both columns. It is
- * the one case Estonian has two answers for, and the one that sometimes has to
- * be learned rather than worked out, so its row is where that is said: `tuppa`
- * beside `toasse`, and a chip saying this one is learned. Every other word puts
- * `raamatusse` there with its ending lit, and the row is the same height
- * either way. Six rows on the right, three on the left, at every word.
- *
- * `counted` still counts rather than types the two headings, because a
- * dictionary entry can be missing a partitive and the heading has to be true
- * of the rows under it.
+ * `counted` spells the numbers rather than typing them, because a dictionary
+ * entry can be missing a part and a heading has to be true of what is under
+ * it.
  */
 export function CaseExplorer({ words }: { words: DemoWord[] }) {
   const [active, setActive] = useState(0);
+  const [ending, setEnding] = useState(0);
+  /**
+   * Which endings this visitor has built, word by word, so the meter under the
+   * keys is a count of their own presses rather than a decoration. Nothing is
+   * stored: it is a page, and the count starts again on the next visit.
+   */
+  const [built, setBuilt] = useState<ReadonlySet<string>>(() => new Set());
   const root = useRef<HTMLDivElement>(null);
+
   /*
-    THE CARD WALKS ITSELF ONCE, UNTIL SOMEBODY TOUCHES IT.
+    THE CARD BUILDS ITSELF ONCE, UNTIL SOMEBODY TOUCHES IT.
 
-    The line over the card says "press a word and watch", and a visitor who
-    does not press sees a table. So while the card is on screen and nobody
-    has touched it, it presses the next chip itself every few seconds, once
-    round the five words and back to the first, and stops. One lap rather
-    than for ever, because a card that keeps changing under somebody trying
-    to read a form is a card arguing with its reader. The first press, a key
-    on any chip or focus landing inside the card ends it for good, since a
-    reader who has taken hold of the card does not want it moving on its own.
-
-    It runs only while the card is mostly on screen, through an observer
-    rather than a scroll listener, and not at all for a reader who asked for
-    less motion, for whom a table that changes by itself is exactly the thing
-    they asked not to have. The tab being hidden stops it too: a timer
-    ticking over a page nobody is looking at would come back mid-lap.
+    A visitor who does not press sees the machine run: the first word's
+    endings snap onto its stem one after another, then the next word's, once
+    round and then it rests. One lap rather than for ever, because a card
+    that keeps changing under somebody reading a form is arguing with its
+    reader, and the first press, key or focus inside the card ends it for
+    good. It runs only while the card is mostly on screen and the tab is
+    visible, and not at all for a reader who asked for less movement.
   */
   const touched = useRef(false);
-  const stepped = useRef(0);
+  const walk = useRef({ word: 0, ending: 0, laps: 0 });
   useEffect(() => {
     const el = root.current;
-    if (!el || words.length < 2) return;
+    if (!el || words.length === 0) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let timer = 0;
     const stop = () => { if (timer) { window.clearInterval(timer); timer = 0; } };
     const stepOnce = () => {
       if (touched.current || document.hidden) return;
-      if (stepped.current >= words.length) { stop(); return; }
-      stepped.current += 1;
-      setActive((n) => (n + 1) % words.length);
+      const at = walk.current;
+      const count = words[at.word]?.cases.filter((c) => !c.principal).length ?? 0;
+      if (at.ending + 1 < count) {
+        at.ending += 1;
+      } else {
+        at.laps += 1;
+        if (at.laps >= words.length) { stop(); return; }
+        at.word = (at.word + 1) % words.length;
+        at.ending = 0;
+        setActive(at.word);
+      }
+      setEnding(at.ending);
     };
-    const start = () => { if (!timer && !touched.current) timer = window.setInterval(stepOnce, LAP_STEP_MS); };
+    const start = () => { if (!timer && !touched.current) timer = window.setInterval(stepOnce, BUILD_STEP_MS); };
     const hold = () => { touched.current = true; stop(); };
 
     const seen = new IntersectionObserver(([entry]) => {
       if (entry?.isIntersecting) start(); else stop();
     }, { threshold: 0.6 });
     seen.observe(el);
-    // `click` as well as `pointerdown`, because assistive technology and a
-    // scripted press dispatch a click with no pointer in front of it.
     for (const ev of ["pointerdown", "keydown", "focusin", "click"]) el.addEventListener(ev, hold);
     return () => {
       stop();
       seen.disconnect();
       for (const ev of ["pointerdown", "keydown", "focusin", "click"]) el.removeEventListener(ev, hold);
     };
-  }, [words.length]);
+  }, [words]);
 
   /*
-    Whenever the word changes, whoever changed it, the letters round the card
-    are told. They are the page's, not this component's, so it is an event on
-    `document` rather than a prop, and the name is the motion table's so the
-    two sides cannot spell it differently. Not on mount: a page arriving is
-    not a word changing.
+    Whenever the word changes, the letters round the card are told. They are
+    the page's, so it is an event on `document`, named by the motion table.
+    Not on mount: a page arriving is not a word changing.
   */
   const mounted = useRef(false);
   useEffect(() => {
@@ -159,11 +155,29 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
   }, [active]);
 
   const word = words[active] ?? words[0];
-  if (!word) return null;
+  const derived = word ? word.cases.filter((c) => !c.principal) : [];
+  const current = derived[Math.min(ending, derived.length - 1)];
 
-  const derived = word.cases.filter((c) => !c.principal);
-  const illative = derived.find((c) => c.et === "sisseütlev");
-  const rest = derived.filter((c) => c !== illative);
+  // The form on screen counts as built, whoever pressed it.
+  useEffect(() => {
+    if (!word || !current) return;
+    const key = `${word.lemma}:${current.et}`;
+    setBuilt((had) => (had.has(key) ? had : new Set(had).add(key)));
+  }, [word, current]);
+
+  if (!word || !current) return null;
+
+  const spec = CASES.find((c) => c.et === current.et);
+  const suffix = spec?.suffix ?? "";
+  const stem = word.genitive ?? "";
+  const spellings = (current.singular ?? "").split(PARTS).filter(Boolean);
+  /** The spelling the rule makes, if the dictionary lists one: `toasse` beside `tuppa`. */
+  const ruled = spellings.find((s) => suffix && s === stem + suffix);
+  /** A spelling no ending reaches, which Estonians say and a learner learns. */
+  const learned = spellings.filter((s) => s !== ruled);
+  const shown = ruled ?? spellings[0] ?? "";
+  const doneHere = derived.filter((c) => built.has(`${word.lemma}:${c.et}`)).length;
+  const all = doneHere === derived.length;
 
   return (
     <div
@@ -173,7 +187,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
       onPointerDown={() => document.dispatchEvent(new CustomEvent(LETTER_SCATTER_EVENT))}
       data-hop-on="press"
       data-hop-end="card-give"
-      className="case-explorer overflow-hidden rounded-[var(--r-xl)] border"
+      className="case-explorer word-builder overflow-hidden rounded-[var(--r-xl)] border"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
       <div className="flex flex-wrap items-center gap-2 border-b px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -182,7 +196,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
           <button
             key={w.lemma}
             type="button"
-            onClick={() => setActive(n)}
+            onClick={() => { setActive(n); setEnding(0); }}
             aria-pressed={active === n}
             lang="et"
             className={`press letter-key rounded-full px-3.5 py-1.5 text-base transition-ui ${active === n ? "chip-spring" : "tap-tint"}`}
@@ -197,135 +211,142 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
         ))}
       </div>
 
-      <div className="grid gap-6 p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:p-6">
+      {/* `sm:px-8` rather than 20px: the ü hung over the left edge reaches
+          about 22px in at 640, and the ending keys start at the padding. */}
+      <div className="flex flex-col gap-6 p-5 sm:px-8 md:p-7">
         {/*
-          The two headings say what each column is, which is what they were for
-          and not what they said.
+          ONE: THE THREE YOU LEARN.
 
-          "What you memorise" and "What you get for free" were a pair of jokes
-          at the reader's expense: the left one names a chore before naming the
-          thing, and the right one offers as a gift the one thing every other
-          Estonian dictionary also gives away. Neither says what is in the
-          column under it. These name the cases and say where each set comes
-          from, which is the whole argument of the section standing over them.
+          The forms a dictionary has to give you, side by side, and the middle
+          one lit. It is the one every ending below is glued to, so it is the
+          only piece of the machine that is marked as a part of it.
         */}
-        {/*
-          THE THREE FILL THE HEIGHT THE ELEVEN SET.
-
-          Two lists of very different lengths in two columns leaves the shorter
-          one ending a third of the way down, and the card then reads as having
-          lost something out of its bottom left corner rather than as holding
-          two answers. Three rows grown to the height of eleven are three rows
-          worth looking at, which is the claim: these are the ones you have to
-          hold in your head, and they are bigger on the page for the same
-          reason they are shorter in number. And because the right column is
-          six rows for every word, the three on the left are the same height
-          for every word too.
-
-          THE VALUES SETTLE IN PLACE. Pressing a chip used to fade the whole
-          list up from fourteen pixels below, which on a card whose rows are
-          the same for every word is the rows appearing to drop and land. Now
-          each row keeps its box and only the word inside it changes, arriving
-          in a short stagger down the column, so what the eye follows is the
-          forms changing and not the table moving.
-        */}
-        <div className="flex flex-col">
+        <div>
           <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
-            The {counted(word.principal.length)} cases you learn
+            Learn {counted(word.principal.length)}
           </p>
-          <div className="flex flex-1 flex-col gap-2">
-            {word.principal.map((p, n) => (
-              <div
-                key={p.label}
-                /* The omastav is the stem every ending on the right is built
-                   on, and `.stem-row` is how the stylesheet points the two
-                   columns at each other under a pointer. */
-                className={`flex min-w-0 flex-1 items-center justify-between gap-3 rounded-[var(--r)] px-4 py-2.5 ${p.value === word.genitive ? "stem-row" : ""}`}
-                style={{ background: "var(--raised)" }}
-              >
-                <span className="min-w-0 text-xs" style={{ color: "var(--ink-3)" }}>
-                  <span lang="et" className="block">{p.label}</span>
-                  {p.english && <span className="block">{p.english}</span>}
-                </span>
-                <span
-                  key={`${word.lemma}-${p.label}`}
-                  lang="et"
-                  className="settle shrink-0 text-lg font-bold"
-                  style={{ color: "var(--ink)", "--i": n } as React.CSSProperties}
+          <div className="grid grid-cols-3 gap-2">
+            {word.principal.map((p, n) => {
+              const isStem = p.value === word.genitive;
+              return (
+                <div
+                  key={p.label}
+                  className={`builder-part flex min-w-0 flex-col gap-1 rounded-[var(--r)] px-3 py-3 md:px-4 ${isStem ? "stem-row builder-stem" : ""}`}
+                  style={{ background: isStem ? "var(--accent-soft)" : "var(--raised)" }}
                 >
-                  {p.value}
-                </span>
-              </div>
-            ))}
+                  {/* Three to a row on a 360px phone is 63px a tile, and
+                      `raamatut` is 91 at the design size: it shrinks. */}
+                  <FitText
+                    key={`${word.lemma}-${p.label}`}
+                    text={p.value}
+                    steadyFor={word.principal.map((q) => q.value)}
+                    lang="et"
+                    className="settle font-bold [--fit-max:var(--text-lg)] md:[--fit-max:var(--text-xl)]"
+                    style={{ color: isStem ? "var(--accent-deep)" : "var(--ink)", "--i": n } as React.CSSProperties}
+                  />
+                  <span className="min-w-0 text-xs" style={{ color: isStem ? "var(--accent-deep)" : "var(--ink-3)" }}>
+                    {isStem ? "the stem" : (p.english ?? p.label)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="min-w-0">
-          {/*
-            "that follow the pattern" was a claim about all eleven, and the
-            illative does not: `tuba` gives `tuppa`, which no ending on `toa`
-            produces. The heading says what the column is rather than making a
-            promise the row under it breaks; the row is where the exception is
-            named.
-          */}
+        {/*
+          TWO: THE MACHINE.
+
+          The stem, an ending, and what they make, as a sum anybody can check
+          by eye: every letter of the result is on the screen already, in two
+          pieces. The ending arrives on each press, so the thing a visitor
+          watches is the rule working rather than a table sitting there.
+          Where Estonians say something no ending makes (`tuppa`), the sum
+          still shows what the rule gives and the word they say is named
+          beside it as the one to learn.
+        */}
+        <div
+          className="builder-sum night flex flex-col items-center gap-3 rounded-[var(--r-lg)] px-4 py-6 text-center md:px-8"
+          aria-live="polite"
+        >
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xl font-bold md:gap-3 md:text-2xl">
+            <span lang="et" className="builder-chip" data-kind="stem">{stem}</span>
+            <span aria-hidden style={{ color: "var(--ink-2)" }}>+</span>
+            <span className="sr-only">plus</span>
+            <span key={`${word.lemma}-${current.et}-end`} lang="et" className="builder-chip builder-snap" data-kind="end">
+              -{suffix}
+            </span>
+            <span aria-hidden style={{ color: "var(--ink-2)" }}>=</span>
+            <span className="sr-only">makes</span>
+          </div>
+          <div key={`${word.lemma}-${current.et}-out`} className="builder-out w-full">
+            <FitText text={shown} steadyFor={derived.map((c) => (c.singular ?? "").split(PARTS)[0] ?? "")} max="var(--text-5xl)" lang="et" className="font-display font-bold leading-none tracking-tight" style={{ color: "var(--ink)" }}>
+              <WithEnding form={shown} et={current.et} />
+            </FitText>
+          </div>
+          {current.english && (
+            <p key={`${word.lemma}-${current.et}-en`} className="builder-means text-md font-semibold" style={{ color: "var(--cta)" }}>
+              {current.english}
+            </p>
+          )}
+          {learned.length > 0 && (
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+              Estonians also say <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{learned.join(", ")}</span>, which no ending makes: learn this one too.
+            </p>
+          )}
+        </div>
+
+        {/*
+          THREE: THE ENDINGS, AS KEYS.
+
+          The same eleven for every noun in the language, which is the whole
+          claim, so they do not change when the word does. Each says what it
+          means in one English word, because "-sse" is a sound and "into" is a
+          reason to press it.
+        */}
+        <div>
           <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
-            The {counted(derived.length)} that come with them
+            Then glue on an ending, the same {counted(derived.length)} for every word
           </p>
-          <ul className="grid grid-cols-2 gap-1.5">
-            {illative && (
-              <CaseRow key={`${word.lemma}-${illative.et}`} c={illative} index={0} wide />
-            )}
-            {rest.map((c, n) => (
-              <CaseRow key={`${word.lemma}-${c.et}`} c={c} index={n + 1} />
-            ))}
-          </ul>
+          <ChoiceGroup ariaLabel="Endings" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            {derived.map((c, n) => {
+              const suf = CASES.find((k) => k.et === c.et);
+              const means = (suf?.gloss ?? "").replace(/\s+(the|a)\s+book$/, "");
+              return (
+                <ChoiceChip
+                  key={c.et}
+                  selected={n === ending}
+                  onSelect={() => {
+                    setEnding(n);
+                    // Pressed by the visitor, so it is theirs to be shown at the close.
+                    rememberBuilt((c.singular ?? "").split(PARTS)[0] ?? "");
+                  }}
+                >
+                  {/* The ending over what it means, below `sm`: side by side, a
+                      half-width key at 320px broke "becoming" in two. */}
+                  <span className="flex flex-col items-center leading-tight sm:flex-row sm:items-baseline sm:gap-2">
+                    <span lang="et" className="whitespace-nowrap font-bold">-{suf?.suffix}</span>
+                    <span className="whitespace-nowrap text-xs font-medium">{means}</span>
+                  </span>
+                  {built.has(`${word.lemma}:${c.et}`) && <Check size={13} aria-label="built" />}
+                </ChoiceChip>
+              );
+            })}
+          </ChoiceGroup>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <span className="builder-meter flex gap-1" aria-hidden>
+              {derived.map((c) => (
+                <span key={c.et} data-on={built.has(`${word.lemma}:${c.et}`) ? "" : undefined} />
+              ))}
+            </span>
+            <span className="text-sm font-semibold" style={{ color: all ? "var(--mint-ink)" : "var(--ink-2)" }}>
+              {all
+                ? `All ${counted(derived.length)} built from one stem. That is the trick.`
+                : `${doneHere} of ${derived.length} built from ${word.lemma}`}
+            </span>
+          </div>
         </div>
       </div>
     </div>
-  );
-}
-
-/**
- * One case, on one row, the same height whatever is in it.
- *
- * THE LABEL SITS OVER THE FORM UNTIL THERE IS ROOM BESIDE IT. Measured with
- * the label and the form on one line at every width: the card was 408px tall
- * for every word at 1280, and at 390 it was 750px for `raamat` against 660
- * for `mees`, because `kaasaütlev raamatuga` is the one pair in the five
- * words that will not fit a half-width cell on a phone and so wrapped. That
- * is the jump this whole card was rebuilt to remove, arriving through the
- * text rather than the row count. So below `lg` each cell is two lines by
- * construction, the case over the form, and above it the two go back on one
- * line where a cell is 230px and the longest pair needs 150.
- *
- * The chip on a stored illative is inline and small, so a word that carries
- * one and a word that does not draw the row at the same height; it is the
- * only thing on the card that changes between words other than the forms.
- */
-function CaseRow({ c, index, wide = false }: { c: DemoCase; index: number; wide?: boolean }) {
-  return (
-    <li
-      className={`ending-row settle flex min-w-0 flex-col items-start gap-x-2 gap-y-0.5 rounded-[var(--r-sm)] px-3 py-2 lg:flex-row lg:items-baseline lg:justify-between ${wide ? "col-span-2" : ""}`}
-      style={{ background: "var(--accent-soft)", "--i": index } as React.CSSProperties}
-    >
-      {/* No opacity: `--accent-deep` on `--accent-soft` is 5.16, and three
-          quarters of it is 3.25. This is the Estonian name of the case,
-          which is the label this app leads with everywhere else. */}
-      <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span lang="et" className="text-2xs" style={{ color: "var(--accent-deep)" }}>{c.et}</span>
-        {c.stored && (
-          <span
-            className="whitespace-nowrap rounded-full px-1.5 text-2xs font-semibold leading-4"
-            style={{ background: "var(--surface)", color: "var(--accent-deep)" }}
-          >
-            learn this one too
-          </span>
-        )}
-      </span>
-      <span lang="et" className="text-base font-semibold" style={{ color: "var(--accent-deep)" }}>
-        <WithEnding form={c.singular} et={c.et} />
-      </span>
-    </li>
   );
 }
 

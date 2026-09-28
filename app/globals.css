@@ -886,9 +886,11 @@
     padding-block: clamp(1.25rem, 4vh, 2.25rem);
   }
   .round-pad { padding-block: clamp(1.25rem, 3.5vh, 2rem); }
-  .round-word { font-size: var(--text-3xl); line-height: 1.1; }
+  /* `--fit-max` too, since the word is drawn through `FitText`, which fits a
+     long word under that size rather than letting it break. */
+  .round-word { --fit-max: var(--text-3xl); font-size: var(--fit-max); line-height: 1.1; }
   @media (min-width: 768px) and (min-height: 760px) {
-    .round-word { font-size: var(--text-4xl); }
+    .round-word { --fit-max: var(--text-4xl); }
   }
 
   /*
@@ -1070,6 +1072,29 @@
     The invariant reads every input and textarea in the tree and fails on
     one that pads itself, so a tenth shape cannot arrive by hand.
   */
+  /*
+    A WORD SET LARGE IS NEVER BROKEN, IT IS MADE SMALLER.
+
+    `components/FitText.tsx` is the one way to draw a word at display size
+    whose length is not known when the page is designed: a headword, a
+    card's prompt, a form turning through its cases. `overflow-wrap: anywhere`
+    from the body would split it (`raamatuss / e` on the landing page's
+    hero card), so here a word keeps its own width and a phrase still wraps
+    at its spaces. The first-paint size is worked out from the longest
+    word's letter count against the box's own width, at a generous 0.62em
+    a letter, and the component then measures and corrects it exactly.
+    `cqi` reads the nearest size container and falls back to the window,
+    so a card that wants a tight first paint declares itself a container.
+  */
+  .fit-text {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: manual;
+    font-size: min(var(--fit-max, var(--text-4xl)), calc(100cqi / (var(--fit-chars, 8) * 0.62)));
+  }
   .field, .field-lg {
     border-width: 1px;
     transition: box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -2300,9 +2325,14 @@
     color: var(--cta);
     text-shadow: 0 0 0.6em rgb(255 61 139 / 0.45);
     position: relative;
+    /* Its own stacking context, so the stroke below can sit behind the
+       letters: a descender (the y of "say it") crosses over the line rather
+       than being cut by it, which is how a hand-drawn underline reads. */
+    isolation: isolate;
   }
   .hero-sticker::after {
     content: ""; position: absolute; left: 0.04em; right: 0.04em; bottom: -0.02em; height: 0.09em;
+    z-index: -1;
     border-radius: 9999px;
     background: linear-gradient(90deg, var(--cta), var(--blush) 45%, var(--accent) 75%, var(--sky));
     transform-origin: left; animation: hero-underline 900ms 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -2319,9 +2349,10 @@
   /* The machine: one real word turning through its cases, on a sticker. */
   .hero-machine { min-width: 0; display: flex; justify-content: center; }
   .hero-word { width: 100%; max-width: 26rem; }
-  .hero-word-stack { position: relative; }
+  .hero-word-stack { position: relative; display: block; }
   /* The glow the card floats in: the four night colours, blurred into light. */
   .hero-word-back {
+    display: block;
     position: absolute; inset: 8% 4%;
     border-radius: 50%;
     background: conic-gradient(from 120deg, var(--butter), var(--blush), var(--accent), var(--sky), var(--butter));
@@ -2331,6 +2362,8 @@
   }
   .hero-word-card {
     position: relative;
+    /* The width `FitText` reads for the hero form's first paint. */
+    container-type: inline-size;
     display: flex; flex-direction: column; gap: 0.9rem;
     padding: 1.7rem 1.7rem 1.6rem;
     border-radius: var(--r-xl);
@@ -2343,6 +2376,17 @@
     transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .hero-word:hover .hero-word-card { transform: translateY(-4px); }
+  /* The card is a button now: no chrome of its own, the card is the control. */
+  .hero-word-press {
+    display: block; width: 100%; padding: 0; border: 0; background: none;
+    text-align: left; color: inherit; font: inherit; border-radius: var(--r-xl);
+  }
+  .hero-word-press:active .hero-word-card { transform: translateY(1px) scale(0.985); transition-duration: 90ms; }
+  .hero-word-press:focus-visible { outline: 3px solid var(--cta); outline-offset: 4px; }
+  .hero-word-hint {
+    margin-top: 0.9rem; text-align: center;
+    font-size: var(--text-sm); font-weight: 600; color: var(--stage-ink-2);
+  }
   @media (prefers-reduced-motion: reduce) { .hero-word-back { animation: none; } }
   @keyframes night-drift {
     from { transform: translate(0, 0) rotate(0deg); }
@@ -2355,16 +2399,17 @@
   }
   .hero-word-lemma { font-size: var(--text-xl); font-weight: 600; color: var(--stage-ink-2); }
   .hero-word-form {
-    display: block;
+    /* Its size is `FitText`'s, capped at the design's 68px: the forms turn
+       and `raamatusse` is wider than the card at that size. */
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: var(--text-6xl);
     line-height: 1;
     letter-spacing: -0.02em;
     color: var(--stage-ink);
     animation: hero-word-in 460ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
   .hero-word-question {
+    display: block;
     font-size: var(--text-md); font-weight: 600; color: var(--cta);
     animation: hero-word-fade 420ms ease both;
   }
@@ -3121,6 +3166,96 @@
   }
   .case-explorer:has(.stem-row:hover) .ending { transform: translateY(-2px); }
   .stem-row { transition: box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+
+  /*
+    THE LANDING PAGE'S WORD BUILDER.
+
+    The stem pulses once each time an ending lands on it, the ending drops
+    onto the sum from above like a key pressed into place, and the built
+    word settles in behind it. The meter under the keys is eleven pips that
+    fill as a visitor builds, which is the one bit of this page that keeps a
+    count of something they did.
+  */
+  .builder-chip {
+    display: inline-block;
+    border-radius: var(--r);
+    padding: 0.25em 0.6em;
+    line-height: 1.1;
+  }
+  .builder-chip[data-kind="stem"] { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--ink); }
+  .builder-chip[data-kind="end"] { background: var(--cta); color: var(--cta-ink); }
+  .builder-snap { animation: builder-snap 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  @keyframes builder-snap {
+    from { opacity: 0; transform: translateY(-0.9em) rotate(-6deg) scale(1.15); }
+    to { opacity: 1; transform: none; }
+  }
+  .builder-out { animation: builder-out 520ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes builder-out {
+    from { opacity: 0; transform: scale(0.92); filter: blur(4px); }
+    to { opacity: 1; transform: none; }
+  }
+  .builder-means { animation: hero-word-fade 420ms 260ms ease both; }
+  .builder-sum .ending { text-decoration-color: var(--cta); }
+  .builder-meter > span {
+    width: 0.8rem; height: 0.4rem; border-radius: 9999px;
+    background: var(--raised);
+    box-shadow: inset 0 0 0 1px var(--rule);
+    transition: background 260ms ease, transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .builder-meter > span[data-on] { background: var(--accent); box-shadow: none; transform: scaleY(1.25); }
+  @media (prefers-reduced-motion: reduce) {
+    .builder-snap, .builder-out, .builder-means { animation: none; }
+  }
+
+  /*
+    THE LANDING PAGE'S CAFÉ. Their lines on the raised ground and the
+    visitor's on the accent's tint, the way the app's own conversation draws
+    them, each arriving with a short rise; the app's own asides (a stage
+    direction) in italics with no bubble, since nobody said them.
+  */
+  .cafe-line {
+    font-size: var(--text-md); line-height: 1.35;
+    animation: cafe-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cafe-line[data-who="them"] { background: var(--raised); color: var(--ink); border-bottom-left-radius: 6px; }
+  .cafe-line[data-who="you"] { background: var(--accent-soft); color: var(--accent-deep); font-weight: 600; border-bottom-right-radius: 6px; }
+  .cafe-line[data-who="app"] {
+    font-size: var(--text-sm); font-style: italic; color: var(--ink-2);
+    padding-left: 0.25rem; padding-right: 0.25rem; max-width: 100%;
+  }
+  @keyframes cafe-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .cafe-typing { display: inline-flex; gap: 4px; }
+  .cafe-typing > span {
+    width: 7px; height: 7px; border-radius: 9999px; background: var(--ink-3);
+    animation: cafe-dot 1s ease-in-out infinite;
+  }
+  .cafe-typing > span:nth-child(2) { animation-delay: 150ms; }
+  .cafe-typing > span:nth-child(3) { animation-delay: 300ms; }
+  @keyframes cafe-dot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+  /*
+    WHAT THE VISITOR DID, SAID BACK AT THE CLOSE. On the night panel, so a
+    lighter wash of it, and their forms as gold chips: the same gold as the
+    ending on the builder's sum, since these are the words they glued together.
+  */
+  .visit-recap {
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    animation: cafe-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .visit-chip { background: var(--cta); color: var(--cta-ink); }
+
+  /* Evening one's words, met one after another as the panel comes in. */
+  .evening-word {
+    background: rgb(255 255 255 / 0.07);
+    animation: cafe-in 360ms calc(var(--i, 0) * 90ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  [data-theme="dark"] .evening-word { background: var(--surface); }
+  @media (prefers-reduced-motion: reduce) { .evening-word, .visit-recap { animation: none; } }
+  [data-theme="dark"] .visit-recap { background: var(--surface); }
+  @media (prefers-reduced-motion: reduce) {
+    .cafe-line, .cafe-typing > span { animation: none; }
+  }
 
   /*
     THE LANDING PAGE'S MOTION, AND WHAT EACH PIECE IS FOR.

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Onest, Schibsted_Grotesk } from "next/font/google";
 import { OfflineProvider } from "@/components/OfflineProvider";
+import { OpenOnArrival } from "@/components/OpenOnArrival";
 import { PlayOnce } from "@/components/motion/PlayOnce";
 import { canonicalOrigin } from "@/lib/auth/canonical";
 import { LOOP_SYNC_SCRIPT } from "@/lib/ux/loopSync";
@@ -167,6 +168,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             it has to sit above both route groups — the offline fallback is
             reachable from either. */}
         <OfflineProvider>{children}</OfflineProvider>
+        <OpenOnArrival />
         {/* One listener that lets every one-shot flourish land (components/motion/PlayOnce.tsx). */}
         <PlayOnce />
         {/*

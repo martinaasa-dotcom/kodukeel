@@ -29,6 +29,7 @@ import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useModuleFocus } from "@/components/course/moduleFocus";
+import { FitText } from "@/components/FitText";
 
 /**
  * THE ROUND: MEET IT, TYPE IT, USE IT.
@@ -349,9 +350,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
 function Meeting({ task }: { task: ExceptionTask }) {
   return (
     <div>
-      <p lang="et" className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-        {task.lemma}
-      </p>
+      <FitText as="p" text={task.lemma} max="var(--text-3xl)" lang="et" className="font-bold leading-tight" style={{ color: "var(--ink)" }} />
       {task.translation && (
         <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
       )}
@@ -502,9 +501,7 @@ function Asking({ task }: { task: ExceptionTask }) {
 
   return (
     <div>
-      <p lang="et" className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-        {task.lemma}
-      </p>
+      <FitText as="p" text={task.lemma} max="var(--text-3xl)" lang="et" className="font-bold leading-tight" style={{ color: "var(--ink)" }} />
       {/* Dropped where the gloss says the answer: `saun` is "sauna". */}
       {task.translation && (
         <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>

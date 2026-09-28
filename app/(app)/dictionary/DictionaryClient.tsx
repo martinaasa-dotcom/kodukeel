@@ -35,6 +35,7 @@ import type { Suggestions } from "@/lib/dict/suggest";
 import type { ReadableHeadline } from "@/lib/dict/headlines";
 import { Headlines } from "@/components/Headlines";
 import { Explain } from "@/components/Explain";
+import { FitText } from "@/components/FitText";
 
 export interface EntryForm {
   formType: string;
@@ -634,9 +635,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       <header className="night night-open relative -mx-5 -mt-5 flex flex-wrap items-start justify-between gap-4 rounded-t-[var(--r-xl)] px-5 pb-6 pt-7 md:-mx-7 md:-mt-7 md:px-7 md:pb-8 md:pt-9">
         <div>
           <div className="flex items-center gap-3">
-            <h2 lang="et" className="font-display text-4xl font-bold leading-none lg:text-5xl xl:text-6xl" style={{ color: "var(--ink)" }}>
-              {entry.lemma}
-            </h2>
+            <FitText as="h2" text={entry.lemma} lang="et" className="font-display font-bold leading-none [--fit-max:var(--text-4xl)] lg:[--fit-max:var(--text-5xl)] xl:[--fit-max:var(--text-6xl)]" style={{ color: "var(--ink)" }} />
             <SpeakPair text={entry.lemma} />
           </div>
           {/*

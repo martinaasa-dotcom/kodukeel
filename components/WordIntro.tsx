@@ -5,6 +5,7 @@ import { EstonianSentence } from "@/components/EstonianSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { firstMeetingNote } from "@/lib/copy/firstMeeting";
+import { FitText } from "@/components/FitText";
 
 /**
  * A WORD'S FIRST OUTING: WHAT IT MEANS, AND IT DOING ITS JOB IN A SENTENCE
@@ -117,9 +118,7 @@ export function WordIntro({
   return (
     <>
       <div className="flex items-center gap-2">
-        <p lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {lemma}
-        </p>
+        <FitText as="p" text={lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
         {/* Read aloud on arrival: the first time a word is met is the one time
             hearing it is worth more than reading it. */}
         <Speak text={lemma} autoplay={autoplay} />

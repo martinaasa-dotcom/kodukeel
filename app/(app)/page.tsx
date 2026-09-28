@@ -41,6 +41,7 @@ import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
+import { FitText } from "@/components/FitText";
 
 export const metadata = { title: "Today" };
 
@@ -461,13 +462,13 @@ export default async function TodayPage() {
           <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
           <span>Day {courseDay.day.index} of {programme!.days.length}</span>
         </p>
-        <h2
-          className="font-display mt-3 text-3xl font-bold leading-[1.02] md:text-4xl"
+        <FitText
+          as="h2"
+          text={uiText(placement, courseDay.day.title, courseDay.day.subtitle)}
+          className="font-display mt-3 font-bold leading-[1.02] [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]"
           lang={uiWantsEnglish(placement) ? undefined : "et"}
           style={{ color: "var(--ink)", textWrap: "balance" }}
-        >
-          {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}
-        </h2>
+        />
         <p className="mt-3 max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay.day.canDo}
         </p>

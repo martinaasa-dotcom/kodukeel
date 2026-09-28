@@ -129,8 +129,15 @@ for (const url of PAGES) {
       if (own && cs.visibility !== "hidden" && parseFloat(cs.opacity) > 0.1
           && !el.closest(".sr-only") && !el.closest("[data-ornament]")
           && !el.closest("nextjs-portal")) {
+        /*
+          A `FitText` is drawn at a step and made smaller only when a word
+          would not fit, so the size the scale is asked about is the step it
+          was given, `--fit-max`, rather than whatever the fit settled on.
+        */
+        const fit = el.closest("[data-fit]");
+        const designed = fit ? getComputedStyle(fit).getPropertyValue("--fit-max").trim() : "";
         out.text.push({
-          size: cs.fontSize, weight: cs.fontWeight, color: cs.color, bg: bgOf(el) ?? "gradient",
+          size: designed || cs.fontSize, weight: cs.fontWeight, color: cs.color, bg: bgOf(el) ?? "gradient",
           text: el.textContent.trim().slice(0, 40),
           tag: el.tagName, cls: String(el.className).slice(0, 40),
         });

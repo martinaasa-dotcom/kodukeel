@@ -1,6 +1,7 @@
 import { ButtonLink } from "@/components/Button";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Mascot } from "@/components/brand";
+import { FitText } from "@/components/FitText";
 import { Lettered } from "@/components/HeroLetters";
 
 /**
@@ -25,9 +26,7 @@ export function NoPage() {
     <Lettered className="w-full">
       <div className="night flex w-full flex-col items-center gap-4 rounded-[var(--r-xl)] border px-6 py-10 md:px-10 md:py-12">
         <Mascot size={72} mood="thinking" className="float" />
-        <h1 lang="et" className="font-display text-4xl font-bold leading-tight tracking-tight md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-          Seda lehte pole
-        </h1>
+        <FitText as="h1" text="Seda lehte pole" lang="et" className="font-display font-bold leading-tight tracking-tight [--fit-max:var(--text-4xl)] md:[--fit-max:var(--text-5xl)]" style={{ color: "var(--ink)", textWrap: "balance" }} />
         <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           There&rsquo;s no page here. If you were after a word, try the dictionary. It takes
           Estonian or English, and inflected forms too, which is usually what you have in front of you.

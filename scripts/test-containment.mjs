@@ -715,6 +715,8 @@ const ALL = [...ROUTES, ...made];
  */
 function survey({ stress }) {
   const EPS = 1.5;
+  /** Text this size or larger is display type, where no word may break. */
+  const DISPLAY_PX = 28;
   const originals = [];
 
   /*
@@ -793,6 +795,13 @@ function survey({ stress }) {
       [...run].map((_, i) => (i === 0 ? ALPHABET[0].toUpperCase() : ALPHABET[i % ALPHABET.length])).join("");
 
     for (const el of textLeaves) {
+      /*
+        A `FitText` is left as it is. It answers a longer word by making the
+        type smaller, which it does in an observer after the text changes, and
+        this pass measures synchronously; `fitsAnyWord` asks it the same
+        question the way it is built to answer, with a frame to answer in.
+      */
+      if (el.closest("[data-fit]")) continue;
       for (const node of el.childNodes) {
         if (node.nodeType !== 3 || !node.textContent.trim()) continue;
         const [, before, run, after] = node.textContent.match(/^(\s*)([\s\S]*?)(\s*)$/);
@@ -1105,11 +1114,26 @@ function survey({ stress }) {
     probe.style.cssText = "white-space:nowrap;position:absolute;visibility:hidden;left:0;top:0";
     for (const el of textLeaves) {
       if (!shown(el)) continue;
-      if (el.closest("table, pre, code, .sr-only, [aria-hidden='true']")) continue;
+      /*
+        Not `aria-hidden`: that hides a thing from a screen reader and leaves
+        it on the screen. The landing page's hero card is aria-hidden, since
+        one static sentence says the same thing aloud, and it drew
+        `raamatusse` as `raamatuss / e` to every sighted visitor while this
+        check looked away.
+      */
+      if (el.closest("table, pre, code, .sr-only")) continue;
       const cs = getComputedStyle(el);
       if (cs.display === "inline" || cs.whiteSpace.startsWith("nowrap") || cs.whiteSpace === "pre") continue;
       const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join(" ");
-      const words = own.split(/\s+/).filter((w) => /^[\p{L}'’.,:;!?()-]{2,13}$/u.test(w));
+      /*
+        At display size no word is long enough to be broken: a word set that
+        big is a headword or a form the reader takes in at a glance, and it
+        goes through `components/FitText.tsx`, which makes the type smaller
+        instead. The thirteen-letter allowance is for running text.
+      */
+      const display = parseFloat(cs.fontSize) >= DISPLAY_PX;
+      const words = own.split(/\s+/).filter((w) =>
+        display ? /^[\p{L}'’.,:;!?()-]{2,}$/u.test(w) : /^[\p{L}'’.,:;!?()-]{2,13}$/u.test(w));
       if (!words.length) continue;
       const box = el.getBoundingClientRect().width
         - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
@@ -1126,6 +1150,7 @@ function survey({ stress }) {
       if (wide > box + EPS) split.push(`"${widest}" needs ${Math.round(wide)}px and ${named(el)} has ${Math.round(box)}`);
     }
   }
+
 
   for (const svg of icons) {
     if (!shown(svg)) continue;
@@ -1313,6 +1338,59 @@ function relatives() {
 }
 
 /**
+ * EVERY WORD A `FitText` COULD BE HANDED, NOT ONLY THE ONE IT HOLDS NOW.
+ *
+ * The hero card on the landing page turns through a word's cases every 1.7
+ * seconds and the sweep above sees whichever form was up when it looked, so a
+ * card that breaks on `raamatusse` passes on `raamatus`. What
+ * `components/FitText.tsx` promises is about any word, so that is what is
+ * asked: each one on the page is handed a compound longer than any form this
+ * app draws large, and has to hold it on one line inside its box. The text
+ * nodes are swapped rather than the element's contents replaced, so React's
+ * own nodes are the ones put back.
+ */
+async function fitsAnyWord() {
+  const LONG = "sünnipäevakingitustega";
+  const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const broken = [];
+  for (const el of document.querySelectorAll("[data-fit]")) {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0 || getComputedStyle(el).visibility === "hidden") continue;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    if (!nodes.length) continue;
+    const before = nodes.map((n) => n.textContent);
+    nodes.forEach((n, i) => { n.textContent = i === 0 ? LONG : ""; });
+    /*
+      Asked until it settles rather than after a fixed frame, with a ceiling:
+      the refit runs in an observer, a page can still be laying out, and the
+      landing page's hero swaps its word every couple of seconds, so one read
+      can land mid-change. A word that is still over after half a second has
+      not been fitted, and that is the fault.
+    */
+    let over = 0, lines = 1, size = 0;
+    for (let tries = 0; tries < 30; tries++) {
+      await frame();
+      if (!el.isConnected || !el.contains(nodes[0])) break;
+      const cs = getComputedStyle(el);
+      size = parseFloat(cs.fontSize);
+      const lineHeight = parseFloat(cs.lineHeight) || size * 1.3;
+      over = el.scrollWidth - el.clientWidth;
+      lines = Math.round(el.getBoundingClientRect().height / lineHeight);
+      if (over <= 1 && lines <= 1) break;
+    }
+    if (over > 1 || lines > 1) {
+      const name = typeof el.className === "string" ? el.className.split(" ").slice(0, 3).join(".") : "";
+      broken.push(`${el.tagName.toLowerCase()}.${name} ${over > 1 ? `overflows by ${over}px` : `took ${lines} lines`} at ${size}px`);
+    }
+    nodes.forEach((n, i) => { n.textContent = before[i]; });
+    await frame();
+  }
+  return { broken };
+}
+
+/**
  * A WORD IS DRAWN ON ONE LINE, AND A BUTTON'S LABEL IS DRAWN WHOLE.
  *
  * The width comparison in `survey` asks whether a block is wide enough for its
@@ -1344,14 +1422,19 @@ function wholeWords() {
   let words = 0;
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     const el = node.parentElement;
-    if (!el || el.closest("script, style, noscript, table, pre, code, textarea, .sr-only, [aria-hidden='true']")) continue;
+    // Not `aria-hidden`: hidden from a screen reader is still on the screen,
+    // and the landing page's hero card, which is aria-hidden, is where a
+    // display word was broken in two with nothing measuring it.
+    if (!el || el.closest("script, style, noscript, table, pre, code, textarea, .sr-only")) continue;
     if (!shown(el)) continue;
     const text = node.textContent;
+    // At display size no word is long enough to be allowed to break.
+    const display = parseFloat(getComputedStyle(el).fontSize) >= 28;
     // Whole words first, then the length: `\p{L}{2,13}` alone matches
     // thirteen-letter pieces inside a longer compound, whose breaking is the
     // rule doing its job, and reported a 23-letter fixture word as broken.
     for (const m of text.matchAll(/\p{L}+/gu)) {
-      if (m[0].length < 2 || m[0].length > 13) continue;
+      if (m[0].length < 2 || (m[0].length > 13 && !display)) continue;
       range.setStart(node, m.index);
       range.setEnd(node, m.index + m[0].length);
       const tops = new Set();
@@ -1398,6 +1481,12 @@ async function measure(page, label, atLeast = 25) {
   check(`nothing is drawn into its neighbor on ${label}`, rest.collided === 0, rest.say.collided);
   check(`no icon is deformed on ${label}`, rest.deformed === 0, rest.say.deformed);
   check(`no ordinary word is broken across lines on ${label}`, rest.split === 0, rest.say.split);
+  const fitted = await page.evaluate(fitsAnyWord);
+  check(
+    `a word set large shrinks to fit rather than breaking, whatever the word, on ${label}`,
+    fitted.broken.length === 0,
+    fitted.broken.slice(0, 3).join(" · "),
+  );
   const whole = await page.evaluate(wholeWords);
   check(`no word is drawn across two lines on ${label}`, whole.broken === 0, whole.say.broken);
   check(`no button label is wider than its button on ${label}`, whole.overflowing === 0, whole.say.overflowing);

@@ -7,6 +7,7 @@ import { Chip } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { earlier, later, openAt, remember, forgetLast, type SeenCard } from "@/lib/ux/lookBack";
+import { FitText } from "@/components/FitText";
 
 /**
  * SEEING THE LAST WORD AGAIN, DRAWN ONCE.
@@ -330,13 +331,13 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>{card.note}</p>
         )}
         <div className="flex items-center gap-2">
-          <p
+          <FitText
+            as="p"
+            text={card.answer}
             lang={card.answerLang}
             className="round-word font-bold tracking-tight"
             style={{ color: "var(--ink)" }}
-          >
-            {card.answer}
-          </p>
+          />
           {card.speak && card.questionLang !== "et" && <Speak text={card.speak} />}
         </div>
       </div>

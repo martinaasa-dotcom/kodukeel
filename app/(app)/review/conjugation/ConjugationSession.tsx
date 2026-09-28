@@ -22,6 +22,7 @@ import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { FitText } from "@/components/FitText";
 
 export type Tense = "present" | "conditional";
 
@@ -347,9 +348,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
         <div className="px-6 pt-7 text-center">
           <div className="flex items-center justify-center gap-2">
-            <p lang="et" className="text-3xl font-semibold" style={{ color: "var(--ink)" }}>
-              {question.lemma}
-            </p>
+            <FitText as="p" text={question.lemma} max="var(--text-3xl)" lang="et" className="font-semibold" style={{ color: "var(--ink)" }} />
             <Speak text={question.lemma} />
           </div>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>

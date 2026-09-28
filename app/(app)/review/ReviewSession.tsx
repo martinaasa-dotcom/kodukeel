@@ -45,6 +45,7 @@ import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
+import { FitText } from "@/components/FitText";
 import { Lettered } from "@/components/HeroLetters";
 
 export interface ReviewCard {
@@ -1536,19 +1537,28 @@ export function ReviewSession({
 
           {ask !== "intro" && (
           <div className="flex items-center gap-2">
-            <p
-              lang={frontLang}
-              className={
-                // A gap-fill prompt is a whole sentence: at flashcard size it
-                // wraps to four lines and stops being readable at a glance.
-                card.cardType === "CLOZE" || isGap(card)
-                  ? "text-xl font-semibold leading-snug tracking-tight md:text-2xl"
-                  : "round-word font-display font-bold tracking-tight"
-              }
-              style={{ color: "var(--ink)" }}
-            >
-              {split ? split.word : sizedBlank(card.front, card.back)}
-            </p>
+            {card.cardType === "CLOZE" || isGap(card) ? (
+              // A gap-fill prompt is a whole sentence: at flashcard size it
+              // wraps to four lines and stops being readable at a glance.
+              <p
+                lang={frontLang}
+                className="text-xl font-semibold leading-snug tracking-tight md:text-2xl"
+                style={{ color: "var(--ink)" }}
+              >
+                {sizedBlank(card.front, card.back)}
+              </p>
+            ) : (
+              // One word at the round's size: it shrinks to fit rather than break.
+              <FitText
+                as="p"
+                text={split ? split.word : card.front}
+                lang={frontLang}
+                className="round-word font-display font-bold tracking-tight"
+                style={{ color: "var(--ink)" }}
+              >
+                {split ? split.word : sizedBlank(card.front, card.back)}
+              </FitText>
+            )}
             {/* No audio on a gap-fill prompt: reading a sentence with a hole in
                 it aloud is not a thing, and the reveal below plays the whole
                 sentence once the answer is in. Not just `CLOZE`: a `CASE_FORM`
@@ -1838,14 +1848,14 @@ export function ReviewSession({
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <p
+                  <FitText
+                    as="p"
+                    text={card.back}
                     lang={backLang}
-                    data-answer
-                    className="text-2xl font-bold md:text-3xl"
+                    data-answer=""
+                    className="font-bold [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
                     style={{ color: "var(--accent-deep)" }}
-                  >
-                    {card.back}
-                  </p>
+                  />
                   {/* The answer, read aloud as it appears. On a typed card
                       this is the correction; on a flip it is the word you
                       were trying to recall, said properly. */}

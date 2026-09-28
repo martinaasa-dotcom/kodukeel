@@ -22,6 +22,7 @@ import { moduleScopeFrom } from "@/lib/course/scope";
 import { caseAsks } from "@/lib/course/tryIt";
 import { TryIt } from "@/components/course/TryIt";
 import { WordLink } from "@/components/course/WordLink";
+import { FitText } from "@/components/FitText";
 
 export const dynamic = "force-dynamic";
 
@@ -168,9 +169,12 @@ export default async function CasePage({
                 </p>
               ) : (
                 <p className="mt-1 flex items-baseline gap-3">
-                  <span lang="et" className="font-display text-7xl font-bold leading-none tracking-tight md:text-8xl" style={{ color: "var(--cta)" }}>
-                    -{ref.spec.suffix}
-                  </span>
+                  <FitText
+                    text={`-${ref.spec.suffix}`}
+                    lang="et"
+                    className="font-display font-bold leading-none tracking-tight [--fit-max:var(--text-7xl)] md:[--fit-max:var(--text-8xl)]"
+                    style={{ color: "var(--cta)" }}
+                  />
                   <span className="text-sm" style={{ color: "var(--ink-3)" }}>on the omastav</span>
                 </p>
               )}

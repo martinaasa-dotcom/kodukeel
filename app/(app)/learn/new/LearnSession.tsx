@@ -39,6 +39,7 @@ import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
+import { FitText } from "@/components/FitText";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -986,9 +987,7 @@ export function LearnSession({
           {rung === "choice" && (
             <>
               <div className="flex items-center gap-2">
-                <p lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-                  {word.lemma}
-                </p>
+                <FitText as="p" text={word.lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
                 <Speak text={word.lemma} />
               </div>
               {word.choices ? (
