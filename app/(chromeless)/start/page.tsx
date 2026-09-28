@@ -87,7 +87,7 @@ export default async function WelcomePage() {
   );
 
   const suggestedName =
-    settings[SETTING_KEYS.displayName] ?? (learner.name === "you" ? "" : learner.name);
+    settings[SETTING_KEYS.displayName] ?? (learner.name === "you" ? "" : (learner.name.split(/\s+/)[0] ?? ""));
 
   /*
     The level check, built here rather than behind a click.
