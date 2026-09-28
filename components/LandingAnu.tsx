@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { MascotWatch } from "@/components/MascotWatch";
+import { useFinishingHover } from "@/components/motion/useFinishingHover";
 
 /**
  * ANU, COMING DOWN THE LANDING PAGE WITH YOU.
@@ -50,6 +51,8 @@ export function LandingAnu({ lines }: { lines: readonly AnuLine[] }) {
   // What the observer last settled on, kept outside React so the callback
   // can compare without a state updater doing side effects for it.
   const settled = useRef(0);
+  const call = useRef<HTMLAnchorElement>(null);
+  const wiggle = useFinishingHover(call);
 
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
@@ -102,6 +105,8 @@ export function LandingAnu({ lines }: { lines: readonly AnuLine[] }) {
         {line.text}
       </p>
       <Link
+        ref={call}
+        {...wiggle}
         href="/sign-in"
         aria-label="Start learning, and ask Anu inside"
         className={`anu-call press lift flex h-14 w-14 items-center justify-center rounded-full border ${hopping ? "anu-hop" : ""}`}

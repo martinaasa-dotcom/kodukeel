@@ -17,7 +17,9 @@ import type { CSSProperties } from "react";
  * hops, `thinking` looks up and to the side with a small mouth and the hair
  * tipped over, `talking` works her mouth while a reply is on its way. Every
  * keyframe ends where it began, so the global reduced-motion rule, which
- * plays an animation once in no time, leaves her still and smiling.
+ * plays an animation once in no time, leaves her still and smiling. Her idle
+ * loops run on one clock shared by every copy of her (lib/ux/loopSync.ts), so
+ * a new page or a reload picks her up mid-breath rather than from the top.
  *
  * `--watch-x` and `--watch-y` on an ancestor aim her eyes (see
  * `MascotWatch`), and they default to nothing. Colours are four tokens,
@@ -56,13 +58,18 @@ export function AnuFace({
       role="img"
       aria-label="Anu"
     >
+      {/* The wiggle a hover gives her plays on a layer round the one that
+          breathes, so reaching for her never restarts her breathing. */}
+      <g className="anu-play">
       <g className="anu-body">
         {/* Hair: the tilde of the õ, one beat behind the head. */}
-        <path
-          className="anu-hair"
-          d="M21.5 12.5q5.25-6.2 10.5 0t10.5 0"
-          style={{ fill: "none", stroke: "var(--anu-hair)", strokeWidth: 4.6, strokeLinecap: "round" }}
-        />
+        <g className="anu-hair-play">
+          <path
+            className="anu-hair"
+            d="M21.5 12.5q5.25-6.2 10.5 0t10.5 0"
+            style={{ fill: "none", stroke: "var(--anu-hair)", strokeWidth: 4.6, strokeLinecap: "round" }}
+          />
+        </g>
         <circle
           cx="32"
           cy="38"
@@ -93,6 +100,7 @@ export function AnuFace({
         ) : (
           <path d="M25.4 43.4q6.6 6 13.2 0" style={{ fill: "none", stroke: "var(--anu-line)", strokeWidth: 2.6, strokeLinecap: "round" }} />
         )}
+      </g>
       </g>
     </svg>
   );

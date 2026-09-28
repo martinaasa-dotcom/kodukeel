@@ -52,7 +52,7 @@ export function EntryPage({ locale }: { locale: EntryLocale }) {
           className="mx-auto flex max-w-5xl items-center justify-between gap-3 rounded-full border px-4 py-2.5"
           style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
-          <BrandLink href="/welcome" label="Kodukeel" className="flex min-h-11 items-center">
+          <BrandLink href="/welcome" label="Kodukeel" holdForPress className="flex min-h-11 items-center">
             <Wordmark size={30} />
           </BrandLink>
           <div className="flex items-center gap-1 text-sm font-semibold">

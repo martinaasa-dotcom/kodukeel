@@ -25,8 +25,8 @@ import { useId, type CSSProperties } from "react";
  * in the rail and the mark on a home screen are one drawing.
  *
  * It moves by its columns, which is the one thing a pixel drawing can do that
- * a stroke cannot: a wave running along it every few seconds while it is
- * happy, a hop when there is something to celebrate, and the columns lighting
+ * a stroke cannot: while it is happy it wipes away and types itself back in
+ * every few seconds, column by column, like a cursor writing the character, a hop when there is something to celebrate, and the columns lighting
  * one after another, like a cursor, while it thinks. Inside a `BrandLink` it
  * plays as well: a pointer on it tips the tile and sets the pixels dancing
  * through the Vikerkaar öös colours with the name hopping after them, and a
@@ -93,31 +93,41 @@ export function Mascot({
           square. Tilted inside the box rather than as the box, so the
           element keeps the size it declares; `.mark-body` is scaled to fit
           its own corners. */}
+      {/* Three layers, so nothing a hand does interrupts the loop: the press
+          plays on the outside, the hover inside it, and the idle sway on the
+          tile itself, which is also where it sits crooked. A loop that is
+          never swapped out is a loop that never restarts. */}
+      <g className="mark-pop">
+      <g className="mark-giddy">
       <g className="mark-body">
       <rect width="100" height="100" rx="23" fill={`url(#${bg})`} />
       <g className="mark-tilde">
+      <g className="mark-tip">
       <g style={lean}>
         {animate ? (
           TOPS.map((top, c) => (
-            <rect
-              key={c}
-              className="pixel-col"
-              x={X0 + c * S - 0.2}
-              y={Y0 + top * S}
-              width={S + 0.4}
-              height={2 * S}
-              style={
-                {
-                  fill: "var(--mark-ink)",
-                  "--c": c,
-                  "--dir": c - 4.5,
-                } as CSSProperties
-              }
-            />
+            // The same three layers per column: it types itself in on the
+            // outside, flies on a press in the middle and dances on a hover
+            // on the pixel itself.
+            <g key={c} className="pixel-col" style={{ "--c": c, "--dir": c - 4.5 } as CSSProperties}>
+              <g className="pixel-fly">
+                <rect
+                  className="pixel"
+                  x={X0 + c * S - 0.2}
+                  y={Y0 + top * S}
+                  width={S + 0.4}
+                  height={2 * S}
+                  style={{ fill: "var(--mark-ink)" }}
+                />
+              </g>
+            </g>
           ))
         ) : (
           <path d={TILDE_PATH} style={{ fill: "var(--mark-ink)" }} />
         )}
+      </g>
+      </g>
+      </g>
       </g>
       </g>
       </g>
@@ -166,7 +176,7 @@ export function Wordmark({ size = 34, subtitle }: { size?: number; subtitle?: st
           <span aria-hidden>
             {"kodukeel".split("").map((ch, i) => (
               <span key={i} className="wm-letter" style={{ "--i": i } as CSSProperties}>
-                {ch}
+                <span className="wm-jump">{ch}</span>
               </span>
             ))}
           </span>

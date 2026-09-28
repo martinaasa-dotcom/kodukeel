@@ -3514,9 +3514,10 @@
   whole. Every keyframe ends where it began, so the global reduced-motion rule,
   which runs an animation once in no time, leaves the still mark.
 
-  Idle is a wave that rolls through every few seconds and then rests, sized to
-  be seen: half a pixel of the tilde, which at the rail's 48px is two screen
-  pixels. Cheer is a quick hop that runs left to right; thinking lights the
+  Idle is the board's own "Piksel" motion: every few seconds the tilde wipes
+  away left to right and types itself back in, column by column, each column
+  popping a little past its size and settling, like a cursor writing the
+  character. It starts and ends drawn, so a still frame is the mark. Cheer is a quick hop that runs left to right; thinking lights the
   columns in turn, like a cursor.
 
   Inside a `.mark-play` link (components/BrandLink.tsx) it plays. A pointer on
@@ -3527,48 +3528,72 @@
 */
 .mark-svg { overflow: visible; }
 /* Crooked at rest, in every state, still or moving. A transform on a group in
-   an SVG takes the view box as its box, so these origins are in its units. */
-.mark-svg .mark-body {
-  transform-box: view-box;
-  transform-origin: 50% 55%;
-  transform: rotate(-7deg) scale(0.9);
-}
-.mark-svg .mark-tilde {
-  transform-box: view-box;
-  transform-origin: 50% 50%;
-  transform: rotate(5deg);
-}
-.mark-live .mark-body { animation: mark-sway 6.4s ease-in-out infinite; }
-.mark-live .pixel-col { transform-box: fill-box; transform-origin: 50% 50%; }
-.mark-live.mark-happy .pixel-col { animation: pixel-wave 4.2s ease-in-out calc(var(--c) * 0.07s) infinite; }
-.mark-live.mark-cheer .pixel-col { animation: pixel-hop 1.6s ease-in-out calc(var(--c) * 0.06s) infinite; }
-.mark-live.mark-thinking .pixel-col { animation: pixel-think 1.8s ease-in-out calc(var(--c) * 0.12s) infinite; }
+   an SVG takes the view box as its box, so these origins are in its units.
+   The press, the hover and the idle loop each have a layer of their own
+   (components/brand.tsx), so a hand reaching for the mark never swaps out the
+   loop underneath: the loop is never restarted, and lib/ux/loopSync.ts keeps
+   it on one clock across pages and reloads. */
+.mark-svg .mark-pop,
+.mark-svg .mark-giddy,
+.mark-svg .mark-body { transform-box: view-box; transform-origin: 50% 55%; }
+.mark-svg .mark-body { transform: rotate(-7deg) scale(0.9); }
+.mark-svg .mark-tilde,
+.mark-svg .mark-tip { transform-box: view-box; transform-origin: 50% 50%; }
+.mark-svg .mark-tilde { transform: rotate(5deg); }
+.mark-live .pixel-col,
+.mark-live .pixel-fly,
+.mark-live .pixel { transform-box: fill-box; transform-origin: 50% 50%; }
 
-.mark-play:hover .mark-live .mark-body,
-.mark-play:focus-visible .mark-live .mark-body { animation: mark-giddy 0.9s ease-in-out infinite; }
-.mark-play:hover .mark-live .mark-tilde,
-.mark-play:focus-visible .mark-live .mark-tilde { animation: tilde-tip 0.9s ease-in-out infinite; }
-.mark-play:hover .mark-live .pixel-col,
-.mark-play:focus-visible .mark-live .pixel-col {
-  animation: pixel-dance 0.95s ease-in-out calc(var(--c) * 0.055s) infinite;
+.mark-live .mark-body { animation: mark-sway 6.8s ease-in-out infinite; }
+/* The typing is two registered numbers rather than `opacity` and `transform`,
+   so a hand on the mark can hold the tilde fully drawn without touching the
+   loop: `--lit` goes to 1 under a hover or a press and each column shows the
+   larger of the two. A child cannot undo a parent's opacity; a maximum can. */
+@property --pix-o { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --pix-s { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --lit { syntax: "<number>"; inherits: true; initial-value: 0; }
+.mark-play { transition: --lit 0.3s ease-out; }
+.mark-play[data-play],
+.mark-play[data-burst] { --lit: 1; }
+.mark-live .pixel-col {
+  opacity: max(var(--pix-o), var(--lit));
+  transform: scale(max(var(--pix-s), var(--lit)));
 }
-.mark-play .wm-letter { display: inline-block; }
-.mark-play:hover .wm-letter,
-.mark-play:focus-visible .wm-letter {
-  animation: wordmark-hop 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.18s + var(--i) * 0.045s) 1 both;
+.mark-live.mark-happy .pixel-col { animation: pixel-type 3.4s ease-out calc(var(--c) * 0.09s) infinite; }
+.mark-live.mark-cheer .pixel-col { animation: pixel-hop 1.7s ease-in-out calc(var(--c) * 0.06s) infinite; }
+.mark-live.mark-thinking .pixel-col { animation: pixel-think 1.7s ease-in-out calc(var(--c) * 0.12s) infinite; }
+
+/* The hover. `data-play` is set by BrandLink rather than read off `:hover`,
+   because `:hover` ends the moment the pointer leaves and takes the move with
+   it mid-air; BrandLink lets each move finish its beat first. Every hover
+   keyframe starts and ends at rest, so it arrives and leaves without a jump. */
+.mark-play[data-play] .mark-live .mark-giddy { animation: mark-giddy 1.2s ease-in-out infinite; }
+.mark-play[data-play] .mark-live .mark-tip { animation: tilde-tip 1.2s ease-in-out infinite; }
+.mark-play[data-play] .mark-live .pixel {
+  animation: pixel-dance 1.2s ease-in-out calc(var(--c) * 0.06s) infinite;
 }
-.mark-play[data-burst] .mark-live .mark-body { animation: mark-pop 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 1 both; }
-.mark-play[data-burst] .mark-live .pixel-col {
-  animation: pixel-burst 0.95s cubic-bezier(0.25, 0.9, 0.35, 1) calc(var(--c) * 0.018s) 1 both;
+.mark-play .wm-letter,
+.mark-play .wm-jump { display: inline-block; }
+.mark-play[data-play] .wm-letter {
+  animation: wordmark-hop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.1s + var(--i) * 0.04s) 1 both;
 }
-.mark-play[data-burst] .wm-letter {
-  animation: wordmark-hop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.3s + var(--i) * 0.04s) 1 both;
+/* The press, once, on the outer layers, over whatever else is playing. */
+.mark-play[data-burst] .mark-live .mark-pop { animation: mark-pop 0.85s cubic-bezier(0.34, 1.4, 0.64, 1) 1 both; }
+.mark-play[data-burst] .mark-live .pixel-fly {
+  animation: pixel-burst 0.85s cubic-bezier(0.25, 0.9, 0.35, 1) calc(var(--c) * 0.015s) 1 both;
+}
+.mark-play[data-burst] .wm-jump {
+  animation: wordmark-hop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.2s + var(--i) * 0.035s) 1 both;
 }
 
-@keyframes pixel-wave {
-  0%, 36%, 100% { transform: translateY(0); }
-  12% { transform: translateY(-4.4px); }
-  24% { transform: translateY(1px); }
+/* Wipes away left to right and types itself back in, the board's "Piksel".
+   Starts and ends drawn, so a still frame is the mark. */
+@keyframes pixel-type {
+  0%, 70% { --pix-o: 1; --pix-s: 1; }
+  80% { --pix-o: 0; --pix-s: 1; }
+  87% { --pix-o: 0; --pix-s: 0.3; }
+  94% { --pix-o: 1; --pix-s: 1.15; }
+  100% { --pix-o: 1; --pix-s: 1; }
 }
 @keyframes pixel-hop {
   0%, 55%, 100% { transform: translateY(0); }
@@ -3588,11 +3613,11 @@
 }
 @keyframes pixel-burst {
   0% { transform: translate(0, 0) rotate(0deg); }
-  30% { transform: translate(calc(var(--dir) * 4px), -30px) rotate(calc(var(--dir) * 40deg)) scale(1.2); fill: var(--cta); }
-  52% { transform: translate(calc(var(--dir) * 5px), -22px) rotate(calc(var(--dir) * 80deg)) scale(1.1); fill: var(--blush); }
-  74% { transform: translate(calc(var(--dir) * 1px), 3px) rotate(calc(var(--dir) * 8deg)) scaleY(0.8); fill: var(--sky); }
-  88% { transform: translate(0, -2px) rotate(0deg); }
-  100% { transform: translate(0, 0) rotate(0deg); fill: var(--mark-ink); }
+  30% { transform: translate(calc(var(--dir) * 4px), -30px) rotate(calc(var(--dir) * 40deg)) scale(1.2); }
+  55% { transform: translate(calc(var(--dir) * 5px), -20px) rotate(calc(var(--dir) * 80deg)) scale(1.1); }
+  78% { transform: translate(calc(var(--dir) * 1px), 3px) rotate(calc(var(--dir) * 8deg)) scaleY(0.8); }
+  90% { transform: translate(0, -2px) rotate(0deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 @keyframes mark-sway {
   0%, 100% { transform: rotate(-7deg) scale(0.9); }
@@ -3600,19 +3625,22 @@
   62% { transform: rotate(-9deg) translateY(0.5px) scale(0.9); }
 }
 @keyframes mark-giddy {
-  0%, 100% { transform: rotate(4deg) scale(0.98); }
-  50% { transform: rotate(-11deg) translateY(-3px) scale(1.02); }
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(9deg) translateY(-2px) scale(1.05); }
+  75% { transform: rotate(-7deg) translateY(-3px) scale(1.04); }
 }
 @keyframes tilde-tip {
-  0%, 100% { transform: rotate(-6deg); }
-  50% { transform: rotate(10deg); }
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-11deg); }
+  70% { transform: rotate(8deg); }
 }
 @keyframes mark-pop {
-  0% { transform: rotate(-7deg) scale(0.78, 0.7); }
-  28% { transform: rotate(12deg) translateY(-6px) scale(1.02, 1.08); }
-  55% { transform: rotate(-12deg) scale(0.92, 0.88); }
-  78% { transform: rotate(-4deg) scale(0.94); }
-  100% { transform: rotate(-7deg) scale(0.9); }
+  0% { transform: scale(1); }
+  14% { transform: scale(0.88, 0.8); }
+  40% { transform: rotate(16deg) translateY(-7px) scale(1.1, 1.16); }
+  65% { transform: rotate(-8deg) scale(0.97, 0.93); }
+  84% { transform: rotate(3deg) scale(1.01); }
+  100% { transform: rotate(0deg) scale(1); }
 }
 @keyframes wordmark-hop {
   0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -3641,7 +3669,7 @@
 .anu-live .anu-hair { animation: anu-hair 3.9s ease-in-out 0.18s infinite; }
 .anu-live .anu-eye { animation: anu-blink 5.3s ease-in-out infinite; }
 .anu-live.anu-happy .anu-look { animation: anu-glance 11.7s ease-in-out infinite; }
-.anu-live.anu-cheer .anu-body { animation: anu-hop 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) infinite; }
+.anu-live.anu-cheer .anu-body { animation: anu-bounce 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) infinite; }
 .anu-live.anu-cheer .anu-hair { animation: anu-hair-hop 1.5s ease-in-out 0.08s infinite; }
 .anu-live.anu-cheer .anu-cheek { animation: anu-glow 1.5s ease-in-out infinite; }
 .anu-live.anu-thinking .anu-body { animation: anu-ponder 4.6s ease-in-out infinite; }
@@ -3649,10 +3677,13 @@
 .anu-live.anu-talking .anu-talk { animation: anu-talk 0.46s ease-in-out infinite; }
 .anu-still.anu-thinking .anu-hair { transform: rotate(-9deg); }
 /* A pointer over the button she sits in gets a wiggle and a flick of hair. */
-.anu-call:hover .anu-live .anu-body,
-.anu-call:focus-visible .anu-live .anu-body { animation: anu-wiggle 0.9s ease-in-out infinite; }
-.anu-call:hover .anu-live .anu-hair,
-.anu-call:focus-visible .anu-live .anu-hair { animation: anu-hair-hop 0.9s ease-in-out infinite; }
+/* On layers of their own round the idle ones (components/anu/AnuFace.tsx), so
+   the wiggle never swaps out her breathing, and set from `data-play` by
+   `useFinishingHover` so a wiggle ends its beat when the pointer leaves. */
+.anu-face .anu-play { transform-box: view-box; transform-origin: 32px 58px; }
+.anu-face .anu-hair-play { transform-box: view-box; transform-origin: 32px 13px; }
+.anu-call[data-play] .anu-live .anu-play { animation: anu-wiggle 0.9s ease-in-out infinite; }
+.anu-call[data-play] .anu-live .anu-hair-play { animation: anu-hair-flick 0.9s ease-in-out infinite; }
 
 @keyframes anu-breathe {
   0%, 100% { transform: translateY(0) scale(1, 1); }
@@ -3672,7 +3703,7 @@
   36%, 46% { transform: translate(2px, -0.6px); }
   52%, 58% { transform: translate(-1.8px, 0.4px); }
 }
-@keyframes anu-hop {
+@keyframes anu-bounce {
   0%, 60%, 100% { transform: translateY(0) scale(1, 1); }
   14% { transform: translateY(0) scale(1.06, 0.92); }
   30% { transform: translateY(-7px) scale(0.96, 1.05); }
@@ -3700,6 +3731,12 @@
 @keyframes anu-talk {
   0%, 100% { transform: scaleY(1); }
   50% { transform: scaleY(0.35); }
+}
+@keyframes anu-hair-flick {
+  0%, 100% { transform: translateY(0) rotate(0deg) scaleX(1); }
+  30% { transform: translateY(-3.5px) rotate(-9deg) scaleX(1.1); }
+  50% { transform: translateY(1px) rotate(6deg) scaleX(0.92); }
+  70% { transform: translateY(-1px) rotate(-2deg) scaleX(1.02); }
 }
 @keyframes anu-wiggle {
   0%, 100% { transform: rotate(0deg); }

@@ -1,45 +1,78 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useRef, type MouseEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { useFinishingHover } from "@/components/motion/useFinishingHover";
+
+/** How long a press plays, matched to the longest `data-burst` rule in
+ *  app/globals.css with its stagger. */
+const BURST_MS = 900;
 
 /**
  * The link the wordmark sits in, top left of the rail and the landing page.
  *
- * It exists for the press. A hover can be CSS alone (`.mark-play:hover` in
- * app/globals.css), but `:active` lasts as long as the button is held, which
- * on a click is a tenth of a second: too short for pixels to go up and come
- * down. So a press sets `data-burst`, the keyframes run once from it, and it
- * is cleared when they are done, ready for the next. Pressing again mid-burst
- * restarts it rather than being ignored.
+ * A hover is `data-play`, set and cleared by `useFinishingHover`, so a pointer
+ * leaving lets the move finish its beat rather than dropping it mid-air. A
+ * press sets `data-burst` for one run of its keyframes. A second press while
+ * the first is still in the air is not a restart, because a restart is a jump:
+ * it waits for the one in flight.
+ *
+ * `holdForPress` is for the one place the mark does not survive the click: the
+ * landing page's own pages, where going home draws a different page and the
+ * mark with it. There the press plays out and then the link is followed, so
+ * nobody watches the pixels leave and never come down. In the rail the mark
+ * outlives the navigation, so the link is followed at once and the press plays
+ * on over the next page. A click with a modifier, which opens a tab, is never
+ * held.
  */
 export function BrandLink({
   href,
   className = "",
   title,
   label,
+  holdForPress = false,
   children,
 }: {
   href: string;
   className?: string;
   title?: string;
   label?: string;
+  holdForPress?: boolean;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
-  const timer = useRef<number | undefined>(undefined);
+  const until = useRef(0);
+  const router = useRouter();
+  const hover = useFinishingHover(ref);
 
-  function burst() {
+  /** Starts a press unless one is in the air; returns how long it has left. */
+  function burst(): number {
     const el = ref.current;
-    if (!el) return;
-    window.clearTimeout(timer.current);
+    const now = performance.now();
+    if (!el) return 0;
+    if (now < until.current) return until.current - now;
+    until.current = now + BURST_MS;
     el.removeAttribute("data-burst");
-    // Reading layout here is what lets the same keyframes start over on a
-    // second press: without it the attribute is removed and put back in one
+    // Reading layout here is what lets the same keyframes start over on the
+    // next press: without it the attribute is removed and put back in one
     // frame and the browser sees nothing change.
     void el.offsetWidth;
     el.setAttribute("data-burst", "");
-    timer.current = window.setTimeout(() => el.removeAttribute("data-burst"), 1100);
+    window.setTimeout(() => {
+      if (performance.now() >= until.current) el.removeAttribute("data-burst");
+    }, BURST_MS + 50);
+    return BURST_MS;
+  }
+
+  function onClick(e: MouseEvent<HTMLAnchorElement>) {
+    // A keyboard press arrives as a click with no pointer behind it.
+    const left = e.detail === 0 ? burst() : Math.max(0, until.current - performance.now());
+    if (!holdForPress || left === 0) return;
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    e.preventDefault();
+    window.setTimeout(() => router.push(href), left);
   }
 
   return (
@@ -49,9 +82,9 @@ export function BrandLink({
       title={title}
       aria-label={label}
       className={`mark-play ${className}`}
-      onPointerDown={burst}
-      // A keyboard press arrives as a click with no pointer behind it.
-      onClick={(e) => { if (e.detail === 0) burst(); }}
+      {...hover}
+      onPointerDown={() => { burst(); }}
+      onClick={onClick}
     >
       {children}
     </Link>
