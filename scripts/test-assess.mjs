@@ -123,7 +123,7 @@ for (let step = 0; step < 200; step++) {
   */
   const selfRating = page.getByRole("button", { name: /Fairly sure/ });
   if (await selfRating.count()) {
-    saidNotScored ||= (await page.getByText(/never moves your level/i).count()) > 0;
+    saidNotScored ||= (await page.getByText(/never moves your level|part isn.t scored/i).count()) > 0;
     await selfRating.click();
     await page.waitForTimeout(150);
     continue;
@@ -201,7 +201,7 @@ check("the result says how few questions it came from",
 check("it refuses to call itself a certificate",
   (await page.getByText(/Not a certificate/i).count()) > 0);
 check("it keeps speaking out of the level",
-  (await page.getByText(/never part of the level/i).count()) > 0);
+  (await page.getByText(/never part of (the|your) level|left out of your level/i).count()) > 0);
 
 // ─── It was kept, and it drives the plan ──────────────────────────────────────
 
@@ -240,7 +240,7 @@ check("the plan is in hours, not badges", /study hours to go/i.test(planText));
 check("it names its sources rather than asserting", /Foreign Service Institute/.test(planText));
 check("it says what the app itself cannot cover",
   /beyond this app/i.test(planText) || /covers it/i.test(planText));
-check("it does not promise the exam", /check the current requirement/i.test(planText));
+check("it does not promise the exam", /check the current (requirement|rules)/i.test(planText));
 
 // ─── First run ────────────────────────────────────────────────────────────────
 
