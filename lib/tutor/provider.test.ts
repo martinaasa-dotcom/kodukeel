@@ -3,7 +3,7 @@ import {
   TUTOR_FALLBACK_MODEL,
   billedOutput, completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
-  SCENE_FALLBACK_MODEL, SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
+  SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
   visionProviders, VISION_MODEL,
 } from "@/lib/tutor/provider";
 import { priceFor, UNKNOWN_MODEL } from "@/lib/usage/pricing";
@@ -196,10 +196,10 @@ describe("a chain built for a purpose", () => {
     expect(tutorWithFallback).toHaveLength(2);
 
     const sceneNamed = resolveProviders({ purpose: "scene", allowFallback: false }).map((c) => c.name);
-    // Two Gemini links, one per entry of `SCENE_MODELS`, then the Groq link.
-    expect(sceneNamed).toEqual(["gemini", "gemini", "groq"]);
+    // Two Gemini links, one per entry of `SCENE_MODELS`, and no Groq link.
+    expect(sceneNamed).toEqual(["gemini", "gemini"]);
     const sceneWithFallback = resolveProviders({ purpose: "scene", allowFallback: true });
-    expect(sceneWithFallback.map((c) => c.name)).toEqual(["gemini", "gemini", "groq", "anthropic"]);
+    expect(sceneWithFallback.map((c) => c.name)).toEqual(["gemini", "gemini", "anthropic"]);
   });
 
   it("falls to scripted on its own provider's absence, independently", () => {
@@ -217,40 +217,34 @@ describe("a chain built for a purpose", () => {
     only("groq");
     expect(resolveProviders({ purpose: "tutor" })).not.toHaveLength(0);
     /*
-      A scene on a Groq-only deployment composes on Groq directly now, since
-      `SCENE_FALLBACK_MODEL` is a fixed link rather than the bounded last
-      resort: it does not depend on `allowFallback` and never touches the
-      Anthropic budget. That is why a one-key install still works at all.
+      A scene on a Groq-only deployment composes on nothing and plays off the
+      lines written for it, which is what the operator chose over the Groq
+      model that composed every conversation the day Gemini ran out of
+      credit (`PURPOSE_CHAINS.scene`). A Groq link may not come back.
     */
-    const groqOnlyScene = resolveProviders({ purpose: "scene", allowFallback: false });
-    expect(groqOnlyScene.map((c) => c.name)).toEqual(["groq"]);
-    expect(groqOnlyScene[0]?.model).toBe(SCENE_FALLBACK_MODEL);
+    expect(resolveProviders({ purpose: "scene", allowFallback: false })).toEqual([]);
+    expect(resolveProviders({ purpose: "scene", allowFallback: true }).some((c) => c.name === "groq")).toBe(false);
   });
 
   it("puts Anthropic behind a purpose's own providers, once, as a last resort", () => {
     all();
     const scene = resolveProviders({ purpose: "scene", allowFallback: true });
-    expect(scene.map((c) => c.name)).toEqual(["gemini", "gemini", "groq", "anthropic"]);
-    // Gemini still leads, on both of its models in order, Groq is the fixed
-    // link behind them, and the bounded fallback sits behind all three rather
-    // than instead of any of them.
+    expect(scene.map((c) => c.name)).toEqual(["gemini", "gemini", "anthropic"]);
+    // Gemini still leads, on both of its models in order, and the bounded
+    // fallback sits behind them rather than instead of either.
     expect(scene.slice(0, SCENE_MODELS.length).map((c) => c.model)).toEqual([...SCENE_MODELS]);
-    expect(scene[SCENE_MODELS.length]?.model).toBe(SCENE_FALLBACK_MODEL);
   });
 
   it("drops the fallback the moment the day's fallback budget is spent", () => {
     /*
       What the ledger's `fallbackAllowed` buys. Past the budget the chain is
-      the purpose's own providers again -- Gemini and its fixed Groq backup,
-      neither of which is the thing being gated -- so a Gemini that is not
-      answering falls to Groq rather than to the bounded Anthropic tail, and
-      only a Groq that is not answering either sends the ladder to its
-      recorded and banked lines, which is where a keyless deployment already
-      lives.
+      the purpose's own providers again, which for a scene is Gemini alone,
+      so a Gemini that is not answering sends the ladder to its recorded and
+      banked lines, which is where a keyless deployment already lives.
     */
     all();
     const scene = resolveProviders({ purpose: "scene", allowFallback: false });
-    expect(scene.map((c) => c.name)).toEqual(["gemini", "gemini", "groq"]);
+    expect(scene.map((c) => c.name)).toEqual(["gemini", "gemini"]);
     // The general chain's dear tail is a fallback too, and goes the same way.
     expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "anthropic")).toBe(false);
     expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "openai")).toBe(false);
@@ -282,7 +276,7 @@ describe("a chain built for a purpose", () => {
 
   it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
     all();
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["gemini", "gemini", "groq", "anthropic"]);
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["gemini", "gemini", "anthropic"]);
   });
 
   it("keeps the scene chain isolated, and lets no override put another provider in front", () => {
@@ -293,20 +287,18 @@ describe("a chain built for a purpose", () => {
       went when the operator pinned the model, since a second variable that can
       move conversations is the door the `SCENE_MODEL` fault came through, one
       name over. What this asserts is what is left: Gemini on the pinned model
-      leads, Groq on its own pinned model is the fixed second link, Anthropic
-      sits behind both only as the gated last resort, and naming another
-      model for any of the three changes nothing.
+      leads, Anthropic sits behind it only as the gated last resort, Groq is
+      not on it at all, and naming another model for any of them changes
+      nothing.
     */
     all();
-    expect(sceneProviders().map((c) => c.name)).toEqual(["gemini", "gemini", "groq", "anthropic"]);
-    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "gemini", "groq"]);
+    expect(sceneProviders().map((c) => c.name)).toEqual(["gemini", "gemini", "anthropic"]);
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "gemini"]);
 
     vi.stubEnv("GROQ_SCENE_MODEL", "some/scene-model");
     vi.stubEnv("ANTHROPIC_SCENE_MODEL", "claude-sonnet-5");
-    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "gemini", "groq"]);
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "gemini"]);
     expect(sceneProviders()[0]).toMatchObject({ name: "gemini", model: SCENE_MODELS[0] });
-    // And the pinned Groq model does not move either, whatever `GROQ_SCENE_MODEL` says.
-    expect(sceneProviders().find((c) => c.name === "groq")).toMatchObject({ model: SCENE_FALLBACK_MODEL });
   });
 
   it("gives a deployment with no keys an empty chain for both, as it always did", () => {
@@ -1145,32 +1137,29 @@ describe("what the chain actually sends, hop by hop", () => {
     ]);
   });
 
-  it("sends a scene down both Gemini models, then Groq, then the bounded tail", async () => {
+  it("sends a scene down both Gemini models, then the bounded tail, and never to Groq", async () => {
     allKeys();
     expect(await walked(() => openWithFallback(
       sceneProviders(), "sys", [{ role: "user", content: "hi" }],
     ))).toEqual([
       `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[0]}`,
       `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[1]}`,
-      `api.groq.com GROQ_API_KEY-val ${SCENE_FALLBACK_MODEL}`,
       "api.anthropic.com ANTHROPIC_API_KEY-val claude-sonnet-5",
     ]);
   });
 
-  it("keeps Groq behind Gemini for a scene once the fallback budget is spent", async () => {
+  it("stops at Gemini for a scene once the fallback budget is spent", async () => {
     allKeys();
     /*
-      `SCENE_FALLBACK_MODEL` answers on every budget, unlike the Anthropic tail:
-      it is a fixed second link rather than the bounded last resort, because it
-      spends nothing Anu runs on. A Gemini-only install falls to the bank
-      instead, which is where a keyless deployment has always played.
+      Nothing behind Gemini but the bounded tail, so a spent budget leaves the
+      two Gemini links and the bank under them. The Groq link that used to
+      answer here is what composed the conversations the operator refused.
     */
     expect(await walked(() => openWithFallback(
       sceneProviders({ allowFallback: false }), "sys", [{ role: "user", content: "hi" }],
     ))).toEqual([
       `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[0]}`,
       `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[1]}`,
-      `api.groq.com GROQ_API_KEY-val ${SCENE_FALLBACK_MODEL}`,
     ]);
   });
 

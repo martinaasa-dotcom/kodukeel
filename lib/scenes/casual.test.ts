@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { lemmasOfForm } from "@/lib/dict/forms";
-import { CASUAL, CASUAL_BYE_WORDS, casualBye, casualHello } from "./casual";
+import { CASUAL, CASUAL_BYE_WORDS, casualBye, casualHello, saysGoodbye } from "./casual";
 
 describe("casual greetings", () => {
   /*
@@ -36,5 +36,19 @@ describe("casual greetings", () => {
     expect(casualBye(["tsau", "kuhu", "ma", "pean", "minema"])).toBeNull();
     expect(casualBye([])).toBeNull();
     expect(CASUAL_BYE_WORDS).toBe(3);
+  });
+});
+
+describe("saysGoodbye", () => {
+  const FAREWELLS = ["Head aega!", "Nägemist!"];
+  it("reads a farewell anywhere in a turn as leaving", () => {
+    expect(saysGoodbye("Aitäh, head aega!", FAREWELLS)).toBe(true);
+    expect(saysGoodbye("nägemist", FAREWELLS)).toBe(true);
+    expect(saysGoodbye("ok tsau", FAREWELLS)).toBe(true);
+  });
+  it("does not read thanks as leaving", () => {
+    expect(saysGoodbye("aitäh", FAREWELLS)).toBe(false);
+    expect(saysGoodbye("Aitäh väga!", FAREWELLS)).toBe(false);
+    expect(saysGoodbye("tsau, kuhu ma pean minema?", FAREWELLS)).toBe(false);
   });
 });

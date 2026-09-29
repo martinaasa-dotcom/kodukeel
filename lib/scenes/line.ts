@@ -25,7 +25,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import {
-  MAX_COMPOSED_WORDS, MAX_SENTENCES, passes, runGate, type Check, type GateContext, type Verdict,
+  MAX_COMPOSED_WORDS, MAX_SENTENCES, passes, runGate, withoutFarewell, type Check, type GateContext, type Verdict,
 } from "./gate";
 import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
@@ -438,8 +438,19 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     const verdicts: (Verdict | null)[] = [];
     for (let n = 0; n < MAX_COMPOSE_ATTEMPTS; n += 1) {
       const last = verdicts.at(-1) ?? null;
-      const line = await request.compose(retryNote(last), whyWithheld(last));
-      const verdict = await judge(line);
+      let line = await request.compose(retryNote(last), whyWithheld(last, request.beat.move));
+      let verdict = await judge(line);
+      /*
+        A line held back for its goodbye alone keeps everything before it:
+        the goodbye comes off and the rest is gated again, which costs a
+        comparison where a retry costs a call and usually writes the goodbye
+        a second time (`withoutFarewell`).
+      */
+      if (line && verdict && !passes(verdict) && verdict.failed.includes("farewell")) {
+        const trimmed = withoutFarewell(line, request.beat, gate);
+        const again = trimmed ? await judge(trimmed) : null;
+        if (trimmed && again && passes(again)) { line = trimmed; verdict = again; }
+      }
       attempts.push(line);
       verdicts.push(verdict);
       if (line && verdict && passes(verdict)) {
@@ -499,7 +510,7 @@ export function retryNote(verdict: Verdict | null): readonly string[] {
  * attempts, so the failure has to be said. One clause per check, about the
  * line and never about Estonian this file does not hold.
  */
-export function whyWithheld(verdict: Verdict | null): string | undefined {
+export function whyWithheld(verdict: Verdict | null, move?: string): string | undefined {
   if (!verdict) return undefined;
   /*
     Total over every check but the two `retryNote` already speaks for, so a
@@ -508,12 +519,22 @@ export function whyWithheld(verdict: Verdict | null): string | undefined {
     verbless question again and the turn fell to the bank.
   */
   const reasons: Record<Exclude<Check, "vouching" | "stretch">, string> = {
-    facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, in digits or in words",
+    facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, and in digits, exactly as the facts give them",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
     topic: "it was not about what you are doing at this moment, or about what they just said",
     // The ceiling is read off the gate rather than typed, so the retry is told
     // the limit the gate will actually apply to the line it writes next.
-    shape: `it was the wrong shape: an ask holds a question, an instruction or an answer does not, and it has to be punctuated, unformatted, at most ${MAX_SENTENCES} sentences and at most ${MAX_COMPOSED_WORDS} words`,
+    /*
+      Said for the move in hand where it is known, because the general
+      sentence did not land: told "an instruction does not hold a question",
+      a model giving directions wrote `Kas leiate tee üles?` on the end of
+      the same line again, twice, and the turn fell to the bank.
+    */
+    shape: move === undefined
+      ? `it was the wrong shape: an ask holds a question, an instruction or an answer does not, and it has to be punctuated, unformatted, at most ${MAX_SENTENCES} sentences and at most ${MAX_COMPOSED_WORDS} words`
+      : move === "ask"
+        ? `it was the wrong shape: your move is to ask, so the line holds your question, punctuated and unformatted, at most ${MAX_SENTENCES} sentences and ${MAX_COMPOSED_WORDS} words`
+        : `it was the wrong shape: your move gives them something and asks them nothing, so leave out every question, even a check like "is that clear?"; punctuated and unformatted, at most ${MAX_SENTENCES} sentences and ${MAX_COMPOSED_WORDS} words`,
     agreement: "its subject and its verb did not agree in person",
     infinitive: "it put the ma-infinitive where the da-infinitive belongs",
     negation: "a verb after the negator kept its personal ending",

@@ -278,11 +278,13 @@ for all of them. Neither asks for a card. **Settings** in the app walks through 
 That is all three. Anu answers on `gemini-3.1-flash-lite`, scenes compose on `gemini-3.8-flash` and
 scanning reads with `gemini-3.1-flash-lite`. For a backup, add a key from
 [console.groq.com](https://console.groq.com) (**API Keys** → **Create API Key**, free, no card) on
-a line of its own; Groq then answers Anu on `openai/gpt-oss-120b` and scenes on `qwen/qwen3.8-27b`
-whenever Gemini is missing, out of credit or having a bad minute:
+a line of its own:
    ```
    GROQ_API_KEY="paste-your-key-here"
    ```
+Groq then answers Anu on `openai/gpt-oss-120b` whenever Gemini is missing, out of credit or having a
+bad minute. Scenes have no Groq backup: without Gemini they play the lines written for them in advance
+and say the model is out.
 
 An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is optional and paid: it sits behind the two free keys as
 a fallback for the minute one of them is throttled, inside a daily budget of its own, and is never
@@ -310,10 +312,12 @@ request for the rest of the day (OpenRouter is no longer in the chain), which is
 and is the argument for the lines written in advance being good rather than for the ladder being
 different.
 
-**Conversations are pinned to `gemini-3.8-flash`, with `gemini-3.1-flash-lite` behind it and Groq's
-`qwen/qwen3.8-27b` a fixed link behind both, and no variable moves any of them.** They compose on Gemini when `GEMINI_API_KEY` is set,
-fall to Groq when it is not or is having a bad minute, and only fall to their recorded and banked
-lines once both are unavailable. Anthropic sits behind both, still only as the gated last resort.
+**Conversations are pinned to `gemini-3.8-flash`, with `gemini-3.1-flash-lite` behind it, and no
+variable moves either.** They compose on Gemini when `GEMINI_API_KEY` is set; Anthropic sits behind
+it only as the gated last resort; and where neither answers they fall to their recorded and banked
+lines, and the screen says the model is out. Groq's `qwen/qwen3.8-27b` stood behind Gemini here until
+the day the Gemini balance ran out and it composed every conversation, badly enough that no model at
+all was the better answer. The screen names the model that is answering once, at the top.
 There is no `SCENE_MODEL` and no `*_SCENE_MODEL` override any more: the first held a Groq model name
 from the days scenes ran on Groq, the chain moved to Gemini and kept reading it, and Google refused
 every composed turn for a week while the route answered 200, so every conversation on production

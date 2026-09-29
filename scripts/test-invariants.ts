@@ -18973,7 +18973,8 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   const bookAt = route.indexOf('authoriseCall(ownerId, "SCENE")');
   assert.ok(netAt > 0 && bookAt > 0 && netAt < bookAt,
     "the route books a call before working out what it would say without one, so the net is assembled while somebody is waiting");
-  assert.match(route, /if \(cheap\.provenance === "attested" && !shrugOwed && !handing && !askedNow\) return/,
+  // The close beat after a learner's news is the one courtesy the model answers (`closingOnNews`).
+  assert.match(route, /if \(cheap\.provenance === "attested" && !shrugOwed && !handing && !askedNow && !closingOnNews\) return/,
     "the route no longer answers a courtesy off the dictionary before asking a model to paraphrase it");
   assert.match(route, /scripted: context\.scripted\.get\(beat\.id\)/, "the route no longer hands the ladder the bank");
 
@@ -23120,7 +23121,8 @@ check("the interview settles the wage before it asks for a start day, off the ca
     beats earlier credited the wage beat and the figure was never said.
   */
   assert.match(
-    code("lib/progress/scene.ts"), /if \(other\.move === "offer" && at > state\.beat\) continue;/,
+    // Unless the other side already stated the offer's figure in a line of its own (`offerAlreadyMade`).
+    code("lib/progress/scene.ts"), /if \(other\.move === "offer" && at > state\.beat && !offerAlreadyMade\(other, draw, heard\)\) continue;/,
     "the look-ahead credits an offer beat before the offer has been made",
   );
 });
