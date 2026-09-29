@@ -50,7 +50,9 @@ import {
 } from "@/lib/scenes/state";
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
+import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
 import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
+import { saysGoodbye } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 
 /**
@@ -907,6 +909,7 @@ export interface FinishedRun {
   readonly grades: readonly SceneGrade[];
   /** What to do differently, in English, derived from the transcript. */
   readonly review: SceneReview;
+  readonly recap: SceneRecap;
   /** Words the run needed and the learner did not have, for the debrief. */
   /**
    * Words the run needed and the learner did not have, for the debrief.
@@ -1266,6 +1269,7 @@ export async function finishRun(input: {
     turns: state.turns,
     grades,
     review,
+    recap: recapOf(scene, state),
     gaps: wanted.map((lemma) => ({ lemma, lexemeId: byLemma.get(lemma) ?? null })),
   };
 }
@@ -1398,7 +1402,14 @@ export function replay(
         weather. On such a beat a goodbye is leaving, like anywhere else.
       */
       const takesAnything = leafNeeds(beat.needs).every(({ need }) => need.kind === "any");
-      if (bye.reading === "complete" && (here.reading !== "complete" || takesAnything)) {
+      /*
+        AND THANKS IS NOT GOODBYE. The close beat takes a plain `Aitäh!` because
+        that is how a conversation ends at a counter, and read against every
+        turn it ended a doctor's appointment in the middle: a learner thanked
+        the receptionist for an answer, and was told `Nägemist!`. Mid-scene,
+        only somebody who actually says goodbye has left (`saysGoodbye`).
+      */
+      if (bye.reading === "complete" && saysGoodbye(said, FAREWELLS) && (here.reading !== "complete" || takesAnything)) {
         state = { ...state, beat: closeAt, patience: patienceAt(context.scene, state, closeAt), hurdle: null };
         ({ state, response } = advance(context.scene, state, bye, said, false, heardNow));
         previous = heardNow;
@@ -1457,7 +1468,7 @@ export function replay(
         the next line read a time back to somebody who had never been offered
         one. The offer is said, and the learner's yes is read against it then.
       */
-      if (next.move === "offer") break;
+      if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
       const read = readTurn(said, next, marker);
       /*
         A judge may have said this same turn met the next beat too, in a word
@@ -1524,7 +1535,7 @@ export function replay(
           interviewer never named the figure at all. Behind the pointer the
           offer has been made, and taking it late is taking it.
         */
-        if (other.move === "offer" && at > state.beat) continue;
+        if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
         const also = readTurn(said, other, marker);
         if (also.reading !== "complete" || !addsEvidence(also, spent)) continue;
         for (const word of also.satisfiedBy) spent.add(word);
@@ -1535,6 +1546,29 @@ export function replay(
     previous = heard;
   }
   return { state, response, elsewhere };
+}
+
+/**
+ * WHETHER THE OTHER SIDE HAS ALREADY MADE THIS OFFER, IN A LINE OF ITS OWN.
+ *
+ * The rule above holds an offer ahead of the pointer back until the offer is
+ * said, and a composed line can say it early: asked whether the learner had
+ * questions, the interviewer went on "Pakume palka 1556 eurot kuus. Kas see
+ * sobib teile?", the learner answered "Mulle sobib see palk", and the yes was
+ * refused because the offer's beat had not been reached. The next line then
+ * named the figure again as news, to somebody who had just accepted it. An
+ * offer is made where the line the learner was answering states the value the
+ * offer's own `says` names off the card, which is a fact about the words on
+ * the screen rather than a guess about intent.
+ */
+function offerAlreadyMade(beat: BeatSpec, draw: StoredDraw | null, heard: string): boolean {
+  if (!heard || !draw) return false;
+  const slots = (beat.says ?? []).flatMap((part) => ("slot" in part ? [part.slot] : []));
+  if (slots.length === 0) return false;
+  return slots.every((slot) => {
+    const value = draw.card.props.find((prop) => prop.slot === slot)?.value;
+    return Boolean(value) && new RegExp(`(^|\\D)${value!.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\D|$)`).test(heard);
+  });
 }
 
 /** The hurdle stood down because the learner answered the beat past it. */

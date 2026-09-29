@@ -31,7 +31,9 @@
  * question the beat did not ask for. Reading the sloppy and curious runs is
  * how the marker's tolerance and the asides were shaped.
  */
-import { SCENES, sceneById } from "../lib/scenes/catalogue";
+import { FAREWELLS, SCENES, sceneById } from "../lib/scenes/catalogue";
+import { ASKS_ON } from "../lib/scenes/curveballs";
+import { saysGoodbye } from "../lib/scenes/casual";
 import {
   MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, moneyInPlay, replay, sceneLemmas, type Row,
   type StoredDraw,
@@ -59,7 +61,7 @@ import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
 import type { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
-import { askLine, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
+import { askLine, COMPOSE_USAGE, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
 
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
@@ -93,9 +95,21 @@ const SAY = (arg("say") ?? "").split("|").map((s) => s.trim()).filter(Boolean);
  * because on a free tier a refusal is the ordinary case and a run that stopped
  * on the first 429 would measure nothing.
  */
-const LINKS = composing
+/*
+  `--model-down` plays what a learner meets on the day Gemini will not answer:
+  nobody composes, so the other side says the lines written for the scene,
+  and the judge is the grader chain's Groq link, which is what still answers.
+*/
+const modelDown = process.argv.includes("--model-down");
+const LINKS = composing && !modelDown
   ? providerChain().filter((link) => !pinned || link.model === pinned)
   : [];
+const JUDGE_LINKS = modelDown && process.env.GROQ_API_KEY
+  ? [{
+    name: "groq", model: "openai/gpt-oss-120b", label: "Groq",
+    url: "https://api.groq.com/openai/v1/chat/completions", key: process.env.GROQ_API_KEY,
+  }]
+  : LINKS;
 const COMPOSE_STATUS = new Map<string, number>();
 
 
@@ -135,6 +149,46 @@ const LOST = [
   */
   "tervitused", "see on keeruline", "ma mõtlen"
 ];
+
+/*
+  A LEARNER PLAYED BY A MODEL, WHICH IS THE ONE KIND OF LEARNER THE STYLES ABOVE
+  CANNOT BE. Every style is a rule over the beat's own requirements, so it never
+  says anything the scene did not anticipate, and the faults a real learner
+  meets are exactly the ones the scene did not anticipate: a question back, a
+  joke, a change of subject, a half-remembered word, English in the middle.
+  `--learner <kind>` asks Gemini for the next thing a beginner of that kind would
+  type, given the conversation so far and their own card; the app then marks it
+  exactly as the route would. Harness only, and never a grade: what it measures
+  is whether the other side keeps making sense.
+*/
+const LEARNER = arg("learner");
+const LEARNER_KINDS: Record<string, string> = {
+  shy: "shy and unsure: very short answers, often one word, sometimes just 'jah' or 'ei tea', occasional missing endings",
+  chatty: "chatty and friendly: says more than asked, adds personal details, asks the other person questions back, sometimes jokes",
+  offtrack: "easily distracted: often answers something other than what was asked, changes the subject, asks unrelated questions, then comes back",
+  confused: "often confused: misunderstands the question, answers the wrong thing, asks them to repeat or slow down, mixes in English words",
+  english: "weak in Estonian: mixes English and Estonian in the same sentence, uses English when stuck, wrong word endings, some typos",
+  good: "a decent A2 learner: tries to answer properly in simple Estonian, small mistakes in endings and spelling",
+};
+async function simulatedLearner(kind: string, title: string, role: string, card: readonly string[], talk: readonly string[]): Promise<string> {
+  const who = LEARNER_KINDS[kind] ?? kind;
+  const prompt = [
+    `You are role-playing a beginner learner of Estonian in a practice conversation: ${title}.`,
+    `Your situation: ${role}`,
+    card.length > 0 ? `Your card (suggestions): ${card.join("; ")}` : "",
+    `What kind of learner you are: ${who}.`,
+    "Write ONLY your next turn, as that learner would type it: short, beginner Estonian with realistic mistakes, no quotes, no explanation.",
+    "The conversation so far:",
+    ...talk,
+    "You:",
+  ].filter(Boolean).join("\n");
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 60, thinkingConfig: { thinkingBudget: 0 } } }),
+  }).catch(() => null);
+  const data = res && res.ok ? await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] } : null;
+  return (data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "jah").split("\n")[0]!.replace(/^You:\s*/i, "").trim() || "jah";
+}
 
 function learnerTurn(
   beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnType<typeof contextFromRows>["lexicon"], n: number,
@@ -196,9 +250,10 @@ async function play(sceneId: string) {
     §53 found in `eval:scene`, one instrument over.
   */
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
-  const run = planRun(scene, `play-${style}`, level, difficulty);
+  const run = planRun(scene, `play-${style}${arg("seed") ?? ""}`, level, difficulty);
   const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: LINKS.length > 0 ? "composed" : "scripted", patience: run.patience };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
+  const talkLog: string[] = [];
   console.log(`\n=== ${scene.title} (${scene.id}) · ${persona.id} · ${style} · ${difficulty} ===`);
   for (const prop of run.card.props) console.log(`   card: ${prop.card} ${prop.theirs ? "(theirs)" : `= ${prop.value}`}`);
 
@@ -247,7 +302,7 @@ async function play(sceneId: string) {
       app prints a conversation the app does not have.
     */
     const askJudge = async (beat: BeatSpec, said: string): Promise<boolean> => {
-      const link = LINKS[0]!;
+      const link = JUDGE_LINKS[0]!;
       const dealt = leafNeeds(beat.needs).flatMap(({ need }) => {
         if (need.kind !== "datum") return [];
         const prop = draw.card.props.find((one) => one.slot === need.slot && !one.theirs);
@@ -270,7 +325,7 @@ async function play(sceneId: string) {
       return verdict?.done === true;
     };
     const judgedBeat = state.hurdle ? hurdleBeat(state.hurdle) : judged;
-    if (LINKS.length > 0 && lastSent && lastRead && judgedBeat && !lastSent.conceded
+    if (JUDGE_LINKS.length > 0 && lastSent && lastRead && judgedBeat && !lastSent.conceded
       && lastRead.beatId === judgedBeat.id
       && ["offtarget", "incomplete", "english", "unrecognised", "fragment"].includes(lastRead.reading)
       && /\p{L}/u.test(lastSent.said)
@@ -285,7 +340,7 @@ async function play(sceneId: string) {
     const landedOn = state.turns[state.turns.length - 1];
     const ahead = currentBeat(scene, state);
     const sentNow = turns[turns.length - 1];
-    if (LINKS.length > 0 && sentNow && landedOn && ahead && response === "answer" && !state.hurdle
+    if (JUDGE_LINKS.length > 0 && sentNow && landedOn && ahead && response === "answer" && !state.hurdle
       && landedOn.beatId !== ahead.id && !state.done.includes(ahead.id) && !sentNow.alsoDone?.includes(ahead.id)
       && words(sentNow.said).some((w) => !context.lexicon.forms.has(w) && !context.lexicon.folded.has(fold(w)))) {
       if (await askJudge(ahead, sentNow.said)) {
@@ -356,7 +411,8 @@ async function play(sceneId: string) {
           does in the route: a question on the way out, or a word to hand over,
           is composed rather than answered `Ei tea. Head aega!`
         */
-        pool: (askedNow || handing) && LINKS.length > 0 ? [] : context.pool.get(spokenFor.id) ?? [],
+        pool: (askedNow || handing || (spokenFor.move === "close" && last !== null && !saysGoodbye(last.said, FAREWELLS)))
+          && LINKS.length > 0 ? [] : context.pool.get(spokenFor.id) ?? [],
         /*
           THE LEARNER'S OWN WORDS ARE ON TOPIC, AS THE ROUTE READS THEM. The
           route adds every word of the last turn the dictionary vouched to the
@@ -398,10 +454,8 @@ async function play(sceneId: string) {
             reading: "",
             facts,
             because,
-            examples: [...context.scripted.entries()]
-              .filter(([id]) => id !== spokenFor.id)
-              .flatMap(([, lines]) => lines.slice(0, 1))
-              .slice(0, 6),
+            // In the cached half, as the route sends them (`ComposeScene.voice`).
+            examples: [],
             // This beat's own, as the route hands them: ask the same thing, in your own words.
             asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
             agenda, settled,
@@ -415,6 +469,10 @@ async function play(sceneId: string) {
           }, {
             scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
             register: scene.register, words: context.lexicon.spoken,
+            voice: [...context.scripted.entries()]
+              .filter(([id]) => !id.includes(":"))
+              .flatMap(([, lines]) => lines.slice(0, 1))
+              .slice(0, 6),
           }, talk);
           },
         } : {}),
@@ -440,7 +498,10 @@ async function play(sceneId: string) {
           p.kind === "word" || p.kind === "weekday" ? [[p.slot, p.oneOf] as const] : [])),
         roll: state.turns.length, met: last?.met ?? [],
       }) : null,
-      hurdle: standing ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said } : null,
+      hurdle: standing ? {
+        beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said,
+        then: ASKS_ON.has(hurdleSpec(state)?.id ?? "") ? (context.scripted.get(beat?.id ?? "") ?? []).find((t) => !used.has(t)) ?? null : null,
+      } : null,
     });
     if (last) {
       const notes = [
@@ -450,6 +511,7 @@ async function play(sceneId: string) {
       console.log(`      [${last.reading}${notes.length ? " · " + notes.join(", ") : ""}]`);
     }
     for (const l of lines) {
+      if (l.provenance !== "unspoken" && l.provenance !== "coach" && l.provenance !== "meanwhile") talkLog.push(`Them: ${l.text}`);
       const who = l.provenance === "unspoken" ? "   (they)" : "   THEM";
       console.log(`${who}: ${l.text}   <${l.provenance}${l.reaction ? ", reaction" : ""}>`);
       if (l.provenance === "attested" || l.provenance === "scripted") used.add(l.text);
@@ -470,7 +532,10 @@ async function play(sceneId: string) {
     }
     const target = standing ?? beat;
     if (!target) break;
-    const said = SAY[n] ?? learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register);
+    const said = SAY[n] ?? (LEARNER
+      ? await simulatedLearner(LEARNER, scene.title, scene.role, run.card.props.filter((p) => !p.theirs).map((p) => `${p.card} ${p.value}`), talkLog)
+      : learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register));
+    talkLog.push(`You: ${said}`);
     console.log(`   YOU: ${said}      (goal: ${target.goal})`);
     turns.push({ beatId: target.id, said, helped: false, heard });
   }
@@ -489,6 +554,11 @@ async function play(sceneId: string) {
     if (LINKS.length === 0) console.log("  no provider key matched, so every line above is the net");
     for (const [why, count] of [...COMPOSE_STATUS].sort((a, b) => b[1] - a[1])) {
       console.log(`  ${why} x${count}`);
+    }
+    // What it cost in tokens, per model, off the transport's own usage report.
+    for (const [model, t] of COMPOSE_USAGE) {
+      console.log(`  ${model}: ${t.calls} calls, ${Math.round(t.input / Math.max(1, t.calls))} input tokens a call `
+        + `(${Math.round(t.cached / Math.max(1, t.calls))} cached), ${Math.round(t.output / Math.max(1, t.calls))} output`);
     }
   }
 })();

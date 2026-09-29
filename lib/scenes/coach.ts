@@ -71,8 +71,14 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
     case "lemma": {
       const word = need.oneOf[0];
       if (!word) return null;
-      const also = need.oneOf.length > 1 ? ", or another word for the same thing" : "";
-      return `Try the word “${word}”${also}. Any form of it will do, so don't worry about the ending.`;
+      /*
+        A TIP, NOT A TEST. "They are waiting for one word" read like an
+        examiner tapping the desk, to somebody who had just missed twice,
+        which is the moment this module is built never to make anybody feel
+        stupid in.
+      */
+      const also = need.oneOf.length > 1 ? " (or another word for the same thing)" : "";
+      return `Tip: try an answer with “${word}” in it${also}. Any form of it is fine.`;
     }
     /*
       The word and the case, and never the form. Which ending goes on it is
@@ -91,8 +97,8 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
         wrong sends somebody to fix the half that was fine. And the question is
         said in English beside the Estonian, as on every screen that prints one.
       */
-      return `They want “${need.lemma}” in the ${spec.et}, the ending that answers `
-        + `${spec.question} (${spec.questionEn}). Getting that ending on is the whole point here.`;
+      return `Tip: try “${need.lemma}” in the ${spec.et}, the form that answers `
+        + `${spec.question} (${spec.questionEn}). The ending is the part being practised here.`;
     }
     /*
       A value off the card, so the answer is already in front of them and the
@@ -103,12 +109,12 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
     case "datum": {
       const prop = card ? propBySlot(card, need.slot) : undefined;
       if (!prop) return null;
-      return `The answer's on your card, under “${prop.card.replace(/\.$/, "")}”. Just say it to them in Estonian.`;
+      return `Tip: your card has it, under “${prop.card.replace(/\.$/, "")}”. Just say that in Estonian.`;
     }
     case "question":
-      return "They're waiting for you to ask them something. Any question counts, even one word with a question mark.";
+      return "Tip: try asking them something. Any sentence ending in a question mark works.";
     case "negation":
-      return "They're waiting for you to say no.";
+      return "Tip: try saying no.";
     /*
       Nothing for `register` or `any`. The first is a thing to notice rather
       than a thing to be told mid-turn, and the second is a beat that cannot

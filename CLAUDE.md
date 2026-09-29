@@ -139,7 +139,7 @@ Gemini lead. Scene composition did not, on the argument that the bounded Anthrop
 precisely so a Groq outage could not drain the balance Anu runs on, and Groq had no business in the
 purpose chain for the same reason Anthropic's *place* in it is gated. That argument was about the
 dear tail, not about Groq: at a fraction of Anthropic's rate and spending nothing Anu runs on, Groq
-is not the thing the budget gate exists to bound. `SCENE_FALLBACK_MODEL` is a fixed second link
+is not the thing the budget gate exists to bound. The scene fallback (since removed, below) was a fixed second link
 behind `SCENE_MODELS`, kept as its own constant rather than a reuse of `TUTOR_MODEL` so a later
 retune of Anu's model does not silently retune the scene composer's. It is
 **pinned exactly like `SCENE_MODELS`**, for the reason the paragraph above gives at length: an
@@ -243,6 +243,19 @@ stays as the Groq link behind both. The cold eval takes `--groq` and `--gemini` 
 can be measured before it is wired anywhere, and reads the cold `passed` column as how far a model
 reaches past the scene's list rather than as whether its words are Estonian; the live run is the
 number to read.
+
+**And then the Groq link came out of the scene chain, which supersedes every paragraph above that
+keeps it.** On 2026-09-28 the Gemini balance ran out and every conversation on production was composed
+on qwen: a job interview opened with `Tere! Koti lauale ja istuge, palun.` and answered a request to
+speak slower with `Kirjutage aadress paberile, palun.`, Estonian that passes the gate and is not a
+person talking. The operator's call is that no model is better than that one. A scene composes on
+`SCENE_MODELS`, then the bounded Anthropic tail, then nothing, and nothing is the bank, which is how a
+keyless deployment has always played. **And the screen says which**: the route sends `composedBy`
+on a composed turn and `modelDown` where every link failed, and the conversation prints the model
+**once**, at the top, the way Anu's panel says who answered, with a warning where it is a backup and a
+stronger one where the model is out and the other side is speaking only from prepared lines. Not on
+every line, which is the operator's wording. The constant that named the Groq model is deleted
+rather than left unread, and `provider.test.ts` fails on a Groq link coming back.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is fifty-five and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
@@ -9461,7 +9474,7 @@ figures of the interviewer's, the pay question is answered by the next move, whi
 off the card, a no gets the second figure through `counter`, and only then is a start day asked for.
 An offer nobody has made cannot be taken, so `creditAhead` passes over an `offer` beat ahead of the
 pointer: `hea` two beats earlier had met it and the figure was never said. `docs/21-situations.md`
-§61, and the paragraph on `SCENE_FALLBACK_MODEL` above for the measurement that pass could not take.
+§61, and the paragraph on the scene's Groq fallback above for the measurement that pass could not take.
 
 **And how the other side talks is the run's band, which is the learner's own unless they moved
 it.** Nothing about a composed line used to read a band at all: the prompt told the model "they are
@@ -10596,7 +10609,7 @@ it cannot find the rail, which was the `A || !A` shape one check over.
 **Provider-agnostic, and it is a chain rather than a choice.** `resolveProviders()` builds one
 of two kinds of chain. Asked for a purpose, it builds that purpose's own (`PURPOSE_CHAINS`, above):
 Anu on `TUTOR_MODEL` with Groq's `TUTOR_FALLBACK_MODEL` behind it, a scene on `SCENE_MODELS` with
-`SCENE_FALLBACK_MODEL` behind them, the grader on `GRADER_MODELS`, and for the scene and the grader
+no Groq link behind them, the grader on `GRADER_MODELS`, and for the scene and the grader
 Anthropic last, only while the day's fallback budget has room. Asked for nothing in particular, it
 builds the general chain, which is the scanner's tail, the dictionary's translation fallback and
 whatever else asks only "is any model configured": Groq's models, then Gemini's, then Anthropic and

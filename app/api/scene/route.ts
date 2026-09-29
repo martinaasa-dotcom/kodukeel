@@ -9,7 +9,7 @@ import { turnBooking, type TurnBooking } from "@/lib/usage/turnBooking";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
 import {
-  SCENE_REPLY_TOKENS, openWithFallback, resolveProviders, sceneProviders, type ChatMessage,
+  SCENE_MODELS, SCENE_REPLY_TOKENS, openWithFallback, resolveProviders, sceneProviders, type ChatMessage,
 } from "@/lib/tutor/provider";
 import { callChainForJson } from "@/lib/tutor/grader";
 import {
@@ -18,7 +18,9 @@ import {
 } from "@/lib/progress/scene";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "@/lib/scenes/judge";
 import { leafNeeds } from "@/lib/scenes/types";
-import { sceneById } from "@/lib/scenes/catalogue";
+import { FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
+import { ASKS_ON } from "@/lib/scenes/curveballs";
+import { saysGoodbye } from "@/lib/scenes/casual";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, replyFor,
@@ -111,6 +113,14 @@ const PER_MINUTE = 30;
 
 export async function POST(request: Request) {
   const ownerId = await requireUserId();
+  /*
+    Asked up to three times a turn about the same sentence, by the judge, the
+    judge one beat ahead and the composer, and it is a dictionary read each
+    time, so the answer is kept for the request rather than fetched again.
+    Declared first, because the judge reads it long before `readingOf` is
+    written down below.
+  */
+  let readOnce: { text: string; reading: Promise<string> } | null = null;
 
   /*
     CHARGED TO THE LEARNER, NEVER TO THEIR ADDRESS. Twenty-five students on one
@@ -513,7 +523,14 @@ export async function POST(request: Request) {
   */
   const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
   if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" };
-  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain;
+  /*
+    AND NOBODY SHRUGS AT A GOODBYE. A question tucked into the turn that ends
+    the scene ("17 eurot, jah? Siin on kaart... head aega!") met "Ei tea."
+    and then the farewell, which is the other side answering a card payment
+    with "I don't know". The conversation is over, so what is owed is the
+    goodbye and nothing in front of it.
+  */
+  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !isOver(scene, state);
 
   /*
     WHAT THIS PERSON KNOWS, FOR THE MODEL. Every value on the card, the
@@ -616,12 +633,14 @@ export async function POST(request: Request) {
     again, so a booking for a fresh one would be a booking for a line that is
     not wanted (§16).
   */
+  // The question waiting behind a curveball that carries straight on with it (`ASKS_ON`).
+  const askedOn = ASKS_ON.has(hurdleSpec(state)?.id ?? "") ? fresh(speaking?.id)[0] ?? null : null;
   const reply = (line: SpokenLine | null) => replyFor({
     beat: speaking,
     // A turn that answered a beat the other side had moved past is not a miss.
     landed: elsewhere > 0,
     hurdle: standing
-      ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said }
+      ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said, then: askedOn }
       : null,
     answered: turns.length > 0 ? answered : null,
     response: turns.length > 0 ? response : null,
@@ -759,8 +778,17 @@ export async function POST(request: Request) {
       return found ? { ...l, tokens: found } : l;
     });
   };
+  /*
+    WHO WILL BE PLAYING THE OTHER SIDE, SAID FROM THE FIRST LINE. The opening
+    greeting is the course's, so a screen that named the model only once one
+    had written a line said nothing until the second turn; the head of the
+    chain is what will be asked, and a turn a model actually wrote replaces it
+    with the one that answered (`composedBy`).
+  */
+  const head = sceneProviders()[0];
+  const composer = head ? { label: head.label, model: head.model, primary: head.model === SCENE_MODELS[0] } : null;
   const answer = async (lines: readonly SpokenLine[], extra: Record<string, unknown> = {}) =>
-    Response.json({ ...progress, lines: await glossedLines(lines), ...extra }, { headers: NO_STORE });
+    Response.json({ ...progress, composer, lines: await glossedLines(lines), ...extra }, { headers: NO_STORE });
 
   /*
     Which beat the ladder is asked for: the hurdle where one stands, and once
@@ -879,14 +907,10 @@ export async function POST(request: Request) {
     Only on a turn that is going to book a call anyway, so the ordinary turn
     pays nothing for it.
   */
-  // A declaration rather than a const, so the judge above can read it before
-  // this line: it closes over nothing but the module's own imports.
-  /*
-    Asked up to three times a turn about the same sentence, by the judge, the
-    judge one beat ahead and the composer, and it is a dictionary read each
-    time, so the answer is kept for the request rather than fetched again.
-  */
-  let readOnce: { text: string; reading: Promise<string> } | null = null;
+  // A declaration rather than a const, so the judge above can call it before
+  // this line. The memo it reads is declared at the top of POST, because a
+  // `let` is not hoisted: declared here, every judge call above threw
+  // "Cannot access 'readOnce' before initialization" and the judge never ran.
   async function readingOf(text: string): Promise<string> {
     if (readOnce?.text !== text) readOnce = { text, reading: readingOnce(text) };
     return readOnce.reading;
@@ -1001,7 +1025,17 @@ export async function POST(request: Request) {
     courtesy rung stands above the model. The model is asked then, told what
     was asked and what to hand over, and the courtesy is still the net.
   */
-  if (cheap.provenance === "attested" && !shrugOwed && !handing && !askedNow) return answer(reply(cheap));
+  /*
+    AND NOT WHERE THE LEARNER HAS JUST TOLD THEM SOMETHING. The close beat is
+    a farewell off the course, and straight after an answer it was said bare:
+    asked how long they had been learning, a learner wrote "two weeks, it is
+    hard but interesting" and the teacher replied `Head aega!`, with nothing
+    about what they had said. A person takes it in and then says goodbye. So
+    where the learner's last turn was not itself a goodbye, the model is asked
+    to react and wrap up, and the farewell stays the net.
+  */
+  const closingOnNews = beat.move === "close" && last !== null && !saysGoodbye(last.said, FAREWELLS);
+  if (cheap.provenance === "attested" && !shrugOwed && !handing && !askedNow && !closingOnNews) return answer(reply(cheap));
 
   /*
     THE BOOKING IS PER TURN, because a call is what the ledger counts. Booking
@@ -1064,6 +1098,24 @@ export async function POST(request: Request) {
     the rest of the day. It is answered the way a withheld line is answered.
   */
   let line: Awaited<ReturnType<typeof sceneLine>>;
+  /*
+    WHICH MODEL WROTE THE LINE, OR THAT NONE COULD. Both go to the screen, and
+    both were missing the day the Gemini balance ran out: every conversation
+    composed on a fallback nobody had asked for, the line under each read
+    "Written for this turn" exactly as it does on the primary, and a learner
+    had no way to know the other side had become somebody else. `compose`
+    fills this in; the answers below read it.
+  */
+  const outcome: ComposeOutcome = { by: null, unreachable: false };
+  /*
+    The other side's voice, for tone: the first banked line of each of the
+    scene's own beats. The same on every turn of this run, so it goes in the
+    cached half of the prompt rather than being paid for again each turn.
+  */
+  const tone = [...context.scripted.entries()]
+    .filter(([id]) => !id.includes(":"))
+    .flatMap(([, lines]) => lines.slice(0, 1))
+    .slice(0, 6);
   try {
     const learnerReading = last?.said ? await readingOf(last.said) : "";
     line = await sceneLine({
@@ -1081,6 +1133,7 @@ export async function POST(request: Request) {
       vouch: (spellings) => sceneVouch(context, spellings),
       compose: (avoid, because) => compose(chain, {
         ownerId,
+        outcome,
         reading: learnerReading,
         facts,
         because,
@@ -1109,10 +1162,8 @@ export async function POST(request: Request) {
           examples of the voice and never of the answer, since none is for this
           beat.
         */
-        examples: [...context.scripted.entries()]
-          .filter(([id]) => id !== beat.id)
-          .flatMap(([, lines]) => lines.slice(0, 1))
-          .slice(0, 6),
+        examples: [],
+        voice: tone,
         /*
           AND THIS BEAT'S OWN, WHICH THE PROMPT ASKS IT TO REPHRASE RATHER THAN
           COPY. `they` is one sentence of English and a model reads it fluently
@@ -1157,6 +1208,13 @@ export async function POST(request: Request) {
   */
   if (line.provenance !== "composed") {
     if (shrugOwed) aside = shrug(context.lexicon);
+    /*
+      Where no link answered at all the learner is told, once per turn it
+      stays true, rather than meeting a conversation that suddenly understands
+      nothing: a withheld line is the gate doing its job and says nothing, a
+      chain with nobody on it is a service that is out.
+    */
+    const down = outcome.unreachable && !outcome.by ? { modelDown: true } : {};
     // Only where no attempt reached a provider: a line the gate withheld was
     // still a call somebody was billed for, and releasing it after it settled
     // took the reserve off twice.
@@ -1168,8 +1226,8 @@ export async function POST(request: Request) {
       the net has nothing either, because that is the one case where the screen
       has something to explain.
     */
-    if (move.provenance !== "fallback") return answer(reply(move), { composed: false });
-    return answer(reply(line), { composed: false });
+    if (move.provenance !== "fallback") return answer(reply(move), { composed: false, ...down });
+    return answer(reply(line), { composed: false, ...down });
   }
 
   /*
@@ -1195,7 +1253,23 @@ export async function POST(request: Request) {
     shrug would contradict it.
   */
   aside = null;
-  return answer(reply(line), { composed: true });
+  /*
+    Who wrote it goes out once per turn and the screen prints it in one place
+    at the top of the conversation, the way Anu's panel says who answered,
+    rather than under every line.
+  */
+  return answer(reply(line), { composed: true, composedBy: outcome.by });
+}
+
+/** What `compose` found out about the chain, for the screen (see the route). */
+interface ComposeOutcome {
+  /**
+   * The model that wrote the last line to come back, with whether it is the
+   * one scenes are pinned to lead with. Null where nothing answered.
+   */
+  by: { label: string; model: string; primary: boolean } | null;
+  /** Every link was tried and none answered: the model is out, not withholding. */
+  unreachable: boolean;
 }
 
 /**
@@ -1234,6 +1308,8 @@ async function compose(
   chain: ReturnType<typeof sceneProviders>,
   input: {
     ownerId: string;
+    /** Filled in with who answered, or that nobody could (`ComposeOutcome`). */
+    outcome: ComposeOutcome;
     /**
      * What `authoriseCall` booked for this turn. Required, because the
      * settlement below is what corrects it, and it was not passed: `recordUsage`
@@ -1257,6 +1333,8 @@ async function compose(
     level: Level;
     persona: string;
     situation: string;
+    /** The other side's lines at the scene's beats, for tone (`ComposeScene.voice`). */
+    voice: readonly string[];
     move: string;
     /** What they are doing, in English, from their side: the beat's `they`. */
     they: string;
@@ -1301,7 +1379,7 @@ async function compose(
   */
   const system = composeSystem({
     scene: input.scene, place: input.place, level: input.level, persona: input.persona,
-    situation: input.situation, register: input.register, words: input.words,
+    situation: input.situation, register: input.register, voice: input.voice, words: input.words,
   });
   const live = composeLive(input);
 
@@ -1364,8 +1442,18 @@ async function compose(
 
     let text = "";
     for await (const chunk of open.chunks) text += chunk;
-    return text.trim() || null;
+    const kept = text.trim() || null;
+    if (kept) {
+      input.outcome.by = {
+        label: open.config.label,
+        model: open.config.model,
+        primary: open.config.model === SCENE_MODELS[0],
+      };
+    }
+    return kept;
   } catch (error) {
+    // Every link in the chain refused or failed: nobody is there to write a line.
+    input.outcome.unreachable = true;
     /*
       A provider having a bad minute is an ordinary case here rather than an
       error a learner should see: the ladder's next rung is somebody who did not

@@ -331,6 +331,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     rather than a fact known at the briefing, and it belongs where it is true.
   */
   const [note, setNote] = useState<string | null>(null);
+  /*
+    WHO IS WRITING THE OTHER SIDE, SAID ONCE AT THE TOP OF THE CONVERSATION.
+    Anu's panel says which model answered and this did not, so the day the
+    Gemini balance ran out and a backup wrote every line, nothing on the screen
+    said the person across the table had changed. The latest model to answer,
+    and whether no model is answering at all, which is news a learner is owed
+    before they conclude the conversation cannot understand them.
+  */
+  const [writer, setWriter] = useState<{ label: string; model: string; primary: boolean } | null>(null);
+  const [modelDown, setModelDown] = useState(false);
   /** The word the help button last handed over, shown until the next turn. */
   const [lent, setLent] = useState<{ lemma: string; gloss: string } | null>(null);
   /*
@@ -626,6 +636,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         beatId?: string | null; goal?: string | null; done?: string[];
         over?: boolean; error?: string;
         composed?: boolean; note?: string | null;
+        composedBy?: { label: string; model: string; primary: boolean } | null;
+        composer?: { label: string; model: string; primary: boolean } | null;
+        modelDown?: boolean;
         slips?: SlipNote[]; hurdle?: string | null; queued?: boolean;
         conceded?: number[] | null;
         alsoDone?: string[] | null;
@@ -655,6 +668,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         });
       }
       if (data.composed === false && data.note) setNote(data.note);
+      if (data.composedBy) { setWriter(data.composedBy); setModelDown(false); }
+      else if (data.composer) setWriter((was) => was ?? data.composer ?? null);
+      if (data.modelDown) setModelDown(true);
       /*
         A fact the learner changed on their own card is the fact now, beside
         the objective and on the card alike (ADR-025 amendment 3): somebody who
@@ -881,6 +897,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       gaps: result.gaps,
       graded: result.graded,
       review: result.review,
+      recap: result.recap,
       turns: turnsRef.current.flatMap((turn): Debrief["turns"][number][] => {
         if (turn.who === "you") return [{ who: "you", text: turn.text, lang: "et" }];
         /*
@@ -959,7 +976,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     standing in front of it: what that beat wants is on no card.
   */
   const inPlay = scene.beats.find((beat) => beat.id === beatId);
-  const dealtNow = inPlay ? dealtFor(inPlay) : [];
+  /*
+    AND `beatId` IS THE SCENE'S OWN BEAT EVEN WHILE A CURVEBALL STANDS IN
+    FRONT OF IT, so the sentence above was the intent and not the code. The
+    route sends the beat waiting behind the curveball and only the objective
+    comes off the one in front, so "Ask them to slow down." was printed with
+    the card's value for the job interview's next beat after it, "shop", which
+    reads as an instruction that makes no sense. A curveball's objective is on
+    no card, so while one stands nothing is dealt beside it.
+  */
+  const dealtNow = inPlay && !hurdle ? dealtFor(inPlay) : [];
 
   if (phase === "debrief" && debrief) {
     /*
@@ -1470,7 +1496,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         </Card>
       </details>
 
-      {opened && (!opened.composed || note) && (
+      {opened && (!opened.composed || note) && !modelDown && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {note
             ?? "There's no AI key set up, so their lines come from the course and from lines written for this scene. When nothing fits, you'll see a short note saying what they did instead."}
@@ -2006,6 +2032,23 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               <DoorOpen size={16} aria-hidden /> Leave
             </Button>
           </div>
+          {/*
+            Which model is playing the other side, and whether it is the one
+            this module is pinned to, said once in the panel the learner is
+            already looking at rather than above the room or under every line.
+          */}
+          {opened && (modelDown || (writer && !writer.primary)) && (
+            <p role="status" className="verdict-panel verdict-nearly">
+              {modelDown
+                ? "The language model is not answering right now, so the other side can only use lines written for this scene in advance and will understand much less than usual. Try again a little later."
+                : `The main language model is not answering, so a backup (${writer?.model}) is writing the other side's lines. It may make mistakes the main one would not.`}
+            </p>
+          )}
+          {writer && !modelDown && (
+            <p className="text-xs" data-scene-model={writer.model} style={{ color: "var(--ink-3)" }}>
+              The other side is played by {writer.label}, {writer.model}
+            </p>
+          )}
         </div>
       </div>
       </div>

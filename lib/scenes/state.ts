@@ -525,6 +525,9 @@ export function raiseHurdle(
   if (!here) return state;
   const spec = curveballById(here.id);
   if (!spec || state.hurdles.some((h) => h.beat === state.beat)) return state;
+  if (spec.afterJumpingAhead && !scene.beats.slice(state.beat + 1).some((b) => state.done.includes(b.id))) {
+    return state;
+  }
   if (spec.silent) {
     return {
       ...state,

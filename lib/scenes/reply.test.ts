@@ -391,7 +391,7 @@ describe("a turn that was understood and missed the point", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", heard: "Kus teil valutab?", line: other,
     }));
-    expect(texts(lines)).toEqual([REACTIONS.missed[0], "Kus teil valutab?"]);
+    expect(texts(lines)).toEqual(["Selge.", "Kus teil valutab?"]);
     expect(lines[0]?.reaction).toBe(true);
     expect(lines[1]?.provenance).toBe("again");
   });
@@ -421,7 +421,7 @@ describe("a turn that was understood and missed the point", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
       heard: "Kus teil valutab?", line: NOTHING,
     }));
-    expect(texts(lines)).toEqual([REACTIONS.missed[0], "Kus teil valutab?"]);
+    expect(texts(lines)).toEqual(["Selge.", "Kus teil valutab?"]);
   });
 
   /*
@@ -494,7 +494,7 @@ describe("a turn that was understood and missed the point", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
       heard: "Kus teil valutab?", line: NOTHING, tries: 1, others: ["Kus valu on?"],
     }));
-    expect(texts(lines)).toEqual([REACTIONS.missed[0], "Kus teil valutab?"]);
+    expect(texts(lines)).toEqual(["Selge.", "Kus teil valutab?"]);
   });
 
   it("is put another way once repeating and narrowing have both been tried", () => {
@@ -923,7 +923,7 @@ describe("a question asked on a turn that missed", () => {
     expect(texts(lines)).toEqual([aside.text, "Kas te maksate kaardiga?"]);
     // Where nothing answered it, the miss is still said as a miss.
     const bare = replyFor(input({ answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: NOTHING, heard: "Kas te maksate kaardiga?" }));
-    expect(texts(bare)).toEqual([REACTIONS.missed[0], "Kas te maksate kaardiga?"]);
+    expect(texts(bare)).toEqual(["Selge.", "Kas te maksate kaardiga?"]);
   });
 
   it("tells the model a question was asked, on a hit and on a miss alike", () => {
@@ -1079,7 +1079,7 @@ describe("a line a model wrote for this turn", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: NOTHING,
       tries: NUDGE_AFTER, choice: "Pea või selg?", heard: "Kus teil valutab?",
     }));
-    expect(texts(keyless)).toEqual([REACTIONS.missed[0], "Pea või selg?"]);
+    expect(texts(keyless)).toEqual(["Selge.", "Pea või selg?"]);
   });
 
   it("is told the word to hand over and what the scene says the answer is", () => {

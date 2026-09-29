@@ -37,6 +37,9 @@ import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
+
+/** How long a line may be and still be said again word for word (see `recital`). */
+export const REPEAT_WORDS = 10;
 import { propBySlot, restated, type DrawnProp, type RoleCard } from "./props";
 import { CURVEBALLS, curveballById } from "./curveballs";
 import type { Response, SceneState, TurnRecord } from "./state";
@@ -95,6 +98,13 @@ export interface ReplyInput {
     readonly line: SpokenLine | null;
     /** The curveball's own English line, where it is one (they switched to English). */
     readonly said?: string;
+    /**
+     * The question waiting behind a curveball that asks nothing of its own,
+     * said after it on the turn it arrives. "Kiire on, palun kohe." stood in
+     * place of "large or small?", so a learner was hurried along to answer a
+     * question nobody had asked them; a person in a hurry still asks it.
+     */
+    readonly then?: string | null;
   } | null;
   /**
    * The learner's own word that met the beat, to be repeated back: "Poodi."
@@ -526,7 +536,7 @@ function opensWithReaction(line: SpokenLine | null): boolean {
   const first = line ? words(line.text)[0] : undefined;
   if (!first) return false;
   const said = new Set<string>([
-    ...REACTIONS.acknowledge, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
+    ...REACTIONS.acknowledge, ...REACTIONS.heard, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
     ...Object.values(FEELINGS).map((f) => f.word),
   ].map((word) => word.toLowerCase().replace(/[.!?]$/, "")));
   return said.has(first);
@@ -869,7 +879,16 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   if ((response === "narrow" || response === "repeat") && reading === "offtarget"
       && !input.landed && !ownReaction(line) && !aside) {
-    out.push(reaction(REACTIONS.missed[0], "?"));
+    /*
+      AND NOT "SORRY?" EITHER, BECAUSE THEY WERE UNDERSTOOD. `offtarget` is
+      real Estonian that answered something else, and `Vabandust?` in front of
+      the question again tells a learner they were not understood, which is
+      the one thing this module may not make anybody feel. Heard on a day with
+      no model, it answered `Ma olen tšempion` and `Kas sa oled õnnelik?` alike.
+      `Selge.` says "got it", and the question that follows
+      says what is still wanted. `Vabandust!` stays for a turn nobody could read.
+    */
+    out.push(reaction(REACTIONS.heard[0], "."));
   }
 
   /*
@@ -1062,6 +1081,10 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     else if (input.hurdle.said) out.push({ text: input.hurdle.said, provenance: "english" });
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
+    const last = out[out.length - 1];
+    if (input.hurdle.then && last && last.provenance !== "again" && last.provenance !== "composed" && last.text !== input.hurdle.then) {
+      out.push({ text: input.hurdle.then, provenance: "scripted" });
+    }
     if (response === "english" && (input.translates || input.askedForEnglish)) {
       out.push(stage(stageFor(input.hurdle.beat, card)));
     }
@@ -1140,14 +1163,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     told it twice that this sentence is not landing, which is the thing the
     nudge exists to stop.
 
-    So: verbatim on the first re-asks, and once `tries` is past `NUDGE_AFTER`,
+    So: verbatim on the first re-ask, and once `tries` reaches `NUDGE_AFTER`,
     another line the bank already holds for this beat. Authored and gated when
     it was drafted, off `others`, which the caller has already filtered to what
     this run has not said, so nothing repeats and nothing is written here. Where
     the bank holds only the one line, `others` is empty and the behaviour is
     exactly what it was: this can never invent a way of asking.
   */
-  const another = sayAgain && (input.tries ?? 0) > NUDGE_AFTER ? input.others?.[0] ?? null : null;
+  const another = sayAgain && (input.tries ?? 0) >= NUDGE_AFTER ? input.others?.[0] ?? null : null;
   /*
     AND A LINE A MODEL WROTE FOR THIS TURN BEATS THE TURN BEFORE IT, ALWAYS.
 
@@ -1163,8 +1186,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     deployment.
   */
   const fresh = line?.provenance === "composed" ? line : null;
+  /*
+    AND A LONG LINE IS NOT SAID TWICE WORD FOR WORD. Repeating the question is
+    what a person does with a question; a composed turn of twenty words, a
+    reaction and a remark and a question, recited again in full is a recording
+    stuck. Where the line being repeated is that long and the scene holds its
+    own line for this beat, the scene's line is said instead: the same question,
+    short, which is what a person who was not answered actually says.
+  */
+  const recital = sayAgain && heard !== null && words(heard).length > REPEAT_WORDS
+    && line !== null && line.provenance !== "fallback" && line.text !== heard;
   if (fresh) {
     out.push(fresh);
+  } else if (recital) {
+    out.push(line!);
   } else if (another) {
     out.push({ text: another, provenance: "scripted" });
   } else if (sayAgain) {

@@ -88,6 +88,12 @@ export interface CurveballSpec {
   /** Whether it changes the persona rather than asking for a turn. */
   readonly silent?: true;
   /**
+   * Raised only where the learner has already answered something further
+   * along the scene than the beat in front, which is the one situation this
+   * curveball is about (`raiseHurdle`). Where they have not, it is not raised.
+   */
+  readonly afterJumpingAhead?: true;
+  /**
    * THE ONE CURVEBALL WHOSE LINE BREAKS A GATE CHECK ON PURPOSE.
    *
    * `other-register` is the other side addressing the learner with the pronoun
@@ -208,8 +214,26 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       do next: it printed on screen as "Ask them to slow down. Free, always,
       and taught."
     */
-    out: "Ask them to slow down.",
-    needs: [{ kind: "question" }],
+    /*
+      They are in a hurry, and the question they were about to ask still comes
+      (`ASKS_ON`), so answering it is as good a way through as asking them to
+      slow down: a turn that meets the beat behind a curveball lets it go.
+    */
+    out: "They are in a hurry. Answer them, or ask them to slow down.",
+    /*
+      AND ASKING SOMEBODY TO SLOW DOWN IS A REQUEST, NOT A QUESTION. This
+      took a question alone, so `Palun rääkige aeglasemalt`, which is exactly
+      how anybody asks, was read as a turn that did nothing, and so was a
+      learner's `Palun rägi aeglane`, which any Estonian would understand.
+      It takes the words the request is made of as well: slow, slowly, speak
+      and again, every one taught by each scene that admits this curveball
+      (`catalogue.test.ts` holds that), so a question still does it and so
+      does the sentence people actually say.
+    */
+    needs: [{ kind: "anyOf", of: [
+      { kind: "question" },
+      { kind: "lemma", oneOf: ["aeglaselt", "aeglane", "rääkima", "uuesti"] },
+    ] }],
   },
   {
     id: "small-talk",
@@ -231,8 +255,16 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       they want one thing at a time, in the sequence they ask for it, not
       however the learner would rather lay it out.
     */
-    says: "They want one thing at a time, in the order they ask for it.",
-    out: "Give them just the one thing they've asked for, and save the rest.",
+    says: "They want things in their order, not yours.",
+    out: "Give them the one thing they just asked for.",
+    /*
+      AND ONLY WHERE THE LEARNER ACTUALLY WENT OUT OF ORDER. Raised on a
+      schedule like the others, it told somebody who had answered exactly what
+      they were asked `Enne tuleb kogemus, siis palk.`, first experience and
+      then pay, about a pay nobody had mentioned. A correction for a thing the
+      learner did not do is the app being wrong about them out loud.
+    */
+    afterJumpingAhead: true,
     needs: [{ kind: "any" }],
   },
   {
@@ -496,3 +528,11 @@ export function switchesRegisterAt(beatId: string): boolean {
 export function curveballById(id: string): CurveballSpec | undefined {
   return CURVEBALLS.find((c) => c.id === id);
 }
+
+/**
+ * The curveballs after which the other side carries straight on with the
+ * question that was waiting (`ReplyInput.hurdle.then`): somebody in a hurry
+ * still asks it, and somebody who wants one thing at a time asks for that
+ * thing. Not "interrupted", where the whole point is that they stopped.
+ */
+export const ASKS_ON: ReadonlySet<string> = new Set(["faster", "their-order"]);
