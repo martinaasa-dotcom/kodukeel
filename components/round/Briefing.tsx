@@ -102,39 +102,40 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
     : count.n === 1 ? count.noun : `${count.noun}s`;
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10 sm:px-5 md:py-16" data-briefing={id}>
+    <div className="round-brief mx-auto max-w-lg px-4 sm:px-5" data-briefing={id}>
       {/* The one heading on the screen: the round's own is inside the round,
           which is not mounted yet. Two steps rather than two paragraphs:
           what arrives on the screen, and what the learner does about it,
-          each beside a mark that says which of the two it is. */}
-      <div className="night pop-in rounded-[var(--r-xl)] border px-5 py-9 text-center sm:px-8 md:px-10 md:py-11">
-        <Mascot size={64} className="mx-auto" />
-        <h1 className="font-display mt-5 text-4xl font-bold leading-[1.02] tracking-tight md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+          each beside a mark that says which of the two it is. Every vertical
+          figure follows the window (`.round-brief` in globals.css), so the
+          button is on screen on a laptop rather than under the fold. */}
+      <div className="round-brief-panel night pop-in rounded-[var(--r-xl)] border text-center">
+        <Mascot size={44} className="mx-auto" />
+        <h1 className="round-brief-title round-brief-gap font-display font-bold tracking-tight" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {brief.title}
         </h1>
         {count && count.n > 0 && (
-          <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
+          <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
             {count.n} {plural} in this round
           </p>
         )}
-        <ol className="mt-6 flex flex-col gap-2.5 text-left">
-          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-3 sm:px-4 sm:py-3.5" style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.1)" }}>
-            <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--sky)", color: "var(--on-hue)" }}>
-              <Eye size={16} />
+        <ol className="round-brief-gap flex flex-col gap-2 text-left">
+          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-2.5 sm:px-3.5" style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.1)" }}>
+            <span aria-hidden className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full" style={{ background: "var(--sky)", color: "var(--on-hue)" }}>
+              <Eye size={14} />
             </span>
-            <span className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{brief.what}</span>
+            <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{brief.what}</span>
           </li>
-          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-3 sm:px-4 sm:py-3.5" style={{ background: "rgb(255 255 255 / 0.1)", border: "1px solid rgb(255 255 255 / 0.16)" }}>
-            <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--cta)", color: "var(--on-hue)" }}>
-              <MousePointerClick size={16} />
+          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-2.5 sm:px-3.5" style={{ background: "rgb(255 255 255 / 0.1)", border: "1px solid rgb(255 255 255 / 0.16)" }}>
+            <span aria-hidden className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full" style={{ background: "var(--cta)", color: "var(--on-hue)" }}>
+              <MousePointerClick size={14} />
             </span>
-            <span className="text-base font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>{brief.you}</span>
+            <span className="text-sm font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>{brief.you}</span>
           </li>
         </ol>
-        <div className="mt-7 flex justify-center">
+        <div className="round-brief-gap flex justify-center">
           <Button
             variant="primary"
-            size="lg"
             data-briefing-start=""
             onClick={() => setPressed(true)}
           >
