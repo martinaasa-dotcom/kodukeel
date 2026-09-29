@@ -4,6 +4,7 @@ import { formsTonight, moduleScopeFrom } from "@/lib/course/scope";
 import { verbExamples } from "@/lib/progress/verbExamples";
 import { verbAsks } from "@/lib/course/tryIt";
 import { Empty, Page, SectionTitle, Stack } from "@/components/ui";
+import { ReadingEnd } from "@/components/course/ReadingEnd";
 import { TryIt } from "@/components/course/TryIt";
 import { VerbTable } from "@/app/(app)/grammar/topic/[id]/VerbTable";
 
@@ -29,6 +30,11 @@ export const dynamic = "force-dynamic";
  *
  * The three taps under the table grade nothing, for the reason `TryIt` gives:
  * the answer is on the screen above them.
+ *
+ * And it ends on tonight's Next, like every reading does. This page is only
+ * ever a module step, and without `ReadingEnd` a desktop reached the end of
+ * the three taps with nothing to press: the phone has its bar, and the
+ * desktop's way on is where the step ends.
  */
 export default async function CourseFormsPage({
   searchParams,
@@ -50,20 +56,23 @@ export default async function CourseFormsPage({
       title="The past of your verbs"
       lead="Each verb makes its past its own way, so learn them a few at a time. Listen, then try three."
     >
-      {ordered.length === 0 ? (
-        <Empty
-          title="No verbs to learn here tonight"
-          body="We don't have the past forms of tonight's verbs yet. Carry on to the next step."
-        />
-      ) : (
-        <Stack>
-          <section>
-            <SectionTitle hint="the ones you've met">Tonight&apos;s verbs</SectionTitle>
-            <VerbTable verbs={ordered} show={polite ? "forms" : "past"} />
-          </section>
-          <TryIt asks={verbAsks(ordered, "past")} />
-        </Stack>
-      )}
+      <Stack>
+        {ordered.length === 0 ? (
+          <Empty
+            title="No verbs to learn here tonight"
+            body="We don't have the past forms of tonight's verbs yet. Carry on to the next step."
+          />
+        ) : (
+          <>
+            <section>
+              <SectionTitle hint="the ones you've met">Tonight&apos;s verbs</SectionTitle>
+              <VerbTable verbs={ordered} show={polite ? "forms" : "past"} />
+            </section>
+            <TryIt asks={verbAsks(ordered, "past")} />
+          </>
+        )}
+        <ReadingEnd />
+      </Stack>
     </Page>
   );
 }
