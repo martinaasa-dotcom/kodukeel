@@ -2590,3 +2590,13 @@ and never offers a part the learner has already walked, since a part's progress 
 append-only ticks and there is no way to walk one again yet. A learner who started at A1.1 and
 struggles gets the lean and a sentence, not a move.
 
+## 42. The thirty-sixth pass: the Situations chooser is a place to browse
+
+**It was fifteen identical cards under slabs of night, in alphabetical order**, and it was reported
+as looking terrible. It leads now with one situation on the conversation's own night stage, one not
+yet played or the one played longest ago, with "Another one" and a gold "Step in". Under it the
+scenes are tiles in the tint of their kind of place, the room drawn on the tint, with a filter by
+kind. `lib/scenes/kinds.ts` is the table of kinds and is checked both ways against the catalogue, so
+a new scene without a kind fails the unit suite rather than landing under the wrong filter.
+"Where the people are" is one panel of outbound links, and the line saying nothing you write is
+about you stays on the page. `docs/21-situations.md` §13 describes it.
