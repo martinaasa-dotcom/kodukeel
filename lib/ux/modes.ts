@@ -128,14 +128,6 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "like any other practice, so whatever you miss comes back sooner.",
   },
   {
-    href: "/review/emoji", title: "Picture match", subtitle: "Pictures and endings",
-    icon: "Grid2x2", tone: "sky", group: "targeted", note: "Six pairs",
-    within: "/practice",
-    blurb:
-      "Match each picture to its word, where the word already has an ending on it: majas goes " +
-      "with the house, not maja. Six pairs, against the clock, with no English anywhere.",
-  },
-  {
     href: "/review/letters", title: "Tähed", subtitle: "Unscramble a word", icon: "Blocks", tone: "accent",
     group: "targeted", note: "Eight words",
     within: "/practice",

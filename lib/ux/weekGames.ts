@@ -58,7 +58,7 @@ export interface FeaturedGame {
 export const WEEK_GAMES: readonly FeaturedGame[] = [
   { href: "/quest", why: "A short round on whatever tripped you up this week." },
   { href: "/sonad", why: "A fresh word to guess every morning. Monday's a good day to start." },
-  { href: "/review/emoji", why: "Pictures instead of English, so the ending is all you have to go on." },
+  { href: "/review/target", why: "Four versions of one word, and only the ending tells you which to hit." },
   { href: "/situations", why: "Midweek, try a real conversation. Order a coffee, buy a bus ticket." },
   { href: "/review/match", why: "Pairs against the clock, and a personal best to beat." },
   { href: "/review/sprint", why: "It's Friday, so keep it short: a quick burst of endings on the clock." },

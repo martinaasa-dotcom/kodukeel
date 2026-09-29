@@ -117,10 +117,6 @@ export const ACTIVITIES = {
     href: "/review/dictation", kind: "drill",
     why: "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.",
   },
-  picture: {
-    href: "/review/emoji", kind: "game",
-    why: "Match pictures to Estonian words, with no English anywhere on the board. For a few minutes you're thinking in Estonian.",
-  },
   describe: {
     href: "/review/describe", kind: "drill",
     why: "Look at a picture and write one sentence of your own about it. That's what all these words are for.",
