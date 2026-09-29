@@ -142,7 +142,7 @@ check("the drill for this case is one click away",
   learned the hard way.
 */
 await page.goto(`${B}/grammar/topic/politeness`, { waitUntil: "networkidle" });
-const politenessPoints = page.locator("main li:has-text('polite singular')");
+const politenessPoints = page.locator("main li:has-text('in the plural, to be polite')");
 check("the page a learner reported shows its claims rather than only stating them",
   (await page.locator("[data-point-examples]").count()) >= 3,
   `${await page.locator("[data-point-examples]").count()} points with examples`);
@@ -528,7 +528,7 @@ check("the entry says where that word breaks the pattern",
   looser and is the state this was written for.
 */
 check("and prints the other form only because it is also right, saying which is which",
-  /is the short one, and .* is the long one the ending gives you/.test(entryBody));
+  /is the short one, and .* is the long one you get from the ending/.test(entryBody));
 
 await page.goto(`${B}/review/exceptions`, { waitUntil: "networkidle" });
 await startRound(page);
@@ -766,7 +766,7 @@ const hasSticking = (await page.getByText("Sticking points").count()) > 0;
 check("the deck's sticking points are named", hasSticking);
 
 if (hasSticking) {
-  const row = page.locator("li", { hasText: /lapses|never really settled/ }).first();
+  const row = page.locator("li", { hasText: /forgotten \d+ times|never really settled/ }).first();
   // Either rule may have flagged it, and each has to say which: a count of
   // times the card was learned and lost, or an accuracy that never settled.
   /*
@@ -779,7 +779,7 @@ if (hasSticking) {
   */
   const rowText = (await row.innerText()).replace(/\n/g, " · ");
   check("each one says what is wrong with it",
-    /forgotten again|never really settled/i.test(rowText) && /\d+ (lapses|%)/i.test(rowText),
+    /slipped away|never really settled/i.test(rowText) && /forgotten \d+ times|\d+% of \d+/i.test(rowText),
     rowText.slice(0, 90));
   // The argument this section makes is in the order of its actions: understand
   // it, look it up, and only then set it aside.
@@ -790,12 +790,12 @@ if (hasSticking) {
   await row.getByRole("button", { name: /Set aside/ }).click();
   await page.waitForTimeout(1200);
   check("setting one aside says so rather than making it vanish",
-    (await page.getByText(/it will not come up until you put it back/i).count()) > 0);
+    (await page.getByText(/it won.t come up again until you put it back/i).count()) > 0);
 
   await page.getByRole("button", { name: /Put it back/ }).first().click();
   await page.waitForTimeout(1200);
   check("and it can be put straight back",
-    (await page.getByText(/it will not come up until you put it back/i).count()) === 0);
+    (await page.getByText(/it won.t come up again until you put it back/i).count()) === 0);
 } else {
   absent(5, "a card with enough lapses to flag, which this deck has none of");
 }

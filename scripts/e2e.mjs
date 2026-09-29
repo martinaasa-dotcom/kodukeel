@@ -280,7 +280,7 @@ await page.getByLabel("Paste word list").fill(list);
 await page.waitForTimeout(400);
 await page.getByRole("button", { name: /Add 2 words/ }).click();
 check("re-importing the same words does not duplicate them",
-  await eventually(async () => (await page.getByText(/already in your deck/).count()) > 0));
+  await eventually(async () => (await page.getByText(/already have every one of these words/).count()) > 0));
 
 /*
   A paste that repeats a line, which is what a list assembled from two handouts

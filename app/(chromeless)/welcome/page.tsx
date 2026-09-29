@@ -880,7 +880,7 @@ function Features() {
           <Feature
             tone="sky"
             icon={<Target size={18} aria-hidden />}
-            title="Then the real conversation"
+            title="Then the real thing"
             body="A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count."
           />
         </Reveal>

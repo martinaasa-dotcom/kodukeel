@@ -245,7 +245,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
                     style={{ color: isStem ? "var(--accent-deep)" : "var(--ink)", "--i": n } as React.CSSProperties}
                   />
                   <span className="min-w-0 text-xs" style={{ color: isStem ? "var(--accent-deep)" : "var(--ink-3)" }}>
-                    {isStem ? "endings go on this one" : (p.english ?? p.label)}
+                    {isStem ? "the stem" : (p.english ?? p.label)}
                   </span>
                 </div>
               );

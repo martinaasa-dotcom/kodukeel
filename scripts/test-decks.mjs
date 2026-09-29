@@ -315,7 +315,7 @@ if (had > 0) {
 // ── Removing the shelf keeps the words ────────────────────────────────────
 await deckPage();
 await page.getByRole("button", { name: /Remove/ }).first().click();
-check("removing a shelf says the words stay", await eventually(() => shows("The words stay in your deck")));
+check("removing a shelf says the words stay", await eventually(() => shows("The words themselves won’t be deleted")));
 await page.getByRole("button", { name: /^Remove$/ }).last().click();
 check("and the shelf goes", await eventually(async () => !(await shows(RENAMED))));
 

@@ -383,7 +383,7 @@ check("it says why, rather than only greying the boxes out",
   /Record something first/i.test(speakingBody));
 
 check("it says out loud that nothing here scores a recording",
-  /no Estonian speech recognizer good enough to trust/i.test(speakingBody));
+  /nothing here scores your pronunciation/i.test(speakingBody));
 
 // ── Handing in ───────────────────────────────────────────────────────────────
 
