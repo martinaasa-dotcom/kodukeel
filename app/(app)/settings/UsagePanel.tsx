@@ -50,15 +50,15 @@ export async function UsagePanel({ ownerId }: { ownerId: string }) {
         </div>
 
         <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-          Only asking Anu counts against this. Review, the dictionary and your deck have no
-          limit, and keep working even after this runs out.
+          Only questions to Anu count here. Review, the dictionary and your deck have no limit,
+          and they keep working after this runs out.
         </p>
 
         {!audioCacheIsDurable() && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
             Pronunciation audio is saved on this machine&rsquo;s disk. Set{" "}
-            <code>SUPABASE_SERVICE_ROLE_KEY</code> so every copy of the app can share one saved
-            set, instead of asking TartuNLP again for words it has already spoken.
+            <code>SUPABASE_SERVICE_ROLE_KEY</code> so every copy of the app can share it, rather
+            than asking TartuNLP again for words it has already said.
           </p>
         )}
       </Card>

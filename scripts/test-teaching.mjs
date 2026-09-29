@@ -142,7 +142,7 @@ check("the drill for this case is one click away",
   learned the hard way.
 */
 await page.goto(`${B}/grammar/topic/politeness`, { waitUntil: "networkidle" });
-const politenessPoints = page.locator("main li:has-text('polite singular')");
+const politenessPoints = page.locator("main li:has-text('in the plural, to be polite')");
 check("the page a learner reported shows its claims rather than only stating them",
   (await page.locator("[data-point-examples]").count()) >= 3,
   `${await page.locator("[data-point-examples]").count()} points with examples`);
@@ -453,7 +453,7 @@ for (const i of [0, 1, 2]) {
   await page.locator(".ending-row [role=radio]").nth(i).click();
   await page.waitForTimeout(120);
   const note = (await page.locator("[data-unsaid]").first().innerText().catch(() => "")) ?? "";
-  if (/Nobody says this one/.test(note)) said++;
+  if (/don.t say this one/.test(note)) said++;
 }
 check("and the inside trio on a person says nobody says it, rather than going quiet",
   said === 3, `${said} of the 3 rows a person does not take carried the reason`);
@@ -490,7 +490,7 @@ check("the reference says where the endings stop",
 await page.goto(`${B}/grammar/exceptions`, { waitUntil: "networkidle" });
 const areaBody = (await page.textContent("body")) ?? "";
 check("the area counts the words rather than claiming a number",
-  /\d[\d,]* graded words in this dictionary break a pattern/.test(areaBody), areaBody.slice(0, 0));
+  /\d[\d,]* break a pattern somewhere/.test(areaBody), areaBody.slice(0, 0));
 check("it groups them by what breaks",
   (await page.locator('a[href^="/grammar/exceptions/"]').count()) >= 3,
   `${await page.locator('a[href^="/grammar/exceptions/"]').count()} kinds`);
@@ -510,14 +510,14 @@ check("a kind's page lists real entries from the dictionary",
   quarter of the word.
 */
 check("a word that breaks more than one pattern says which",
-  /This word also breaks/.test(stemBody));
+  /an exception in other ways too/.test(stemBody));
 
 // The entry for one word, which is where a learner meets this without looking
 // for it: the same explanation, beside the table it is about.
 await page.goto(`${B}/dictionary?q=tuba`, { waitUntil: "networkidle" });
 const entryBody = (await page.textContent("body")) ?? "";
 check("the entry says where that word breaks the pattern",
-  /Where this word breaks the pattern/.test(entryBody));
+  /Where this word breaks the rules/.test(entryBody));
 /*
   And it names which of the two is which, which the first version did not.
   It printed the pair under a sentence about half the dictionary having a
@@ -528,7 +528,7 @@ check("the entry says where that word breaks the pattern",
   looser and is the state this was written for.
 */
 check("and prints the other form only because it is also right, saying which is which",
-  /is the short one, and .* is the long one the ending gives you/.test(entryBody));
+  /is the short one, and .* is the long one you get from the ending/.test(entryBody));
 
 await page.goto(`${B}/review/exceptions`, { waitUntil: "networkidle" });
 await startRound(page);
@@ -541,7 +541,7 @@ check("the round has a heading of its own", met.trim().length > 0, met.trim());
   recalled, only met.
 */
 check("the round opens by showing the form rather than asking for it",
-  /This one is not what the ending would give you/.test(roundBody)
+  /This one breaks the usual pattern/.test(roundBody)
   && (await page.locator("#answer").count()) === 0);
 
 // ─── Dictation ────────────────────────────────────────────────────────────────
@@ -670,9 +670,9 @@ check("progress reports what is actually sticking, not just raw accuracy",
   had already thought were known, out of a total, against a target, so that is
   what is read off it.
 */
-const reading = await page.locator("text=/long-term reviews/").first().innerText();
+const reading = await page.locator("text=/older cards remembered/").first().innerText();
 check("it counts only the cards the scheduler thought were known",
-  /\d+ recalled of \d+ long-term reviews, target \d+%/.test(reading),
+  /\d+ of \d+ older cards remembered\. Your target is \d+%/.test(reading),
   reading.trim().slice(0, 80));
 
 // ─── "Why?", at the moment it is asked ────────────────────────────────────────
@@ -777,7 +777,7 @@ const hasSticking = (await page.getByText("Sticking points").count()) > 0;
 check("the deck's sticking points are named", hasSticking);
 
 if (hasSticking) {
-  const row = page.locator("li", { hasText: /lapses|never really settled/ }).first();
+  const row = page.locator("li", { hasText: /forgotten \d+ times|never really settled/ }).first();
   // Either rule may have flagged it, and each has to say which: a count of
   // times the card was learned and lost, or an accuracy that never settled.
   /*
@@ -790,7 +790,7 @@ if (hasSticking) {
   */
   const rowText = (await row.innerText()).replace(/\n/g, " · ");
   check("each one says what is wrong with it",
-    /forgotten again|never really settled/i.test(rowText) && /\d+ (lapses|%)/i.test(rowText),
+    /slipped away|never really settled/i.test(rowText) && /forgotten \d+ times|\d+% of \d+/i.test(rowText),
     rowText.slice(0, 90));
   // The argument this section makes is in the order of its actions: understand
   // it, look it up, and only then set it aside.
@@ -801,12 +801,12 @@ if (hasSticking) {
   await row.getByRole("button", { name: /Set aside/ }).click();
   await page.waitForTimeout(1200);
   check("setting one aside says so rather than making it vanish",
-    (await page.getByText(/it will not come up until you put it back/i).count()) > 0);
+    (await page.getByText(/it won.t come up again until you put it back/i).count()) > 0);
 
   await page.getByRole("button", { name: /Put it back/ }).first().click();
   await page.waitForTimeout(1200);
   check("and it can be put straight back",
-    (await page.getByText(/it will not come up until you put it back/i).count()) === 0);
+    (await page.getByText(/it won.t come up again until you put it back/i).count()) === 0);
 } else {
   absent(5, "a card with enough lapses to flag, which this deck has none of");
 }

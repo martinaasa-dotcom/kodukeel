@@ -212,14 +212,14 @@ export function nextClue(guessed: number, hasCategory: boolean): string | null {
   if (!clues.category && hasCategory) {
     const away = CATEGORY_AFTER - guessed;
     return away === 1
-      ? "After your next try you get a clue: what kind of word it is."
-      : `After ${away} more tries you get a clue: what kind of word it is.`;
+      ? "After your next guess you'll get a clue: what sort of thing the word is."
+      : `After ${away} more guesses you'll get a clue: what sort of thing the word is.`;
   }
   if (!clues.vowels) {
     const away = SONAD_GUESSES - 1 - guessed;
     return away === 1
-      ? "Before your last try you get a clue: how many of the letters are vowels."
-      : `After ${away} more tries you get a clue: how many of the letters are vowels.`;
+      ? "Before your last guess you'll get a clue: how many of its letters are vowels."
+      : `After ${away} more guesses you'll get a clue: how many of its letters are vowels.`;
   }
   return null;
 }

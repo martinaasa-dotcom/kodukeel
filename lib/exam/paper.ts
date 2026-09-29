@@ -370,23 +370,23 @@ export const TOPICS: readonly string[] = [
 export const MESSAGES: readonly { scenario: string; cover: readonly string[] }[] = [
   {
     scenario: "a note to a neighbor who took in a parcel for you",
-    cover: ["say who you are", "say what you are collecting", "say when you will come"],
+    cover: ["say who you are", "say what you're picking up", "say when you'll come by"],
   },
   {
     scenario: "an e-mail canceling an appointment you cannot keep",
-    cover: ["say which appointment", "give a reason", "propose another time"],
+    cover: ["say which appointment", "give a reason", "suggest another time"],
   },
   {
     scenario: "a message to a landlord about something broken in the flat",
-    cover: ["say what is broken", "say since when", "ask what happens next"],
+    cover: ["say what is broken", "say how long it has been broken", "ask what happens next"],
   },
   {
     scenario: "a note to a colleague who will cover your work tomorrow",
-    cover: ["say why you are away", "say what needs doing", "say how to reach you"],
+    cover: ["say why you're away", "say what needs doing", "say how to reach you"],
   },
   {
     scenario: "a message to a friend inviting them somewhere",
-    cover: ["say where and when", "say why you are going", "ask them to answer"],
+    cover: ["say where and when", "say why you are going", "ask them to let you know"],
   },
   {
     scenario: "an e-mail to a course you want to join",
@@ -575,7 +575,7 @@ function buildMatch(spec: TaskSpec, ctx: BuildContext): ExamTask {
       gloss: sentence.word.translation,
     });
   }
-  return finish(spec, items, shuffle(choices, ctx.random), "sentences that name their own word");
+  return finish(spec, items, shuffle(choices, ctx.random), "a sentence written to show off one particular word");
 }
 
 function buildGapChoice(spec: TaskSpec, ctx: BuildContext): ExamTask {
@@ -631,7 +631,7 @@ function buildGapChoice(spec: TaskSpec, ctx: BuildContext): ExamTask {
       options: set.options,
     });
   }
-  return finish(spec, items, undefined, "sentences that repeat their own headword");
+  return finish(spec, items, undefined, "a sentence that uses the word it's about");
 }
 
 function buildOrder(spec: TaskSpec, ctx: BuildContext): ExamTask {
@@ -660,7 +660,7 @@ function buildOrder(spec: TaskSpec, ctx: BuildContext): ExamTask {
       alsoRight: alsoRightOrders(sentence.text, ctx.wordOrder),
     });
   }
-  return finish(spec, items, undefined, "sentences of four to twelve different words");
+  return finish(spec, items, undefined, "a sentence of four to twelve different words");
 }
 
 function buildCaseForm(spec: TaskSpec, ctx: BuildContext): ExamTask {
@@ -696,7 +696,7 @@ function buildCaseForm(spec: TaskSpec, ctx: BuildContext): ExamTask {
       provenance: task.provenance,
     });
   }
-  return finish(spec, items, undefined, "nouns with an omastav stem to build on");
+  return finish(spec, items, undefined, "a noun whose omastav is in the dictionary");
 }
 
 function buildGovernment(spec: TaskSpec, ctx: BuildContext): ExamTask {
@@ -740,7 +740,7 @@ function buildGovernment(spec: TaskSpec, ctx: BuildContext): ExamTask {
       answer: row.government.caseKey,
     });
   }
-  return finish(spec, items, undefined, "verbs whose government the dictionary records");
+  return finish(spec, items, undefined, "a verb whose case the dictionary has on record");
 }
 
 function buildDictation(spec: TaskSpec, ctx: BuildContext): ExamTask {
@@ -783,7 +783,7 @@ function buildDictation(spec: TaskSpec, ctx: BuildContext): ExamTask {
     });
   }
 
-  return finish(spec, items, undefined, "sentences of three to nine words, or words to say");
+  return finish(spec, items, undefined, "a sentence of three to nine words, or a word to say");
 }
 
 /**
@@ -874,7 +874,7 @@ function buildListenChoose(spec: TaskSpec, ctx: BuildContext): ExamTask {
     });
   }
 
-  return finish(spec, items, undefined, "recordings with three near neighbors to hide among");
+  return finish(spec, items, undefined, "a recording, plus three similar ones to mix it in with");
 }
 
 /**
@@ -927,7 +927,7 @@ function buildGlossChoice(spec: TaskSpec, ctx: BuildContext): ExamTask {
       options: set.options,
     });
   }
-  return finish(spec, items, undefined, "words with three other meanings to hide among");
+  return finish(spec, items, undefined, "a word, plus three other meanings to mix in with its own");
 }
 
 /**
@@ -976,7 +976,7 @@ function buildFormChoice(spec: TaskSpec, ctx: BuildContext): ExamTask {
       provenance: task.provenance,
     });
   }
-  return finish(spec, items, undefined, "words with more than one case form to tell apart");
+  return finish(spec, items, undefined, "a word with several case forms to choose between");
 }
 
 /** A pool word as a written task carries it: the gloss to show, the forms to mark with. */
@@ -1030,14 +1030,14 @@ function buildCompose(spec: TaskSpec, ctx: BuildContext, index: number): ExamTas
     {
       label: "A story",
       prompt:
-        `Write a story about ${topic}. Say what happened, why, and what you think about it. ` +
+        `Write a story about ${topic}. Say what happened, why it happened, and what you think of it. ` +
         `At least ${composeWords} words.`,
     },
     {
       label: "A personal letter",
       prompt:
-        `Write a personal letter to somebody you know about ${topic}. Greet them, tell them ` +
-        `what has been happening, ask them something, and sign off. At least ${composeWords} words.`,
+        `Write a personal letter about ${topic} to somebody you know. Say hello, tell them ` +
+        `what's been going on, ask them something, and sign off. At least ${composeWords} words.`,
     },
   ];
 
@@ -1055,7 +1055,7 @@ function buildCompose(spec: TaskSpec, ctx: BuildContext, index: number): ExamTas
     minWords: composeWords,
     mustUse,
   }];
-  return finish(spec, items, undefined, "a topic, two briefs to choose between and four words");
+  return finish(spec, items, undefined, "a topic, two ways to write about it, and four words");
 }
 
 function buildSpeak(spec: TaskSpec, ctx: BuildContext, index: number): ExamTask {
@@ -1082,8 +1082,8 @@ function buildSpeak(spec: TaskSpec, ctx: BuildContext, index: number): ExamTask 
     topic,
     prompt:
       index === 0
-        ? `Speak about ${topic} for ${speakSeconds} seconds. Describe, then give a reason.`
-        : `Now take the other side of ${topic}. Disagree with what you just said, and explain why.`,
+        ? `Talk about ${topic} for ${speakSeconds} seconds. Describe it, then say what you think of it and why.`
+        : `Now take the other side. Disagree with what you just said about ${topic}, and give your reasons.`,
     seconds: speakSeconds,
     ideas,
   }];
@@ -1109,7 +1109,7 @@ function finish(
     fallbackFrom,
     shortfall,
     shortfallReason: shortfall > 0
-      ? `The dictionary could supply ${items.length} of ${spec.items}. This task needs ${needed}.`
+      ? `There was only enough in the dictionary for ${items.length} of the ${spec.items} questions here. Each one needs ${needed}.`
       : null,
     rawAvailable: Math.round(items.length * perItem),
   };

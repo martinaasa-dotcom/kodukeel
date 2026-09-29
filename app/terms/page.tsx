@@ -17,9 +17,9 @@ export default function TermsPage() {
   return (
     <Legal title="Terms" updated="30 August 2026">
       <P>
-        Kodukeel is a study tool. These terms are short because the arrangement is
-        simple: use it to learn Estonian, do not abuse the shared services behind it,
-        and understand what it can and cannot promise you.
+        Kodukeel is an app for studying Estonian. These terms are short because the deal is
+        simple: use it to learn Estonian, don&rsquo;t abuse the shared services behind it,
+        and know what it can and can&rsquo;t promise you.
       </P>
 
       <S title="Who provides it">
@@ -38,18 +38,19 @@ export default function TermsPage() {
         ) : (
           <P>
             <strong>Whoever runs this installation has not filled their name in</strong>, and
-            they are supposed to. Kodukeel is software somebody installs, so the provider of
-            the service you are using is the person or school running this copy, not the
-            people who wrote it. Ask whoever gave you the link. If that is you, setting{" "}
+            they&rsquo;re supposed to. Kodukeel is software anyone can install, so the provider of
+            the service you&rsquo;re using is whoever runs this copy, a person or a school, not the
+            people who wrote it. Ask whoever gave you the link. If that&rsquo;s you, setting{" "}
             <code>OPERATOR_NAME</code>, <code>OPERATOR_ADDRESS</code> and{" "}
             <code>OPERATOR_EMAIL</code> puts your details here and on the{" "}
             <Link href="/privacy" className="underline underline-offset-2">privacy page</Link>.
           </P>
         )}
         <P>
-          The service costs nothing and there is nothing to buy, so none of the usual consumer
-          purchase rules apply: no right of withdrawal, no payment terms. If an installation
-          ever starts charging, that is a different arrangement and these terms do not cover it.
+          It&rsquo;s free and there&rsquo;s nothing to buy, so the usual consumer purchase rules
+          don&rsquo;t apply: there&rsquo;s no right of withdrawal and no payment terms. If an
+          installation ever starts charging, that&rsquo;s a different arrangement, and these terms
+          don&rsquo;t cover it.
           What it costs somebody to run, and who that is, is set out on the{" "}
           <Link href="/funding" className="underline underline-offset-2">funding page</Link>.
         </P>
@@ -58,44 +59,44 @@ export default function TermsPage() {
       <S title="What it promises">
         <P>
           Every Estonian word form here comes from Ekilex, the dictionary database run by the
-          Institute of the Estonian Language. None of it is generated. Where a form is shown
-          as derived from a stored omastav stem, it is labeled as derived.
+          Institute of the Estonian Language. None of it is made up by AI. Where a form has been
+          worked out by a fixed rule from one the dictionary stores, the screen says so.
         </P>
         <P>
           <strong>Anu is a machine, and says so on every screen she speaks from.</strong> You
-          are talking to a language model, not to a teacher, and the app is required to make
-          that unmistakable rather than merely true. Which model answered is printed under
+          are talking to a language model, not a teacher, and the app has to make that
+          impossible to miss, not just true somewhere in the small print. Which model answered is printed under
           each reply, because a screen naming the wrong one would be worse than naming none.
         </P>
         <P>
-          She is not the final word on anything. She can explain grammar and suggest an
-          English translation, but her explanations can still be wrong. Do
-          not rely on her for an exam answer without checking it yourself.
+          She isn&rsquo;t the final word on anything. She can explain grammar and suggest an
+          English translation, but she can still get things wrong. Don&rsquo;t rely on her for
+          an exam answer without checking it yourself.
         </P>
         <P>
-          The app is provided as it is, with no warranty. It is a learning aid, not a
+          The app comes as it is, with no warranty. It&rsquo;s a learning aid, not a
           certified language qualification.
         </P>
       </S>
 
-      <S title="What is asked of you">
+      <S title="What we ask of you">
         <P>
-          Use one account, and use it yourself. Do not use the tutor to generate content
-          unrelated to learning Estonian. It runs on a key that costs money per use, so
-          there is a daily limit on every account, to stop one person using it all up for
-          everyone else.
+          Use one account, and use it yourself. Please don&rsquo;t use the tutor for things
+          that have nothing to do with learning Estonian. It runs on a key that costs money
+          every time it&rsquo;s used, so each account has a daily limit, to stop one person
+          using it all up for everyone else.
         </P>
         <P>
-          Do not write scripts to hammer the dictionary, the speech service or the tutor
-          with requests. Ekilex and TartuNLP are free academic services, and this whole
+          Please don&rsquo;t write scripts that hammer the dictionary, the speech service or
+          the tutor with requests. Ekilex and TartuNLP are free academic services, and this whole
           project depends on nobody abusing them.
         </P>
         <P>
           Be 13 or older, or have a parent agree first. Estonia sets the age at which
           somebody can agree to a service like this for themselves at 13, which is the
-          youngest any country in the Union sets it. Nothing here checks, and saying so is
-          more use than a box that anybody can tick: if you are a teacher signing a class
-          up, that agreement is the one thing worth getting before you send the link.
+          youngest any country in the Union sets it. Nothing here checks, and saying so plainly
+          is more use than a box anyone can tick. If you&rsquo;re a teacher signing up a class,
+          that agreement is the one thing worth getting before you send the link.
         </P>
       </S>
 
@@ -103,8 +104,8 @@ export default function TermsPage() {
         <P>
           Your deck, your review history, your tasks and your notes are yours. Export them
           whenever you like from Settings, in a format that restores into any installation.
-          The dictionary is two sources joined, and they carry different licenses, so it is
-          worth being exact rather than tidy. Every Estonian form and every example sentence
+          The dictionary joins two sources with different licenses, so it&rsquo;s worth being
+          exact here. Every Estonian form and every example sentence
           comes from <a
             href="https://ekilex.ee"
             target="_blank"
@@ -120,8 +121,7 @@ export default function TermsPage() {
           >English Wiktionary</a> and is licensed <strong>CC BY-SA 4.0</strong> by its
           contributors, which is the stricter of the two: a work built on it has to be
           shared on the same terms. Both are credited on the sign-in page and in the
-          footer, and the split between them is the whole design of the dictionary rather
-          than an accident of it.
+          footer, and keeping them apart is how the dictionary was designed, not an accident.
         </P>
         <P>
           The order the commonest words are listed in comes from <a
@@ -155,8 +155,8 @@ export default function TermsPage() {
 
       <S title="Ending it">
         <P>
-          You can stop and delete your data at any time. An installation may withdraw
-          access to an account that is abusing the shared services described above.
+          You can stop and delete your data whenever you like. An installation may cut off
+          an account that&rsquo;s abusing the shared services described above.
         </P>
       </S>
 

@@ -109,7 +109,7 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
     case "datum": {
       const prop = card ? propBySlot(card, need.slot) : undefined;
       if (!prop) return null;
-      return `Tip: your card has it, “${prop.card}”. Just say that in Estonian.`;
+      return `Tip: your card has it, under “${prop.card.replace(/\.$/, "")}”. Just say that in Estonian.`;
     }
     case "question":
       return "Tip: try asking them something. Any sentence ending in a question mark works.";

@@ -72,12 +72,12 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
           <Sparkles size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
           <div className="min-w-0">
             <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-              That is the whole point, and you just used it.
+              You just looked forms up in the table. That&apos;s exactly what it&apos;s there for.
             </p>
             <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
               {rightSoFar === asks.length
-                ? "Every one of those was right. The rounds after this ask the same thing on tonight's words."
-                : "The table above is the thing to glance at when a form looks odd. It will look less odd tomorrow."}
+                ? "You got every one right. Later tonight you'll get questions like these about tonight's words."
+                : "Glance back at the table whenever a form looks odd. It'll look a lot less odd by tomorrow."}
             </p>
           </div>
         </div>
@@ -92,7 +92,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
        own marker. */
     <div data-try-it={at + 1}>
     <Card>
-      <SectionTitle hint={`${at + 1} of ${asks.length}, nothing is scored`}>Try it</SectionTitle>
+      <SectionTitle hint={`${at + 1} of ${asks.length}, just practice`}>Try it</SectionTitle>
       <p className="mt-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
         <Prompt ask={ask} />
       </p>

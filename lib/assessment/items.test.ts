@@ -474,7 +474,7 @@ describe("the explanation after a gap", () => {
     */
     expect(explained!.because.startsWith(explained!.full)).toBe(false);
     expect(explained!.because).toContain("I am in the room right now.");
-    expect(explained!.because).toContain("The gap takes toas rather than tuba.");
+    expect(explained!.because).toContain("The gap needs toas, not tuba.");
     // And the clause `lib/estonian/plainAsk.ts` holds for the slot, which is
     // what a person would say out loud rather than what a class calls it.
     expect(explained!.because).toContain("when something is inside it");
@@ -499,7 +499,7 @@ describe("the explanation after a gap", () => {
     expect(explainWrittenGap(tuba, gap!).startsWith(gap!.full)).toBe(false);
     // Neither loses the reason, which is the half a drawing cannot carry.
     for (const text of [explainGap(tuba, gap!), explainWrittenGap(tuba, gap!)]) {
-      expect(text).toContain("The gap takes toas rather than tuba.");
+      expect(text).toContain("The gap needs toas, not tuba.");
     }
   });
 
@@ -527,8 +527,8 @@ describe("the explanation after a gap", () => {
     const because = writingItems([kaart], mulberry32(3)).map((i) => i.because);
     expect(because.length, "no syncretic form turned up").toBeGreaterThan(0);
     for (const line of because) {
-      expect(line).toContain("The gap takes kaarti rather than kaart.");
-      expect(line.endsWith("The gap takes kaarti rather than kaart.")).toBe(true);
+      expect(line).toContain("The gap needs kaarti, not kaart.");
+      expect(line.endsWith("The gap needs kaarti, not kaart.")).toBe(true);
     }
   });
 
@@ -561,10 +561,10 @@ describe("the explanation after a gap", () => {
       ...writingItems([sober], mulberry32(3)).map((i) => i.because),
       ...readingItems([sober], mulberry32(3)).map((i) => i.because),
     ];
-    const nominative = lines.filter((l) => l.includes("takes sõbrad"));
+    const nominative = lines.filter((l) => l.includes("needs sõbrad"));
     expect(nominative.length, "no nominative plural gap was built").toBeGreaterThan(0);
     for (const line of nominative) {
-      expect(line).toContain("That is the plural.");
+      expect(line).toContain("That's the plural.");
       expect(line, "the plural is described as the dictionary word")
         .not.toContain("as the plain dictionary word");
     }
@@ -576,9 +576,9 @@ describe("the explanation after a gap", () => {
       choice rather than this test's.
     */
     const allative = explainForm(sober, "sõpradele");
-    expect(allative).toContain("That is the plural, and the form you use");
+    expect(allative).toContain("That's the plural, and the form you use");
     expect(allative).toContain("is given to somebody");
-    expect(explainForm(sober, "sõprade")).toContain("That is the plural, and the form you use");
+    expect(explainForm(sober, "sõprade")).toContain("That's the plural, and the form you use");
   });
 
   it("says what a verb form is asking, off a seeded principal part", () => {
@@ -606,11 +606,11 @@ describe("the explanation after a gap", () => {
       ...writingItems([sooma], mulberry32(3)).map((i) => i.because),
       ...readingItems([sooma], mulberry32(3)).map((i) => i.because),
     ];
-    const infinitive = lines.filter((l) => l.includes("takes süüa"));
+    const infinitive = lines.filter((l) => l.includes("needs süüa"));
     expect(infinitive.length, "no da-infinitive gap was built").toBeGreaterThan(0);
     for (const line of infinitive) expect(line).toContain("when you mean");
-    expect(explainForm(sooma, "söön")).toContain("about yourself, happening now");
-    expect(explainForm(sooma, "sõin")).toContain("about yourself, already happened");
+    expect(explainForm(sooma, "söön")).toContain("about yourself, right now");
+    expect(explainForm(sooma, "sõin")).toContain("about yourself, in the past");
   });
 
   it("never names a case, in Estonian or in Latin", () => {
@@ -625,7 +625,7 @@ describe("the explanation after a gap", () => {
     const explained = [
       ...writingItems(WORDS, mulberry32(3)).map((i) => i.because),
       ...readingItems(WORDS, mulberry32(3)).map((i) => i.because),
-    ].filter((b) => b.includes("The gap takes"));
+    ].filter((b) => b.includes("The gap needs"));
     expect(explained.length, "no gap explanation was built at all").toBeGreaterThan(0);
     for (const line of explained) {
       for (const spec of CASES) {

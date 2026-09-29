@@ -54,24 +54,24 @@ export const VERB_AXES: readonly { et: string; en: string; blurb: string }[] = [
     et: "aeg",
     en: "tense",
     blurb:
-      "Two that the verb itself carries, and two more built with the auxiliary and a participle. There is no future among them.",
+      "Two tenses the verb makes by itself, for now and before, and two more built with \"to be\", like \"have done\". There's no future among them.",
   },
   {
     et: "kõneviis",
     en: "mood",
     blurb:
-      "Whether you are stating, supposing, instructing, or passing on something you did not witness. Four in a school grammar, each with its own endings, and a fifth that reference grammars split off from the imperative.",
+      "Are you stating it, imagining it, telling someone to do it, or passing on something you only heard? School grammars count four moods, each with its own endings, and some reference books count five.",
   },
   {
     et: "tegumood",
     en: "voice",
     blurb:
-      "Whether the sentence names who did it. Not the English passive, and worth keeping apart from it.",
+      "Whether the sentence says who did it. It looks like the English passive but works differently, so keep the two apart.",
   },
   {
     et: "pööre",
     en: "person",
-    blurb: "Six persons, marked on the verb, so I and you can be dropped in speech. He, she and they stay.",
+    blurb: "Six persons, each with its own verb ending, so \"I\" and \"you\" can often be left out. \"He\", \"she\" and \"they\" usually stay.",
   },
 ];
 

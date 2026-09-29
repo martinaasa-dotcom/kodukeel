@@ -190,7 +190,7 @@ export default async function TopicPage({
                   <FitText as="dd" text={term.et} lang="et" className="font-display mt-1 font-bold leading-tight [--fit-max:var(--text-2xl)] xl:[--fit-max:var(--text-3xl)]" style={{ color: "var(--ink)" }} />
                   {term.alsoCalled && (
                     <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
-                      {term.alsoCalled}, in an English grammar
+                      {term.alsoCalled} in an English grammar book
                     </dd>
                   )}
                 </div>
@@ -243,7 +243,7 @@ export default async function TopicPage({
 
         {shown && verbs.length > 0 && (
           <section>
-            <SectionTitle hint={only ? "every person, as the dictionary holds it" : verbs.some((v) => v.inDeck) ? "verbs from your deck first" : "from the dictionary"}>
+            <SectionTitle hint={only ? "all six, straight from the dictionary" : verbs.some((v) => v.inDeck) ? "verbs from your deck first" : "from the dictionary"}>
               {only ? "The six persons" : "On real verbs"}
             </SectionTitle>
             <VerbTable verbs={verbs} show={shown} />
@@ -268,7 +268,7 @@ export default async function TopicPage({
           </SectionTitle>
           {units.length === 0 ? (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-              No unit teaches this point yet. It is here as reference, not as a lesson.
+              No unit teaches this yet, so for now it&apos;s just here for reference.
             </p>
           ) : (
             <ul className="mt-2 grid gap-2 sm:grid-cols-2">

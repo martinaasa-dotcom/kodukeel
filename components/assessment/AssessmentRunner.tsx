@@ -49,22 +49,22 @@ const SECTIONS: Record<Skill, { icon: typeof Compass; title: string; body: strin
   reading: {
     icon: Compass,
     title: "Reading",
-    body: "What a word means, and which form a sentence needs.",
+    body: "What words mean, and which form of a word fits a sentence.",
   },
   listening: {
     icon: Headphones,
     title: "Listening",
-    body: "Estonian audio with nothing written down. Say so if it will not play.",
+    body: "You'll hear Estonian with nothing written down. If the audio won't play, tell us and we'll skip it.",
   },
   writing: {
     icon: PenLine,
     title: "Writing",
-    body: "A sentence with a word missing. Type the form it needs.",
+    body: "Each sentence has a word missing. Type it in, in the form the sentence needs.",
   },
   speaking: {
     icon: Mic,
     title: "Speaking",
-    body: "Nothing scores this. Hear it said, then say how confident you would be.",
+    body: "This part isn't scored. Listen to the sentence, then tell us how confident you'd feel saying it.",
   },
 };
 
@@ -148,9 +148,9 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
       return (
         <div className="py-6 text-center">
           <Mascot size={56} mood="cheer" className="mx-auto float" />
-          <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>Level check complete.</p>
+          <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>That&apos;s the level check done.</p>
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            {saving ? "Calculating your results…" : "Calculating your results… done."}
+            {saving ? "Working out your results…" : "Working out your results… done."}
           </p>
         </div>
       );
@@ -161,8 +161,8 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
           <div className="mb-5">
             <Note tone="sky">
               <WifiOff size={14} className="mr-1.5 inline" aria-hidden />
-              This result could not be saved, so it will not appear in your history. Everything below
-              is still what you scored.
+              We couldn&apos;t save this result, so it won&apos;t show up in your history. Everything
+              below is still exactly what you scored.
             </Note>
           </div>
         )}
@@ -181,7 +181,7 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
     return (
       <div className="mx-auto w-full max-w-2xl px-5 py-16 text-center md:px-8">
         <Mascot size={56} mood="thinking" className="mx-auto" />
-        <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>Working out your level...</p>
+        <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>Working out your level…</p>
       </div>
     );
   }
@@ -222,7 +222,7 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
           </p>
           {missing.includes(item.skill) && (
             <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-              This section is shorter than usual: the dictionary here could not fill it.
+              This section is shorter than usual, because the dictionary here didn&apos;t have enough to fill it.
             </p>
           )}
           {/*
@@ -296,16 +296,16 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
             className="min-h-[44px] text-xs underline underline-offset-2"
             style={{ color: "var(--ink-3)" }}
           >
-            The audio will not play. Leave listening unmeasured, out of the three that count.
+            The audio won&apos;t play. Skip listening, and your level comes from the other two skills.
           </button>
         </div>
       )}
 
       <div className="mt-8">
         <SectionTitle>How this is marked</SectionTitle>
-        <Explain label="Why the length varies">
-          A skill stops one level past the first one you do not pass, so how many questions you
-          get depends on how far up you make it. Nothing you answer here becomes a flashcard.
+        <Explain label="Why some sections are longer">
+          Each skill stops one level after the first one you don&apos;t pass, so the further up you
+          get, the more questions you see. Nothing you answer here turns into a flashcard.
         </Explain>
       </div>
     </div>

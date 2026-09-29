@@ -62,103 +62,103 @@ export const CASE_NOTES: readonly CaseNote[] = [
   {
     key: "NOMINATIVE",
     plain: "the plain word",
-    summary: "The word as the dictionary lists it, and whoever is doing the verb.",
+    summary: "The word as the dictionary lists it, and whoever is doing the action.",
     uses: [
-      "Who or what is doing the verb",
-      "The form you look a word up under",
-      "A whole object, in the plural or after a command",
+      "Whoever or whatever is doing the action",
+      "The word as you'd look it up",
+      "A whole object after a command, or in the plural",
     ],
     watchOut:
-      "It is also a whole object, but only in the plural or after a command. Singular whole objects take the genitive instead.",
-    englishHook: "The subject, sitting exactly where English puts it.",
+      "It's the object after a command, like \"put the book down\". But in \"I bought the book\", the book takes the next form down, the one meaning \"whose\".",
+    englishHook: "The dog in \"the dog barks\", exactly as it is.",
   },
   {
     key: "GENITIVE",
     plain: "of, and whose",
-    summary: "Whose something is. Also the stem eleven other endings are glued onto.",
+    summary: "Whose something is. It's also the base the other eleven endings go onto.",
     uses: [
       "Saying whose something is",
-      "A finished, whole object",
-      "The stem every ending below needs",
+      "A whole object, like the car you bought",
+      "The base that the eleven endings below are added to",
     ],
     watchOut:
-      "Learn this one form and eleven cases fall out of it. Get it wrong and eleven go wrong with it, which is why the app drills it so hard.",
-    englishHook: "of the book, the book's cover.",
+      "Get this one right and eleven more forms come for free, because they're all built on it. Get it wrong and all eleven go wrong with it.",
+    englishHook: "The book's cover, the cover of the book.",
   },
   {
     key: "PARTITIVE",
     plain: "some of it",
-    summary: "Part of a thing, an action that has not finished, or a count.",
+    summary: "Some of something, an action that isn't finished, and anything after a number.",
     uses: [
       "Some of a thing rather than all of it",
-      "An action still going on",
+      "An action you're still in the middle of",
       "After any number above one",
     ],
     watchOut:
-      "English marks none of this, so there is nothing to carry over. It is stored per word because it is not predictable.",
-    englishHook: "some water. I was reading a book, and had not finished it.",
+      "English doesn't mark any of this, so there's no instinct to lean on at first. The form can't be guessed either, so learn it with each new word.",
+    englishHook: "Some water. A book you're reading but haven't finished.",
   },
   {
     key: "ILLATIVE",
     plain: "into",
-    summary: "Going into something: a room, a language, a decade, a mood.",
+    summary: "Going into something: a room, a new language, a bad mood.",
     uses: ["Going into a place or a container", "Going into a state or a stretch of time"],
     watchOut:
-      "Plenty of everyday words have a short form instead, and the short one is what people say. The dictionary shows it wherever it exists.",
-    englishHook: "into the room, into the nineties, into a bad mood.",
+      "Many everyday words have a second, shorter form, and that's the one people actually say. The dictionary shows it wherever there is one, and both count.",
+    englishHook: "Into the room, into the nineties, into a bad mood.",
   },
   {
     key: "INESSIVE",
     plain: "in",
-    summary: "Being inside something, and being in a month or a mood.",
+    summary: "Being inside something, and being in a month, a language or a mood.",
     uses: ["Position inside a place", "Being in a state, a language, or a month"],
     watchOut:
-      "Estonian draws the inside line where English does not. Cities and rooms are inside; some islands and open places are not, and it is per word.",
-    englishHook: "in the house, in March, in a good mood.",
+      "Estonian and English don't always agree on what counts as inside. Towns and rooms are, but some islands and open places aren't, so learn those as you meet them.",
+    englishHook: "In the house, in March, in a good mood.",
   },
   {
     key: "ELATIVE",
     plain: "out of",
-    summary: "Coming out of something. Also what a book or a conversation is about.",
+    summary: "Coming out of something, and also what a book or a chat is about.",
     uses: [
       "Coming out of a place",
       "What something is made of",
       "What a text or a conversation is about",
     ],
     watchOut:
-      "About is the surprise. Talking about a subject takes the same ending as walking out of a building.",
-    englishHook: "out of the house. A book about history.",
+      "The surprise is \"about\". Talking about history takes the same ending as walking out of a building.",
+    englishHook: "Out of the house. A book about history.",
   },
   {
     key: "ALLATIVE",
     plain: "onto, and to a person",
-    summary: "Going onto a surface, and whoever you gave it to.",
+    summary: "Going onto a surface, and the person you give something to.",
     uses: ["Going onto a surface", "The person something is given, said or sent to"],
     watchOut:
-      "English says to for a place and for a person alike, so this ending and -sse both look like to from the English side. Estonian is asking: inside, or on top?",
-    englishHook: "onto the table. To the person you gave it to.",
+      "English says \"to the shop\" and \"to Anna\" with one little word. Estonian asks which kind of \"to\": into something is -sse, onto something or to a person is this one.",
+    englishHook: "Onto the table. To a friend, to your teacher.",
   },
   {
     key: "ADESSIVE",
     plain: "on, at, and have",
-    summary: "Being on something, and the way Estonian says somebody has something.",
+    summary: "Being on something, and how Estonian says somebody has something.",
     uses: [
       "Position on a surface",
       "Having something: the owner takes this ending",
       "When something happens",
     ],
     watchOut:
-      "There is no verb for have. The owner takes this ending and the thing owned becomes the subject, so the sentence comes out inside out.",
-    englishHook: "on the table. I have becomes at me there is.",
+      "There's no verb for \"have\". The owner takes this ending and the thing they own becomes the subject, so the sentence feels inside out at first.",
+    englishHook: "On the table. \"I have a cat\" comes out as \"at me is a cat\".",
   },
   {
     key: "ABLATIVE",
     plain: "off, and from a person",
-    summary: "Coming off a surface, and whoever you took it from.",
+    summary: "Coming off a surface, and the person you get something from.",
     uses: ["Coming off a surface", "The person something is taken, bought or asked from"],
     watchOut:
-      "Off a surface, not out of a container. That one difference is the whole of what separates this ending from -st.",
-    englishHook: "off the table. From the person you bought it from.",
+      "Think \"off a table\", not \"out of a box\". That one difference is all that separates this ending from -st.",
+    englishHook: "Off the table. From the person who sold it to you.",
   },
   {
     key: "TRANSLATIVE",
@@ -166,44 +166,44 @@ export const CASE_NOTES: readonly CaseNote[] = [
     summary: "Turning into something, what a thing is for, and by when.",
     uses: ["Turning into a state or a role", "What something is for", "A deadline: by when"],
     watchOut:
-      "It does far more work than English into suggests. Becoming a teacher, turning cold and being ready by Friday are all this one ending.",
-    englishHook: "into, as, for, by Friday.",
+      "It covers far more than English \"into\". Becoming a teacher, the weather turning cold and being ready by Friday all use this one ending.",
+    englishHook: "Turning cold, getting it as a gift, done by Friday.",
   },
   {
     key: "TERMINATIVE",
     plain: "up to",
-    summary: "As far as a point, in space, in time or in amount.",
+    summary: "As far as some point: a place, a moment or an amount.",
     uses: ["As far as a place", "Until a moment", "Up to an amount"],
     watchOut:
-      "The ending already carries as far as, so the preposition people add in speech is saying it twice.",
-    englishHook: "as far as the church. Right up until Friday.",
+      "The ending already means \"as far as\", so the extra word people sometimes add when talking says it twice. Harmless, but you don't need it.",
+    englishHook: "As far as the church. Right up until Friday.",
   },
   {
     key: "ESSIVE",
     plain: "as",
-    summary: "In the role of something, usually for now rather than for good.",
+    summary: "In the role of something, usually for now rather than forever.",
     uses: ["Working as something", "A role or a capacity you are in for now"],
     watchOut:
-      "The -ks ending gets you into the role. This one keeps you there. That is the only thing to hold apart.",
-    englishHook: "working as a teacher, for as long as that lasts.",
+      "The -ks ending is for getting into a role. This one means you're already in it. Keep those two apart and you've got it.",
+    englishHook: "Working as a teacher, for as long as that lasts.",
   },
   {
     key: "ABESSIVE",
     plain: "without",
-    summary: "Not having something. The exact opposite of the ending under it.",
+    summary: "Without something. The exact opposite of \"with\", the next one down.",
     uses: ["The absence of a thing", "Doing something without a tool, a person or permission"],
     watchOut:
-      "Rare on its own in speech, where people put the word for without in front of it anyway. Worth recognizing more than producing.",
-    englishHook: "without a coat. Without asking.",
+      "You won't hear it much out loud, where people tend to use a separate word for \"without\". Learn to recognize it before you worry about using it.",
+    englishHook: "Without a coat. Without asking.",
   },
   {
     key: "COMITATIVE",
     plain: "with",
-    summary: "With a person, with a tool, and how you traveled.",
-    uses: ["Together with somebody", "The tool you did it with", "How you got there"],
+    summary: "With a person, with a tool, and how you got somewhere.",
+    uses: ["Together with somebody", "The tool you did it with", "How you got somewhere, like by bus"],
     watchOut:
-      "It covers with a friend and with a knife, which many languages keep apart. It also never changes shape, so it is the easiest ending in the language to spot.",
-    englishHook: "with, and by bus.",
+      "It covers \"with a friend\" and \"with a knife\", which plenty of languages keep apart. It's always -ga, so it's the easiest ending to spot.",
+    englishHook: "With a friend, with a fork, and by bus.",
   },
 ];
 
@@ -240,22 +240,22 @@ export function allCaseReferences(): CaseReference[] {
 export const CASE_GROUPS: readonly { title: string; blurb: string; keys: readonly CaseKey[] }[] = [
   {
     title: "Three to memorize",
-    blurb: "No endings on these three. They are stored per word, and the second one is what everything else is built on.",
+    blurb: "You learn these three with each new word, because no rule gives them to you. The second one matters most: every ending below is added to it.",
     keys: ["NOMINATIVE", "GENITIVE", "PARTITIVE"],
   },
   {
     title: "Inside",
-    blurb: "Into, in, out of. Containers, buildings, languages, months and moods.",
+    blurb: "Into, in and out of. For boxes, buildings and towns, and for languages, months and moods too.",
     keys: ["ILLATIVE", "INESSIVE", "ELATIVE"],
   },
   {
     title: "On top",
-    blurb: "Onto, on, off. Surfaces, people, times, and the way Estonian says somebody has something.",
+    blurb: "Onto, on and off. For tables and shelves, for people, and for how Estonian says someone has something.",
     keys: ["ALLATIVE", "ADESSIVE", "ABLATIVE"],
   },
   {
     title: "Five more, one job each",
-    blurb: "Becoming, up to, as, without, with. Nothing to work out: each ending does its one job.",
+    blurb: "Becoming, up to, as, without and with. No puzzles here: each ending is one simple idea.",
     keys: ["TRANSLATIVE", "TERMINATIVE", "ESSIVE", "ABESSIVE", "COMITATIVE"],
   },
 ];
@@ -310,290 +310,290 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
   {
     id: "olema",
     title: "To be, and having things",
-    summary: "There is no verb for have. You say the thing is at you instead.",
+    summary: "There's no verb for \"have\". You say the thing is \"at you\" instead.",
     points: [
-      "The one verb you cannot avoid, and one of the few irregular ones",
-      "Having something is said as it being at you, with -l",
-      "Feelings, needs and obligations run on the same pattern",
+      "The verb you'll use in every conversation, and it's irregular",
+      "For \"I have\", you say \"at me is\", with -l on the owner",
+      "Being sleepy or hungry, or having to do something, works the same way",
     ],
     watchOut:
-      "There is no have to reach for, so an English-shaped sentence will not translate word for word. The owner takes the ending and the thing owned stays plain.",
+      "You'll reach for a \"have\" that isn't there. Instead the owner gets -l and the thing stays as it is: literally \"at me is a car\".",
   },
   {
     id: "present-tense",
     title: "Talking about now",
-    summary: "One form doing the work of I write, I am writing and I will write.",
+    summary: "One form covers \"I write\", \"I'm writing\" and even \"I'll write\".",
     points: [
-      "Six person endings on a stem",
-      "Covers both English presents at once",
-      "Does the future as well, since there is no future tense",
+      "One ending each for I, you, he or she, we, you all and they",
+      "One form for both \"I eat\" and \"I'm eating\"",
+      "It covers the future too, as in \"the concert is tomorrow\"",
     ],
     watchOut:
-      "The present stem is not always readable from the dictionary form, which is why the first person is stored per verb rather than worked out.",
+      "Knock -ma off the dictionary word and you won't always get the present. That's why each verb is learned with its \"I\" form, and the rest follow from it.",
   },
   {
     id: "negation",
     title: "Saying no",
-    summary: "One negating word, and the verb drops its ending entirely.",
+    summary: "One small word does \"not\" for everybody, and the verb drops its ending.",
     points: [
-      "The verb goes back to a bare stem",
-      "One word covers every person, unlike do not and does not",
-      "The past is negated differently from the present",
+      "The verb loses its ending and goes back to its shortest shape",
+      "The same \"not\" for everyone, where English juggles don't and doesn't",
+      "The past says no in a different way from the present",
     ],
     watchOut:
-      "The temptation is to negate the conjugated form. Estonian strips the ending off instead, so the person is carried by the pronoun alone.",
+      "It's tempting to put \"not\" in front of the usual form. Estonian strips the ending off instead, so it's the pronoun that tells you who.",
   },
   {
     id: "imperfect",
     title: "Saying what happened",
-    summary: "The past for anything that happened and finished. The backbone of any story.",
+    summary: "The past for anything that happened and is over. Every story is told in it.",
     points: [
-      "Built on the second infinitive's stem, with -si- after it",
-      "A short list of common verbs takes -i- instead",
-      "Used for completed events, however recent",
+      "\"I did\" usually ends in -sin, and some common verbs take -in",
+      "Some very common verbs use -i- instead of -si-",
+      "For anything that's over, even if it was five minutes ago",
     ],
     watchOut:
-      "The past stem comes from the second infinitive, not from the present. Which verbs take -i-, and what the third person does to the stem, are learned per verb.",
+      "Build the past from the -ma word, not from the present. Which verbs take -i-, and what \"she did\" looks like, you learn one verb at a time.",
   },
   {
     id: "perfect",
     title: "Done, and it still matters",
-    summary: "To be plus a participle, for a past whose result is the point.",
+    summary: "Like \"I have eaten\": \"to be\" plus the -nud word, for things that still matter now.",
     marker: "-nud",
     points: [
-      "Built from to be, never from to have",
-      "Used where the result matters more than the event",
-      "The participle never changes for person",
+      "Built with \"to be\", never with \"to have\"",
+      "For when the result matters more than when it happened",
+      "The -nud word stays the same for every person",
     ],
     watchOut:
-      "Estonian builds this on to be, so the English auxiliary is the wrong model to copy.",
+      "Where English says \"I have eaten\", Estonian uses \"to be\" plus the -nud word. There's no \"have\" in it at all, so don't go looking for one.",
   },
   {
     id: "pluperfect",
     title: "Done before something else",
-    summary: "The same participle, with to be itself in the past.",
+    summary: "Like \"I had eaten\": the same -nud word, with \"to be\" in the past.",
     marker: "-nud",
     points: [
-      "An event finished before another past event",
-      "Common in stories and in reported speech",
-      "Uses exactly the participle the perfect uses",
+      "Something that was over before something else happened",
+      "Common in stories, and when you retell what someone said",
+      "Uses exactly the same -nud word as \"have done\"",
     ],
     watchOut:
-      "Only the auxiliary moves into the past. Putting the participle into a past form as well is the usual overcorrection.",
+      "Only \"to be\" goes into the past. The -nud word stays exactly as it was, and trying to put it in the past as well is the classic slip.",
   },
   {
     id: "future",
     title: "Talking about the future",
-    summary: "There is no future tense. The present plus a time word does the whole job.",
+    summary: "There's no future tense. The present plus a word like \"tomorrow\" does the whole job.",
     points: [
-      "A time expression is what makes a sentence future",
-      "Verbs of planning and intending carry the rest",
-      "A particle can imply something is going to finish",
+      "A word like \"tomorrow\" is what makes it the future",
+      "Verbs like \"plan\" and \"intend\" do the rest",
+      "A small extra word can say it's going to get finished",
     ],
     watchOut:
-      "Looking for a future tense to conjugate is looking for something that does not exist. Vocabulary does the work here, not endings.",
+      "Don't go hunting for a future tense, because there isn't one. Words like \"tomorrow\" and verbs like \"plan\" do the job instead.",
   },
   {
     id: "conditional",
     title: "Would, could, should",
-    summary: "One ending that makes a sentence hypothetical, or a request polite.",
+    summary: "One ending that turns a sentence into a \"what if\", or makes a request polite.",
     marker: "-ksi-",
     points: [
-      "Hypotheticals and their consequences",
-      "Softening a request so a stranger does not find it blunt",
-      "Giving advice without issuing an order",
+      "Wishes and what-ifs: \"if I had time, I'd come\"",
+      "Asking nicely: \"I'd like a coffee\", rather than \"I want\"",
+      "Giving advice without bossing anyone around",
     ],
     watchOut:
-      "This is the politeness register as much as the grammar of hypotheticals. What is normal between friends can land badly with a stranger, and this is the repair.",
+      "This is how you're polite as much as how you say \"would\". What's fine between friends can sound blunt to a stranger, and this ending is the fix.",
   },
   {
     id: "imperative",
     title: "Telling somebody to do it",
-    summary: "Instructions and invitations, with one form for one person and one for several.",
+    summary: "Telling someone to do something, with one form for one person and another for more.",
     points: [
-      "Separate singular and plural forms, unlike English",
-      "The plural doubles as the polite form for one person",
-      "Negated with its own word",
+      "One form for one person, another for a group, unlike English",
+      "The group form is also the polite one for a single stranger",
+      "\"Don't\" has a little word of its own",
     ],
     watchOut:
-      "Using the singular on somebody you have just met reads as an order. The plural is the safe default with a stranger.",
+      "Using the singular with somebody you've just met sounds like an order. With a stranger, the plural is the safe choice.",
   },
   {
     id: "quotative",
     title: "Passing on what you heard",
-    summary: "A whole mood for what you are repeating rather than vouching for.",
+    summary: "A verb ending that means \"apparently\": you pass it on without vouching for it.",
     marker: "-vat",
     points: [
-      "Reported speech, rumor and hearsay",
-      "Common in news writing, where the source matters",
-      "Can carry doubt, depending on delivery",
+      "Rumors, hearsay and things you read somewhere",
+      "Common in the news, where who said it matters",
+      "Can sound doubtful, depending on how it's said",
     ],
     watchOut:
-      "English needs a word like apparently. Estonian does it with a verb ending, so it is easy to read straight past and take a rumor as fact.",
+      "English needs a word like \"apparently\". Estonian does it with a verb ending, so it's easy to read straight past it and take a rumor as fact.",
   },
   {
     id: "impersonal",
     title: "Said without naming who",
-    summary: "Somebody did it and the sentence does not say who. Not the passive.",
+    summary: "Like \"people say\" or \"it's done\": someone does it, and the sentence doesn't say who.",
     marker: "-takse",
     points: [
-      "Notices, instructions, official prose and news",
+      "Signs, instructions, forms and the news",
       "Says people did something, without saying which people",
-      "Has its own forms across the tenses",
+      "Works in the past as well as the present",
     ],
     watchOut:
-      "The English passive lets you add by whom, and lets the wind blow a door open. This has no slot for a doer and always assumes a person.",
+      "In English, \"the door was opened by the wind\" is fine. This form has no room for a \"by whom\", and it always means people did it, never the wind.",
   },
   {
     id: "participles",
-    title: "Participles",
-    summary: "Verb forms that behave like adjectives, and the parts the compound tenses are built from.",
+    title: "Verb words that describe things",
+    summary: "Verb forms that describe a noun, like \"a broken window\", and help build \"have done\".",
     marker: "-nud",
     points: [
-      "Four of them: active and impersonal, present and past",
-      "Used to describe a noun the way an adjective would",
-      "Carry the perfect and pluperfect with the auxiliary",
+      "Four in all, roughly \"reading\", \"having read\", \"to be read\" and \"read\"",
+      "They describe a noun, the way \"a sleeping baby\" does",
+      "With \"to be\", they make \"has done\" and \"had done\"",
     ],
     watchOut:
-      "Everywhere in written Estonian and rare in beginner courses, which is why intermediate reading feels harder than intermediate speaking.",
+      "They're everywhere in written Estonian and rare in beginner courses. That's why reading suddenly feels harder than talking around the middle levels.",
   },
   {
     id: "past-participle",
     title: "The -nud form",
-    summary: "What the perfect tenses are built from, and an adjective in its own right.",
+    summary: "The word behind \"have done\" and \"had done\", and a describing word in its own right.",
     marker: "-nud",
     points: [
-      "Combines with to be for have done and had done",
-      "Describes a noun as having done something",
-      "Has an impersonal twin for things done to something",
+      "With \"to be\" it makes \"have done\" and \"had done\"",
+      "Describes something by what it has done, like \"a fallen leaf\"",
+      "Has a twin in -tud for things done to something",
     ],
     watchOut:
-      "It never changes shape, not even in front of a noun, which makes it one of the few words in the language that ignores case. The present participles do change, which is where the two get mixed up.",
+      "It never changes shape, even in front of a noun, so it's one of the few words that ignores the endings completely. Its cousins in -v and -tav do change, and that's where people mix them up.",
   },
   {
     id: "converb",
     title: "The -des form",
-    summary: "While doing: two things at once, folded into one sentence.",
+    summary: "\"While doing\": two things at once, folded into one sentence.",
     marker: "-des",
     points: [
-      "Two simultaneous actions without a conjunction",
-      "Strongly preferred in writing over two joined clauses",
-      "Its subject is understood to be the main clause's",
+      "Two things at once, with no \"and\" or \"while\" needed",
+      "Writers much prefer it to two sentences joined up",
+      "Whoever does it is whoever does the rest of the sentence",
     ],
     watchOut:
-      "The subject is implied, not stated, so giving the two halves different subjects produces a sentence that is correct and means something you did not intend.",
+      "The -des part borrows its \"who\" from the rest of the sentence. Give the two halves different people and the sentence ends up saying something you didn't mean.",
   },
   {
     id: "infinitives",
     title: "The two infinitives",
-    summary: "There are two, and which one a verb takes is a fact about that verb.",
+    summary: "There are two, and each verb decides which one it wants after it.",
     marker: "-ma",
     points: [
-      "The -ma one follows starting, going and having to",
-      "The -da one follows wanting and being able",
-      "Both are stored, because neither predicts the other",
+      "The -ma one comes after \"start\", \"go\" and \"have to\"",
+      "The -da one comes after \"want\" and \"can\"",
+      "Learn both with each verb, because one won't give you the other",
     ],
     watchOut:
-      "The everyday verb for must takes the -ma one. English has a single infinitive, so there is no intuition to fall back on and the pairing is learned with the verb.",
+      "Even the everyday verb for \"must\" takes the -ma one. English has just one \"to do\", so there's no instinct to fall back on. Learn the pairing with the verb.",
   },
   {
     id: "particle-verbs",
     title: "Verbs with a small word in front",
     summary: "Estonian's phrasal verbs. A little word can change the meaning completely.",
     points: [
-      "The particle usually adds completion or direction",
-      "Often the difference between doing and finishing",
-      "It moves around the sentence rather than staying put",
+      "The small word usually adds \"all the way\" or a direction",
+      "Often it's the difference between doing and getting it done",
+      "It wanders around the sentence instead of staying by the verb",
     ],
     watchOut:
-      "Like English phrasal verbs, the meaning is often not the sum of the parts, so looking up the verb alone gives the wrong answer.",
+      "Just like English phrasal verbs, the meaning often isn't the sum of the parts. Look up the verb on its own and you may get the wrong answer.",
   },
   {
     id: "aspect",
     title: "Finished or not",
-    summary: "Whether an action completed is carried by the object's ending, not by tense.",
+    summary: "Whether an action got finished shows in the object's ending, not in the tense.",
     points: [
-      "A finished action takes a whole object",
-      "An unfinished or partial one takes the partitive",
-      "Particles reinforce completion",
+      "Done, and all of it: \"I ate the cake\", the whole cake",
+      "Unfinished, or only some: the \"some of it\" ending",
+      "Small words like \"up\" and \"off\" underline that it's finished",
     ],
     watchOut:
-      "English marks this with tense and Estonian marks it with case, so the two systems line up nowhere. This is the single hardest thing to carry over.",
+      "English shows this with the tense and Estonian with an ending, so the two never line up. It's the hardest single thing to carry over, so go easy on yourself.",
   },
 
   // ── The noun phrase ──────────────────────────────────────────────────────
   {
     id: "object",
     title: "Whole thing, or part of it",
-    summary: "Whether the object is all of it and finished, or some of it and ongoing.",
+    summary: "Is the object all of it and done, or just some of it and still going?",
     points: [
-      "A finished action on a whole thing: genitive or plain form",
-      "Unfinished, or only part of it: partitive",
-      "Anything negated: partitive, always",
+      "Done, and all of it: the plain word, or the form meaning \"whose\"",
+      "Unfinished, or only part of it: the \"some of it\" ending",
+      "After \"not\": always the \"some of it\" ending",
     ],
     watchOut:
-      "This is not politeness or emphasis, and it is not optional. It changes what the sentence means, and it is the main thing separating a B1 speaker from an A2 one.",
+      "This isn't about politeness or emphasis, and it isn't optional. It changes what the sentence means, and it's the main thing separating a B1 speaker from an A2 one.",
   },
   {
     id: "adjective-agreement",
     title: "Adjectives copy their noun",
-    summary: "The adjective takes the same ending as its noun, for ten of the fourteen.",
+    summary: "In \"in the big house\" both words take the ending. That's true for ten of the fourteen.",
     points: [
-      "Same case and same number as the noun",
-      "For -ni, -na, -ta and -ga the adjective stops at the genitive",
+      "Same ending and same number, one or many, as its noun",
+      "With -ni, -na, -ta and -ga, only the noun gets the full ending",
       "A few borrowed adjectives never change at all",
     ],
     watchOut:
-      "Every adjective you learn is a whole set of forms rather than one word. Leaving it in the dictionary form beside a declined noun is the commonest beginner tell.",
+      "Every adjective you learn is really a whole set of forms. Leaving it in its dictionary form next to a noun with an ending is the classic beginner giveaway.",
   },
   {
     id: "comparative",
     title: "Comparing things",
-    summary: "One ending on the genitive stem turns an adjective into more of it.",
+    summary: "Add -m to the same base the endings use, and \"big\" becomes \"bigger\".",
     marker: "-m",
     points: [
-      "Built on the genitive stem, like nearly everything",
-      "Say than and use the plain form, or drop than and use -st",
-      "A handful of common adjectives are irregular",
+      "Add -m to the form meaning \"of\", the one the endings go on",
+      "Either \"than\" plus the plain word, or no \"than\" and -st",
+      "A few common ones are irregular, like English \"good, better\"",
     ],
     watchOut:
-      "Both shapes are correct. The mistake is mixing them: keeping the word for than and putting the other thing in -st as well.",
+      "Both ways are right. The mistake is mixing them: keeping the word for \"than\" and putting the other thing in -st as well.",
   },
   {
     id: "superlative",
     title: "The most",
-    summary: "Two ways of saying it: a helper word, or a single ending.",
+    summary: "Two ways to say it: a helper word in front, or one ending on the end.",
     points: [
-      "A helper word plus the comparative, which always works",
+      "A helper word in front of \"bigger\", which always works",
       "A one-word form, shorter and more literary",
       "Both are common and neither is wrong",
     ],
     watchOut:
-      "The one-word form is not derivable for every adjective, so the two-word version is the safe one when you are unsure.",
+      "Not every adjective has the one-word form you can work out, so when you're unsure, the two-word version is the safe bet.",
   },
   {
     id: "numerals",
     title: "Numbers and what follows them",
-    summary: "Counting is easy until you notice the counted thing stays singular.",
+    summary: "Counting is easy, until you notice the thing you're counting stays singular.",
     points: [
-      "After two and up, the counted noun is partitive singular",
-      "Numbers themselves decline when the phrase is in a case",
-      "Ordinals are regular and decline too",
+      "From two up, the noun takes the singular \"some of it\" form",
+      "Numbers take endings too, when the noun after them does",
+      "First, second and so on are regular, and take endings too",
     ],
     watchOut:
-      "The counted noun stays singular after a number, which reads as wrong to an English speaker for a long time. It is a partitive singular, not a plural.",
+      "After a number the noun stays singular, which will look wrong to an English speaker for a long time. It's singular with the \"some of it\" ending, not a plural.",
   },
   {
     id: "gradation",
-    title: "Stems that change under you",
-    summary: "The stem itself shifts between forms, and only some of that is written down.",
+    title: "Words that change in the middle",
+    summary: "The middle of a word can shift from form to form, and only some of that shows in writing.",
     points: [
-      "The written kind changes consonants and can be spotted",
-      "The other kind is a change in length that spelling hides",
-      "Which words do it is a property of the word",
+      "One kind swaps consonants, and you can see it on the page",
+      "The other is a longer or shorter sound the spelling hides",
+      "Which words do it is something you learn word by word",
     ],
     watchOut:
-      "The app can only see what is written, so it reports the written kind and says nothing about the other. A word can alternate audibly and look identical on the page.",
+      "The app can only see spelling, so it tells you about the written changes and stays quiet about the rest. A word can change out loud and look identical on the page.",
   },
   {
     id: "derivation",
@@ -601,197 +601,197 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
     summary: "A handful of endings turn verbs into nouns, nouns into adjectives and back.",
     marker: "-mine",
     points: [
-      "An action noun from any verb, entirely regular",
-      "A quality noun from an adjective",
-      "Adjectives meaning like it, and meaning without it",
+      "Any verb gives a noun for doing it, like \"reading\"",
+      "An adjective gives a noun for the quality, like \"kindness\"",
+      "Adjectives meaning \"-ish\" and \"-less\"",
     ],
     watchOut:
-      "Six endings make thousands of words readable without a dictionary, which is the fastest single gain at B2. The trap is assuming the meaning is the sum of the parts.",
+      "Six endings make thousands of words readable without a dictionary, which is the quickest win at B2. The trap is assuming the meaning is always the sum of the parts.",
   },
   {
     id: "nominalisation",
     title: "Turning a clause into a thing",
-    summary: "A whole clause packed into one noun. This is what makes formal Estonian dense.",
+    summary: "A whole clause squeezed into one noun. It's what makes formal Estonian so dense.",
     marker: "-mine",
     points: [
-      "An action noun replaces a subordinate clause",
-      "The doer becomes a genitive in front of it",
+      "One noun stands in for a whole \"that\" or \"when\" clause",
+      "The doer goes in front, in the form that means \"whose\"",
       "Standard in academic, legal and official writing",
     ],
     watchOut:
-      "This is the biggest single difference between B2 prose and C1 prose. Overdoing it produces the officialese Estonians complain about as loudly as anybody.",
+      "This is the biggest single difference between B2 and C1 writing. Overdo it and you get the officialese Estonians grumble about as loudly as anybody.",
   },
 
   // ── The sentence ─────────────────────────────────────────────────────────
   {
     id: "government",
     title: "Verbs that demand an ending",
-    summary: "Many verbs insist on a particular case, and it is rarely the English one.",
+    summary: "Many verbs insist on a particular ending, and it's rarely the one English suggests.",
     points: [
-      "The required case is a fact about the verb",
+      "Which ending comes after it is part of learning the verb",
       "Helping, calling, liking and thinking are the traps",
-      "The dictionary records it as the question the verb answers",
+      "The dictionary shows it as a question word, like \"whom?\"",
     ],
     watchOut:
-      "The English preposition suggests the wrong case and nothing about the verb hints at the right one, which is why people keep getting this wrong for years.",
+      "The English preposition points you at the wrong ending, and nothing about the verb hints at the right one. People trip on this for years, so learn it with the verb.",
   },
   {
     id: "word-order",
     title: "Word order",
-    summary: "Freer than English, but not free. The order is what carries the emphasis.",
+    summary: "Freer than English, but not a free-for-all. The order carries the emphasis.",
     points: [
-      "Endings mark who did what, so order is free for other work",
-      "The verb tends to sit second in a main clause",
-      "New information tends to go last",
+      "Endings show who did what, so the order is free to show emphasis",
+      "The verb usually comes second",
+      "The new or important bit usually goes last",
     ],
     watchOut:
-      "Because almost any order is grammatical, you can write sentences that are correct and subtly wrong-footed. This is a C1 skill rather than a rule.",
+      "Because almost any order is grammatical, you can write sentences that are correct but put the weight in the wrong place. It's a C1 skill, not a rule to memorize.",
   },
   {
     id: "subordination",
     title: "Joining clauses",
-    summary: "A conjunction, a clause, and a comma that is not optional.",
+    summary: "A linking word, a clause, and a comma you can't leave out.",
     points: [
-      "The comma before a subordinate clause is compulsory",
-      "Word order shifts inside the clause",
-      "Chains of clauses are normal in writing, rare in speech",
+      "A comma always goes before \"that\", \"because\" and friends",
+      "The word order changes inside that part",
+      "Long chains of them are normal in writing, rarer out loud",
     ],
     watchOut:
-      "Estonian commas follow the grammar rather than where you would pause reading aloud, so English instincts go wrong in both directions.",
+      "Estonian commas follow the grammar, not the places you'd pause reading aloud, so English instincts go wrong both ways.",
   },
   {
     id: "relative-clause",
     title: "Which and who",
-    summary: "The relative pronoun takes the ending its own clause needs, not the noun's.",
+    summary: "\"Which\" and \"who\" take the ending their own clause needs, not the noun's.",
     points: [
       "Different pronouns for people and for things",
-      "Its case is decided inside the relative clause",
+      "Its ending depends on its job in its own part of the sentence",
       "Always separated by a comma",
     ],
     watchOut:
-      "Matching the pronoun to the noun it refers back to is the reliable mistake. Ask what job it does in its own clause.",
+      "The classic mistake is matching the pronoun to the noun it points back to. Ask what job it's doing in its own clause instead.",
   },
   {
     id: "reported-speech",
     title: "Reporting what somebody said",
-    summary: "Either a clause with a conjunction, or the -vat mood with no clause at all.",
+    summary: "Either \"that\" plus a clause, or the -vat form with no extra clause at all.",
     points: [
-      "A conjunction plus a clause, closest to English",
-      "Or the quotative, which needs no reporting verb",
+      "\"She said that...\" plus a clause, much like English",
+      "Or the -vat form, which needs no \"said\" at all",
       "The tense does not shift back the way English does",
     ],
     watchOut:
-      "There is no sequence of tenses to apply. Backshifting the way English does produces a sentence that says something different.",
+      "English turns \"she says she's tired\" into \"she said she was tired\". Estonian keeps the tense as it was, and shifting it changes the meaning.",
   },
   {
     id: "concession",
     title: "Granting a point",
-    summary: "Although, nevertheless, even so. Agreeing with half of it before disagreeing.",
+    summary: "Although, nevertheless, even so. Agreeing with half before you disagree.",
     points: [
-      "Conjunctions that subordinate a concession",
-      "Adverbs that carry it across a full stop",
-      "The core move of any argued essay",
+      "Words like \"although\" that start a clause",
+      "Words like \"even so\" that start a new sentence",
+      "The backbone of any essay that argues a point",
     ],
     watchOut:
-      "They look interchangeable in a dictionary and are not: some take a clause and some only join sentences, and swapping them breaks the punctuation.",
+      "They look interchangeable in a dictionary but aren't. Some start a clause and some only link sentences, and swapping them breaks the punctuation.",
   },
   {
     id: "hedging",
     title: "Probably, rather than definitely",
     summary: "Saying something is likely without waffling about it.",
     points: [
-      "Adverbs and adjectives of likelihood",
-      "The conditional, which softens a claim as well as a request",
-      "The quotative, which puts the claim on somebody else",
+      "Words like \"probably\", \"likely\" and \"perhaps\"",
+      "The \"would\" form, which softens a claim as well as a request",
+      "The -vat form, which puts the claim on somebody else",
     ],
     watchOut:
-      "Academic Estonian hedges more than academic English, and in different places. Translating an English hedge directly lands between vague and evasive.",
+      "Academic Estonian hedges more than academic English, and in different places. Translate an English hedge directly and it comes out somewhere between vague and evasive.",
   },
   {
     id: "cohesion",
     title: "Holding a text together",
-    summary: "The connectives that turn a pile of sentences into something readable.",
+    summary: "The linking words that turn a pile of sentences into something people can read.",
     points: [
       "Ordering and adding: first, also, finally",
-      "Contrast and consequence",
-      "Referring back without repeating the noun",
+      "Contrast and result: \"but\", \"so\", \"therefore\"",
+      "Pointing back to something without repeating it",
     ],
     watchOut:
-      "A text can be correct sentence by sentence and unreadable as a whole. This separates a C1 essay from a B2 one far more than vocabulary does.",
+      "A text can be correct sentence by sentence and still hard to follow. This separates a C1 essay from a B2 one far more than vocabulary does.",
   },
   {
     id: "emphasis",
     title: "Emphasis",
-    summary: "Where a word sits decides what the sentence insists on.",
+    summary: "Where you put a word decides what the sentence is stressing.",
     points: [
       "Move a word to the front to stress it",
-      "Small particles that mark the focus",
-      "Word order stands in for the stress English puts in the voice",
+      "Small words that point at what matters most",
+      "Word order does what English does by stressing a word out loud",
     ],
     watchOut:
-      "English stresses with the voice and keeps the order fixed. An English-shaped sentence read with English stress emphasizes nothing here.",
+      "English stresses with the voice and keeps the order fixed. Say an English-shaped sentence with English stress here and it stresses nothing.",
   },
   {
     id: "rhetorical-questions",
-    title: "Questions that are not questions",
-    summary: "Asking in order to make a point, and the particle that signals a real question.",
+    title: "Questions that aren't really questions",
+    summary: "Asking to make a point, and the little word that marks a real question.",
     points: [
-      "A particle marks a genuine yes or no question",
-      "Leaving it out, with question intonation, reads differently",
+      "A small word at the start marks a real yes or no question",
+      "Leave it out and just raise your voice, and it sounds different",
       "Common in speeches and opinion writing",
     ],
     watchOut:
-      "The question particle is easy to drop, and dropping it turns a plain question into something that can sound incredulous.",
+      "The little question word is easy to drop, and dropping it can make a plain question sound like you can't believe it.",
   },
   {
     id: "punctuation",
     title: "Where the commas go",
     summary: "Commas here follow the grammar, not the pause. The rules are stricter than English.",
     points: [
-      "A comma before a subordinate clause, pause or no pause",
+      "A comma before \"that\" or \"because\", pause or no pause",
       "Rules for lists and for asides",
       "Quotation marks are shaped differently from English ones",
     ],
     watchOut:
-      "Putting a comma where you would pause is an English habit, and it produces consistent errors here because Estonian puts them where the grammar changes.",
+      "Putting a comma where you'd pause is an English habit. Estonian puts them where the grammar changes, so the habit gives you the same errors every time.",
   },
 
   // ── Register and use ─────────────────────────────────────────────────────
   {
     id: "politeness",
     title: "Politeness",
-    summary: "Carried by mood and by which you you use, not by piling on please.",
+    summary: "It comes from the verb form and which \"you\" you pick, not from piling on \"please\".",
     points: [
-      "The plural as a polite singular with strangers",
-      "The conditional to soften a request",
-      "Directness is less rude here than English speakers expect",
+      "Calling one stranger \"you\" in the plural, to be polite",
+      "The \"would\" form, to make a request gentler",
+      "Being direct is less rude here than English speakers expect",
     ],
     watchOut:
-      "Estonian is more direct than English, and English-style softeners can read as insincere. The conditional does the work a pile of qualifiers does in English.",
+      "Estonian is more direct than English, and English-style softeners can sound insincere. The \"would\" form does what a pile of qualifiers does in English.",
   },
   {
     id: "register",
     title: "Reading the room",
     summary: "The same thing said formally, neutrally or among friends.",
     points: [
-      "A written standard noticeably unlike speech",
-      "Officialese, which is its own much-mocked style",
-      "Spoken forms that are correct and wrong in an essay",
+      "Written Estonian that sounds quite unlike speech",
+      "Officialese, a style of its own that everybody pokes fun at",
+      "Spoken forms that are fine out loud and wrong in an essay",
     ],
     watchOut:
-      "This has nothing to do with knowing more words. A C1 speaker knows three ways to say something and picks one; a B2 speaker knows one and uses it everywhere.",
+      "It's not about knowing more words. A C1 speaker knows three ways to say something and picks one. A B2 speaker knows one and uses it everywhere.",
   },
   {
     id: "collocation",
     title: "Words that go together",
-    summary: "Which verb goes with which noun, where no rule decides and usage does.",
+    summary: "Which verb goes with which noun, where habit decides rather than a rule.",
     points: [
-      "Pairings fixed by convention rather than by grammar",
-      "Near-synonyms that do not swap in context",
+      "Pairs fixed by habit, like English \"make a mistake\"",
+      "Words that mean the same but can't swap places",
       "The last thing learned, the first thing noticed",
     ],
     watchOut:
-      "Every word can be right and the sentence still sound translated. Dictionaries are worst at this, which is why real example sentences matter here most.",
+      "Every word can be right and the sentence still sound translated. Dictionaries are weakest here, which is why real example sentences help most.",
   },
   {
     id: "idiom",
@@ -799,35 +799,35 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
     summary: "Fixed expressions that do not mean the sum of their words.",
     points: [
       "Sayings still in daily use",
-      "Fixed verb phrases that resist a literal reading",
-      "Figurative senses of ordinary words",
+      "Fixed phrases that don't mean what their words say",
+      "Ordinary words used in a picture sense",
     ],
     watchOut:
-      "Translating an idiom word by word lands somewhere between baffling and comic. They have to be met whole, in context.",
+      "Translate an idiom word by word and you land somewhere between baffling and funny. Meet them whole, in context.",
   },
   {
     id: "irony",
     title: "Irony",
     summary: "Meaning the opposite on purpose, and hearing it done to you.",
     points: [
-      "Carried by intonation, understatement and context",
-      "Understatement is the commonest form here",
-      "Rarely flagged, so it has to be inferred",
+      "Carried by tone of voice, understatement and context",
+      "Understatement is the most common kind here",
+      "Rarely signalled, so you have to pick up on it",
     ],
     watchOut:
-      "The last thing a learner hears and the easiest to get wrong. Irony nobody recognizes as irony reads as rudeness or as a mistake.",
+      "It's the last thing a learner picks up and the easiest to get wrong. Irony nobody notices comes across as rudeness, or as a mistake.",
   },
   {
     id: "nuance",
     title: "Choosing between near-synonyms",
-    summary: "Two words a dictionary glosses identically, and which one the sentence wants.",
+    summary: "Two words a dictionary translates the same way, and which one the sentence wants.",
     points: [
-      "Separated by register, strength or connotation",
+      "Told apart by how formal, how strong or how loaded they are",
       "Shades a bilingual dictionary flattens",
-      "Settled by reading real usage, not definitions",
+      "Learned from real sentences, not from definitions",
     ],
     watchOut:
-      "A dictionary giving two words the same English gloss is telling you about English. The difference usually shows in what each one goes with.",
+      "When a dictionary gives two words the same English, it's telling you about English. The difference usually shows in the words each one keeps company with.",
   },
   {
     id: "variation",
@@ -835,23 +835,23 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
     summary: "Region, age and setting all show in how people actually talk.",
     points: [
       "Regional dialects, some quite far from the standard",
-      "The gap between the written standard and speech",
+      "The gap between written Estonian and how people talk",
       "Older and literary forms you still meet reading",
     ],
     watchOut:
-      "Textbook Estonian is one variety among several. Hearing a form that is not in the book does not mean somebody made a mistake.",
+      "Textbook Estonian is one variety among several. A form that isn't in your book doesn't mean somebody made a mistake.",
   },
   {
     id: "time-expressions",
     title: "Saying when",
-    summary: "Time runs on endings, and which ending depends on the unit of time.",
+    summary: "Time is told with endings, and the ending depends on the unit of time.",
     points: [
-      "Days, seasons and years take -l; months take -s",
-      "Duration is expressed differently again",
+      "Days, seasons and years take -l, and months take -s",
+      "\"For how long\" works differently again",
       "From and until each have their own ending",
     ],
     watchOut:
-      "There are no prepositions to lean on, so an English time phrase gives no clue which ending to use. These are learned per unit of time.",
+      "There are no prepositions to lean on, so an English time phrase gives no hint which ending to use. You learn them one unit of time at a time.",
   },
 ];
 
@@ -869,7 +869,7 @@ export const TOPIC_GROUPS: readonly { id: string; title: string; blurb: string; 
   {
     id: "verb",
     title: "The verb",
-    blurb: "Two tenses the verb carries itself, two built with a helper, and mood and voice crossing all four.",
+    blurb: "Now and before, \"have done\" and \"had done\", and the forms for polite requests, orders and hearsay.",
     ids: [
       "olema", "present-tense", "negation", "imperfect", "perfect", "pluperfect", "future",
       "conditional", "imperative", "quotative", "impersonal", "participles", "past-participle",
@@ -879,7 +879,7 @@ export const TOPIC_GROUPS: readonly { id: string; title: string; blurb: string; 
   {
     id: "noun-phrase",
     title: "Words that take endings",
-    blurb: "What the endings attach to, and how much of a thing a sentence is talking about.",
+    blurb: "Nouns, adjectives and numbers: how they change, and how much of a thing you mean.",
     ids: [
       "object", "adjective-agreement", "comparative", "superlative", "numerals", "gradation",
       "derivation", "nominalisation",
@@ -888,7 +888,7 @@ export const TOPIC_GROUPS: readonly { id: string; title: string; blurb: string; 
   {
     id: "sentence",
     title: "The sentence",
-    blurb: "How clauses join, what a verb demands of what follows it, and where the commas go.",
+    blurb: "How sentences join up, what a verb demands after it, and where the commas go.",
     ids: [
       "government", "word-order", "subordination", "relative-clause", "reported-speech",
       "concession", "hedging", "cohesion", "emphasis", "rhetorical-questions", "punctuation",
@@ -897,7 +897,7 @@ export const TOPIC_GROUPS: readonly { id: string; title: string; blurb: string; 
   {
     id: "use",
     title: "Sounding like a person",
-    blurb: "The part that is not a rule: which of three correct ways to say it the room wants.",
+    blurb: "The part no rule covers: which of three correct ways to say something fits the moment.",
     ids: [
       "politeness", "register", "collocation", "idiom", "irony", "nuance", "variation",
       "time-expressions",

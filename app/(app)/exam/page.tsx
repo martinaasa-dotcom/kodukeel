@@ -73,7 +73,7 @@ export default async function ExamPage() {
   return (
     <Page route="/exam"
       eyebrow="Mock examination"
-      title="Practice the state exam, before you sit the real one"
+      title="Try the state exam here before the real thing"
       /*
         278 characters, in four literals joined with `+`, which is how it got
         past the 95-character ceiling on a page lead: the sweep measured each
@@ -81,7 +81,7 @@ export default async function ExamPage() {
         list with one, and the pass rule it spent a sentence on is the hint on
         the section that lists the papers, three screens down.
       */
-      lead="Estonia examines at A2, B1, B2 and C1. These are practice papers, built from the dictionary."
+      lead="The state exam comes at A2, B1, B2 and C1. These are practice papers made from our dictionary."
     >
       {/* The card carries its own heading and its own hint, which is why there
           is no `SectionTitle` over it: two headings on one card is the shape
@@ -241,7 +241,7 @@ export default async function ExamPage() {
                         className="text-sm font-semibold underline underline-offset-4"
                         style={{ color: "var(--ink-2)" }}
                       >
-                        Numbered papers, or one part
+                        Pick a paper, or just one part
                       </Link>
                       <ButtonLink href={`/exam/${level.level}`} variant="secondary" size="sm">
                         Sit it <ArrowRight size={14} aria-hidden />
@@ -257,7 +257,7 @@ export default async function ExamPage() {
 
       <div className="mb-10 grid gap-6 md:grid-cols-2">
         <section>
-          <SectionTitle>What you are already good at</SectionTitle>
+          <SectionTitle>What you&apos;re already good at</SectionTitle>
           {readiness.strengths.length === 0 ? (
             <Note tone="neutral">
               Nothing here yet. Review for a week or two and it will start to fill in.
@@ -302,7 +302,7 @@ export default async function ExamPage() {
       </div>
 
       <section className="mb-10">
-        <SectionTitle>Papers you have sat</SectionTitle>
+        <SectionTitle>Papers you&apos;ve sat</SectionTitle>
         {attempts.length === 0 ? (
           <Note tone="neutral">
             <ClipboardCheck size={14} className="mr-1.5 inline" aria-hidden />
@@ -329,7 +329,7 @@ export default async function ExamPage() {
       <Card>
         <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--ink)" }}>
           <Info size={16} aria-hidden />
-          What these papers are, and what they are not
+          What these papers are, and what they aren&apos;t
         </p>
         <ul className="mt-2 grid gap-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
@@ -351,8 +351,7 @@ export default async function ExamPage() {
           <li>
             <Lightbulb size={13} className="mr-1 inline" aria-hidden />
             The A1 paper is ours, not the state&apos;s. Estonia doesn&apos;t test at that level, so
-            we made it like the A2 paper but a little easier, so your first attempt is one you can
-            pass.
+            we made one a little easier than A2. That way your first attempt is one you can pass.
           </li>
           <li>
             <ArrowRight size={13} className="mr-1 inline" aria-hidden />
@@ -361,7 +360,7 @@ export default async function ExamPage() {
             <Link href="/state-exam" className="font-semibold underline underline-offset-4">
               the state examination
             </Link>
-            , read off the Board&apos;s own pages, with its free preparation material.
+            , taken from the Board&apos;s own pages, along with its free practice material.
           </li>
         </ul>
       </Card>

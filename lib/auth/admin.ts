@@ -112,7 +112,7 @@ export async function requireAdminId(): Promise<string> {
   if (who.state !== "in") throw new Error("Not signed in.");
   if (!isAllowedEmail(who.learner.email)) throw new Error("Not allowed.");
   if (!isAdminEmail(who.learner.email, adminEmails())) {
-    throw new Error("That account does not review suggestions.");
+    throw new Error("Only the people who run this app can review suggestions.");
   }
   return who.learner.id;
 }

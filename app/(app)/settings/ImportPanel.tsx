@@ -76,11 +76,11 @@ export function ImportPanel() {
       // A paste larger than the limit is handled, not rejected. Silently
       // dropping the tail would leave someone thinking it all went in.
       const overflow = r.truncated
-        ? ` Only the first ${r.limit} lines were read; paste the rest separately.`
+        ? ` Only the first ${r.limit} lines were read, so paste the rest in another go.`
         : "";
       setResult(
         r.created === 0
-          ? `Nothing new. Every word was already in your deck.${overflow}`
+          ? `Nothing new to add. You already have every one of these words.${overflow}`
           : `Added ${counted(r.created, "word")} and ${counted(r.cards, "card")}.` +
             (r.skipped.length ? ` Skipped ${r.skipped.length} you already had.` : "") +
             overflow,
@@ -92,8 +92,8 @@ export function ImportPanel() {
   return (
     <Card>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Paste a word list, from Speakly, a spreadsheet, or typed off a class handout. One word per
-        line, Estonian first. Tabs, dashes, commas and semicolons all work as separators.
+        Paste a word list from Speakly, a spreadsheet or a class handout. Put one word on each
+        line, Estonian first and then its meaning. A tab, dash, comma or semicolon between them works.
       </p>
       <textarea
         value={text}
@@ -111,7 +111,7 @@ export function ImportPanel() {
       {rows.length > 0 && (
         <div className="mt-3">
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            {rows.length} word{rows.length === 1 ? "" : "s"} found, check before adding
+            {rows.length} word{rows.length === 1 ? "" : "s"} found. Check them before you add them
           </p>
           <ul className="scroll-host max-h-40 rounded-[var(--r)] border" style={{ borderColor: "var(--rule)" }}>
             {rows.slice(0, 40).map((r, i) => (

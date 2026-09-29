@@ -18,9 +18,9 @@ import { Lettered } from "@/components/HeroLetters";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Grammar, the endings, and what each one means",
+  title: "Grammar: the endings and what they mean",
   description:
-    "Fourteen endings in plain English, each with its Estonian name and the question it answers, shown on real words from the dictionary.",
+    "All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
 };
 
 /**
@@ -59,7 +59,7 @@ export default async function GrammarIndexPage() {
     <Page route="/grammar"
       eyebrow="Reference"
       title="Grammar"
-      lead="Fourteen endings. Three you memorize, and eleven you can work out."
+      lead="Fourteen endings. Three you learn by heart, and eleven you can work out."
     >
       <Stack>
         <Lettered>
@@ -72,8 +72,8 @@ export default async function GrammarIndexPage() {
               One word, eleven endings
             </h2>
             <p className="mt-3 max-w-[58ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Three forms of a word are memorized. Every other case is one of those three with an
-              ending stuck on, and it is the same ending for every word in the language.
+              You learn three forms of a word by heart. Every other case is one of those three with an
+              ending stuck on, and it&apos;s the same ending for every word in the language.
             </p>
             {demo && (
               <ul className="mt-6 flex flex-wrap gap-2">
@@ -131,8 +131,8 @@ export default async function GrammarIndexPage() {
               Build a word
             </span>
             <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
-              Pick a word, see the three forms it stores, and stack the eleven endings on one at a
-              time. Each with what it means and a sentence using it.
+              Pick a word, meet the three forms you learn by heart, then add the other eleven endings
+              one at a time. Each comes with what it means and a real sentence that uses it.
             </span>
           </span>
         </Link>
@@ -160,11 +160,12 @@ export default async function GrammarIndexPage() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
-              Where the endings stop
+              Words that break the pattern
             </span>
             <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
-              Tuppa, not toasse. The stem moves, and then eleven cases move with it. Which words do
-              that, and how to drill them.
+              Some words go their own way, like tuba becoming tuppa, and when a word&apos;s stem
+              changes, eleven cases change with it. Here&apos;s which words do that, and how to practise
+              them.
             </span>
           </span>
         </Link>
@@ -295,11 +296,12 @@ export default async function GrammarIndexPage() {
         */}
         <Card>
           <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-            The verb has two tenses, not six
+            Estonian verbs have just two tenses
           </p>
           <p className="mt-2 max-w-[64ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Two more are built with a helper verb. Mood, voice and person are separate switches
-            crossing all four, so a form is named by saying where it sits on each.
+            A present and a past. Two more are made with a helper verb, the way English says
+            &ldquo;have done&rdquo;. Mood, voice and person are separate switches on top, so you
+            describe any form by saying how each switch is set.
           </p>
           <dl className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
             {VERB_AXES.map((axis) => (
@@ -321,7 +323,7 @@ export default async function GrammarIndexPage() {
         <section>
           <SectionTitle hint={`${TOPIC_NOTES.length} points`}>Beyond the endings</SectionTitle>
           <p className="mt-1 max-w-[68ch] text-sm" style={{ color: "var(--ink-2)" }}>
-            Sorted by the kind of word doing the work, the way a course orders them.
+            Grouped by the kind of word they&apos;re about, in the order a course would teach them.
           </p>
           <div className="mt-4 flex flex-col gap-6">
             {TOPIC_GROUPS.map((group) => {
@@ -391,8 +393,8 @@ export default async function GrammarIndexPage() {
         </section>
 
         <Note tone="neutral">
-          Endings go on the omastav singular for the singular column and the omastav plural for
-          the plural one. Where the dictionary has no omastav plural, a case table shows a gap
+          The singular endings go on the omastav singular, and the plural ones on the omastav
+          plural. If the dictionary has no omastav plural for a word, its table shows a gap
           rather than a guess.
         </Note>
 
@@ -401,7 +403,7 @@ export default async function GrammarIndexPage() {
           <Link href="/tutor" className="underline" style={{ color: "var(--accent-deep)" }}>
             Ask Anu
           </Link>{" "}
-          to name the rule behind a sentence you wrote.
+          and she&apos;ll explain the rule behind a sentence you wrote.
         </p>
       </Stack>
     </Page>

@@ -71,7 +71,7 @@ export async function deferWord(
     prisma.lexeme.findUnique({ where: { id: lexemeId }, select: { lemma: true, cefr: true } }),
     hardWords(),
   ]);
-  if (!word) return { ok: false as const, error: "That word is not in the dictionary." };
+  if (!word) return { ok: false as const, error: "That word isn't in the dictionary." };
 
   const band = offeredBand(word.cefr, hard.has(lexemeId));
   const fresh = deferralFor({ band, level, now });

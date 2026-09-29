@@ -34,7 +34,7 @@ export default async function RecordPage() {
       <Page title="Record of study">
         <Empty
           title="Nothing to record yet"
-          body="Answer a few cards and this page fills itself in."
+          body="Answer a few cards and this page will fill itself in."
           action={<ButtonLink href="/learn" variant="primary">Start learning</ButtonLink>}
         />
       </Page>
@@ -46,7 +46,7 @@ export default async function RecordPage() {
   return (
     <Page
       title="Record of study"
-      lead="What this app's own log says about your time here. Print it or save it as a PDF."
+      lead="Your time with Kodukeel, taken straight from the app's own records. Print it or save a PDF."
       actions={<PrintButton label="Print or save as PDF" />}
     >
       <Stack>
@@ -68,7 +68,7 @@ export default async function RecordPage() {
 
           <p className="mt-6 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
             Time is counted in sittings, from the first answer of an evening to the last. A card
-            counts as known once the scheduler has brought it back days later and it was answered.
+            counts as known once it has come back days later and been answered again.
           </p>
         </Card>
 
@@ -89,7 +89,7 @@ export default async function RecordPage() {
         </section>
 
         <section>
-          <SectionTitle>Measured here</SectionTitle>
+          <SectionTitle>Tested in this app</SectionTitle>
           {record.checks.length === 0 && record.papers.length === 0 ? (
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>No level check or mock paper sat yet.</p>
           ) : (
@@ -111,7 +111,7 @@ export default async function RecordPage() {
             </ul>
           )}
           <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-            The level check and the mock papers are this app&rsquo;s own, marked by rule. None of them is the state examination.
+            The level check and the mock exams are this app&rsquo;s own, marked automatically. None of them is the state examination.
           </p>
         </section>
 
@@ -119,7 +119,8 @@ export default async function RecordPage() {
           <SectionTitle>Conversations outside the app</SectionTitle>
           <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
             <strong style={{ color: "var(--ink)" }}>{record.conversations.toLocaleString("en-GB")}</strong>{" "}
-            reported by the learner, one answer a morning about the day before. Self reported and not checked.
+            reported by the learner, answering each morning about the day before. These are their own
+            answers and haven&rsquo;t been checked.
           </p>
         </section>
 

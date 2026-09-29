@@ -163,11 +163,11 @@ export default async function ProgressPage() {
 
   if (reviews.length === 0 && snapshot.totalCards === 0) {
     return (
-      <Page route="/progress" title="Progress" lead="Worked out fresh from your reviews every time you check.">
+      <Page route="/progress" title="Progress" lead="How your Estonian is really going, worked out fresh from your answers every time you look.">
         <Empty
           title="No history yet"
-          body="Charts appear after your first review."
-          action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+          body="Answer your first cards and the charts will start filling in."
+          action={<ButtonLink href="/learn" variant="primary">Learn your first words</ButtonLink>}
         />
       </Page>
     );
@@ -176,7 +176,7 @@ export default async function ProgressPage() {
   return (
     <Page route="/progress"
       title="Progress"
-      lead="Worked out fresh from your reviews every time you check."
+      lead="How your Estonian is really going, worked out fresh from your answers every time you look."
       /*
         The three other readings of "how am I doing", reached from the page
         that asks it. Each is a `within` in `lib/ux/nav.ts` rather than a row
@@ -227,7 +227,7 @@ export default async function ProgressPage() {
             label="Day streak"
           />
           <Stat value={snapshot.knownCards} label="Cards known" />
-          <Stat value={breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`} label="Recall rate" />
+          <Stat value={breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`} label="Answered right" />
           <Stat
             value={<span className="inline-flex items-center gap-1.5">{shields}<Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
             label={`Shield${shields === 1 ? "" : "s"} banked`}
@@ -240,7 +240,7 @@ export default async function ProgressPage() {
               the four numbers they came for. */}
           <div className="col-span-2 w-full">
             <Explain label="What a shield does">
-              It carries your streak through one day you miss. One arrives at 7, 30 and 100 days.
+              A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.
             </Explain>
           </div>
         </Card>
@@ -276,8 +276,8 @@ export default async function ProgressPage() {
                     tone="var(--accent)"
                     label={
                       retention.retention === null
-                        ? "Not enough long-term reviews to measure retention yet"
-                        : `${retention.retention}% of long-term cards recalled, against a ${retention.target}% target`
+                        ? "Not enough reviews of older cards yet to tell how much is sticking"
+                        : `You remembered ${retention.retention}% of your older cards, against a ${retention.target}% target`
                     }
                   >
                     <span className="tnum text-lg font-bold" style={{ color: "var(--ink)" }}>
@@ -293,7 +293,7 @@ export default async function ProgressPage() {
                       {retention.advice}
                     </p>
                     <p className="tnum mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                      {retention.recalled} recalled of {retention.reviews} long-term reviews, target {retention.target}%
+                      {retention.recalled} of {retention.reviews} older cards remembered. Your target is {retention.target}%.
                     </p>
                   </div>
                 </div>
@@ -306,8 +306,8 @@ export default async function ProgressPage() {
                   cases={cases}
                   empty={
                     <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                      No case-form cards answered yet. Add a noun unit from the{" "}
-                      <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>path</Link>.
+                      You haven&rsquo;t answered any case cards yet. To start, add a unit with nouns in it from{" "}
+                      <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>Learn</Link>.
                     </p>
                   }
                 />
@@ -341,12 +341,12 @@ export default async function ProgressPage() {
         <div className="@container">
           <div className="grid gap-5 @xl:grid-cols-2">
             <section className="flex flex-col">
-              <SectionTitle hint={`last ${outside.days} days`}>Out there</SectionTitle>
+              <SectionTitle hint={`last ${outside.days} days`}>Real conversations</SectionTitle>
               <Card className="flex-1">
                 {outside.total === 0 ? (
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    Nothing reported yet. Today asks each morning whether you spoke Estonian to
-                    anybody, and the answers land here.
+                    Nothing here yet. Each morning, Today asks whether you spoke Estonian to anyone the
+                    day before, and your answers show up here.
                   </p>
                 ) : (
                   <div className="flex flex-col gap-4">
@@ -379,7 +379,7 @@ export default async function ProgressPage() {
                       <Stat value={outside.byOutcome.BAILED} label="days with none" />
                     </div>
                     <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-                      {outside.streak > 1 ? `${outside.streak} days in a row with a real conversation in them. ` : ""}
+                      {outside.streak > 1 ? `${outside.streak} days in a row with a real conversation. ` : ""}
                       {/*
                         The figure to watch, watched against the thirty days before,
                         because "it falls as your Estonian holds" over one count is a
@@ -393,8 +393,8 @@ export default async function ProgressPage() {
                         line carries now.
                       */}
                       {outside.previous.total > 0
-                        ? `Against ${outside.previous.switched} of ${outside.previous.total} the month before. Self-reported, and the figure to watch: it falls as your Estonian holds.`
-                        : "Self-reported, and the switch to English is the figure to watch: it falls as your Estonian holds."}
+                        ? `The month before, ${outside.previous.switched} of ${outside.previous.total} switched to English. These come from your own answers. Keep an eye on how often people switch to English: it falls as your Estonian gets stronger.`
+                        : "These come from your own answers. Keep an eye on how often people switch to English: it falls as your Estonian gets stronger."}
                     </p>
                   </div>
                 )}
@@ -422,8 +422,8 @@ export default async function ProgressPage() {
                   })}
                 </ul>
                 <Explain label="What counts as known">
-                  This counts a word only once you know every card for it, so the real number could
-                  be a little higher.{" "}
+                  A word only counts once you know every card for it, so the real number is probably
+                  a bit higher.{" "}
                   <Link href="/words" className="underline" style={{ color: "var(--accent-deep)" }}>
                     See your deck card by card
                   </Link>.
@@ -461,7 +461,7 @@ export default async function ProgressPage() {
           <Board ownerId={ownerId} now={now} />
         </Suspense>
 
-        <InsideHere place="/progress" title="Also in progress" />
+        <InsideHere place="/progress" title="More about your progress" />
       </Stack>
     </Page>
   );

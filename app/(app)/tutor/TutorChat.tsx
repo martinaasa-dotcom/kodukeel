@@ -53,12 +53,12 @@ export function TutorChat({
         <AnuFace size={76} mood="thinking" className="float" />
         <div className="max-w-[46ch]">
           <h2 className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>
-            {readerCanConfigure ? "Anu needs an AI key" : "Anu is not available"}
+            {readerCanConfigure ? "Anu needs an AI key" : "Anu isn't here right now"}
           </h2>
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {readerCanConfigure
-              ? "She explains why a form is what it is and checks a sentence you wrote. Everything else works without her, and Settings has a walkthrough for getting a free key."
-              : "Everything else here works without her."}
+              ? "She explains why a word takes the form it does, and checks sentences you write. Everything else works without her, and Settings walks you through getting a free key."
+              : "Everything else here works just fine without her."}
           </p>
         </div>
         {/* A question handed over by the card the learner just got wrong.
@@ -70,11 +70,11 @@ export function TutorChat({
             className="max-w-[52ch] rounded-[var(--r-lg)] px-4 py-3 text-sm leading-relaxed"
             style={{ background: "rgb(255 255 255 / 0.08)", border: "1px solid rgb(255 255 255 / 0.14)", color: "var(--ink-2)" }}
           >
-            You arrived with a question: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span>
+            Here&rsquo;s the question you came with: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span>
           </p>
         )}
         {readerCanConfigure && (
-          <ButtonLink href="/settings" variant="primary">Open Settings</ButtonLink>
+          <ButtonLink href="/settings" variant="primary">Get a free key in Settings</ButtonLink>
         )}
       </Card>
     );
@@ -88,11 +88,11 @@ export function TutorChat({
           <div>
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}>Tere! Ma olen Anu.</p>
             <p className="mt-1.5 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Ask me anything about Estonian grammar. I&rsquo;ll always tell you the rule, not just the
-              answer, and I&rsquo;ll say so if I&rsquo;m not sure of a form rather than guessing.
+              Ask me anything about Estonian grammar. I&rsquo;ll tell you why, as well as what, and if
+              I&rsquo;m not sure of a form I&rsquo;ll say so instead of guessing.
             </p>
             <p className="mt-3 flex items-center gap-1.5 text-xs" style={{ color: "var(--blush-ink)" }}>
-              <Sparkles size={13} aria-hidden /> Pick a starter below, or just type.
+              <Sparkles size={13} aria-hidden /> Pick a question below to start, or just ask your own.
             </p>
           </div>
         </Card>

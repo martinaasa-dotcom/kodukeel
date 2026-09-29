@@ -54,7 +54,7 @@ export function CourseMove({ kind, label }: { kind: "down" | "back" | "ahead" | 
       </div>
       {failed && (
         <div className="mt-2" role="status">
-          <Note tone="again">{failed} Nothing was changed.</Note>
+          <Note tone="again">{failed} Nothing has changed.</Note>
         </div>
       )}
     </div>

@@ -159,8 +159,8 @@ export function ScanCapture() {
               Reading a page needs a connection.
             </p>
             <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-              Review still works offline, and so does everything already in your deck. Come back to
-              this when you have signal, or type the list in from Settings.
+              Review still works offline, and so does everything already in your deck. Come back
+              once you have signal, or paste the list in from Settings.
             </p>
           </div>
         </div>
@@ -181,7 +181,7 @@ export function ScanCapture() {
               {saved.words} word{saved.words === 1 ? "" : "s"} on the page
               {saved.cards > 0
                 ? `, and ${saved.cards} card${saved.cards === 1 ? "" : "s"} are in your deck.`
-                : ". Nothing has been added to your deck yet."}
+                : ". Nothing's been added to your deck yet."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {/*
@@ -226,7 +226,7 @@ export function ScanCapture() {
       <div className="flex flex-col gap-4">
         <Card>
           <label htmlFor="scan-title" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-            What is this page?
+            Give this page a name
           </label>
           <input
             id="scan-title"
@@ -240,11 +240,11 @@ export function ScanCapture() {
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {summary.total} word{summary.total === 1 ? "" : "s"} ticked
             {summary.known > 0 && <>, {summary.known} matched the dictionary</>}
-            {summary.inflected > 0 && <>, {summary.inflected} in an inflected form</>}
+            {summary.inflected > 0 && <>, {summary.inflected} with an ending on them</>}
           </p>
           {readBy && (
             <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-              Read by {readBy}. Check it against the paper before you add anything.
+              Read by {readBy}. Compare it with your paper before you add anything.
             </p>
           )}
         </Card>
@@ -269,9 +269,9 @@ export function ScanCapture() {
           <div className="flex flex-col gap-3">
             <Note tone="again">
               {summary.unknown} of these {summary.unknown === 1 ? "is" : "are"} not in the dictionary
-              yet. They came straight off the photo, so open one and check the spelling against the
-              paper. Add them as they are and you&apos;ll get a recognition card and a production
-              card, but no case forms: there&apos;s nothing verified yet to build those from.
+              yet. They came straight off the photo, so open each one and check the spelling against
+              your paper. If you add them as they are, you&apos;ll get cards for the meaning but not
+              for the case endings, since we have nothing checked to build those from.
             </Note>
             {/*
               A word the dictionary would not vouch for is a gap in the
@@ -323,9 +323,9 @@ export function ScanCapture() {
     <div className="flex flex-col gap-4">
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          Photograph a vocabulary list, a page from your textbook, or last night&apos;s homework.
-          Every word is matched against the dictionary, so anything it knows arrives with its real
-          forms. An inflected form on a worksheet is traced back to the word it belongs to.
+          Photograph a vocabulary list, a page from your textbook or last night&apos;s homework. We
+          check every word against the dictionary, so the ones it knows come with all their real
+          forms. And if a word on your page has an ending on it, we&apos;ll find the word it came from.
         </p>
 
         {phase === "reading" ? (
@@ -350,7 +350,7 @@ export function ScanCapture() {
                 Reading the page
               </p>
               <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-                A few seconds. Nothing is stored: the picture is read once and dropped.
+                This takes a few seconds. The picture is read once and then thrown away.
               </p>
             </div>
           </div>
@@ -372,8 +372,8 @@ export function ScanCapture() {
         )}
 
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          One page at a time, up to {MAX_ITEMS} words. The photo is shrunk on this device before it
-          is sent, and it is never saved anywhere.
+          One page at a time, up to {MAX_ITEMS} words. The photo is made smaller on your device before
+          it&apos;s sent, and it&apos;s never saved anywhere.
         </p>
       </Card>
 

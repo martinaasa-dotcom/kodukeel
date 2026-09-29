@@ -130,7 +130,7 @@ await page.goto(`${B}/learn`, { waitUntil: "networkidle" });
 check(
   "path shows units",
   (await page.getByText("Tervitused").count()) > 0
-    || (await page.getByText("Putting words together").count()) > 0,
+    || (await page.getByText("Hello, goodbye, sorry and please").count()) > 0,
 );
 check("path reports overall progress", (await page.getByText(/words known/).count()) > 0);
 
@@ -150,7 +150,7 @@ await page.goto(`${B}/progress`, { waitUntil: "networkidle" });
 // page carries now, and it is what the shields under it are about.
 check("progress shows the streak", (await page.getByText(/Day streak/i).count()) > 0);
 check("progress shows the shields that protect it", (await page.getByText(/Shields? banked/i).count()) > 0);
-check("progress shows the study heatmap", (await page.getByText(/reviews on \d+ days/).count()) > 0);
+check("progress shows the study heatmap", (await page.getByText(/reviews, spread over \d+ of the last/).count()) > 0);
 // A class board where this learner is in a class, and the way into one where
 // they are not. There is no third state: the instance-wide board of everybody
 // who ticked a box is gone, so a stranger is never ranked against strangers.
@@ -279,7 +279,7 @@ if (answered >= 2 && (await lookButton().count()) > 0) {
   check("the way back reads an older card rather than the one on screen",
     /back to the round/i.test(looking) && looking.slice(0, 400) !== onScreen);
   check("and says it is not a question being asked again",
-    /nothing here is graded/i.test(looking));
+    /nothing here counts for or against you/i.test(looking));
 
   const forward = page.locator("main").locator("button").filter({ hasText: /^(Next|Back to the round)/ }).last();
   await forward.click();
@@ -508,7 +508,7 @@ await page.waitForTimeout(2500);
 const queued = await queuedGrades();
 check("a grade made offline is kept on the device", queued > 0, `${queued} queued`);
 check("the session says so rather than failing silently",
-  (await page.getByText(/Offline/).count()) > 0);
+  (await page.getByText(/You.re offline/).count()) > 0);
 
 await ctx.setOffline(false);
 await page.evaluate(() => window.dispatchEvent(new Event("online")));
@@ -672,7 +672,7 @@ check("a marked circle says what it is in words", /in place|in the word|not in t
 await tapWord("zzzzzz");
 await page.getByRole("button", { name: "Guess" }).click();
 await page.waitForTimeout(300);
-check("a non-word is refused", (await page.getByText(/Not a word/).count()) > 0);
+check("a non-word is refused", (await page.getByText(/dictionary doesn.t know that one/).count()) > 0);
 
 await page.reload({ waitUntil: "networkidle" });
 await startRound(page);
@@ -743,7 +743,7 @@ if ((await featured.count()) === 0) {
   check("the game of the day links to a round this app has",
     modes.some((m) => hrefs.includes(m)));
   check("and says what is on tomorrow",
-    (await page.getByText(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday) is /).count()) > 0);
+    (await page.getByText(/^Tomorrow.s (Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), which means /).count()) > 0);
 }
 
 // 6d, again: the two columns under the thing to do now end level
@@ -808,7 +808,7 @@ if ((await box.count()) === 0) {
   await page.waitForTimeout(3500);
   const verdict = (await page.locator("[aria-live='polite'] p").first().innerText()).replace(/\s+/g, " ");
   check("a sentence without the word is marked against the dictionary and given the form",
-    /is not in that sentence/.test(verdict) && /The .+ is /.test(verdict));
+    /isn.t in your sentence/.test(verdict) && /The .+ is /.test(verdict));
   check("and the three words are revealed with their meanings afterwards",
     (await page.getByText("What was in the picture").count()) > 0);
 }

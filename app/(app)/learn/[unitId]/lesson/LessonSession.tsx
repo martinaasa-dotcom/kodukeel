@@ -193,10 +193,10 @@ export function LessonSession({
 
   if (steps.length === 0 || !step) {
     return (
-      <Page title={unitTitle} lead="Nothing to teach here yet.">
+      <Page title={unitTitle} lead="Nothing to learn here just yet.">
         <Empty
-          title="This unit has no words in the dictionary yet"
-          body="Its words show up once dictionary lookups are turned on, or you can add them yourself."
+          title="This unit's words aren't in the dictionary yet"
+          body="They'll turn up once live dictionary lookups are switched on, or you can add them yourself."
           action={<ButtonLink href={`/learn/${unitId}`}>Back to the unit</ButtonLink>}
         />
       </Page>
@@ -264,7 +264,7 @@ function Verdict({ ok, note }: { ok: boolean; note?: string }) {
       role="status"
     >
       {ok ? <Check size={18} aria-hidden /> : <X size={18} aria-hidden />}
-      <span>{note ?? (ok ? "Correct." : "Not this time.")}</span>
+      <span>{note ?? (ok ? "Correct." : "Not quite.")}</span>
     </div>
   );
 }
@@ -427,7 +427,7 @@ function StepCard({
     if (checked) { onNext(); return; }
     const result = checkAnswer(typed, expected, "et", rivals);
     const ok = countsAsRecalled(result.verdict);
-    setChecked({ ok, note: result.note || (ok ? "Correct." : `It is “${result.expected}”.`) });
+    setChecked({ ok, note: result.note || (ok ? "Correct." : `The answer is “${result.expected}”.`) });
     // A hint is paid for: see the block above and `lib/questions/hints.ts`.
     onAnswer(lemma, kind, ok && hints.ceiling > 1);
   };
@@ -437,7 +437,7 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <div className="flex items-center gap-2 text-sm" style={{ color: "var(--accent-deep)" }}>
-            <Sparkles size={16} aria-hidden /> What this lesson gives you
+            <Sparkles size={16} aria-hidden /> By the end of this lesson
           </div>
           <p className="text-lg">{step.canDo}</p>
           <p style={{ color: "var(--ink-2)" }}>{step.blurb}</p>
@@ -749,7 +749,7 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Which question does this verb answer? That is the case it takes.
+            Which question does this verb answer? That tells you the case it takes.
           </span>
           <div className="flex flex-wrap items-center gap-3">
             <Et className="text-3xl">{step.lemma}</Et>
@@ -773,7 +773,7 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Put the sentence back in order.
+            Put the words back in the right order.
           </span>
           <div
             className="min-h-[52px] rounded-[var(--r-sm)] border p-3"
@@ -858,19 +858,19 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           {pct >= 80 && <Confetti />}
-          <h2 className="text-2xl">Lesson done</h2>
+          <h2 className="text-2xl">That&apos;s the lesson done</h2>
           <p className="text-lg">
-            {summary.correct} of {summary.total} right, and {step.learned} words are now in your deck.
+            {summary.correct} of {summary.total} right, and {step.learned} new words are in your deck.
           </p>
           <p style={{ color: "var(--ink-2)" }}>
-            They will come back in review when the scheduler thinks you are about to forget them.
+            They&apos;ll come back in review just before you&apos;re likely to forget them.
           </p>
           {summary.saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>Saving your answers…</p>}
           {summary.saved && !summary.saved.ok && (
             <Verdict ok={false} note={summary.saved.error ?? "We couldn't save your answers."} />
           )}
           <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/learn">Back to the path</ButtonLink>
+            <ButtonLink href="/learn">Back to the course</ButtonLink>
             <ButtonLink href="/review" variant="ghost">Review now</ButtonLink>
           </div>
         </Card>

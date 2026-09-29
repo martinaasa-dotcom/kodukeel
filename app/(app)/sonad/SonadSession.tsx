@@ -171,11 +171,11 @@ export function SonadSession({ puzzle, day, guessable }: {
     if (over) return;
     const guess = typed.toLocaleLowerCase("et");
     if (!wellFormed(guess)) {
-      setRefused(`${SONAD_LENGTH} letters, and Estonian ones.`);
+      setRefused(`It needs to be ${SONAD_LENGTH} letters, in Estonian.`);
       return;
     }
     if (!words.has(guess)) {
-      setRefused("Not a word the dictionary knows.");
+      setRefused("The dictionary doesn't know that one. Try another word.");
       return;
     }
     setRefused(null);
@@ -276,7 +276,7 @@ export function SonadSession({ puzzle, day, guessable }: {
           <p className="mt-2.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
             {clue.category && puzzle.category && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
-                It is {puzzle.category}.
+                It&apos;s {puzzle.category}.
               </span>
             )}
             {clue.vowels && (
@@ -507,8 +507,8 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
     <Card>
       <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
         {outcome === "won"
-          ? at === 1 ? "First guess." : `Got it in ${at}.`
-          : "Not this time."}
+          ? at === 1 ? "Got it in one." : `Got it in ${at} guesses.`
+          : "Not this time. Here's what it was."}
       </p>
       <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
         {/*
@@ -547,18 +547,18 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
               <Button type="button" variant="ghost" onClick={keeper.cancel}>Cancel</Button>
             )}
             <Button type="button" variant="primary" disabled={keeper.pending} onClick={keeper.press}>
-              {keeper.pending ? "Adding" : keeper.asking ? "Keep it" : "Keep this word"}
+              {keeper.pending ? "Adding…" : keeper.asking ? "Keep it" : "Keep this word"}
             </Button>
           </div>
         </>
       )}
       {kept && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          It is in your deck, so this round counted toward it.
+          It&apos;s in your deck, so today&apos;s game counted as practice.
         </p>
       )}
       <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-        A new word every morning.
+        There&apos;s a new word tomorrow morning.
       </p>
     </Card>
   );

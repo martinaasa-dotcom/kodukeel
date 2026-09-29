@@ -68,7 +68,7 @@ export interface PersonaSpec {
 export const PERSONAS: readonly PersonaSpec[] = [
   {
     id: "brisk",
-    who: "They are busy and will not wait long for an answer.",
+    who: "They're busy, and they won't wait long for an answer.",
     patience: -1,
     voice: "kylli",
     speed: 1.1,
@@ -78,7 +78,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   },
   {
     id: "thorough",
-    who: "They take their time, and they will ask you for every detail.",
+    who: "They're in no hurry, and they'll want every last detail from you.",
     patience: 1,
     voice: "mari",
     speed: 0.95,
@@ -88,7 +88,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   },
   {
     id: "new",
-    who: "They are new to the job and check things as they go.",
+    who: "They're new in the job, so they check everything twice as they go.",
     patience: 1,
     voice: "indrek",
     speed: 1,
@@ -98,7 +98,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   },
   {
     id: "by-the-book",
-    who: "They work through the form in its own order, whatever order you give it in.",
+    who: "They go strictly by the book: one thing at a time, in their order, not yours.",
     patience: 0,
     voice: "peeter",
     speed: 1,

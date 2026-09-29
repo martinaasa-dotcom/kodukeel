@@ -47,7 +47,7 @@ export function NextPart({ programmeId, label, quiet = false }: {
       </Button>
       {failed && (
         <div className="mt-2" role="status">
-          <Note tone="again">That did not go through, and nothing was changed.</Note>
+          <Note tone="again">That didn&apos;t go through, so nothing has changed. Try again in a moment.</Note>
         </div>
       )}
     </div>

@@ -389,7 +389,7 @@ export function narrowLadder(options: readonly string[], answer: string): Hint[]
   const wrong = options.filter((o) => o !== answer).length;
   return Array.from({ length: wrong }, (_, i) => ({
     kind: (i === wrong - 1 ? "answer" : "shape") as HintKind,
-    label: i === wrong - 1 ? "The answer" : "One of these is out",
+    label: i === wrong - 1 ? "The answer" : "One wrong answer crossed out",
     shown: "",
     ceiling: (i === wrong - 1 ? 1 : 2) as 1 | 2,
   }));
@@ -404,4 +404,4 @@ export function narrowLadder(options: readonly string[], answer: string): Hint[]
  * offer. Not a scold: coming back sooner is what should happen to a word
  * somebody needed help with.
  */
-export const HINT_COST_NOTE = "We will bring this one back sooner.";
+export const HINT_COST_NOTE = "No problem. We'll just bring this one back a bit sooner.";

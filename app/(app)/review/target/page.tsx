@@ -39,10 +39,10 @@ export default async function TargetPage({
 
   if (questions.length === 0) {
     return (
-      <Page title="Target" lead="Hit the right form before the clock does.">
+      <Page title="Target" lead="Tap the right ending before the clock runs out.">
         <Empty
           title="Nothing to aim at yet"
-          body="This round draws on words already in your deck."
+          body="It uses words from your deck, so learn a few first and come back."
           action={<ButtonLink href="/learn" variant="primary">Open the course</ButtonLink>}
         />
       </Page>

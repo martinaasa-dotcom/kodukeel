@@ -75,7 +75,7 @@ export function NavEditor({
       if (!landed) {
         setOrder(was);
         onChange(was);
-        setMessage(`${NOT_REACHED} The sidebar is as it was.`);
+        setMessage(`${NOT_REACHED} Your sidebar hasn't changed.`);
       }
     });
   };
@@ -84,7 +84,7 @@ export function NavEditor({
 
   const move = (i: number, to: number) => {
     if (to < 0 || to >= order.length) return;
-    save(moveRow(order, i, to), `${labelOf(order[i]!)} is now number ${to + 1}.`);
+    save(moveRow(order, i, to), `${labelOf(order[i]!)} moved to number ${to + 1}.`);
   };
 
   /*
@@ -120,7 +120,7 @@ export function NavEditor({
       target.removeEventListener("pointerup", onUp);
       target.removeEventListener("pointercancel", onUp);
       setDragging(null);
-      if (current !== order) save(current, `${labelOf(href)} is now number ${current.indexOf(href) + 1}.`);
+      if (current !== order) save(current, `${labelOf(href)} moved to number ${current.indexOf(href) + 1}.`);
     };
     target.addEventListener("pointermove", onMove);
     target.addEventListener("pointerup", onUp);
@@ -152,7 +152,7 @@ export function NavEditor({
             Your sidebar
           </h2>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            Drag a row, or use the arrows. What you use most goes at the top.
+            Drag a row, or use the arrows. Put what you use most at the top.
           </p>
         </div>
 
@@ -215,7 +215,7 @@ export function NavEditor({
                     className="tap-tint flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
                     style={{ color: "var(--ink-3)" }}
                     aria-label={`Take ${row.label} off the sidebar`}
-                    onClick={() => save(order.filter((h) => h !== row.href), `${row.label} is off the sidebar. It is still inside ${labelOf(row.within ?? "/")}.`)}
+                    onClick={() => save(order.filter((h) => h !== row.href), `${row.label} is off the sidebar. You can still find it in ${labelOf(row.within ?? "/")}.`)}
                   >
                     <X size={15} aria-hidden />
                   </button>
@@ -227,7 +227,7 @@ export function NavEditor({
 
         <div className="flex flex-col gap-1.5">
           <p className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
-            {atCap ? `Pin up to ${MAX_PINS}. Take one off to add another.` : "Add to your sidebar"}
+            {atCap ? `You can pin up to ${MAX_PINS}. Take one off to add another.` : "Add to your sidebar"}
           </p>
           {/* Grouped under the place each already lives in, as chips, so the
               whole list fits beside the rail rather than scrolling. */}
@@ -244,7 +244,7 @@ export function NavEditor({
                         type="button"
                         disabled={atCap}
                         aria-label={`Pin ${d.label}`}
-                        onClick={() => save([...order, d.href], `${d.label} is pinned, at the bottom.`)}
+                        onClick={() => save([...order, d.href], `${d.label} is pinned at the bottom.`)}
                         className="choice-btn inline-flex min-h-10 items-center gap-1.5 rounded-full border border-dashed py-1.5 pl-2 pr-3.5 text-sm font-semibold disabled:opacity-40"
                         style={{ borderColor: "var(--rule)", color: "var(--ink)" }}
                       >
@@ -274,9 +274,9 @@ export function NavEditor({
             {!isDefaultNavOrder(order) && (
               <Button
                 variant="ghost"
-                onClick={() => save([...DEFAULT_NAV_ORDER], "Back to the usual five.")}
+                onClick={() => save([...DEFAULT_NAV_ORDER], "Your sidebar is back to how it started.")}
               >
-                Back to the usual five
+                Reset to how it started
               </Button>
             )}
             <Button variant="primary" onClick={onClose}>Done</Button>

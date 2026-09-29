@@ -350,7 +350,7 @@ function AddPanel({ days, opensAs, onDone }: {
           }).catch(() => null);
       if (!result) { setError(NOT_REACHED); return; }
       if (!result.ok) {
-        setError(("error" in result && result.error) || "That did not save.");
+        setError(("error" in result && result.error) || "That didn't save. Try again?");
         return;
       }
       setTitle("");
@@ -376,7 +376,7 @@ function AddPanel({ days, opensAs, onDone }: {
       </ChoiceGroup>
 
       <label className="mt-4 block">
-        <span className="label-xs" style={{ color: "var(--ink-3)" }}>What is it</span>
+        <span className="label-xs" style={{ color: "var(--ink-3)" }}>What is it?</span>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -432,7 +432,7 @@ function AddPanel({ days, opensAs, onDone }: {
             ))}
           </div>
           <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            {weekdays.length > 0 ? repeatLabel(weekdays) : "Leave these blank for a one-off, and pick a date."}
+            {weekdays.length > 0 ? repeatLabel(weekdays) : "For a one-off, leave these blank and pick a date."}
           </p>
         </>
       )}

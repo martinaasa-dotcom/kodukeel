@@ -129,7 +129,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? "Couldn't mark that.");
+        setError(body.error ?? "Sorry, we couldn't mark that one. Try again?");
         return;
       }
       const result = body as Marked;
@@ -154,7 +154,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       // slot is what mastery counts, and without it this read as the card's case.
       void grade(prompt.cardId, rating, Date.now() - startedAt.current, prompt.caseKey);
     } catch {
-      setError("Marking needs a connection. Your sentence is still here.");
+      setError("You're offline, so we can't mark it yet. Your sentence is safe here.");
     } finally {
       setBusy(false);
     }
@@ -186,10 +186,10 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          Round complete
+          That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Tubli töö. Writing your own sentences takes longer, but it&rsquo;s what really helps with
+          Tubli töö. Writing your own sentences is slower going, but it&rsquo;s what gets you
           speaking.
         </p>
         <div
@@ -243,7 +243,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent"><PenLine size={12} aria-hidden /> Write a sentence</Chip>
-          {prompt.weak && <Chip tone="hard">your weak case</Chip>}
+          {prompt.weak && <Chip tone="hard">a case you often miss</Chip>}
           {/* The corner of the card, which is where somebody looks for this
               the moment a word turns out to be worth keeping. */}
           <div className="ml-auto">
@@ -395,10 +395,10 @@ function Feedback({ marked }: { marked: Marked }) {
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         <p className="text-base">
           {formCheck.used
-            ? "That is the right form."
+            ? "Yes, that's the right ending."
             : formCheck.usedAnotherForm
-              ? "That is the right word in the wrong case. Check the ending."
-              : "The word you were asked to use is not in that sentence."}
+              ? "Right word, but not the ending we asked for. Look at how it ends."
+              : "The word we asked for isn't in your sentence. Try working it in."}
         </p>
       </div>
 
@@ -410,15 +410,15 @@ function Feedback({ marked }: { marked: Marked }) {
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
               <>
-                Anu&rsquo;s note is hidden here. It used a word we couldn&rsquo;t confirm as Estonian,
-                it might just have been English. The check above comes straight from the
-                dictionary, so it stands.
+                We&rsquo;ve hidden Anu&rsquo;s note this time. It used a word we couldn&rsquo;t confirm as
+                Estonian (it may just have been English). The check above comes from the
+                dictionary, so you can trust it.
               </>
             ) : (
               <>
-                Anu&rsquo;s note is hidden here. It used an Estonian form we couldn&rsquo;t confirm,
-                and we never show a form we haven&rsquo;t checked. The check above comes straight
-                from the dictionary, so it stands.
+                We&rsquo;ve hidden Anu&rsquo;s note this time. It used an Estonian form we couldn&rsquo;t
+                confirm, and we never show a form we haven&rsquo;t checked. The check above comes
+                from the dictionary, so you can trust it.
               </>
             )}
           </p>
@@ -432,13 +432,13 @@ function Feedback({ marked }: { marked: Marked }) {
         >
           <div className="mb-1.5 flex items-center gap-2">
             <Chip tone={graded.verdict === "correct" ? "good" : graded.verdict === "almost" ? "hard" : "again"}>
-              {graded.verdict === "correct" ? "reads well" : graded.verdict === "almost" ? "almost" : "not yet"}
+              {graded.verdict === "correct" ? "reads well" : graded.verdict === "almost" ? "nearly there" : "not quite yet"}
             </Chip>
           </div>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
           {graded.rule && (
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-              Rule: {graded.rule}
+              Worth remembering: {graded.rule}
             </p>
           )}
         </div>

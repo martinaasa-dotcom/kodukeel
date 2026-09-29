@@ -64,52 +64,56 @@ export const PITCH: Readonly<Record<Level, Pitch>> = {
     sentences: [1, 2],
     words: 20,
     newWords: 2,
-    listener: "They have been learning Estonian for a few weeks and can follow only the plainest speech.",
-    voice: "Speak as a kind person does to somebody with very little of the language: one short"
-      + " sentence per thought, five to eight words each, one question at a time, yes-or-no or"
-      + " with a single question word wherever the words allow. Mostly present tense, the"
-      + " commonest verbs, concrete nouns, numbers and times said plainly. No clause inside a"
-      + " clause, no 'if' or 'although', no idiom, no politeness formula longer than one word."
-      + " One short sentence is usually a whole turn, two at most.",
+    listener: "They've been learning Estonian for a few weeks and can only follow the plainest speech.",
+    voice: "Talk the way a kind, patient person talks to somebody who has very little of the"
+      + " language yet: one short sentence per thought, five to eight words each, and one"
+      + " question at a time, a yes-or-no question or one with a single question word wherever"
+      + " the words allow. Mostly the present tense, the commonest verbs, concrete nouns, and"
+      + " numbers and times said plainly. No clause inside a clause, no 'if' or 'although', no"
+      + " idiom, and no politeness formula longer than one word. One short sentence is usually a"
+      + " whole turn, two at most.",
   },
   A2: {
     sentences: [1, 3],
     words: 30,
     newWords: 4,
-    listener: "They have a few months of Estonian and can follow short everyday sentences.",
-    voice: "Short sentences still; two thoughts may join with 'and', 'but' or 'because', and a"
-      + " question may offer a choice of two. The simple past, 'can you', one short reason or"
-      + " instruction are fine. Everyday words, nothing rare, one thing asked at a time. One or"
-      + " two sentences is a turn, three where there is a reason to give.",
+    listener: "They've had a few months of Estonian and can follow short everyday sentences.",
+    voice: "Keep the sentences short and friendly. Two thoughts may join with 'and', 'but' or"
+      + " 'because', and a question may offer a choice of two. The simple past, 'can you', and"
+      + " one short reason or instruction are all fine. Everyday words, nothing rare, and one"
+      + " thing asked at a time. One or two sentences make a turn, three when there is a reason"
+      + " to give.",
   },
   B1: {
     sentences: [2, 4],
     words: 44,
     newWords: 6,
-    listener: "They can hold an everyday conversation and can follow a sentence with one clause inside it.",
-    voice: "Speak as a person at a counter does to an adult who is managing: whole sentences, one"
-      + " subordinate clause where natural, a question offering two alternatives, a second"
-      + " sentence giving a reason or what follows, and one longer summing-up sentence when"
-      + " wrapping up. Ordinary adult vocabulary, no rare words, no idiom they could not work out.",
+    listener: "They can hold an everyday conversation and follow a sentence with one clause inside it.",
+    voice: "Talk the way a friendly person at a counter talks to an adult who is coping well: whole"
+      + " sentences, one subordinate clause where it comes naturally, a question offering two"
+      + " alternatives, a second sentence giving a reason or what happens next, and one longer"
+      + " sentence summing up when you wrap up. Ordinary adult vocabulary, no rare words, and no"
+      + " idiom they could not work out.",
   },
   B2: {
     sentences: [3, 5],
     words: 55,
     newWords: 8,
-    listener: "They speak Estonian well and can follow an adult conversation at ordinary pace.",
-    voice: "Speak as to any adult: two-clause sentences, a condition with its consequence, a"
-      + " question asking for a description or opinion rather than a fact, a short recap of what"
-      + " they told you before moving on, a softened request where a person would soften it. The"
-      + " precise word beats a roundabout one.",
+    listener: "They speak Estonian well and can follow an adult conversation at an ordinary pace.",
+    voice: "Talk as you would to any adult: sentences with two clauses, a condition with its"
+      + " consequence, a question asking for a description or an opinion rather than a fact, a"
+      + " short recap of what they told you before you move on, and a softened request wherever a"
+      + " person would soften one. The precise word beats a roundabout one.",
   },
   C1: {
     sentences: [3, 5],
     words: 55,
     newWords: 10,
     listener: "They speak Estonian nearly as well as you do.",
-    voice: "Speak entirely naturally, at a native's pace and register for this role: several"
-      + " points in one turn, a follow-up folded into the sentence, hedging and nuance where a"
-      + " person would use them, the vocabulary of somebody doing this job. Simplify nothing.",
+    voice: "Talk completely naturally, at a native speaker's pace and in the register this role"
+      + " calls for: several points in one turn, a follow-up folded into the sentence, hedging"
+      + " and nuance where a person would use them, and the vocabulary of somebody who does this"
+      + " job. Simplify nothing.",
   },
 };
 

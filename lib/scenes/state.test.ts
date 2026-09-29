@@ -184,9 +184,9 @@ describe("a curveball in the way", () => {
 
   it("is a beat the marker can read: its way out is the goal and its needs are the curveball's", () => {
     const beat = hurdleBeat({ id: "missing-document", beat: 1, tries: 0 })!;
-    expect(beat.goal).toBe("Say you do not have it.");
+    expect(beat.goal).toBe("Tell them you don't have it.");
     expect(beat.needs).toEqual([{ kind: "negation" }]);
-    expect(beat.they).toMatch(/not given/);
+    expect(beat.they).toMatch(/never given/);
   });
 
   it("stands down once dealt with, and is written down as met", () => {

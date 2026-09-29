@@ -64,13 +64,13 @@ export default async function WordsPage() {
   return (
     <Page route="/words"
       title="My words"
-      lead="Everything in your deck, and how well it is sticking."
+      lead="Everything in your deck, and how well it's sticking."
       actions={
         <>
           {/* The other reading of this page, and the one somebody comes for
               when the question is "what do I actually know". Counted in words
               rather than cards, which is what the box below is. */}
-          <ButtonLink href="/words/mastery">Word by word</ButtonLink>
+          <ButtonLink href="/words/mastery">How well you know each word</ButtonLink>
           <ButtonLink href="/words/decks">Decks</ButtonLink>
           <ButtonLink href="/dictionary" variant="primary">Add words</ButtonLink>
         </>
@@ -79,13 +79,13 @@ export default async function WordsPage() {
       {rows.length === 0 ? (
         <Empty
           title="No cards yet"
-          body="Add words from the dictionary and every form and the audio come with them."
+          body="Add words from the dictionary, and each one comes with all its forms and audio."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       ) : (
         <Stack>
           <Card tone="night">
-            <SectionTitle hint={`${counted(totalCards, "card")}, how they are settling`}>Where your cards are</SectionTitle>
+            <SectionTitle hint={`${counted(totalCards, "card")} in all`}>How your cards are doing</SectionTitle>
             <DeckBar
               segments={[
                 { label: "New", value: byState[0] ?? 0, fill: "var(--sky)" },
@@ -96,7 +96,7 @@ export default async function WordsPage() {
             {/* Word by word is the header's other button; which cases keep
                 catching somebody out is Progress's, one link away. */}
             <p className="mt-6 text-sm" style={{ color: "var(--ink-2)" }}>
-              The cases that catch you out are on{" "}
+              Want to see which case endings keep catching you out? They&rsquo;re on{" "}
               <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--cta)" }}>
                 Progress
               </Link>.

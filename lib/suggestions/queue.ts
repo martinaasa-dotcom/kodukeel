@@ -293,7 +293,7 @@ async function currentValues(
       out.set(item.id, {
         before: shown ? `${shown.lemma}, ${shown.pos.toLowerCase()}, ${shown.translation}` : null,
         blocked: blocking
-          ? "The dictionary already has this word. Correct its entry instead."
+          ? "The dictionary already has this word. Fix its entry instead."
           : null,
       });
       continue;
@@ -301,7 +301,7 @@ async function currentValues(
 
     const entry = entryById.get(patch.lexemeId);
     if (!entry) {
-      out.set(item.id, { before: null, blocked: "That entry is no longer in the dictionary." });
+      out.set(item.id, { before: null, blocked: "That entry isn't in the dictionary any more." });
       continue;
     }
 
@@ -309,7 +309,7 @@ async function currentValues(
       out.set(item.id, {
         before: entry.translation,
         blocked: entry.translation.trim() === patch.translation.trim()
-          ? "The entry already says this. Somebody has fixed it since."
+          ? "The entry already says this. Somebody must have fixed it already."
           : null,
       });
       continue;
@@ -320,7 +320,7 @@ async function currentValues(
       out.set(item.id, {
         before: current,
         blocked: current?.trim() === patch.value.trim()
-          ? "The entry already carries this form. Somebody has fixed it since."
+          ? "The entry already has this form. Somebody must have fixed it already."
           : null,
       });
       continue;
@@ -330,7 +330,7 @@ async function currentValues(
       .some((e) => e.et.trim() === patch.sentence.trim());
     out.set(item.id, {
       before: present ? patch.sentence : null,
-      blocked: present ? null : "That sentence is no longer on the entry.",
+      blocked: present ? null : "That sentence isn't on the entry any more.",
     });
   }
 

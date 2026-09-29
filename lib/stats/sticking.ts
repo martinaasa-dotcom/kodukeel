@@ -153,10 +153,10 @@ export function stickingNote(point: StickingPoint): string {
   if (point.accuracy === null) {
     // Flagged on its lapse count, which outlives the window the reviews were
     // read over. Saying nothing about the percentage is the honest half.
-    return `Learned and forgotten again, and not seen lately.${also}`;
+    return `You learned it, then it slipped away, and it hasn't come up lately.${also}`;
   }
   if (point.reason === "lapses") {
-    return `Learned and forgotten again, ${point.accuracy}% recalled over ${point.reviews} reviews.${also}`;
+    return `You learned it, then it slipped away. ${point.accuracy}% right over ${point.reviews} reviews.${also}`;
   }
-  return `${point.accuracy}% recalled over ${point.reviews} reviews. It has never really settled.${also}`;
+  return `${point.accuracy}% right over ${point.reviews} reviews. It has never really settled.${also}`;
 }

@@ -35,15 +35,15 @@ export default function PrivacyPage() {
   return (
     <Legal title="Privacy" updated="2 September 2026">
       <P>
-        Kodukeel is a tool for learning Estonian. This page says exactly what it stores
-        about you, why it is allowed to, who else sees it, and how to get rid of it.
+        Kodukeel is an app for learning Estonian. This page tells you exactly what it keeps
+        about you, why it&rsquo;s allowed to, who else gets to see it, and how to make it go away.
       </P>
 
       <S title="Who holds this">
         {operator.identified ? (
           <>
             <P>
-              The controller of your data, which means the one answerable for it, is{" "}
+              The controller of your data, meaning the one who answers for it, is{" "}
               <strong>{operator.name}</strong>
               {operator.registryCode ? ` (registry code ${operator.registryCode})` : ""}
               {operator.vatId ? `, VAT number ${operator.vatId}` : ""}
@@ -54,40 +54,40 @@ export default function PrivacyPage() {
               about anything on this page, including any of the requests below.
             </P>
             <P>
-              There is no data protection officer. This is a small installation and the
-              law requires one only of a public body or of an operation whose core
-              business is monitoring people at scale, which this is not. The address
-              above reaches a person.
+              There&rsquo;s no data protection officer. This is a small installation, and the
+              law only requires one of a public body or of a business built on monitoring
+              people at scale, which this isn&rsquo;t. The address above reaches a real
+              person.
             </P>
           </>
         ) : (
           <P>
             <strong>Whoever runs this installation has not filled their name in.</strong>{" "}
-            Kodukeel is software somebody installs rather than a service with one address,
-            and the person or school running this copy is the one answerable for your data.
-            They are supposed to be named here and are not, which is itself something you
-            can complain about to the authority named further down. Ask whoever gave you
-            the link. If you are running this yourself, set{" "}
+            Kodukeel is software anyone can install, not a service with one address, so
+            whoever runs this copy, a person or a school, is the one who answers for your data.
+            They&rsquo;re supposed to be named here and aren&rsquo;t, which you can complain
+            about to the authority named further down. Ask whoever gave you the link. If
+            you&rsquo;re running this yourself, set{" "}
             <code>OPERATOR_NAME</code>, <code>OPERATOR_ADDRESS</code> and{" "}
-            <code>OPERATOR_EMAIL</code> and this paragraph becomes your details.
+            <code>OPERATOR_EMAIL</code> and this paragraph will show your details instead.
           </P>
         )}
       </S>
 
-      <S title="What is stored, and why that is allowed">
+      <S title="What we keep, and why we’re allowed to">
         <P>
           <strong>Your identity.</strong> Signing in with Google gives us your email address
-          and a user id, held by Supabase Auth. We never see your Google password, and we do
-          not request access to anything else in your Google account. Without it there is no
-          way to show you your own deck rather than somebody else&rsquo;s, so this is held to
-          provide the service you asked for.
+          and a user id, held by Supabase Auth. We never see your Google password, and we
+          don&rsquo;t ask for anything else in your Google account. Without this we couldn&rsquo;t
+          show you your own deck instead of somebody else&rsquo;s, so we keep it to provide the
+          service you asked for.
         </P>
         <P>
           <strong>Your learning.</strong> The cards in your deck, every review you have ever
           done (the grade, the moment, and how long you took), your tasks, your starred words,
           the words you have put aside as too complicated, your badges and your settings. The review log is what makes the scheduling work.
-          It is the app&rsquo;s memory of how well you know each word, and an app that
-          forgets it is not the app you signed up for.
+          It&rsquo;s the app&rsquo;s memory of how well you know each word, and an app that
+          forgot it wouldn&rsquo;t be the app you signed up for.
         </P>
         <P>
           <strong>What we have sent you.</strong> If this installation sends email, we keep a
@@ -117,8 +117,8 @@ export default function PrivacyPage() {
           you gave. That includes <strong>the composition you wrote</strong>, kept in your own
           words, because a piece of writing is only worth going back to if it is the piece you
           actually wrote. It is the longest thing you write anywhere in this app, which is why
-          it has a line of its own here. A paper you abandon is never written down at all. The
-          spoken part is marked by you and nothing you record leaves your device.
+          it has a line of its own here. A paper you abandon is never saved to your account. You
+          mark the spoken part yourself, and nothing you record leaves your device.
         </P>
         <P>
           <strong>Your conversations in Situations.</strong> Each one you finish is kept whole: who was
@@ -176,18 +176,18 @@ export default function PrivacyPage() {
         <P>
           <strong>What the tutor cost.</strong> For every request to the AI, we keep a record:
           which model answered, roughly how much text went in and out, and what it is
-          estimated to have cost. The tutor runs on somebody&rsquo;s paid key and sign-up is
-          open, so a per-person daily allowance is the only thing standing between an open
-          door and an unbounded bill. This is kept because there is a legitimate interest in
-          a free service surviving the week, and there is no version of that cap which works
-          without counting.
+          estimated to have cost. The tutor runs on somebody&rsquo;s paid key and anyone can
+          sign up, so a daily allowance per person is the only thing standing between an open
+          door and an endless bill. We keep this because there&rsquo;s a legitimate interest in
+          a free service surviving the week, and there&rsquo;s no way to run that cap without
+          counting.
         </P>
         <P>
           <strong>What you report as wrong.</strong> Anywhere the app cannot help you there
           is a button to tell us so. What you send is kept: what kind of problem it was, the
           screen you were on, what the app had just said to you, the correction you proposed
           and anything you wrote. Whoever runs this installation reads it, so treat that box
-          as something another person will see, and please do not put anything private in it.
+          as something another person will see, and please don&rsquo;t put anything private in it.
           It is kept because a shared dictionary that nobody can correct goes wrong quietly,
           and because you asked us to look at it. Your own reports and what happened to each
           are on the <strong>Suggestions</strong> page, they are in the export, and they are
@@ -280,8 +280,8 @@ export default function PrivacyPage() {
 
       <S title="Who else sees it">
         <P>
-          This installation only talks to the services below, and nobody else. Each gets only
-          what is described beside it, and none of them is paid to profile you.
+          This installation only talks to the services below, and nobody else. Each one gets
+          only what&rsquo;s described beside it, and none of them is paid to profile you.
         </P>
         <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {recipients.map((r) => (
@@ -337,8 +337,8 @@ export default function PrivacyPage() {
 
       <S title="What you can demand">
         <P>
-          These are your rights under the GDPR, and the two that people actually want are
-          buttons rather than requests.
+          These are your rights under the GDPR. The two people actually use are buttons, so you
+          don&rsquo;t even have to ask.
         </P>
         <P>
           <strong>A copy of everything (access, and portability).</strong> Settings has an{" "}
@@ -377,8 +377,8 @@ export default function PrivacyPage() {
           counts described above.
         </P>
         <P>
-          There is no charge for any of this and no need to give a reason. A request made in
-          writing is answered within a month.
+          None of this costs anything, and you don&rsquo;t need to give a reason. A request made
+          in writing gets an answer within a month.
         </P>
       </S>
 
@@ -396,7 +396,7 @@ export default function PrivacyPage() {
       <S title="If you are not satisfied">
         <P>
           Ask the operator first, at the address at the top of this page. If that gets you
-          nowhere you have the right to complain to the{" "}
+          nowhere, you have the right to complain to the{" "}
           <strong>{SUPERVISORY_AUTHORITY.name}</strong> ({SUPERVISORY_AUTHORITY.localName}),
           which is the supervisory authority for Estonia:{" "}
           {SUPERVISORY_AUTHORITY.address}, {SUPERVISORY_AUTHORITY.phone},{" "}
@@ -423,8 +423,8 @@ export default function PrivacyPage() {
         <P>
           In Estonia a person can agree to a service like this one for themselves from the age
           of 13, which is the age the Personal Data Protection Act sets. Below that, a parent
-          has to agree. Kodukeel is not aimed at younger children and does not knowingly hold
-          their data; if you believe a child under 13 has an account here without a
+          has to agree. Kodukeel isn&rsquo;t aimed at younger children and doesn&rsquo;t
+          knowingly hold their data. If you think a child under 13 has an account here without a
           parent&rsquo;s agreement, write to the address above and it will be deleted.
         </P>
         <P>

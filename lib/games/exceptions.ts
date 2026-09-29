@@ -309,9 +309,9 @@ export function exceptionRound(words: readonly ExceptionWord[]): ExceptionTask[]
 /** What a rung is asking, in the words somebody would say out loud. */
 export function rungLine(task: ExceptionTask): string {
   switch (task.rung) {
-    case "meet": return "This one is not what the ending would give you";
+    case "meet": return "This one breaks the usual pattern";
     case "produce": return "Now type it";
-    case "use": return "Put it back in the sentence";
+    case "use": return "Now fill it into the sentence";
   }
 }
 

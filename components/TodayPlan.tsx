@@ -93,8 +93,8 @@ const dueDate = (task: TaskView) => (task.dueAt ? new Date(task.dueAt) : null);
 function Empty() {
   return (
     <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Nothing from your class is waiting. When a teacher assigns a unit, it turns up here on the
-      morning it is due.
+      Nothing from your class right now. When your teacher sets a unit, you&apos;ll see it here on the
+      morning it&apos;s due.
     </p>
   );
 }

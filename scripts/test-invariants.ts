@@ -8546,7 +8546,7 @@ check("every dead end in the app offers a way to report it", () => {
         the content is where both the sentence and the button live.
       */
       "components/NoPage.tsx",
-      /There&rsquo;s no page here|no page here/,
+      /There&rsquo;s no page here|no page here|nothing at this address/,
       "a link that led nowhere",
     ],
     [
@@ -10547,24 +10547,13 @@ check("no screen writes a case's Latin name into a sentence", () => {
     // The table itself, which is where `CaseSpec.en` is declared.
     "lib/estonian/cases.ts": "the one table, and the English name is a field on it",
     /*
-      THE TWO MODULES THAT WRITE ABOUT ESTONIAN AND MAY HOLD NONE.
+      THE TWO MODULES THAT WRITE ABOUT ESTONIAN AND MAY HOLD NONE ARE NOT HERE.
 
-      `grammar.ts` and `exceptions.ts` explain a case at length in English and
-      are asserted to carry no Estonian letter, which is what stops this app
-      inventing a form inside a sentence about forms. That leaves the Latin
-      name as the only name they *can* use: naming the five cases whose
-      Estonian spelling happens to carry no diacritic would slip past the
-      letter rule while breaking what it is for, and would name five cases one
-      way and nine the other on one page.
-
-      The way out is to describe the case rather than name it ("the partial
-      object form" for `osastav`), which is a pass over nineteen lines of the
-      most-read grammar copy in the app and is worth doing carefully rather
-      than in passing. Until then the exemption is here, where it is counted,
-      rather than being invisible because the sweep stopped at `app/`.
+      `grammar.ts` and `exceptions.ts` hold no Estonian letter, which once left
+      the Latin name as the only name they could use. They describe the case
+      instead now (the "some of it" ending), so neither needs an exemption,
+      and one would go stale the day it was granted.
     */
-    "lib/estonian/grammar.ts": "holds no Estonian letter, so the Latin name is the only name it has",
-    "lib/estonian/exceptions.ts": "the same, for the notes on each kind of exception",
     /*
       AND THE PIN TABLE QUOTES `grammar.ts` RATHER THAN WRITING COPY OF ITS OWN.
 
@@ -10583,7 +10572,6 @@ check("no screen writes a case's Latin name into a sentence", () => {
     // Anu is told the Latin name beside the question and the reading, so she
     // can follow a learner who arrives with one. See `lib/tutor/prompt.ts`.
     "lib/tutor/prompt.ts": "the model's own table, which names a case three ways on purpose",
-    "lib/tutor/grader.ts": "the same briefing, for the writing and picture graders",
     "lib/tutor/words.ts": "the same briefing again: the forms block Anu is handed for a word",
     // The banned-phrase table has to be able to quote the copy it is about.
     "lib/copy/voice.ts": "an example of a tell, which has to contain the thing it bans",
@@ -19308,7 +19296,7 @@ check("a scene understands a slip before it marks one, and says so", () => {
   );
   const session = code("components/scene/SceneSession.tsx");
   assert.match(session, /recast:/, "the scene screen has no label for a recast line");
-  assert.match(session, /Understood\./, "the scene screen no longer says a slipped turn was understood");
+  assert.match(session, /They understood you\./, "the scene screen no longer says a slipped turn was understood");
   /*
     And nothing in `nearly.ts` writes Estonian: the recast is read off the
     lexicon, so the module holds a pronoun table as keys and nothing else.
@@ -25861,7 +25849,7 @@ check("nothing but the hint ladder decides what a hint gives away", () => {
 
   // And the encouragement is one sentence, from one table, for the same reason
   // a second copy of any line of copy in this app is a second copy: they drift.
-  const notes = ALL.filter((f) => /It is fine not to know this one yet/.test(read(f)));
+  const notes = ALL.filter((f) => /fine not to know this one yet/.test(read(f)));
   assert.deepEqual(
     notes.map((f) => f.replace(/\\/g, "/")), ["lib/copy/firstTry.ts"],
     "the first-try line is written out somewhere other than the one table that holds it",

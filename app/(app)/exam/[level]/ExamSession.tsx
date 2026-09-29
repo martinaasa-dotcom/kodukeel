@@ -295,7 +295,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
             <TriangleAlert size={14} className="mr-1.5 inline" aria-hidden />
             Time&apos;s up. This part is closed now, the way it would be in a real exam hall. Anything
             you left blank scores nothing.{" "}
-            {last ? "Hand in below." : "Move on when you are ready."}
+            {last ? "Hand in below." : "Move on when you're ready."}
           </Note>
         </div>
       ) : warning === "last" ? (
@@ -354,7 +354,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
             {last
               ? "Handing in now means they score nothing."
               : "You can't come back to this part once you leave it."}{" "}
-            A guess beats a blank here, and it costs you nothing.
+            A wrong answer costs you nothing here, so a guess beats a blank.
             <span className="mt-3 flex flex-wrap gap-2">
               <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
                 Go back and fill them in
@@ -446,8 +446,8 @@ function Break({ until, now, nextLabel, onResume }: {
         Break
       </h1>
       <p className="mt-3 max-w-[56ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        The written half is done, and its clock has stopped. On the real exam day, a short break
-        comes before the spoken part, so this is it. Stand up, get some water, and come back for{" "}
+        The written half is done and its clock has stopped. On the real day there&apos;s a short break
+        before the spoken part, and this is yours. Stand up, get some water, and come back for{" "}
         {nextLabel.toLowerCase()}.
       </p>
 
@@ -477,7 +477,7 @@ function Break({ until, now, nextLabel, onResume }: {
         </p>
         <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
           The examiner talks to you the way people do when they first meet. Say these out loud in
-          Estonian now. Nothing here listens or marks.
+          Estonian now. Nobody&apos;s listening and nothing&apos;s marked.
         </p>
         <ul className="mt-3 flex list-disc flex-col gap-1 pl-5 text-sm" style={{ color: "var(--ink-2)" }}>
           {OPENING_CONVERSATION.map((line) => <li key={line}>{line}</li>)}
@@ -549,8 +549,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {answeredIn(resumable)} answered so far. You were on {resumePart.spec.label.toLowerCase()}.{" "}
               {resumeLeft > 0
-                ? `${formatRemaining(resumeLeft)} is left on that part. The clock kept running while you were away, just like it would in a real exam hall.`
-                : "That part's time ran out while you were away. It'll open closed, just like it would in a real exam hall."}
+                ? `${formatRemaining(resumeLeft)} is left on that part. The clock kept running while you were away, just as it would in a real exam hall.`
+                : "That part's time ran out while you were away. It'll open already closed, just as it would in a real exam hall."}
             </p>
             <span className="mt-3 flex flex-wrap gap-2">
               <Button variant="ghost" size="sm" onClick={onDiscard}>
@@ -663,9 +663,9 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
       <div className="mt-6 grid gap-3">
         {paper.part ? (
           <Note tone="sky">
-            One part on its own, on its own clock of {paper.parts[0]?.spec.minutes ?? 0} minutes.
-            The real paper marks all four parts together, so what you get back is a mark for this
-            part rather than a pass or a fail. Once its time runs out, it closes. Your answers are
+            You&apos;re sitting just this one part, with {paper.parts[0]?.spec.minutes ?? 0} minutes
+            on the clock. The real exam marks all four parts together, so you&apos;ll get a mark for
+            this part, not a pass or a fail. When the time&apos;s up, it closes. Your answers are
             saved on this device as you go.
           </Note>
         ) : (
@@ -704,9 +704,9 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         <div className="grid gap-3 md:grid-cols-2">
         {partOf(paper, "writing") && (
         <Fact icon={<PenLine size={18} />} hue="butter" title="The writing clock is for two texts">
-          The real writing part is two pieces of writing, and the clock is only for those two. The
-          grammar questions after them are ours, since nothing here can read your grammar the way an
-          examiner does. They come last, so give them whatever time is left.
+          On the real exam the writing part is two texts, and the clock is only for those two. The
+          grammar questions after them are our own extra, because nothing here can check your
+          grammar the way an examiner does. They come last, so give them whatever time is left.
         </Fact>
         )}
         {partOf(paper, "listening") && (
@@ -729,29 +729,28 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         </Fact>
         {speaking && (
         <Fact icon={<Mic size={18} />} hue="accent" title="Speaking is marked by you">
-          You mark the spoken part yourself: record, listen back, and tick off what you managed. No
-          speech recognizer we tested was accurate enough for Estonian. The break before it rehearses
-          the opening chat a real examiner starts with.
+          You mark the spoken part yourself: record, listen back, and tick off what you managed. We
+          tested speech recognizers and none was accurate enough for Estonian. In the break before
+          it, you&apos;ll rehearse the small talk a real examiner opens with.
         </Fact>
         )}
         </div>
         {paper.substituted && (
           <Note tone="hard">
             <FileWarning size={14} className="mr-1.5 inline" aria-hidden />
-            Some tasks use single words instead of full sentences. We don&apos;t have a recorded
-            sentence for every word yet, so those tasks fall back to a version we can always build.
-            Each one says so above. This makes the paper a little easier than the one it&apos;s
-            copying, which is worth knowing before you look at your score.
+            Some tasks use single words instead of full sentences, because we don&apos;t have a
+            recorded sentence for every word yet. Each one says so above. It makes this paper a
+            little easier than the real one, which is worth knowing before you look at your score.
           </Note>
         )}
         {paper.thin && (
           <Note tone="again">
             <FileWarning size={14} className="mr-1.5 inline" aria-hidden />
-            The dictionary could only fill {fillRate} percent of this paper, so some tasks are
-            shorter than a full paper. Each part is marked on what was actually set, not on what
-            should have been there, and your result will explain the shortfall. Add more words to
-            your deck and this fills in over time. Running this yourself? Turning on live
-            dictionary lookups fills it in right away.
+            We could only fill {fillRate} percent of this paper from the dictionary, so some tasks
+            are shorter than usual. Each part is marked on what was actually set, and your result
+            will say what was missing. Add more words to your deck and the paper fills in over
+            time. Running your own copy of Kodukeel? Turning on live dictionary lookups fills it
+            straight away.
           </Note>
         )}
       </div>
@@ -1345,9 +1344,9 @@ function LengthMeter({ text, minWords }: { text: string; minWords: number }) {
         />
       </div>
       <p className="mt-2 text-xs" style={{ color: there ? "var(--sky-ink)" : "var(--ink-3)" }}>
-        {words} of {minWords} words{there ? ". That's enough" : ""}. Length is most of your mark
-        here, and the required words above make up the rest. Write half the length and you still
-        get about half those marks, not none. No model judges your Estonian.
+        {words} of {minWords} words{there ? ". That's enough" : ""}. Most of the mark here is for
+        length, and the rest is for using the words above. Half the length still earns about half
+        the marks. No machine judges your Estonian.
       </p>
     </>
   );
@@ -1393,9 +1392,9 @@ function MessageQuestion({ item, text, onWrite }: {
         <DiacriticBar />
       </div>
       <LengthMeter text={text} minWords={item.minWords} />
-      <Explain label="Why nothing marks this for you">
-        Check for yourself whether you covered all three points when you read it back. A machine
-        can&apos;t tell without judging your Estonian, and nothing here does that.
+      <Explain label="Why we don't mark this">
+        Read it back and check you&apos;ve covered all three points yourself. We&apos;d have to
+        judge your Estonian to check it for you, and we never do that.
       </Explain>
     </div>
   );
@@ -1497,7 +1496,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
         Aim for about {item.seconds} seconds.
       </p>
       <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-        <span>Idea card:</span>
+        <span>Ideas to talk about:</span>
         {item.ideas.map((idea) => (
           <Chip key={idea.lexemeId} caseSensitive>
             <span lang="et">{idea.lemma}</span>
@@ -1543,8 +1542,8 @@ function SpeakQuestion({ item, marks, response, onMark }: {
         </div>
         {!recorded && (
           <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-            Record something first. Ticking boxes for something you haven&apos;t done isn&apos;t
-            really judging yourself, and this task would score nothing anyway.
+            Record something first, then tick what you managed. There&apos;s nothing to judge
+            until you&apos;ve spoken.
           </p>
         )}
       </fieldset>

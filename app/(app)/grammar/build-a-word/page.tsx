@@ -9,10 +9,10 @@ import { BuildWalk } from "./BuildWalk";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Build a word, three forms, eleven endings",
+  title: "Build a word from three forms and eleven endings",
   description:
-    "The Estonian case system on one screen: the three forms that are memorized, the one the endings "
-    + "go on, and each of the eleven endings in a sentence somebody wrote.",
+    "See how Estonian cases work on one word: the three forms you learn by heart, the one the endings "
+    + "go on, and each of the eleven endings in a real sentence.",
 };
 
 /**
@@ -46,7 +46,7 @@ export default async function BuildPage() {
     <Page route="/grammar/build-a-word"
       eyebrow="Start here"
       title="Build a word"
-      lead="Three forms are memorized. The other eleven are one of them plus an ending."
+      lead="Learn three forms by heart. Every other case is one of them plus an ending."
       actions={
         <Link
           href="/grammar"
@@ -66,8 +66,8 @@ export default async function BuildPage() {
             which is English prose and renders regardless.
           */}
           <Empty
-            title="The dictionary is not answering"
-            body="Nothing here is written by hand, so with no words there is nothing to build."
+            title="The dictionary isn't answering"
+            body="Every word here comes from the dictionary, so without it there's nothing to build."
             action={<Link href="/grammar" className="underline" style={{ color: "var(--accent-deep)" }}>Read the endings instead</Link>}
           />
         </Stack>

@@ -627,7 +627,7 @@ export function markForm(task: FormAsk, typed: string): FlashMark {
   if (named && named !== task.slot) {
     return {
       right: false, rating: 2, wrote: written, wroteSlot: named,
-      note: `That is the ${slotLabel(named)}. This one wanted the ${task.label}.`,
+      note: `That's the ${slotLabel(named)}. This one wants the ${task.label}.`,
     };
   }
 
@@ -650,7 +650,7 @@ function markSentence(task: FlashTask, sentence: string): FlashMark {
   if (used && !looksLikeSentence(sentence)) {
     return {
       right: false, rating: 2, wrote: sentence, wroteSlot: task.slot,
-      note: "Right form. This one asks for a whole sentence around it.",
+      note: "Right form. Now build a whole sentence around it.",
     };
   }
   if (used) {
@@ -662,12 +662,12 @@ function markSentence(task: FlashTask, sentence: string): FlashMark {
     if (!named || named === task.slot) continue;
     return {
       right: false, rating: 2, wrote: written, wroteSlot: named,
-      note: `You wrote ${written}, which is the ${slotLabel(named)}. This one wanted the ${task.label}.`,
+      note: `You wrote ${written}, which is the ${slotLabel(named)}. This one wants the ${task.label}.`,
     };
   }
   return {
     right: false, rating: 1, wrote: null, wroteSlot: null,
-    note: `No form of ${task.lemma} in that sentence.`,
+    note: `We can't find ${task.lemma} anywhere in your sentence.`,
   };
 }
 

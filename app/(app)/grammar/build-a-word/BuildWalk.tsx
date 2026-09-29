@@ -185,9 +185,9 @@ export function BuildWalk({ walk, canTranslate }: {
  * the same number three times.
  */
 const ACTS = [
-  { title: "Three to learn", hint: "What is stored, and why it is only three" },
+  { title: "Three to learn", hint: "The forms you learn, and why only three" },
   { title: "Stack an ending", hint: "The other eleven, one at a time" },
-  { title: "Your turn", hint: "Pick the ending. Nothing is written down" },
+  { title: "Your turn", hint: "Pick the ending, just for practice" },
 ] as const;
 
 /**
@@ -289,8 +289,8 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
     <Stack>
       <Card tone="accent">
         <p className="text-base leading-relaxed" style={{ color: "var(--ink)" }}>
-          Estonian stores three forms of every word. Not fourteen. The rest are worked out from the
-          second one, and that is the whole of the trick.
+          Every Estonian word has three forms you learn. Not fourteen, three. The rest you build from
+          the second one, and that&apos;s the whole trick.
         </p>
       </Card>
 
@@ -357,8 +357,8 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
       )}
 
       <Note tone="neutral">
-        Nothing works these three out. They are held per word in the dictionary, and this app never
-        invents one.
+        No rule gives you these three, so each word&apos;s three come straight from the dictionary.
+        We never make one up.
       </Note>
 
       <div className="flex flex-wrap items-center justify-end gap-3">
@@ -413,7 +413,7 @@ function Reading({ of }: { of: WalkForm }) {
   if (of.unsaid) {
     return (
       <p className="mt-3 text-base" data-unsaid={of.unsaid} style={{ color: "var(--ink-2)" }}>
-        <span className="font-bold" style={{ color: "var(--ink)" }}>Nobody says this one.</span>{" "}
+        <span className="font-bold" style={{ color: "var(--ink)" }}>Estonians don&apos;t say this one.</span>{" "}
         {/*
           "a person" only where the word is one. The row fires for a `-maa`
           word too, which is a country rather than somebody, and the first
@@ -421,7 +421,7 @@ function Reading({ of }: { of: WalkForm }) {
           one commit earlier, committed inside the fix for it. What is left
           names no class, so it stays true whatever the reason turns out to be.
         */}
-        Estonian puts {of.unsaid === "person" ? "a person" : "this word"} on the endings under{" "}
+        For {of.unsaid === "person" ? "a person" : "this word"}, they use the endings under{" "}
         “On top” instead.
       </p>
     );
@@ -516,7 +516,7 @@ function Attested({ sentence, lemma, canTranslate }: { sentence: WalkSentence; l
       */}
       {borrowed && (
         <p className="mb-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-          The same case, on another word:
+          The same case, on a different word:
         </p>
       )}
       {/*
@@ -664,13 +664,13 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
           <Reading of={form} />
           {form.stored && (
             <p className="mt-3 max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              This one is the exception, and the dictionary stores it. No ending on the stem
-              produces it, so you learn this form instead of working it out.
+              This one&apos;s the exception. No ending on the stem gives you this form, so it&apos;s
+              one to learn by heart.
             </p>
           )}
           {form.alsoRight && (
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
-              <span lang="et">{form.alsoRight}</span> is right too, and both are taught as a pair.
+              <span lang="et">{form.alsoRight}</span> is right too. You learn them as a pair.
             </p>
           )}
         </Card>
@@ -870,8 +870,8 @@ function YourTurn({ word }: { word: WalkWord }) {
     return (
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          This word&rsquo;s endings are stored in the dictionary instead of worked out. Pick another
-          word above and the questions come back.
+          This word doesn&rsquo;t follow the rule, so there&apos;s nothing to build here. Pick another
+          word above to try the endings.
         </p>
       </Card>
     );
@@ -955,8 +955,8 @@ function YourTurn({ word }: { word: WalkWord }) {
             </>
           ) : (
             <>
-              Not that one. It is <span lang="et">{form.value}</span>, the stem with{" "}
-              <span lang="et">-{form.suffix}</span> on it, which means <Means form={form} ref_={ref} />.
+              Not that one. It&apos;s <span lang="et">{form.value}</span>, the stem with{" "}
+              <span lang="et">-{form.suffix}</span> on the end, which means <Means form={form} ref_={ref} />.
             </>
           )}
         </p>
@@ -983,15 +983,15 @@ function YourTurn({ word }: { word: WalkWord }) {
           */}
           <Card>
             <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-              {right} of {asks.length} endings
+              {right} of {asks.length} endings right
             </p>
             <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Nothing here was recorded. This is an explanation, not a test. The round below is
-              the one that counts.
+              This was just to show you how it works, so none of it counts. The round below is the
+              one that does.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
               <Button onClick={() => { setAt(0); setPicked(null); setRight(0); }}>
-                <RotateCcw size={15} aria-hidden /> Again
+                <RotateCcw size={15} aria-hidden /> Try again
               </Button>
             </div>
           </Card>

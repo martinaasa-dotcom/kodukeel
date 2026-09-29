@@ -336,8 +336,8 @@ function judge(
         verdict: "diacritics",
         suggestedRating: 2,
         note: slipped === 1
-          ? "Every word heard, one is missing its Estonian letters."
-          : `Every word heard, ${slipped} are missing their Estonian letters.`,
+          ? "You heard every word. One is missing its Estonian letters."
+          : `You heard every word. ${slipped} are missing their Estonian letters.`,
       };
     }
 
@@ -351,8 +351,8 @@ function judge(
       verdict: "spacing",
       suggestedRating: 2,
       note: slipped > 0
-        ? `Every word heard, but ${spaceNote}, and ${diacriticsNote}.`
-        : `Every word heard, but ${spaceNote}.`,
+        ? `You heard every word, but ${spaceNote}, and ${diacriticsNote}.`
+        : `You heard every word, but ${spaceNote}.`,
     };
   }
 
@@ -367,7 +367,7 @@ function judge(
   return {
     verdict: "wrong",
     suggestedRating: 1,
-    note: total === right ? "Extra words crept in." : `${right} of ${total} words right, play it again.`,
+    note: total === right ? "Extra words crept in." : `${right} of ${total} words right. Give it another listen.`,
   };
 }
 

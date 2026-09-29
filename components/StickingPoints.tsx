@@ -107,7 +107,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                     names the one thing the meter cannot: how often it has
                     been forgotten, where that is the reason it is here. */}
                 {(point.reason === "lapses" || point.accuracy === null) && (
-                  <Chip tone="again">{point.lapses} lapses</Chip>
+                  <Chip tone="again">forgotten {point.lapses} times</Chip>
                 )}
               </p>
               {/*
@@ -121,7 +121,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
               */}
               {isSuspended ? (
                 <p className="mt-0.5 text-xs" style={{ color: "var(--ink-2)" }}>
-                  Set aside. It will not come up until you put it back.
+                  Set aside. It won&apos;t come up again until you put it back.
                 </p>
               ) : (
                 <p className="mt-1.5 flex items-center gap-2">
@@ -135,8 +135,8 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                     </span>
                   )}
                   <span aria-hidden className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                    {point.accuracy === null ? "not seen lately" : `${point.accuracy}% of ${point.reviews}`}
-                    {point.siblings > 0 ? `, ${counted(point.siblings + 1, "card")} stuck` : ""}
+                    {point.accuracy === null ? "not seen for a while" : `${point.accuracy}% of ${point.reviews}`}
+                    {point.siblings > 0 ? `, stuck on ${counted(point.siblings + 1, "card")} for this word` : ""}
                   </span>
                 </p>
               )}

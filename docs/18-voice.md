@@ -244,6 +244,50 @@ Nothing was cut. Four claims that were one sentence are four sentences.
 the full stop, it is two sentences. If you cannot say it aloud at all without rearranging it, it is
 a fragment pretending to be one.
 
+## 3b. Say it out loud: the fault a friend would laugh at
+
+Sections 3 and 3a are about tone and shape. This one is about something both of them missed for a
+year: copy that is warm, short and grammatical, and still reads like nobody has ever said it. It was
+reported off the landing page, in the owner's words, as "the type of language nobody uses":
+
+> The words work runs on, and a rehearsal with somebody who wants something from you before the real one.
+
+against
+
+> Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every
+> day, and try the tricky conversations here first, where getting it wrong costs nothing.
+
+The first is precise. It is also a sentence written by somebody describing the feature to
+themselves. Nobody says "the words work runs on" to a friend. They say "the words you'll hear at
+work". The second one names the things a reader can picture and says what they get.
+
+So the bar for every sentence anybody reads here, written by a person or by a model, is this:
+**would a warm, clever friend who teaches Estonian say it that way, out loud, across a kitchen
+table?** Four habits fail it, and all four slip past every check above.
+
+**Abstraction where a picture would do.** "The Estonian you meet every week" is a category.
+"The pharmacist, the parents at the school gate, the letter from the city" is a week. Name the
+things a reader can see.
+
+**The app describing its own machinery.** "Nothing is stored", "This screen marks by rule",
+"Derived from your review log". Some of those facts matter, and when they do, say them the way you
+would to a person: "We don't keep a copy." Most of them are a design doc that leaked onto a screen.
+
+**Clever where plain was available.** "Learned, and that is the evening." A sentence the reader has
+to decode to enjoy is a sentence that made them work for nothing.
+
+**Stiff where a contraction belongs.** "It is not", "you will", "do not" read as a form letter when
+the sentence around them is friendly. Contractions are how people talk, and they are welcome here.
+
+**Fun is allowed, and it comes from specifics.** Personality is "practise before Sunday lunch, not
+halfway through it", a joke about the fourteen cases, a line that sounds like somebody you'd like
+to learn from. It is never an exclamation mark doing the work, and it is never hype.
+
+**Generated English is held to the same bar.** Anu's answers, the writing grader's notes, the
+English lines under example sentences and anything else a model writes for a learner to read are
+copy. Every prompt that asks a model for English a learner will see carries `VOICE_RULES`, and the
+generated text passes through the same table on the way out (section 6).
+
 ## 4. What this rule does not cover
 
 **Comments, and code quoted inside a document.** Comments are for whoever maintains the code and may

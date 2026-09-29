@@ -45,8 +45,8 @@ export default function TrustPage() {
   return (
     <Legal title="Trust and security" updated="5 September 2026">
       <P>
-        For whoever decides whether this is safe for a class, a team or a grant. The short
-        answers first; each one opens the detail under it.
+        This page is for whoever decides whether Kodukeel is safe for a class, a team or a
+        grant. The short answers come first, and each one takes you to the detail below.
       </P>
 
       {/*
@@ -58,10 +58,10 @@ export default function TrustPage() {
         section that holds the evidence, so nothing here is asserted twice.
       */}
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Glance href="#who" icon={<UserRound size={18} aria-hidden />} question="Who is answerable"
+        <Glance href="#who" icon={<UserRound size={18} aria-hidden />} question="Who answers for it"
           answer={operator.identified && operator.name ? operator.name : "Not named on this copy yet"} good={operator.identified} />
-        <Glance href="#data" icon={<Database size={18} aria-hidden />} question="Where the data sits"
-          answer={leavesTheUnion ? "Its own database; some services outside the EEA" : "Its own database; nothing sent outside the EEA"} good={!leavesTheUnion} />
+        <Glance href="#data" icon={<Database size={18} aria-hidden />} question="Where the data is kept"
+          answer={leavesTheUnion ? "Its own database, with some services outside the EEA" : "Its own database, and nothing sent outside the EEA"} good={!leavesTheUnion} />
         <Glance href="#data" icon={<EyeOff size={18} aria-hidden />} question="Trackers and analytics"
           answer="None" good />
         <Glance href="#rights" icon={<Download size={18} aria-hidden />} question="Export and deletion"
@@ -69,7 +69,7 @@ export default function TrustPage() {
         <Glance href="#security" icon={<ShieldQuestion size={18} aria-hidden />} question="Outside audit or certificate"
           answer="Not yet: no SOC 2, ISO 27001 or pen test" good={false} />
         <Glance href="#accessibility" icon={<Accessibility size={18} aria-hidden />} question="Accessibility"
-          answer="Measured on every change; partial, gaps named" good={false} />
+          answer="Checked on every change. Partial, with the gaps named" good={false} />
       </ul>
 
       <S id="who" title="Who runs this">
@@ -79,26 +79,26 @@ export default function TrustPage() {
               This installation is run by <strong>{operator.name}</strong>
               {operator.registryCode ? `, registry code ${operator.registryCode}` : ""}
               {operator.vatId ? `, VAT number ${operator.vatId}` : ""}, at {operator.address}.
-              That is the controller of every learner&rsquo;s data here, and the party a
-              contract would be with.
+              They&rsquo;re the controller of every learner&rsquo;s data here, and the party
+              any contract would be with.
             </P>
             <P>
-              One address reaches a person, for a data question, a security report or a
-              procurement question alike:{" "}
+              One address reaches a real person, whether it&rsquo;s a data question, a security
+              report or a procurement question:{" "}
               <a href={`mailto:${operator.email}`} className="underline underline-offset-2">
                 {operator.email}
               </a>
-              . There is no separate security mailbox yet, and saying so is more use than
+              . There&rsquo;s no separate security mailbox yet, and saying so is more use than
               publishing one nobody reads.
             </P>
           </>
         ) : (
           <P>
             <strong>Whoever runs this installation has not filled their name in.</strong>{" "}
-            Kodukeel is software somebody installs rather than a service with one address, so
-            the copy you are reading is run by a person or an organisation who is supposed to
-            be named here. Until they are, there is nobody on this page to sign anything with.
-            If you are running it, set <code>OPERATOR_NAME</code>,{" "}
+            Kodukeel is software anyone can install, not a service with one address, so the
+            copy you&rsquo;re reading is run by a person or an organisation who&rsquo;s supposed
+            to be named here. Until they are, there&rsquo;s nobody on this page to sign anything
+            with. If you&rsquo;re running it, set <code>OPERATOR_NAME</code>,{" "}
             <code>OPERATOR_ADDRESS</code> and <code>OPERATOR_EMAIL</code>.
           </P>
         )}
@@ -108,8 +108,8 @@ export default function TrustPage() {
         <P>
           Everything a learner does is held in this installation&rsquo;s own Postgres
           database. Nothing below gets a deck, a review history or an exam paper. The list is
-          read from this deployment&rsquo;s configuration rather than written out here, so it
-          is the actual set of services this copy talks to.
+          read straight from this deployment&rsquo;s configuration rather than typed out here,
+          so it&rsquo;s the real set of services this copy talks to.
         </P>
         <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {recipients.map((r) => (
@@ -133,8 +133,8 @@ export default function TrustPage() {
           </P>
         )}
         <P>
-          There is no analytics vendor, no advertising identifier and no third-party tracker,
-          which is a claim you can check rather than one to take on trust: the app has no
+          There&rsquo;s no analytics vendor, no advertising identifier and no third-party
+          tracker, and you don&rsquo;t have to take our word for it: the app has no
           third-party script tag anywhere in it, and the one thing it counts, whether people
           come back, is worked out from its own review log.{" "}
           <Link href="/privacy" className="underline underline-offset-2">
@@ -171,8 +171,8 @@ export default function TrustPage() {
 
       <S id="security" title="Security posture">
         <P>
-          The security work is written down rather than summarised at you. Three documents,
-          each of which names files you can open:
+          The security work is written down in full rather than summarised for you. There are
+          three documents, and each one names files you can open:
         </P>
         <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
@@ -220,7 +220,7 @@ export default function TrustPage() {
           having been audited.
         </P>
         <P>
-          Four more limits worth naming before you find them yourself. Ownership of rows is
+          Four more limits, named here before you find them yourself. Ownership of rows is
           enforced in application code and asserted in the build rather than by Postgres row
           level security. The Content Security Policy carries{" "}
           <code>&lsquo;unsafe-inline&rsquo;</code> in its script sources, for a reason written
@@ -230,8 +230,8 @@ export default function TrustPage() {
           learner&rsquo;s Google account has rather than enforced here.
         </P>
         <P>
-          What is there instead is a build that fails on the rules rather than a document
-          asserting them: the credential scan greps the built client bundle for every
+          What there is instead is a build that fails when a rule is broken, rather than a
+          document promising the rules are kept: the credential scan greps the built client bundle for every
           server-only value, the invariant suite asserts the rules this project set itself,
           and the browser suites drive the real app. All of it runs on every change.
         </P>
@@ -304,8 +304,8 @@ export default function TrustPage() {
           , including the response times we can actually keep: three working days to
           acknowledge, ten to tell you whether we agree it is a problem, and a target of
           thirty days to fix anything critical or high. If the report is sensitive enough that
-          plain email worries you, say so in one line with no detail in it and we will arrange
-          another channel.
+          plain email worries you, say so in one line with no detail in it and we&rsquo;ll set
+          up another channel.
         </P>
         <P>
           If a breach ever affects personal data, the incident document above is the procedure

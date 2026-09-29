@@ -91,7 +91,7 @@ export async function createDeck(
     return { existing, deck: await tx.deck.create({ data: { ownerId, name: clean } }) };
   });
   if (!outcome.deck) {
-    return { ok: false, error: `That is as many decks as one learner needs. You already have ${outcome.existing}.` };
+    return { ok: false, error: `You've got ${outcome.existing} decks already, which is the most anyone can have. Delete one to make room.` };
   }
   const { deck } = outcome;
   return { ok: true, deck: { id: deck.id, name: deck.name, createdAt: deck.createdAt.toISOString(), wordCount: 0, preview: [] } };
@@ -104,7 +104,7 @@ export async function renameDeck(
   if (!clean) return { ok: false, error: "Give the deck a name first." };
 
   const result = await prisma.deck.updateMany({ where: { id: deckId, ownerId }, data: { name: clean } });
-  if (result.count === 0) return { ok: false, error: "That deck is not yours." };
+  if (result.count === 0) return { ok: false, error: "We can't find that deck. It may have been deleted." };
   return { ok: true };
 }
 
@@ -297,8 +297,8 @@ export async function fileWordInDeck(
     prisma.deck.count({ where: { id: deckId, ownerId } }),
     prisma.card.count({ where: { ownerId, lexemeId } }),
   ]);
-  if (deck === 0) return { ok: false, error: "That deck is not yours." };
-  if (held === 0) return { ok: false, error: "Add that word to your deck first." };
+  if (deck === 0) return { ok: false, error: "We can't find that deck. It may have been deleted." };
+  if (held === 0) return { ok: false, error: "Add that word to your cards first, then you can put it in a deck." };
 
   await prisma.deckWord.upsert({
     where: { deckId_lexemeId: { deckId, lexemeId } },

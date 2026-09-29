@@ -27,7 +27,7 @@ export default async function DecksPage() {
   return (
     <Page route="/words/decks"
       title="Decks"
-      lead="Name a shelf, and put words on it as you add them or any time after."
+      lead="Sort your words into decks of your own, like Work or Recipes. Add words now or any time later."
     >
       <DecksClient decks={decks} />
     </Page>

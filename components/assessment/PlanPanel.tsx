@@ -92,13 +92,13 @@ function verdictFor(plan: Projection): { tone: "neutral" | "good" | "warn"; head
     ? formatDurationRange(plan.appHoursPerWeek + plan.otherHoursPerWeek.low, plan.appHoursPerWeek + plan.otherHoursPerWeek.high, "long")
     : formatDuration(plan.appHoursPerWeek, "long");
   switch (plan.verdict) {
-    case "arrived": return { tone: "good", headline: "You are already there, on this measurement." };
-    case "comfortable": return { tone: "good", headline: "Your own pace covers it, with room to spare." };
-    case "tight": return { tone: "good", headline: `It fits. Plan on about ${allIn} a week, all in.` };
-    case "possible": return { tone: "neutral", headline: `It fits if you commit to it: about ${allIn} a week, all in.` };
-    case "short": return { tone: "warn", headline: "Not by that date at any normal pace. Here is what would change it." };
-    case "open": return { tone: "neutral", headline: "No deadline set, so here is what the distance looks like." };
-    default: return { tone: "neutral", headline: "That date has gone by. Set a new one and this is a plan again." };
+    case "arrived": return { tone: "good", headline: "By this measure, you're already there." };
+    case "comfortable": return { tone: "good", headline: "Your usual pace gets you there, with room to spare." };
+    case "tight": return { tone: "good", headline: `It fits. Plan on about ${allIn} a week, all told.` };
+    case "possible": return { tone: "neutral", headline: `It fits if you really commit: about ${allIn} a week, all told.` };
+    case "short": return { tone: "warn", headline: "Not by that date at any normal pace. Here's what would change that." };
+    case "open": return { tone: "neutral", headline: "There's no deadline yet, so here's how far you have to go." };
+    default: return { tone: "neutral", headline: "That date has already passed. Pick a new one and we can plan again." };
   }
 }
 
@@ -132,8 +132,8 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
       <Card>
         <SectionTitle>Your plan</SectionTitle>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          Pick a level to aim for and this becomes a timeline. It shows how many hours that
-          distance usually takes, how many your daily goal covers, and how many are left over.
+          Pick a level to aim for and we&apos;ll work out how long it&apos;ll take: roughly how many hours
+          of study, how many your daily goal covers, and how many you&apos;ll need to find elsewhere.
         </p>
         <Link
           href="/settings#goals"
@@ -185,13 +185,13 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
           value={plan.hours.low === 0 ? "0" : hoursRange(plan.hours.low, plan.hours.high, "")}
           label="Study hours to go"
           tone="accent"
-          hint={guessed ? "published estimates, widened for a guessed level"
-            : bySkill ? "published estimates, counted skill by skill"
-              : "published estimates, not this app"}
+          hint={guessed ? "from published figures, with room for a guessed level"
+            : bySkill ? "from published figures, skill by skill"
+              : "from published figures, not our guess"}
         />
         <StatTile
           value={formatDuration(plan.appHoursPerWeek)}
-          label="From this app a week"
+          label="In this app, each week"
           tone="sky"
           hint={paceHint(plan, goals, dailyGoal)}
         />
@@ -202,15 +202,15 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
           value={plan.otherHoursPerWeek
             ? formatDurationRange(plan.appHoursPerWeek + plan.otherHoursPerWeek.low, plan.appHoursPerWeek + plan.otherHoursPerWeek.high)
             : plan.weeksOnAppAlone.low === 0 ? "0" : range(plan.weeksOnAppAlone.low, plan.weeksOnAppAlone.high, "")}
-          label={plan.otherHoursPerWeek ? "A week, all in" : "Weeks on the app alone"}
+          label={plan.otherHoursPerWeek ? "Each week, all told" : "Weeks with just this app"}
           tone="blush"
-          hint={plan.otherHoursPerWeek ? "this app plus everything else, to make your date" : "set a date and this becomes hours a week"}
+          hint={plan.otherHoursPerWeek ? "here and elsewhere, to make your date" : "set a date to see hours a week"}
         />
         <StatTile
           value={weeks === null ? "open" : `${weeks}`}
           label="Weeks until your date"
           tone="butter"
-          hint={weeks === null ? "no deadline set" : weeks === 0 ? "that date has gone" : "from today"}
+          hint={weeks === null ? "no deadline set" : weeks === 0 ? "that date has passed" : "from today"}
         />
       </div>
 
@@ -220,13 +220,13 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
 
       {compact && (
         <Explain label="Where the hours come from">
-          The hours are published estimates for an English speaker, averages from other people on
-          other courses. Your own level, your week and, once there is one, your review log shape
-          them from there.{" "}
+          The hours are published estimates for an English speaker, averaged over other people on
+          other courses. We then adjust them for your level, your week and, once you have some,
+          your reviews. The sources, and the research behind the pace, are on the{" "}
           <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
-            Where the numbers come from
+            level check screen
           </Link>
-          , and the research behind the pace, live on the level check screen.
+          .
         </Explain>
       )}
 
@@ -247,33 +247,33 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
           style={{ color: "var(--accent-deep)" }}
         >
           <ChevronRight size={15} aria-hidden className="transition-ui group-open:rotate-90" />
-          Where these numbers come from, and the facts behind the pace
+          Where these numbers come from, and what the pace is based on
         </summary>
         <div className="mt-4 flex flex-col gap-6">
         <Card>
-          <SectionTitle hint="what the numbers assume">Where these come from</SectionTitle>
+          <SectionTitle hint="what the numbers assume">How we worked it out</SectionTitle>
         <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {target} sits at roughly {range(CUMULATIVE_HOURS[target].low, CUMULATIVE_HOURS[target].high, "hours")} of
-          study from nothing, for an English speaker. Estonian costs more than French or Spanish,
-          and the difference sits in the middle. The cases and the gradation make A2 to B1 the
-          longest step. B1 to B2 costs nearer what it costs in any language, once the grammar
-          underneath it works. Those are averages across other people, on other courses.
+          Getting to {target} from scratch takes an English speaker roughly {range(CUMULATIVE_HOURS[target].low, CUMULATIVE_HOURS[target].high, "hours")} of
+          study. Estonian takes longer than French or Spanish, and most of the extra time comes in
+          the middle: the cases and the gradation make A2 to B1 the longest step. B1 to B2 is closer
+          to any other language, once the grammar underneath is working. These are averages from
+          other people, on other courses.
         </p>
         <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {standing.source === "measured"
             ? bySkill
               ? "Your level was measured, and your skills came out at different levels. So the distance is the average of what each skill still has to cover, not the distance from your overall level."
-              : "Your level was measured, so nothing was added to the distance for a guess."
-            : "Your level is your own estimate, so the far end of the distance allows for you being half a band lower than you think. Take the level check and that allowance goes."}{" "}
+              : "Your level was measured, so we didn't pad the distance for a guess."
+            : "Your level is your own estimate, so the far end of the range allows for you being half a level lower than you think. Take the level check and that padding goes."}{" "}
           {plan.paceSource === "measured"
-            ? `Your pace comes from your own last ${weeksWord(plan.paceWeeks)} here, not from what you said you would do.`
+            ? `Your pace comes from what you actually did here over the last ${weeksWord(plan.paceWeeks)}, not from what you said you'd do.`
             : plan.paceSource === "lapsed"
-              ? `Nothing has been reviewed here in the last ${weeksWord(plan.paceWeeks)}, so the pace is the one you said. Review for a fortnight and it becomes the one you keep.`
-              : "Once you have two weeks of reviews here, the pace comes from what you actually do, not from what you said you would do."}
+              ? `You haven't reviewed anything here in the last ${weeksWord(plan.paceWeeks)}, so we're using the pace you told us. Review for a fortnight and we'll use your real one.`
+              : "Once you've had two weeks of reviews here, the pace comes from what you actually do, not what you said you'd do."}
         </p>
         {spec && (
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            <strong>{target}, {spec.label.toLowerCase()}.</strong> {spec.can} What it still will not
+            <strong>{target}, {spec.label.toLowerCase()}.</strong> {spec.can} What it still won&apos;t
             get you: {lowerFirst(spec.cannot)}
           </p>
         )}
@@ -290,17 +290,16 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
         */}
         <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           A daily goal of {dailyGoal} cards means {dailyGoal} cards to answer, not {dailyGoal} new
-          ones. A card you learn today needs roughly ten more reviews over its first year. Once
-          those reviews pile up, your daily goal settles into about {newCards} genuinely new{" "}
-          {newCards === 1 ? "card" : "cards"} a day. Raising the goal does bring new words in
-          faster, in proportion, but it also makes every day from here on longer, which is where
-          week six goes wrong. The goal worth choosing is the one you would still keep on a bad
-          Wednesday.
+          ones. A card you learn today needs about ten more reviews in its first year. Once those
+          reviews pile up, your daily goal works out at about {newCards} brand new{" "}
+          {newCards === 1 ? "card" : "cards"} a day. A higher goal does bring new words in faster,
+          but it also makes every day from here on longer, and that&apos;s usually where week six
+          falls apart. Pick the goal you&apos;d still keep on a rotten Wednesday.
         </p>
         </Card>
 
         <div>
-          <SectionTitle hint="checkable, not motivational">Facts worth knowing first</SectionTitle>
+          <SectionTitle hint="each one with a source you can check">Good to know before you start</SectionTitle>
         <ul className="flex flex-col gap-3">
           {FACTS.map((fact) => {
             return (
@@ -353,7 +352,7 @@ function weeksWord(weeks: number | null): string {
 /** The small print under the pace tile: what the figure is a figure of. */
 function paceHint(plan: Projection, goals: Goals, dailyGoal: number): string {
   if (plan.paceSource === "measured") return `measured over your last ${weeksWord(plan.paceWeeks)}`;
-  if (plan.paceSource === "lapsed") return `what you said. Nothing here in ${weeksWord(plan.paceWeeks)}`;
+  if (plan.paceSource === "lapsed") return "your own estimate, as you haven't reviewed lately";
   return `${minutesFor(dailyGoal)} minutes, ${goals.daysPerWeek} days`;
 }
 
@@ -384,12 +383,12 @@ function foundNote(plan: Projection, reasons: readonly Reason[]): string {
   const where = situation(reasons);
   const held = formatDurationRange(plan.found.low, plan.found.high, "long");
   if (plan.verdict === "short") {
-    return `That is more than a week holds beside a life. At ${held} a week beyond this app the distance is about ${lands}: move the date to there, or raise the daily goal, and this is a plan again.`;
+    return `That's more than most weeks can hold on top of everything else. At ${held} a week beyond this app, it's about ${lands} away. Move your date to then, or raise the daily goal, and the plan works again.`;
   }
   if (where) {
-    return `Put in roughly ${need} a week of Estonian beyond this app and you make the date. You ${where}, which usually puts ${held} a week within reach without booking anything, so most of it is already there to be used.`;
+    return `Put in roughly ${need} a week of Estonian beyond this app and you'll make your date. You ${where}, which usually gives you ${held} a week without booking anything, so most of it is already there.`;
   }
-  return `Put in roughly ${need} a week of Estonian beyond this app and you make the date: a class, a conversation partner, reading, a film without subtitles. ${held} a week is what a normal week holds for that, and the distance at that pace is about ${lands}.`;
+  return `Put in roughly ${need} a week of Estonian beyond this app and you'll make your date: a class, a conversation partner, reading, a film without subtitles. A normal week has room for ${held} of that, and at that pace you're about ${lands} away.`;
 }
 
 function sentence(
@@ -400,29 +399,29 @@ function sentence(
   why: { guessed: boolean; bySkill: boolean },
 ): string {
   if (plan.verdict === "arrived") {
-    return `Your level is already ${to} or above. Pick a higher target, or keep the deck warm and sit the check again in a couple of months.`;
+    return `You're already at ${to} or above. Pick a higher target, or keep your reviews ticking over and take the check again in a couple of months.`;
   }
   const qualifier = why.guessed
-    ? " That level is your own estimate, so the far end allows for a start half a band lower."
+    ? " That level is your own estimate, so the far end allows for you starting half a level lower."
     : why.bySkill
-      ? " Your skills measured at different levels, so the distance is counted skill by skill."
+      ? " Your skills came out at different levels, so we counted the distance skill by skill."
       : "";
-  const distance = `Going from ${from} to ${to} is usually ${hoursRange(plan.hours.low, plan.hours.high, "hours")} of study.${qualifier}`;
+  const distance = `Going from ${from} to ${to} usually takes ${hoursRange(plan.hours.low, plan.hours.high, "hours")} of study.${qualifier}`;
   const pace = formatDuration(plan.appHoursPerWeek, "long");
   const covers = plan.paceSource === "measured"
-    ? `Over your last ${weeksWord(plan.paceWeeks)} this app has had ${pace} a week of you, which is what this is built on`
+    ? `You've spent about ${pace} a week here over the last ${weeksWord(plan.paceWeeks)}, so that's the pace we're using`
     : plan.paceSource === "lapsed"
-      ? `Nothing has been reviewed here in the last ${weeksWord(plan.paceWeeks)}, so this counts the ${pace} a week you said`
-      : `At your stated pace this app covers ${pace} a week of that`;
+      ? `You haven't reviewed anything here in the last ${weeksWord(plan.paceWeeks)}, so this counts the ${pace} a week you told us`
+      : `At the pace you told us, you'll do ${pace} a week of that here`;
   if (weeks === null) {
-    return `${distance} ${covers}, so set a date and the rest of this becomes a real timeline.`;
+    return `${distance} ${covers}. Set a date and we'll turn the rest into a real timeline.`;
   }
   /*
     A date behind them divides by nothing, so it gets the distance and the pace
     and no arithmetic over the deadline at all.
   */
   if (plan.verdict === "passed") {
-    return `${distance} ${covers}. Pick a date you can still get to and this becomes a timeline again.`;
+    return `${distance} ${covers}. Pick a date that's still ahead of you and we can plan again.`;
   }
   const covered = hours1(plan.appHoursAvailable ?? 0);
   const whose = plan.paceSource === "measured" ? "your real pace" : plan.paceSource === "lapsed" ? "the pace you said" : "your daily goal";
@@ -430,10 +429,10 @@ function sentence(
     return `${distance} In ${weeks} weeks ${whose} alone puts in about ${covered} hours, which covers it.`;
   }
   const rest = plan.verdict === "tight"
-    ? "The rest is a class, some reading and the Estonian around you, which a normal week holds."
+    ? "The rest can come from a class, some reading and the Estonian around you. That fits into a normal week."
     : plan.verdict === "possible"
-      ? "The rest is a real commitment beyond this app, every week, and people who make that commitment get there."
-      : "The rest is more than a week holds beside a life, so the date or the pace has to move.";
+      ? "The rest means real work beyond this app, every week. People who put that in do get there."
+      : "The rest is more than most weeks can hold on top of everything else, so either the date or the pace needs to move.";
   return `${distance} In ${weeks} weeks ${whose} puts in about ${covered} of those hours. ${rest}`;
 }
 
@@ -453,8 +452,8 @@ function DistanceBar({ plan }: { plan: Projection }) {
   const share = (h: number) => `${Math.max(0, (h / total) * 100)}%`;
   const nearEnd = (plan.hours.low / total) * 100;
   const segments = [
-    { key: "app", label: "This app by your date", hours: app, fill: "var(--accent)" },
-    { key: "week", label: "Your week beside it", hours: week, fill: "var(--sky)" },
+    { key: "app", label: "In this app, by your date", hours: app, fill: "var(--accent)" },
+    { key: "week", label: "The rest of your week", hours: week, fill: "var(--sky)" },
   ].filter((segment) => segment.hours > 0);
   const left = Math.max(0, plan.hours.low - app - week);
   return (
@@ -478,7 +477,7 @@ function DistanceBar({ plan }: { plan: Projection }) {
         ))}
         <li className="flex items-center gap-2">
           <span aria-hidden className="h-2.5 w-2.5 rounded-full border" style={{ borderColor: "var(--ink-3)", background: "var(--surface)" }} />
-          {left > 0 ? "Still to find" : "Nothing left to find"}
+          {left > 0 ? "Still to find" : "All covered"}
           {left > 0 && <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{formatDuration(left)}</span>}
         </li>
       </ul>

@@ -121,7 +121,7 @@ export const SERVICES: readonly Service[] = [
     name: "Supabase",
     who: "Supabase, holding the database, the sign-ins and the cached speech",
     does: "Every deck, every review, the dictionary, who is signed in, and the speech files keyed by their content.",
-    whenItIsGone: "Nothing works, and the landing page falls back to a dictionary of five words.",
+    whenItIsGone: "Nothing works, and the landing page shrinks to a five-word dictionary.",
     setBy: "DATABASE_URL",
     ref: SUPABASE.ref,
     bill(v: Volume, shape: Shape): ServiceCost {
@@ -175,7 +175,7 @@ export const SERVICES: readonly Service[] = [
     name: "The language model",
     who: "Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu",
     does: "Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.",
-    whenItIsGone: "Anu says she cannot reach anybody. Review, the dictionary and every drill are untouched.",
+    whenItIsGone: "Anu says she can't reach anyone. Review, the dictionary and every drill carry on as normal.",
     setBy: "GEMINI_API_KEY",
     ref: {
       // The page the Gemini rows in lib/usage/pricing.ts were read off, since
@@ -191,7 +191,7 @@ export const SERVICES: readonly Service[] = [
           kind: "charged",
           plan: "No key set",
           usd: 0,
-          why: "Nobody has set a key, so Anu is not here. Everything else in the app works.",
+          why: "Nobody has set a key, so Anu isn't here. Everything else in the app still works.",
         };
       }
 
@@ -228,7 +228,7 @@ export const SERVICES: readonly Service[] = [
     name: "Estonian speech",
     who: "TartuNLP, at the University of Tartu",
     does: "Reads a word or a sentence aloud in any of ten voices. Every clip is cached and asked for once.",
-    whenItIsGone: "Cards are silent, and the listening part of the mock exam says so rather than failing.",
+    whenItIsGone: "Cards go quiet, and the listening part of the mock exam says so instead of breaking.",
     ref: SPEECH_MARKET.ref,
     bill(v: Volume, shape: Shape): ServiceCost {
       return {
@@ -302,8 +302,8 @@ export const SERVICES: readonly Service[] = [
     id: "errors",
     name: "Error reporting",
     who: "Sentry, or whatever the deployment points its webhook at",
-    does: "Catches anything that breaks, redacted, with a user id and never an email address.",
-    whenItIsGone: "Errors are in the server log and nowhere else, which is where they were before.",
+    does: "Catches anything that breaks, with personal details scrubbed: a user id, never an email address.",
+    whenItIsGone: "Errors stay in the server log and nowhere else, just as before.",
     setBy: "ERROR_WEBHOOK_URL",
     ref: ERRORS.ref,
     bill(): ServiceCost {
@@ -337,7 +337,7 @@ export const SERVICES: readonly Service[] = [
     id: "domain",
     name: "The domain",
     who: "A registrar, under the Estonian Internet Foundation",
-    does: "The address people type. The cheapest line here by a long way.",
+    does: "The address people type in. By far the cheapest line here.",
     whenItIsGone: "The app is still there under whatever address the host gave it.",
     ref: DOMAIN.ref,
     bill(): ServiceCost {
@@ -355,7 +355,7 @@ export const SERVICES: readonly Service[] = [
     name: "An Estonian news feed",
     who: "Whichever public feed the deployment points at",
     does: "Suggests words off today's front page, and prints a few headlines the dictionary can open.",
-    whenItIsGone: "The suggestion row draws from the season or at random instead, and says which.",
+    whenItIsGone: "The suggestion row picks seasonal or random words instead, and says so.",
     setBy: "NEWS_FEED_URL",
     ref: VERCEL.ref,
     bill(): ServiceCost {
@@ -372,7 +372,7 @@ export const SERVICES: readonly Service[] = [
     name: "The learner's own phone",
     who: "Them",
     does: "Keeps 400 clips, 60 pages and every grade that could not be sent, so review works on a train.",
-    whenItIsGone: "There is no app. This is the one piece of the infrastructure nobody here can pay for.",
+    whenItIsGone: "There's no app without it. It's the one piece nobody here can pay for.",
     ref: {
       source: "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API",
       checked: SPEECH_MARKET.ref.checked,

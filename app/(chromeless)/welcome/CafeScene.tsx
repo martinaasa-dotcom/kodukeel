@@ -239,9 +239,9 @@ export function CafeScene() {
             </ul>
           </div>
           <p className="cafe-note rounded-[var(--r-lg)] p-4 text-sm leading-relaxed">
-            <strong style={{ color: "var(--ink)" }}>Here you pick, and every pick works.</strong>{" "}
-            Inside the app you type what you would really say, and if the ending is wrong they still understand
-            you and say it back the right way.
+            <strong style={{ color: "var(--ink)" }}>Here you just pick a line, and they all work.</strong>{" "}
+            Inside the app you type what you&rsquo;d really say. Get an ending wrong and they still
+            understand you, then say it back the right way.
           </p>
         </div>
 
@@ -261,8 +261,8 @@ export function CafeScene() {
             {!started ? (
               <div className="m-auto flex max-w-[26rem] flex-col items-center gap-4 text-center">
                 <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  Six things to say, from hello to goodbye. Each time, pick one of the lines on offer and hear how
-                  the other side takes it.
+                  Six little moments, from hello to goodbye. Each time you pick what to say, and see how the
+                  person behind the counter reacts.
                 </p>
                 <Button type="button" variant="primary" size="lg" onClick={() => void walkUp()} disabled={busy && !opening}>
                   Walk up to the counter <ArrowRight size={17} aria-hidden />
@@ -286,10 +286,10 @@ export function CafeScene() {
                 {done && reply && (
                   <div className="cafe-done mt-2 flex flex-col gap-2 rounded-[var(--r-lg)] p-4">
                     <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-                      {reply.outcome ?? "That was the whole conversation."}
+                      {reply.outcome ?? "And that’s the whole conversation."}
                     </p>
                     <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                      Inside there are fifteen of these, from the doctor to the landlord, and there you type your own answers.
+                      Inside there are fifteen of these, from the doctor&rsquo;s to the landlord&rsquo;s, and there you type your answers yourself.
                     </p>
                   </div>
                 )}
@@ -332,7 +332,7 @@ export function CafeScene() {
               </div>
             ) : (
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                {started ? "They are saying something." : "No account, and nothing is saved."}
+                {started ? "They’re about to say something." : "No account needed, and nothing gets saved."}
               </p>
             )}
           </div>
@@ -340,8 +340,8 @@ export function CafeScene() {
       </div>
 
       <p className="mt-5 text-sm" style={{ color: "var(--ink-2)" }}>
-        No AI in this conversation. Every line on both sides comes from the dictionary or from lines a native
-        speaker has read.
+        There&rsquo;s no AI in this conversation. Every line on both sides comes from the dictionary, or
+        was read and checked by a native speaker.
       </p>
     </div>
   );

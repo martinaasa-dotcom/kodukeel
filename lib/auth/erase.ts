@@ -83,9 +83,9 @@ export function remainingIdentityNote(outcome: ErasureOutcome): string | null {
   if (outcome.erased) return null;
   if (outcome.reason === "local") return null;
   return (
-    "Everything this app stored about you is deleted. Your sign-in record, which is " +
-    "your email address held by the sign-in provider rather than by this app, could " +
-    "not be removed from here. Ask whoever runs this installation to delete it. The " +
-    "contact is on the privacy page."
+    "Everything this app kept about you is gone. One thing is left: your sign-in record, " +
+    "which is your email address held by the sign-in provider rather than by us, and we " +
+    "couldn't remove it from here. Ask whoever runs this app to delete it. Their contact " +
+    "details are on the privacy page."
   );
 }

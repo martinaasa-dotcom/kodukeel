@@ -230,7 +230,7 @@ export async function renameMyDeck(deckId: string, name: string) {
 
 export async function deleteMyDeck(deckId: string) {
   const ok = await deleteDeck(await requireUserId(), String(deckId ?? ""));
-  return ok ? { ok: true as const } : { ok: false as const, error: "That deck is not yours." };
+  return ok ? { ok: true as const } : { ok: false as const, error: "That deck belongs to somebody else." };
 }
 
 /**
@@ -266,7 +266,7 @@ async function addCardsFor(
     */
     alsoAcceptedByLemma(),
   ]);
-  if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
+  if (!lexeme) return { ok: false as const, error: "That word isn't in the dictionary any more." };
 
   /*
     READ AND WRITE UNDER ONE LOCK, BECAUSE "IS IT ALREADY THERE" IS CHECK-THEN-ACT.
@@ -351,7 +351,7 @@ async function addCardsFor(
     return generated.length;
   });
 
-  if (added === 0) return { ok: true as const, added: 0, message: "Already in your deck." };
+  if (added === 0) return { ok: true as const, added: 0, message: "That one's already in your deck." };
 
   revalidatePath("/");
   revalidatePath("/words");
@@ -415,7 +415,7 @@ export async function gradeCard(
   cardId = text(cardId);
   const ownerId = await requireUserId();
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
-    return { ok: false as const, error: "That is not a grade id." };
+    return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
   }
   return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId });
 }
@@ -435,7 +435,7 @@ async function gradeFor(
   const { reviewedAt, practisedSlot, reachedSlot, reviewId } = options;
 
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
-    return { ok: false as const, error: "That is not a grade id." };
+    return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
   }
 
   /*
@@ -447,11 +447,11 @@ async function gradeFor(
     four values are the four the scheduler defines.
   */
   if (rating !== 1 && rating !== 2 && rating !== 3 && rating !== 4) {
-    return { ok: false as const, error: "That is not a rating." };
+    return { ok: false as const, error: "That isn't one of the ratings." };
   }
 
   const card = await prisma.card.findFirst({ where: { id: cardId, ownerId } });
-  if (!card) return { ok: false as const, error: "Card not found." };
+  if (!card) return { ok: false as const, error: "We couldn't find that card. It may have been removed." };
 
   /*
     A grade carries the time it was actually answered, because the offline
@@ -541,9 +541,9 @@ function snapshotOf(state: SchedulingState): SchedulingSnapshot {
  */
 export async function replayGrades(batch: ReplayItem[]) {
   const ownerId = await requireUserId();
-  if (!Array.isArray(batch)) return { ok: false as const, error: "Replay failed." };
+  if (!Array.isArray(batch)) return { ok: false as const, error: "We couldn't send your offline answers just now." };
   const result = await applyGradeBatch(ownerId, batch);
-  if (!result.ok) return { ok: false as const, error: result.error ?? "Replay failed." };
+  if (!result.ok) return { ok: false as const, error: result.error ?? "We couldn't send your offline answers just now." };
   revalidatePath("/");
   revalidatePath("/words");
   return { ok: true as const, settled: result.settled };
@@ -566,19 +566,19 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
   const parsed = SchedulingSchema.safeParse(previous);
-  if (!parsed.success) return { ok: false as const, error: "That card state isn't valid." };
+  if (!parsed.success) return { ok: false as const, error: "That card's details didn't come through properly." };
 
   const card = await prisma.card.findFirst({ where: { id: cardId, ownerId }, select: { id: true } });
-  if (!card) return { ok: false as const, error: "Card not found." };
+  if (!card) return { ok: false as const, error: "We couldn't find that card. It may have been removed." };
 
   const p = parsed.data;
   const due = new Date(p.due);
-  if (Number.isNaN(due.getTime())) return { ok: false as const, error: "That card state isn't valid." };
+  if (Number.isNaN(due.getTime())) return { ok: false as const, error: "That card's details didn't come through properly." };
   // The last review is a date for the same reason `due` is: an unparseable one
   // reached the update as an Invalid Date and came back as a 500.
   const lastReview = p.lastReview ? new Date(p.lastReview) : null;
   if (lastReview && Number.isNaN(lastReview.getTime())) {
-    return { ok: false as const, error: "That card state isn't valid." };
+    return { ok: false as const, error: "That card's details didn't come through properly." };
   }
 
   await prisma.card.update({
@@ -604,7 +604,7 @@ export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
 export async function setCardSuspended(cardId: string, suspended: boolean) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
-  if (typeof suspended !== "boolean") return { ok: false as const, error: "That is not a yes or a no." };
+  if (typeof suspended !== "boolean") return { ok: false as const, error: "That needs a yes or a no." };
   await prisma.card.updateMany({ where: { id: text(cardId), ownerId }, data: { suspended } });
   revalidatePath("/words");
   revalidatePath("/progress"); // the sticking-points list lives there
@@ -639,11 +639,11 @@ export async function translateExample(lexemeId: string, sentence: string) {
     where: { id: lexemeId },
     select: { id: true, examples: true },
   });
-  if (!lexeme) return { ok: false as const, error: "That word no longer exists." };
+  if (!lexeme) return { ok: false as const, error: "That word isn't in the dictionary any more." };
 
   const examples = parseExamples(lexeme.examples);
   const target = examples.find((e) => e.et === sentence);
-  if (!target) return { ok: false as const, error: "That sentence is not on this word." };
+  if (!target) return { ok: false as const, error: "That sentence belongs to a different word." };
   if (target.en) return { ok: true as const, en: target.en };
   /*
     And a line a reviewer took off as wrong is not asked for again. Without
@@ -678,7 +678,7 @@ export async function translateExample(lexemeId: string, sentence: string) {
   if (!answer.ok) {
     return {
       ok: false as const,
-      error: answer.reason === "quota" ? answer.message : "Anu could not translate that one.",
+      error: answer.reason === "quota" ? answer.message : "Anu couldn't translate that one just now.",
     };
   }
   const en = answer.text;
@@ -726,7 +726,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   if (busy) return busy;
 
   const et = visibleLine(sentence, LIMITS.example);
-  if (et.length < 4) return { ok: false as const, error: "That is too short to be a sentence." };
+  if (et.length < 4) return { ok: false as const, error: "That's a bit short for a sentence. Try a few more words." };
 
   const en = visibleLine(translation ?? "", LIMITS.translation) || null;
   const saved = await editExamples(
@@ -734,7 +734,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
     (now) => ({ next: mergeExamples(now, [{ et, en, source: "USER" }]), result: null }),
     { editedBy: ownerId, editedAt: new Date() },
   );
-  if (!saved.found) return { ok: false as const, error: "That word no longer exists." };
+  if (!saved.found) return { ok: false as const, error: "That word isn't in the dictionary any more." };
   revalidatePath("/dictionary");
   return { ok: true as const };
 }
@@ -851,7 +851,7 @@ export async function createLexeme(input: { lemma: string; translation: string }
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
-    return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
+    return { ok: false as const, error: "Add both the Estonian word and what it means." };
   }
   /*
     NO BAND AND NO PART OF SPEECH FROM THE CALLER, because every export of this
@@ -940,10 +940,10 @@ export async function createLexemeWithForms(input: {
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
   if (!lemma || !translation) {
-    return { ok: false as const, error: "A word needs both an Estonian form and a translation." };
+    return { ok: false as const, error: "Add both the Estonian word and what it means." };
   }
   const pos = posFrom(input.pos);
-  if (!pos) return { ok: false as const, error: "That is not a part of speech." };
+  if (!pos) return { ok: false as const, error: "Pick what kind of word it is." };
   /*
     Absent is "leave the level as it is" to the upsert, which is what an edit
     that did not touch it means, so it stays absent. Anything present is
@@ -951,7 +951,7 @@ export async function createLexemeWithForms(input: {
   */
   const level = input.cefr === undefined ? undefined : entryLevelFrom(input.cefr);
   if (input.cefr !== undefined && level === undefined) {
-    return { ok: false as const, error: "That is not a level." };
+    return { ok: false as const, error: "Pick a level from the list." };
   }
 
   const lexeme = await upsertLexemeWithForms({
@@ -1004,9 +1004,9 @@ export async function createLexemeWithForms(input: {
 export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   const ownerId = await requireUserId();
   const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "That is not a word." };
+  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
   const exists = await prisma.lexeme.findUnique({ where: { id }, select: { id: true } });
-  if (!exists) return { ok: false as const, error: "That word is not in the dictionary." };
+  if (!exists) return { ok: false as const, error: "That word isn't in the dictionary." };
 
   const key = { ownerId_lexemeId: { ownerId, lexemeId: id } };
   const existing = await prisma.starredWord.findUnique({ where: key });
@@ -1055,7 +1055,7 @@ export async function putWordAside(lexemeId: string, context: string) {
   const busy = throttleAction(ownerId, "putAside");
   if (busy) return busy;
   const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "No word was named." };
+  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
 
   // The level is read here rather than inside, so `lib/progress/deferrals.ts`
   // and `lib/progress/level.ts` stay one-way: the second calls the first when
@@ -1097,10 +1097,10 @@ export async function bringWordBack(lexemeId: string) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
   const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "No word was named." };
+  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
 
   const done = await undoDeferral(ownerId, id);
-  if (!done) return { ok: false as const, error: "That word was not put aside." };
+  if (!done) return { ok: false as const, error: "That word wasn't put aside, so there's nothing to bring back." };
 
   /*
     The list this is pressed from drops the row itself, for the reason above:
@@ -1245,7 +1245,7 @@ export async function setDailyGoal(goal: number) {
   const ownerId = await requireUserId();
   // `Math.max(5, NaN)` is NaN, so without this "NaN" was stored as somebody's
   // goal: the fault the comment below records the personal bests having had.
-  if (!Number.isFinite(goal)) return { ok: false as const, error: "That is not a goal." };
+  if (!Number.isFinite(goal)) return { ok: false as const, error: "Pick a daily goal from the list." };
   const clamped = Math.min(200, Math.max(5, Math.round(goal)));
   await writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(clamped));
   revalidatePath("/");
@@ -1283,7 +1283,7 @@ const MAX_MATCH_PAIRS = 16;
 /** Records a Case Sprint score, keeping only the personal best. */
 export async function recordSprintScore(score: number) {
   const ownerId = await requireUserId();
-  if (!Number.isFinite(score)) return { ok: false as const, error: "That is not a score." };
+  if (!Number.isFinite(score)) return { ok: false as const, error: "That score didn't come through properly." };
   const clamped = Math.min(MAX_SPRINT_SCORE, Math.max(0, Math.round(score)));
   // A round of nothing beats no stored best and writes no row, as before.
   if (clamped === 0) {
@@ -1315,10 +1315,10 @@ export async function recordMatchGrades(grades: unknown) {
   const ownerId = await requireUserId();
 
   const batch = matchGrades(grades, MAX_MATCH_PAIRS, Date.now());
-  if (batch.length === 0) return { ok: false as const, error: "Nothing to record." };
+  if (batch.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
 
   const result = await applyGradeBatch(ownerId, batch);
-  if (!result.ok) return { ok: false as const, error: result.error ?? "Could not record the round." };
+  if (!result.ok) return { ok: false as const, error: result.error ?? "We couldn't save that round." };
   /*
     Every pair used to go through `gradeCard`, which revalidates Today; the
     batch does not, so Today would show the old due count for as long as the
@@ -1338,7 +1338,7 @@ export async function recordMatchGrades(grades: unknown) {
  */
 export async function recordMatchTime(seconds: number) {
   const ownerId = await requireUserId();
-  if (!Number.isFinite(seconds)) return { ok: false as const, error: "That is not a time." };
+  if (!Number.isFinite(seconds)) return { ok: false as const, error: "That time didn't come through properly." };
   const rounded = Math.min(MAX_MATCH_SECONDS, Math.max(1, Math.round(seconds)));
   return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.matchBest, rounded, "lower")) };
 }
@@ -1371,14 +1371,14 @@ export async function recordSonad(day: string, guesses: unknown) {
   const played = Array.isArray(guesses)
     ? guesses.filter((g): g is string => typeof g === "string").slice(0, SONAD_GUESSES)
     : [];
-  if (played.length === 0) return { ok: false as const, error: "Nothing to record." };
-  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
+  if (played.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
+  if (!isDayKey(day)) return { ok: false as const, error: "That isn't a day we recognize." };
 
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
-  if (!puzzle) return { ok: false as const, error: "No puzzle for that day." };
+  if (!puzzle) return { ok: false as const, error: "There's no puzzle for that day." };
 
   const rating = ratingFor(played, puzzle.answer, puzzle.category !== null);
-  if (rating === null) return { ok: false as const, error: "That round is not over." };
+  if (rating === null) return { ok: false as const, error: "That round isn't finished yet." };
   if (!puzzle.inDeck) return { ok: true as const, graded: false };
 
   /*
@@ -1443,11 +1443,11 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   if (busy) return busy;
 
   const scene = sceneById(text(sceneId).slice(0, 64));
-  if (!scene) return { ok: false as const, error: "No scene by that name." };
+  if (!scene) return { ok: false as const, error: "We couldn't find that conversation." };
   const chosen = text(difficulty);
   // `in` walks the prototype, so `constructor` and `toString` passed it and
   // reached a SceneRun.difficulty Int column as a function. Own keys only.
-  if (!Object.hasOwn(BUDGETS, chosen)) return { ok: false as const, error: "Not a difficulty." };
+  if (!Object.hasOwn(BUDGETS, chosen)) return { ok: false as const, error: "Pick one of the difficulty levels." };
   /*
     THE BAND THE OTHER SIDE TALKS AT IS THE LEARNER'S, UNLESS THEY MOVED IT. A
     scene carries no level of its own: the selector on the briefing defaults
@@ -1457,7 +1457,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
     the learner's own rather than as a band of ours.
   */
   const pitched = level === undefined ? await courseLevelFor(ownerId) : text(level);
-  if (!(LEVELS as readonly string[]).includes(pitched)) return { ok: false as const, error: "Not a level." };
+  if (!(LEVELS as readonly string[]).includes(pitched)) return { ok: false as const, error: "Pick a level from the list." };
 
   const opened = await beginRun({
     ownerId,
@@ -1483,7 +1483,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
     */
     lines: sceneProviders().length > 0 ? "composed" : "scripted",
   });
-  if (!opened) return { ok: false as const, error: "That scene could not be built." };
+  if (!opened) return { ok: false as const, error: "We couldn't set up that conversation. Try again in a moment." };
 
   /*
     Only the briefing crosses, never the plan: the curveballs and the persona's
@@ -1542,7 +1542,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
   if (busy) return busy;
 
   const id = text(runId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "That run is not open." };
+  if (!id) return { ok: false as const, error: "That conversation has already ended." };
 
   const said = Array.isArray(turns)
     ? turns.slice(0, MAX_TURNS).map((one) => {
@@ -1559,7 +1559,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
     : [];
 
   const beat = await beatNow({ ownerId, runId: id, turns: said });
-  if (!beat) return { ok: false as const, error: "That run is not open." };
+  if (!beat) return { ok: false as const, error: "That conversation has already ended." };
 
   /*
     A word they have not already used, so pressing it twice on one beat is not
@@ -1569,7 +1569,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
   const typed = said.map((one) => one.said.toLowerCase()).join(" ");
   const fresh = beat.topic.filter((lemma: string) => !typed.includes(lemma.toLowerCase()));
   const wanted = (fresh.length > 0 ? fresh : beat.topic).slice(0, 12);
-  if (wanted.length === 0) return { ok: false as const, error: "Nothing to offer here." };
+  if (wanted.length === 0) return { ok: false as const, error: "There's no word to hand you here." };
 
   /*
     Through `oneEntryPerLemma`, because a lemma can hold two entries and this
@@ -1588,7 +1588,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
     orderBy: [{ lemma: "asc" }, { id: "asc" }],
   });
   const entry = oneEntryPerLemma(rows, wanted)[0];
-  if (!entry) return { ok: false as const, error: "Nothing to offer here." };
+  if (!entry) return { ok: false as const, error: "There's no word to hand you here." };
 
   return {
     ok: true as const,
@@ -1629,7 +1629,7 @@ export async function finishScene(input: {
     one and marked as nothing.
   */
   const runId = text(input.runId).slice(0, 64);
-  if (!runId) return { ok: false as const, error: "That run has no name." };
+  if (!runId) return { ok: false as const, error: "We couldn't tell which conversation that was." };
 
   const turns = Array.isArray(input.turns)
     ? input.turns.slice(0, MAX_TURNS).map((turn) => {
@@ -1658,7 +1658,7 @@ export async function finishScene(input: {
   const finished = await finishRun({
     ownerId, runId, turns, walkedOut: input.walkedOut === true, asked,
   });
-  if (!finished) return { ok: false as const, error: "That run is not open." };
+  if (!finished) return { ok: false as const, error: "That conversation has already ended." };
 
   /*
     EVERY MODE GRADES THROUGH `gradeCard` (ADR-016), and a scene is no
@@ -1726,7 +1726,7 @@ export async function finishScene(input: {
 
 export async function recordCrossword(day: string, typed: unknown, helped: unknown) {
   const ownerId = await requireUserId();
-  if (!isDayKey(day)) return { ok: false as const, error: "Not a day." };
+  if (!isDayKey(day)) return { ok: false as const, error: "That isn't a day we recognize." };
 
   /*
     Off the wire, whatever the types say. A cell index that is not a number and
@@ -1745,7 +1745,7 @@ export async function recordCrossword(day: string, typed: unknown, helped: unkno
   );
 
   const puzzle = await crosswordFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
-  if (!puzzle) return { ok: false as const, error: "No crossword for that day." };
+  if (!puzzle) return { ok: false as const, error: "There's no crossword for that day." };
 
   const solved = solvedEntries(puzzle, grid);
   if (solved.size === 0) return { ok: true as const, graded: 0 };
@@ -1800,7 +1800,7 @@ export async function setTimeZone(zone: string) {
   // Stored in the spelling `Intl` resolves it to, so one zone is one value
   // whatever casing the caller sent (lib/time/day.ts, `canonicalZone`).
   const canonical = canonicalZone(zone);
-  if (!canonical) return { ok: false as const, error: "That is not a timezone." };
+  if (!canonical) return { ok: false as const, error: "We didn't recognize that time zone." };
   await writeSetting(ownerId, SETTING_KEYS.timeZone, canonical);
   return { ok: true as const, zone: canonical };
 }
@@ -2043,11 +2043,11 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
   const ownerId = await requireUserId();
   input = fieldsOf(input);
   if (!isEmailKind(input?.kind) || input.kind === "system") {
-    return { ok: false as const, error: "That is not something we send." };
+    return { ok: false as const, error: "That isn't one of the emails we send." };
   }
   // A string "false" is truthy, so anything but a real boolean was read as on.
   if (typeof input.on !== "boolean") {
-    return { ok: false as const, error: "That is not a yes or a no." };
+    return { ok: false as const, error: "That needs a yes or a no." };
   }
 
   /*
@@ -2158,9 +2158,9 @@ export async function completeOnboarding(input: {
     into the part of the ladder the course opens on. The wizard sends neither
     shape; a caller that does is refused rather than trusted.
   */
-  if (!Number.isFinite(input.dailyGoal)) return { ok: false as const, error: "That is not a goal." };
+  if (!Number.isFinite(input.dailyGoal)) return { ok: false as const, error: "Pick a daily goal from the list." };
   if (!(LEVELS as readonly string[]).includes(text(input.cefr))) {
-    return { ok: false as const, error: "That is not a level." };
+    return { ok: false as const, error: "Pick a level from the list." };
   }
   const busy = throttleAction(ownerId, "completeOnboarding");
   if (busy) return busy;
@@ -2258,7 +2258,7 @@ export async function addCommonWords(group: string) {
   const busy = throttleAction(ownerId, "addCommonWords");
   if (busy) return busy;
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
-    return { ok: false as const, error: "That list does not exist." };
+    return { ok: false as const, error: "We couldn't find that word list." };
   }
 
   const { added, words } = await addPlanToDeck(
@@ -2302,7 +2302,7 @@ export async function addCommonWords(group: string) {
 export async function deepenCommonWords(group: string) {
   const ownerId = await requireUserId();
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
-    return { ok: false as const, error: "That list does not exist." };
+    return { ok: false as const, error: "We couldn't find that word list." };
   }
 
   const busy = throttleAction(ownerId, "deepenCommonWords");
@@ -2459,10 +2459,10 @@ export async function completeLesson(
   const busy = throttleAction(ownerId, "completeLesson");
   if (busy) return busy;
   const unit = unitById(unitId);
-  if (!unit) return { ok: false as const, error: "That unit does not exist." };
+  if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
 
   const parsed = z.array(LessonResultSchema).max(LESSON_RESULT_LIMIT).safeParse(results);
-  if (!parsed.success) return { ok: false as const, error: "That lesson could not be recorded." };
+  if (!parsed.success) return { ok: false as const, error: "We couldn't save that lesson. Try again in a moment." };
 
   // Only words this unit actually teaches. The unit id and the lemmas both come
   // from the caller, and this file is "use server", so every export is an
@@ -2490,7 +2490,7 @@ export async function completeLesson(
   }
 
   const applied = await gradeAnswers(ownerId, answers);
-  if (!applied.ok) return { ok: false as const, error: applied.error ?? "Could not record the lesson." };
+  if (!applied.ok) return { ok: false as const, error: applied.error ?? "We couldn't save that lesson." };
   revalidatePath("/learn");
   revalidatePath(`/learn/${unitId}`);
   revalidatePath("/words");
@@ -2520,7 +2520,7 @@ export async function completeLesson(
 export async function setCourseLevel(level: string) {
   const ownerId = await requireUserId();
   const parsed = z.enum(["A1", "A2", "B1", "B2", "C1"]).safeParse(text(level).toUpperCase());
-  if (!parsed.success) return { ok: false as const, error: "That is not a level." };
+  if (!parsed.success) return { ok: false as const, error: "Pick a level from the list." };
 
   const now = new Date();
   await recordCourseLevel(ownerId, parsed.data, now);
@@ -2592,7 +2592,7 @@ export async function recordCheckpoint(
     total: z.number().int().min(1).max(100),
   }).safeParse({ level: text(level).toUpperCase(), correct, total });
   if (!parsed.success || parsed.data.correct > parsed.data.total) {
-    return { ok: false as const, error: "That result could not be read." };
+    return { ok: false as const, error: "We couldn't read that result, so it wasn't saved." };
   }
 
   // Twenty typed productions on cards the learner owns is real retrieval
@@ -2670,7 +2670,7 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
     { name: trimmed, ownerId, kind: cohort, targetLevel: level, displayName },
     CODE_ATTEMPTS,
   );
-  if (!classroom) return { ok: false as const, error: "Could not allocate a join code. Try again." };
+  if (!classroom) return { ok: false as const, error: "We couldn't make a join code just then. Please try again." };
 
   revalidatePath("/class");
   // The rail carries a row per running class (lib/ux/classRows.ts).
@@ -2693,7 +2693,7 @@ export async function joinClassroom(code: string, displayName?: string) {
   const busy = throttleAction(ownerId, "joinClassroom");
   if (busy) return busy;
   if (!isValidCode(code)) {
-    return { ok: false as const, error: "That is not a valid join code." };
+    return { ok: false as const, error: "That code doesn't look quite right. Check it and try again." };
   }
 
   const classroom = await prisma.classroom.findUnique({
@@ -2701,7 +2701,7 @@ export async function joinClassroom(code: string, displayName?: string) {
     select: { id: true, name: true, archived: true },
   });
   if (!classroom || classroom.archived) {
-    return { ok: false as const, error: "No class with that code." };
+    return { ok: false as const, error: "There's no class with that code. Check it and try again." };
   }
 
   const name = cleanDisplayName(displayName) || await resolveDisplayName(ownerId);
@@ -2727,13 +2727,13 @@ export async function joinClassroom(code: string, displayName?: string) {
 export async function leaveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
   const classroomId = text(rawClassroomId).slice(0, 64);
-  if (!classroomId) return { ok: false as const, error: "That is not a class." };
+  if (!classroomId) return { ok: false as const, error: "We couldn't find that class." };
   const classroom = await prisma.classroom.findUnique({
     where: { id: classroomId },
     select: { ownerId: true },
   });
   if (classroom?.ownerId === ownerId) {
-    return { ok: false as const, error: "You teach this class. Archive it instead of leaving." };
+    return { ok: false as const, error: "It's your class, so you can't leave it. You can archive it instead." };
   }
   await prisma.classroomMember.deleteMany({ where: { classroomId, ownerId } });
   revalidatePath("/class");
@@ -2746,12 +2746,12 @@ export async function leaveClassroom(rawClassroomId: unknown) {
 export async function archiveClassroom(rawClassroomId: unknown) {
   const ownerId = await requireUserId();
   const classroomId = text(rawClassroomId).slice(0, 64);
-  if (!classroomId) return { ok: false as const, error: "That is not a class." };
+  if (!classroomId) return { ok: false as const, error: "We couldn't find that class." };
   const updated = await prisma.classroom.updateMany({
     where: { id: classroomId, ownerId },
     data: { archived: true },
   });
-  if (updated.count === 0) return { ok: false as const, error: "That is not your class." };
+  if (updated.count === 0) return { ok: false as const, error: "Only the person who runs this class can do that." };
   revalidatePath("/class");
   // The rail carries a row per running class (lib/ux/classRows.ts).
   revalidatePath("/", "layout");
@@ -2771,7 +2771,7 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
   const classroomId = text(rawClassroomId).slice(0, 64);
   const unitId = text(rawUnitId).slice(0, 64);
   const dueAt = text(rawDueAt).slice(0, 32) || undefined;
-  if (!classroomId) return { ok: false as const, error: "That is not your class." };
+  if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
 
   const busy = throttleAction(ownerId, "assignUnit");
   if (busy) return busy;
@@ -2779,14 +2779,14 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
     where: { id: classroomId, ownerId },
     select: { id: true, name: true, archived: true },
   });
-  if (!classroom) return { ok: false as const, error: "That is not your class." };
+  if (!classroom) return { ok: false as const, error: "Only the person who runs this class can do that." };
   // The screen hides this for an archived class; the action is a public
   // endpoint and has to refuse it too, or work lands in members' lists for a
   // class its teacher has closed.
-  if (classroom.archived) return { ok: false as const, error: "That class is archived." };
+  if (classroom.archived) return { ok: false as const, error: "That class has been archived, so it can't be changed." };
 
   const unit = unitById(unitId);
-  if (!unit) return { ok: false as const, error: "That unit does not exist." };
+  if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
 
   const members = await prisma.classroomMember.findMany({
     where: { classroomId: classroom.id },
@@ -2827,7 +2827,7 @@ export async function assignHomework(
   const title = text(rawTitle);
   const notes = text(rawNotes);
   const dueAt = text(rawDueAt).slice(0, 32) || undefined;
-  if (!classroomId) return { ok: false as const, error: "That is not your class." };
+  if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
 
   const busy = throttleAction(ownerId, "assignHomework");
   if (busy) return busy;
@@ -2835,11 +2835,11 @@ export async function assignHomework(
     where: { id: classroomId, ownerId },
     select: { id: true, name: true, archived: true },
   });
-  if (!classroom) return { ok: false as const, error: "That is not your class." };
+  if (!classroom) return { ok: false as const, error: "Only the person who runs this class can do that." };
   // The screen hides this for an archived class; the action is a public
   // endpoint and has to refuse it too, or work lands in members' lists for a
   // class its teacher has closed.
-  if (classroom.archived) return { ok: false as const, error: "That class is archived." };
+  if (classroom.archived) return { ok: false as const, error: "That class has been archived, so it can't be changed." };
 
   // On every member's Today, so cleaned like a name rather than trimmed.
   const cleanTitle = visibleLine(title, LIMITS.taskTitle);
@@ -3133,7 +3133,7 @@ export async function buildClozeFromText(passageIn: string) {
   if (lexemeIds.length === 0) {
     return {
       ok: false as const,
-      error: "Your deck is empty, so there is nothing to look for in that text yet.",
+      error: "Your deck's empty, so there aren't any of your words to find in that text yet.",
     };
   }
 
@@ -3171,8 +3171,8 @@ export async function buildClozeFromText(passageIn: string) {
     return {
       ok: false as const,
       error:
-        "No words from your deck turned up in that text. Try a longer passage, or add some of " +
-        "its vocabulary from the dictionary first.",
+        "None of your words turned up in that text. Try a longer passage, or add a few of " +
+        "its words from the dictionary first.",
     };
   }
 
@@ -3299,7 +3299,7 @@ export async function deleteMyAccount(confirmation: string) {
       ok: false as const,
       // Redacted: what the database says can name the deployment's own host and
       // user, and this sentence goes to a browser. See lib/observability/report.
-      error: `Nothing was deleted. The operation did not complete. ${safeMessage(error)}`.trim(),
+      error: `Something went wrong partway, so nothing was deleted. ${safeMessage(error)}`.trim(),
     };
   }
 
@@ -3415,11 +3415,11 @@ export async function inspectBackup(json: string): Promise<
   try {
     parsed = JSON.parse(json);
   } catch {
-    return { ok: false, error: "That file isn't valid JSON. Pick the .json file you downloaded from Settings." };
+    return { ok: false, error: "That file can't be read as a backup. Pick the .json file you downloaded from Settings." };
   }
   const result = BackupSchema.safeParse(parsed);
   if (!result.success) {
-    return { ok: false, error: "That doesn't look like a Kodukeel backup. It should be the file downloaded from Settings." };
+    return { ok: false, error: "That doesn't look like a Kodukeel backup. Use the file you downloaded from Settings." };
   }
   const b = result.data;
   return {
@@ -3798,7 +3798,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   } catch (error) {
     return {
       ok: false as const,
-      error: `The restore did not finish, and nothing was changed. ${safeMessage(error)}`.trim(),
+      error: `The restore didn't finish, so nothing was changed. ${safeMessage(error)}`.trim(),
     };
   }
 
@@ -3846,13 +3846,13 @@ export async function startCourseDay(programmeId: string, dayId: string) {
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) {
-    return { ok: false as const, error: "That day is not part of the course." };
+    return { ok: false as const, error: "That evening isn't part of the course." };
   }
   /* AND IT HAS TO BE THE DAY THEY ARE STANDING ON. The id is JSON off the wire
      whatever the type says, and this one builds a deck out of the day's words:
      without the check a forged call fills somebody's deck from C1.3. */
   if (!await dayIsInPlay(ownerId, programme, day)) {
-    return { ok: false as const, error: "That module is further along than you are." };
+    return { ok: false as const, error: "You haven't reached that evening of the course yet." };
   }
 
   const result = await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
@@ -3889,16 +3889,16 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   const step = day?.steps.find((s) => s.id === text(stepId));
   if (!programme || !day || !step) {
-    return { ok: false as const, error: "That is not a step of that day." };
+    return { ok: false as const, error: "That step isn't part of that evening." };
   }
   if (step.derived) {
-    return { ok: false as const, error: "That one is read off your own answers." };
+    return { ok: false as const, error: "That step ticks itself off as you go." };
   }
   /* A tick is the pointer: `dayReached` is the furthest day carrying one, so a
      forged tick on a day nobody has reached would move the course onto it and
      skip every evening in between. */
   if (!await dayIsInPlay(ownerId, programme, day)) {
-    return { ok: false as const, error: "That module is further along than you are." };
+    return { ok: false as const, error: "You haven't reached that evening of the course yet." };
   }
 
   await prisma.courseStep.upsert({
@@ -3951,7 +3951,7 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   const step = day?.steps.find((s) => s.id === text(stepId));
   if (!programme || !day || !step) {
-    return { ok: false as const, error: "That is not a step of that day." };
+    return { ok: false as const, error: "That step isn't part of that evening." };
   }
   /* The pointer rule, unchanged: a tick is what `dayReached` reads, so a step
      of a day nobody has reached may not write one. A learner standing on a day
@@ -4022,7 +4022,7 @@ export async function setProgramme(value: string) {
   const ownerId = await requireUserId();
   const wanted = text(value);
   if (wanted !== "off" && wanted !== "" && !programmeById(wanted)) {
-    return { ok: false as const, error: "There is no course by that name." };
+    return { ok: false as const, error: "We couldn't find that course." };
   }
   await writeSetting(ownerId, SETTING_KEYS.programme, wanted || DEFAULT_PROGRAMME.id);
   revalidatePath("/course");
@@ -4053,17 +4053,17 @@ export async function setProgramme(value: string) {
 export async function acceptCourseMove(kind: string) {
   const ownerId = await requireUserId();
   const wanted = text(kind);
-  if (!["down", "back", "ahead"].includes(wanted)) return { ok: false as const, error: "That is not a move." };
+  if (!["down", "back", "ahead"].includes(wanted)) return { ok: false as const, error: "That isn't one of the options." };
 
   const programme = await programmeFor(ownerId);
-  if (!programme) return { ok: false as const, error: "You are not following the course at the moment." };
+  if (!programme) return { ok: false as const, error: "You're not following the course right now." };
   const [{ offer }, standing] = await Promise.all([
     adaptOfferFor(ownerId, programme),
     courseStandingFor(ownerId),
   ]);
   const move = offer?.move;
   if (!move || move.kind !== wanted) {
-    return { ok: false as const, error: "That move is not on offer any more. Your recent answers have changed since this screen was drawn." };
+    return { ok: false as const, error: "That option isn't on offer any more, because your recent answers have changed. Reload to see what's there now." };
   }
 
   /*
@@ -4131,7 +4131,7 @@ export async function recordEncounter(errandId: string | null, outcome: string) 
   const named = errandId === null || errandId === undefined ? null : errandById(text(errandId));
   const result = outcomeFrom(outcome);
   if (named === undefined || !result) {
-    return { ok: false as const, error: "That is not one of the answers." };
+    return { ok: false as const, error: "That isn't one of the answers." };
   }
   await prisma.encounter.create({ data: { ownerId, errandId: named?.id ?? null, outcome: result } });
   revalidatePath("/");
@@ -4171,7 +4171,7 @@ export async function saveScan(input: {
   input = fieldsOf(input);
   const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
   if (sent.length === 0) {
-    return { ok: false as const, error: "Nothing on that page was ticked." };
+    return { ok: false as const, error: "Tick at least one word on that page first." };
   }
   // What the dictionary says about each spelling, asked again here rather
   // than taken from the request: see `vouchScanItems`.
@@ -4302,7 +4302,7 @@ export async function addScanToDeck(scanId: string) {
     where: { id: scanId, ownerId },
     select: { items: true },
   });
-  if (!scan) return { ok: false as const, error: "That page is not here any more." };
+  if (!scan) return { ok: false as const, error: "That page isn't here any more." };
 
   const items = parseItems(scan.items, SCAN_MAX_ITEMS);
 
@@ -4356,7 +4356,7 @@ export async function renameScan(scanId: string, title: string) {
     where: { id: scanId, ownerId },
     data: { title: trimmed },
   });
-  if (changed.count === 0) return { ok: false as const, error: "That page is not here any more." };
+  if (changed.count === 0) return { ok: false as const, error: "That page isn't here any more." };
 
   revalidatePath("/scan");
   revalidatePath(`/scan/${scanId}`);
@@ -4374,7 +4374,7 @@ export async function deleteScan(scanId: string) {
   scanId = text(scanId);
   const ownerId = await requireUserId();
   const deleted = await prisma.scan.deleteMany({ where: { id: scanId, ownerId } });
-  if (deleted.count === 0) return { ok: false as const, error: "That page is not here any more." };
+  if (deleted.count === 0) return { ok: false as const, error: "That page isn't here any more." };
 
   revalidatePath("/scan");
   return { ok: true as const };
@@ -4468,13 +4468,13 @@ const ASSESSMENT = z.object({
 export async function recordAssessment(input: unknown) {
   const ownerId = await requireUserId();
   const parsed = ASSESSMENT.safeParse(input);
-  if (!parsed.success) return { ok: false as const, error: "That result could not be read." };
+  if (!parsed.success) return { ok: false as const, error: "We couldn't read that result, so it wasn't saved." };
   const busy = throttleAction(ownerId, "recordAssessment");
   if (busy) return busy;
 
   const { seed, builtAt, answers } = parsed.data;
   const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
-  if (!result) return { ok: false as const, error: "That result does not match the paper it was sat on." };
+  if (!result) return { ok: false as const, error: "That result doesn't match the paper you sat, so it wasn't saved." };
   const stored = await saveResult(ownerId, result);
 
   revalidatePath("/assess");
@@ -4503,7 +4503,7 @@ const GOALS = z.object({
 export async function saveLearningGoals(input: unknown) {
   const ownerId = await requireUserId();
   const parsed = GOALS.safeParse(input);
-  if (!parsed.success) return { ok: false as const, error: "Those goals could not be read." };
+  if (!parsed.success) return { ok: false as const, error: "We couldn't read those goals, so nothing was saved." };
 
   await saveGoals(ownerId, normaliseGoals({
     reason: parsed.data.reason ?? null,
@@ -4585,12 +4585,12 @@ export async function submitExam(input: unknown) {
   */
   const raw = (input as { responses?: unknown } | null)?.responses;
   if (raw && typeof raw === "object" && Object.keys(raw).length > MAX_EXAM_RESPONSES) {
-    return { ok: false as const, error: "Something about that submission didn't make sense." };
+    return { ok: false as const, error: "Something about that paper didn't come through properly, so it wasn't marked." };
   }
   const parsed = ExamSubmissionSchema.safeParse(input);
-  if (!parsed.success) return { ok: false as const, error: "Something about that submission didn't make sense." };
+  if (!parsed.success) return { ok: false as const, error: "Something about that paper didn't come through properly, so it wasn't marked." };
   const { level, seed, startedAt, responses } = parsed.data;
-  if (!isExamLevel(level)) return { ok: false as const, error: "No paper at that level." };
+  if (!isExamLevel(level)) return { ok: false as const, error: "There's no paper at that level." };
 
   // A paper handed in once is answered with its own result, whatever arrives
   // the second time (`sittingOf`).
@@ -4683,7 +4683,7 @@ export async function submitSuggestion(input: unknown) {
 
   const parsed = SuggestionInput.safeParse(input);
   if (!parsed.success) {
-    return { ok: false as const, error: "Something about that didn't make sense. Nothing was sent." };
+    return { ok: false as const, error: "Something went wrong with that report, so nothing was sent." };
   }
   const raw = parsed.data;
   if (!isCategory(raw.category)) {
@@ -4693,7 +4693,7 @@ export async function submitSuggestion(input: unknown) {
 
   const patch = parsePatchValue(raw.patch);
   if (!patchFitsCategory(category, patch)) {
-    return { ok: false as const, error: "That correction does not match the kind of problem chosen." };
+    return { ok: false as const, error: "That correction doesn't fit the kind of problem you picked." };
   }
 
   // Read by a reviewer, which is somebody other than the person who typed it.
@@ -4752,12 +4752,12 @@ export async function reviewSuggestion(input: unknown) {
 
   const parsed = ReviewInput.safeParse(input);
   if (!parsed.success) {
-    return { ok: false as const, error: "Something about that didn't make sense. Nothing has changed." };
+    return { ok: false as const, error: "Something went wrong there, so nothing has changed." };
   }
   const { id, decision, scope = "group" } = parsed.data;
 
   const row = await prisma.suggestion.findUnique({ where: { id } });
-  if (!row) return { ok: false as const, error: "That suggestion is no longer here." };
+  if (!row) return { ok: false as const, error: "That suggestion isn't here any more." };
 
   let applied: string | null = null;
   if (decision === "ACCEPT" && parsed.data.apply) {

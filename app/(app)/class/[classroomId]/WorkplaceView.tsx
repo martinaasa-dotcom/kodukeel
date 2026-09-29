@@ -56,12 +56,12 @@ export function WorkplaceView({ summary, sponsor }: {
       */}
       {sponsor && (
       <section>
-        <SectionTitle hint={EVIDENCE_LABEL[summary.evidence]}>Who is where</SectionTitle>
+        <SectionTitle hint={EVIDENCE_LABEL[summary.evidence]}>Where everyone is</SectionTitle>
 
         {summary.members.length <= 1 ? (
           <Empty
             title="Nobody has joined yet"
-            body="Share the join code. This fills as people join and start reviewing."
+            body="Share the join code. People appear here as they join and start reviewing."
           />
         ) : (
           <ul className="flex flex-col gap-1.5">
@@ -119,8 +119,8 @@ export function WorkplaceView({ summary, sponsor }: {
             {EVIDENCE_NOTE[summary.evidence]}{" "}
             {counts.unknown > 0 && (
               counts.unknown === 1
-                ? "One person has too little history to place yet."
-                : `${counts.unknown} people have too little history to place yet.`
+                ? "One person hasn't practiced enough yet for us to tell where they stand."
+                : `${counts.unknown} people haven't practiced enough yet for us to tell where they stand.`
             )}
           </p>
         )}
@@ -129,9 +129,9 @@ export function WorkplaceView({ summary, sponsor }: {
 
       {sponsor && (
         <Note tone="neutral">
-          You see who is practicing and roughly where they stand. You do not see anybody&rsquo;s deck,
-          their searches, their answers, or which grammar they personally find hard. Those are never
-          read for this page at all, rather than read and hidden.
+          You see who&rsquo;s practicing and roughly where they stand. You don&rsquo;t see anybody&rsquo;s
+          deck, their searches, their answers, or which grammar they find hard. This page never even
+          fetches those, so there&rsquo;s nothing hidden here to find.
         </Note>
       )}
 
@@ -141,12 +141,12 @@ export function WorkplaceView({ summary, sponsor }: {
             <Building2 size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
             <div>
               <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                Whoever runs this group sees your name, whether you have been practicing, and one of
-                four bands for {summary.level}. They do not see your deck, your searches, your
+                Whoever runs this group sees your name, whether you&rsquo;ve been practicing, and one of
+                four bands for {summary.level}. They don&rsquo;t see your deck, your searches, your
                 answers, or which grammar you find hard.
               </p>
               <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-                Leaving stops all of it immediately, and takes nothing away from your own deck.
+                If you leave, all of that stops straight away, and your own deck stays exactly as it is.
               </p>
             </div>
           </div>

@@ -134,14 +134,13 @@ export function TooComplicated({
               Put <span lang="et">{label}</span> aside?
             </p>
             <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-              It leaves your review queue for now, so it stops turning up on cards.
-              It comes back on its own in {awayIn(DEFER_DAYS)}, or once you reach the level it
-              belongs to, whichever fits. You can bring it back sooner any time from
-              My words.
+              We&apos;ll take it out of your reviews for now, so it stops popping up on cards.
+              It comes back by itself in {awayIn(DEFER_DAYS)}, or once you reach the level it
+              belongs to. You can bring it back sooner any time from My words.
             </p>
             {failed && (
               <p className="mt-3 text-sm" role="status" style={{ color: "var(--hard-ink)" }}>
-                Not saved. Try again.
+                That didn&apos;t save. Try again.
               </p>
             )}
             <div className="mt-5 flex justify-end gap-2">

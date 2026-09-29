@@ -256,7 +256,7 @@ export function SuggestFix({
       {choices && (
         <div className="mt-4">
           <label htmlFor={idFor("kind")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-            What kind of problem
+            What&apos;s wrong?
           </label>
           <select
             id={idFor("kind")} name="suggest-kind"
@@ -295,7 +295,7 @@ export function SuggestFix({
             </div>
             <div>
               <label htmlFor={idFor("pos")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                Kind of word
+                Type of word
               </label>
               <select
                 id={idFor("pos")} name="suggest-pos"
@@ -384,7 +384,7 @@ export function SuggestFix({
 
       <div className="mt-4">
         <label htmlFor={idFor("note")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-          Anything else worth knowing, optional
+          Anything else we should know? (optional)
         </label>
         <textarea
           id={idFor("note")} name="suggest-note"
@@ -403,7 +403,7 @@ export function SuggestFix({
           sentence the DPIA's R13 mitigation promises the learner is told.
         */}
         <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-          A person on the team reads this, so leave out anything private about you or anybody else.
+          A real person on the team reads this, so please leave out anything private about you or anyone else.
         </p>
       </div>
 

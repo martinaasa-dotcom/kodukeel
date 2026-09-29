@@ -265,10 +265,10 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
   if (unmet > 0) {
     struggles.push({
       id: "unmet",
-      title: unmet === total ? "None of these words has come up yet" : `${unmet} of the ${total} words have not come up yet`,
+      title: unmet === total ? "None of these words has come up yet" : `${unmet} of the ${total} words haven't come up yet`,
       detail: unmet === total
-        ? "There is nothing recorded for this situation yet. That is about the course, not about you."
-        : "A word you have never met is the one the other person will use.",
+        ? "The course hasn't brought you these words yet, so there's nothing to go on. That's the course's pace, not yours."
+        : "The word you've never met is the one the other person will use.",
       blocks: at.met === 0 ? "follow" : share(at.follow) >= FOLLOW_SHARE ? "takePart" : "follow",
       href: `/learn/${situation.id}`,
       cta: "Open the unit",
@@ -283,11 +283,11 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
     // The gap this whole screen exists to name: recognized, not produced.
     struggles.push({
       id: "freeze",
-      title: "You would follow this, and freeze when it is your turn",
-      detail: `${at.follow} of the ${total} words you know when you see them. ${at.takePart} you have produced reliably, and answering is producing.`,
+      title: "You'd follow this, then freeze when it's your turn",
+      detail: `You recognize ${at.follow} of the ${total} words, but you can say only ${at.takePart} reliably. Answering means saying them yourself.`,
       blocks: "takePart",
       href: "/review/flashcards",
-      cta: "Produce them, typed",
+      cta: "Practice saying them",
     });
   }
 
@@ -296,11 +296,11 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
   if (takesPart && !leads) {
     struggles.push({
       id: "variety",
-      title: "You can answer with these; leading takes more of them, in more forms",
-      detail: `${at.lead} of the ${total} words are solid in more than one form. Leading an exchange means reaching for a word in whichever form the sentence wants.`,
+      title: "You can answer with these. Leading takes more words, in more forms",
+      detail: `${at.lead} of the ${total} words are solid in more than one form. Leading a conversation means grabbing a word in whatever form the sentence needs.`,
       blocks: "lead",
       href: "/review/flashcards",
-      cta: "Ask them in five ways",
+      cta: "Practice them five different ways",
     });
   }
 
@@ -311,23 +311,23 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         id: "pace",
         title: pace.label === "slow"
           ? `These words take you about ${seconds(pace.medianMs!)} seconds each`
-          : `These words take you about ${seconds(pace.medianMs!)} seconds each, which is a pause somebody notices`,
+          : `These words take you about ${seconds(pace.medianMs!)} seconds each, and that's a pause people notice`,
         detail: pace.label === "slow"
-          ? "In a real exchange you get about two before the other person fills the silence, usually in English. Speed is a separate skill from knowing, and it is drilled separately."
-          : "Fast enough to answer a patient person. Leading means reaching for the next word while they are still finishing the last one.",
+          ? "In real life you get about two before the other person fills the silence, usually in English. Speed is its own skill, and you can practice it on its own."
+          : "Fast enough for a patient person. Leading means reaching for your next word while they're still finishing theirs.",
         blocks: "lead",
         href: "/review/sprint",
-        cta: "A round against the clock",
+        cta: "Play a round against the clock",
       });
     } else if (pace.label === null) {
       leads = false;
       struggles.push({
         id: "untimed",
-        title: "Nothing here says how fast these words come to you",
-        detail: "Pace comes from typed answers, and there are not enough of those yet. Knowing a word and reaching it in two seconds are different things.",
+        title: "We don't know yet how fast these words come to you",
+        detail: "Speed is measured on typed answers, and there aren't enough of those yet. Knowing a word and finding it in two seconds are different things.",
         blocks: "lead",
         href: "/review/flashcards",
-        cta: "Answer some, typed",
+        cta: "Type some answers",
       });
     }
   }
@@ -341,8 +341,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         leads = false;
         struggles.push({
           id: `case-${key}`,
-          title: `The ${spec.et} has hardly been asked of you`,
-          detail: `This turns on the ${spec.et}, the one that asks ${spec.asksEn}, ${spec.gloss}. ${standing?.reviews ?? 0} answers is not enough to know whether it is there.`,
+          title: `You've hardly been asked the ${spec.et} yet`,
+          detail: `This situation leans on the ${spec.et}, as in “${spec.gloss}”. ${standing?.reviews ?? 0} answers isn't enough to tell whether you have it yet.`,
           blocks: "lead",
           href: `/grammar/${key.toLowerCase()}`,
           cta: "Read the rule",
@@ -352,7 +352,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push({
           id: `case-${key}`,
           title: `The ${spec.et} is at ${standing.pct} percent`,
-          detail: `This turns on the ${spec.et}, the one that asks ${spec.asksEn}, ${spec.gloss}, and it is still going wrong across ${standing.reviews} answers.`,
+          detail: `This situation leans on the ${spec.et}, as in “${spec.gloss}”. Across ${standing.reviews} answers it's still slipping too often.`,
           blocks: "lead",
           href: `/grammar/${key.toLowerCase()}`,
           cta: "Read the rule",
@@ -366,12 +366,12 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
       const { what, unit } = MACHINERY_LABEL[kind];
       struggles.push({
         id: `needs-${kind}`,
-        title: `This runs on ${what}, and those are not there yet`,
+        title: `You'll need ${what}, and they aren't there yet`,
         detail: kind === "numbers"
-          ? "A price, a time or a platform is said once and fast. The words of the situation do not help if the number in the middle of it is lost."
+          ? "A price, a time or a platform number is said once, and fast. Knowing every other word won't help if you miss the number in the middle."
           : kind === "questions"
-            ? "Leading means asking. The question words are what let you steer rather than answer."
-            : "It is the machinery every exchange runs on, whatever the exchange is about.",
+            ? "Leading means asking. Question words let you steer the conversation instead of just answering."
+            : "Every conversation leans on these, whatever it's about.",
         blocks: "lead",
         href: `/learn/${unit}`,
         cta: "Open the unit",
@@ -386,8 +386,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         leads = false;
         struggles.push({
           id: "ear",
-          title: "Nothing here has tested your ear",
-          detail: "Every answer above was typed or read. Spoken Estonian comes at you faster than a card, and only once. The level check is the one thing here that measures whether you can follow it.",
+          title: "Your ear hasn't been tested yet",
+          detail: "Everything above was typed or read. Spoken Estonian comes at you faster than a card, and only once. The level check is the one place that measures whether you can follow it.",
           blocks: "lead",
           href: "/assess",
           cta: "Take the level check",
@@ -397,7 +397,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push({
           id: "ear",
           title: `The level check put your listening at ${placed}, and this is ${situation.level}`,
-          detail: "You may well have the words. What that check measured is whether you can follow them when somebody else says them, at their pace. That is the half of a conversation you do not control.",
+          detail: "You may well know the words. That check measured whether you can follow them when somebody else says them, at their speed. That's the half of a conversation you don't control.",
           blocks: "lead",
           href: "/review/dictation",
           cta: "Take a dictation",
@@ -411,22 +411,22 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
   if (shaky.length >= 3) {
     struggles.push({
       id: "shaky",
-      title: `${shaky.length} words went wrong the last time you produced them`,
-      detail: "A word you got wrong this week is the one that will not be there on the day.",
+      title: `${shaky.length} words went wrong the last time you tried them`,
+      detail: "A word you got wrong this week is the one that won't come when you need it.",
       blocks: follows ? "takePart" : "follow",
       href: "/review",
-      cta: "Review what is due",
+      cta: "Review what's due",
     });
   }
   const stale = evidences.filter((e) => e && e.daysSince !== null && e.daysSince > STALE_DAYS).length;
   if (at.met > 0 && stale / at.met >= 0.5) {
     struggles.push({
       id: "stale",
-      title: `It has been over a month since you saw most of these`,
-      detail: `${stale} of the ${at.met} words you have met were last answered more than ${STALE_DAYS} days ago. What this reading says is what was true then.`,
+      title: `It's been over a month since you saw most of these`,
+      detail: `You last answered ${stale} of the ${at.met} words you've met more than ${STALE_DAYS} days ago, so this picture is from back then.`,
       blocks: follows ? "takePart" : "follow",
       href: "/review",
-      cta: "Review what is due",
+      cta: "Review what's due",
     });
   }
 
@@ -439,8 +439,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
   if (rung !== uncapped) {
     struggles.unshift({
       id: "evidence",
-      title: `Only ${answers} answers behind this, so it is held at "${RUNG_LABEL[rung].toLowerCase()}"`,
-      detail: "There is not enough here to say more. A claim built on a dozen answers is a guess dressed up as a verdict. Another week of review and this can tell you what it sees.",
+      title: `Only ${answers} answers so far, so this stays at "${RUNG_LABEL[rung].toLowerCase()}" for now`,
+      detail: "A dozen answers is too few to say more without guessing. Give it another week of reviews and this can tell you properly.",
       blocks: RUNG_ORDER[rungRank(rung) + 1] ?? "lead",
       href: `/learn/${situation.id}`,
       cta: "Open the unit",

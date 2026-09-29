@@ -65,7 +65,7 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
       </ul>
       {summary.commonest && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-          The thing in the way most often, on {summary.commonest.times} of them: {summary.commonest.title.toLowerCase()}.
+          What trips you up most, in {summary.commonest.times} of these situations: {summary.commonest.title.toLowerCase()}.
           {summary.commonest.href && summary.commonest.cta && (
             <>
               {" "}
@@ -89,11 +89,11 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
 export function ReadinessPanel({ summary }: { summary: Summary }) {
   return (
     <section>
-      <SectionTitle hint={`at ${summary.level}, counted in situations`}>In real life</SectionTitle>
+      <SectionTitle hint={`everyday situations at ${summary.level}`}>In real life</SectionTitle>
       <Card>
         <ReadinessSummary summary={summary} />
         <div className="mt-4">
-          <CardLink href="/progress/readiness">Every situation, and where each would go wrong</CardLink>
+          <CardLink href="/progress/readiness">See every situation, and what would trip you up in each</CardLink>
         </div>
       </Card>
     </section>

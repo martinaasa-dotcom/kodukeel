@@ -138,10 +138,10 @@ interface Sent {
  * between four buttons wants to know.
  */
 const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
-  { id: "textbook", label: "Easy", blurb: "It all goes the way the lesson said it would." },
-  { id: "good", label: "Fairly easy", blurb: "One thing catches you out." },
-  { id: "ordinary", label: "Normal", blurb: "Two or three, the way a real counter goes." },
-  { id: "bad", label: "Hard", blurb: "As bad as a Tuesday at a busy desk." },
+  { id: "textbook", label: "Easy", blurb: "Everything goes just like it did in the lesson." },
+  { id: "good", label: "Fairly easy", blurb: "One thing will catch you out." },
+  { id: "ordinary", label: "Normal", blurb: "Two or three things go wrong, like a real day at the counter." },
+  { id: "bad", label: "Hard", blurb: "As rough as a Monday morning at a busy desk." },
 ];
 
 /*
@@ -626,8 +626,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       if (!response.ok) {
         setError(
           response.status === 429
-            ? "That was a lot of turns at once. Give it a moment."
-            : "Something went wrong at our end. Your turn is still here.",
+            ? "That was a lot of turns in a row. Give it a moment."
+            : "Something went wrong on our side. Don't worry, your turn is still here.",
         );
         return;
       }
@@ -814,7 +814,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         it was: the turn they typed is still theirs and pressing again resends
         it.
       */
-      setError("That did not reach us. Try again.");
+      setError("That didn't reach us. Try again.");
     } finally {
       setBusy(false);
     }
@@ -1093,12 +1093,12 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             three sentences describing the layout.
           */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            They speak first. Say what you would say in real life, in Estonian: your card
-            suggests the details, and if you say something else they will go with it.
+            They speak first. Answer the way you would in real life, in Estonian. Your card
+            suggests the details, but if you say something else, they&apos;ll go with it.
           </p>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Wrong endings, a missing word, a word in English: they will still understand you,
-            and you will see what they would have said at the end.
+            Wrong endings, a missing word, a word in English: they&apos;ll still understand you,
+            and at the end you&apos;ll see how they would have said it.
           </p>
           {/*
             What is coming, in the scene's own terms. It is the count the bar
@@ -1156,10 +1156,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         <ChoiceGroup
           label="How they talk to you"
           hint={openAt === learnerLevel
-            ? `Your level is ${learnerLevel}. Go lower for plainer sentences, higher to be spoken to like anybody else.`
+            ? `Your level is ${learnerLevel}. Go lower for simpler sentences, or higher and they'll talk to you like anyone else.`
             : openAt < learnerLevel
-              ? `Your level is ${learnerLevel}, and this opens at ${openAt} for now while your recent answers are hard. Move it whenever you like.`
-              : `Your level is ${learnerLevel}, and this opens at ${openAt} for now while you are getting nearly everything right. Move it whenever you like.`}
+              ? `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since your recent answers have been a struggle. Change it whenever you like.`
+              : `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since you've been getting nearly everything right. Change it whenever you like.`}
         >
           {LEVELS.map((one) => (
             <ChoiceChip key={one} selected={level === one} onSelect={() => setLevel(one)} even>
@@ -1169,7 +1169,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         </ChoiceGroup>
 
         <ChoiceGroup
-          label="How hard do you want it"
+          label="How tricky should it be?"
           className="grid gap-2 sm:grid-cols-2"
         >
           {DIFFICULTIES.map((one) => (
@@ -1186,7 +1186,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
 
         {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{error}</p>}
         <Button onClick={start} disabled={busy} variant="primary" size="lg">
-          {busy ? "Getting ready" : "Start the conversation"}
+          {busy ? "Getting ready…" : "Start the conversation"}
         </Button>
       </div>
       </SceneStage>
@@ -1423,7 +1423,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 {/* The word came back because it was missing last time. Said, so the card reads as remembering rather than repeating. */}
                 {prop.returned && (
                   <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
-                    You reached for this one in a conversation recently and did not have it.
+                    You reached for this one in a recent conversation and didn&apos;t have it.
                   </p>
                 )}
               </li>
@@ -1499,7 +1499,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       {opened && (!opened.composed || note) && !modelDown && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {note
-            ?? "No model key is set, so the other side's lines come from the course and from lines written for this scene. Where nothing fits what you said, you will see a short note about what they did instead of a spoken line."}
+            ?? "There's no AI key set up, so their lines come from the course and from lines written for this scene. When nothing fits, you'll see a short note saying what they did instead."}
         </p>
       )}
 
@@ -1591,10 +1591,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               */}
               {turn.slips && turn.slips.length > 0 && (
                 <p className="mt-1 pr-1 text-right text-xs" style={{ color: "var(--ink-3)" }}>
-                  Understood.
+                  They understood you.
                   {turn.slips.some((slip) => slip.form) && (
                     <>
-                      {" "}Here it is{" "}
+                      {" "}They&apos;d say{" "}
                       {turn.slips.filter((slip) => slip.form).map((slip, at, all) => (
                         <span key={slip.said}>
                           <span lang="et" className="font-medium" style={{ color: "var(--ink-2)" }}>{slip.form}</span>
@@ -1959,7 +1959,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 className="tap-tint mt-1 block rounded-full px-3 py-1 text-lg font-medium"
                 style={{ color: "var(--ink-2)" }}
               >
-                Show what you are trying to do
+                Show me what I&apos;m trying to do
               </button>
             ) : (
               <p className="mt-1 text-lg font-medium leading-snug">
@@ -2001,7 +2001,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             inputRef={box}
             disabled={moving}
             ariaLabel="What you say"
-            placeholder={moving ? "One moment" : "Say it in Estonian"}
+            placeholder={moving ? "Just a moment…" : "Say it in Estonian"}
           />
           {/*
             Alone in its row, so the one action a learner takes every turn is the
@@ -2064,7 +2064,7 @@ const PROVENANCE: Record<Provenance, string> = {
     Honest about both halves: a model wrote it, and every word was checked
     against the dictionary before it was kept (lib/scenes/scripted.ts).
   */
-  scripted: "Written for this scene, checked word by word",
+  scripted: "Written for this scene, every word checked",
   composed: "Written for this turn",
   fallback: "They did not catch that",
   again: "Said again",
@@ -2099,14 +2099,14 @@ const PROVENANCE: Record<Provenance, string> = {
     used to be printed over a turn that had been understood perfectly, which
     is the app blaming a learner for its own empty pool.
   */
-  unspoken: "In English, because we had no Estonian line for it",
+  unspoken: "In English, because we didn't have an Estonian line for it",
   /*
     Time passing. Not a stage direction and not something anybody said: it is
     the scene moving the learner from one place to the next, which the screen
     used not to do at all, so a conversation that walked somebody to a shop
     left them answering from their own kitchen.
   */
-  meanwhile: "What has happened since",
+  meanwhile: "What's happened since",
   /*
     The app, out of character. Everything else on this screen is one side of a
     conversation and a conversation cannot explain itself; this can, and the

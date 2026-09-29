@@ -7,7 +7,7 @@ const STEPS = [
   { text: "Go to ", link: { href: "https://aistudio.google.com/apikey", label: "aistudio.google.com" }, after: " and sign in. It's free and takes no card." },
   { text: "Click ", strong: "Create API key", after: ". Copy the key it shows you." },
   { text: "In this project's folder, open the file called ", code: ".env", after: " and paste the key between the quotes, like the example below." },
-  { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again. Anu will be waiting." },
+  { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again. Anu will be there, ready to help." },
 ];
 
 /*
@@ -26,9 +26,9 @@ export function SetupGuide() {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Anu needs a free key to answer questions. Everything else (the dictionary, your cards,
-        audio) works without one. One Gemini key turns on Anu, conversations and scanning a page
-        together, and costs nothing. Here is the whole thing, step by step:
+        Anu needs a free key before she can answer questions. The dictionary, your cards and the
+        audio all work without one. A single Gemini key switches on Anu, the conversations and page
+        scanning, and it costs nothing. Here&rsquo;s how, step by step:
       </p>
 
       <ol className="mt-4 flex flex-col gap-3">
@@ -110,7 +110,7 @@ export function SetupGuide() {
         <a href="https://console.groq.com" target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
           console.groq.com
         </a>
-        , on a line of its own in the same file. Anu then answers whenever Gemini is busy.
+        , on a line of its own in the same file. Then Anu can still answer when Gemini is busy.
       </p>
     </div>
   );

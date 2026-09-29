@@ -38,13 +38,13 @@ export default async function SuggestionsQueuePage({
 }) {
   if (!(await isAdmin())) {
     return (
-      <Page title="Suggested fixes" lead="The review queue for whoever runs this installation.">
+      <Page title="Suggested fixes" lead="Reports from learners, waiting for whoever runs this copy of Kodukeel.">
         <Empty
           title="Not this account"
           body={
             adminsConfigured()
               ? "Suggestions are reviewed by whoever runs this copy."
-              : "Nobody has been named a reviewer here. Reports are still collected, and nothing is lost."
+              : "Nobody has been made a reviewer here yet. Reports are still being kept, so nothing is lost."
           }
           action={<Link href="/suggestions" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>Your own suggestions</Link>}
         />
@@ -86,14 +86,14 @@ export default async function SuggestionsQueuePage({
       title="Suggested fixes"
       eyebrow="Review queue"
       lead={
-        `${openTotal} open report${openTotal === 1 ? "" : "s"}, grouped so that one problem is one decision. ` +
-        `Accepting a dictionary correction writes it straight into the entry everybody reads.`
+        `${openTotal} open report${openTotal === 1 ? "" : "s"}, grouped so each problem needs one decision. ` +
+        `Accepting a dictionary correction changes the entry for everybody straight away.`
       }
     >
       {!supabaseConfigured() && (
         <p className="mb-6 rounded-[var(--r)] px-4 py-3 text-sm" style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}>
-          This copy has no sign-in set up, so it is just one learner on one machine, reviewing
-          their own queue.
+          This copy has no sign-in set up, so it&rsquo;s one learner on one computer, reviewing
+          their own reports.
         </p>
       )}
 

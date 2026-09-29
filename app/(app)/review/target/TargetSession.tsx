@@ -116,7 +116,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
       <RoundStart
         icon={<Crosshair size={34} aria-hidden />}
         title="Target"
-        lead="Hit the right form before the clock does."
+        lead="Tap the right ending before the clock runs out."
         hue="accent"
         chips={<RoundChip icon={<Timer size={14} aria-hidden />}>{questions.length} shots</RoundChip>}
         actions={<>
@@ -134,7 +134,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
               screen. Inside a module the sentence stays and the link goes. */}
           Need longer?{" "}
           {inModule ? (
-              <span>Settings lets you give yourself more time</span>
+              <span>You can give yourself more time in Settings</span>
             ) : (
               <Link href="/settings#round-pace" className="underline underline-offset-2">
                 Give yourself more time
@@ -144,8 +144,8 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         </>}
       >
         <p>
-          <BriefingLines id="target" /> This is about endings rather than meanings:
-          only the question word tells you which of the four to hit.
+          <BriefingLines id="target" /> When all four are the same word, the little question word
+          is your only clue.
         </p>
       </RoundStart>
     );
@@ -155,7 +155,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
     const asked = Math.min(index, questions.length);
     const accuracy = asked > 0 ? Math.round((hits / asked) * 100) : 0;
     return (
-      <Page title="Target" lead="Round over.">
+      <Page title="Target" lead="That's the round done.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <span className="flex h-20 w-20 items-center justify-center rounded-full quest-pop"
             style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}>
@@ -167,11 +167,11 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
             <StatTile value={best} label="Best run" tone="blush" />
           </div>
           <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Every one of those went into the schedule, so what you missed comes back sooner.
+            Every answer counted. The ones you missed will come back a bit sooner.
           </p>
           <WayOut className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/practice" size="lg">Back to practice</ButtonLink>
-            <ButtonLink href="/review/target" variant="primary" size="lg">Again</ButtonLink>
+            <ButtonLink href="/review/target" variant="primary" size="lg">Play again</ButtonLink>
           </WayOut>
         </div>
       </Page>

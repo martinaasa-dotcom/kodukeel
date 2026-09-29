@@ -288,7 +288,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                     {hurdle.met ? "✓" : "○"}
                   </span>
                   <span style={{ color: hurdle.met ? "var(--ink)" : "var(--ink-3)" }}>
-                    {spec.says} {hurdle.met ? "You handled it." : "They let it go."}
+                    {spec.says} {hurdle.met ? "You handled it." : "They let it slide."}
                   </span>
                 </li>
               );
@@ -338,7 +338,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                     <span className="text-xs" style={{ color: "var(--ink-3)" }}>{note.times} times</span>
                   )}
                   <span className="ml-auto shrink-0 text-xs" style={{ color: "var(--accent-deep)" }}>
-                    {showing === note.at ? "Shown below" : "Where I said it"}
+                    {showing === note.at ? "Shown below" : "Show me where"}
                   </span>
                 </button>
                 {/*
@@ -365,7 +365,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                       {`, ${note.what}.`}
                     </>
                   ) : (
-                    `Understood as it stood. It wanted ${note.what}.`
+                    `They understood you anyway. It needed ${note.what}.`
                   )}
                 </p>
                 {note.term && (
@@ -594,13 +594,13 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
               but the single-place ones.
             */}
             <p className="mt-1.5 text-sm" style={{ color: "var(--sky-ink)" }}>
-              {errandPlaces(errand)}. Nobody there has read the card, and that is the
-              practice. Tomorrow, <Link href="/">Today</Link> asks how it went.
+              {errandPlaces(errand)}. Nobody there has seen your card, so you&apos;ll say it your own
+              way, which is the whole point. Tomorrow, the <Link href="/">Today</Link> screen will ask how it went.
             </p>
             {cafe && (
               <p className="mt-2 text-xs" style={{ color: "var(--sky-ink)" }}>
-                Nobody to say it to? <a href={cafe.href} target="_blank" rel="noopener noreferrer" className="underline">{cafe.name}</a> runs
-                language cafés where people came to be spoken to.
+                No one to say it to? <a href={cafe.href} target="_blank" rel="noopener noreferrer" className="underline">{cafe.name}</a> runs
+                language cafés, where people turn up hoping to be spoken to.
               </p>
             )}
           </Card>
@@ -661,11 +661,11 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
 
         {(objectives.missed.length > 0 || graded > 0) && (
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {objectives.missed.length > 0 && "The second run of a scene is where most of it sticks. "}
+            {objectives.missed.length > 0 && "Most of it sticks the second time round. "}
             {graded > 0 && (
               <>
                 {graded === 1 ? "One word you used is" : `${graded} words you used are`} now in{" "}
-                <Link href="/progress">your review schedule</Link>.
+                <Link href="/progress">your reviews</Link>.
               </>
             )}
           </p>

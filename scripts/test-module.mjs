@@ -405,7 +405,7 @@ try {
     const end = await page.locator("[data-reading-end]").innerText().catch(() => "");
     check(
       "the reading says where it ends and which step of the evening it is",
-      /That is the page/.test(end) && /step \d+ of \d+/i.test(end),
+      /end of the page/.test(end) && /step \d+ of \d+/i.test(end),
       end.split("\n").slice(0, 2).join(" / "),
     );
 
@@ -562,7 +562,7 @@ try {
     check("with the way on still pressable", left.live, JSON.stringify(left));
     check(
       "and says the step was not ticked",
-      /did not reach the server/i.test(await unplugged.locator(".module-step").innerText().catch(() => "")),
+      /didn.t reach us|did not reach the server/i.test(await unplugged.locator(".module-step").innerText().catch(() => "")),
     );
   } finally {
     await dark.setOffline(false);

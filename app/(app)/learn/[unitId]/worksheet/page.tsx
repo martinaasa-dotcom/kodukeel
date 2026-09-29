@@ -131,7 +131,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
       {sheet.empty ? (
         <Empty
           title="Nothing to print for this unit yet"
-          body="Look these words up once and the sheet fills itself in from the dictionary."
+          body="Look these words up once and the sheet will fill itself in from the dictionary."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       ) : (
@@ -186,7 +186,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 B, Täida lüngad. Fill the gaps
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                Put the word in brackets into the right form. Every sentence here is a real one.
+                Put the word in brackets into the form the sentence needs. Every sentence is real Estonian from the dictionary.
               </p>
               <ol className="flex flex-col gap-4">
                 {sheet.gaps.map((gap, i) => (
@@ -215,8 +215,8 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 C, Kääna. Complete the table
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                Fill in the missing principal parts. These three are the ones you have to
-                memorize. Every other case is built from the second one.
+                Fill in the missing forms. These are the three you learn by heart, and every
+                other case is built from the second one.
               </p>
               {/*
                 A blank to write on is 110px wide because that is what a hand
@@ -342,10 +342,10 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
 
           <div className="no-print mt-10">
             <Note tone="neutral">
-              Printing gives you the worksheet, then the answer key on a second sheet. The rail and
-              the background come off automatically. Every exercise comes from the dictionary, so a
-              unit whose words haven&rsquo;t been looked up yet just prints a shorter sheet, not a
-              made-up one.
+              Print this page and you get the worksheet, with the answer key on a separate sheet you
+              can keep back. Everything on it comes from the dictionary, so if some of the unit&rsquo;s
+              words haven&rsquo;t been looked up yet, the sheet is just shorter. We never fill a gap
+              with made-up Estonian.
             </Note>
           </div>
         </>

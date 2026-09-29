@@ -328,6 +328,40 @@ const JARGON: Tell[] = [
 ];
 
 /**
+ * The app describing itself rather than talking to somebody.
+ *
+ * These pass every other rule here: they are short, warm enough and contain no
+ * brochure word. What gives them away is that nobody has ever said them out
+ * loud. "The words work runs on" was reported off the landing page as language
+ * nobody uses, and what a person says is "the words you'll hear at work". The
+ * rest of this group is the form letter and the advert, which read the same
+ * way from the other direction. `docs/18-voice.md` §3b is the standard; this
+ * is the part of it a machine can see.
+ */
+const MACHINE: Tell[] = [
+  {
+    name: "the words X runs on",
+    find: /\b(words?|language|vocabulary|estonian)( [a-z']+){1,3} runs? on\b/i,
+    instead: "Name the place a reader will hear them: 'the words you'll hear at work'.",
+  },
+  {
+    name: "in the order you meet it",
+    find: /\bin the order (you|they|it|we) (meet|met|turn|turns)\b/i,
+    instead: "Say what the reader gets: 'the Estonian you'll bump into this week'.",
+  },
+  {
+    name: "form letter",
+    find: /\ban (unexpected )?error (has )?occurred\b|\bplease note\b|\bwe apologi[sz]e for any inconvenience\b/i,
+    instead: "Say what happened and what to do next, the way you would to a friend.",
+  },
+  {
+    name: "advert",
+    find: /\bstreamlin(e|ed|es|ing)\b|\bimmersive\b|\bbite-sized\b|\bat your fingertips\b|\bin no time\b|\bhassle-free\b|\bboost your\b|\btailored to\b|\bpersonali[sz]ed (experience|learning)\b/i,
+    instead: "Say the concrete thing it does, and let the reader decide whether that is good.",
+  },
+];
+
+/**
  * Everything, in the order a reader would notice it.
  *
  * The dash is not in here. It is checked separately and against every line of
@@ -335,7 +369,7 @@ const JARGON: Tell[] = [
  * it needs no `instead`: a comma, a full stop or a pair of brackets, decided
  * per sentence.
  */
-export const TELLS: readonly Tell[] = [...OPENERS, ...SHAPES, ...BROCHURE, ...JARGON];
+export const TELLS: readonly Tell[] = [...OPENERS, ...SHAPES, ...BROCHURE, ...JARGON, ...MACHINE];
 
 /**
  * The rewritable subset, in the shape `humanize.ts` applies them in.
@@ -385,5 +419,7 @@ export const VOICE_RULES: readonly string[] = [
   `Never reach for a brochure word: delve, leverage, utilize, seamless, cutting-edge, groundbreaking, holistic, bespoke, meticulously, a plethora of, embark on, unleash, empower, elevate. Use the plain word a teacher would use out loud.`,
   `Never say "paradigm". A learner has met "the forms of a word", "the case endings" and "the table" in class and has not met that one, so use theirs. The same goes for any other word that belongs to writing about a language rather than to teaching it.`,
   `No emoji. No exclamation-mark praise. "Six days in a row" is warmer than "amazing", because it is about the learner and not about you.`,
+  `Talk the way a warm, clever friend who teaches Estonian talks out loud: plain everyday words, short sentences, contractions where the sentence is friendly. Name concrete things a reader can picture ("the words you'll hear at work") rather than abstract categories ("the words work runs on"), and never describe your own workings.`,
+  `Have some personality. A light joke about the language, a vivid everyday example, a line that sounds like somebody worth learning from. It comes from specifics, never from exclamation marks or hype, and never at the learner's expense.`,
   `Be warm, and be short. Warmth is attention: notice what they got right, name the specific thing, and stop. It is not enthusiasm, and it is never padding. Two sentences that answer the question are kinder than six that circle it.`,
 ];

@@ -40,10 +40,10 @@ export type Answer = Given;
 const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
   right: { className: VERDICT_CLASS.right, title: "Exactly right" },
   diacritics: { className: VERDICT_CLASS.nearly, title: "The right word, without its Estonian letters" },
-  typo: { className: VERDICT_CLASS.nearly, title: "One keystroke out" },
+  typo: { className: VERDICT_CLASS.nearly, title: "Just one letter off" },
   spacing: { className: VERDICT_CLASS.nearly, title: "The right words, with the space in the wrong place" },
   wrong: { className: VERDICT_CLASS.wrong, title: "A different word" },
-  missing: { className: VERDICT_CLASS.wrong, title: "Left out" },
+  missing: { className: VERDICT_CLASS.wrong, title: "Missed out" },
   extra: { className: "", title: "Not in the sentence" },
 };
 
@@ -190,8 +190,8 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       {silent && (
         <div className="mt-4">
           <Note tone="sky">
-            The audio could not be made. That is a problem here, not an answer about your
-            listening, so this section stays unmeasured instead of being marked at zero.
+            We couldn&apos;t make the audio. That&apos;s our problem, not a mark against your
+            listening, so this section is left out rather than scored as zero.
           </Note>
         </div>
       )}
@@ -319,15 +319,15 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
         />
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
           <Ear size={14} className="mr-1.5 inline" aria-hidden />
-          As many times as you like
+          Play it as many times as you like
         </span>
       </div>
 
       {silent && (
         <div className="mt-4">
           <Note tone="sky">
-            No audio, so there is nothing to write down. Skip this one, and the listening section
-            stays unmeasured instead of being marked at zero.
+            There&apos;s no audio, so there&apos;s nothing to write down. Skip this one, and listening
+            is left out rather than scored as zero.
           </Note>
         </div>
       )}
@@ -512,10 +512,10 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
  * confidence, which is what the result already reports it as.
  */
 const SELF_RATINGS = [
-  { value: 1, label: "Not at all", detail: "I would not attempt this out loud." },
-  { value: 2, label: "Hesitant", detail: "I could get it out, slowly and with mistakes." },
-  { value: 3, label: "Fairly sure", detail: "I would say it and expect to be understood." },
-  { value: 4, label: "Confident", detail: "I would say this to somebody without thinking about it." },
+  { value: 1, label: "Not at all", detail: "I wouldn't try saying this out loud." },
+  { value: 2, label: "Hesitant", detail: "I'd get it out, slowly and with a few mistakes." },
+  { value: 3, label: "Fairly sure", detail: "I'd say it and expect to be understood." },
+  { value: 4, label: "Confident", detail: "I'd say this to someone without a second thought." },
 ] as const;
 
 /**
@@ -565,11 +565,11 @@ export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (
         stop anybody wondering whether this counts.
       */}
       <Note tone="neutral">
-        Nothing here scores this. Your answer is recorded as yours and never moves your level.
+        This part isn&apos;t scored. We keep your answer as your own view, and it never changes your level.
       </Note>
 
       <p className="mt-5 text-base font-semibold" style={{ color: "var(--ink)" }}>
-        How confident are you saying this out loud?
+        How confident would you feel saying this out loud?
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {SELF_RATINGS.map((rating) => (

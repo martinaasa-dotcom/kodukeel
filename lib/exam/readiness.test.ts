@@ -379,7 +379,7 @@ describe("naming the worst part", () => {
       skills: { ...established().skills, speaking: { attempts: 0, pct: 0 } },
     }));
     const gap = blind.gaps.find((g) => g.id === "unpractised-speaking");
-    expect(gap?.title).toMatch(/tells us about/i);
+    expect(gap?.title).toMatch(/don't know how your/i);
     expect(gap?.title).not.toMatch(/never practised/i);
   });
 });

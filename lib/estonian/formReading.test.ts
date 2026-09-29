@@ -172,7 +172,7 @@ describe("the clause under a form no phrase reads", () => {
       forms: rows(["NOM_SG", "raamat"], ["GEN_SG", "raamatu"], ["PART_SG", "raamatut"]),
     });
     expect(readForm({ formType: "PART_SG" }, raamat, "raamatut").clause)
-      .toBe("when you mean some of it, or an action not finished");
+      .toBe("when you mean some of it, or the action isn't finished");
   });
 
   it("explains a person of a verb, which no frame reads", () => {
@@ -181,7 +181,7 @@ describe("the clause under a form no phrase reads", () => {
       forms: rows(["INF_MA", "lugema"], ["PRES_1SG", "loen"]),
     });
     expect(readForm(seeded("IndPrSg3"), lugema, "loeb").clause)
-      .toBe("about somebody else, happening now");
+      .toBe("about somebody else, right now");
   });
 
   it("says nothing rather than guessing at a slot nobody wrote a sentence for", () => {

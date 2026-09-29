@@ -89,7 +89,7 @@ export function classroomLetter(input: ClassroomInput): Letter {
   const blocks: Block[] = [];
   const quiet = Math.max(0, input.members - input.active);
 
-  blocks.push({ t: "heading", text: `${input.groupName}: last week` });
+  blocks.push({ t: "heading", text: `Last week in ${input.groupName}` });
 
   /*
     THE ONE SENTENCE, AND THE QUIET HALF OF IT IS SAID OUT LOUD.
@@ -102,15 +102,15 @@ export function classroomLetter(input: ClassroomInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `${input.active} of ${input.members} practised, ` +
+      `${input.active} of ${input.members} practised, with ` +
       `${input.reviews} answer${input.reviews === 1 ? "" : "s"} between them.` +
-      (quiet > 0 ? ` ${quiet} did not open it.` : ""),
+      (quiet > 0 ? ` ${quiet} didn't open the app.` : ""),
   });
 
   blocks.push({
     t: "art",
     html: weekStrip(input.week),
-    alt: input.week.map((d) => `${d.label}: ${d.studied ? "somebody studied" : "nobody"}`).join("\n"),
+    alt: input.week.map((d) => `${d.label}: ${d.studied ? "somebody studied" : "nobody studied"}`).join("\n"),
   });
 
   blocks.push({ t: "rule" });
@@ -126,18 +126,18 @@ export function classroomLetter(input: ClassroomInput): Letter {
         to a teacher is the last place to translate it into a Latin one they do
         not use in the room.
       */
-      blocks.push({ t: "heading", text: `The class is weakest at ${worst.grammCase}.` });
+      blocks.push({ t: "heading", text: `The class finds ${worst.grammCase} hardest.` });
       blocks.push({
         t: "text",
         text:
-          `${worst.accuracy} percent right, over ${worst.total} answers from everybody. ` +
-          `That is the one worth an exercise this week.`,
+          `${worst.accuracy} percent right, across ${worst.total} answers from the whole class. ` +
+          `That's the one to give them extra practice on this week.`,
       });
       const rest = input.detail.weakestCases.slice(1, 3);
       if (rest.length > 0) {
         blocks.push({
           t: "quiet",
-          text: `Then ${rest.map((c) => `${c.grammCase} at ${c.accuracy} percent`).join(", and ")}.`,
+          text: `After that comes ${rest.map((c) => `${c.grammCase} at ${c.accuracy} percent`).join(", and ")}.`,
         });
       }
     } else {
@@ -151,7 +151,7 @@ export function classroomLetter(input: ClassroomInput): Letter {
       */
       blocks.push({
         t: "text",
-        text: "Not enough answers yet to say which case the class is weakest at.",
+        text: "Not enough answers yet to say which case the class finds hardest. Give it another week.",
       });
     }
   } else {
@@ -188,18 +188,18 @@ export function classroomLetter(input: ClassroomInput): Letter {
     presses this, signs in, and reads it on the board their group's members
     were told about.
   */
-  blocks.push({ t: "button", label: "Open the board", href: `${input.origin}/class` });
+  blocks.push({ t: "button", label: "Open the group's board", href: `${input.origin}/class` });
 
   return {
     kind: "classroom",
     subject:
       quiet === 0 && input.members > 0
-        ? `${input.groupName}: everybody practised`
-        : `${input.groupName}: ${input.active} of ${input.members} practised`,
+        ? `Everybody in ${input.groupName} practised last week`
+        : `${input.active} of ${input.members} in ${input.groupName} practised last week`,
     preheader:
       input.detail.kind === "CLASS"
-        ? "Last week, and the case to plan around."
-        : `Last week, and where the group stands for ${input.detail.level}.`,
+        ? "How the week went, and which case to work on next."
+        : `How the week went, and how the group is doing toward ${input.detail.level}.`,
     blocks,
   };
 }

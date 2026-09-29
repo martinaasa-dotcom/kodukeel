@@ -525,21 +525,21 @@ export function weeksNeeded(hours: HourRange, appHoursPerWeek: number, otherHour
 export function distanceLine(plan: Projection): string {
   const weeks = (r: HourRange) => (r.low === r.high ? `${r.low}` : `${r.low} to ${r.high}`);
   if (plan.verdict === "arrived") {
-    return `The level the app holds is already ${plan.to}, so what is left is the paper itself.`;
+    return `As far as the app can tell, you're already ${plan.to}. All that's left is the exam itself.`;
   }
   const pace = plan.paceSource === "measured"
     ? "the pace you have kept"
     : plan.paceSource === "lapsed"
       ? "the pace you said, since nothing has been reviewed here lately"
       : "the pace you said";
-  const opening = `At ${pace}, plus what your week already holds, ${plan.to} is about ${weeks(plan.weeksWithFound)} weeks away.`;
+  const opening = `At ${pace}, plus the Estonian already in your week, ${plan.to} is about ${weeks(plan.weeksWithFound)} weeks away.`;
   switch (plan.verdict) {
-    case "open": return `${opening} No date is set, so that is the whole answer.`;
-    case "passed": return `${opening} The date you gave has gone.`;
+    case "open": return `${opening} No date is set, so that's the whole story.`;
+    case "passed": return `${opening} The date you picked has gone, so choose a new one whenever you're ready.`;
     case "comfortable": return `${opening} Your date is ${plan.weeksAvailable} weeks off, and this app alone covers it.`;
-    case "tight": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits, with the Estonian a normal week already holds beside the app.`;
-    case "possible": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits if you commit to it: about ${hoursAWeek(plan)} a week of Estonian beyond this app.`;
-    default: return `${opening} Your date is ${plan.weeksAvailable} weeks off, so something has to move: the pace, the date, or the hours outside this app.`;
+    case "tight": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits, as long as you count the Estonian your ordinary week already brings.`;
+    case "possible": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits if you commit: about ${hoursAWeek(plan)} a week of Estonian on top of this app.`;
+    default: return `${opening} Your date is ${plan.weeksAvailable} weeks off, so something has to give: the pace, the date, or the hours you put in outside this app.`;
   }
 }
 
@@ -626,57 +626,57 @@ export const FACTS: readonly Fact[] = [
     claim:
       "Estonian is one of the harder languages for an English speaker. The US Foreign Service Institute " +
       "budgets around 1 100 classroom hours to reach professional working proficiency in it, against " +
-      "about 600 for French or Spanish. Fifteen minutes a day is about 90 hours a year.",
+      "about 600 for French or Spanish. Fifteen minutes a day adds up to about 90 hours a year.",
     source: "Foreign Service Institute language difficulty categories",
   },
   {
     id: "shape",
     icon: "Mountain",
     claim:
-      "The hard part is in the middle. Getting from A2 to B1 costs more than any other step, because that " +
-      "is where the cases, the gradation and the object have to start working on their own. From B1 to B2 " +
-      "the grammar is mostly in place and the step is nearer what it costs in any language.",
+      "The hard part is the middle. A2 to B1 costs more than any other step, because that's where the " +
+      "cases, the words that change in the middle and the object all have to start working on their own. From B1 to B2 the " +
+      "grammar is mostly in place, and the step costs about what it would in any language.",
     source: "Published CEFR guided learning hours, with the Estonian surcharge placed where the morphology is",
   },
   {
     id: "spacing",
     icon: "Repeat",
     claim:
-      "Reviewing a word at spreading intervals beats rereading it, and beats cramming, by a wide margin " +
-      "in every study that has measured it. That is the one thing this app is genuinely built to do well.",
+      "Reviewing a word at growing intervals beats rereading it, and beats cramming, by a wide margin in " +
+      "every study that has looked. It's the one thing this app is built above all to do well.",
     source: "Cepeda and others, distributed practice meta-analysis, 2006",
   },
   {
     id: "retrieval",
     icon: "BrainCircuit",
     claim:
-      "Being asked to recall a word does more for remembering it than seeing it again does. Typing the " +
-      "answer is worth more than flipping the card, which is why typed answers are the default here.",
+      "Trying to recall a word does more for your memory than simply seeing it again. Typing the answer " +
+      "beats flipping the card, which is why typed answers are the default here.",
     source: "Roediger and Karpicke, testing effect, 2006",
   },
   {
     id: "load",
     icon: "TrendingUp",
     claim:
-      "A card you learn today costs roughly ten reviews over its first year. A daily goal of fifteen cards " +
-      "is therefore one or two genuinely new words a day once the reviews arrive, not fifteen.",
+      "Every card you learn today brings roughly ten reviews over its first year. So a daily goal of fifteen " +
+      "cards means one or two truly new words a day once the reviews pile up, not fifteen.",
     source: "A rule of thumb from spaced-repetition practice, replaced by your own log once you have one",
   },
   {
     id: "cases",
     icon: "Languages",
     claim:
-      "Estonian has fourteen cases, but eleven of them are one regular ending on the omastav stem. Learn " +
-      "a word's omastav and most of its forms follow. The unpredictable part is three forms, not fourteen.",
+      "Estonian has fourteen cases, but eleven of them are one regular ending added to the omastav, the form " +
+      "meaning \"whose\". Learn a word's omastav and most of its forms follow. Only three have to be learned, not fourteen.",
     source: "The Estonian case system, as this app models it in lib/estonian",
   },
   {
     id: "exam",
     icon: "Stamp",
     claim:
-      "The state language exams run at A2, B1, B2 and C1. Naturalization asks for B1. If you are working " +
-      "toward an official level, check the current requirement with the authority that sets it, because " +
-      "this app is not the source of truth for that.",
+      "The state language exams are held at A2, B1, B2 and C1, and citizenship asks for B1. If you're " +
+      "aiming for an official level, check the current rules with whoever sets them, because this app " +
+      "isn't the final word on that.",
     source: "Estonian state language proficiency exams (tasemeeksam)",
   },
 ];

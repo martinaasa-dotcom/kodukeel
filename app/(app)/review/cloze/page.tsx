@@ -23,10 +23,10 @@ export default async function ClozePage() {
 
   if (deckSize === 0) {
     return (
-      <Page title="From your reading" lead="Paste real Estonian and drill the words you already know.">
+      <Page title="From your reading" lead="Paste in some real Estonian and practise the words you're learning inside it.">
         <Empty
           title="Your deck is empty"
-          body="This blanks out words you're already learning, so you'll need a deck first."
+          body="It turns the words you're learning into gaps, so add a few from the dictionary first."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>

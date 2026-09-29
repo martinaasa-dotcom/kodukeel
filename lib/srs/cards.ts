@@ -25,13 +25,13 @@ export interface CardTypeSpec {
 }
 
 export const CARD_TYPES: readonly CardTypeSpec[] = [
-  { type: "RECOGNITION", label: "Recognition", description: "Estonian → English", defaultOn: true },
-  { type: "PRODUCTION", label: "Production", description: "English → Estonian", defaultOn: true },
-  { type: "CASE_FORM", label: "Case form", description: "Put the word in the form a real sentence needs", defaultOn: false },
-  { type: "GRADATION", label: "Gradation", description: "Strong grade → weak grade", defaultOn: false },
-  { type: "GOVERNMENT", label: "Government", description: "Which case the verb takes", defaultOn: false },
+  { type: "RECOGNITION", label: "What it means", description: "You see the Estonian and say what it means", defaultOn: true },
+  { type: "PRODUCTION", label: "Say it in Estonian", description: "You see the English and give the Estonian word", defaultOn: true },
+  { type: "CASE_FORM", label: "Case endings", description: "Fill a gap in a real sentence with the right ending", defaultOn: false },
+  { type: "GRADATION", label: "Stem changes", description: "Spot how a word changes in the middle when an ending goes on", defaultOn: false },
+  { type: "GOVERNMENT", label: "Verb and case", description: "Which case a verb wants after it", defaultOn: false },
   { type: "CLOZE", label: "In a sentence", description: "Fill the gap in a real Estonian sentence", defaultOn: true },
-  { type: "CONJUGATION", label: "Conjugation", description: "Produce a named form of a verb", defaultOn: false },
+  { type: "CONJUGATION", label: "Verb forms", description: "Change the verb for I, you, she and everyone else", defaultOn: false },
 ];
 
 /**

@@ -37,7 +37,7 @@ export default async function CommonRoundsPage() {
   return (
     <Page
       title="Most common words"
-      lead="Counted over film and television subtitles, so this is the language people speak."
+      lead="Counted from film and TV subtitles, so these are the words people really say."
     >
       {found === 0 ? (
         /*
@@ -46,8 +46,8 @@ export default async function CommonRoundsPage() {
           a reseed, and saying so is more use than four empty cards.
         */
         <Empty
-          title="The dictionary has not been loaded yet"
-          body="These rounds are drawn from it, so there is nothing to ask until it is seeded."
+          title="The dictionary isn't loaded yet"
+          body="These rounds come from the dictionary, so there's nothing to ask until it's loaded."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       ) : (
@@ -92,7 +92,7 @@ export default async function CommonRoundsPage() {
         })}
 
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Every word on these lists is one the dictionary can teach.{" "}
+            Every word on these lists is one you can learn here.{" "}
             <Link
               href="/dictionary/common"
               className="underline"

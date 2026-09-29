@@ -62,13 +62,13 @@ export default async function MasteryPage() {
     <Page route="/words/mastery"
       title="Where your words stand"
       lead="Your favorites, and how well every other word is sticking."
-      actions={<ButtonLink href="/review/flashcards" variant="primary">Flash cards</ButtonLink>}
+      actions={<ButtonLink href="/review/flashcards" variant="primary">Practise with flash cards</ButtonLink>}
     >
       {words.length === 0 && kept.length === 0 && aside.length === 0 ? (
         <Empty
           title="Nothing answered yet"
-          body="A word turns up here once you have answered it, or the moment you star one."
-          action={<ButtonLink href="/review" variant="primary">Open review</ButtonLink>}
+          body="A word shows up here once you've answered it, or as soon as you star it."
+          action={<ButtonLink href="/review" variant="primary">Start reviewing</ButtonLink>}
         />
       ) : (
         <Stack>

@@ -17,19 +17,19 @@ import { RUNG_LABEL, type Reading, type Rung, type Summary } from "./rungs";
  */
 
 const VERDICT: Record<Rung, (r: Reading) => string> = {
-  unmet: () => "Nothing yet. This unit has not come up in your reviews.",
+  unmet: () => "You haven't met these words yet, so there's nothing to go on.",
   lost: (r) =>
-    `You would be lost here for now. ${r.at.follow} of the ${r.total} words you would catch, and the rest are the ones that carry the sentence.`,
+    `You'd be lost here for now. You'd catch ${r.at.follow} of the ${r.total} words, and the ones you'd miss are the ones that carry the sentence.`,
   follow: (r) =>
-    `You would follow most of this. ${r.at.follow} of the ${r.total} words you know when you see them; answering is the next thing.`,
+    `You'd follow most of this. You recognize ${r.at.follow} of the ${r.total} words. Saying them back is the next step.`,
   takePart: (r) =>
     r.situation.live
-      ? `You could take part in this if the other person is patient. ${r.at.takePart} of the ${r.total} words you produce reliably.`
-      : `You could do this. ${r.at.takePart} of the ${r.total} words you produce reliably.`,
+      ? `You could take part in this if the other person is patient. You can say ${r.at.takePart} of the ${r.total} words reliably.`
+      : `You could do this. You can say ${r.at.takePart} of the ${r.total} words reliably.`,
   lead: (r) =>
     r.situation.live
-      ? "You could lead this one: open it, steer it, and recover when it goes sideways."
-      : "You could do this well, and it is worth doing for real.",
+      ? "You could lead this one: start it, steer it, and get it back on track when it wobbles."
+      : "You could do this well. Go and try it for real.",
 };
 
 export function verdictFor(reading: Reading): string {

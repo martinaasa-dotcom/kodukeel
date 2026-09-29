@@ -29,7 +29,7 @@ export function Favorites({ words, total }: { words: readonly Favorite[]; total:
     <Card>
       <SectionTitle hint={`${total} ${total === 1 ? "word" : "words"}`}>Favorites</SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        The words you starred, newest first. The star on any card keeps a word here.
+        Words you&apos;ve starred, newest first. Tap the star on any card to keep a word here.
       </p>
 
       <ul className="mt-4 flex flex-col gap-2">
@@ -62,7 +62,7 @@ export function Favorites({ words, total }: { words: readonly Favorite[]; total:
 
       {total > words.length && (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-          The {FAVOURITE_LIMIT} you kept most recently, of {total}.
+          Showing the {FAVOURITE_LIMIT} you starred most recently, out of {total}.
         </p>
       )}
     </Card>

@@ -55,7 +55,7 @@ export async function GET() {
       // Says which limit was reached. The old wording, "that backup is already
       // on its way", describes a request in flight, so somebody who had taken
       // six today would wait for a download that was never coming.
-      "You have taken six backups in the last hour, which is the limit. Your data is safe and nothing has changed. Try again a little later.",
+      "You've taken six backups in the last hour, which is the limit. Your data is safe and nothing has changed. Try again a bit later.",
     );
   }
 

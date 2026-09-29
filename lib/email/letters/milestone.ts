@@ -54,7 +54,7 @@ export function milestoneLetter(input: MilestoneInput): Letter {
   const { level } = input;
   const blocks: Block[] = [];
 
-  blocks.push({ t: "heading", text: `${level.key} is behind you.` });
+  blocks.push({ t: "heading", text: `You've made it through ${level.key}.` });
 
   /*
     THE CLAIM FIRST, AND IT IS THE UNIT'S OWN SENTENCE.
@@ -72,9 +72,9 @@ export function milestoneLetter(input: MilestoneInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `That is ${level.words} words the scheduler now counts as yours, which is not the same as ` +
-      `words you have met: a card only gets there by coming back days later and being right. So ` +
-      `this letter is late. You did the work a while ago and it stayed.`,
+      `That's ${level.words} words that are properly yours now. Each one came back days after you ` +
+      `met it, and you still knew it. So this letter is a little late: you did the work a while ` +
+      `ago, and it stuck.`,
   });
 
   blocks.push({
@@ -86,7 +86,7 @@ export function milestoneLetter(input: MilestoneInput): Letter {
   if (input.next) {
     blocks.push({
       t: "quiet",
-      text: `${input.next.level} is the next stop, about ${input.next.wordsAway} words away.`,
+      text: `Next stop is ${input.next.level}, about ${input.next.wordsAway} words away.`,
     });
   } else {
     /*
@@ -96,16 +96,16 @@ export function milestoneLetter(input: MilestoneInput): Letter {
     */
     blocks.push({
       t: "quiet",
-      text: `That was the last stop on the climb you picked. The words carry on, and so does the course.`,
+      text: `That was the level you set out to reach. There are always more words, and the course keeps going as long as you do.`,
     });
   }
 
-  blocks.push({ t: "button", label: "Carry on", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: "Keep going", href: `${input.origin}/course` });
 
   return {
     kind: "milestone",
-    subject: `${level.key} is behind you`,
-    preheader: `${level.words} words the scheduler counts as yours. ${level.title}.`,
+    subject: `You've made it through ${level.key}`,
+    preheader: `${level.words} words that are properly yours now. ${level.title}.`,
     blocks,
   };
 }

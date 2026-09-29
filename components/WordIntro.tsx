@@ -190,8 +190,8 @@ export function WordIntro({
            on the first cards anybody meets. */
         <p className="max-w-[38ch] text-sm" style={{ color: "var(--ink-3)" }}>
           {isPhrase
-            ? "A whole phrase, said just as it stands. Say it out loud a couple of times."
-            : "No example sentence for this one yet. Say it out loud a couple of times."}
+            ? "This one's a whole phrase, used just as it is. Say it out loud a couple of times."
+            : "No example sentence for this one yet. Try saying it out loud a couple of times."}
         </p>
       )}
 

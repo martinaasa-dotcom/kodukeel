@@ -237,10 +237,10 @@ function WhyRow({ card }: { card: ReviewCard }) {
   // wants the moment the answer appears and is not what they thought.
   const verbSlot = card.slot ? slotLabel(card.slot) : null;
   const question = card.targetCase
-    ? `Why is the ${caseName} of "${card.lemma ?? card.front}" what it is? I keep getting this form wrong.`
+    ? `I keep getting the ${caseName} of "${card.lemma ?? card.front}" wrong. Why does it look like that?`
     : verbSlot
-      ? `Why is "${card.lemma ?? card.front}" in the ${verbSlot} what it is? I keep getting this form wrong.`
-      : `Explain "${card.lemma ?? card.front}" to me, what does it mean and when would an Estonian use it?`;
+      ? `I keep getting "${card.lemma ?? card.front}" wrong in the ${verbSlot}. Why does it look like that?`
+      : `What does "${card.lemma ?? card.front}" mean, and when would an Estonian actually say it?`;
 
   const pill =
     "press inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-ui hover:-translate-y-px";
@@ -317,7 +317,7 @@ function MeetWord({ card, firstMeetingCardId }: { card: ReviewCard; firstMeeting
           screen already, so it would only be saying it twice. */}
       {card.cardType !== "RECOGNITION" && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-          Next time this card asks:{" "}
+          Next time, this card will ask:{" "}
           <span lang={estonianSide(card.cardType, "front") ? "et" : "en"} className="font-semibold">
             {card.front}
           </span>
@@ -1106,7 +1106,7 @@ export function ReviewSession({
       // `scheduled` on why the retype no longer grades itself on a timer.
       producedAt.current = Date.now();
     } else {
-      setRetypeNote("Not yet. Copy the answer above exactly, letter for letter.");
+      setRetypeNote("Not quite. Copy the answer above, letter for letter.");
     }
   }, [card, verdict, retyped, retypeOk]);
 
@@ -1259,24 +1259,24 @@ export function ReviewSession({
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Review" lead="Spaced repetition, timed to when you are about to forget.">
+      <Page title="Review" lead="Each word comes back just as you're about to forget it.">
         {drillCase ? (
           <Empty
             // The Estonian name, like every other screen that names a case.
             title={`No ${caseByKey(drillCase)?.et ?? drillCase.toLowerCase()} cards yet`}
-            body="Tick 'Case form' when you add a word, or start a noun unit on the path."
+            body="These come from nouns in your deck. Start a unit with some nouns and they'll turn up here."
             action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
           />
         ) : drillUnit ? (
           <Empty
-            title="Nothing from this unit in your deck"
-            body="Add the unit first and its words become cards you can drill here."
+            title="None of this unit is in your deck yet"
+            body="Do the unit's lesson first. Its words will turn up here once you've met them."
             action={<ButtonLink href={`/learn/${drillUnit}`} variant="primary">Open the unit</ButtonLink>}
           />
         ) : drillScan ? (
           <Empty
-            title="Nothing from this page in your deck"
-            body="The words are saved, they just have no cards yet. Add them and they turn up here."
+            title="None of this page is in your deck yet"
+            body="You saved these words but haven't added them to your deck yet. Do that and they'll show up here."
             action={
               <ButtonLink href={`/scan/${drillScan.id}`} variant="primary">Open the page</ButtonLink>
             }
@@ -1295,29 +1295,29 @@ export function ReviewSession({
             both of them answer for somebody who walked here themselves.
           */
           <Empty
-            title="Nothing left for tonight"
-            body="You have answered everything this evening had to ask. The step is done."
+            title="That's tonight's review done"
+            body="You've been through every word tonight had for you. On to the next step."
           />
         ) : totalCards === 0 ? (
           <Empty
             title="No cards yet"
-            body="Start a unit on the path, or add words from the dictionary."
+            body="Start a unit, or add a few words from the dictionary, and they'll wait for you here."
             action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
           />
         ) : (
           waitingOnCourse ? (
             <Empty
-              title="Nothing due, you're caught up"
-              body="The next new words come with tonight's evening."
+              title="You're all caught up"
+              body="Nothing's due right now. Your next new words are waiting in tonight's module."
               action={<ButtonLink href="/course" variant="primary">{"Open tonight's module"}</ButtonLink>}
             />
           ) : (
             <Empty
-              title="Nothing due, you're caught up"
+              title="You're all caught up"
               body={nextDue ?? (totalCards === 1
-                ? "Your one card is scheduled for later."
-                : `All ${totalCards} cards are scheduled for later.`)}
-              action={<ButtonLink href="/learn/new" variant="primary">Learn new words instead</ButtonLink>}
+                ? "Your one card isn't due yet. It'll come back when it's time."
+                : `None of your ${totalCards} cards need you right now. Each one comes back when it's time.`)}
+              action={<ButtonLink href="/learn/new" variant="primary">Learn some new words</ButtonLink>}
             />
           )
         )}
@@ -1367,12 +1367,12 @@ export function ReviewSession({
             </h1>
             <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
               {drillCase
-                ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span> drill done. These cards still follow their normal schedule.</>
+                ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span> drilled. Those cards will still come back on their usual days.</>
                 : drillUnit
-                  ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s this unit drilled. Its cards still follow their normal schedule.</>
+                  ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s this unit drilled. Its cards will still come back on their usual days.</>
                   : drillScan
-                    ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the whole page drilled. Its cards still follow their normal schedule.</>
-                    : <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s everything due right now.</>}
+                    ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the whole page drilled. Its cards will still come back on their usual days.</>
+                    : <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s everything that was due. See you tomorrow.</>}
             </p>
           </div>
         </Lettered>
@@ -1392,7 +1392,7 @@ export function ReviewSession({
             style={{ background: "var(--hard-soft)", color: "var(--hard-ink)" }}
           >
             {pendingOffline} grade{pendingOffline === 1 ? "" : "s"} saved here while you were offline.
-            They&rsquo;ll be sent the moment you&rsquo;re back online. You can close the tab.
+            They&rsquo;ll go through as soon as you&rsquo;re back online, so it&rsquo;s fine to close the tab.
           </p>
         )}
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
@@ -1420,7 +1420,7 @@ export function ReviewSession({
   const spokenVerdict =
     ask === "type" && verdict
       ? retypeOk
-        ? `${uiText("Õige!", "Correct!")} That is the one.`
+        ? `${uiText("Õige!", "Correct!")} That's the one.`
         : verdict.verdict === "correct"
           ? uiText("Õige!", "Correct!")
           : countsAsRecalled(verdict.verdict)
@@ -1431,7 +1431,7 @@ export function ReviewSession({
       : ask === "choice" && chosen
         ? choiceIsRight(chosen, card.back, answerLanguage)
           ? "Right."
-          : `Not this time. The answer is ${rightChoice}.`
+          : `Not this time. It's ${rightChoice}.`
         : ask === "flip" && revealed
           ? `The answer is ${shownAnswer}.`
           : "";
@@ -1482,7 +1482,7 @@ export function ReviewSession({
               brace-free JSX text, and this is a value interpolated into a run
               of text, which is the residual that rule names in writing.
             */
-            ? <>Drilling the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span>.</>
+            ? <>Practising the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span>.</>
             : <>From {drillScan!.title}.</>}
         </p>
       )}
@@ -1710,7 +1710,7 @@ export function ReviewSession({
                 <div className="mt-4 text-left">
                   {retypeOk ? (
                     <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`}>
-                      {uiText("Õige!", "Correct!")} That is the one.
+                      {uiText("Õige!", "Correct!")} That&apos;s the one.
                     </p>
                   ) : (
                     <>
@@ -1947,7 +1947,7 @@ export function ReviewSession({
             </Button>
           ) : ask === "choice" && !chosen ? (
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
-              Pick the meaning, keys 1 to {card.choices?.length ?? 4}
+              Pick the meaning, or press 1 to {card.choices?.length ?? 4}
             </p>
           ) : ask === "choice" && chosen !== null && choiceIsRight(chosen, card.back, answerLanguage) ? (
             /* Right, and waiting: the tile has already turned mint, so the
@@ -2037,21 +2037,21 @@ export function ReviewSession({
               Space to flip and 1-4 to grade, where nothing flips and 1-4 picks
               an option instead. */}
           {ask === "intro"
-            ? `${ADVANCE_KEY_LABEL} for the next one`
+            ? `${ADVANCE_KEY_LABEL} when you're ready`
             : ask === "type"
               ? (verdict ? (needsRetype ? `Type it again, then ${ADVANCE_KEY_LABEL}` : `${ADVANCE_KEY_LABEL} to carry on`) : `${ADVANCE_KEY_LABEL} to check`)
               : ask === "choice"
                 ? (chosen ? `${ADVANCE_KEY_LABEL} to carry on` : `1 to ${card?.choices?.length ?? 4} to pick`)
                 : !revealed
                   ? `${ADVANCE_KEY_LABEL} to flip`
-                  : "1 not yet, 2 got it"}
+                  : "1 for not yet, 2 for got it"}
         </span>
       </div>
 
       {asideNote}
       {pendingOffline > 0 && (
         <p className="mt-3 text-center text-xs" style={{ color: "var(--hard-ink)" }}>
-          You&rsquo;re offline. {pendingOffline} grade{pendingOffline === 1 ? "" : "s"} saved here, sent once you reconnect.
+          You&rsquo;re offline. {pendingOffline} answer{pendingOffline === 1 ? "" : "s"} saved here, and they&rsquo;ll go through when you reconnect.
         </p>
       )}
       {/*

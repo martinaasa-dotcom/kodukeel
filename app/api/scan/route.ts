@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
   const limit = checkRateLimit(`scan:${bucketForOwner(ownerId)}`, SCANS_PER_MINUTE, 60_000);
   if (!limit.ok) {
-    return rateLimited(limit, "Give the last page a moment to finish before sending another.");
+    return rateLimited(limit, "Give the last page a moment to finish before you send another.");
   }
 
   const chain = visionProviders();
@@ -56,8 +56,8 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "Reading a photo needs an AI key, and this copy of Kodukeel has none yet. " +
-          "Everything else (review, the dictionary, typing a word list in by hand) still works.",
+          "Reading a photo needs an AI key, and this copy of Kodukeel doesn't have one yet. " +
+          "Everything else still works: review, the dictionary, and typing a word list in by hand.",
       },
       { headers: NO_STORE, status: 503 },
     );
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     if (typeof parsed !== "object" || parsed === null) throw new TypeError("not an object");
     payload = parsed as { image?: unknown };
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
 
   const decoded = decodeImageDataUrl(payload.image);
@@ -113,9 +113,8 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "Reading photos has used today's shared budget for the part of this that " +
-          "asks a model. Typing a word list in by hand still works, and it resets " +
-          "at midnight UTC.",
+          "Reading photos has used up today's shared allowance. You can still type a " +
+          "word list in by hand, and photos work again after midnight UTC.",
         reason: "KIND_SPEND",
       },
       { headers: NO_STORE, status: 429 },
@@ -151,7 +150,7 @@ export async function POST(request: Request) {
     const message = error instanceof TutorError
       ? `${error.message} If the model configured here cannot read images, set a vision model ` +
         "in .env (GEMINI_VISION_MODEL, GROQ_VISION_MODEL, ANTHROPIC_VISION_MODEL or OPENAI_VISION_MODEL)."
-      : "That photo could not be read just now.";
+      : "We couldn't read that photo just now. Try again in a moment.";
     return Response.json({ error: message }, { headers: NO_STORE, status });
   }
 
@@ -171,7 +170,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "The page was read, but the dictionary could not be asked about the words " +
+          "We read the page, but couldn't check its words against the dictionary " +
           "just now. Try the photo again in a moment.",
       },
       { status: 503, headers: NO_STORE },
@@ -198,10 +197,10 @@ const READ_THIS_PAGE = "Read this page and list the Estonian vocabulary on it.";
 
 function imageProblemMessage(problem: string | undefined): string {
   if (problem === "TYPE") {
-    return `That file is not a photo this can read. Use ${ALLOWED_IMAGE_TYPES.join(", ")}.`;
+    return `We can't read that kind of file. It needs to be one of ${ALLOWED_IMAGE_TYPES.join(", ")}.`;
   }
   if (problem === "TOO_LARGE") {
-    return `That photo is over ${Math.round(MAX_IMAGE_BYTES / 1_000_000)} MB, even after resizing.`;
+    return `That photo is still over ${Math.round(MAX_IMAGE_BYTES / 1_000_000)} MB, even after shrinking it.`;
   }
-  return "No photo arrived. Take the picture again.";
+  return "The photo didn't come through. Try taking it again.";
 }

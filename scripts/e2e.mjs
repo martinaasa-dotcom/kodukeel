@@ -71,7 +71,7 @@ await ensureLetterBar(browser, B, "on");
 */
 {
   const cases = [
-    ["uudishmulik", /No word is spelled that way/, "a near miss offers the spelling"],
+    ["uudishmulik", /No word is spelled quite like that/, "a near miss offers the spelling"],
     ["kontrollimatusonaxyz", /Nothing found/, "a string that is not a word says so"],
   ];
   for (const [query, wanted, label] of cases) {
@@ -280,7 +280,7 @@ await page.getByLabel("Paste word list").fill(list);
 await page.waitForTimeout(400);
 await page.getByRole("button", { name: /Add 2 words/ }).click();
 check("re-importing the same words does not duplicate them",
-  await eventually(async () => (await page.getByText(/already in your deck/).count()) > 0));
+  await eventually(async () => (await page.getByText(/already have every one of these words/).count()) > 0));
 
 /*
   A paste that repeats a line, which is what a list assembled from two handouts
@@ -343,7 +343,7 @@ const needsKey = (await page.getByText(/Anu needs an .{1,6} key/).count()) > 0;
   <model>" before a reply and "Answered by" after one, whoever answers, so
   matching that shape cannot fall behind a new provider.
 */
-const connected = (await page.getByText(/(Will ask|Answered by) .+, .+/).count()) > 0;
+const connected = (await page.getByText(/(Your questions go to|That answer came from) .+, .+/).count()) > 0;
 check("the tutor tab is honest about its key state", needsKey !== connected,
   needsKey ? "no key — shows setup guidance" : "key set — shows the provider");
 

@@ -67,7 +67,7 @@ export const REASONS: readonly Reason[] = [
     id: "living",
     icon: "House",
     label: "I live in Estonia",
-    detail: "Shops, doctors, the bus, neighbors, forms. Everyday life in the language around you.",
+    detail: "The shop, the doctor, the bus, the neighbors, the forms. Everyday life, in the language all around you.",
     implies: "B1",
     // Errands, forms, the bus: real and shallow, and easy to live beside without using.
     exposure: { low: 1, high: 3 },
@@ -78,7 +78,7 @@ export const REASONS: readonly Reason[] = [
     id: "citizenship",
     icon: "Stamp",
     label: "Citizenship or residence",
-    detail: "There is a state exam at the end of this one, and it sets the level rather than you.",
+    detail: "There's a state exam at the end of this one, and it picks the level for you.",
     implies: "B1",
     // A goal, not a situation. It puts no Estonian in anybody's week by itself.
     exposure: { low: 0, high: 0 },
@@ -88,7 +88,7 @@ export const REASONS: readonly Reason[] = [
     id: "work",
     icon: "Briefcase",
     label: "Work",
-    detail: "Meetings, email, colleagues talking at full speed. Precision matters more than politeness.",
+    detail: "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.",
     implies: "B2",
     // Meetings and colleagues at full speed are the most exposure a week can hold.
     exposure: { low: 3, high: 8 },
@@ -99,7 +99,7 @@ export const REASONS: readonly Reason[] = [
     id: "study",
     icon: "GraduationCap",
     label: "School or university",
-    detail: "A course with a syllabus, homework and a mark at the end of the term.",
+    detail: "A course with a syllabus, homework, and a mark waiting at the end of term.",
     implies: "B2",
     // Class plus homework. A course with a syllabus is guided learning hours by definition.
     exposure: { low: 2, high: 5 },
@@ -110,7 +110,7 @@ export const REASONS: readonly Reason[] = [
     id: "family",
     icon: "Heart",
     label: "Family or a partner",
-    detail: "The people you want to understand are not going to slow down for long.",
+    detail: "The people you most want to understand won't slow down for you forever.",
     implies: "B1",
     // The people at home, if the home runs in Estonian. Many couples default to English.
     exposure: { low: 2, high: 8 },
@@ -121,7 +121,7 @@ export const REASONS: readonly Reason[] = [
     id: "roots",
     icon: "Trees",
     label: "Roots and heritage",
-    detail: "A language your family spoke, or a country you keep going back to.",
+    detail: "A language your family spoke, or a country you keep coming back to.",
     implies: "A2",
     // Visits and relatives. Occasional, so the range barely leaves zero.
     exposure: { low: 0, high: 1 },
@@ -132,7 +132,7 @@ export const REASONS: readonly Reason[] = [
     id: "travel",
     icon: "Plane",
     label: "Travel",
-    detail: "Enough to order, ask, thank and read a sign without reaching for a phone.",
+    detail: "Enough to order, ask, say thanks and read a sign without reaching for your phone.",
     implies: "A2",
     // Nothing until the trip, and a trip is not a week.
     exposure: { low: 0, high: 0 },
@@ -142,7 +142,7 @@ export const REASONS: readonly Reason[] = [
     id: "curiosity",
     icon: "Sparkles",
     label: "Curiosity",
-    detail: "Fourteen cases and a stem that changes when you look at it. Reason enough.",
+    detail: "Fourteen cases, and words that change shape when you're not looking. Reason enough.",
     implies: "A2",
     // Nothing in the week beyond what the learner goes and finds.
     exposure: { low: 0, high: 0 },
@@ -237,31 +237,31 @@ export const TARGETS: readonly TargetLevel[] = [
     band: "A1",
     label: "Get by",
     can: "Greet people, introduce yourself, ask for things by name, read a sign or a menu.",
-    cannot: "Follow a conversation between two Estonians. It will sound like one long word.",
+    cannot: "Follow two Estonians chatting to each other. It'll sound like one long word.",
   },
   {
     band: "A2",
     label: "Handle everyday life",
-    can: "Shop, order, book, describe your day, ask directions and understand the answer if it is slow.",
-    cannot: "Hold your side of a conversation that moves, or read the news without a dictionary.",
+    can: "Shop, order, book, describe your day, and ask for directions and follow them if they're said slowly.",
+    cannot: "Keep up your side of a lively conversation, or read the news without a dictionary.",
   },
   {
     band: "B1",
     label: "Live in the language",
-    can: "Manage most situations that come up, follow a clear conversation, write a straightforward letter. This is the level the naturalization exam asks for.",
-    cannot: "Keep up with fast speech between natives, or write anything that has to be exactly right.",
+    can: "Handle most things life throws at you, follow a clear conversation and write a simple letter. It's the level the citizenship exam asks for.",
+    cannot: "Keep up when native speakers talk fast, or write anything that has to be exactly right.",
   },
   {
     band: "B2",
     label: "Work in it",
-    can: "Take part in a meeting, argue a point, read an article without stopping, write clear prose.",
-    cannot: "Pass unnoticed. Idiom, register and jokes are still further on.",
+    can: "Join in a meeting, argue your point, read an article straight through and write clearly.",
+    cannot: "Pass for a local. Idioms, tone and jokes are still a way off.",
   },
   {
     band: "C1",
     label: "Use it like your own",
-    can: "Follow anything, say what you mean with the shade you meant, write for a real audience.",
-    cannot: "Get here in a year. This is where the hours stop being countable in months.",
+    can: "Follow anything, say exactly what you mean, and write for a real audience.",
+    cannot: "Get here in a year. At this point you count the time in years, not months.",
   },
 ];
 
@@ -280,7 +280,7 @@ export const DEADLINES: readonly DeadlinePreset[] = [
   { id: "6m", label: "In six months", months: 6 },
   { id: "1y", label: "In a year", months: 12 },
   { id: "2y", label: "In two years", months: 24 },
-  { id: "none", label: "No deadline, I am in no hurry", months: null },
+  { id: "none", label: "No deadline, I'm in no hurry", months: null },
 ];
 
 /**

@@ -463,9 +463,9 @@ export function explainForm(word: WordRow, answer: string): string {
       a sentence no third caller should be able to reach by not knowing about
       this, and one line is a cheap guard against it.
     */
-    return `The gap takes ${word.lemma} exactly as the dictionary spells it.`;
+    return `The gap needs ${word.lemma}, just as the dictionary spells it.`;
   }
-  const takes = `The gap takes ${answer} rather than ${word.lemma}.`;
+  const takes = `The gap needs ${answer}, not ${word.lemma}.`;
   const placed = clauseFor(word, answer);
   if (!placed) return takes;
   /*
@@ -479,10 +479,10 @@ export function explainForm(word: WordRow, answer: string): string {
   */
   if (placed.plural) {
     return placed.clause === plainAsk("NOMINATIVE")
-      ? `${takes} That is the plural.`
-      : `${takes} That is the plural, and the form you use ${placed.clause}.`;
+      ? `${takes} That's the plural.`
+      : `${takes} That's the plural, and the form you use ${placed.clause}.`;
   }
-  return `${takes} That is the form you use ${placed.clause}.`;
+  return `${takes} That's the form you use ${placed.clause}.`;
 }
 
 export function explainGap(word: WordRow, gap: Gap): string {
@@ -737,7 +737,7 @@ export function listeningItems(
       skill: "listening",
       band: bandOf(word.cefr)!,
       lemma: word.lemma,
-      question: "Listen, then pick what it means. The word is not written down.",
+      question: "Listen, then pick what it means. You won't see it written down.",
       et: word.lemma,
       heard: true,
       options: set.options,
@@ -770,13 +770,13 @@ export function listeningItems(
       // is most of what makes listening hard in the first place.
       band: raise(bandOf(word.cefr)!, "A2"),
       lemma: word.lemma,
-      question: "Listen to the whole sentence, then pick the meaning of a word you heard in it.",
+      question: "Listen to the whole sentence, then pick what one of its words means.",
       et: sentence.et,
       heard: true,
       options: set.options,
       estonianOptions: false,
       answer: set.answer,
-      because: `${sentence.et} That sentence is about ${word.lemma}, which is ${word.translation}.`,
+      because: `${sentence.et} That sentence is about ${word.lemma}, which means ${word.translation}.`,
     });
   }
 
@@ -859,7 +859,7 @@ export function speakingItems(words: readonly WordRow[], rng: () => number): Spe
         skill: "speaking",
         band: raise(bandOf(word.cefr)!, "B1"),
         lemma: word.lemma,
-        question: "Listen to this said properly, then say how confident you would be saying it.",
+        question: "Listen to how it's said, then tell us how sure you'd feel saying it yourself.",
         et: sentence.et,
         translation: sentence.en!.trim(),
         isSentence: true,
@@ -872,7 +872,7 @@ export function speakingItems(words: readonly WordRow[], rng: () => number): Spe
       skill: "speaking",
       band: bandOf(word.cefr)!,
       lemma: word.lemma,
-      question: "Listen to this said properly, then say how confident you would be saying it.",
+      question: "Listen to how it's said, then tell us how sure you'd feel saying it yourself.",
       et: word.lemma,
       translation: word.translation,
       isSentence: false,

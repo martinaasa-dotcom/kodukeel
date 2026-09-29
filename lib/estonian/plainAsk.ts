@@ -52,17 +52,17 @@ const CLAUSES: Record<string, string> = {
     chamber" is worse than no sentence at all.
   */
   NOMINATIVE: "as the plain dictionary word",
-  GENITIVE: "when it belongs to somebody, the form behind “of”",
-  PARTITIVE: "when you mean some of it, or an action not finished",
+  GENITIVE: "when something belongs to it, like English “of” or “’s”",
+  PARTITIVE: "when you mean some of it, or the action isn't finished",
   ILLATIVE: "when something goes into it",
   INESSIVE: "when something is inside it",
   ELATIVE: "when something comes out of it, or is about it",
   ALLATIVE: "when something goes to it, or is given to somebody",
-  ADESSIVE: "when something sits on it, or somebody has it",
-  ABLATIVE: "when something is taken from it, or off it",
+  ADESSIVE: "when something is on it, or somebody has it",
+  ABLATIVE: "when something comes off it, or from it",
   TRANSLATIVE: "when something turns into it",
   TERMINATIVE: "when you mean up to it, or until it",
-  ESSIVE: "when somebody is acting as it",
+  ESSIVE: "when somebody is working or acting as it",
   ABESSIVE: "when something is done without it",
   COMITATIVE: "when something is done with it",
 
@@ -72,15 +72,15 @@ const CLAUSES: Record<string, string> = {
     in their own names, which is where somebody sitting a course will want
     them.
   */
-  IndPrSg1: "about yourself, happening now",
-  IndPrSg3: "about somebody else, happening now",
-  IndPrPl1: "about you and somebody else, happening now",
-  IndPrPs_: "about yourself, saying you do not do it",
-  IndIpfSg1: "about yourself, already happened",
-  IndIpfSg3: "about somebody else, already happened",
-  KndPrSg1: "about yourself, as something you would do",
-  ImpPrSg2: "telling one person you know to do it",
-  ImpPrPl2: "telling somebody politely, or a group, to do it",
+  IndPrSg1: "about yourself, right now",
+  IndPrSg3: "about somebody else, right now",
+  IndPrPl1: "about you and others, right now",
+  IndPrPs_: "to say you don't do it",
+  IndIpfSg1: "about yourself, in the past",
+  IndIpfSg3: "about somebody else, in the past",
+  KndPrSg1: "about yourself, as something you'd do",
+  ImpPrSg2: "to tell one person you know to do it",
+  ImpPrPl2: "to ask a group, or somebody politely, to do it",
 
   /*
     The infinitive and the participles, which are the verb forms a gap-fill
@@ -96,7 +96,7 @@ const CLAUSES: Record<string, string> = {
   */
   Inf: "when you mean “to do it”",
   PtsPtPs: "when somebody has already done it",
-  PtsPtIps: "when it has been done and nobody is named as doing it",
+  PtsPtIps: "when it's been done and nobody says who did it",
   PtsPrPs: "when you mean the one doing it",
 };
 

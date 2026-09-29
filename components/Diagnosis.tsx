@@ -56,10 +56,10 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
         <Card>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {needed > 0
-              ? <>Not enough case reviews yet to say anything useful. About {needed} more and this
-                  will start telling you which stems are actually costing you.</>
-              : <>Nothing stands out. Your accuracy is even across cases and stem types, which is
-                  the boring answer and the good one.</>}
+              ? <>Not enough answers on case endings yet to spot a pattern. Do about {needed} more and
+                  this will show you which kinds of word keep catching you out.</>
+              : <>Nothing stands out. You do about as well on every ending and every kind of word,
+                  which is a dull thing to read and a very good thing to be.</>}
           </p>
         </Card>
       </section>
@@ -68,7 +68,7 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
 
   return (
     <section>
-      <SectionTitle hint="from your review log">Diagnosis</SectionTitle>
+      <SectionTitle hint="from your reviews">Diagnosis</SectionTitle>
       <div className="flex flex-col gap-3">
         {findings.map((finding) => (
           <Card key={finding.headline}>
@@ -83,7 +83,7 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
                 </p>
 
                 <div className="mt-3 flex items-center gap-4">
-                  <Bar label="in that group" pct={finding.weakPct} tone="var(--again)" ink="var(--again-ink)" />
+                  <Bar label="these words" pct={finding.weakPct} tone="var(--again)" ink="var(--again-ink)" />
                   <Bar label="elsewhere" pct={finding.strongPct} tone="var(--good)" ink="var(--good-ink)" />
                 </div>
 

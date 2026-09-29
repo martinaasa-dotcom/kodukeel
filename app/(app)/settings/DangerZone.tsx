@@ -60,7 +60,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
       router.push("/sign-in");
       router.refresh();
     } catch {
-      setError("That did not complete. Nothing was deleted.");
+      setError("Something went wrong, so nothing has been deleted. Try again in a moment.");
     } finally {
       setBusy(false);
     }
@@ -71,15 +71,15 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
       <SectionTitle>Deleting your data</SectionTitle>
       <Card>
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          You can remove everything this app holds about you. That is {counts.cards} cards,{" "}
-          {counts.reviews} reviews, your tasks, your conversations with Anu, your scanned word
-          lists, your level checks, and every mock exam paper you sat with the writing in it.
-          Any class you are in or run goes too, with your badges and your settings. The shared
-          dictionary stays, because other learners have cards built on it.
+          You can delete everything this app keeps about you. That&rsquo;s {counts.cards} cards,{" "}
+          {counts.reviews} reviews, your tasks, your chats with Anu, your scanned word lists, your
+          level checks, and every mock exam you sat, writing included. Any class you&rsquo;re in or
+          run goes too, along with your badges and settings. The shared dictionary stays, because
+          other learners have cards built on it.
         </p>
         <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-          Download a backup first if there is any chance you will want it. Your review history
-          and anything you wrote in an exam cannot be recreated, and this does not keep a copy.
+          If there&rsquo;s any chance you&rsquo;ll want it back, download a backup first. Your review
+          history and anything you wrote in an exam can&rsquo;t be rebuilt, and we don&rsquo;t keep a copy.
         </p>
 
         {remaining ? (
@@ -114,7 +114,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
             <p className="flex items-start gap-2 text-sm">
               <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
               <span>
-                This cannot be undone. Type <strong>delete</strong> to confirm.
+                This can&rsquo;t be undone. Type <strong>delete</strong> to confirm.
               </span>
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">

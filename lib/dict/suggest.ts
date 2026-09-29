@@ -147,7 +147,7 @@ export async function suggestWords(
 
 function labelFor(source: SuggestionSource, dayKey: string): string {
   if (source === "news") return "In the news today";
-  if (source === "level") return "Around your level";
+  if (source === "level") return "Good words for your level";
   return themeFor(...monthDay(dayKey)).reason;
 }
 

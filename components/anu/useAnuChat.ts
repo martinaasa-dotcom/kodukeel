@@ -98,7 +98,7 @@ export function useAnuChat(
       if (provider && model) setAnsweredBy(`${provider}, ${model}`);
 
       if (!res.ok || !res.body) {
-        const { error } = await res.json().catch(() => ({ error: "Anu could not be reached." }));
+        const { error } = await res.json().catch(() => ({ error: "Couldn't reach Anu just now." }));
         setFailure(String(error));
         setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: `⚠ ${error}` }]);
         return;
@@ -141,7 +141,7 @@ export function useAnuChat(
         // Not "still in the box above": both surfaces clear the input on the
         // same line that calls this, so the question is gone and the learner
         // was being sent to a box that no longer held it.
-        content: `${half}⚠ Lost the connection to Anu. Ask that again when you are ready.`,
+        content: `${half}⚠ Lost the connection to Anu. Ask again whenever you're ready.`,
       }]);
     } finally {
       setStreaming(false);

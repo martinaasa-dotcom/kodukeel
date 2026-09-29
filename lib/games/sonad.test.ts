@@ -179,11 +179,11 @@ describe("the clue ladder", () => {
     // A whole sentence: that a clue is coming, what it says, and when. The
     // old "How many vowels it has, in 6 tries" was reported as making no
     // sense to somebody looking at an empty board.
-    expect(nextClue(2, true)).toBe("After your next try you get a clue: what kind of word it is.");
-    expect(nextClue(1, true)).toBe("After 2 more tries you get a clue: what kind of word it is.");
+    expect(nextClue(2, true)).toBe("After your next guess you'll get a clue: what sort of thing the word is.");
+    expect(nextClue(1, true)).toBe("After 2 more guesses you'll get a clue: what sort of thing the word is.");
     expect(nextClue(SONAD_GUESSES - 2, true))
-      .toBe("Before your last try you get a clue: how many of the letters are vowels.");
-    expect(nextClue(0, false)).toMatch(/^After \d more tries you get a clue: how many of the letters are vowels\.$/);
+      .toBe("Before your last guess you'll get a clue: how many of its letters are vowels.");
+    expect(nextClue(0, false)).toMatch(/^After \d more guesses you'll get a clue: how many of its letters are vowels\.$/);
     expect(nextClue(SONAD_GUESSES - 1, true)).toBeNull();
   });
 

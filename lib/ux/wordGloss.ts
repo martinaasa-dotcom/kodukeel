@@ -55,11 +55,11 @@ export const WORD_GLOSS_CHOICES: { value: WordGloss; label: string; detail: stri
   {
     value: "on",
     label: "Underline every word",
-    detail: "Tap any word in a sentence to see what it means.",
+    detail: "Every word in an example sentence is underlined. Tap one to see what it means.",
   },
   {
     value: "off",
     label: "Leave the sentence alone",
-    detail: "Just the sentence, with the word being taught marked.",
+    detail: "You see the plain sentence, with only the new word highlighted.",
   },
 ];

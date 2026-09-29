@@ -232,60 +232,63 @@ export interface PartSpec {
 export const PARTS: readonly PartSpec[] = [
   {
     id: "a1.1", level: "A1",
-    title: "Esimesed sõnad", subtitle: "Hello, I and you, to be, and, and who is in the room",
+    title: "Esimesed sõnad", subtitle: "Hello, you and me, the verb to be, and the people around you",
     blurb:
-      "From nothing, in the order a sentence needs: five words on the first evening, the "
-      + "six pronouns on the second, the verb to be and its six endings straight after. Then the "
-      + "small words that join them, the greetings, the question words, and the people around "
-      + "you. At the end you can say hello, ask where somebody lives, and say who is in your family.",
+      "You start from nothing and build up the way a sentence does. Five words on the first "
+      + "evening, then I, you, he and she, then the verb to be with its six endings. After that "
+      + "come the little words that hold a sentence together, a few greetings and questions, and "
+      + "the people in your life. By the end you can say hello, ask where somebody lives and tell "
+      + "them who's in your family.",
     units: ["vastused", "asesonad", "esimesed-verbid", "vaikesed-sonad", "tervitused", "kusisonad", "inimesed"],
   },
   {
     id: "a1.2", level: "A1",
-    title: "Sina, arvud ja kodu", subtitle: "Who you are, counting, home, and the verbs that break the rules",
+    title: "Sina, arvud ja kodu", subtitle: "Your name, numbers, your home, and the verbs you'll use every day",
     blurb:
-      "Your name and address, the numbers, the room you are standing in, and the eleven verbs "
-      + "an Estonian sentence cannot avoid. At the end you can introduce yourself, count, and "
-      + "describe your home.",
+      "Your name and where you live, how to count, the rooms of your home, and the eleven verbs "
+      + "you'll need in almost every sentence you ever say. By the end you can introduce "
+      + "yourself, count, and describe where you live.",
     units: ["tutvumine", "arvud", "kodu", "pohiverbid", "veel-verbe"],
   },
   {
     id: "a1.3", level: "A1",
-    title: "Söök, aeg ja tegevused", subtitle: "Food, the clock, what you do all day, and what things are like",
+    title: "Söök, aeg ja tegevused", subtitle: "Food, the time, your day, and what things are like",
     blurb:
-      "The words for ordering, the days and the hours, the verbs of an ordinary day, and the "
-      + "first adjectives and colors. At the end you can say what you are doing, when, and what "
-      + "it is like.",
+      "Food and drink, the days and the clock, what you do from morning to night, and your "
+      + "first words for what things look like, colors included. By the end you can say what "
+      + "you're doing, when, and what it's like.",
     units: ["sook-ja-jook", "aeg", "iga-paev", "omadussonad", "varvid", "tahtsad-sonad"],
   },
   {
     id: "a1.4", level: "A1",
     title: "Riided, ilm ja pood", subtitle: "Clothes, weather, prices, and a shop",
     blurb:
-      "Clothes and weather, the numbers a price needs, and then the shop where you use all of "
-      + "them. At the end you can say what something is like and buy it.",
+      "What you're wearing, what the weather's doing, the bigger numbers you need for prices, "
+      + "and then a shop to put it all to work in. By the end you can describe what you want and "
+      + "buy it.",
     units: ["riided", "ilm", "suured-arvud", "ostmine", "kodus"],
   },
   {
     id: "a1.5", level: "A1",
-    title: "Kus ja millal", subtitle: "Places, the bus, the rest of the pronouns, and when",
+    title: "Kus ja millal", subtitle: "Where things are, the bus, somebody and something, and when",
     blurb:
-      "The words a sentence is built out of rather than the ones it is about. At the end you "
-      + "can ask where something is, catch a bus to it, and say when you got there.",
+      "Where things are and where you're heading, getting around by bus, words like somebody "
+      + "and nothing, and talking about when. By the end you can ask where something is, catch a "
+      + "bus there, and say when you arrived.",
     units: ["kus-ja-kuhu", "transport", "umbmaarased", "millal", "kohasonad"],
   },
   {
     id: "a1.6", level: "A1",
-    title: "Sidesõnad, kuud ja riigid", subtitle: "The small words, the calendar, and where people are from",
+    title: "Sidesõnad, kuud ja riigid", subtitle: "Joining words, the calendar, and where people are from",
     blurb:
-      "The words that join two sentences or say how sure you are, the months and the holidays, "
-      + "and where people are from. At the end you can put two thoughts together and say when "
-      + "something happens.",
+      "Words for joining two thoughts or saying how sure you are, the months and the holidays, "
+      + "where people come from, and a few animals and parts of the body. By the end you can link "
+      + "two ideas and say when something happens.",
     units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid", "loomad-ja-keha"],
   },
   {
     id: "a1.7", level: "A1",
-    title: "Kuidas, kinni ja abi", subtitle: "How something was done, the words a household needs, and asking for help",
+    title: "Kuidas, kinni ja abi", subtitle: "How things are done, more everyday words, and asking for help",
     /*
       A seventh part rather than two more units inside the sixth, and that is
       about the day ids rather than about the shape. `CourseStep` rows are
@@ -301,9 +304,10 @@ export const PARTS: readonly PartSpec[] = [
       A1 still ends on asking for help, which is where it ended before.
     */
     blurb:
-      "The last of A1: how something was done, the little word that finishes a verb, the market, "
-      + "the town and ten verbs a child uses, and how to ask somebody for help. At the end you have "
-      + "every word A1 asks for.",
+      "The last of A1. Words for how something was done, and the small words that change what "
+      + "a verb means. Then more of the everyday: food, places in town and the people who work "
+      + "there, ten verbs every child knows and ten more describing words. It ends on asking for "
+      + "help, and by then you have every word A1 asks for.",
     units: ["viisisonad", "osakesed", "rohkem-toitu", "kohad-ja-ametid", "tegusonad", "veel-omadussonu", "abi"],
   },
 
@@ -311,110 +315,117 @@ export const PARTS: readonly PartSpec[] = [
     id: "a2.1", level: "A2",
     title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors, the body and the house",
     blurb:
-      "A2 opens with the unit that makes a conversation possible, asking somebody for something "
-      + "without sounding like a machine, and then the past tense. Then the first case pages, the "
-      + "stem first. At the end you can say what you did yesterday and what is wrong with you, and "
-      + "the first two conversations open.",
+      "A2 starts with what makes a conversation possible: asking for something without sounding "
+      + "like a robot. Then the past tense, and your first case endings, starting with the one "
+      + "all the others are built on. By the end you can say what you did yesterday and what's "
+      + "wrong with you, and your first two conversations are waiting.",
     units: ["korraldused", "minevik", "loodus", "keha-ja-tervis", "kodutood"],
   },
   {
     id: "a2.2", level: "A2",
-    title: "Linn ja liikumine", subtitle: "School, travel, the town, a free afternoon and comparing things",
+    title: "Linn ja liikumine", subtitle: "School, travel, the town, a free afternoon, and comparing things",
     blurb:
-      "Everything that happens outside your own front door, and three conversations to have "
-      + "there. At the end you can buy a ticket, ask the way and say what you did on Saturday.",
+      "Life outside your front door: school, trips, the town, your weekends, and saying which "
+      + "of two things is better. There are four conversations to practise on along the way. By "
+      + "the end you can buy a ticket, ask the way and say what you did on Saturday.",
     units: ["kool-ja-keel", "reisimine", "linn-ja-teenused", "vaba-aeg", "vordlemine"],
   },
   {
     id: "a2.3", level: "A2",
-    title: "Söök, plaanid ja tunded", subtitle: "Eating out, what is next, talking to people, and how you feel",
+    title: "Söök, plaanid ja tunded", subtitle: "Eating out, making plans, keeping in touch, and how you feel",
     blurb:
-      "Talking about what has not happened yet, keeping in touch, and saying how you feel "
-      + "about either. Five conversations, more than any other part: at the end you can hold a "
-      + "whole meal in Estonian, book an appointment and ring somebody about it.",
+      "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about "
+      + "it all. It has five conversations, more than any other part. By the end you can get "
+      + "through a whole meal in Estonian, book an appointment and ring somebody about it.",
     units: ["restoranis", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
   },
 
   {
     id: "b1.1", level: "B1",
-    title: "Sihitis ja rektsioon", subtitle: "The object, the people around you, verb government, money and would",
+    title: "Sihitis ja rektsioon", subtitle: "Objects, the people in your life, what each verb asks for, money, and would",
     blurb:
-      "The two things that separate somebody who has words from somebody who has Estonian: the "
-      + "object, and government. Each is followed by a unit of ordinary words to use it on, the "
-      + "people in your life, then work and money. Then the conditional. A grammar unit, a "
-      + "vocabulary unit, a grammar unit, so no fortnight is all tables.",
+      "Two things separate knowing Estonian words from knowing Estonian: getting the object of "
+      + "a sentence right, and knowing which ending each verb wants after it. You learn each one "
+      + "on everyday words, first the people in your life, then work and money. Then comes would, "
+      + "for wishes and polite requests. Grammar and new words take turns, so it's never two "
+      + "weeks of tables.",
     units: ["objekt", "inimsuhted", "rektsioon", "too-ja-raha", "tingiv"],
   },
   {
     id: "b1.2", level: "B1",
-    title: "Kool, minevik ja kodu", subtitle: "School, the participles, housing, character and the news",
+    title: "Kool, minevik ja kodu", subtitle: "School, two new past forms, renting, what people are like, and the news",
     blurb:
-      "School and a job interview first, then the participles and the two past tenses built on "
-      + "them. Then the flat you rent, what people are like, and the news, which is written in the "
-      + "impersonal the participles make possible. At the end you can sit an interview, read a news "
-      + "item and ring a landlord.",
+      "School and a job interview first. Then the verb forms ending in -nud and -tud, and the "
+      + "two past tenses built from them. Then renting a flat, what people are like, and the "
+      + "news, which leans on those same forms to say what happened without saying who did it. By "
+      + "the end you can get through an interview, read a news story and phone a landlord.",
     units: ["haridus", "kesksonad", "eluase", "iseloom", "meedia"],
   },
   {
     id: "b1.3", level: "B1",
-    title: "Arvamused ja probleemid", subtitle: "Technology, opinions, the environment, things going wrong, and the particle verbs",
+    title: "Arvamused ja probleemid", subtitle: "Technology, opinions, the environment, things going wrong, and two-part verbs",
     blurb:
-      "Disagreeing with somebody, the subjects a newspaper argues about, and dealing with the "
-      + "afternoon where something breaks; the particle verbs close B1, because they are the "
-      + "object rule met again. At the end you can argue your side without switching to English.",
+      "Disagreeing with somebody, the things the papers argue about, and coping when something "
+      + "breaks. B1 ends on verbs that come in two parts, because they follow the same object "
+      + "rule you met at the start of B1. By the end you can argue your side without switching to "
+      + "English.",
     units: ["tehnoloogia", "arvamus", "keskkond", "probleemid", "liitverbid"],
   },
 
   {
     id: "b2.1", level: "B2",
-    title: "Kes seda ütles", subtitle: "The impersonal, society, the reported, money, and the converb",
+    title: "Kes seda ütles", subtitle: "Leaving out who did it, society, hearsay, the economy, and doing two things at once",
     blurb:
-      "Three ways Estonian says something without saying who did it, each followed by the "
-      + "vocabulary it is used on: the impersonal and then society, the quotative and then the "
-      + "economy, and the converb. At the end you can read a report that names nobody.",
+      "Estonian has three ways of telling you what happened without saying who did it. You "
+      + "learn each one alongside the words it usually comes with: the impersonal with society, "
+      + "the reported form with the economy, and then the form for doing two things at once. By "
+      + "the end you can read a report that never names anybody.",
     units: ["umbisikuline", "uhiskond", "kaudne", "majandus", "des-vorm"],
   },
   {
     id: "b2.2", level: "B2",
-    title: "Ajalugu ja sõnamoodustus", subtitle: "History, word-building, politics, health and science",
+    title: "Ajalugu ja sõnamoodustus", subtitle: "History, building new words, politics, health and science",
     blurb:
-      "The pluperfect on the history it is used for, then the machinery for building a word you "
-      + "have never met out of one you have, and three subjects to build them on. At the end you can "
-      + "read an opinion piece on any of them without a dictionary open beside it.",
+      "It opens on had done, the past before the past, learned on history, where you'll meet it "
+      + "most. Then how to "
+      + "work out a word you've never seen from one you already know, and three subjects to try "
+      + "it on. By the end you can read an opinion piece on any of them without a dictionary "
+      + "open.",
     units: ["ajalugu", "sonamoodustus", "poliitika", "tervishoid", "teadus"],
   },
   {
     id: "b2.3", level: "B2",
-    title: "Kunst, töö ja argument", subtitle: "The arts, law, the mind, working life, data, and making a case",
+    title: "Kunst, töö ja argument", subtitle: "The arts, the law, the mind, working life, figures, and making a case",
     blurb:
-      "The end of B2: the arts, a complaint made properly, describing behavior, working in "
-      + "Estonian, reading a table of figures, and building an argument that concedes a point "
-      + "before it wins one.",
+      "The end of B2: the arts, making a proper complaint, describing how people behave, "
+      + "working in Estonian, reading a table of figures, and building an argument that gives a "
+      + "little ground before it wins.",
     units: ["kunst", "oigus", "psuhholoogia", "toomaailm", "statistika", "argumenteerimine"],
   },
 
   {
     id: "c1.1", level: "C1",
-    title: "Lause ja mõte", subtitle: "Compressing a clause, and writing a long sentence that works",
+    title: "Lause ja mõte", subtitle: "Saying more in fewer words, and long sentences that hold together",
     blurb:
-      "C1 is mostly about compression: saying in a phrase what B2 says in a clause. Four units "
-      + "of that, and then academic and research writing, which are what it is for.",
+      "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole "
+      + "clause for. You practise it on academic writing, research and philosophy, which is where "
+      + "you'll need it most.",
     units: ["nominalisatsioon", "lauseloome", "akadeemiline", "teadustoo", "filosoofia"],
   },
   {
     id: "c1.2", level: "C1",
-    title: "Veenmine ja register", subtitle: "Ethics, rhetoric, register, idiom and holding a text together",
+    title: "Veenmine ja register", subtitle: "Ethics, persuasion, how formal to be, idioms, and holding a text together",
     blurb:
-      "Choosing how formal to be and meaning it, persuading somebody who disagrees, and the "
-      + "fixed expressions that no rule reaches.",
+      "Knowing how formal to be and getting it right, winning over somebody who disagrees, and "
+      + "the set phrases no rule will ever explain.",
     units: ["eetika", "retoorika", "register", "idioomid", "diskursus"],
   },
   {
     id: "c1.3", level: "C1",
-    title: "Maailm ja nüanss", subtitle: "Innovation, the world outside, literature, and choosing between near-synonyms",
+    title: "Maailm ja nüanss", subtitle: "New ideas, the wider world, literature, and words that almost mean the same",
     blurb:
-      "The last of the course. At the end there is nothing left in the syllabus you have not "
-      + "met, and what is left is reading Estonian because you want to.",
+      "The last part of the course. By the end you've met everything in it, and what's left is "
+      + "reading Estonian because you want to.",
     units: ["innovatsioon", "rahvusvaheline", "kirjandus", "nuansid"],
   },
 ];

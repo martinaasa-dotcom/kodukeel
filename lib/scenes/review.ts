@@ -262,9 +262,9 @@ function notesFrom(state: SceneState): ReviewNote[] {
  * already lives.
  */
 function whatFor(kind: Slip["kind"], plain: string | undefined, suffix: string | undefined): string {
-  if (kind === "person") return "the verb with a person on it";
+  if (kind === "person") return "the verb with the right ending for who's doing it";
   if (kind === "spelling") return "the spelling";
-  if (!plain) return "the form this one wanted";
+  if (!plain) return "the form they were listening for";
   return suffix ? `the ending for “${plain}”` : `the form for “${plain}”`;
 }
 
@@ -276,8 +276,8 @@ function whatFor(kind: Slip["kind"], plain: string | undefined, suffix: string |
  * reported as too much to read.
  */
 const NOTE_BODY: Partial<Record<Slip["kind"], string>> = {
-  person: "All six persons are built off the first: take the -n off, add the ending for who is doing it.",
-  spelling: "The row of letters under the box types the ones an English keyboard has no key for.",
+  person: "Every form grows out of the 'I' form, the first one you learn: take off the -n and add the ending for whoever's doing it.",
+  spelling: "Missing a letter your keyboard hasn't got? The row of letters under the box has them.",
 };
 
 /**
@@ -361,7 +361,7 @@ function lead(n: {
   turns: number; landed: number; partly: number; read: number; slips: number; spellings: number;
   notes: number;
 }): string {
-  if (n.turns === 0) return "Nothing was said this time, which is a fine way to find out what a scene is like.";
+  if (n.turns === 0) return "You didn't say anything this time, and that's fine. Watching a scene once is a good way to get a feel for it.";
 
   /*
     Nothing landed. Saying what did happen is still worth more than a count
@@ -371,12 +371,12 @@ function lead(n: {
   */
   if (n.landed + n.partly === 0) {
     const seen = n.read === n.turns
-      ? "Your Estonian was understood every time. None of it answered what was being asked. "
+      ? "Your Estonian was understood every time. It just didn't answer what they were asking. "
       : n.read > 0
-        ? `${n.read} of your ${n.turns} turns were understood as Estonian, and none of them answered the question. `
+        ? `${n.read} of your ${n.turns} turns were understood as Estonian, but none of them answered the question. `
         : "";
-    return `${seen}Nothing landed this time. The word button gives you one of the words they are `
-      + "waiting for, and telling them you have not followed gets you one too.";
+    return `${seen}None of it got through this time, and that happens to everybody. Next time, the word button `
+      + "hands you one of the words they're waiting for, and telling them you're lost gets you one too.";
   }
 
   const all = n.landed === n.turns;
@@ -413,7 +413,7 @@ function lead(n: {
       ? ["ending", "endings"]
       : ["ending or spelling", "endings and spellings"];
   return n.slips === 1
-    ? `${opener} One ${one} was off, and it did not stop the conversation.`
+    ? `${opener} One ${one} was off, and it didn't stop the conversation.`
     : `${opener} ${n.slips} ${several} were off, and not one of them stopped the conversation.`;
 }
 
@@ -451,8 +451,8 @@ function reachedNote(state: SceneState): ReviewNote[] {
     said: row.slip.said,
     form: row.slip.form,
     what: "the word you were reaching for",
-    body: "You knew what you wanted to say and not yet how to say it. That is the shortest list "
-      + "there is of what to learn next.",
+    body: "You knew what you wanted to say, just not how to say it yet. That makes it "
+      + "exactly the right word to learn next.",
     at: row.at,
   }));
 }
@@ -463,9 +463,9 @@ function englishNote(count: number, at: number): ReviewNote[] {
     id: "english",
     said: count === 1 ? "One turn in English" : `${count} turns in English`,
     form: null,
-    what: "Estonian, for one turn more",
-    body: "Holding out for one more turn is most of what this is practice for. "
-      + "The word button hands you one when you are stuck.",
+    what: "Estonian, even a word or two",
+    body: "Staying in Estonian a little longer each time is what this practice is for. "
+      + "When you're stuck, the word button gives you a word to use.",
     at,
   }];
 }

@@ -137,7 +137,7 @@ await page.goto(`${B}/situations/${SCENE}`, { waitUntil: "domcontentloaded" });
 await page.waitForSelector("main h1", { timeout: 20_000 });
 check("a scene names itself in the tab", (await page.title()).includes("Booking a doctor"));
 const briefing = await page.locator("main").innerText();
-check("the briefing says who you are today", /You are a patient/i.test(briefing));
+check("the briefing says who you are today", /You.re a patient/i.test(briefing));
 check("the difficulty dial is on the scene", (await page.getByRole("radio", { name: /Normal/i }).count()) > 0);
 
 /*
@@ -214,8 +214,8 @@ const card = await page.locator("details").innerText();
   learner's. The day this started is the learner's own fact and prints the
   same way a word does.
 */
-check("the card says what you were given", /this day\.?\s*\n\s*[A-Z][a-z]+/.test(card));
-check("and what is wrong with you, in English", /What is wrong/i.test(card)
+check("the card says what you were given", /earlier this week\.?\s*\n\s*[A-Z][a-z]+/.test(card));
+check("and what is wrong with you, in English", /What.s wrong/i.test(card)
   && /\n[a-z][a-z ,'-]{2,}\n/.test(card));
 /*
   AND NOT WHAT THE OTHER SIDE IS ABOUT TO SAY. The appointment this desk offers
@@ -251,7 +251,7 @@ check("and every objective, once it has been opened", card.includes(inPlay), inP
   The `since` beat is the one that wants a day, and the day is the same string
   the card's own value line prints, so the two are read off one render.
 */
-const dealtDay = /on this day\.?\s*\n\s*([A-Z][a-z]+)/i.exec(card)?.[1];
+const dealtDay = /the day it started[^\n]*\n\s*([A-Z][a-z]+)/i.exec(card)?.[1];
 check("the card dealt a day worth naming", Boolean(dealtDay), card.slice(0, 200));
 /*
   The value sits under the objective that wants it, wherever in the list that
@@ -642,7 +642,7 @@ await page.waitForSelector("text=/What you got done/i", { timeout: TURN_MS });
 const debrief = await page.locator("main").innerText();
 check("leaving ends in a debrief rather than a reproach", /What you got done/i.test(debrief));
 
-check("which says what happened, in one line", /You left the desk|came back|That is a thing people do/i.test(debrief));
+check("which says what happened, in one line", /You walked away from the desk|You left the desk|come back|came back|People do|That is a thing people do/i.test(debrief));
 check("counts what you got done rather than scoring it", /You got \d+ of the \d+ things done|You got everything done|Things done\s*\d+|\d+\s*Things done/i.test(debrief));
 check("and prints no percentage anywhere", !/\d+\s*%/.test(debrief));
 check("shows what was said, both sides", /What was said/i.test(debrief) && debrief.includes("Tere!"));

@@ -296,7 +296,7 @@ export default async function TodayPage() {
     <div className="flex flex-wrap items-center gap-4">
       <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[200px] sm:flex-1">
         <StatTile value={snapshot.dueCount} label="Due now" tone="accent" />
-        <StatTile value={toLearn} label="To learn" tone="sky" />
+        <StatTile value={toLearn} label="New words" tone="sky" />
       </div>
       {/* On a phone the ring wraps onto its own line, where a bare
           circle says nothing — so it is captioned there and only there. */}
@@ -305,7 +305,7 @@ export default async function TodayPage() {
           pct={summary.goalPct}
           size={74}
           thickness={8}
-          label={`${summary.reviewsToday} of ${summary.dailyGoal} reviews toward today's goal`}
+          label={`${summary.reviewsToday} of today's ${summary.dailyGoal} reviews done`}
         >
           <span
             className="tnum text-base font-bold"
@@ -325,7 +325,7 @@ export default async function TodayPage() {
           <p className="label-xs" style={{ color: "var(--ink-3)" }}>Daily goal</p>
           <p className="tnum mt-1 text-xs" style={{ color: "var(--ink-2)" }}>
             {summary.reviewsToday >= summary.dailyGoal
-              ? `Met, ${summary.reviewsToday} reviews`
+              ? `${summary.reviewsToday} done, goal met`
               : `${summary.reviewsToday} of ${summary.dailyGoal} reviews`}
           </p>
         </div>
@@ -372,18 +372,18 @@ export default async function TodayPage() {
   */
   const caughtUpNote = (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Reviewing early does not help you remember more.
+      Going over cards before they&rsquo;re due doesn&rsquo;t help them stick. Take the break, or start something new.
     </p>
   );
   const actions = learnFirst ? (
     <>
       <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full">
-        {stage === "arriving" ? "Learn your first words" : `Learn ${Math.min(toLearn, LEARN_BATCH)} new words`}{" "}
+        {stage === "arriving" ? "Meet your first words" : `Learn ${Math.min(toLearn, LEARN_BATCH)} new words`}{" "}
         <ArrowRight size={17} aria-hidden />
       </ButtonLink>
       {toReview > 0 && (
         <ButtonLink href="/review" variant="secondary" className="w-full justify-center">
-          Or review {toReview} due <ArrowRight size={16} aria-hidden />
+          Or review {toReview} due card{toReview === 1 ? "" : "s"} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
@@ -402,11 +402,11 @@ export default async function TodayPage() {
     <>
       {nextUnit ? (
         <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} variant="secondary" className="w-full justify-center">
-          Meet {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)} <ArrowRight size={16} aria-hidden />
+          Start {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       ) : (
         <ButtonLink href="/practice" variant="secondary" className="w-full justify-center">
-          Open practice <ArrowRight size={16} aria-hidden />
+          Go and practise <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
@@ -419,13 +419,13 @@ export default async function TodayPage() {
   */
   const opening = figures ? null : caughtUp ? caughtUpNote : learnFirst ? (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      {toLearn} word{toLearn === 1 ? "" : "s"} waiting, {LEARN_BATCH} at a time. You meet each one,
-      pick out its meaning, then put it back into its sentence.
+      {toLearn} new word{toLearn === 1 ? " is" : "s are"} waiting for you, and you&rsquo;ll take them {LEARN_BATCH} at a time. You see
+      each word in a sentence, pick what it means, then fill it back into the sentence yourself.
     </p>
   ) : (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Type or pick the answer where you can. Where a card just asks, say honestly whether
-      you knew it. That is what decides when you see it again.
+      Most cards ask you to type or pick the answer. A few just show it and ask whether you knew
+      it. Be honest there: that&rsquo;s how the app knows when to bring each word back.
     </p>
   );
 
@@ -496,7 +496,7 @@ export default async function TodayPage() {
             <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
               {courseDay.minutesLeft} min
             </span>
-            left tonight
+            to go tonight
           </p>
         </div>
         <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
@@ -504,7 +504,7 @@ export default async function TodayPage() {
         </ButtonLink>
         {toReview > 0 && (
           <ButtonLink href="/review" variant="secondary" className="w-full justify-center">
-            Or review {toReview} due <ArrowRight size={16} aria-hidden />
+            Or review {toReview} due card{toReview === 1 ? "" : "s"} <ArrowRight size={16} aria-hidden />
           </ButtonLink>
         )}
       </div>
@@ -520,21 +520,21 @@ export default async function TodayPage() {
           Today&rsquo;s module
         </SectionTitle>
         <p className="mt-1 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-          All done for today
+          That&rsquo;s tonight done. Go and enjoy your evening.
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? <>Tomorrow you carry on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
+              ? <>Tomorrow you&rsquo;ll carry on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
               : uiWantsEnglish(placement)
-                ? <>Come back tomorrow for {courseDay.day.subtitle}.</>
-                : <>Come back tomorrow for {courseDay.day.title}, {courseDay.day.subtitle.toLowerCase()}.</>
-            : <>That was the last one. Every word of it stays in your review queue.</>}
+                ? <>See you tomorrow for {courseDay.day.subtitle}.</>
+                : <>See you tomorrow for {courseDay.day.title} ({courseDay.day.subtitle}).</>
+            : <>That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.</>}
         </p>
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
         <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
-          See what is next <ArrowRight size={16} aria-hidden />
+          See what&rsquo;s next <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -543,9 +543,9 @@ export default async function TodayPage() {
   const doNowCard = courseCard ?? (snapshot.totalCards === 0 ? (
     <Card>
       <Empty
-        title="Your deck is empty"
-        body="Open a unit and it turns into cards, with every form and its audio."
-        action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+        title="No cards yet"
+        body="Choose a unit to begin with. Its words become cards you can learn, hear and practise."
+        action={<ButtonLink href="/learn" variant="primary">Choose your first unit</ButtonLink>}
       />
     </Card>
   ) : (
@@ -570,7 +570,7 @@ export default async function TodayPage() {
   const streakCard = shows(stage, "streak") ? (
 
     <Card className="flex flex-col gap-4">
-      <SectionTitle hint={`${summary.reviewsToday} reviewed today`}>Keeping it up</SectionTitle>
+      <SectionTitle hint={`${summary.reviewsToday} reviewed today`}>Your streak</SectionTitle>
 
       {/*
         The run is a number and a word, set like type, with the week under it.
@@ -661,8 +661,8 @@ export default async function TodayPage() {
       {summary.shieldsAvailable > 0 && (
         <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
           <Shield size={13} aria-hidden style={{ color: "var(--accent-deep)" }} />
-          {summary.shieldsAvailable} streak shield{summary.shieldsAvailable === 1 ? "" : "s"} banked. One
-          missed day won&rsquo;t break your streak.
+          {summary.shieldsAvailable} streak shield{summary.shieldsAvailable === 1 ? "" : "s"} saved up, so
+          missing a day won&rsquo;t break your run.
         </p>
       )}
 
@@ -705,7 +705,7 @@ export default async function TodayPage() {
   const scheduleCard = todayEvents.length > 0 ? (
     <Card>
       <SectionTitle hint={todayEvents.length === 1 ? "one thing" : `${todayEvents.length} things`}>
-        On today
+        What&rsquo;s on today
       </SectionTitle>
       <ul className="flex flex-col gap-2">
         {todayEvents.map((e) => (
@@ -733,7 +733,7 @@ export default async function TodayPage() {
         className="mt-3 inline-block text-sm font-semibold underline underline-offset-2"
         style={{ color: "var(--accent-deep)" }}
       >
-        Open the week
+        See your whole week
       </Link>
     </Card>
   ) : null;
@@ -773,10 +773,10 @@ export default async function TodayPage() {
             <span lang="et" className="font-semibold">
               {grammarTerm(weakest.grammCase)?.et ?? weakest.grammCase.toLowerCase()}
             </span>{" "}
-            is at {weakest.accuracy}%. {questLength} on it.
+            is at {weakest.accuracy}%. Give it {questLength} today.
           </>
         ) : (
-          `${questLength} on the cards you get wrong most often.`
+          `${questLength} on the cards that trip you up most.`
         )}
       </p>
       <div className="mt-3">
@@ -814,7 +814,7 @@ export default async function TodayPage() {
   const nextCard = shows(stage, "next") && nextUnit ? (
 
     <Card>
-      <SectionTitle hint={nextUnit.unit.cefr}>Next on the path</SectionTitle>
+      <SectionTitle hint={nextUnit.unit.cefr}>Your next unit</SectionTitle>
       <div className="flex items-center gap-3">
         <NextUnitIcon name={nextUnit.unit.icon} />
         <div className="min-w-0">
@@ -841,7 +841,7 @@ export default async function TodayPage() {
         />
       </div>
       <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} className="mt-4 w-full">
-        {nextUnit.state === "learning" ? "Continue the lesson" : "Start the lesson"}
+        {nextUnit.state === "learning" ? "Pick up where you left off" : "Start this unit"}
         <ArrowRight size={15} aria-hidden />
       </ButtonLink>
     </Card>
@@ -891,7 +891,7 @@ export default async function TodayPage() {
         </ButtonLink>
       </div>
       <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-        {tomorrow.weekday} is {featuredTitle(tomorrow.game.href) ?? "another one"}.
+        Tomorrow&rsquo;s {tomorrow.weekday}, which means {featuredTitle(tomorrow.game.href) ?? "something different"}.
       </p>
     </Card>
   ) : null;
@@ -1062,11 +1062,11 @@ function NextUnitIcon({ name }: { name: string }) {
 function courseLead(toReview: number, finishedToday: boolean): string {
   const cards = `${toReview} card${toReview === 1 ? "" : "s"}`;
   if (finishedToday) {
-    return toReview === 0 ? "Nothing else is due today." : `${cards} still due if you want them.`;
+    return toReview === 0 ? "Nothing else is due today. Enjoy the rest of your day." : `${cards} still due, if you fancy a few more.`;
   }
   return toReview === 0
-    ? "Nothing else is due. Tonight's module is the whole evening."
-    : `${cards} due as well. The module ends by reviewing them.`;
+    ? "Nothing else is due today, so tonight's module is all you need to do."
+    : `${cards} due as well. They'll come up at the end of tonight's module.`;
 }
 
 function lead(
@@ -1079,8 +1079,8 @@ function lead(
   // Nothing due is only "a good moment for something new" while there is
   // something new. A deck whose words are all learned needs a unit, and saying
   // otherwise sends somebody to a screen with nothing on it.
-  if (toReview === 0 && toLearn > 0) return "Nothing due right now. A good time to meet some new words.";
-  if (toReview === 0) return "Nothing due, and no new words waiting. A good time to open a unit.";
+  if (toReview === 0 && toLearn > 0) return "You're all caught up. A good moment to meet some new words.";
+  if (toReview === 0) return "You're all caught up, and every word you've added is learned. Time for a new unit.";
   /*
     At the learner's own rate where the log has one, and at the one default
     the plan uses otherwise. This divided by six while the plan divided by
@@ -1090,9 +1090,9 @@ function lead(
   const minutes = minutesForCards(toReview, cardsPerMinute);
   const span = `${minutes} minute${minutes === 1 ? "" : "s"}`;
   if (stage === "arriving") {
-    return `Your deck is ready. ${toReview} card${toReview === 1 ? "" : "s"} to meet, about ${span}.`;
+    return `Your first ${toReview} card${toReview === 1 ? " is" : "s are"} ready. That's about ${span}.`;
   }
-  return `${toReview} card${toReview === 1 ? "" : "s"} waiting, about ${span} of your day.`;
+  return `${toReview} card${toReview === 1 ? " is" : "s are"} waiting for you. That's about ${span}.`;
 }
 
 function weekdayLetter(day: string): string {

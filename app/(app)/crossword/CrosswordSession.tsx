@@ -289,8 +289,8 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                 const bad = wrongCells(puzzle, typed).size;
                 setSaid(
                   bad === 0
-                    ? "Every letter you have filled in is right."
-                    : `${bad} ${bad === 1 ? "letter is" : "letters are"} wrong.`,
+                    ? "Every letter you've filled in so far is right."
+                    : `${bad} ${bad === 1 ? "letter needs" : "letters need"} another look.`,
                 );
               }}
             >
@@ -358,12 +358,12 @@ function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) 
   return (
     <Card>
       <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-        {helped === 0 ? "All of it, on your own." : "Finished."}
+        {helped === 0 ? "Solved, and every square of it was yours." : "Solved, with a little help. That still counts."}
       </p>
       <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
         {puzzle.inDeck.length > 0
-          ? `${puzzle.inDeck.length} of these are in your deck, so the round counted toward them.`
-          : "None of these are in your deck yet. Open one and keep it."}
+          ? `${puzzle.inDeck.length} of these ${puzzle.inDeck.length === 1 ? "is" : "are"} in your deck, so this counted as practice for ${puzzle.inDeck.length === 1 ? "it" : "them"}.`
+          : "None of these are in your deck yet. Tap any word you liked to look it up and keep it."}
       </p>
       <ul className="mt-4 flex flex-wrap gap-2">
         {puzzle.entries.map((entry) => (
@@ -377,7 +377,7 @@ function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) 
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>A new grid every morning.</p>
+      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>There&apos;s a new grid every morning.</p>
     </Card>
   );
 }

@@ -119,91 +119,91 @@ const NAMED: Record<string, Occasion> = {
   "01-01": {
     key: "new-year",
     name: "New Year's Day",
-    note: "The first day of the year, so here is a word about starting.",
+    note: "The first day of the year, so here's a word about starting.",
     glosses: ["beginning", "year", "new"],
   },
   "01-06": {
     key: "epiphany",
     name: "Three Kings' Day",
-    note: "Estonia calls the sixth of January Three Kings' Day, and it is when the tree comes down.",
+    note: "In Estonia the sixth of January is Three Kings' Day, when the Christmas tree finally comes down.",
     glosses: ["king", "gift"],
   },
   "02-02": {
     key: "candlemas",
     name: "Candle Day",
-    note: "The second of February is Candle Day, the old halfway mark out of winter.",
+    note: "The second of February is Candle Day, the old halfway point on the way out of winter.",
     glosses: ["candle", "light"],
   },
   "02-14": {
     key: "friends-day",
     name: "Friend's Day",
-    note: "Estonia calls the fourteenth of February Friend's Day, and the cards go to friends rather than to one person.",
+    note: "In Estonia the fourteenth of February is Friend's Day, so the cards go to your friends, not just to one person.",
     glosses: ["friend", "heart", "love"],
   },
   "02-24": {
     key: "independence",
     name: "Independence Day",
-    note: "Estonia declared independence on this day in 1918.",
+    note: "Estonia declared independence on this day in 1918. Happy birthday, Estonia.",
     glosses: ["freedom", "flag", "country"],
   },
   "03-14": {
     key: "mother-tongue",
     name: "Mother Tongue Day",
-    note: "The fourteenth of March is Mother Tongue Day here, which makes it a good day to be learning one.",
+    note: "The fourteenth of March is Mother Tongue Day here, which makes today a good day to be learning one.",
     glosses: ["mother tongue", "language", "word"],
   },
   "03-20": {
     key: "happiness",
     name: "Day of Happiness",
-    note: "The United Nations put the Day of Happiness on the twentieth of March, which is about when the light comes back this far north.",
+    note: "The UN put its Day of Happiness on the twentieth of March, which is about when the light comes back this far north.",
     glosses: ["joy", "happiness", "spring"],
   },
   "04-01": {
     key: "april-fools",
     name: "April Fools",
-    note: "Somebody will try one on you today, so you may as well have the word ready.",
+    note: "Somebody's going to try one on you today, so you may as well have the word ready.",
     glosses: ["joke", "lie"],
   },
   "04-23": {
     key: "book-day",
     name: "World Book Day",
-    note: "World Book Day. The oldest printed Estonian anybody has is a catechism from 1535, and only fragments of it survive.",
+    note: "World Book Day. The oldest printed Estonian anybody has is a catechism from 1535, and only scraps of it survive.",
     glosses: ["book", "story", "read"],
   },
   "05-01": {
     key: "spring-day",
     name: "Spring Day",
-    note: "The first of May is a public holiday here and it is called Spring Day, which is optimistic.",
+    note: "The first of May is a public holiday here, and it's called Spring Day. Optimistic, some years.",
     glosses: ["spring", "work", "flower"],
   },
   "06-01": {
     key: "childrens-day",
     name: "Children's Day",
-    note: "The first of June is Children's Day, and the parks are full.",
+    note: "The first of June is Children's Day, and every park is full of them.",
     glosses: ["child", "play", "sweet"],
   },
   "06-04": {
     key: "flag-day",
     name: "Flag Day",
-    note: "The blue, black and white flag was consecrated on this day in 1884.",
+    note: "The blue, black and white flag was blessed on this day in 1884.",
     glosses: ["flag", "blue", "white"],
   },
   "06-23": {
     key: "victory-day",
     name: "Victory Day",
-    note: "Victory Day, and the evening the midsummer fires are lit.",
+    note: "Victory Day, and tonight the midsummer bonfires are lit.",
     glosses: ["victory", "fire", "flame"],
   },
   "06-24": {
     key: "midsummer",
     name: "Midsummer Day",
-    note: "Midsummer Day, and the second holiday in a row. The fires were lit last night and half the country is still out by the lake.",
+    note: "Midsummer Day, the second holiday in a row. The fires were lit last night, and half the country is still out by the lake.",
     glosses: ["midsummer", "fire", "summer"],
   },
   "08-08": {
     key: "cat-day",
     name: "International Cat Day",
-    note: "International Cat Day, which is not an Estonian invention but is being kept anyway.",
+    note: "International Cat Day. Not an Estonian invention, but the cats here are keeping it anyway.",
     glosses: ["cat"],
   },
   "08-20": {
@@ -215,13 +215,13 @@ const NAMED: Record<string, Occasion> = {
   "09-01": {
     key: "knowledge-day",
     name: "Knowledge Day",
-    note: "The first of September is Knowledge Day, and the school year opens with flowers for the teacher.",
+    note: "The first of September is Knowledge Day. School starts, and the teachers go home with armfuls of flowers.",
     glosses: ["school", "flower", "pupil"],
   },
   "10-01": {
     key: "coffee-day",
     name: "International Coffee Day",
-    note: "International Coffee Day. Estonians drink a startling amount of it.",
+    note: "International Coffee Day. Estonians drink a startling amount of the stuff.",
     glosses: ["coffee", "cup"],
   },
   "10-04": {
@@ -233,55 +233,55 @@ const NAMED: Record<string, Occasion> = {
   "10-16": {
     key: "bread-day",
     name: "World Bread Day",
-    note: "World Bread Day, and black bread is the thing Estonians abroad ask people to post them.",
+    note: "World Bread Day. Black bread is the one thing Estonians abroad beg people to post them.",
     glosses: ["bread", "rye", "cake"],
   },
   "10-31": {
     key: "halloween",
     name: "Halloween",
-    note: "Halloween, which arrived here recently and lands ten days before a much older masked night.",
+    note: "Halloween. It's a newcomer here, ten days ahead of a much older night of masks.",
     glosses: ["pumpkin", "dark", "mask"],
   },
   "11-02": {
     key: "all-souls",
     name: "All Souls' Day",
-    note: "All Souls' Day. The graveyards are full of candles by five o'clock.",
+    note: "All Souls' Day. By five o'clock the graveyards are full of candles.",
     glosses: ["candle", "soul", "grave"],
   },
   "11-10": {
     key: "martinmas",
     name: "St Martin's Day",
-    note: "Children go door to door in masks tonight, singing for what they can get.",
+    note: "Children go door to door in masks tonight, singing for whatever they can get.",
     glosses: ["mask", "song", "autumn"],
   },
   "11-25": {
     key: "catherines-day",
     name: "St Catherine's Day",
-    note: "The other masked night. This one dresses in white and is meant to look after the sheep.",
+    note: "The other night of masks. This one dresses in white and is meant to look after the sheep.",
     glosses: ["sheep", "wool", "white"],
   },
   "12-21": {
     key: "solstice",
     name: "Midwinter",
-    note: "The shortest days of the year are about now. It gets lighter from here, which takes some believing.",
+    note: "The shortest days of the year are about now. It gets lighter from here, though that takes some believing.",
     glosses: ["dark", "night", "light"],
   },
   "12-24": {
     key: "christmas-eve",
     name: "Christmas Eve",
-    note: "Christmas Eve, which is the evening Estonia keeps rather than the morning after.",
+    note: "Christmas Eve. This is the evening Estonia really celebrates, more than the morning after.",
     glosses: ["Christmas", "gift", "candle"],
   },
   "12-25": {
     key: "christmas",
     name: "Christmas Day",
-    note: "Christmas Day, and most of the eating was done last night.",
+    note: "Christmas Day. Most of the eating already happened last night.",
     glosses: ["Christmas", "gift", "peace"],
   },
   "12-31": {
     key: "new-years-eve",
     name: "New Year's Eve",
-    note: "The last night of the year.",
+    note: "The last night of the year. See it out in style.",
     glosses: ["year", "night", "end"],
   },
 };
@@ -332,7 +332,7 @@ const MOVEABLE: readonly { offset: number; occasion: Occasion }[] = [
     occasion: {
       key: "good-friday",
       name: "Good Friday",
-      note: "Good Friday, and a public holiday here.",
+      note: "Good Friday, which is a public holiday here.",
       glosses: ["quiet", "silence", "bread"],
     },
   },
@@ -371,7 +371,7 @@ const NTH_WEEKDAY: readonly {
     occasion: {
       key: "mothers-day",
       name: "Mother's Day",
-      note: "The second Sunday in May, and the flag goes up for it.",
+      note: "The second Sunday in May, and the flags go up for it.",
       glosses: ["mother", "flower", "thank"],
     },
   },
@@ -380,7 +380,7 @@ const NTH_WEEKDAY: readonly {
     occasion: {
       key: "fathers-day",
       name: "Father's Day",
-      note: "The second Sunday in November. Estonia keeps this one in the dark half of the year.",
+      note: "The second Sunday in November. Estonia saves this one for the dark half of the year.",
       glosses: ["father", "son", "home"],
     },
   },
@@ -399,37 +399,37 @@ const BY_NUMBER: Record<number, Occasion> = {
   1: {
     key: "day-1",
     name: "The first",
-    note: "The first of the month, which is as good a place as any to start something.",
+    note: "The first of the month. As good a day as any to start something.",
     glosses: ["first", "beginning"],
   },
   4: {
     key: "day-4",
     name: "The fourth",
-    note: "Four, and Estonia has four genuinely different seasons to spend them on.",
+    note: "Four, like the seasons, and Estonia's four are very different from each other.",
     glosses: ["season", "year"],
   },
   5: {
     key: "day-5",
     name: "The fifth",
-    note: "Five. One for each finger, so here is the word for what they are attached to.",
+    note: "Five. One for each finger, so here's the word for what they're attached to.",
     glosses: ["hand", "five"],
   },
   7: {
     key: "day-7",
     name: "The seventh",
-    note: "Seven, which is a week exactly.",
+    note: "Seven, which is exactly one week.",
     glosses: ["week", "day"],
   },
   10: {
     key: "day-10",
     name: "The tenth",
-    note: "Ten. The reason we count in tens is sitting on the end of your arms.",
+    note: "Ten. The reason we count in tens is on the ends of your arms.",
     glosses: ["finger", "hand"],
   },
   12: {
     key: "day-12",
     name: "The twelfth",
-    note: "The twelfth, which is a dozen of anything.",
+    note: "The twelfth. A dozen of anything.",
     glosses: ["dozen", "egg"],
   },
   13: {
@@ -441,19 +441,19 @@ const BY_NUMBER: Record<number, Occasion> = {
   24: {
     key: "day-24",
     name: "The twenty-fourth",
-    note: "Twenty-four, one for every hour you have got.",
+    note: "Twenty-four, one for every hour in the day.",
     glosses: ["hour", "time"],
   },
   30: {
     key: "day-30",
     name: "The thirtieth",
-    note: "Thirty days is roughly one turn of the moon, and Estonian uses one word for the moon and for a month.",
+    note: "Thirty days is roughly one turn of the moon, and Estonian uses one word for both the moon and a month.",
     glosses: ["moon", "sky"],
   },
   31: {
     key: "day-31",
     name: "The thirty-first",
-    note: "The last day of the month.",
+    note: "The last day of the month. Tomorrow's a fresh one.",
     glosses: ["last", "end"],
   },
 };
@@ -492,19 +492,19 @@ const BY_WEEKDAY: Record<number, Occasion> = {
   3: {
     key: "wednesday",
     name: "Wednesday",
-    note: "Wednesday is the third day counted in Estonian, and the middle of the week by everything else.",
+    note: "Wednesday is the third day Estonian counts, and the middle of the week by any count.",
     glosses: ["middle", "week"],
   },
   5: {
     key: "friday",
     name: "Friday",
-    note: "Estonian counts its weekdays as far as Thursday and then stops. Friday has a borrowed name, and for most people the evening starts early.",
+    note: "Estonian counts its weekdays as far as Thursday and then stops. Friday's name is borrowed, and for most people the evening starts early.",
     glosses: ["free", "evening", "joy"],
   },
   6: {
     key: "saturday",
     name: "Saturday",
-    note: "Saturday is sauna evening in a great many houses here, and the day's name came from Old Norse, where it meant washing day.",
+    note: "Saturday is sauna evening in a great many homes here. The day's name came from Old Norse, where it meant washing day.",
     glosses: ["sauna", "bath", "steam"],
   },
 };
@@ -516,7 +516,7 @@ const BY_MONTH: Record<number, Occasion> = {
   1: {
     key: "january",
     name: "January",
-    note: "January here is snow if you are lucky and gray if you are not.",
+    note: "January here is snow if you're lucky and gray if you're not.",
     glosses: ["snow", "winter", "cold"],
   },
   2: {
@@ -534,7 +534,7 @@ const BY_MONTH: Record<number, Occasion> = {
   4: {
     key: "april",
     name: "April",
-    note: "April, and the rain that comes with it.",
+    note: "April, and all the rain that comes with it.",
     glosses: ["rain", "puddle", "wind"],
   },
   5: {
@@ -546,7 +546,7 @@ const BY_MONTH: Record<number, Occasion> = {
   6: {
     key: "june",
     name: "June",
-    note: "June, when the light barely goes at all this far north.",
+    note: "June, when it barely gets dark at all this far north.",
     glosses: ["sun", "light", "summer"],
   },
   7: {
@@ -564,13 +564,13 @@ const BY_MONTH: Record<number, Occasion> = {
   9: {
     key: "september",
     name: "September",
-    note: "September, when school starts and the mornings turn over in about a week.",
+    note: "September. School starts, and the mornings turn cold in about a week.",
     glosses: ["autumn", "school", "apple"],
   },
   10: {
     key: "october",
     name: "October",
-    note: "October, and the leaves are worth going out for.",
+    note: "October, and the leaves are worth going outside for.",
     glosses: ["leaf", "forest", "wind"],
   },
   11: {

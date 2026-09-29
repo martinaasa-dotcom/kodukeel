@@ -124,7 +124,7 @@ describe("stickingPoints", () => {
     expect(points[0]?.accuracy).toBe(null);
     expect(points[0]?.reason).toBe("lapses");
     expect(stickingNote(points[0]!)).not.toMatch(/%/);
-    expect(stickingNote(points[0]!)).toMatch(/not seen lately/);
+    expect(stickingNote(points[0]!)).toMatch(/hasn't come up lately/);
   });
 
   it("returns nothing for an empty deck", () => {
@@ -140,7 +140,7 @@ describe("stickingNote", () => {
       the same fact twice on one row. What the chip cannot say is how the card
       has done over how many attempts, which is what this is for.
     */
-    expect(stickingNote(point!)).toBe("Learned and forgotten again, 50% recalled over 10 reviews.");
+    expect(stickingNote(point!)).toBe("You learned it, then it slipped away. 50% right over 10 reviews.");
   });
 
   it("talks about settling when accuracy is what flagged it", () => {

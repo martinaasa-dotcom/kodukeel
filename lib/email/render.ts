@@ -263,7 +263,7 @@ ${preheader(letter.preheader).__html}
         <br>
         <a href="${url(chrome.unsubscribeUrl).__html}" style="color:${P.ink3};text-decoration:underline">${esc(chrome.unsubscribeLabel).__html}</a>
         &nbsp;&nbsp;&nbsp;
-        <a href="${url(`${chrome.origin}/privacy`).__html}" style="color:${P.ink3};text-decoration:underline">What we hold</a>
+        <a href="${url(`${chrome.origin}/privacy`).__html}" style="color:${P.ink3};text-decoration:underline">What we keep about you</a>
       </td></tr>
     </table>
   </td></tr>
@@ -284,6 +284,6 @@ export function renderText(letter: Letter, chrome: Chrome): string {
     "---",
     `Kodukeel${chrome.operator ? `, run by ${chrome.operator}` : ""}.`,
     `${chrome.unsubscribeLabel}: ${chrome.unsubscribeUrl}`,
-    `What we hold: ${chrome.origin}/privacy`,
+    `What we keep about you: ${chrome.origin}/privacy`,
   ].join("\n");
 }

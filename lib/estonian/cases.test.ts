@@ -95,7 +95,7 @@ describe("reading a whole question", () => {
 
   it("reads the one word a card actually prints", () => {
     expect(questionInEnglish("kuhu?")).toBe("where to?");
-    expect(questionInEnglish("millena?")).toBe("what would it be as?");
+    expect(questionInEnglish("millena?")).toBe("as what?");
     expect(questionInEnglish("kes?")).toBe("who?");
     expect(questionInEnglish("mis?")).toBe("what?");
   });

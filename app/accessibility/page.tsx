@@ -58,9 +58,9 @@ export default function AccessibilityPage() {
     <Legal title="Accessibility statement" updated="5 September 2026">
       <P>
         Kodukeel is for people learning Estonian, and plenty of them are learning it because
-        they have to. An app somebody cannot use is an app that has failed them at the point
-        it mattered most. This page says what standard is being aimed at, what has been
-        checked and how, where it falls short today, and how to tell us.
+        they have to. If somebody can&rsquo;t use the app, it has let them down exactly when it
+        mattered most. This page says what standard we&rsquo;re aiming for, what we&rsquo;ve
+        checked and how, where we fall short today, and how to tell us.
       </P>
 
       <S title="The standard">
@@ -78,11 +78,11 @@ export default function AccessibilityPage() {
           means most of the app meets the standard, and the parts named below do not.
         </P>
         <P>
-          It is not fully conformant, and the reason is worth stating rather than leaving to
-          be inferred: nobody who relies on assistive technology has yet been paid to sit down
-          with this and try to use it. Everything below rests on automated checks and on the
-          people who wrote the app testing their own work, which finds a great deal and is
-          not the same as being told by somebody the app was failing.
+          It isn&rsquo;t fully conformant, and here&rsquo;s the honest reason: nobody who relies
+          on assistive technology has yet been paid to sit down with it and try to use it.
+          Everything below rests on automated checks and on the people who wrote the app testing
+          their own work. That finds a great deal, and it&rsquo;s still not the same as hearing
+          from somebody the app was failing.
         </P>
       </S>
 
@@ -163,7 +163,7 @@ export default function AccessibilityPage() {
           Alongside those, the app is built out of real buttons and links with a visible focus
           ring. Animation is turned off for anybody whose system asks for reduced motion, and no
           part of it needs a dragging movement. Colour is never the only thing carrying a
-          distinction, so a correct answer says so in words as well as in green.
+          distinction, so a correct answer says so in words as well as in colour.
         </P>
         <P>
           <strong>The three timed practice rounds can be set to run longer</strong> (WCAG 2.2.1,
@@ -256,9 +256,9 @@ export default function AccessibilityPage() {
               {operator.email}
             </a>
             . Say what you were trying to do, what happened, and what you were using to do it
-            with, if you are able to. A message that says only &ldquo;this screen does not
-            work with my screen reader&rdquo; is still worth sending: the person reading it
-            can go and look.
+            with, if you can. A message that just says &ldquo;this screen doesn&rsquo;t work
+            with my screen reader&rdquo; is still worth sending: the person reading it can go
+            and look.
           </P>
         ) : (
           <P>
@@ -286,8 +286,8 @@ export default function AccessibilityPage() {
           >
             {SUPERVISORY_AUTHORITY.email}
           </a>
-          . Write to us first, though. Somebody reads it, and the fix is usually faster than
-          the complaint.
+          . Do write to us first, though. A real person reads it, and a fix is usually quicker
+          than a complaint.
         </P>
         <P>
           See also{" "}

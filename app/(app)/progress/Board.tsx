@@ -108,9 +108,9 @@ export async function Board({ ownerId, now }: { ownerId: string; now: Date }) {
         ) : (
           <>
             <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              A board is worth reading when you know the people on it. Start a class and share
-              the code, or join the one your teacher gave you, and this shows the week for
-              everybody in it.
+              A leaderboard is more fun when you know the people on it. Start a class and share
+              the code, or join with the one your teacher gave you, and you&rsquo;ll see everybody&rsquo;s
+              week here.
             </p>
             <ButtonLink href="/class" className="mt-4">Start or join a class</ButtonLink>
           </>

@@ -88,7 +88,7 @@ export default async function CalendarPage({
   return (
     <Page route="/calendar"
       title="Calendar"
-      lead="Your Estonian week: classes, study slots and what is due."
+      lead="Your Estonian week: classes, study time, and what's due when."
     >
       <Stack>
         <CalendarWeek

@@ -35,6 +35,6 @@
  */
 export function firstMeetingNote(hasSentence: boolean): string {
   return hasSentence
-    ? "This is your first word here. The sentence under it just shows how the word is used; nothing on this screen needs memorising yet."
-    : "This is your first word here. Read it, hear it, and move on; nothing needs memorising yet.";
+    ? "Your very first word. The sentence under it just shows the word in use, so there's nothing to memorise yet."
+    : "Your very first word. Read it, hear it, and move on. There's nothing to memorise yet.";
 }

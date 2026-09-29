@@ -61,25 +61,25 @@ export const SPEECH_PACES = [
   {
     id: "verySlow",
     label: "Very slow",
-    detail: "Every vowel held, so a word can be taken apart. The consonants stay as sharp as they were.",
+    detail: "Every vowel stretched out so you can pick a word apart, with the consonants still crisp.",
     normal: 0.6,
   },
   {
     id: "slow",
     label: "Slow",
-    detail: "Clearly slower than anybody speaks, and still one word rather than a syllable at a time.",
+    detail: "Slower than anyone really talks, but still a whole word, not one syllable at a time.",
     normal: 0.72,
   },
   {
     id: "steady",
     label: "Steady",
-    detail: "A speaker taking their time over a word. Close to ordinary, with room to hear the length.",
+    detail: "Someone taking their time. Nearly normal, with room to hear which sounds are long.",
     normal: 0.85,
   },
   {
     id: "natural",
     label: "Full speed",
-    detail: "The recording at its own pace, which is the pace the person behind the counter will use.",
+    detail: "The natural pace, just how the person behind the counter will say it.",
     normal: 1,
   },
 ] as const;

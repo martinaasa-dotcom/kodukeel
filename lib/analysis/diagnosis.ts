@@ -106,11 +106,11 @@ function gradationFindings(facts: ReviewFact[]): Finding[] {
 
     findings.push({
       caseKey: key as CaseKey,
-      headline: `Your ${caseName(key)} is fine until the stem changes`,
+      headline: `Your ${caseName(key)} slips when the word changes in the middle`,
       detail:
-        `You recall the ${caseName(key)} (${caseNameEn(key)}) ${strong}% of the time on words with a ` +
-        `stable stem, but only ${weak}% on words with consonant gradation. The ending is not the ` +
-        `problem; the stem it attaches to is. Drill astmevaheldus rather than the case.`,
+        `You get the ${caseName(key)} (${caseNameEn(key)}) right ${strong}% of the time when the word ` +
+        `keeps its shape, but only ${weak}% when it changes in the middle. So the ending isn't the ` +
+        `problem, the change inside the word is. Practise astmevaheldus rather than the case.`,
       weakPct: weak,
       strongPct: strong,
       sample: grading.total + plain.total,
@@ -143,10 +143,10 @@ function caseFindings(facts: ReviewFact[]): Finding[] {
 
     findings.push({
       caseKey: key as CaseKey,
-      headline: `The ${caseName(key)} is your weakest case`,
+      headline: `The ${caseName(key)} is the case you find hardest`,
       detail:
-        `${weak}% recall on the ${caseName(key)} (${caseNameEn(key)}), against ${overallPct}% across ` +
-        `every other case. This one is worth a focused drill.`,
+        `You get the ${caseName(key)} (${caseNameEn(key)}) right ${weak}% of the time, against ${overallPct}% ` +
+        `for the rest. A short round on just this case would help most.`,
       weakPct: weak,
       strongPct: overallPct,
       sample: tally.total,
@@ -176,11 +176,10 @@ function pluralFindings(facts: ReviewFact[]): Finding[] {
 
   return [{
     caseKey: null,
-    headline: "The plural stem is where you lose it",
+    headline: "Plurals that break the pattern are tripping you up",
     detail:
-      `${strong}% recall on words whose plural follows the regular pattern, ${weak}% on words that ` +
-      `carry their own omastav plural. Those have to be memorized, because the app cannot derive them ` +
-      `and neither can you.`,
+      `You get ${strong}% right on words whose plural follows the pattern, but ${weak}% on words with an ` +
+      `omastav plural of their own. Those have to be learned by heart. No rule gets you there, for us or for you.`,
     weakPct: weak,
     strongPct: strong,
     sample: irregular.total + regular.total,

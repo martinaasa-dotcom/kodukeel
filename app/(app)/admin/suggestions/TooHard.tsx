@@ -26,8 +26,8 @@ export function TooHard({ words }: { words: readonly HardWordReading[] }) {
         Too complicated
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        Words learners put aside. At {HARD_LEARNERS} people and {Math.round(HARD_SHARE * 100)} percent
-        of those holding the word, it is taught a band later for everybody.
+        Words learners have put aside as too hard for now. Once {HARD_LEARNERS} people, and {Math.round(HARD_SHARE * 100)} percent
+        of everyone who has the word, have done that, it&rsquo;s taught a level later for everybody.
       </p>
 
       <ul className="mt-4 flex flex-col gap-2">

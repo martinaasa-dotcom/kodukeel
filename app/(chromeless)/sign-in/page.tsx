@@ -13,9 +13,9 @@ export const metadata = { title: "Sign in" };
 export const dynamic = "force-dynamic";
 
 const PROMISES = [
-  "A dictionary that answers with every form of the word",
-  "Cards timed to when you are about to forget, plus sprints, listening and match",
-  "Anu explains the grammar, and never invents a form",
+  "A dictionary that shows you every form of every word",
+  "Your words brought back just before you'd forget them, plus quick games: speed rounds, listening and matching pairs",
+  "Anu, a tutor who explains the grammar and never makes up a word",
   "A conversation to rehearse, and one small thing to say to a real person today",
 ];
 
@@ -129,15 +129,15 @@ export default async function SignInPage({ searchParams }: {
             Tere tulemast tagasi
           </h1>
           <p className="mx-auto mt-2 max-w-[36ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Learn Estonian the way it is actually taught, by its cases. Sign in to reach your deck,
-            your dictionary and every review you have ever done.
+            New here? Signing in is all it takes to start, and it&rsquo;s free. Coming back?
+            Everything you&rsquo;ve learned is right where you left it.
           </p>
 
           {denied && (
             <div className="mt-6 text-left">
               <Note tone="again">
-                That address cannot use this copy of Kodukeel. It is set up for a named group, so
-                sign in with the account you were invited with
+                That address cannot use this copy of Kodukeel, because it&rsquo;s set up for one
+                particular group. Try the account you were invited with
                 {operator.email ? <>, or ask {operator.email} to add you</> : null}.
               </Note>
             </div>
@@ -145,20 +145,20 @@ export default async function SignInPage({ searchParams }: {
           {switched && (
             <div className="mt-6 text-left">
               <Note tone="hard">
-                That link would have signed you in as somebody else, so we signed you out here
-                instead and did not follow it. If the link is yours, sign in below. If you did not
-                ask for it, you can ignore it.
+                That link would have signed you in as someone else, so to be safe we signed you out
+                and didn&rsquo;t follow it. If the link is yours, sign in below. If you didn&rsquo;t
+                ask for it, you can safely ignore it.
               </Note>
             </div>
           )}
           {bounced && (
             <div className="mt-6 text-left">
               <Note tone="hard">
-                This browser has nothing to finish that sign-in with. Either the link was opened
-                somewhere other than where it was asked for, or you were sent back to a different
+                This browser couldn&rsquo;t finish that sign-in. Either the link was opened in a
+                different browser from the one that asked for it, or you ended up on a different
                 address from the one you started on. Try again from here.
                 {operator.email
-                  ? <> If it keeps happening, tell {operator.email}: this address needs adding to the sign-in settings.</>
+                  ? <> If it keeps happening, let {operator.email} know: this address needs adding to the sign-in settings.</>
                   : <> If it keeps happening, whoever runs this copy needs to add this address to the sign-in settings.</>}
               </Note>
             </div>
@@ -166,8 +166,8 @@ export default async function SignInPage({ searchParams }: {
           {failed && !denied && !switched && !bounced && (
             <div className="mt-6 text-left">
               <Note tone="hard">
-                That sign-in did not go through. A mailed link works once and lasts an hour, so if
-                yours is older than that, ask for a new one below.
+                That sign-in did not go through. An emailed link works once and only lasts an hour,
+                so if yours is older than that, ask for a fresh one below.
               </Note>
             </div>
           )}
@@ -178,8 +178,8 @@ export default async function SignInPage({ searchParams }: {
             ) : (
               <div className="rounded-[var(--r-lg)] p-5 text-left" style={{ background: "var(--raised)" }}>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  This copy is running in local mode: no accounts, no signing in, everything just
-                  stored right here on this machine. Add{" "}
+                  This copy is running in local mode. There are no accounts and no signing in, and
+                  everything is kept right here on this machine. Add{" "}
                   <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
                   <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to your{" "}
                   <code className="text-xs">.env</code> to turn on sign-in and
@@ -218,8 +218,8 @@ export default async function SignInPage({ searchParams }: {
           up is the reader it is actually for.
         */}
         <p className="mx-auto mt-6 max-w-[46ch] text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          Kodukeel is for people aged 13 and over. Younger than that and a parent needs to
-          agree first.
+          Kodukeel is for people aged 13 and over. If you&rsquo;re younger, a parent needs to
+          say yes first.
         </p>
 
         <p className="mx-auto mt-3 max-w-[46ch] text-center text-xs" style={{ color: "var(--ink-3)" }}>

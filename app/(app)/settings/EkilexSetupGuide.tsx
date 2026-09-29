@@ -7,7 +7,7 @@ import { Explain } from "@/components/Explain";
 const STEPS = [
   { text: "Go to ", link: { href: "https://ekilex.ee", label: "ekilex.ee" }, after: " and register. It's free and needs no card." },
   { text: "Once signed in, open your ", strong: "profile", after: ", then the ", strong2: "API", after2: " tab." },
-  { text: "Request a reader key. Copy it once it is issued." },
+  { text: "Ask for a reader key, and copy it once it arrives." },
   { text: "In this project's folder, open the file called ", code: ".env", after: " and paste the key between the quotes, like the example below." },
   { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again." },
 ];
@@ -17,10 +17,10 @@ const STEPS = [
  * because it is the thing every other feature is built on top of.
  */
 const UNLOCKS = [
-  "Search reaches all of Estonian, not just the built-in set, with checked forms, gradation, verb government and CEFR level.",
-  "Real example sentences arrive too. Gap-fill cards, dictation and the sentence builder all depend on these, and the built-in set alone has almost none.",
+  "Search covers all of Estonian, not just the built-in words, with every form checked, the stem changes, which case a verb takes, and each word's level.",
+  "You get real example sentences too. Gap-fill cards, dictation and the sentence builder all need them, and the built-in words have hardly any.",
   "The mock exam's reading and listening parts use real sentences instead of falling back to single words.",
-  "The grammar reference's oblique-case tables (the inside and outside cases) show a real form instead of a dead end.",
+  "The grammar tables for the inside and outside cases show a real form instead of a blank.",
 ];
 
 export function EkilexSetupGuide() {
@@ -35,8 +35,8 @@ export function EkilexSetupGuide() {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Search, cards and audio all work with no key. A free reader key from the Institute of the
-        Estonian Language unlocks the rest:
+        Search, cards and audio all work without a key. A free reader key from the Institute of the
+        Estonian Language gets you the rest:
       </p>
       <ul className="mt-3 flex flex-col gap-1.5">
         {UNLOCKS.map((u) => (
@@ -127,9 +127,9 @@ export function EkilexSetupGuide() {
           typed. The check could not have failed either, which is the worse
           half: it would have passed with the importer saying nothing at all.
         */}
-        Every word you already have picks up the real forms the next time you open it, so nothing
-        has to be added again. If Ekilex had nothing to say about a word, we remember that for a
-        day before asking again.
+        Every word you already have picks up its real forms the next time you open it, so you
+        don&rsquo;t need to add anything again. If Ekilex has nothing on a word, we wait a day
+        before asking again.
       </Explain>
     </div>
   );

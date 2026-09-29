@@ -10,9 +10,9 @@ import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Exceptions, the words the endings do not reach",
+  title: "Exceptions: the words that don't follow the endings",
   description:
-    "Where the three principal parts and eleven endings stop being predictable, grouped by what breaks and drawn from the dictionary rather than written by hand.",
+    "The Estonian words that don't follow the usual endings, grouped by what goes wrong, and taken straight from the dictionary.",
 };
 
 /**
@@ -48,7 +48,7 @@ export default async function ExceptionsPage() {
     <Page route="/grammar/exceptions"
       eyebrow="Reference"
       title="Exceptions"
-      lead="Where the endings stop being predictable, and which words to learn one at a time."
+      lead="Where the usual endings stop working, and which words you'll just have to learn."
     >
       <Stack>
         <Card tone="night">
@@ -58,11 +58,11 @@ export default async function ExceptionsPage() {
             </p>
             <div className="min-w-0 flex-[1_1_20rem]">
               <p className="font-display text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-                Most words follow the pattern. These do not.
+                Most words follow the pattern. These don&apos;t.
               </p>
               <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {scale} graded words in this dictionary break a pattern somewhere. Every other word follows the
-                rules, so you can work it out.
+                Of the dictionary&apos;s words with a level on them, {scale} break a pattern somewhere.
+                Every other one follows the rules, so you can work its forms out.
               </p>
             </div>
           </div>
@@ -70,8 +70,8 @@ export default async function ExceptionsPage() {
 
         {live.length === 0 ? (
           <Empty
-            title="Nothing to show yet"
-            body="The dictionary has no graded words near your level to compare against the pattern."
+            title="No exceptions near your level yet"
+            body="The dictionary doesn't have enough words near your level for us to check yet."
             action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
           />
         ) : (

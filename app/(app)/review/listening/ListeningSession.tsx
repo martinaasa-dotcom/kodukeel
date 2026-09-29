@@ -167,10 +167,10 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Listening" lead="Hear a word, pick its meaning.">
+      <Page title="Listening" lead="Listen to a word, then pick what it means.">
         <Empty
           title="Nothing to listen to yet"
-          body="This draws on cards that are due, or that you have slipped on before."
+          body="It plays words that are due, or that tripped you up before, and right now there aren't any."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>
@@ -184,16 +184,16 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
           <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            Session complete
+            That&rsquo;s the round done
           </h1>
           <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-            Tubli töö. That&rsquo;s every word in this round.
+            Tubli töö. You heard every word in this round.
           </p>
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatTile value={correct} label="Correct" tone="accent" />
+          <StatTile value={correct} label="Right" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
-          <StatTile value={attempted} label="Attempted" tone="sky" />
+          <StatTile value={attempted} label="Words heard" tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
@@ -264,8 +264,8 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   {card.lemma}
                 </p>
                 <p className="max-w-[40ch] text-xs" style={{ color: "var(--ink-3)" }}>
-                  We couldn&rsquo;t reach the audio, so the word is shown instead. It&rsquo;s still
-                  worth answering, come back later for the listening part.
+                  We couldn&rsquo;t reach the audio, so here&rsquo;s the word to read instead. It&rsquo;s still
+                  worth answering. Come back later to practise the listening part.
                 </p>
               </>
             ) : (
@@ -280,7 +280,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:scale-[1.02]"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
                 />
-                <p className="text-xs" style={{ color: "var(--ink-3)" }}>Tap to hear the word, tap again to replay</p>
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>Tap to hear the word, and again to replay it</p>
               </>
             )
           ) : (
@@ -288,14 +288,14 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
               {/* The verdict in words, first, because the options below say it
                   in colour and a colour is not read out. */}
               <p className="sr-only">
-                {selected === card.correct ? "Right." : `Not this time. It means ${card.correct}.`}
+                {selected === card.correct ? "Right." : `Not quite. It means ${card.correct}.`}
               </p>
               <div className="flex items-center gap-2">
                 <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{card.lemma}</p>
                 <Speak text={card.lemma} voice={voice.id} label={`Hear "${card.lemma}" clearly`} />
               </div>
               <p className="text-2xs" style={{ color: "var(--ink-3)" }}>
-                {condition ? describeHearing(voice.name, condition) : `Read by ${voice.name}.`} The next word gets another voice.
+                {condition ? describeHearing(voice.name, condition) : `Read by ${voice.name}.`} The next word has a different voice.
               </p>
             </div>
           )}

@@ -416,7 +416,7 @@ export function CostExplorer() {
 
       <details className="rounded-[var(--r-lg)] border p-4" style={{ borderColor: "var(--rule)" }}>
         <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--ink)" }}>
-          The {ASSUMPTIONS.length} numbers nothing measured
+          The {ASSUMPTIONS.length} numbers we had to judge rather than measure
         </summary>
         <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
           Everything else on this page came off a stopwatch, a database or somebody&rsquo;s

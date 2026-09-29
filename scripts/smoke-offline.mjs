@@ -108,7 +108,7 @@ async function whatIsOnScreen() {
         : /Pick the meaning/.test(body) ? "a multiple choice"
           : (await page.locator("main input[type='text'], main input:not([type])").count()) ? "a typed card"
             : /Session complete/.test(body) ? "the summary, so the session had run out"
-              : /Nothing due|No cards yet/.test(body) ? "an empty deck"
+              : /Nothing due|caught up|No cards yet/.test(body) ? "an empty deck"
                 : "no card shape this driver knows";
   const reference = /Reference\s+(\S+)/.exec(body)?.[1];
   const said = reference ? `, reference ${reference}` : "";
@@ -353,7 +353,7 @@ const shellIntact = await page.evaluate(async () => {
 check("the cache with no ceiling still holds the page it exists for", shellIntact);
 
 const hasCards = (await app.locator("button").count()) > 2 &&
-  !/Nothing due|No cards yet|Session complete/i.test((await page.textContent("body")) ?? "");
+  !/Nothing due|caught up|No cards yet|Session complete/i.test((await page.textContent("body")) ?? "");
 check("a review session is available to work with", hasCards,
   hasCards ? undefined : await whatIsOnScreen());
 if (!hasCards) {

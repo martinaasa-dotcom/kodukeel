@@ -71,18 +71,18 @@ await app.getByRole("button", { name: /Check it/ }).click();
 // first render, so waiting for the *selector* returns immediately and the
 // body gets read before the route has answered: the check then reports "no
 // verdict" against an app that renders one correctly a second later.
-await waitForText(page, /right form|wrong case|not in that sentence/i, 30000);
+await waitForText(page, /right ending|not the ending we asked for|isn.t in your sentence/i, 30000);
 
 const feedback = (await page.textContent("body")) ?? "";
 check(
   "a wrong form is caught by the dictionary check, before any model runs",
-  /wrong case|not in that sentence/i.test(feedback),
-  feedback.match(/(right form|wrong case|not in that sentence)/i)?.[0] ?? "no verdict",
+  /not the ending we asked for|isn.t in your sentence/i.test(feedback),
+  feedback.match(/(right ending|not the ending we asked for|isn.t in your sentence)/i)?.[0] ?? "no verdict",
 );
 // Whether a key is configured varies by environment; what must hold either way
 // is that the dictionary's verdict is shown.
 check("the mechanical verdict is always shown",
-  /right form|wrong case|not in that sentence/i.test(feedback));
+  /right ending|not the ending we asked for|isn.t in your sentence/i.test(feedback));
 
 // ── Government: answering reveals the example and the rule ───────────────────
 /*
@@ -111,7 +111,7 @@ if ((await options.count()) === 0) {
   await options.first().click();
   await page.waitForSelector("[aria-live='polite']", { timeout: 15000 });
   const govBody = (await page.textContent("body")) ?? "";
-  check("answering reveals the governed case", /governs the|experiencer construction/i.test(govBody), verb);
+  check("answering reveals the governed case", /\btakes the \S+?(, the one that asks|\.)|the person goes in the/i.test(govBody), verb);
   check("the example sentence is shown after answering",
     (await app.getByRole("button", { name: /^Next/ }).count()) > 0);
 
@@ -144,7 +144,7 @@ const passage =
   "Homme lähen kooli ja räägin sõbraga pikalt. " +
   "Tuba on väga soe ja valge täna hommikul.";
 await page.locator("#passage").fill(passage);
-await app.getByRole("button", { name: /Make exercises/ }).click();
+await app.getByRole("button", { name: /Make the gaps/ }).click();
 await waitForText(page, /Fill the gap|No words from your deck|deck is empty/i, 30000);
 
 const clozeBody = (await page.textContent("body")) ?? "";
@@ -167,9 +167,9 @@ if (madeExercises) {
 await page.goto(`${BASE}/words`, { waitUntil: "networkidle" });
 const wordsBody = (await page.textContent("body")) ?? "";
 check("diagnosis reports a finding or explains its silence",
-  /Not enough case reviews|Nothing stands out|until the stem changes|weakest case|plural stem/i
+  /Not enough answers on case|Nothing stands out|until the stem changes|weakest case|plural stem/i
     .test(wordsBody),
-  wordsBody.match(/Not enough case reviews|Nothing stands out|until the stem changes|weakest case|plural stem/i)?.[0] ?? "");
+  wordsBody.match(/Not enough answers on case|Nothing stands out|until the stem changes|weakest case|plural stem/i)?.[0] ?? "");
 
 await browser.close();
 done();

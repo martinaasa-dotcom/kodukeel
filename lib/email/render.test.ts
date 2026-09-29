@@ -35,9 +35,9 @@ const NASTY = `<script>alert(1)</script> "Mari" & co`;
 
 const STEPS = [
   { title: "Meet today's five words", minutes: 6, done: true },
-  { title: "Read the point behind it", minutes: 2, done: false },
+  { title: "Read the grammar behind it", minutes: 2, done: false },
   { title: "Match", minutes: 3, done: false },
-  { title: "Quick review, and you are done", minutes: 2, done: false },
+  { title: "A quick review, and you're done", minutes: 2, done: false },
 ];
 
 /** One of every letter this app can send, each carrying the nasty string. */

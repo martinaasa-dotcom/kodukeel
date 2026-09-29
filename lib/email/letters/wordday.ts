@@ -72,14 +72,14 @@ export function worddayLetter(input: WorddayInput): Letter {
   */
   blocks.push({
     t: "link",
-    label: `Look ${word.lemma} up`,
+    label: `See ${word.lemma} in the dictionary`,
     href: `${input.origin}/dictionary?q=${encodeURIComponent(word.lemma)}`,
   });
 
   return {
     kind: "wordday",
     subject: `${word.lemma}: ${word.translation}`,
-    preheader: word.occasion ?? "One word, and nothing to do about it.",
+    preheader: word.occasion ?? "One word for today. Nothing to do but enjoy it.",
     blocks,
   };
 }

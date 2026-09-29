@@ -133,10 +133,10 @@ export default async function WritePage({
 
   if (round.length === 0) {
     return (
-      <Page title="Writing" lead="Write your own Estonian, and have it marked.">
+      <Page title="Writing" lead="Write your own sentences in Estonian, and we'll check them.">
         <Empty
           title="No words to write about yet"
-          body="This draws on nouns and adjectives already in your deck."
+          body="This uses nouns and adjectives from your deck. Add a few and come back."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>

@@ -118,7 +118,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
     }
 
     sound("wrong");
-    setSaid("Not a pair.");
+    setSaid("Those two don't go together.");
     setMisses((n) => n + 1);
     missedPairs.current.add(picked.pairId);
     missedPairs.current.add(tile.pairId);
@@ -151,8 +151,8 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
       >
         <p><BriefingLines id="emoji" /></p>
         <p>
-          No English on the board. The picture is the meaning, so the Estonian
-          side can be a case form: match <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>majas</span>{" "}
+          There&rsquo;s no English on the board. The picture is the meaning, so the Estonian
+          might have an ending on it: match <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>majas</span>{" "}
           to the house, not <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>maja</span>.
         </p>
       </RoundStart>
@@ -161,7 +161,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
 
   if (phase === "done") {
     return (
-      <Page title="Picture match" lead="Every pair found.">
+      <Page title="Picture match" lead="Board cleared. You found every pair.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <span className="flex h-20 w-20 items-center justify-center rounded-full quest-pop"
             style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}>
@@ -169,7 +169,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
           </span>
           <div className="grid w-full grid-cols-2 gap-3">
             <StatTile value={`${elapsed}s`} label="Time" tone="sky" />
-            <StatTile value={misses} label="Wrong tries" tone={misses === 0 ? "sky" : "butter"} />
+            <StatTile value={misses} label="Wrong guesses" tone={misses === 0 ? "sky" : "butter"} />
           </div>
 
           {/* What the round was actually about, read back. A board with no
@@ -195,7 +195,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
 
           <WayOut className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/practice" size="lg">Back to practice</ButtonLink>
-            <ButtonLink href="/review/emoji" variant="primary" size="lg">Another board</ButtonLink>
+            <ButtonLink href="/review/emoji" variant="primary" size="lg">Play another board</ButtonLink>
           </WayOut>
         </div>
       </Page>

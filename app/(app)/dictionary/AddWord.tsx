@@ -233,7 +233,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
         </label>
         {pos === "VERB" && (
           <label className="flex flex-1 flex-col gap-1.5" style={{ minWidth: 220 }}>
-            <span className="label-xs" style={{ color: "var(--ink-3)" }}>Government (optional)</span>
+            <span className="label-xs" style={{ color: "var(--ink-3)" }}>Case it takes (optional)</span>
             <input
               value={government}
               onChange={(e) => setGovernment(e.target.value)}
@@ -247,10 +247,10 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
 
       {fields.length > 0 && (
         <div>
-          <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>Principal parts</p>
+          <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>The forms to learn by heart</p>
           <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            Fill in what you know. The omastav alone unlocks all eleven regular cases. Blanks stay
-            blank. Nothing is guessed.
+            Fill in what you know. The omastav alone is enough for us to build the eleven regular
+            cases. Anything you leave blank stays blank, because we never guess.
           </p>
           <div className="grid gap-2 md:grid-cols-3">
             {fields.map(([key, label, example]) => (

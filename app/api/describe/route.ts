@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   // call is exactly the shape that gets looped. Six a minute is one every ten
   // seconds, which nobody writing a sentence and reading the marking meets.
   const limit = checkRateLimit(`describe:${bucketForOwner(ownerId)}`, 6, 60_000);
-  if (!limit.ok) return rateLimited(limit, "Anu is still reading the last one.");
+  if (!limit.ok) return rateLimited(limit, "Anu's still reading the last one. Give her a moment.");
 
   let sceneId: string;
   let caseKey: string;
@@ -54,26 +54,26 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.sceneId !== "string" || typeof body.caseKey !== "string" ||
         typeof body.askLemma !== "string" || typeof body.sentence !== "string") {
-      return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
+      return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
     }
     sceneId = body.sceneId;
     caseKey = body.caseKey;
     askLemma = body.askLemma;
     sentence = clip(body.sentence.trim(), MAX_SENTENCE_CHARS);
   } catch {
-    return Response.json({ error: "Something about that request didn't make sense." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
 
   if (!looksLikeSentence(sentence)) {
     return Response.json(
-      { error: "Write a whole sentence, at least three words." },
+      { error: "Write a whole sentence, at least three words long." },
       { headers: NO_STORE, status: 400 },
     );
   }
 
   const rebuilt = await taskById(sceneId, caseKey, askLemma);
   if (!rebuilt) {
-    return Response.json({ error: "That picture is no longer available." }, { headers: NO_STORE, status: 404 });
+    return Response.json({ error: "That picture isn't available any more." }, { headers: NO_STORE, status: 404 });
   }
   const { task, answer } = rebuilt;
 

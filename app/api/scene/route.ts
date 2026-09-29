@@ -154,7 +154,7 @@ export async function POST(request: Request) {
     : null;
   const scene = row ? sceneById(row.sceneId) : null;
   if (!scene) {
-    return Response.json({ error: "That is not a turn in a scene." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "That doesn't look like a turn in this conversation." }, { headers: NO_STORE, status: 400 });
   }
 
   /*
@@ -172,7 +172,7 @@ export async function POST(request: Request) {
 
   const context = await sceneContext(scene.id, level);
   if (!context) {
-    return Response.json({ error: "That scene could not be built." }, { headers: NO_STORE, status: 400 });
+    return Response.json({ error: "We couldn't set up that conversation." }, { headers: NO_STORE, status: 400 });
   }
 
   const persona = personaOf(row!.transcript);

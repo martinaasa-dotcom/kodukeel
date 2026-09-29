@@ -15,7 +15,7 @@ built:
 ```
 Every day         Today (default route), Learn, Practice
 Look it up        Dictionary
-How it is going   Progress
+How it's going    Progress
 This app          Settings, Suggested fixes
 ```
 

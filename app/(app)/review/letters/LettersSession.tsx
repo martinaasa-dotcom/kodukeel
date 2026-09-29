@@ -109,10 +109,10 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Tähed" lead="The letters of a word you know, in the wrong order.">
+      <Page title="Tähed" lead="A word you know, with its letters jumbled up. Put it back together.">
         <Empty
           title="No words to spell yet"
-          body="This plays with words you have already met, three letters or longer."
+          body="It uses words you've already met that are at least three letters long. Meet a few first."
           action={<ButtonLink href="/learn" variant="primary">Meet some words</ButtonLink>}
         />
       </Page>
@@ -131,8 +131,8 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
             </h1>
             <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
               {firstTry === attempted && attempted > 0
-                ? "Every one first time. The letters are yours."
-                : "Tubli. The ones that took two goes are the ones worth hearing again."}
+                ? "Every one on the first try. You know these letters now."
+                : "Tubli. The ones that took two goes are worth hearing once more."}
             </p>
           </div>
         </Lettered>
@@ -231,7 +231,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
       setLive(`Right. ${word.lemma}, ${word.meaning}.`);
     } else {
       sound("wrong");
-      setLive(`Not this time. The word is ${word.lemma}, ${word.meaning}.`);
+      setLive(`Not this time. It's ${word.lemma}, ${word.meaning}.`);
     }
     onSettled(solved, missCount);
     const duration = shownAt.current === null ? 0 : Date.now() - shownAt.current;
@@ -248,7 +248,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     // Shake, hand the tiles back, and place the first letter for them.
     sound("wrong");
     setShaking(true);
-    setLive("Not that order. Try once more. The first letter is placed for you.");
+    setLive("Not quite. Have another go. We've put the first letter in for you.");
     window.setTimeout(() => {
       setShaking(false);
       const first = tiles.find((t) => t.letter === letters[0]);
@@ -313,7 +313,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
           />
         </div>
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          {answered ? "Here it is, letter by letter." : "Put the letters in order. Hear it as often as you like."}
+          {answered ? "Here it is, letter by letter." : "Put the letters in order. Tap the speaker as often as you like."}
         </p>
 
         {/* THE ROW. One slot per letter, filled as tiles land. Wearing the
@@ -387,7 +387,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
         ) : (
           <>
             <span className="min-w-0 text-xs" style={{ color: "var(--ink-3)" }}>
-              {misses > 0 ? "One more go." : "Tap or type the letters."}
+              {misses > 0 ? "One more go. The first letter's in place." : "Tap the letters, or type them."}
             </span>
             <Button variant="secondary" className="ml-auto shrink-0 whitespace-nowrap" onClick={takeBack} disabled={placed.length === 0 || shaking || busy}>
               <Delete size={15} aria-hidden /> Take back

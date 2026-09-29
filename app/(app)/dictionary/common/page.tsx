@@ -5,7 +5,7 @@ import { CommonWords } from "./CommonWords";
 import { Empty } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 
-export const metadata = { title: "The words you will hear most" };
+export const metadata = { title: "The words you'll hear most" };
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +34,8 @@ export default async function CommonWordsPage() {
 
   return (
     <Page route="/dictionary/common"
-      title="The words you will hear most"
-      lead="Counted over film and television subtitles, so this is the language people speak."
+      title="The words you'll hear most"
+      lead="Counted from film and TV subtitles, so this is how people actually talk."
     >
       {found === 0 ? (
         <div className="flex flex-col gap-4">
@@ -46,8 +46,8 @@ export default async function CommonWordsPage() {
             empty page.
           */}
           <Empty
-            title="The dictionary has not been loaded yet"
-            body="These lists are drawn from it, so there is nothing to show until it is seeded."
+            title="The dictionary isn't loaded yet"
+            body="These lists are built from the dictionary, so there's nothing to show until it's set up."
           />
           <SuggestFix category="BROKEN" trigger="/dictionary/common found no entries in the dictionary" />
         </div>

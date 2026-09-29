@@ -69,8 +69,8 @@ describe("what it says", () => {
   };
 
   it("prints a share somebody can check, and never a bare percentage of nothing", () => {
-    expect(holdReason(hold({ taught: 80, known: 20 }))).toContain("25 in a hundred");
-    expect(holdReason(hold({ right: 80, answers: 200 }))).toContain("40 in a hundred");
+    expect(holdReason(hold({ taught: 80, known: 20 }))).toContain("25 out of every hundred");
+    expect(holdReason(hold({ right: 80, answers: 200 }))).toContain("40 out of a hundred");
   });
 
   /*

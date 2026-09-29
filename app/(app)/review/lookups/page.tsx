@@ -109,11 +109,11 @@ export default async function LookupsRoundPage() {
     return (
       <Page
         title="Words you looked up"
-        lead="The words you chose yourself, not the ones the course gave you."
+        lead="The words you picked up yourself, rather than the ones the course gave you."
       >
         <Empty
           title="Nothing here yet"
-          body="Words you add from an entry, a photograph or Anu are asked here."
+          body="Add a word from the dictionary, a photo or a chat with Anu, and it'll turn up here."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>

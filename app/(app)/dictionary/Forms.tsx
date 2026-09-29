@@ -48,8 +48,9 @@ export function WordForms({ forms, pos, subject }: {
         Every form
       </h3>
       <Explain label="Where these came from">
-        These are the real forms, not worked out from a stem. Irregular plurals and the
-        parallel forms Estonian really has are included.
+        Every form here comes straight from Ekilex, the Estonian dictionary, so none of it is
+        worked out by us. That&apos;s why the odd plurals are right, and why some cells hold two
+        spellings that are both correct.
       </Explain>
       {isVerb ? <VerbTable forms={forms} /> : <CaseTable forms={forms} subject={subject} />}
     </div>
@@ -352,8 +353,8 @@ export function DerivedVerbForms({ lemma, forms }: {
       </h3>
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         {present.length > 0
-          ? "Take the n off the first person and the other five persons, the negative and the conditional are regular endings on what is left. The simple past has to be learned per verb."
-          : "This is the one verb whose present tense does not follow the rule. The conditional still does; the rest is stored."}
+          ? "Take the n off that form and you have the stem. Every form below is the stem plus a regular ending. The past tense you learn verb by verb."
+          : "This is the one verb whose present tense breaks the pattern. The conditional still follows it, and the rest come straight from the dictionary."}
       </p>
       <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}>
         <table className="w-full min-w-[360px] text-sm">
@@ -403,7 +404,7 @@ export function DerivedVerbForms({ lemma, forms }: {
               <tr style={{ borderTop: "1px solid var(--rule-soft)" }}>
                 <td className="px-3 py-2 text-sm" style={{ color: "var(--ink-2)" }}>
                   <span lang="et">eitus</span>
-                  <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>every person</span>
+                  <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>same for every person</span>
                 </td>
                 <td className="px-3 py-2" colSpan={groups.length}>
                   <span className="inline-flex items-center gap-1.5">
@@ -431,7 +432,7 @@ export function DerivedVerbForms({ lemma, forms }: {
         </table>
       </div>
       <p className="mt-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        The bold form is stored. The rest are regular endings on it, checked against every verb in this dictionary.
+        The bold form comes from the dictionary. The rest are regular endings on it, checked on every verb we have.
       </p>
     </div>
   );

@@ -71,7 +71,7 @@ describe("/api/email/unsubscribe", () => {
 
     expect(response.status).toBe(200);
     // Still the same page, so the route says nothing about who exists.
-    expect(await response.text()).toContain("You will not get those emails again.");
+    expect(await response.text()).toContain("You won’t get those emails again.");
     expect(await prisma.setting.count({ where: { ownerId: ERASED } })).toBe(0);
   });
 

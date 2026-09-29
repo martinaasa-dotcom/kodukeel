@@ -46,7 +46,7 @@ export function classRows(classes: readonly RailClass[]): Destination[] {
     out.push({
       href: classHref(c.id),
       label: c.name.trim() || "Your class",
-      blurb: "Your class: homework and the board",
+      blurb: "Your homework, and how the class is getting on",
       icon: "School",
       tone: "sky",
       keywords: "class classroom teacher homework board",

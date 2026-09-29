@@ -26,7 +26,7 @@ export default async function TutorPage({ searchParams }: {
   return (
     <Page route="/tutor"
       title="Anu"
-      lead="Ask why a case is what it is, check a sentence, or get a stem explained."
+      lead="Ask why a word changes its ending, get her to check a sentence, or have a rule explained."
     >
       <TutorChat
         configured={chain.length > 0}

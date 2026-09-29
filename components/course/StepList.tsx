@@ -105,7 +105,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
       const result = await markCourseStep(programmeId, dayId, step.id).catch(() => null);
       if (!result || !result.ok) {
         setTicked((was) => was.filter((id) => id !== step.id));
-        setFailed(result ? result.error : "That did not reach the server.");
+        setFailed(result ? result.error : "That didn't reach us.");
         return;
       }
       router.refresh();
@@ -122,7 +122,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
     setFailed(null);
     start(async () => {
       const result = await startCourseDay(programmeId, dayId).catch(() => null);
-      if (!result) { setFailed("That did not reach the server."); return; }
+      if (!result) { setFailed("That didn't reach us."); return; }
       if (!result.ok) { setFailed(result.error); return; }
       router.push(opens.get(step.id) ?? step.href);
     });
@@ -173,7 +173,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                   */}
                   {isNext && step.id === "review" && closing.needed > 0 && (
                     <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-                      {closing.graded} of {closing.needed} {closing.needed === 1 ? "answer" : "answers"} in. Keep going and this ticks itself.
+                      {closing.graded} of {closing.needed} {closing.needed === 1 ? "answer" : "answers"} done. Keep going and this ticks itself off.
                     </p>
                   )}
 
@@ -183,7 +183,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                   >
                     {isDone ? (
                       <Chip tone="good">
-                        {step.derived ? "Checked against your answers" : "Done"}
+                        {step.derived ? "Done, going by your answers" : "Done"}
                       </Chip>
                     ) : isNext ? (
                       <>
@@ -225,7 +225,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                         className="inline-flex items-center gap-1.5 text-sm"
                         style={{ color: "var(--ink-3)" }}
                       >
-                        <Lock size={13} aria-hidden /> {step.minutes} min, after this one
+                        <Lock size={13} aria-hidden /> {step.minutes} min, once this one&apos;s done
                       </span>
                     )}
                   </div>
@@ -240,7 +240,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
         <li>
           <div role="status">
             <Note tone="again">
-              {failed} Nothing was changed.{" "}
+              {failed} Nothing has changed.{" "}
               <Link href="/course" className="underline">Try again</Link>.
             </Note>
           </div>

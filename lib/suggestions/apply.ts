@@ -40,7 +40,7 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
     return {
       ok: true,
       changed: false,
-      summary: "Nothing to apply automatically. This one is a report for a person to act on.",
+      summary: "There's nothing to apply automatically. This one needs a person to act on it.",
     };
   }
 
@@ -61,7 +61,7 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       if (createWordClash(patch, existing)) {
         return {
           ok: false,
-          error: `The dictionary already has ${patch.lemma}, so nothing was written. Correct its entry instead.`,
+          error: `The dictionary already has ${patch.lemma}, so nothing changed. Fix its entry instead.`,
         };
       }
       const written = await upsertLexemeWithForms({
@@ -83,7 +83,7 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
 
     case "SET_TRANSLATION": {
       const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
-      if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };
+      if (!lexeme) return { ok: false, error: "That entry isn't in the dictionary any more." };
       await prisma.lexeme.update({
         where: { id: lexeme.id },
         data: { translation: patch.translation, editedBy: reviewerId, editedAt: new Date() },
@@ -107,12 +107,12 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
         return {
           ok: false,
           error:
-            `${patch.formType} is not one of the principal parts. Only those are ours to change; ` +
-            `the rest are left as they are.`,
+            `${patch.formType} isn't one of the main forms. Only those can be changed here. ` +
+            `The rest stay as they are.`,
         };
       }
       const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
-      if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };
+      if (!lexeme) return { ok: false, error: "That entry isn't in the dictionary any more." };
 
       // Under the entry's own row: two reviewers accepting two corrections to
       // one slot at once otherwise leave both values standing, since the value
@@ -164,9 +164,9 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
         });
         return { next: cleared ? next : null, result: cleared };
       }, { editedBy: reviewerId, editedAt: new Date() });
-      if (!outcome.found) return { ok: false, error: "That entry is no longer in the dictionary." };
+      if (!outcome.found) return { ok: false, error: "That entry isn't in the dictionary any more." };
       if (!outcome.result) {
-        return { ok: false, error: "That sentence has no English on it any more, so there is nothing to take off." };
+        return { ok: false, error: "That sentence has no English on it any more, so there's nothing to take off." };
       }
       return {
         ok: true,
@@ -181,9 +181,9 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
         const kept = examples.filter((e) => e.et.trim() !== patch.sentence.trim());
         return kept.length === examples.length ? { next: null, result: false } : { next: kept, result: true };
       }, { editedBy: reviewerId, editedAt: new Date() });
-      if (!outcome.found) return { ok: false, error: "That entry is no longer in the dictionary." };
+      if (!outcome.found) return { ok: false, error: "That entry isn't in the dictionary any more." };
       if (!outcome.result) {
-        return { ok: false, error: "That sentence is no longer on the entry, so there is nothing to remove." };
+        return { ok: false, error: "That sentence isn't on the entry any more, so there's nothing to remove." };
       }
       return {
         ok: true,

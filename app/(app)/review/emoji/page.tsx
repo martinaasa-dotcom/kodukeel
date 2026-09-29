@@ -309,8 +309,8 @@ function NotEnough({ pairs }: { pairs: readonly EmojiPair[] }) {
   return (
     <Page title="Picture match" lead={boardLead(pairs)}>
       <Empty
-        title="Not enough words with a picture yet"
-        body="This round needs nouns the dictionary has a picture for."
+        title="Not enough picture words yet"
+        body="This needs a few more nouns we can show as a picture. Learn some more and come back."
         action={<ButtonLink href="/practice" variant="primary">Back to practice</ButtonLink>}
       />
     </Page>

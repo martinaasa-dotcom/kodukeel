@@ -103,10 +103,10 @@ export default async function ListeningPage({
     const pool = decoysAmong(await decoyOptions(), scope?.lemmas, MIN_LEXEMES_FOR_CHOICES);
     if (pool.length < MIN_LEXEMES_FOR_CHOICES) {
       return (
-        <Page title="Listening" lead="Hear a word, pick its meaning.">
+        <Page title="Listening" lead="Listen to a word, then pick what it means.">
           <Empty
-            title="Not quite enough words yet"
-            body={`The wrong answers come from other words, and there aren't ${MIN_LEXEMES_FOR_CHOICES} yet to pick from.`}
+            title="A few more words needed"
+            body={`The wrong answers come from your other words, so you'll need at least ${MIN_LEXEMES_FOR_CHOICES} in your deck.`}
             action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
           />
         </Page>

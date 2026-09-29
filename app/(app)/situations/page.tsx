@@ -85,7 +85,7 @@ export default async function SituationsPage() {
   return (
     <Page route="/situations"
       title="Situations"
-      lead="Somebody wants something from you, and you have to sort it out in Estonian."
+      lead="Practise real conversations: someone wants something from you, and you sort it out in Estonian."
     >
       <Stack>
         {tiles.length === 0 ? (
@@ -96,7 +96,7 @@ export default async function SituationsPage() {
           */
           <Empty
             title="No conversations yet"
-            body="More are coming. A practice round is the quickest thing to do in the meantime."
+            body="More are on the way. A quick practice round is a good way to fill the gap."
             action={<ButtonLink href="/practice">Practice</ButtonLink>}
           />
         ) : (
@@ -121,12 +121,12 @@ export default async function SituationsPage() {
         */}
         <div className="flex flex-col gap-1">
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            You play somebody else, off a card we hand you. Nothing you write here is about you.
+            We hand you a card and you play the person on it. Nothing you write here is about you.
           </p>
           <Explain label="Whose details these are">
-            The card is fiction, so no transcript is a record of anything you did. A scene never asks
-            you for a real document number, and what you type is kept with the run so the debrief can
-            read the conversation back to you.
+            The card is made up, so a transcript is never a record of anything you did. No scene will
+            ask for a real document number. What you type is kept with that run so you can read the
+            conversation back afterwards.
           </Explain>
         </div>
 
@@ -140,7 +140,7 @@ export default async function SituationsPage() {
         <section aria-labelledby="places-heading" className="situation-out rounded-[var(--r-xl)] border p-5 md:p-7">
           <h2 id="places-heading" className="text-xl font-bold tracking-tight">Where the people are</h2>
           <p className="mb-4 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            The rehearsal is here. The conversation is out there, and these are free.
+            Practise here, then go and have the real conversation. All of these are free.
           </p>
           <ul className="grid gap-3 @container">
             {PLACES_TO_TALK.map((place) => (

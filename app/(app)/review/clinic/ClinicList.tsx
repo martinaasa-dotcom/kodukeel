@@ -18,9 +18,9 @@ export interface ClinicItem extends Omit<Leech, "history"> {
 }
 
 const SHAPE_LABEL: Record<string, string> = {
-  "never-stuck": "never stuck",
-  regressed: "regressed",
-  unstable: "unstable",
+  "never-stuck": "hasn't stuck yet",
+  regressed: "slipped back",
+  unstable: "on and off",
   early: "early days",
 };
 
@@ -40,7 +40,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
   return (
     <Page
       title="Leech clinic"
-      lead="The cards you keep getting wrong, and what their history says."
+      lead="The words that just won't stick, and a good guess at why."
     >
       <div className="flex flex-col gap-4">
         {items.map((leech) => {
@@ -53,10 +53,10 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
           return (
             <Card key={leech.cardId}>
               <div className="flex flex-wrap items-center gap-2">
-                <Chip tone="again"><Stethoscope size={12} aria-hidden /> {leech.lapses} lapses</Chip>
+                <Chip tone="again"><Stethoscope size={12} aria-hidden /> Forgotten {leech.lapses} times</Chip>
                 <Chip tone="hard">{SHAPE_LABEL[leech.shape]}</Chip>
                 <Chip>{leech.failRate}% wrong</Chip>
-                {state && <Chip tone="neutral">{state}</Chip>}
+                {state && <Chip tone="neutral">{state === "suspended" ? "put away for now" : "deleted"}</Chip>}
               </div>
 
               <div className="mt-3 flex flex-wrap items-baseline gap-2">
@@ -73,7 +73,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
               <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 This card {leech.pattern}.
                 {leech.confusable.length > 0 && (
-                  <> Similar words already in your deck:{" "}
+                  <> It&rsquo;s easy to mix up with these, which are in your deck too:{" "}
                     <span lang="et">{leech.confusable.join(", ")}</span>.
                   </>
                 )}
@@ -95,7 +95,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                   )}
                   {leech.targetCase && (
                     <ButtonLink href={`/review?case=${leech.targetCase}`}>
-                      Drill the{" "}
+                      Practise the{" "}
                       <span lang="et">
                         {caseByKey(leech.targetCase)?.et ?? leech.targetCase.toLowerCase()}
                       </span>
@@ -107,7 +107,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                       if (landed) setHandled((h) => ({ ...h, [leech.cardId]: "suspended" }));
                     }}
                   >
-                    <Pause size={15} aria-hidden /> Park it for now
+                    <Pause size={15} aria-hidden /> Put it away for now
                   </Button>
                   <Button
                     variant="danger"
@@ -116,7 +116,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                       if (landed) setHandled((h) => ({ ...h, [leech.cardId]: "deleted" }));
                     }}
                   >
-                    <Trash2 size={15} aria-hidden /> Not worth learning
+                    <Trash2 size={15} aria-hidden /> Delete this card
                   </Button>
                 </div>
               )}
@@ -133,7 +133,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
         the button below a card is safe to press.
       */}
       <p className="mt-8 text-sm" style={{ color: "var(--ink-3)" }}>
-        Deleting a card never touches its history.
+        Deleting a card is safe. Your past answers stay in your history.
       </p>
     </Page>
   );
@@ -182,8 +182,8 @@ function Timeline({ history }: { history: { rating: number; at: string }[] }) {
         })}
       </div>
       <p className="mt-1.5 text-2xs" style={{ color: "var(--ink-3)" }}>
-        {failures} {failures === 1 ? "failure" : "failures"} in the last {shown.length} reviews.
-        Tall marks are the failures.
+        Missed {failures} {failures === 1 ? "time" : "times"} in the last {shown.length} tries.
+        The tall marks are the misses.
       </p>
     </div>
   );

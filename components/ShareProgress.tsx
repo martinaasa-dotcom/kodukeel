@@ -56,7 +56,7 @@ export function ShareProgress() {
         window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
       }
     } catch {
-      setError("Could not build the card just now. Try again in a moment.");
+      setError("Couldn't make the card just now. Try again in a moment.");
     }
     setBusy(false);
   };

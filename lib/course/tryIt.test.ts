@@ -61,7 +61,7 @@ describe("the reading asks back", () => {
   it("asks the no-form and the do-it form across the verbs on the page", () => {
     const no = verbAsks(table, "negative", fixed);
     expect(no[0]!.options.every((o) => o.startsWith("ei "))).toBe(true);
-    expect(no[0]!.no).toMatch(/^Not that one\. The no-form of/);
+    expect(no[0]!.no).toMatch(/^Not that one\. For \S+, it's ei /);
     const doIt = verbAsks(table, "imperative", fixed);
     expect(doIt[0]!.options.every((o) => o.endsWith("!"))).toBe(true);
   });
@@ -96,7 +96,7 @@ describe("the case table asks back", () => {
       expect(ask.prompt).toContain("seesütlev");
     }
     const stemmed = asks.find((a) => a.answer === "xos");
-    if (stemmed) expect(stemmed.yes).toContain("The stem is xo, then s.");
+    if (stemmed) expect(stemmed.yes).toContain("It's xo with s on the end.");
   });
 
   it("never asks about a form spelled like the word itself, and asks nothing on a thin table", () => {

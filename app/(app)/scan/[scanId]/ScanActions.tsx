@@ -120,7 +120,7 @@ export function ScanActions({ scanId, title, pending }: {
       )}
       {confirming && (
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          The cards and their history stay. Only the page goes.
+          Your cards and their history stay. Only the page itself goes.
         </p>
       )}
     </div>

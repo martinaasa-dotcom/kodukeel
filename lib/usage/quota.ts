@@ -424,7 +424,7 @@ export function checkQuota(
     return {
       allowed: false,
       reason: "BURST",
-      message: "That is a lot at once. Give it a few seconds.",
+      message: "That's a lot of questions at once. Give it a few seconds, then try again.",
       retryAfterSeconds: limits.burstWindowSeconds,
     };
   }
@@ -434,9 +434,9 @@ export function checkQuota(
       allowed: false,
       reason: "DAILY_CALLS",
       message:
-        "You have used today's share of the parts that ask a model. Everything " +
-        "else (review, the dictionary, your deck) keeps working, and it resets " +
-        "at midnight UTC.",
+        "That's all the help from Anu and the other AI features for today. They're " +
+        "back at midnight UTC, and your cards, the dictionary and everything else " +
+        "work as normal until then.",
       retryAfterSeconds: secondsUntilUtcMidnight(now),
     };
   }
@@ -446,8 +446,8 @@ export function checkQuota(
       allowed: false,
       reason: "DAILY_SPEND",
       message:
-        "You have used today's share of the budget for the parts that ask a " +
-        "model. It resets at midnight UTC.",
+        "That's all the help from Anu and the other AI features for today. They're " +
+        "back at midnight UTC.",
       retryAfterSeconds: secondsUntilUtcMidnight(now),
     };
   }
@@ -478,9 +478,8 @@ export function checkQuota(
       allowed: false,
       reason: "KIND_SPEND",
       message:
-        "This part of the app has used today's shared budget for asking a model. " +
-        "The rest of it, and everything that never asks one, keeps working. It " +
-        "resets at midnight UTC.",
+        "This part of the app has used up its budget for today and will be back " +
+        "at midnight UTC. Everything else still works as normal.",
       retryAfterSeconds: secondsUntilUtcMidnight(now),
     };
   }
@@ -509,9 +508,9 @@ export function checkQuota(
       allowed: false,
       reason: "GLOBAL_BUSY",
       message:
-        "The rest of today's shared budget is being kept for people who have not " +
-        "asked anything yet, and it resets at midnight UTC. Everything else " +
-        "(review, the dictionary, your deck) keeps working.",
+        "Today's AI budget is nearly spent, so what's left is kept for people who " +
+        "haven't asked anything yet. It's back at midnight UTC, and your cards, the " +
+        "dictionary and everything else still work.",
       retryAfterSeconds: secondsUntilUtcMidnight(now),
     };
   }
@@ -523,8 +522,8 @@ export function checkQuota(
       allowed: false,
       reason: "GLOBAL_SPEND",
       message:
-        "This deployment has reached its shared daily budget for AI. This is not " +
-        "about your account. It resets at midnight UTC.",
+        "The app has run through its AI budget for today, for everybody. It's nothing " +
+        "you did, and it's back at midnight UTC.",
       retryAfterSeconds: secondsUntilUtcMidnight(now),
     };
   }

@@ -47,6 +47,6 @@ export interface EmojiPair {
  */
 export function boardLead(pairs: readonly EmojiPair[]): string {
   return pairs.some((p) => p.caseKey)
-    ? "Match the picture to the Estonian, ending and all."
-    : "Match the picture to the word.";
+    ? "Match each picture to the right word, ending and all."
+    : "Match each picture to its word.";
 }

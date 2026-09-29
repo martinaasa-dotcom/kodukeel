@@ -283,12 +283,12 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          Round complete
+          That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           {tablesRight === questions.length
-            ? "Every table clean. You have the endings. What is left is the verbs whose first person you have not met yet."
-            : "The endings never change. What trips people is the stem, and that is the one part worth looking up when a table goes wrong."}
+            ? "Every table spotless. You've got the endings down. All that's left is meeting more verbs."
+            : "Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up."}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -354,10 +354,10 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {question.shape === "match"
-              ? "The first person is given. Put each of the other five beside its pronoun."
+              ? "We've filled in the first one for you. Put each of the other five next to its person."
               : question.tense === "present"
-                ? "The first person is given. Type the other five."
-                : "The conditional, from the same stem. Type the other five."}
+                ? "We've filled in the first one for you. Type the other five."
+                : "This time it's the \"would\" form, as in \"I would go\". Type the other five."}
           </p>
         </div>
 
@@ -492,7 +492,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             <>
               {derivedOnly && (
                 <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-                  Regular endings on the first person.
+                  We worked these out from the regular endings, not from the dictionary.
                 </p>
               )}
               <KeepWordChoice keeper={keeper} className="mt-4" />
@@ -530,7 +530,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>
-          {tablesRight}/{index + (revealed ? 1 : 0)} tables clean
+          {tablesRight} of {index + (revealed ? 1 : 0)} tables perfect
           {question.shape === "type" ? <>, {ADVANCE_KEY_LABEL} moves down the table</> : <>, tap a form to place it</>}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />

@@ -46,7 +46,7 @@ page.on("console", (m) => {
 await page.goto(`${B}/assess`, { waitUntil: "networkidle" });
 const measuredAlready = (await page.getByText("Skill by skill").count()) > 0;
 check("an unmeasured learner gets an empty state, not a zero",
-  measuredAlready || (await page.getByText(/Nothing measured yet/i).count()) > 0);
+  measuredAlready || (await page.getByText(/haven.t taken a check yet/i).count()) > 0);
 check("it says up front that speaking is judged by the learner",
   measuredAlready || (await page.getByText(/judge yourself/i).count()) > 0);
 
@@ -127,7 +127,7 @@ for (let step = 0; step < 200; step++) {
   */
   const selfRating = page.getByRole("button", { name: /Fairly sure/ });
   if (await selfRating.count()) {
-    saidNotScored ||= (await page.getByText(/never moves your level/i).count()) > 0;
+    saidNotScored ||= (await page.getByText(/never moves your level|part isn.t scored/i).count()) > 0;
     await selfRating.click();
     await page.waitForTimeout(150);
     continue;
@@ -201,7 +201,7 @@ for (let step = 0; step < 200; step++) {
     what a deployment with no speech service offers, and this driver takes it
     only when the options are genuinely unpressable.
   */
-  const noAudio = page.getByRole("button", { name: /The audio will not play/ });
+  const noAudio = page.getByRole("button", { name: /The audio won.t play/ });
   if (await noAudio.count()) { await noAudio.first().click(); await page.waitForTimeout(200); continue; }
   break;
 }
@@ -228,7 +228,7 @@ check("the result says how few questions it came from",
 check("it refuses to call itself a certificate",
   (await page.getByText(/Not a certificate/i).count()) > 0);
 check("it keeps speaking out of the level",
-  (await page.getByText(/never part of the level/i).count()) > 0);
+  (await page.getByText(/never part of (the|your) level|left out of your level/i).count()) > 0);
 
 // ─── It was kept, and it drives the plan ──────────────────────────────────────
 
@@ -243,7 +243,7 @@ check("the plan is on the same screen as the level",
 
 await page.goto(`${B}/settings#goals`, { waitUntil: "networkidle" });
 check("goals are editable for ever, not just at first run",
-  (await page.getByText("Why you are learning").count()) > 0);
+  (await page.getByText("Why you're learning Estonian").count()) > 0);
 // The target and the deadline are `radio`, because those are mutually
 // exclusive and one radio group beats eight toggle switches each announcing
 // itself as pressed. The reasons are not mutually exclusive: somebody living
@@ -267,7 +267,7 @@ check("the plan is in hours, not badges", /study hours to go/i.test(planText));
 check("it names its sources rather than asserting", /Foreign Service Institute/.test(planText));
 check("it says what the app itself cannot cover",
   /beyond this app/i.test(planText) || /covers it/i.test(planText));
-check("it does not promise the exam", /check the current requirement/i.test(planText));
+check("it does not promise the exam", /check the current (requirement|rules)/i.test(planText));
 
 // ─── First run ────────────────────────────────────────────────────────────────
 

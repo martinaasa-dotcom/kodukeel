@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
   const ownerId = await requireUserId();
   const limit = await checkSharedRateLimit(`restore:${bucketForOwner(ownerId)}`, 12, 60_000);
   if (!limit.ok) {
-    return rateLimited(limit, "That file is still being read. Nothing has changed.");
+    return rateLimited(limit, "We're still reading that file. Nothing has changed.");
   }
 
   const declared = Number(request.headers.get("content-length") ?? "");
@@ -78,8 +78,8 @@ export async function POST(request: NextRequest) {
       {
         ok: false,
         error:
-          "That file is larger than this app will read, and nothing was changed. " +
-          "If it really is a Kodukeel backup, whoever runs this installation can raise the limit.",
+          "That file is too big for us to read, and nothing was changed. " +
+          "If it really is a Kodukeel backup, whoever runs this copy of the app can raise the limit.",
       },
       { headers: NO_STORE, status: 413 },
     );
@@ -113,13 +113,13 @@ export async function POST(request: NextRequest) {
   } catch (cause) {
     await reportError(cause, { at: "api/restore", extra: { stage: "read" } });
     return NextResponse.json(
-      { ok: false, error: "The upload did not finish, and nothing was changed. Try again." },
+      { ok: false, error: "The upload didn't finish, and nothing was changed. Try again." },
       { headers: NO_STORE, status: 400 },
     );
   }
 
   if (!json.trim()) {
-    return NextResponse.json({ ok: false, error: "That file was empty." }, { headers: NO_STORE, status: 400 });
+    return NextResponse.json({ ok: false, error: "That file was empty, so nothing was changed." }, { headers: NO_STORE, status: 400 });
   }
 
   /*
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
       {
         ok: false,
         error:
-          "The restore did not finish, and nothing was changed. Your backup file is untouched, so it is safe to try again.",
+          "The restore didn't finish, and nothing was changed. Your backup file is untouched, so it's safe to try again.",
       },
       { headers: NO_STORE, status: 500 },
     );

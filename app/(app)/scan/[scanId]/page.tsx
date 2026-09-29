@@ -93,7 +93,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
       <Page eyebrow="From paper" title={scan.title}>
         <Empty
           title="No dictionary words on this page"
-          body="Nothing read off it matches an entry now, so there is nothing here to learn."
+          body="None of the words on it match the dictionary now, so there's nothing here to learn."
           action={<ButtonLink href="/scan" variant="primary">All pages</ButtonLink>}
         />
       </Page>
@@ -144,27 +144,27 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                 href={`/review?scan=${scan.id}`}
                 tone="accent"
                 title="Drill the page"
-                body="Just the words from this page, regardless of when they are due, graded the same as any other review."
+                body="Just the words from this page, whether or not they're due. It counts like any other review."
               />
               <PractiseTile
                 href="/review/match"
                 tone="sky"
                 title="Match"
-                body="Eight pairs against the clock, drawn from what is due across your deck."
+                body="Eight pairs against the clock. The words come from everything due in your deck, not just this page."
               />
               <PractiseTile
                 href="/review/sprint"
                 tone="blush"
                 title="Sprint"
-                body={`${sprintLength}. The fastest way to find out which of these has not stuck.`}
+                body={`${sprintLength} against the clock. The quickest way to see which words haven't stuck yet.`}
               />
             </div>
           </section>
         )}
 
         <section>
-          <SectionTitle hint={summary.inflected > 0 ? `${summary.inflected} inflected on the page` : undefined}>
-            The words
+          <SectionTitle hint={summary.inflected > 0 ? `${summary.inflected} had an ending on the page` : undefined}>
+            The words on this page
           </SectionTitle>
           <ul className="flex flex-col gap-2">
             {words.map(({ item, lexeme }) => (

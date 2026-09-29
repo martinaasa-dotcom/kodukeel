@@ -99,67 +99,67 @@ export interface ActivitySpec {
 export const ACTIVITIES = {
   match: {
     href: "/review/match", kind: "game",
-    why: "Pairs against the clock, so the meanings settle before anything asks you to produce one.",
+    why: "Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them.",
   },
   listening: {
     href: "/review/listening", kind: "drill",
-    why: "The same words with nothing written down. Reading them is not hearing them.",
+    why: "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.",
   },
   sprint: {
     href: "/review/sprint", kind: "game",
-    why: "A round against the clock through what you have met, endings included once you have read one. Speed is what turns a form you can work out into one you have.",
+    why: "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.",
   },
   sentences: {
     href: "/review/sentences", kind: "drill",
-    why: "Rebuild a sentence a native writer wrote, and the words land in the order Estonian uses.",
+    why: "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.",
   },
   dictation: {
     href: "/review/dictation", kind: "drill",
-    why: "Hear a whole sentence and write it down. This is where the long and short vowels stop being a rule.",
+    why: "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.",
   },
   picture: {
     href: "/review/emoji", kind: "game",
-    why: "No English on the board, so the ending is the only thing to go on.",
+    why: "Match pictures to Estonian words, with no English anywhere on the board. For a few minutes you're thinking in Estonian.",
   },
   describe: {
     href: "/review/describe", kind: "drill",
-    why: "One sentence of your own about a picture. Producing a sentence is the whole point of the words.",
+    why: "Look at a picture and write one sentence of your own about it. That's what all these words are for.",
   },
   sonad: {
     href: "/sonad", kind: "game",
-    why: "Today's word in six circles. Three minutes, and the letters of Estonian stop being strange.",
+    why: "Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.",
   },
   target: {
     href: "/review/target", kind: "game",
-    why: "Four forms of one word and a question word saying which. Nothing to cross out but the ending.",
+    why: "Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.",
   },
   conjugation: {
     href: "/review/conjugation", kind: "drill",
-    why: "One verb, six persons, typed. A verb you cannot conjugate is a verb you cannot use.",
+    why: "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.",
   },
   speaking: {
     href: "/review/speaking", kind: "drill",
-    why: "Say it out loud and hear it back. Nothing scores you: this is for your own ear.",
+    why: "Say it out loud, then hear how it should sound. Nobody marks you. This one is just for your own ears.",
   },
   write: {
     href: "/review/write", kind: "drill",
-    why: "Write your own sentence using a form we name. The form is checked against the dictionary first.",
+    why: "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.",
   },
   government: {
     href: "/review/government", kind: "drill",
-    why: "Aitan sind, but helistan sulle. English gives you nothing to go on here, so it is learned verb by verb.",
+    why: "Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.",
   },
   exceptions: {
     href: "/review/exceptions", kind: "drill",
-    why: "The words where the ending rule breaks down. You meet them and then write them, instead of looking them up every time.",
+    why: "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.",
   },
   letters: {
     href: "/review/letters", kind: "game",
-    why: "A word you know, its letters shuffled. Put them back and õ, ä, ö and ü stop being a's and o's.",
+    why: "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like a's and o's.",
   },
   flash: {
     href: "/review/flashcards", kind: "drill",
-    why: "Words you have already met, asked in ways review does not: heard, gapped, or built into a sentence.",
+    why: "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.",
   },
 } as const satisfies Record<string, ActivitySpec>;
 
@@ -457,10 +457,10 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
   steps.push({
     id: MEET_STEP,
     kind: "meet",
-    title: `Meet today's ${spec.words.length} words`,
+    title: `Learn tonight's ${spec.words.length} new words`,
     why: atA1
-      ? "Each one heard and met, then picked out of four a little later, so it is yours by the end of the round."
-      : "Each one met, then picked out of four, then typed back into a sentence a native writer wrote.",
+      ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
+      : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",
     href: "/course/learn",
     minutes: Math.max(1, Math.round(spec.words.length * perWord)),
     derived: true,
@@ -483,8 +483,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: READ_STEP,
       kind: "read",
-      title: "Read the point behind it",
-      why: "One page on the thing today's words all do, and three taps at the foot of it to try the point on real words.",
+      title: "Read how tonight's words work",
+      why: "One short page on the grammar behind tonight's words, with three quick questions at the end to try it.",
       href: reads,
       minutes: READ_MINUTES,
       derived: false,
@@ -502,8 +502,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: FORMS_STEP,
       kind: "drill",
-      title: `The past of ${spec.forms.length === 1 ? "one verb" : `${spec.forms.length} verbs`}`,
-      why: "Each verb keeps its own past, so it is learned verb by verb. Hear them, then try three.",
+      title: `The past tense of ${spec.forms.length === 1 ? "one verb" : `${spec.forms.length} verbs`}`,
+      why: "Estonian verbs don't all change the same way in the past, so you learn each one on its own. Listen to them, then try three quick questions.",
       href: "/course/forms",
       minutes: ROUND_MINUTES,
       derived: false,
@@ -528,7 +528,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
       id: TALK_STEP,
       kind: "talk",
       title: "Have the conversation",
-      why: "Somebody wants something from you and only Estonian will do. This is what the words were for.",
+      why: "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
       href: `/situations/${spec.scene}`,
       minutes: TALK_MINUTES,
       derived: false,
@@ -538,8 +538,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
   steps.push({
     id: REVIEW_STEP,
     kind: "review",
-    title: "Quick review, and you are done",
-    why: "Everything you are about to forget, today's words included. This is the part that makes them stick.",
+    title: "A quick review, then you're done",
+    why: "A few minutes on the words you're about to forget, tonight's included. This is the part that makes them stick.",
     href: "/review",
     minutes: REVIEW_MINUTES,
     derived: true,

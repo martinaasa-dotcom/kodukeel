@@ -57,7 +57,7 @@ const COMMANDS: Command[] = [
   {
     id: "shortcuts",
     label: "Keyboard shortcuts",
-    hint: "Everything you can do without the mouse",
+    hint: "Everything you can do without a mouse",
     group: "This app",
     href: "",
     keywords: "keys hotkeys bindings help question mark",
@@ -204,7 +204,7 @@ export function CommandPalette() {
       {
         id: "search",
         label: `Look up “${query.trim()}” in the dictionary`,
-        hint: "Estonian or English, other word forms included",
+        hint: "In Estonian or English, any form of the word",
         group: "Look it up",
         href: `/dictionary?q=${encodeURIComponent(query.trim())}`,
         keywords: "",
@@ -341,7 +341,7 @@ export function CommandPalette() {
         </ul>
         {results.length === 0 && (
           <p aria-hidden className="px-4 py-6 text-center text-sm" style={{ color: "var(--ink-3)" }}>
-            Nothing matches that.
+            Nothing matches that. Try another word?
           </p>
         )}
       </div>

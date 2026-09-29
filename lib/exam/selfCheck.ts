@@ -20,17 +20,17 @@ export type WrittenKind = Extract<TaskKind, "message" | "compose">;
 
 export const SELF_CHECK: Record<WrittenKind, readonly string[]> = {
   message: [
-    "Every point the task listed has a sentence of its own.",
-    "It is clear who it is for, and it opens and closes the way a note to that person would.",
-    "Each sentence has a verb, in the person that matches its subject.",
-    "The words you were given are in the form their sentence needs, not the dictionary form.",
+    "Every point in the task has its own sentence.",
+    "It's clear who it's for, and it starts and ends the way a note to that person would.",
+    "Every sentence has a verb, and the verb matches who is doing it.",
+    "The words you were given are in the form the sentence needs, not the dictionary form.",
   ],
   compose: [
-    "It answers the brief you chose, and a stranger could say what it is about in one line.",
-    "It has a beginning, a middle and an end, joined by linking words rather than a list of short sentences.",
-    "Each sentence has a verb, in the person that matches its subject.",
-    "Things that already happened are in a past tense, and the tense does not wander.",
-    "The words you were given are in the form their sentence needs, not the dictionary form.",
+    "It does what the brief asked, and a stranger could sum it up in one line.",
+    "It has a beginning, a middle and an end, joined up with linking words, not just a string of short sentences.",
+    "Every sentence has a verb, and the verb matches who is doing it.",
+    "Things that already happened are in a past tense, and the tense stays put.",
+    "The words you were given are in the form the sentence needs, not the dictionary form.",
   ],
 };
 

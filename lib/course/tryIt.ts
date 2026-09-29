@@ -68,12 +68,12 @@ export const TRY_IT_ASKS = 3;
  * class uses and the English says who that is, which is the rule every
  * screen naming a form here follows (`lib/estonian/plainAsk.ts`).
  */
-const PERSONS: readonly { code: string; pronoun: string; who: string }[] = [
+const PERSONS: readonly { code: string; pronoun: string; who: string; to?: string }[] = [
   { code: "Sg1", pronoun: "ma", who: "I" },
-  { code: "Sg2", pronoun: "sa", who: "you, to one person" },
+  { code: "Sg2", pronoun: "sa", who: "you", to: ", talking to one person" },
   { code: "Sg3", pronoun: "ta", who: "he or she" },
   { code: "Pl1", pronoun: "me", who: "we" },
-  { code: "Pl2", pronoun: "te", who: "you, to several or politely" },
+  { code: "Pl2", pronoun: "te", who: "you", to: ", talking to several people or politely" },
   { code: "Pl3", pronoun: "nad", who: "they" },
 ];
 
@@ -102,14 +102,14 @@ function personAsk(verb: TryItVerb, prefix: "IndPr" | "KndPr", random: () => num
   const shared = sharing.map((c) => c.pronoun).join(" and ");
   const also = sharing.length > 0 ? `, and for ${shared} too` : "";
   const soDoes = sharing.length > 0 ? `, and so ${sharing.length > 1 ? "do" : "does"} ${shared}` : "";
-  const mood = prefix === "KndPr" ? ", in the would-form" : "";
+  const would = prefix === "KndPr" ? " would" : "";
   return {
-    prompt: `Which one is ${target.who}${mood}, with ${verb.lemma}, ${verb.translation}?`,
+    prompt: `${verb.lemma} means ${verb.translation}. Which one is "${target.who}${would}"${target.to ?? ""}?`,
     about: verb.lemma,
     options: shuffle(options, random),
     answer: target.value,
     yes: `Yes. ${target.value} is ${verb.lemma} for ${target.pronoun}${also}.`,
-    no: `Not that one. ${target.pronoun} takes ${target.value}${soDoes}.`,
+    no: `Not that one. With ${target.pronoun} it's ${target.value}${soDoes}.`,
   };
 }
 
@@ -136,8 +136,8 @@ function acrossVerbsAsk(
     about: target.lemma,
     options: shuffle(options, random),
     answer: dress(answer),
-    yes: `Yes. ${dress(answer)} is ${what} ${target.lemma}, ${target.translation}.`,
-    no: `Not that one. ${what[0]!.toUpperCase()}${what.slice(1)} ${target.lemma} is ${dress(answer)}.`,
+    yes: `Yes. ${dress(answer)} is ${what} with ${target.lemma}, ${target.translation}.`,
+    no: `Not that one. For ${target.lemma}, it's ${dress(answer)}.`,
   };
 }
 
@@ -154,12 +154,12 @@ function pastAsk(verb: TryItVerb, random: () => number): TryItAsk | null {
   const answer = aboutMe ? me : them;
   const who = aboutMe ? "I did it" : "he or she did it";
   return {
-    prompt: `${verb.lemma}, ${verb.translation}: which one says ${who}, already over?`,
+    prompt: `${verb.lemma} means ${verb.translation}. Which one says "${who}", back in the past?`,
     about: verb.lemma,
     options: shuffle(options, random),
     answer,
-    yes: `Yes. ${answer} is the past${aboutMe ? " about yourself" : " about somebody else"}, and ${now} is now.`,
-    no: `Not that one. ${answer} is the one already over${aboutMe ? ", about yourself" : ", about somebody else"}.`,
+    yes: `Yes. ${answer} is the past, when ${aboutMe ? "you did it yourself" : "somebody else did it"}. ${now} is happening right now.`,
+    no: `Not that one. ${answer} is the past, when ${aboutMe ? "you did it yourself" : "somebody else did it"}.`,
   };
 }
 
@@ -183,13 +183,13 @@ export function verbAsks(
       : show === "negative"
         ? acrossVerbsAsk(
             verbs, verb, "IndPrPs_", (v) => `ei ${v}`,
-            (v) => `Which one says not, with ${v.lemma}, ${v.translation}?`,
-            "the no-form of", random,
+            (v) => `${v.lemma} means ${v.translation}. Which one says "not"?`,
+            "how you say not", random,
           )
         : acrossVerbsAsk(
             verbs, verb, "ImpPrSg2", (v) => `${v}!`,
-            (v) => `Which one tells one person to do it, with ${v.lemma}, ${v.translation}?`,
-            "the do-it form of", random,
+            (v) => `${v.lemma} means ${v.translation}. Which one tells somebody to do it?`,
+            "how you tell one person to do it", random,
           );
     if (ask) asks.push(ask);
   }
@@ -228,14 +228,14 @@ export function caseAsks(
     const others = shuffle(usable.filter((w) => w.form !== word.form), random).slice(0, 3);
     const options = shuffle(distinct([word.form, ...others.map((o) => o.form)]), random);
     const stem = word.genitive && ending && word.form.endsWith(ending)
-      ? ` The stem is ${word.genitive}, then ${ending}.`
+      ? ` It's ${word.genitive} with ${ending} on the end.`
       : "";
     asks.push({
       prompt: `Which one is ${word.lemma}, ${word.translation}, in the ${caseNameEt}?`,
       about: word.lemma,
       options,
       answer: word.form,
-      yes: `Yes. ${word.form} is ${word.lemma} with the ending on.${stem}`,
+      yes: `Yes. ${word.form} is ${word.lemma} in the ${caseNameEt}.${stem}`,
       no: `Not that one. ${word.lemma} becomes ${word.form}.${stem}`,
     });
   }

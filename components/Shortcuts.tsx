@@ -27,42 +27,42 @@ interface Group {
 const GROUPS: Group[] = [
   {
     title: "Anywhere",
-    hint: "in the app, whatever page you are on",
+    hint: "on any page of the app",
     keys: [
       { press: ["⌘", "K"], does: "Jump to any screen, or look a word up" },
-      { press: ["?"], does: "This list" },
+      { press: ["?"], does: "Show this list" },
       { press: ["Esc"], does: "Close whatever is open" },
     ],
   },
   {
     title: "Reviewing",
-    hint: "the daily loop, and the case drills",
+    hint: "your daily reviews and the case drills",
     keys: [
-      { press: ["Enter", "Space"], does: "Show the answer, or move on once you have read it" },
-      { press: ["Enter"], does: "Check what you typed, then grade it" },
+      { press: ["Enter", "Space"], does: "Show the answer, or move on once you've read it" },
+      { press: ["Enter"], does: "Check what you typed" },
       { press: ["1"], does: "Pick the first answer, and 2 to 4 for the rest" },
-      { press: ["1", "2"], does: "On a card you flip: I did not know it, I knew it" },
-      { press: ["B"], does: "See the word before this one again, changing nothing" },
-      { press: ["U"], does: "Undo the last grade, scheduling and all" },
+      { press: ["1", "2"], does: "On a card you flip: I didn't know it, I knew it" },
+      { press: ["B"], does: "Peek at the word before this one, without changing anything" },
+      { press: ["U"], does: "Undo your last answer, as if it never happened" },
       { press: ["⌘", "Z"], does: "…the same, without leaving the answer box" },
     ],
   },
   {
     title: "Multiple choice",
-    hint: "new cards, the listening round and minimal pairs",
+    hint: "new words, listening and minimal pairs",
     keys: [
       { press: ["1"], does: "Pick the first option" },
       { press: ["2"], does: "…the second, and so on" },
-      { press: ["R"], does: "Hear it again, on minimal pairs" },
-      { press: ["Enter", "Space"], does: "Continue once you have answered" },
+      { press: ["R"], does: "Play the word again, in minimal pairs" },
+      { press: ["Enter", "Space"], does: "Carry on once you've answered" },
     ],
   },
   {
     title: "Case Sprint",
     hint: "the timed round",
     keys: [
-      { press: ["Enter", "Space"], does: "Flip the card, then count it as right" },
-      { press: ["⌫"], does: "Count it as missed and move on" },
+      { press: ["Enter", "Space"], does: "Flip the card, then say you got it" },
+      { press: ["⌫"], does: "Count it as a miss and move on" },
     ],
   },
 ];
@@ -176,9 +176,9 @@ export function Shortcuts() {
         </div>
 
         <div className="border-t px-5 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Explain label="If you would rather not use a shortcut">
-          You can also tab to every control, with a clear focus ring. These shortcuts are just a
-          faster way in, never the only way.
+          <Explain label="Rather not use shortcuts?">
+          You can Tab to every control, and you&apos;ll always see which one you&apos;re on. Shortcuts are
+          only a faster way in, never the only way.
           </Explain>
         </div>
       </div>

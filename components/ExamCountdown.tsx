@@ -75,7 +75,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
             {countdown.chosen
               ? `${countdown.confidence}% likely to pass`
-              : `${countdown.confidence}% likely to pass it, and it is the one to aim at next`}
+              : `${countdown.confidence}% likely to pass. It's your next level up.`}
           </p>
           {/*
             What the number is worth, beside the number. The hub prints the long
@@ -140,7 +140,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
             )}
           </>
         ) : (
-          "We don't have enough here yet to tell you what's slowing you down."
+          "We haven't seen enough of your answers yet to tell what's holding you back."
         )}
       </p>
 
@@ -158,7 +158,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
           className="underline underline-offset-2"
           style={{ color: "var(--accent-deep)" }}
         >
-          The plan
+          See the plan
         </Link>
       </p>
 
@@ -166,7 +166,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
         {/* The paper itself, which is what this whole card is about and is one
             press from the page it sits on. */}
         <ButtonLink href={`/exam/${countdown.band}`} variant="secondary" size="sm">
-          Sit the {countdown.band} paper <ArrowRight size={14} aria-hidden />
+          Try the {countdown.band} mock exam <ArrowRight size={14} aria-hidden />
         </ButtonLink>
         <CardLink href="/settings#goals">
           {countdown.chosen ? "Change the goal" : "Set a goal of your own"}

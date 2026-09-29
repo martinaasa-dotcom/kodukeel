@@ -37,7 +37,7 @@ import { SpelledCount, spelledCount } from "@/lib/copy/values";
 export const metadata: Metadata = {
   title: { absolute: "kodukeel. Estonian that finally sticks" },
   description:
-    "Kodukeel means home language. Practice that sticks, conversations to rehearse with somebody who wants something from you, and one small thing to say out loud today. For anybody making a home in Estonia.",
+    "Kodukeel means home language. Fifteen minutes of Estonian an evening, a safe place to practice the conversations you're dreading, and a gentle push to go and have them for real. Free, for anyone making a home in Estonia.",
 };
 
 /** The landing page is public and read-only, so it can be cached hard. */
@@ -113,15 +113,15 @@ export default async function WelcomePage() {
  * on this page all came out of the dictionary.
  */
 const ANU_LINES: readonly AnuLine[] = [
-  { at: "top", mood: "happy", text: "I’m Anu, the tutor. I’ll come down the page with you." },
-  { at: "who", mood: "happy", text: "Whichever one is you, the first evening is the same fifteen minutes." },
-  { at: "cases", mood: "thinking", text: "Press an ending. It snaps onto the stem, and that is the whole trick." },
-  { at: "evening", mood: "happy", text: "This is really how the first evening starts. Five words, then they come back." },
-  { at: "talk", mood: "cheer", text: "Go on, order something. Get the ending wrong and see what happens." },
-  { at: "features", mood: "happy", text: "Ask me the thing you would not ask in class. I never sigh." },
-  { at: "compare", mood: "thinking", text: "Keep your class. This is the part between lessons." },
-  { at: "plan", mood: "happy", text: "Press a few. The sum is the one I use inside." },
-  { at: "faq", mood: "thinking", text: "Straight answers, and the comparison is in there too." },
+  { at: "top", mood: "happy", text: "Hi, I’m Anu, the tutor. Mind if I walk down the page with you?" },
+  { at: "who", mood: "happy", text: "Whichever one you are, you start the same way: fifteen minutes tonight." },
+  { at: "cases", mood: "thinking", text: "Press an ending and watch it snap on. That’s the whole trick, honestly." },
+  { at: "evening", mood: "happy", text: "This really is how your first evening starts. Five new words, and then they come back to check on you." },
+  { at: "talk", mood: "cheer", text: "Go on, order something. The person behind the counter is very patient." },
+  { at: "features", mood: "happy", text: "Ask me the thing you’d be too shy to ask in class. I never sigh." },
+  { at: "compare", mood: "thinking", text: "Keep your class. I’m here for the evenings in between." },
+  { at: "plan", mood: "happy", text: "Have a play with it. Inside, I do the same sum with your real pace." },
+  { at: "faq", mood: "thinking", text: "Short, straight answers. How we compare with other apps is the last one." },
   { at: "start", mood: "cheer", text: "Fifteen minutes a day. See you inside." },
 ];
 
@@ -183,7 +183,7 @@ function Nav() {
           rather than quietly folding again.
         */}
         <div className="hidden items-center gap-7 whitespace-nowrap text-sm font-medium lg:flex" style={{ color: "var(--ink-2)" }}>
-          <a href="#who" className="transition-opacity hover:opacity-60">Who it is for</a>
+          <a href="#who" className="transition-opacity hover:opacity-60">Who it’s for</a>
           <a href="#cases" className="transition-opacity hover:opacity-60">The cases</a>
           <a href="#plan" className="transition-opacity hover:opacity-60">Your plan</a>
         </div>
@@ -259,10 +259,10 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
       a dictionary put each form there and no model did. The FAQ names the three
       sources one screen down; this line is the promise they add up to.
     */
-    `${stats.words.toLocaleString("en-GB")} words, ${stats.forms.toLocaleString("en-GB")} forms, none from a model`,
-    `${PATH.length} units, ${LEVELS[0]} to ${LEVELS[LEVELS.length - 1]}`,
+    `${stats.words.toLocaleString("en-GB")} words, ${stats.forms.toLocaleString("en-GB")} forms, and not one of them made up by AI`,
+    `${PATH.length} units, from your first hello at ${LEVELS[0]} all the way to ${LEVELS[LEVELS.length - 1]}`,
     "Free, and it works offline",
-    "Counts the conversations you have, not the days you open it",
+    "Counts the real conversations you have, not the days you open the app",
   ];
   /*
     As tall as what is in it, and one section gap from the next beat. The
@@ -298,9 +298,9 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
             <span className="word-in hero-sticker" style={{ "--w": "380ms" } as React.CSSProperties}>sticks</span>
           </h1>
           <p className="fade-up hero-lead hero-sub max-w-[44ch] leading-relaxed" style={{ animationDelay: "420ms" }}>
-            The neighbor says hello. Your coworker asks you a question. The dog wants to be petted.
-            You need the right words when someone&rsquo;s actually looking at you. Kodukeel gets you
-            there, fifteen minutes at a time.
+            The neighbor says hello. A coworker asks you something. Even the dog seems to expect
+            Estonian. You need the right words when someone&rsquo;s actually looking at you, and
+            Kodukeel gets you there, fifteen minutes at a time.
           </p>
           <div className="fade-up hero-action flex flex-wrap items-center gap-x-5 gap-y-3" style={{ animationDelay: "520ms" }}>
             <ButtonLink href="/sign-in" variant="primary" size="lg" hop="hover" className="hero-cta group w-full sm:w-auto">
@@ -340,28 +340,28 @@ const WHO = [
   {
     icon: House,
     tone: "accent",
-    title: "You live here",
-    body: "The shop, the doctor, the letter from the city. The Estonian you meet every week, in the order you meet it.",
+    title: "You live here now",
+    body: "The pharmacist, the parents at the school gate, the letter from the city. Learn the Estonian you'll actually bump into this week.",
   },
   {
     icon: Heart,
     tone: "blush",
-    title: "Somebody you love speaks it",
-    body: "Their family, their jokes, their mother on the phone. Practise before Sunday lunch rather than during it.",
+    title: "You love someone who speaks it",
+    body: "Their mum on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it.",
   },
   {
     icon: ClipboardCheck,
     tone: "butter",
-    title: "You have an exam date",
-    body: "Mock papers from A2 to C1, marked by rule rather than by a model, and a plain guide to the real one.",
+    title: "You have an exam to pass",
+    body: "Full mock papers from A2 to C1, marked by clear rules you can check, not an AI's hunch. Walk in on the day knowing exactly what's coming.",
     href: "/state-exam",
     link: "How the real exam works",
   },
   {
     icon: Briefcase,
     tone: "sky",
-    title: "Your meetings are in Estonian",
-    body: "The words work runs on, and a rehearsal with somebody who wants something from you before the real one.",
+    title: "You work in Estonian",
+    body: "Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing.",
   },
 ] as const;
 
@@ -370,9 +370,9 @@ function WhoFor() {
     <section id="who" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="blush">Who it is for</p>
+          <p className="section-tag" data-tone="blush">Who it’s for</p>
           <h2 className="landing-title">
-            Anybody making a home in Estonian
+            Whatever brought you to Estonian
           </h2>
         </div>
       </Reveal>
@@ -430,9 +430,9 @@ function WhoFor() {
  * questions below for the reader who wants names.
  */
 const KINDS = [
-  { name: "A streak app", good: "A daily habit and your first few hundred words.", stops: "The fourteen cases, which is where Estonian gets hard." },
-  { name: "A class or a textbook", good: "A teacher, a syllabus and people to talk to.", stops: "Bringing a word back the day before you would forget it." },
-  { name: "An AI chatbot", good: "An answer at eleven at night, about anything.", stops: "Getting the form right. It writes Estonian that looks correct and is not." },
+  { name: "A streak app", good: "A daily habit and your first few hundred words.", stops: "The fourteen cases, which is exactly where Estonian gets hard." },
+  { name: "A class or a textbook", good: "A teacher, a syllabus and people to talk to.", stops: "Bringing each word back the day before you'd forget it." },
+  { name: "An AI chatbot", good: "An answer at eleven at night, about anything.", stops: "Getting the forms right. It writes Estonian that looks perfect and isn't." },
 ] as const;
 
 function Compare() {
@@ -442,7 +442,7 @@ function Compare() {
         <div className="section-head">
           <p className="section-tag" data-tone="sky">How it compares</p>
           <h2 className="landing-title">
-            Keep what you use now. The fourteen cases are the missing part.
+            Keep what you already use. The fourteen cases are the bit it&rsquo;s missing.
           </h2>
         </div>
       </Reveal>
@@ -464,17 +464,17 @@ function Compare() {
           <div className="compare-ours night rounded-[var(--r-xl)] border p-6">
             <h3 className="font-display text-xl font-bold" style={{ color: "var(--cta)" }}>kodukeel</h3>
             <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
-              The cases taught one by one, a scheduler that brings every word back, a tutor at any
-              hour, and every form from a dictionary rather than a model. Free, and it keeps working
-              offline.
+              The cases taught one at a time, every word brought back just before you&rsquo;d
+              forget it, a tutor awake at any hour, and every form straight from a dictionary, never
+              an AI. Free, and it works offline.
             </p>
           </div>
         </div>
       </Reveal>
       <p className="mt-6 max-w-[60ch] text-sm" style={{ color: "var(--ink-3)" }}>
-        Comparing named apps? The table is under{" "}
-        <a href="#comparison" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>the questions</a>,
-        checked against each one&rsquo;s own pages.
+        Weighing up particular apps? There&rsquo;s a side-by-side table in{" "}
+        <a href="#comparison" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>the questions below</a>,
+        checked against each app&rsquo;s own website.
       </p>
     </section>
   );
@@ -492,8 +492,8 @@ function Plan() {
             When could you get there?
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Four answers, and the page does the sum the app does inside. A range, because anybody
-            quoting you one number is guessing.
+            Answer four questions and we&rsquo;ll do the same sum the app does inside. You get a
+            range, because anyone who gives you one exact number is guessing.
           </p>
         </div>
       </Reveal>
@@ -502,10 +502,10 @@ function Plan() {
           <PlanCalculator />
           <div className="mt-6">
           <Explain label="Where the hours come from">
-            The hours usually published for each CEFR level, raised for Estonian where the cases
-            start to matter, and kept inside the ratio the US Foreign Service Institute gives for
-            it. Nothing here is measured on this app&rsquo;s learners. Inside, the same sum reads
-            your own pace off your reviews.
+            We start from the study hours usually published for each level, add extra where
+            Estonian&rsquo;s cases start to bite, and keep the total inside what the US Foreign
+            Service Institute estimates for the language. It isn&rsquo;t measured on people using
+            this app. Once you&rsquo;re inside, the same sum runs on your own pace instead.
           </Explain>
           </div>
         </div>
@@ -570,10 +570,11 @@ function Cases({ words }: { words: DemoWord[] }) {
             Learn {spelledCount(learnCount)} forms.<br className="lg:hidden" /> Build the other {spelledCount(buildCount)}.
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Fourteen cases is the number that makes people give up on Estonian. Three forms of a
-            word are yours to learn, sometimes four, and the rest are the same endings glued on,
-            for every word there is. Where a word breaks the pattern, you get the form Estonians
-            actually say beside the one the rule predicts. Press an ending and build one.
+            Fourteen cases is the number that makes people give up on Estonian. Here&rsquo;s the
+            secret: you learn three forms of a word, sometimes four, and the rest are the same
+            endings glued on, for every word in the language. When a word breaks the pattern,
+            you&rsquo;ll see what Estonians actually say right beside what the rule predicts. Press
+            an ending and build one yourself.
           </p>
         </div>
       </Reveal>
@@ -731,8 +732,9 @@ function Evening() {
             {minutes} minutes, {spelledCount(evening.words.length)} words. Try the first step now.
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Every evening is one button. You meet a handful of words, they come back a moment later,
-            a round or two puts them to work, and then the app tells you that you are done.
+            Every evening is one button. You meet a handful of new words, and they pop back a
+            moment later to check you kept them. A quick game or two puts them to work, and then
+            the app says you&rsquo;re done for the night.
           </p>
         </div>
       </Reveal>
@@ -761,11 +763,12 @@ function Talk() {
         <div className="section-head">
           <p className="section-tag" data-tone="blush">Say it to somebody</p>
           <h2 className="landing-title">
-            Order a drink in Estonian. Right now, no account.
+            Order a drink in Estonian. Right now, no account needed.
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            One of the fifteen conversations inside, with somebody who wants something from you. Here you
-            pick what to say, from hello to paying. Inside, you type it yourself.
+            This is one of the fifteen conversations inside: a café counter, and somebody waiting for
+            your order. Here you pick what to say, from hello to paying. Inside the app, you type it
+            yourself.
           </p>
         </div>
       </Reveal>
@@ -845,11 +848,11 @@ function Features() {
         <div className="section-head">
           <p className="section-tag" data-tone="butter">What you get</p>
           <h2 className="landing-title">
-            One tutor, {PATH.length} units, and a count of real conversations
+            Someone to ask, words that stay, and a nudge out the door
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Three parts, and they work together. A word you ask Anu about becomes a card, and the
-            plan decides which evening it comes back.
+            The three feed each other. A word Anu explains goes into your practice with one press,
+            and it comes back on the evening you&rsquo;re about to forget it.
           </p>
         </div>
       </Reveal>
@@ -860,7 +863,7 @@ function Features() {
             tone="blush"
             icon={<Sparkles size={18} aria-hidden />}
             title="Anu, who never sighs"
-            body="Ask her the thing you would not ask in class. She will build a sentence with you, read the one you wrote, and say why the ending changed. Every Estonian word she shows you is looked up, never guessed at."
+            body="Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and tell you why the ending changed. Every Estonian word she shows you is checked in the dictionary, never guessed."
           >
             <TutorPeek />
           </Feature>
@@ -869,8 +872,8 @@ function Features() {
           <Feature
             tone="accent"
             icon={<BookOpen size={18} aria-hidden />}
-            title="Practice that sticks"
-            body={`Look a word up and it becomes a card in one press, every form, audio in ten voices. Then ${PATH.length} units of them, brought back the day before you would forget, and heard the way people say them: at speed, over café noise, down a phone line.`}
+            title="Words that stay"
+            body={`Look up any word and keep it with one press, every form included, read aloud in ten different voices. Then there are ${PATH.length} units of words like it. Each comes back the day before you'd forget it, and you hear it the way people really say it: fast, over café noise, down a crackly phone line.`}
           />
         </Reveal>
         <Reveal>
@@ -878,7 +881,7 @@ function Features() {
             tone="sky"
             icon={<Target size={18} aria-hidden />}
             title="Then the real thing"
-            body="A receptionist with no slot on Thursday, a landlord on a bad line, a counter with a queue. Rehearse the conversation, then take the smallest step outside: one thing to say to a real person today, and a count of how it went. That count is the only score that matters here."
+            body="A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count."
           />
         </Reveal>
       </div>
@@ -974,13 +977,13 @@ const TOOLS = [
 const ROWS: readonly { label: string; cells: readonly [Verdict, Verdict, Verdict, Verdict] }[] = [
   { label: "Free, with no subscription", cells: ["yes", "no", "yes", "yes"] },
   { label: "Built for Estonian and nothing else", cells: ["yes", "no", "yes", "no"] },
-  { label: "Teaches the case system case by case", cells: ["yes", "unsure", "yes", "no"] },
+  { label: "Teaches the cases one at a time", cells: ["yes", "unsure", "yes", "no"] },
   { label: "Every form shows the dictionary it came from", cells: ["yes", "no", "no", "no"] },
   { label: "Brings a word back on the day you would forget it", cells: ["yes", "yes", "no", "yes"] },
   { label: "Any word you look up becomes a card", cells: ["yes", "no", "no", "yes"] },
   { label: "Explains why the answer was wrong", cells: ["yes", "yes", "yes", "no"] },
   { label: "Keeps working with no connection", cells: ["yes", "unsure", "no", "yes"] },
-  { label: "Rehearses a conversation with somebody who has an agenda of their own", cells: ["yes", "unsure", "no", "no"] },
+  { label: "Lets you rehearse a conversation with somebody who wants something from you", cells: ["yes", "unsure", "no", "no"] },
   { label: "Counts the conversations you have outside it", cells: ["yes", "no", "no", "no"] },
 ];
 
@@ -1014,19 +1017,19 @@ const SHARED_ROWS = spelledCount(shared);
 const CREDITS = [
   {
     name: "Speakly",
-    body: "Built in Estonia, and the fastest way to get 4,000 common words into your ear. It costs money.",
+    body: "Made in Estonia, and the quickest way to get 4,000 common words into your ear. It's a paid app.",
   },
   {
     name: "Keeleklikk and Keeletee",
-    body: "Free state-funded courses with a real teacher answering by email. Start there, and keep this open beside it.",
+    body: "Free, state-funded courses where a real teacher answers you by email. Start there, and keep this open alongside.",
   },
   {
     name: "Anki",
-    body: "Schedules anything you are willing to type. Finding the Estonian is your job, and so is getting it right.",
+    body: "Schedules anything you're willing to type in. Finding the Estonian is up to you, and so is getting it right.",
   },
   {
     name: "The vocabulary apps",
-    body: "Drops, Mondly, Memrise, Ling and the rest do words well. This is aimed at which form of the word, and why.",
+    body: "Drops, Mondly, Memrise, Ling and the rest are good at words. This is about which form of the word to use, and why.",
   },
 ] as const;
 
@@ -1090,10 +1093,11 @@ function Comparison() {
         for by name.
       */}
       <p className="mt-3 max-w-[68ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        Duolingo has never offered Estonian, so the real choice is between the tools that do. Of{" "}
-        {CLAIM_COUNT.toLowerCase()} claims checked against their own public pages, somebody else
-        earns a tick on {SHARED_ROWS}. None of them is trying to get you to{" "}
-        <span lang="et" className="font-semibold">ma lähen tuppa</span> and knowing why it is not{" "}
+        Duolingo has never offered Estonian, so the real choice is between the tools that do. We
+        checked {CLAIM_COUNT.toLowerCase()} claims against each tool&rsquo;s own website, and
+        another tool earns a tick on {SHARED_ROWS} of them. None of them is trying to get you
+        saying{" "}
+        <span lang="et" className="font-semibold">ma lähen tuppa</span> and knowing why it isn&rsquo;t{" "}
         <span lang="et" className="font-semibold">tuba</span>.
       </p>
 
@@ -1181,10 +1185,10 @@ function Comparison() {
       </div>
 
       <Explain label="How this table was checked">
-        A tick is yes, a dash is their pages not saying so, a question mark is us not being able to
-        tell. Checked in August 2026 against each product&rsquo;s own site. Every name belongs to
-        its owner and none of them has endorsed this. If something is wrong, tell us and we will
-        fix it.
+        A tick means yes, a dash means their own pages don&rsquo;t say so, and a question mark
+        means we couldn&rsquo;t tell. We checked each product&rsquo;s own website in August 2026.
+        Every name belongs to its owner, and none of them has endorsed this. If we&rsquo;ve got
+        something wrong, tell us and we&rsquo;ll fix it.
       </Explain>
     </FaqItem>
   );
@@ -1209,11 +1213,11 @@ function Comparison() {
 const FAQS = [
   [
     "Do I need to pay for anything?",
-    "No, and there is nothing to set up. A handful of things cost real money to run, so Anu, the writing grader and the camera have a daily allowance, and a normal evening never reaches one.",
+    "No, and there's nothing to install either. A few things cost us real money to run, so Anu, the writing feedback and the camera each have a daily limit. A normal evening never gets near it.",
   ],
   [
     "Where do the Estonian forms come from?",
-    "From a dictionary, never from AI. AI invents forms that look right and are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, the sentence says so.",
+    "From a real dictionary, never from AI. AI makes up forms that look right and aren't, and a flashcard would drill that mistake straight into your head. When Anu translates a sentence for you, the app says so.",
   ],
   [
     "Is this only for beginners?",
@@ -1226,15 +1230,15 @@ const FAQS = [
       misleads. The shorter answer is main's and is better than what this
       branch had.
     */
-    "It runs A1 to C1, and the parts that stay hard are taught on their own: a card for consonant gradation, a card for the case each verb demands, and a unit and a grammar page for whether an object is whole or partial. There is a level check if you would rather not guess where you are, and a mock state examination paper at A2, B1, B2 and C1. Each paper is assembled fresh from real sentences and marked by rule rather than by a model, apart from the spoken part, which you mark yourself.",
+    "Not at all. It runs from A1 to C1, and the bits that trip up even advanced learners get extra practice: letters that change in the middle of a word, the case each verb insists on, and when an object takes which ending. Not sure where you are? Take the level check. There are mock state exam papers at A2, B1, B2 and C1 too, built fresh from real sentences and marked by clear rules rather than a model. The one exception is the spoken part, which you mark yourself.",
   ],
   [
     "Will it actually get me talking to people?",
-    "That is what it is for. Situations puts you in front of somebody who wants something from you, a receptionist, a landlord, a clerk. You are marked against the dictionary and never by an AI, so you cannot be told you were wrong when you were right. Today asks each morning whether you spoke Estonian to anybody yesterday, and offers one small thing to say out loud if the answer is no. Progress counts those conversations, including the times somebody switched to English. Nothing here scores your pronunciation: the only recognizer available gets native speakers wrong, and we would rather say so than pretend.",
+    "That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend.",
   ],
   [
     "What happens to my data?",
-    "It stays in your account, and you can download all of it from Settings whenever you like. Your review history is the one thing we could never rebuild, so nothing in it is ever changed or deleted.",
+    "It stays in your account, and you can download every bit of it from Settings whenever you like. Your record of every answer you've given is the one thing we could never rebuild, so we never change or delete any of it, unless you delete your account.",
   ],
 ] as const;
 
@@ -1318,10 +1322,10 @@ function Questions() {
         <div className="section-head">
           <p className="section-tag" data-tone="accent">Questions</p>
           <h2 className="landing-title">
-            The questions people ask
+            Things people ask us
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Short answers, and how this compares with the other apps is at the end.
+            Short answers, straight to the point. How this compares with other apps is the last one.
           </p>
         </div>
       </Reveal>
@@ -1401,8 +1405,8 @@ function FinalCta() {
               the payoff and nothing else.
             */}
             <p className="mx-auto mt-6 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--stage-ink-2)" }}>
-              The next time somebody speaks to you in Estonian, you will have something to say
-              back, and you will have said it before.
+              Next time somebody speaks to you in Estonian, you&rsquo;ll have something to say
+              back. And it won&rsquo;t be the first time you&rsquo;ve said it.
             </p>
             <VisitRecap />
             <div className="mt-8 flex justify-center">
@@ -1411,7 +1415,7 @@ function FinalCta() {
               </ButtonLink>
             </div>
             <p className="mt-5 text-xs" style={{ color: "var(--stage-ink-2)" }}>
-              Google sign-in, nothing to install, export whenever you like
+              Sign in with Google in a click. Nothing to install, and you can take your data with you any time.
             </p>
           </div>
         </div>
@@ -1441,8 +1445,8 @@ function Footer() {
           <div>
             <Wordmark size={32} />
             <p className="mt-5 max-w-[34ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Kodukeel means home language. Free to use, and every Estonian form in it comes from a
-              dictionary, never from an AI.
+              Kodukeel means home language. It&rsquo;s free, and every Estonian form in it comes
+              from a dictionary, never from AI.
             </p>
           </div>
 
@@ -1481,7 +1485,7 @@ function Footer() {
             is a page nobody has read.
           */}
           <div>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>Read</p>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>Read more</p>
             <ul className="mt-4 flex flex-col gap-3 text-sm font-medium" style={{ color: "var(--ink-2)" }}>
               <li><Link href="/privacy" className="underline underline-offset-4 transition-opacity hover:opacity-70">Privacy</Link></li>
               <li><Link href="/terms" className="underline underline-offset-4 transition-opacity hover:opacity-70">Terms</Link></li>

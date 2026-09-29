@@ -126,10 +126,10 @@ export function SpeechPacePanel({ current, fromLevel, level, tilt }: {
              pace that played a notch slower than the level promises with no
              word about why would read as the setting not working. */
           detail: tilt === 0
-            ? `At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`
+            ? `At ${level} that's ${levelPace?.label.toLowerCase() ?? "full speed"}, and it speeds up as your level goes up.`
             : tilt < 0
-              ? `${levelPace?.label ?? "Slower"} for now, a notch slower than ${level} while your recent answers are hard. It moves back on its own.`
-              : `${levelPace?.label ?? "Natural"} for now, a notch quicker than ${level} while you are getting nearly everything right.`,
+              ? `${levelPace?.label ?? "Slower"} for now. That's a notch slower than usual at ${level}, because things have felt tricky lately. It goes back by itself.`
+              : `${levelPace?.label ?? "Natural"} for now. That's a notch quicker than usual at ${level}, because you're getting nearly everything right.`,
         },
         ...SPEECH_PACES.map((p) => ({ id: p.id, title: p.label, detail: p.detail })),
       ]}
@@ -139,7 +139,7 @@ export function SpeechPacePanel({ current, fromLevel, level, tilt }: {
 
 /** A speaker for the pace sample, at whatever the learner currently hears. */
 export function CurrentPaceSample() {
-  return <Speak text={PACE_SAMPLE} label="Hear the pace you are on" />;
+  return <Speak text={PACE_SAMPLE} label="Hear your current speed" />;
 }
 
 /**
@@ -151,13 +151,13 @@ const AUTOPLAY: { value: Autoplay; label: string; detail: string; icon: typeof E
   {
     value: "off",
     label: "Only when I press play",
-    detail: "Nothing speaks until you ask. The speaker sits on every card.",
+    detail: "Nothing plays until you ask. Every card has a speaker button.",
     icon: EarOff,
   },
   {
     value: "on",
     label: "Read each card aloud",
-    detail: "A word is spoken when you meet it and again when its answer appears.",
+    detail: "You hear a word when you first see it, and again when its answer appears.",
     icon: Ear,
   },
 ];
@@ -191,13 +191,13 @@ const SOUNDS: { value: FeedbackSounds; label: string; detail: string; icon: type
   {
     value: "on",
     label: "A sound for right and wrong",
-    detail: "Two quiet notes for a hit, one low one for a miss, before the correction is read.",
+    detail: "Two soft notes when you're right, one low note when you're not.",
     icon: Music,
   },
   {
     value: "off",
     label: "Silent",
-    detail: "The color and the words carry the verdict on their own.",
+    detail: "No sounds. The colors and words on screen tell you how it went.",
     icon: VolumeX,
   },
 ];
@@ -250,15 +250,15 @@ const HEARING: { value: Hearing; label: string; detail: string; icon: typeof Cof
       conversation opens it. So the sentence promised the learner a delivery
       the two rounds it is about will never use.
     */
-    detail: `A word you know well comes back ${
-      CONDITIONS.slice(1).filter((c) => !removesWords(c)).map((c) => c.said).join(", ")
-    }. A new one is always clear.`,
+    detail: `Once you know a word well, you'll sometimes hear it ${
+      CONDITIONS.slice(1).filter((c) => !removesWords(c)).map((c) => c.said).join(", ").replace(/, ([^,]*)$/, " or $1")
+    }, just like real life. New words always come nice and clear.`,
     icon: Coffee,
   },
   {
     value: "off",
     label: "Always clear",
-    detail: "Every clip in a quiet room at an ordinary pace, in the voice you chose.",
+    detail: "You always hear words in a quiet room, at an easy pace, in the voice you chose.",
     icon: AudioLines,
   },
 ];
@@ -307,19 +307,19 @@ const SUPPORT_LEVELS: { value: Support; label: string; detail: string; icon: typ
   {
     value: "guided",
     label: "Words and voice together",
-    detail: "Every line is written down as it is said, and the objective is under it. This is how a conversation has always read here.",
+    detail: "You see every line written out as it's spoken, with what you're aiming for right underneath.",
     icon: BookOpen,
   },
   {
     value: "listen",
     label: "Hear it first",
-    detail: "A line is spoken and its words wait behind a press, the way they do in a shop. You can always look.",
+    detail: "You hear each line first, like you would in a shop. The words are one press away whenever you want them.",
     icon: Ear,
   },
   {
     value: "cold",
     label: "Hear it, and work out what to say",
-    detail: "The objective waits behind a press as well, which is the closest this gets to the real thing. Best on a scene you have done before.",
+    detail: "Even what you're meant to say is hidden until you ask. It's as close to the real thing as it gets, so it's best for a conversation you've had before.",
     icon: Sparkles,
   },
 ];
@@ -351,5 +351,5 @@ export function SupportPanel({ current }: { current: Support }) {
 
 /** A speaker for the sample line in the learner's own current voice. */
 export function CurrentVoiceSample() {
-  return <Speak text={SAMPLE} label="Hear the voice you have chosen" />;
+  return <Speak text={SAMPLE} label="Hear the voice you've chosen" />;
 }

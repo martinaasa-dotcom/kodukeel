@@ -33,47 +33,47 @@ import type { EmailKind } from "@/lib/email/letter";
 const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   {
     kind: "tonight",
-    title: "A note on an evening you have not studied",
+    title: "A nudge on evenings you haven't studied yet",
     detail:
-      "At the hour below, when an evening is unfinished. Nothing on a day you have already done it.",
+      "Sent at the time you pick below, and only if you haven't studied yet that day.",
   },
   {
     kind: "milestone",
-    title: "When a level's words have stuck",
+    title: "A note when you've truly learned a level's words",
     detail:
-      "Rare, and always late: a word only counts once it has come back days later and been right.",
+      "Rare, and always a little late, because a word only counts once you still know it days later.",
   },
   {
     kind: "shield",
-    title: "When a shield covers a day you missed",
+    title: "A note when a shield saves your streak",
     detail:
-      "Earned at seven, thirty and a hundred days, and spent silently. This is the only way to find out.",
+      "You earn a shield at 7, 30 and 100 days, and it's used without any fuss. This is how you'd find out.",
   },
   {
     kind: "comeback",
-    title: "One note if you have been away a while",
-    detail: "At most one a fortnight, and never a count of the days you missed.",
+    title: "One friendly note if you've been away a while",
+    detail: "At most once a fortnight, and it never counts the days you missed.",
   },
   {
     kind: "errand",
-    title: "One thing to say to a real person, once a week",
+    title: "Once a week, one thing to say to a real person",
     detail:
-      "A weekday morning, while the app can see you are not already speaking Estonian to people.",
+      "Sent on a weekday morning, and only when you haven't been chatting to people in Estonian lately.",
   },
   {
     kind: "weekly",
-    title: "A summary on Sunday morning",
-    detail: "What the week held, and how far along the course you are.",
+    title: "A little summary on Sunday morning",
+    detail: "How your week went, and how far along the course you are.",
   },
   {
     kind: "deadline",
-    title: "Where the date you set stands, while it can still move",
-    detail: "Twice at most, and only in the months where changing something would still work.",
+    title: "How you're doing against the date you set",
+    detail: "Twice at most, and only while there's still time to change course.",
   },
   {
     kind: "wordday",
     title: "One Estonian word a day",
-    detail: "Off unless you ask. A word, what it means, a sentence, and nothing to do.",
+    detail: "Off unless you turn it on. A word, what it means and a sentence with it. Nothing to do, just enjoy it.",
   },
 ];
 
@@ -134,8 +134,8 @@ export function EmailPanel({
           `/privacy` takes about an operator nobody has named.
         */
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          This installation is not set up to send email, so none of these will arrive.
-          Your answers are kept in case that changes.
+          This copy of Kodukeel isn&rsquo;t set up to send email, so none of these will arrive.
+          We&rsquo;ll remember your choices in case that changes.
         </p>
       )}
 
@@ -163,7 +163,7 @@ export function EmailPanel({
       <div>
         <p className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
           <Clock size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
-          The evening note, and the calendar reminder, are both read at this hour on your own clock.
+          The evening nudge and the calendar reminder both come at this time, in your own time zone.
         </p>
         {/*
           A RADIO GROUP, NOT FOUR SWITCHES.
@@ -201,10 +201,10 @@ export function EmailPanel({
           </a>
         </p>
         <Explain label="What the calendar reminder is">
-          An ordinary repeating event, not a notification. It fires on your phone whether or not
-          this app is open, needs no permission from us, and you delete it like any other event.
-          The hour is read on your own clock wherever you are, so it stays put when the clocks
-          change, and it works whether or not the emails above are on.
+          It&rsquo;s an ordinary repeating event, not a notification. It pops up on your phone whether
+          or not the app is open, and you delete it like any other event. It follows your own
+          clock wherever you are, so it stays put when the clocks change, and it works whether
+          or not the emails above are on.
         </Explain>
       </div>
     </div>

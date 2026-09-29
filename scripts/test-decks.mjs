@@ -293,7 +293,7 @@ check("a shelf can be renamed", await eventually(() => shows(RENAMED)));
 
 await deckPage();
 await page.getByRole("button", { name: /^\d+ words?$/ }).first().click();
-const takeOff = page.getByRole("button", { name: /Take .* off this shelf/ });
+const takeOff = page.getByRole("button", { name: /Take .* out of this deck/ });
 /*
   The shelf's own list is fetched when the disclosure opens rather than handed
   down by the server render, so counting straight after the click counts the
@@ -315,7 +315,7 @@ if (had > 0) {
 // ── Removing the shelf keeps the words ────────────────────────────────────
 await deckPage();
 await page.getByRole("button", { name: /Remove/ }).first().click();
-check("removing a shelf says the words stay", await eventually(() => shows("The words stay in your deck")));
+check("removing a shelf says the words stay", await eventually(() => shows("The words themselves won’t be deleted")));
 await page.getByRole("button", { name: /^Remove$/ }).last().click();
 check("and the shelf goes", await eventually(async () => !(await shows(RENAMED))));
 

@@ -78,23 +78,23 @@ export const GUIDE: readonly GuideSection[] = [
     title: "What it is",
     facts: [
       {
-        text: "The state examines Estonian at four levels, A2, B1, B2 and C1. There is no A1 examination and no C2.",
+        text: "The state examines Estonian at four levels: A2, B1, B2 and C1. There's no exam at A1 or C2.",
         source: "harnoEn",
       },
       {
-        text: "Every level has four parts: writing, listening, reading and speaking. It tests language, not knowledge of Estonian culture or history.",
+        text: "Every level has four parts: writing, listening, reading and speaking. It tests your Estonian, not what you know about Estonian culture or history.",
         source: "harnoEn",
       },
       {
-        text: "It is free of charge, and so is sitting it again.",
+        text: "It's free, and so is sitting it again.",
         source: "harnoEn",
       },
       {
-        text: "The papers, the descriptions of each level and the sample materials are all in Estonian.",
+        text: "The papers, the level descriptions and the sample materials are all in Estonian.",
         source: "harnoEn",
       },
       {
-        text: "The spoken part opens with a short general conversation with the examiner, the way people talk when they first meet: who you are and a little about yourself. Two assessors mark a recording of it.",
+        text: "The spoken part starts with a short chat with the examiner, the kind people have when they first meet: who you are and a bit about yourself. Two assessors mark a recording of it.",
         source: "harnoEt",
       },
     ],
@@ -108,15 +108,15 @@ export const GUIDE: readonly GuideSection[] = [
         source: "harnoEt",
       },
       {
-        text: "A citizenship applicant aged 65 or over is excused the writing part of the B1 examination and sits the other three. That has to be chosen on the registration form.",
+        text: "If you're applying for citizenship and you're 65 or over, you can skip the writing part of the B1 exam and sit the other three. You choose that on the registration form.",
         source: "harnoEn",
       },
       {
-        text: "What a job asks for is set by a government regulation, according to the kind of post and its professional standard.",
+        text: "The level a job needs is set by a government regulation, depending on the kind of post and its professional standard.",
         source: "harnoEn",
       },
       {
-        text: "Which level a residence permit asks for is decided by the Police and Border Guard Board. Ask them for your own case before you register.",
+        text: "The Police and Border Guard Board decides which level a residence permit needs. Ask them about your own case before you register.",
         source: "ppa",
       },
     ],
@@ -126,11 +126,11 @@ export const GUIDE: readonly GuideSection[] = [
     title: "Registering",
     facts: [
       {
-        text: "Register in EIS. Anybody with an Estonian personal identification code has to register there; a paper application is only for somebody without one.",
+        text: "Register in EIS. If you have an Estonian personal identification code, you have to register there. Paper applications are only for people without one.",
         source: "harnoEn",
       },
       {
-        text: "An email address is required. Without one the form cannot be sent.",
+        text: "You'll need an email address. The form won't send without one.",
         source: "harnoEn",
       },
       {
@@ -138,11 +138,11 @@ export const GUIDE: readonly GuideSection[] = [
         source: "harnoEn",
       },
       {
-        text: "A notice with the time and the place is emailed no later than 14 days before. A registration can be cancelled up to four working days before the date.",
+        text: "You'll get an email with the time and place at least 14 days before. You can cancel up to four working days before the date.",
         source: "harnoEn",
       },
       {
-        text: "Somebody who needs special conditions for health reasons, such as more time or a separate room, applies to an expert committee, which meets in the first week of the month before the examination.",
+        text: "If you need special conditions for health reasons, like more time or a separate room, apply to an expert committee. It meets in the first week of the month before the exam.",
         source: "harnoEn",
       },
     ],
@@ -156,11 +156,11 @@ export const GUIDE: readonly GuideSection[] = [
         source: "harnoEn",
       },
       {
-        text: "They start at 10:00. The written and the spoken parts can be on different dates when a lot of people have registered.",
+        text: "They start at 10:00. When a lot of people register, the written and spoken parts can fall on different days.",
         source: "harnoEn",
       },
       {
-        text: "A free consultation is held before each examination, up to four and a half hours long, and it can be attended without registering for it. Bring an identity document to it, as to the examination.",
+        text: "There's a free consultation before each exam, up to four and a half hours long, and you don't need to register for it. Bring an ID document, just as you would to the exam.",
         source: "harnoEn",
       },
     ],
@@ -170,7 +170,7 @@ export const GUIDE: readonly GuideSection[] = [
     title: "Results, and failing",
     facts: [
       {
-        text: `A pass is ${PASS_PCT} percent of the total, and no part may score nothing.`,
+        text: `A pass is ${PASS_PCT} percent of the total, and no part can score zero.`,
         source: "harnoEn",
       },
       {
@@ -178,7 +178,7 @@ export const GUIDE: readonly GuideSection[] = [
         source: "harnoEn",
       },
       {
-        text: `Below ${RETAKE_WAIT_PCT} percent, or absent without a good reason, you wait six months before registering again. You cannot register for the next sitting until the last one's results are out.`,
+        text: `If you score below ${RETAKE_WAIT_PCT} percent, or miss the exam without a good reason, you wait six months before registering again. You can't register for the next sitting until the last one's results are out.`,
         source: "harnoEn",
       },
       {
@@ -192,11 +192,11 @@ export const GUIDE: readonly GuideSection[] = [
     title: "Getting course fees back",
     facts: [
       {
-        text: "Since 1 January 2024 the state refunds Estonian course fees only to citizenship applicants who have passed both examinations, and to people the Language Board directed to sit one.",
+        text: "Since 1 January 2024 the state only refunds Estonian course fees to citizenship applicants who have passed both exams, and to people the Language Board sent to sit one.",
         source: "harnoEt",
       },
       {
-        text: "The refund is up to 384 euros, for a course from a provider licensed for that level, claimed within three months of learning you passed.",
+        text: "You can get up to 384 euros back for a course from a provider licensed for that level. Claim it within three months of finding out you passed.",
         source: "harnoEt",
       },
     ],
@@ -206,15 +206,15 @@ export const GUIDE: readonly GuideSection[] = [
     title: "The Constitution and Citizenship Act examination",
     facts: [
       {
-        text: "It lasts 45 minutes, on a computer, and has 24 multiple choice questions in Estonian. A pass is 18 right.",
+        text: "It takes 45 minutes on a computer: 24 multiple choice questions in Estonian. You pass with 18 right.",
         source: "citizenship",
       },
       {
-        text: "The texts of the Constitution and the Citizenship Act and a dictionary are in the room and may be used.",
+        text: "The Constitution, the Citizenship Act and a dictionary are in the room, and you're allowed to use them.",
         source: "citizenship",
       },
       {
-        text: "It is held once a month except July, in Tallinn, Tartu and Narva, and the result is known as soon as it ends. Harno publishes a handbook for it in English and in Russian.",
+        text: "It's held once a month except in July, in Tallinn, Tartu and Narva, and you get your result as soon as it ends. Harno publishes a handbook for it in English and Russian.",
         source: "citizenship",
       },
     ],

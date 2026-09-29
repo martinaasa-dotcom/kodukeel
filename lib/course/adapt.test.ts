@@ -168,7 +168,7 @@ describe("what the lean is said to be doing", () => {
   it("names only the levers that moved", () => {
     expect(leanSentence(-1, { pace: true, talk: false })).toMatch(/slower/);
     expect(leanSentence(-1, { pace: true, talk: false })).not.toMatch(/conversations/);
-    expect(leanSentence(1, { pace: false, talk: true })).toMatch(/conversations open a notch higher/);
+    expect(leanSentence(1, { pace: false, talk: true })).toMatch(/conversations start a little harder/);
   });
 
   it("says nothing where nothing moved, or nothing leans", () => {
@@ -179,6 +179,6 @@ describe("what the lean is said to be doing", () => {
 
   it("keeps a card honest about a lean that moved nothing", () => {
     const offer = adaptOffer(struggling, at({ part: ladder[0]! }))!;
-    expect(offerBody(offer, { pace: false, talk: false })).not.toMatch(/slower|plainer/);
+    expect(offerBody(offer, { pace: false, talk: false })).not.toMatch(/slower|simpler/);
   });
 });

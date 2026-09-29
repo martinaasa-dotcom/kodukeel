@@ -25,9 +25,9 @@ export function ReadingEnd() {
       style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
     >
       <div>
-        <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>That is the page</p>
+        <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>That&apos;s the end of the page</p>
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          Step {focus.n} of {focus.of} is done when you go on.
+          Move on and that&apos;s step {focus.n} of {focus.of} done.
         </p>
       </div>
       <div className="ml-auto">{next}</div>

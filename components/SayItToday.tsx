@@ -83,7 +83,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
 
   const mishap = failed && (
     <p className="mt-2 text-xs" role="status" style={{ color: "var(--hard-ink)" }}>
-      That did not save. Try again when you are back online.
+      That didn&apos;t save. Try again once you&apos;re back online.
     </p>
   );
 
@@ -97,10 +97,10 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
       <Card>
         <SectionTitle hint="yesterday">Out there</SectionTitle>
         <p className="text-md leading-snug" style={{ color: "var(--ink)" }}>
-          Did you speak any Estonian to somebody yesterday?
+          Did you speak any Estonian to anyone yesterday?
         </p>
         <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-          Anything counts. A shop, a colleague, one sentence at the door.
+          Anything counts. A shop, a colleague, a single sentence at the door.
         </p>
         {mishap}
         <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Whether you spoke Estonian yesterday">
@@ -144,7 +144,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
         <SectionTitle hint="yesterday">Out there</SectionTitle>
         <p className="flex items-start gap-2 text-md leading-snug" style={{ color: "var(--ink)" }}>
           <Footprints size={16} aria-hidden className="mt-1" />
-          You spoke Estonian to somebody. That is the hard part, and it is what all of this is for.
+          You spoke Estonian to a real person. That&apos;s the hard part, and it&apos;s what all of this is for.
         </p>
         <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>How did it go?</p>
         {mishap}
@@ -213,9 +213,9 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
           shape `docs/18-voice.md` calls a sentence doing no work.
         */}
         <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-          {errandPlaces(errand)}. The words are in{" "}
+          {errandPlaces(errand)}. You&apos;ll find the words in{" "}
           <Link href={`/learn/${errand.unit}`} className="underline">{unitTitle}</Link>.
-          {scene && <> Or <Link href={`/situations/${scene.id}`} className="underline">rehearse it first</Link>.</>}
+          {scene && <> Or <Link href={`/situations/${scene.id}`} className="underline">try it out here first</Link>.</>}
         </p>
       </Card>
     );
@@ -247,8 +247,8 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
   */
   const held = conversations + (answered === null ? 1 : 0);
   const tally = held === 1
-    ? `Your first in the last ${days} days.`
-    : `That is ${held} in the last ${days} days.`;
+    ? `That's your first in the last ${days} days.`
+    : `That makes ${held} in the last ${days} days.`;
   const next = NEXT[answer];
 
   return (
@@ -258,7 +258,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
         <Footprints size={16} aria-hidden className="mt-1" /> {REPLY[answer]}
       </p>
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-        {tally} <Link href="/progress" className="underline">Progress keeps the count</Link>.
+        {tally} <Link href="/progress" className="underline">See them all on Progress</Link>.
       </p>
       {/*
         AND THEN ONE THING TO DO ABOUT IT, WHICH IS A REHEARSAL AND NOT AN
@@ -272,7 +272,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
       {next && (
         <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
           {next}{" "}
-          <Link href={rehearsal(errand)} className="underline">Rehearse one now</Link>.
+          <Link href={rehearsal(errand)} className="underline">Practise one here now</Link>.
         </p>
       )}
       {/*
@@ -293,7 +293,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
       <form action="/dictionary" method="get" className="mt-3 flex flex-wrap items-end gap-2">
         <div className="min-w-0 flex-1">
           <label htmlFor="out-there-word" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-            Was there a word you wanted and could not find?
+            Was there a word you wanted and couldn&apos;t find?
           </label>
           <input
             id="out-there-word"
@@ -334,9 +334,9 @@ function rehearsal(errand: Errand): string {
   failure on the learner's part.
 */
 const REPLY: Record<Conversation, string> = {
-  UNDERSTOOD: "They understood you. That is the whole point of all of this.",
-  STUCK: "Getting stuck is what learning a language out loud looks like. It still counts, and it is still on the board.",
-  SWITCHED: "They switched. Answer in Estonian anyway next time, and most people come back.",
+  UNDERSTOOD: "They understood you. That's the whole point of all this.",
+  STUCK: "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.",
+  SWITCHED: "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.",
 };
 
 /*
@@ -357,6 +357,6 @@ const REPLY: Record<Conversation, string> = {
 */
 const NEXT: Record<Conversation, string | null> = {
   UNDERSTOOD: null,
-  STUCK: "Running out of words costs nothing in a rehearsal, and somebody there is waiting for you to find them.",
-  SWITCHED: "They can switch to English in there too, so you can practise coming back.",
+  STUCK: "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.",
+  SWITCHED: "They can switch to English in there too, so you can practise steering it back to Estonian.",
 };

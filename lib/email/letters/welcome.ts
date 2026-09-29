@@ -48,7 +48,7 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     alt: "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.",
   });
 
-  blocks.push({ t: "heading", text: "Your deck is built. Here is the short version." });
+  blocks.push({ t: "heading", text: "Your first cards are ready. Here's how it works." });
 
   /*
     ENDOWED PROGRESS: THE DECK IS ALREADY THERE.
@@ -60,16 +60,16 @@ export function welcomeLetter(input: WelcomeInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `${input.cardsWaiting} cards are waiting, built from the units you start on. ` +
+      `${input.cardsWaiting} cards are already waiting for you, made from the first lessons of your course. ` +
       (input.opensOn
-        ? `The course opens on ${input.opensOn.title}, ${input.opensOn.subtitle.toLowerCase()}.`
-        : `Open the course and it will pick the first evening for you.`),
+        ? `Your first evening is ${input.opensOn.title}, which is ${input.opensOn.subtitle.charAt(0).toLowerCase()}${input.opensOn.subtitle.slice(1)}.`
+        : `Open the course and it'll show you where to start.`),
   });
 
   blocks.push({
     t: "art",
     html: meter(2),
-    alt: "A progress bar, at the very start of it.",
+    alt: "A progress bar, right at the start.",
   });
 
   /*
@@ -81,19 +81,19 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     app will ever be.
   */
   blocks.push({ t: "rule" });
-  blocks.push({ t: "heading", text: "Fifteen minutes, and the same fifteen every time." });
+  blocks.push({ t: "heading", text: "Fifteen minutes an evening, and that's all." });
   blocks.push({
     t: "text",
     text:
-      "An evening here is one reading, two short rounds and a review, and it is built to come to " +
-      "a quarter of an hour whatever level you are at. When it is done the screen says so and stops. " +
-      "That is the whole promise, and it is the only one worth making.",
+      "Each evening is a short reading, two quick exercises and a few cards to go over. It takes about " +
+      "a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. " +
+      "No endless scrolling, no guilt.",
   });
 
   if (input.reminderAt) {
     blocks.push({
       t: "text",
-      text: `You asked for ${input.reminderAt}. Put it in your calendar and the reminder comes from your own phone rather than from us.`,
+      text: `You picked ${input.reminderAt}. Put it in your calendar and your phone will remind you, which works far better than an email from us.`,
     });
     blocks.push({
       t: "link",
@@ -104,8 +104,8 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     blocks.push({
       t: "text",
       text:
-        "Pick the hour that already has a gap in it. After dinner, on the train, before bed. " +
-        "The hour matters far less than its being the same one.",
+        "Pick a time that already has a gap in it: after dinner, on the train, before bed. " +
+        "Which hour you choose matters much less than keeping it the same every day.",
     });
   }
 
@@ -118,17 +118,17 @@ export function welcomeLetter(input: WelcomeInput): Letter {
   blocks.push({
     t: "quiet",
     text:
-      "What we will send: a short note on an evening you have not studied, one summary on a Sunday, " +
-      "and nothing else. One link at the bottom of any of them turns them off, and the course keeps " +
-      "working exactly as it did.",
+      "What we'll send you: a short nudge on evenings you haven't studied yet, a look back at your " +
+      "week on Sundays, and now and then a note when there's real news, like finishing a level. " +
+      "The link at the bottom of any of them turns them off, and the course works just the same without them.",
   });
 
   return {
     kind: "welcome",
-    subject: "Your deck is built",
+    subject: "Your first cards are ready",
     preheader: input.opensOn
-      ? `${input.cardsWaiting} cards, and the course opens on ${input.opensOn.subtitle.toLowerCase()}.`
-      : `${input.cardsWaiting} cards are waiting.`,
+      ? `${input.cardsWaiting} cards are waiting, and your first evening is ${input.opensOn.subtitle.charAt(0).toLowerCase()}${input.opensOn.subtitle.slice(1)}.`
+      : `${input.cardsWaiting} cards are waiting, and your first evening takes fifteen minutes.`,
     blocks,
   };
 }

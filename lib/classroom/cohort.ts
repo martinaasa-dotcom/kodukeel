@@ -41,8 +41,8 @@ export const COHORT_LABEL: Record<CohortKind, string> = {
 };
 
 export const COHORT_DETAIL: Record<CohortKind, string> = {
-  CLASS: "You teach it. You see who is keeping up and which case each person is weakest at.",
-  WORKPLACE: "You sponsor it. You see who is practicing and who is on track, never their mistakes.",
+  CLASS: "You're the teacher. You'll see who's keeping up and which case each person finds hardest.",
+  WORKPLACE: "You're the sponsor. You'll see who's practising and who's on track, but never their mistakes.",
 };
 
 /**
@@ -79,7 +79,7 @@ export type ReadinessBand = "likely" | "close" | "far" | "unknown";
 export const BAND_LABEL: Record<ReadinessBand, string> = {
   likely: "On track",
   close: "Close",
-  far: "Needs time",
+  far: "Needs more time",
   unknown: "Too early to say",
 };
 

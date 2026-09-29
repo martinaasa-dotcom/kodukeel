@@ -44,7 +44,7 @@ export function NotAutomatic({ slow, mixedUp, medianMs }: {
       {slow.length > 0 && (
         <div>
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Right, but you think about it
+            You get these right, just slowly
           </p>
           <ul className="flex flex-col gap-1.5">
             {slow.slice(0, MAX_ROWS).map((s) => (
@@ -53,7 +53,7 @@ export function NotAutomatic({ slow, mixedUp, medianMs }: {
           </ul>
           {medianMs !== null && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-              Against your own {formatAnswerTime(medianMs)} on everything else.
+              For comparison, your usual answer takes {formatAnswerTime(medianMs)}.
             </p>
           )}
         </div>
@@ -62,7 +62,7 @@ export function NotAutomatic({ slow, mixedUp, medianMs }: {
       {mixedUp.length > 0 && (
         <div>
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Forms you swap
+            Endings you mix up
           </p>
           <ul className="flex flex-col gap-1.5">
             {mixedUp.slice(0, MAX_ROWS).map((c) => (
@@ -109,7 +109,7 @@ function SlowRow({ pace }: { pace: SlotAnswerTime }) {
   );
 
   const label =
-    `${full}: right ${pace.accuracy} percent of ${pace.answers} timed answers, ` +
+    `${full}: right ${pace.accuracy} percent of the time over ${pace.answers} timed answers, ` +
     `taking ${time} each`;
 
   return (
@@ -117,7 +117,7 @@ function SlowRow({ pace }: { pace: SlotAnswerTime }) {
       {spec ? (
         <Link
           href={`/review?case=${pace.slot}`}
-          aria-label={`${label}. Drill it.`}
+          aria-label={`${label}. Practise it.`}
           className="pill tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-1.5 text-sm"
         >
           {inside}
@@ -149,7 +149,7 @@ function MixedRow({ confusion }: { confusion: Confusion }) {
       <span
         lang="et"
         className="min-w-0 flex-1"
-        aria-label={`${slotLabel(a)} and ${slotLabel(b)}, swapped ${confusion.times} times`}
+        aria-label={`${slotLabel(a)} and ${slotLabel(b)}, mixed up ${confusion.times} times`}
       >
         {first} <span aria-hidden style={{ color: "var(--ink-3)" }}>↔</span> {second}
       </span>

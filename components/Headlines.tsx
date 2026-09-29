@@ -52,8 +52,8 @@ export function Headlines({ headlines, host }: { headlines: ReadableHeadline[]; 
         ))}
       </ul>
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-        A dotted word opens its entry. The plain ones are names and words the dictionary cannot
-        vouch for yet.
+        Tap a dotted word to look it up. The plain ones are names, or words the dictionary
+        doesn&apos;t know yet.
       </p>
     </section>
   );

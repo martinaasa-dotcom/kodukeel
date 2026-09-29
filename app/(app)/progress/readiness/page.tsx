@@ -43,8 +43,8 @@ export default async function ReadinessPage() {
       >
         <Empty
           title="Nothing answered yet"
-          body="This reads your reviews, and there are none. It has an opinion after your first session."
-          action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+          body="This page works from your answers, and there aren't any yet. Come back after your first session."
+          action={<ButtonLink href="/learn" variant="primary">Learn your first words</ButtonLink>}
         />
       </Page>
     );
@@ -66,22 +66,23 @@ export default async function ReadinessPage() {
     >
       <Stack>
         <section>
-          <SectionTitle hint={`at ${picture.level}, your level, from Settings`}>Where you stand</SectionTitle>
+          <SectionTitle hint={`at ${picture.level}, your level in Settings`}>Where you stand</SectionTitle>
           <Card tone="night">
             <ReadinessSummary summary={picture.summary} />
-            <Explain label="What the three rungs mean">
-              Three rungs, and the first is the one a word count measures. {RUNG_LABEL.follow} means you would
-              understand most of it. {RUNG_LABEL.takePart} means you could answer, with the words and the endings
-              it needs, without a long silence first. {RUNG_LABEL.lead} means you could open it, steer it and recover
-              when it goes sideways, which for a live exchange also needs some evidence you can follow speech.
-              Recognizing words on cards never clears the second rung on its own.
+            <Explain label="What the three ratings mean">
+              Each situation gets one of three ratings. {RUNG_LABEL.follow} means you&rsquo;d understand
+              most of it. {RUNG_LABEL.takePart} means you could answer with the right words and endings,
+              without a long silence first. {RUNG_LABEL.lead} means you could start it, steer it, and get
+              it back on track if it goes wrong. For a live conversation, that also takes some sign that
+              you can follow spoken Estonian. Knowing words on cards never gets you past the first rating
+              on its own.
             </Explain>
           </Card>
         </section>
 
         {worthTrying.length > 0 && (
           <section>
-            <SectionTitle hint="the log says you have enough for these">Worth trying this week</SectionTitle>
+            <SectionTitle hint="your answers say you're ready for these">Worth trying this week</SectionTitle>
             <div className="grid gap-3 md:grid-cols-3">
               {worthTrying.map((r) => (
                 <Card key={r.situation.id} tone="sky">
@@ -170,7 +171,7 @@ export default async function ReadinessPage() {
         })}
 
         <Explain label="What this page does not measure">
-          Nothing here has heard you speak, and no number on this page pretends to. How you sound is yours to judge, in{" "}
+          Nothing here has heard you speak, and no number on this page pretends it has. How you sound is yours to judge, in{" "}
           <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>speaking practice</Link>.
         </Explain>
       </Stack>

@@ -496,7 +496,7 @@ describe("the distance in one sentence", () => {
     expect(seen.size).toBe(lines.size);
     expect(lines.get("open")).toContain("No date is set");
     expect(lines.get("passed")).toContain("has gone");
-    expect(lines.get("short")).toContain("something has to move");
+    expect(lines.get("short")).toContain("something has to give");
     expect(lines.get("tight")).toContain("It fits");
     expect(lines.get("possible")).toContain("if you commit");
     expect(lines.get("comfortable")).toContain("this app alone covers it");
