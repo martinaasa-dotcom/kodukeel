@@ -3,6 +3,7 @@ import { Explain } from "@/components/Explain";
 import { Building2, GraduationCap, School, Users } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
+import { firstNameOf } from "@/lib/auth/identity";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
@@ -46,7 +47,7 @@ export default async function ClassIndexPage() {
   });
   const sizeOf = new Map(counts.map((c) => [c.classroomId, c._count]));
   const suggestedName =
-    settings[SETTING_KEYS.displayName]?.trim() || (learner.name === "you" ? "" : learner.name);
+    settings[SETTING_KEYS.displayName]?.trim() || firstNameOf(learner);
 
   // With no accounts there is exactly one learner, so there is nobody to share a
   // class with. Any class this install already holds is still listed — switching
