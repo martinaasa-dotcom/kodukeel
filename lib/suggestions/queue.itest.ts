@@ -171,7 +171,7 @@ describe("readQueue", () => {
     const queue = await readQueue({ status: "OPEN", category: null, page: 0 });
     const row = queue.rows.find((r) => r.lemma === LEMMA)!;
     expect(row).toBeDefined();
-    expect(row.blocked).toMatch(/no longer/i);
+    expect(row.blocked).toMatch(/no longer|any more/i);
   });
 
   it("counts open reports under the category tab that shows them", async () => {

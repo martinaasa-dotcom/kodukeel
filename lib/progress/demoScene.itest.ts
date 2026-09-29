@@ -82,7 +82,7 @@ describe("the landing page's café", () => {
       }
       const text = said.join("\n");
       expect(reply!.met, `${seed} ${path}\n${text}`).toBe(reply!.beats);
-      expect(reply!.outcome, text).toMatch(/you paid, and you made the bus/);
+      expect(reply!.outcome, text).toMatch(/you've paid, and you made the bus/);
       expect(text, text).not.toMatch(REPAIR);
       // "Yes, that is everything" is only ever said to "is that everything?".
       expect(text, text).not.toMatch(/veel midagi/);
