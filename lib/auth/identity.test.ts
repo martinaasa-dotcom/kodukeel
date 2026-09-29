@@ -15,6 +15,7 @@ import {
   authCookieName,
   boundedTransport,
   hasSessionCookie,
+  firstNameOf,
   learnerFromClaims,
   readIdentity,
   type Transport,
@@ -88,6 +89,7 @@ describe("learnerFromClaims", () => {
       name: "Maarja Tamm",
       email: "maarja@example.ee",
       avatarUrl: "https://example.test/a.jpg",
+      givenName: null,
     });
   });
 
@@ -106,6 +108,30 @@ describe("learnerFromClaims", () => {
     expect(learner.name).toBe("you");
     expect(learner.email).toBe(null);
     expect(learner.avatarUrl).toBe(null);
+  });
+});
+
+describe("firstNameOf", () => {
+  const of = (name: string, givenName: string | null = null) => firstNameOf({ name, givenName });
+
+  it("uses the given name the provider sent, which is right where a split is not", () => {
+    expect(of("Mary Ann Smith", "Mary Ann")).toBe("Mary Ann");
+    const learner = learnerFromClaims({
+      sub: "u",
+      user_metadata: { full_name: "Maarja Tamm", given_name: " Maarja " },
+    });
+    expect(firstNameOf(learner)).toBe("Maarja");
+  });
+
+  it("falls back to the first word of the name", () => {
+    expect(of("Maarja Tamm")).toBe("Maarja");
+    expect(of("  Maarja   Tamm  ".trim())).toBe("Maarja");
+    expect(of("Anna-Liisa Tamm")).toBe("Anna-Liisa");
+  });
+
+  it("leaves a single word alone and never pre-fills the local placeholder", () => {
+    expect(of("maarja")).toBe("maarja");
+    expect(of("you")).toBe("");
   });
 });
 
@@ -152,7 +178,7 @@ describe("readIdentity", () => {
     const identity = await readIdentity(client, reached(true));
     expect(identity).toEqual({
       state: "in",
-      learner: { id: "user-1", name: "maarja", email: "maarja@example.ee", avatarUrl: null },
+      learner: { id: "user-1", name: "maarja", email: "maarja@example.ee", avatarUrl: null, givenName: null },
     });
   });
 
