@@ -163,6 +163,14 @@ export type Given =
   | { kind: "picked"; option: string }
   | { kind: "typed"; text: string }
   | { kind: "rated"; rating: number }
+  /**
+   * "I don't know", said out loud on a choice question. It is an answer and
+   * counts: it earns nothing, exactly as a wrong pick does, but it is a
+   * different fact from a wrong pick, and it is what stops a lucky guess among
+   * four options being read as knowing the word. Unlike `skipped` it is
+   * honoured on every skill and never leaves one unmeasured.
+   */
+  | { kind: "unsure" }
   /** The listening section left unmeasured, because the audio would not play. */
   | { kind: "skipped" };
 

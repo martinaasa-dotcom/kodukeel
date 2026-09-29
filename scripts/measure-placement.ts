@@ -27,10 +27,24 @@ import { BANDS, PRE_A1, type ItemRef, type Level, type Response, type Skill } fr
 const LEARNERS = Number(process.argv.find((a) => a.startsWith("--learners="))?.split("=")[1] ?? 2000);
 const LEVELS: Level[] = [PRE_A1, ...BANDS];
 
+/**
+ * Two learners, and the difference between them is "I don't know".
+ *
+ * The guesser picks an option whenever they do not know, so a four-option
+ * question pays out a quarter of the time on a word they have never seen. The
+ * honest learner presses "I don't know" instead, which earns nothing: their
+ * chance of credit on a choice question is only the part that is knowledge,
+ * the guessing quarter taken out. Writing is typed and has no such button, so
+ * it is the same for both.
+ */
+type Model = "guesses" | "honest";
+const GUESS = 0.25;
+
 /** Probability of credit on a question `distance` bands above the learner's level. */
-function chance(skill: Skill, distance: number): number {
+function chance(skill: Skill, distance: number, model: Model): number {
   if (skill === "writing") return distance <= 0 ? 0.82 : distance === 1 ? 0.38 : 0.12;
-  return distance <= 0 ? 0.88 : distance === 1 ? 0.5 : 0.3;
+  const withGuessing = distance <= 0 ? 0.88 : distance === 1 ? 0.5 : 0.3;
+  return model === "guesses" ? withGuessing : (withGuessing - GUESS) / (1 - GUESS);
 }
 
 /** The paper, as the blueprint lays it out: ascending bands within each skill. */
@@ -46,29 +60,33 @@ function paper(): ItemRef[] {
   return items;
 }
 
-function sit(items: ItemRef[], level: Level, random: () => number): Level | null {
+function sit(items: ItemRef[], level: Level, random: () => number, model: Model): { level: Level | null; asked: number } {
   const responses: Response[] = [];
   for (;;) {
     const cursor = nextCursor(items, responses);
     if (cursor.index === null) break;
     const item = items[cursor.index]!;
     const distance = rank(item.band) - rank(level);
-    responses.push({ itemId: item.id, skill: item.skill, band: item.band, credit: random() < chance(item.skill, distance) ? 1 : 0, ms: 1000 });
+    responses.push({ itemId: item.id, skill: item.skill, band: item.band, credit: random() < chance(item.skill, distance, model) ? 1 : 0, ms: 1000 });
   }
-  return placement(items, responses).overall;
+  return { level: placement(items, responses).overall, asked: responses.length };
 }
 
 const items = paper();
 const random = mulberry32(7);
-console.log(`${LEARNERS} simulated learners at each level, over the real ladder and scorer.\n`);
-console.log("level    at own   below   above");
-for (const level of LEVELS) {
-  let own = 0, below = 0, above = 0;
-  for (let n = 0; n < LEARNERS; n++) {
-    const got = sit(items, level, random);
-    const diff = (got ? rank(got) : -2) - rank(level);
-    if (diff === 0) own++; else if (diff < 0) below++; else above++;
+console.log(`${LEARNERS} simulated learners at each level, over the real ladder and scorer.`);
+for (const model of ["guesses", "honest"] as const) {
+  console.log(`\n${model === "guesses" ? "Guesses when unsure" : "Says \"I don't know\" when unsure"}`);
+  console.log("level    at own   below   above   questions");
+  for (const level of LEVELS) {
+    let own = 0, below = 0, above = 0, asked = 0;
+    for (let n = 0; n < LEARNERS; n++) {
+      const got = sit(items, level, random, model);
+      asked += got.asked;
+      const diff = (got.level ? rank(got.level) : -2) - rank(level);
+      if (diff === 0) own++; else if (diff < 0) below++; else above++;
+    }
+    const pct = (n: number) => `${Math.round((100 * n) / LEARNERS)}%`.padStart(6);
+    console.log(`${level.padEnd(8)} ${pct(own)}  ${pct(below)}  ${pct(above)}   ${(asked / LEARNERS).toFixed(1).padStart(8)}`);
   }
-  const pct = (n: number) => `${Math.round((100 * n) / LEARNERS)}%`.padStart(6);
-  console.log(`${level.padEnd(8)} ${pct(own)}  ${pct(below)}  ${pct(above)}`);
 }

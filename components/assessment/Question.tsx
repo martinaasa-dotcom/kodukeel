@@ -142,6 +142,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
     const onKey = (event: KeyboardEvent) => {
       const n = Number(event.key);
       if (Number.isInteger(n) && n >= 1 && n <= item.options.length) choose(n - 1);
+      else if (event.key === "0") choose(-1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -224,6 +225,23 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       </div>
 
       {/*
+        "I don't know" is an answer, marked as none of the options, so it earns
+        nothing exactly as a wrong pick does. What it buys is a level read off
+        what somebody knows rather than off a lucky guess among four. It sends
+        its own kind of answer (`unsure`), which the server marks zero through
+        the same `creditFor` and which, unlike a skip, counts on every skill,
+        so it cannot be used to leave a section unmeasured. `0` presses it.
+      */}
+      {picked === null && (
+        <div className="mt-3">
+          <Button variant="ghost" disabled={!played} onClick={() => choose(-1)}>
+            <KeyCap>0</KeyCap>
+            I don&apos;t know
+          </Button>
+        </div>
+      )}
+
+      {/*
         A MARKED ANSWER SAYS SO OUT LOUD.
 
         The panel that appears here is the whole of what a learner gets back
@@ -241,7 +259,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       <div className={picked !== null ? "pop-in mt-5" : undefined} role="status">
         {picked !== null && (
         <>
-          <Chip tone={right ? "good" : "again"}>{right ? "Right" : "Not this time"}</Chip>
+          <Chip tone={right ? "good" : "again"}>{right ? "Right" : picked === -1 ? "Not sure" : "Not this time"}</Chip>
           {/*
             Not marked lang="et": this line is English prose with an Estonian
             word or two inside it, and telling a screen reader the whole
@@ -254,7 +272,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             size="lg"
             className="mt-5"
             autoFocus
-            onClick={() => onAnswer({ kind: "picked", option: item.options[picked] ?? "" })}
+            onClick={() => onAnswer(picked === -1 ? { kind: "unsure" } : { kind: "picked", option: item.options[picked] ?? "" })}
           >
             Next question
           </Button>

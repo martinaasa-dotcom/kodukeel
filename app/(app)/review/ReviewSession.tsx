@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { useRouter } from "next/navigation";
 import { Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
 import { gradeCard, undoGrade } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -12,6 +13,7 @@ import { Speak } from "@/components/Speak";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { prefetchClip } from "@/lib/audio/clip";
 import { SuggestFix } from "@/components/SuggestFix";
+import { openAnu, tutorHref } from "@/components/anu/openAnu";
 import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
@@ -221,9 +223,11 @@ function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
  * moment a learner wants the rule is the second after the answer appears and
  * does not match what they thought. Both links are one tap and neither leaves
  * the answer behind: the grammar page explains the case this card drills, and
- * Anu opens with the question already written so it can be sent or edited.
+ * Anu opens in her corner, over the card, with the question already written
+ * so it can be sent or edited.
  */
 function WhyRow({ card }: { card: ReviewCard }) {
+  const router = useRouter();
   // Named the way a class names it, because this question is going to a tutor
   // who is told to answer in the same words (lib/tutor/prompt.ts).
   const named = card.targetCase ? caseByKey(card.targetCase) : undefined;
@@ -257,13 +261,17 @@ function WhyRow({ card }: { card: ReviewCard }) {
           <Compass size={12} aria-hidden /> Why the <span lang="et">{caseName}</span>?
         </Link>
       )}
-      <Link
-        href={`/tutor?q=${encodeURIComponent(question)}`}
+      {/* Opens her panel over the card rather than leaving the round for
+          `/tutor`, with the question in her box (`components/anu/openAnu.ts`). */}
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        onClick={() => { if (!openAnu(question)) router.push(tutorHref(question)); }}
         className={pill}
         style={{ background: "var(--raised)", color: "var(--ink-2)" }}
       >
         <MessageCircleQuestion size={12} aria-hidden /> Ask Anu
-      </Link>
+      </button>
     </div>
   );
 }

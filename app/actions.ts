@@ -4450,6 +4450,7 @@ const GIVEN = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("picked"), option: z.string().max(400) }),
   z.object({ kind: z.literal("typed"), text: z.string().max(400) }),
   z.object({ kind: z.literal("rated"), rating: z.number().int().min(1).max(4) }),
+  z.object({ kind: z.literal("unsure") }),
   z.object({ kind: z.literal("skipped") }),
 ]);
 
