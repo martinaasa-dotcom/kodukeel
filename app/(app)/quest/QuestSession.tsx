@@ -343,7 +343,7 @@ export function QuestSession({
   if (phase === "ready") {
     return (
       <RoundStart
-        icon={<Timer size={34} aria-hidden />}
+        icon={<Timer size={26} aria-hidden />}
         title="Daily quest"
         lead={`${roundLength(seconds)} on the endings that keep tripping you up.`}
         hue="blush"

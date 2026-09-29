@@ -114,7 +114,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
   if (phase === "ready") {
     return (
       <RoundStart
-        icon={<Crosshair size={34} aria-hidden />}
+        icon={<Crosshair size={26} aria-hidden />}
         title="Target"
         lead="Tap the right ending before the clock runs out."
         hue="accent"
