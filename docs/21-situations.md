@@ -493,7 +493,7 @@ A curveball with no out is a trap.
 | They mishear your word for its minimal pair | 3 | Correct them, and say it again. |
 | They switch to English | 3 | Keep going in Estonian, and they come back. |
 | Someone interrupts | 2 | Wait, or say you were first. A second voice, one turn. |
-| They speed up | 1 | Ask them to slow down. Free, always, and taught. |
+| They start talking much faster | 1 | They are in a hurry. Answer them, or ask them to slow down. |
 | Small talk about the weather | 1 | Answer it and return. The `ilm` unit, doing its job. |
 | The form has to be filled in their order | 2 | Give the data as asked, not as you planned. |
 | What you came for is not possible | 3 | Ask what is, or when. |

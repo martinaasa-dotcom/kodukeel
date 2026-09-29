@@ -2590,3 +2590,37 @@ and never offers a part the learner has already walked, since a part's progress 
 append-only ticks and there is no way to walk one again yet. A learner who started at A1.1 and
 struggles gets the lean and a sentence, not a move.
 
+
+## 42. The thirty-sixth pass: every sentence read aloud, and the English under the Estonian
+
+**The copy was accurate and nobody talked like it.** It was reported off the landing page's "Who it
+is for" and then off the course itself: `Learn the words your job runs on` and `The doing words, in their
+dictionary form` are both true and neither is anything a person says. Every screen, every
+error, every empty state and every unit blurb was read and rewritten to sound like one person
+explaining Estonian to another, warm and specific rather than clever. No Estonian and no gloss was
+touched.
+
+**And the rule got teeth rather than a paragraph.** `lib/copy/voice.ts` carries a `MACHINE` group,
+`the words X runs on`, `in the order you meet it`, form-letter apologies and the advert vocabulary,
+and two more `VOICE_RULES` about sounding like a friend who knows the language. The same table
+reaches the three grader prompts, the tutor, and a sentence translated at runtime, which is
+`humanizeLine` and then refused outright if a tell survives. The new invariant file
+`generated-english-carries-the-voice.ts` holds all of that, because a rule about hand-written copy
+that a model's English is exempt from is half a rule. `docs/18-voice.md` §3b is the worked version:
+say it out loud.
+
+**Measured rather than hoped for.** Anu on `gemini-3.1-flash-lite` over three runs first got worse
+under the new voice, answering after a warm-up (answer-first 20 to 16) and praising the question,
+so the prompt says the warmth is in how she explains and never before the answer. After that:
+answer-first 23 of 24, length 24 of 24, tells 0, facts 84 to 86 of 87 across reruns against 85
+before, which is the noise band. The scenes, played through `play:scenes --compose --drafts` in the
+curious style, withheld 7 composed lines against 22 before the pass and composed 91 against 81.
+
+**The English under every recorded sentence was read too, all 16,901 lines.** It was built by a
+model and nobody had read it whole. 1,041 lines were wrong and are corrected in
+`prisma/data/example-english.json`: a word read as a name (`Kära ei lase magada` was "Kära won't
+let me sleep"), the wrong sense of a common word (a hare as a rabbit, `kingi` as gifts), idioms
+taken literally or reversed (`Pill tuleb pika ilu peale` had become "every cloud has a silver
+lining"), lines cut off after two words, dashes carried over, and Latin case names. A few dozen
+lines nobody could read with confidence were left alone and are worth a native speaker's eye; the
+reviewers' notes list them. The Estonian was not changed anywhere.
