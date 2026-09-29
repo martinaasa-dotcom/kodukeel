@@ -1,17 +1,18 @@
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { requireUserId } from "@/lib/auth/session";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
-import { unitById, type Level } from "@/lib/collections/syllabus";
+import { unitById } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import { uiText } from "@/lib/copy/uiLanguage";
-import { Card, Empty, Page, Stack } from "@/components/ui";
+import { Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import { distinctive } from "@/lib/scenes/practises";
 import { CASES } from "@/lib/estonian/cases";
-import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
-import { SceneVignette } from "@/components/scene/SceneVignette";
+import { sceneHistoryFor } from "@/lib/progress/scene";
+import { ArrowUpRight } from "lucide-react";
+import { kindOf } from "@/lib/scenes/kinds";
+import { SituationsBoard, type SituationTile } from "./SituationsBoard";
 import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Situations" };
@@ -45,13 +46,49 @@ export default async function SituationsPage() {
   ]);
   const scenes = [...SCENES].sort((a, b) => a.title.localeCompare(b.title));
 
+  const tiles: SituationTile[] = scenes.map((scene) => {
+    const unit = unitById(scene.tests);
+    const past = history.get(scene.id);
+    return {
+      id: scene.id,
+      title: scene.title,
+      place: scene.place,
+      // What it asks for, as tags rather than a sentence, and only the ones
+      // that tell this scene from the others: rarest first, and a tag every
+      // scene carries is not a tag. See `lib/scenes/practises.ts`. In the
+      // words a class uses, so a learner told about the seesütlev on Tuesday
+      // can find the conversation that asks for it.
+      chips: distinctive(scene, SCENES).map((text) => ({ text, et: CASES.some((c) => c.et === text) })),
+      objectives: scene.beats.filter((beat) => beat.required).length,
+      minutes: minutesFor(scene),
+      kind: kindOf(scene.id).id,
+      lesson: unit ? uiText(learnerLevel, unit.title, unit.subtitle) : null,
+      // How it went last time, derived from the runs and never counted
+      // (ADR-014). A tile that remembers is what turns a menu into a place
+      // somebody comes back to.
+      plays: past?.plays ?? 0,
+      last: past?.last ?? null,
+    };
+  });
+
+  /*
+    WHICH ONE THE STAGE OPENS ON, decided here so the first paint is the same
+    one every time rather than a shuffle the server and the browser disagree
+    about. One never played, in the catalogue's own order so the easiest rooms
+    come first; failing that, the one played longest ago.
+  */
+  const unplayed = SCENES.find((scene) => !history.has(scene.id));
+  const stalest = [...history.entries()]
+    .sort(([, a], [, b]) => (a.lastAt?.getTime() ?? 0) - (b.lastAt?.getTime() ?? 0))[0]?.[0];
+  const firstPick = unplayed?.id ?? stalest ?? tiles[0]?.id ?? "";
+
   return (
     <Page route="/situations"
       title="Situations"
       lead="Somebody wants something from you, and you have to sort it out in Estonian."
     >
       <Stack>
-        {scenes.length === 0 ? (
+        {tiles.length === 0 ? (
           /*
             The empty state is a door rather than an explanation, and its body
             stays under 100 characters. There is nothing to explain here that
@@ -63,15 +100,7 @@ export default async function SituationsPage() {
             action={<ButtonLink href="/practice">Practice</ButtonLink>}
           />
         ) : (
-          /* Two across by the list's own width: at 768 the window said two
-             and the column held 368px, which laid each title out in 76px. */
-          <div className="@container">
-            <ul className="grid gap-3 @lg:grid-cols-2">
-              {scenes.map((scene) => (
-                <SceneTile key={scene.id} scene={scene} history={history.get(scene.id)} learnerLevel={learnerLevel} />
-              ))}
-            </ul>
-          </div>
+          <SituationsBoard tiles={tiles} firstPick={firstPick} />
         )}
 
         {/*
@@ -90,135 +119,49 @@ export default async function SituationsPage() {
           the line again, since a fact written down twice is a fact nobody is
           checking.
         */}
-        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          You play somebody else, off a card we hand you. Nothing you write here is about you.
-        </p>
-        <Explain label="Whose details these are">
-          The card is fiction, so no transcript is a record of anything you did. A scene never asks
-          you for a real document number, and what you type is kept with the run so the debrief can
-          read the conversation back to you.
-        </Explain>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+            You play somebody else, off a card we hand you. Nothing you write here is about you.
+          </p>
+          <Explain label="Whose details these are">
+            The card is fiction, so no transcript is a record of anything you did. A scene never asks
+            you for a real document number, and what you type is kept with the run so the debrief can
+            read the conversation back to you.
+          </Explain>
+        </div>
 
         {/*
           Where the people are. A learning app that never says so is one that
           would rather you stayed (docs/22-real-life.md). Every entry is a public
           programme, named, with a link that was opened before it was written down.
+          On the accent's own tint, one panel, because it is the page's last
+          word and the one that points out of the app.
         */}
-        <section aria-labelledby="places-heading">
-          <h2 id="places-heading" className="text-lg font-medium">Where the people are</h2>
-          <p className="mb-3 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+        <section aria-labelledby="places-heading" className="situation-out rounded-[var(--r-xl)] border p-5 md:p-7">
+          <h2 id="places-heading" className="text-xl font-bold tracking-tight">Where the people are</h2>
+          <p className="mb-4 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
             The rehearsal is here. The conversation is out there, and these are free.
           </p>
-          <div className="@container">
-            <ul className="grid gap-3 @lg:grid-cols-2 @2xl:grid-cols-3">
-              {PLACES_TO_TALK.map((place) => (
-                <li key={place.href}>
-                  <Card className="flex h-full flex-col gap-1">
-                    <a href={place.href} target="_blank" rel="noreferrer" className="text-base font-medium underline">
-                      {place.name}
-                    </a>
-                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>{place.what}</p>
-                  </Card>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="grid gap-3 @container">
+            {PLACES_TO_TALK.map((place) => (
+              <li key={place.href}>
+                <a
+                  href={place.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="situation-place tap-tint flex items-start gap-3 rounded-[var(--r-lg)] p-4"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-semibold underline">{place.name}</span>
+                    <span className="mt-1 block text-sm" style={{ color: "var(--ink-2)" }}>{place.what}</span>
+                  </span>
+                  <ArrowUpRight aria-hidden size={20} className="mt-0.5" style={{ color: "var(--accent-deep)" }} />
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
       </Stack>
     </Page>
-  );
-}
-
-function SceneTile({ scene, history, learnerLevel }: {
-  scene: (typeof SCENES)[number];
-  history?: SceneHistory;
-  learnerLevel: Level;
-}) {
-  const unit = unitById(scene.tests);
-  const objectives = scene.beats.filter((beat) => beat.required).length;
-  // What it asks for, as a row of tags rather than a sentence, and only the
-  // ones that tell this scene from the other fourteen: rarest first, and a
-  // tag every scene carries is not a tag. See `lib/scenes/practises.ts`.
-  const chips = distinctive(scene, SCENES);
-  return (
-    <li>
-      <Link href={`/situations/${scene.id}`} className="block h-full">
-        <Card hover className="flex h-full flex-col gap-2 overflow-hidden">
-          {/*
-            THE ROOM ITSELF, AT THE TOP OF THE TILE.
-
-            The same drawing the conversation opens on, at the size the cover
-            uses, so the fifteen tiles are fifteen places before a word of them
-            is read. Decoration, and aria-hidden inside the drawing: every
-            fact it shows is written on the tile under it.
-          */}
-          <div
-            className="night -mx-5 -mt-5 mb-3 flex justify-center px-5 pb-1 pt-5 md:-mx-7 md:-mt-7"
-          >
-            <SceneVignette sceneId={scene.id} fit="inset" />
-          </div>
-          <div className="flex items-start gap-3">
-            {/*
-              WHICH ROOM THIS IS, BEFORE THE TITLE IS READ.
-
-              Fourteen tiles were fourteen identical cards and the only thing
-              telling a pharmacy from a job interview was the sentence on it.
-              `lib/scenes/scenery.ts` gives each one a mark, and it is the same
-              mark that sits on the bar for the whole conversation, so choosing
-              one and being in it are the same place. Decoration: the title,
-              the place and the kind of place are all written out beside it.
-            */}
-            {/*
-              On the scale, which it was not: a bare `h2` inherits the
-              document's own 16px and the type scale has no such step, so
-              every tile on this page was a size nothing else in the app
-              uses. Found the day `/situations` joined the design sweep,
-              which is the argument for putting it there.
-            */}
-            <h2 className="min-w-0 flex-1 text-lg font-bold tracking-tight">{scene.title}</h2>
-          </div>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{scene.place}</p>
-          {/*
-            What it asks for, read off the beats rather than typed, in the
-            words a class uses: a learner who was told about the seesütlev on
-            Tuesday should be able to find the conversation that asks for it.
-          */}
-          {chips.length > 0 && (
-            <ul className="flex flex-wrap gap-1.5" aria-label="What it practices">
-              {chips.map((d) => (
-                <li
-                  key={d}
-                  lang={CASES.some((c) => c.et === d) ? "et" : undefined}
-                  className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                  style={{ background: "var(--raised)", color: "var(--ink-2)" }}
-                >
-                  {d}
-                </li>
-              ))}
-            </ul>
-          )}
-          {/*
-            The errand this rehearses is on the debrief, where it is earned,
-            and not on the tile: a sixth line on each of fifteen tiles made a
-            menu to read rather than a place to pick.
-          */}
-          <p className="mt-auto text-xs" style={{ color: "var(--ink-3)" }}>
-            {objectives} things to get done, about {minutesFor(scene)} min
-            {unit ? `, ${uiText(learnerLevel, unit.title, unit.subtitle)}` : ""}
-          </p>
-          {/*
-            How it went last time, derived from the runs and never counted
-            (ADR-014). A tile that remembers is what turns a menu into a
-            place somebody comes back to.
-          */}
-          {history && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-              {history.plays === 1 ? "Played once" : `Played ${history.plays} times`}
-              {history.last ? `. Last time: ${history.last}` : "."}
-            </p>
-          )}
-        </Card>
-      </Link>
-    </li>
   );
 }
