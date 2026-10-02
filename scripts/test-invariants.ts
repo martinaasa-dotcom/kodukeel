@@ -10878,7 +10878,8 @@ check("a screen that prints a case question says what it is asking", () => {
   // `{spec.question}`, `{item.caseQuestion}`, `{question}`. Deliberately the
   // whole word before the brace, so `{question.letter}` in the minimal-pairs
   // round, which is a letter rather than a case, is not swept in.
-  const PRINTS = /lang="et"[^>]*>\s*\{[^{}]*\b(caseQuestion|question)\}/;
+  // `<Words text={label.question} />` is the label printing it a word per run.
+  const PRINTS = /lang="et"[^>]*>\s*(?:<Words text=)?\{[^{}]*\b(caseQuestion|question)\}/;
   const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk/;
   let found = 0;
   for (const file of [...APP, ...COMPONENTS]) {
