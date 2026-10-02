@@ -27,6 +27,8 @@ import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
+import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
+import { SameMeaning } from "@/components/round/SameMeaning";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade, readStashedSession, stashSession, takeFromOutbox } from "@/lib/offline/db";
 import { undoOutcome } from "@/lib/offline/outbox";
@@ -154,6 +156,27 @@ export interface ReviewCard {
   sentenceEn: string | null;
   /** Whether this deployment has a model that could translate the sentence. */
   canTranslate: boolean;
+  /**
+   * The other words that mean what a production card's prompt says, with
+   * this card's own word beside them, so a learner who types one of them is
+   * told it works and shown how the two differ. Null on every other card and
+   * on a production card with no neighbour. See `lib/questions/neighbours.ts`.
+   */
+  contrast: Contrast | null;
+}
+
+/** One side of a contrast: a word, what the dictionary says it means, and it in use. */
+export interface ContrastWord {
+  lexemeId: string | null;
+  lemma: string;
+  gloss: string;
+  sentence: { et: string; en: string | null; form: string | null } | null;
+}
+
+/** This card's own word, and the words that would also have been right. */
+export interface Contrast {
+  own: ContrastWord;
+  neighbours: ContrastWord[];
 }
 
 
@@ -226,7 +249,11 @@ function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
  * Anu opens in her corner, over the card, with the question already written
  * so it can be sent or edited.
  */
-function WhyRow({ card }: { card: ReviewCard }) {
+function WhyRow({ card, alsoRight }: {
+  card: ReviewCard;
+  /** Another word that was right here, so the question is about the two of them. */
+  alsoRight?: string;
+}) {
   const router = useRouter();
   // Named the way a class names it, because this question is going to a tutor
   // who is told to answer in the same words (lib/tutor/prompt.ts).
@@ -236,7 +263,9 @@ function WhyRow({ card }: { card: ReviewCard }) {
   // is a sentence now and carries no label, and the label is what the learner
   // wants the moment the answer appears and is not what they thought.
   const verbSlot = card.slot ? slotLabel(card.slot) : null;
-  const question = card.targetCase
+  const question = alsoRight && card.lemma
+    ? `"${alsoRight}" and "${card.lemma}" both mean "${card.front}". When would an Estonian use each one?`
+    : card.targetCase
     ? `I keep getting the ${caseName} of "${card.lemma ?? card.front}" wrong. Why does it look like that?`
     : verbSlot
       ? `I keep getting "${card.lemma ?? card.front}" wrong in the ${verbSlot}. Why does it look like that?`
@@ -543,7 +572,12 @@ export function ReviewSession({
   */
   const [aside, setAside] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
-  const [verdict, setVerdict] = useState<AnswerCheck | null>(null);
+  /*
+    `neighbour` is the other right word a production card was answered with,
+    when it was (lib/questions/neighbours.ts). Held on the verdict rather than
+    beside it so every place that clears the verdict clears it too.
+  */
+  const [verdict, setVerdict] = useState<(AnswerCheck & { neighbour?: ContrastWord }) | null>(null);
   const [chosen, setChosen] = useState<string | null>(null);
   /*
     A MISS IS TYPED AGAIN BEFORE THE CARD GOES.
@@ -1076,7 +1110,19 @@ export function ReviewSession({
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
-    const result = checkAnswer(typed, card.back, language, card.rivals);
+    const marked = checkAnswer(typed, card.back, language, card.rivals);
+    /*
+      A SECOND RIGHT WORD IS RIGHT. Asked only where the marker said no, so a
+      clean hit, a dropped diacritic and a typo of the card's own word all keep
+      their own readings. The grade is Hard rather than Good: the learner said
+      the thing, and has not yet shown the word this card is about.
+    */
+    const neighbour = marked.verdict === "wrong" && card.contrast
+      ? typedNeighbour(typed, card.contrast.neighbours)
+      : null;
+    const result = neighbour
+      ? { verdict: "correct" as const, expected: card.back, note: "", suggestedRating: NEIGHBOUR_RATING, neighbour }
+      : marked;
     setVerdict(result);
     setRevealed(true);
     cheer(countsAsRecalled(result.verdict));
@@ -1421,7 +1467,9 @@ export function ReviewSession({
     ask === "type" && verdict
       ? retypeOk
         ? `${uiText("Õige!", "Correct!")} That's the one.`
-        : verdict.verdict === "correct"
+        : verdict.neighbour
+          ? `Yes, ${verdict.neighbour.lemma} works too. This card was after ${shownAnswer}.`
+          : verdict.verdict === "correct"
           ? uiText("Õige!", "Correct!")
           : countsAsRecalled(verdict.verdict)
             ? `Close: ${verdict.note}`
@@ -1669,7 +1717,13 @@ export function ReviewSession({
             </>
           )}
 
-          {ask === "type" && verdict && (
+          {ask === "type" && verdict?.neighbour && card.contrast && (
+            <div className="w-full max-w-sm">
+              <SameMeaning typed={verdict.neighbour} own={card.contrast.own} canTranslate={card.canTranslate} />
+            </div>
+          )}
+
+          {ask === "type" && verdict && !verdict.neighbour && (
             <div className="w-full max-w-sm">
               <p
                 className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} verdict-panel`}
@@ -1896,7 +1950,7 @@ export function ReviewSession({
               question somebody has the moment they first see one, and the
               screen that introduces the form is the obvious place to answer
               it. */}
-          {(answerShown || chosen) && <WhyRow card={card} />}
+          {(answerShown || chosen) && <WhyRow card={card} alsoRight={verdict?.neighbour?.lemma} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>

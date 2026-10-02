@@ -10,6 +10,8 @@ import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguag
 import { isStillLearning } from "@/lib/srs/scheduler";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
+import { neighbours as neighbourFacts } from "@/lib/dict/neighbourFacts";
+import { neighboursOf } from "@/lib/questions/neighbours";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
@@ -21,7 +23,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 
-import type { ReviewCard } from "./ReviewSession";
+import type { Contrast, ContrastWord, ReviewCard } from "./ReviewSession";
 
 /*
   THE LADDER'S OWN WHERE-FRAGMENTS LIVE IN `lib/srs/reviewQueue.ts` NOW, beside
@@ -254,6 +256,74 @@ function clozeSentenceEn(c: CardRow): string | null {
   return sentenceEnglish(parseExamples(c.lexeme.examples), whole);
 }
 
+/**
+ * WHAT ELSE WOULD HAVE BEEN RIGHT ON A PRODUCTION CARD, AND HOW IT DIFFERS.
+ *
+ * A production card shows an English prompt and asks for one word, and
+ * Estonian often has two: "to begin (something)" is `alustama`, and a learner
+ * who types `hakkama` has said "to begin" in the word most people reach for.
+ * The card accepts it and says so, and this is what it says with: each
+ * neighbour's own gloss and one sentence of it in use, beside the same for the
+ * card's word, so the difference is read off the dictionary rather than
+ * written here (ADR-005). See `lib/questions/neighbours.ts`.
+ *
+ * One query for the neighbours of every production card in the session, and
+ * none where the session holds no production card. Keyed by the row's index,
+ * which is how the caller lines it up with the mapped cards.
+ */
+async function contrastsFor(rows: CardRow[], reach: PlainReach): Promise<Map<number, Contrast>> {
+  const out = new Map<number, Contrast>();
+  const wanted = rows
+    .map((row, index) => ({ row, index }))
+    .filter(({ row }) => row.cardType === "PRODUCTION" && row.lexeme);
+  if (wanted.length === 0) return out;
+
+  const index = await neighbourFacts();
+  const found = wanted
+    .map(({ row, index: at }) => ({
+      row,
+      at,
+      near: neighboursOf(
+        { lemma: row.lexeme!.lemma, pos: row.lexeme!.pos, gloss: row.lexeme!.translation },
+        index,
+        acceptedAnswers(row.back, "et"),
+      ),
+    }))
+    .filter((f) => f.near.length > 0);
+  if (found.length === 0) return out;
+
+  const ids = [...new Set(found.flatMap((f) => f.near.map((n) => n.id)))];
+  const entries = await prisma.lexeme.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, lemma: true, pos: true, translation: true, examples: true, cefr: true },
+  });
+  const byId = new Map(entries.map((e) => [e.id, e]));
+
+  const side = (
+    lexemeId: string | null,
+    lex: { lemma: string; pos: string; translation: string; examples: string; cefr: string | null },
+  ): ContrastWord => {
+    // Ranked for a beginner where the word is one, the way a first meeting is.
+    const found = teachingSentence(authoredFor(lex.lemma), [lex.lemma])
+      ?? teachingSentence(parseExamples(lex.examples), [lex.lemma], undefined, plainerFirst(lex.cefr, reach));
+    return {
+      lexemeId,
+      lemma: plainPhrase(lex.lemma, lex.pos),
+      gloss: plainPhrase(lex.translation, lex.pos),
+      sentence: found ? { et: found.example.et, en: found.example.en ?? null, form: found.form } : null,
+    };
+  };
+
+  for (const { row, at, near } of found) {
+    const neighbours = near
+      .map((n) => byId.get(n.id))
+      .filter((lex): lex is NonNullable<typeof lex> => !!lex)
+      .map((lex) => side(lex.id, lex));
+    if (neighbours.length > 0) out.set(at, { own: side(row.lexemeId, row.lexeme!), neighbours });
+  }
+  return out;
+}
+
 function toReviewCard(
   c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null = null,
   firstCardEver = false,
@@ -281,6 +351,8 @@ function toReviewCard(
     intro: c.state === 0 ? introFor(c, glossLanguage, reach, firstCardEver) : null,
     sentenceEn: clozeSentenceEn(c),
     canTranslate: resolveProvider() !== null,
+    // Filled in by `withNeighbours`, which reads every neighbour in one query.
+    contrast: null,
     choices: null,
     scheduling: {
       due: c.due.toISOString(),
@@ -480,12 +552,19 @@ export async function withChoices(
     ? prisma.review.findFirst({ where: { ownerId }, select: { id: true } }).then((row) => row === null)
     : Promise.resolve(false);
   const [reach, starred, firstCardEver] = await Promise.all([reaching, starring, firstEvering]);
-  const glossed = await withGlosses(
-    rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
-  ).then(withEveryday);
-  const cards = glossed.map(
-    (card) => (card.lexemeId && starred.has(card.lexemeId) ? { ...card, starred: true } : card),
-  );
+  const [glossed, contrasts] = await Promise.all([
+    withGlosses(
+      rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
+    ).then(withEveryday),
+    contrastsFor(rows, reach),
+  ]);
+  const cards = glossed.map((card, i) => {
+    const contrast = contrasts.get(i);
+    const withContrast = contrast ? { ...card, contrast } : card;
+    return withContrast.lexemeId && starred.has(withContrast.lexemeId)
+      ? { ...withContrast, starred: true }
+      : withContrast;
+  });
 
   /*
     The case cards first, because they need no pool: the wrong answers are

@@ -2418,6 +2418,20 @@ the marking back. The flip survives where there is genuinely nothing to compare:
 whose answer is a gloss rather than a form, and speaking, where ADR-018 says the learner is the only
 judge there is.
 
+**A second right word is right, and the card says how the two differ.** A production card
+showing "to begin (something)" asked for `alustama` and answered `hakkama` with "Not quite", a
+retype and Again, which told somebody who had said the thing in the word most people reach for
+that they could not say it. `lib/questions/neighbours.ts` finds the entries sharing a sense with
+the prompt, through `sensesOf`, the same part of speech and the course's qualifiers, so "bread
+(dark)" never stands in for "bread (white)"; the typed word has to mean it as its **first** sense,
+since "chair" is the third sense of the word for whoever chairs a meeting and "story" the second of
+the word for a floor. The review card asks only where the marker said no, draws a right verdict and
+`components/round/SameMeaning.tsx` under it: both glosses and one recorded sentence of each, the
+dictionary's own, with no Estonian written. **Graded Hard, never Good** (`NEIGHBOUR_RATING`): the
+learner produced *a* right word and has not shown the card's own, and `Review` is append-only. The
+index lives in `lib/dict/neighbourFacts.ts` rather than `facts.ts`, because the deck builder reads
+`facts.ts` and the sense relation may only be read to accept.
+
 **Being stuck has a way out now, and it costs something.** A learner drove the Learn ladder, met a
 word ninety seconds earlier, was shown an empty box and a Check button, and had nothing to do but
 guess or leave. Two things were missing and they are different. Nothing on the screen said that
