@@ -4807,13 +4807,26 @@ a screen belongs. And the verdict band was drawn at ten hours a week measured ag
 week, so 335 of the 704 combinations a learner could click said "It fits, but only with study
 outside this app" over a sentence putting the date three years out. Both read
 `FOUND_HOURS_PER_WEEK` now, and the band and the note are drawn against one `found`, which makes
-those two sentences the same claim rather than two answers to one question. The band sits at the
-near end of the distance, on purpose and after first sitting at the far one: a learner who reached
-the last level in the fewer hours is the one who reaches the next in the fewer, so "it fits" means
-the near end of the range lands inside the date, and the note prints the whole range under it. A deadline already gone is its
+those two sentences the same claim rather than two answers to one question. The band sat at the
+near end of the distance for a while and sits at the middle now, below. A deadline already gone is its
 own verdict rather than a division by no time: it used to floor at one week and print "in 0 weeks
 your daily goal puts in about 0.4 of those hours" over a note asking for 1 099 hours a week. Two
 invariants and an exhaustive sweep of every combination in `plan.test.ts` hold all three.
+
+**And a screen quotes one figure, never the range, which moved the band to the middle.** Every
+estimate was printed as both ends, "13 to 22 months", "880 to 1170 hours", and it was reported as
+an app that does not know: the width is honest about other people's averages and says nothing a
+learner can plan with. The model keeps both ends, because the published hours are ranges, and
+every screen quotes the middle, `about` in `lib/assessment/plan.ts`, worded "about". `weeksAbout`
+is that middle for the weeks, and it is what the distance line, the plan panel's note and the
+landing calculator print. **The verdict moved with it**, from the near end to the same middle:
+drawn at the near end it said "it fits" over a headline figure that did not fit, once the screens
+stopped printing the near end beside it, so the headline and the number are one claim again. It
+costs one stated case, abroad with a textbook from a guessed B1 to B2 in a year, which reads
+"possible" rather than "tight" now; the middle is the honest figure for somebody deciding to do
+this. `formatDurationRange` is deleted rather than left unread, and
+`scripts/invariants/an-estimate-is-one-figure.ts` fails on a plan screen printing `${low} to
+${high}` again.
 
 **And the unit is part of the number.** All of that arithmetic was then printed in hours to one
 decimal place, which at the top of the range is fine and at the bottom is a different quantity: a
@@ -4821,8 +4834,7 @@ daily goal of ten cards three days a week is nine minutes, and it read `0.2h`, w
 The shortfall note was worse, since it rounds a figure the panel only shows when it is above zero:
 `0.0218` hours a week still to find printed as "roughly 0 to 0 hours a week", under a headline
 saying there was study left to do. `lib/time/duration.ts` is the one module that units a stretch
-of study, minutes below an hour and hours above, with a range stepping back down a unit rather
-than rounding its smaller end to a zero it is not. It lives in `lib/time/` and not in `clock.ts`,
+of study, minutes below an hour and hours above, never rounding a real figure to a zero it is not. It lives in `lib/time/` and not in `clock.ts`,
 because a duration is not a time of day and the 24-hour rule has nothing to say about it. Two
 spellings, `min` for a tile and `minutes` for a sentence, since the same figure is read in both.
 The invariant is that the pace never reaches a screen except through that module, and `weeksNeeded`
@@ -11442,7 +11454,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `requireAdminId`, `upsertLexemeWithForms`, `PLACES`, `QUICK_MODES`, `naturalSentence`,
 `PAPER_SIZE`, `bandsAround`, `aroundFirst`, `recordCourseLevel`, `decisiveItems`,
 `VOICE_RULES`, `findTells`, `useNavMarker`, `travelKeyframes`, `--nav-marker-bg`,
-`FOUND_HOURS_PER_WEEK`, `appHoursPerWeek`, `readIdentity`, `boundedTransport`, `gapFrom`,
+`FOUND_HOURS_PER_WEEK`, `appHoursPerWeek`, `weeksAbout`, `readIdentity`, `boundedTransport`, `gapFrom`,
 `explainGap`, `ESTONIAN_WORD`, `formatDuration`, `alsoGoverned`, `teachingSentence`,
 `splitOnForm`, `inTeachingOrder`, `SELF_GRADES`, `DrillLink`, `lockDeck`, `caseReviewsFor`,
 `alsoRight`, `shownForms`, `spellingFor`, `repairCardSpelling`, `ALWAYS_CAPITAL`, `SIDES`,

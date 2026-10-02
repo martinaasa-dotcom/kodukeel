@@ -391,7 +391,26 @@ export interface Projection {
    * with everything the week can hold, the far end with the least of it.
    */
   weeksWithFound: HourRange;
+  /**
+   * The one figure a screen quotes: weeks to the target at the middle of the
+   * distance and the middle of what the week holds. The verdict is drawn
+   * against the same middle, so "about 40 weeks" and "it fits" are one claim.
+   */
+  weeksAbout: number;
   verdict: Verdict;
+}
+
+/**
+ * The middle of a range, which is the one figure a screen prints.
+ *
+ * The model keeps both ends, because the hours it is built from are published
+ * as ranges. A reader was given both and read "13 to 22 months" as an app that
+ * does not know: the width is honest about other people's averages and says
+ * nothing a learner can plan with. So every screen quotes the middle, worded
+ * "about", and the verdict is drawn against the same middle.
+ */
+export function about(r: HourRange): number {
+  return (r.low + r.high) / 2;
 }
 
 /**
@@ -434,8 +453,11 @@ export function project(input: PlanInput): Projection {
     high: weeksNeeded(hours, appHoursPerWeek, found.low).high,
   };
 
+  const centralPerWeek = appHoursPerWeek + about(found);
+  const weeksAbout = centralPerWeek > 0 ? Math.ceil(about(hours) / centralPerWeek) : 0;
+
   const common = {
-    standing, to, hours, appHoursPerWeek, paceSource, paceWeeks, found, weeksWithFound,
+    standing, to, hours, appHoursPerWeek, paceSource, paceWeeks, found, weeksWithFound, weeksAbout,
     weeksAvailable: input.weeksAvailable,
   };
 
@@ -444,6 +466,7 @@ export function project(input: PlanInput): Projection {
       ...common,
       weeksOnAppAlone: { low: 0, high: 0 },
       weeksWithFound: { low: 0, high: 0 },
+      weeksAbout: 0,
       appHoursAvailable: input.weeksAvailable === null ? null : 0,
       otherHoursPerWeek: null,
       verdict: "arrived",
@@ -473,25 +496,25 @@ export function project(input: PlanInput): Projection {
   };
 
   /*
-    The bands are drawn at the near end of the distance, on purpose. The
-    published range says a B1 speaker is 200 to 330 hours from B2, and a
-    learner who reached B1 in the fewer hours is the learner who reaches B2 in
-    the fewer, so the near end is the honest figure for somebody who has
-    decided to do this. Nothing more to find is "comfortable". Inside what the
-    week already holds, a class and some reading plus whatever the learner's
-    life supplies, is "tight", which the screen prints as "it fits". Inside
-    what a committed person adds on top (`COMMIT_HOURS_PER_WEEK`) is
-    "possible", printed as "it fits if you commit", with the number. Past that
-    the date or the pace has to move, and saying so is the useful thing.
+    The bands are drawn at the middle of the distance and the middle of what
+    the week holds, which are the figures every screen quotes. They used to be
+    drawn at the near end, on the argument that a learner who reached B1 in the
+    fewer hours reaches B2 in the fewer; that is true and it put "it fits" over
+    a headline figure that did not fit, once the screens stopped printing both
+    ends. Nothing more to find is "comfortable". Inside what the week already
+    holds is "tight", printed as "it fits". Inside what a committed person adds
+    on top (`COMMIT_HOURS_PER_WEEK`) is "possible", printed with the number.
+    Past that the date or the pace has to move, and saying so is the useful
+    thing.
 
-    Drawn against the projection's own `found`, so the headline and the note
-    under it are one claim: `other.low` at or under `found.high` is exactly the
-    condition for `weeksWithFound.low` to land inside the deadline.
+    `about(other)` at or under `about(found)` is the condition for `weeksAbout`
+    to land inside the deadline, so the headline and the figure agree.
   */
-  const verdict: Verdict = other.high === 0
+  const otherAbout = about(other);
+  const verdict: Verdict = otherAbout === 0
     ? "comfortable"
-    : other.low <= found.high ? "tight"
-      : other.low <= COMMIT_HOURS_PER_WEEK ? "possible" : "short";
+    : otherAbout <= about(found) ? "tight"
+      : otherAbout <= COMMIT_HOURS_PER_WEEK ? "possible" : "short";
 
   return { ...common, weeksOnAppAlone, appHoursAvailable, otherHoursPerWeek: other, verdict };
 }
@@ -523,8 +546,7 @@ export function weeksNeeded(hours: HourRange, appHoursPerWeek: number, otherHour
  * what would change the number.
  */
 export function distanceLine(plan: Projection): string {
-  const weeks = (r: HourRange) => (r.low === r.high ? `${r.low}` : `${r.low} to ${r.high}`);
-  if (plan.verdict === "arrived") {
+    if (plan.verdict === "arrived") {
     return `As far as the app can tell, you're already ${plan.to}. All that's left is the exam itself.`;
   }
   const pace = plan.paceSource === "measured"
@@ -532,7 +554,7 @@ export function distanceLine(plan: Projection): string {
     : plan.paceSource === "lapsed"
       ? "the pace you said, since nothing has been reviewed here lately"
       : "the pace you said";
-  const opening = `At ${pace}, plus the Estonian already in your week, ${plan.to} is about ${weeks(plan.weeksWithFound)} weeks away.`;
+  const opening = `At ${pace}, plus the Estonian already in your week, ${plan.to} is about ${plan.weeksAbout} weeks away.`;
   switch (plan.verdict) {
     case "open": return `${opening} No date is set, so that's the whole story.`;
     case "passed": return `${opening} The date you picked has gone, so choose a new one whenever you're ready.`;
@@ -543,9 +565,9 @@ export function distanceLine(plan: Projection): string {
   }
 }
 
-/** The hours a week beyond the app a plan asks for, at the near end, as words. */
+/** The hours a week beyond the app a plan asks for, as words. */
 function hoursAWeek(plan: Projection): string {
-  const need = plan.otherHoursPerWeek?.low ?? 0;
+  const need = plan.otherHoursPerWeek ? about(plan.otherHoursPerWeek) : 0;
   const rounded = need >= 1 ? Math.round(need * 2) / 2 : Math.round(need * 10) / 10;
   return rounded === 1 ? "an hour" : `${rounded} hours`;
 }

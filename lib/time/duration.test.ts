@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatAnswerTime, formatDuration, formatDurationRange } from "./duration";
+import { formatAnswerTime, formatDuration } from "./duration";
 
 describe("a duration on its way to a screen", () => {
   /*
@@ -30,32 +30,6 @@ describe("a duration on its way to a screen", () => {
     expect(formatDuration(-3)).toBe("0 min");
   });
 });
-
-describe("a range of durations", () => {
-  it("says the unit once", () => {
-    expect(formatDurationRange(8.06, 10.85)).toBe("8.1 to 10.9 h");
-    expect(formatDurationRange(2 / 60, 36 / 60, "long")).toBe("2 to 36 minutes");
-  });
-
-  it("collapses a range whose ends read the same", () => {
-    expect(formatDurationRange(0.5, 0.5)).toBe("30 min");
-    expect(formatDurationRange(1 / 60, 1 / 60, "long")).toBe("1 minute");
-  });
-
-  /*
-    The reachable case: pre-A1 to A1 at forty cards seven days a week over two
-    years leaves 0 to 0.0218 hours a week still to find, and the note printed
-    "roughly 0 to 0 hours a week" under a headline saying there was study left
-    to do. The unit follows the larger end and steps down rather than rounding
-    a real figure away.
-  */
-  it("never prints a figure that is not zero as a zero", () => {
-    expect(formatDurationRange(0, 0.0218, "long")).toBe("0 to 1 minute");
-    expect(formatDurationRange(0.0282, 0.6051, "long")).toBe("2 to 36 minutes");
-    expect(formatDurationRange(0.04, 3)).toBe("2 to 180 min");
-  });
-});
-
 
 describe("how long one answer took", () => {
   it("keeps a tenth where a tenth is the whole signal", () => {
