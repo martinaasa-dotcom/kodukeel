@@ -38,9 +38,10 @@ export const SCENE_SOURCE = "SCENE";
  *    (`lib/scenes/review.ts`).
  * 4. **The words you needed and did not have**, each with an add-to-deck
  *    button, from the help button and from the beats that stalled.
- * 5. **One thing to work on**, as a `DrillLink` into the drill that addresses
- *    it, rather than advice this screen wrote itself, and only where there is
- *    a drill: the goal itself is already ticked off at 2.
+ * 5. **A drill for what was left**, as a `DrillLink` into the drill for the
+ *    first goal left undone, rather than advice this screen wrote itself, and
+ *    only where there is a drill. The goal is not printed again: it is already
+ *    unticked at 2 and named first under "Try next time".
  * 6. **What was said**, both sides, which is the record. §12 of the design
  *    had it third and gave as its reason the job 3 does now, that this is
  *    where a learner finds out the word they were sure of was not the word.
@@ -84,6 +85,9 @@ export interface Debrief {
   */
   turns: readonly { who: "them" | "you"; text: string; lang: "et" | "en" }[];
 }
+
+/** Written out whole so the class names survive Tailwind's scan of this file. */
+const HIGHLIGHT_COLS = ["", "sm:grid-cols-2", "sm:grid-cols-3"] as const;
 
 export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: () => void }) {
   /* Whether this conversation is a step of tonight's module, which decides
@@ -177,7 +181,12 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       {recap.highlights.length > 0 && (
         <section data-recap-highlights>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What went well</h3>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          {/*
+            As many columns as there are cards, up to the three the recap
+            ever writes: a fixed two left one card beside a blank half and a
+            third card alone on a row of its own.
+          */}
+          <ul className={`grid gap-3 ${HIGHLIGHT_COLS[Math.min(recap.highlights.length, 3) - 1]}`}>
             {recap.highlights.map((highlight) => (
               <li key={highlight.title}>
                 <Card className="flex h-full flex-col gap-2">
@@ -411,7 +420,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
 
       {missed && drill && (
         <section>
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>One thing to work on</h3>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>A drill for what was left</h3>
           {/*
             NAMED HERE ONLY WHERE THERE IS A DRILL TO NAME IT FOR.
 
@@ -423,8 +432,14 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             button that is four lines further down. `lib/scenes/review.ts` used
             to print it a third time in between, which is how one sentence came
             to be on this screen three times over.
+
+            AND THE GOAL IS NOT PRINTED HERE AT ALL. It is already on this
+            screen twice before this section, unticked in the list of what got
+            done and first under "Try next time" with the reason it comes
+            first, so a third copy here was the same sentence again and was
+            reported as one. What this section adds is the drill, so the
+            heading says that and points back at the item above it.
           */}
-          <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>{missed.goal}</p>
           {/*
             A link into a drill that already exists rather than advice this
             screen invented, and the drill is read off what the beat needed
