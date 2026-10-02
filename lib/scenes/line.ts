@@ -653,3 +653,18 @@ export function pickAttested(request: LineRequest): SpokenLine | null {
   }
   return null;
 }
+
+/**
+ * A composed line with the quotation marks a model sometimes wraps it in taken
+ * off, and only those, with any emphasis asterisks round a word. The harness stripped a quote at either end on its own,
+ * so `"Suur" tähendab big.` lost its opening mark, read as a stray quote, and
+ * was withheld three times. A pair is taken off only where it is the whole
+ * line, with no other quotation mark inside.
+ */
+export function unwrapLine(text: string): string {
+  // And emphasis marks round a word, which the screen would print as asterisks.
+  const line = text.trim().replace(/\*{1,2}([^*\n]+?)\*{1,2}/g, "$1");
+  const quote = /^["'«„“](.*)["'»“”]$/su.exec(line);
+  if (!quote || /["«»„“”]/u.test(quote[1]!)) return line;
+  return quote[1]!.trim();
+}

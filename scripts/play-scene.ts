@@ -419,7 +419,13 @@ async function play(sceneId: string) {
       const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
       const handing = (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
-      const cheap = await sceneLine({
+      // The route's answer before a break in time: overrides for the one extra draft.
+      let composeOver: Partial<Parameters<typeof composeLive>[0]> = {};
+      let reviewMoved = moved;
+      let preBreak: Awaited<ReturnType<typeof sceneLine>> | null = null;
+      const crossing = askedNow !== null && !standing && speaking === spokenFor && Boolean(spokenFor.meanwhile)
+        && answered !== spokenFor && !state.turns.some((t) => t.beatId === spokenFor.id) && LINKS.length > 0;
+      const request = {
         // A closing beat where the learner is still asking is gated as one that may not say goodbye.
         beat: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS)
           ? { ...spokenFor, move: "confirm" as const } : spokenFor,
@@ -455,6 +461,10 @@ async function play(sceneId: string) {
         topic: new Set<string>([
           ...(context.topic.get(spokenFor.id) ?? []),
           ...words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word)),
+          // Every form of a word they used, as the route reads it.
+          ...[...context.lexicon.byLemma.values()]
+            .filter((forms) => words(last?.said ?? "").some((word) => forms.has(word)))
+            .flatMap((forms) => [...forms]),
         ]),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
@@ -488,7 +498,7 @@ async function play(sceneId: string) {
                   { role: "user", content: buildConsistencyUserPrompt({
                     who: `${scene.title}. ${scene.place}. ${persona.who}`,
                     conversation: talk.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
-                    established, moved, facts, later: agenda.slice(1), line: candidate,
+                    established, moved: reviewMoved, facts, later: agenda.slice(1), line: candidate,
                   }) },
                 ],
               }),
@@ -523,11 +533,12 @@ async function play(sceneId: string) {
             stillTalking: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS),
             // And what happened to the turn, which is the route's own wording.
             note: composeNote(
-              turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow,
+              turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, preBreak ? null : askedNow,
               { offer: handing, answer: anticipated, again: hearAgain && heard !== null },
             ),
             madeBefore: state.turns.filter((t) => t.beatId === spokenFor.id).length,
             feel: feltAt(answered, turns.length > 0 ? response : null),
+            ...composeOver,
             avoid,
           }, {
             scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
@@ -539,10 +550,27 @@ async function play(sceneId: string) {
           }, talk);
           },
         } : {}),
-      });
+      };
+      if (crossing) {
+        composeOver = {
+          move: "confirm",
+          they: "They answer what the learner has just asked, as things stand right now.",
+          moved: sceneMovedOn({ beat: state.beat - 1 }, card, scene.beats),
+          asked: [],
+          agenda: [],
+          note: "They have just asked you something: answer it briefly and kindly, as things stand right now. Make no other move and ask nothing; something is about to happen.",
+        };
+        reviewMoved = sceneMovedOn({ beat: state.beat - 1 }, card, scene.beats);
+        const pre = await sceneLine({ ...request, beat: { ...request.beat, move: "confirm" as const, meanwhile: undefined }, pool: [], scripted: [] });
+        if (pre.provenance === "composed") preBreak = pre;
+        composeOver = {};
+        reviewMoved = moved;
+      }
+      const cheap = await sceneLine(request);
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;
       // A composed line answered what was asked; otherwise a landed question nothing answered gets the shrug.
-      if (line.provenance === "composed") aside = null;
+      if (line.provenance === "composed") aside = preBreak;
+      else if (preBreak) aside = preBreak;
       else if (LINKS.length === 0 && wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain) aside = shrug(context.lexicon);
     }
     const lines = replyFor({

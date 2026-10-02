@@ -24,7 +24,7 @@ import { leafNeeds } from "@/lib/scenes/types";
 import { FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { saysGoodbye } from "@/lib/scenes/casual";
-import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
+import { isSpokenEstonian, sceneLine, unwrapLine, type SpokenLine } from "@/lib/scenes/line";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, heldBack, heldNumbers, sceneMovedOn, replyFor,
   stageFor, wantsAsideFor, wantsFreshLine,
@@ -603,7 +603,15 @@ export async function POST(request: Request) {
     read as, and holding it to the beat's own words alone withheld exactly the
     lines that made the other side sound like they had listened.
   */
-  const theirs = words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word));
+  const spokenWords = words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word));
+  /*
+    Every form of a word they used, not only the spelling: asked `Kuidas ma
+    maksin?`, a cashier answering `kaardiga saab maksta` was withheld as off
+    the point three times, because `maksta` is not the spelling `maksin`.
+  */
+  const theirs = [...spokenWords, ...[...context.lexicon.byLemma.values()]
+    .filter((forms) => spokenWords.some((word) => forms.has(word)))
+    .flatMap((forms) => [...forms])];
 
   /*
     WHERE THE CONVERSATION IS, AND EVERY BRANCH RETURNS IT. Three of the four
@@ -1202,47 +1210,24 @@ export async function POST(request: Request) {
     .filter(([id]) => !id.includes(":"))
     .flatMap(([, lines]) => lines.slice(0, 1))
     .slice(0, 6);
+  let preBreak: Awaited<ReturnType<typeof sceneLine>> | null = null;
   try {
     const learnerReading = last?.said ? await readingOf(last.said) : "";
-    line = await sceneLine({
-      ...shared,
-      // The attested and scripted rungs were already tried and did not answer.
-      pool: [],
-      scripted: [],
-      /*
-        WHETHER THE WORDS ARE ESTONIAN, ASKED OF THE LANGUAGE RATHER THAN OF THE
-        SCENE. The closed list is what the learner has been taught to read and
-        the gate keeps holding the line to it, by a budget rather than by a
-        refusal (`NEW_WORDS`); what may not happen is a made-up word, and that is
-        what this answers, off the course and the forms list.
-      */
-      vouch: (spellings) => sceneVouch(context, spellings),
-      /*
-        AND A LINE THE GATE PASSED STILL HAS TO KEEP TO WHAT WAS SAID. Only
-        once the conversation has said something to keep to: the opening line
-        has nothing behind it to contradict.
-      */
-      /*
-        And never its own earlier line again, word for word, which is free to
-        check and is what a critic flagged most after a turn went nowhere.
-      */
-      review: async (candidate: string) => {
-        if (repeatsItself(candidate, state.turns.flatMap((turn) => (turn.heard ? [turn.heard] : [])))) {
-          return "it repeats, word for word, something you already said; say something new that answers what they just said";
-        }
-        return conversation.length > 0
-          ? reviewLine(ownerId, {
-            who: `${scene.title}. ${scene.place}. ${persona?.who ?? ""}`.trim(),
-            conversation: conversation.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
-            established,
-            moved,
-            facts,
-            later: agenda.slice(1),
-            line: candidate,
-          })
-          : null;
-      },
-      compose: (avoid, because) => compose(chain, {
+    /*
+      THE QUESTION ASKED ON THE WAY OUT IS ANSWERED BEFORE THE BREAK IN TIME.
+
+      A diner asked whether the soup was spicy on the turn that crossed into
+      "you've eaten, the waiter comes back", and the waiter's answer arrived
+      after the break: an answer about the soup with the plates already
+      cleared. A friend asked "have you had breakfast?" got the answer after
+      "you're walking home", reading as a reply to somebody still on the way
+      to the shop. So a turn that asks something and arrives at a break gets
+      its answer written first, as things stood before it, and then the break
+      and the move, each line checked like any other.
+    */
+    const crossing = askedNow !== null && !standing && speaking === beat && Boolean(beat.meanwhile)
+      && answered !== beat && !state.turns.some((turn) => turn.beatId === beat.id);
+    const ask = (because: string | undefined) => ({
         ownerId,
         outcome,
         reading: learnerReading,
@@ -1298,16 +1283,84 @@ export async function POST(request: Request) {
           thing about the same turn.
         */
         note: composeNote(
-          turns.length > 0 ? response : null, progress.reading, elsewhere > 0, askedNow,
+          turns.length > 0 ? response : null, progress.reading, elsewhere > 0, preBreak ? null : askedNow,
           { offer: handing, answer: anticipated, again: hearAgain && heard !== null },
         ),
         /* How many times this move has already been made, so a question answered is not asked a third time. */
         madeBefore: state.turns.filter((turn) => turn.beatId === beat.id).length,
         // And what that turn was to this person, so the model feels what the keyless reply feels.
         feel: feltAt(answered, turns.length > 0 ? response : null),
-        conversation,
-        avoid,
-      }),
+    });
+    if (crossing) {
+      const movedBefore = sceneMovedOn({ beat: state.beat - 1 }, card, scene.beats);
+      const pre = await sceneLine({
+        ...shared,
+        beat: { ...shared.beat, move: "confirm" as const, meanwhile: undefined },
+        pool: [],
+        scripted: [],
+        vouch: (spellings) => sceneVouch(context, spellings),
+        review: async (candidate: string) => reviewLine(ownerId, {
+          who: `${scene.title}. ${scene.place}. ${persona?.who ?? ""}`.trim(),
+          conversation: conversation.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
+          established,
+          moved: movedBefore,
+          facts,
+          later: agenda,
+          line: candidate,
+        }),
+        compose: (avoid, because) => compose(chain, {
+          ...ask(because),
+          move: "confirm",
+          they: "They answer what the learner has just asked, as things stand right now.",
+          moved: movedBefore,
+          asked: [],
+          agenda: [],
+          note: "They have just asked you something: answer it briefly and kindly, as things stand right now. Make no other move and ask nothing; something is about to happen.",
+          conversation,
+          avoid,
+        }),
+      });
+      if (pre.provenance === "composed") preBreak = pre;
+    }
+    line = await sceneLine({
+      ...shared,
+      // The attested and scripted rungs were already tried and did not answer.
+      pool: [],
+      scripted: [],
+      /*
+        WHETHER THE WORDS ARE ESTONIAN, ASKED OF THE LANGUAGE RATHER THAN OF THE
+        SCENE. The closed list is what the learner has been taught to read and
+        the gate keeps holding the line to it, by a budget rather than by a
+        refusal (`NEW_WORDS`); what may not happen is a made-up word, and that is
+        what this answers, off the course and the forms list.
+      */
+      vouch: (spellings) => sceneVouch(context, spellings),
+      /*
+        AND A LINE THE GATE PASSED STILL HAS TO KEEP TO WHAT WAS SAID. Only
+        once the conversation has said something to keep to: the opening line
+        has nothing behind it to contradict.
+      */
+      /*
+        And never its own earlier line again, word for word, which is free to
+        check and is what a critic flagged most after a turn went nowhere.
+      */
+      review: async (candidate: string) => {
+        if (repeatsItself(candidate, state.turns.flatMap((turn) => (turn.heard ? [turn.heard] : [])))) {
+          return "it repeats, word for word, something you already said; say something new that answers what they just said";
+        }
+        return conversation.length > 0
+          ? reviewLine(ownerId, {
+            who: `${scene.title}. ${scene.place}. ${persona?.who ?? ""}`.trim(),
+            conversation: conversation.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
+            established,
+            moved,
+            facts,
+            later: agenda.slice(1),
+            line: candidate,
+          })
+          : null;
+      },
+      compose: (avoid, because) => compose(chain, { ...ask(because), conversation, avoid }),
     });
   } catch (error) {
     reportError(error, { at: "api/scene/compose", ownerId });
@@ -1325,6 +1378,7 @@ export async function POST(request: Request) {
   */
   if (line.provenance !== "composed") {
     if (shrugOwed) aside = shrug(context.lexicon);
+    if (preBreak) aside = preBreak;
     /*
       Where no link answered at all the learner is told, once per turn it
       stays true, rather than meeting a conversation that suddenly understands
@@ -1369,7 +1423,7 @@ export async function POST(request: Request) {
     banked answer in front of it would be the same thing said twice, and the
     shrug would contradict it.
   */
-  aside = null;
+  aside = preBreak;
   /*
     Who wrote it goes out once per turn and the screen prints it in one place
     at the top of the conversation, the way Anu's panel says who answered,
@@ -1604,7 +1658,7 @@ async function compose(
 
     let text = "";
     for await (const chunk of open.chunks) text += chunk;
-    const kept = text.trim() || null;
+    const kept = unwrapLine(text) || null;
     if (kept) {
       input.outcome.by = {
         label: open.config.label,

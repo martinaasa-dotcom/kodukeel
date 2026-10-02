@@ -443,6 +443,18 @@ export function passes(verdict: Verdict): boolean {
  * a further try with the failing words named, and a retry told about one
  * problem out of two comes back with the other.
  */
+/** The words written with a capital somewhere other than the start of a sentence, lower-cased. */
+function namesIn(text: string): Set<string> {
+  const out = new Set<string>();
+  for (const sentence of text.split(/[.!?]+/)) {
+    const tokens = sentence.match(/[\p{L}-]+/gu) ?? [];
+    for (const token of tokens.slice(1)) {
+      if (/^\p{Lu}\p{Ll}/u.test(token)) out.add(token.toLowerCase());
+    }
+  }
+  return out;
+}
+
 export function runGate(text: string, beat: BeatSpec, context: GateContext): Verdict {
   const failed: Check[] = [];
   const tokens = words(text);
@@ -467,7 +479,16 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     account for, through the scene, the course and the forms list.
   */
   const vouched = context.vouched ?? ((word: string) => context.lexicon.forms.has(word));
-  const unknown = tokens.filter((word) => !vouched(word));
+  /*
+    A NAME IS NOT A WORD TO VOUCH FOR. Asked "what is your name?", a neighbour
+    answering `Minu nimi on Tiit.` was withheld four times running, because no
+    list holds a first name, and the learner's question went unanswered. A word
+    written with a capital in the middle of a sentence is read as a name and
+    left out of both vouching and the stretch budget; a made-up word mid-line is
+    lower case, so this opens no door to one.
+  */
+  const names = namesIn(text);
+  const unknown = tokens.filter((word) => !vouched(word) && !names.has(word));
   if (unknown.length > 0) failed.push("vouching");
 
   /*
@@ -477,7 +498,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     word to notice rather than a word that stops the conversation.
   */
   // Counted as different words: a line saying one new word twice holds one.
-  const stretched = [...new Set(tokens.filter((word) => !context.lexicon.forms.has(word)))];
+  const stretched = [...new Set(tokens.filter((word) => !context.lexicon.forms.has(word) && !names.has(word)))];
   if (stretched.length > NEW_WORDS) failed.push("stretch");
 
   if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");

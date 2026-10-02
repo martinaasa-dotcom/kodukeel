@@ -19776,7 +19776,7 @@ check("a learner who says they are lost is handed the word, never the question a
   );
   assert.match(retrieval, /lexicon\.forms\.has\(/, "retrieval no longer reads the scene's list at all");
   assert.match(
-    code("lib/scenes/gate.ts"), /const stretched = (?:\[\.\.\.new Set\()?tokens\.filter\(\(word\) => !context\.lexicon\.forms\.has\(word\)\)/,
+    code("lib/scenes/gate.ts"), /const stretched = (?:\[\.\.\.new Set\()?tokens\.filter\(\(word\) => !context\.lexicon\.forms\.has\(word\)(?: && !names\.has\(word\))?\)/,
     "the stretch budget is no longer counted against the scene's own units",
   );
   /*
@@ -20135,7 +20135,7 @@ check("a learner who says they are lost is handed the word, never the question a
     + "every word its own units do not teach",
   );
   assert.match(
-    gate, /!context\.lexicon\.forms\.has\(word\)\)\)\];\n  if \(stretched\.length > NEW_WORDS\)/,
+    gate, /!context\.lexicon\.forms\.has\(word\)(?: && !names\.has\(word\))?\)\)\];\n  if \(stretched\.length > NEW_WORDS\)/,
     "the readability budget is gone, so a composed line can be made entirely of words the learner "
     + "has never met",
   );
@@ -22873,7 +22873,7 @@ check("a farewell is withheld off the close beat, and the goodbye stays off the 
     the way they did over the question words (§53).
   */
   for (const file of ["lib/progress/scene.ts", "scripts/lib/sceneDraft.ts"]) {
-    assert.match(code(file), /farewells: FAREWELLS\.map\(words\)/, `${file} no longer hands the gate the closing phrases`);
+    assert.match(code(file), /farewells: (?:\[\.\.\.)?FAREWELLS\.map\(words\)/, `${file} no longer hands the gate the closing phrases`);
   }
   assert.match(
     code("app/api/scene/route.ts"), /\.filter\(\(b\) => b\.move !== "close" \|\| b\.id === beat\?\.id\)/,

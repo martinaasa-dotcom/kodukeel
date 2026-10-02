@@ -24,6 +24,8 @@
  * Nothing here runs at import time: the chain reads the environment when
  * asked, so a test may import the context builders without a key in sight.
  */
+import { CLOSING_WORDS } from "../../lib/scenes/casual";
+import { unwrapLine } from "../../lib/scenes/line";
 import { buildCaseTable, stemsFrom } from "../../lib/estonian/derive";
 import { derivedVerbForms } from "../../lib/estonian/conjugate";
 import type { CaseKey } from "../../lib/estonian/types";
@@ -343,7 +345,7 @@ export function gateContext(
   return {
     lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,
     subjects: subjectsIn(entries),
-    farewells: FAREWELLS.map(words),
+    farewells: [...FAREWELLS.map(words), ...CLOSING_WORDS.map((word) => [word])],
     /*
       The route hands the gate every finite verb the scene holds
       (`finiteVerbs` in lib/progress/scene.ts) and this builder never did, so
@@ -551,7 +553,7 @@ export async function compose(
       const text = data.choices?.[0]?.message?.content?.trim();
       if (!text) break;
       ANSWERED.set(link.model, (ANSWERED.get(link.model) ?? 0) + 1);
-      return { text: text.replace(/^["'«]|["'»]$/g, ""), model: link.model };
+      return { text: unwrapLine(text), model: link.model };
     }
     const why = `${link.model} ${status}`;
     REFUSALS.set(why, (REFUSALS.get(why) ?? 0) + 1);
@@ -610,7 +612,7 @@ export async function askLine(
         });
         if (text) {
           onStatus(`${link.model} ok`);
-          const line = text.replace(/^["'«]|["'»]$/g, "");
+          const line = unwrapLine(text);
           onDraft(line);
           return line;
         }
@@ -658,7 +660,7 @@ export async function askLine(
         const text = data.choices?.[0]?.message?.content?.trim();
         if (text) {
           onStatus(`${link.model} ok`);
-          const line = text.replace(/^["'«]|["'»]$/g, "");
+          const line = unwrapLine(text);
           onDraft(line);
           return line;
         }

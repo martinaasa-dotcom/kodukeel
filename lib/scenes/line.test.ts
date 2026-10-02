@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, type DictEntry } from "./lexicon";
 import { CHECKS, type GateContext } from "./gate";
-import { MAX_COMPOSE_ATTEMPTS, SAFE_RETRY, pickAttested, sceneLine, whyWithheld, type LineRequest } from "./line";
+import { MAX_COMPOSE_ATTEMPTS, SAFE_RETRY, pickAttested, sceneLine, unwrapLine, whyWithheld, type LineRequest } from "./line";
 import { topicForms } from "./retrieval";
 import type { BeatSpec } from "./types";
 
@@ -386,5 +386,13 @@ describe("what a retry is told", () => {
     expect(line.provenance).toBe("composed");
     expect(heard[0]).toBeUndefined();
     expect(heard[1]).toMatch(/number, a time or a price/);
+  });
+});
+
+describe("unwrapLine", () => {
+  it("takes off a pair of quotes that wraps the whole line and nothing else", () => {
+    expect(unwrapLine('"Kas teil on valu?"')).toBe("Kas teil on valu?");
+    expect(unwrapLine('"Suur" tähendab big. Kas see on kõik?')).toBe('"Suur" tähendab big. Kas see on kõik?');
+    expect(unwrapLine("„Suur“ tähendab *big*.")).toBe("„Suur“ tähendab big.");
   });
 });

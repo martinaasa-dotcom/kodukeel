@@ -48,6 +48,15 @@ export const CASUAL = {
 } as const;
 
 /**
+ * THE ONE-WORD LEAVE-TAKINGS THAT MEAN NOTHING ELSE, AS WHOLE PHRASES FOR THE
+ * GATE. A line on a beat that is not the goodbye is withheld for saying one,
+ * and the gate knew only the two the course teaches, so `Kohtumiseni!` ended a
+ * phone call mid-question with every check green. Words that are also hello
+ * (`tsau`) are left out, since a line may open on one.
+ */
+export const CLOSING_WORDS = ["nägemiseni", "kohtumiseni", "hüvasti"] as const;
+
+/**
  * How long a turn may be and still be read as a bare leave-taking.
  *
  * `Head aega!` is credited anywhere in a turn because a scene names it; a word

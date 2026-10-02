@@ -52,7 +52,7 @@ import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
 import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
-import { saysGoodbye } from "@/lib/scenes/casual";
+import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 
 /**
@@ -524,7 +524,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
         beat that is not the goodbye (`saysGoodbye`). Resolved here for the
         reason the question words are: the gate holds no Estonian.
       */
-      farewells: FAREWELLS.map(words),
+      farewells: [...FAREWELLS.map(words), ...CLOSING_WORDS.map((word) => [word])],
     },
     marker,
     pool: poolsFor(scene, rows),

@@ -529,6 +529,11 @@ describe("a verb that does not agree with its subject", () => {
     expect(runGate("Kas sa oled toas?", beat(), ctx).failed).not.toContain("agreement");
   });
 
+  it("reads a capital in the middle of a sentence as a name, and vouches for nothing else", () => {
+    expect(runGate("Kas sa tuled, Tiit?", beat(), ctx).failed).not.toContain("vouching");
+    expect(runGate("Kas sa tuled, tiit?", beat(), ctx).failed).toContain("vouching");
+  });
+
   it("says nothing about a clause whose verb belongs to another one", () => {
     /*
       `Ma ei tea, kus see on.` is a first person beside a third and is right:
