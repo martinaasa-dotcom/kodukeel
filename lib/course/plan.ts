@@ -49,8 +49,8 @@ export const VERB_HEAVY = 0.5;
  * drills on hearing and spelling, which is where a beginner's difficulty
  * actually is; from B1 the rotation carries writing a sentence of your own and
  * verb government, which are the two things that stop being optional there;
- * and the crossword replaces the picture board above A2, because matching a
- * picture to a word is a question about vocabulary a B1 learner has.
+ * and above A1 the game slot the picture board used to fill is Tähed, which
+ * scrambles the level's own longer words.
  */
 export const ROTATION: Record<string, readonly ActivityKey[]> = {
   /*
@@ -68,16 +68,15 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     from Practice and the wrong one for somebody the module sent there with
     eleven words.
 
-    What is left is the four a beginner's own words can carry: Match and
-    Listening ask the words back as meanings; the picture board asks a
-    pictured noun as a word rather than as a case at A1; the conjugation table
-    asks the verbs in its matching shape. Each of the four reads the module's
+    What is left is what a beginner's own words can carry: Match and
+    Listening ask the words back as meanings; the conjugation table asks the
+    verbs in its matching shape. Each of the four reads the module's
     own taught list off the address it was opened from
     (`lib/course/scope.ts`), so the words on the board are the words met. And
     a round is scheduled only once the words behind it exist: `rounds()` in
     `build.ts` swaps the table for Listening until a verb has been taught and
-    the board for Match until a pictured noun has, which is why the first two
-    evenings are the same pair and `course.test.ts` allows exactly that.
+    Tähed for Match until four spellable words have, which is why the first
+    evenings can be the same pair and `course.test.ts` allows exactly that.
 
     AND THEN IT WAS FOUR, AND THE EVENINGS WERE REPORTED AS THE SAME EVENING.
     Match and Listening are what a handful of words can carry and both ask
@@ -94,16 +93,25 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
 
     Sõnad, the sprint and the rest stay on Practice, in the palette and as the
     game of the day, where a learner chooses them.
+
+    AND THE PICTURE BOARD WENT, WHICH LEFT A1 WITH TWO GAMES. The operator
+    called it pointless and took it out of the app: matching an emoji to a
+    word the learner met an hour ago asks nothing Match does not already ask,
+    and it drew the evening's game slot on one night in three. Two games
+    alternating with two drills is four rounds, so the drills are Listening
+    and the flash round; the conjugation table still comes on the evenings a
+    unit of verbs pins it (`rounds()`'s `table`), which is where a beginner
+    meets a verb, and Listening stands in for it until one has been taught.
   */
-  A1: ["match", "listening", "letters", "conjugation", "picture", "flash"],
+  A1: ["match", "listening", "letters", "flash"],
   /*
     AND SÕNAD IS ON NONE OF THEM. Its word is dealt off the dictionary at the
     learner's band by design, and `recordSonad` rebuilds the day's puzzle from
     the date and the level on the server to grade it, so there is no honest
     way to hold it to what the module has taught: a scoped board would be
     marked against a different word. It stays the game of the day and on
-    Practice, where a learner chooses it. The picture board takes its slot,
-    which above A1 is the case board over taught nouns and taught cases.
+    Practice, where a learner chooses it. Tähed takes its slot, on the
+    level's own words.
 
     Every other round on these lists is dealt only once `supportsRound` in
     `build.ts` says the evenings before have taught what it needs, a case page
@@ -111,10 +119,10 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     the government page and a few governed verbs for government; and each
     reads the same ledger back off the step's address and narrows to it.
   */
-  A2: ["match", "dictation", "target", "sentences", "sprint", "write", "picture", "describe"],
-  B1: ["picture", "write", "target", "government", "sprint", "sentences", "match", "flash"],
-  B2: ["picture", "write", "target", "flash", "sprint", "describe", "match", "government"],
-  C1: ["picture", "write", "target", "exceptions", "sprint", "describe", "match", "flash"],
+  A2: ["match", "dictation", "target", "sentences", "sprint", "write", "letters", "describe"],
+  B1: ["letters", "write", "target", "government", "sprint", "sentences", "match", "flash"],
+  B2: ["letters", "write", "target", "flash", "sprint", "describe", "match", "government"],
+  C1: ["letters", "write", "target", "exceptions", "sprint", "describe", "match", "flash"],
 };
 
 /**
@@ -185,8 +193,7 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
  * where you get the words, A2 is where you start using them on people.
  *
  * A1 is not left without anything to enjoy. Every A1 evening carries a game
- * off the rotation, which at that level is Sõnad, the picture board, Match,
- * Target and the sprint, and those need no vocabulary the evening has not just
+ * off the rotation, which at that level is Match and Tähed, and those need no vocabulary the evening has not just
  * taught. It is the conversations that need a fortnight of function words
  * first, and pretending otherwise would be the false confidence the readiness
  * screen is built against.

@@ -230,6 +230,14 @@ const config: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: STATIC_SECURITY_HEADERS }];
   },
+  /*
+    Picture match was taken out of the app. A bookmark, a home-screen shortcut
+    or a module step cached on a phone still points at it, and those land on
+    the practice menu rather than on a 404.
+  */
+  async redirects() {
+    return [{ source: "/review/emoji", destination: "/practice", permanent: true }];
+  },
 };
 
 export default config;

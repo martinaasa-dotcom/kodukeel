@@ -15,7 +15,6 @@
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
-import { emojiFor } from "@/lib/collections/emoji";
 import { spellable } from "@/lib/games/letters";
 import { SCENES } from "@/lib/collections/scenes";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
@@ -199,8 +198,7 @@ export function builtOnACase(name: string): boolean {
  * it draws on the deck or the dictionary, and it never asks whether the
  * learner has been shown what it is about to ask. The module chose the round,
  * so the module has to know. A conjugation table before a verb is a table of
- * verbs nobody has met; a picture board before a pictured noun is an empty
- * board with a way out on it; a case sprint before a case page is the whole
+ * verbs nobody has met; a case sprint before a case page is the whole
  * reference asked in sixty seconds; a dictation before a sentence made of
  * taught words is somebody typing words nobody has told them.
  *
@@ -213,8 +211,6 @@ export function builtOnACase(name: string): boolean {
 export interface Taught {
   /** A verb has been taught, so the conjugation table has something to run down. */
   verbs: boolean;
-  /** Taught nouns with a picture. The board needs `PICTURES_FOR_BOARD` of them. */
-  pictured: number;
   /** The case pages read so far, by key. A case is asked only after it is read. */
   cases: ReadonlySet<string>;
   /** The topic pages read so far, by id. */
@@ -234,24 +230,15 @@ export interface Taught {
 }
 
 export const NO_TAUGHT: Taught = {
-  verbs: false, pictured: 0, cases: new Set(), topics: new Set(), governed: 0, scene: false,
+  verbs: false, cases: new Set(), topics: new Set(), governed: 0, scene: false,
   readable: false, spellable: 0,
 };
 
 const ALL_TAUGHT: Taught = {
-  verbs: true, pictured: 99, cases: new Set(CASES.map((c) => c.key)),
+  verbs: true, cases: new Set(CASES.map((c) => c.key)),
   topics: new Set(["government", "conditional"]), governed: 99, scene: true, readable: true,
   spellable: 99,
 };
-
-/**
- * How many pictured nouns the board needs before it is dealt: six pairs, the
- * board's own size (`PAIRS` in `app/(app)/review/emoji/page.tsx`, asserted
- * equal). One pictured noun was the first gate, and inside the module the
- * board's top-up is the taught words, so with five of them it is the empty
- * state with a way out on it.
- */
-export const PICTURES_FOR_BOARD = 6;
 
 /**
  * How many case pages Target needs before it is dealt: it draws four forms of
@@ -293,8 +280,7 @@ export const FORMS_PER_EVENING = 5;
  * What each round needs to have been taught before the module deals it.
  *
  * Match and Listening need nothing but words, which is why they stand in for
- * everything else. A case round needs a case page read; the picture board is
- * the word at A1 and a case above it; government wants its own page and a
+ * everything else. A case round needs a case page read; government wants its own page and a
  * handful of verbs that carry one; dictation and word ordering want a sentence
  * of taught words to exist at all. Sõnad is on no rotation, because its word
  * is dealt off the dictionary by design and marked on the server from the
@@ -304,9 +290,6 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
   const cases = taught.cases.size > 0;
   switch (key) {
     case "conjugation": return taught.verbs;
-    // The board is the word until a case page has been read, on every level
-    // (`app/(app)/review/emoji/page.tsx`), so a pictured noun is all it needs.
-    case "picture": return taught.pictured >= PICTURES_FOR_BOARD;
     case "sprint": case "write": return cases;
     case "target": return taught.cases.size >= CASES_FOR_TARGET;
     case "describe": return taught.scene && taught.cases.size >= CASES_FOR_DESCRIBE;
@@ -327,7 +310,6 @@ export function supportedRounds(level: string, taught: Taught): ActivityKey[] {
 /** The rounds that need something taught first, for the tests to walk. */
 export const NEEDS: Partial<Record<ActivityKey, keyof Taught>> = {
   conjugation: "verbs",
-  picture: "pictured",
   letters: "spellable",
 };
 
@@ -385,9 +367,9 @@ export function rounds(
   /*
     The stand-in is the next round of the same kind along the rotation that
     the ledger does support, so it still alternates with the evening: early
-    in A2 the games the words can carry are Match and the board, and a
-    stand-in fixed on Match would deal Match six evenings running with the
-    board sitting there. Walked from the round it stands in for rather than
+    in A2 the games the words can carry are Match and Tähed, and a
+    stand-in fixed on Match would deal Match six evenings running with
+    Tähed sitting there. Walked from the round it stands in for rather than
     indexed on the evening, because two unsupported rounds on consecutive
     evenings indexed the same way landed on the same stand-in, and the sixth
     evening of A1 was the fifth again. Where nothing on the rotation is
@@ -428,7 +410,6 @@ export class Ledger {
   private pending: string[] = [];
   private readonly lemmas = new Set<string>();
   private verbs = false;
-  private pictured = 0;
   private governed = 0;
   private scene = false;
   private readable = false;
@@ -442,7 +423,6 @@ export class Ledger {
     // Read before `lemmas.add` below: a word taught again in a later part is not a second word.
     const fresh = !this.lemmas.has(lemma);
     if (pos === "VERB") this.verbs = true;
-    if (pos === "NOUN" && emojiFor(lemma) !== undefined && !this.lemmas.has(lemma)) this.pictured += 1;
     if (spellable(lemma) && !this.lemmas.has(lemma)) this.spellable += 1;
     this.lemmas.add(lemma);
     if (!this.scene) this.scene = SCENES.some((s) => s.lemmas.every((l) => this.lemmas.has(l)));
@@ -488,7 +468,6 @@ export class Ledger {
     }
     return {
       verbs: this.verbs,
-      pictured: this.pictured,
       cases: new Set(this.cases),
       topics: new Set(this.topics),
       governed: this.governed,

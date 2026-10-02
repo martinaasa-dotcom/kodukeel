@@ -405,7 +405,7 @@ const CLIENT = ALL.filter((f) => /^["']use client["']/m.test(read(f).trimStart()
  * learner gets the error screen.
  *
  * It is a runtime fault rather than a type error, which is what makes it worth
- * a check here. `/review/emoji` shipped with one: the page is a server
+ * a check here. The picture board, since removed, shipped with one: the page is a server
  * component and imported `boardLead` from its own session, and it called it on
  * exactly one branch, the empty state for a deck holding fewer than six nouns
  * the dictionary has a picture for. With a full deck the page renders the
@@ -2057,7 +2057,6 @@ check("every generator that picks a case asks which ones the word takes", () => 
     "lib/progress/target.ts",
     "lib/games/describe.ts",
     "lib/games/flash.ts",
-    "app/(app)/review/emoji/page.tsx",
   ];
   const asks = /caseFits\(|localCasesFor\(/;
   for (const file of askers) {
@@ -2107,7 +2106,6 @@ check("a question about one word is worded for that word", () => {
     "lib/estonian/caseBuild.ts",
     "lib/progress/target.ts",
     "lib/games/flash.ts",
-    "app/(app)/review/emoji/page.tsx",
     "app/(app)/dictionary/Forms.tsx",
     "app/(app)/dictionary/DictionaryClient.tsx",
     "app/(chromeless)/welcome/page.tsx",
@@ -3439,9 +3437,9 @@ check("a session never lets its questions change under the learner", () => {
     /*
       Either spelling of the snapshot. `useState(initialCards)` is the plain
       one; `useState<T>(() => layOut(initialPairs))` is the lazy one, which the
-      picture board uses because it lays its pairs out into tiles
-      (app/(app)/review/emoji/EmojiSession.tsx) and doing that work on every
-      render to throw it away is not free.
+      picture board used, before it was removed, because it laid its pairs out
+      into tiles and doing that work on every render to throw it away is not
+      free.
 
       The property is the same and the lazy form is the stronger of the two: the
       initializer runs once on mount and never again, so a refreshed prop cannot
@@ -10435,7 +10433,6 @@ check("a screen that asks for a form reads the plain table rather than only nami
     "app/(app)/review/flashcards/FlashSession.tsx",
     "app/(app)/review/write/WriteSession.tsx",
     "app/(app)/review/target/TargetSession.tsx",
-    "app/(app)/review/emoji/EmojiSession.tsx",
   ];
   for (const file of ASKS) {
     const source = code(file);
@@ -12302,6 +12299,7 @@ check("the layers that promise to be pure import no database, React or Next", ()
  */
 const GONE_ON_PURPOSE: Record<string, string> = {
   "components/PracticeModes.tsx": "CLAUDE.md records it being deleted as the seventh copy of the practice modes",
+  "lib/games/emojiBoard.ts": "CLAUDE.md records the picture board, which it served, being taken out of the app",
   "components/achievements/": "CLAUDE.md says it may not come back, with the badges",
   "lib/achievements/": "CLAUDE.md says it may not come back, with the badges",
   "lib/gamification/": "CLAUDE.md says it may not come back, with XP and the quests",
@@ -12904,180 +12902,6 @@ check("the research note names the gradation values the classifier assigns", () 
       : "lib/estonian/gradation.ts assigns only NONE and QUALITATIVE, so lib/research/sections.ts "
         + "has to say so: a column described as three-valued whose third value no row holds is a "
         + "dataset note that is not true of the dataset.",
-  );
-});
-
-/*
-  A MATCHING BOARD IS UNIQUE BY WHAT IT ASKS WITH, NOT BY WHAT IT ANSWERS.
-
-  313 words carry a picture and there are 249 pictures: 🏠 is `maja` and
-  `elamu`, 🚌 is `buss` and `autobuss`, 👨 is `mees`, `meesisik` and
-  `meesterahvas`, fifty of them in all. That is the table being right; Estonian
-  has more than one word for plenty of things and `scripts/build-emoji.ts` has
-  no business choosing between two true ones.
-
-  `/review/emoji` is a matching board, so the picture is the question and two
-  words sharing one put the same tile up twice against two different forms,
-  with no way for the learner to tell which goes with which. Getting it wrong
-  then marks a card they knew. Both of its pickers deduplicated on the lemma,
-  which cannot see this, because the two really are different words.
-
-  Anchored on the pairing rather than on either line: a picker that writes a
-  word down has to write its picture down too, so a third one cannot be added
-  knowing only half the rule.
-*/
-/*
-  A CHARACTER A READER CANNOT SEE IS WRITTEN DOWN BY NAME.
-
-  `lib/research/corpus.ts` joined a cell's key parts on a NUL, which is the
-  right separator (it cannot occur inside a dimension value, so two keys collide
-  only if they really are the same key) and was typed as the byte itself. A
-  literal control character makes the file **binary** to every text tool that
-  reads it: `grep` stops printing matches and says "binary file matches"
-  instead, which is how this was found, by searching that very file for its
-  anonymity floor and getting no lines back. `git diff` and a review go the same
-  way, and an editor or a paste can drop one leaving no visible change.
-
-  Twice in one session a literal control character got into a file here and
-  changed what a regular expression matched, invisibly, both times through a
-  heredoc: a `\b` written in a Python string is a backspace, and the check it
-  was in could no longer fire on anything. `"\\0"` and `"\\b"` are the same
-  strings at runtime and leave a text file on disk. It is the argument
-  `DASH_SEPARATED` already makes: a character a reader cannot see is named
-  rather than pasted.
-
-  Tab, newline and carriage return are how a text file is laid out and are
-  allowed. `lib/auth/access.test.ts` is exempt by name, because the NUL in it is
-  the thing under test: it checks that a path with one embedded is refused, and
-  writing that as an escape would be testing a different string.
-*/
-check("no source file holds a control character it could have named", () => {
-  const EXCUSED = new Map([
-    ["lib/auth/access.test.ts", "The NUL is the subject: it checks that a path with one embedded is refused."],
-  ]);
-  const NAMED = /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/;
-
-  for (const file of [...ALL, ...sourceFiles("scripts"), ...sourceFiles("prisma")]) {
-    if (EXCUSED.has(file)) continue;
-    const raw = prose(file);
-    const at = raw.search(NAMED);
-    if (at < 0) continue;
-    const code = raw.charCodeAt(at);
-    assert.fail(
-      `${file}:${raw.slice(0, at).split("\n").length}: holds U+${code.toString(16).padStart(4, "0")} `
-      + "as a literal character. Write it as an escape: a control character makes the file binary to "
-      + "grep and to git diff, and an editor can drop it leaving no visible change.",
-    );
-  }
-
-  // And the exemption stays honest: an entry for a file that no longer holds
-  // one is a parking space for the next person who wants to paste a byte.
-  for (const [file] of EXCUSED) {
-    assert.match(read(file), NAMED, `${file} no longer holds a control character, so its exemption is stale`);
-  }
-});
-
-/*
-  A ROUTE ANYBODY CAN REACH READS ITS BODY ONLY AS FAR AS A CEILING.
-
-  A Route Handler has no body limit of its own, and the two routes past the
-  sign-in gate that read one, the bounce webhook and the unsubscribe form,
-  read it whole before they had checked anything about the caller. On a
-  self-hosted deployment that is as much memory as a stranger chose to send.
-  They go through `readCapped`, and so does any public route that reads a
-  body later, found off the middleware's own public list.
-*/
-check("a route reachable without a session reads its body through a ceiling", () => {
-  const mw = code("middleware.ts");
-  const list = mw.slice(mw.indexOf("const isPublicPath"), mw.indexOf("const signedOut"));
-  assert.ok(list.length > 200, "middleware.ts no longer has a public path list to read");
-  const RAW_BODY = /\brequest\.(?:text|json|formData|arrayBuffer|blob)\(|\breq\.(?:text|json|formData|arrayBuffer|blob)\(/;
-  let reading = 0;
-  for (const file of APP.filter((f) => /^app\/api\/.*\/route\.ts$/.test(f))) {
-    const path = "/" + file.replace(/^app\//, "").replace(/\/route\.ts$/, "");
-    if (!list.includes(`path.startsWith("${path}")`)) continue;
-    const source = code(file);
-    if (!RAW_BODY.test(source) && !/\breadCapped\(/.test(source)) continue;
-    reading += 1;
-    assert.doesNotMatch(source, RAW_BODY, `${file} is public and reads its body with no ceiling; use readCapped`);
-    assert.match(source, /\breadCapped\(/, `${file} is public and reads a body without readCapped`);
-  }
-  assert.ok(reading >= 2, `only ${reading} public routes that read a body were found, so this stopped looking`);
-});
-
-/*
-  A `next` read off the address goes through `safeNext` wherever it is read.
-
-  The callback applied it, and the sign-in page's Google button signs in with
-  an ID token on the page itself and then navigates to `next` with no callback
-  in between, so the one check sat on a door that path never walks through: an
-  open redirect straight after a fresh sign-in.
-*/
-check("every read of the next parameter goes through safeNext", () => {
-  const reads: string[] = [];
-  for (const file of [...APP, ...COMPONENTS, ...LIB]) {
-    if (/\.test\.|\.itest\./.test(file)) continue;
-    for (const line of code(file).split("\n")) {
-      if (!/\.get\(\s*["']next["']\s*\)/.test(line)) continue;
-      reads.push(file);
-      assert.match(line, /safeNext\(/, `${file} reads ?next= without safeNext, so it can send somebody off-site`);
-    }
-  }
-  assert.ok(reads.length >= 2, `only ${reads.length} reads of ?next= found, so this stopped looking`);
-});
-
-/*
-  AND NO SOURCE FILE HOLDS A CHARACTER THAT REORDERS OR HIDES THE TEXT AROUND IT.
-
-  The check above is about the C0 controls, and the characters that do the
-  most damage in source are not among them: a bidirectional override
-  (U+202A to U+202E, U+2066 to U+2069) makes a line render in a different
-  order from the one the compiler reads, which is the "Trojan Source" attack,
-  and a zero-width space or a byte-order mark in the middle of a file splits a
-  word nobody can see is split. A review cannot catch any of them, because a
-  review is what they are built to get past. `lib/security/visibleText.ts`
-  refuses them in what a learner types; this refuses them in what we write.
-  The zero-width joiner is left alone on purpose, since it is how an emoji
-  sequence is spelled and `scripts/build-emoji.ts` quotes one.
-*/
-check("no source file holds an invisible format or bidirectional character", () => {
-  const HIDDEN = /[\u200b\u200c\u200e\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff]/;
-  // The pattern itself, probed, so a typo in it cannot pass everything.
-  for (const probe of ["\u200b", "\u202e", "\u2066", "\ufeff"]) {
-    assert.ok(HIDDEN.test(probe), `the pattern no longer catches U+${probe.charCodeAt(0).toString(16)}`);
-  }
-  assert.ok(!HIDDEN.test("\u200d"), "the pattern refuses the zero-width joiner an emoji is spelled with");
-
-  let looked = 0;
-  for (const file of [...ALL, ...sourceFiles("scripts"), ...sourceFiles("prisma")]) {
-    looked += 1;
-    const raw = read(file);
-    const at = raw.search(HIDDEN);
-    if (at < 0) continue;
-    assert.fail(
-      `${file}:${raw.slice(0, at).split("\n").length}: holds U+${raw.charCodeAt(at).toString(16).padStart(4, "0")} `
-      + "as a literal character. Write it as an escape: it is invisible in an editor and in a diff, and a "
-      + "bidirectional one makes the line render in a different order from the one the compiler reads.",
-    );
-  }
-  assert.ok(looked >= 500, `only ${looked} source files read, so this stopped looking`);
-});
-
-check("the emoji board is unique by picture as well as by word", () => {
-  const file = join("app", "(app)", "review", "emoji", "page.tsx");
-  const source = code(file);
-  const words = (source.match(/usedLemmas\.add\(/g) ?? []).length;
-  const pictures = (source.match(/usedEmoji\.add\(/g) ?? []).length;
-  assert.ok(words > 0, `${file}: no longer tracks which words are on the board`);
-  assert.equal(
-    pictures, words,
-    `${file}: ${words} places put a word on the board and ${pictures} put its picture down. `
-    + "A picture stands for more than one word 50 times in lib/collections/emoji.ts, and this is a "
-    + "matching board, so the same tile would appear twice against two different forms.",
-  );
-  assert.ok(
-    /usedEmoji\.has\(/.test(source),
-    `${file}: writes down which pictures are used and never asks, so nothing is deduplicated.`,
   );
 });
 
@@ -16744,41 +16568,6 @@ check("the README's dictionary size is the seed's own count", () => {
   Digits rather than words, because a count nothing can read is a count nothing
   checks, and the README already writes "6,101 words" and "44 notes" that way.
 */
-/*
-  A SCREEN THAT NEEDS ROWS CARRYING A PROPERTY ASKS FOR THEM, RATHER THAN
-  READING A WINDOW AND SIFTING IT.
-
-  The picture board needs six nouns that have a picture. It read the first 480
-  graded nouns in the band, every form on each, and dropped the ones with no
-  picture. That is 480 rows fetched to use six, and the cost that matters is
-  not the fetching: the order is the band and then the alphabet, so the window
-  is always the same words. At B1, 47 of the 173 pictured nouns in the band
-  were the whole game and the other 126 could not come up, on the one round
-  whose promise is that it is worth playing again. `lib/dict/suggest.ts` had
-  this exact shape and it is why `aberratsioon` is the standing joke in here.
-
-  Which words have a picture is a static table of 313 lemmas, so it belongs in
-  the `where` rather than in a `.filter` after the fact, and once it is there
-  the query needs no cap at all.
-*/
-check("the picture board asks the dictionary for the words that have a picture", () => {
-  const src = code(join("app", "(app)", "review", "emoji", "page.tsx"));
-  const asked = /EMOJI_LEMMAS\s*\.\s*filter\(/.exec(src);
-  assert.ok(
-    asked,
-    "the picture board no longer narrows EMOJI_LEMMAS for its query, so it is sifting a window again",
-  );
-  assert.match(
-    src.slice(asked.index),
-    /lemma:\s*\{\s*in:/,
-    "the picture board narrows the picture table and then does not select on it",
-  );
-  assert.ok(
-    !/take:\s*POOL\s*\*/.test(src),
-    "the picture board has gone back to reading a multiple of its deck window out of the dictionary",
-  );
-});
-
 /*
   A PAGE ADDRESSED BY A ROW ID PROVES THE ROW IS THE LEARNER'S.
 
@@ -22069,8 +21858,6 @@ check("every round that puts one word up carries the favorite button", () => {
       "a board of pairs: several words at once, and no card to put a corner on",
     [join("app", "(app)", "review", "pairs", "PairsSession.tsx")]:
       "the same, a board rather than a card",
-    [join("app", "(app)", "review", "emoji", "EmojiSession.tsx")]:
-      "a matching board of pictures and forms, several words at once",
     [join("app", "(app)", "review", "target", "TargetSession.tsx")]:
       "four forms of one word to aim at, and a clock: the round is a gesture",
     [join("app", "(app)", "review", "describe", "DescribeSession.tsx")]:
@@ -25900,7 +25687,6 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
     // A board puts several words up at once, so there is no last word: what
     // was asked is still on the screen until the board is cleared.
     "app/(app)/review/match/MatchSession.tsx": "a board",
-    "app/(app)/review/emoji/EmojiSession.tsx": "a board",
     // A list of the cards you keep failing, with nothing stepping through.
     "app/(app)/review/clinic/ClinicList.tsx": "a list rather than a round",
     // A measurement that withholds every answer until the end, deliberately
@@ -28004,6 +27790,7 @@ check("every source file a comment in the code cites is one that exists", () => 
   const GONE: Record<string, string> = {
     "lib/achievements/badges.ts": "lib/stats/streak.ts says the streak outlived the badges file it lived in",
     "components/PracticeModes.tsx": "the second copy of the practice menu, named where its deletion is recorded",
+    "lib/games/emojiBoard.ts": "the picture board's helper, named where the board's removal is recorded",
     "lib/copy/tour.ts": "the first-run tour's screen list, named where its deletion is recorded",
     "scripts/x.mjs": "a placeholder standing for any suite in a sentence about how CI names them",
     "lib/anu/client.ts": "the documentation-path check's own list of paths named because they are gone",

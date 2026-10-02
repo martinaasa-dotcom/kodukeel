@@ -10,13 +10,12 @@ import {
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  PICTURES_FOR_BOARD, WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING,
+  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING,
 } from "./index";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { readFileSync } from "node:fs";
 import { cardWithin, moduleScopeFrom, slotWithin } from "./scope";
 import { evenings } from "./build";
-import { emojiFor } from "@/lib/collections/emoji";
 
 /**
  * What the ladder had taught by the end of a day, in the shape the builder
@@ -367,7 +366,7 @@ describe("what a day reads and where it goes", () => {
 
   /*
     Except where the words cannot carry a different pair yet: the first two
-    evenings of A1 have no verb and no pictured noun, so Match and Listening
+    evenings of A1 have no verb and too few words to scramble, so Match and Listening
     are the whole of what may be dealt, and a repeat there is a fact about the
     words rather than a fault in the walk. The allowance is exactly that case,
     read off what had been taught, and nothing wider.
@@ -391,8 +390,7 @@ describe("what a day reads and where it goes", () => {
   /*
     A ROUND IS DEALT ONLY ONCE THE WORDS BEHIND IT HAVE BEEN TAUGHT. The
     conjugation table on the module's second evening was a table of verbs
-    nobody had met, filled from the dictionary a band up; a picture board
-    before a pictured noun is an empty board with a way out on it. The builder
+    nobody had met, filled from the dictionary a band up. The builder
     asks `taughtFrom` before it deals either, and this walks every evening of
     the ladder and asks the same question a second way.
   */
@@ -402,7 +400,6 @@ describe("what a day reads and where it goes", () => {
       for (const key of day.practice) {
         const need = NEEDS[key];
         if (need) expect(Boolean(taught[need]), `${day.id} deals ${key} before a ${need} word`).toBe(true);
-        if (key === "picture") expect(taught.pictured, `${day.id} deals a board it cannot fill`).toBeGreaterThanOrEqual(PICTURES_FOR_BOARD);
         expect(supportsRound(key, taught, programme.level), `${day.id} deals ${key} before its material`).toBe(true);
       }
     }
@@ -433,14 +430,9 @@ describe("what a day reads and where it goes", () => {
     expect(firstCase, "no evening ever reads a case page").not.toBeNull();
     expect(firstCase!.startsWith("a2."), `the first case page is read on ${firstCase}`).toBe(true);
     // And every case round is actually dealt somewhere, or the gate is a wall.
-    for (const key of [...caseRounds, "dictation", "sentences", "government", "picture"]) {
+    for (const key of [...caseRounds, "dictation", "sentences", "government", "letters"]) {
       expect(DAYS.some(({ day }) => day.practice.includes(key as never)), `${key} is never dealt`).toBe(true);
     }
-  });
-
-  it("needs as many pictured nouns as the board has pairs", () => {
-    const page = readFileSync("app/(app)/review/emoji/page.tsx", "utf8");
-    expect(page).toMatch(new RegExp(`const PAIRS = ${PICTURES_FOR_BOARD};`));
   });
 
   it("puts Sõnad on no rotation, since its word is dealt off the dictionary and marked from the date", () => {
@@ -477,7 +469,7 @@ describe("what a day reads and where it goes", () => {
   });
 
   it("keeps A1 to rounds played on the words the module has taught", () => {
-    const allowed = new Set<string>(["match", "listening", "picture", "conjugation", "letters", "flash"]);
+    const allowed = new Set<string>(["match", "listening", "conjugation", "letters", "flash"]);
     for (const { programme, day } of DAYS) {
       if (programme.level !== "A1") continue;
       for (const key of day.practice) expect(allowed.has(key), `${day.id} deals ${key}`).toBe(true);
@@ -506,7 +498,7 @@ describe("what a day reads and where it goes", () => {
   /*
     And a round the module opens can find out what the module has taught, off
     the address the step wrote (`scope.ts`), which is what lets Match,
-    Listening, the board and the table narrow themselves to it.
+    Listening, Tähed and the table narrow themselves to it.
   */
   it("tells a round what has been taught, off the step's own address", () => {
     const a1 = PROGRAMMES[0]!;
@@ -518,8 +510,6 @@ describe("what a day reads and where it goes", () => {
     expect(scope?.lemmas).not.toContain("õpetaja");
     expect(moduleScopeFrom({ module: "a1.1~nowhere~do:match~1~5~0" })).toBeNull();
     expect(moduleScopeFrom(undefined)).toBeNull();
-    // A pictured noun is what the board needs, and the pronouns carry none.
-    expect(scope!.lemmas.some((l) => emojiFor(l))).toBe(false);
     // No case page has been read by then, and the topics are the ones read:
     // the first evening reads nothing and the politeness page waits for the
     // pronouns, so it is on the scope from the greetings on and not before.
@@ -730,20 +720,19 @@ describe("what a day reads and where it goes", () => {
   });
 
   it("stands in with a round the evening before did not deal, where the ledger allows one", () => {
-    // Nothing but Match and Tähed supported: the board's slot on the A1
-    // rotation is at pair three, and the evening before it dealt Tähed.
+    // Nothing but Match and Tähed supported: A2's second pair opens on
+    // Target, which needs four case pages, so its game is stood in for.
     const taught = { ...NO_TAUGHT, spellable: WORDS_FOR_LETTERS };
-    const pair = rounds("A1", 2, false, taught, false, ["letters", "flash"]);
-    expect(pair[0]).toBe("match");
-    // With nothing to avoid, the walk from the board lands on Match too, and
-    // with Match avoided as well it takes the next supported game along.
-    expect(rounds("A1", 2, false, taught, false, ["match"])[0]).toBe("letters");
+    // Walked from Target, the next supported game along is Tähed.
+    expect(rounds("A2", 1, false, taught, false)[0]).toBe("letters");
+    // And where the evening before dealt Tähed, it takes Match instead.
+    expect(rounds("A2", 1, false, taught, false, ["letters", "listening"])[0]).toBe("match");
   });
 
-  it("does not deal the table on the rotation the evening after a unit of verbs pinned it", () => {
+  it("deals the table on the evenings a unit of verbs pins it, and not on the others", () => {
     const taught = { ...NO_TAUGHT, verbs: true, spellable: WORDS_FOR_LETTERS };
-    // Pair two of A1 is Tähed and the table.
-    expect(rounds("A1", 1, false, taught, false)).toEqual(["letters", "conjugation"]);
+    // Pair two of A1 is Tähed and the flash round.
+    expect(rounds("A1", 1, false, taught, false)).toEqual(["letters", "flash"]);
     expect(rounds("A1", 1, false, taught, true)).toEqual(["letters", "flash"]);
     expect(rounds("A1", 1, true, taught, true)).toEqual(["letters", "conjugation"]);
   });

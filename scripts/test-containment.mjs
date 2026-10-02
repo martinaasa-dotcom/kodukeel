@@ -144,7 +144,6 @@ const ROUTES = [
   */
   "/review/common",
   "/review/common/noun",
-  "/review/emoji",
   "/review/describe",
   "/review/target",
   "/practice",
@@ -381,7 +380,11 @@ const SPARSE = new Map([
 // margin is what stops one missing row reading as a deleted block.
 // On top of main's 1580, whose passes number about 313 at five checks each,
 // the fifth question adds 300.
-const { check, absent, done } = suite("Containment", { floor: 2500 });
+//
+// And 2475 rather than 2500: Picture match was taken out of the app, and
+// `/review/emoji` was one of the routes this walks, which is one route's worth
+// of passes at the checks each pass now asks.
+const { check, absent, done } = suite("Containment", { floor: 2475 });
 
 /**
  * An A2 unit, whose lesson meets words with their sentence under them: A1

@@ -154,7 +154,7 @@ const ROUTES = [
     and a second of wall clock is what it costs to enforce it.
   */
   "/quest", "/sonad", "/crossword", "/calendar", "/dictionary/common",
-  "/review/emoji", "/review/target", "/review/flashcards", "/review/describe",
+  "/review/target", "/review/flashcards", "/review/describe",
   "/words/mastery",
   "/progress/readiness", "/progress/readiness/riigid", "/progress/record",
   /*
@@ -357,8 +357,12 @@ ROUTES.push(...groups);
 
   What this list still does not walk, a marked paper and a scanned page, is
   named on `/accessibility` in words, and an invariant ties the two together.
+
+  And 764 rather than 773: Picture match was taken out of the app as
+  pointless, and `/review/emoji` was one of the routes this walks. Nine
+  checks, counted off the route list rather than off a run.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 773 });
+const { check, absent, done } = suite("Accessibility", { floor: 764 });
 if (!shelf) absent(11, "a round over one shelf: no shelf on /words/decks holds a word. Run `npm run demo`");
 if (groups.length === 0) absent(11, "a classroom: /class lists no group. Run `npm run demo`");
 

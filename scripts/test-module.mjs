@@ -51,7 +51,7 @@ const MODULE_HOME = "/course";
  */
 const MODULE_SCREENS = [
   "/review/match", "/review/listening", "/review/sprint", "/review/sentences", "/review/dictation",
-  "/review/emoji", "/review/describe", "/sonad", "/review/target", "/review/conjugation",
+  "/review/describe", "/sonad", "/review/target", "/review/conjugation",
   "/review/speaking", "/review/write", "/review/government", "/review/exceptions",
   "/review/flashcards", "/review/letters",
   "/review", "/course/learn", "/situations/poodi-piima",
