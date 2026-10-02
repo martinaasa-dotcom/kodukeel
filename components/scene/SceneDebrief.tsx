@@ -86,6 +86,9 @@ export interface Debrief {
   turns: readonly { who: "them" | "you"; text: string; lang: "et" | "en" }[];
 }
 
+/** Written out whole so the class names survive Tailwind's scan of this file. */
+const HIGHLIGHT_COLS = ["", "sm:grid-cols-2", "sm:grid-cols-3"] as const;
+
 export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: () => void }) {
   /* Whether this conversation is a step of tonight's module, which decides
      whether the debrief carries a way on of its own. */
@@ -178,7 +181,12 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       {recap.highlights.length > 0 && (
         <section data-recap-highlights>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What went well</h3>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          {/*
+            As many columns as there are cards, up to the three the recap
+            ever writes: a fixed two left one card beside a blank half and a
+            third card alone on a row of its own.
+          */}
+          <ul className={`grid gap-3 ${HIGHLIGHT_COLS[Math.min(recap.highlights.length, 3) - 1]}`}>
             {recap.highlights.map((highlight) => (
               <li key={highlight.title}>
                 <Card className="flex h-full flex-col gap-2">
