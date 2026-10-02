@@ -20822,7 +20822,7 @@ check("learn teaches a word and practice drills it, never both at once", () => {
 
   const review = code("app/(app)/review/page.tsx");
   assert.match(
-    review, /where: dueWhere\(ownerId, now[,)]/,
+    review, /where: (?:\{ AND: \[)?dueWhere\(ownerId, now[,)]/,
     "the review queue reads its own due clause rather than the shared one",
   );
   assert.match(
@@ -23568,7 +23568,7 @@ check("every round a rotation can deal reads the module's scope off its address"
   assert.ok(reads >= 12, `only ${reads} round pages read the scope; the table has more rounds than that`);
   // And the closing review reads it too, since it is the last step of every evening.
   assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
-  assert.match(code("app/(app)/review/page.tsx"), /cardWithin\(/, "the closing review stopped holding a case card to the case pages read");
+  assert.match(code("app/(app)/review/page.tsx"), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
 });
 
 /*
@@ -23634,27 +23634,29 @@ check("the daily review introduces nothing the module has not taught", () => {
     "the daily review no longer falls back to the learner's own standing when it was not opened from the module",
   );
   /*
-    And it is in flight beside the due read rather than awaited in front of
-    it: resolving the standing is two reads deep, and this is the page whose
-    daily job is to open fast.
+    It is awaited in front of the due read now, which reverses what this check
+    used to hold: what is due is narrowed by what the module has taught, so the
+    read cannot start before the standing is known. Started beside the
+    settings read, so it costs one round trip rather than two.
   */
   assert.match(
-    page, /const \[taught, due,/,
-    "the module standing is resolved before the due list rather than beside it, which costs the daily path two round trips",
+    page, /const taughtFirst = await taughtPromise;[\s\S]*taughtWhere\(taughtFirst\)/,
+    "the due read on the daily path is no longer narrowed to what the module has taught",
   );
   assert.match(
     page, /taught\?\.lemmas|taught\.lemmas/,
     "the new-card window stopped being narrowed to what the module has taught",
   );
   assert.match(
-    page, /cardWithin\(taught,/,
+    page, /const introducible = \(card: CardRow\) => reviewable\(taught,/,
     "a card about to be introduced is no longer asked whether the module has taught what it is made of",
   );
-  // And the due list is still the scheduler's: gated on the module-opened
-  // scope alone, never on the standing.
+  // And the due list is held to the standing too, which is the operator's
+  // reversal of "what is due is due whatever taught it": review only repeats
+  // what the module has taught (`reviewable`).
   assert.match(
-    page, /const within = \(card: CardRow\) => cardWithin\(scope,/,
-    "the due list is being held to the learner's module standing, which is the scheduler's decision to make",
+    page, /const within = \(card: CardRow\) => reviewable\(taught,/,
+    "the due list is no longer held to what the module has taught",
   );
 });
 

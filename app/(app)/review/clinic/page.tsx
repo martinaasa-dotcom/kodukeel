@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { readableFront } from "@/lib/copy/caseHint";
 import { requireUserId } from "@/lib/auth/session";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { LEECH_LAPSES, findConfusable, rankLeeches, type LeechCandidate } from "@/lib/analysis/leeches";
@@ -95,7 +96,7 @@ export default async function ClinicPage() {
 
   const candidates: LeechCandidate[] = cards.map((c) => ({
     cardId: c.id,
-    front: c.front,
+    front: readableFront(c.front),
     back: c.back,
     cardType: c.cardType,
     targetCase: c.targetCase,

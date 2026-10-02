@@ -1,4 +1,5 @@
 import { InsideHere } from "@/components/InsideHere";
+import { readableFront } from "@/lib/copy/caseHint";
 import { Suspense } from "react";
 import { ClipboardCheck, Compass, FileText, Flame, Footprints, Shield } from "lucide-react";
 import { outThere } from "@/lib/progress/outThere";
@@ -122,7 +123,7 @@ export default async function ProgressPage() {
   // the accuracy beside them is counted from the log above.
   const sticking = stickingPoints(
     deck.map((c) => ({
-      id: c.id, lemma: lemmaOf(c.lexemeId), front: c.front, back: c.back,
+      id: c.id, lemma: lemmaOf(c.lexemeId), front: readableFront(c.front), back: c.back,
       cardType: c.cardType, targetCase: c.targetCase,
       lapses: c.lapses, reps: c.reps, suspended: c.suspended,
     })),

@@ -37,7 +37,7 @@ import { cache } from "react";
 
 import { prisma } from "@/lib/db";
 
-import { MAX_SESSION, NEW_CANDIDATES, dueWhere, roomFor, unseenWhere } from "@/lib/srs/reviewQueue";
+import { MAX_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, unseenWhere } from "@/lib/srs/reviewQueue";
 import { cardWithin, scopeFor, type ModuleScope } from "@/lib/course/scope";
 import { dayById, programmeById } from "@/lib/course";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
@@ -113,7 +113,9 @@ const reachable = cache(async (
 
   const [due, fresh, spellings, level] = await Promise.all([
     prisma.card.findMany({
-      where: dueWhere(ownerId, now, scope.lemmas),
+      // The round's own read, narrowed the same way (`taughtWhere`), so the
+      // count can never see a card the round refuses in the query.
+      where: { AND: [dueWhere(ownerId, now, scope.lemmas), taughtWhere(scope)] },
       orderBy: [{ due: "asc" }, { id: "asc" }],
       take: MAX_SESSION,
       select: SELECT,
