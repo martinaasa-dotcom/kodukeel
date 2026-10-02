@@ -29,6 +29,8 @@ import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
+import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
+import { SameMeaning } from "@/components/round/SameMeaning";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade, readStashedSession, stashSession, takeFromOutbox } from "@/lib/offline/db";
 import { undoOutcome } from "@/lib/offline/outbox";
@@ -154,9 +156,27 @@ export interface ReviewCard {
    * card whose sentence has not been translated yet.
    */
   sentenceEn: string | null;
+  /**
+   * The one line a bare form card asks with, `Say “with the bird”`, or null.
+   *
+   * Where this is set it replaces the question word, the plain clause and the
+   * form's name before the answer: one instruction rather than four lines of
+   * grammar. The name comes back after the answer, as the thing to remember.
+   */
+  say: string | null;
   /** Whether this deployment has a model that could translate the sentence. */
   canTranslate: boolean;
+  /**
+   * The other words that mean what a production card's prompt says, with
+   * this card's own word beside them, so a learner who types one of them is
+   * told it works and shown how the two differ. Null on every other card and
+   * on a production card with no neighbour. See `lib/questions/neighbours.ts`.
+   */
+  contrast: Contrast | null;
 }
+
+import type { Contrast, ContrastWord } from "@/lib/progress/contrast";
+export type { Contrast, ContrastWord };
 
 
 
@@ -211,7 +231,7 @@ function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
       : TYPE_LABEL[card.cardType] ?? card.cardType,
     question: met ? word : sizedBlank(card.front, card.back),
     answer: met ? card.intro?.gloss ?? card.back : card.back,
-    note: met ? null : plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card)) : null,
+    note: met ? null : card.say ?? (plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card)) : null),
     questionLang: met ? "et" : estonianSide(card.cardType, "front") ? "et" : "en",
     answerLang: met ? "en" : estonianSide(card.cardType, "back") ? "et" : "en",
     speak: speakable,
@@ -228,7 +248,11 @@ function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
  * Anu opens in her corner, over the card, with the question already written
  * so it can be sent or edited.
  */
-function WhyRow({ card }: { card: ReviewCard }) {
+function WhyRow({ card, alsoRight }: {
+  card: ReviewCard;
+  /** Another word that was right here, so the question is about the two of them. */
+  alsoRight?: string;
+}) {
   const router = useRouter();
   // Named the way a class names it, because this question is going to a tutor
   // who is told to answer in the same words (lib/tutor/prompt.ts).
@@ -238,7 +262,9 @@ function WhyRow({ card }: { card: ReviewCard }) {
   // is a sentence now and carries no label, and the label is what the learner
   // wants the moment the answer appears and is not what they thought.
   const verbSlot = card.slot ? slotLabel(card.slot) : null;
-  const question = card.targetCase
+  const question = alsoRight && card.lemma
+    ? `"${alsoRight}" and "${card.lemma}" both mean "${card.front}". When would an Estonian use each one?`
+    : card.targetCase
     ? `I keep getting the ${caseName} of "${card.lemma ?? card.front}" wrong. Why does it look like that?`
     : verbSlot
       ? `I keep getting "${card.lemma ?? card.front}" wrong in the ${verbSlot}. Why does it look like that?`
@@ -459,6 +485,8 @@ interface Done {
   before: ReviewCard["scheduling"];
   /** The id the grade was written, or queued, under, so undo can take a queued one back. */
   reviewId: string;
+  /** Whether the session's tally counted it right, which a second right word is at Hard. */
+  counted: boolean;
 }
 
 export function ReviewSession({
@@ -545,7 +573,12 @@ export function ReviewSession({
   */
   const [aside, setAside] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
-  const [verdict, setVerdict] = useState<AnswerCheck | null>(null);
+  /*
+    `neighbour` is the other right word a production card was answered with,
+    when it was (lib/questions/neighbours.ts). Held on the verdict rather than
+    beside it so every place that clears the verdict clears it too.
+  */
+  const [verdict, setVerdict] = useState<(AnswerCheck & { neighbour?: ContrastWord }) | null>(null);
   const [chosen, setChosen] = useState<string | null>(null);
   /*
     A MISS IS TYPED AGAIN BEFORE THE CARD GOES.
@@ -1003,8 +1036,11 @@ export function ReviewSession({
 
     setDone((d) => d + 1);
     setAsking((n) => n + 1);
-    if (rating >= 3) setCorrect((c) => c + 1);
-    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId }]);
+    // A second right word is right, whatever it was graded: the tally may not
+    // count as a miss what the panel above it has just called right.
+    const counted = rating >= 3 || !!verdict?.neighbour;
+    if (counted) setCorrect((c) => c + 1);
+    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId, counted }]);
     recordSeen(card, false);
 
     // "Again" means it is not learned — put it back near the end of this session.
@@ -1029,7 +1065,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen]);
+  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen, verdict]);
 
   /**
    * Puts the last graded card back.
@@ -1066,7 +1102,7 @@ export function ReviewSession({
       // happened any more and the look back must not offer it as the past.
       forget(last.cardId);
       setDone((d) => Math.max(0, d - 1));
-      if (last.rating >= 3) setCorrect((c) => Math.max(0, c - 1));
+      if (last.counted) setCorrect((c) => Math.max(0, c - 1));
       // Taking an answer back is not a run continuing.
       run.current = 0;
       setQueue((q) => {
@@ -1087,7 +1123,19 @@ export function ReviewSession({
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
-    const result = checkAnswer(typed, card.back, language, card.rivals);
+    const marked = checkAnswer(typed, card.back, language, card.rivals);
+    /*
+      A SECOND RIGHT WORD IS RIGHT. Asked only where the marker said no, so a
+      clean hit, a dropped diacritic and a typo of the card's own word all keep
+      their own readings. The grade is Hard rather than Good: the learner said
+      the thing, and has not yet shown the word this card is about.
+    */
+    const neighbour = marked.verdict === "wrong" && card.contrast
+      ? typedNeighbour(typed, card.contrast.neighbours)
+      : null;
+    const result = neighbour
+      ? { verdict: "correct" as const, expected: card.back, note: "", suggestedRating: NEIGHBOUR_RATING, neighbour }
+      : marked;
     setVerdict(result);
     setRevealed(true);
     cheer(countsAsRecalled(result.verdict));
@@ -1432,7 +1480,9 @@ export function ReviewSession({
     ask === "type" && verdict
       ? retypeOk
         ? `${uiText("Õige!", "Correct!")} That's the one.`
-        : verdict.verdict === "correct"
+        : verdict.neighbour
+          ? `Yes, ${verdict.neighbour.lemma} works too. This card was after ${shownAnswer}.`
+          : verdict.verdict === "correct"
           ? uiText("Õige!", "Correct!")
           : countsAsRecalled(verdict.verdict)
             ? `Close: ${verdict.note}`
@@ -1596,7 +1646,7 @@ export function ReviewSession({
             screen and wrapped the word onto two lines. The word is what the
             card is about; what to do with it sits under it, small.
           */}
-          {ask !== "intro" && split && (() => {
+          {ask !== "intro" && split && !card.say && (() => {
             const asked = cueCase ?? caseLabelOf(split.tail);
             return asked ? (
               <span data-front-tail><CaseLabel label={asked} className="text-sm" /></span>
@@ -1624,7 +1674,17 @@ export function ReviewSession({
             question stays where it was, the name stays where it was, and
             somebody who has not met `seesütlev` yet can still answer the card.
           */}
-          {(isGap(card) ? answerShown : !answerShown) && plainAsk(slotAsked(card)) && (
+          {ask !== "intro" && card.say && !answerShown && (
+            <p
+              data-say
+              className="rounded-full px-4 py-1.5 text-lg font-semibold"
+              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+            >
+              {card.say}
+            </p>
+          )}
+
+          {!card.say && (isGap(card) ? answerShown : !answerShown) && plainAsk(slotAsked(card)) && (
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
               {plainAskLine(slotAsked(card))}
             </p>
@@ -1645,7 +1705,7 @@ export function ReviewSession({
             rule: the gloss goes where the sentence took its place, the word
             never does, and an unmarked line keeps both.
           */}
-          {cue && !answerShown && !(cueCase && split) && (
+          {cue && !answerShown && !card.say && !(cueCase && split) && (
             <p className="text-xs" style={{ color: "var(--ink-3)" }}>
               {cueCase ? (
                 <>
@@ -1692,7 +1752,13 @@ export function ReviewSession({
             </>
           )}
 
-          {ask === "type" && verdict && (
+          {ask === "type" && verdict?.neighbour && card.contrast && (
+            <div className="w-full max-w-sm">
+              <SameMeaning typed={verdict.neighbour} own={card.contrast.own} canTranslate={card.canTranslate} />
+            </div>
+          )}
+
+          {ask === "type" && verdict && !verdict.neighbour && (
             <div className="w-full max-w-sm">
               <p
                 className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} verdict-panel`}
@@ -1926,7 +1992,7 @@ export function ReviewSession({
               question somebody has the moment they first see one, and the
               screen that introduces the form is the obvious place to answer
               it. */}
-          {(answerShown || chosen) && <WhyRow card={card} />}
+          {(answerShown || chosen) && <WhyRow card={card} alsoRight={verdict?.neighbour?.lemma} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>

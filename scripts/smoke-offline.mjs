@@ -219,7 +219,7 @@ async function answerOneCard(depth = 0) {
     grade offline, which was a fact about the driver.
   */
   // A typed miss asks to be typed again before it will go anywhere, and a
-  // correct retype grades the miss and moves on by itself.
+  // correct retype grades the miss, and the button then carries on.
   await retypeMiss(page);
   // "Got it, next Enter": the key cap inside the button is part of its name.
   const next = app.getByRole("button", { name: /^Got it, next/ });

@@ -26,9 +26,11 @@ const JOINED = [
   /\{[^{}]*(?:\.et|caseEt|caseName)\}<\/span>\s*\{",\s*"\}\s*<CaseQuestion\b/,
 ];
 
+// The writing round and the unit lesson ask in one plain line now
+// (`Say “in the room”`) and name the case only in a sentence after the answer,
+// so neither draws a case beside its question at all.
 const DRAWS_IT = [
   "app/(app)/review/ReviewSession.tsx",
-  "app/(app)/review/write/WriteSession.tsx",
   "app/(app)/review/describe/DescribeSession.tsx",
   "app/(app)/review/government/GovernmentSession.tsx",
   "app/(app)/review/flashcards/FlashSession.tsx",
@@ -39,7 +41,6 @@ const DRAWS_IT = [
   "app/(app)/dictionary/Forms.tsx",
   "app/(app)/grammar/page.tsx",
   "app/(app)/grammar/build-a-word/BuildWalk.tsx",
-  "app/(app)/learn/[unitId]/lesson/LessonSession.tsx",
   "app/(app)/learn/[unitId]/worksheet/page.tsx",
   "app/(app)/exam/[level]/ExamSession.tsx",
   "components/WordExceptions.tsx",

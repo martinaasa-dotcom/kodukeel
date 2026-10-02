@@ -413,7 +413,7 @@ export function findTells(text: string): Tell[] {
  * for following the instruction it was actually given.
  */
 export const VOICE_RULES: readonly string[] = [
-  `Never use an em dash (${EM_DASH}) or an en dash (${EN_DASH}). Use a comma, a full stop, or a pair of brackets. A dash used as a clause break is the loudest sign a sentence was generated rather than written, and this learner is being taught by a person. Write a range as "2 to 3 weeks" or "2028-2029".`,
+  `Never use an em dash (${EM_DASH}) or an en dash (${EN_DASH}). Use a comma, a full stop, or a pair of brackets. A dash used as a clause break is the loudest sign a sentence was generated rather than written, and this learner is being taught by a person. Give one figure rather than a range, "about 3 weeks" rather than "2 to 4 weeks": a range reads as not knowing. Write years as "2028-2029".`,
   `Never open with "It's important to note that", "At the end of the day", "In essence", "Great question", "Moreover", "Furthermore" or anything else that carries no information. Start with the answer.`,
   `Never inflate a small claim by denying it first. "Not just a rule, but a pattern" is "a rule, and a pattern". Say what a thing is.`,
   `Never reach for a brochure word: delve, leverage, utilize, seamless, cutting-edge, groundbreaking, holistic, bespoke, meticulously, a plethora of, embark on, unleash, empower, elevate. Use the plain word a teacher would use out loud.`,

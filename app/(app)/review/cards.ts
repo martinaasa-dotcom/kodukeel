@@ -4,6 +4,8 @@ import { plainPhrase } from "@/lib/copy/values";
 import { parseExamples, sentenceEnglish, teachingSentence } from "@/lib/dict/examples";
 import { authoredFor, isAuthored } from "@/lib/dict/authored";
 import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
+import { sayLine } from "@/lib/estonian/sayIt";
+import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { glossSentences } from "@/lib/dict/glossed";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { isPhrase } from "@/lib/dict/pos";
@@ -11,6 +13,7 @@ import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguag
 import { isStillLearning } from "@/lib/srs/scheduler";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
+import { contrastsFor as sharedContrasts } from "@/lib/progress/contrast";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
@@ -65,6 +68,9 @@ export const include = {
   lexeme: {
     select: {
       lemma: true, translation: true, pos: true, examples: true, cefr: true,
+      // For the one-line ask on a case card: "with the bird" rather than
+      // "with it" needs to know whether the word is a person or a thing.
+      semanticTypes: true,
       // For the first meeting only, which is the one screen where a meaning in
       // the learner's own language earns the most: the word is being learned
       // there rather than tested.
@@ -76,6 +82,7 @@ export const include = {
 export type CardRow = Awaited<ReturnType<typeof prisma.card.findMany>>[number] & {
   lexeme: {
     lemma: string; translation: string; pos: string; examples: string; cefr: string | null;
+    semanticTypes: string | null;
     translationRu: string | null; translationUk: string | null;
   } | null;
 };
@@ -255,6 +262,34 @@ function clozeSentenceEn(c: CardRow): string | null {
   return sentenceEnglish(parseExamples(c.lexeme.examples), whole);
 }
 
+/** The production cards' contrasts, through the one builder the Learn ladder reads too. */
+function productionContrasts(rows: CardRow[], reach: PlainReach) {
+  return sharedContrasts(
+    rows.map((row) => row.cardType === "PRODUCTION" && row.lexeme && row.lexemeId
+      ? { lexemeId: row.lexemeId, lexeme: row.lexeme, accepted: acceptedAnswers(row.back, "et") }
+      : null),
+    reach,
+  );
+}
+
+/**
+ * The one line a bare form card asks with: `Say “with the bird”`.
+ *
+ * Only on a front that names a word and a form (`lind → millega?`). A gap card
+ * is asked by its sentence, and a card about meaning needs no line at all.
+ */
+function sayFor(c: CardRow): string | null {
+  if (c.front.includes(BLANK) || !c.front.includes("→")) return null;
+  const slot = c.targetCase ?? c.slot ?? conjugationSlotFromFront(c.front);
+  if (!slot) return null;
+  const lex = c.lexeme;
+  return sayLine(
+    slot,
+    lex?.translation ?? null,
+    lex ? { lemma: lex.lemma, semanticTypes: lex.semanticTypes, nomSg: lex.lemma } : null,
+  );
+}
+
 function toReviewCard(
   c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null = null,
   firstCardEver = false,
@@ -281,7 +316,10 @@ function toReviewCard(
     // would carry a sentence nothing renders.
     intro: c.state === 0 ? introFor(c, glossLanguage, reach, firstCardEver) : null,
     sentenceEn: clozeSentenceEn(c),
+    say: sayFor(c),
     canTranslate: resolveProvider() !== null,
+    // Filled in by `withNeighbours`, which reads every neighbour in one query.
+    contrast: null,
     choices: null,
     scheduling: {
       due: c.due.toISOString(),
@@ -481,12 +519,19 @@ export async function withChoices(
     ? prisma.review.findFirst({ where: { ownerId }, select: { id: true } }).then((row) => row === null)
     : Promise.resolve(false);
   const [reach, starred, firstCardEver] = await Promise.all([reaching, starring, firstEvering]);
-  const glossed = await withGlosses(
-    rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
-  ).then(withEveryday);
-  const cards = glossed.map(
-    (card) => (card.lexemeId && starred.has(card.lexemeId) ? { ...card, starred: true } : card),
-  );
+  const [glossed, contrasts] = await Promise.all([
+    withGlosses(
+      rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
+    ).then(withEveryday),
+    productionContrasts(rows, reach),
+  ]);
+  const cards = glossed.map((card, i) => {
+    const contrast = contrasts.get(i);
+    const withContrast = contrast ? { ...card, contrast } : card;
+    return withContrast.lexemeId && starred.has(withContrast.lexemeId)
+      ? { ...withContrast, starred: true }
+      : withContrast;
+  });
 
   /*
     The case cards first, because they need no pool: the wrong answers are

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
-  COMMIT_HOURS_PER_WEEK, CUMULATIVE_HOURS, ESTONIAN_FACTOR, FACTS, FOUND_HOURS_PER_WEEK, GUIDED_LEARNING_HOURS, MIN_PACE_WEEKS,
+  COMMIT_HOURS_PER_WEEK, CUMULATIVE_HOURS, about, ESTONIAN_FACTOR, FACTS, FOUND_HOURS_PER_WEEK, GUIDED_LEARNING_HOURS, MIN_PACE_WEEKS,
   countedBySkill, foundHours, hoursBetween, hoursFor, project, sustainableNewCardsPerDay, weeklyExposure,
   distanceLine, weeksNeeded, weeksToLearn, type PlanInput, type Standing, type Verdict,
 } from "./plan";
 import { REASONS, reasonsFor } from "./goals";
 import { BANDS, PRE_A1, type Band, type Level } from "./types";
-import { formatDuration, formatDurationRange } from "@/lib/time/duration";
+import { formatDuration } from "@/lib/time/duration";
 import { ICONS } from "@/components/icons";
 
 /** A level a paper measured, with an even profile: the plain table, no widening. */
@@ -203,10 +203,10 @@ describe("project", () => {
   });
 
   it("turns a deadline into hours a week to find elsewhere", () => {
-    const plan = project({ ...base, weeksAvailable: 26 });
-    expect(plan.appHoursAvailable).toBeCloseTo(32.5, 10);
-    expect(plan.otherHoursPerWeek?.low).toBeCloseTo((hoursBetween("A2", "B1").low - 32.5) / 26, 10);
-    // About nine and a half hours a week beyond the app: a commitment, not a no.
+    const plan = project({ ...base, weeksAvailable: 30 });
+    expect(plan.appHoursAvailable).toBeCloseTo(37.5, 10);
+    expect(plan.otherHoursPerWeek?.low).toBeCloseTo((hoursBetween("A2", "B1").low - 37.5) / 30, 10);
+    // About ten hours a week beyond the app, at the middle: a commitment, not a no.
     expect(plan.verdict).toBe("possible");
   });
 
@@ -276,9 +276,10 @@ describe("project", () => {
       found: foundHours(reasonsFor("living work family")),
     });
     expect(plan.verdict).toBe("tight");
-    expect(plan.otherHoursPerWeek!.low).toBeLessThan(6);
-    // And abroad with a textbook it still fits inside a normal week.
-    expect(project({ ...base, standing: guessed("B1"), to: "B2", minutesPerDay: 5, daysPerWeek: 5, weeksAvailable: 52 }).verdict).toBe("tight");
+    expect(about(plan.otherHoursPerWeek!)).toBeLessThan(7);
+    // Abroad with a textbook, at the middle of the distance, it takes a real
+    // commitment rather than a normal week, and the plan says so with the number.
+    expect(project({ ...base, standing: guessed("B1"), to: "B2", minutesPerDay: 5, daysPerWeek: 5, weeksAvailable: 52 }).verdict).toBe("possible");
   });
 
   it("only calls a plan possible where the commitment is one a person can make", () => {
@@ -286,8 +287,8 @@ describe("project", () => {
       for (const to of BANDS) {
         for (const weeks of [13, 26, 52, 104]) {
           const p = project({ ...base, standing, to, weeksAvailable: weeks });
-          if (p.verdict === "possible") expect(p.otherHoursPerWeek!.low).toBeLessThanOrEqual(COMMIT_HOURS_PER_WEEK);
-          if (p.verdict === "short") expect(p.otherHoursPerWeek!.low).toBeGreaterThan(COMMIT_HOURS_PER_WEEK);
+          if (p.verdict === "possible") expect(about(p.otherHoursPerWeek!)).toBeLessThanOrEqual(COMMIT_HOURS_PER_WEEK);
+          if (p.verdict === "short") expect(about(p.otherHoursPerWeek!)).toBeGreaterThan(COMMIT_HOURS_PER_WEEK);
         }
       }
     }
@@ -313,9 +314,8 @@ describe("project", () => {
 
   /*
     The headline and the sentence under it are one claim. "It fits" is only
-    said where the found hours the note goes on to quote actually land inside
-    the deadline at the near end of the distance, which is the end the verdict
-    is drawn at.
+    said where the one figure the screen quotes, `weeksAbout`, lands inside
+    the deadline, since the verdict is drawn at the same middle.
   */
   it("never calls a plan tight that its own found-hours figure cannot make", () => {
     const FROMS: Level[] = [PRE_A1, ...BANDS];
@@ -332,7 +332,7 @@ describe("project", () => {
                     weeksAvailable: weeks, found: foundHours(reasonsFor(ids)),
                   });
                   const where = `${source} ${from}->${to} ${minutes}min x${days}d in ${weeks}wk [${ids}]`;
-                  if (plan.verdict === "tight" && plan.weeksWithFound.low > weeks) cases.push(where);
+                  if (plan.verdict === "tight" && plan.weeksAbout > weeks) cases.push(where);
                 }
               }
             }
@@ -405,9 +405,8 @@ describe("project", () => {
               // The note only renders on a real shortfall, so it may not read as none either.
               const other = p.otherHoursPerWeek;
               if (!other || other.high <= 0) continue;
-              const found = formatDurationRange(other.low, other.high, "long");
+              const found = formatDuration(about(other), "long");
               if (/^0 (minutes?|hours?)$/.test(found)) wrong.push(`${where}: shortfall "${found}"`);
-              if (/to 0 (minutes?|hours?)$/.test(found)) wrong.push(`${where}: shortfall "${found}"`);
             }
           }
         }
@@ -474,7 +473,9 @@ describe("the distance in one sentence", () => {
   it("quotes the projection's own weeks and the date, and names the pace for what it is", () => {
     const p = project(base);
     const line = distanceLine(p);
-    expect(line).toContain(`${p.weeksWithFound.low} to ${p.weeksWithFound.high} weeks away`);
+    expect(line).toContain(`about ${p.weeksAbout} weeks away`);
+    // One figure, never "45 to 61": a range reads as the app not knowing.
+    expect(line).not.toMatch(/\d+ to \d+/);
     expect(line).toContain("52 weeks off");
     expect(line).toContain("the pace you said");
     expect(distanceLine(project({ ...base, pace: { hoursPerWeek: 1, daysPerWeek: 3, weeks: 4, cardsPerMinute: 3 } })))
@@ -489,7 +490,7 @@ describe("the distance in one sentence", () => {
     lines.set("passed", distanceLine(project({ ...base, weeksAvailable: 0 })));
     lines.set("short", distanceLine(project({ ...base, weeksAvailable: 10 })));
     lines.set("tight", distanceLine(project({ ...base, minutesPerDay: 60, daysPerWeek: 7, weeksAvailable: 40 })));
-    lines.set("possible", distanceLine(project({ ...base, weeksAvailable: 26 })));
+    lines.set("possible", distanceLine(project({ ...base, weeksAvailable: 30 })));
     lines.set("comfortable", distanceLine(project({ ...base, minutesPerDay: 240, daysPerWeek: 7 })));
     lines.set("arrived", distanceLine(project({ ...base, standing: at("B2") })));
     const seen = new Set(lines.values());
@@ -506,7 +507,7 @@ describe("the distance in one sentence", () => {
 
   it("checks each verdict really is the one it printed", () => {
     expect(project({ ...base, weeksAvailable: 10 }).verdict).toBe("short");
-    expect(project({ ...base, weeksAvailable: 26 }).verdict).toBe("possible");
+    expect(project({ ...base, weeksAvailable: 30 }).verdict).toBe("possible");
     expect(project({ ...base, minutesPerDay: 60, daysPerWeek: 7, weeksAvailable: 40 }).verdict).toBe("tight");
     expect(project({ ...base, minutesPerDay: 240, daysPerWeek: 7 }).verdict).toBe("comfortable");
   });

@@ -152,6 +152,19 @@ function buildCards(plan: DeckPlan, lexemes: readonly DeckLexeme[]): (GeneratedC
 const cardKey = (lexemeId: string, cardType: string, front: string) => `${lexemeId}|${cardType}|${front}`;
 
 /**
+ * The card types a word holds exactly one of, whatever their front says.
+ *
+ * A recognition card and a production card are about the word, not about a
+ * sentence or a case, so a second one is the same question asked twice. The
+ * builder used to tell them apart by their front, and a front changes: a deck
+ * built before a spelling fix holds `tere` where the builder now writes
+ * `Tere!`, so re-adding the word built a fresh card at New beside the one
+ * already answered. On the module that was an evening finished and then read
+ * three quarters done, because "the words are met" is read off these cards.
+ */
+export const ONE_PER_WORD: ReadonlySet<string> = new Set(["RECOGNITION", "PRODUCTION"]);
+
+/**
  * The lexemes a plan names, with everything `generateCards` reads off one.
  *
  * `forms` is the reason this is a `select` rather than a bare `findMany`: a
@@ -326,9 +339,20 @@ export async function addPlanToDeck(
     await lockDeck(tx, ownerId);
 
     const [existing, held] = await Promise.all([
+      /*
+        Every card of these lemmas, not only of the entries picked: the
+        dictionary can hold a lemma twice, `oneEntryPerLemma` may pick the
+        other one today, and a word the learner already holds is the word.
+      */
       tx.card.findMany({
-        where: { ownerId, lexemeId: { in: lexemes.map((l) => l.id) } },
-        select: { lexemeId: true, cardType: true, front: true },
+        where: {
+          ownerId,
+          OR: [
+            { lexemeId: { in: lexemes.map((l) => l.id) } },
+            { cardType: { in: [...ONE_PER_WORD] }, lexeme: { lemma: { in: lexemes.map((l) => l.lemma) } } },
+          ],
+        },
+        select: { lexemeId: true, cardType: true, front: true, lexeme: { select: { lemma: true } } },
       }),
       /*
         And which of these words the learner has already put aside, so a unit
@@ -340,6 +364,10 @@ export async function addPlanToDeck(
     ]);
 
     const seen = new Set(existing.map((c) => cardKey(c.lexemeId ?? "", c.cardType, c.front)));
+    const wordHeld = new Set(existing
+      .filter((c) => ONE_PER_WORD.has(c.cardType) && c.lexeme)
+      .map((c) => `${c.lexeme!.lemma}|${c.cardType}`));
+    const lemmaOf = new Map(lexemes.map((l) => [l.id, l.lemma]));
     const fresh: (GeneratedCard & { lexemeId: string })[] = [];
 
     /*
@@ -351,6 +379,11 @@ export async function addPlanToDeck(
     for (const card of buildCards(plan, lexemes)) {
       const key = cardKey(card.lexemeId, card.cardType, card.front);
       if (seen.has(key)) continue;
+      if (ONE_PER_WORD.has(card.cardType)) {
+        const word = `${lemmaOf.get(card.lexemeId) ?? card.lexemeId}|${card.cardType}`;
+        if (wordHeld.has(word)) continue;
+        wordHeld.add(word);
+      }
       seen.add(key);
       fresh.push(card);
     }
