@@ -17,6 +17,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
+import { sayPhrase } from "@/lib/estonian/sayIt";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -463,7 +464,10 @@ function Question({
             </div>
           );
         })()}
-        <SlotLine task={task} />
+        {/* The form's name only where no English line says which form the
+            gap wants: with "The teacher is helping the student." above it,
+            "olevik, ta" is the same instruction a second time, in grammar. */}
+        {!task.sentenceEn && <SlotLine task={task} />}
       </div>
     );
   }
@@ -526,17 +530,20 @@ function Question({
  */
 function SlotLine({ task }: { task: FlashPrompt }) {
   const english = asksInEnglish(task.slot);
-  const plain = plainAskFor(task);
+  // `plainAskFor` decides whether this shape gets a line at all; the line
+  // itself carries the word's gloss here, where the screen holds it.
+  const phrase = plainAskFor(task) ? sayPhrase(task.slot, task.translation) : null;
+  const plain = phrase
+    ? task.shape === "build" ? `Write a sentence with “${phrase}”.` : `Say “${phrase}”`
+    : null;
   return (
     <div className="mt-5">
       {plain ? (
         <>
+          {/* One instruction and nothing under it: the form's name is on
+              the answer, where it is worth remembering rather than decoding. */}
           <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
             {plain}
-          </p>
-          <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-            {task.label}
-            {english && <span lang="en">, {english}</span>}
           </p>
         </>
       ) : (

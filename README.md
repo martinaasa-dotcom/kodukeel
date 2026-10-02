@@ -1,22 +1,28 @@
 # Kodukeel. Estonian that finally sticks
 
-*Kodukeel*, "home language". An Estonian learning app whose purpose is to be left: it teaches the
-words properly, then puts you in front of somebody with an agenda of their own, and then counts
-the conversations you have outside it. A dictionary that answers with every form of a word, a
-course you can work through, flashcards scheduled by FSRS, listening that sounds like the street
-rather than the studio, a grammar reference written in English, printable worksheets for a real
-class, a mock of the state language examination at every level, a tutor that is never allowed to
-invent an Estonian form, and Situations: a receptionist, a landlord, a clerk at a counter, each with a
-reason of their own to make it hard, marked against the dictionary and never by a model.
+*Kodukeel* means "home language". It's an app for learning Estonian, and the whole point of it is
+that you eventually put it down. It teaches you the words properly, then sits you opposite
+somebody who wants something from you, and then counts the conversations you have out in the real
+world.
 
-> **Status: usable by someone who is not you.** First run walks a new learner through a setup wizard
-> and builds them a real deck; the daily loop, path, review, practice, progress, is complete, works
-> on a phone, installs as an app and keeps working with the network off. Built from the plan in
-> `docs/`; `docs/13-mvp-status.md` says what is in and what is deliberately not.
+Inside you'll find a dictionary that gives you every form of a word, a course you can work through
+evening by evening, and flashcards scheduled by FSRS. There's listening that sounds like the street
+rather than a recording studio, a grammar reference written in English, and worksheets you can
+print for a real class. There's a mock of the state language examination at every level, and a
+tutor who is never allowed to make up an Estonian form. And there are Situations: a receptionist, a
+landlord, a clerk at a counter, each with their own reason to make your life a little harder, and
+your answers are checked against the dictionary, never by a model.
 
-It runs locally or hosted. Hosted, it uses Google sign-in and each account keeps its own deck; what
-is stored and what leaves the site is on the privacy page, written from the schema rather than from
-a template. AI spending is metered per person per day with a global cap, because sign-up is open.
+> **Status: somebody who isn't us can use it.** On first run a setup wizard walks a new learner
+> through and builds them a real deck. The daily loop (the path, review, practice and progress) is
+> complete. It works on a phone, installs as an app and keeps working with the network off. It was
+> built from the plan in `docs/`, and `docs/13-mvp-status.md` says what's in and what was left out
+> on purpose.
+
+You can run it on your own machine or host it. Hosted, people sign in with Google or an emailed
+link and each account keeps its own deck. The privacy page says what's stored and what leaves the
+site, and it's written from the database schema rather than from a template. Sign-up is open, so
+AI spending is metered per person per day, with a cap for the whole site on top.
 
 ## Running it
 
@@ -30,244 +36,261 @@ npm run dev       # starts the app
 
 Open **http://localhost:3000** and the setup wizard takes it from there.
 
-`DATABASE_URL` and `DIRECT_URL` in `.env` are the only settings that are not optional. Any Postgres
-will do, a local one, or the free tier of [supabase.com](https://supabase.com). The `.env` that setup
-writes points at `postgres:postgres@127.0.0.1:5432/kodukeel`, so with a Postgres on this machine and a
-database of that name the three commands above run as they are; otherwise change the two URLs and run
-`npm run setup` again.
+The only two settings you can't skip are `DATABASE_URL` and `DIRECT_URL` in `.env`. Any Postgres
+will do: one on your own machine, or the free tier of [supabase.com](https://supabase.com). The
+`.env` that setup writes points at `postgres:postgres@127.0.0.1:5432/kodukeel`, so if you have
+Postgres running locally with a database of that name, the three commands above work as they are.
+Otherwise, change the two URLs and run `npm run setup` again.
 
-**Sign-in is optional.** With no Supabase keys configured the app runs in *local mode*: one learner,
-no accounts, everything in the database on your machine. Add `NEXT_PUBLIC_SUPABASE_URL` and
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` and it becomes multi-user with Google sign-in, every route gated and
-each person's deck their own. That switch is the only thing that decides it, a deployment with the
-keys set can never fall back to the open local mode.
+**Sign-in is optional.** With no Supabase keys the app runs in *local mode*: one learner, no
+accounts, and everything stays in the database on your machine. Add `NEXT_PUBLIC_SUPABASE_URL` and
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` and it becomes a multi-user site with Google sign-in, where every
+page needs you to be signed in and each person's deck is their own. Those keys are the only switch.
+A deployment that has them set can never slip back into the open local mode.
 
-To stop it, press Ctrl-C in the terminal. To start again later, just `npm run dev`.
+To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm run dev`.
 
 ## What it does
 
-- **Situations.** Fourteen of them: a shop, a health centre, a landlord, a counter, a café, a
-  street corner, a bus ticket, a restaurant table, ringing a shop before you go, a neighbour on the stairs,
-  a pharmacy, the first evening of a language course, a job interview, and taking something back.
-  A card says who you are today and what you came for, and the other side speaks first, reacts to what you say, repeats your word back, and asks
-  again when you were not understood. Something goes wrong on the way at every difficulty above the
-  easiest, and the debrief says whether you handled it. Every line is a phrase the course teaches
-  or a line written for the scene inside its own words and checked word by word before you see it,
-  the screen says which, and all fifteen play without a model key. Whether you were understood is decided by the
-  dictionary, never by a model, so you cannot be marked wrong for being right. Difficulty is a
-  budget of things that go wrong: the slot you asked for has gone, a queue forms, they switch to
-  English. You can walk out. The debrief leads with what happened and never with a score. Where a
-  key is set the other side's line is written for this turn, with the conversation so far in front
-  of it, so it can pick up something you said three turns ago; where there is none, or the free tier
-  will not answer, the lines written for the scene say it instead, which is why all fifteen still
-  play with no key at all.
-- **Say it today.** Each morning, one press to say whether you spoke Estonian to anybody
-  yesterday: they understood, they switched to English, not yesterday. Where the answer is no,
-  one small errand for today, order a coffee, ask the time, drawn from the units you have
-  started, with the scene that rehearses it a link away. Progress counts the conversations ahead
-  of every chart, because a conversation you had is the only measure that matters here.
-- **Hearing the way people talk.** A word you know well comes back at speed, over café noise, down
-  a phone line, from halfway through, in a different voice each time. The words never change; the
-  delivery does, because nobody at a counter talks like a clean synthetic voice in a quiet room.
-- **A course.** 102 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
-  sitting's worth of words, and the words between the words too: question words, pronouns, the
-  postpositions, the months and the adverbs of time have units of their own. Adding a unit builds real flashcards, every form, audio, both
-  directions, and a unit only reads as finished when the scheduler agrees the words are retained.
+- **Situations.** There are fifteen: a shop, a health centre, a landlord, a counter, a café, a
+  street corner, a bus ticket, a restaurant table, ringing a shop before you go, a neighbour on the
+  stairs, a pharmacy, the first evening of a language course, a job interview, taking something
+  back, and a clothes shop. A card tells you who you are today and what you came for. The other
+  side speaks first, reacts to what you say, repeats your word back to you, and asks again when
+  they didn't understand. At every difficulty above the easiest, something goes wrong along the
+  way, and the debrief tells you whether you handled it.
+
+  Every line you hear is either a phrase the course teaches or a line written for that scene, using
+  only the scene's own words and checked word by word before you see it. The screen tells you
+  which. Whether you were understood is decided by the dictionary, never by a model, so you can't
+  be marked wrong for being right. Difficulty is a budget of things going wrong: the appointment
+  you wanted has gone, a queue forms behind you, they switch to English. You can walk out whenever
+  you like, and the debrief starts with what happened, never with a score.
+
+  With a key set, the other side's line is written fresh for each turn with the whole conversation
+  in front of it, so it can pick up something you said three turns ago. Without one, or when the
+  free tier won't answer, the lines written for the scene step in instead. That's why all fifteen
+  still play with no key at all.
+- **Say it today.** Each morning, Today asks whether you spoke Estonian to anybody yesterday. If you
+  did, it asks how it went: they understood you, they switched to English, or you got stuck partway.
+  If you didn't, it suggests one small errand for today, like ordering a coffee or asking the time,
+  using words from units you've already started, with the scene that rehearses it one tap away.
+  Progress puts your count of real conversations above every chart, because a conversation you
+  actually had is the only measure that matters here.
+- **Hearing the way people really talk.** A word you know well comes back fast, over café noise,
+  down a phone line, starting halfway through, and in a different voice each time. The words never
+  change, only the way they're said, because nobody at a counter sounds like a clean synthetic
+  voice in a quiet room.
+- **A course.** 102 units across five CEFR levels, from *Tervitused* to *Nüansid*, each about a
+  sitting's worth of words. The little words that hold sentences together get units of their own
+  too: question words, pronouns, postpositions, the months and the words for when things happen.
+  Adding a unit builds real flashcards, with every form, audio and both directions. A unit only
+  shows as finished once the scheduler agrees you've actually kept the words.
 - **A meaning in the language you think in.** Most people learning Estonian in Estonia already
-  speak Russian or Ukrainian, and being told that `kohv` is "coffee" asks you to reach a word
-  through the language you are least sure of. `tuba` is комната and кімната, from Ekilex, written
-  by the same lexicographers as the Estonian: 1,367 of the course's words carry a Russian
-  equivalent and 1,165 a Ukrainian one. Chosen in Settings, printed beside the English rather than
-  instead of it, and no model is anywhere near it.
-- **Words in context.** Every entry carries the sentences Ekilex's lexicographers recorded for it,
-  with audio and a translation on request. Those same sentences become gap-fill cards
-  ("Hotelli ____ on näha vanalinna.") and a word-order builder. Nothing is generated: the app only
-  ever hides or reorders attested Estonian.
-- **Review that asks properly.** Type the answer and it is checked: a dropped `õ` is told apart from
-  a typo and from a genuinely wrong word, and each verdict suggests a grade you can override. New
-  words are introduced with their answer rather than guessed at, and multiple choice covers
-  recognition. `u` undoes the last grade without touching the review log.
-- **22 ways to practice, over one deck.** Six rounds against the clock (a 60-second Case
-  Sprint, Match, Sentences, Listening, Dictation and Speaking), two passes over the words you are
-  working on (flash cards over the whole deck, and the hundred commonest words of each kind,
-  counted over film and television subtitles rather than chosen by anybody), five games (a picture
-  to write one Estonian sentence about, Tähed, the letters
-  of a word you know put back in order, Sõnad, a six-letter word a day in six guesses, Ristsõna, a
-  crossword with English clues and Estonian answers, and Target for endings before the timer runs
-  out), a two-minute daily quest aimed at whatever is going
-  worst, and eight drills that sit on the page naming the thing they drill: a sentence you write in
-  a named case, verb government, long against short, your own pasted Estonian, the conjugation
-  table, the words the endings cannot reach, the cards you keep failing, and the words you looked
-  up yourself rather than met in a unit, which the queue is otherwise slowest to reach. Everything
-  writes to the same review log, so a game still moves the schedule forward.
-- **Where the endings stop.** Three forms memorized and eleven worked out is most of the language
-  and not all of it: `tuba` goes to `tuppa`, not `toasse`, and its stem is `toa`, which no rule
-  predicts. The exception area is every word in the dictionary whose stored form disagrees with the
-  pattern, grouped by what breaks, with a drill that shows you the form, asks for it, and then asks
-  for it inside a sentence a lexicographer wrote. Nothing on it is a list anybody typed: it is
-  worked out by comparing the pattern with what the dictionary holds, so a word that is not there
-  can be guessed at, which is the whole point of it.
-- **A mock of the state examination.** Estonia examines at A2, B1, B2 and C1; B1 is what a
-  citizenship application asks for. Sit an imitation of any of them, on the real clock, out of the
-  real points, under the real rule that sixty percent passes and a zero in any one part fails the
-  whole thing. Plus an A1 paper the state has never set, clearly labelled, because it is worth
-  being allowed to find out. Every level carries a percentage chance of passing it today,
-  with the evidence behind that number stated rather than implied, and a list of what to fix that
-  links to where to fix it. Nothing about the paper is written by a model: the questions are
-  assembled out of the dictionary and the marks come from comparing your answer with a form the
-  dictionary vouches for.
-- **Dictation, marked word by word.** A real sentence is played and you write it down; the marking
-  shows which word you missed and whether you only lost its Estonian letters. Estonian welds its
-  case endings onto the stem, so hearing a sentence perfectly and writing the wrong ending is a
-  specific failure worth naming.
-- **Speaking that does not lie to you.** Say the word, then hear a native voice and your own
-  recording back to back. It is not scored: there is no verified Estonian speech recognizer this app
-  can use, and an invented confidence number would be believed.
-- **A level check that measures rather than asks.** Eighty questions across A1 to C1: six reading
-  and six writing at each level, three listening, one spoken. Assembled entirely out of the
-  dictionary, so it is meanings, sentences with a word taken out of them, dictation, and forms you
-  type. Questions climb the levels, and a skill asks one level past the first one you do not pass
-  and then stops, so a beginner answers about fifteen of them and nobody answers all eighty
-  without earning it. The size is measured rather than picked: simulated against the real
-  dictionary, the old nineteen-question paper placed 43% of learners correctly and put 57% of them
-  below where they were, and this one places between 72% and 98% depending on the level. Nothing
-  is marked by an AI. Speaking is not scored, because nothing here
-  honestly can, so it is yours to rate and it is kept out of the level. The result is a profile per
-  skill, not a badge, and the overall figure follows your weakest measured skill because that is
-  what a CEFR level claims. Take it whenever you like, and every sitting is kept.
-- **A level you can just set.** Settings has the level the app is going on and a row of five chips
-  to change it. A measurement is the wrong instrument for having been moved up in your class, or
-  for a check taken on a bad evening, and whichever of the two was stated later is the one the app
-  holds. It decides where the course opens, which words review introduces next, and the band the
-  practice rounds and the dictionary draw from.
-- **A plan in hours, and it is not flattering.** Say why you are learning, how far you want to get
-  and by when, and the app does the arithmetic: how many study hours that level usually takes, how
-  many of them your daily goal actually covers, and how many are left to find in a class or a
-  conversation. Estonian is around 1 100 classroom hours for an English speaker by the Foreign
-  Service Institute's own budgeting; fifteen minutes a day here is about 90 hours a year. Both
-  numbers are on the same screen, with their sources named. And it is about you rather than the
-  average: a measured level is costed skill by skill and a guessed one is widened for the guess,
-  living in Estonia or having Estonian at home counts as hours your week already holds, and once
-  there is a fortnight of reviews the pace it plans on is the one you actually keep.
-- **Setup that teaches the app.** First run asks what you are here for before it asks which level,
-  offers to measure you rather than making you guess, shows the timeline before you have picked a
-  single word, and says in one line what this app will not do for you before it asks for anything.
-- **Classes.** A six-character join code, a roster showing who is keeping up, the cases the group
-  keeps missing, and a unit set as homework onto each student's own Today. A class is a view
-  over what learners already own, joining shares progress, never your deck, and leaving stops it.
-- **Your Estonian week.** Almost everybody using this is also sitting in a class, and the app knew
-  what was due and nothing about the Monday evening that produced it. Put your class times and the
-  slots you study in, and what is due shows up beside them. Estonian only: a dentist appointment
-  belongs in the calendar you already have.
-- **Progress worth looking at.** A streak with shields, a six-month heatmap, per-case accuracy,
-  the cards that keep coming back, what you could hold a conversation about and vocabulary reach by
-  CEFR, all computed live from the review log, never stored, so none of it can drift from what you
-  actually did. There is no XP and there are no badges: a second score beside the readings that
-  mean something is noise, and this one is not the app anybody is here for. An opt-in weekly leaderboard exists for classes; it is off until you set a name and join.
-- **How ready you actually are, in situations rather than a percentage.** Every unit of the course
-  makes a claim, "describe a symptom to a doctor and understand the advice", and the app reads each
-  one on three rungs off your own answers: whether you would follow it, take part in it, or lead
-  it. Recognizing words on cards never clears the second rung. It names what stands in the way,
-  the endings that encounter turns on, how many seconds a word takes you to reach, whether anything
-  has ever tested your ear, and it offers a real thing to go and try only once your record supports
-  answering. `docs/22-readiness.md`.
-- **Offline.** Installable as an app; reviewing works with no connection and every grade is kept on
-  the device with the time you actually answered, then sent when you are back. A daily reminder is
-  offered as a calendar event, which fires whether or not the app is open.
-- **A grammar reference in English, named in Estonian.** One page per case: what it is for, when
-  Estonian reaches for it, and the mistake an English speaker makes, with the case shown on real
-  words from your own deck, each form labelled with where it came from. Everything is named the way
-  a course names it, by the Estonian term and the question it answers, with the English name kept
-  beside it for when you are reading an English grammar, because nobody teaching this language says
-  "the inessive". The explanations are the only part of those pages this app wrote.
-- **Photograph a page.** Point the camera at a vocabulary list, a page of your textbook or last
-  night's homework, and the words on it come back matched against the dictionary. An exercise sheet
-  is written in cases rather than in citation forms, so `toas` is traced back to `tuba` and told
-  you as the seesütlev. Every word arrives ticked, editable, and labelled either "in the dictionary"
-  or "read from the photo", because the only person who can say what is printed on the paper is the
-  one holding it. Nothing becomes a flashcard until you say so, a word the dictionary vouches for
-  brings its own principal parts, and the picture itself is read once and never stored. The page
-  then becomes a set you can drill on its own.
-- **Worksheets you can print.** Any unit becomes a sheet, vocabulary, gap-fills built from attested
-  sentences, a principal-parts table, with the answer key on its own page. For the half of a class
-  that happens in a room.
-- **True retention.** Not the raw recall rate, which counts first sights of new cards, but how often
-  a card the scheduler *thought* you knew actually came back, against the 90% FSRS is steering for,
-  with one instruction rather than a chart to interpret.
-- **⌘K** to jump to any screen or look a word up from anywhere, and **?** for every shortcut.
+  speak Russian or Ukrainian, and being told that `kohv` is "coffee" makes you reach the word
+  through the language you're least sure of. So `tuba` is also комната and кімната, straight from
+  Ekilex and written by the same lexicographers as the Estonian: 1,801 of the 1,805 words the
+  course harvest brings back have a Russian equivalent, and 1,597 a Ukrainian one. You choose the
+  language in Settings. It's printed beside the English rather than instead of it, and no model
+  comes anywhere near it.
+- **Words in context.** Every entry comes with the sentences Ekilex's lexicographers recorded for
+  it, with audio, and a translation if you ask for one. Those same sentences become gap-fill cards
+  ("Hotelli ____ on näha vanalinna.") and a word-order builder. Nothing is made up: the app only
+  ever hides or reorders Estonian that a lexicographer wrote down.
+- **Review that asks properly.** Type your answer and it's checked. A missing `õ` is told apart
+  from a typo, and a typo from a genuinely wrong word, and each verdict suggests a grade you can
+  change. New words are shown to you with their answer rather than guessed at, and multiple choice
+  covers recognising them. Press `u` to undo your last grade. The card goes back to how it was, and
+  your answer stays in your review history, which is never edited.
+- **22 ways to practice, all on one deck.** Six quick rounds: a 60-second Case Sprint against the
+  clock, Match, Sentences, Listening, Dictation and Speaking. Two ways through the words you're
+  working on: flash cards over your whole deck, and the hundred most common words of each kind,
+  counted from film and television subtitles rather than picked by anybody. Five games: a picture
+  to write one Estonian sentence about, Tähed (put the
+  letters of a word you know back in order), Sõnad (one six-letter word a day, in seven guesses),
+  Ristsõna (a crossword with English clues and Estonian answers), and Target (hit the right ending
+  before the timer runs out). A two-minute daily quest aimed at whatever's going worst. And eight
+  drills, each tucked onto the page about the thing it drills: writing a sentence with a word in a
+  named case, verb government, long sounds against short ones, your own pasted Estonian, the
+  conjugation table, the words the endings rules don't reach, the cards you keep failing, and the
+  words you looked up yourself, which the queue would otherwise be slowest to bring back. Everything
+  goes into the same review history, so a game still moves your schedule forward.
+- **Where the endings stop.** Learn three forms and work out the other eleven: that gets you most of
+  the language, but not all of it. `tuba` goes to `tuppa`, not `toasse`, and its stem is `toa`,
+  which no rule predicts. The exceptions area lists every word in the dictionary whose stored form
+  breaks the pattern, grouped by what breaks. Its drill shows you the form, asks you for it, then
+  asks for it again inside a sentence a lexicographer wrote. Nobody typed that list: it's found by
+  comparing the pattern with what the dictionary holds. So a word that isn't on the list really
+  does follow the pattern, and you can work it out with confidence. That's the whole point of it.
+- **A mock of the state examination.** Estonia examines at A2, B1, B2 and C1, and B1 is what a
+  citizenship application asks for. Sit an imitation of any of them on the real clock, out of the
+  real points, under the real rule: sixty percent passes, and a zero in any one part fails the
+  lot. There's also an A1 paper the state has never set, clearly labelled, because it's worth
+  being able to find out. Every level shows your chance of passing it today, with the evidence
+  behind that number spelled out, and a list of what to work on with links to where you can work
+  on it. No model writes any of the paper. The questions are put together from the dictionary, and
+  your marks come from comparing your answer with a form the dictionary vouches for.
+- **Dictation, marked word by word.** You hear a real sentence and write it down. The marking shows
+  which word you missed, and whether all you lost was its Estonian letters. Estonian glues its case
+  endings onto the stem, so hearing a sentence perfectly and still writing the wrong ending is its
+  own kind of mistake, and worth naming.
+- **Speaking that doesn't lie to you.** Say the word, then hear a native voice and your own
+  recording one after the other. There's no score, because there's no proven Estonian speech
+  recogniser this app can use, and a made-up confidence number would be believed.
+- **A level check that measures rather than asks.** Eighty questions from A1 to C1: six reading and
+  six writing at each level, three listening, and one spoken. It's built entirely from the
+  dictionary, so the questions are meanings, sentences with a word taken out, dictation, and forms
+  you type. The questions climb the levels. Each skill goes one level past the first one you don't
+  pass and then stops, so a beginner answers about fifteen questions and nobody answers all eighty
+  without earning it. The size of the check was measured, not picked: simulated against the real
+  dictionary, the old nineteen-question check placed 43% of learners correctly and put 57% of them
+  lower than they really were, while this one places between 72% and 98% correctly, depending on
+  the level. No AI marks anything. Speaking isn't scored, because nothing here can score it
+  honestly, so you rate yourself and it's kept out of your level. You get a profile skill by skill,
+  not a badge. Your overall level is the average of the skills it measured, rounded down, and it
+  tells you when you were close to the next one. Take it whenever you like, and every attempt is
+  kept.
+- **A level you can simply set.** Settings shows the level the app thinks you're at, with a row of
+  five chips to change it. A test is the wrong tool for knowing that your class moved you up, or
+  that you took the check on a bad evening. Whichever you told it most recently, the check or the
+  chips, is the one it goes by. Your level decides where the course opens, which new words review
+  brings in next, and how hard the practice rounds and the dictionary suggestions are.
+- **A plan in hours, and it won't flatter you.** Tell it why you're learning, how far you want to
+  get and by when, and it does the maths: how many study hours that level usually takes, how many
+  of them your daily goal covers, and how many you'll need to find in a class or in conversation.
+  The Foreign Service Institute budgets around 1,100 classroom hours of Estonian for an English
+  speaker, and fifteen minutes a day here comes to about 90 hours a year. Both numbers are on the
+  same screen, with their sources. And the plan is about you rather than the average learner. A
+  measured level is costed skill by skill, while a guessed one is given extra room for the guess.
+  Living in Estonia, or having Estonian at home, counts as hours your week already holds. Once
+  there's a fortnight of reviews, the plan uses the pace you actually keep.
+- **A first run that gets to know you.** It asks what you're here for before it asks your level,
+  offers to measure you rather than making you guess, and shows you the timeline before you've
+  picked a single word. And before it asks you for anything, it tells you in one line what it
+  won't do for you.
+- **Classes.** A six-character join code, a list showing who's keeping up, the cases the group
+  keeps getting wrong, and homework units that appear on each student's own Today. A class only
+  looks at what learners already have: joining shares your progress, never your deck, and leaving
+  stops the sharing.
+- **Your Estonian week.** Almost everybody using this is also going to a class, and the app knew
+  what was due but nothing about the Monday evening class behind it. Add your class times and the
+  times you plan to study, and what's due shows up beside them. It's for Estonian only: your
+  dentist appointment belongs in the calendar you already have.
+- **Progress worth looking at.** A streak with shields, a six-month heatmap, how often you get each
+  case right, the cards that keep coming back, what you could hold a conversation about, and how
+  much of each CEFR level's vocabulary you know. All of it is worked out live from your review
+  history and never stored, so none of it can drift away from what you actually did. There's no XP
+  and there are no badges: a second score beside the numbers that mean something is just noise.
+  Classes can turn on a weekly leaderboard. You're not on it until you set a name and join.
+- **How ready you really are, measured in situations rather than a percentage.** Every unit of the
+  course makes a promise, like "describe a symptom to a doctor and understand the advice". The app
+  checks each one against your own answers on three levels: would you follow the conversation, take
+  part in it, or lead it? Recognising words on flashcards is never enough for the second. It tells
+  you what's in the way, whether that's the endings the conversation depends on, how many seconds a
+  word takes you to find, or the fact that nothing has ever tested your ear. It only suggests a
+  real thing to go and try once your answers show you're ready to take part. See
+  `docs/22-readiness.md`.
+- **Offline.** It installs as an app, and reviewing works with no connection. Every grade is saved
+  on your device with the time you actually answered, and sent when you're back online. A daily
+  reminder is offered as a calendar event, so it goes off whether or not the app is open.
+- **A grammar reference in English, using Estonian names.** One page per case: what it's for, when
+  Estonian uses it, and the mistake English speakers tend to make, shown on real words from your own
+  deck with each form labelled with where it came from. Cases are named the way a course in Tallinn
+  names them, by the Estonian term and the question each one answers, with that question in plain
+  English beside it. Nobody teaching this language says "the inessive". The explanations are the
+  only part of those pages this app wrote.
+- **Photograph a page.** Point your camera at a vocabulary list, a page of your textbook or last
+  night's homework, and the words come back checked against the dictionary. Exercise sheets are
+  full of words in their cases rather than their dictionary form, so `toas` is traced back to
+  `tuba` and you're told it's the seesütlev. Every word arrives ticked and editable, labelled
+  either "in the dictionary" or "read from the photo", because only the person holding the paper
+  can say what's printed on it. Nothing becomes a flashcard until you say so. A word the dictionary
+  recognises brings its own principal parts with it, and the photo itself is read once and never
+  kept. The page then becomes a set you can practise on its own.
+- **Worksheets you can print.** Any unit becomes a sheet with its vocabulary, gap-fills built from
+  real recorded sentences and a table of principal parts, plus the answer key on its own page. For
+  the part of a class that happens in a room.
+- **Your real retention.** Not the raw rate of right answers, which counts the first time you ever
+  see a new card, but how often a card the scheduler *thought* you knew actually came back to you,
+  measured against the 90% FSRS aims for. You get one clear thing to do, rather than a chart to
+  decode.
+- **⌘K** jumps to any screen or looks up a word from anywhere, and **?** shows every shortcut.
 
 ## The dictionary
 
-With a free **Ekilex** key (see `.env.example`) the dictionary reaches the whole Estonian lexicon:
-search any word and you get the authoritative forms from the Institute of the Estonian Language, 
-every case, both numbers, irregular plurals and the parallel forms Estonian really has, plus its
-CEFR level, verb government and an Estonian definition. Each word is stored on first lookup, so the
-second time is instant and works offline. Words from the built-in set are upgraded to the
-authoritative forms the first time you open them.
+With a free **Ekilex** key (see `.env.example`) the dictionary reaches the whole Estonian language.
+Search any word and you get the authoritative forms from the Institute of the Estonian Language:
+every case, both numbers, irregular plurals and the parallel forms Estonian really has, plus the
+word's CEFR level, which case a verb takes, and an Estonian definition. Each word is saved the first
+time anybody looks it up, so the second time is instant and works offline. Words from the built-in
+set are upgraded to the authoritative forms the first time you open them.
 
-Ekilex carries no English on a reader key, so translations are resolved in layers: one you have
-already accepted, then Wiktionary, then Anu, then an honest blank for you to fill. Every layer says
-where it came from, and you can always overwrite it.
+Ekilex doesn't give English on a reader key, so translations come from a series of fallbacks: one
+you've already accepted, then Wiktionary, then Anu, then an honest blank for you to fill in. Each
+one says where it came from, and you can always overwrite it.
 
-It does carry Russian and Ukrainian, though, in the same response as the forms, and the course
-harvest keeps them: 1,433 of the 1,437 course words have a Russian equivalent and 1,231 a
-Ukrainian one, written by the same lexicographers. Pick a language in Settings and it is printed
-beside the English on the entry and on the first meeting with a word in review. The English stays,
-because it is the one gloss every entry has and the Wiktionary-derived words have no other.
+Ekilex does give Russian and Ukrainian, though, in the same answer as the forms, and the course
+harvest keeps them: 1,801 of the 1,805 words it brings back have a Russian equivalent and 1,597 a
+Ukrainian one, written by the same lexicographers. Pick a language in Settings and it's printed
+beside the English, on the dictionary entry and the first time you meet a word in review. The
+English stays, because it's the one meaning every entry has, and the words that came from
+Wiktionary have nothing else.
 
-The dictionary's landing page also reads the morning's front page. A few of the day's headlines
-from ERR, Estonia's public broadcaster, are printed as written, and every word the dictionary can
-vouch for is a link to its entry, so the most ordinary Estonian there is comes with a case table
-under it. A word the dictionary will not vouch for is left plain rather than guessed at, and
-nothing from the feed is stored. `NEWS_FEED_URL` points it at another RSS feed, or `off` turns it
-off.
+The dictionary's front page also reads the morning news. A few of the day's headlines from ERR,
+Estonia's public broadcaster, are printed exactly as written, and every word the dictionary
+recognises links to its entry, so the most ordinary Estonian there is comes with a case table under
+it. A word the dictionary doesn't recognise is left as plain text rather than guessed at, and
+nothing from the feed is stored. Set `NEWS_FEED_URL` to point it at another RSS feed, or to `off` to
+turn it off.
 
-Which words are worth learning first is answered by counting rather than by opinion. **The words
-you will hear most** is a published frequency count over a corpus of film and television subtitles,
-gated through the dictionary so every word on the page is one the app can teach, with your own deck
-marked against it. The page names the corpus, because subtitles are dialogue: `tere` and `aitäh`
-rank high there and the vocabulary of a newspaper leader does not, which is the right corpus for
-somebody learning to talk to people and the wrong one to call "the most common words in Estonian"
-without saying so.
+Which words are worth learning first is answered by counting, not by opinion. **The words you will
+hear most** is a published frequency count over film and television subtitles, filtered through
+the dictionary so every word on the page is one the app can teach, with your own deck marked
+against it. The page names where the count comes from, because subtitles are dialogue: `tere` and
+`aitäh` rank high there, and the vocabulary of a newspaper editorial doesn't. That's the right
+source for somebody learning to talk to people, and the wrong one to call "the most common words in
+Estonian" without saying so.
 
 ## What works without any API key
 
-Everything except the two things that need a model, Anu and reading a photograph of a page:
+Everything except the two things that need a model: Anu, and reading a photo of a page.
 
-- **Dictionary**, 6,221 words (A1 to C2) with principal parts, consonant gradation and the
-  full case table worked out from the genitive. Search an inflected form you met in class,
-  `toas`, `lugesin`, `tubadega`, `helistab`, and it finds the word *and* tells you which form you
-  typed.
+- **Dictionary**, 6,221 words (A1 to C2), with principal parts, consonant gradation and the full
+  case table worked out from the genitive. Search for a form you met in class, like `toas`,
+  `lugesin`, `tubadega` or `helistab`, and it finds the word *and* tells you which form you typed.
   Anything missing can be added by hand, principal parts and all.
-- **Audio**, real Estonian speech from the University of Tartu's neural voices, ten of them to
-  choose from. A card reads itself aloud when a word is met and when its answer appears, and the
-  next card's clip is fetched while you answer this one. No key, no setup.
-- **Flashcards**. FSRS scheduling, 7 card types, typed or flipped, keyboard-only review.
+- **Audio**: real Estonian speech from the University of Tartu's neural voices, with ten to choose
+  from. A card reads itself aloud when you meet a word and when its answer appears, and the next
+  card's audio loads while you're answering this one. No key and no setup.
+- **Flashcards**: FSRS scheduling, 7 card types, typed or flipped, and you can review using only
+  the keyboard.
 - **The learning path, every practice mode, the grammar reference, printable worksheets and the
   progress charts.**
-- **Writing**. Write your own sentence using a word in a named case. The form is checked against
+- **Writing**: write your own sentence using a word in a named case. Your form is checked against
   the dictionary *before* any model runs, so the verdict is certain and works with no API key.
-- **Verb government**. Which case a verb demands (`aitan sind`, `helistan sulle`). The error
-  English speakers never stop making, and the one nothing else drills systematically.
-- **Every verb conjugated**. The present tense, the negative, the conditional and the imperative
-  are worked out from the stored first person for every verb in the dictionary, a rule checked
-  against Ekilex for all 797 of them, and the conjugation drill asks you to type the table back.
-- **Minimal pairs**. The length contrasts Estonian spelling only half records, found automatically
-  wherever two forms in the dictionary differ by a doubled letter.
-- **From your reading**. Paste real Estonian; words already in your deck are blanked out.
-- **Diagnosis and the leech clinic**. Not "you are weak at the osastav" but "you are fine at the
-  osastav except on gradating stems", and the cards you keep failing taken apart properly.
-- **Offline review**. Grades queue on the device and replay in order when you are back. The review
-  log is append-only, which is what makes that sync conflict-free.
-- **The calendar, import and export**, all local. Your class times, the slots you study in and
-  what is due, in one week.
+- **Verb government**: which case a verb needs (`aitan sind`, `helistan sulle`). It's the mistake
+  English speakers never stop making, and nothing else drills it properly.
+- **Every verb conjugated**: the present tense, the negative, the conditional and the imperative
+  are worked out from the stored first person for every verb in the dictionary. That rule was
+  checked against Ekilex for all 797 of them, and the conjugation drill asks you to type the table
+  back.
+- **Minimal pairs**: the long and short sounds that Estonian spelling only half shows. They're found
+  automatically wherever two forms in the dictionary differ by a doubled letter.
+- **From your reading**: paste in real Estonian, and the words already in your deck are blanked out
+  for you to fill in.
+- **Diagnosis and the leech clinic**: not "you're weak at the osastav" but "you're fine at the
+  osastav except on words whose stem changes", and the cards you keep failing, taken apart properly.
+- **Offline review**: grades wait on your device and are sent in order when you're back online. The
+  review history is only ever added to, never edited, which is why syncing can't cause conflicts.
+- **The calendar, import and export**, all local. Your class times, your study times and what's
+  due, in one week.
 
 ## Turning on Anu, the tutor
 
-One free key turns on Anu, Situations and scanning a page, and a second free key is the backup
-for all of them. Neither asks for a card. **Settings** in the app walks through it, but in short:
+One free key turns on Anu, Situations and page scanning, and a second free key backs them up.
+Neither asks for a card. **Settings** in the app walks you through it, but in short:
 
-1. Sign in at [aistudio.google.com](https://aistudio.google.com/apikey), free, no card.
+1. Sign in at [aistudio.google.com](https://aistudio.google.com/apikey). It's free, and no card is needed.
 2. **Create API key**. Copy it.
 3. Open the file `.env` in this folder and fill in:
    ```
@@ -275,229 +298,238 @@ for all of them. Neither asks for a card. **Settings** in the app walks through 
    ```
 4. Stop the app (Ctrl-C) and run `npm run dev` again.
 
-That is all three. Anu answers on `gemini-3.1-flash-lite`, scenes compose on `gemini-3.8-flash` and
-scanning reads with `gemini-3.1-flash-lite`. For a backup, add a key from
-[console.groq.com](https://console.groq.com) (**API Keys** → **Create API Key**, free, no card) on
-a line of its own:
+That is all three. Anu answers on `gemini-3.1-flash-lite`, scenes are written on `gemini-3.8-flash`
+and scanning reads pages with `gemini-3.1-flash-lite`. For a backup, get a key from
+[console.groq.com](https://console.groq.com) (**API Keys** → **Create API Key**, free, no card) and
+add it on a line of its own:
    ```
    GROQ_API_KEY="paste-your-key-here"
    ```
 Groq then answers Anu on `openai/gpt-oss-120b` whenever Gemini is missing, out of credit or having a
-bad minute. Scenes have no Groq backup: without Gemini they play the lines written for them in advance
-and say the model is out.
+bad minute. Scenes have no Groq backup: without Gemini, they play the lines written for them in
+advance and tell you the model is out.
 
-An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is optional and paid: it sits behind the two free keys as
-a fallback for the minute one of them is throttled, inside a daily budget of its own, and is never
-the first thing asked.
+An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is optional and paid. It waits behind the two free keys
+as a fallback for the minute one of them is busy, has its own daily budget, and is never asked
+first.
 
-**Scan a page** uses `gemini-3.1-flash-lite`, which read 144 of 144 diacritic-carrying words exactly
-when measured. Scanning uses that model unless you say otherwise, deliberately: switching the camera
-on must never move a free deployment onto a dearer model by itself. `GEMINI_VISION_MODEL`,
-`GROQ_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` are the overrides, used for
-scanning and nothing else.
+**Scan a page** uses `gemini-3.1-flash-lite`, which read all 144 words with Estonian letters exactly
+right when we measured it. Scanning sticks to that model unless you say otherwise, on purpose:
+turning the camera on should never quietly move a free deployment onto a more expensive model.
+`GEMINI_VISION_MODEL`, `GROQ_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` let
+you choose a different one, and they're used for scanning and nothing else.
 
-**Situations** take the Gemini key and, if you want them good, nothing more. A scene asks a model to
-follow a conversation with a beginner, in a language most models are thin on, inside a closed word
-list, and write one line that answers what the person actually said. Anything reaching outside that
-list is withheld whole, and `npm run eval:scene` has measured between 43 and 70 percent of composed
-lines withheld on a free model, which the learner meets as a line written for the scene instead of
-one written for the turn. Comprehension is most of what decides whether the module works.
+**Situations** need the Gemini key and, if you want them to be good, nothing else. A scene asks a
+model to follow a conversation with a beginner, in a language most models know only thinly, using
+only a closed list of words, and to write one line that answers what the person actually said. Any
+line that reaches outside that list is held back entirely. `npm run eval:scene` measured between 43
+and 70 percent of written lines held back on a free model, and when that happens the learner gets a
+line written in advance for the scene instead of one written for their turn. How well the model
+understands is most of what decides whether this part works.
 
-`npm run eval:composers` is the narrower question, and it is the one to run before choosing: it
-forces one model at a time, sends the route's own prompt, judges with the shipped gate, and reports
-per model rather than in total. Measured here on 2026-09-05, the two that answered cleanly and in
-scope were `qwen/qwen3.8-27b` on Groq and `gemini-3.6-flash`; `groq/compound-mini` wrote statements
-where the beat wanted a question; and two of the three OpenRouter free models answered 429 to every
-request for the rest of the day (OpenRouter is no longer in the chain), which is what a free tier is
-and is the argument for the lines written in advance being good rather than for the ladder being
-different.
+`npm run eval:composers` answers a narrower question, and it's the one to run before choosing a
+model. It tests one model at a time with the route's own prompt, judges the lines with the same
+check the app uses, and reports each model separately rather than a combined total. Measured here on
+2026-09-05, the two that answered cleanly and stayed in bounds were `qwen/qwen3.8-27b` on Groq and
+`gemini-3.6-flash`. `groq/compound-mini` wrote statements where the scene needed a question. Two of
+the three OpenRouter free models answered 429 to every request for the rest of the day (OpenRouter
+is no longer in the chain). That's simply what a free tier is like, and it's the reason to make the
+lines written in advance good, rather than a reason to change the order of fallbacks.
 
 **Conversations are pinned to `gemini-3.8-flash`, with `gemini-3.1-flash-lite` behind it, and no
-variable moves either.** They compose on Gemini when `GEMINI_API_KEY` is set; Anthropic sits behind
-it only as the gated last resort; and where neither answers they fall to their recorded and banked
-lines, and the screen says the model is out. Groq's `qwen/qwen3.8-27b` stood behind Gemini here until
-the day the Gemini balance ran out and it composed every conversation, badly enough that no model at
-all was the better answer. The screen names the model that is answering once, at the top.
-There is no `SCENE_MODEL` and no `*_SCENE_MODEL` override any more: the first held a Groq model name
-from the days scenes ran on Groq, the chain moved to Gemini and kept reading it, and Google refused
-every composed turn for a week while the route answered 200, so every conversation on production
-fell to its script and nothing said so. A measured choice an environment variable can silently move
-stays measured only until somebody touches the dashboard. A `SCENE_MODEL` still set is ignored and
-reported once in the error log.
+setting can change either.** They're written on Gemini when `GEMINI_API_KEY` is set, with Anthropic
+behind only as a limited last resort. When neither answers, they fall back to their recorded and
+prepared lines, and the screen says the model is out. Groq's `qwen/qwen3.8-27b` used to stand
+behind Gemini here, until the day the Gemini balance ran out and it wrote every conversation. It did
+it badly enough that having no model at all was the better answer. The screen names the model that's
+answering once, at the top. There's no `SCENE_MODEL` or `*_SCENE_MODEL` setting any more. The first
+still held a Groq model name from the days scenes ran on Groq, the chain moved to Gemini and kept
+reading it, and for a week Google refused every turn while the route still answered 200. So every
+conversation on the live site fell back to its script, and nothing said so. A model chosen by
+measurement only stays chosen while nobody touches the dashboard. A `SCENE_MODEL` that's still set
+is ignored, and noted once in the error log.
 
 ## Deploying it as a real website
 
-Local mode needs nothing but a Postgres URL; hosting it for a class needs two more steps. The schema
-was built Postgres-portable from the start (ADR-002), so this was a datasource swap rather than a
-rebuild, documented in `docs/03-architecture.md` ADR-011:
+Local mode needs nothing but a Postgres URL. Hosting it for a class takes two more steps. The
+database schema was built to work on Postgres from the start (ADR-002), so moving to a hosted
+database was a swap of settings rather than a rebuild, as `docs/03-architecture.md` ADR-011
+describes:
 
 1. Create a project at [supabase.com](https://supabase.com) → **Connect** (or Project Settings →
-   Database → Connection string). Take **both** strings from the `pooler.supabase.com` host:
-   the **transaction pooler** (port 6543) as `DATABASE_URL`, with `?pgbouncer=true` appended, and
-   the **session pooler** (port 5432) as `DIRECT_URL`. Percent-encode any special characters in
+   Database → Connection string). Take **both** strings from the `pooler.supabase.com` host: the
+   **transaction pooler** (port 6543) as `DATABASE_URL`, with `?pgbouncer=true` added to the end,
+   and the **session pooler** (port 5432) as `DIRECT_URL`. Percent-encode any special characters in
    the password.
 
-   Do *not* use the direct `db.<project-ref>.supabase.co` host that the dashboard shows first: it
-   resolves to IPv6 only, and Vercel has no IPv6 route to it, so every build dies with
-   `P1001: Can't reach database server`. The poolers are IPv4. `DIRECT_URL` wants the *session*
-   pooler specifically, it is a full Postgres session, so `prisma db push` can run schema changes
-   through it, which the transaction pooler cannot.
-2. In Vercel, import this repo and set the environment variables (Production, and Preview if you
-   want preview deploys to work): `DATABASE_URL`, `DIRECT_URL`, plus whichever of
+   *Don't* use the direct `db.<project-ref>.supabase.co` host that the dashboard shows you first.
+   It only has an IPv6 address, Vercel has no IPv6 route to it, and every build fails with
+   `P1001: Can't reach database server`. The poolers use IPv4. `DIRECT_URL` needs the *session*
+   pooler in particular, because that's a full Postgres session, so `prisma db push` can make
+   schema changes through it. The transaction pooler can't.
+2. In Vercel, import this repo and set the environment variables (for Production, and Preview too
+   if you want preview deploys to work): `DATABASE_URL`, `DIRECT_URL`, plus whichever of
    `GROQ_API_KEY` / `GEMINI_API_KEY` / `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` and `EKILEX_API_KEY`
    you're using.
-   Never prefix any of these `NEXT_PUBLIC_`, they must stay server-side.
+   Never put `NEXT_PUBLIC_` in front of any of these. They have to stay on the server.
 
-   **Run the app in the same region as the database, and put the pair as near Estonia as you
-   can.** Those are two rules and the first one comes first, because the two distances are not
-   paid the same number of times. This app derives everything from the review log on each request
-   (ADR-014), so a page is a handful of database round trips: Today makes about eight it cannot
-   avoid, and every one of them crosses whatever sits between the function and the database. A
-   learner's own distance to the function is crossed once per page. So a function 30ms nearer the
-   reader and 35ms further from the database is a page that got slower, by a factor of about eight.
+   **Run the app in the same region as the database, and put the two as close to Estonia as you
+   can.** Those are two rules, and the first matters more, because you pay the two distances a
+   different number of times. The app works everything out from your review history on each request
+   (ADR-014), so a page needs a handful of trips to the database: Today makes about eight it can't
+   avoid, and each one crosses the distance between the server and the database. A learner's own
+   distance to the server is crossed only once per page. So a server that's 30ms closer to the
+   reader but 35ms further from the database makes the page slower, by about eight times that gap.
 
    `vercel.json` says `"regions": ["dub1"]`, which is Dublin, which is AWS `eu-west-1`, which is
-   where a Supabase project on `aws-*-eu-west-1.pooler.supabase.com` lives. Vercel's own default
-   is `iad1`, in Washington, and against a database in Ireland that is roughly 80ms a query, which
-   is most of a second on Today before the page has drawn anything.
+   where a Supabase project on `aws-*-eu-west-1.pooler.supabase.com` lives. Vercel's own default is
+   `iad1`, in Washington, and talking to a database in Ireland from there costs roughly 80ms a
+   query. That's most of a second on Today before anything appears on the page.
 
-   Nearly everybody learning Estonian is in Estonia, and the nearest pair to Tallinn is Stockholm:
-   Supabase's `eu-north-1` and Vercel's `arn1`, about 400km away against Dublin's 1,800. Moving
-   there means moving the Supabase project, which is a migration rather than a setting, so **move
-   both or neither**. A deployment in `arn1` reading a database in Ireland is the worst of the
-   three arrangements, and it is the one you get by changing the easy half first.
+   Nearly everybody learning Estonian is in Estonia, and the closest pair to Tallinn is Stockholm:
+   Supabase's `eu-north-1` and Vercel's `arn1`, about 400km away compared with Dublin's 1,800.
+   Moving there means moving the Supabase project, which is a migration rather than a setting, so
+   **move both or neither**. A server in `arn1` talking to a database in Ireland is the worst of
+   the three arrangements, and it's the one you end up with if you change the easy half first.
 3. Deploy. Vercel's build runs `prisma generate && prisma db push && npm run db:seed:ensure &&
-   next build` (see `package.json`), so a hosted deployment sets itself up: the schema is
-   created/updated against `DIRECT_URL`, and a database with an empty dictionary gets the built-in
-   the whole dictionary loaded before the build renders anything. The seed writes it in six statements
-   rather than three per word, which is what keeps that first deploy to a few seconds instead of
-   the several minutes a thousand sequential round trips to another region used to cost.
+   next build` (see `package.json`), so a hosted deployment sets itself up. The schema is created
+   or updated through `DIRECT_URL`, and if the dictionary is empty, the whole built-in dictionary
+   is loaded before the build renders anything. The seed writes it in six statements rather than
+   three per word, which keeps that first deploy to a few seconds instead of the several minutes
+   that a thousand one-by-one trips to another region used to take.
 
-   Both steps are deliberately conservative. `prisma db push` fails the build rather than silently
-   applying a destructive change, so an unusual schema change (e.g. dropping a column with data in
-   it) shows up as a failed deploy asking you to confirm, not as quiet data loss. `db:seed:ensure`
-   only runs when the dictionary is *completely* empty, a deployment whose dictionary already has
-   words (including ones you added by hand, or that Ekilex cached) is left alone, and neither step
-   ever touches `Card` or `Review`. To force a reseed after correcting the seed data, run
+   Both steps are deliberately careful. `prisma db push` fails the build rather than quietly making
+   a destructive change, so an unusual schema change (like dropping a column that has data in it)
+   shows up as a failed deploy asking you to confirm, not as data quietly lost. `db:seed:ensure`
+   only runs when the dictionary is *completely* empty. A deployment whose dictionary already has
+   words (including ones you added by hand, or ones saved from Ekilex) is left alone, and neither
+   step ever touches `Card` or `Review`. To force a reseed after fixing the seed data, run
    `npm run db:seed` against the hosted database yourself.
 
    Outside Vercel and CI, `npm run build`, `npm run setup` and `npm run db:push` refuse a
-   `DATABASE_URL` or `DIRECT_URL` that is not on this machine (`scripts/schema-guard.mjs`), because
-   a shell carrying the deployment's connection string would otherwise push a branch's schema into
-   production just by checking that it compiles. To check a build, run
-   `npx prisma generate && npx next build`. A self-hosted builder that means it sets
+   `DATABASE_URL` or `DIRECT_URL` that isn't on your own machine (`scripts/schema-guard.mjs`).
+   Otherwise, a terminal that happened to hold the live site's connection string would push a
+   branch's schema into production just by checking that it builds. To check a build, run
+   `npx prisma generate && npx next build`. A self-hosted build server that really means it sets
    `KODUKEEL_SCHEMA_PUSH=1`.
 
-Two things that used to change when hosted have since been fixed. Review works on a train again:
-it is a PWA, grades go to a device-local outbox and replay when the connection returns. And the
-audio cache is durable rather than per-instance: set `SUPABASE_SERVICE_ROLE_KEY` and clips are
-content-addressed in Supabase Storage, fetched once for everyone rather than once per cold start.
-Without that key it falls back to local disk, and Settings says so plainly.
+Two things that used to change when you hosted it have since been fixed. Reviewing works on a train
+again: the app installs on your device, and grades wait on the device and are sent when the
+connection comes back. And the audio cache now lasts, rather than being lost every time a server
+restarts: set `SUPABASE_SERVICE_ROLE_KEY` and each clip is stored in Supabase Storage under a name
+made from its content, fetched once for everyone rather than once per server start. Without that
+key it falls back to the local disk, and Settings tells you so plainly.
 
-**Set a spend cap.** The app is free to whoever uses it, and the caps are what make that
-affordable rather than a leap of faith. The tutor is metered per user per day (ten conversations,
-`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`). That ceiling is a daily figure and **defaults to five dollars a month**, which is `0.17` a day. The
-writing grader and speech scale off the same number in `lib/usage/ledger.ts`, higher, because they
-cost far less. Nothing a learner does outside the tutor is metered at all.
+**Set a spend cap.** The app is free for whoever uses it, and the caps are what make that
+affordable rather than a leap of faith. Anu is metered per person per day (ten answers,
+`AI_DAILY_CALLS_PER_USER`), and scenes, the graders, scanning and speech each get an allowance
+worked out from that same number in `lib/usage/ledger.ts`, larger where a call costs less.
+Everything sits under one daily ceiling for the whole site, `AI_DAILY_USD_GLOBAL`, which defaults to
+three dollars a day, and `AI_DAILY_USD_TUTOR`, `AI_DAILY_USD_SCENE`, `AI_DAILY_USD_GRADER` and
+`AI_DAILY_USD_SCAN` give each kind of call its own slice of it (`.env.example` has the figures).
+Reviewing, the dictionary, every drill and your deck are never metered at all.
 
-The last quarter of the day's shared budget is held back for people who have not asked anything
-yet (`AI_GLOBAL_RESERVE_FRACTION`). Without it the cap is first come, first served: an enthusiastic
-morning spends the day and everyone arriving later, newcomers included, finds the tutor switched
-off. The reserve costs a heavy user their eleventh conversation and gives a newcomer their first.
+The last quarter of each day's shared budget is kept back for people who haven't asked anything yet
+(`AI_GLOBAL_RESERVE_FRACTION`). Without it the cap is first come, first served: a busy morning uses
+up the day, and everyone who arrives later, newcomers included, finds the tutor switched off. The
+reserve costs a heavy user their eleventh question and gives a newcomer their first.
 
-The defaults are live whether or not you configure anything. There is no way to turn metering off,
-because sign-up is open by default. If you would rather run a private instance, `ALLOWED_EMAILS` or
+The defaults apply whether or not you set anything. There's no way to switch metering off, because
+sign-up is open by default. If you'd rather run a private site, `ALLOWED_EMAILS` or
 `ALLOWED_EMAIL_DOMAINS` turns the same deployment into one.
 
 ### What it costs to run
 
-`/funding` is the whole bill, itemized, with a slider on it. It is a public page, like `/privacy`
-and `/terms`, because the people most likely to want it (somebody deciding whether to fund this,
-and somebody wondering what a free app is selling instead) have no account here.
+`/funding` is the whole bill, item by item, with a slider to try different sizes. It's a public
+page, like `/privacy` and `/terms`, because the people most likely to want it, somebody deciding
+whether to fund this and somebody wondering what a free app is really selling, don't have an
+account here.
 
-**Nothing anybody bills for is counted as free.** A free tier is a plan that pauses when nobody is
-on it, forbids commercial use, or hands out an allowance that goes the week you launch, so
-modeling one would describe a deployment nobody runs. Every vendor is on the plan a real
-deployment is on.
+**Nothing anybody charges for is counted as free.** A free tier is a plan that pauses when nobody's
+using it, forbids commercial use, or hands out an allowance that's gone the week you launch, so
+modelling one would describe a site nobody actually runs. Every service is priced on the plan a
+real deployment uses.
 
-**What is given is credited, not priced.** Ekilex, Wiktionary and TartuNLP are public institutions
-that decided this work should be available. They ask for nothing, they are named with what each one
-gives and its licence, and they are in no total. Where buying the same thing is possible the page
-says what that would come to, so the size of the gift is visible without being charged for.
+**What's given is credited, not priced.** Ekilex, Wiktionary and TartuNLP are public institutions
+that decided this work should be available to everyone. They ask for nothing. Each one is named with
+what it gives and its licence, and none of them appears in any total. Where you could buy the same
+thing, the page says what it would cost, so you can see the size of the gift without being charged
+for it.
 
-**One list.** `lib/funding/services.ts` is every piece of infrastructure with its own price
-function. Adding a new tool is one entry there: the bill, the totals, the chart, the ladder and the
-page's own description all read the registry, and the invariants fail if any of them stops.
+**One list.** `lib/funding/services.ts` holds every piece of infrastructure, each with its own
+price. Adding a new tool is one entry there: the bill, the totals, the chart, the ladder and the
+page's own description all read from that list, and the invariants fail if any of them stops.
 
-Every number is measured on this repository with the command that produced it, quoted off a
+Every number is either measured on this repository with the command that produced it, taken from a
 vendor's price list with the date it was read, or named as one of the assumptions listed in full on
-the page. Two lines are billed in euros and the rest in dollars; the rate is the European Central
-Bank's, and every price is net of VAT because that is how the vendors quote their own.
+the page. Two lines are billed in euros and the rest in dollars. The exchange rate is the European
+Central Bank's, and every price is before VAT, because that's how the vendors quote their own.
 
-Four things on it are worth knowing before you deploy this for anybody.
+Four things on that page are worth knowing before you set this up for anybody:
 
-- **The floor is about $300 a month before a single learner arrives**, and most of it does not move
-  when they do. The first thousand people are close to free to serve.
-- **Speech is the fastest-growing thing on the page.** TartuNLP returns uncompressed 32-bit audio,
-  so a two-second phrase is 188 KB and the whole spoken dictionary is 2.8 GB. At a hundred thousand
-  learners, buying that speech would come to more than every billed line put together.
-- **The tooling is on the bill.** What writes and maintains the app is not runtime infrastructure
-  and is most of the cost at the sizes anybody starts at, so leaving it out would imply the
-  software maintains itself.
-- **The model line has a ceiling in the code.** Every call is booked against a shared daily budget
-  (`AI_DAILY_USD_GLOBAL`) that cannot be turned off, so the projection cannot show a bill the
+- **It costs about $300 a month before a single learner arrives**, and most of that doesn't grow
+  when they do. The first thousand people cost almost nothing extra.
+- **Speech is the fastest-growing cost on the page.** TartuNLP sends uncompressed 32-bit audio.
+  Trimmed and stored as 16-bit, a short sentence is about 51 KB, and the whole spoken dictionary
+  comes to about 0.8 GB. At a hundred thousand learners, buying that speech would cost more than
+  every paid line put together.
+- **The tools that build the app are on the bill.** What writes and maintains the app isn't part of
+  what it runs on, but it's most of the cost at the sizes anybody starts at, so leaving it out would
+  suggest the software maintains itself.
+- **The model costs have a ceiling written into the code.** Every call is counted against a shared
+  daily budget (`AI_DAILY_USD_GLOBAL`) that can't be turned off, so the page can't show a bill the
   running app would refuse to run up.
 
 ### When the app gets something wrong
 
-The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian
-out of it and does not make every entry right. So every dead end offers to send a suggested fix: a
-search that found nothing, a gloss that is the wrong sense, a principal part that is wrong, an
-answer marked wrong that was right, a page whose explanation does not match what a course says, a
-screen that failed. What is sent carries the screen and what the app had just said, so a report
-arrives with the thing it is about rather than as a sentence out of context.
+The dictionary is built from Ekilex and Wiktionary rather than typed in, which keeps made-up
+Estonian out of it but doesn't make every entry right. So every dead end offers to send a suggested
+fix: a search that found nothing, a meaning that's the wrong sense of the word, a wrong principal
+part, an answer marked wrong that was right, a page whose explanation doesn't match what your course
+says, or a screen that broke. Your report carries the screen and what the app had just said, so it
+arrives with the thing it's about rather than as a sentence out of context.
 
-They land in a review queue at `/admin/suggestions`, grouped so that one problem is one decision
-however many people reported it, with what the entry says now beside what is proposed. Accepting a
-dictionary correction writes it into the shared entry in one click. `ADMIN_EMAILS` names who may do
-that; with sign-in configured and nobody named, the queue says so instead of showing an empty list.
-Running locally there is one learner and they review their own. Anyone can see what they sent, and
-what happened to it, at `/suggestions`.
+Reports go to a review queue at `/admin/suggestions`, grouped so that one problem is one decision
+however many people reported it, with what the entry says now beside what's proposed. Accepting a
+dictionary fix writes it into the shared entry in one click. `ADMIN_EMAILS` names who's allowed to
+do that. If sign-in is set up and nobody is named, the queue says so rather than showing an empty
+list. Running locally, there's one learner, and they review their own reports. Anyone can see what
+they sent, and what happened to it, at `/suggestions`.
 
 ### Adding sign-in (multi-user)
 
-Every route is gated behind sign-in (`middleware.ts`); each Google account gets its own dictionary
-deck, tasks and review history, while the dictionary itself stays shared, see ADR-012. Two accounts
-to set up, both one-time:
+Every page needs you to be signed in (`middleware.ts`). Each Google account gets its own deck,
+tasks and review history, while the dictionary itself stays shared (see ADR-012). There are two
+accounts to set up, both only once:
 
 1. **Google Cloud Console** → [console.cloud.google.com](https://console.cloud.google.com) →
    create a project (or pick an existing one) → **APIs & Services → OAuth consent screen**: fill in
-   an app name and your email, external user type is fine for a small group. Then
+   an app name and your email. The external user type is fine for a small group. Then
    **Credentials → Create Credentials → OAuth client ID** → type **Web application** → add an
-   **Authorized redirect URI**: `https://<your-project-ref>.supabase.co/auth/v1/callback` (Supabase's
-   callback, not Vercel's, find the exact URL in the next step). Save; copy the **Client ID** and
-   **Client Secret**.
-2. **Supabase dashboard** → your project → **Authentication → Providers → Google** → toggle it on,
-   paste the Client ID and Client Secret from step 1, save. The callback URL to put in Google Cloud
-   is shown right there on this page.
+   **Authorized redirect URI**: `https://<your-project-ref>.supabase.co/auth/v1/callback`. That's
+   Supabase's callback, not Vercel's, and you'll find the exact URL in the next step. Save, then copy
+   the **Client ID** and **Client Secret**.
+2. **Supabase dashboard** → your project → **Authentication → Providers → Google** → switch it on,
+   paste the Client ID and Client Secret from step 1, and save. The callback URL to give Google
+   Cloud is shown right there on this page.
 3. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings → API, the
-   anon/publishable key, safe to be public) in both your local `.env` and Vercel's environment
-   variables.
+   anon or publishable key, which is safe to make public) in both your local `.env` and Vercel's
+   environment variables.
 
-Neither Google credential nor the Supabase service role key is ever needed in this app's own code, 
-the OAuth exchange happens entirely inside Supabase.
+This app's own code never needs either Google credential or the Supabase service role key for
+this. The whole OAuth exchange happens inside Supabase.
 
-**Optional: Google's own screen naming this app rather than Supabase's project.** With only the
-steps above, Google's sign-in screen shows "to continue to `<your-project-ref>.supabase.co`",
-because that is the domain of the callback URL Google was actually given. To have it show this
-app's own domain instead:
+**Optional: showing this app's name on Google's screen, rather than Supabase's project.** With only
+the steps above, Google's sign-in screen says "to continue to `<your-project-ref>.supabase.co`",
+because that's the domain of the callback URL Google was given. To show this app's own domain
+instead:
 
 1. **Google Cloud Console** → **APIs & Services → OAuth consent screen / Branding**: set **App
    name**, **Application home page** (`https://kodukeel.ee`), **Application privacy policy link**
    and **Application terms of service link**, and add your own domain (`kodukeel.ee`) as a second
-   **Authorized domain**, alongside the Supabase one that is already there (keep both; do not
-   remove the Supabase one, it is still the domain the redirect URI from step 1 above lives on).
-   Google may ask to verify ownership of your domain through **Google Search Console** first.
+   **Authorized domain**, next to the Supabase one that's already there. Keep both, and don't remove
+   the Supabase one, because the redirect URI from step 1 above still lives on it. Google may ask
+   you to prove you own your domain through **Google Search Console** first.
 2. **Credentials → your Web application client → Authorized JavaScript origins**: add
    `https://kodukeel.ee` (and `http://localhost:3000` for local development). Leave the Authorized
    redirect URIs from step 1 as they are.
@@ -505,61 +537,60 @@ app's own domain instead:
    `.env` and Vercel's environment variables.
 
 With that set, the sign-in page runs Google Identity Services on `kodukeel.ee` itself and hands
-Supabase an ID token (`signInWithIdToken`), so there is no redirect through Supabase's domain for
-Google to show on its own screen. The redirect flow from step 2 above stays as a fallback for a
-learner whose browser blocks Google's script, so nothing above is wasted if this optional part is
-skipped.
+Supabase an ID token (`signInWithIdToken`), so there's no detour through Supabase's domain for
+Google to show on its screen. The redirect from step 2 above is still there as a fallback for a
+learner whose browser blocks Google's script, so nothing above goes to waste if you skip this part.
 
 **One address, and Supabase has to be told which.** A Vercel deployment answers on
-`<app>.vercel.app` as well as on the domain you point at it, and Google sign-in is the one path
-that cannot survive the difference: the sign-in starts on the origin the learner is on, and
-Supabase sends them back there only if that origin's `/auth/callback` is on the project's
-**Redirect URLs**. Anywhere else it falls back to the project's **Site URL**, silently, and the
-exchange then fails on a host that never started the sign-in, which reads as a sign-in that
-"did not go through" and works on the second press. So, under **Authentication → URL
-Configuration**: set **Site URL** to the address people use (`https://kodukeel.ee`), add
-`https://kodukeel.ee/auth/callback` to **Redirect URLs**, and set `NEXT_PUBLIC_SITE_URL` to the
-same address in Vercel. With that set the app redirects every other host it answers on, the
-platform's own name included, to that one, permanently, so there is a single origin for the
-verifier cookie, the session and the callback to agree on. Previews and `localhost` are never
-redirected. A callback that still arrives with nothing to finish it says so on the sign-in
-screen and names the setting.
+`<app>.vercel.app` as well as on the domain you point at it, and Google sign-in is the one thing
+that breaks over the difference. Sign-in starts on whatever address the learner is on, and Supabase
+only sends them back there if that address's `/auth/callback` is on the project's **Redirect
+URLs**. Otherwise it quietly sends them to the project's **Site URL** instead. The exchange then
+fails on an address that never started the sign-in, which looks like a sign-in that "didn't go
+through" and then works when they press again. So, under **Authentication → URL Configuration**:
+set **Site URL** to the address people use (`https://kodukeel.ee`), add
+`https://kodukeel.ee/auth/callback` to **Redirect URLs**, and set `NEXT_PUBLIC_SITE_URL` to the same
+address in Vercel. With that set, the app permanently redirects every other address it answers on,
+including the platform's own, to that one, so the sign-in cookie, the session and the callback all
+agree on a single address. Preview deploys and `localhost` are never redirected. If a callback still
+arrives with nothing to finish, the sign-in screen says so and names the setting to fix.
 
-**A mailed link, so a Google account is not the price of entry.** Anyone without one, or unwilling
-to attach one to a language app, could not reach the product at all. Supabase dashboard →
-**Authentication → Providers → Email**: turn it on and leave "Confirm email" as it is. Then
-**Authentication → URL Configuration → Redirect URLs**: add `https://<your-app>/auth/callback`,
-which is the one address either way in lands on, so the allowlist is checked in a single place.
+**An emailed link, so nobody needs a Google account to get in.** Without it, anybody who doesn't
+have one, or doesn't want to link one to a language app, couldn't use the app at all. In the
+Supabase dashboard → **Authentication → Providers → Email**: switch it on and leave "Confirm email"
+as it is. Then under **Authentication → URL Configuration → Redirect URLs**, add
+`https://<your-app>/auth/callback`. Every way of signing in lands on that one address, so the list of
+who's allowed in is checked in one place.
 
-**Set up your own SMTP before you tell anybody about it.** Supabase's built-in email service sends
-a couple of messages an hour for the whole project and says itself it is for testing, so on a
-public copy the second person to ask for a link does not get one. It lives under
-**Authentication → Emails → SMTP Settings** (Supabase has moved this out of Project Settings a
-few times across versions; if it is not there, check Authentication → URL Configuration or
-Advanced). It takes any provider; this app is run on **Resend**, added as a verified sending
-domain (`kodukeel.ee`) with these settings:
+**Set up your own email sending (SMTP) before you tell anybody about the site.** Supabase's built-in
+email service sends only a couple of messages an hour for the whole project, and says itself that
+it's for testing. On a public site, the second person to ask for a link won't get one. It lives
+under **Authentication → Emails → SMTP Settings** (Supabase has moved it out of Project Settings a
+few times across versions, so if it isn't there, check Authentication → URL Configuration or
+Advanced). Any provider works. This app uses **Resend**, with a verified sending domain
+(`kodukeel.ee`) and these settings:
 
 - **Host**: `smtp.resend.com`
 - **Port**: `465`
-- **Username**: `resend` (the literal word, not an account name)
+- **Username**: `resend` (literally that word, not your account name)
 - **Password**: a Resend API key with sending access, created under **API Keys**
-- **Sender email**: an address on the verified domain, e.g. `noreply@kodukeel.ee`
+- **Sender email**: an address on the verified domain, for example `noreply@kodukeel.ee`
 
-Resend's own **Logs** tab shows every send attempt and its delivery status, which is the fastest
-way to debug a bounce or a missing email.
+Resend's own **Logs** tab shows every send attempt and whether it was delivered, which is the
+quickest way to track down a bounce or a missing email.
 
-The mailed link is **on by default**, and `EMAIL_SIGN_IN="off"` hides it. It was the other way
-round for a while, off until somebody set it on, on the argument that a form which takes an
-address and mails nobody is worse than no form. The argument holds and the default did not: the
-switch was one more thing to remember in a dashboard, and the one deployment this app has spent
-weeks offering Google as the only way in. Turn it off only for a copy whose mail really does not
-go out, and set up SMTP before anybody but you is asking for links.
+The emailed link is **on by default**, and `EMAIL_SIGN_IN="off"` hides it. For a while it was the
+other way round, off until somebody turned it on, on the argument that a form which takes your
+address and then emails nobody is worse than no form at all. The argument still holds, but the
+default didn't work out: the switch was one more thing to remember in a dashboard, and the one live
+deployment spent weeks offering Google as the only way in. Only turn it off for a site whose email
+genuinely doesn't go out, and set up SMTP before anybody but you is asking for links.
 
 ### Course reminders
 
-Separate from the sign-in links above, and off until four variables are set. With any of them
-missing the app sends nothing at all, which is the state this repository ships in: nothing warns
-about it, nothing degrades, and the course works exactly as it does now.
+These are separate from the sign-in links above, and stay off until four variables are set. If any
+of them is missing, the app sends nothing at all, which is how this repository ships: nothing warns
+you, nothing breaks, and the course works exactly as it does now.
 
 ```
 RESEND_API_KEY=re_...            # the same key the SMTP settings above use
@@ -571,156 +602,160 @@ EMAIL_REPLY_TO=hei@your-domain   # optional, and worth setting: a letter nobody
 RESEND_WEBHOOK_SECRET=whsec_...  # verifies what Resend sends back
 ```
 
-Add a webhook in Resend's dashboard pointing at `https://your-domain/api/email/bounce`,
-subscribed to **`email.bounced`** and **`email.complained`** and nothing else. The signing secret
-it gives you is `RESEND_WEBHOOK_SECRET`. With none set the route answers 404 to everybody, which
-is the state this repository ships in.
+In Resend's dashboard, add a webhook pointing at `https://your-domain/api/email/bounce`, subscribed
+to **`email.bounced`** and **`email.complained`** and nothing else. The signing secret it gives you
+is your `RESEND_WEBHOOK_SECRET`. Without it set, that address answers 404 to everybody, which is how
+this repository ships.
 
-Subscribe to those two and no others on purpose. Resend will also send opens and clicks, and those
-are exactly what `/privacy` says this app does not keep; asking for them and dropping them would be
-a promise kept by nothing but a function. A permanent bounce stops writing to **that address**,
-not to that learner, so somebody who changes theirs is written to again. A spam complaint switches
-off every optional letter, and leaves the sign-in links alone, because those are not what anybody
-complains about.
+Subscribe to those two and no others, on purpose. Resend will also report opens and clicks, and
+those are exactly what `/privacy` says this app doesn't keep. Asking for them and then throwing them
+away would be a promise kept by nothing but one function. A permanent bounce stops emails to **that
+address**, not to that learner, so somebody who changes their address gets emails again. A spam
+complaint switches off every optional email but leaves the sign-in links alone, because those
+aren't what anybody complains about.
 
-`SUPABASE_SERVICE_ROLE_KEY` has to be set too. Addresses live with the sign-in provider rather
-than in this app's database, which is what lets erasure promise it takes the address with it, so
-the run has to go and ask for them.
+`SUPABASE_SERVICE_ROLE_KEY` has to be set too. Email addresses are kept with the sign-in provider
+rather than in this app's database, which is what lets deleting an account promise to take the
+address with it, so the reminder run has to go and ask for them.
 
-`vercel.json` schedules `/api/email/send` once a day, at 16:00 UTC. The route answers 404 to
-anybody without the bearer token and 404 when `CRON_SECRET` is unset, so it fails closed rather
-than open. The run itself is idempotent, capped, and takes a lock across every instance, so firing
-it more often than necessary costs nothing but a few queries.
+`vercel.json` schedules `/api/email/send` once a day, at 16:00 UTC. That address answers 404 to
+anybody without the bearer token, and answers 404 to everybody when `CRON_SECRET` isn't set, so it
+fails closed rather than open. The run itself is safe to repeat, capped, and locked across every
+server, so running it more often than needed costs nothing but a few database queries.
 
-**Hourly is what this wants and daily is what a Hobby plan allows, and the cost of getting that
-wrong is not the letters.** A letter has to arrive in the learner's own evening and this app's
-learners are not in one timezone. One firing a day reaches only the learners whose 18:00 to 22:00
-window that hour falls in. 16:00 UTC is 19:00 in Tallinn, which is where nearly all of them are,
-and anybody a couple of hours further off hears nothing.
+**Hourly is what this wants and daily is what a Hobby plan allows, and getting that wrong costs
+more than the emails.** An email has to arrive during the learner's own evening, and this
+app's learners aren't all in one time zone. One run a day only reaches learners whose 18:00 to 22:00
+window includes that hour. 16:00 UTC is 19:00 in Tallinn, which is where nearly all of them are,
+and anybody a couple of hours further away hears nothing.
 
-That much the first version of this paragraph already said. What it did not say is that **Vercel
-refuses the deployment itself** over a schedule the plan does not allow, with
-`cron_jobs_limits_reached`. An hourly expression does not degrade to daily, it stops the site being
-deployed at all. It did: eighteen merges to main between 2026-09-18 and 2026-09-19 built nothing,
-and the live site served the commit before the hourly cron was added until somebody went looking
-for why.
+The first version of this paragraph already said that. What it didn't say is that **Vercel refuses
+the whole deployment** if the schedule is more frequent than the plan allows, with
+`cron_jobs_limits_reached`. An hourly schedule doesn't quietly drop to daily: it stops the site
+from deploying at all. That actually happened. Eighteen merges to main between 2026-09-18 and
+2026-09-19 built nothing, and the live site kept serving the commit from before the hourly schedule
+was added, until somebody went looking for why.
 
-The way back to hourly is a Pro plan, or any scheduler that can GET that URL with
-`Authorization: Bearer $CRON_SECRET`. `.github/workflows/mailout.yml` is one, and it costs
-nothing: set the repository secret `CRON_SECRET` to the deployment's value and the repository
-variable `MAILOUT_URL` to its origin, and it asks every hour. Until both are set it does nothing
-and says so. If you change the Vercel expression instead, check that the plan allows it before
-merging, because the failure is a deploy that never happens rather than a letter that never
-arrives.
+To get back to hourly, use a Pro plan, or any scheduler that can request that address with
+`Authorization: Bearer $CRON_SECRET`. `.github/workflows/mailout.yml` is one, and it costs nothing:
+set the repository secret `CRON_SECRET` to the deployment's value and the repository variable
+`MAILOUT_URL` to its address, and it runs every hour. Until both are set it does nothing and says
+so. If you change the Vercel schedule instead, check that your plan allows it before merging,
+because the failure is a deploy that never happens, not an email that never arrives.
 
-What goes out, to whom and how often is `lib/email/schedule.ts`, which is pure and unit tested.
-What each letter says is `lib/email/letters/`. Both are swept for the voice rules like every
-other string in `lib/`.
+Who gets what, and how often, is decided in `lib/email/schedule.ts`, which has no side effects and
+is unit tested. What each email says lives in `lib/email/letters/`. Both are checked against the
+same voice rules as every other string in `lib/`.
 
-The link is opened in the browser that asked for it, because that is where the verifier lives, and
-the sign-in screen says so. If you would rather it survived being forwarded to a phone, change the
-magic-link email template to point at
-`{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`. `app/auth/callback/route.ts`
-already answers that shape; nothing in the app needs changing.
+The sign-in link opens in the browser that asked for it, because that's where the security check
+lives, and the sign-in screen says so. If you'd rather the link still worked after being forwarded
+to a phone, change the magic-link email template to point at
+`{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`.
+`app/auth/callback/route.ts` already handles that shape, so nothing in the app needs changing.
 
-**Enterprise sign-in, for a company running a pilot.** A workplace with its own identity provider
-usually cannot use either of the two doors above: a Google account is somebody else's, and a mailed
-link is a message their security team would rather nobody clicked. Supabase speaks SAML 2.0, so
-their people sign in where they sign in every morning, and this app's half of it is one variable.
+**Company sign-in, for a workplace running a pilot.** A workplace with its own sign-in system
+usually can't use either of the two ways in above: a Google account belongs to somebody else, and an
+emailed link is exactly the kind of message their security team would rather nobody clicked.
+Supabase supports SAML 2.0, so their people can sign in the same way they do every morning, and this
+app's half of the setup is one variable.
 
-1. **Supabase dashboard** → **Authentication → Providers → SAML 2.0**: turn it on. Adding the
+1. **Supabase dashboard** → **Authentication → Providers → SAML 2.0**: switch it on. Adding the
    customer's provider needs the **service role key** and either their metadata URL or their
-   metadata XML, which their IT will have. That key stays in your terminal or their dashboard and
-   is never set on this app.
-2. Ask them to map **`full_name`** in the SAML attribute mapping. Without it a name falls back to
-   the local part of the address, so a class roster reads `m.aasa` where it should read a person.
+   metadata XML, which their IT team will have. That key stays in your terminal or their dashboard,
+   and is never set on this app.
+2. Ask them to map **`full_name`** in the SAML attribute mapping. Without it, a name falls back to
+   the part of the email address before the @, so a class list shows `m.aasa` where it should show a
+   person.
 3. **Authentication → URL Configuration → Redirect URLs**: add `https://<your-app>/auth/callback`,
-   the same one address the other two ways in land on.
-4. Set `SSO_DOMAINS` to the email domains that provider answers for, comma separated
-   (`SSO_DOMAINS="firma.ee, firma.com"`). Usually set `ALLOWED_EMAIL_DOMAINS` to the same list, so
-   the deployment is theirs and their people go straight to their own login.
+   the same single address the other two ways in use.
+4. Set `SSO_DOMAINS` to the email domains their provider covers, separated by commas
+   (`SSO_DOMAINS="firma.ee, firma.com"`). Usually you'll set `ALLOWED_EMAIL_DOMAINS` to the same
+   list, so the deployment is theirs and their people go straight to their own login.
 
-There is no third button on the sign-in screen. Somebody types their work address into the same box
-the mailed link uses, and a domain named in `SSO_DOMAINS` goes to the provider while anything else
-gets a link. A button offering single sign-on to everybody would refuse most of the people who
-pressed it. The domain is matched whole from the last `@`, so `kool.ee` never hands
-`evilkool.ee` to somebody else's provider, and `lib/auth/sso.ts` is the pure module that decides it.
+There's no third button on the sign-in screen. People type their work address into the same box the
+emailed link uses: an address on a domain in `SSO_DOMAINS` goes to their company's login, and
+anything else gets a link. A button offering company sign-in to everybody would turn away most of
+the people who pressed it. The domain is matched whole, from the last `@`, so `kool.ee` never sends
+`evilkool.ee` to somebody else's login. `lib/auth/sso.ts` is the self-contained module that decides
+this.
 
-Nothing changes in `app/auth/callback/route.ts`. SAML comes back through the same PKCE `code` shape
-Google does, so the verifier cookie check, the allowlist and the narrowed `next=` are all read in
-the one place they always were.
+Nothing changes in `app/auth/callback/route.ts`. SAML comes back in the same PKCE `code` shape
+Google does, so the sign-in cookie check, the list of who's allowed in and the restricted `next=`
+are all still read in the one place they always were.
 
 ## The way it looks
 
-A signed-out visitor lands on **/welcome**, a single-page tour with a working flashcard, a live
-case table and an honest comparison against the streak apps. Every Estonian form on that page is
-read from the real dictionary and derived by the app's own code, not typed into marketing copy.
+A visitor who isn't signed in lands on **/welcome**: a single-page tour with a working flashcard, a
+live case table and an honest comparison with the streak apps. Every Estonian form on that page is
+read from the real dictionary and worked out by the app's own code, not typed into marketing copy.
 
-Inside, the app runs on a pastel design system built around the cornflower, *rukkilill*, Estonia's
-national flower, set throughout in Plus Jakarta Sans, with a mascot made out of the
-letter **õ**. Light is the default everywhere and dark is a choice: the toggle sits at the bottom of the rail.
-`docs/14-design-system.md` has the palette, the tokens and the rules colour follows.
+Inside, the app uses a soft pastel palette built around the cornflower, *rukkilill*, Estonia's
+national flower. It's set in Onest, with Schibsted Grotesk for the few words set large, and the
+mascot is made out of the letter **õ**. Light mode is the default everywhere and dark mode is your
+choice: the switch is at the bottom of the side menu. `docs/14-design-system.md` has the palette,
+the design tokens and the rules for what each colour is allowed to mean.
 
 ## Backing up
 
-**Settings → Download a backup** writes a JSON file with every word, card and review, and the same
-panel restores one. Merge is the default and cannot delete anything, so restoring the same file twice
-is harmless; replacing everything is behind a typed confirmation.
+**Settings → Download a backup** saves a JSON file with every word, card and review, and the same
+panel can restore one. Restoring merges by default and can't delete anything, so restoring the same
+file twice does no harm. Replacing everything sits behind a confirmation you have to type.
 
-Your review history is the one thing here that cannot be recreated, grab a copy now and then, and
-try restoring it once while nothing is at stake. A backup you have never restored is a hypothesis.
+Your review history is the one thing here that can't be recreated, so grab a copy now and then, and
+try restoring it once while nothing is at stake. A backup you've never restored is only a hope.
 
 ## What learners get wrong, counted
 
-The review log already records every exercise anybody has answered and whether they got it right,
-because the scheduler needs it. Aggregated across everybody, that is a picture of where learners of
-Estonian actually fail, by case, by stem change and by word, which is not something a textbook or a
-single classroom can measure.
+The review history already records every exercise anybody has answered and whether they got it
+right, because the scheduler needs it. Put together across everybody, that's a picture of where
+learners of Estonian actually go wrong, by case, by stem change and by word. That's something no
+textbook or single classroom can measure.
 
-Set `RESEARCH_TOKEN` and `/api/research` produces it as a CSV you can send to somebody who teaches
-Estonian or studies how it is learned. Leave it unset and the route does not exist.
+Set `RESEARCH_TOKEN` and `/api/research` produces it as a CSV file you can send to somebody who
+teaches Estonian or studies how it's learned. Leave it unset and that address doesn't exist.
 
 ```
 curl -H "Authorization: Bearer $RESEARCH_TOKEN" \
      "https://your-app/api/research?format=csv" -o learner-errors.csv
 ```
 
-Nothing in that file rests on fewer than ten people or fifty answers, no one person may be more than
-half of any figure, counts are rounded and head counts are given as bands. A category below the
-threshold is missing from the file rather than shown as a small number, so a gap means too little
-data and never no errors. Anyone can leave their own answers out in **Settings → Anonymous
-statistics**, and out means their rows are never read rather than subtracted afterwards.
+Nothing in that file is based on fewer than ten people or fifty answers, no one person may make up
+more than half of any figure, counts are rounded, and numbers of people are given as ranges. A
+category below those limits is left out of the file rather than shown as a small number, so a gap
+always means too little data, never no mistakes. Anyone can leave their own answers out in
+**Settings → Anonymous statistics**, and leaving out means their answers are never read at all,
+rather than taken away afterwards.
 
-Read `docs/19-research-export.md` before sending a file to anybody. It says what the tables can and
-cannot support, which is the half that makes the rest of it worth having.
+Read `docs/19-research-export.md` before sending a file to anybody. It explains what the tables can
+and can't tell you, which is the half that makes the rest worth having.
 
 ## If you are assessing this rather than running it
 
-For a funder, a school, a company or anybody else deciding whether to put this in front of people.
-Every one of these is written to be checked against the code rather than read for comfort, and each
-says what has not been done in the same breath as what has.
+This is for a funder, a school, a company, or anybody else deciding whether to put this in front of
+people. Each of these documents is written to be checked against the code rather than read for
+reassurance, and each one says what hasn't been done in the same breath as what has.
 
 | | |
 | --- | --- |
-| `docs/24-dpia.md` | The data protection impact assessment. The inventory model by model, and fifteen risks, each with the mitigation and the file it lives in. |
-| `docs/25-data-retention.md` | The retention schedule. Honest about the categories kept until the learner deletes their account. |
-| `docs/26-subprocessors.md` | The recipient register, describing the same list `lib/legal/recipients.ts` generates from the deployment's own configuration. |
-| `docs/27-security.md` | The threat model and control review, with a section for the weaknesses it found. |
-| `docs/28-incident-response.md` | The plan, with the Article 33 clock and runbooks for the incidents this app can actually have. |
-| `docs/29-controls.md` | A control map against ISO 27001 and SOC 2. A self assessment, and it says so first. |
-| `docs/33-certification-readiness.md` | The gap analysis behind that map: every Partial and Not done turned into work with a size, a cost and an artifact. |
-| `docs/23-impact.md` | What may honestly be claimed about usage, and the floors that stop a small number being reported at all. |
-| `docs/30-pilots.md` | What a pilot is, what it costs, and what is not ready. |
-| `docs/31-grant-case.md` | The case a funding application would be adapted from, every figure named with the file or the command behind it, and a list of what it cannot claim. |
-| `docs/31-competitors.md` | Three other ways to learn Estonian, read off their own pages on a stated day, against what Kodukeel does, row by row, with what closed each gap. |
-| `SECURITY.md` | Where to send a vulnerability. |
+| `docs/24-dpia.md` | The data protection impact assessment: what's stored, table by table, and fifteen risks, each with its mitigation and the file where that mitigation lives. |
+| `docs/25-data-retention.md` | The retention schedule, honest about the kinds of data kept until the learner deletes their account. |
+| `docs/26-subprocessors.md` | The list of who receives data, matching the list `lib/legal/recipients.ts` builds from the deployment's own settings. |
+| `docs/27-security.md` | The threat model and security review, including a section on the weaknesses it found. |
+| `docs/28-incident-response.md` | The incident plan, with the Article 33 clock and step-by-step guides for the incidents this app could really have. |
+| `docs/29-controls.md` | A map of the controls against ISO 27001 and SOC 2. It's a self-assessment, and it says so first. |
+| `docs/33-certification-readiness.md` | The gap analysis behind that map: every "Partial" and "Not done" turned into a piece of work with a size, a cost and a deliverable. |
+| `docs/23-impact.md` | What can honestly be claimed about usage, and the minimums that stop a small number being reported at all. |
+| `docs/30-pilots.md` | What a pilot is, what it costs, and what isn't ready yet. |
+| `docs/31-grant-case.md` | The case a funding application would be built from, with every figure tied to the file or command behind it, and a list of what it can't claim. |
+| `docs/31-competitors.md` | Three other ways to learn Estonian, read from their own websites on a stated day and compared with Kodukeel row by row, with what closed each gap. |
+| `SECURITY.md` | Where to report a vulnerability. |
 | `/trust` and `/accessibility` | The same material, on the running app. |
 | `/funding` | What it costs to run, where every figure came from, and what happens when the money stops. |
 
-Three things you will not find, because they do not exist yet and claiming them would be the first
-thing a careful reader caught: a SOC 2 report, an ISO 27001 certificate, and an external penetration
-test. There is also no reference customer to name. `docs/30-pilots.md` says so at the top rather than
-at the bottom.
+Three things you won't find, because they don't exist yet and claiming them would be the first
+thing a careful reader caught: a SOC 2 report, an ISO 27001 certificate, and an outside penetration
+test. There's also no reference customer to name yet. `docs/30-pilots.md` says so at the top rather
+than at the bottom.
 
 ## Commands
 
@@ -744,17 +779,17 @@ npm run db:seed:ensure   # load it only if the dictionary is empty, what the dep
 ```
 
 The end-to-end suite and `npm run demo` refuse to run against anything but a local database, and
-say so rather than proceeding. They delete rows on purpose (`test-restore` empties every table to
-prove a backup brings it back) and Prisma reads `DATABASE_URL` from the environment *before* it
-reads `.env`, so a shell that already holds hosted credentials would otherwise point them at real
-data while `.env` sat there saying `localhost`. Set `KODUKEEL_ALLOW_REMOTE_DB=1` if you genuinely
-mean it. `test-restore` also writes the backup to a file before it deletes anything, so a run that
-dies halfway is recoverable rather than final.
+tell you so rather than carrying on. They delete data on purpose (`test-restore` empties every
+table to prove a backup brings it all back), and Prisma reads `DATABASE_URL` from the environment
+*before* it reads `.env`. So a terminal that already holds hosted credentials would otherwise point
+them at real data, while `.env` sat there saying `localhost`. Set `KODUKEEL_ALLOW_REMOTE_DB=1` if you
+genuinely mean it. `test-restore` also saves the backup to a file before deleting anything, so a run
+that stops halfway can be recovered.
 
 ## How it is put together
 
-Next.js 16 (App Router) · TypeScript strict · Tailwind v4 · Prisma + Postgres · `ts-fsrs` ·
-TartuNLP speech · any OpenAI-compatible or Anthropic model.
+Next.js 16 (App Router), TypeScript strict, Tailwind v4, Prisma and Postgres, `ts-fsrs`, TartuNLP
+speech, and any OpenAI-compatible or Anthropic model.
 
 ```
 lib/estonian/     the language model: cases, principal parts, gradation, answer checking.
@@ -780,38 +815,41 @@ prisma/data/      the built-in dictionary.
 docs/             the full plan and the decisions behind it.
 ```
 
-Four rules the code holds to, all explained in `docs/`:
+Four rules the code sticks to, each explained in `docs/`:
 
-- **Estonian forms are never invented.** Principal parts are stored; the eleven regular cases are
-  derived from the genitive at render time. Where a form is unknown, the app shows a gap, an
-  invented form gets drilled into memory by the SRS, which is worse than a blank.
-- **No key ever reaches the browser.** The AI and speech services are called from server routes only.
-- **Progress is derived, never stored.** The streak, the goal and every chart are computed
-  from the append-only review log on each request. There is no score column to increment, so there
-  is no way to be awarded something that did not happen, and none of it can be lost in a restore.
-- **Every view has four states.** Empty, loading, error and offline, a view without an empty state
-  is not finished. `docs/08-ux-ia-a11y.md` §4.
+- **Estonian forms are never made up.** Principal parts are stored, and the eleven regular cases are
+  worked out from the genitive when a page is shown. Where a form isn't known, the app shows a gap.
+  A made-up form would get drilled into your memory by the flashcards, which is worse than a blank.
+- **No key ever reaches the browser.** The AI and speech services are only ever called from the
+  server.
+- **Progress is worked out, never stored.** The streak, the goal and every chart are calculated from
+  the review history each time a page loads, and that history is only ever added to. There's no
+  score to bump up, so nobody can be awarded something that didn't happen, and none of it can be
+  lost in a restore.
+- **Every screen has four states.** Empty, loading, error and offline. A screen without an empty
+  state isn't finished. See `docs/08-ux-ia-a11y.md` §4.
 
 ## Credits
 
-- Estonian forms and example sentences: [Ekilex](https://ekilex.ee), the lexicographic
-  database of the Institute of the Estonian Language. CC BY 4.0.
-- English glosses: [English Wiktionary](https://en.wiktionary.org), by its contributors.
+- Estonian forms and example sentences: [Ekilex](https://ekilex.ee), the dictionary database of the
+  Institute of the Estonian Language. CC BY 4.0.
+- English meanings: [English Wiktionary](https://en.wiktionary.org), by its contributors.
   CC BY-SA 4.0.
-- Word frequency counts: [FrequencyWords](https://github.com/hermitdave/FrequencyWords) over the
-  OpenSubtitles corpus. MIT for the code, CC BY-SA 4.0 for the counts.
+- Word frequency counts: [FrequencyWords](https://github.com/hermitdave/FrequencyWords), counted over
+  the OpenSubtitles corpus. MIT for the code, CC BY-SA 4.0 for the counts.
 - Every spelling of every word, in `prisma/data/forms/`: Ekilex's own inflection tables as published
   in [Estonian-Wordlist-Enriched-Ekilex](https://github.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex)
   (CC BY 4.0 for the Institute's data, CC BY-SA 4.0 for the repository), and
-  [Vabamorf](https://github.com/Filosoft/vabamorf), Filosoft's analyser and synthesiser (LGPL).
-- Speech synthesis: [TartuNLP](https://tartunlp.ai), University of Tartu (MIT).
-- The plan this was built from, including the audit of the original spec, is in `docs/`.
+  [Vabamorf](https://github.com/Filosoft/vabamorf), Filosoft's tool for analysing and building
+  Estonian word forms (LGPL).
+- Speech: [TartuNLP](https://tartunlp.ai), University of Tartu (MIT).
+- The plan this was built from, including the review of the original specification, is in `docs/`.
 
 ## License
 
-The code is MIT, in `LICENSE`. The language data is not, and the difference matters if you
-redistribute rather than merely run this: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0,
-which is share-alike, so `prisma/data/expanded.json` carries CC BY-SA as a build product of
-both. Both attributions are rendered in the running app rather than only in this file, on the
-sign-in page, in the landing footer and on `/terms`, which is where a licence of that shape
-expects to find them. `LICENSE` sets all of this out.
+The code is MIT, in `LICENSE`. The language data isn't, and the difference matters if you
+redistribute this rather than just run it. Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0,
+which is share-alike, so `prisma/data/expanded.json` carries CC BY-SA because it's built from both.
+Both credits are shown in the running app, not only in this file: on the sign-in page, in the
+landing page footer and on `/terms`, which is where a licence like that expects to find them.
+`LICENSE` sets all of this out.

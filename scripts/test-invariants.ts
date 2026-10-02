@@ -2736,9 +2736,12 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     .flatMap((dir) => sourceFiles(dir))
     .filter((file) => file !== table && !/\.i?test\.tsx?$/.test(file))
     .filter((file) => /caseReading\(/.test(code(file)));
+  // And `sayIt`, which turns the same phrase into the ask a card leads with,
+  // `Say “with the bird”`: the instruction and the walkthrough's reading of
+  // the built word are one phrase, so they cannot disagree about an ending.
   assert.deepEqual(
     readers,
-    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts"],
+    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts", "lib/estonian/sayIt.ts"],
     "a second module composes what a word in a case means in English",
   );
   assert.deepEqual(
@@ -10438,7 +10441,7 @@ check("a screen that asks for a form reads the plain table rather than only nami
     const source = code(file);
     assert.match(
       source,
-      /plainAsk\w*\(/,
+      /plainAsk\w*\(|\bsay(?:Line|Phrase)\(|\.say\b/,
       `${file} asks a learner for a named form and never says in plain English what it wants`,
     );
   }
