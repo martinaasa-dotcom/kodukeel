@@ -55,9 +55,9 @@ export default async function SituationsPage() {
       place: scene.place,
       // What it asks for, as tags rather than a sentence, and only the ones
       // that tell this scene from the others: rarest first, and a tag every
-      // scene carries is not a tag. See `lib/scenes/practises.ts`. In the
-      // words a class uses, so a learner told about the seesütlev on Tuesday
-      // can find the conversation that asks for it.
+      // scene carries is not a tag. See `lib/scenes/practises.ts`. Each is
+      // a thing to get done, never a case name: the endings are how the task
+      // is done, and the briefing names them once a learner opens it.
       chips: distinctive(scene, SCENES).map((text) => ({ text, et: CASES.some((c) => c.et === text) })),
       objectives: scene.beats.filter((beat) => beat.required).length,
       minutes: minutesFor(scene),
