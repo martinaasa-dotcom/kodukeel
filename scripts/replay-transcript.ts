@@ -130,6 +130,7 @@ async function main() {
         money: askedNow !== null && asksPrice(words(last?.said ?? ""), context.lexicon),
       });
       const established = establishedBy(state, inPlay, scene.beats);
+      if (argv.includes("--debug-held")) console.log(`      ~ held: ${[...held].join(",")} beat=${state.beat} speaking=${spokenFor.id}`);
       const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id))
         .filter((b) => b.move !== "close" || b.id === spokenFor.id)
         .map((b) => stageFor(b, inPlay, b.id === spokenFor.id ? new Set() : held));

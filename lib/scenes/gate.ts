@@ -261,6 +261,14 @@ export interface GateContext {
    */
   readonly held?: ReadonlySet<string>;
   /**
+   * The learner asked something this turn that is not about money, so a
+   * number the card did not deal may be the honest answer (what time the
+   * shop closes, how far it is). The clock and digit checks stand down for
+   * that line; a price still has to be one the card dealt, and the
+   * consistency check still holds the line to everything said.
+   */
+  readonly freeNumbers?: boolean;
+  /**
    * The clock, where this run deals one: every form of the word a time is told
    * with, every hour word there is, and the hours this card actually named.
    *
@@ -502,7 +510,16 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     exists to find Estonian words and drops digits on the way past, which is
     exactly why nothing here could see this before.
   */
-  if (invented(text, context.dealt) || inventedHour(tokens, context.times) || inventedPrice(tokens, context.money)) {
+  const loose = context.freeNumbers === true;
+  /*
+    Freed numbers are never prices: a digit run straight before a form of the
+    unit has to be one the card dealt, whatever the learner asked.
+  */
+  const digitPrice = loose && Boolean(context.money) && (text.match(/\d+(?=\s+\p{L}+)/gu) ?? []).some((run) => {
+    const after = text.slice(text.indexOf(run) + run.length).trim().split(/\s+/)[0]?.toLowerCase().replace(/[^\p{L}]/gu, "");
+    return Boolean(after && context.money!.unit.has(after) && !(context.dealt ?? new Set()).has(run));
+  });
+  if ((!loose && (invented(text, context.dealt) || inventedHour(tokens, context.times))) || inventedPrice(tokens, context.money) || digitPrice) {
     failed.push("facts");
   }
 

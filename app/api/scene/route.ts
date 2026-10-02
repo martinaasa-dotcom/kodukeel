@@ -18,7 +18,7 @@ import {
 } from "@/lib/progress/scene";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, earlierLines, parseJudgement } from "@/lib/scenes/judge";
 import {
-  CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency,
+  CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency, repeatsItself,
 } from "@/lib/scenes/consistency";
 import { leafNeeds } from "@/lib/scenes/types";
 import { FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
@@ -514,7 +514,14 @@ export async function POST(request: Request) {
     answers: answered ? fresh(answerBeatId(answered)) : [],
     missed: !landedNow,
   };
-  let aside = wantsAside ? asideFor(asking) : null;
+  /*
+    Whether this run composes. In one that does, the model answers what was
+    asked, so none of the keyless answers is said beside it: a canned "See
+    maksab 21 eurot." said beside a prepared line, after the model's attempts
+    were withheld, read as the price out of nowhere.
+  */
+  const composing = draw?.lines === "composed" && sceneProviders().length > 0;
+  let aside = wantsAside && !composing ? asideFor(asking) : null;
   /*
     ONE REPLY PER TURN, AND THE QUESTION IS ANSWERED INSIDE IT. A question the
     bank and the card could not answer used to book the turn's one call for
@@ -534,7 +541,7 @@ export async function POST(request: Request) {
     in its own words.
   */
   const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
-  if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" };
+  if (!composing && wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" };
   /*
     AND NOBODY SHRUGS AT A GOODBYE. A question tucked into the turn that ends
     the scene ("17 eurot, jah? Siin on kaart... head aega!") met "Ei tea."
@@ -551,7 +558,6 @@ export async function POST(request: Request) {
     answer, and where its line does not get through the bank's line is said
     without a shrug in front of it.
   */
-  const composing = draw?.lines === "composed" && sceneProviders().length > 0;
   const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !isOver(scene, state) && !composing;
 
   /*
@@ -886,7 +892,14 @@ export async function POST(request: Request) {
     .slice(state.beat)
     .filter((b) => !state.done.includes(b.id))
     .filter((b) => b.move !== "close" || b.id === beat?.id)
-    .map((b) => stageFor(b, card, b.id === beat?.id ? new Set() : held));
+    /*
+      A step that will say no is marked as one, or the model, reading "they ask
+      what you'd like them to do", promised the refund the next step refuses.
+    */
+    .map((b) => {
+      const stage = stageFor(b, card, b.id === beat?.id ? new Set() : held);
+      return b.move === "refuse" && b.id !== beat?.id ? `(you will turn this down) ${stage}` : stage;
+    });
   const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, card));
   /*
     And what the scene says the answer to the learner's question is, where it
@@ -982,8 +995,13 @@ export async function POST(request: Request) {
     return seen.join("; ");
   }
 
+  /*
+    A closing beat where the learner is still asking: the goodbye waits, so
+    the line is gated as a line that may not say it (`farewell`).
+  */
+  const stillTalking = beat.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS);
   const shared = {
-    beat,
+    beat: stillTalking ? { ...beat, move: "confirm" as const } : beat,
     lexicon: context.lexicon,
     /*
       WHERE THIS RUN STARTS READING A BEAT'S OWN LINES.
@@ -1019,6 +1037,8 @@ export async function POST(request: Request) {
         spelling another value in play shares and any number the learner
         typed, since saying those back is not news.
       */
+      // A question that is not about money may be answered with a number nobody dealt.
+      freeNumbers: askedNow !== null && !asksPrice(turnSaid, context.lexicon),
       held: (() => {
         const kept = heldNumbers(card, held);
         const open = heldNumbers(card, new Set((card?.props ?? []).map((p) => p.slot).filter((slot) => !held.has(slot))));
@@ -1192,15 +1212,24 @@ export async function POST(request: Request) {
         once the conversation has said something to keep to: the opening line
         has nothing behind it to contradict.
       */
-      ...(conversation.length > 0 ? {
-        review: (candidate: string) => reviewLine(ownerId, {
-          conversation: conversation.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
-          established,
-          facts,
-          later: agenda.slice(1),
-          line: candidate,
-        }),
-      } : {}),
+      /*
+        And never its own earlier line again, word for word, which is free to
+        check and is what a critic flagged most after a turn went nowhere.
+      */
+      review: async (candidate: string) => {
+        if (repeatsItself(candidate, state.turns.flatMap((turn) => (turn.heard ? [turn.heard] : [])))) {
+          return "it repeats, word for word, something you already said; say something new that answers what they just said";
+        }
+        return conversation.length > 0
+          ? reviewLine(ownerId, {
+            conversation: conversation.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
+            established,
+            facts,
+            later: agenda.slice(1),
+            line: candidate,
+          })
+          : null;
+      },
       compose: (avoid, because) => compose(chain, {
         ownerId,
         outcome,
@@ -1246,7 +1275,7 @@ export async function POST(request: Request) {
         settled,
         established,
         /* A closing beat where the learner is still asking, so the goodbye waits. */
-        stillTalking: beat.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS),
+        stillTalking,
         /*
           AND WHAT HAPPENED TO THEIR TURN, WHICH IS WHY A MISS IS WORTH A CALL AT
           ALL. Without it a model asked to compose after a miss writes the
@@ -1257,8 +1286,10 @@ export async function POST(request: Request) {
         */
         note: composeNote(
           turns.length > 0 ? response : null, progress.reading, elsewhere > 0, askedNow,
-          { offer: handing, answer: anticipated },
+          { offer: handing, answer: anticipated, again: hearAgain && heard !== null },
         ),
+        /* How many times this move has already been made, so a question answered is not asked a third time. */
+        madeBefore: state.turns.filter((turn) => turn.beatId === beat.id).length,
         // And what that turn was to this person, so the model feels what the keyless reply feels.
         feel: feltAt(answered, turns.length > 0 ? response : null),
         conversation,
@@ -1474,6 +1505,7 @@ async function compose(
     /** What the run has established and nothing may undo (`ComposeAsk.established`). */
     established?: readonly string[];
     stillTalking?: boolean;
+    madeBefore?: number;
     /** The run so far, both sides, alternating. Empty on the opening line. */
     conversation: readonly ChatMessage[];
     avoid: readonly string[];

@@ -138,6 +138,8 @@ describe("a question about the price", () => {
     expect(asksPrice(["kas", "see", "maksab"], LEX)).toBe(true);
     expect(asksPrice(["kas", "eurot"], LEX)).toBe(true);
     expect(asksPrice(["kuhu", "siis"], LEX)).toBe(false);
+    // "Many" is not "how much": a question about flowers released the wage.
+    expect(asksPrice(["kas", "siin", "on", "palju", "lilli"], LEX)).toBe(false);
   });
 
   it("is answered with the price off the card, in a sentence made of course words", () => {

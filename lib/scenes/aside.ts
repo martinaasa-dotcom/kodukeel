@@ -80,8 +80,15 @@ const HOW = new Set(["kuidas"]);
  * `ostmine` and `kusisonad`: `kui palju`, `mis hind`, `maksab`, `eurot`.
  * Resolved through the scene's own lexicon, so nothing here is a form.
  */
-const MONEY = ["hind", "maksma", "euro"] as const;
-const HOW_MUCH = ["palju", "mitu"] as const;
+const MONEY = ["hind", "maksma", "euro", "palk", "raha"] as const;
+/*
+  "HOW MUCH" IS TWO WORDS, NOT ONE. `palju` alone is "many" or "a lot", and a
+  learner asking `Kas siin on palju lilli?` at a job interview was read as
+  asking the pay, which released the wage held for the offer. Only `kui palju`
+  asks a quantity, and only beside nothing else is it about money; with a
+  money word anywhere in the turn it is.
+*/
+const HOW_MUCH = ["kui", "palju"] as const;
 
 /**
  * Moves on which the other side was giving information, so "more" is more of
@@ -233,7 +240,7 @@ export function asksPrice(spoken: readonly string[], lexicon: Lexicon): boolean 
   for (const lemma of MONEY) {
     for (const form of lexicon.byLemma.get(lemma) ?? []) if (said.has(form)) return true;
   }
-  return HOW_MUCH.some((word) => said.has(word));
+  return spoken.some((word, at) => word === HOW_MUCH[0] && spoken[at + 1] === HOW_MUCH[1]);
 }
 
 /**

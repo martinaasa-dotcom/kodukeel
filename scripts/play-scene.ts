@@ -58,7 +58,7 @@ import { caseKeyFor, words } from "../lib/scenes/lexicon";
 import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "../lib/scenes/judge";
 import {
-  CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency,
+  CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency, repeatsItself,
 } from "../lib/scenes/consistency";
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
@@ -375,10 +375,11 @@ async function play(sceneId: string) {
       asked: askedNow, spoken: words(last?.said ?? ""), said: last?.said ?? "", answered, card, lexicon: context.lexicon,
       more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow,
     };
-    let aside = wantsAside ? asideFor(asking) : null;
+    // A run that composes says none of the keyless answers beside the model's line (the route's rule).
+    let aside = wantsAside && LINKS.length === 0 ? asideFor(asking) : null;
     // "Sorry, what?" gets the line again, never the shrug (the route's rule).
     const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
-    if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" as const };
+    if (LINKS.length === 0 && wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" as const };
     // What this person knows off the card, in English, as the route hands it to the model.
     // What this person holds for later and what the run has established, as the route reads them.
     const held = heldBack(scene.beats, card, state, standing ?? speaking ?? null, {
@@ -405,18 +406,25 @@ async function play(sceneId: string) {
       // The person's own agenda and what is settled, as the route hands them to the model.
       const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id))
         .filter((b) => b.move !== "close" || b.id === spokenFor.id)
-        .map((b) => stageFor(b, card, b.id === spokenFor.id ? new Set() : held));
+        .map((b) => {
+          const stage = stageFor(b, card, b.id === spokenFor.id ? new Set() : held);
+          return b.move === "refuse" && b.id !== spokenFor.id ? `(you will turn this down) ${stage}` : stage;
+        });
       const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, card));
       const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
       const handing = (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
       const cheap = await sceneLine({
-        beat: spokenFor, lexicon: context.lexicon,
+        // A closing beat where the learner is still asking is gated as one that may not say goodbye.
+        beat: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS)
+          ? { ...spokenFor, move: "confirm" as const } : spokenFor,
+        lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
         gate: {
           ...context.gate, dealt: dealtNumbers(card ?? draw.card),
           times: clockInPlay(card ?? draw.card, context.lexicon),
           money: moneyInPlay(card ?? draw.card, context.lexicon),
+          freeNumbers: askedNow !== null && !asksPrice(words(last?.said ?? ""), context.lexicon),
           held: (() => {
             const kept = heldNumbers(card, held);
             const open = heldNumbers(card, new Set((card?.props ?? []).map((p) => p.slot).filter((slot) => !held.has(slot))));
@@ -457,8 +465,13 @@ async function play(sceneId: string) {
         // The harness composes when it has a link, exactly as a run does.
         mode: LINKS.length > 0 ? ("composed" as const) : ("scripted" as const),
         // The route's consistency check, on the judge's link, once there is a conversation to keep to.
-        ...(JUDGE_LINKS.length > 0 && talk.length > 0 ? {
+        ...(JUDGE_LINKS.length > 0 ? {
           review: async (candidate: string) => {
+            if (repeatsItself(candidate, state.turns.flatMap((t) => (t.heard ? [t.heard] : [])))) {
+              if (process.argv.includes("--drafts")) console.log(`      ~ repeats itself (${spokenFor.id})`);
+              return "it repeats, word for word, something you already said; say something new that answers what they just said";
+            }
+            if (talk.length === 0) return null;
             const link = JUDGE_LINKS[0]!;
             const res = await fetch(link.url, {
               method: "POST",
@@ -505,8 +518,9 @@ async function play(sceneId: string) {
             // And what happened to the turn, which is the route's own wording.
             note: composeNote(
               turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow,
-              { offer: handing, answer: anticipated },
+              { offer: handing, answer: anticipated, again: hearAgain && heard !== null },
             ),
+            madeBefore: state.turns.filter((t) => t.beatId === spokenFor.id).length,
             feel: feltAt(answered, turns.length > 0 ? response : null),
             avoid,
           }, {

@@ -42,6 +42,16 @@ import type { BeatSpec } from "./types";
  */
 export const MAX_COMPOSE_ATTEMPTS = 3;
 
+/**
+ * What the last attempt is told: the plainest line that still answers the
+ * person. It is a brief rather than a template, and the line is gated and
+ * reviewed like any other.
+ */
+export const SAFE_RETRY = "this is your last try, so keep it plain: one or two short, simple sentences"
+  + " in everyday words from your list; first a brief, natural reaction to exactly what they just said"
+  + " (answer it if they asked something), then your move; no numbers your facts do not give unless they asked,"
+  + " no goodbye unless your move is to close";
+
 /** Where a line came from. Printed beside it, every time (ADR-025). */
 export type Provenance =
   /** A sentence a lexicographer recorded, used whole. Nothing was generated. */
@@ -476,7 +486,29 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
         return { text: line, provenance: "composed", stretched: verdict.stretched };
       }
     }
-    withheld = verdicts.at(-1)?.failed ?? [];
+    /*
+      ONE LAST, NARROW ATTEMPT BEFORE THE BANK. A prepared line was drafted
+      against the beat alone, so when it stands in for a turn the model could
+      not write, it ignores what the learner just said: read over a full pass
+      of every scene, two thirds of what a critic flagged was a prepared line
+      or a canned piece said after three attempts had been withheld. A plain
+      reaction and the move, checked like every other line, is nearly always
+      something the gate and the reviewer pass, and it is still a line written
+      for this turn.
+    */
+    const last = verdicts.at(-1) ?? null;
+    const line = await request.compose(retryNote(last), [
+      whyWithheld(last, request.beat.move), objection, SAFE_RETRY,
+    ].filter(Boolean).join(": "));
+    let verdict = await judge(line);
+    if (line && verdict && passes(verdict) && request.review) {
+      const objected = await request.review(line);
+      if (objected) verdict = { ...verdict, failed: ["consistency"] };
+    }
+    if (line && verdict && passes(verdict)) {
+      return { text: line, provenance: "composed", stretched: verdict.stretched };
+    }
+    withheld = verdict?.failed ?? last?.failed ?? [];
   }
 
   /*
@@ -538,7 +570,7 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
     verbless question again and the turn fell to the bank.
   */
   const reasons: Record<Exclude<Check, "vouching" | "stretch">, string> = {
-    facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, and in digits, exactly as the facts give them. If they asked about something you have no figure for, still answer it, but without any number at all",
+    facts: "it stated a number, a time or a price that is not among the facts you were given; say only those, in digits, exactly as the facts give them, and never invent a price",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
     ahead: "it told them something you are keeping for later in the conversation (a figure, a time or a price you only reach further on); do not mention it yet, unless they ask for it",
 

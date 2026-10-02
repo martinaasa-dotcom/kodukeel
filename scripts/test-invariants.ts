@@ -19584,7 +19584,7 @@ check("every question a beat asks the learner for is answered by somebody", () =
       + "with the card's values filled in",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /\{ offer: handing, answer: anticipated \}/,
+    code("app/api/scene/route.ts"), /\{ offer: handing, answer: anticipated[ ,}]/,
     "the anticipated answer is worked out and never handed to the composer",
   );
 });

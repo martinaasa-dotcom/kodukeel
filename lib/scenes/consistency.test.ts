@@ -3,7 +3,7 @@ import { buildLexicon, type DictEntry } from "./lexicon";
 import { runGate, type GateContext } from "./gate";
 import { sceneLine, type LineRequest } from "./line";
 import { topicForms } from "./retrieval";
-import { buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency } from "./consistency";
+import { buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency, repeatsItself } from "./consistency";
 import { buildJudgeSystemPrompt, buildJudgeUserPrompt } from "./judge";
 import { composeLive } from "./prompt";
 import { establishedBy, factsFor, heldBack, heldNumbers, slotsOf, stageFor } from "./reply";
@@ -203,5 +203,28 @@ describe("the judge reads a turn in its conversation", () => {
     expect(user).toMatch(/Kuhu te sõidate\?/);
     expect(user).toMatch(/The conversation so far/);
     expect(user.indexOf("Tere!")).toBeLessThan(user.indexOf("Kuhu te sõidate"));
+  });
+});
+
+describe("a line said twice", () => {
+  it("is caught where every sentence was said before, and not where something is added", () => {
+    const said = ["Tore, et salat sobib! Kogu arve on 20 eurot. Toon arve kohe."];
+    expect(repeatsItself("Tore, et salat sobib! Kogu arve on 20 eurot. Toon arve kohe.", said)).toBe(true);
+    expect(repeatsItself("tore et salat sobib kogu arve on 20 eurot toon arve kohe", said)).toBe(true);
+    expect(repeatsItself("Kogu arve on 20 eurot. Kas maksate kaardiga?", said)).toBe(false);
+    expect(repeatsItself("Jah.", ["Jah."])).toBe(false);
+  });
+});
+
+describe("a number nobody dealt, on a question that is not about money", () => {
+  it("may be said, and a price still may not", () => {
+    const base = {
+      ...GATE, dealt: new Set<string>(["1550"]),
+      money: { unit: new Set(["eurot", "euro"]), numbers: new Map<string, string>(), dealt: new Set<string>() },
+    };
+    expect(runGate("Palk on hea, kell 18 on lõuna.", BEAT, base).failed).toContain("facts");
+    expect(runGate("Palk on hea, kell 18 on lõuna.", BEAT, { ...base, freeNumbers: true }).failed).not.toContain("facts");
+    expect(runGate("Palk on 18 eurot.", BEAT, { ...base, freeNumbers: true }).failed).toContain("facts");
+    expect(runGate("Palk on 1550 eurot.", BEAT, { ...base, freeNumbers: true }).failed).not.toContain("facts");
   });
 });

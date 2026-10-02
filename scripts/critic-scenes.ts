@@ -20,7 +20,7 @@
  * spends Gemini credit, about a tenth of a cent a turn.
  */
 import { spawn } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { SCENES } from "../lib/scenes/catalogue";
 
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
@@ -30,12 +30,19 @@ const only = arg("scene");
 const out = arg("out") ?? "critic-report.md";
 const extra = process.argv.includes("--model-down") ? ["--model-down"] : [];
 const PARALLEL = Number(arg("parallel") ?? "6");
+/*
+  `--raw <dir>` keeps every conversation as play-scene printed it, drafts and
+  withheld reasons included, so a flagged line can be traced to the rung that
+  wrote it and to why the model's own attempts did not get through.
+*/
+const raw = arg("raw");
+if (raw) mkdirSync(raw, { recursive: true });
 
 interface Issue { turn: number; kind: string; line: string; why: string }
 
 function play(scene: string, kind: string, seed: number): Promise<string> {
   return new Promise((resolve) => {
-    const child = spawn("npx", ["tsx", "scripts/play-scene.ts", "--compose", "--scene", scene, "--learner", kind, "--seed", String(seed), ...extra], { env: process.env });
+    const child = spawn("npx", ["tsx", "scripts/play-scene.ts", "--compose", "--scene", scene, "--learner", kind, "--seed", String(seed), ...(raw ? ["--drafts"] : []), ...extra], { env: process.env });
     let text = "";
     child.stdout.on("data", (d) => { text += d; });
     child.stderr.on("data", () => {});
@@ -59,6 +66,7 @@ const CRITIC = [
   "contradiction (contradicts an earlier line or the facts), premature-end (ends or says goodbye before the conversation's business is done),",
   "stall (the conversation is stuck and does not move on after the learner has clearly answered), misunderstood (treats a clear answer as not understood),",
   "unnatural (Estonian a native speaker would never say, or wrong), unkind (anything that could make a learner feel stupid).",
+  "Saying something again because the learner asked to hear it again, or asked the same thing again, is not a repeat.",
   "Do NOT flag the learner's own mistakes, and do not flag THEM for being simple or short. Ignore lines in English that start with 'Tip:' (app hints) and scene directions.",
   "Reply with JSON only: {\"issues\": [{\"turn\": <1-based index of the THEM line>, \"kind\": \"...\", \"line\": \"the THEM line\", \"why\": \"one short sentence\"}]}. An empty list if there are none.",
 ].join("\n");
@@ -90,7 +98,9 @@ async function critique(text: string): Promise<Issue[]> {
   await Promise.all(Array.from({ length: PARALLEL }, async () => {
     while (next < jobs.length) {
       const job = jobs[next++]!;
-      const text = transcript(await play(job.scene, job.kind, job.seed));
+      const played = await play(job.scene, job.kind, job.seed);
+      if (raw) writeFileSync(`${raw}/${job.scene}-${job.kind}-${job.seed}.log`, played);
+      const text = transcript(played);
       const issues = await critique(text);
       results.push({ job, text, issues });
       console.log(`${job.scene} ${job.kind} #${job.seed}: ${issues.length} issue(s)`);

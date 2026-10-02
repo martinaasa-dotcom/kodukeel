@@ -46,7 +46,7 @@ import { NEW_WORDS } from "./gate";
 import { MAX_COMPOSED_WORDS } from "./gate";
 import { pitchFor } from "./pitch";
 import type { Level } from "@/lib/collections/syllabus/types";
-import type { Feel } from "./types";
+import { QUESTION_SHAPE, type Feel, type MoveKind } from "./types";
 
 /** What is the same on every turn of one run, and therefore what is worth caching. */
 export interface ComposeScene {
@@ -192,6 +192,12 @@ export interface ComposeAsk {
    * one of these as a conversation ended too early.
    */
   readonly stillTalking?: boolean;
+  /**
+   * How many times this move has already been made in the run. A waiter whose
+   * move was "ask if you enjoyed it" asked it three times in different words
+   * to a learner who had answered twice and was waiting on something else.
+   */
+  readonly madeBefore?: number;
   /**
    * WHAT JUST HAPPENED TO THEIR TURN, IN ENGLISH, WHERE IT IS NOT SIMPLY
    * "THEY ANSWERED YOU".
@@ -349,7 +355,9 @@ const COMPOSE_RULES = [
   "what you have or do not have). If something you still need no longer fits what you said, fit",
   "it to what you said. Never invent a new fact that changes the situation to answer a question.",
   "Do not run ahead: anything you keep for later (a figure, an offer, a decision) is said only",
-  "when your move comes to it or they ask for it, never earlier.",
+  "when your move comes to it or they ask for it, never earlier. Your later steps are what will",
+  "happen: never promise, offer or agree to anything now that one of them takes back (if a later",
+  "step refuses something, do not offer it now; just take note of what they want).",
   /*
     And the question nobody wrote a beat for, which is most of what a learner
     throws at a role-play to see if it holds. Answered in character, briefly,
@@ -359,9 +367,9 @@ const COMPOSE_RULES = [
   "place does not have, your name), answer it the way this person really would, in character and",
   "with humour if it fits, using what you know or what anybody here would plainly know (an",
   "ordinary first name is fine); then bring the conversation back, in your own words, to what you",
-  "still need. Never ignore a question. If answering would need a number, time or price that is",
-  "not in your facts, answer without any number at all (around midday, soon, not far, not",
-  "expensive, I am not sure): digits you were not given are never allowed.",
+  "still need. Never ignore a question. If they ask something your facts do not cover (when you",
+  "close, how far it is), give a plausible, ordinary answer that fits everything already said;",
+  "never change a price, time or number your facts give, and never invent a price.",
   "What they say outranks your plan: if what they just said shows the step you are on does not",
   "fit yet (they are not there yet, it does not fit them, they changed their mind, they are",
   "confused), deal with that first, as a person would, instead of pushing on.",
@@ -476,6 +484,22 @@ export function composeLive(ask: ComposeAsk): string {
       ? "Ask them and stop: do not answer your own question or say the learner's line."
       : "",
     /*
+      AND A MOVE THAT GIVES SOMETHING ASKS NOTHING. The gate refuses a
+      question on these moves, because the learner's job on the next turn is
+      to ask (what else is possible, where that is, what the word means), and
+      a refusal that ends "does Wednesday suit you?" has done it for them.
+      Told only "your move gives them something", models wrote that question
+      three times in a row and the turn fell to a prepared line.
+    */
+    ask.move !== "close" && QUESTION_SHAPE[ask.move as MoveKind] === "forbidden"
+      ? ask.move === "refuse"
+        ? "Your move is to say no: say it kindly, with the reason, and stop. Do not offer another"
+          + " option or ask anything at all, not even whether something else would suit them;"
+          + " what happens next is for them to ask."
+        : "Your move is to tell them something: say it and stop, with no question at all, not even"
+          + " a check like whether that is clear or suits them."
+      : "",
+    /*
       AND A CLOSE IS THE GOODBYE, SAID NOW. Told "they say goodbye", the
       fallback went on with the conversation instead, `Kas te õpite juba
       kaua?`, `Kontor on siin, samas hoones`, ten of the seventeen lines
@@ -492,10 +516,17 @@ export function composeLive(ask: ComposeAsk): string {
     ask.move === "close" && ask.stillTalking
       ? "They are still asking or telling you something: answer it properly and kindly first, and do"
         + " not say goodbye in this line; leave room for them to finish, and say goodbye once they do."
+      : ask.move === "close" && !/goodbye/i.test(ask.they) && /thank/i.test(ask.they)
+      ? "This ends your part of the conversation: thank them warmly and do what the direction says,"
+        + " in a sentence or two. Do not say goodbye, since nobody is leaving, and ask nothing more."
       : ask.move === "close"
       ? /goodbye|thank/i.test(ask.they)
         ? "This ends the conversation: say goodbye now, in a sentence or two, and ask nothing more."
         : "This ends the conversation: do what the direction says in a sentence or two, ask nothing more, and do not say goodbye yet: they say it first, and you answer it."
+      : "",
+    ask.move === "close" && !ask.stillTalking
+      ? "If anything is still open (a question of theirs unanswered, a payment not made), finish it"
+        + " first in this line, naturally, before the goodbye."
       : "",
     /*
       AND THE CONVERSATION HAS ALREADY BEGUN ON EVERY BEAT BUT THE FIRST. The
@@ -505,6 +536,10 @@ export function composeLive(ask: ComposeAsk): string {
     */
     ask.move !== "greet"
       ? "You have already greeted each other, so do not greet them again."
+      : "",
+    (ask.madeBefore ?? 0) >= 2
+      ? "You have already made this move more than once in this conversation. Do not make it again"
+        + " in any words: respond to what they just said, and leave room for them with something new."
       : "",
     ask.established && ask.established.length > 0
       ? `Already established in this conversation, true from now on whatever comes next: ${ask.established.join(" ")}`

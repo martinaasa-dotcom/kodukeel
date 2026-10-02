@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, type DictEntry } from "./lexicon";
 import { CHECKS, type GateContext } from "./gate";
-import { MAX_COMPOSE_ATTEMPTS, pickAttested, sceneLine, whyWithheld, type LineRequest } from "./line";
+import { MAX_COMPOSE_ATTEMPTS, SAFE_RETRY, pickAttested, sceneLine, whyWithheld, type LineRequest } from "./line";
 import { topicForms } from "./retrieval";
 import type { BeatSpec } from "./types";
 
@@ -111,12 +111,15 @@ describe("the ladder", () => {
     expect(seen[1], "the retry was not told which word failed").toContain("peavalu");
   });
 
-  it("stops after MAX_COMPOSE_ATTEMPTS, not before and not after", async () => {
+  it("stops after MAX_COMPOSE_ATTEMPTS and one plain last try, not before and not after", async () => {
     let asked = 0;
+    const told: (string | undefined)[] = [];
     const line = await sceneLine(request({
-      compose: async () => { asked += 1; return "Kas teil on peavalu?"; },
+      compose: async (_avoid, because) => { asked += 1; told.push(because); return "Kas teil on peavalu?"; },
     }));
-    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS);
+    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS + 1);
+    // The last try is told to keep it plain.
+    expect(told.at(-1)).toContain(SAFE_RETRY);
     expect(line.provenance).toBe("fallback");
   });
 
@@ -200,8 +203,8 @@ describe("the scripted rung", () => {
       compose: async () => { asked++; return null; },
     }));
     expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
-    // Asked MAX_COMPOSE_ATTEMPTS times, and only then the net.
-    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS);
+    // Asked MAX_COMPOSE_ATTEMPTS times and once plainly, and only then the net.
+    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS + 1);
   });
 
   it("says the banked line where the gate withheld what the model wrote", async () => {

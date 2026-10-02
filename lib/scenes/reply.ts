@@ -778,6 +778,8 @@ export function composeNote(
      * anticipated is answered from the scene rather than guessed at.
      */
     readonly answer?: string | null;
+    /** They asked to hear the last line again ("vabandust, mida?"). */
+    readonly again?: boolean;
   } = {},
 ): string | undefined {
   /*
@@ -807,6 +809,10 @@ export function composeNote(
     already moved to the next thing; the model is told so, or it asks a fourth
     time for something the scene has given up on.
   */
+  if (extra.again) {
+    return "They asked you to say that again. Say the same thing once more, more slowly and in"
+      + " simpler words, not word for word, and kindly.";
+  }
   if (response === "moveOn") {
     return "You have asked for something a few times and not got it. Let it go the way a"
       + " person does, without any reproach, and carry on to the next thing you need."
@@ -1120,11 +1126,11 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       right is not.
     */
     /*
-      Not in front of a composed line, unless it is a correction: the line was
-      written with the turn in front of it and takes the word up itself, so
-      the word said back first is the other side saying it twice.
+      Not in front of a composed line, a correction included: the line was
+      written with the turn in front of it and takes the word up itself, and a
+      bare word first ("Tahtma.") read as the other side blurting a lemma.
     */
-    const worth = input.recast || input.english || (brief && !composed);
+    const worth = !composed && (input.recast || input.english || brief);
     const echo = worth && input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null;
     if (echo) {
       out.push({

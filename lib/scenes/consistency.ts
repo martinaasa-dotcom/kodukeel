@@ -55,7 +55,9 @@ export function buildConsistencySystemPrompt(): string {
     "Also a problem: ignoring a question the learner just asked.",
     "Never a problem: going with what the learner says about where they are or what has happened, even where a scene note says otherwise; saying goodbye back when the learner says goodbye.",
     "Also a problem, and only when you are certain: an Estonian grammar error any native speaker would notice at once (a wrong ending on an adjective beside its noun, a verb that does not agree with its subject), or a phrase no native speaker would ever say. Do not object to ordinary style or word choice.",
-    "Also a problem: stepping out of the role to tell the learner what to say next.",
+    "Also a problem: stepping out of the role-play to coach the learner (suggesting what they could say, explaining the exercise). Anything this person would naturally say in their job is fine, such as a teacher asking the class to repeat a sentence.",
+    "Also a problem: promising, offering or agreeing to something that a step listed as coming later takes back.",
+    "Not a problem: saying no with a reason where the person had only sounded willing or helpful before; only an outright reversal of something they promised is.",
     "Not a problem: answering the learner's question, reacting to what they said, repeating or rephrasing something already said, or asking again for something still needed.",
     "Reply with a JSON object only, no prose around it: {\"ok\": true or false, \"why\": \"one short sentence of English\"}.",
   ].join("\n");
@@ -86,3 +88,25 @@ export function parseConsistency(raw: string): Consistency | null {
     return null;
   }
 }
+
+/**
+ * WHETHER A LINE IS ONE THIS PERSON HAS ALREADY SAID, SENTENCE FOR SENTENCE.
+ *
+ * A model asked again on a turn that went nowhere wrote its own earlier line
+ * back word for word, and a critic counted it every time: the waiter's "the
+ * bill is 20 euros, I'll bring it", the landlord's "nobody can come this
+ * week". Caught before the reviewer is asked, since it costs a comparison.
+ * Every sentence of the line has to have been said before, so a line that
+ * repeats one sentence and adds another is a person restating and moving on.
+ */
+export function repeatsItself(line: string, said: readonly string[]): boolean {
+  const norm = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+  const sentences = (text: string) => (text.match(/[^.!?]+[.!?]*/g) ?? []).map(norm).filter((one) => one.length > 0);
+  const whole = norm(line);
+  if (whole.split(" ").length < 3) return false;
+  if (said.some((one) => norm(one) === whole)) return true;
+  const before = new Set(said.flatMap(sentences));
+  const mine = sentences(line);
+  return mine.length > 0 && mine.every((one) => before.has(one));
+}
+

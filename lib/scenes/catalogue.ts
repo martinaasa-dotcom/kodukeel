@@ -1805,7 +1805,7 @@ const COURSE: SceneSpec = {
     {
       id: "word",
       goal: "They used a word you don't know. Ask what it means, or ask them to say it again.",
-      they: "They use a word you don't know and just carry on.",
+      they: "They carry on with the lesson, using a less common word you probably don't know yet, and don't explain it.",
       answer: "They say the word again, slowly, and explain it with other Estonian words.",
       move: "instruct",
       topic: ["sõna", "lause", "harjutus", "näide", "kordama"],
@@ -2130,7 +2130,7 @@ const COMPLAINT: SceneSpec = {
     {
       id: "insist",
       goal: "They've said no. Stay polite and don't give up: ask what they can do, or say you'd like to make a complaint.",
-      they: "They say that's not possible.",
+      they: "They say what you asked for isn't possible here today.",
       move: "refuse",
       topic: ["saama", "võimalus", "lahendus", "kaebus"],
       needs: [{ kind: "lemma", oneOf: ["kaebus", "kaebama", "lahendus", "hüvitis", "probleem", "klient"] }],
