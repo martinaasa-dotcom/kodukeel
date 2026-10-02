@@ -163,6 +163,19 @@ interface Ticks {
 }
 
 /**
+ * When this learner's course last started over, or null if it never has.
+ *
+ * Written by `setCourseLevel` when the level changes. A tick before it is a
+ * tick of a course the learner has left, so nothing that reads progress
+ * counts it; the row stays, because `CourseStep` is append-only.
+ */
+export async function courseFrom(ownerId: string): Promise<Date | null> {
+  const raw = await readSetting(ownerId, SETTING_KEYS.courseFrom);
+  const at = raw ? Date.parse(raw) : NaN;
+  return Number.isFinite(at) ? new Date(at) : null;
+}
+
+/**
  * Every tick this learner has written for this programme.
  *
  * Memoised for the render, which is the rule this project already applies to
@@ -171,8 +184,11 @@ interface Ticks {
  * were two identical reads of the same rows a few lines apart.
  */
 const ticksFor = cache(async (ownerId: string, programme: Programme): Promise<Ticks> => {
+  const from = await courseFrom(ownerId);
   const rows = await prisma.courseStep.findMany({
-    where: { ownerId, programmeId: programme.id },
+    // Only ticks since the course last started over: a level change puts the
+    // module back at the first evening of its part (`courseFrom`).
+    where: { ownerId, programmeId: programme.id, ...(from ? { createdAt: { gte: from } } : {}) },
     select: { dayId: true, stepId: true, createdAt: true },
     // Total, ending on a column nothing can move: two ticks land in the same
     // millisecond when a learner presses twice, and `lastAt` decides where the

@@ -12,7 +12,9 @@ import type { InvariantKit } from "../lib/invariantKit";
  * stored front printed its Latin case name straight off the row. Each arm was
  * written against the shape that broke it.
  */
-export default function reviewRepeatsOnlyWhatWasTaught({ check, code }: InvariantKit) {
+export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
+  const { check, code } = kit;
+  aNewLevelStartsOver(kit);
   check("the daily review asks every card, due or new, through `reviewable`", () => {
     const page = code("app/(app)/review/page.tsx");
     assert.match(page, /const within = \(card: CardRow\) => reviewable\(taught, card, spellings\)/,
@@ -47,5 +49,33 @@ export default function reviewRepeatsOnlyWhatWasTaught({ check, code }: Invarian
       assert.doesNotMatch(src, /\bfront: c\.front\b/, `${file} hands a stored front to a screen without readableFront`);
       assert.match(src, /readableFront\(c\.front\)/, `${file} stopped reading its fronts through readableFront`);
     }
+  });
+}
+
+/**
+ * AND A NEW LEVEL STARTS THE MODULE OVER.
+ *
+ * Reported right after the above: having changed level, the learner still had
+ * eighteen cards due and the module resumed an old evening. A level change
+ * moves the course to the new level's opening part and writes `courseFrom`,
+ * and progress reads only ticks after it, so the part opens on its first
+ * evening and Review (held to the module) shrinks to what that start taught.
+ */
+function aNewLevelStartsOver({ check, code }: InvariantKit) {
+  check("changing level restarts the module on the new level's first evening", () => {
+    const actions = code("app/actions.ts");
+    const start = actions.indexOf("export async function setCourseLevel");
+    assert.ok(start >= 0, "setCourseLevel is gone");
+    const body = actions.slice(start, actions.indexOf("export async function", start + 10));
+    assert.match(body, /const before = await courseLevelFor\(ownerId\);[\s\S]*recordCourseLevel/,
+      "setCourseLevel no longer reads the level it is changing from");
+    assert.match(body, /before !== parsed\.data/, "a level change no longer restarts the course");
+    assert.match(body, /SETTING_KEYS\.courseFrom, now\.toISOString\(\)/, "a level change no longer marks where the course restarts");
+    const course = code("lib/progress/course.ts");
+    const ticks = course.slice(course.indexOf("const ticksFor"), course.indexOf("const ticksFor") + 600);
+    assert.match(ticks, /courseFrom\(ownerId\)[\s\S]*createdAt: \{ gte: from \}/,
+      "progress counts ticks from before the course last started over");
+    assert.match(code("lib/progress/adapt.ts"), /courseFrom\(ownerId\)/,
+      "a part walked before a restart still blocks a move into it");
   });
 }

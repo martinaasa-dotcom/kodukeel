@@ -3,6 +3,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/db";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { courseStandingFor } from "@/lib/progress/level";
+import { courseFrom } from "@/lib/progress/course";
 import {
   PROGRAMMES, adaptOffer, adaptReading, tiltFor, tiltedLevel,
   type AdaptOffer, type AdaptReading, type LeanEffects, type Programme, type Tilt,
@@ -80,9 +81,12 @@ export async function adaptTiltFor(ownerId: string): Promise<Tilt> {
  * owner, so it is bounded by one person's course however big the table grows.
  */
 async function touchedParts(ownerId: string): Promise<Set<string>> {
+  const from = await courseFrom(ownerId);
   const rows = await prisma.courseStep.groupBy({
     by: ["programmeId"],
-    where: { ownerId },
+    // A part walked before the course last started over is a part the
+    // learner has left, and may be offered again (`courseFrom`).
+    where: { ownerId, ...(from ? { createdAt: { gte: from } } : {}) },
     orderBy: { programmeId: "asc" },
   });
   return new Set(rows.map((r) => r.programmeId));

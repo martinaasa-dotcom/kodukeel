@@ -2523,6 +2523,8 @@ export async function setCourseLevel(level: string) {
   if (!parsed.success) return { ok: false as const, error: "Pick a level from the list." };
 
   const now = new Date();
+  // Asked before the write, since what changed is the whole question below.
+  const before = await courseLevelFor(ownerId);
   await recordCourseLevel(ownerId, parsed.data, now);
 
   /*
@@ -2534,20 +2536,35 @@ export async function setCourseLevel(level: string) {
     nobody had shown them, under a screen that said A1. It was reported off
     exactly that card. So where the level now opens on a different level of
     the ladder than the part in play, the course moves to the first part of it,
-    the way an accepted move on the module screen does. A part of the same
-    level is left where it is, because re-picking A1 halfway through A1 is not
-    asking to start again. Ticks belong to their part, so nothing is lost:
-    going back to a part picks up where its own ticks left off. "off" is a
+    the way an accepted move on the module screen does. Re-picking the level
+    already held is not asking to start again. "off" is a
     learner who picks their own evenings and is never put back on the course.
   */
+  /*
+    AND A NEW LEVEL STARTS THE MODULE OVER, ON ITS FIRST EVENING.
+
+    "Going back to a part picks up where its own ticks left off" was the rule,
+    and it was reported as wrong by somebody who had just changed level: the
+    module resumed an old evening and Review still held eighteen cards from
+    the course they had left. Changing level is a fresh start, so the course
+    moves to the first part of the new level and `courseFrom` is written: ticks
+    before it are kept (`CourseStep` is append-only) and are no longer read as
+    progress, so the part opens on its first evening. Review follows on its
+    own, because it asks only what the module has taught (`reviewable`), and a
+    card held back keeps its schedule for the evening that reaches it.
+    Re-picking the level already held is not asking to start again and moves
+    nothing.
+  */
   const [current, opening] = await Promise.all([programmeFor(ownerId), openingPartFor(ownerId)]);
-  if (current && current.level !== opening.level) {
+  if (current && (before !== parsed.data || current.level !== opening.level)) {
     await Promise.all([
       writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
+      writeSetting(ownerId, SETTING_KEYS.courseFrom, now.toISOString()),
       writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
       writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     ]);
     revalidatePath("/course");
+    revalidatePath("/course/learn");
   }
 
   /*
