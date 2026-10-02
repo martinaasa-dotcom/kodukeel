@@ -102,11 +102,11 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   change. New words are shown to you with their answer rather than guessed at, and multiple choice
   covers recognising them. Press `u` to undo your last grade. The card goes back to how it was, and
   your answer stays in your review history, which is never edited.
-- **23 ways to practice, all on one deck.** Six quick rounds: a 60-second Case Sprint against the
+- **22 ways to practice, all on one deck.** Six quick rounds: a 60-second Case Sprint against the
   clock, Match, Sentences, Listening, Dictation and Speaking. Two ways through the words you're
   working on: flash cards over your whole deck, and the hundred most common words of each kind,
-  counted from film and television subtitles rather than picked by anybody. Six games: a picture
-  board with no English on it, a picture to write one Estonian sentence about, Tähed (put the
+  counted from film and television subtitles rather than picked by anybody. Five games: a picture
+  to write one Estonian sentence about, Tähed (put the
   letters of a word you know back in order), Sõnad (one six-letter word a day, in seven guesses),
   Ristsõna (a crossword with English clues and Estonian answers), and Target (hit the right ending
   before the timer runs out). A two-minute daily quest aimed at whatever's going worst. And eight

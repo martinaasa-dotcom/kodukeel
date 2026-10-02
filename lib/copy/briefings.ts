@@ -120,14 +120,6 @@ export const BRIEFINGS = {
       "won't be marked wrong, so it's worth trying.",
     action: "Play the first one",
   },
-  emoji: {
-    title: "Match the picture to the word",
-    what:
-      "Pictures on one side, Estonian words on the other, each word under the little question its " +
-      "ending answers.",
-    you: "Tap a picture, then the word that fits it. The clock runs until the board is empty.",
-    action: "Start",
-  },
   exceptions: {
     title: "The words that break the rules",
     what:

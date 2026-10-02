@@ -7951,10 +7951,20 @@ export of a client module with a reference the server cannot invoke. It threw on
 is why it shipped: with a deck holding six nouns the dictionary has a picture for, the page renders
 the session and the client calls it, and the empty state under that called it on the server and
 rendered the error screen instead. The branch that works is the one a full deck takes and the one
-that does not is a beginner's. `lib/games/emojiBoard.ts` is the pair of things both sides need, in a
-module with no directive on it, and the invariant beside it reads both halves of the rule: the
-import has to be a value rather than a `type`, and the name has to be *called* rather than drawn.
-Made to fail on the real line.
+that does not is a beginner's. The fix was a module with no directive on it holding the pair of
+things both sides needed, and the invariant beside it reads both halves of the rule: the import has
+to be a value rather than a `type`, and the name has to be *called* rather than drawn. Made to fail
+on the real line, and it outlived the round it was found on.
+
+**And then the picture board went, everywhere, because it was pointless.** The operator's word for
+it, and the reading is right: an emoji matched to a form of a word the learner had just met asks
+nothing Match does not already ask, it drew one evening in three of the module's game slot, and
+Tuesday's game of the day. `/review/emoji`, its session, `lib/games/emojiBoard.ts`, its briefing
+and its mode are deleted rather than hidden. Tähed takes its place on every rotation above A1, A1
+is four rounds (Match, Listening, Tähed and the flash round, with the conjugation table on the
+evenings a unit of verbs pins it), and Target is Tuesday's game. `lib/collections/emoji.ts` stays,
+because Describe and the picture scenes draw on it. The paragraphs above and below that still name
+the board are the history of what it found.
 
 **And two of the three were the suites rather than the app, both misnaming their own cause.**
 `scripts/test-modes.mjs` filled every `main input` in the conjugation table and pressed Check, which

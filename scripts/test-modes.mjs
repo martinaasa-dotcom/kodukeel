@@ -739,7 +739,7 @@ if ((await featured.count()) === 0) {
 } else {
   const inCard = page.locator("a").filter({ hasNotText: "Every mode" });
   const hrefs = await inCard.evaluateAll((els) => els.map((e) => e.getAttribute("href")));
-  const modes = ["/sonad", "/crossword", "/review/emoji", "/review/target", "/review/match", "/review/sprint"];
+  const modes = ["/sonad", "/crossword", "/review/target", "/review/match", "/review/sprint"];
   check("the game of the day links to a round this app has",
     modes.some((m) => hrefs.includes(m)));
   check("and says what is on tomorrow",

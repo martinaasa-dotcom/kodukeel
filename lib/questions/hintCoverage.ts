@@ -72,10 +72,6 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     why: "a board rather than a card: every tile is already face up by the time a pair can be got wrong",
   },
   {
-    file: "app/(app)/review/emoji/EmojiSession.tsx",
-    why: "a board rather than a card: the forms and the pictures are all on the screen and the exercise is matching them",
-  },
-  {
     file: "app/(app)/review/target/TargetSession.tsx",
     why: "the answer is one of four forms drawn against a clock that shortens on every hit, so a"
       + " press that spends seconds is the drill rather than a way through it, and the round"
