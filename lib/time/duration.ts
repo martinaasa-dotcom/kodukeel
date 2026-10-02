@@ -63,26 +63,6 @@ export function formatDuration(hours: number, style: DurationStyle = "short"): s
   return write(amountIn(safe, unit), unit, style);
 }
 
-/**
- * A range, with the unit said once at the end.
- *
- * The unit follows the larger end, since that is the figure a reader anchors
- * on, and then steps back down if that would print the smaller end as a zero
- * it is not. That guard is the whole reason this takes both ends at once: the
- * note under the plan's verdict reached "roughly 0 to 0 hours a week" on a
- * real figure, which is a sentence that argues with the paragraph around it.
- */
-export function formatDurationRange(low: number, high: number, style: DurationStyle = "short"): string {
-  const lo = Math.max(0, low);
-  const hi = Math.max(0, high);
-  let unit = unitFor(Math.max(lo, hi));
-  if (unit === "h" && lo > 0 && amountIn(lo, "h") === 0) unit = "min";
-
-  const from = amountIn(lo, unit);
-  const to = amountIn(hi, unit);
-  return from === to ? write(from, unit, style) : `${from} to ${write(to, unit, style)}`;
-}
-
 
 /*
   HOW LONG ONE ANSWER TOOK, WHICH IS THE OTHER END OF THE SAME SCALE.
