@@ -165,19 +165,8 @@ export interface ReviewCard {
   contrast: Contrast | null;
 }
 
-/** One side of a contrast: a word, what the dictionary says it means, and it in use. */
-export interface ContrastWord {
-  lexemeId: string | null;
-  lemma: string;
-  gloss: string;
-  sentence: { et: string; en: string | null; form: string | null } | null;
-}
-
-/** This card's own word, and the words that would also have been right. */
-export interface Contrast {
-  own: ContrastWord;
-  neighbours: ContrastWord[];
-}
+import type { Contrast, ContrastWord } from "@/lib/progress/contrast";
+export type { Contrast, ContrastWord };
 
 
 
@@ -486,6 +475,8 @@ interface Done {
   before: ReviewCard["scheduling"];
   /** The id the grade was written, or queued, under, so undo can take a queued one back. */
   reviewId: string;
+  /** Whether the session's tally counted it right, which a second right word is at Hard. */
+  counted: boolean;
 }
 
 export function ReviewSession({
@@ -1026,8 +1017,11 @@ export function ReviewSession({
 
     setDone((d) => d + 1);
     setAsking((n) => n + 1);
-    if (rating >= 3) setCorrect((c) => c + 1);
-    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId }]);
+    // A second right word is right, whatever it was graded: the tally may not
+    // count as a miss what the panel above it has just called right.
+    const counted = rating >= 3 || !!verdict?.neighbour;
+    if (counted) setCorrect((c) => c + 1);
+    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId, counted }]);
     recordSeen(card, false);
 
     // "Again" means it is not learned — put it back near the end of this session.
@@ -1052,7 +1046,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen]);
+  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen, verdict]);
 
   /**
    * Puts the last graded card back.
@@ -1089,7 +1083,7 @@ export function ReviewSession({
       // happened any more and the look back must not offer it as the past.
       forget(last.cardId);
       setDone((d) => Math.max(0, d - 1));
-      if (last.rating >= 3) setCorrect((c) => Math.max(0, c - 1));
+      if (last.counted) setCorrect((c) => Math.max(0, c - 1));
       // Taking an answer back is not a run continuing.
       run.current = 0;
       setQueue((q) => {

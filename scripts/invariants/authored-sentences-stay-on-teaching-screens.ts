@@ -23,6 +23,9 @@ const READERS = [
   "app/(app)/review/cards.ts",
   // The unit lesson's meeting step.
   "app/(app)/learn/[unitId]/lesson/page.tsx",
+  // The lesson drawn when a learner types a second right word, which shows
+  // that word in use for what is often the first time: an introduction.
+  "lib/progress/contrast.ts",
 ] as const;
 
 /** Directories whose every file is a measurement, a card builder or a scene. */

@@ -19,11 +19,22 @@ describe("neighboursOf", () => {
     expect(forHakkama.map((n) => n.lemma)).toEqual(["alustama"]);
   });
 
-  it("keeps two words apart where the course drew a line between them", () => {
+  it("is generous across a qualifier, and ranks the closer word first", () => {
     const leib = entry("l", "leib", "NOUN", "bread (dark)");
     const sai = entry("s", "sai", "NOUN", "bread (white)");
-    const found = neighboursOf(leib, neighbourIndex([leib, sai]));
-    expect(found).toHaveLength(0);
+    const must = entry("m", "musta leib", "NOUN", "bread (dark)");
+    const found = neighboursOf(leib, neighbourIndex([leib, sai, must]));
+    expect(found.map((n) => n.lemma)).toEqual(["musta leib", "sai"]);
+  });
+
+  it("matches a sense anywhere in either gloss, past an article, a slash or an or", () => {
+    const korrus = entry("k", "korrus", "NOUN", "floor, story");
+    const lugu = entry("l", "lugu", "NOUN", "a story / tale");
+    const arst = entry("a", "arst", "NOUN", "doctor");
+    const tohter = entry("t", "tohter", "NOUN", "physician or doctor");
+    const index = neighbourIndex([korrus, lugu, arst, tohter]);
+    expect(neighboursOf(korrus, index).map((n) => n.lemma)).toEqual(["lugu"]);
+    expect(neighboursOf(arst, index).map((n) => n.lemma)).toEqual(["tohter"]);
   });
 
   it("never matches a noun to a verb", () => {
@@ -39,7 +50,7 @@ describe("neighboursOf", () => {
     expect(found).toHaveLength(0);
   });
 
-  it("puts graded words first and stops at the cap", () => {
+  it("puts graded words first among equals and stops at the cap", () => {
     const many = Array.from({ length: MAX_NEIGHBOURS + 3 }, (_, i) =>
       entry(`x${i}`, `sõna${i}`, "VERB", "to begin", i === 5));
     const found = neighboursOf(ALUSTAMA, neighbourIndex([ALUSTAMA, ...many]));
@@ -57,8 +68,14 @@ describe("typedNeighbour", () => {
     expect(typedNeighbour("tere hommikust", near)?.lemma).toBe("Tere hommikust!");
   });
 
+  it("forgives a slip of the hand on the second word, as it would on the first", () => {
+    const long = [{ lemma: "alustama" }];
+    expect(typedNeighbour("alustamma", long)?.lemma).toBe("alustama");
+  });
+
   it("does not stretch to another word or to nothing", () => {
     expect(typedNeighbour("hakkan", near)).toBeNull();
+    expect(typedNeighbour("kass", near)).toBeNull();
     expect(typedNeighbour("", near)).toBeNull();
   });
 });

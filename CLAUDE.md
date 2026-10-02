@@ -2422,15 +2422,27 @@ judge there is.
 showing "to begin (something)" asked for `alustama` and answered `hakkama` with "Not quite", a
 retype and Again, which told somebody who had said the thing in the word most people reach for
 that they could not say it. `lib/questions/neighbours.ts` finds the entries sharing a sense with
-the prompt, through `sensesOf`, the same part of speech and the course's qualifiers, so "bread
-(dark)" never stands in for "bread (white)"; the typed word has to mean it as its **first** sense,
-since "chair" is the third sense of the word for whoever chairs a meeting and "story" the second of
-the word for a floor. The review card asks only where the marker said no, draws a right verdict and
+the prompt and the same part of speech, read generously as the next paragraph says. The review card asks only where the marker said no, draws a right verdict and
 `components/round/SameMeaning.tsx` under it: both glosses and one recorded sentence of each, the
 dictionary's own, with no Estonian written. **Graded Hard, never Good** (`NEIGHBOUR_RATING`): the
 learner produced *a* right word and has not shown the card's own, and `Review` is append-only. The
 index lives in `lib/dict/neighbourFacts.ts` rather than `facts.ts`, because the deck builder reads
 `facts.ts` and the sense relation may only be read to accept.
+
+**And it is generous, on both screens that ask a word from its meaning.** The first version kept
+only the pairs that meet on both words' first sense and refused two qualifiers that differ, which
+kept "chair" off the word for whoever chairs a meeting and also refused `sai` typed for "bread
+(dark)", a word anybody at a counter would have understood. The operator's call is the other way:
+refusing a right word costs somebody's confidence, crediting a near one costs a card coming back a
+little sooner, and the panel prints both glosses and a sentence of each, so a pair that only
+overlaps a little is *shown* overlapping a little rather than claimed to be the same. So any sense
+of the prompt against any sense of the other word, past an article, a slash or an "or"
+(`looseSenses`), qualifiers ranked rather than refused, and a slip of the hand on the second word
+forgiven by the same `checkAnswer` that forgives one on the first. The part of speech is the one
+line kept, since `abi` typed for "to help" is a different answer. Measured over the shipped
+dictionary, no word reaches eight neighbours. `lib/progress/contrast.ts` is the one builder and the
+Learn ladder's typed rung reads it too, never on a gap, which asks for a form of this word in a
+sentence.
 
 **Being stuck has a way out now, and it costs something.** A learner drove the Learn ladder, met a
 word ninety seconds earlier, was shown an empty box and a Check button, and had nothing to do but
@@ -5271,7 +5283,8 @@ sentence made of words given by then, against 55, and 241 of 245 at A2, against 
 written sentence is what lets the module's gap rung ask at all. **Where they may go is the half that keeps the
 amendment narrow**: the Learn ladder, the review card's first meeting and the unit lesson, which are
 the screens that introduce a word, and no exam, level check, scene, card builder or borrowed pool,
-since each says its Estonian was recorded; the invariant is a closed list of three readers.
+since each says its Estonian was recorded; the invariant is a closed list of readers, the fourth
+being the lesson drawn when a learner types a second right word, which introduces that word.
 `WordIntro` shows an A1 word a written sentence and still no recorded one, the flag is required on
 its prop, and the ladder's gap rung returns at A1 on a written sentence where the gap is not a case,
 since A1 asks for none. Adding a row is `npm run check:authored` until it prints nothing, then a

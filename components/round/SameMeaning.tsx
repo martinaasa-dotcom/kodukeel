@@ -35,10 +35,10 @@ export function SameMeaning({
   return (
     <div className="w-full text-left" data-same-meaning>
       <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`} role="status">
-        Yes, <span lang="et" className="font-semibold">{typed.lemma}</span> works. It means that too.
+        Yes, <span lang="et" className="font-semibold">{typed.lemma}</span> works too.
       </p>
       <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-        This card was after <span lang="et" className="font-semibold">{own.lemma}</span>. Both are fine,
+        We were after <span lang="et" className="font-semibold">{own.lemma}</span>. Both get you understood,
         and here is how they differ:
       </p>
       <ul className="mt-3 grid gap-3">

@@ -34,29 +34,19 @@
 
 import { sensesOf, type Sense } from "@/lib/dict/synonyms";
 import { fold } from "@/lib/estonian/fold";
-import { acceptedForms } from "@/lib/estonian/answer";
+import { acceptedForms, checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 
 /** The grade a neighbour earns: a pass, brought back sooner. */
 export const NEIGHBOUR_RATING = 2 as const;
 
-/** How many neighbours a card carries at most, so a session stays small. */
-export const MAX_NEIGHBOURS = 6;
-
 /**
- * How far into the card's gloss a shared sense may sit, and why the typed
- * word's own sense has to be its first.
- *
- * English is polysemous and the gloss is English, so "chair" is the first
- * sense of the word for the furniture and the third of the word for whoever
- * runs a meeting, and "story" is a tale under one entry and a floor of a
- * building under another. Telling somebody who typed the second of either
- * "yes, that means it too" would be a confident wrong answer, which is worse
- * than the "not quite" this replaces. Read over the shipped dictionary, the
- * pairs a learner would actually type (`hakkama` for `alustama`, `isik` for
- * `inimene`, `doktor` for `arst`) all meet on the typed word's first sense,
- * and the noise all meets further down.
+ * How many neighbours a card carries at most. High on purpose: the list is
+ * what the learner's typed word is compared against, and a word left off it
+ * is a right word marked wrong. Over the shipped dictionary no word reaches
+ * eight, so this is a ceiling against a gloss nobody has written yet rather
+ * than a cut anybody meets.
  */
-const PROMPT_SENSES = 2;
+export const MAX_NEIGHBOURS = 40;
 
 /** The little the index needs about an entry. */
 export interface NeighbourEntry {
@@ -79,6 +69,33 @@ interface Indexed {
 /** Every entry, filed under each `pos sense` it carries. */
 export type NeighbourIndex = ReadonlyMap<string, readonly Indexed[]>;
 
+/**
+ * The senses of a gloss, read a little more loosely than `sensesOf` reads them.
+ *
+ * A gloss is written for a reader and two glosses of one meaning are rarely
+ * spelled alike: "a beginning" against "beginning", "to start / to begin"
+ * against "to begin, start", "doctor or physician". So an article is dropped,
+ * a slash and an "or" split a sense the way a comma does, and the qualifier is
+ * kept beside it for ranking rather than for refusing. Generous by design:
+ * refusing a right word costs more than crediting a near one.
+ */
+export function looseSenses(gloss: string): Sense[] {
+  const out: Sense[] = [];
+  const seen = new Set<string>();
+  for (const sense of sensesOf(gloss.replace(/\s*\/\s*/g, ", ").replace(/\s+or\s+/gi, ", "))) {
+    const of = sense.of
+      .replace(/^(?:a|an|the|to|be)\s+/, "")
+      .replace(/^(?:a|an|the)\s+/, "")
+      .replace(/[!?.]+$/, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (of.length < 2 || seen.has(of)) continue;
+    seen.add(of);
+    out.push({ of, ...(sense.narrowedTo ? { narrowedTo: sense.narrowedTo } : {}) });
+  }
+  return out;
+}
+
 function key(pos: string, sense: Sense): string {
   return `${pos} ${sense.of}`;
 }
@@ -86,7 +103,7 @@ function key(pos: string, sense: Sense): string {
 export function neighbourIndex(entries: readonly NeighbourEntry[]): NeighbourIndex {
   const out = new Map<string, Indexed[]>();
   for (const entry of entries) {
-    sensesOf(entry.gloss).forEach((sense, rank) => {
+    looseSenses(entry.gloss).forEach((sense, rank) => {
       const k = key(entry.pos, sense);
       let group = out.get(k);
       if (!group) {
@@ -100,16 +117,20 @@ export function neighbourIndex(entries: readonly NeighbourEntry[]): NeighbourInd
 }
 
 /**
- * The entries sharing a sense with this card's prompt, most useful first.
+ * Every entry sharing a sense with this card's prompt, the closest first.
  *
- * Same part of speech, because a noun meaning "help" is not a verb meaning
- * "to help". Two qualifiers that differ are somebody saying the two are not
- * the same thing, which is the rule `substitutesFrom` keeps, so "bread (dark)"
- * never stands in for "bread (white)". Spellings the card already accepts are
- * left out, since those are its own answers rather than neighbours.
+ * Exhaustive rather than careful, which is the operator's call: any sense of
+ * the prompt against any sense of the other word, qualifiers or not, because
+ * the panel that follows prints both glosses and a sentence of each, so a
+ * pair that only overlaps a little is shown overlapping a little rather than
+ * claimed to be the same. The one line kept is the part of speech, since a
+ * noun meaning "help" typed for "to help" is a different answer rather than a
+ * second word for this one. Spellings the card already accepts are its own
+ * answers, not neighbours.
  *
- * Graded entries first, then the entries sharing more of the prompt's senses,
- * then the lemma, so the order does not depend on the database.
+ * Closest first: a word whose first sense is the prompt's first sense, then
+ * more senses shared, then a matching qualifier, then graded entries, then the
+ * lemma, so the order does not depend on the database.
  */
 export function neighboursOf(
   card: { lemma: string; pos: string; gloss: string },
@@ -117,42 +138,56 @@ export function neighboursOf(
   accepted: readonly string[] = [],
 ): NeighbourEntry[] {
   const own = new Set([card.lemma, ...accepted].map((w) => fold(w.trim().toLocaleLowerCase("et"))));
-  const shared = new Map<string, { entry: NeighbourEntry; count: number }>();
-  for (const sense of sensesOf(card.gloss).slice(0, PROMPT_SENSES)) {
+  const shared = new Map<string, { entry: NeighbourEntry; count: number; closeness: number; clash: boolean }>();
+  looseSenses(card.gloss).forEach((sense, cardRank) => {
     for (const found of index.get(key(card.pos, sense)) ?? []) {
-      // The typed word's own first meaning, never a sense it wanders into
-      // further down its gloss: see the note on `PROMPT_SENSES`.
-      if (found.rank !== 0) continue;
       if (own.has(fold(found.entry.lemma.trim().toLocaleLowerCase("et")))) continue;
-      if (sense.narrowedTo && found.narrowedTo && sense.narrowedTo !== found.narrowedTo) continue;
+      const clash = !!(sense.narrowedTo && found.narrowedTo && sense.narrowedTo !== found.narrowedTo);
+      const closeness = (found.rank === 0 ? 2 : 0) + (cardRank === 0 ? 1 : 0);
       const held = shared.get(found.entry.id);
-      if (held) held.count += 1;
-      else shared.set(found.entry.id, { entry: found.entry, count: 1 });
+      if (held) {
+        held.count += 1;
+        held.closeness = Math.max(held.closeness, closeness);
+        held.clash &&= clash;
+      } else {
+        shared.set(found.entry.id, { entry: found.entry, count: 1, closeness, clash });
+      }
     }
-  }
+  });
   return [...shared.values()]
     .sort((a, b) =>
-      Number(b.entry.graded) - Number(a.entry.graded)
+      b.closeness - a.closeness
       || b.count - a.count
+      || Number(a.clash) - Number(b.clash)
+      || Number(b.entry.graded) - Number(a.entry.graded)
       || a.entry.lemma.localeCompare(b.entry.lemma, "et"))
     .slice(0, MAX_NEIGHBOURS)
     .map((held) => held.entry);
 }
 
+function normalised(text: string): string {
+  return fold(text.trim().toLocaleLowerCase("et").replace(/[!?.,;:]/g, "").replace(/\s+/g, " "));
+}
+
 /**
  * Which neighbour, if any, the learner typed.
  *
- * Folded, so `hakkama` typed without a diacritic it needed still counts: the
- * screen shows the word as the dictionary spells it, which is the correction
- * a dropped letter needs, and nobody is told they were wrong for knowing it.
+ * An exact match first, folded so a dropped diacritic still counts. Then a
+ * slip of the hand on the neighbour, read by the same `checkAnswer` that
+ * forgives one on the card's own word, so being generous about the second
+ * word is never stricter than being generous about the first: the screen
+ * shows the dictionary's spelling, which is the correction a slip needs.
  */
 export function typedNeighbour<T extends { lemma: string }>(typed: string, neighbours: readonly T[]): T | null {
-  const given = fold(typed.trim().toLocaleLowerCase("et").replace(/[!?.,;:]/g, "").replace(/\s+/g, " "));
+  const given = normalised(typed);
   if (!given) return null;
   for (const neighbour of neighbours) {
     for (const form of acceptedForms(neighbour.lemma, "et")) {
       if (fold(form.compared) === given) return neighbour;
     }
+  }
+  for (const neighbour of neighbours) {
+    if (countsAsRecalled(checkAnswer(typed, neighbour.lemma, "et").verdict)) return neighbour;
   }
   return null;
 }

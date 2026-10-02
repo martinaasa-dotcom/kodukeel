@@ -22,6 +22,21 @@ export default function aSecondRightWordIsRight({ check, code }: InvariantKit) {
     );
   });
 
+  check("the ladder's typed rung takes a second right word the same way, and never on a gap", () => {
+    const ladder = code("app/(app)/learn/new/LearnSession.tsx");
+    assert.match(
+      ladder, /!word\.gap && check\.verdict === "wrong" && word\.contrast\s*\?\s*typedNeighbour\(/,
+      "the Learn ladder no longer accepts a second right word where it asks for the word from its meaning, "
+      + "or asks about one on a gap, which wants a form of this word",
+    );
+    assert.match(ladder, /send\("near", \{[^}]*neighbour \}\)/, "the ladder grades a second right word as recalling its own");
+    assert.match(ladder, /<SameMeaning\b/, "the ladder accepts a second right word and never says how the two differ");
+    // One builder for both screens, so they cannot take different words.
+    for (const file of ["app/(app)/review/cards.ts", "lib/progress/learn.ts"]) {
+      assert.match(code(file), /contrastsFor/, `${file} builds its own idea of a second right word`);
+    }
+  });
+
   check("a neighbour is graded as a pass that comes back sooner, never as recalling the card's word", () => {
     const session = code("app/(app)/review/ReviewSession.tsx");
     assert.match(session, /suggestedRating: NEIGHBOUR_RATING, neighbour/, "a second right word is graded by a number of its own");
