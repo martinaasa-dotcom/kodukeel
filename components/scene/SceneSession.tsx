@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { BookOpen, Clock, CornerDownLeft, DoorOpen, LifeBuoy, RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, RotateCcw, Shuffle } from "lucide-react";
+import { RoundChip } from "@/components/round/RoundStart";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Card, CardLink } from "@/components/ui";
+import { Card, CardLink, toneInk } from "@/components/ui";
+import { kindOf } from "@/lib/scenes/kinds";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Dots } from "@/components/Dots";
 import { Speak } from "@/components/Speak";
@@ -26,7 +28,7 @@ import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
 import { SceneVignette } from "./SceneVignette";
 import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
-import { joinWithAnd, NOT_REACHED } from "@/lib/copy/values";
+import { NOT_REACHED } from "@/lib/copy/values";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
@@ -137,6 +139,32 @@ interface Sent {
  * "they will throw two or three things at you" is what somebody choosing
  * between four buttons wants to know.
  */
+/**
+ * The three things about a conversation a learner could not guess from the
+ * briefing, one idea each. English, and nothing else: a scene's Estonian is
+ * the dictionary's.
+ */
+const HOW_IT_GOES: { title: string; line: string; hue: "sky" | "cta" | "blush"; icon: ReactNode }[] = [
+  {
+    title: "They speak first",
+    line: "Answer in Estonian, the way you would in real life.",
+    hue: "sky",
+    icon: <MessageCircle size={16} />,
+  },
+  {
+    title: "Your card is a suggestion",
+    line: "Say something else and they'll go with it.",
+    hue: "cta",
+    icon: <Shuffle size={16} />,
+  },
+  {
+    title: "Mistakes still get through",
+    line: "A wrong ending or a word in English is fine. You'll see how they'd say it at the end.",
+    hue: "blush",
+    icon: <Heart size={16} />,
+  },
+];
+
 const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
   { id: "textbook", label: "Easy", blurb: "Everything goes just like it did in the lesson." },
   { id: "good", label: "Fairly easy", blurb: "One thing will catch you out." },
@@ -1024,6 +1052,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   }
 
   if (phase === "briefing") {
+    const kind = kindOf(scene.id);
     return (
       <SceneStage sceneId={scene.id} title={scene.title} place={scene.place} minutes={minutes}>
       <div className="scene-open flex flex-col gap-5">
@@ -1044,71 +1073,112 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           the other four hues in this app mean something and a café is not
           "you got it".
         */}
-        <div className="night flex justify-center rounded-[var(--r-xl)] border px-5 pb-2 pt-6">
-          <SceneVignette sceneId={scene.id} setting={room} />
+        {/*
+          ONE PANEL, NOT A DRAWING AND THEN A WALL.
+
+          The room and the role were two boxes, a night panel with a drawing in
+          it and a white card under it holding the role and four paragraphs, and
+          a learner read the second as a wall of text with nothing to do with
+          the rest of the app. The room and who you are in it are one thing, so
+          they are one night panel, which is the shape every round's briefing
+          already opens on (`components/round/Briefing.tsx`): the drawing, the
+          role as the one large line, and the facts about this sitting as glass
+          pills under it.
+        */}
+        <div className="night situation-stage pop-in rounded-[var(--r-xl)] border" data-scene-brief="">
+          <div className="flex flex-col items-center gap-4 text-center">
+            {/* The room in the board's own glass frame, so the tile a learner
+                pressed and the room it opened are visibly the same thing. */}
+            <div className="situation-stage-room w-full max-w-md">
+              <SceneVignette sceneId={scene.id} setting={room} />
+            </div>
+            {/* The kind in words beside its dot, the way the board names it. */}
+            <span className="situation-glass label-xs inline-flex items-center gap-2 rounded-full px-3 py-1">
+              <span aria-hidden className="situation-dot" style={{ background: `var(--${kind.hue})` }} />
+              {kind.label}
+            </span>
+            {/*
+              WHO YOU ARE, AND NOT WHERE YOU ARE AGAIN. The page above prints
+              the place as its lead, so the role leads here and there is no
+              heading: it is forty words of prose, and a heading that long is a
+              paragraph wearing an `h2`.
+            */}
+            <p className="max-w-[44ch] font-display text-lg font-semibold leading-snug" style={{ color: "var(--ink)", textWrap: "balance" }}>
+              {scene.role}
+            </p>
+            {/*
+              What is coming, in the scene's own terms. It is the count the bar
+              draws as pips, read off the same list, so nothing here is a
+              second answer to it.
+            */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <RoundChip icon={<ListChecks size={14} aria-hidden />}>
+                {objectives.length} things to get done
+              </RoundChip>
+              <RoundChip icon={<Clock size={14} aria-hidden />}>About {minutes} min</RoundChip>
+            </div>
+          </div>
         </div>
 
-        <Card className="flex flex-col gap-2">
-          {/*
-            WHO YOU ARE, AND NOT WHERE YOU ARE AGAIN.
+        {/*
+          WHAT YOU WILL PRACTISE, AS THINGS RATHER THAN A SENTENCE. It was "You
+          will practise a, b, c, d, and e", which is a list typed out as prose
+          and read as one more grey line. Each is its own pill now, so the
+          screen says at a glance how much there is and what it is.
+        */}
+        <section className="flex flex-col gap-2.5" aria-labelledby="scene-practise">
+          <h2 id="scene-practise" className="label-xs" style={{ color: "var(--ink-3)" }}>
+            You&apos;ll practise
+          </h2>
+          <ul className="flex flex-wrap gap-2">
+            {practises(scene).map((one) => (
+              <li
+                key={one}
+                className="rounded-full px-3 py-1.5 text-sm font-medium"
+                style={{ background: `var(--${kind.hue}-soft)`, color: toneInk(kind.hue) }}
+              >
+                {one}
+              </li>
+            ))}
+          </ul>
+        </section>
 
-            This card was headed with the place, which the page above it
-            already prints as its lead, so the first two lines of the screen
-            were the same sentence twice. What the card is for is the role, so
-            the role leads it and there is no heading at all: the role is
-            forty words of prose, and a heading that long is a paragraph
-            wearing an `h2`, which is worse for somebody moving by headings
-            than having none.
-          */}
-          {/*
-            On the scale. A bare paragraph inherits the document's own 16px,
-            which is a step the type scale does not have, and this is the
-            first and largest thing anybody reads on the way into a scene.
-          */}
-          <p className="text-md leading-relaxed">{scene.role}</p>
-          {/*
-            THREE SENTENCES, ONE IDEA EACH, AND NONE OF THEM ABOUT THE FURNITURE.
+        {/*
+          THREE PROMISES, ONE IDEA EACH, EACH WITH A MARK OF ITS OWN.
 
-            This was two paragraphs that ran four ideas together and described a
-            card that has since stopped listing anything: "the card above the
-            conversation lists what to get done and ticks it off" was a screen
-            explaining its own layout, which is what a screen does when the
-            layout needs explaining. What a learner wants before they start is
-            what the conversation will ask of them, who speaks first, and
-            whether being a little wrong will end it. That is one sentence each.
-
-            Said before the first line rather than discovered on the third,
-            because somebody who expects to be marked writes less than somebody
-            who expects to be understood, and being understood is the point.
-          */}
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            You will practise {joinWithAnd(practises(scene))}.
-          </p>
-          {/*
-            TWO SENTENCES RATHER THAN FOUR, AND ONE NEW PROMISE. The card is a
-            suggestion (ADR-025 amendment 3): somebody who wants to go
-            somewhere else, or drink something else, says so and the other
-            side goes with it. That is said here because it is the one thing
-            about this screen a learner could not guess, and the rest was
-            three sentences describing the layout.
-          */}
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            They speak first. Answer the way you would in real life, in Estonian. Your card
-            suggests the details, but if you say something else, they&apos;ll go with it.
-          </p>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Wrong endings, a missing word, a word in English: they&apos;ll still understand you,
-            and at the end you&apos;ll see how they would have said it.
-          </p>
-          {/*
-            What is coming, in the scene's own terms. It is the count the bar
-            above draws as pips and the checklist ticks, read off the same
-            list, so nothing here is a second answer to it.
-          */}
-          <p className="mt-1 text-sm font-medium">
-            {objectives.length} things to get done, in about {minutes} minutes.
-          </p>
-        </Card>
+          They were three paragraphs of grey prose saying the three things a
+          learner cannot guess about this screen: who speaks first, that the
+          card is a suggestion (ADR-025 amendment 3), and that being a little
+          wrong will not end it. Said before the first line rather than
+          discovered on the third, because somebody who expects to be marked
+          writes less than somebody who expects to be understood. A short name
+          a reader can scan, one line under it, and a coloured disk saying which
+          of the three it is, which is `Briefing.tsx`'s step on a light page.
+        */}
+        <ul className="grid gap-2.5 sm:grid-cols-3">
+          {HOW_IT_GOES.map((one) => (
+            <li key={one.title}>
+              {/* A row on a phone, where three tall cards are a screen of
+                  scrolling, and a column of three from `sm` up. */}
+              <div
+                className="flex h-full items-start gap-3 rounded-[var(--r-lg)] border p-4 sm:flex-col sm:gap-2.5"
+                style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
+              >
+                <span
+                  aria-hidden
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full"
+                  style={{ background: `var(--${one.hue})`, color: "var(--on-hue)" }}
+                >
+                  {one.icon}
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="font-semibold" style={{ color: "var(--ink)" }}>{one.title}</span>
+                  <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{one.line}</span>
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
 
         {/*
           THE LESSON BEHIND THE CONVERSATION, AND NOT IN THE BAR ABOVE IT.
@@ -1153,10 +1223,17 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           from every other screen, and the hint says which one is theirs so
           the default reads as a default rather than as a verdict.
         */}
+        {/*
+          THE TWO DIALS, IN ONE CARD. They were loose on the page below the
+          lesson link, so the screen read as a stack of unrelated parts; they
+          are one decision, how this conversation will feel, so they sit
+          together like every other settings group in the app.
+        */}
+        <Card className="flex flex-col gap-5">
         <ChoiceGroup
           label="How they talk to you"
           hint={openAt === learnerLevel
-            ? `Your level is ${learnerLevel}. Go lower for simpler sentences, or higher and they'll talk to you like anyone else.`
+            ? `Your level is ${learnerLevel}. Lower for simpler sentences, higher to be spoken to like anyone else.`
             : openAt < learnerLevel
               ? `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since your recent answers have been a struggle. Change it whenever you like.`
               : `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since you've been getting nearly everything right. Change it whenever you like.`}
@@ -1183,6 +1260,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             />
           ))}
         </ChoiceGroup>
+        </Card>
 
         {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{error}</p>}
         <Button onClick={start} disabled={busy} variant="primary" size="lg">
@@ -1497,9 +1575,18 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       </details>
 
       {opened && (!opened.composed || note) && !modelDown && (
-        <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-          {note
-            ?? "There's no AI key set up, so their lines come from the course and from lines written for this scene. When nothing fits, you'll see a short note saying what they did instead."}
+        /* A quiet status row rather than two lines of small grey prose loose
+           between the card and the conversation: an icon, one sentence, on
+           the raised ground every other status in the app sits on. */
+        <p
+          className="flex items-start gap-2 rounded-[var(--r)] px-3.5 py-2.5 text-sm"
+          style={{ background: "var(--raised)", color: "var(--ink-2)" }}
+        >
+          <Info size={15} aria-hidden className="mt-0.5" style={{ color: "var(--ink-3)" }} />
+          <span>
+            {note
+              ?? "No AI key is set up, so they speak from lines prepared for this scene."}
+          </span>
         </p>
       )}
 

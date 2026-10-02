@@ -33,7 +33,8 @@ describe("a duration on its way to a screen", () => {
 
 describe("a range of durations", () => {
   it("says the unit once", () => {
-    expect(formatDurationRange(8.06, 10.85)).toBe("8.1 to 10.9 h");
+    expect(formatDurationRange(8.06, 10.85)).toBe("8.1 to 11 h");
+    expect(formatDurationRange(72.9, 100)).toBe("73 to 100 h");
     expect(formatDurationRange(2 / 60, 36 / 60, "long")).toBe("2 to 36 minutes");
   });
 
