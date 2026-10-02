@@ -3640,6 +3640,15 @@
   }
   .situation-tile:hover .situation-window > svg,
   .situation-tile:focus-visible .situation-window > svg { transform: translateY(-3px) scale(1.05); }
+  /* A chip may wrap to two lines on a narrow tile, and a full pill around two
+     lines reads as a lozenge rather than a label, so the radius is a corner
+     rather than a half-height. */
+  .situation-chip {
+    background: var(--surface);
+    border-radius: 0.625rem;
+    padding: 0.1875rem 0.625rem;
+    line-height: 1.35;
+  }
   .situation-played { background: var(--surface); color: var(--ink); border: 1px solid var(--edge); }
   .situation-in { animation: cafe-pop 360ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
 
